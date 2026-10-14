@@ -28,6 +28,11 @@ import {
   createEstimate,
   createEstimateItem,
 } from "@/lib/estimation/queries";
+import {
+  resolveMarketDoorsWindows,
+  DOORS_WINDOWS_ENGINE_KEYS,
+  type DoorsWindowsMarketResolution,
+} from "@/lib/estimation/structural-market";
 import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
@@ -98,6 +103,8 @@ export default function DoorsWindowsEstimator() {
   });
 
   const [priceMap, setPriceMap] = useState<DoorsWindowsPriceMap>({});
+  const [doorsMarket, setDoorsMarket] =
+    useState<DoorsWindowsMarketResolution | null>(null);
   const [ruleRows, setRuleRows] = useState<EstimationCalcRule[]>([]);
 
   useEffect(() => {
@@ -112,15 +119,39 @@ export default function DoorsWindowsEstimator() {
       const byRef = book.byRef;
       const map: DoorsWindowsPriceMap = {};
       for (const m of (matsRes.data ?? []) as EstimationMaterial[]) {
-        map[m.slug] = byRef.get(m.id) ?? null;
+        if (marketCode !== "NG" && book.fromReference.has(m.id)) {
+          map[m.slug] = null;
+        } else {
+          map[m.slug] = byRef.get(m.id) ?? null;
+        }
       }
-      setPriceMap(map);
-      setRuleRows(rulesRes.data as unknown as EstimationCalcRule[]);
+
+      if (marketCode !== "NG") {
+        const doorsRes = await resolveMarketDoorsWindows(marketCode);
+        if (alive) {
+          setPriceMap({ ...map, ...doorsRes.overrides });
+          setDoorsMarket(doorsRes);
+        }
+      } else {
+        setPriceMap(map);
+        setDoorsMarket(null);
+      }
+      if (alive) {
+        setRuleRows(rulesRes.data as unknown as EstimationCalcRule[]);
+      }
     })().catch(() => {});
     return () => {
       alive = false;
     };
   }, [marketCode]);
+
+  const doorsWindowsCoverage = useMemo(
+    () =>
+      DOORS_WINDOWS_ENGINE_KEYS.filter(
+        (slug) => priceMap[slug] !== undefined && priceMap[slug] !== null,
+      ).length,
+    [priceMap],
+  );
 
   const rules = useMemo(
     () => parseDoorsWindowsRules(ruleRows as never),
@@ -327,12 +358,37 @@ export default function DoorsWindowsEstimator() {
         >
           <p className="font-semibold">Price book coverage ({marketCode})</p>
           <p className="mt-1 text-muted-foreground">
-            The {marketCode} price book does not yet cover doors, frames and hardware. Prices
-            on this page come from the Nigerian price book (disclosed above);
-            adjust them for your market before relying on cost totals.
+            {doorsMarket && doorsMarket.provenance.length > 0
+              ? `The ${marketCode} price book covers ${doorsWindowsCoverage} of ${DOORS_WINDOWS_ENGINE_KEYS.length} door and window material types from verified supplier listings. Unpriced lines are shown without a total and are never silently substituted; add verified prices for your market before relying on cost totals.`
+              : `The ${marketCode} price book does not yet cover doors, frames and hardware. Unpriced items are marked and never silently substituted; add verified prices for your market before relying on cost totals.`}
           </p>
         </div>
       )}
+      {doorsMarket &&
+        marketCode !== "NG" &&
+        doorsMarket.provenance.length > 0 && (
+          <div
+            className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
+            data-testid="doors-windows-price-provenance"
+          >
+            <p className="font-semibold">
+              Market doors & windows prices ({marketCode} book)
+            </p>
+            <ul className="mt-2 space-y-1 text-muted-foreground">
+              {doorsMarket.provenance.map((p) => (
+                <li key={p.engineKey}>
+                  ✓ {p.engineKey}: {p.materialName} ({formatCurrency(p.price, currencySymbol)}) - {p.explanation}
+                </li>
+              ))}
+              {doorsMarket.unresolved.length > 0 && (
+                <li>
+                  ✗ {doorsMarket.unresolved.join(", ")}: no verified price in
+                  the {marketCode} book - reported unpriced, never silent substitution.
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
 
 
       {/* Inputs */}

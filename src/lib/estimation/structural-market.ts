@@ -446,3 +446,115 @@ export async function resolveStructuralMarketPricing(
 
   return result;
 }
+
+// =========================================================
+// DOORS & WINDOWS MARKET RESOLUTION (Tier 2, Engine 7)
+//
+// Resolves market-specific unit prices for doors, frames,
+// hinges, locksets, and windows from estimation_prices.
+// Anything unpriced in the target market book is reported
+// unresolved - never silently substituted from NG reference.
+// =========================================================
+
+export const DOORS_WINDOWS_ENGINE_KEYS = [
+  "door-flush",
+  "door-panel",
+  "door-security",
+  "door-frame",
+  "door-hinge",
+  "door-lockset",
+  "window-aluminium",
+  "window-louver",
+] as const;
+
+export type DoorsWindowsEngineKey = (typeof DOORS_WINDOWS_ENGINE_KEYS)[number];
+
+export interface DoorsWindowsMarketResolution {
+  overrides: Record<string, number>;
+  provenance: StructuralPriceProvenance[];
+  unresolved: string[];
+}
+
+export async function resolveMarketDoorsWindows(
+  marketCode: string,
+): Promise<DoorsWindowsMarketResolution> {
+  const result: DoorsWindowsMarketResolution = {
+    overrides: {},
+    provenance: [],
+    unresolved: [],
+  };
+  if (!marketCode || marketCode === "NG") return result;
+
+  for (const engineKey of DOORS_WINDOWS_ENGINE_KEYS) {
+    // 1. Check for market-scoped material slug first (e.g. "us-door-flush")
+    const marketSlug = `${marketCode.toLowerCase()}-${engineKey}`;
+    let materialId: string | null = null;
+    let materialName: string | null = null;
+
+    const { data: marketMaterial } = await supabase
+      .from("estimation_materials")
+      .select("id, name")
+      .eq("slug", marketSlug)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (marketMaterial) {
+      materialId = (marketMaterial as { id: string; name: string }).id;
+      materialName = (marketMaterial as { id: string; name: string }).name;
+    } else {
+      // 2. Check for shared engine slug (e.g. "door-flush")
+      const { data: sharedMaterial } = await supabase
+        .from("estimation_materials")
+        .select("id, name")
+        .eq("slug", engineKey)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (sharedMaterial) {
+        materialId = (sharedMaterial as { id: string; name: string }).id;
+        materialName = (sharedMaterial as { id: string; name: string }).name;
+      }
+    }
+
+    if (!materialId || !materialName) {
+      result.unresolved.push(engineKey);
+      continue;
+    }
+
+    const { data: price } = await supabase
+      .from("estimation_prices")
+      .select("price, scan_confidence, price_source")
+      .eq("price_type", "material")
+      .eq("ref_id", materialId)
+      .eq("market", marketCode)
+      .eq("is_active", true)
+      .order("effective_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!price) {
+      result.unresolved.push(engineKey);
+      continue;
+    }
+
+    const p = price as {
+      price: number;
+      scan_confidence?: string | null;
+      price_source?: string | null;
+    };
+    result.overrides[engineKey] = p.price;
+    result.provenance.push({
+      engineKey,
+      resolved: true,
+      bookMarket: marketCode,
+      materialName,
+      price: p.price,
+      explanation:
+        p.scan_confidence === "manual"
+          ? `Unit price from the ${marketCode} book (${p.price_source || "verified supplier listing"}).`
+          : `Indicative price from the ${marketCode} book (admin-adjustable) - verify with a local supplier.`,
+    });
+  }
+
+  return result;
+}
+

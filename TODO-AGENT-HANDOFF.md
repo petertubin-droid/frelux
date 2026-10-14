@@ -7,7 +7,7 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-14 (P2 batch 17 Tier 2 estimator currency localization across 8 pages with static & integration regression suites, commit 5095e9f)
+Last updated: 2026-10-14 (P2 batch 18 Doors & Windows market books, resolver, coverage, provenance, US/GB/DE verified seed migration & suites)
 
 ---
 
@@ -103,6 +103,25 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
 - Saved estimates must remain reproducible (engine+profile versions stored).
 - Admin interface must show truthful capability/verification state.
 - Distinguish preliminary estimation from engineering design compliance.
+
+- [x] P2 batch 18: Doors & Windows Market Books, Resolver & Estimator Integration (2026-10-14):
+      - Implemented `resolveMarketDoorsWindows` and `DOORS_WINDOWS_ENGINE_KEYS` in `src/lib/estimation/structural-market.ts`:
+        * Resolves all 8 engine keys: `door-flush`, `door-panel`, `door-security`, `door-frame`, `door-hinge`, `door-lockset`, `window-aluminium`, `window-louver`.
+        * Checks market-scoped slugs (e.g. `us-door-flush`) with fallback to shared engine slugs.
+        * Explicitly reports unpriced keys in `unresolved` — zero silent substitution or fallback to Nigerian reference prices.
+        * Detailed provenance rows include market, unit price, formatted explanation, and supplier source.
+      - Integrated resolver into `src/pages/DoorsWindowsEstimator.tsx`:
+        * Guarded `fetchMarketPriceBook` reference fallback: items in `fromReference` are nulled out for non-NG markets instead of inheriting Nigerian prices in local currency.
+        * Overlays resolved market prices into `priceMap`.
+        * Added dynamic price book coverage badge (`trade-price-coverage`) reporting exact count of priced items out of 8.
+        * Added market price provenance card (`doors-windows-price-provenance`) displaying verified items with currency formatting, supplier citation, and honest unpriced disclosure.
+      - Created additive Supabase migration `supabase/migrations/20261014170000_doors_windows_books_us_gb_de.sql`:
+        * US: JELD-WEN flush slab $68, Masonite 6-panel slab $67, EverMark split jamb kit $61.98, Everbilt mortise hinge $2.32, Defiant keyed entry knob $10.13, JELD-WEN vinyl sliding window $169 (The Home Depot live listings, manual confidence). Unpriced: security screen (not equivalent to solid leaf) and jalousie louvre.
+        * GB: Wickes flush primed door £39, Wickes 6-panel moulded door £32, softwood door lining set £32, 76mm butt hinges £1.50 (Wickes live listings, manual confidence). Unpriced: security, lockset, aluminum sliding window, louvre.
+        * DE: Pertura CPL interior door €109, Pertura casing frame €79, galvanized frame hinge €1.35, stainless steel rose handle set €23.95 (Hornbach live listings, manual confidence). Unpriced: panel, security, aluminum sliding window, louvre.
+      - Added unit test suite in `src/lib/estimation/__tests__/resolveMarketDoorsWindows.test.ts` (3 tests).
+      - Added DOM integration tests in `src/pages/DoorsWindowsEstimator.test.tsx` (3 tests).
+      - Verified: 22 test files (323 tests) passing across estimation and page suites, TypeScript app check 0 errors (`npx tsc --noEmit -p tsconfig.app.json`).
 
 - [x] P2 batch 17: Tier 2 Estimator Currency Localization & Regression Suites (2026-10-14, commit `5095e9f`):
       - Localized active currency symbol and code derivation across 8 Tier 2 estimator pages:
@@ -570,11 +589,10 @@ every market gets verified, country-specific pricing and methodology.
 
 Work this list in order. Each item's status is current as of the last update.
 
-1. ❌ **Doors/windows books + resolver + BuildToRoof prefills** (section 4D) —
-   engine keys in `doors-windows-engine.ts` (`door-flush`, `door-panel`,
-   `door-security`, `door-frame`, `door-hinge`, `door-lockset`, `window-aluminium`,
-   `window-louver`); build `resolveMarketDoorsWindows` resolver, add trade coverage
-   panel, and seed verified retail prices for target markets (US, GB, DE).
+1. 🟡 **Doors/windows books + resolver** (section 4D) — ✅ RESOLVER & US/GB/DE BOOKS COMPLETE
+   (`resolveMarketDoorsWindows` in `structural-market.ts`, page coverage & provenance cards in
+   `DoorsWindowsEstimator.tsx`, migration `20261014170000_doors_windows_books_us_gb_de.sql`, and
+   unit/integration tests passing). Remaining markets disclosed unpriced.
 2. 🟡 **DE + GB rebar books** (section 4A) — need merchant-level anchors; all
    leads and gotchas documented.
 3. 🟡 **Price campaign remainder (~174 'low' rows)** (section 4E) — sweep by
@@ -604,7 +622,7 @@ Work this list in order. Each item's status is current as of the last update.
 | 8   | Plumbing pipe books                                  | 🟡     | ✅ GB all 4 keys, US all 4, DE waste/drainage, AT cold/hot; ❌ DE cold/hot (PP-R)                                                                                                                                                                                                                     |
 | 8b  | Plumbing fittings/valves                             | ✅     | Resolver walks PLUMBING_FITTING_KEYS (per-piece). US 5/5, GB 5/5, AT 5/5, DE 5/5 complete (migrations 20261013160000 & 20261013170000; 20/20 rows seeded with verified retail sources)                                                       |
 | 9   | Electrical books                                     | ✅     | All 20 markets complete (US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE, IT, MX, JP, CN, ID, KR; 220 active rows)                                                                                                                                                                             |
-| 10  | Doors/windows books                                  | ❌     | Not started                                                                                                                                                                                                                                                                                           |
+| 10  | Doors/windows books                                  | 🟡     | Resolver (`resolveMarketDoorsWindows`) + page coverage/provenance live; US, GB, DE seeded with verified retail listings (migration 20261014170000); non-NG fallback to NG reference blocked; other markets disclosed unpriced                                                               |
 | 11  | Price campaign remainder                             | 🟡     | ~174 'low' rows to verify                                                                                                                                                                                                                                                                             |
 | 12  | Structural methodology profiles                      | ❌     | Research arc (DIN/BS/ACI foundation, block modules)                                                                                                                                                                                                                                                   |
 | 13  | AI foundation adapters (engines-expanded.ts)         | ✅     | Repaired 2026-10-13: electrical/plumbing adapters called 3-arg engines with 1 arg and read nonexistent result fields (would crash the conversational estimator). Now fetch rules + market price book exactly like the pages; margin/roof/regional adapters field-corrected; quantityLine takes 3 args |
@@ -687,9 +705,10 @@ provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
 
 ### D. Doors/windows books + BuildToRoof prefills
 
-- Engine keys in doors-windows-engine.ts; same resolver pattern.
-- BTR: cement/sand prefills exist; add rebar prefill once a market has both a
-  rebar book and the BTR rebar price keys (see Prices step state).
+- ✅ Doors/windows resolver (`resolveMarketDoorsWindows`) and engine keys (`DOORS_WINDOWS_ENGINE_KEYS`) implemented in `structural-market.ts`.
+- ✅ Page integration in `DoorsWindowsEstimator.tsx` with dynamic coverage badge, provenance card, and honest unpriced disclosure (no silent fallback).
+- ✅ Verified price seeds for US, GB, DE in `20261014170000_doors_windows_books_us_gb_de.sql`.
+- BTR: cement/sand prefills exist; rebar prefill is active for markets with rebar books. Opening purchases remain explicitly excluded from BTR per engineering design.
 
 ### E. Price campaign remainder (~174 'low' rows in estimation_prices)
 
