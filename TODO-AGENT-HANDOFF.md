@@ -590,6 +590,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no local weather/work-season evidence, national/local calendar, customs or route-delay data integration was found.
 - **Changes made:** none. CI must remain unavailable for operational local estimates until locally validated standards, supply/pricing/tax, workforce compliance and regional schedule data are implemented and production-tested. Next remaining market: **Spain (`ES`)**.
 
+### Spain market closeout (priority 26; audit only, 2026-10-14)
+
+- **Operational decision: NOT IMPLEMENTED / NOT VERIFIED.** Spain (`ES`, EUR) is listed in the country selector and has a general Spanish translation/dictionary plus a Mediterranean climate heuristic. No Spain-specific market profile, currency/catalog mapping, construction typology, wall methodology, localized electrical/plumbing profiles or engine inventory status was found. Shared language and EUR support do not establish local estimating accuracy.
+- **Quantities/standards:** no Spain-specific packaging and takeoff validation or Spanish building/electrical/plumbing code implementation was located. European/German profiles cannot be presumed equivalent to Spain’s national/regional rules.
+- **Pricing/tax:** no Spain-specific material role/retailer catalog, regional price refresh, VAT/IVA workflow or FX behavior was verified.
+- **Workforce compliance:** no Spanish professional/trade credential, regional license, insurance or safety verification was found.
+- **Timeline/logistics:** only a broad Mediterranean seasonal heuristic exists; no region-specific work calendar/holidays, validated heat/weather productivity, supply route/customs or predictive delay support was found.
+- **Changes made:** none. Spain should not be treated as an operationally localized market until Spanish standards, units/calculations, material roles and current EUR sources, IVA, professional verification and calendar/logistics are tested and deployed. Next remaining market: **Netherlands (`NL`)**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
