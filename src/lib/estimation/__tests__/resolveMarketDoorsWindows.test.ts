@@ -317,4 +317,98 @@ describe("resolveMarketDoorsWindows", () => {
       ]),
     );
   });
+
+  it("resolves Kenya (KE) doors & windows price book with 5 overrides and marks unpriced custom items unresolved", async () => {
+    const keMaterials: Record<string, { id: string; name: string }> = {
+      "door-flush": {
+        id: "mat-ke-flush",
+        name: "Solid Veneer Flush Door 32x80",
+      },
+      "door-panel": {
+        id: "mat-ke-panel",
+        name: "5-Panel Embossed Solid Flush Door",
+      },
+      "door-frame": {
+        id: "mat-ke-frame",
+        name: "4x2 Standard Cypress Door Frame 7ft",
+      },
+      "door-hinge": {
+        id: "mat-ke-hinge",
+        name: "Oxford Steel Door Hinges",
+      },
+      "door-lockset": {
+        id: "mat-ke-lockset",
+        name: "Union Mortice Lockset",
+      },
+      "door-security": {
+        id: "mat-ke-security",
+        name: "Security door leaf",
+      },
+      "window-aluminium": {
+        id: "mat-ke-window",
+        name: "Aluminium sliding window",
+      },
+      "window-louver": {
+        id: "mat-ke-louver",
+        name: "Louver window",
+      },
+    };
+
+    const kePrices: Record<string, number> = {
+      "mat-ke-flush": 3500.0,
+      "mat-ke-panel": 4500.0,
+      "mat-ke-frame": 1560.0,
+      "mat-ke-hinge": 115.0,
+      "mat-ke-lockset": 3000.0,
+    };
+
+    materialChain.eq.mockImplementation(function (
+      this: Chain,
+      field: unknown,
+      value: unknown,
+    ) {
+      if (field === "slug") {
+        const m = keMaterials[value as string];
+        this.maybeSingle.mockImplementation(async () => ({ data: m ?? null }));
+      }
+      return this;
+    } as never);
+
+    priceChain.eq.mockImplementation(function (
+      this: Chain,
+      field: unknown,
+      value: unknown,
+    ) {
+      if (field === "ref_id") {
+        const price = kePrices[value as string];
+        this.maybeSingle.mockImplementation(async () => ({
+          data:
+            price !== undefined
+              ? {
+                  price,
+                  scan_confidence: "manual",
+                  price_source: "Mastercraft Timber (KE)",
+                }
+              : null,
+        }));
+      }
+      return this;
+    } as never);
+
+    const result = await resolveMarketDoorsWindows("KE");
+
+    expect(result.overrides["door-flush"]).toBe(3500.0);
+    expect(result.overrides["door-panel"]).toBe(4500.0);
+    expect(result.overrides["door-frame"]).toBe(1560.0);
+    expect(result.overrides["door-hinge"]).toBe(115.0);
+    expect(result.overrides["door-lockset"]).toBe(3000.0);
+
+    expect(result.unresolved).toEqual(
+      expect.arrayContaining([
+        "door-security",
+        "window-aluminium",
+        "window-louver",
+      ]),
+    );
+  });
 });
