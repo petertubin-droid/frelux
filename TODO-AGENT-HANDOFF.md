@@ -104,6 +104,17 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
 - Admin interface must show truthful capability/verification state.
 - Distinguish preliminary estimation from engineering design compliance.
 
+- [x] P2 batch 15: BuildToRoof rebar prefill & plumbing coverage disclosure (2026-10-14): - BuildToRoofEstimator: wired `resolveMarketRebar(marketCode)` into the
+      existing market price prefill effect alongside cement and sand.
+      Maps resolved diameters (`rebar-12mm-per-length`, `rebar-16mm-per-length`,
+      `rebar-20mm-per-length`, `rebar-25mm-per-length`) to the estimator's
+      underscore keys (`rebar_12mm_per_length`, etc.). Step 7 (Prices) renders
+      a clear `market-rebar-note` showing diameter coverage and disclosing
+      unresolved diameters that keep the baseline default. - PlumbingEstimator: updated coverage notice copy to truthfully reflect
+      verified pipe and fitting key resolutions from `resolveMarketPlumbing`
+      rather than asserting pipes/fittings are not yet covered. Unresolved
+      items are accurately disclosed without claiming silent substitution. - Verified: 264 estimation/page unit tests green, TypeScript app check 0 errors.
+
 ## P2 Batch 1 — engineering module market-scoping (IN PROGRESS)
 
 - [x] engineering/wall-methodology.ts: market-scoped wall profiles with
@@ -567,7 +578,7 @@ Work this list in order. Each item's status is current as of the last update.
 | 7   | Rebar books                                          | 🟡     | ✅ US, DE, IN, EG verified; 🟡 AU indicative ('low', needs quote); ❌ GB, CA, rest                                                                                                                                                                                                                    |
 | 8   | Plumbing pipe books                                  | 🟡     | ✅ GB all 4 keys, US all 4, DE waste/drainage, AT cold/hot; ❌ DE cold/hot (PP-R)                                                                                                                                                                                                                     |
 | 8b  | Plumbing fittings/valves                             | 🟡     | Resolver walks PLUMBING_FITTING_KEYS (per-piece). US 5/5 + GB 4/5 + AT 2/5 LIVE in DB (seed migration executed 2026-10-13; 11/11 rows scan_confidence='manual', verified via resolver-shaped lookup). ❌ gb-union, at-elbow/union/valve, all DE                                                       |
-| 9   | Electrical books                                     | ✅     | All 20 markets complete (US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE, IT, MX, JP, CN, ID, KR; 220 active rows)                                                                                                                                                                                 |
+| 9   | Electrical books                                     | ✅     | All 20 markets complete (US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE, IT, MX, JP, CN, ID, KR; 220 active rows)                                                                                                                                                                             |
 | 10  | Doors/windows books                                  | ❌     | Not started                                                                                                                                                                                                                                                                                           |
 | 11  | Price campaign remainder                             | 🟡     | ~174 'low' rows to verify                                                                                                                                                                                                                                                                             |
 | 12  | Structural methodology profiles                      | ❌     | Research arc (DIN/BS/ACI foundation, block modules)                                                                                                                                                                                                                                                   |
