@@ -867,6 +867,32 @@ on the whole commit. Before EVERY push, run locally and require zero errors:
      found). It passes on retry locally; if it is the ONLY failure, re-run before
      assuming a real break, and do not "fix" working code for it.
 
+### SUPABASE PREVIEW CHECK (the OTHER red X, mandatory for ALL agents)
+
+A commit shows a red X if ANY check fails, not just the "CI" workflow. There are
+FOUR checks per commit: Type Check & Test, E2E Smoke Tests, Lighthouse Audit, and
+**Supabase Preview** (a separate Supabase app, not GitHub Actions). Supabase Preview
+was red on ~40 consecutive commits (fixed 2026-10-14, eb4d48c9) while agents reported
+"CI green" after looking only at the CI workflow. Never claim green from the
+workflow alone. Read ALL checks:
+`GET /repos/petertubin-droid/frelux/commits/<sha>/check-runs` and require every
+entry `completed` + `success`. The failure text is in `output.summary`.
+
+How Supabase Preview works (this is why past fixes failed):
+- It replays migrations on a PERSISTENT preview branch DB and applies only migrations
+  NEW to the branch. Editing an already-applied migration in place has NO effect
+  there (the same error comes straight back). Always fix with a NEW migration.
+- A new migration must sort BEFORE the migration that fails, or it runs too late.
+- It stops at the first error, so fixing one can expose the next. Re-read the summary.
+- Every migration must be valid against a clean replay: no references to tables or
+  columns that do not exist in the live schema (check information_schema first),
+  no two files with the same version prefix, idempotent guards (IF NOT EXISTS).
+- Past causes: `tile_materials_category_check` rejecting 'waterproofing'
+  (fixed by 20261013110000); duplicate version 20261013170000 referencing a
+  non-existent `region_id` column (stale file deleted).
+- Before pushing a migration, dry-run it on live inside BEGIN; ... ROLLBACK; via the
+  Management API to catch schema mistakes.
+
 ### CONCURRENT-EDITING PRECAUTIONS (mandatory for ALL agents)
 
 TODO-AGENT-HANDOFF.md has now been wholesale reverted THREE times (2026-10-14/15)
