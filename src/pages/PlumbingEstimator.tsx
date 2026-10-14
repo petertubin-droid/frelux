@@ -389,35 +389,38 @@ export default function PlumbingEstimator() {
         >
           <p className="font-semibold">Price book coverage ({marketCode})</p>
           <p className="mt-1 text-muted-foreground">
-            The {marketCode} price book does not yet cover pipes, fittings and
-            sanitaryware. Prices on this page come from the Nigerian price book
-            (disclosed above); adjust them for your market before relying on
-            cost totals.
+            {plumbingMarket && plumbingMarket.provenance.length > 0
+              ? `The ${marketCode} price book covers verified pipe and fitting keys below. Any items not covered in this market are disclosed and marked; sanitaryware still uses the reference book with honest disclosure.`
+              : `The ${marketCode} price book does not yet cover all plumbing items. Items without verified market prices use the disclosed reference book; adjust them for your market before relying on cost totals.`}
           </p>
         </div>
       )}
-      {plumbingMarket && marketCode !== "NG" && (
-        <div
-          className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
-          data-testid="plumbing-price-provenance"
-        >
-          <p className="font-semibold">Pipe prices ({marketCode} book)</p>
-          <ul className="mt-2 space-y-1 text-muted-foreground">
-            {plumbingMarket.provenance.map((p) => (
-              <li key={p.engineKey}>
-                ✓ {p.engineKey}: {p.materialName} - {p.explanation}
-              </li>
-            ))}
-            {plumbingMarket.unresolved.length > 0 && (
-              <li>
-                ✗ {plumbingMarket.unresolved.join(", ")}: no verified price in
-                the {marketCode} book - reported unpriced, never the NG price.
-                Fittings and valves still price from the disclosed NG book.
-              </li>
-            )}
-          </ul>
-        </div>
-      )}
+      {plumbingMarket &&
+        marketCode !== "NG" &&
+        plumbingMarket.provenance.length > 0 && (
+          <div
+            className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
+            data-testid="plumbing-price-provenance"
+          >
+            <p className="font-semibold">
+              Market plumbing prices ({marketCode} book)
+            </p>
+            <ul className="mt-2 space-y-1 text-muted-foreground">
+              {plumbingMarket.provenance.map((p) => (
+                <li key={p.engineKey}>
+                  ✓ {p.engineKey}: {p.materialName} - {p.explanation}
+                </li>
+              ))}
+              {plumbingMarket.unresolved.length > 0 && (
+                <li>
+                  ✗ {plumbingMarket.unresolved.join(", ")}: no verified price in
+                  the {marketCode} book - reported unpriced, never silent
+                  substitution.
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
 
       {/* Regional Plumbing System Profile */}
       <div
