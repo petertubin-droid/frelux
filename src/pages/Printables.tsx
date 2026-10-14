@@ -228,54 +228,67 @@ function QuoteComparison() {
         <Field label="Date:" />
         <Field label="By:" />
       </div>
-      <table className="mt-5 w-full border-collapse text-xs">
-        <thead>
-          <tr>
-            <th className="w-8 border border-gray-300 p-2 text-left">S/N</th>
-            <th className="border border-gray-300 p-2 text-left">
-              Item / scope of work
-            </th>
-            <th className="border border-gray-300 p-2">Quote A (contractor)</th>
-            <th className="border border-gray-300 p-2">Quote B (contractor)</th>
-            <th className="border border-gray-300 p-2">Quote C (contractor)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {LINES_12.map((n) => (
-            <tr key={n}>
-              <td className="border border-gray-300 p-2">{n}</td>
-              <td className="border border-gray-300 p-2" />
+      <div
+        className="mt-5 w-full overflow-x-auto print:overflow-visible"
+        role="region"
+        aria-label="Scrollable quote comparison template"
+        tabIndex={0}
+      >
+        <table className="w-full min-w-[44rem] border-collapse text-xs print:min-w-0">
+          <thead>
+            <tr>
+              <th className="w-8 border border-gray-300 p-2 text-left">S/N</th>
+              <th className="border border-gray-300 p-2 text-left">
+                Item / scope of work
+              </th>
+              <th className="border border-gray-300 p-2">
+                Quote A (contractor)
+              </th>
+              <th className="border border-gray-300 p-2">
+                Quote B (contractor)
+              </th>
+              <th className="border border-gray-300 p-2">
+                Quote C (contractor)
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {LINES_12.map((n) => (
+              <tr key={n}>
+                <td className="border border-gray-300 p-2">{n}</td>
+                <td className="border border-gray-300 p-2" />
+                <td className="border border-gray-300 p-2" />
+                <td className="border border-gray-300 p-2" />
+                <td className="border border-gray-300 p-2" />
+              </tr>
+            ))}
+            <tr>
+              <td colSpan={2} className="border border-gray-300 p-2 font-bold">
+                Materials total
+              </td>
               <td className="border border-gray-300 p-2" />
               <td className="border border-gray-300 p-2" />
               <td className="border border-gray-300 p-2" />
             </tr>
-          ))}
-          <tr>
-            <td colSpan={2} className="border border-gray-300 p-2 font-bold">
-              Materials total
-            </td>
-            <td className="border border-gray-300 p-2" />
-            <td className="border border-gray-300 p-2" />
-            <td className="border border-gray-300 p-2" />
-          </tr>
-          <tr>
-            <td colSpan={2} className="border border-gray-300 p-2 font-bold">
-              Labour total
-            </td>
-            <td className="border border-gray-300 p-2" />
-            <td className="border border-gray-300 p-2" />
-            <td className="border border-gray-300 p-2" />
-          </tr>
-          <tr>
-            <td colSpan={2} className="border border-gray-300 p-2 font-bold">
-              GRAND TOTAL
-            </td>
-            <td className="border border-gray-300 p-2" />
-            <td className="border border-gray-300 p-2" />
-            <td className="border border-gray-300 p-2" />
-          </tr>
-        </tbody>
-      </table>
+            <tr>
+              <td colSpan={2} className="border border-gray-300 p-2 font-bold">
+                Labour total
+              </td>
+              <td className="border border-gray-300 p-2" />
+              <td className="border border-gray-300 p-2" />
+              <td className="border border-gray-300 p-2" />
+            </tr>
+            <tr>
+              <td colSpan={2} className="border border-gray-300 p-2 font-bold">
+                GRAND TOTAL
+              </td>
+              <td className="border border-gray-300 p-2" />
+              <td className="border border-gray-300 p-2" />
+              <td className="border border-gray-300 p-2" />
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <div className="mt-4 grid grid-cols-3 gap-6 text-xs">
         <div className="border border-gray-300 p-2">
           <span className="font-semibold">Quote A terms:</span> validity,
@@ -306,34 +319,41 @@ function PaintSchedule() {
         <Field label="Start date:" />
         <Field label="Finish by:" />
       </div>
-      <table className="mt-5 w-full border-collapse text-xs">
-        <thead>
-          <tr>
-            <th className="w-8 border border-gray-300 p-2">S/N</th>
-            <th className="border border-gray-300 p-2 text-left">
-              Room / surface
-            </th>
-            <th className="border border-gray-300 p-2 text-left">
-              Colour &amp; finish
-            </th>
-            <th className="border border-gray-300 p-2">Coats</th>
-            <th className="border border-gray-300 p-2">Planned date</th>
-            <th className="border border-gray-300 p-2">Done ✓</th>
-          </tr>
-        </thead>
-        <tbody>
-          {LINES_12.map((n) => (
-            <tr key={n}>
-              <td className="border border-gray-300 p-2">{n}</td>
-              <td className="border border-gray-300 p-2" />
-              <td className="border border-gray-300 p-2" />
-              <td className="border border-gray-300 p-2" />
-              <td className="border border-gray-300 p-2" />
-              <td className="border border-gray-300 p-2" />
+      <div
+        className="mt-5 w-full overflow-x-auto print:overflow-visible"
+        role="region"
+        aria-label="Scrollable paint schedule template"
+        tabIndex={0}
+      >
+        <table className="w-full min-w-[44rem] border-collapse text-xs print:min-w-0">
+          <thead>
+            <tr>
+              <th className="w-8 border border-gray-300 p-2">S/N</th>
+              <th className="border border-gray-300 p-2 text-left">
+                Room / surface
+              </th>
+              <th className="border border-gray-300 p-2 text-left">
+                Colour &amp; finish
+              </th>
+              <th className="border border-gray-300 p-2">Coats</th>
+              <th className="border border-gray-300 p-2">Planned date</th>
+              <th className="border border-gray-300 p-2">Done ✓</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {LINES_12.map((n) => (
+              <tr key={n}>
+                <td className="border border-gray-300 p-2">{n}</td>
+                <td className="border border-gray-300 p-2" />
+                <td className="border border-gray-300 p-2" />
+                <td className="border border-gray-300 p-2" />
+                <td className="border border-gray-300 p-2" />
+                <td className="border border-gray-300 p-2" />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <div className="mt-4 text-xs">
         <p className="font-semibold">Reminder notes:</p>
         <ul className="mt-1 list-inside list-disc text-gray-600">
@@ -359,38 +379,45 @@ function MaterialChecklist() {
         <Field label="Supplier:" />
         <Field label="Date:" />
       </div>
-      <table className="mt-5 w-full border-collapse text-xs">
-        <thead>
-          <tr>
-            <th className="w-8 border border-gray-300 p-2">✓</th>
-            <th className="border border-gray-300 p-2 text-left">Material</th>
-            <th className="border border-gray-300 p-2 text-left">
-              Specification / colour
-            </th>
-            <th className="border border-gray-300 p-2">Quantity</th>
-            <th className="border border-gray-300 p-2">Unit price</th>
-            <th className="border border-gray-300 p-2">Line total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {LINES_12.map((n) => (
-            <tr key={n}>
-              <td className="border border-gray-300 p-2" />
-              <td className="border border-gray-300 p-2" />
-              <td className="border border-gray-300 p-2" />
-              <td className="border border-gray-300 p-2" />
-              <td className="border border-gray-300 p-2" />
+      <div
+        className="mt-5 w-full overflow-x-auto print:overflow-visible"
+        role="region"
+        aria-label="Scrollable material checklist template"
+        tabIndex={0}
+      >
+        <table className="w-full min-w-[44rem] border-collapse text-xs print:min-w-0">
+          <thead>
+            <tr>
+              <th className="w-8 border border-gray-300 p-2">✓</th>
+              <th className="border border-gray-300 p-2 text-left">Material</th>
+              <th className="border border-gray-300 p-2 text-left">
+                Specification / colour
+              </th>
+              <th className="border border-gray-300 p-2">Quantity</th>
+              <th className="border border-gray-300 p-2">Unit price</th>
+              <th className="border border-gray-300 p-2">Line total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {LINES_12.map((n) => (
+              <tr key={n}>
+                <td className="border border-gray-300 p-2" />
+                <td className="border border-gray-300 p-2" />
+                <td className="border border-gray-300 p-2" />
+                <td className="border border-gray-300 p-2" />
+                <td className="border border-gray-300 p-2" />
+                <td className="border border-gray-300 p-2" />
+              </tr>
+            ))}
+            <tr>
+              <td colSpan={5} className="border border-gray-300 p-2 font-bold">
+                TOTAL SPEND
+              </td>
               <td className="border border-gray-300 p-2" />
             </tr>
-          ))}
-          <tr>
-            <td colSpan={5} className="border border-gray-300 p-2 font-bold">
-              TOTAL SPEND
-            </td>
-            <td className="border border-gray-300 p-2" />
-          </tr>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       <div className="mt-4 text-xs text-gray-600">
         Tip: add a five to ten percent wastage allowance to every quantity
         before you shop. It beats driving back for one more bucket.

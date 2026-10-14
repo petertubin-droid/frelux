@@ -24,6 +24,32 @@ describe("Printables", () => {
     ).toBeGreaterThanOrEqual(1);
   });
 
+  it("keeps each template table reachable in a keyboard-scrollable region", () => {
+    const { container } = render(
+      <MemoryRouter>
+        <Printables />
+      </MemoryRouter>,
+    );
+    const regions = Array.from(
+      container.querySelectorAll<HTMLElement>(
+        '[role="region"][aria-label^="Scrollable "]',
+      ),
+    );
+
+    expect(regions.map((region) => region.getAttribute("aria-label"))).toEqual([
+      "Scrollable quote comparison template",
+      "Scrollable paint schedule template",
+      "Scrollable material checklist template",
+    ]);
+    for (const region of regions) {
+      expect(region.tabIndex).toBe(0);
+      expect(region.className).toContain("overflow-x-auto");
+      expect(region.querySelector("table")?.className).toContain(
+        "print:min-w-0",
+      );
+    }
+  });
+
   it("sets body data-printing for the chosen sheet and cleans up after print", () => {
     const printSpy = vi.fn();
     window.print = printSpy;

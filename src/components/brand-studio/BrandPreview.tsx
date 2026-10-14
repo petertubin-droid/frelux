@@ -140,38 +140,49 @@ export function BrandPreview({ profiles, selectedProfileId, config }: Props) {
               </div>
             </div>
 
-            <table className="w-full text-xs">
-              <thead>
-                <tr style={{ borderBottom: `2px solid ${primaryColor}` }}>
-                  <th className="py-2 text-left text-muted-foreground">#</th>
-                  <th className="py-2 text-left text-muted-foreground">Item</th>
-                  <th className="py-2 text-left text-muted-foreground">Qty</th>
-                  <th className="py-2 text-right text-muted-foreground">
-                    Amount
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-border/50 dark:border-white/5">
-                  <td className="py-2">1</td>
-                  <td>Paint (Premium)</td>
-                  <td>3 containers</td>
-                  <td className="text-right font-semibold">₦45,000</td>
-                </tr>
-                <tr className="border-b border-border/50 dark:border-white/5">
-                  <td className="py-2">2</td>
-                  <td>Primer</td>
-                  <td>1 unit</td>
-                  <td className="text-right font-semibold">₦8,000</td>
-                </tr>
-                <tr className="border-b border-border/50 dark:border-white/5">
-                  <td className="py-2">3</td>
-                  <td>Labour</td>
-                  <td>120 m²</td>
-                  <td className="text-right font-semibold">₦36,000</td>
-                </tr>
-              </tbody>
-            </table>
+            <div
+              className="w-full overflow-x-auto"
+              role="region"
+              aria-label="Scrollable PDF line items preview"
+              tabIndex={0}
+            >
+              <table className="w-full min-w-[28rem] text-xs">
+                <thead>
+                  <tr style={{ borderBottom: `2px solid ${primaryColor}` }}>
+                    <th className="py-2 text-left text-muted-foreground">#</th>
+                    <th className="py-2 text-left text-muted-foreground">
+                      Item
+                    </th>
+                    <th className="py-2 text-left text-muted-foreground">
+                      Qty
+                    </th>
+                    <th className="py-2 text-right text-muted-foreground">
+                      Amount
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-border/50 dark:border-white/5">
+                    <td className="py-2">1</td>
+                    <td>Paint (Premium)</td>
+                    <td>3 containers</td>
+                    <td className="text-right font-semibold">₦45,000</td>
+                  </tr>
+                  <tr className="border-b border-border/50 dark:border-white/5">
+                    <td className="py-2">2</td>
+                    <td>Primer</td>
+                    <td>1 unit</td>
+                    <td className="text-right font-semibold">₦8,000</td>
+                  </tr>
+                  <tr className="border-b border-border/50 dark:border-white/5">
+                    <td className="py-2">3</td>
+                    <td>Labour</td>
+                    <td>120 m²</td>
+                    <td className="text-right font-semibold">₦36,000</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
             <div className="mt-4 ml-auto w-48">
               <div className="flex justify-between py-1 text-xs">
