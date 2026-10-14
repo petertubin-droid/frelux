@@ -591,9 +591,49 @@ The following items represent all outstanding, in-progress, or unverified work o
     32x25 INR 122, Supreme union 25mm INR 78; mykit.in Finolex CPVC ball valve 25mm INR 280. Pipes:
     moglix Astral CPVC Pro 25mm SDR-13.5 x 3m INR 330 = 110/m hot+cold; tradeindia 50mm SWR Type A 3m
     INR 95 = 31.67/m waste; kansalbuildmartllp Astral SWR Type B 110mm 3m INR 975.20 = 325.07/m soil.
-  - Outstanding (12 markets, PPR/copper/multilayer books to verify per profile):
-    JP (PEX 13A), FR/IT (multistrato), BR (PVC marrom/
-    CPVC), MX (CPVC), AU/CA (PEX/copper), SA/AE (PPR/CPVC Sch80), CN (PP-R GB/T), ID (PVC AW), KR (PB).
+  - ALL 20 MARKETS COMPLETE (2026-10-14, migrations 20261015270000-380000, all applied+verified live).
+    Final 12 books (9 rows each, all scan_confidence='manual'):
+    JP (20261015270000): HI/TS PEX fittings natyu-web + monotaro (elbow/sleeve Y190), PEX 13A kakaku
+      coil Y298/m hot+cold, komeri VP40 Y314/4m=78.50/m waste, VU100 Y2,760/4m=690/m soil.
+    FR (20261015280000): leroymerlin.fr multicouche 16mm press-fit (coude EUR 3.96, te EUR 5.92,
+      reduction coude EUR 6.70, manchon EUR 7.64, mitige robinet EUR 30.05, tube EUR 3.50/m) +
+      PVC evac 32mm EUR 3.94/m waste, 100mm EUR 12.75/m soil.
+    IT (20261015290000): leroymerlin.it multistrato 16mm (gomito EUR 2.19, tee EUR 3.19, riduzione
+      EUR 3.29, manicotto EUR 2.39, valvola EUR 27.90, tubo EUR 3.49/m IVA incl) + PP scarico 50mm
+      EUR 4.97/m, 110mm EUR 12.67/m.
+    BR (20261015300000): Tigre/Fortlev PVC marrom 25mm + CPVC Aquatherm; esgoto branco 100mm
+      R$55.90/6m=9.32/m (Fortlev Leroy).
+    MX (20261015310000): FOSET CPVC 3/4 system (codo $4.05 prisaleon, tee $5.43, reducer BK tee
+      $5.65 HD.mx, tuerca union $19 yaqui, valvula esferica $78.85 HD.mx) + Amanco CPVC 3/4x3m
+      $62.10=20.70/m + sanitario 50mm/100mm Amanco surtidor.com $18.28/m / $33.20/m.
+    AU (20261015320000): Bunnings SmarteX-PEX 20mm push-fit (elbow $9.72, tee $13.21, reducing
+      coupling 20x16 $7.54, conversion coupling $8.84, ball valve $19.90, 50m coil $145.08=2.90/m)
+      + Holman DWV 50mm $8.06/m, 100mm $8.74/m.
+    CA (20261015330000): HD.ca Waterline/Apollo PEX-B 3/4 (elbow CAD 3.98, tee 5.22, reducing
+      elbow 3.97 browser-verified, coupling 2.91, Apollo ball valve 13.94 browser-verified, 100ft
+      coil 64.98=2.13/m) + IPEX ABS DWV 2"x12ft $27.98=7.65/m, 3"x12ft $42.98=11.75/m.
+    SA (20261015340000): almanar-plastic.com PPR-C PN20 25mm factory shop (elbow SAR 0.67, tee 0.98,
+      reducer 32x25 1.59, union 1.90, ball valve 9.00, pipe 14.84/5.8m=2.56/m) + uPVC 50mm 18.37/6m
+      =3.06/m, 110mm benna 63.64/6m=10.61/m.
+    AE (20261015350000): fepy.com PPR-C PN20 (elbow AED 1.05 incl VAT browser-verified, tee 1.05,
+      reducer 2.10 browser-verified, union RAKTHERM 11.67 plaza, ball valve 8.01, 25mm x 4m pipe
+      14.61=3.65/m) + PVC 50mm 20.00/6m=3.33/m, 110mm 63.75/6m=10.63/m.
+    CN (20261015360000): LESSO anchor. szlcsc.com PPR fittings incl 13% VAT (elbow Y2.49, tee 1.42,
+      reducer 25x20 0.69), smzdm coupling Y0.78, Taobao brass double-union ball valve Y19.92; pipes
+      ck.xfs.com LESSO PPR S3.2 25*3.5*4m Y25.90=6.48/m, PVC-U 50*2.0*4m Y21.90=5.48/m, 110*3.2*4m
+      Y68 incl=17.00/m.
+    ID (20261015370000): Rucika AW 3/4 (elbow Rp5,400 Shopee, tee 4,850, reducing socket 3,550,
+      socket 4,750, stop kran ball valve 36,100, pipe 42,500/4m=10,625/m) + PVC D 3" Rp150,995/4m
+      =37,749/m waste, D 4" juraganmaterial 182,012 incl PPN = 45,503/m soil.
+    KR (20261015380000): Acon PB system 20A (elbow W1,600 Coupang, 3-way tee 2,200 Gmarket,
+      reducing socket 20A*15A 1,170, coupling 1,445, CM ball valve 12,300 jojomall, ISO PB roll
+      20Ax100m W114,000=1,140/m) + 40A PVC 4m W13,800=3,450/m waste, VG1 100mm 4m W18,000=4,500/m soil.
+  - GOTCHAS learned this round: HD.mx (Home Depot Mexico) pages are Akamai-blocked in browser (use
+    Google snippet caches); homedepot.ca product pages render but prices are JS-gated (browserbase
+    extract after store-confirm works); almanar-plastic.com has a JS bot-check (~5s wait); fepy.com
+    sits behind a Vercel checkpoint (~5s wait then renders); xfs.com product pages are login-gated
+    (use the ck.xfs/bcegc.xfs Google-cached pages with explicit prices); JD/Taobao/Suning prices
+    are hidden from crawlers (szlcsc.com + xfs.com + smzdm carry structured CN prices).
     NG is engine-default (resolver returns early; no NG book needed).
 
 ### D. Doors & Windows Books for Remaining 12 Markets (PARTIAL / INCOMPLETE)
