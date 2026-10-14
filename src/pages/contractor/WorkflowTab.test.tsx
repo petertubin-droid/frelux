@@ -26,6 +26,28 @@ vi.mock("@/lib/workflow/queries", () => ({
   addWorkflowRevision: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("@/lib/workflow/participants", () => ({
+  listWorkflowParticipants: vi.fn().mockResolvedValue([
+    {
+      id: "p1",
+      document_id: "d1",
+      email: "eng@site.com",
+      participant_role: "reviewer",
+      granted_by: null,
+      created_at: "2026-10-14T12:00:00Z",
+    },
+  ]),
+  inviteWorkflowParticipant: vi.fn().mockResolvedValue({
+    id: "p2",
+    document_id: "d1",
+    email: "new@site.com",
+    participant_role: "viewer",
+    granted_by: null,
+    created_at: "2026-10-14T13:00:00Z",
+  }),
+  removeWorkflowParticipant: vi.fn().mockResolvedValue(undefined),
+}));
+
 function mockDocs(): WorkflowDocument[] {
   const base = {
     project_id: "proj-1",
@@ -148,6 +170,68 @@ describe("WorkflowTab (global operations control plane)", () => {
           doc_type: "rfi",
           title: "Beam cover query",
         }),
+      ),
+    );
+  });
+
+  it("shows the share panel with existing participants on expand", async () => {
+    render(<WorkflowTab projectId="proj-1" currency="EUR" />);
+    await screen.findByText("RFI-0001");
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /expand details/i })[0],
+    );
+    expect(
+      screen.getByRole("button", { name: /^share$/i }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText("eng@site.com")).toBeInTheDocument();
+    expect(screen.getByText("reviewer")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /remove access for eng@site.com/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/invite email/i)).toBeInTheDocument();
+  });
+
+  it("invites a participant with the chosen role and lowercased email", async () => {
+    render(<WorkflowTab projectId="proj-1" currency="EUR" />);
+    await screen.findByText("RFI-0001");
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /expand details/i })[0],
+    );
+    await screen.findByText("eng@site.com");
+    fireEvent.change(screen.getByLabelText(/invite email/i), {
+      target: { value: "New@Site.com" },
+    });
+    fireEvent.change(screen.getByLabelText(/invite role/i), {
+      target: { value: "viewer" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /^share$/i }));
+    const { inviteWorkflowParticipant } =
+      await import("@/lib/workflow/participants");
+    await waitFor(() =>
+      expect(inviteWorkflowParticipant).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "d1" }),
+        "New@Site.com",
+        "viewer",
+      ),
+    );
+  });
+
+  it("removes a participant's access when the X button is clicked", async () => {
+    render(<WorkflowTab projectId="proj-1" currency="EUR" />);
+    await screen.findByText("RFI-0001");
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /expand details/i })[0],
+    );
+    await screen.findByText("eng@site.com");
+    fireEvent.click(
+      screen.getByRole("button", { name: /remove access for eng@site.com/i }),
+    );
+    const { removeWorkflowParticipant } =
+      await import("@/lib/workflow/participants");
+    await waitFor(() =>
+      expect(removeWorkflowParticipant).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "d1" }),
+        "eng@site.com",
       ),
     );
   });

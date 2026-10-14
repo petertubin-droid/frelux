@@ -44,6 +44,13 @@ import {
   transitionWorkflowDocument,
 } from "@/lib/workflow/queries";
 import {
+  inviteWorkflowParticipant,
+  listWorkflowParticipants,
+  removeWorkflowParticipant,
+  type WorkflowParticipant,
+  type WorkflowParticipantRole,
+} from "@/lib/workflow/participants";
+import {
   AlertTriangle,
   Calendar,
   ChevronDown,
@@ -55,6 +62,8 @@ import {
   RefreshCw,
   Mail,
   Bell,
+  UserPlus,
+  X,
 } from "lucide-react";
 
 const STATUS_STYLES: Record<WorkflowStatus, string> = {
@@ -136,6 +145,13 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
   const [pushBusy, setPushBusy] = useState(false);
   const [pushNote, setPushNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [participants, setParticipants] = useState<
+    Record<string, WorkflowParticipant[]>
+  >({});
+  const [shareEmail, setShareEmail] = useState("");
+  const [shareRole, setShareRole] =
+    useState<WorkflowParticipantRole>("reviewer");
+  const [shareBusy, setShareBusy] = useState(false);
 
   const now = useMemo(() => new Date().toISOString(), []);
 
@@ -254,6 +270,76 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
       } catch {
         setEvents((prev) => ({ ...prev, [id]: [] }));
       }
+    }
+    if (!participants[id]) {
+      try {
+        const list = await listWorkflowParticipants(id);
+        setParticipants((prev) => ({ ...prev, [id]: list }));
+      } catch {
+        setParticipants((prev) => ({ ...prev, [id]: [] }));
+      }
+    }
+  }
+
+  async function refreshParticipants(documentId: string) {
+    try {
+      const list = await listWorkflowParticipants(documentId);
+      setParticipants((prev) => ({ ...prev, [documentId]: list }));
+    } catch {
+      setParticipants((prev) => ({ ...prev, [documentId]: [] }));
+    }
+  }
+
+  async function onInvite(doc: WorkflowDocument) {
+    const email = shareEmail.trim();
+    if (!email) return;
+    setShareBusy(true);
+    setError(null);
+    try {
+      await inviteWorkflowParticipant(doc, email, shareRole);
+      setShareEmail("");
+      await refreshParticipants(doc.id);
+      // The invite lands in the audit trail as a comment —
+      // drop the cached events so the trail reloads honestly.
+      setEvents((prev) => {
+        const next = { ...prev };
+        delete next[doc.id];
+        return next;
+      });
+      try {
+        const list = await fetchWorkflowEvents(doc.id);
+        setEvents((prev) => ({ ...prev, [doc.id]: list }));
+      } catch {
+        /* audit refresh is best-effort */
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Share failed");
+    } finally {
+      setShareBusy(false);
+    }
+  }
+
+  async function onUnshare(doc: WorkflowDocument, email: string) {
+    setShareBusy(true);
+    setError(null);
+    try {
+      await removeWorkflowParticipant(doc, email);
+      await refreshParticipants(doc.id);
+      setEvents((prev) => {
+        const next = { ...prev };
+        delete next[doc.id];
+        return next;
+      });
+      try {
+        const list = await fetchWorkflowEvents(doc.id);
+        setEvents((prev) => ({ ...prev, [doc.id]: list }));
+      } catch {
+        /* audit refresh is best-effort */
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Removal failed");
+    } finally {
+      setShareBusy(false);
     }
   }
 
@@ -750,6 +836,82 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                           </li>
                         )}
                       </ol>
+                    </div>
+
+                    {/* Cross-role handoff / share */}
+                    <div>
+                      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Share
+                      </h4>
+                      <ul className="mt-2 space-y-1">
+                        {(participants[doc.id] ?? []).map((p) => (
+                          <li
+                            key={p.id}
+                            className="flex items-center justify-between gap-2 text-xs"
+                          >
+                            <span className="min-w-0 truncate text-muted-foreground">
+                              <span className="font-medium text-foreground">
+                                {p.email}
+                              </span>{" "}
+                              ·{" "}
+                              <span
+                                className={
+                                  p.participant_role === "reviewer"
+                                    ? "rounded bg-primary/10 px-1.5 py-0.5 font-medium text-primary"
+                                    : "rounded bg-muted px-1.5 py-0.5 font-medium text-muted-foreground"
+                                }
+                              >
+                                {p.participant_role}
+                              </span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => onUnshare(doc, p.email)}
+                              disabled={shareBusy}
+                              aria-label={`Remove access for ${p.email}`}
+                              className="rounded p-1 text-muted-foreground hover:bg-accent disabled:opacity-50"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </li>
+                        ))}
+                        {(participants[doc.id] ?? []).length === 0 && (
+                          <li className="text-xs text-muted-foreground">
+                            Not shared — invite a reviewer or viewer by email.
+                          </li>
+                        )}
+                      </ul>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <input
+                          type="email"
+                          value={shareEmail}
+                          onChange={(e) => setShareEmail(e.target.value)}
+                          placeholder="colleague@example.com"
+                          aria-label="Invite email"
+                          className="min-w-0 flex-1 rounded-md border bg-background px-3 py-2 text-sm"
+                        />
+                        <select
+                          value={shareRole}
+                          onChange={(e) =>
+                            setShareRole(
+                              e.target.value as WorkflowParticipantRole,
+                            )
+                          }
+                          aria-label="Invite role"
+                          className="rounded-md border bg-background px-3 py-2 text-sm"
+                        >
+                          <option value="reviewer">Reviewer</option>
+                          <option value="viewer">Viewer</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => onInvite(doc)}
+                          disabled={shareBusy || !shareEmail.trim()}
+                          className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-accent disabled:opacity-50"
+                        >
+                          <UserPlus className="h-4 w-4" /> Share
+                        </button>
+                      </div>
                     </div>
 
                     {/* Comment */}
