@@ -104,6 +104,14 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
 - Admin interface must show truthful capability/verification state.
 - Distinguish preliminary estimation from engineering design compliance.
 
+- [x] P2 batch 16: Plumbing fittings/valves full coverage (GB, AT, DE) (2026-10-14):
+      - Added Supabase migration `20261013170000_plumbing_fittings_gb_at_de.sql` completing:
+        * GB: `gb-union` (£2.25 JG Speedfit 15mm push-fit connector, Wickes) -> GB 5/5
+        * AT: `at-elbow` (€0.95 Multitherm PPR 90° 20mm), `at-union` (€0.89 Multitherm PPR 25mm Muffe), `at-valve` (€12.59 DVGW Trinkwasserkugelhahn 1/2", OBI) -> AT 5/5
+        * DE: Full 5/5 set using standard domestic 15mm copper press-fit DVGW system & 1/2" ball valve:
+          `de-elbow` (€2.15, Hornbach), `de-tee` (€4.49, OBI), `de-reducer` (€2.00 22x15mm, Hornbach), `de-union` (€1.98, Hornbach), `de-valve` (€9.19, OBI) -> DE 5/5
+      - US (5/5), GB (5/5), AT (5/5), and DE (5/5) fittings and valves are now fully seeded.
+
 - [x] P2 batch 15: BuildToRoof rebar prefill & plumbing coverage disclosure (2026-10-14): - BuildToRoofEstimator: wired `resolveMarketRebar(marketCode)` into the
       existing market price prefill effect alongside cement and sand.
       Maps resolved diameters (`rebar-12mm-per-length`, `rebar-16mm-per-length`,
@@ -577,7 +585,7 @@ Work this list in order. Each item's status is current as of the last update.
 | 6   | Trade coverage panels (electrical/plumbing/doors)    | ✅     | Non-NG users told plainly what's covered (`350e2f1f`)                                                                                                                                                                                                                                                 |
 | 7   | Rebar books                                          | 🟡     | ✅ US, DE, IN, EG verified; 🟡 AU indicative ('low', needs quote); ❌ GB, CA, rest                                                                                                                                                                                                                    |
 | 8   | Plumbing pipe books                                  | 🟡     | ✅ GB all 4 keys, US all 4, DE waste/drainage, AT cold/hot; ❌ DE cold/hot (PP-R)                                                                                                                                                                                                                     |
-| 8b  | Plumbing fittings/valves                             | 🟡     | Resolver walks PLUMBING_FITTING_KEYS (per-piece). US 5/5 + GB 4/5 + AT 2/5 LIVE in DB (seed migration executed 2026-10-13; 11/11 rows scan_confidence='manual', verified via resolver-shaped lookup). ❌ gb-union, at-elbow/union/valve, all DE                                                       |
+| 8b  | Plumbing fittings/valves                             | ✅     | Resolver walks PLUMBING_FITTING_KEYS (per-piece). US 5/5, GB 5/5, AT 5/5, DE 5/5 complete (migrations 20261013160000 & 20261013170000; 20/20 rows seeded with verified retail sources)                                                       |
 | 9   | Electrical books                                     | ✅     | All 20 markets complete (US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE, IT, MX, JP, CN, ID, KR; 220 active rows)                                                                                                                                                                             |
 | 10  | Doors/windows books                                  | ❌     | Not started                                                                                                                                                                                                                                                                                           |
 | 11  | Price campaign remainder                             | 🟡     | ~174 'low' rows to verify                                                                                                                                                                                                                                                                             |
