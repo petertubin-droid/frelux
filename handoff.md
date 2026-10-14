@@ -563,15 +563,13 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no region-specific climate/calendar, holidays or customs/shipping/delay integration was found.
 - **Changes made:** none. Keep Ethiopia unavailable for operational estimates until source-backed local standards and products, calculator validation, ETB pricing/tax, credentials, and seasonal/logistics rules are implemented and deployed. Next remaining market: **Egypt (`EG`)**.
 
-### Egypt market closeout (priority 23; audit only, 2026-10-14)
+### Egypt market closeout (priority 23; evidence correction, 2026-10-14)
 
-- **Operational decision: NOT IMPLEMENTED / NOT VERIFIED.** Egypt (`EG`) appears in the country selector with EGP, but no Egypt-specific market context, price scanner, construction typology, wall methodology, climate, electrical/plumbing profile or market capability inventory entry was found. Listing Egypt as a selectable country is not evidence of a live localized estimator.
-- **Quantities/standards:** no Egypt-specific packaging, material coverage formulas or source-backed national/local structural and construction-code profile was found. Never fall back silently to Nigeria or another market.
-- **Pricing/tax:** no Egypt-specific price books, retailer scanner sources, EGP exchange conversion or Egypt jurisdictional tax/VAT implementation was found in the reviewed sources.
-- **Workforce compliance:** no Egyptian trade/professional license, insurance or safety-credential verification integration was found.
-- **Timeline/logistics:** no local public-holiday/site calendar, climate-driven production data, customs data or predictive shipping integration was found.
-- **Changes made:** none. Keep Egypt out of operational localized estimates until the local standards, source-backed materials/prices/tax, qualified workforce checks and season/logistics behavior are implemented, tested and deployed. Next remaining market: **Tanzania (`TZ`)**.
-
+- **Operational decision: LOCAL DATA FOUNDATION EXISTS; NOT VERIFIED END TO END.** `EG` is in the generic country selector with EGP. The production-catalog and price-seed migrations contain Egypt-specific material records, including selected cement and rebar references and additional largely indicative prices, plus tile adhesive/grout rows. These files do not establish that migrations are applied or the market is active in production.
+- **Quantities/standards:** no Egypt-specific market profile, estimator/engineering profile, or source-validated construction/electrical/plumbing code-and-packaging implementation was found. Listed catalog records do not prove working quantity roles or validated takeoffs. No silent Nigeria fallback.
+- **Pricing/tax:** EGP records exist, but the current scanner has no Egypt market entry; several migration values are marked indicative/admin-adjustable, and no production read, live price refresh, robust Egypt tax/VAT or FX engine was verified.
+- **Workforce compliance / timeline:** no Egyptian professional credentials or safety checks; nor local calendar, climate/logistics integration, or predictive delay engine, was verified.
+- **Changes made:** none. Keep Egypt not verified until source-backed local formulas, mapped products/prices, tax and operational integrations are tested in production.
 ### Tanzania market closeout (priority 24; audit only, 2026-10-14)
 
 - **Operational decision: NOT IMPLEMENTED / NOT VERIFIED.** Tanzania (`TZ`, TZS) appears in the general country selector only. No Tanzania-specific market profile, price-scanner catalog, construction typology, wall/climate method, electrical/plumbing profile or engine-support inventory entry was found in the reviewed sources.
@@ -590,78 +588,62 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no local weather/work-season evidence, national/local calendar, customs or route-delay data integration was found.
 - **Changes made:** none. CI must remain unavailable for operational local estimates until locally validated standards, supply/pricing/tax, workforce compliance and regional schedule data are implemented and production-tested. Next remaining market: **Spain (`ES`)**.
 
-### Spain market closeout (priority 26; audit only, 2026-10-14)
+### Spain market closeout (priority 26; evidence correction, 2026-10-14)
 
-- **Operational decision: NOT IMPLEMENTED / NOT VERIFIED.** Spain (`ES`, EUR) is listed in the country selector and has a general Spanish translation/dictionary plus a Mediterranean climate heuristic. No Spain-specific market profile, currency/catalog mapping, construction typology, wall methodology, localized electrical/plumbing profiles or engine inventory status was found. Shared language and EUR support do not establish local estimating accuracy.
-- **Quantities/standards:** no Spain-specific packaging and takeoff validation or Spanish building/electrical/plumbing code implementation was located. European/German profiles cannot be presumed equivalent to Spain’s national/regional rules.
-- **Pricing/tax:** no Spain-specific material role/retailer catalog, regional price refresh, VAT/IVA workflow or FX behavior was verified.
-- **Workforce compliance:** no Spanish professional/trade credential, regional license, insurance or safety verification was found.
-- **Timeline/logistics:** only a broad Mediterranean seasonal heuristic exists; no region-specific work calendar/holidays, validated heat/weather productivity, supply route/customs or predictive delay support was found.
-- **Changes made:** none. Spain should not be treated as an operationally localized market until Spanish standards, units/calculations, material roles and current EUR sources, IVA, professional verification and calendar/logistics are tested and deployed. Next remaining market: **Netherlands (`NL`)**.
+- **Operational decision: LOCAL DATA FOUNDATION EXISTS; NOT VERIFIED END TO END.** `ES` is in the country selector, has a broad Mediterranean climate heuristic and Spanish language/dictionary support. Production-catalog/price migrations include Spanish-localized products with selected retailer-survey prices (including cement, sand, paint, primer, plaster and waterproofing) plus tile adhesive/grout rows; other values are indicative. None proves current production deployment.
+- **Quantities/standards:** no Spain-specific market/engineering profile or source-validated national/regional code and complete estimator package was found. Shared Spanish language, EUR, and generic tiling entries do not establish validated Spanish quantity takeoffs; German/local neighbor rules must not be assumed.
+- **Pricing/tax:** localized EUR catalog data exists, but no Spain scanner catalog or complete mapped/local price coverage, refresh proof, IVA calculation or FX workflow was verified. Some rows are expressly indicative/admin-adjustable.
+- **Workforce compliance / timeline:** no Spain-specific professional-license, insurance or safety checks, local public-holiday/site calendar, validated weather productivity or predictive logistics integration was demonstrated.
+- **Changes made:** none. Spain remains partial/unverified until country/regional estimator, tax, compliance and schedule integrations are tested against authoritative local sources and production data.
+### Netherlands market closeout (priority 27; evidence correction, 2026-10-14)
 
-### Netherlands market closeout (priority 27; audit only, 2026-10-14)
+- **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `NL` is in the generic country selector with EUR. The production-catalog/price migrations include Dutch material rows and a tile adhesive/grout entry. Some prices have retailer-survey provenance (e.g. paint/primer); others are explicitly indicative/admin-adjustable. No current production query was made.
+- **Quantities/standards:** no NL-specific market profile, engineering package, or mapped/validated construction, electrical and plumbing takeoffs was found. Catalog rows do not alone establish supported formulas or role mappings.
+- **Pricing/tax:** localized EUR records exist, but no NL scanner reference catalog or refresh process, complete verified price coverage, Dutch VAT treatment or transaction FX behavior was verified.
+- **Workforce compliance / timeline:** no Netherlands-specific professional credential, insurance/safety registry, public-holiday/site calendar or predictive weather/customs logistics integration was demonstrated.
+- **Changes made:** none. Keep NL partial/unverified pending source-backed and deployment-verified quantities, mapped pricing, VAT, compliance and timeline behavior.
+### Poland market closeout (priority 28; evidence correction, 2026-10-14)
 
-- **Operational decision: NOT VERIFIED / NOT OPERATIONAL as a localized estimating market.** `NL` is listed as `EUR` in the generic country selector. Production-catalog migration has localized but unpriced product placeholders: Netherlands has unpriced catalog rows for CEM II 25 kg, primers, wall paint, filler, sand and waterproofing. No NL market profile, scanner price reference, estimating-engine profile, named role-mapping migration, or current verified price/tax data was found. Dutch labels/products are catalog scaffolding, not operational local estimates.
-- **Quantities/standards:** no country-specific, source-backed quantity formulas and applicable construction/electrical/plumbing-code profile were verified. Do not use neighboring market assumptions as substitutes.
-- **Pricing/tax:** no verified local live/refreshable price catalog, role mapping, jurisdictional tax/VAT calculation or transaction FX workflow was found. A catalog row without a price and role mapping is not a functioning price book. No live production query was made.
-- **Workforce compliance:** no locally scoped professional/trade license, insurance or safety-credential validation was demonstrated.
-- **Timeline/logistics:** no local public-holiday/site calendar, validated weather productivity, route/customs or predictive supply-delay integration was found.
-- **Changes made:** none. Keep `NL` out of operational localized estimates until local rules, source-backed product mappings/prices/tax, workforce checks and schedule/logistics are validated and deployed. Next remaining market: **Poland**.
+- **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `PL` is in the generic selector with PLN. Price/catalog migrations include Polish material records and tile adhesive/grout entries; selected paint prices cite Castorama surveys, while other entries are indicative/admin-adjustable. No production database status was queried.
+- **Quantities/standards:** no PL-specific market/engineering profile or validated complete Polish construction/electrical/plumbing takeoff set was found. Localized names and sample tiling rates are not proof of a fully validated estimating engine.
+- **Pricing/tax:** PLN records exist, but no scanner mapping or recurring refresh, complete price-role coverage, Polish VAT treatment or transaction FX engine was demonstrated.
+- **Workforce compliance / timeline:** no locally scoped professional/trade credential or safety validation, public-holiday/site calendar, or predictive logistics integration was found.
+- **Changes made:** none. Do not call Poland operational until national and regional assumptions, source-backed mapped prices, tax and integration status are verified.
+### Sweden market closeout (priority 29; evidence correction, 2026-10-14)
 
-### Poland market closeout (priority 28; audit only, 2026-10-14)
+- **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `SE` is listed with SEK. Catalog/price migrations contain Swedish materials and tiling entries; selected cement/paint rows cite retailer surveys, while many remain indicative/admin-adjustable. Live production status was not checked.
+- **Quantities/standards:** no SE-specific market/engineering profile or complete, locally validated construction/electrical/plumbing quantity methodology was found.
+- **Pricing/tax:** SEK rows exist, but no market-specific scanner-reference mapping/refresh, complete source verification, Sweden-specific tax rules or transaction FX workflow was demonstrated.
+- **Workforce compliance / timeline:** no Swedish license/insurance/safety checks, local public-holiday/site calendar, validated seasonal productivity, or predictive supply-chain logistics integration was found.
+- **Changes made:** none. Keep partial/unverified until local assumptions and mapped source-backed operating data are validated in production.
+### Switzerland market closeout (priority 30; evidence correction, 2026-10-14)
 
-- **Operational decision: NOT VERIFIED / NOT OPERATIONAL as a localized estimating market.** `PL` is listed as `PLN` in the generic country selector. Production-catalog migration has localized but unpriced product placeholders: Poland has unpriced catalog entries for cement, exterior/interior paint, primer, filler, waterproofing and sand. No PL market profile, scanner price reference, engineering profile, role mappings or operational VAT/price source was found. Do not infer operational coverage from localized product names.
-- **Quantities/standards:** no country-specific, source-backed quantity formulas and applicable construction/electrical/plumbing-code profile were verified. Do not use neighboring market assumptions as substitutes.
-- **Pricing/tax:** no verified local live/refreshable price catalog, role mapping, jurisdictional tax/VAT calculation or transaction FX workflow was found. A catalog row without a price and role mapping is not a functioning price book. No live production query was made.
-- **Workforce compliance:** no locally scoped professional/trade license, insurance or safety-credential validation was demonstrated.
-- **Timeline/logistics:** no local public-holiday/site calendar, validated weather productivity, route/customs or predictive supply-delay integration was found.
-- **Changes made:** none. Keep `PL` out of operational localized estimates until local rules, source-backed product mappings/prices/tax, workforce checks and schedule/logistics are validated and deployed. Next remaining market: **Sweden**.
+- **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `CH` is listed with CHF and has German-language locale membership. The catalog/price migrations contain Swiss products and tile adhesive/grout rows; one wall-paint price cites a Hornbach survey, while multiple other entries are indicative/admin-adjustable. No live production read was made.
+- **Quantities/standards:** no CH-specific market/engineering profile or validated Swiss code-based quantity package was found. German-language support and German EUR-market behavior are not substitutes for Swiss cantonal requirements or CHF costs.
+- **Pricing/tax:** CHF records exist but no scanner catalog/refresh, complete mapped source-backed price coverage, Swiss VAT/cantonal tax logic or FX workflow was demonstrated.
+- **Workforce compliance / timeline:** no Swiss-specific professional verification, insurance/safety registry, cantonal work calendar, or predictive logistics integration was demonstrated.
+- **Changes made:** none. Keep partial/unverified until Swiss national/cantonal rules and operational product-price mappings are validated.
+### Singapore market closeout (priority 31; evidence correction, 2026-10-14)
 
-### Sweden market closeout (priority 29; audit only, 2026-10-14)
+- **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `SG` is in the generic selector with SGD. Price/catalog migrations contain Singapore material rows and tile adhesive/grout entries; a paint row cites a retailer price band, while other rows are indicative/admin-adjustable. Production deployment was not checked.
+- **Quantities/standards:** no SG market context or dedicated construction, electrical, plumbing, climate or typology profile was found; local product names do not establish validated local takeoffs.
+- **Pricing/tax:** SGD records exist, but no SG scanner references/refresh process, full source verification, GST/tax treatment or FX engine was found.
+- **Workforce compliance / timeline:** no Singapore licensing/registration, insurance or workplace-safety integration, holiday/site calendar, or predictive procurement/logistics engine was demonstrated.
+- **Changes made:** none. Keep Singapore unverified pending validated local formulas, source-backed mapped price coverage, tax, compliance and schedule functions.
+### Türkiye market closeout (priority 32; evidence correction, 2026-10-14)
 
-- **Operational decision: NOT VERIFIED / NOT OPERATIONAL as a localized estimating market.** `SE` is listed as `SEK` in the generic country selector. Production-catalog migration has localized but unpriced product placeholders: Sweden has unpriced catalog entries for ballast, cement, facade/interior paint, primer, waterproofing and filler. No SE-specific market profile, scanner reference prices, engineering profile, role mappings or current price/tax proof was found.
-- **Quantities/standards:** no country-specific, source-backed quantity formulas and applicable construction/electrical/plumbing-code profile were verified. Do not use neighboring market assumptions as substitutes.
-- **Pricing/tax:** no verified local live/refreshable price catalog, role mapping, jurisdictional tax/VAT calculation or transaction FX workflow was found. A catalog row without a price and role mapping is not a functioning price book. No live production query was made.
-- **Workforce compliance:** no locally scoped professional/trade license, insurance or safety-credential validation was demonstrated.
-- **Timeline/logistics:** no local public-holiday/site calendar, validated weather productivity, route/customs or predictive supply-delay integration was found.
-- **Changes made:** none. Keep `SE` out of operational localized estimates until local rules, source-backed product mappings/prices/tax, workforce checks and schedule/logistics are validated and deployed. Next remaining market: **Switzerland**.
+- **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `TR` is in the generic selector with TRY. Localized price/catalog rows and tile adhesive/grout entries exist; a subset of paint prices cite Koçtaş surveys while other material prices are indicative/admin-adjustable. No live production check was made.
+- **Quantities/standards:** no Türkiye-specific market profile or validated local construction/electrical/plumbing engine package was found.
+- **Pricing/tax:** TRY records exist, but the price scanner has no TR catalog mapping; no current refresh, complete verified material-role coverage, Turkish VAT/tax or FX operation was demonstrated.
+- **Workforce compliance / timeline:** no Turkish license/credential/insurance/safety checks, local holiday/site calendar or predictive logistics integration was found.
+- **Changes made:** none. Keep unverified until Türkiye-specific formulas, tax, compliance and current mapped pricing are independently validated and deployed.
+### New Zealand market closeout (priority 33; evidence correction, 2026-10-14)
 
-### Switzerland market closeout (priority 30; audit only, 2026-10-14)
-
-- **Operational decision: NOT VERIFIED / NOT OPERATIONAL as a localized estimating market.** `CH` is listed as `CHF` in the generic country selector. Production-catalog migration has localized but unpriced product placeholders: Switzerland has unpriced catalog entries for waterproofing, sand, cement, paint, primer and filler, and German-language locale membership. No CH market profile, scanner reference prices, engineering profiles, role mappings or Swiss regional tax/price operation was demonstrated; shared German/EUR systems must not be presumed equivalent.
-- **Quantities/standards:** no country-specific, source-backed quantity formulas and applicable construction/electrical/plumbing-code profile were verified. Do not use neighboring market assumptions as substitutes.
-- **Pricing/tax:** no verified local live/refreshable price catalog, role mapping, jurisdictional tax/VAT calculation or transaction FX workflow was found. A catalog row without a price and role mapping is not a functioning price book. No live production query was made.
-- **Workforce compliance:** no locally scoped professional/trade license, insurance or safety-credential validation was demonstrated.
-- **Timeline/logistics:** no local public-holiday/site calendar, validated weather productivity, route/customs or predictive supply-delay integration was found.
-- **Changes made:** none. Keep `CH` out of operational localized estimates until local rules, source-backed product mappings/prices/tax, workforce checks and schedule/logistics are validated and deployed. Next remaining market: **Singapore**.
-
-### Singapore market closeout (priority 31; audit only, 2026-10-14)
-
-- **Operational decision: NOT VERIFIED / NOT OPERATIONAL as a localized estimating market.** `SG` is listed as `SGD` in the generic country selector. Production-catalog migration has localized but unpriced product placeholders: Singapore has unpriced catalog records for cement, paint, primer, wall putty, sand and waterproofing. No SG market profile, scanner catalog, construction/electrical/plumbing profiles, role mappings or current tax/price integration was found.
-- **Quantities/standards:** no country-specific, source-backed quantity formulas and applicable construction/electrical/plumbing-code profile were verified. Do not use neighboring market assumptions as substitutes.
-- **Pricing/tax:** no verified local live/refreshable price catalog, role mapping, jurisdictional tax/VAT calculation or transaction FX workflow was found. A catalog row without a price and role mapping is not a functioning price book. No live production query was made.
-- **Workforce compliance:** no locally scoped professional/trade license, insurance or safety-credential validation was demonstrated.
-- **Timeline/logistics:** no local public-holiday/site calendar, validated weather productivity, route/customs or predictive supply-delay integration was found.
-- **Changes made:** none. Keep `SG` out of operational localized estimates until local rules, source-backed product mappings/prices/tax, workforce checks and schedule/logistics are validated and deployed. Next remaining market: **Türkiye**.
-
-### Türkiye market closeout (priority 32; audit only, 2026-10-14)
-
-- **Operational decision: NOT VERIFIED / NOT OPERATIONAL as a localized estimating market.** `TR` is listed as `TRY` in the generic country selector. Production-catalog migration has localized but unpriced product placeholders: Türkiye has unpriced catalog entries for cement, paints, sand, filler and waterproofing. No TR-specific market profile, scanner references, engineering profiles, role mappings or current tax/price operation was established.
-- **Quantities/standards:** no country-specific, source-backed quantity formulas and applicable construction/electrical/plumbing-code profile were verified. Do not use neighboring market assumptions as substitutes.
-- **Pricing/tax:** no verified local live/refreshable price catalog, role mapping, jurisdictional tax/VAT calculation or transaction FX workflow was found. A catalog row without a price and role mapping is not a functioning price book. No live production query was made.
-- **Workforce compliance:** no locally scoped professional/trade license, insurance or safety-credential validation was demonstrated.
-- **Timeline/logistics:** no local public-holiday/site calendar, validated weather productivity, route/customs or predictive supply-delay integration was found.
-- **Changes made:** none. Keep `TR` out of operational localized estimates until local rules, source-backed product mappings/prices/tax, workforce checks and schedule/logistics are validated and deployed. Next remaining market: **New Zealand**.
-
-### New Zealand market closeout (priority 33; audit only, 2026-10-14)
-
-- **Operational decision: NOT VERIFIED / NOT OPERATIONAL as a localized estimating market.** `NZ` is listed as `NZD` in the generic country selector. Production-catalog migration has localized but unpriced product placeholders: New Zealand has unpriced catalog rows for cement, paints, primer, filler, sand and waterproofing; one product slug conflicts with its labeled pack size (a 20 kg cement item uses a 40 kg slug), requiring admin/data review. No NZ market profile, scanner reference catalog, estimating engineering profiles, role mappings, or current pricing/tax operation was demonstrated.
-- **Quantities/standards:** no country-specific, source-backed quantity formulas and applicable construction/electrical/plumbing-code profile were verified. Do not use neighboring market assumptions as substitutes.
-- **Pricing/tax:** no verified local live/refreshable price catalog, role mapping, jurisdictional tax/VAT calculation or transaction FX workflow was found. A catalog row without a price and role mapping is not a functioning price book. No live production query was made.
-- **Workforce compliance:** no locally scoped professional/trade license, insurance or safety-credential validation was demonstrated.
-- **Timeline/logistics:** no local public-holiday/site calendar, validated weather productivity, route/customs or predictive supply-delay integration was found.
-- **Changes made:** none. Keep `NZ` out of operational localized estimates until local rules, source-backed product mappings/prices/tax, workforce checks and schedule/logistics are validated and deployed.
-
+- **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `NZ` is listed with NZD. Migrations include New Zealand-specific material records and tile adhesive/grout rows; cement and Resene interior paint cite retail surveys while many other prices are indicative/admin-adjustable. A 20 kg cement item uses a `40kg` slug, a concrete pack-size contradiction requiring data review. No live production query was performed.
+- **Quantities/standards:** no NZ market profile or complete locally validated construction/electrical/plumbing takeoff package was found; catalog entries and sample tile coverage are insufficient evidence of fully functional NZ standards support.
+- **Pricing/tax:** NZD catalog prices exist, but there is no NZ scanner catalog/refresh, complete role mapping and verified price coverage, GST handling or FX engine demonstrated.
+- **Workforce compliance / timeline:** no NZ-specific licensing/insurance/safety validation, regional/public holiday work calendar or predictive shipping/logistics engine was found.
+- **Changes made:** none. Keep unverified until the pack-size data defect and broader operational validation are resolved.
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
