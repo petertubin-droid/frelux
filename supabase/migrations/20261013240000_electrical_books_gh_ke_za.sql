@@ -1,3 +1,8 @@
+-- SCHEMA REPAIR 2026-10-14: this migration was originally authored against the
+-- legacy market_prices table (old dev project schema). It never applied to the
+-- live DB (relation did not exist). Rewritten to the live estimation_prices
+-- schema (price_type/ref_id/notes/price_source mapping), same verified price data.
+
 -- Electrical estimation price books for GH (Ghana), KE (Kenya), and ZA (South Africa).
 -- P2 batch 11 (2026-10-13): 33 manual-confidence rows (11 slugs x 3 markets).
 --
@@ -100,41 +105,41 @@ resolved as (
    and m.is_active = true
 ),
 deactivated as (
-  update market_prices mp
-  set is_active = false
+  update estimation_prices mp
+  set is_active = false, updated_at = now()
   from resolved res
   where mp.market = res.market
-    and mp.material_id = res.material_id
+    and mp.price_type = 'material'
+    and mp.ref_id = res.material_id
     and mp.is_active = true
   returning mp.id
 ),
 seeded as (
-  insert into market_prices (
-    market,
-    material_id,
+  insert into estimation_prices (
+    price_type,
+    ref_id,
     price,
     currency,
-    unit,
-    source,
-    confidence_score,
-    scan_confidence,
+    effective_date,
+    notes,
     is_active,
-    last_verified_at
+    price_source,
+    scan_confidence,
+    market
   )
   select
-    res.market,
+    'material',
     res.material_id,
     res.price,
     res.currency,
-    m.unit,
+    current_date,
     res.source_desc,
-    1.00,
-    'manual',
     true,
-    now()
+    res.source_desc,
+    'manual',
+    res.market
   from resolved res
-  join estimation_materials m on m.id = res.material_id
-  returning id, market, material_id
+  returning id, market, ref_id
 )
 select
   market,
@@ -146,10 +151,10 @@ order by market;
 -- Verification check: 11 active electrical prices per market for GH, KE, ZA
 select
   mp.market,
-  count(distinct mp.material_id) as active_electrical_slugs
-from market_prices mp
-join estimation_materials m on m.id = mp.material_id
-where mp.market in ('GH', 'KE', 'ZA')
+  count(distinct mp.ref_id) as active_electrical_slugs
+from estimation_prices mp
+join estimation_materials m on m.id = mp.ref_id
+where mp.price_type = 'material' and mp.market in ('GH', 'KE', 'ZA')
   and m.slug like 'elec-%'
   and mp.is_active = true
 group by mp.market

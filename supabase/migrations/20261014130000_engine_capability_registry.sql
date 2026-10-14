@@ -1,3 +1,7 @@
+-- SCHEMA REPAIR 2026-10-14: the CHECK list below originally contained only the
+-- 34 canonical ids; the live table already holds rows for the 20 registry
+-- additions (widened out-of-band), so re-adding the narrow CHECK failed.
+-- The list is now the full 54-id union, matching 20261014160000.
 -- =========================================================
 -- 20-market capability registry, seed + integrity checks
 -- Generated from src/lib/international/capability-registry.ts
@@ -11,7 +15,7 @@ ALTER TABLE market_calculator_config
   DROP CONSTRAINT IF EXISTS market_calculator_config_calculator_type_check;
 ALTER TABLE market_calculator_config
   ADD CONSTRAINT market_calculator_config_calculator_type_check
-  CHECK (calculator_type IN (
+    CHECK (calculator_type IN (
     'painting',
     'screeding',
     'pop_ceiling',
@@ -23,13 +27,13 @@ ALTER TABLE market_calculator_config
     'stucco',
     'flooring',
     'waterproofing',
+    'doors_windows',
     'block',
     'roofing',
     'build_to_roof',
     'foundation',
     'structural',
     'reinforcement',
-    'doors_windows',
     'electrical',
     'plumbing',
     'generator',
@@ -45,7 +49,27 @@ ALTER TABLE market_calculator_config
     'conversational_estimator',
     'count_vision',
     'defect_diagnosis',
-    'surface_assessment'
+    'surface_assessment',
+    'regional_cost',
+    'cash_flow',
+    'contractor_credit',
+    'circular_reuse',
+    'embodied_carbon',
+    'estimate_refresh',
+    'maintenance',
+    'price_forecast',
+    'warranty_dispute',
+    'fence',
+    'roof_geometry',
+    'roof_plan_scanner',
+    'space_measurement',
+    'measurement_confidence',
+    'measurement_explanation',
+    'quotation_generator',
+    'offline_field',
+    'learning_engine',
+    'price_validator',
+    'market_crawler'
   ));
 
 -- 2. Canonical engine registry tables (admin visibility + SQL

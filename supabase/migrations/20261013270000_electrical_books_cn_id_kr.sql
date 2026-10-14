@@ -89,81 +89,75 @@ with input_rows (market, material_slug, price, currency, source_desc) as (
     ('KR', 'elec-socket-outlet',         2450, 'KRW', 'Winners / Jinheung 2-gang grounded flush outlet 16A 250V (2구 매입 접지콘센트 MCP2-22008) 2,450 KRW each'),
     ('KR', 'elec-distribution-board',   22600, 'KRW', 'Sangdo / Jinheung residential distribution board 5-6 circuit (주택용 세대분전함) 22,600 KRW each')
 ),
-matches as (
+
+-- SCHEMA REPAIR 2026-10-14: the original CTE chain below was written against a
+-- different estimation_prices shape (country_code/material_slug/unit_price
+-- columns) that never existed in the live DB, so it could not apply. Rewritten
+-- to the live estimation_prices schema (price_type/ref_id/market) joined to
+-- estimation_materials by slug; same verified price data.
+
+resolved as (
   select
-    ep.id as existing_id,
     ir.market,
-    ir.material_slug,
+    m.id as material_id,
     ir.price,
     ir.currency,
     ir.source_desc
   from input_rows ir
-  left join estimation_prices ep
-    on ep.country_code = ir.market
-   and ep.material_slug = ir.material_slug
-   and ep.is_active = true
+  join estimation_materials m
+    on m.slug = ir.material_slug
+   and m.is_active = true
 ),
-deactivations as (
+deactivated as (
   update estimation_prices ep
-  set
-    is_active = false,
-    updated_at = now()
-  from matches m
-  where ep.id = m.existing_id
+  set is_active = false, updated_at = now()
+  from resolved res
+  where ep.market = res.market
+    and ep.price_type = 'material'
+    and ep.ref_id = res.material_id
+    and ep.is_active = true
   returning ep.id
 ),
-insertions as (
+seeded as (
   insert into estimation_prices (
-    country_code,
-    region_code,
-    category,
-    material_slug,
-    unit,
-    unit_price,
+    price_type,
+    ref_id,
+    price,
     currency,
+    effective_date,
+    notes,
+    is_active,
     price_source,
     scan_confidence,
-    is_active,
-    created_at,
-    updated_at
+    market
   )
   select
-    m.market,
-    'ALL',
-    'electrical',
-    m.material_slug,
-    case
-      when m.material_slug in (
-        'elec-cable-lighting',
-        'elec-cable-socket',
-        'elec-cable-dedicated',
-        'elec-cable-earth',
-        'elec-cable-feeder',
-        'elec-conduit'
-      ) then 'm'
-      else 'item'
-    end as unit,
-    m.price,
-    m.currency,
-    m.source_desc,
-    'manual',
+    'material',
+    res.material_id,
+    res.price,
+    res.currency,
+    current_date,
+    res.source_desc,
     true,
-    now(),
-    now()
-  from matches m
-  returning id, country_code, material_slug, unit_price, currency
+    res.source_desc,
+    'manual',
+    res.market
+  from resolved res
+  returning id, market
 )
 select
-  country_code,
+  market,
   count(*) as inserted_rows
-from insertions
-group by country_code
-order by country_code;
+from seeded
+group by market
+order by market;
 
--- Verification query (uncomment to test coverage after running):
--- select country_code, count(*) as active_electrical_prices
--- from estimation_prices
--- where category = 'electrical'
---   and country_code in ('CN', 'ID', 'KR')
---   and is_active = true
--- group by country_code;
+-- Verification query (live schema):
+-- select p.market, count(*) as active_electrical_prices
+-- from estimation_prices p
+-- join estimation_materials m on m.id = p.ref_id
+-- where p.price_type = 'material'
+--   and m.slug like 'elec-%'
+--   and p.market in ('CN', 'ID', 'KR')
+--   and p.is_active = true
+-- group by p.market;
