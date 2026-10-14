@@ -554,6 +554,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** broad hot-desert seasonal heuristics only; no region-specific heat productivity, public-holiday/site calendar, procurement lead-time/customs or predictive international logistics engine was verified.
 - **Remaining operational gate:** confirm deployed mapping/prices, complete source-backed regional packages, tax, licensed-professional and calendar/logistics integrations before describing this market as verified. Next remaining market: **Ethiopia (`ET`)**.
 
+### Ethiopia market closeout (priority 22; audit only, 2026-10-14)
+
+- **Operational decision: NOT IMPLEMENTED / NOT VERIFIED.** Ethiopia (`ET`) appears in the country selector list with ETB, but searches found no Ethiopia-specific entry in the market context, price scanner, construction typologies, wall methodology, climate profiles, electrical/plumbing profiles, or market capability inventory. The selector entry alone does not establish a usable localized estimator or active production market.
+- **Quantities/standards:** no Ethiopia-specific package/unit/formula catalog or authoritative building-code/structural profile was found. Do not apply Nigerian or other market defaults silently.
+- **Pricing/tax:** no Ethiopia-specific price book, retailer source catalog, exchange-rate/FX path or jurisdictional tax handling was found in reviewed files. Do not quote NGN or invent ETB prices/tax rules.
+- **Workforce compliance:** no Ethiopian licensing/credential verification, insurance/safety registry, or professional eligibility integration was found.
+- **Timeline/logistics:** no region-specific climate/calendar, holidays or customs/shipping/delay integration was found.
+- **Changes made:** none. Keep Ethiopia unavailable for operational estimates until source-backed local standards and products, calculator validation, ETB pricing/tax, credentials, and seasonal/logistics rules are implemented and deployed. Next remaining market: **Egypt (`EG`)**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
