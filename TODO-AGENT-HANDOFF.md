@@ -653,6 +653,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no local public-holiday/site calendar, validated weather productivity, route/customs or predictive supply-delay integration was found.
 - **Changes made:** none. Keep `TR` out of operational localized estimates until local rules, source-backed product mappings/prices/tax, workforce checks and schedule/logistics are validated and deployed. Next remaining market: **New Zealand**.
 
+### New Zealand market closeout (priority 33; audit only, 2026-10-14)
+
+- **Operational decision: NOT VERIFIED / NOT OPERATIONAL as a localized estimating market.** `NZ` is listed as `NZD` in the generic country selector. Production-catalog migration has localized but unpriced product placeholders: New Zealand has unpriced catalog rows for cement, paints, primer, filler, sand and waterproofing; one product slug conflicts with its labeled pack size (a 20 kg cement item uses a 40 kg slug), requiring admin/data review. No NZ market profile, scanner reference catalog, estimating engineering profiles, role mappings, or current pricing/tax operation was demonstrated.
+- **Quantities/standards:** no country-specific, source-backed quantity formulas and applicable construction/electrical/plumbing-code profile were verified. Do not use neighboring market assumptions as substitutes.
+- **Pricing/tax:** no verified local live/refreshable price catalog, role mapping, jurisdictional tax/VAT calculation or transaction FX workflow was found. A catalog row without a price and role mapping is not a functioning price book. No live production query was made.
+- **Workforce compliance:** no locally scoped professional/trade license, insurance or safety-credential validation was demonstrated.
+- **Timeline/logistics:** no local public-holiday/site calendar, validated weather productivity, route/customs or predictive supply-delay integration was found.
+- **Changes made:** none. Keep `NZ` out of operational localized estimates until local rules, source-backed product mappings/prices/tax, workforce checks and schedule/logistics are validated and deployed.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
