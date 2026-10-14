@@ -202,7 +202,7 @@ function extract(html: string): ExtractedPrice {
 
   // 3. Currency-amount regex fallback — low.
   const currencyMatch = html.match(
-    /(?:[$£€₹¥₩R\$]|NGN|GHS|KES|ZAR|AED|SAR|BRL|JPY|EUR|USD|GBP|MXN|CNY|IDR|KRW|INR|CAD|AUD)\s?([\d][\d.,]{1,12})/,
+    /(?:[$£€₹¥₩R$]|NGN|GHS|KES|ZAR|AED|SAR|BRL|JPY|EUR|USD|GBP|MXN|CNY|IDR|KRW|INR|CAD|AUD)\s?([\d][\d.,]{1,12})/,
   );
   if (currencyMatch) {
     const num = Number(currencyMatch[1].replace(/,/g, ""));
