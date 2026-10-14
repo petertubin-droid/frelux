@@ -724,6 +724,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no local public-holiday/work calendar, validated seasonal productivity, customs or predictive supply-delay functionality was found.
 - **Changes made:** none. Do not represent `DK` as operationally localized until the local standards, role mappings, live source-backed pricing/tax and compliance/schedule integrations are independently verified. Next country: **Finland**.
 
+### Finland market closeout (priority 43; audit-only catalog evidence, 2026-10-14)
+
+- **Operational decision: LOCALIZED SEED DATA EXISTS; NOT VERIFIED END TO END.** `FI` has country-specific product/price rows in database migrations using EUR. Finland has local EUR catalog rows and a Bauhaus price survey for a 10 L interior paint; other rows are indicative. Finnish tile adhesive/grout and screed descriptions appear in migration seeds. No FI market context or scanner mapping; electrical profile has an FI code reference but no complete FI market and estimating package. No production verification. Migration evidence does not establish the rows are deployed or current in production.
+- **Quantities/standards:** localized material or tiling/screed rows are partial evidence only. No complete, source-validated country-specific construction/electrical/plumbing estimating profiles and tested role mappings were verified.
+- **Pricing/tax:** local-currency price rows exist, mixing source-cited and indicative/admin-adjustable values. No complete price scanner catalog or refresh process, full price-to-estimate role mapping, validated local VAT treatment, FX workflow or production read was confirmed. Review pack-size contradictions noted above before use.
+- **Workforce compliance:** no local professional/trade licensing, insurance or safety-credential verification was demonstrated.
+- **Timeline/logistics:** no local public-holiday/work calendar, validated seasonal productivity, customs or predictive supply-delay functionality was found.
+- **Changes made:** none. Do not represent `FI` as operationally localized until the local standards, role mappings, live source-backed pricing/tax and compliance/schedule integrations are independently verified. Next country: **Ireland**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
