@@ -581,6 +581,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no regional climate and work-calendar data, public holidays, customs constraints or predictive logistics support was found.
 - **Changes made:** none. Do not represent Tanzania as operational until independently sourced local standards, quantities, price and tax data, credentials, and calendar/logistics rules are validated and deployed. Next remaining market: **Côte d’Ivoire (`CI`)**.
 
+### Côte d’Ivoire market closeout (priority 25; audit only, 2026-10-14)
+
+- **Operational decision: NOT IMPLEMENTED / NOT VERIFIED.** Côte d’Ivoire (`CI`, XOF) is in the country selector, but reviewed market-context, price-scanner, construction typology, wall/climate, electrical/plumbing and engine-support catalogs contain no country-specific configuration.
+- **Quantities/standards:** no local packaging, quantity formulas, or source-backed building/electrical/plumbing standard profile was located. Do not silently apply NG or another country’s assumptions.
+- **Pricing/tax:** no local price catalog or retailer sources, regional XOF pricing evidence, FX workflow, or Côte d’Ivoire tax/VAT rules were found in reviewed files.
+- **Workforce compliance:** no verification integration for local contractor/professional licenses, insurance or safety credentials was found.
+- **Timeline/logistics:** no local weather/work-season evidence, national/local calendar, customs or route-delay data integration was found.
+- **Changes made:** none. CI must remain unavailable for operational local estimates until locally validated standards, supply/pricing/tax, workforce compliance and regional schedule data are implemented and production-tested. Next remaining market: **Spain (`ES`)**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
