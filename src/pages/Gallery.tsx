@@ -216,13 +216,13 @@ export default function Gallery() {
                     <div className="absolute bottom-3 left-3 flex gap-2 opacity-0 transition-all duration-300 group-hover:opacity-100">
                       <Button
                         variant="ghost"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-card-foreground backdrop-blur transition-all hover:scale-110 hover:text-brand-purple"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-card/95 text-card-foreground backdrop-blur transition-all hover:scale-110 hover:bg-card hover:text-brand-purple dark:bg-card/95 dark:hover:bg-card"
                       >
                         <Crown className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-card-foreground backdrop-blur transition-all hover:scale-110 hover:text-brand-purple"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-card/95 text-card-foreground backdrop-blur transition-all hover:scale-110 hover:bg-card hover:text-brand-purple dark:bg-card/95 dark:hover:bg-card"
                       >
                         <Share2 className="h-4 w-4" />
                       </Button>

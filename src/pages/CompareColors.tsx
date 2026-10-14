@@ -266,7 +266,7 @@ export default function CompareColors() {
                             variant="ghost"
                             type="button"
                             onClick={() => removeColor(c.id)}
-                            className="absolute right-2 top-2 rounded-full bg-white/80 p-1 text-muted-foreground hover:text-red-500"
+                            className="absolute right-2 top-2 rounded-full bg-background/90 p-1 text-muted-foreground hover:text-red-500"
                           >
                             <X aria-hidden="true" className="h-4 w-4" />
                           </Button>
@@ -476,7 +476,7 @@ export default function CompareColors() {
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                           loading="lazy"
                         />
-                        <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/90 p-2 backdrop-blur">
+                        <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-background/90 p-2 backdrop-blur">
                           {[
                             p.main_color_code,
                             p.secondary_color_code,

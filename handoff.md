@@ -398,6 +398,8 @@ The following items represent all outstanding, in-progress, or unverified work o
 
 **Completed 2026-10-14 (material price table on mobile):** The material-price grid now remains a four-column table at a readable minimum width inside a horizontally scrollable, keyboard-focusable region. Source and effective date are no longer hidden on smaller breakpoints, so mobile users can reach the full price provenance by horizontal scrolling. Added regression coverage for scroll-region accessibility and the source/effective columns. Targeted page tests (4 tests), TypeScript, full `npm test` (835 files, 7,231 tests), `npm run build`, and `git diff --check` passed. The stale first-visit splash recommendation was also reconciled with the code-verified handoff finding: preserve the existing welcome experience.
 
+**Dark-mode audit batch (theme-aware surfaces):** Replaced forced white surfaces on Gallery hover controls, ColorDetail and CompareColors palette strips, the CompareColors remove button, and the sticky Build-to-Roof and contractor project headers with theme tokens. Gallery controls now use a theme-aware card surface in both themes; palette strips and sticky headers follow the active background token. Added a rendered Gallery regression assertion for the dark variant. This is a scoped batch only: the broader hardcoded-color audit remains open, and intentional white print canvases are not to be changed. Focused page tests passed (4 tests); full verification is recorded with the associated code change.
+
 ---
 
 ## 3. VERIFICATION COMMANDS & RUNTIME ENVIRONMENT

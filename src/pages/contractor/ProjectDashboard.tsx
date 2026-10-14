@@ -849,7 +849,7 @@ export default function ProjectDashboard() {
     <>
       <div className="min-h-screen bg-muted/50 pb-12">
         {/* ── Header ── */}
-        <div className="sticky top-16 z-20 border-b border-border bg-white/90 backdrop-blur-md">
+        <div className="sticky top-16 z-20 border-b border-border bg-background/90 backdrop-blur-md">
           <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">

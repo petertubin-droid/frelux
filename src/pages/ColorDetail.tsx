@@ -232,7 +232,7 @@ export default function ColorDetail() {
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/90 p-2 backdrop-blur">
+                  <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-background/90 p-2 backdrop-blur">
                     {[
                       c.main_color_code,
                       c.secondary_color_code,

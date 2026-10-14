@@ -671,7 +671,7 @@ export default function BuildToRoofEstimator() {
         </div>
 
         {/* Premium sticky progress bar */}
-        <div className="sticky top-16 z-30 border-b border-border bg-white/90 backdrop-blur-lg shadow-sm">
+        <div className="sticky top-16 z-30 border-b border-border bg-background/90 backdrop-blur-lg shadow-sm">
           <div className="max-w-6xl mx-auto px-3 sm:px-4">
             <div className="flex items-center gap-1 overflow-x-auto py-2.5 sm:py-3 scrollbar-hide snap-x">
               {STEPS.map((s, i) => {
