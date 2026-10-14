@@ -25,9 +25,9 @@ import {
   nextStatuses,
   summarize,
 } from "@/lib/workflow/workflow-engine";
+import { isEmailNotifyActive } from "@/lib/workflow/notifications";
 import {
   addWorkflowComment,
-  addWorkflowRevision,
   createWorkflowDocument,
   fetchProjectWorkflowDocuments,
   fetchWorkflowEvents,
@@ -43,6 +43,7 @@ import {
   MessageSquarePlus,
   Plus,
   RefreshCw,
+  Mail,
 } from "lucide-react";
 
 const STATUS_STYLES: Record<WorkflowStatus, string> = {
@@ -118,6 +119,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
   const [saving, setSaving] = useState(false);
   const [busy, setBusy] = useState(false);
   const [commentDraft, setCommentDraft] = useState("");
+  const [emailNotify, setEmailNotify] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const now = useMemo(() => new Date().toISOString(), []);
@@ -139,6 +141,23 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Honest disclosure: are email notifications configured at
+  // all? (Resend key active — build-time env or Integration
+  // Center paste. Raw keys are never visible here.)
+  useEffect(() => {
+    let cancelled = false;
+    isEmailNotifyActive()
+      .then((active) => {
+        if (!cancelled) setEmailNotify(active);
+      })
+      .catch(() => {
+        if (!cancelled) setEmailNotify(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const visible = useMemo(
     () => (docs ?? []).filter((d) => filter === "all" || d.doc_type === filter),
@@ -269,6 +288,26 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
           accent={summary.overdue > 0 ? "destructive" : undefined}
         />
       </div>
+
+      {emailNotify !== null && (
+        <p
+          className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
+            emailNotify
+              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+              : "bg-muted text-muted-foreground"
+          }`}
+          title={
+            emailNotify
+              ? "Status transitions send a confirmation email to the project owner"
+              : "Paste a Resend key in Admin → Integration Center to enable email notifications"
+          }
+        >
+          <Mail className="h-3.5 w-3.5" aria-hidden />
+          {emailNotify
+            ? "Email notifications active"
+            : "Email notifications not configured"}
+        </p>
+      )}
 
       {error && (
         <p

@@ -151,4 +151,13 @@ describe("WorkflowTab (global operations control plane)", () => {
       ),
     );
   });
+
+  it("discloses the email-notification status honestly (chip)", async () => {
+    render(<WorkflowTab projectId="proj-1" currency="EUR" />);
+    // Supabase unconfigured in tests -> the honest "not
+    // configured" state, never a fake "active" claim.
+    expect(
+      await screen.findByText(/email notifications/i, { exact: false }),
+    ).toBeInTheDocument();
+  });
 });

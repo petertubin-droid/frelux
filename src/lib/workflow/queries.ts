@@ -15,6 +15,7 @@ import {
   referenceCode,
   canTransition,
 } from "./workflow-engine";
+import { notifyWorkflowEvent } from "./notifications";
 
 export interface CreateWorkflowDocumentInput {
   project_id: string;
@@ -157,6 +158,12 @@ export async function transitionWorkflowDocument(
     actor: "owner",
     note: note ?? null,
   });
+
+  // Best-effort owner email notification (fire-and-forget;
+  // only status transitions notify — comments/revisions are
+  // deliberately quiet to avoid noise). Never blocks a
+  // successful transition.
+  void notifyWorkflowEvent(doc.id);
   return data as unknown as WorkflowDocument;
 }
 
