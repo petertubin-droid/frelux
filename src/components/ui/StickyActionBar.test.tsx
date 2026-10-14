@@ -14,6 +14,15 @@ describe("StickyActionBar", () => {
     expect(screen.getByLabelText("Quick actions")).toBeTruthy();
   });
 
+  it("clears the mobile bottom navigation and safe-area inset", () => {
+    render(<StickyActionBar onSave={vi.fn()} />);
+    const toolbar = screen.getByRole("toolbar");
+    expect(toolbar.className).toContain(
+      "bottom-[calc(3.5rem+env(safe-area-inset-bottom))]",
+    );
+    expect(toolbar.className).toContain("md:bottom-0");
+  });
+
   it("renders Save button with default label", () => {
     render(<StickyActionBar onSave={vi.fn()} />);
     expect(screen.getByText("Save")).toBeTruthy();

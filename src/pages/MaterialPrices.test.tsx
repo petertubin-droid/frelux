@@ -133,6 +133,27 @@ describe("MaterialPrices", () => {
     ).toBeInTheDocument();
   });
 
+  it("keeps price source and effective-date columns available in a scrollable table on mobile", async () => {
+    renderPage();
+    await waitFor(() => {
+      expect(screen.getByText("Cement (25kg)")).toBeInTheDocument();
+    });
+
+    const scrollRegion = screen.getByRole("region", {
+      name: "Cement material prices",
+    });
+    expect(scrollRegion.className).toContain("overflow-x-auto");
+    expect(scrollRegion.getAttribute("tabindex")).toBe("0");
+    expect(
+      screen.getByRole("columnheader", { name: "Source" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Effective" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("B&Q")).toBeInTheDocument();
+    expect(screen.getByText("2026-10-05")).toBeInTheDocument();
+  });
+
   it("filters by currency chip", async () => {
     renderPage();
     await waitFor(() =>

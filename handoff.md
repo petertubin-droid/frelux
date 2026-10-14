@@ -1,4 +1,5 @@
 # FRELUX — Global Expansion & Platform Architecture Handoff
+
 Last updated: October 2026
 Authoritative repository: `petertubin-droid/frelux` (branch: `main`)
 Active Supabase Project Ref: `nfgaaohweygwydoelxnf`
@@ -15,7 +16,7 @@ Every agent, developer, and automated pipeline working on FRELUX must strictly o
    - When real-world market data is not yet verified for a specific country or category, **keep it visibly unpriced and explicitly unverified**. Do not mark a market or category "supported" simply because a placeholder database row exists.
 2. **No Silent Nigerian Fallback**:
    - Never silently substitute Nigerian Naira (NGN), Nigerian block dimensions (9-inch hollow sandcrete), or Nigerian voltage/conduit standards when another market (e.g., US, UK, Germany, Kenya, India) is selected.
-   - Missing data must trigger clear UI disclosure: *"Price data for this item is not yet verified in [Country]. Please enter your local supplier rate."*
+   - Missing data must trigger clear UI disclosure: _"Price data for this item is not yet verified in [Country]. Please enter your local supplier rate."_
 3. **Database Execution & State Integrity**:
    - Supabase project reference is `nfgaaohweygwydoelxnf`.
    - Never commit service keys or secret bearer tokens into the repository.
@@ -44,6 +45,7 @@ Every agent, developer, and automated pipeline working on FRELUX must strictly o
 ## 1. COMPREHENSIVE UI/UX AUDIT & RECOMMENDED FIXES
 
 ### A. Executive Summary & Audit Scope
+
 FRELUX is a comprehensive construction intelligence platform featuring 44 specialized estimation engines, project management workspaces, market intelligence scrapers, contractor directories, and AI tools.
 While the calculation core is mathematically robust and feature-rich, the platform's user experience currently suffers from severe interface collisions on mobile devices, fragmented navigation across 222 unorganized routes, accessibility gaps, and legacy regional biases that hinder its credibility as an international enterprise platform.
 
@@ -54,6 +56,7 @@ This audit details every identified usability defect, layout collision, informat
 ### B. Severe Usability Defects & Viewport Collisions
 
 #### 1. Sticky Action Bar Overlapping Mobile Bottom Navigation
+
 - **Affected Files**: `src/components/ui/StickyActionBar.tsx`, `src/components/ui/MobileBottomNav.tsx`
 - **Observed Defect**:
   - `StickyActionBar` is styled with `sticky bottom-0 z-30`.
@@ -63,12 +66,13 @@ This audit details every identified usability defect, layout collision, informat
   - Update `StickyActionBar.tsx` to offset for the mobile navigation height:
     ```tsx
     // Add bottom offset on mobile, reset on md screens
-    className="sticky bottom-16 md:bottom-0 z-30 ..."
+    className = "sticky bottom-16 md:bottom-0 z-30 ...";
     ```
   - Alternatively, dynamically compute padding with CSS safe-area variables:
     `bottom-[calc(3.5rem+env(safe-area-inset-bottom))] md:bottom-0`.
 
 #### 2. Fixed Navbar Obscuring In-Page Sticky Steppers & Subheaders
+
 - **Affected Files**:
   - `src/pages/BuildToRoofEstimator.tsx:674` (`sticky top-0 z-30`)
   - `src/pages/ProjectDetail.tsx:247` (`sticky top-0 z-10`)
@@ -84,6 +88,7 @@ This audit details every identified usability defect, layout collision, informat
     ```
 
 #### 3. Market / Country Selector Dropdown Viewport Overflow
+
 - **Affected File**: `src/components/ui/MarketSelector.tsx`
 - **Observed Defect**:
   - In desktop dropdown mode, `MarketSelector` renders all active markets using an unconstrained `absolute` dropdown container without `max-h` or `overflow-y-auto`.
@@ -94,12 +99,17 @@ This audit details every identified usability defect, layout collision, informat
   - Replace the flat list with a searchable combobox/popover:
     ```tsx
     <div className="max-h-72 overflow-y-auto divide-y divide-border/20 ...">
-      <input type="text" placeholder="Search country or currency..." className="..." />
+      <input
+        type="text"
+        placeholder="Search country or currency..."
+        className="..."
+      />
       {/* Grouped by Continental Region: Americas, Europe, Africa, Asia-Pacific */}
     </div>
     ```
 
 #### 4. Intrusive First-Visit Splash Interruption (`EntryExperience.tsx`)
+
 - **Affected File**: `src/components/entry/EntryExperience.tsx`
 - **Observed Defect**:
   - First-time visitors are presented with a full-screen blocking modal overlay ("FRELUX Smart Calc") that prevents them from seeing the homepage content until they click "Explore FRELUX" or press Escape.
@@ -108,6 +118,7 @@ This audit details every identified usability defect, layout collision, informat
   - Retire the blocking full-screen overlay in favor of an inline, interactive hero section with immediate interactive inputs, or a non-blocking onboarding banner.
 
 #### 5. Tables Overflowing Viewports on Mobile Screens
+
 - **Affected Files**: `src/pages/MaterialPrices.tsx`, `src/pages/Printables.tsx`, `src/components/brand-studio/BrandPreview.tsx`
 - **Observed Defect**:
   - The live price table on `MaterialPrices.tsx` is wrapped in an `overflow-hidden` container lacking `overflow-x-auto`.
@@ -120,6 +131,7 @@ This audit details every identified usability defect, layout collision, informat
 ### C. Information Architecture & Navigation Restructuring
 
 #### 1. Flat Namespace Bloat (222 Unorganized Routes)
+
 - **Current Problem**:
   `src/App.tsx` contains 222 declared routes. 44 separate calculation engines and 75 internal admin tools are mounted directly onto the root URL (e.g. `/paint-calculator`, `/doors-windows`, `/electrical`, `/plumbing`, `/foundation`, `/boq-generator`, `/carbon-footprint`, `/heat-comfort`, `/circular-reuse`).
   Users have no intuitive mental model of the platform, search engines struggle with topical authority, and breadcrumbs are fragmented.
@@ -180,6 +192,7 @@ This audit details every identified usability defect, layout collision, informat
 ```
 
 #### 2. Consolidation of Duplicate Tool Interfaces
+
 - **Current Issue**: Multiple competing pages exist for the exact same trade:
   - `/foundation-calculator` vs `/foundation`
   - `/paint-calculator` vs `/painting-estimator` vs `/paint-comparison`
@@ -191,6 +204,7 @@ This audit details every identified usability defect, layout collision, informat
   - Mode B: **Contractor BOQ & Cost Analysis** (for builders: add waste factors, labor rates, delivery, margins, and download branded PDF quotes).
 
 #### 3. Unification of Project Workspaces
+
 - **Current Issue**:
   Users currently face two disjointed project destinations: `/my-projects` (local & cloud saved estimates) and `/contractor` / `/project-workspace` (contractor site manager).
 - **Recommended Fix**:
@@ -203,6 +217,7 @@ This audit details every identified usability defect, layout collision, informat
 ### D. Internationalization (i18n), Localization (l10n) & Standards
 
 #### 1. Native Internationalization vs Google Translate Dependency
+
 - **Current Issue**:
   FRELUX currently relies on the Google Translate script for whole-page body translations. In regions where Google APIs are blocked or restricted (notably Mainland China `CN`, an active target market), or when visitors use ad-blockers/privacy shields, the translation widget fails completely.
 - **Recommended Fix**:
@@ -210,6 +225,7 @@ This audit details every identified usability defect, layout collision, informat
   - Retain Google Translate strictly as an optional on-the-fly translation tool for long-form Learn Hub articles.
 
 #### 2. International Contact & Regional Identity
+
 - **Current Issue**:
   A single Nigerian WhatsApp number (`+234 906 361 2439`) is displayed in the footer and help components regardless of which market is selected. International visitors from the US, UK, Germany, or Japan find this jarring and suspect the platform is not intended for their region.
 - **Recommended Fix**:
@@ -218,6 +234,7 @@ This audit details every identified usability defect, layout collision, informat
     - Regional contacts: Display market-specific contact options, verified local partner links, or regional business hours based on the user's active `marketCode`.
 
 #### 3. Measurement Units (Imperial vs Metric)
+
 - **Current Issue**:
   Some estimators support imperial/metric toggling via `UnitToggle`, while others enforce metric meters/millimeters or fail to adapt default standard dimensions (e.g. US drywall standard is 4×8 ft, UK block standard is 440×215 mm).
 - **Recommended Fix**:
@@ -227,14 +244,18 @@ This audit details every identified usability defect, layout collision, informat
   - Provide a one-click persistent toggle on every calculator header that recalculates and updates input fields without resetting user entries.
 
 #### 4. Currency Formatting & Decimal Rules (ISO 4217)
+
 - **Current Issue**:
   Certain currencies are displayed with improper decimals (e.g. Japanese Yen `JPY` and South Korean Won `KRW` do not utilize cents/subunits, whereas `USD` and `EUR` require 2 decimal places).
 - **Recommended Fix**:
   - Centralize currency formatting through a standardized helper utilizing `Intl.NumberFormat`:
     ```ts
-    export function formatMarketCurrency(amount: number, market: MarketProfile): string {
+    export function formatMarketCurrency(
+      amount: number,
+      market: MarketProfile,
+    ): string {
       return new Intl.NumberFormat(market.locale, {
-        style: 'currency',
+        style: "currency",
         currency: market.currency_code,
         minimumFractionDigits: market.decimal_digits ?? 2,
         maximumFractionDigits: market.decimal_digits ?? 2,
@@ -247,6 +268,7 @@ This audit details every identified usability defect, layout collision, informat
 ### E. Form Design, Inputs & Estimation Ergonomics
 
 #### 1. Input Accessibility (460+ Unlabelled Inputs)
+
 - **Current Issue**:
   Over 460 `<input>` elements throughout calculator forms lack associated `<label htmlFor="...">` tags or `aria-label` attributes, relying on transient placeholders.
 - **Recommended Fix**:
@@ -254,6 +276,7 @@ This audit details every identified usability defect, layout collision, informat
   - Always append the active measurement unit directly into the input container as an inline badge (e.g. `[ m² ]` or `[ sq ft ]`).
 
 #### 2. Cognitive Overload in Multi-Step Calculators (Build-to-Roof 11 Steps)
+
 - **Current Issue**:
   `BuildToRoofEstimator.tsx` forces users through 11 sequential linear steps. If a builder only needs a roof estimate, they must step through dimensions, openings, foundation, blocks, mix, etc.
 - **Recommended Fix**:
@@ -265,22 +288,25 @@ This audit details every identified usability defect, layout collision, informat
   - Enable instant direct jump to any section without locking subsequent steps.
 
 #### 3. Form Persistence & Draft Recovery
+
 - **Current Issue**:
   Accidentally clicking an external link, switching tabs, or reloading the browser resets inputs on several calculators, causing loss of user calculations.
 - **Recommended Fix**:
-  - Introduce an automatic draft saving hook `useEstimatorDraft(formKey, state)` storing active form state into `localStorage`. Show a gentle toast upon return: *"We restored your previous calculation. [Start fresh]"*.
+  - Introduce an automatic draft saving hook `useEstimatorDraft(formKey, state)` storing active form state into `localStorage`. Show a gentle toast upon return: _"We restored your previous calculation. [Start fresh]"_.
 
 ---
 
 ### F. Dark Mode, Accessibility (WCAG 2.1 AA) & Performance
 
 #### 1. Dark Mode Contrast Inconsistencies
+
 - **Current Issue**:
   58 detected instances of hardcoded color classes (e.g. `text-black`, `bg-white`, `text-gray-900`) without dark mode counterparts (`dark:text-white`, `dark:bg-card`), causing unreadable low-contrast text on dark backgrounds in `BuildToRoofEstimator`, `CompareColors`, `Rewards`, and `ProductDetail`.
 - **Recommended Fix**:
   - Replace all static color utilities with semantic CSS variable tokens: `text-foreground`, `bg-card`, `bg-background`, `border-border`.
 
 #### 2. Branded Vector Export Quality
+
 - **Current Issue**:
   Certain calculator pages use native `window.print()` which cuts off tables, produces broken page breaks, and strips logos.
 - **Recommended Fix**:
@@ -293,6 +319,7 @@ This audit details every identified usability defect, layout collision, informat
 The following items represent all outstanding, in-progress, or unverified work on the platform. Completed past batches have been pruned.
 
 ### A. Live Supabase Database Migration Execution (PENDING / UNVERIFIED)
+
 - **Status**: UNVERIFIED — Migration files are committed in `supabase/migrations/`, but have NOT yet been executed against the production database `nfgaaohweygwydoelxnf`.
 - **Blocker**: Session environment lacks `SUPA_TOKEN` / Supabase Management API bearer token.
 - **Action Required**:
@@ -302,6 +329,7 @@ The following items represent all outstanding, in-progress, or unverified work o
   - Verify execution with live SQL count queries across `market_profiles`, `estimation_materials`, and `estimation_prices`.
 
 ### B. Rebar Books Expansion (PARTIAL / INCOMPLETE)
+
 - **Status**: PARTIAL
   - Completed: US (imperial #3-#8), NG, DE/AT (metric B500B), AU (indicative).
   - Outstanding:
@@ -310,6 +338,7 @@ The following items represent all outstanding, in-progress, or unverified work o
     - **Top-30 Expansion Markets**: France, Italy, Spain, Japan, South Korea, China, Indonesia, Mexico, Brazil, India, South Africa, Ghana, Kenya, Egypt, Saudi Arabia, UAE require verified rebar price books.
 
 ### C. Plumbing Fittings & Valves Expansion (PARTIAL / INCOMPLETE)
+
 - **Status**: PARTIAL
   - Completed: US (PVC DWV + PEX-A/B + copper), DE/GB (copper, pushfit, drainage).
   - Outstanding:
@@ -318,6 +347,7 @@ The following items represent all outstanding, in-progress, or unverified work o
     - **Other Markets**: Plumbing fittings and shut-off valves pending across non-EU/US markets.
 
 ### D. Doors & Windows Books for Remaining 12 Markets (PARTIAL / INCOMPLETE)
+
 - **Status**: PARTIAL
   - Completed: GH, KE, US, CA, AU, IN, GB, DE.
   - Outstanding:
@@ -325,6 +355,7 @@ The following items represent all outstanding, in-progress, or unverified work o
     - High-variability components (custom aluminium sliding windows, structural louvers, bulletproof security doors) must remain visibly unpriced with manual rate entry prompts.
 
 ### E. Price Campaign Remainder (~174 Low-Confidence Rows) (PENDING)
+
 - **Status**: PENDING
 - **Goal**: Audit all rows in `estimation_prices` where `scan_confidence = 'low'` or `price_source` lacks an attributable URL/survey.
 - **Action Required**:
@@ -332,6 +363,7 @@ The following items represent all outstanding, in-progress, or unverified work o
   - Upgrade confidence to `scan_confidence = 'manual'` and record verifiable provenance.
 
 ### F. Structural Methodology & Engineering Profiles (P2 Research Arc - INCOMPLETE)
+
 - **Status**: INCOMPLETE
 - **Goal**: Disentangle legacy Nigerian construction assumptions from international engines:
   - Remove hardcoded 9-inch (225mm) sandcrete block assumptions from `src/lib/engineering/sequence-planner.ts` and `wall-methodology.ts`.
@@ -343,6 +375,7 @@ The following items represent all outstanding, in-progress, or unverified work o
   - Regional concrete mix designs (ACI 318 vs Eurocode 2 vs IS 456).
 
 ### G. AI Credit Economy & Monetization Security (PARTIAL / UNVERIFIED)
+
 - **Status**: PARTIAL / UNVERIFIED
 - **Issues to resolve**:
   - Rewarded ad completion relies on client-side event attestations without server-side verification from advertising networks (AdMob / Adsterra).
@@ -350,13 +383,20 @@ The following items represent all outstanding, in-progress, or unverified work o
   - Task completion RPC currently accepts unverified client completion claims.
 
 ### H. UI/UX Implementation Checklist (INCOMPLETE)
-- [ ] **Fix Mobile Collision**: Add `bottom-16 md:bottom-0` to `StickyActionBar.tsx`.
-- [ ] **Fix Sticky Steppers**: Change `sticky top-0` to `sticky top-16` on `BuildToRoofEstimator.tsx` and `ProjectDetail.tsx`.
-- [ ] **Modernize Market Selector**: Add search input, continental grouping, and `max-h-72 overflow-y-auto` to `MarketSelector.tsx`.
-- [ ] **De-interstitial Homepage**: Replace blocking `EntryExperience.tsx` splash with non-blocking hero interaction.
-- [ ] **Wrap Tables**: Add horizontal overflow scrolling wrapper to `MaterialPrices.tsx`.
+
+- [x] **Fix Mobile Collision**: Offset `StickyActionBar.tsx` above the mobile bottom nav, including the device safe-area inset; reset at `md` and above. Covered by a component test.
+- [x] **Fix Sticky Steppers**: Offset sticky headers to `top-16` beneath the fixed navbar in `BuildToRoofEstimator.tsx`, `ProjectDetail.tsx`, and the contractor `ProjectDashboard.tsx`.
+- [x] **Modernize Market Selector**: Add searchable country/currency options, region grouping, and a scroll-limited menu to `MarketSelector.tsx`.
+- [x] **Verify First-Visit Welcome**: Code review confirmed `EntryExperience.tsx` overlays the already-mounted homepage without gating its content or SEO; preserve it rather than retiring it based on the stale audit claim.
+- [x] **Wrap Tables**: Add a keyboard-focusable horizontal scroll region to `MaterialPrices.tsx`, keeping source and effective-date columns available on narrow screens.
 - [ ] **Harmonize Dark Mode**: Audit and eliminate 58 hardcoded `text-black` / `bg-white` classes.
 - [ ] **Reorganize Navigation**: Transition from 222 flat routes to the 5 structured pillars (`/tools/`, `/prices/`, `/projects/`, `/network/`, `/learn/`).
+
+**Completed 2026-10-14 (mobile navigation clearance):** Quick-action bars now sit above the fixed mobile bottom navigation using a 3.5rem offset plus `safe-area-inset-bottom`, returning to the bottom edge at `md`. Sticky estimator/project headers now dock below the 64px fixed navbar. Verification passed: `npx tsc --noEmit -p tsconfig.json`; `npx vitest run src/lib/estimation/__tests__` (19 files, 311 tests); `npx vitest run src/components/ui/StickyActionBar.test.tsx` (10 tests); `npm run build`; and `git diff --check`.
+
+**Completed 2026-10-14 (market selector):** Added search across country name/code, currency name/code/symbol, and region; markets are grouped by their profile region into Americas, Europe, Africa, Middle East, Asia & Oceania, and Other. Both selector layouts have a max-height, vertically scrollable list, empty-search feedback, Escape dismissal, and reset search state on close. Added regression coverage for filtering, grouping, and list scrolling. Remaining UI/UX checklist items above are still open. Targeted selector/navigation tests (18 tests), TypeScript, full `npm test`, `npm run build`, and `git diff --check` passed.
+
+**Completed 2026-10-14 (material price table on mobile):** The material-price grid now remains a four-column table at a readable minimum width inside a horizontally scrollable, keyboard-focusable region. Source and effective date are no longer hidden on smaller breakpoints, so mobile users can reach the full price provenance by horizontal scrolling. Added regression coverage for scroll-region accessibility and the source/effective columns. Targeted page tests (4 tests), TypeScript, full `npm test` (835 files, 7,231 tests), `npm run build`, and `git diff --check` passed. The stale first-visit splash recommendation was also reconciled with the code-verified handoff finding: preserve the existing welcome experience.
 
 ---
 
@@ -376,10 +416,12 @@ npm run build
 ```
 
 ### Database Verification Queries (Supabase Management API)
+
 Verify live price book counts after migration runs:
+
 ```sql
 -- Check active prices by market
-SELECT market, count(*) 
+SELECT market, count(*)
 FROM estimation_prices
 WHERE is_active = true
 GROUP BY market

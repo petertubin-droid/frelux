@@ -89,6 +89,69 @@ describe("MarketSelector", () => {
     expect(screen.getByText("Ghana")).toBeTruthy();
   });
 
+  it("filters markets by country, currency code, and symbol", () => {
+    setAvailableMarkets([
+      {
+        country_code: "NG",
+        country_name: "Nigeria",
+        region: "West Africa",
+        currency_code: "NGN",
+        currency_symbol: "₦",
+        currency_name: "Nigerian naira",
+        status: "active",
+      },
+      {
+        country_code: "GH",
+        country_name: "Ghana",
+        region: "West Africa",
+        currency_code: "GHS",
+        currency_symbol: "₵",
+        currency_name: "Ghanaian cedi",
+        status: "active",
+      },
+    ]);
+    render(<MarketSelector inline />);
+    fireEvent.click(screen.getByLabelText("Change market"));
+    fireEvent.change(screen.getByLabelText("Search markets"), {
+      target: { value: "GHS" },
+    });
+
+    expect(screen.getByText("Ghana")).toBeTruthy();
+    expect(screen.queryByText("Nigeria")).toBeNull();
+  });
+
+  it("groups markets by region and bounds the scrollable list", () => {
+    setAvailableMarkets([
+      {
+        country_code: "NG",
+        country_name: "Nigeria",
+        region: "West Africa",
+        currency_code: "NGN",
+        currency_symbol: "₦",
+        status: "active",
+      },
+      {
+        country_code: "DE",
+        country_name: "Germany",
+        region: "Europe",
+        currency_code: "EUR",
+        currency_symbol: "€",
+        status: "active",
+      },
+    ]);
+    render(<MarketSelector />);
+    fireEvent.click(screen.getByRole("button", { name: /Market: Nigeria/ }));
+
+    expect(screen.getByRole("group", { name: "Africa" })).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Europe" })).toBeTruthy();
+    expect(
+      screen.getByRole("group", { name: "Available markets" }).className,
+    ).toContain("max-h-72");
+    expect(
+      screen.getByRole("group", { name: "Available markets" }).className,
+    ).toContain("overflow-y-auto");
+  });
+
   it("calls setMarket with the selected market code", () => {
     setAvailableMarkets([
       {

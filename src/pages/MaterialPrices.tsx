@@ -285,81 +285,91 @@ export default function MaterialPrices() {
                   {prettyCategory(category)}
                 </h2>
                 <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm dark:border-white/5 dark:bg-card">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wider text-muted-foreground dark:border-white/5">
-                        <th className="px-5 py-3 font-semibold">Material</th>
-                        <th className="px-5 py-3 text-right font-semibold">
-                          Price
-                        </th>
-                        <th className="hidden px-5 py-3 font-semibold sm:table-cell">
-                          Source
-                        </th>
-                        <th className="hidden px-5 py-3 font-semibold md:table-cell">
-                          Effective
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((r) => {
-                        const mv = movements[r.name];
-                        const pct =
-                          mv && mv.old_price && mv.new_price && mv.old_price > 0
-                            ? ((mv.new_price - mv.old_price) / mv.old_price) *
-                              100
-                            : null;
-                        return (
-                          <tr
-                            key={`${r.category}-${r.name}`}
-                            className="border-b border-border/40 last:border-0 dark:border-white/5"
-                          >
-                            <td className="px-5 py-3.5">
-                              <span className="font-medium text-foreground dark:text-primary-foreground">
-                                {r.name}
-                              </span>
-                              {r.pack_size && (
-                                <span className="ml-2 text-xs text-muted-foreground">
-                                  ({r.pack_size})
+                  <div
+                    role="region"
+                    aria-label={`${prettyCategory(category)} material prices`}
+                    tabIndex={0}
+                    className="w-full overflow-x-auto overscroll-x-contain focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                  >
+                    <table className="w-full min-w-[44rem] text-sm">
+                      <thead>
+                        <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wider text-muted-foreground dark:border-white/5">
+                          <th className="px-5 py-3 font-semibold">Material</th>
+                          <th className="px-5 py-3 text-right font-semibold">
+                            Price
+                          </th>
+                          <th className="min-w-48 px-5 py-3 font-semibold">
+                            Source
+                          </th>
+                          <th className="min-w-36 px-5 py-3 font-semibold">
+                            Effective
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {items.map((r) => {
+                          const mv = movements[r.name];
+                          const pct =
+                            mv &&
+                            mv.old_price &&
+                            mv.new_price &&
+                            mv.old_price > 0
+                              ? ((mv.new_price - mv.old_price) / mv.old_price) *
+                                100
+                              : null;
+                          return (
+                            <tr
+                              key={`${r.category}-${r.name}`}
+                              className="border-b border-border/40 last:border-0 dark:border-white/5"
+                            >
+                              <td className="px-5 py-3.5">
+                                <span className="font-medium text-foreground dark:text-primary-foreground">
+                                  {r.name}
                                 </span>
-                              )}
-                              {mv && pct !== null && (
-                                <span
-                                  className={`ml-2 inline-flex items-center gap-1 text-xs font-semibold ${
-                                    pct > 0
-                                      ? "text-red-500 dark:text-red-400"
-                                      : pct < 0
-                                        ? "text-accent-green dark:text-accent-green-light"
-                                        : "text-muted-foreground"
-                                  }`}
-                                >
-                                  {pct > 0 ? (
-                                    <TrendingUp className="h-3 w-3" />
-                                  ) : pct < 0 ? (
-                                    <TrendingDown className="h-3 w-3" />
-                                  ) : (
-                                    <Minus className="h-3 w-3" />
-                                  )}
-                                  {Math.abs(pct).toFixed(0)}%
+                                {r.pack_size && (
+                                  <span className="ml-2 text-xs text-muted-foreground">
+                                    ({r.pack_size})
+                                  </span>
+                                )}
+                                {mv && pct !== null && (
+                                  <span
+                                    className={`ml-2 inline-flex items-center gap-1 text-xs font-semibold ${
+                                      pct > 0
+                                        ? "text-red-500 dark:text-red-400"
+                                        : pct < 0
+                                          ? "text-accent-green dark:text-accent-green-light"
+                                          : "text-muted-foreground"
+                                    }`}
+                                  >
+                                    {pct > 0 ? (
+                                      <TrendingUp className="h-3 w-3" />
+                                    ) : pct < 0 ? (
+                                      <TrendingDown className="h-3 w-3" />
+                                    ) : (
+                                      <Minus className="h-3 w-3" />
+                                    )}
+                                    {Math.abs(pct).toFixed(0)}%
+                                  </span>
+                                )}
+                              </td>
+                              <td className="whitespace-nowrap px-5 py-3.5 text-right font-semibold text-foreground dark:text-primary-foreground">
+                                {money(r.price, r.currency)}
+                                <span className="ml-1 text-[10px] font-normal text-muted-foreground">
+                                  {r.currency}
                                 </span>
-                              )}
-                            </td>
-                            <td className="whitespace-nowrap px-5 py-3.5 text-right font-semibold text-foreground dark:text-primary-foreground">
-                              {money(r.price, r.currency)}
-                              <span className="ml-1 text-[10px] font-normal text-muted-foreground">
-                                {r.currency}
-                              </span>
-                            </td>
-                            <td className="hidden px-5 py-3.5 text-xs text-muted-foreground sm:table-cell">
-                              {r.price_source ?? "Admin verified"}
-                            </td>
-                            <td className="hidden px-5 py-3.5 text-xs text-muted-foreground md:table-cell">
-                              {r.effective_date ?? "—"}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                              </td>
+                              <td className="px-5 py-3.5 text-xs text-muted-foreground">
+                                {r.price_source ?? "Admin verified"}
+                              </td>
+                              <td className="whitespace-nowrap px-5 py-3.5 text-xs text-muted-foreground">
+                                {r.effective_date ?? "—"}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </section>
             ))}
