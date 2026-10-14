@@ -883,7 +883,8 @@ previous version.
   back and nothing is recorded.
 - Duplicate migration version: TWO files share version 20261013170000 —
   `..._plumbing_fittings_at_complete_gb_de.sql` (data is LIVE) and
-  `..._plumbing_fittings_gb_at_de.sql` (stale duplicate, never applied). Do not
+  `..._plumbing_fittings_gb_at_de.sql` (stale duplicate, never applied; DELETED in the
+  Supabase Preview fix because it referenced a non-existent `region_id` column). Do not
   re-run the stale one.
 - Pushed is NOT executed: a migration committed and CI-green can still be absent
   from the live DB. ALWAYS verify with a live query (schema_migrations +
