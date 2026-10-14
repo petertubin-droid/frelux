@@ -360,7 +360,7 @@ The following items represent all outstanding, in-progress, or unverified work o
     - **Top-30 Expansion Markets**: France, Italy, Spain, Japan, South Korea, China, Indonesia, Mexico, Brazil, India, South Africa, Ghana, Kenya, Egypt, Saudi Arabia, UAE require verified rebar price books.
 
 ### C. Plumbing Fittings & Valves Expansion (PARTIAL / INCOMPLETE)
-- **Status**: US/GB/AT/DE/GH/KE COMPLETE (GH+KE live-verified 2026-10-14, migrations 20261015230000/240000)
+- **Status**: US/GB/AT/DE/GH/KE/ZA COMPLETE (GH+KE+ZA live-verified 2026-10-14, migrations 20261015230000/240000/250000)
   - Completed: US (PVC DWV + PEX-A/B + copper); GB 5/5, AT 5/5, DE 5/5 (migration 20261013170000, live).
     Live data reality: GB union is GBP 4.04 Screwfix (not the GBP 2.25 quoted in the older batch-16 writeup).
   - GH book 9/9 (migration 20261015230000, live): PPR-C 25mm fusion system + uPVC DWV. Fittings from
@@ -374,8 +374,14 @@ The following items represent all outstanding, in-progress, or unverified work o
     KES 33; nikkohardware.co.ke gate valve 25mm KSh 135. Pipes: randtech.co.ke PPR 25mm x 4m KSh 380 =
     95/m hot+cold; trustedbuilder.co.ke 2" 50mm uPVC x 6m KSh 550 = 91.67/m waste; jiji.co.ke Nairobi
     4"x3mm"x6m PVC soil KSh 1,900 = 316.67/m drainage.
-  - Outstanding (14 markets, PPR/copper/multilayer books to verify per profile):
-    ZA (copper 22mm/multilayer), IN (CPVC 25mm), JP (PEX 13A), FR/IT (multistrato), BR (PVC marrom/
+  - ZA book 9/9 (migration 20261015250000, live): SABS copper capillary 22mm + uPVC DWV. Fittings:
+    plumblink Copcal elbow 22x90 R15.30, plumblinkb2b Copperman equal tee 22mm R27.80, diyshop.co.za
+    tee reducer 22x22x15 R25.00, move.store coupler 22mm R10.00, alshardware brass gate valve 3/4"
+    R132.22. Pipes: builders.co.za Saffer 22mm SABS 5.5m stick R775 = 140.91/m hot+cold (vereenigingbuilders
+    R141/m corroborates); pricecheck/Mercury Build It 50mm x 6m waste R119.99 = 20.00/m; leroymerlin.co.za
+    110mm PVC 200kPa 6m R379 = 63.17/m drainage.
+  - Outstanding (13 markets, PPR/copper/multilayer books to verify per profile):
+    IN (CPVC 25mm), JP (PEX 13A), FR/IT (multistrato), BR (PVC marrom/
     CPVC), MX (CPVC), AU/CA (PEX/copper), SA/AE (PPR/CPVC Sch80), CN (PP-R GB/T), ID (PVC AW), KR (PB).
     NG is engine-default (resolver returns early; no NG book needed).
 
