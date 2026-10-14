@@ -697,6 +697,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Workforce compliance / timeline:** no Portuguese licensing/insurance/safety verification, local work-calendar or public-holiday support, or predictive weather/logistics integration was demonstrated.
 - **Changes made:** none. Keep PT unverified until pack-size discrepancies, code-based quantities, price provenance/mappings, tax and deployment are tested. Next catalog-only country: **Austria (`AT`)**.
 
+### Austria market closeout (priority 40; audit-only catalog evidence, 2026-10-14)
+
+- **Operational decision: LOCALIZED SEED DATA EXISTS; NOT VERIFIED END TO END.** `AT` has country-specific product/price rows in database migrations using EUR. Austria has a local EUR material catalog, two Hornbach price references (including a 20 mm multilayer pipe), plus Austrian-localized putty/tiling material descriptions. No AT market context, scanner catalog, locally scoped electrical/plumbing code profile, or comprehensive role-mapping proof was found. Most material prices are indicative. Migration evidence does not establish the rows are deployed or current in production.
+- **Quantities/standards:** localized material or tiling/screed rows are partial evidence only. No complete, source-validated country-specific construction/electrical/plumbing estimating profiles and tested role mappings were verified.
+- **Pricing/tax:** local-currency price rows exist, mixing source-cited and indicative/admin-adjustable values. No complete price scanner catalog or refresh process, full price-to-estimate role mapping, validated local VAT treatment, FX workflow or production read was confirmed. Review pack-size contradictions noted above before use.
+- **Workforce compliance:** no local professional/trade licensing, insurance or safety-credential verification was demonstrated.
+- **Timeline/logistics:** no local public-holiday/work calendar, validated seasonal productivity, customs or predictive supply-delay functionality was found.
+- **Changes made:** none. Do not represent `AT` as operationally localized until the local standards, role mappings, live source-backed pricing/tax and compliance/schedule integrations are independently verified. Next country: **Belgium**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
