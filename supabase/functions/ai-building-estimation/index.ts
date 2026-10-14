@@ -741,11 +741,13 @@ serveWithCors(async (req: Request) => {
         modelName: "gemini-3.6-flash",
         promptChars: body.imageDataUrl ? body.imageDataUrl.length : 0,
       });
-    } catch (gateErr: any) {
+    } catch (gateErr) {
+      const gateMessage =
+        gateErr instanceof Error ? gateErr.message : String(gateErr);
       return jsonResponse(
         {
-          error: gateErr.message || "AI access denied.",
-          code: gateErr.message?.includes("DAILY_LIMIT_REACHED")
+          error: gateMessage || "AI access denied.",
+          code: gateMessage.includes("DAILY_LIMIT_REACHED")
             ? "USAGE_LIMIT_REACHED"
             : "AD_REWARD_REQUIRED",
         },
