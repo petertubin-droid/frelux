@@ -52,10 +52,12 @@ beforeEach(() => {
 });
 
 describe("registry", () => {
-  it("covers the three providers with honest consumption states", () => {
+  it("covers all five providers with honest consumption states", () => {
     expect(PROVIDER_REGISTRY.map((p) => p.id)).toEqual([
       "resend",
       "openweather",
+      "web-push-public",
+      "web-push-private",
       "open-exchange-rates",
     ]);
     const resend = getProviderMeta("resend");
@@ -63,12 +65,17 @@ describe("registry", () => {
     expect(resend?.consumption).toBe("live");
     const oxr = getProviderMeta("open-exchange-rates");
     expect(oxr?.consumption).toBe("slot-ready");
+    // VAPID keys: both halves are live push infrastructure.
+    expect(getProviderMeta("web-push-public")?.consumption).toBe("live");
+    expect(getProviderMeta("web-push-private")?.consumption).toBe("live");
     expect(getProviderMeta("nope")).toBeUndefined();
   });
 
-  it("marks OpenWeather as the only client-visible key", () => {
+  it("marks exactly the client-visible keys (OpenWeather, VAPID public)", () => {
     for (const p of PROVIDER_REGISTRY) {
-      expect(p.exposure === "client").toBe(p.id === "openweather");
+      expect(p.exposure === "client").toBe(
+        p.id === "openweather" || p.id === "web-push-public",
+      );
     }
   });
 });

@@ -25,7 +25,17 @@ import {
   nextStatuses,
   summarize,
 } from "@/lib/workflow/workflow-engine";
-import { isEmailNotifyActive } from "@/lib/workflow/notifications";
+import { Button } from "@/components/ui/shadcn/button";
+import {
+  isEmailNotifyActive,
+  isPushNotifyActive,
+} from "@/lib/workflow/notifications";
+import {
+  isWorkflowPushEnabled,
+  isWorkflowPushSupported,
+  subscribeWorkflowPush,
+  unsubscribeWorkflowPush,
+} from "@/lib/workflow/push";
 import {
   addWorkflowComment,
   createWorkflowDocument,
@@ -44,6 +54,7 @@ import {
   Plus,
   RefreshCw,
   Mail,
+  Bell,
 } from "lucide-react";
 
 const STATUS_STYLES: Record<WorkflowStatus, string> = {
@@ -120,6 +131,10 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
   const [busy, setBusy] = useState(false);
   const [commentDraft, setCommentDraft] = useState("");
   const [emailNotify, setEmailNotify] = useState<boolean | null>(null);
+  const [pushConfigured, setPushConfigured] = useState<boolean | null>(null);
+  const [pushEnabled, setPushEnabled] = useState<boolean | null>(null);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushNote, setPushNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const now = useMemo(() => new Date().toISOString(), []);
@@ -158,6 +173,67 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
       cancelled = true;
     };
   }, []);
+
+  // Honest disclosure for push: are VAPID keys configured at
+  // all, and is THIS browser subscribed? Both can be false.
+  useEffect(() => {
+    let cancelled = false;
+    isPushNotifyActive()
+      .then((active) => {
+        if (!cancelled) setPushConfigured(active);
+      })
+      .catch(() => {
+        if (!cancelled) setPushConfigured(false);
+      });
+    if (isWorkflowPushSupported()) {
+      isWorkflowPushEnabled()
+        .then((enabled) => {
+          if (!cancelled) setPushEnabled(enabled);
+        })
+        .catch(() => {
+          if (!cancelled) setPushEnabled(false);
+        });
+    } else {
+      setPushEnabled(false);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const togglePush = useCallback(async () => {
+    setPushBusy(true);
+    setPushNote(null);
+    try {
+      if (pushEnabled) {
+        await unsubscribeWorkflowPush();
+        setPushEnabled(false);
+        setPushNote("Push disabled on this browser");
+      } else {
+        const outcome = await subscribeWorkflowPush();
+        if (outcome.ok) {
+          setPushEnabled(true);
+          setPushNote("This browser will receive workflow push alerts");
+        } else if (outcome.reason === "not configured") {
+          setPushConfigured(false);
+          setPushNote(
+            "Push is not configured yet — see Admin Integration Center",
+          );
+        } else if (outcome.reason === "denied") {
+          setPushNote(
+            "Browser blocked notifications — allow them in site settings",
+          );
+        } else if (outcome.reason === "unsupported") {
+          setPushEnabled(false);
+          setPushNote("This browser does not support Web Push");
+        } else {
+          setPushNote(outcome.detail ?? "Push subscription failed");
+        }
+      }
+    } finally {
+      setPushBusy(false);
+    }
+  }, [pushEnabled]);
 
   const visible = useMemo(
     () => (docs ?? []).filter((d) => filter === "all" || d.doc_type === filter),
@@ -308,6 +384,53 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
             : "Email notifications not configured"}
         </p>
       )}
+
+      {pushConfigured !== null && pushEnabled !== null && (
+        <span className="inline-flex w-fit flex-wrap items-center gap-2">
+          <p
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
+              pushEnabled
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                : "bg-muted text-muted-foreground"
+            }`}
+            title={
+              pushEnabled
+                ? "Status transitions pop up on this browser"
+                : !isWorkflowPushSupported()
+                  ? "This browser cannot receive Web Push notifications"
+                  : pushConfigured
+                    ? "Enable push below to receive workflow alerts on this browser"
+                    : "Paste VAPID keys in Admin Integration Center to enable push notifications"
+            }
+          >
+            <Bell className="h-3.5 w-3.5" aria-hidden />
+            {pushEnabled
+              ? "Push notifications on"
+              : !isWorkflowPushSupported()
+                ? "Push not supported on this browser"
+                : pushConfigured
+                  ? "Push available, not enabled"
+                  : "Push notifications not configured"}
+          </p>
+          {isWorkflowPushSupported() && pushConfigured && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={togglePush}
+              disabled={pushBusy}
+            >
+              {pushBusy
+                ? "..."
+                : pushEnabled
+                  ? "Disable push here"
+                  : "Enable push on this browser"}
+            </Button>
+          )}
+        </span>
+      )}
+
+      {pushNote && <p className="text-xs text-muted-foreground">{pushNote}</p>}
 
       {error && (
         <p

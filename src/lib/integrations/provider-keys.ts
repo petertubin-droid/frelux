@@ -38,7 +38,7 @@ export interface ProviderMeta {
   /** Where the operator gets a key. */
   docsUrl: string;
   /** Icon name rendered by the admin cards. */
-  icon: "mail" | "cloud" | "exchange";
+  icon: "mail" | "cloud" | "exchange" | "bell";
 }
 
 export const PROVIDER_REGISTRY: readonly ProviderMeta[] = [
@@ -67,6 +67,31 @@ export const PROVIDER_REGISTRY: readonly ProviderMeta[] = [
     envVar: "VITE_OPENWEATHER_API_KEY",
     docsUrl: "https://home.openweathermap.org/api_keys",
     icon: "cloud",
+  },
+  {
+    id: "web-push-public",
+    label: "Web Push (VAPID public key)",
+    description:
+      "The public half of the Web Push VAPID keypair: browsers need it to subscribe to workflow push notifications. Generate one pair and paste the public key here (with the private key in its own slot). No third-party account is required.",
+    exposure: "client",
+    consumption: "live",
+    consumptionNote:
+      "Client-side: the Workflows tab subscribes this browser with this key (VITE_VAPID_PUBLIC_KEY takes precedence if baked into the build). Public by design — this value cannot decrypt or send anything.",
+    envVar: "VITE_VAPID_PUBLIC_KEY",
+    docsUrl: "https://tools.webpush.dev/vapid-key-generator",
+    icon: "bell",
+  },
+  {
+    id: "web-push-private",
+    label: "Web Push (VAPID private key)",
+    description:
+      "The private half of the Web Push VAPID keypair. Frelux signs every push delivery with it server-side (RFC 8292); it never reaches the browser. Generate the pair once and paste both slots together.",
+    exposure: "server",
+    consumption: "live",
+    consumptionNote:
+      "Server-side: the workflow-push edge function signs delivery with this key (VAPID_PRIVATE_KEY env var takes precedence). The key never leaves integration_secrets.",
+    docsUrl: "https://tools.webpush.dev/vapid-key-generator",
+    icon: "bell",
   },
   {
     id: "open-exchange-rates",
@@ -178,6 +203,12 @@ export async function saveIntegrationSecret(
   if (!meta) throw new Error(`Unknown provider: ${providerId}`);
   if (providerId === "resend" && !/^re_[A-Za-z0-9_]+$/.test(value)) {
     throw new Error("Resend keys start with 're_' — check the pasted value");
+  }
+  if (
+    (providerId === "web-push-public" || providerId === "web-push-private") &&
+    !/^[A-Za-z0-9_-]+$/.test(value)
+  ) {
+    throw new Error("VAPID keys are base64url — check the pasted value");
   }
 
   const { data, error } = await supabase

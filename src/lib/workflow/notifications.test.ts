@@ -16,16 +16,21 @@
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-const invoke = vi.fn(async (..._args: unknown[]) => ({
-  data: null,
-  error: null,
-}));
+const invoke = vi.fn(
+  async (..._args: unknown[]): Promise<{ data: null; error: null }> => ({
+    data: null,
+    error: null,
+  }),
+);
 const maybeSingle = vi.fn(async (): Promise<{ data: unknown }> => ({
   data: null,
 }));
-const fromChain = {
+// Loose chain mock: every method is a vi Mock returning the
+// chain (or, for .in(), a resolved { data } via mockImpl).
+const fromChain: Record<string, import("vitest").Mock> = {
   select: vi.fn(() => fromChain),
   eq: vi.fn(() => fromChain),
+  in: vi.fn(() => fromChain),
   maybeSingle,
 };
 
@@ -39,6 +44,7 @@ vi.mock("@/lib/supabase", () => ({
 
 import { notifyWorkflowEvent } from "./notifications";
 import { isEmailNotifyActive } from "./notifications";
+import { isPushNotifyActive } from "./notifications";
 
 beforeEach(() => {
   invoke.mockClear();
@@ -47,17 +53,23 @@ beforeEach(() => {
   maybeSingle.mockImplementation(async () => ({ data: null }));
   fromChain.select.mockClear();
   fromChain.eq.mockClear();
+  fromChain.in.mockClear();
+  fromChain.in.mockImplementation(() => Promise.resolve({ data: [] }));
 });
 
 describe("notifyWorkflowEvent", () => {
-  it("posts only the document id to the workflow-notify function", async () => {
+  it("posts only the document id to BOTH channels (email + push)", async () => {
     await notifyWorkflowEvent("doc-123");
-    expect(invoke).toHaveBeenCalledTimes(1);
-    const [fn, opts] = invoke.mock.calls[0] as unknown[];
-    expect(fn).toBe("workflow-notify");
-    expect((opts as { body?: unknown }).body).toEqual({
-      document_id: "doc-123",
-    });
+    expect(invoke).toHaveBeenCalledTimes(2);
+    const fns = invoke.mock.calls.map((c) => c[0]).sort();
+    expect(fns).toEqual(["workflow-notify", "workflow-push"]);
+    for (const c of invoke.mock.calls) {
+      const [fn, opts] = c as unknown[];
+      expect(["workflow-notify", "workflow-push"]).toContain(fn);
+      expect((opts as { body?: unknown }).body).toEqual({
+        document_id: "doc-123",
+      });
+    }
   });
 
   it("swallows invoke errors (best-effort, never throws)", async () => {
@@ -65,6 +77,15 @@ describe("notifyWorkflowEvent", () => {
       throw new Error("edge unreachable");
     });
     await expect(notifyWorkflowEvent("doc-123")).resolves.toBeUndefined();
+  });
+
+  it("still fires push when the email channel rejects (channels independent)", async () => {
+    invoke.mockImplementation(async (...args: unknown[]) => {
+      if (args[0] === "workflow-notify") throw new Error("email down");
+      return { data: null, error: null };
+    });
+    await expect(notifyWorkflowEvent("doc-123")).resolves.toBeUndefined();
+    expect(invoke).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -88,5 +109,51 @@ describe("isEmailNotifyActive", () => {
       throw new Error("network down");
     });
     await expect(isEmailNotifyActive()).resolves.toBe(false);
+  });
+});
+
+describe("isPushNotifyActive", () => {
+  it("is true when BOTH VAPID halves are active (public visible, private present)", async () => {
+    fromChain.in.mockImplementation(() =>
+      Promise.resolve({
+        data: [
+          { provider_id: "web-push-public", key_value: "BCVxsr7N_eNgVRqv" },
+          { provider_id: "web-push-private", key_value: null },
+        ],
+      }),
+    );
+    await expect(isPushNotifyActive()).resolves.toBe(true);
+    expect(fromChain.in).toHaveBeenCalledWith("provider_id", [
+      "web-push-public",
+      "web-push-private",
+    ]);
+  });
+
+  it("is false when only the public half exists (private missing)", async () => {
+    fromChain.in.mockImplementation(() =>
+      Promise.resolve({
+        data: [
+          { provider_id: "web-push-public", key_value: "BCVxsr7N_eNgVRqv" },
+        ],
+      }),
+    );
+    await expect(isPushNotifyActive()).resolves.toBe(false);
+  });
+
+  it("is false when the public key row has no visible value", async () => {
+    fromChain.in.mockImplementation(() =>
+      Promise.resolve({
+        data: [
+          { provider_id: "web-push-public", key_value: null },
+          { provider_id: "web-push-private", key_value: null },
+        ],
+      }),
+    );
+    await expect(isPushNotifyActive()).resolves.toBe(false);
+  });
+
+  it("is false when the view query fails (honest default)", async () => {
+    fromChain.in.mockImplementation(() => Promise.reject(new Error("down")));
+    await expect(isPushNotifyActive()).resolves.toBe(false);
   });
 });

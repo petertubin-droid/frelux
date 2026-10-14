@@ -1,8 +1,9 @@
 // =========================================================
 // FRELUX WORKFLOW: EMAIL NOTIFICATIONS (client side)
 //
-// Fires ONE fire-and-forget notification request per workflow
-// event to the deployed workflow-notify edge function. The
+// Fires fire-and-forget notification requests per workflow
+// event to the deployed edge functions: workflow-notify
+// (email) and workflow-push (Web Push). The
 // function derives the recipient + content server-side; this
 // lib only sends the document id.
 //
@@ -25,13 +26,15 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase";
  */
 export async function notifyWorkflowEvent(documentId: string): Promise<void> {
   if (!isSupabaseConfigured) return;
-  try {
-    await supabase.functions.invoke("workflow-notify", {
-      body: { document_id: documentId },
-    });
-  } catch {
-    // Never let notification failures affect a workflow action.
-  }
+  // Email and push are independent, best-effort channels: fire
+  // both in parallel and swallow every error.
+  const fire = (fn: string) =>
+    supabase.functions
+      .invoke(fn, { body: { document_id: documentId } })
+      .catch(() => {
+        // Never let notification failures affect a workflow action.
+      });
+  await Promise.all([fire("workflow-notify"), fire("workflow-push")]);
 }
 
 /**
@@ -51,6 +54,33 @@ export async function isEmailNotifyActive(): Promise<boolean> {
     // (For server-side providers key_value is always null —
     // presence of the row is the signal, never the value.)
     return Boolean(data);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Whether Web Push is fully configured (VAPID public + private
+ * keys active). The public key must be CLIENT-VISIBLE for the
+ * browser to subscribe; the private row appears with a null
+ * value. Push requires BOTH halves to deliver.
+ */
+export async function isPushNotifyActive(): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  try {
+    const { data } = await supabase
+      .from("integration_keys_public")
+      .select("provider_id, key_value")
+      .in("provider_id", ["web-push-public", "web-push-private"]);
+    const has = (id: string, withValue: boolean) =>
+      Boolean(
+        (data ?? []).some(
+          (r) =>
+            r.provider_id === id && (withValue ? Boolean(r.key_value) : true),
+        ),
+      );
+    // Public key must actually be visible; private must exist.
+    return has("web-push-public", true) && has("web-push-private", false);
   } catch {
     return false;
   }

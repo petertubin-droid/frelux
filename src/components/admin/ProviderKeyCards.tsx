@@ -26,6 +26,7 @@ import {
   KeyRound,
   Loader2,
   Mail,
+  Bell,
   RefreshCw,
   Save,
   ArrowLeftRight,
@@ -46,6 +47,7 @@ const ICONS = {
   mail: Mail,
   cloud: Cloud,
   exchange: ArrowLeftRight,
+  bell: Bell,
 } as const;
 
 type SecretMap = Record<string, IntegrationSecretMeta>;

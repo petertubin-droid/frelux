@@ -65,6 +65,8 @@ PENDING = [
     "20261015420000_integration_secrets.sql",
     "20261015430000_revoke_anon_integration_secrets.sql",
     "20261015440000_workflow_notify.sql",
+    "20261015450000_workflow_push.sql",
+    "20261015460000_keys_public_disclosure.sql",
 ]
 
 

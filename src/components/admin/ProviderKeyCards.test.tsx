@@ -24,45 +24,18 @@ const listMock = vi.fn();
 const saveMock = vi.fn();
 const statusMock = vi.fn();
 
-vi.mock("@/lib/integrations/provider-keys", () => ({
-  PROVIDER_REGISTRY: [
-    {
-      id: "resend",
-      label: "Resend",
-      description: "Transactional email.",
-      exposure: "server",
-      consumption: "live",
-      consumptionNote: "Edge functions read it server-side.",
-      envVar: "RESEND_API_KEY",
-      docsUrl: "https://resend.com/api-keys",
-      icon: "mail",
-    },
-    {
-      id: "openweather",
-      label: "OpenWeather",
-      description: "Live forecasts.",
-      exposure: "client",
-      consumption: "live",
-      consumptionNote: "Public by design.",
-      envVar: "VITE_OPENWEATHER_API_KEY",
-      docsUrl: "https://home.openweathermap.org/api_keys",
-      icon: "cloud",
-    },
-    {
-      id: "open-exchange-rates",
-      label: "Open Exchange Rates",
-      description: "FX layer.",
-      exposure: "server",
-      consumption: "slot-ready",
-      consumptionNote: "Stored now, wired later.",
-      docsUrl: "https://openexchangerates.org/signup",
-      icon: "exchange",
-    },
-  ],
-  listIntegrationSecrets: (...a: unknown[]) => listMock(...(a as [])),
-  saveIntegrationSecret: (...a: unknown[]) => saveMock(...(a as [])),
-  setIntegrationSecretStatus: (...a: unknown[]) => statusMock(...(a as [])),
-}));
+// Keep the REAL registry (tests must follow production) and only
+// mock the network functions.
+vi.mock("@/lib/integrations/provider-keys", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/lib/integrations/provider-keys")>();
+  return {
+    ...actual,
+    listIntegrationSecrets: (...a: unknown[]) => listMock(...(a as [])),
+    saveIntegrationSecret: (...a: unknown[]) => saveMock(...(a as [])),
+    setIntegrationSecretStatus: (...a: unknown[]) => statusMock(...(a as [])),
+  };
+});
 
 vi.mock("@/components/ui/Toast", () => ({
   useToast: () => ({
@@ -103,10 +76,13 @@ describe("ProviderKeyCards", () => {
   it("labels exposure class and consumption state honestly", async () => {
     render(<ProviderKeyCards />);
     await waitFor(() => expect(listMock).toHaveBeenCalled());
-    expect(screen.getAllByText("Server-side only").length).toBe(2);
-    expect(screen.getByText("Client-safe key")).toBeTruthy();
+    // resend, web-push-private, open-exchange-rates
+    expect(screen.getAllByText("Server-side only").length).toBe(3);
+    // openweather, web-push-public
+    expect(screen.getAllByText("Client-safe key").length).toBe(2);
     expect(screen.getByText("Slot ready")).toBeTruthy();
-    expect(screen.getAllByText("Live").length).toBe(2);
+    // resend, openweather, web-push-public, web-push-private
+    expect(screen.getAllByText("Live").length).toBe(4);
   });
 
   it("shows masked last4 and Disable for an active stored key, never the raw value", async () => {
@@ -155,7 +131,7 @@ describe("ProviderKeyCards", () => {
     });
     // Empty drafts disable every save button — no provider can fire a save.
     for (const b of btns) expect(b.hasAttribute("disabled")).toBe(true);
-    expect(screen.getAllByText("No key").length).toBe(3);
+    expect(screen.getAllByText("No key").length).toBe(5);
     expect(saveMock).not.toHaveBeenCalled();
   });
 

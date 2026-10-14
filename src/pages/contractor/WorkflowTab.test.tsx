@@ -160,4 +160,18 @@ describe("WorkflowTab (global operations control plane)", () => {
       await screen.findByText(/email notifications/i, { exact: false }),
     ).toBeInTheDocument();
   });
+
+  it("discloses the push-notification status honestly (chip)", async () => {
+    render(<WorkflowTab projectId="proj-1" currency="EUR" />);
+    // jsdom has no Service Worker / PushManager and Supabase is
+    // unconfigured -> the honest "not supported on this browser"
+    // chip; the enable button must NOT render (nothing to
+    // subscribe with). Never a fake "active" claim.
+    expect(
+      await screen.findByText(/push not supported on this browser/i, {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /enable push/i })).toBeNull();
+  });
 });
