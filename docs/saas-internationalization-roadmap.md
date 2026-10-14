@@ -67,7 +67,20 @@ Already built — do NOT rebuild:
 - Internationalization: currency symbol from project record; date format per
   market locale; category labels localized where i18n exists.
 
-### 1.2 Editable Digital BOQ (bank-submittable tier)  ← IN PROGRESS
+### 1.2 Editable Digital BOQ (bank-submittable tier)  ✅ COMPLETE (commit 2da1be15, migration 20261015400000)
+- `boq_quote_revisions` LIVE (append-only snapshots, RLS) +
+  `boq_quotes.revision` stamp; restore any version in-app; every
+  save records the exact items/totals/rates snapshot.
+- Bank BOQ export (PRO-gated): formal loan-application layout —
+  company block, project block, priced schedule of works, terms
+  page, signature block; blank company fields export as fill-in
+  lines, never invented text.
+- Per-market tax naming (VAT / MwSt / USt / TVA / IVA / GST / ISS /
+  Sales Tax / 消費税 / 부가세 / PPN): presentation only — rates still
+  come exclusively from configured rules. Unknown markets get the
+  neutral "Tax" label, never a scheme presented as fact.
+- Premium UI: sectioned cards, totals tiles, PRO badge, revision
+  history panel with Current/Restore states.
 - In-app editing of BOQ lines (client-collaborative via existing
   ClientEstimateEditor pattern), revision history + version stamping.
 - "Bank BOQ" export template: formal Bill of Quantities layout acceptable to
@@ -76,7 +89,7 @@ Already built — do NOT rebuild:
 - Localized: currency + measurement-system columns per market, bilingual labels
   where required (FR/DE markets), VAT/tax naming per market (VAT/MwSt/GST/IVA).
 
-### 1.3 Click-to-Invoice
+### 1.3 Click-to-Invoice  ← IN PROGRESS
 - New `invoices` entity: sequential numbering, issued/paid/overdue status,
   payment recording, client block; one-click estimate/quotation → invoice.
 - Rendering reuses quote-export (already invoice-styled, branded, printable).
