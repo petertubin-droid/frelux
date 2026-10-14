@@ -504,4 +504,99 @@ describe("resolveMarketDoorsWindows", () => {
       expect.arrayContaining(["door-security", "window-louver"]),
     );
   });
+
+  it("resolves India (IN) doors & windows price book with 5 overrides and marks unpriced custom items unresolved", async () => {
+    const inMaterials: Record<string, { id: string; name: string }> = {
+      "door-flush": {
+        id: "mat-in-flush",
+        name: "Full Pine 30mm Flush Door Slab Pinewood ISI Certified",
+      },
+      "door-panel": {
+        id: "mat-in-panel",
+        name: "Durian Moulded Panel Door 2 Panel Delta 39x81 in.",
+      },
+      "door-frame": {
+        id: "mat-in-frame",
+        name: "NIKI WPC Door Frame 75x50mm",
+      },
+      "door-hinge": {
+        id: "mat-in-hinge",
+        name: "Shri 3 inch Stainless Steel Butt Hinge",
+      },
+      "door-lockset": {
+        id: "mat-in-lockset",
+        name: "Shrida 511 Aluminium Mortise Lock Set with handles and keys",
+      },
+      "door-security": {
+        id: "mat-in-security",
+        name: "Security door leaf",
+      },
+      "window-aluminium": {
+        id: "mat-in-window",
+        name: "Aluminium sliding window",
+      },
+      "window-louver": {
+        id: "mat-in-louver",
+        name: "Louver window",
+      },
+    };
+
+    const inPrices: Record<string, number> = {
+      "mat-in-flush": 2999.0,
+      "mat-in-panel": 3293.0,
+      "mat-in-frame": 2624.0,
+      "mat-in-hinge": 41.38,
+      "mat-in-lockset": 398.0,
+    };
+
+    materialChain.eq.mockImplementation(function (
+      this: Chain,
+      field: unknown,
+      value: unknown,
+    ) {
+      if (field === "slug") {
+        const m = inMaterials[value as string];
+        this.maybeSingle.mockImplementation(async () => ({ data: m ?? null }));
+      }
+      return this;
+    } as never);
+
+    priceChain.eq.mockImplementation(function (
+      this: Chain,
+      field: unknown,
+      value: unknown,
+    ) {
+      if (field === "ref_id") {
+        const price = inPrices[value as string];
+        this.maybeSingle.mockImplementation(async () => ({
+          data:
+            price !== undefined
+              ? {
+                  price,
+                  scan_confidence: "manual",
+                  price_source: "Amazon India / Moglix (IN)",
+                }
+              : null,
+        }));
+      }
+      return this;
+    } as never);
+
+    const result = await resolveMarketDoorsWindows("IN");
+
+    expect(result.overrides["door-flush"]).toBe(2999.0);
+    expect(result.overrides["door-panel"]).toBe(3293.0);
+    expect(result.overrides["door-frame"]).toBe(2624.0);
+    expect(result.overrides["door-hinge"]).toBe(41.38);
+    expect(result.overrides["door-lockset"]).toBe(398.0);
+
+    expect(result.unresolved).toEqual(
+      expect.arrayContaining([
+        "door-security",
+        "window-aluminium",
+        "window-louver",
+      ]),
+    );
+    expect(result.unresolved).not.toContain("door-flush");
+  });
 });
