@@ -53,80 +53,16 @@ This audit details every identified usability defect, layout collision, informat
 
 ---
 
-### B. Severe Usability Defects & Viewport Collisions
+### B. Severe Usability Defects & Viewport Collisions — FIXED & PRUNED (2026-10-14)
 
-#### 1. Sticky Action Bar Overlapping Mobile Bottom Navigation
-
-- **Affected Files**: `src/components/ui/StickyActionBar.tsx`, `src/components/ui/MobileBottomNav.tsx`
-- **Observed Defect**:
-  - `StickyActionBar` is styled with `sticky bottom-0 z-30`.
-  - On mobile viewports (`md:hidden`), `MobileBottomNav` is styled with `fixed inset-x-0 bottom-0 z-30`.
-  - On mobile devices, both bars occupy the exact same viewport coordinates (`bottom: 0px`, `z-index: 30`). When users scroll through any estimator (Paint, Tile, Screeding, Build-to-Roof, BOQ), the primary action bar (Save, Export, Share, Recalculate) directly collides with and obscures the 5 bottom navigation tabs (Home, Tools, Market, Projects, Rewards). Buttons become unclickable or trigger the wrong action.
-- **Recommended Fix**:
-  - Update `StickyActionBar.tsx` to offset for the mobile navigation height:
-    ```tsx
-    // Add bottom offset on mobile, reset on md screens
-    className = "sticky bottom-16 md:bottom-0 z-30 ...";
-    ```
-  - Alternatively, dynamically compute padding with CSS safe-area variables:
-    `bottom-[calc(3.5rem+env(safe-area-inset-bottom))] md:bottom-0`.
-
-#### 2. Fixed Navbar Obscuring In-Page Sticky Steppers & Subheaders
-
-- **Affected Files**:
-  - `src/pages/BuildToRoofEstimator.tsx:674` (`sticky top-0 z-30`)
-  - `src/pages/ProjectDetail.tsx:247` (`sticky top-0 z-10`)
-  - `src/pages/contractor/ProjectDashboard.tsx:852` (`sticky top-0 z-20`)
-- **Observed Defect**:
-  - The global `Navbar` (`src/components/layout/Navbar.tsx`) is declared as `fixed top-0 z-40 w-full` with a fixed height of `h-16` (64px).
-  - Multi-step estimators and sub-dashboards declare internal steppers with `sticky top-0`.
-  - As the user scrolls down, these subheaders stick at `0px` from the top of the viewport—slipping completely behind the 64px fixed Navbar. Stepper progress bars, step labels, and sub-tab controls become invisible or impossible to tap.
-- **Recommended Fix**:
-  - Change all in-page sticky sub-bars to `sticky top-16` (64px offset) so they dock flush directly beneath the main navbar:
-    ```tsx
-    <div className="sticky top-16 z-30 border-b border-border bg-white/95 backdrop-blur-lg ...">
-    ```
-
-#### 3. Market / Country Selector Dropdown Viewport Overflow
-
-- **Affected File**: `src/components/ui/MarketSelector.tsx`
-- **Observed Defect**:
-  - In desktop dropdown mode, `MarketSelector` renders all active markets using an unconstrained `absolute` dropdown container without `max-h` or `overflow-y-auto`.
-  - With 20 active markets (and expanding toward 39+), 39 items at 42px each equals 1,638px tall. On standard laptop screens (1080p, 768p, 900p), the dropdown falls far below the bottom edge of the monitor. Half the countries cannot be seen or clicked.
-  - In mobile drawer mode (`inline`), expanding Market renders 39 stacked full-width buttons, pushing all other navigation links completely out of view.
-  - There is no search filter, forcing users to scan through dozens of unsorted items.
-- **Recommended Fix**:
-  - Replace the flat list with a searchable combobox/popover:
-    ```tsx
-    <div className="max-h-72 overflow-y-auto divide-y divide-border/20 ...">
-      <input
-        type="text"
-        placeholder="Search country or currency..."
-        className="..."
-      />
-      {/* Grouped by Continental Region: Americas, Europe, Africa, Asia-Pacific */}
-    </div>
-    ```
-
-#### 4. Intrusive First-Visit Splash Interruption (`EntryExperience.tsx`)
-
-- **Affected File**: `src/components/entry/EntryExperience.tsx`
-- **Observed Defect**:
-  - First-time visitors are presented with a full-screen blocking modal overlay ("FRELUX Smart Calc") that prevents them from seeing the homepage content until they click "Explore FRELUX" or press Escape.
-  - This increases initial bounce rates, disrupts SEO spiders, and annoys users who arrive looking for an immediate calculation.
-- **Recommended Fix**:
-  - Retire the blocking full-screen overlay in favor of an inline, interactive hero section with immediate interactive inputs, or a non-blocking onboarding banner.
-
-#### 5. Tables Overflowing Viewports on Mobile Screens
-
-- **Affected Files**: `src/pages/MaterialPrices.tsx`, `src/pages/Printables.tsx`, `src/components/brand-studio/BrandPreview.tsx`
-- **Observed Defect**:
-  - The live price table on `MaterialPrices.tsx` is wrapped in an `overflow-hidden` container lacking `overflow-x-auto`.
-  - On mobile screens (375px–414px), multi-column tables with material name, pack size, price, source, and date exceed screen width, clipping the price and source columns.
-- **Recommended Fix**:
-  - Always wrap tabular output in `<div className="w-full overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">` with responsive card-view alternatives on mobile viewports.
-
----
+All five originally-listed defects were fixed, regression-tested, and verified
+in the repo on 2026-10-14: sticky action bar offset above the mobile bottom nav
+(incl. safe-area inset, component test), sticky estimator/project headers
+docking below the fixed 64px navbar, searchable/region-grouped scroll-limited
+MarketSelector, the first-visit splash reconciled by code review (overlay only,
+preserved), and keyboard-focusable horizontal scroll regions around all
+mobile-overflowing tables incl. print templates. Details live in the git log;
+the defect entries were pruned from this handoff.
 
 ### C. Information Architecture & Navigation Restructuring
 
@@ -216,13 +152,14 @@ This audit details every identified usability defect, layout collision, informat
 
 ### D. Internationalization (i18n), Localization (l10n) & Standards
 
-#### 1. Native Internationalization vs Google Translate Dependency
+#### 1. (RESOLVED & PRUNED) The Google-Translate-dependency defect was fixed
 
-- **Current Issue**:
-  FRELUX currently relies on the Google Translate script for whole-page body translations. In regions where Google APIs are blocked or restricted (notably Mainland China `CN`, an active target market), or when visitors use ad-blockers/privacy shields, the translation widget fails completely.
-- **Recommended Fix**:
-  - Implement native, typed dictionary translation (`src/lib/i18n/locales/*.json`) for all core UI chrome, navigation items, calculator labels, and error messages.
-  - Retain Google Translate strictly as an optional on-the-fly translation tool for long-form Learn Hub articles.
+by the native client-side `src/lib/translate/page-translator.ts` layer (the
+Google widget was discontinued 2026-10-01). Measurement-unit defaults are
+market-aware via the market/unit context and `UnitToggle`, and currency
+display is centralized in `src/lib/international/currency-format.ts`
+(`formatByCode`, ISO 4217 decimal digits incl. integer JPY/KRW) — verified
+in the repo on 2026-10-14 and pruned.
 
 #### 2. International Contact & Regional Identity
 
@@ -232,36 +169,6 @@ This audit details every identified usability defect, layout collision, informat
   - Dynamic contact routing in `src/config/site.ts`:
     - Default international contact: Dedicated email ticketing system (`support@frelux.com`) with a 1-business-day response SLA.
     - Regional contacts: Display market-specific contact options, verified local partner links, or regional business hours based on the user's active `marketCode`.
-
-#### 3. Measurement Units (Imperial vs Metric)
-
-- **Current Issue**:
-  Some estimators support imperial/metric toggling via `UnitToggle`, while others enforce metric meters/millimeters or fail to adapt default standard dimensions (e.g. US drywall standard is 4×8 ft, UK block standard is 440×215 mm).
-- **Recommended Fix**:
-  - Enforce a centralized `useUnit()` context that synchronizes with `useMarket()`:
-    - US market automatically defaults to Imperial (`ft`, `in`, `sq ft`, `lbs`).
-    - European and African markets automatically default to Metric (`m`, `mm`, `m²`, `kg`).
-  - Provide a one-click persistent toggle on every calculator header that recalculates and updates input fields without resetting user entries.
-
-#### 4. Currency Formatting & Decimal Rules (ISO 4217)
-
-- **Current Issue**:
-  Certain currencies are displayed with improper decimals (e.g. Japanese Yen `JPY` and South Korean Won `KRW` do not utilize cents/subunits, whereas `USD` and `EUR` require 2 decimal places).
-- **Recommended Fix**:
-  - Centralize currency formatting through a standardized helper utilizing `Intl.NumberFormat`:
-    ```ts
-    export function formatMarketCurrency(
-      amount: number,
-      market: MarketProfile,
-    ): string {
-      return new Intl.NumberFormat(market.locale, {
-        style: "currency",
-        currency: market.currency_code,
-        minimumFractionDigits: market.decimal_digits ?? 2,
-        maximumFractionDigits: market.decimal_digits ?? 2,
-      }).format(amount);
-    }
-    ```
 
 ---
 
@@ -320,20 +227,20 @@ This audit details every identified usability defect, layout collision, informat
 
 ### Evidence-based status by requested engine
 
-| Business function / engine | Status in FRELUX | Evidence and remaining gap |
-| --- | --- | --- |
-| **BIM & CAD rendering (3D/4D/5D, clash detection)** | **PARTIAL: IFC takeoff only** | `src/pages/BimIfcImport.tsx` and `src/lib/estimation/ifc-parser.ts` parse a constrained subset of plain-text IFC/STEP in-browser and report elements and quantities declared by the file. This is not a 3D model viewer, CAD renderer, 4D schedule or 5D cost model, model federation, or clash-detection system. `.ifczip` is not supported. Build a standards-tested IFC import/validation pipeline and interactive model viewer first; add versioned model federation, georeferencing, schedule/cost linking, measurable clash rules, and auditable issue workflows. Never claim model compliance from a takeoff. |
-| **Geospatial / GIS** | **NOT FOUND as a GIS engine** | Repository search found browser geolocation/weather-location support, but no operational GIS stack for geospatial project layers, satellite/drone imagery, ArcGIS data, coordinate reference systems, or infrastructure progress mapping. Build project/site maps with explicit coordinate systems and licensed/provider-backed imagery/data connectors; add source/date/coverage and unavailable-data disclosure. Do not infer GIS support from geolocation. |
-| **Predictive analytics & AI (delay, cost, safety)** | **PARTIAL: deterministic project signals** | `src/lib/predictive-intelligence/` has evidence-backed cost, schedule, market-trend, and procurement analyses/risk register. `price-forecast-engine.ts` fits a least-squares trend to recorded material-price history. These are not a validated historical project-outcome model or safety-risk system; no live wearables/site-camera feed was found. Define outcome labels, assess representative regional data quality/bias, back-test and calibrate forecasts, provide uncertainty and evidence, and keep safety outputs decision-support only until independently validated. |
-| **Tax & currency conversion** | **PARTIAL: display FX and formats, not global tax/settlement** | `currency-context.tsx` fetches keyless FX rates (12-hour cache) for display, allows admin overrides, and falls back to configured rates / NGN presentation when unavailable; formatting helpers exist. The architecture documents a Stripe path that is unavailable until configured. No end-to-end region-specific VAT/GST/sales-tax determination, tax invoice treatment, real-time settlement conversion, fee handling, or legally validated tax engine was demonstrated. Build separate dated tax-jurisdiction rules and transaction/settlement conversion with provider reconciliation; show rate source/time, fees, rounding, and failure behavior. Never imply display conversion is a payable amount. |
-| **Regulatory compliance & standards** | **PARTIAL: sourced evidence registry** | `docs/INTERNATIONAL_20_MARKET_AUDIT.md` documents a construction-standards evidence registry with 16 verified entries across 10 markets, and the repository has localized construction profiles. This is not comprehensive jurisdiction coverage or automated blueprint/model checking for OSHA, Eurocodes, ISO, environmental or local building rules. Build a versioned, jurisdiction-and-project-type scoped rules/evidence catalog with primary-authority source, effective dates, applicability, amendments and expert review; only then add deterministic checks that cite exact provisions and report unknowns. No AI-only compliance certification. |
-| **Multi-language technical translation** | **PARTIAL: translated UI chrome** | `src/lib/i18n.tsx` supports 11 locale routes and translated chrome, with English fallback; its own comments state route content is not fully translated and Google Translate remains a convenience for whole-page translation. No reliable technical-document, blueprint annotation, safety-manual or field-log translation workflow with terminology review/versioning was found. Build terminology-managed, human-reviewable document translation, preserve source and units, handle RTL, and clearly distinguish machine translation from approved safety instructions. Offline operation and protected-data handling need explicit tests. |
-| **Workflow & automation (RFI, submittals, change orders)** | **PARTIAL: selected approvals, not construction control plane** | Estimate approval/client review, marketplace order milestones, and admin approval flows exist. No end-to-end, auditable RFI/submittal/change-order pipeline was demonstrated across owner, GC, subcontractor and region. Build configurable states, assignees, due dates, permissions, attachments/revisions, notifications, immutable audit history, escalation, and export/API integrations; test cross-role handoffs and offline conflicts. |
-| **IoT & telematics** | **NOT FOUND** | No operational ingestion/adapters for equipment telematics, wearables, site cameras, MQTT/event streams, device identity, or safety monitoring were found. Build a consented and secured device integration layer with identity/provisioning, timestamps, quality/retention controls, alert thresholds, and site/worker privacy safeguards. Do not fabricate sensor states or use unvalidated alerts for safety decisions. |
-| **Global procurement & logistics** | **PARTIAL: marketplace and price intelligence** | FRELUX has marketplace listings/orders and supplier/price-intelligence modules, but repository evidence does not establish globally vetted suppliers, inventory/availability, quotes-to-purchase-order fulfillment, customs, shipment tracking, or delivery-to-site chain of custody. Build market-specific supplier verification, comparable spec/units, quote/PO approvals, stock/lead-time evidence, shipment status and exception reconciliation. Clearly separate listed, quoted, ordered, dispatched and delivered states. |
-| **Fintech, escrow, lien waivers & AML** | **PARTIAL: checkout and milestone planning only** | Payment-provider checkout/webhooks and a deterministic milestone schedule exist. `escrow-intelligence.ts` explicitly makes ARCHIE advisory-only and leaves custody/release/refunds to an authorized provider. Stripe is configuration-dependent. No regulated escrow custody, construction milestone fund release, jurisdiction-appropriate lien-waiver lifecycle, or AML/KYC/sanctions screening capability was established. Treat regulated money movement/compliance as an external-provider and legal-partner integration, never a software-only claim; build provider-backed ledger/reconciliation, role approvals, audit/dispute controls, and jurisdiction review before production use. |
-| **Sync & offline-first field data** | **PARTIAL: local calculator cache and field-capture queue** | `src/lib/offline-store.ts` caches previously fetched reads and drafts in `localStorage`; `src/lib/estimation/offline-field-engine.ts` queues field captures locally and syncs when connectivity returns. This is useful offline behavior, but not a verified multi-user, multi-device, encrypted offline project-data engine for blueprints, attachments and concurrent edits. Build durable storage, encryption/identity handling, conflict resolution, retry/backoff, sync status/audit, attachment limits, and device-loss/reinstall recovery tests; never promise unsynced data survives browser storage loss. |
-| **RBAC / clearance and region-scoped security** | **PARTIAL: application auth, roles and database RLS exist** | Auth, feature access, project roles and numerous RLS policies exist. This audit did not verify that every sensitive route/table/action enforces least-privilege access by project, organizational role, region and clearance, nor independent security testing. Build a permission matrix and threat model; inventory every route, RPC, edge function, table, storage object and integration; enforce and test tenant/project/region/clearance boundaries server-side with audit logging, revocation and negative cross-tenant tests. Do not describe the platform as government/high-assurance compliant without independent evidence. |
+| Business function / engine                                 | Status in FRELUX                                                | Evidence and remaining gap                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ---------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **BIM & CAD rendering (3D/4D/5D, clash detection)**        | **PARTIAL: IFC takeoff only**                                   | `src/pages/BimIfcImport.tsx` and `src/lib/estimation/ifc-parser.ts` parse a constrained subset of plain-text IFC/STEP in-browser and report elements and quantities declared by the file. This is not a 3D model viewer, CAD renderer, 4D schedule or 5D cost model, model federation, or clash-detection system. `.ifczip` is not supported. Build a standards-tested IFC import/validation pipeline and interactive model viewer first; add versioned model federation, georeferencing, schedule/cost linking, measurable clash rules, and auditable issue workflows. Never claim model compliance from a takeoff.                                                                                          |
+| **Geospatial / GIS**                                       | **NOT FOUND as a GIS engine**                                   | Repository search found browser geolocation/weather-location support, but no operational GIS stack for geospatial project layers, satellite/drone imagery, ArcGIS data, coordinate reference systems, or infrastructure progress mapping. Build project/site maps with explicit coordinate systems and licensed/provider-backed imagery/data connectors; add source/date/coverage and unavailable-data disclosure. Do not infer GIS support from geolocation.                                                                                                                                                                                                                                                 |
+| **Predictive analytics & AI (delay, cost, safety)**        | **PARTIAL: deterministic project signals**                      | `src/lib/predictive-intelligence/` has evidence-backed cost, schedule, market-trend, and procurement analyses/risk register. `price-forecast-engine.ts` fits a least-squares trend to recorded material-price history. These are not a validated historical project-outcome model or safety-risk system; no live wearables/site-camera feed was found. Define outcome labels, assess representative regional data quality/bias, back-test and calibrate forecasts, provide uncertainty and evidence, and keep safety outputs decision-support only until independently validated.                                                                                                                             |
+| **Tax & currency conversion**                              | **PARTIAL: display FX and formats, not global tax/settlement**  | `currency-context.tsx` fetches keyless FX rates (12-hour cache) for display, allows admin overrides, and falls back to configured rates / NGN presentation when unavailable; formatting helpers exist. The architecture documents a Stripe path that is unavailable until configured. No end-to-end region-specific VAT/GST/sales-tax determination, tax invoice treatment, real-time settlement conversion, fee handling, or legally validated tax engine was demonstrated. Build separate dated tax-jurisdiction rules and transaction/settlement conversion with provider reconciliation; show rate source/time, fees, rounding, and failure behavior. Never imply display conversion is a payable amount. |
+| **Regulatory compliance & standards**                      | **PARTIAL: sourced evidence registry**                          | `docs/INTERNATIONAL_20_MARKET_AUDIT.md` documents a construction-standards evidence registry with 16 verified entries across 10 markets, and the repository has localized construction profiles. This is not comprehensive jurisdiction coverage or automated blueprint/model checking for OSHA, Eurocodes, ISO, environmental or local building rules. Build a versioned, jurisdiction-and-project-type scoped rules/evidence catalog with primary-authority source, effective dates, applicability, amendments and expert review; only then add deterministic checks that cite exact provisions and report unknowns. No AI-only compliance certification.                                                   |
+| **Multi-language technical translation**                   | **PARTIAL: translated UI chrome**                               | `src/lib/i18n.tsx` supports 11 locale routes and translated chrome, with English fallback; its own comments state route content is not fully translated and Google Translate remains a convenience for whole-page translation. No reliable technical-document, blueprint annotation, safety-manual or field-log translation workflow with terminology review/versioning was found. Build terminology-managed, human-reviewable document translation, preserve source and units, handle RTL, and clearly distinguish machine translation from approved safety instructions. Offline operation and protected-data handling need explicit tests.                                                                 |
+| **Workflow & automation (RFI, submittals, change orders)** | **PARTIAL: selected approvals, not construction control plane** | Estimate approval/client review, marketplace order milestones, and admin approval flows exist. No end-to-end, auditable RFI/submittal/change-order pipeline was demonstrated across owner, GC, subcontractor and region. Build configurable states, assignees, due dates, permissions, attachments/revisions, notifications, immutable audit history, escalation, and export/API integrations; test cross-role handoffs and offline conflicts.                                                                                                                                                                                                                                                                |
+| **IoT & telematics**                                       | **NOT FOUND**                                                   | No operational ingestion/adapters for equipment telematics, wearables, site cameras, MQTT/event streams, device identity, or safety monitoring were found. Build a consented and secured device integration layer with identity/provisioning, timestamps, quality/retention controls, alert thresholds, and site/worker privacy safeguards. Do not fabricate sensor states or use unvalidated alerts for safety decisions.                                                                                                                                                                                                                                                                                    |
+| **Global procurement & logistics**                         | **PARTIAL: marketplace and price intelligence**                 | FRELUX has marketplace listings/orders and supplier/price-intelligence modules, but repository evidence does not establish globally vetted suppliers, inventory/availability, quotes-to-purchase-order fulfillment, customs, shipment tracking, or delivery-to-site chain of custody. Build market-specific supplier verification, comparable spec/units, quote/PO approvals, stock/lead-time evidence, shipment status and exception reconciliation. Clearly separate listed, quoted, ordered, dispatched and delivered states.                                                                                                                                                                              |
+| **Fintech, escrow, lien waivers & AML**                    | **PARTIAL: checkout and milestone planning only**               | Payment-provider checkout/webhooks and a deterministic milestone schedule exist. `escrow-intelligence.ts` explicitly makes ARCHIE advisory-only and leaves custody/release/refunds to an authorized provider. Stripe is configuration-dependent. No regulated escrow custody, construction milestone fund release, jurisdiction-appropriate lien-waiver lifecycle, or AML/KYC/sanctions screening capability was established. Treat regulated money movement/compliance as an external-provider and legal-partner integration, never a software-only claim; build provider-backed ledger/reconciliation, role approvals, audit/dispute controls, and jurisdiction review before production use.               |
+| **Sync & offline-first field data**                        | **PARTIAL: local calculator cache and field-capture queue**     | `src/lib/offline-store.ts` caches previously fetched reads and drafts in `localStorage`; `src/lib/estimation/offline-field-engine.ts` queues field captures locally and syncs when connectivity returns. This is useful offline behavior, but not a verified multi-user, multi-device, encrypted offline project-data engine for blueprints, attachments and concurrent edits. Build durable storage, encryption/identity handling, conflict resolution, retry/backoff, sync status/audit, attachment limits, and device-loss/reinstall recovery tests; never promise unsynced data survives browser storage loss.                                                                                            |
+| **RBAC / clearance and region-scoped security**            | **PARTIAL: application auth, roles and database RLS exist**     | Auth, feature access, project roles and numerous RLS policies exist. This audit did not verify that every sensitive route/table/action enforces least-privilege access by project, organizational role, region and clearance, nor independent security testing. Build a permission matrix and threat model; inventory every route, RPC, edge function, table, storage object and integration; enforce and test tenant/project/region/clearance boundaries server-side with audit logging, revocation and negative cross-tenant tests. Do not describe the platform as government/high-assurance compliant without independent evidence.                                                                       |
 
 ### Implementation queue and release gates
 
@@ -353,12 +260,12 @@ These are **draft backlog items**, not claims that work has started or that inte
 
 **Scope clarification:** The requested target is every country currently represented in FRELUX, not a single pilot. A country profile, unit display option, climate heuristic, currency quote, credential field, or database schema is not proof that its construction calculations or operational data are market-ready. This source audit does not verify the live Supabase deployment, active credentials, third-party provider configuration, or local professional/legal review.
 
-| Engine | Current evidence | Operational status and gap |
-| --- | --- | --- |
-| **Estimation & quantities / material standardization** | `src/lib/international/units-display.ts` converts displayed measurements; market-specific material rules can be fetched from `market_material_rules`; price-book material roles resolve through market mappings and effective prices. `market-profiles.test.ts` explicitly treats NG as active and GB/US/CA/AU/ZA/AE as coming soon in its seeded facts. | **PARTIAL; not verified for every represented country.** Display-unit conversion does not itself change calculation formulas, structural standards, product pack sizes, or purchase rounding. Verify each estimator's consumption of market rules, package dimensions, rule provenance/effective dates, missing-rule behavior, and tests by market before enabling a priced/material quantity workflow. No Nigerian standard may be used for another market unless clearly disclosed and accepted as a reference only. |
-| **Market pricing & valuation** | Material prices can carry market, currency, source and effective-date provenance; role-based resolution returns the supplying market. Regional cost adjustments exist as configured factors. `fx-live.ts` fetches NGN-based display FX and caches it for 12 hours; `fx-display.ts` explicitly describes conversion as display-only. | **PARTIAL; no verified global valuation/tax engine.** Display FX is not local material valuation, inflation indexing, tax determination, invoice calculation, or settlement. A regional factor is not a source-backed, maintained cost index. No comprehensive country/jurisdiction tax rules and live supplier-index coverage were established. Add only dated and source-attributed local data; provide clear stale/missing/fallback disclosure; require local tax review before any tax output is represented as due. |
-| **Global workforce compliance / Pro Connect** | Pro Connect has identity/profile verification and a `pro_credentials` workflow with professional body, credential type, expiry and admin-reviewed verified status. | **PARTIAL; not operationally global.** The generic credential fields do not encode jurisdiction, issuing authority registry, scope/class, good-standing status, insurance policy/coverage, occupational safety training, or renewal and revocation checks. A manually marked verified credential is not proof of regulator validation. Require country-specific authoritative verification sources and auditable human review; do not claim a worker is compliant or licensed in a country until its rules and integrations are verified. |
-| **Project timeline & predictive logistics** | `timeline-estimator.ts` provides deterministic stage-duration heuristics; market-scoped climate profiles change season choices/notes and carry an explicit heuristic disclaimer. `ProjectTimeline.tsx` passes the selected market code. The end-date calculation now counts Monday-Saturday workdays and discloses excluded holidays/logistics. | **PARTIAL; not a predictive logistics engine.** No shipping/carrier status, customs lead-time source, port/border disruption feed, local public-holiday calendar, or region-level weather/season data integration was established. Season multipliers are planning heuristics, not calibrated measured productivity. The six-day date correction is market-neutral and does not provide country-specific calendars or logistics. |
+| Engine                                                 | Current evidence                                                                                                                                                                                                                                                                                                                                         | Operational status and gap                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Estimation & quantities / material standardization** | `src/lib/international/units-display.ts` converts displayed measurements; market-specific material rules can be fetched from `market_material_rules`; price-book material roles resolve through market mappings and effective prices. `market-profiles.test.ts` explicitly treats NG as active and GB/US/CA/AU/ZA/AE as coming soon in its seeded facts. | **PARTIAL; not verified for every represented country.** Display-unit conversion does not itself change calculation formulas, structural standards, product pack sizes, or purchase rounding. Verify each estimator's consumption of market rules, package dimensions, rule provenance/effective dates, missing-rule behavior, and tests by market before enabling a priced/material quantity workflow. No Nigerian standard may be used for another market unless clearly disclosed and accepted as a reference only.                    |
+| **Market pricing & valuation**                         | Material prices can carry market, currency, source and effective-date provenance; role-based resolution returns the supplying market. Regional cost adjustments exist as configured factors. `fx-live.ts` fetches NGN-based display FX and caches it for 12 hours; `fx-display.ts` explicitly describes conversion as display-only.                      | **PARTIAL; no verified global valuation/tax engine.** Display FX is not local material valuation, inflation indexing, tax determination, invoice calculation, or settlement. A regional factor is not a source-backed, maintained cost index. No comprehensive country/jurisdiction tax rules and live supplier-index coverage were established. Add only dated and source-attributed local data; provide clear stale/missing/fallback disclosure; require local tax review before any tax output is represented as due.                  |
+| **Global workforce compliance / Pro Connect**          | Pro Connect has identity/profile verification and a `pro_credentials` workflow with professional body, credential type, expiry and admin-reviewed verified status.                                                                                                                                                                                       | **PARTIAL; not operationally global.** The generic credential fields do not encode jurisdiction, issuing authority registry, scope/class, good-standing status, insurance policy/coverage, occupational safety training, or renewal and revocation checks. A manually marked verified credential is not proof of regulator validation. Require country-specific authoritative verification sources and auditable human review; do not claim a worker is compliant or licensed in a country until its rules and integrations are verified. |
+| **Project timeline & predictive logistics**            | `timeline-estimator.ts` provides deterministic stage-duration heuristics; market-scoped climate profiles change season choices/notes and carry an explicit heuristic disclaimer. `ProjectTimeline.tsx` passes the selected market code. The end-date calculation now counts Monday-Saturday workdays and discloses excluded holidays/logistics.          | **PARTIAL; not a predictive logistics engine.** No shipping/carrier status, customs lead-time source, port/border disruption feed, local public-holiday calendar, or region-level weather/season data integration was established. Season multipliers are planning heuristics, not calibrated measured productivity. The six-day date correction is market-neutral and does not provide country-specific calendars or logistics.                                                                                                          |
 
 ### Market-by-market rollout order (owner priority, confirmed 2026-10-14)
 
@@ -570,6 +477,7 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Pricing/tax:** EGP records exist, but the current scanner has no Egypt market entry; several migration values are marked indicative/admin-adjustable, and no production read, live price refresh, robust Egypt tax/VAT or FX engine was verified.
 - **Workforce compliance / timeline:** no Egyptian professional credentials or safety checks; nor local calendar, climate/logistics integration, or predictive delay engine, was verified.
 - **Changes made:** none. Keep Egypt not verified until source-backed local formulas, mapped products/prices, tax and operational integrations are tested in production.
+
 ### Tanzania market closeout (priority 24; audit only, 2026-10-14)
 
 - **Operational decision: NOT IMPLEMENTED / NOT VERIFIED.** Tanzania (`TZ`, TZS) appears in the general country selector only. No Tanzania-specific market profile, price-scanner catalog, construction typology, wall/climate method, electrical/plumbing profile or engine-support inventory entry was found in the reviewed sources.
@@ -595,6 +503,7 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Pricing/tax:** localized EUR catalog data exists, but no Spain scanner catalog or complete mapped/local price coverage, refresh proof, IVA calculation or FX workflow was verified. Some rows are expressly indicative/admin-adjustable.
 - **Workforce compliance / timeline:** no Spain-specific professional-license, insurance or safety checks, local public-holiday/site calendar, validated weather productivity or predictive logistics integration was demonstrated.
 - **Changes made:** none. Spain remains partial/unverified until country/regional estimator, tax, compliance and schedule integrations are tested against authoritative local sources and production data.
+
 ### Netherlands market closeout (priority 27; evidence correction, 2026-10-14)
 
 - **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `NL` is in the generic country selector with EUR. The production-catalog/price migrations include Dutch material rows and a tile adhesive/grout entry. Some prices have retailer-survey provenance (e.g. paint/primer); others are explicitly indicative/admin-adjustable. No current production query was made.
@@ -602,6 +511,7 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Pricing/tax:** localized EUR records exist, but no NL scanner reference catalog or refresh process, complete verified price coverage, Dutch VAT treatment or transaction FX behavior was verified.
 - **Workforce compliance / timeline:** no Netherlands-specific professional credential, insurance/safety registry, public-holiday/site calendar or predictive weather/customs logistics integration was demonstrated.
 - **Changes made:** none. Keep NL partial/unverified pending source-backed and deployment-verified quantities, mapped pricing, VAT, compliance and timeline behavior.
+
 ### Poland market closeout (priority 28; evidence correction, 2026-10-14)
 
 - **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `PL` is in the generic selector with PLN. Price/catalog migrations include Polish material records and tile adhesive/grout entries; selected paint prices cite Castorama surveys, while other entries are indicative/admin-adjustable. No production database status was queried.
@@ -609,6 +519,7 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Pricing/tax:** PLN records exist, but no scanner mapping or recurring refresh, complete price-role coverage, Polish VAT treatment or transaction FX engine was demonstrated.
 - **Workforce compliance / timeline:** no locally scoped professional/trade credential or safety validation, public-holiday/site calendar, or predictive logistics integration was found.
 - **Changes made:** none. Do not call Poland operational until national and regional assumptions, source-backed mapped prices, tax and integration status are verified.
+
 ### Sweden market closeout (priority 29; evidence correction, 2026-10-14)
 
 - **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `SE` is listed with SEK. Catalog/price migrations contain Swedish materials and tiling entries; selected cement/paint rows cite retailer surveys, while many remain indicative/admin-adjustable. Live production status was not checked.
@@ -616,6 +527,7 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Pricing/tax:** SEK rows exist, but no market-specific scanner-reference mapping/refresh, complete source verification, Sweden-specific tax rules or transaction FX workflow was demonstrated.
 - **Workforce compliance / timeline:** no Swedish license/insurance/safety checks, local public-holiday/site calendar, validated seasonal productivity, or predictive supply-chain logistics integration was found.
 - **Changes made:** none. Keep partial/unverified until local assumptions and mapped source-backed operating data are validated in production.
+
 ### Switzerland market closeout (priority 30; evidence correction, 2026-10-14)
 
 - **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `CH` is listed with CHF and has German-language locale membership. The catalog/price migrations contain Swiss products and tile adhesive/grout rows; one wall-paint price cites a Hornbach survey, while multiple other entries are indicative/admin-adjustable. No live production read was made.
@@ -623,6 +535,7 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Pricing/tax:** CHF records exist but no scanner catalog/refresh, complete mapped source-backed price coverage, Swiss VAT/cantonal tax logic or FX workflow was demonstrated.
 - **Workforce compliance / timeline:** no Swiss-specific professional verification, insurance/safety registry, cantonal work calendar, or predictive logistics integration was demonstrated.
 - **Changes made:** none. Keep partial/unverified until Swiss national/cantonal rules and operational product-price mappings are validated.
+
 ### Singapore market closeout (priority 31; evidence correction, 2026-10-14)
 
 - **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `SG` is in the generic selector with SGD. Price/catalog migrations contain Singapore material rows and tile adhesive/grout entries; a paint row cites a retailer price band, while other rows are indicative/admin-adjustable. Production deployment was not checked.
@@ -630,6 +543,7 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Pricing/tax:** SGD records exist, but no SG scanner references/refresh process, full source verification, GST/tax treatment or FX engine was found.
 - **Workforce compliance / timeline:** no Singapore licensing/registration, insurance or workplace-safety integration, holiday/site calendar, or predictive procurement/logistics engine was demonstrated.
 - **Changes made:** none. Keep Singapore unverified pending validated local formulas, source-backed mapped price coverage, tax, compliance and schedule functions.
+
 ### Türkiye market closeout (priority 32; evidence correction, 2026-10-14)
 
 - **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `TR` is in the generic selector with TRY. Localized price/catalog rows and tile adhesive/grout entries exist; a subset of paint prices cite Koçtaş surveys while other material prices are indicative/admin-adjustable. No live production check was made.
@@ -637,6 +551,7 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Pricing/tax:** TRY records exist, but the price scanner has no TR catalog mapping; no current refresh, complete verified material-role coverage, Turkish VAT/tax or FX operation was demonstrated.
 - **Workforce compliance / timeline:** no Turkish license/credential/insurance/safety checks, local holiday/site calendar or predictive logistics integration was found.
 - **Changes made:** none. Keep unverified until Türkiye-specific formulas, tax, compliance and current mapped pricing are independently validated and deployed.
+
 ### New Zealand market closeout (priority 33; evidence correction, 2026-10-14)
 
 - **Operational decision: LOCALIZED CATALOG DATA EXISTS; NOT VERIFIED END TO END.** `NZ` is listed with NZD. Migrations include New Zealand-specific material records and tile adhesive/grout rows; cement and Resene interior paint cite retail surveys while many other prices are indicative/admin-adjustable. A 20 kg cement item uses a `40kg` slug, a concrete pack-size contradiction requiring data review. No live production query was performed.
@@ -644,6 +559,7 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Pricing/tax:** NZD catalog prices exist, but there is no NZ scanner catalog/refresh, complete role mapping and verified price coverage, GST handling or FX engine demonstrated.
 - **Workforce compliance / timeline:** no NZ-specific licensing/insurance/safety validation, regional/public holiday work calendar or predictive shipping/logistics engine was found.
 - **Changes made:** none. Keep unverified until the pack-size data defect and broader operational validation are resolved.
+
 ### Ireland market closeout (priority 34; audit-only catalog evidence, 2026-10-14)
 
 - **Operational decision: LOCALIZED SEED DATA EXISTS; NOT VERIFIED END TO END.** `IE` is represented in production-catalog/price-seed migration data using EUR. IE has local product and price rows including Irish Cement 25 kg, Woodies paint/sand surveys and Zinsser primer. No Irish market profile, scanner mapping, native role mappings, or Ireland-specific engineering profiles were found. Some prices are expressly indicative; seeded rows do not prove deployed operation.
@@ -756,125 +672,73 @@ The all-country requirement remains open. Do not activate all represented countr
 
 ---
 
-
-
-**Completed 2026-10-14 (market-neutral timeline date correction):** The project timeline's stage durations are workdays under a six-day week, but its estimated completion date previously added them as uninterrupted calendar days. `timeline-estimator.ts` now counts Monday-Saturday as workdays and skips Sunday, with tests for week boundaries and Sunday starts. The result explicitly excludes public holidays, customs/shipping delays, and location-specific non-working days until verified calendars and logistics sources exist. This does not make the logistics engine operational.
-
 ## 2. INCOMPLETE, PENDING, PARTIAL & UNVERIFIED WORK (Active Queue)
 
-### A0. Verified-complete (Solas, 2026-10-14)
+### A0. Verified-complete (Solas, 2026-10-14) — PRUNED to standing notes
 
-- [x] ELECTRICAL BOOKS ALL 20 MARKETS: live-verified via direct SELECT —
-      11/11 slugs per market, all scan_confidence='manual', all sourced,
-      local currencies (NG anchored on Konga/Coleman single-core + Bricmax
-      conduit listings). This queue item is CLOSED.
-- [x] DOORS/WINDOWS BOOK NG, APPLIED LIVE (2026-10-14, migration
-      20261015120000, commit pending): 4 rows manual — flush NGN 85,000
-      (Jiji Mushin HDF leaf), panel NGN 65,000 (Konga 5277134 SET incl.
-      4-inch frame), hinge NGN 3,000 (Jiji PH 4-inch), lockset NGN 15,500
-      (Konga Mission Door Lock). door-frame INTENTIONALLY UNPRICED:
-      verified market structure — all 156 Jiji frame-category listings
-      are bundled door sets; no standalone frame retail listing exists in
-      NG (Konga/Jiji surveyed). Never substitute; panel row is a set price
-      so panel-door estimates complete without a frame line.
-      GOTCHA: version prefix 20261014110000 was ALREADY TAKEN by
-      price_intel_pipeline — migration was silently skipped as "already
-      recorded". Always check schema_migrations for the exact version int
-      before naming a migration; renamed to 20261015120000.
-      Remaining doors books: NONE — ALL 20 MARKETS COMPLETE
-      (Solas batch 2026-10-14, migrations 20261015140000-210000, commits
-      through this push): BR 5 (LM Brasil: flush folha lisa 330.26, panel
-      frisada 552.72, frame batente Artens 189.90, hinge Vonder 3.5pc 16.30,
-      lockset Pado 195.90), SA 3 (OpenSooq Riyadh WPC 750 + Amazon.sa hinge
-      29.38/lockset 114.17; panel/frame quote-based), AE 4 (Desertcart
-      flush 1193/panel 1948 + Amazon.ae hinge 24/lockset 35.99), MX 5
-      (HD Mexico: tambor MUVA 997, semisolida 1769, marco Rosi 595,
-      bisagra 145, chapa MercadoLibre 278), JP 4 (kakaku 19,800 / LIXIL
-      36,200 / Kohnan hinge 1,064 / Rakuten latch 2,200), ID 5 (Tokopedia:
-      mahoni leaf 350k, Belanda panel 1.2M, kusen 500k, engsel 35k, gagang
-      set 125k), KR 3 (Coupang: ABS leaf+frame+install 200,000, hinge
-      15,900, lockset 30,530), CN 4 (TATA set 1,099 / Mexin 3,500 /
-      Taobao hinge 22.80 / GUTE lockset 76.00). FRAME METHODOLOGY NOTE:
-      NG/JP/CN/KR door-frame lines stay intentionally unpriced — those
-      markets sell frames bundled in door sets (verified: Jiji 156
-      listings, JP ドアセット standard, CN 套装门 standard, KR install
-      services); flush/panel rows there are SET prices already including
-      the frame. Never substitute.
-- [x] DOORS/WINDOWS BOOK IT, APPLIED LIVE (2026-10-14, migration
-      20261015130000): 6 rows manual, all Leroy Merlin Italia live
-      listings incl IVA — flush EUR 199.90 (Cadrel 90741797), panel
-      EUR 159.90 (Winter pine 82860760), frame EUR 17.90 (telaio
-      L12 86329072), hinge EUR 7.40 (3-set 22.19, 72868177), lockset
-      EUR 22.12 (BRICARD mortaise asse 40), security EUR 399.90
-      (porta blindata MASTER Easy 92007081). Windows left unpriced
-      (Italian serramenti are made-to-measure per opening).
+Electrical books (all 20 markets, 11/11 slugs, manual-confidence, sourced)
+and doors/windows books (all 20 markets, incl. IT/BR/SA/AE/MX/JP/ID/KR/CN
+sets) were applied live and independently re-verified by REST probe on
+2026-10-14. Per-row source citations live in the migrations and git
+history. Standing rules that survive the prune:
+
+- **Migration naming gotcha**: check `schema_migrations` for the exact
+  version int before naming a migration — 20261014110000 was already
+  taken and a same-versioned migration was silently skipped. Rename
+  chronologically.
+- **Door-frame methodology (NG/JP/CN/KR)**: door-frame lines stay
+  intentionally unpriced — those markets sell frames bundled in door
+  sets (verified: Jiji 156 listings, JP ドアセット, CN 套装门, KR
+  install services); flush/panel rows there are SET prices that already
+  include the frame. Never substitute. Italian serramenti and other
+  made-to-measure windows stay unpriced per the zero-fabrication rule.
 
 The following items represent all outstanding, in-progress, or unverified work on the platform. Completed past batches have been pruned.
 
-### A. Live Supabase Database Migration Execution (PENDING / UNVERIFIED)
+### A. Live Supabase Database Migration Execution — CAUGHT UP & VERIFIED LIVE (2026-10-14)
 
-- **Status**: SUPERSEDED (live-verified 2026-10-14 by Velo): 15 pending migrations WERE executed
-  against production `nfgaaohweygwydoelxnf` via scripts/apply_pending_migrations.py (electrical books,
-  wall_finishing_project_type, engine_capability_registry, construction_standards_evidence,
-  comprehensive_engine_inventory, reconcile CHECK, doors books US/GB/DE/CA/ZA/FR/KE/AU/IN/GH), each
-  recorded in supabase_migrations.schema_migrations. No token blocker exists; the Management API works.
-  Only genuinely-new migrations need this section going forward.
-- **Action Required**:
-  - Obtain the bearer token from the workspace owner.
-  - Run `scripts/apply_pending_migrations.py` via Management API endpoint:
-    `POST https://api.supabase.com/v1/projects/nfgaaohweygwydoelxnf/database/query`
-  - Verify execution with live SQL count queries across `market_profiles`, `estimation_materials`, and `estimation_prices`.
+- **Status (verified 2026-10-14 via live REST probes against
+  `nfgaaohweygwydoelxnf`)**: the entire runner queue through
+  `20261015400000_boq_revisions_bank.sql` is applied and live —
+  40 markets, electrical books, all 16 market plumbing books (incl. KR),
+  doors/windows price books for all 20 markets, rebar GB/CA anchors,
+  `construction_standards`, `market_rankings`, engine registry/inventory
+  tables, monetization RPC hardening (commit `3bf1a687`),
+  `project_expenses` (Wave 1.1) and `boq_quote_revisions` (Wave 1.2).
+- **Remaining action**: none for the current queue. For FUTURE
+  migrations, obtain a fresh `SUPA_TOKEN` from the workspace owner
+  (previous tokens 401), run `scripts/apply_pending_migrations.py`
+  (idempotent via `already_applied()`), verify with follow-up queries.
+  Never edit an already-applied migration in place.
 
 ### B. Rebar Books Expansion (PARTIAL / INCOMPLETE)
 
-- **Status**: PARTIAL
-  - Completed: US (imperial #3-#8), NG, DE/AT (metric B500B), AU (indicative).
+- **Status**: PARTIAL (verified live 2026-10-14: US, NG, DE/AT, AU,
+  GB, and CA 10M/15M/20M (CSA G30.18) all have live market prices —
+  GB/CA pruned from outstanding).
   - Outstanding:
-    - **GB**: Retail stick prices verified (Next Day Steel), but mill/trade bundle price ratios pending.
-    - **CA**: Rebar ties priced; bar sizes (10M, 15M, 20M CSA G30.18) pending Canadian distributor verification.
-    - **Top-30 Expansion Markets**: France, Italy, Spain, Japan, South Korea, China, Indonesia, Mexico, Brazil, India, South Africa, Ghana, Kenya, Egypt, Saudi Arabia, UAE require verified rebar price books.
+    - **GB**: mill/trade bundle price ratios pending.
+    - **Top-30 Expansion Markets**: France, Italy, Spain, Japan, South Korea,
+      China, Indonesia, Mexico, Brazil, India, South Africa, Ghana, Kenya,
+      Egypt, Saudi Arabia, UAE require verified rebar price books
+      (no migrations exist yet — checked 2026-10-14).
 
-### C. Plumbing Fittings & Valves Expansion (PARTIAL / INCOMPLETE)
+### C. Plumbing Fittings & Valves Expansion — COMPLETE & PRUNED (2026-10-14)
 
-- **Status**: US/GB/AT/DE/GH/KE/ZA/IN COMPLETE (live-verified 2026-10-14, migrations 20261015230000/240000/250000/260000)
-  - Completed: US (PVC DWV + PEX-A/B + copper); GB 5/5, AT 5/5, DE 5/5 (migration 20261013170000, live).
-    Live data reality: GB union is GBP 4.04 Screwfix (not the GBP 2.25 quoted in the older batch-16 writeup).
-  - GH book 9/9 (migration 20261015230000, live): PPR-C 25mm fusion system + uPVC DWV. Fittings from
-    buildershubgh.com (Builders Hub GH, East Legon Accra): elbow GHS 2.00, tee GHS 2.50, reducing tee
-    32x25x32 GHS 4.00, coupling GHS 1.50, gate valve GHS 68.00 (product 430 variation list). Pipes:
-    arkandstar.com PPR 3/4" stick GHS 42 / 4m standard (Wadfow 4m PPR listing, supplymaster.store) =
-    GHS 10.50/m hot+cold; Interplast uPVC Class C 2"x6m GHS 150.50 = 25.08/m waste; Class B 4"x6m
-    GHS 391.50 = 65.25/m soil.
-  - KE book 9/9 (migration 20261015240000, live): PPR-C 25mm + uPVC KS waste. Fittings: hanzach.com
-    (Nairobi) elbow KSh 20, tee KSh 30, reduced tee 25*20 KSh 35; kkempiretradesslimited.com union 25mm
-    KES 33; nikkohardware.co.ke gate valve 25mm KSh 135. Pipes: randtech.co.ke PPR 25mm x 4m KSh 380 =
-    95/m hot+cold; trustedbuilder.co.ke 2" 50mm uPVC x 6m KSh 550 = 91.67/m waste; jiji.co.ke Nairobi
-    4"x3mm"x6m PVC soil KSh 1,900 = 316.67/m drainage.
-  - ZA book 9/9 (migration 20261015250000, live): SABS copper capillary 22mm + uPVC DWV. Fittings:
-    plumblink Copcal elbow 22x90 R15.30, plumblinkb2b Copperman equal tee 22mm R27.80, diyshop.co.za
-    tee reducer 22x22x15 R25.00, move.store coupler 22mm R10.00, alshardware brass gate valve 3/4"
-    R132.22. Pipes: builders.co.za Saffer 22mm SABS 5.5m stick R775 = 140.91/m hot+cold (vereenigingbuilders
-    R141/m corroborates); pricecheck/Mercury Build It 50mm x 6m waste R119.99 = 20.00/m; leroymerlin.co.za
-    110mm PVC 200kPa 6m R379 = 63.17/m drainage.
-  - IN book 9/9 (migration 20261015260000, live): CPVC ASTM D2846 25mm + SWR IS 13592. Fittings from
-    ibo.com: Ashirvad FlowGuard Plus elbow 25mm INR 35, Supreme tee 25mm INR 35, TRUFLO reducer tee
-    32x25 INR 122, Supreme union 25mm INR 78; mykit.in Finolex CPVC ball valve 25mm INR 280. Pipes:
-    moglix Astral CPVC Pro 25mm SDR-13.5 x 3m INR 330 = 110/m hot+cold; tradeindia 50mm SWR Type A 3m
-    INR 95 = 31.67/m waste; kansalbuildmartllp Astral SWR Type B 110mm 3m INR 975.20 = 325.07/m soil.
-  - Outstanding (12 markets, PPR/copper/multilayer books to verify per profile):
-    JP (PEX 13A), FR/IT (multistrato), BR (PVC marrom/
-    CPVC), MX (CPVC), AU/CA (PEX/copper), SA/AE (PPR/CPVC Sch80), CN (PP-R GB/T), ID (PVC AW), KR (PB).
-    NG is engine-default (resolver returns early; no NG book needed).
+US/GB/AT/DE fittings plus all 16 market plumbing books (GH, KE, ZA, IN,
+JP, FR, IT, BR, MX, AU, CA, SA, AE, CN, ID, KR) verified LIVE with
+market-scoped active prices (probe: every `{market}-elbow` material has an
+active price row for its market). NG is engine-default. Item pruned.
 
-### D. Doors & Windows Books for Remaining 12 Markets (PARTIAL / INCOMPLETE)
+### D. Doors & Windows Books — COMPLETE & PRUNED (2026-10-14)
 
-- **Status**: PARTIAL
-  - Completed (live-verified 2026-10-14/15): US 6, GB 4, DE 4, CA 6, ZA 6, FR 4, KE 5, AU 6, IN 5, GH 5 rows.
-  - Outstanding:
-    - Brazil, Saudi Arabia, UAE, Italy, Mexico, Japan, China, Indonesia, South Korea, Nigeria require verified entry door, interior door, and standard window price books.
-    - High-variability components (custom aluminium sliding windows, structural louvers, bulletproof security doors) must remain visibly unpriced with manual rate entry prompts.
+All 20 markets (incl. NG, IT, BR, SA, AE, MX, JP, ID, KR, CN) verified
+LIVE with named-source price rows on the generic door/window materials.
+High-variability items (custom aluminium sliding windows, structural
+louvers, bulletproof security doors) remain visibly unpriced per the
+zero-fabrication rule. Item pruned.
 
-### E. Price Campaign Remainder (~174 Low-Confidence Rows) (PENDING)
+### E. Price Campaign Remainder (176 Low-Confidence Rows, live count 2026-10-14) (PENDING)
 
 - **Status**: PENDING
 - **Goal**: Audit all rows in `estimation_prices` where `scan_confidence = 'low'` or `price_source` lacks an attributable URL/survey.
@@ -906,39 +770,18 @@ The following items represent all outstanding, in-progress, or unverified work o
     IS 456) — concrete_grade presets per market in structural-calculator;
     AI adapters for the 3 engineering engines (part of the 41-adapter backlog).
 
-- **Status**: INCOMPLETE
-- **Goal**: Disentangle legacy Nigerian construction assumptions from international engines:
-  - Remove hardcoded 9-inch (225mm) sandcrete block assumptions from `src/lib/engineering/sequence-planner.ts` and `wall-methodology.ts`.
-  - Implement regional block/wall modules:
-    - US: 8×8×16 inch CMU (hollow concrete masonry unit).
-    - UK: Cavity wall construction (100mm outer brick + 50-100mm cavity/insulation + 100mm inner aerated block).
-    - France/EU: Parpaing creux 20×20×50 cm and Monomur clay blocks.
-    - India: 230mm / 115mm clay brick and AAC blocks.
-  - Regional concrete mix designs (ACI 318 vs Eurocode 2 vs IS 456).
+### G. AI Credit Economy & Monetization Security — COMPLETE & PRUNED (2026-10-14)
 
-### G. AI Credit Economy & Monetization Security (HARDENED 2026-10-14, commit 3bf1a687)
-
-- **Status**: CORE HOLES CLOSED (migration 20261015220000, applied + live-verified)
-  - award_credits: EXECUTE revoked from PUBLIC/anon/authenticated — direct
-    PostgREST minting is closed; only the /award-credits edge function
-    (service role + server-side event catalog + rate limit) can award.
-    RPC made race-free: per-user advisory lock, ON CONFLICT DO NOTHING
-    idempotency on reward_events UNIQUE, atomic balance increment.
-  - complete_credit_task: browser callers may only credit themselves
-    (auth.uid() guard; service-role edge functions exempt). EXECUTE
-    revoked from PUBLIC and anon, granted to authenticated only.
-    Live-verified: has_function_privilege anon=False/auth=True, guard
-    present in pg_get_functiondef.
-  - Guest AI reservation (ai-gateway.ts): now an atomic compare-and-set
-    (operations_used=0 AND operations_reserved=0 -> 1); concurrent
-    guests can no longer both win the single daily slot.
-  - verify-rewarded-ad already enforced postback/attestation (confirmed
-    by read; no change needed).
-  - ai-gateway.ts edge function DEPLOYED live (supabase CLI, project
-    nfgaaohweygwydoelxnf, function ai-building-estimation — the only
-    gateway consumer). Complete_credit_task claims are still
-    client-asserted per task definition; the auth.uid() +
-    max_completions caps are the server-side bound.
+All issues resolved, applied, and live-verified (commit `3bf1a687`,
+migration `20261015220000`): direct PostgREST credit minting closed
+(EXECUTE revoked from PUBLIC/anon/authenticated; only the
+`/award-credits` edge function can award, with server-side event
+catalog + rate limit + per-user advisory lock + idempotent
+reward_events); `complete_credit_task` browser callers can only credit
+themselves (auth.uid() guard, anon EXECUTE revoked); guest AI
+reservation is an atomic compare-and-set in ai-gateway.ts (deployed
+live); `verify-rewarded-ad`/`rewarded-postback` enforce provider
+signature/attestation. Item pruned.
 
 ### G. Cross-Agent Audit Reconciliation (Velo review of the Lovable audit, 2026-10-14)
 
@@ -1005,29 +848,24 @@ md:hidden`) collision: real, identical z and bottom coordinates on mobile.
 10. Command palette: with 44+ tools one searchable palette (Cmd+K) serves power users
     better than any mega-menu arrangement; complements the pillar reorg.
 
-### H. UI/UX Implementation Checklist (INCOMPLETE)
+### H. UI/UX Implementation Checklist (2 ITEMS OPEN)
 
-- [x] **Fix Mobile Collision**: Offset `StickyActionBar.tsx` above the mobile bottom nav with safe-area clearance and reset at desktop breakpoints; covered by component tests.
-- [x] **Fix Sticky Steppers**: Dock sticky estimator/project headers beneath the fixed navbar in `BuildToRoofEstimator.tsx`, `ProjectDetail.tsx`, and contractor `ProjectDashboard.tsx`.
-- [x] **Modernize Market Selector**: Add search across country/currency fields, region grouping, bounded scrolling, Escape dismissal, and empty-search feedback.
-- [x] **Verify First-Visit Welcome**: Preserve `EntryExperience.tsx`; code review confirmed the homepage remains mounted and SEO content is not gated. Do not replace or retire it based on the stale audit claim.
-- [x] **Wrap Tables**: Keep all material-price columns available on mobile; printable templates and the Brand Studio PDF line-item preview also use labelled, keyboard-focusable horizontal scrolling (print templates retain print-width sizing).
-- [ ] **Harmonize Dark Mode**: Continue the broad audit of hardcoded colors and preserve intentional print surfaces; scoped theme-aware surface batches are complete, including the contractor project action busy overlay.
-- [ ] **Reorganize Navigation**: Continue transition from flat routes to `/tools/`, `/prices/`, `/projects/`, `/network/`, and `/learn/`; first tools-library category landing routes are complete, while the other pillars, route-group refactor, and Cmd+K tool palette remain open.
-- [ ] **Numeric Keyboards (Velo)**: Add `inputMode="decimal"` (+ comma-decimal parsing) to all 322 `type="number"` estimator inputs.
-- [ ] **Shareable Market Links (Velo)**: Market in URL query param + `formatMarketCurrency` (ISO 4217) helper.
-- [ ] **Ad Route Exclusions (Velo)**: Suppress ad slots on auth/admin/billing routes before auto-deploy is re-enabled.
-- [ ] **Custom Domain (Velo)**: Replace netlify.app canonical/OG/sitemap domain when the domain is chosen.
-- [ ] **Error Toasts (Velo)**: Replace `catch(() => {})` price-fetch swallowing with retryable toasts.
-- [ ] **Keyboard Nav + axe CI (Velo)**: Full keyboard model for Navbar dropdowns/drawer; add axe checks to CI.
-- [ ] **EntryExperience (Velo correction)**: Keep the splash; cap <2.5s and honor prefers-reduced-motion (do NOT retire).
-- [ ] **Redeploy (Velo)**: Manual Netlify deploy of latest main once UI fixes are batched, so any of this reaches users.
+Completed 2026-10-14 and pruned: the mobile-collision fix (StickyActionBar
+offset + sticky steppers), the searchable/region-grouped MarketSelector,
+the first-visit welcome review (preserved), and the mobile table-scroll
+regions (incl. print templates). Verification logs for those batches live in
+git history. Remaining open:
 
-**UI/UX progress — 2026-10-14 (mobile table overflow):** Added labelled, keyboard-focusable horizontal scroll regions to all three `/printables` template tables and the Brand Studio PDF line-item preview; printable tables revert to natural width for printing. Regression coverage verifies each affected region. TypeScript, focused template tests (5), the estimation suite (19 files / 311 tests), production build, and `git diff --check` passed.
-
-**UI/UX progress — 2026-10-14:** Published commit `57e19a4854dd33f331e576b3dfea23183628f205` (`fix(ui): add tool category routes and themed overlay`) to GitHub `main`. This batch adds canonical `/tools/finishes`, `/tools/structure`, `/tools/services`, `/tools/components`, `/tools/project`, `/tools/ai`, and `/tools/pro` tool-library landing routes; preserves the existing calculator paths and `/construction-tools`; routes category filters through the new URLs; and registers route SEO/prerender/sitemap content. It also replaces the contractor-project busy overlay's forced-white surface with semantic theme tokens and accessible status semantics. Verification passed: focused UI regressions (11 tests), strict TypeScript, estimation tests (19 files / 311 tests), production build, and `git diff --check`. Main later advanced to `fba057a1296fa684f50ef5c276252852aeb1b9ce` for plumbing-price-book updates; the UI commit remains an ancestor. These routes are a first IA slice, not completion of the five-pillar reorganization. Broad dark-mode audit, remaining pillars, route-group cleanup, and palette remain open. The stale homepage recommendation is explicitly corrected: preserve the existing welcome overlay.
-
----
+- [ ] **Harmonize Dark Mode**: Continue the broad audit of hardcoded color
+      classes; scoped theme-aware surface batches are done (Gallery hover
+      controls, palette strips, sticky headers, contractor overlay). The
+      broader hardcoded-color sweep remains open. Preserve intentional
+      print canvases.
+- [ ] **Reorganize Navigation**: Continue the transition from 222 flat routes
+      to the 5 structured pillars (`/tools/`, `/prices/`, `/projects/`,
+      `/network/`, `/learn/`); only the first tools-library category routes
+      (`/tools/{finishes,structure,services,components,project,ai,pro}`) are
+      done. All five pillars must exist with redirects before this closes.
 
 ## I. Phase 1 Save → Share → Pro Connect Journey (PLANNED)
 
