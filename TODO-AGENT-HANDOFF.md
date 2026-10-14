@@ -307,7 +307,15 @@ This audit details every identified usability defect, layout collision, informat
       price_intel_pipeline — migration was silently skipped as "already
       recorded". Always check schema_migrations for the exact version int
       before naming a migration; renamed to 20261015120000.
-      Remaining doors books (9): BR SA AE IT MX JP CN ID KR.
+      Remaining doors books (8): BR SA AE MX JP CN ID KR.
+- [x] DOORS/WINDOWS BOOK IT, APPLIED LIVE (2026-10-14, migration
+      20261015130000): 6 rows manual, all Leroy Merlin Italia live
+      listings incl IVA — flush EUR 199.90 (Cadrel 90741797), panel
+      EUR 159.90 (Winter pine 82860760), frame EUR 17.90 (telaio
+      L12 86329072), hinge EUR 7.40 (3-set 22.19, 72868177), lockset
+      EUR 22.12 (BRICARD mortaise asse 40), security EUR 399.90
+      (porta blindata MASTER Easy 92007081). Windows left unpriced
+      (Italian serramenti are made-to-measure per opening).
 
 
 The following items represent all outstanding, in-progress, or unverified work on the platform. Completed past batches have been pruned.
