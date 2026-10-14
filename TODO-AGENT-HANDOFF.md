@@ -733,6 +733,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no local public-holiday/work calendar, validated seasonal productivity, customs or predictive supply-delay functionality was found.
 - **Changes made:** none. Do not represent `FI` as operationally localized until the local standards, role mappings, live source-backed pricing/tax and compliance/schedule integrations are independently verified. Next country: **Ireland**.
 
+### Thailand market closeout (priority 44; audit-only catalog evidence, 2026-10-14)
+
+- **Operational decision: LOCALIZED SEED DATA EXISTS; NOT VERIFIED END TO END.** Thailand (`TH`, THB) has local-material and putty-engine seed rows, including sampled OneStockHome sand and HomePro paint listings, alongside prices explicitly marked indicative/admin-adjustable. A migration containing these records does not prove current production activation.
+- **Quantities/standards:** a local skim-putty material description exists, but no TH market profile or complete Thailand building/electrical/plumbing standards and calculation package, verified coverage formulas, or production role mapping was found.
+- **Pricing/tax:** THB seed prices exist but the scanner lacks a Thailand market/catalog mapping. At least one paint row has a pack-size conflict: `th-emulsion-4l` cites an 8 L product. No complete sourced/refreshed price book, VAT calculation, FX workflow or live production status was demonstrated.
+- **Workforce compliance:** no Thai professional/trade licensing, insurance, or safety credential verification was found.
+- **Timeline/logistics:** no Thailand-specific work calendar/holidays, validated weather productivity, shipping/customs feed or predictive supply delay engine was found.
+- **Changes made:** none. Keep TH unverified until package mismatches, local standards, price roles/tax, credentials and schedule/logistics functions are validated and deployed. Next market in the remaining seed-catalog review: **Malaysia (`MY`) evidence follow-up**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
