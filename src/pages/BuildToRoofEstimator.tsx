@@ -8,6 +8,7 @@ import { getConstructionTypology } from "@/lib/estimation/construction-typologie
 import {
   resolveMarketCement,
   resolveMarketSandM3,
+  resolveMarketRebar,
 } from "@/lib/estimation/structural-market";
 import { useSeo } from "@/lib/seo";
 import { useMarket } from "@/lib/international/market-context";
@@ -408,16 +409,43 @@ export default function BuildToRoofEstimator() {
   });
 
   // Market price book prefill (non-NG only): cement onto the 50 kg bag
-  // basis, sand as a real bulk m3 price. Missing books keep the NG default.
+  // basis, sand as a real bulk m3 price, and rebar by diameter. Missing books keep the NG default.
   const [marketCementNote, setMarketCementNote] = useState<string | null>(null);
+  const [marketRebarNote, setMarketRebarNote] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     (async () => {
-      if (marketCode === "NG") return;
-      const cement = await resolveMarketCement(marketCode);
-      const sandM3 = await resolveMarketSandM3(marketCode);
+      if (marketCode === "NG") {
+        setMarketCementNote(null);
+        setMarketRebarNote(null);
+        return;
+      }
+      const [cement, sandM3, rebar] = await Promise.all([
+        resolveMarketCement(marketCode),
+        resolveMarketSandM3(marketCode),
+        resolveMarketRebar(marketCode),
+      ]);
       if (!alive) return;
+
+      const rebarOverrides: Partial<BuildToRoofInput["prices"]> = {};
+      if (rebar.overrides["rebar-12mm-per-length"] != null) {
+        rebarOverrides.rebar_12mm_per_length =
+          rebar.overrides["rebar-12mm-per-length"];
+      }
+      if (rebar.overrides["rebar-16mm-per-length"] != null) {
+        rebarOverrides.rebar_16mm_per_length =
+          rebar.overrides["rebar-16mm-per-length"];
+      }
+      if (rebar.overrides["rebar-20mm-per-length"] != null) {
+        rebarOverrides.rebar_20mm_per_length =
+          rebar.overrides["rebar-20mm-per-length"];
+      }
+      if (rebar.overrides["rebar-25mm-per-length"] != null) {
+        rebarOverrides.rebar_25mm_per_length =
+          rebar.overrides["rebar-25mm-per-length"];
+      }
+
       setInput((prev) => ({
         ...prev,
         prices: {
@@ -428,6 +456,7 @@ export default function BuildToRoofEstimator() {
               }
             : {}),
           ...(sandM3 != null ? { sand_per_m3: sandM3 } : {}),
+          ...rebarOverrides,
         },
       }));
       setMarketCementNote(
@@ -435,6 +464,20 @@ export default function BuildToRoofEstimator() {
           ? `Cement prefilled from the ${marketCode} price book: ${cement.materialName} at ${cement.bookPrice} per ${cement.packKg} kg pack, converted to the 50 kg bag basis.`
           : `No verified cement price in the ${marketCode} book - the Nigerian default is shown and marked; edit it in the Prices step.`,
       );
+      const rebarResolvedCount = Object.keys(rebarOverrides).length;
+      if (rebarResolvedCount > 0) {
+        setMarketRebarNote(
+          `Rebar prefilled from the ${marketCode} price book (${rebarResolvedCount}/4 diameters resolved per 12 m length).${
+            rebar.unresolved.length > 0
+              ? ` Unresolved diameters (${rebar.unresolved.join(", ")}) keep the baseline default; adjust in Prices.`
+              : ""
+          }`,
+        );
+      } else {
+        setMarketRebarNote(
+          `No verified rebar prices in the ${marketCode} book - Nigerian baseline defaults are shown and marked; edit them in the Prices step.`,
+        );
+      }
     })().catch(() => {});
     return () => {
       alive = false;
@@ -1547,6 +1590,14 @@ export default function BuildToRoofEstimator() {
                           data-testid="market-cement-note"
                         >
                           {marketCementNote}
+                        </p>
+                      )}
+                      {marketRebarNote && (
+                        <p
+                          className="mb-3 rounded-md border border-border bg-muted/40 p-2 text-xs text-muted-foreground"
+                          data-testid="market-rebar-note"
+                        >
+                          {marketRebarNote}
                         </p>
                       )}
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -2690,9 +2741,7 @@ function EstimateResult({
             <p className="mt-3 text-xs text-muted-foreground">
               Binding wire:{" "}
               {result.reinforcement_breakdown.binding_wire_kg.toFixed(1)} kg (
-              {formatCurrency(
-                result.reinforcement_breakdown.binding_wire_cost,
-              )}
+              {formatCurrency(result.reinforcement_breakdown.binding_wire_cost)}
               )
             </p>
           </div>
