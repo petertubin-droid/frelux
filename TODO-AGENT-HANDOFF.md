@@ -307,7 +307,25 @@ This audit details every identified usability defect, layout collision, informat
       price_intel_pipeline — migration was silently skipped as "already
       recorded". Always check schema_migrations for the exact version int
       before naming a migration; renamed to 20261015120000.
-      Remaining doors books (8): BR SA AE MX JP CN ID KR.
+      Remaining doors books: NONE — ALL 20 MARKETS COMPLETE
+      (Solas batch 2026-10-14, migrations 20261015140000-210000, commits
+      through this push): BR 5 (LM Brasil: flush folha lisa 330.26, panel
+      frisada 552.72, frame batente Artens 189.90, hinge Vonder 3.5pc 16.30,
+      lockset Pado 195.90), SA 3 (OpenSooq Riyadh WPC 750 + Amazon.sa hinge
+      29.38/lockset 114.17; panel/frame quote-based), AE 4 (Desertcart
+      flush 1193/panel 1948 + Amazon.ae hinge 24/lockset 35.99), MX 5
+      (HD Mexico: tambor MUVA 997, semisolida 1769, marco Rosi 595,
+      bisagra 145, chapa MercadoLibre 278), JP 4 (kakaku 19,800 / LIXIL
+      36,200 / Kohnan hinge 1,064 / Rakuten latch 2,200), ID 5 (Tokopedia:
+      mahoni leaf 350k, Belanda panel 1.2M, kusen 500k, engsel 35k, gagang
+      set 125k), KR 3 (Coupang: ABS leaf+frame+install 200,000, hinge
+      15,900, lockset 30,530), CN 4 (TATA set 1,099 / Mexin 3,500 /
+      Taobao hinge 22.80 / GUTE lockset 76.00). FRAME METHODOLOGY NOTE:
+      NG/JP/CN/KR door-frame lines stay intentionally unpriced — those
+      markets sell frames bundled in door sets (verified: Jiji 156
+      listings, JP ドアセット standard, CN 套装门 standard, KR install
+      services); flush/panel rows there are SET prices already including
+      the frame. Never substitute.
 - [x] DOORS/WINDOWS BOOK IT, APPLIED LIVE (2026-10-14, migration
       20261015130000): 6 rows manual, all Leroy Merlin Italia live
       listings incl IVA — flush EUR 199.90 (Cadrel 90741797), panel
