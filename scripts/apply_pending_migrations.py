@@ -27,6 +27,7 @@ PENDING = [
     "20261014160000_reconcile_engine_registry.sql",
     "20261014170000_doors_windows_books_us_gb_de.sql",
     "20261014230000_doors_windows_books_ca.sql",
+    "20261015010000_doors_windows_books_za_fr.sql",
 ]
 
 

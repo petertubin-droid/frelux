@@ -17,7 +17,7 @@ partially implemented features may be presented as done. Every claim must
 carry its real status: verified live, tests only, or staged/partial with the
 hardcoded parts named. Unverifiable items are disclosed, never greenwashed.
 
-Last updated: 2026-10-15 (P2 batch 21: ZA & FR doors/windows books READY in migration 20261015010000, pending DB exec; batch 20: live-DB reconciliation — 12 pending migrations applied incl. CA book, 4 schema-repaired; AU documented blocked-by-access; batch 18 resolver + US/GB/DE books complete)
+Last updated: 2026-10-15 (P2 batch 21: ZA & FR doors/windows books EXECUTED live (20261015010000, 10 rows); batch 20: live-DB reconciliation — 12 pending migrations applied incl. CA book, 4 schema-repaired; AU documented blocked-by-access; batch 18 resolver + US/GB/DE books complete)
 
 ---
 
@@ -679,7 +679,7 @@ Work this list in order. Each item's status is current as of the last update.
 | 8   | Plumbing pipe books                                  | 🟡     | ✅ GB all 4 keys, US all 4, DE waste/drainage, AT cold/hot; ❌ DE cold/hot (PP-R)                                                                                                                                                                                                                     |
 | 8b  | Plumbing fittings/valves                             | ✅     | Resolver walks PLUMBING_FITTING_KEYS (per-piece). US 5/5, GB 5/5, AT 5/5, DE 5/5 complete (migrations 20261013160000 & 20261013170000; 20/20 rows seeded with verified retail sources)                                                                                                                |
 | 9   | Electrical books                                     | ✅     | All 20 markets complete (US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE, IT, MX, JP, CN, ID, KR; 220 active rows)                                                                                                                                                                             |
-| 10  | Doors/windows books                                  | 🟡     | Resolver + page coverage/provenance live; US 6 / GB 4 / DE 4 / CA 6 rows EXECUTED live (14170000 + 14230000, batch 20); ZA 6 + FR 4 rows ready in 20261015010000, pending DB exec; AU blocked-by-access; other markets disclosed unpriced                                                               |
+| 10  | Doors/windows books                                  | 🟡     | Resolver + page coverage/provenance live; US 6 / GB 4 / DE 4 / CA 6 rows EXECUTED live (14170000 + 14230000, batch 20); ZA 6 + FR 4 rows EXECUTED live (20261015010000); AU blocked-by-access; other markets disclosed unpriced                                                               |
 | 11  | Price campaign remainder                             | 🟡     | ~174 'low' rows to verify                                                                                                                                                                                                                                                                             |
 | 12  | Structural methodology profiles                      | ❌     | Research arc (DIN/BS/ACI foundation, block modules)                                                                                                                                                                                                                                                   |
 | 13  | AI foundation adapters (engines-expanded.ts)         | ✅     | Repaired 2026-10-13: electrical/plumbing adapters called 3-arg engines with 1 arg and read nonexistent result fields (would crash the conversational estimator). Now fetch rules + market price book exactly like the pages; margin/roof/regional adapters field-corrected; quantityLine takes 3 args |
@@ -705,7 +705,7 @@ P2 engine-by-engine (IN PROGRESS):
 - [ ] AU rebar upgrade — indicative 'low' rows need a merchant quote.
 - [ ] Rebar books — remaining markets beyond US/DE/IN/EG/GB/CA (retail anchors vs per-tonne merchant refinement noted in 4A).
 - [ ] Price campaign remainder — ~174 'low'-confidence rows to verify (4E sweep by region).
-- [ ] Doors/windows — remaining markets beyond US/GB/DE/CA (ZA/FR books READY in 20261015010000, pending DB exec; others honestly disclosed unpriced until verified).
+- [ ] Doors/windows — remaining markets beyond US/GB/DE/CA/ZA/FR (others honestly disclosed unpriced until verified).
 - [ ] Structural methodology profiles (4F research arc) — market-scoped wall-methodology rules for sequence-planner (9-inch block assumption), structural-calculator member sizing (225mm beams), timeline-estimator climate model (dry/rainy is NG-only); DIN/BS/ACI foundation profiles.
 - [ ] AI route extensions — 41 canonical engines still have no executeEngine route (family-by-family adapters per docs/engine-duplicate-audit.md).
 - [ ] Costing/commercial (D) + AI/measurement/intelligence (E) engine-family internationalization.
@@ -794,9 +794,10 @@ row exists; never invent prices/standards; unpriced stays visibly unpriced.
 - ✅ Verified price seeds for US, GB, DE in `20261014170000_doors_windows_books_us_gb_de.sql` (EXECUTED live).
 - ✅ CA price book `20261014230000_doors_windows_books_ca.sql` (6 verified Home Depot Canada
   rows) — EXECUTED live 2026-10-14 (batch 20); 6/6 active rows confirmed.
-- 🟡 ZA & FR price book `20261015010000_doors_windows_books_za_fr.sql` (11 verified rows:
+- ✅ ZA & FR price book `20261015010000_doors_windows_books_za_fr.sql` (10 verified rows:
   6 ZA rows from Cashbuild / Doors Direct / Leroy Merlin SA; 4 FR rows from Brico Dépôt France;
-  ZA door-security later corrected to unpriced in c3ed7ae4) — READY, pending DB execution.
+  ZA door-security later corrected to unpriced in c3ed7ae4) — EXECUTED live 2026-10-14
+  (batch 20 follow-up); ZA 6/6 + FR 4/4 active rows confirmed.
 - ❌→blocked-by-access AU: Bunnings Cloudflare-gated, Mitre 10 empty render, Doors Plus
   quote-only, Hume Doors no online prices. Do not seed from search snippets (gotcha).
   Retry when a clean product page is reachable; candidate leads: Lockwood Symmetry Manor
