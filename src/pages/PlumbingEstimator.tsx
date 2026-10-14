@@ -81,14 +81,16 @@ function fmtN(v: number | null): string {
 }
 
 export default function PlumbingEstimator() {
-  const { symbol: currencySymbol } = useDisplayCurrency();
+  const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Plumbing Estimator", path: "/plumbing" },
   ]);
   const { user } = useAuth();
 
-  const { marketCode } = useMarket();
+  const { marketCode, market } = useMarket();
+  const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
+  const currencyCode = market?.currencyCode || "NGN";
   const plumbingProfile = useMemo(
     () => getPlumbingProfile(marketCode),
     [marketCode],
@@ -237,9 +239,9 @@ export default function PlumbingEstimator() {
             l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
           unit: l.unit,
           unit_price:
-            l.unit_price === null ? "unpriced" : formatCurrency(l.unit_price),
+            l.unit_price === null ? "unpriced" : formatCurrency(l.unit_price, currencySymbol),
           line_total:
-            l.line_total === null ? "N/A" : formatCurrency(l.line_total),
+            l.line_total === null ? "N/A" : formatCurrency(l.line_total, currencySymbol),
           detail: l.detail,
         })),
         totals: [
@@ -248,25 +250,25 @@ export default function PlumbingEstimator() {
             value:
               result.material_subtotal === null
                 ? "(prices/inputs missing)"
-                : formatCurrency(result.material_subtotal),
+                : formatCurrency(result.material_subtotal, currencySymbol),
           },
           {
             label: "Priced so far",
-            value: formatCurrency(result.priced_subtotal),
+            value: formatCurrency(result.priced_subtotal, currencySymbol),
           },
           {
             label: "Labour",
             value:
               labourMode === "none"
                 ? "Not included"
-                : formatCurrency(result.labour_total),
+                : formatCurrency(result.labour_total, currencySymbol),
           },
           {
             label: "Grand total",
             value:
               result.grand_total === null
                 ? "N/A"
-                : formatCurrency(result.grand_total),
+                : formatCurrency(result.grand_total, currencySymbol),
             strong: true,
           },
         ],
@@ -300,7 +302,7 @@ export default function PlumbingEstimator() {
           incomplete: result.incomplete,
         },
         total_material_cost: result.material_subtotal ?? 0,
-        currency: "NGN",
+        currency: currencyCode,
         labour_status:
           labourMode === "none"
             ? "not_included"
@@ -330,7 +332,7 @@ export default function PlumbingEstimator() {
           pack_size: null,
           unit_price: line.unit_price ?? 0,
           total_price: line.line_total ?? 0,
-          price_snapshot: { base: line.unit_price, currency: "NGN" },
+          price_snapshot: { base: line.unit_price, currency: currencyCode },
           calculation_source: "calculated",
           notes: line.detail,
         } as never);
@@ -347,15 +349,16 @@ export default function PlumbingEstimator() {
     } finally {
       setSaving(false);
     }
-  }, [result, saving, user, input, labourMode]);
+  }, [result, saving, user, input, labourMode, currencyCode]);
 
   const numberInput = (
     label: string,
     state: string,
     setter: (v: string) => void,
     placeholder = "0",
+    key?: string,
   ) => (
-    <label className="block text-sm">
+    <label key={key ?? label} className="block text-sm">
       <span className="mb-1 block font-medium">{label}</span>
       <input
         type="number"
@@ -665,13 +668,13 @@ export default function PlumbingEstimator() {
                           PRICE NOT CONFIGURED
                         </span>
                       ) : (
-                        formatCurrency(l.unit_price)
+                        formatCurrency(l.unit_price, currencySymbol)
                       )}
                     </td>
                     <td className="p-3 font-medium">
                       {l.line_total === null
                         ? "N/A"
-                        : formatCurrency(l.line_total)}
+                        : formatCurrency(l.line_total, currencySymbol)}
                     </td>
                   </tr>
                 ))}
@@ -699,7 +702,7 @@ export default function PlumbingEstimator() {
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
                   ? "(prices/inputs missing)"
-                  : formatCurrency(result.material_subtotal)}
+                  : formatCurrency(result.material_subtotal, currencySymbol)}
               </p>
             </div>
             <div className="rounded-lg border bg-card p-4">
@@ -707,7 +710,7 @@ export default function PlumbingEstimator() {
                 Of which priced so far
               </p>
               <p className="text-xl font-semibold">
-                {formatCurrency(result.priced_subtotal)}
+                {formatCurrency(result.priced_subtotal, currencySymbol)}
               </p>
             </div>
             <div className="rounded-lg border bg-card p-4">
@@ -715,7 +718,7 @@ export default function PlumbingEstimator() {
               <p className="text-xl font-semibold">
                 {labourMode === "none"
                   ? "Not included"
-                  : formatCurrency(result.labour_total)}
+                  : formatCurrency(result.labour_total, currencySymbol)}
               </p>
             </div>
             <div className="rounded-lg border bg-primary/10 p-4">
@@ -723,7 +726,7 @@ export default function PlumbingEstimator() {
               <p className="text-xl font-semibold">
                 {result.grand_total === null
                   ? "N/A"
-                  : formatCurrency(result.grand_total)}
+                  : formatCurrency(result.grand_total, currencySymbol)}
               </p>
             </div>
           </div>
