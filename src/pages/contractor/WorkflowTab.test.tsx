@@ -48,6 +48,24 @@ vi.mock("@/lib/workflow/participants", () => ({
   removeWorkflowParticipant: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("@/lib/workflow/attachments", () => ({
+  listWorkflowAttachments: vi.fn().mockResolvedValue([
+    {
+      id: "a1",
+      document_id: "d1",
+      file_name: "site photo.jpg",
+      storage_path: "d1/123-site_photo.jpg",
+      size_bytes: 2048,
+      content_type: "image/jpeg",
+      uploaded_by: null,
+      created_at: "2026-10-14T12:00:00Z",
+    },
+  ]),
+  uploadWorkflowAttachment: vi.fn().mockResolvedValue({ id: "a2" }),
+  deleteWorkflowAttachment: vi.fn().mockResolvedValue(undefined),
+  getAttachmentUrl: vi.fn().mockResolvedValue("https://signed.example/dl"),
+}));
+
 function mockDocs(): WorkflowDocument[] {
   const base = {
     project_id: "proj-1",
@@ -234,6 +252,49 @@ describe("WorkflowTab (global operations control plane)", () => {
         "eng@site.com",
       ),
     );
+  });
+
+  it("shows attachments with download and delete on expand", async () => {
+    render(<WorkflowTab projectId="proj-1" currency="EUR" />);
+    await screen.findByText("RFI-0001");
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /expand details/i })[0],
+    );
+    expect(await screen.findByText("site photo.jpg")).toBeInTheDocument();
+    expect(screen.getByText(/2 KB/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /download site photo.jpg/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /delete site photo.jpg/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("opens a signed URL when a download link is clicked", async () => {
+    const open = vi.spyOn(window, "open").mockImplementation(() => null);
+    render(<WorkflowTab projectId="proj-1" currency="EUR" />);
+    await screen.findByText("RFI-0001");
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /expand details/i })[0],
+    );
+    await screen.findByText("site photo.jpg");
+    fireEvent.click(
+      screen.getByRole("button", { name: /download site photo.jpg/i }),
+    );
+    const { getAttachmentUrl } = await import("@/lib/workflow/attachments");
+    await waitFor(() =>
+      expect(getAttachmentUrl).toHaveBeenCalledWith(
+        expect.objectContaining({ storage_path: "d1/123-site_photo.jpg" }),
+      ),
+    );
+    await waitFor(() =>
+      expect(open).toHaveBeenCalledWith(
+        "https://signed.example/dl",
+        "_blank",
+        "noopener",
+      ),
+    );
+    open.mockRestore();
   });
 
   it("discloses the email-notification status honestly (chip)", async () => {

@@ -68,6 +68,7 @@ PENDING = [
     "20261015450000_workflow_push.sql",
     "20261015460000_keys_public_disclosure.sql",
     "20261016020000_workflow_participants.sql",
+    "20261016030000_workflow_attachments.sql",
 ]
 
 

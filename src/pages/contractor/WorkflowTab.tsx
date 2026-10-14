@@ -51,6 +51,13 @@ import {
   type WorkflowParticipantRole,
 } from "@/lib/workflow/participants";
 import {
+  deleteWorkflowAttachment,
+  getAttachmentUrl,
+  listWorkflowAttachments,
+  uploadWorkflowAttachment,
+  type WorkflowAttachment,
+} from "@/lib/workflow/attachments";
+import {
   AlertTriangle,
   Calendar,
   ChevronDown,
@@ -63,6 +70,9 @@ import {
   Mail,
   Bell,
   UserPlus,
+  Paperclip,
+  Download,
+  Trash2,
   X,
 } from "lucide-react";
 
@@ -152,6 +162,10 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
   const [shareRole, setShareRole] =
     useState<WorkflowParticipantRole>("reviewer");
   const [shareBusy, setShareBusy] = useState(false);
+  const [attachments, setAttachments] = useState<
+    Record<string, WorkflowAttachment[]>
+  >({});
+  const [attachBusy, setAttachBusy] = useState(false);
 
   const now = useMemo(() => new Date().toISOString(), []);
 
@@ -279,6 +293,14 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
         setParticipants((prev) => ({ ...prev, [id]: [] }));
       }
     }
+    if (!attachments[id]) {
+      try {
+        const list = await listWorkflowAttachments(id);
+        setAttachments((prev) => ({ ...prev, [id]: list }));
+      } catch {
+        setAttachments((prev) => ({ ...prev, [id]: [] }));
+      }
+    }
   }
 
   async function refreshParticipants(documentId: string) {
@@ -340,6 +362,65 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
       setError(err instanceof Error ? err.message : "Removal failed");
     } finally {
       setShareBusy(false);
+    }
+  }
+
+  async function refreshAttachments(documentId: string) {
+    try {
+      const list = await listWorkflowAttachments(documentId);
+      setAttachments((prev) => ({ ...prev, [documentId]: list }));
+    } catch {
+      setAttachments((prev) => ({ ...prev, [documentId]: [] }));
+    }
+  }
+
+  async function onUpload(doc: WorkflowDocument, file: File) {
+    setAttachBusy(true);
+    setError(null);
+    try {
+      await uploadWorkflowAttachment(doc, file);
+      await refreshAttachments(doc.id);
+      // The upload lands in the audit trail; refresh it.
+      setEvents((prev) => {
+        const next = { ...prev };
+        delete next[doc.id];
+        return next;
+      });
+      try {
+        const list = await fetchWorkflowEvents(doc.id);
+        setEvents((prev) => ({ ...prev, [doc.id]: list }));
+      } catch {
+        /* audit refresh is best-effort */
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setAttachBusy(false);
+    }
+  }
+
+  async function onDeleteAttachment(
+    doc: WorkflowDocument,
+    attachment: WorkflowAttachment,
+  ) {
+    setAttachBusy(true);
+    setError(null);
+    try {
+      await deleteWorkflowAttachment(doc, attachment);
+      await refreshAttachments(doc.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Removal failed");
+    } finally {
+      setAttachBusy(false);
+    }
+  }
+
+  async function onDownloadAttachment(attachment: WorkflowAttachment) {
+    try {
+      const url = await getAttachmentUrl(attachment);
+      window.open(url, "_blank", "noopener");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Download failed");
     }
   }
 
@@ -912,6 +993,75 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                           <UserPlus className="h-4 w-4" /> Share
                         </button>
                       </div>
+                    </div>
+
+                    {/* Attachments */}
+                    <div>
+                      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Attachments
+                      </h4>
+                      <ul className="mt-2 space-y-1">
+                        {(attachments[doc.id] ?? []).map((a) => (
+                          <li
+                            key={a.id}
+                            className="flex items-center justify-between gap-2 text-xs"
+                          >
+                            <button
+                              type="button"
+                              onClick={() => onDownloadAttachment(a)}
+                              className="inline-flex min-w-0 items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                              aria-label={`Download ${a.file_name}`}
+                            >
+                              <Paperclip className="h-3.5 w-3.5 shrink-0" />
+                              <span className="truncate font-medium text-foreground">
+                                {a.file_name}
+                              </span>
+                              <span className="shrink-0">
+                                ({Math.max(1, Math.round(a.size_bytes / 1024))}{" "}
+                                KB)
+                              </span>
+                            </button>
+                            <span className="flex shrink-0 gap-1">
+                              <button
+                                type="button"
+                                onClick={() => onDownloadAttachment(a)}
+                                aria-label={`Get link for ${a.file_name}`}
+                                className="rounded p-1 text-muted-foreground hover:bg-accent"
+                              >
+                                <Download className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onDeleteAttachment(doc, a)}
+                                disabled={attachBusy}
+                                aria-label={`Delete ${a.file_name}`}
+                                className="rounded p-1 text-muted-foreground hover:bg-accent disabled:opacity-50"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </span>
+                          </li>
+                        ))}
+                        {(attachments[doc.id] ?? []).length === 0 && (
+                          <li className="text-xs text-muted-foreground">
+                            No files attached yet.
+                          </li>
+                        )}
+                      </ul>
+                      <label className="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-accent disabled:opacity-50">
+                        <Paperclip className="h-4 w-4" />
+                        {attachBusy ? "Working…" : "Add file"}
+                        <input
+                          type="file"
+                          className="hidden"
+                          disabled={attachBusy}
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            e.target.value = "";
+                            if (f) void onUpload(doc, f);
+                          }}
+                        />
+                      </label>
                     </div>
 
                     {/* Comment */}
