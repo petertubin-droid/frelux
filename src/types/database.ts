@@ -192,6 +192,9 @@ export interface DbPaintProduct {
   paint_type_id: string | null;
   container_size: number;
   price: number;
+  base_price?: number;
+  last_updated_via?: "api" | "crowdsourced" | "manual";
+  regional_multiplier?: number;
   currency: string;
   is_active: boolean;
   sort_order: number;
@@ -212,6 +215,9 @@ export interface DbMaterialPrice {
     | "other";
   unit: string;
   price: number;
+  base_price?: number;
+  last_updated_via?: "api" | "crowdsourced" | "manual";
+  regional_multiplier?: number;
   currency: string;
   is_active: boolean;
   sort_order: number;

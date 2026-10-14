@@ -245,3 +245,21 @@ export interface HybridPriceResolution {
     basePrice?: number;
   };
 }
+
+// ============================================================
+// AUTOMATED MATERIAL PRICING SYSTEM TYPES
+// ============================================================
+
+export type MaterialPricingSource = "api" | "crowdsourced" | "manual";
+
+export interface DynamicMaterialPricingRecord {
+  id: string;
+  name: string;
+  category: string;
+  unit: string;
+  price: number;
+  base_price: number;
+  last_updated_via: MaterialPricingSource;
+  regional_multiplier: number;
+  currency: string;
+}

@@ -145,6 +145,9 @@ export interface MarketPricing {
   price_label: string | null;
   price_type: MaterialRulePriceType;
   price: number;
+  base_price?: number;
+  last_updated_via?: "api" | "crowdsourced" | "manual";
+  regional_multiplier?: number;
   currency_code: string;
   price_unit: string | null;
   package_size: number | null;

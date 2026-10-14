@@ -29,6 +29,7 @@ import {
   fetchMarketPrices,
   fetchMarketProducts,
   resolveProductPrice,
+  calculateDynamicMaterialCost,
   clearPriceCache,
 } from "./pricing-resolver";
 import type { MarketPricing, MarketProduct } from "@/types/international";
@@ -202,6 +203,9 @@ describe("pricing-resolver", () => {
     const res = await resolveProductPrice("KE", "paint-bucket");
     expect(res).toEqual({
       price: 2500,
+      basePrice: 2500,
+      lastUpdatedVia: "manual",
+      regionalMultiplier: 1.0,
       currency: "KES",
       priceUnit: "per_litre",
       packageSize: 20,
@@ -211,6 +215,19 @@ describe("pricing-resolver", () => {
     mockMaybeSingle.mockResolvedValueOnce({ data: null, error: null });
     const nullRes = await resolveProductPrice("KE", "unknown");
     expect(nullRes).toBeNull();
+  });
+
+  it("calculates dynamic material cost scaling base_price by regional_multiplier", () => {
+    // 950 base price with a 1.06 (+6% steel/cement spike) regional multiplier
+    const scaled = calculateDynamicMaterialCost(950, 1.06);
+    expect(scaled).toBe(1007);
+
+    // Proximity modifier 1.15 in remote area
+    const remoteCost = calculateDynamicMaterialCost(1000, 1.15);
+    expect(remoteCost).toBe(1150);
+
+    // Default multiplier of 1.0
+    expect(calculateDynamicMaterialCost(800)).toBe(800);
   });
 
   it("clearPriceCache clears cached prices", async () => {

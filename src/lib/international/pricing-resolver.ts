@@ -125,6 +125,9 @@ export async function resolveProductPrice(
   productId: string,
 ): Promise<{
   price: number;
+  basePrice?: number;
+  lastUpdatedVia?: "api" | "crowdsourced" | "manual";
+  regionalMultiplier?: number;
   currency: string;
   priceUnit: string | null;
   packageSize: number | null;
@@ -135,11 +138,24 @@ export async function resolveProductPrice(
 
   return {
     price: pricing.price,
+    basePrice: pricing.base_price ?? pricing.price,
+    lastUpdatedVia: pricing.last_updated_via ?? "manual",
+    regionalMultiplier: pricing.regional_multiplier ?? 1.0,
     currency: pricing.currency_code,
     priceUnit: pricing.price_unit,
     packageSize: pricing.package_size,
     packageUnit: pricing.package_unit,
   };
+}
+
+/**
+ * Compute scaled material cost using manual fallback base price and regional modifier.
+ */
+export function calculateDynamicMaterialCost(
+  basePrice: number,
+  regionalMultiplier: number = 1.0,
+): number {
+  return Math.round(basePrice * regionalMultiplier * 100) / 100;
 }
 
 // ============================================================
