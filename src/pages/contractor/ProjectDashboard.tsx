@@ -8,6 +8,12 @@ import { formatByCode } from "@/lib/international/currency-format";
 import { useParams, useNavigate } from "react-router-dom";
 import { printQuote } from "@/lib/estimation/quote-export";
 import {
+  computeBudgetVariance,
+  clampFraction,
+  type BudgetVarianceResult,
+  type VarianceStatus,
+} from "@/lib/estimation/budget-variance-engine";
+import {
   Package,
   Users,
   DollarSign,
@@ -32,6 +38,7 @@ import {
   Loader2,
   AlertCircle,
   Brain,
+  Receipt,
 } from "lucide-react";
 import {
   fetchContractorProject,
@@ -58,6 +65,10 @@ import {
   updateTimelinePhase,
   fetchAttachments,
   deleteAttachment,
+  fetchProjectExpenses,
+  createProjectExpense,
+  updateProjectExpense,
+  deleteProjectExpense,
 } from "@/lib/contractor";
 import { generateQuotationPDF, generateShoppingListPDF } from "@/lib/pdf";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
@@ -71,6 +82,8 @@ import type {
   DbProjectTimeline,
   DbProjectQuotation,
   DbProjectAttachment,
+  DbProjectExpense,
+  ExpenseCategory,
   SurfaceCondition,
   SurfaceType,
   WallSmoothness,
@@ -88,8 +101,13 @@ import { Button } from "@/components/ui/shadcn/button";
 // CONSTANTS & HELPERS
 // ============================================================
 
-function formatCurrency(value: number): string {
-  return formatByCode(value || 0, "NGN", { decimals: 0 });
+/**
+ * Formats in the project's own currency. Currency must be
+ * provided by the caller (never default to a single market);
+ * "XXX" is the ISO "no currency" fallback for corrupt rows.
+ */
+function formatCurrency(value: number, currency: string): string {
+  return formatByCode(value || 0, currency || "XXX", { decimals: 0 });
 }
 
 type TabKey =
@@ -97,6 +115,7 @@ type TabKey =
   | "rooms"
   | "labour"
   | "shopping"
+  | "expenses"
   | "quotation"
   | "timeline"
   | "notes"
@@ -107,6 +126,7 @@ const TABS: { key: TabKey; label: string; icon: typeof Package }[] = [
   { key: "rooms", label: "Rooms", icon: Package },
   { key: "labour", label: "Labour", icon: Users },
   { key: "shopping", label: "Shopping", icon: ClipboardList },
+  { key: "expenses", label: "Expenses", icon: Receipt },
   { key: "quotation", label: "Quotation", icon: FileText },
   { key: "timeline", label: "Timeline", icon: Calendar },
   { key: "notes", label: "Notes", icon: Hammer },
@@ -233,6 +253,45 @@ const emptyRoomForm: RoomFormData = {
   porosity: "medium",
 };
 
+interface ExpenseFormData {
+  category: ExpenseCategory;
+  name: string;
+  amount: string;
+  spent_at: string;
+  notes: string;
+}
+
+const EXPENSE_CATEGORIES: ExpenseCategory[] = [
+  "material",
+  "labour",
+  "transport",
+  "misc",
+];
+
+const EXPENSE_CATEGORY_LABELS_UI: Record<ExpenseCategory, string> = {
+  material: "Materials",
+  labour: "Labour",
+  transport: "Transport",
+  misc: "Miscellaneous",
+};
+
+const VARIANCE_STATUS_STYLES: Record<
+  VarianceStatus,
+  { label: string; className: string }
+> = {
+  under: { label: "Under budget", className: "bg-green-100 text-green-800" },
+  on_track: { label: "On track", className: "bg-blue-100 text-blue-800" },
+  over: { label: "Over budget", className: "bg-red-100 text-red-800" },
+};
+
+const emptyExpenseForm: ExpenseFormData = {
+  category: "material",
+  name: "",
+  amount: "",
+  spent_at: new Date().toISOString().slice(0, 10),
+  notes: "",
+};
+
 // ============================================================
 // LABOUR FORM TYPES
 // ============================================================
@@ -278,6 +337,11 @@ export default function ProjectDashboard() {
   const [timeline, setTimeline] = useState<DbProjectTimeline[]>([]);
   const [quotations, setQuotations] = useState<DbProjectQuotation[]>([]);
   const [attachments, setAttachments] = useState<DbProjectAttachment[]>([]);
+  const [expenses, setExpenses] = useState<DbProjectExpense[]>([]);
+  const [showExpenseForm, setShowExpenseForm] = useState(false);
+  const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
+  const [expenseForm, setExpenseForm] = useState<ExpenseFormData>(emptyExpenseForm);
+  const [expenseSaving, setExpenseSaving] = useState(false);
   const [notes, setNotes] = useState("");
   const [notesDirty, setNotesDirty] = useState(false);
 
@@ -309,7 +373,7 @@ export default function ProjectDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const [proj, rm, lp, sl, tl, qt, att] = await Promise.all([
+      const [proj, rm, lp, sl, tl, qt, att, ex] = await Promise.all([
         fetchContractorProject(id),
         fetchProjectRooms(id),
         fetchLabourPlan(id),
@@ -317,6 +381,7 @@ export default function ProjectDashboard() {
         fetchTimeline(id),
         fetchQuotations(id),
         fetchAttachments(id),
+        fetchProjectExpenses(id),
       ]);
       if (!proj) {
         setError("Project not found.");
@@ -329,6 +394,7 @@ export default function ProjectDashboard() {
       setTimeline(tl);
       setQuotations(qt);
       setAttachments(att);
+      setExpenses(ex);
       setNotes(proj.notes ?? "");
     } catch (err) {
       setError(getSafeError(err, "Failed to load project data."));
@@ -549,10 +615,104 @@ export default function ProjectDashboard() {
     }
   };
 
+  // ============================================================
+  // EXPENSES (ACTUAL SPEND) — roadmap Wave 1.1
+  // Currency always flows from the project record.
+  // ============================================================
+
+  const handleExpenseSubmit = async () => {
+    if (!id || !project) return;
+    const amount = Number(expenseForm.amount);
+    if (!expenseForm.name.trim()) {
+      setError("Expense description is required.");
+      return;
+    }
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setError("Expense amount must be a positive number.");
+      return;
+    }
+    try {
+      setExpenseSaving(true);
+      if (editingExpenseId) {
+        await updateProjectExpense(editingExpenseId, {
+          category: expenseForm.category,
+          name: expenseForm.name.trim(),
+          amount,
+          currency: project.currency,
+          spent_at: expenseForm.spent_at,
+          notes: expenseForm.notes.trim() || null,
+        });
+      } else {
+        await createProjectExpense(id, project.currency, {
+          category: expenseForm.category,
+          name: expenseForm.name.trim(),
+          amount,
+          spent_at: expenseForm.spent_at,
+          notes: expenseForm.notes.trim() || null,
+        });
+      }
+      const refreshed = await fetchProjectExpenses(id);
+      setExpenses(refreshed);
+      setExpenseForm(emptyExpenseForm);
+      setEditingExpenseId(null);
+      setShowExpenseForm(false);
+      setError(null);
+    } catch (err) {
+      setError(getSafeError(err, "Failed to save expense."));
+    } finally {
+      setExpenseSaving(false);
+    }
+  };
+
+  const handleEditExpense = (expense: DbProjectExpense) => {
+    setExpenseForm({
+      category: expense.category,
+      name: expense.name,
+      amount: String(expense.amount),
+      spent_at: expense.spent_at,
+      notes: expense.notes ?? "",
+    });
+    setEditingExpenseId(expense.id);
+    setShowExpenseForm(true);
+  };
+
+  const handleDeleteExpense = async (expenseId: string) => {
+    if (!id) return;
+    try {
+      setActionLoading(true);
+      await deleteProjectExpense(expenseId);
+      setExpenses((prev) => prev.filter((e) => e.id !== expenseId));
+    } catch (err) {
+      setError(getSafeError(err, "Failed to delete expense."));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Variance: estimated (project totals) vs actual (expenses),
+  // computed in the project's currency by the pure engine.
+  const budgetVariance = useMemo(() => {
+    if (!project) {
+      return null;
+    }
+    return computeBudgetVariance({
+      estimated: {
+        material: project.total_material_cost,
+        labour: project.total_labour_cost,
+        transport: project.total_transport_cost,
+        misc: project.total_misc_cost,
+      },
+      expenses: expenses.map((e) => ({
+        category: e.category,
+        amount: e.amount,
+      })),
+    });
+  }, [project, expenses]);
+
   const handlePrintShoppingList = () => {
     if (!project || shoppingList.length === 0) return;
     const total = shoppingList.reduce((sum, i) => sum + i.total_price, 0);
-    const sym = project.currency_symbol || "₦";
+    const currency = project.currency;
     printQuote(
       {
         title: `${project.name} - Shopping List`,
@@ -567,14 +727,14 @@ export default function ProjectDashboard() {
           label: `${item.is_purchased ? "[Purchased] " : ""}${item.name}`,
           quantity: String(item.quantity),
           unit: item.unit,
-          unit_price: `${sym}${item.estimated_price.toLocaleString()}`,
-          line_total: `${sym}${item.total_price.toLocaleString()}`,
+          unit_price: formatCurrency(item.estimated_price, currency),
+          line_total: formatCurrency(item.total_price, currency),
           detail: item.category ? `Category: ${item.category}` : undefined,
         })),
         totals: [
           {
             label: "Total Estimated Cost",
-            value: `${sym}${total.toLocaleString()}`,
+            value: formatCurrency(total, currency),
             strong: true,
           },
         ],
@@ -602,18 +762,19 @@ export default function ProjectDashboard() {
 
   const handleShareWhatsApp = () => {
     if (!project || shoppingList.length === 0) return;
+    const currency = project.currency;
     const total = shoppingList.reduce((sum, i) => sum + i.total_price, 0);
     const purchased = shoppingList.filter((i) => i.is_purchased).length;
     const summary =
       `*${project.name}: Shopping List*\n\n` +
       `Items: ${shoppingList.length}\n` +
       `Purchased: ${purchased}/${shoppingList.length}\n` +
-      `Estimated Total: ${project.currency_symbol}${total.toLocaleString("en-NG")}\n\n` +
+      `Estimated Total: ${formatCurrency(total, currency)}\n\n` +
       shoppingList
         .slice(0, 20)
         .map(
           (i) =>
-            `${i.is_purchased ? "✅" : "⬜"} ${i.name}, ${i.quantity} ${i.unit} (${project.currency_symbol}${i.total_price.toLocaleString("en-NG")})`,
+            `${i.is_purchased ? "✅" : "⬜"} ${i.name}, ${i.quantity} ${i.unit} (${formatCurrency(i.total_price, currency)})`,
         )
         .join("\n") +
       (shoppingList.length > 20
@@ -977,7 +1138,8 @@ export default function ProjectDashboard() {
               onEdit={handleEditRoom}
               onDelete={handleDeleteRoom}
               currencySymbol={project.currency_symbol}
-            />
+            
+              currency={project.currency}/>
           )}
 
           {activeTab === "labour" && (
@@ -1002,7 +1164,8 @@ export default function ProjectDashboard() {
               onEdit={handleEditLabour}
               onDelete={handleDeleteLabour}
               currencySymbol={project.currency_symbol}
-            />
+            
+              currency={project.currency}/>
           )}
 
           {activeTab === "shopping" && (
@@ -1017,6 +1180,31 @@ export default function ProjectDashboard() {
               onDownloadPDF={handleDownloadShoppingPDF}
               onShareWhatsApp={handleShareWhatsApp}
               currencySymbol={project.currency_symbol}
+            
+              currency={project.currency}/>
+          )}
+
+          {activeTab === "expenses" && (
+            <ExpensesTab
+              expenses={expenses}
+              variance={budgetVariance}
+              currency={project.currency}
+              showForm={showExpenseForm}
+              editingId={editingExpenseId}
+              form={expenseForm}
+              saving={expenseSaving}
+              actionLoading={actionLoading}
+              onFormChange={setExpenseForm}
+              onShowFormChange={(show) => {
+                setShowExpenseForm(show);
+                if (!show) {
+                  setExpenseForm(emptyExpenseForm);
+                  setEditingExpenseId(null);
+                }
+              }}
+              onSubmit={handleExpenseSubmit}
+              onEdit={handleEditExpense}
+              onDelete={handleDeleteExpense}
             />
           )}
 
@@ -1038,7 +1226,8 @@ export default function ProjectDashboard() {
               onDownloadPDF={handleDownloadQuotationPDF}
               onSend={handleSendQuotation}
               currencySymbol={project.currency_symbol}
-            />
+            
+              currency={project.currency}/>
           )}
 
           {activeTab === "timeline" && (
@@ -1139,19 +1328,19 @@ function OverviewTab(props: OverviewTabProps) {
   const stats = [
     {
       label: "Material Cost",
-      value: formatCurrency(props.totalMaterialCost),
+      value: formatCurrency(props.totalMaterialCost, props.project.currency),
       icon: Package,
       color: "bg-blue-500",
     },
     {
       label: "Labour Cost",
-      value: formatCurrency(props.totalLabourCost),
+      value: formatCurrency(props.totalLabourCost, props.project.currency),
       icon: Users,
       color: "bg-amber-500",
     },
     {
       label: "Total Cost",
-      value: formatCurrency(props.totalProjectCost),
+      value: formatCurrency(props.totalProjectCost, props.project.currency),
       icon: DollarSign,
       color: "bg-violet-600",
     },
@@ -1319,10 +1508,14 @@ interface RoomsTabProps {
   onEdit: (room: DbProjectRoom) => void;
   onDelete: (roomId: string) => void;
   currencySymbol: string;
+
+  /** ISO currency of the project — all money renders via this. */
+  currency: string;
 }
 
 function RoomsTab(props: RoomsTabProps) {
   const {
+    currency,
     rooms,
     showRoomForm,
     roomForm,
@@ -1688,22 +1881,19 @@ function RoomsTab(props: RoomsTabProps) {
                   <div>
                     <p className="text-xs text-muted-foreground">Material</p>
                     <p className="text-sm font-semibold text-foreground">
-                      {currencySymbol}
-                      {room.material_cost.toLocaleString("en-NG")}
+                      {formatCurrency(room.material_cost, currency)}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Labour</p>
                     <p className="text-sm font-semibold text-foreground">
-                      {currencySymbol}
-                      {room.labour_cost.toLocaleString("en-NG")}
+                      {formatCurrency(room.labour_cost, currency)}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Total</p>
                     <p className="text-sm font-semibold text-violet-600">
-                      {currencySymbol}
-                      {room.room_total_cost.toLocaleString("en-NG")}
+                      {formatCurrency(room.room_total_cost, currency)}
                     </p>
                   </div>
                 </div>
@@ -1733,10 +1923,14 @@ interface LabourTabProps {
   onEdit: (item: DbProjectLabourPlan) => void;
   onDelete: (labourId: string) => void;
   currencySymbol: string;
+
+  /** ISO currency of the project — all money renders via this. */
+  currency: string;
 }
 
 function LabourTab(props: LabourTabProps) {
   const {
+    currency,
     labourPlan,
     showLabourForm,
     labourForm,
@@ -1874,12 +2068,11 @@ function LabourTab(props: LabourTabProps) {
             <p className="text-sm text-violet-800">
               Total Cost:{" "}
               <span className="font-bold">
-                {currencySymbol}
-                {(
+                {formatCurrency((
                   (parseInt(labourForm.worker_count) || 0) *
                   (parseInt(labourForm.days_required) || 0) *
                   (parseFloat(labourForm.daily_wage) || 0)
-                ).toLocaleString("en-NG")}
+                ), currency)}
               </span>
             </p>
           </div>
@@ -1967,12 +2160,10 @@ function LabourTab(props: LabourTabProps) {
                       {item.days_required}
                     </td>
                     <td className="px-4 py-3 text-right text-sm text-card-foreground">
-                      {currencySymbol}
-                      {item.daily_wage.toLocaleString("en-NG")}
+                      {formatCurrency(item.daily_wage, currency)}
                     </td>
                     <td className="px-4 py-3 text-right text-sm font-semibold text-violet-600">
-                      {currencySymbol}
-                      {item.total_cost.toLocaleString("en-NG")}
+                      {formatCurrency(item.total_cost, currency)}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
@@ -2004,8 +2195,7 @@ function LabourTab(props: LabourTabProps) {
                     Total Labour Cost:
                   </td>
                   <td className="px-4 py-3 text-right text-sm font-bold text-violet-600">
-                    {currencySymbol}
-                    {totalCost.toLocaleString("en-NG")}
+                    {formatCurrency(totalCost, currency)}
                   </td>
                   <td></td>
                 </tr>
@@ -2062,15 +2252,13 @@ function LabourTab(props: LabourTabProps) {
                   <div>
                     <p className="text-xs text-muted-foreground">Wage</p>
                     <p className="text-sm font-semibold text-foreground">
-                      {currencySymbol}
-                      {item.daily_wage.toLocaleString("en-NG")}
+                      {formatCurrency(item.daily_wage, currency)}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Total</p>
                     <p className="text-sm font-semibold text-violet-600">
-                      {currencySymbol}
-                      {item.total_cost.toLocaleString("en-NG")}
+                      {formatCurrency(item.total_cost, currency)}
                     </p>
                   </div>
                 </div>
@@ -2081,8 +2269,7 @@ function LabourTab(props: LabourTabProps) {
                 Total Labour Cost:
               </span>
               <span className="text-sm font-bold text-violet-600">
-                {currencySymbol}
-                {totalCost.toLocaleString("en-NG")}
+                {formatCurrency(totalCost, currency)}
               </span>
             </div>
           </div>
@@ -2107,10 +2294,14 @@ interface ShoppingTabProps {
   onDownloadPDF: () => void;
   onShareWhatsApp: () => void;
   currencySymbol: string;
+
+  /** ISO currency of the project — all money renders via this. */
+  currency: string;
 }
 
 function ShoppingTab(props: ShoppingTabProps) {
   const {
+    currency,
     shoppingList,
     shoppingTotal,
     shoppingPurchased,
@@ -2201,8 +2392,7 @@ function ShoppingTab(props: ShoppingTabProps) {
               Est. Total
             </p>
             <p className="mt-1 text-lg font-bold text-violet-600">
-              {currencySymbol}
-              {shoppingTotal.toLocaleString("en-NG")}
+              {formatCurrency(shoppingTotal, currency)}
             </p>
           </div>
         </div>
@@ -2237,8 +2427,7 @@ function ShoppingTab(props: ShoppingTabProps) {
                     {prettify(category)}
                   </h3>
                   <span className="text-sm font-semibold text-violet-600">
-                    {currencySymbol}
-                    {categoryTotal.toLocaleString("en-NG")}
+                    {formatCurrency(categoryTotal, currency)}
                   </span>
                 </div>
                 <div className="divide-y divide-border/50">
@@ -2268,15 +2457,13 @@ function ShoppingTab(props: ShoppingTabProps) {
                           {item.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {item.quantity} {item.unit} · {currencySymbol}
-                          {item.estimated_price.toLocaleString("en-NG")} each
+                          {item.quantity} {item.unit} · {formatCurrency(item.estimated_price, currency)} each
                         </p>
                       </div>
                       <span
                         className={`text-sm font-semibold ${item.is_purchased ? "text-muted-foreground" : "text-foreground"}`}
                       >
-                        {currencySymbol}
-                        {item.total_price.toLocaleString("en-NG")}
+                        {formatCurrency(item.total_price, currency)}
                       </span>
                     </div>
                   ))}
@@ -2311,6 +2498,9 @@ interface QuotationTabProps {
   onDownloadPDF: (quotation: DbProjectQuotation) => void;
   onSend: (quotationId: string) => void;
   currencySymbol: string;
+
+  /** ISO currency of the project — all money renders via this. */
+  currency: string;
 }
 
 const QUOTATION_STATUS_COLORS: Record<string, string> = {
@@ -2324,6 +2514,7 @@ const QUOTATION_STATUS_COLORS: Record<string, string> = {
 
 function QuotationTab(props: QuotationTabProps) {
   const {
+    currency,
     quotations,
     quotMarkup,
     quotProfit,
@@ -2502,15 +2693,13 @@ function QuotationTab(props: QuotationTabProps) {
                 <div className="rounded-lg bg-muted/50 p-3">
                   <p className="text-xs text-muted-foreground">Materials</p>
                   <p className="text-sm font-semibold text-foreground">
-                    {currencySymbol}
-                    {quot.material_cost.toLocaleString("en-NG")}
+                    {formatCurrency(quot.material_cost, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-muted/50 p-3">
                   <p className="text-xs text-muted-foreground">Labour</p>
                   <p className="text-sm font-semibold text-foreground">
-                    {currencySymbol}
-                    {quot.labour_cost.toLocaleString("en-NG")}
+                    {formatCurrency(quot.labour_cost, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-muted/50 p-3">
@@ -2518,8 +2707,7 @@ function QuotationTab(props: QuotationTabProps) {
                     Markup ({quot.markup_percentage}%)
                   </p>
                   <p className="text-sm font-semibold text-foreground">
-                    {currencySymbol}
-                    {quot.markup_amount.toLocaleString("en-NG")}
+                    {formatCurrency(quot.markup_amount, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-muted/50 p-3">
@@ -2527,8 +2715,7 @@ function QuotationTab(props: QuotationTabProps) {
                     Profit ({quot.profit_percentage}%)
                   </p>
                   <p className="text-sm font-semibold text-foreground">
-                    {currencySymbol}
-                    {quot.profit_amount.toLocaleString("en-NG")}
+                    {formatCurrency(quot.profit_amount, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-muted/50 p-3">
@@ -2536,29 +2723,25 @@ function QuotationTab(props: QuotationTabProps) {
                     Tax ({quot.tax_percentage}%)
                   </p>
                   <p className="text-sm font-semibold text-foreground">
-                    {currencySymbol}
-                    {quot.tax_amount.toLocaleString("en-NG")}
+                    {formatCurrency(quot.tax_amount, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-muted/50 p-3">
                   <p className="text-xs text-muted-foreground">Transport</p>
                   <p className="text-sm font-semibold text-foreground">
-                    {currencySymbol}
-                    {quot.transport_cost.toLocaleString("en-NG")}
+                    {formatCurrency(quot.transport_cost, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-muted/50 p-3">
                   <p className="text-xs text-muted-foreground">Misc</p>
                   <p className="text-sm font-semibold text-foreground">
-                    {currencySymbol}
-                    {quot.misc_cost.toLocaleString("en-NG")}
+                    {formatCurrency(quot.misc_cost, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-violet-50 p-3">
                   <p className="text-xs text-violet-500">Grand Total</p>
                   <p className="text-sm font-bold text-violet-700">
-                    {currencySymbol}
-                    {quot.grand_total.toLocaleString("en-NG")}
+                    {formatCurrency(quot.grand_total, currency)}
                   </p>
                 </div>
               </div>
@@ -2922,6 +3105,325 @@ function NotesTab(props: NotesTabProps) {
               </div>
             ))}
           </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// EXPENSES TAB — actual spend + estimated vs actual variance
+// (roadmap Wave 1.1). All money is rendered in the project's
+// own currency; no market is assumed.
+// ============================================================
+
+interface ExpensesTabProps {
+  expenses: DbProjectExpense[];
+  variance: BudgetVarianceResult | null;
+  currency: string;
+  showForm: boolean;
+  editingId: string | null;
+  form: ExpenseFormData;
+  saving: boolean;
+  actionLoading: boolean;
+  onFormChange: (form: ExpenseFormData) => void;
+  onShowFormChange: (show: boolean) => void;
+  onSubmit: () => void;
+  onEdit: (expense: DbProjectExpense) => void;
+  onDelete: (expenseId: string) => void;
+}
+
+export function ExpensesTab(props: ExpensesTabProps) {
+  const { variance } = props;
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">
+            Actual Expenses
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Record what you actually spent and track it against your estimate.
+          </p>
+        </div>
+        <Button
+          onClick={() => props.onShowFormChange(!props.showForm)}
+          className="bg-violet-600 text-white hover:bg-violet-700"
+        >
+          {props.showForm ? (
+            <X aria-hidden="true" className="h-4 w-4" />
+          ) : (
+            <Plus aria-hidden="true" className="h-4 w-4" />
+          )}
+          {props.showForm ? "Close" : "Add Expense"}
+        </Button>
+      </div>
+
+      {/* Add/Edit form */}
+      {props.showForm && (
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-foreground">
+                Category
+              </label>
+              <select
+                value={props.form.category}
+                onChange={(e) =>
+                  props.onFormChange({
+                    ...props.form,
+                    category: e.target.value as ExpenseCategory,
+                  })
+                }
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground"
+              >
+                {EXPENSE_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {EXPENSE_CATEGORY_LABELS_UI[category]}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-foreground">
+                Description
+              </label>
+              <input
+                type="text"
+                value={props.form.name}
+                onChange={(e) =>
+                  props.onFormChange({ ...props.form, name: e.target.value })
+                }
+                placeholder="e.g. 20 bags of cement"
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-foreground">
+                Amount
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="any"
+                value={props.form.amount}
+                onChange={(e) =>
+                  props.onFormChange({
+                    ...props.form,
+                    amount: e.target.value,
+                  })
+                }
+                placeholder="0"
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-foreground">
+                Date spent
+              </label>
+              <input
+                type="date"
+                value={props.form.spent_at}
+                onChange={(e) =>
+                  props.onFormChange({
+                    ...props.form,
+                    spent_at: e.target.value,
+                  })
+                }
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground"
+              />
+            </div>
+          </div>
+          <div className="mt-4">
+            <label className="mb-1 block text-sm font-medium text-foreground">
+              Notes (optional)
+            </label>
+            <textarea
+              value={props.form.notes}
+              onChange={(e) =>
+                props.onFormChange({ ...props.form, notes: e.target.value })
+              }
+              rows={2}
+              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground"
+            />
+          </div>
+          <div className="mt-4 flex justify-end">
+            <Button
+              onClick={props.onSubmit}
+              disabled={props.saving}
+              className="bg-violet-600 text-white hover:bg-violet-700"
+            >
+              {props.saving ? (
+                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save aria-hidden="true" className="h-4 w-4" />
+              )}
+              {props.editingId ? "Update Expense" : "Save Expense"}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Variance summary */}
+      {variance && variance.totalEstimated > 0 && (
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h4 className="font-semibold text-foreground">
+              Estimated vs Actual
+            </h4>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                VARIANCE_STATUS_STYLES[
+                  variance.overBudget ? "over" : "on_track"
+                ].className
+              }`}
+            >
+              {variance.overBudget
+                ? `${formatCurrency(variance.totalDelta, props.currency)} over estimate`
+                : `${formatCurrency(Math.abs(variance.totalDelta), props.currency)} under estimate`}
+            </span>
+          </div>
+
+          {/* Budget burn bar */}
+          <div className="mt-3">
+            <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  variance.overBudget ? "bg-red-500" : "bg-violet-600"
+                }`}
+                style={{
+                  width: `${Math.round(clampFraction(variance.totalUsedFraction) * 100)}%`,
+                }}
+                role="progressbar"
+                aria-valuenow={Math.round(
+                  clampFraction(variance.totalUsedFraction) * 100,
+                )}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Budget used"
+              />
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {formatCurrency(variance.totalActual, props.currency)} spent of{" "}
+              {formatCurrency(variance.totalEstimated, props.currency)}{" "}
+              estimated ({Math.round(variance.totalUsedFraction * 100)}%)
+            </p>
+          </div>
+
+          {/* Per-category table */}
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <th className="pb-2 pr-4 font-medium">Category</th>
+                  <th className="pb-2 pr-4 font-medium">Estimated</th>
+                  <th className="pb-2 pr-4 font-medium">Actual</th>
+                  <th className="pb-2 pr-4 font-medium">Difference</th>
+                  <th className="pb-2 pr-4 font-medium">Used</th>
+                  <th className="pb-2 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {variance.categories.map((row) => (
+                  <tr key={row.category} className="border-b last:border-0">
+                    <td className="py-2 pr-4 font-medium text-foreground">
+                      {EXPENSE_CATEGORY_LABELS_UI[row.category]}
+                    </td>
+                    <td className="py-2 pr-4 text-muted-foreground">
+                      {formatCurrency(row.estimated, props.currency)}
+                    </td>
+                    <td className="py-2 pr-4 text-foreground">
+                      {formatCurrency(row.actual, props.currency)}
+                    </td>
+                    <td
+                      className={`py-2 pr-4 font-medium ${
+                        row.delta > 0
+                          ? "text-red-600"
+                          : row.delta < 0
+                            ? "text-green-600"
+                            : "text-muted-foreground"
+                      }`}
+                    >
+                      {row.delta > 0 ? "+" : ""}
+                      {formatCurrency(row.delta, props.currency)}
+                    </td>
+                    <td className="py-2 pr-4 text-muted-foreground">
+                      {row.estimated > 0
+                        ? `${Math.round(row.usedFraction * 100)}%`
+                        : "—"}
+                    </td>
+                    <td className="py-2">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                          VARIANCE_STATUS_STYLES[row.status].className
+                        }`}
+                      >
+                        {VARIANCE_STATUS_STYLES[row.status].label}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Expense list */}
+      <div className="rounded-xl border bg-card p-4 shadow-sm">
+        {props.expenses.length === 0 ? (
+          <p className="py-6 text-center text-sm text-muted-foreground">
+            No expenses recorded yet. Add your first expense to start tracking
+            actual spend against your estimate.
+          </p>
+        ) : (
+          <ul className="divide-y">
+            {props.expenses.map((expense) => (
+              <li
+                key={expense.id}
+                className="flex flex-wrap items-center gap-3 py-3"
+              >
+                <Receipt
+                  aria-hidden="true"
+                  className="h-4 w-4 shrink-0 text-muted-foreground"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {expense.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {EXPENSE_CATEGORY_LABELS_UI[expense.category]} ·{" "}
+                    {expense.spent_at}
+                    {expense.notes ? ` · ${expense.notes}` : ""}
+                  </p>
+                </div>
+                <span className="text-sm font-semibold text-foreground">
+                  {formatCurrency(expense.amount, props.currency)}
+                </span>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => props.onEdit(expense)}
+                    aria-label={`Edit ${expense.name}`}
+                  >
+                    <Edit aria-hidden="true" className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => props.onDelete(expense.id)}
+                    disabled={props.actionLoading}
+                    aria-label={`Delete ${expense.name}`}
+                  >
+                    <Trash2 aria-hidden="true" className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </div>

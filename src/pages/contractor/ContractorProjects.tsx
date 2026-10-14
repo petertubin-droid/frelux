@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { formatWithSymbol } from "@/lib/international/currency-format";
+import { formatByCode } from "@/lib/international/currency-format";
 import { useNavigate } from "react-router-dom";
 import {
   Plus,
@@ -91,8 +91,13 @@ const TYPE_BADGE_CLASSES: Record<ProjectType, string> = {
 // Helpers
 // ============================================================
 
-function formatCurrency(value: number, symbol: string): string {
-  return formatWithSymbol(value, symbol);
+/**
+ * Formats by ISO currency code so grouping/decimals follow the
+ * currency's own standard (e.g. JPY/KRW 0-decimals). The project's
+ * own currency is always used — never a single-market default.
+ */
+function formatCurrency(value: number, currency: string): string {
+  return formatByCode(value || 0, currency || "XXX", { decimals: 0 });
 }
 
 function formatDate(iso: string): string {
@@ -588,7 +593,7 @@ function ProjectCard({
           <span className="text-lg font-bold text-foreground">
             {formatCurrency(
               project.total_project_cost ?? 0,
-              project.currency_symbol || "₦",
+              project.currency,
             )}
           </span>
         </div>

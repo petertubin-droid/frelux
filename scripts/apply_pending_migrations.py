@@ -59,6 +59,7 @@ PENDING = [
     "20261015360000_plumbing_book_cn.sql",
     "20261015370000_plumbing_book_id.sql",
     "20261015380000_plumbing_book_kr.sql",
+    "20261015390000_project_expenses.sql",
 ]
 
 

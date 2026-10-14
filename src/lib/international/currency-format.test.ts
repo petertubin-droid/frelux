@@ -41,7 +41,8 @@ describe("formatByCode (code-resolved, auto-spaced symbols)", () => {
 
   it("falls back to the raw code for unknown currencies, never a guess", () => {
     expect(formatByCode(1234, "XYZ", { decimals: 0 })).toBe("XYZ 1,234");
-    expect(formatByCode(1234, "", { decimals: 0 })).toBe("₦1,234");
+    // Blank code = data error -> ISO "no currency", never a market default.
+    expect(formatByCode(1234, "", { decimals: 0 })).toBe("XXX 1,234");
   });
 
   it("treats invalid input as zero instead of rendering NaN", () => {

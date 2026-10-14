@@ -10,6 +10,8 @@ import type {
   DbProjectRoom,
   DbProjectShoppingItem,
   DbProjectLabourPlan,
+  DbProjectExpense,
+  ExpenseCategory,
   DbProjectQuotation,
   DbProjectTimeline,
   DbProjectAttachment,
@@ -1079,6 +1081,88 @@ export async function deleteLabourPlanItem(id: string): Promise<void> {
     .eq("id", id);
   if (error)
     throw new Error(`Failed to delete labour plan item: ${error.message}`);
+}
+
+// ============================================================
+// PROJECT EXPENSES — actual spend tracking (roadmap Wave 1.1)
+// Internationalization: currency is always taken from the
+// project record, never assumed. Variances are computed in the
+// project's own currency by the caller via
+// budget-variance-engine (pure, currency-agnostic).
+// ============================================================
+
+export interface CreateExpenseInput {
+  category: ExpenseCategory;
+  name: string;
+  amount: number;
+  spent_at: string;
+  shopping_item_id?: string | null;
+  room_id?: string | null;
+  notes?: string | null;
+}
+
+export async function fetchProjectExpenses(
+  projectId: string,
+): Promise<DbProjectExpense[]> {
+  const { data, error } = await supabase
+    .from("project_expenses")
+    .select("*")
+    .eq("project_id", projectId)
+    .order("spent_at", { ascending: false });
+
+  if (error)
+    throw new Error(`Failed to fetch project expenses: ${error.message}`);
+  return (data ?? []) as DbProjectExpense[];
+}
+
+export async function createProjectExpense(
+  projectId: string,
+  currency: string,
+  input: CreateExpenseInput,
+): Promise<DbProjectExpense> {
+  if (!currency) {
+    throw new Error("Project currency is required to record an expense");
+  }
+  const { data, error } = await supabase
+    .from("project_expenses")
+    .insert({
+      project_id: projectId,
+      currency,
+      category: input.category,
+      name: input.name,
+      amount: input.amount,
+      spent_at: input.spent_at,
+      shopping_item_id: input.shopping_item_id ?? null,
+      room_id: input.room_id ?? null,
+      notes: input.notes ?? null,
+    })
+    .select()
+    .single();
+
+  if (error)
+    throw new Error(`Failed to create project expense: ${error.message}`);
+  return data as DbProjectExpense;
+}
+
+export async function updateProjectExpense(
+  id: string,
+  updates: Partial<DbProjectExpense>,
+): Promise<void> {
+  const { error } = await supabase
+    .from("project_expenses")
+    .update(updates)
+    .eq("id", id);
+  if (error)
+    throw new Error(`Failed to update project expense: ${error.message}`);
+}
+
+export async function deleteProjectExpense(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("project_expenses")
+    .delete()
+    .eq("id", id);
+  if (error)
+    throw new Error(`Failed to delete project expense: ${error.message}`);
 }
 
 // ============================================================

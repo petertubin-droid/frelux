@@ -1289,6 +1289,31 @@ export interface DbProjectShoppingItem {
   updated_at: string;
 }
 
+export type ExpenseCategory = "material" | "labour" | "transport" | "misc";
+
+export const EXPENSE_CATEGORY_LABELS: Record<ExpenseCategory, string> = {
+  material: "Materials",
+  labour: "Labour",
+  transport: "Transport",
+  misc: "Miscellaneous",
+};
+
+export interface DbProjectExpense {
+  id: string;
+  project_id: string;
+  category: ExpenseCategory;
+  name: string;
+  amount: number;
+  currency: string;
+  spent_at: string;
+  shopping_item_id: string | null;
+  room_id: string | null;
+  notes: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DbProjectLabourPlan {
   id: string;
   project_id: string;

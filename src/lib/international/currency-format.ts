@@ -78,16 +78,20 @@ function safeAmount(amount: number): number {
 
 /**
  * Format a monetary amount with a currency CODE (NGN, USD, GHS, ...).
+ * A blank code renders as ISO "XXX" (no currency) — never a market default.
  * The symbol is resolved from the verified currency metadata; unknown
  * codes fall back to the raw code as the symbol (e.g. "XYZ 1,234"),
  * never a guessed symbol.
  */
 export function formatByCode(
   amount: number,
-  code: string = "NGN",
+  code: string = "XXX",
   options: CurrencyFormatOptions = {},
 ): string {
-  const upper = String(code || "NGN").toUpperCase();
+  // Blank/missing codes are a data error: render the ISO 4217 "no
+  // currency" code (XXX) rather than silently defaulting to any
+  // single market's currency (i18n mandate: no NG fallback).
+  const upper = String(code || "XXX").toUpperCase();
   const symbol = CURRENCY_SYMBOLS[upper] || upper;
   const { min, max } = decimalDigits(options.decimals ?? 0, upper);
   const formatted = safeAmount(amount).toLocaleString(
