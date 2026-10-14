@@ -1090,6 +1090,11 @@ export const AE_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
  */
 export const JP_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
 
+/** France has French-specific SQL books, but no verified scanner reference dataset.
+ * Keep this empty rather than exposing German references as French prices.
+ */
+export const FR_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
+
 export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPrice>> = {
   NG: FALLBACK_PRICES,
   US: US_REFERENCE_PRICES,
@@ -1104,7 +1109,7 @@ export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPri
   KR: KR_REFERENCE_PRICES,
   IT: IT_REFERENCE_PRICES,
   JP: JP_REFERENCE_PRICES,
-  FR: DE_REFERENCE_PRICES,
+  FR: FR_REFERENCE_PRICES,
   BR: MX_REFERENCE_PRICES,
   SA: US_REFERENCE_PRICES,
   AE: AE_REFERENCE_PRICES,
