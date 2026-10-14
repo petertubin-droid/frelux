@@ -563,6 +563,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no region-specific climate/calendar, holidays or customs/shipping/delay integration was found.
 - **Changes made:** none. Keep Ethiopia unavailable for operational estimates until source-backed local standards and products, calculator validation, ETB pricing/tax, credentials, and seasonal/logistics rules are implemented and deployed. Next remaining market: **Egypt (`EG`)**.
 
+### Egypt market closeout (priority 23; audit only, 2026-10-14)
+
+- **Operational decision: NOT IMPLEMENTED / NOT VERIFIED.** Egypt (`EG`) appears in the country selector with EGP, but no Egypt-specific market context, price scanner, construction typology, wall methodology, climate, electrical/plumbing profile or market capability inventory entry was found. Listing Egypt as a selectable country is not evidence of a live localized estimator.
+- **Quantities/standards:** no Egypt-specific packaging, material coverage formulas or source-backed national/local structural and construction-code profile was found. Never fall back silently to Nigeria or another market.
+- **Pricing/tax:** no Egypt-specific price books, retailer scanner sources, EGP exchange conversion or Egypt jurisdictional tax/VAT implementation was found in the reviewed sources.
+- **Workforce compliance:** no Egyptian trade/professional license, insurance or safety-credential verification integration was found.
+- **Timeline/logistics:** no local public-holiday/site calendar, climate-driven production data, customs data or predictive shipping integration was found.
+- **Changes made:** none. Keep Egypt out of operational localized estimates until the local standards, source-backed materials/prices/tax, qualified workforce checks and season/logistics behavior are implemented, tested and deployed. Next remaining market: **Tanzania (`TZ`)**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
