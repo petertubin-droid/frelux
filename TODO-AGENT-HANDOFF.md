@@ -715,6 +715,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no local public-holiday/work calendar, validated seasonal productivity, customs or predictive supply-delay functionality was found.
 - **Changes made:** none. Do not represent `BE` as operationally localized until the local standards, role mappings, live source-backed pricing/tax and compliance/schedule integrations are independently verified. Next country: **Denmark**.
 
+### Denmark market closeout (priority 42; audit-only catalog evidence, 2026-10-14)
+
+- **Operational decision: LOCALIZED SEED DATA EXISTS; NOT VERIFIED END TO END.** `DK` has country-specific product/price rows in database migrations using DKK. Denmark has local DKK catalog rows and BAUHAUS price observations for cement and interior paint (the latter’s product is 9 L but slug says 10 L), plus tile adhesive/grout entries. No DK market profile, price scanner mapping, dedicated local engineering profiles or end-to-end role-mapping verification was found. Migration evidence does not establish the rows are deployed or current in production.
+- **Quantities/standards:** localized material or tiling/screed rows are partial evidence only. No complete, source-validated country-specific construction/electrical/plumbing estimating profiles and tested role mappings were verified.
+- **Pricing/tax:** local-currency price rows exist, mixing source-cited and indicative/admin-adjustable values. No complete price scanner catalog or refresh process, full price-to-estimate role mapping, validated local VAT treatment, FX workflow or production read was confirmed. Review pack-size contradictions noted above before use.
+- **Workforce compliance:** no local professional/trade licensing, insurance or safety-credential verification was demonstrated.
+- **Timeline/logistics:** no local public-holiday/work calendar, validated seasonal productivity, customs or predictive supply-delay functionality was found.
+- **Changes made:** none. Do not represent `DK` as operationally localized until the local standards, role mappings, live source-backed pricing/tax and compliance/schedule integrations are independently verified. Next country: **Finland**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
