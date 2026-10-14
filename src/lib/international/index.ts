@@ -113,3 +113,9 @@ export type {
 // Capability registry & Engine inventory
 export * from "./capability-registry";
 export * from "./engine-inventory";
+
+// Hybrid Pricing Systems A, B, and C
+export * from "./macro-tracker";
+export * from "./crowdsourcing-engine";
+export * from "./supplier-inventory-engine";
+export * from "./hybrid-pricing-engine";

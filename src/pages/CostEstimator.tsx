@@ -1,3 +1,5 @@
+import { MacroTrackerCard } from "@/components/pricing/MacroTrackerCard";
+import { SupplierOfferBadge } from "@/components/calculator/SupplierOfferBadge";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation, Link } from "react-router-dom";
 import {
@@ -1072,6 +1074,12 @@ export default function CostEstimator({
                     {formatNumber(input.paintLiters, 1)} L of paint.
                   </div>
                 )}
+              </div>
+              <div className="px-6 pb-2">
+                <SupplierOfferBadge
+                  materialName="Silk Vinyl Emulsion Paint"
+                  marketCode={market?.marketCode || "KE"}
+                />
               </div>
               <div className="border-t border-border/50 bg-muted/50 px-6 py-3 text-xs text-muted-foreground">
                 Estimate only. Actual costs may vary depending on product brand,

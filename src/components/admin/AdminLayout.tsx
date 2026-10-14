@@ -217,6 +217,12 @@ const navModules: NavModule[] = [
         icon: MapPin,
         group: "Factor Tables",
       },
+      {
+        label: "Macro Tracker",
+        to: "/admin/macro-tracker",
+        icon: Activity,
+        group: "Factor Tables",
+      },
       { label: "Carbon Factors", to: "/admin/carbon-factors", icon: Leaf },
       {
         label: "Thermal Factors",

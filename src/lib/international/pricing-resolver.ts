@@ -9,8 +9,8 @@
  * This module fetches the current active price for a given market + product/material.
  */
 
-import { supabase } from '@/lib/supabase';
-import type { MarketPricing } from '@/types/international';
+import { supabase } from "@/lib/supabase";
+import type { MarketPricing } from "@/types/international";
 
 // ============================================================
 // CACHE
@@ -34,12 +34,12 @@ export async function fetchCurrentPrice(
   if (priceCache.has(cacheKey)) return priceCache.get(cacheKey) ?? null;
 
   const { data, error } = await supabase
-    .from('market_pricing')
-    .select('*')
-    .eq('market_code', marketCode)
-    .eq('product_id', productId)
-    .is('effective_to', null)
-    .order('effective_from', { ascending: false })
+    .from("market_pricing")
+    .select("*")
+    .eq("market_code", marketCode)
+    .eq("product_id", productId)
+    .is("effective_to", null)
+    .order("effective_from", { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -62,16 +62,16 @@ export async function fetchCurrentPrice(
  */
 export async function fetchMarketPrices(
   marketCode: string,
-  priceType?: 'product' | 'material' | 'labour' | 'quality_level',
+  priceType?: "product" | "material" | "labour" | "quality_level",
 ): Promise<MarketPricing[]> {
   let query = supabase
-    .from('market_pricing')
-    .select('*')
-    .eq('market_code', marketCode)
-    .is('effective_to', null)
-    .order('price_type', { ascending: true });
+    .from("market_pricing")
+    .select("*")
+    .eq("market_code", marketCode)
+    .is("effective_to", null)
+    .order("price_type", { ascending: true });
 
-  if (priceType) query = query.eq('price_type', priceType);
+  if (priceType) query = query.eq("price_type", priceType);
 
   const { data, error } = await query;
   if (error || !data) return [];
@@ -82,7 +82,10 @@ export async function fetchMarketPrices(
 // FETCH PRODUCTS FOR A MARKET + CALCULATOR
 // ============================================================
 
-import type { MarketProduct, MarketCalculatorType } from '@/types/international';
+import type {
+  MarketProduct,
+  MarketCalculatorType,
+} from "@/types/international";
 
 /**
  * Get all active products for a market that are compatible with a calculator.
@@ -92,10 +95,10 @@ export async function fetchMarketProducts(
   calculatorType?: MarketCalculatorType,
 ): Promise<MarketProduct[]> {
   const query = supabase
-    .from('market_products')
-    .select('*')
-    .eq('market_code', marketCode)
-    .eq('is_active', true);
+    .from("market_products")
+    .select("*")
+    .eq("market_code", marketCode)
+    .eq("is_active", true);
 
   const { data, error } = await query;
   if (error || !data) return [];
@@ -105,7 +108,7 @@ export async function fetchMarketProducts(
 
   // Filter by calculator compatibility
   return products.filter((p) =>
-    p.calculator_compatibility?.includes(calculatorType)
+    p.calculator_compatibility?.includes(calculatorType),
   );
 }
 
@@ -145,4 +148,23 @@ export async function resolveProductPrice(
 
 export function clearPriceCache(): void {
   priceCache.clear();
+}
+
+// ============================================================
+// HYBRID RESOLUTION INTEGRATION
+// ============================================================
+
+import {
+  resolveHybridPrice,
+  type ResolveHybridPriceParams,
+} from "./hybrid-pricing-engine";
+import type { HybridPriceResolution } from "@/types/hybrid-pricing";
+
+/**
+ * Resolve price using the hybrid pricing cascade (Supplier -> Crowdsource -> Macro -> Baseline).
+ */
+export async function resolveMarketPriceHybrid(
+  params: ResolveHybridPriceParams,
+): Promise<HybridPriceResolution> {
+  return resolveHybridPrice(params);
 }

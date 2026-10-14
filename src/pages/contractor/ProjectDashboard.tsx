@@ -1,3 +1,5 @@
+import { ExpenseCrowdsourceCard } from "@/components/contractor/ExpenseCrowdsourceCard";
+import { submitCrowdsourcedExpense } from "@/lib/international/crowdsourcing-engine";
 /**
  * FRELUX, Smart Project Dashboard
  * Main project view showing aggregated project data with tabbed sections:
@@ -347,6 +349,7 @@ export default function ProjectDashboard() {
   const [expenseForm, setExpenseForm] =
     useState<ExpenseFormData>(emptyExpenseForm);
   const [expenseSaving, setExpenseSaving] = useState(false);
+  const [crowdsourceOptIn, setCrowdsourceOptIn] = useState(true);
   const [notes, setNotes] = useState("");
   const [notesDirty, setNotesDirty] = useState(false);
 
@@ -655,6 +658,18 @@ export default function ProjectDashboard() {
           spent_at: expenseForm.spent_at,
           notes: expenseForm.notes.trim() || null,
         });
+      }
+      if (crowdsourceOptIn) {
+        submitCrowdsourcedExpense({
+          marketCode: (project as any).country_code || "KE",
+          materialCategory: expenseForm.category,
+          materialName: expenseForm.name.trim(),
+          unitPrice: amount,
+          currency: project.currency,
+          unit: "unit",
+          city: (project as any).location || undefined,
+          optInVerified: true,
+        }).catch(() => {});
       }
       const refreshed = await fetchProjectExpenses(id);
       setExpenses(refreshed);
@@ -1213,6 +1228,10 @@ export default function ProjectDashboard() {
               onSubmit={handleExpenseSubmit}
               onEdit={handleEditExpense}
               onDelete={handleDeleteExpense}
+              marketCode={(project as any).country_code || "KE"}
+              projectCity={(project as any).location || undefined}
+              crowdsourceOptIn={crowdsourceOptIn}
+              onToggleCrowdsourceOptIn={setCrowdsourceOptIn}
             />
           )}
 
@@ -3146,6 +3165,10 @@ interface ExpensesTabProps {
   onSubmit: () => void;
   onEdit: (expense: DbProjectExpense) => void;
   onDelete: (expenseId: string) => void;
+  marketCode?: string;
+  projectCity?: string;
+  crowdsourceOptIn?: boolean;
+  onToggleCrowdsourceOptIn?: (optIn: boolean) => void;
 }
 
 export function ExpensesTab(props: ExpensesTabProps) {
@@ -3262,6 +3285,17 @@ export function ExpensesTab(props: ExpensesTabProps) {
               }
               rows={2}
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground"
+            />
+          </div>
+          <div className="mt-4">
+            <ExpenseCrowdsourceCard
+              marketCode={props.marketCode || "KE"}
+              city={props.projectCity}
+              materialName={props.form.name || "Materials"}
+              enteredPrice={Number(props.form.amount) || 0}
+              currency={props.currency}
+              optIn={props.crowdsourceOptIn ?? true}
+              onToggleOptIn={props.onToggleCrowdsourceOptIn || (() => {})}
             />
           </div>
           <div className="mt-4 flex justify-end">

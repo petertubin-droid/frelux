@@ -158,6 +158,8 @@ const AdminEstimationProducts = lazy(
 const AdminMaintenanceProfiles = lazy(
   () => import("@/pages/admin/AdminMaintenanceProfiles"),
 );
+const AdminMacroTracker = lazy(() => import("@/pages/admin/AdminMacroTracker"));
+const SupplierPortal = lazy(() => import("@/pages/marketplace/SupplierPortal"));
 const AdminRegionalCostIndices = lazy(
   () => import("@/pages/admin/AdminRegionalCostIndices"),
 );
@@ -1146,6 +1148,10 @@ export default function App() {
                       <Route path="products/post" element={<PostProduct />} />
                       <Route path="products/my" element={<MyProducts />} />
                       <Route
+                        path="supplier-portal"
+                        element={<SupplierPortal />}
+                      />
+                      <Route
                         path="seller-dashboard"
                         element={<SellerDashboard />}
                       />
@@ -1385,6 +1391,10 @@ export default function App() {
                     <Route
                       path="maintenance-profiles"
                       element={<AdminMaintenanceProfiles />}
+                    />
+                    <Route
+                      path="macro-tracker"
+                      element={<AdminMacroTracker />}
                     />
                     <Route
                       path="regional-cost-indices"
