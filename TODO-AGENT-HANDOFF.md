@@ -413,12 +413,28 @@ The following items represent all outstanding, in-progress, or unverified work o
     - India: 230mm / 115mm clay brick and AAC blocks.
   - Regional concrete mix designs (ACI 318 vs Eurocode 2 vs IS 456).
 
-### G. AI Credit Economy & Monetization Security (PARTIAL / UNVERIFIED)
-- **Status**: PARTIAL / UNVERIFIED
-- **Issues to resolve**:
-  - Rewarded ad completion relies on client-side event attestations without server-side verification from advertising networks (AdMob / Adsterra).
-  - Guest AI reservation atomicity and daily resets need strict edge function enforcement to prevent race conditions.
-  - Task completion RPC currently accepts unverified client completion claims.
+### G. AI Credit Economy & Monetization Security (HARDENED 2026-10-14, commit 3bf1a687)
+- **Status**: CORE HOLES CLOSED (migration 20261015220000, applied + live-verified)
+  - award_credits: EXECUTE revoked from PUBLIC/anon/authenticated — direct
+    PostgREST minting is closed; only the /award-credits edge function
+    (service role + server-side event catalog + rate limit) can award.
+    RPC made race-free: per-user advisory lock, ON CONFLICT DO NOTHING
+    idempotency on reward_events UNIQUE, atomic balance increment.
+  - complete_credit_task: browser callers may only credit themselves
+    (auth.uid() guard; service-role edge functions exempt). EXECUTE
+    revoked from PUBLIC and anon, granted to authenticated only.
+    Live-verified: has_function_privilege anon=False/auth=True, guard
+    present in pg_get_functiondef.
+  - Guest AI reservation (ai-gateway.ts): now an atomic compare-and-set
+    (operations_used=0 AND operations_reserved=0 -> 1); concurrent
+    guests can no longer both win the single daily slot.
+  - verify-rewarded-ad already enforced postback/attestation (confirmed
+    by read; no change needed).
+  - ai-gateway.ts edge function DEPLOYED live (supabase CLI, project
+    nfgaaohweygwydoelxnf, function ai-building-estimation — the only
+    gateway consumer). Complete_credit_task claims are still
+    client-asserted per task definition; the auth.uid() +
+    max_completions caps are the server-side bound.
 
 ### G. Cross-Agent Audit Reconciliation (Velo review of the Lovable audit, 2026-10-14)
 
