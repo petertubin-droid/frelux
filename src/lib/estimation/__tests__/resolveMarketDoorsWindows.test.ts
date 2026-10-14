@@ -599,4 +599,99 @@ describe("resolveMarketDoorsWindows", () => {
     );
     expect(result.unresolved).not.toContain("door-flush");
   });
+  it("resolves Ghana (GH) doors & windows price book with 5 overrides and marks unpriced custom items unresolved", async () => {
+    const ghMaterials: Record<string, { id: string; name: string }> = {
+      "door-flush": {
+        id: "mat-gh-flush",
+        name: "Plywood Flush Door Slab 32x80 in.",
+      },
+      "door-panel": {
+        id: "mat-gh-panel",
+        name: "Adepa / Odikro Hardwood Panel Door 83x33 in.",
+      },
+      "door-frame": {
+        id: "mat-gh-frame",
+        name: "Solid Hardwood Door Frame Set 7ft",
+      },
+      "door-hinge": {
+        id: "mat-gh-hinge",
+        name: "Yale Stainless Steel Butt Hinge 4x3x3mm",
+      },
+      "door-lockset": {
+        id: "mat-gh-lockset",
+        name: "ABUS DI6N 30/30 Mortise Lock Complete Set",
+      },
+      "door-security": {
+        id: "mat-gh-security",
+        name: "Security door leaf",
+      },
+      "window-aluminium": {
+        id: "mat-gh-window",
+        name: "Aluminium sliding window",
+      },
+      "window-louver": {
+        id: "mat-gh-louver",
+        name: "Louver window",
+      },
+    };
+
+    const ghPrices: Record<string, number> = {
+      "mat-gh-flush": 320.0,
+      "mat-gh-panel": 750.0,
+      "mat-gh-frame": 340.0,
+      "mat-gh-hinge": 81.4,
+      "mat-gh-lockset": 240.0,
+    };
+
+    materialChain.eq.mockImplementation(function (
+      this: Chain,
+      field: unknown,
+      value: unknown,
+    ) {
+      if (field === "slug") {
+        const m = ghMaterials[value as string];
+        this.maybeSingle.mockImplementation(async () => ({ data: m ?? null }));
+      }
+      return this;
+    } as never);
+
+    priceChain.eq.mockImplementation(function (
+      this: Chain,
+      field: unknown,
+      value: unknown,
+    ) {
+      if (field === "ref_id") {
+        const price = ghPrices[value as string];
+        this.maybeSingle.mockImplementation(async () => ({
+          data:
+            price !== undefined
+              ? {
+                  price,
+                  scan_confidence: "manual",
+                  price_source:
+                    "SupplyMaster / Construction Exchange Shop (GH)",
+                }
+              : null,
+        }));
+      }
+      return this;
+    } as never);
+
+    const result = await resolveMarketDoorsWindows("GH");
+
+    expect(result.overrides["door-flush"]).toBe(320.0);
+    expect(result.overrides["door-panel"]).toBe(750.0);
+    expect(result.overrides["door-frame"]).toBe(340.0);
+    expect(result.overrides["door-hinge"]).toBe(81.4);
+    expect(result.overrides["door-lockset"]).toBe(240.0);
+
+    expect(result.unresolved).toEqual(
+      expect.arrayContaining([
+        "door-security",
+        "window-aluminium",
+        "window-louver",
+      ]),
+    );
+    expect(result.unresolved).not.toContain("door-flush");
+  });
 });

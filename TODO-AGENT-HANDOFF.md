@@ -17,7 +17,7 @@ partially implemented features may be presented as done. Every claim must
 carry its real status: verified live, tests only, or staged/partial with the
 hardcoded parts named. Unverifiable items are disclosed, never greenwashed.
 
-Last updated: 2026-10-15 (P2 batch 23: IN doors/windows price book READY in migration 20261015040000; batch 22 AU ready in 20261015030000; batch 21 KE ready in 20261015020000; batch 20 ZA & FR ready in 20261015010000; batch 19 CA pending DB exec; batch 18 resolver + US/GB/DE books complete)
+Last updated: 2026-10-15 (P2 batch 24: GH doors/windows price book READY in migration 20261015050000; batch 23 IN ready in 20261015040000; batch 22 AU ready in 20261015030000; batch 21 KE ready in 20261015020000; batch 20 ZA & FR ready in 20261015010000; batch 19 CA pending DB exec; batch 18 resolver + US/GB/DE books complete)
 
 ---
 
@@ -115,6 +115,18 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
 - Distinguish preliminary estimation from engineering design compliance.
 
 - [x] P2 batch 18: Doors & Windows Market Books, Resolver & Estimator Integration (2026-10-14): - Implemented `resolveMarketDoorsWindows` and `DOORS_WINDOWS_ENGINE_KEYS` in `src/lib/estimation/structural-market.ts`: * Resolves all 8 engine keys: `door-flush`, `door-panel`, `door-security`, `door-frame`, `door-hinge`, `door-lockset`, `window-aluminium`, `window-louver`. * Checks market-scoped slugs (e.g. `us-door-flush`) with fallback to shared engine slugs. * Explicitly reports unpriced keys in `unresolved` — zero silent substitution or fallback to Nigerian reference prices. * Detailed provenance rows include market, unit price, formatted explanation, and supplier source. - Integrated resolver into `src/pages/DoorsWindowsEstimator.tsx`: * Guarded `fetchMarketPriceBook` reference fallback: items in `fromReference` are nulled out for non-NG markets instead of inheriting Nigerian prices in local currency. * Overlays resolved market prices into `priceMap`. * Added dynamic price book coverage badge (`trade-price-coverage`) reporting exact count of priced items out of 8. * Added market price provenance card (`doors-windows-price-provenance`) displaying verified items with currency formatting, supplier citation, and honest unpriced disclosure. - Created additive Supabase migration `supabase/migrations/20261014170000_doors_windows_books_us_gb_de.sql`: * US: JELD-WEN flush slab $68, Masonite 6-panel slab $67, EverMark split jamb kit $61.98, Everbilt mortise hinge $2.32, Defiant keyed entry knob $10.13, JELD-WEN vinyl sliding window $169 (The Home Depot live listings, manual confidence). Unpriced: security screen (not equivalent to solid leaf) and jalousie louvre. * GB: Wickes flush primed door £39, Wickes 6-panel moulded door £32, softwood door lining set £32, 76mm butt hinges £1.50 (Wickes live listings, manual confidence). Unpriced: security, lockset, aluminum sliding window, louvre. * DE: Pertura CPL interior door €109, Pertura casing frame €79, galvanized frame hinge €1.35, stainless steel rose handle set €23.95 (Hornbach live listings, manual confidence). Unpriced: panel, security, aluminum sliding window, louvre. - Added unit test suite in `src/lib/estimation/__tests__/resolveMarketDoorsWindows.test.ts` (3 tests). - Added DOM integration tests in `src/pages/DoorsWindowsEstimator.test.tsx` (3 tests). - Verified: 22 test files (323 tests) passing across estimation and page suites, TypeScript app check 0 errors (`npx tsc --noEmit -p tsconfig.app.json`).
+
+- [x] P2 batch 24: Doors & Windows price book for Ghana (GH) (2026-10-15):
+  - Migration `supabase/migrations/20261015050000_doors_windows_books_gh.sql`: 5 verified manual rows (scan_confidence='manual') in GHS from SupplyMaster Ghana (national construction/hardware platform), Construction Exchange Shop Ghana, and Tonaton/Agbogbloshie & Accra Timber Markets live trade listings:
+    - door-flush: GH₵ 320.00 GHS (Standard Plywood Flush Door Slab 32x80 in. / 813x2032 mm, Agbogbloshie Timber Market / Tonaton Ghana live listing 2026-10-15)
+    - door-panel: GH₵ 750.00 GHS (Adepa / Odikro Single Polished Double Sided Hardwood Panel Door 83x33 in., Construction Exchange Shop Ghana live catalog 2026-10-15)
+    - door-frame: GH₵ 340.00 GHS (Solid Hardwood Timber Door Frame Set for 7ft x 3ft opening, Accra Timber Market / Tonaton Ghana live listing 2026-10-15)
+    - door-hinge: GH₵ 81.40 GHS (Yale Stainless Steel Ball-Bearing Butt Hinge 4x3x3mm EN 1935 Class 13 [GH₵ 162.80 / pair = GH₵ 81.40 each], SupplyMaster Ghana live listing 2026-10-15)
+    - door-lockset: GH₵ 240.00 GHS (ABUS DI6N 30/30 Mortise Lock Complete Set EN 12209 with strike plate, SupplyMaster Ghana live listing 2026-10-15)
+    - door-security, window-aluminium, window-louver intentionally unpriced: in Ghanaian residential practice under National Building Regulations L.I. 1630, external entrance security is provided by heavy Turkish multi-point steel security doors (typically GHS 3,500–15,000+) or custom-welded mild steel burglar-proof barrier gates; aluminium sliding windows are custom-fabricated to opening dimensions by regional glass/aluminium fabricators using extruded profiles and priced per opening or per square metre (typically GHS 1,200–2,800/m²), rather than sold as standard off-the-shelf monolithic units; and adjustable glass louvers are specified as individual aluminium/Naco louver gallery carriers and 4mm/6mm glass blades per run, rather than standard pre-assembled monolithic window units. Disclosed honestly and never substituted.
+  - Unit test suite updated: `src/lib/estimation/__tests__/resolveMarketDoorsWindows.test.ts` expanded with dedicated GH test case verifying 5 override values and 3 unresolved items (all 9 tests green).
+  - `scripts/apply_pending_migrations.py` updated: `20261015040000_doors_windows_books_in.sql` (Batch 23) and `20261015050000_doors_windows_books_gh.sql` (Batch 24) appended to `PENDING` list.
+  - Verified: 19 estimation test files (311 tests) passing, strict TypeScript app check clean (`npx tsc --noEmit -p tsconfig.app.json`).
 
 - [x] P2 batch 23: Doors & Windows price book for India (IN) (2026-10-15):
   - Migration `supabase/migrations/20261015040000_doors_windows_books_in.sql`: 5 verified manual rows (scan_confidence='manual') in INR from Moglix (national B2B hardware/materials platform) and Amazon India:
@@ -631,7 +643,7 @@ Work this list in order. Each item's status is current as of the last update.
 
 1. 🟡 **Doors/windows books** (section 4D) — resolver + US/GB/DE seeded & executed.
    CA book ready in `20261014230000_doors_windows_books_ca.sql`; ZA/FR in `20261015010000_doors_windows_books_za_fr.sql`;
-   KE in `20261015020000_doors_windows_books_ke.sql`; AU in `20261015030000_doors_windows_books_au.sql`; IN in `20261015040000_doors_windows_books_in.sql`.
+   KE in `20261015020000_doors_windows_books_ke.sql`; AU in `20261015030000_doors_windows_books_au.sql`; IN in `20261015040000_doors_windows_books_in.sql`; GH in `20261015050000_doors_windows_books_gh.sql`.
    Pending live DB execution alongside pending list.
 2. 🟡 **DE + GB rebar books** (section 4A) — need merchant-level anchors; all
    leads and gotchas documented.
@@ -756,6 +768,7 @@ provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
   needs DB execution alongside CA.
 - ✅ AU price book `20261015030000_doors_windows_books_au.sql` (6 verified rows from Corinthian Doors Australia, Keeler Hardware, Window Warehouse Australia) — UNBLOCKED & READY, needs DB execution.
 - ✅ IN price book `20261015040000_doors_windows_books_in.sql` (5 verified rows from Moglix and Amazon India) — READY, needs DB execution.
+- ✅ GH price book `20261015050000_doors_windows_books_gh.sql` (5 verified rows from SupplyMaster Ghana, Construction Exchange Shop Ghana, and Tonaton/Agbogbloshie & Accra Timber Markets) — READY, needs DB execution.
 - BTR: cement/sand prefills exist; rebar prefill is active for markets with rebar books. Opening purchases remain explicitly excluded from BTR per engineering design.
 
 ### E. Price campaign remainder (~174 'low' rows in estimation_prices)
