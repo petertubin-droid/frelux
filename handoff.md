@@ -535,6 +535,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** dry/rainy season is a broad heuristic; no state-specific holidays/work calendars, storm/site productivity data, customs/shipping feed or predictive logistics were verified.
 - **Changes made for MX:** none. Keep the market partial/unverified until live role mappings and source-backed calculators, tax, workforce and calendar/logistics functions pass the activation gate. Next remaining market: **South Korea (`KR`)**.
 
+### South Korea market closeout (priority 20; audit only, 2026-10-14)
+
+- **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** South Korea (`KR`) has a visible active metric, KRW, Korean-language market profile, with 40 kg cement and local product conventions. The live production profile and migration application status were not queried.
+- **Quantities/standards:** KEC/KS-C electrical and KCS/KS-B plumbing references, Korean RC apartment typology and wall methodology are present. The engine inventory marks structural/foundation/reinforcement/roofing partial, and multiple finish/door/window calculators plus Build-to-Roof unimplemented. Standards references and national typology do not substitute for project-specific engineering review or validation across Korean regions and building types.
+- **Pricing/tax:** A dedicated KRW reference catalog and separate electrical, plumbing, and door/hardware price-book migrations cite Korean retailer listings dated 2026-10-14. The dated internal snapshot (2026-10-13) reports 8 price rows, zero material-role mappings, and zero scan sources; later migration files do not prove these books or complete mappings are live. The scanner references are surveys, not a demonstrated live refresh. No operational VAT/tax engine, inflation-index feed or transaction FX workflow was verified.
+- **Workforce compliance:** no Korean license/credential verification, regional eligibility, insurance/safety registry, or expiry/revocation integration was demonstrated.
+- **Timeline/logistics:** the climate profile only gives broad summer/winter seasons; no public-holiday/site-calendar integration, construction-weather productivity validation, import/customs feed or predictive shipping-delay engine was established.
+- **Changes made for KR:** none. Keep market functionality partial until production role mappings, current source-backed prices, regional standards, tax, workforce and timeline/logistics are validated. Next remaining market: **Saudi Arabia (`SA`)**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
