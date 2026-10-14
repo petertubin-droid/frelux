@@ -10,6 +10,7 @@ import {
   AE_REFERENCE_PRICES,
   JP_REFERENCE_PRICES,
   FR_REFERENCE_PRICES,
+  BR_REFERENCE_PRICES,
   MARKET_CATALOGS,
   MARKET_DEFAULTS,
   scanMaterialPrices,
@@ -175,7 +176,7 @@ describe("estimation/price-scanner US catalog", () => {
 
   it("has reference catalogs only where market-priced references exist", () => {
     for (const [market, catalog] of Object.entries(MARKET_CATALOGS)) {
-      if (market === "AE" || market === "JP" || market === "FR") {
+      if (market === "AE" || market === "JP" || market === "FR" || market === "BR") {
         expect(Object.keys(catalog)).toHaveLength(0);
       } else {
         expect(Object.keys(catalog).length).toBeGreaterThan(0);
@@ -189,6 +190,15 @@ describe("estimation/price-scanner US catalog", () => {
     expect(AU_REFERENCE_PRICES.au_base_coat_45.price).toBe(52.9);
     expect(CA_REFERENCE_PRICES.ca_synko_tape.price).toBe(9.84);
     expect(IN_REFERENCE_PRICES.in_tractor_emulsion.price).toBe(2600);
+  });
+
+  it("Brazil scan never re-labels Mexican references as Brazilian prices", async () => {
+    expect(BR_REFERENCE_PRICES).toEqual({});
+    const report = await scanMaterialPrices({}, { market: "BR" });
+    expect(report.currency).toBe("BRL");
+    expect(report.market_region).toBe("Brazil");
+    expect(report.materials_scanned).toBe(0);
+    expect(report.results).toEqual([]);
   });
 
   it("France scan never re-labels German references as French prices", async () => {

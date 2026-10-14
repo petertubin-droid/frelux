@@ -1095,6 +1095,11 @@ export const JP_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
  */
 export const FR_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
 
+/** Brazil has BR-specific SQL books, but no verified scanner reference dataset.
+ * Keep this empty rather than exposing Mexican references as BRL prices.
+ */
+export const BR_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
+
 export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPrice>> = {
   NG: FALLBACK_PRICES,
   US: US_REFERENCE_PRICES,
@@ -1110,7 +1115,7 @@ export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPri
   IT: IT_REFERENCE_PRICES,
   JP: JP_REFERENCE_PRICES,
   FR: FR_REFERENCE_PRICES,
-  BR: MX_REFERENCE_PRICES,
+  BR: BR_REFERENCE_PRICES,
   SA: US_REFERENCE_PRICES,
   AE: AE_REFERENCE_PRICES,
 };
