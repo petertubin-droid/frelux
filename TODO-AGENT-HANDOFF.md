@@ -360,11 +360,24 @@ The following items represent all outstanding, in-progress, or unverified work o
     - **Top-30 Expansion Markets**: France, Italy, Spain, Japan, South Korea, China, Indonesia, Mexico, Brazil, India, South Africa, Ghana, Kenya, Egypt, Saudi Arabia, UAE require verified rebar price books.
 
 ### C. Plumbing Fittings & Valves Expansion (PARTIAL / INCOMPLETE)
-- **Status**: GB/AT/DE COMPLETE (live-verified 2026-10-14 by Velo; see P2 batch 16 entry)
+- **Status**: US/GB/AT/DE/GH/KE COMPLETE (GH+KE live-verified 2026-10-14, migrations 20261015230000/240000)
   - Completed: US (PVC DWV + PEX-A/B + copper); GB 5/5, AT 5/5, DE 5/5 (migration 20261013170000, live).
     Live data reality: GB union is GBP 4.04 Screwfix (not the GBP 2.25 quoted in the older batch-16 writeup).
-  - Outstanding:
-    - **Other Markets**: Plumbing fittings and shut-off valves pending across non-EU/US markets.
+  - GH book 9/9 (migration 20261015230000, live): PPR-C 25mm fusion system + uPVC DWV. Fittings from
+    buildershubgh.com (Builders Hub GH, East Legon Accra): elbow GHS 2.00, tee GHS 2.50, reducing tee
+    32x25x32 GHS 4.00, coupling GHS 1.50, gate valve GHS 68.00 (product 430 variation list). Pipes:
+    arkandstar.com PPR 3/4" stick GHS 42 / 4m standard (Wadfow 4m PPR listing, supplymaster.store) =
+    GHS 10.50/m hot+cold; Interplast uPVC Class C 2"x6m GHS 150.50 = 25.08/m waste; Class B 4"x6m
+    GHS 391.50 = 65.25/m soil.
+  - KE book 9/9 (migration 20261015240000, live): PPR-C 25mm + uPVC KS waste. Fittings: hanzach.com
+    (Nairobi) elbow KSh 20, tee KSh 30, reduced tee 25*20 KSh 35; kkempiretradesslimited.com union 25mm
+    KES 33; nikkohardware.co.ke gate valve 25mm KSh 135. Pipes: randtech.co.ke PPR 25mm x 4m KSh 380 =
+    95/m hot+cold; trustedbuilder.co.ke 2" 50mm uPVC x 6m KSh 550 = 91.67/m waste; jiji.co.ke Nairobi
+    4"x3mm"x6m PVC soil KSh 1,900 = 316.67/m drainage.
+  - Outstanding (14 markets, PPR/copper/multilayer books to verify per profile):
+    ZA (copper 22mm/multilayer), IN (CPVC 25mm), JP (PEX 13A), FR/IT (multistrato), BR (PVC marrom/
+    CPVC), MX (CPVC), AU/CA (PEX/copper), SA/AE (PPR/CPVC Sch80), CN (PP-R GB/T), ID (PVC AW), KR (PB).
+    NG is engine-default (resolver returns early; no NG book needed).
 
 ### D. Doors & Windows Books for Remaining 12 Markets (PARTIAL / INCOMPLETE)
 - **Status**: PARTIAL
