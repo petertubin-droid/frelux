@@ -11,6 +11,7 @@ import {
   DEFAULT_WEATHER_LOCATION,
   type WeatherLocation,
 } from "./weather-locations";
+import { resolveClientProviderKey } from "@/lib/integrations/provider-keys";
 
 export type WorkType =
   "painting" | "screeding" | "tiling" | "tyrolene" | "finishing" | "general";
@@ -148,7 +149,10 @@ export function useWorkWeather(
         await new Promise((resolve) => setTimeout(resolve, 0));
         // usePaintingWeather is a hook, we can't call it inside a callback.
         // Instead, replicate the fetch logic minimally.
-        const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
+        // Env key first; then the admin-pasted Integration Center key.
+        const apiKey =
+          import.meta.env.VITE_OPENWEATHER_API_KEY ||
+          (await resolveClientProviderKey("openweather"));
         let days: WeatherDay[] = [];
         let city = location.name;
 

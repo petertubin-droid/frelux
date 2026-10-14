@@ -13,6 +13,7 @@ import {
   DEFAULT_WEATHER_LOCATION,
   type WeatherLocation,
 } from "./weather-locations";
+import { resolveClientProviderKey } from "@/lib/integrations/provider-keys";
 
 interface ForecastEntry {
   main: { temp: number; humidity: number };
@@ -63,8 +64,11 @@ export function usePaintingWeather(
 
     async function fetchWeather() {
       try {
-        // Try to get API key from environment
-        const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
+        // Env key first (unchanged behavior); then the admin-pasted
+        // key from Integration Center (client-safe public view).
+        const apiKey =
+          import.meta.env.VITE_OPENWEATHER_API_KEY ||
+          (await resolveClientProviderKey("openweather"));
 
         if (!apiKey) {
           // No API key, provide estimated seasonal data for the location

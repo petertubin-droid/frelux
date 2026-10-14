@@ -62,6 +62,7 @@ PENDING = [
     "20261015390000_project_expenses.sql",
     "20261015400000_boq_revisions_bank.sql",
     "20261015410000_workflow_rfi_submittals_co.sql",
+    "20261015420000_integration_secrets.sql",
 ]
 
 

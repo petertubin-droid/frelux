@@ -28,6 +28,36 @@
 // ignores failures by design.
 // =========================================================
 
+// ---------------------------------------------------------
+// Resend key resolution: env var first (existing deploys
+// unchanged), then the operator-pasted key in
+// integration_secrets (Admin → Integration Center → Provider
+// Keys). Server-side only — the browser never sees this key.
+// ---------------------------------------------------------
+async function resolveResendKey(): Promise<string | null> {
+  const envKey = Deno.env.get("RESEND_API_KEY");
+  if (envKey) return envKey;
+  const url = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !serviceKey) return null;
+  try {
+    const res = await fetch(
+      `${url}/rest/v1/integration_secrets?select=key_value&provider_id=eq.resend&status=eq.active`,
+      {
+        headers: {
+          apikey: serviceKey,
+          Authorization: `Bearer ${serviceKey}`,
+        },
+      },
+    );
+    if (!res.ok) return null;
+    const rows = await res.json();
+    return Array.isArray(rows) && rows[0]?.key_value ? rows[0].key_value : null;
+  } catch {
+    return null;
+  }
+}
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { serveWithCors } from "../_shared/serve.ts";
@@ -117,7 +147,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
   }
 
-  const apiKey = Deno.env.get("RESEND_API_KEY");
+  const apiKey = await resolveResendKey();
   if (!apiKey) {
     return new Response(JSON.stringify({ sent: false, reason: "no key" }), {
       status: 200,

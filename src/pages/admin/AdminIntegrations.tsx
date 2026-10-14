@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/shadcn/label";
 import { Button } from "@/components/ui/shadcn/button";
 import { AdminButton, StatusBadge } from "@/components/admin/AdminUi";
 import { SITE_URL } from "@/lib/seo";
+import { ProviderKeyCards } from "@/components/admin/ProviderKeyCards";
 
 const CATEGORY_ICONS: Record<string, typeof CreditCard> = {
   payment: CreditCard,
@@ -320,6 +321,15 @@ export default function AdminIntegrations() {
           on, enter your credentials, and save. Changes take effect on the next
           page load.
         </p>
+      </div>
+
+      {/* External provider API key slots (Resend, OpenWeather, FX) */}
+      <ProviderKeyCards />
+
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">
+          Client integrations
+        </h2>
       </div>
 
       {/* Google integrations status summary */}
