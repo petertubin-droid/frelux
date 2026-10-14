@@ -360,7 +360,7 @@ The following items represent all outstanding, in-progress, or unverified work o
     - **Top-30 Expansion Markets**: France, Italy, Spain, Japan, South Korea, China, Indonesia, Mexico, Brazil, India, South Africa, Ghana, Kenya, Egypt, Saudi Arabia, UAE require verified rebar price books.
 
 ### C. Plumbing Fittings & Valves Expansion (PARTIAL / INCOMPLETE)
-- **Status**: US/GB/AT/DE/GH/KE/ZA COMPLETE (GH+KE+ZA live-verified 2026-10-14, migrations 20261015230000/240000/250000)
+- **Status**: US/GB/AT/DE/GH/KE/ZA/IN COMPLETE (live-verified 2026-10-14, migrations 20261015230000/240000/250000/260000)
   - Completed: US (PVC DWV + PEX-A/B + copper); GB 5/5, AT 5/5, DE 5/5 (migration 20261013170000, live).
     Live data reality: GB union is GBP 4.04 Screwfix (not the GBP 2.25 quoted in the older batch-16 writeup).
   - GH book 9/9 (migration 20261015230000, live): PPR-C 25mm fusion system + uPVC DWV. Fittings from
@@ -380,8 +380,13 @@ The following items represent all outstanding, in-progress, or unverified work o
     R132.22. Pipes: builders.co.za Saffer 22mm SABS 5.5m stick R775 = 140.91/m hot+cold (vereenigingbuilders
     R141/m corroborates); pricecheck/Mercury Build It 50mm x 6m waste R119.99 = 20.00/m; leroymerlin.co.za
     110mm PVC 200kPa 6m R379 = 63.17/m drainage.
-  - Outstanding (13 markets, PPR/copper/multilayer books to verify per profile):
-    IN (CPVC 25mm), JP (PEX 13A), FR/IT (multistrato), BR (PVC marrom/
+  - IN book 9/9 (migration 20261015260000, live): CPVC ASTM D2846 25mm + SWR IS 13592. Fittings from
+    ibo.com: Ashirvad FlowGuard Plus elbow 25mm INR 35, Supreme tee 25mm INR 35, TRUFLO reducer tee
+    32x25 INR 122, Supreme union 25mm INR 78; mykit.in Finolex CPVC ball valve 25mm INR 280. Pipes:
+    moglix Astral CPVC Pro 25mm SDR-13.5 x 3m INR 330 = 110/m hot+cold; tradeindia 50mm SWR Type A 3m
+    INR 95 = 31.67/m waste; kansalbuildmartllp Astral SWR Type B 110mm 3m INR 975.20 = 325.07/m soil.
+  - Outstanding (12 markets, PPR/copper/multilayer books to verify per profile):
+ JP (PEX 13A), FR/IT (multistrato), BR (PVC marrom/
     CPVC), MX (CPVC), AU/CA (PEX/copper), SA/AE (PPR/CPVC Sch80), CN (PP-R GB/T), ID (PVC AW), KR (PB).
     NG is engine-default (resolver returns early; no NG book needed).
 
