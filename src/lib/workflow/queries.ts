@@ -134,6 +134,7 @@ export async function transitionWorkflowDocument(
   doc: WorkflowDocument,
   to: WorkflowStatus,
   note?: string,
+  actor: string = "owner",
 ): Promise<WorkflowDocument> {
   // Deterministic guard: invalid transitions are refused before
   // any DB write. The DB CHECK constraints are the backstop.
@@ -155,7 +156,7 @@ export async function transitionWorkflowDocument(
     event_type: "transition",
     from_status: doc.status,
     to_status: to,
-    actor: "owner",
+    actor,
     note: note ?? null,
   });
 
@@ -209,11 +210,12 @@ export async function addWorkflowRevision(
 export async function addWorkflowComment(
   doc: WorkflowDocument,
   note: string,
+  actor: string = "owner",
 ): Promise<void> {
   const { error } = await supabase.from("workflow_events").insert({
     document_id: doc.id,
     event_type: "comment",
-    actor: "owner",
+    actor,
     note,
   });
   if (error) throw new Error(error.message);
