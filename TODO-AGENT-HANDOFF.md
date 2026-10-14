@@ -2,10 +2,20 @@
 
 Living handoff for the Frelux market-expansion work. **Status markers:** ✅ DONE,
 🟡 PARTIAL (has verified data, gaps remain), ❌ NOT STARTED. Any agent
-continuing cold: read section 2 (WHERE TO START), verify state with the
-commands in section 6, then work top-to-bottom through section 4 (REMAINING
-WORK). Update this file with every batch you complete — including flipping
-status markers and adding the commit hash.
+continuing cold: read docs/MASTER-MANDATE-INTERNATIONALIZATION.md FIRST
+(the authoritative owner directive, 2026-10-14 — supersedes the 2026-10-13
+condensed mandate previously embedded here; it adds the full phase plan,
+research/evidence rules, per-engine completion gates, explicit status
+vocabulary, coverage-matrix fields, deliverables, and acceptance criteria),
+then read section 2 (WHERE TO START), verify state with the commands in
+section 6, then work top-to-bottom through section 4 (REMAINING WORK).
+Update this file with every batch you complete — including flipping status
+markers and adding the commit hash.
+
+**Hard line from the owner (2026-10-14):** no hardcoded, placeholder, or
+partially implemented features may be presented as done. Every claim must
+carry its real status: verified live, tests only, or staged/partial with the
+hardcoded parts named. Unverifiable items are disclosed, never greenwashed.
 
 Last updated: 2026-10-14 (P2 batch 18 Doors & Windows market books, resolver, coverage, provenance, US/GB/DE verified seed migration & suites)
 
