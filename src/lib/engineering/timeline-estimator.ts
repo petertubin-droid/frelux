@@ -195,6 +195,22 @@ const BASE_STAGES: BaseStage[] = [
   },
 ];
 
+/**
+ * Convert estimated workdays to an end date for the documented six-day
+ * workweek (Monday-Saturday). The start date counts as the first workday
+ * when it is not Sunday. Public holidays and other local calendars are not
+ * modeled until an authoritative market calendar is integrated.
+ */
+export function addSixDayWorkweekDays(startDate: Date, workDays: number): Date {
+  const result = new Date(startDate);
+  let remaining = Math.max(0, Math.ceil(workDays));
+  while (remaining > 0) {
+    if (result.getUTCDay() !== 0) remaining -= 1;
+    if (remaining > 0) result.setUTCDate(result.getUTCDate() + 1);
+  }
+  return result;
+}
+
 export function estimateTimeline(input: TimelineInput): TimelineResult {
   const area =
     input.building_length * input.building_width * input.number_of_floors;
@@ -342,7 +358,8 @@ export function estimateTimeline(input: TimelineInput): TimelineResult {
   const assumptions = [
     `Based on ${area.toFixed(0)} m² total floor area`,
     `Complexity: ${input.complexity}, Workforce: ${input.workforce}, Season: ${input.season}`,
-    "Assumes continuous work (6-day weeks)",
+    "Assumes a six-day workweek (Monday-Saturday); Sundays are non-working days",
+    "Public holidays, customs/shipping delays, and location-specific non-working days are not included",
     "Excludes finishing stages (tiling, painting, fittings, estimate separately)",
     "Based on practical construction productivity benchmarks",
     ...(input.market_code
@@ -354,10 +371,12 @@ export function estimateTimeline(input: TimelineInput): TimelineResult {
 
   // Calculate dates
   const today = new Date();
-  const estimated_start = today.toISOString().split("T")[0];
-  const end_date = new Date(
-    today.getTime() + cumulative_days * 24 * 60 * 60 * 1000,
-  );
+  const schedule_start = new Date(today);
+  if (schedule_start.getUTCDay() === 0) {
+    schedule_start.setUTCDate(schedule_start.getUTCDate() + 1);
+  }
+  const estimated_start = schedule_start.toISOString().split("T")[0];
+  const end_date = addSixDayWorkweekDays(schedule_start, cumulative_days);
   const estimated_end = end_date.toISOString().split("T")[0];
 
   return {

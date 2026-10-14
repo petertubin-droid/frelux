@@ -1,5 +1,38 @@
 import { describe, it, expect } from "vitest";
-import { estimateTimeline, type TimelineInput } from "./timeline-estimator";
+import {
+  addSixDayWorkweekDays,
+  estimateTimeline,
+  type TimelineInput,
+} from "./timeline-estimator";
+
+describe("six-day workweek date conversion", () => {
+  it("counts Monday-Saturday as workdays and skips Sunday", () => {
+    const monday = new Date("2026-10-12T00:00:00.000Z");
+    expect(addSixDayWorkweekDays(monday, 1).toISOString().slice(0, 10)).toBe(
+      "2026-10-12",
+    );
+    expect(addSixDayWorkweekDays(monday, 6).toISOString().slice(0, 10)).toBe(
+      "2026-10-17",
+    );
+    expect(addSixDayWorkweekDays(monday, 7).toISOString().slice(0, 10)).toBe(
+      "2026-10-19",
+    );
+  });
+
+  it("moves a Sunday start to Monday for the first workday", () => {
+    const sunday = new Date("2026-10-18T00:00:00.000Z");
+    expect(addSixDayWorkweekDays(sunday, 1).toISOString().slice(0, 10)).toBe(
+      "2026-10-19",
+    );
+  });
+
+  it("does not move the date for zero workdays", () => {
+    const monday = new Date("2026-10-12T00:00:00.000Z");
+    expect(addSixDayWorkweekDays(monday, 0).toISOString().slice(0, 10)).toBe(
+      "2026-10-12",
+    );
+  });
+});
 
 describe("estimateTimeline", () => {
   const baseInput: TimelineInput = {
