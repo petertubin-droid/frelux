@@ -7,6 +7,7 @@ import {
   AU_REFERENCE_PRICES,
   CA_REFERENCE_PRICES,
   IN_REFERENCE_PRICES,
+  AE_REFERENCE_PRICES,
   MARKET_CATALOGS,
   MARKET_DEFAULTS,
   scanMaterialPrices,
@@ -170,9 +171,13 @@ describe("estimation/price-scanner US catalog", () => {
     ).toBe(true);
   });
 
-  it("has a web-verified reference catalog for every international market", () => {
+  it("has reference catalogs only where market-priced references exist", () => {
     for (const [market, catalog] of Object.entries(MARKET_CATALOGS)) {
-      expect(Object.keys(catalog).length).toBeGreaterThan(0);
+      if (market === "AE") {
+        expect(Object.keys(catalog)).toHaveLength(0);
+      } else {
+        expect(Object.keys(catalog).length).toBeGreaterThan(0);
+      }
       expect(MARKET_DEFAULTS[market as ReferenceMarket].currency).toBeTruthy();
     }
     // spot-check surveyed values (2026-10-10 web survey)
@@ -182,6 +187,15 @@ describe("estimation/price-scanner US catalog", () => {
     expect(AU_REFERENCE_PRICES.au_base_coat_45.price).toBe(52.9);
     expect(CA_REFERENCE_PRICES.ca_synko_tape.price).toBe(9.84);
     expect(IN_REFERENCE_PRICES.in_tractor_emulsion.price).toBe(2600);
+  });
+
+  it("UAE scan never re-labels US retail references as AED", async () => {
+    expect(AE_REFERENCE_PRICES).toEqual({});
+    const report = await scanMaterialPrices({}, { market: "AE" });
+    expect(report.currency).toBe("AED");
+    expect(report.market_region).toBe("United Arab Emirates");
+    expect(report.materials_scanned).toBe(0);
+    expect(report.results).toEqual([]);
   });
 
   it("scanMaterialPrices uses the per-market catalog, region and currency", async () => {

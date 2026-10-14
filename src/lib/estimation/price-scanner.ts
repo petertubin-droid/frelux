@@ -1078,6 +1078,13 @@ export const IT_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   },
 };
 
+/** UAE reference pricing is not yet represented in this scanner. Keep the
+ * catalog empty rather than showing US-dollar retail entries under AED.
+ * UAE-specific supplier prices exist in database migrations, but they are not
+ * this scanner's verified reference dataset.
+ */
+export const AE_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
+
 export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPrice>> = {
   NG: FALLBACK_PRICES,
   US: US_REFERENCE_PRICES,
@@ -1095,7 +1102,7 @@ export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPri
   FR: DE_REFERENCE_PRICES,
   BR: MX_REFERENCE_PRICES,
   SA: US_REFERENCE_PRICES,
-  AE: US_REFERENCE_PRICES,
+  AE: AE_REFERENCE_PRICES,
 };
 
 /** Default region label + currency per market. */
