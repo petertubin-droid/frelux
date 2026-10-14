@@ -24,6 +24,7 @@ import { supabase } from "@/lib/supabase";
 import {
   ShoppingItemWithActual,
   fetchProjectCalculations,
+  readMarketPin,
   fetchShoppingListWithActual,
   calculateShoppingTotals,
   fetchClientEstimates,
@@ -463,6 +464,8 @@ export default function ProjectDetail() {
                         <p className="text-xs text-muted-foreground mt-1 capitalize">
                           {calc.calculator_type.replace("_", " ")} •{" "}
                           {new Date(calc.created_at).toLocaleDateString()}
+                          {readMarketPin(calc.calc_data) &&
+                            ` • ${readMarketPin(calc.calc_data)!.market_code} (${readMarketPin(calc.calc_data)!.currency_code})`}
                         </p>
                       </div>
                       <Button

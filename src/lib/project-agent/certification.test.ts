@@ -244,7 +244,10 @@ import {
   defaultBuildToRoofInput,
 } from "@/lib/ai-foundation/engines-registry";
 import { fetchApprovedPrices } from "@/lib/market-intelligence/queries";
-import { saveCalculationToProject } from "@/lib/project-intelligence";
+import {
+  saveCalculationToProject,
+  readMarketPin,
+} from "@/lib/project-intelligence";
 import { rowToProfile } from "@/lib/property-intelligence/queries";
 import { buildPropertyIntelligenceReport } from "@/lib/property-intelligence/intelligence";
 import {
@@ -1079,6 +1082,42 @@ describe("CERT, saved calculation read-back", () => {
     const inv = okData(res);
     expect(inv.status).toBe("ok");
     expect(inv.inputsUsed[0].value).toContain("1 saved calculations");
+  });
+
+  it("P3.16: saves pin the market context the calc ran under", async () => {
+    const saved = await saveCalculationToProject({
+      project_id: "proj-pin",
+      calculator_type: "paint",
+      calculator_slug: "paint-calculator",
+      calc_title: "Bedroom repaint",
+      calc_data: { litres: 12.5 },
+      result_summary: { grand_total: 87500, currency: "NGN" },
+      materials: [],
+    });
+    const pin = readMarketPin((saved as { calc_data: unknown }).calc_data);
+    expect(pin?.market_code).toBeTruthy();
+    expect(pin?.currency_code).toBeTruthy();
+    expect(typeof pin?.timestamp).toBe("string");
+    // original payload survives the pinning verbatim
+    expect(
+      (saved as { calc_data: { litres: number } }).calc_data,
+    ).toMatchObject({ litres: 12.5 });
+  });
+
+  it("P3.16: pinning is additive — an existing pin is never overwritten", async () => {
+    const existingPin = { market_code: "DE", currency_code: "EUR" };
+    const saved = await saveCalculationToProject({
+      project_id: "proj-pin2",
+      calculator_type: "paint",
+      calculator_slug: "paint-calculator",
+      calc_title: "Berlin repaint",
+      calc_data: { litres: 8, market_pin: existingPin },
+      result_summary: { grand_total: 90, currency: "EUR" },
+      materials: [],
+    });
+    expect(
+      readMarketPin((saved as { calc_data: unknown }).calc_data),
+    ).toMatchObject(existingPin);
   });
 });
 

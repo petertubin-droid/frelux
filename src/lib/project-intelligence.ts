@@ -12,6 +12,8 @@
  * 8. Surface Assessment, standalone surface condition assessment
  */
 import { supabase } from "@/lib/supabase";
+import { createEstimateAuditFromStorage } from "@/lib/international/calculation-audit";
+import type { CalculationAuditMeta } from "@/types/international";
 import type {
   DbProjectCalculation,
   DbGalleryEntry,
@@ -51,12 +53,29 @@ export async function saveCalculationToProject(
   const authData = authRes?.data;
   const userId = authData?.user?.id;
 
+  // P3.16: pin the market context the calculation ran under, so
+  // historical saves stay intact and never re-resolve under a
+  // different market on read. Additive: an existing pin is never
+  // overwritten and a non-object calc_data is left untouched.
+  let calcData: Record<string, unknown> = { ...input.calc_data };
+  if (
+    input.calc_data &&
+    typeof input.calc_data === "object" &&
+    !Array.isArray(input.calc_data) &&
+    !(input.calc_data as Record<string, unknown>).market_pin
+  ) {
+    calcData = {
+      ...(input.calc_data as Record<string, unknown>),
+      market_pin: createEstimateAuditFromStorage(input.calculator_type),
+    };
+  }
+
   const insertPayload: Record<string, unknown> = {
     project_id: input.project_id,
     calculator_type: input.calculator_type,
     calculator_slug: input.calculator_slug,
     calc_title: input.calc_title,
-    calc_data: input.calc_data,
+    calc_data: calcData,
     result_summary: input.result_summary,
     materials: input.materials,
   };
@@ -71,6 +90,18 @@ export async function saveCalculationToProject(
     .single();
   if (error) throw new Error(`Failed to save calculation: ${error.message}`);
   return data as DbProjectCalculation;
+}
+
+/**
+ * Read the pinned market context off a saved calculation snapshot.
+ * Null when the save predates market pinning.
+ */
+export function readMarketPin(calcData: unknown): CalculationAuditMeta | null {
+  if (!calcData || typeof calcData !== "object" || Array.isArray(calcData))
+    return null;
+  const pin = (calcData as Record<string, unknown>).market_pin;
+  if (!pin || typeof pin !== "object") return null;
+  return pin as CalculationAuditMeta;
 }
 
 export async function fetchProjectCalculations(

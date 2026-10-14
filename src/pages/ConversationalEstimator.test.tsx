@@ -24,6 +24,23 @@ vi.mock("@/lib/estimation/queries", () => ({
     .fn()
     .mockResolvedValue({ data: [], error: null }),
   insertConversationalParseLog: vi.fn().mockResolvedValue({ error: null }),
+  fetchPackSizeById: vi
+    .fn()
+    .mockResolvedValue({ data: { pack_size: 20 }, error: null }),
+}));
+vi.mock("@/lib/queries", () => ({
+  fetchPaintTypes: vi.fn().mockResolvedValue({
+    data: [{ id: "pt1", coverage_rate: 8, container_sizes: [4, 20] }],
+    error: null,
+  }),
+}));
+vi.mock("@/lib/estimation/market-materials", () => ({
+  resolveMaterialPriceByRole: vi.fn().mockResolvedValue({
+    role: "interior-paint",
+    resolved_market: "NG",
+    material: { id: "m1" },
+    price: { id: "p1", pack_size_id: "pack-20", currency: "NGN" },
+  }),
 }));
 
 beforeEach(() => {
@@ -70,6 +87,31 @@ describe("ConversationalEstimator page", () => {
     expect(screen.getByText(/“4 by 3”/)).toBeInTheDocument();
     // No follow-up questions: the thread had the size
     expect(screen.queryByText(/room size/i)).not.toBeInTheDocument();
+  });
+
+  it("discloses the market context and local retail pack on the reply", async () => {
+    render(
+      <MemoryRouter>
+        <ConversationalEstimator />
+      </MemoryRouter>,
+    );
+    pasteAndSubmit(
+      "Hello, I want to paint my room. It is 4 by 3 meters, 2 coats, in Lagos",
+    );
+    const note = await screen.findByText(/market context/i);
+    expect(note.textContent).toMatch(/Nigeria|NG/i);
+    expect(note.textContent).toMatch(/20 L/);
+    // market pinning reaches the parse-log telemetry
+    const { insertConversationalParseLog } =
+      await import("@/lib/estimation/queries");
+    const lastCall = (
+      insertConversationalParseLog as unknown as {
+        mock: {
+          calls: Array<[{ extracted_params: Record<string, string> }]>;
+        };
+      }
+    ).mock.calls.slice(-1)[0];
+    expect(lastCall?.[0]?.extracted_params.market).toBe("NG");
   });
 
   it("asks for the size with a follow-up when the size is missing", async () => {

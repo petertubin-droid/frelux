@@ -252,6 +252,16 @@ export async function fetchPackSizes(refType: string, refId: string) {
   });
 }
 
+/** Single pack-size row by id (price.pack_size_id resolution). */
+export async function fetchPackSizeById(id: string) {
+  const { data, error } = await supabase
+    .from("estimation_pack_sizes")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  return { data: data as EstimationPackSize | null, error };
+}
+
 export async function createPackSize(data: Partial<EstimationPackSize>) {
   const { data: record, error } = await supabase
     .from("estimation_pack_sizes")
@@ -663,10 +673,7 @@ export async function fetchEstimateByRef(ref: string) {
 export async function createEstimate(data: Partial<EstimationEstimate>) {
   // P1.9: attach market/calculation audit metadata (additive; skipped if
   // the caller already attached one, or if inputs is absent).
-  const payload = withCalculationAudit(
-    data,
-    data.calculator_type ?? "unknown",
-  );
+  const payload = withCalculationAudit(data, data.calculator_type ?? "unknown");
   const { data: record, error } = await supabase
     .from("estimation_estimates")
     .insert(payload)

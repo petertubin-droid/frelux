@@ -151,8 +151,24 @@ requires_verification` with user-safe reasons.
       blockwork/concrete lives inside Build-to-Roof typologies;
       flooring-engine.ts geometry is market-neutral (price lookup is
       market-aware via material roles only).
-- [ ] P3.15–17 AI features → deterministic engine routing per market;
-      saved-project market pinning; admin config center surfaces
+- [x] P3.15 AI→deterministic engine routing (conversational estimator) —
+      DONE 2026-10-14: ConversationalEstimator was fully market-blind
+      (0 references). Now resolves the visitor's market, fetches admin
+      paint-type coverage + the market's verified retail pack via
+      resolveMaterialPriceByRole → estimation_pack_sizes join (new
+      fetchPackSizeById), passes the market CalcConfig into the
+      deterministic engine, discloses market context + price availability
+      on the reply, and pins market into parse-log telemetry.
+      Remaining AI pages (CountVision, AiColorAssistant, DefectDiagnosis)
+      are market-neutral by design — no price/engine divergence yet.
+      Tests: 7 page tests incl. disclosure + telemetry pin.
+- [x] P3.16 saved-project market pinning — DONE 2026-10-14:
+      saveCalculationToProject attaches calc_data.market_pin via
+      createEstimateAuditFromStorage (additive, never overwrites,
+      non-object data untouched); readMarketPin helper + ProjectDetail
+      badge show the pinned market on historical saves.
+      Certification suite extended (28 tests green).
+- [ ] P3.17 admin config center surfaces (pending)
 - [ ] P4.18–20 CN ID MX KR IT full profiles, e2e + regression matrix,
       deployment verification report
 

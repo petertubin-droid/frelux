@@ -11,6 +11,12 @@ import {
   type ConversationLanguage,
   type LanguagePack,
 } from "@/lib/estimation/conversational-engine";
+import type { CalcConfig } from "@/lib/calc";
+import type { DbPaintType } from "@/types/database";
+import { fetchPaintTypes } from "@/lib/queries";
+import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
+import { fetchPackSizeById } from "@/lib/estimation/queries";
+import { useMarket } from "@/lib/international/market-context";
 import {
   fetchConversationalPacks,
   insertConversationalParseLog,
@@ -38,6 +44,7 @@ export default function ConversationalEstimator() {
       "Paste a WhatsApp chat or voice-note transcript and get the same honest FRELUX paint estimate instantly. Nothing is guessed: the engine shows exactly what it heard and asks when something is missing.",
   });
 
+  const { marketCode, market } = useMarket();
   const [thread, setThread] = useState("");
   const [language, setLanguage] = useState<ConversationLanguage | "auto">(
     "auto",
@@ -45,6 +52,69 @@ export default function ConversationalEstimator() {
   const [packs, setPacks] = useState<LanguagePack[] | null>(null);
   const [result, setResult] = useState<ConversationalEstimate | null>(null);
   const [busy, setBusy] = useState(false);
+  // P3.15: market-routed paint configuration (coverage + container sizes)
+  // resolved from the admin-configured paint types and the visitor's
+  // market role price book. No config = engine defaults, disclosed.
+  const [marketCalcConfig, setMarketCalcConfig] = useState<CalcConfig | null>(
+    null,
+  );
+  const [marketPackNote, setMarketPackNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    async function loadMarketPaintConfig() {
+      try {
+        const [typesRes, roleRes] = await Promise.all([
+          fetchPaintTypes(),
+          resolveMaterialPriceByRole("interior-paint", marketCode),
+        ]);
+        if (!alive) return;
+        // The price row references its retail pack by id — resolve the
+        // litres through the estimation_pack_sizes join.
+        let packLitres: number | null = null;
+        if (roleRes?.price?.pack_size_id) {
+          const { data: pack } = await fetchPackSizeById(
+            roleRes.price.pack_size_id,
+          );
+          const size = pack?.pack_size;
+          if (Number.isFinite(size) && (size ?? 0) > 0)
+            packLitres = size as number;
+        }
+        if (!alive) return;
+        const firstType = (typesRes.data ?? [])[0] as
+          | (DbPaintType & {
+              coverage_rate?: number;
+              container_sizes?: number[];
+            })
+          | undefined;
+        const config: CalcConfig = {};
+        const rate = Number(firstType?.coverage_rate);
+        if (Number.isFinite(rate) && rate > 0) config.coverageRate = rate;
+        if (firstType?.container_sizes?.length) {
+          config.containerSizes = firstType.container_sizes;
+        }
+        if (packLitres != null) {
+          // The market's verified retail pack becomes the engine's
+          // container hint so "how many buckets" answers in local packs.
+          config.containerSizes = [packLitres as number];
+          setMarketPackNote(
+            `Interior paint priced in this market book (${roleRes!.resolved_market}) — retail pack ${packLitres} L.`,
+          );
+        } else {
+          setMarketPackNote(
+            "Interior paint prices are not yet verified in this market — quantities only, no price implied.",
+          );
+        }
+        setMarketCalcConfig(Object.keys(config).length > 0 ? config : null);
+      } catch {
+        if (alive) setMarketPackNote(null);
+      }
+    }
+    loadMarketPaintConfig();
+    return () => {
+      alive = false;
+    };
+  }, [marketCode]);
 
   useEffect(() => {
     let alive = true;
@@ -73,6 +143,7 @@ export default function ConversationalEstimator() {
       const estimate = buildConversationalEstimate(thread, {
         language,
         packs,
+        calcConfig: marketCalcConfig ?? undefined,
       });
       setResult(estimate);
       track("conversational_estimate_run", {
@@ -85,9 +156,10 @@ export default function ConversationalEstimator() {
         raw_thread: thread.slice(0, 4000),
         detected_language: estimate.language,
         intent: estimate.intent,
-        extracted_params: Object.fromEntries(
-          estimate.understood.map((u) => [u.label, u.value]),
-        ),
+        extracted_params: Object.fromEntries([
+          ...estimate.understood.map((u) => [u.label, u.value] as const),
+          ["market", marketCode] as const,
+        ]),
         had_estimate: estimate.paintEstimate != null,
         language_override:
           language !== "auto" && language !== estimate.detection.language,
@@ -174,6 +246,10 @@ export default function ConversationalEstimator() {
                   {language === "auto" ? " (detected)" : ""}
                 </span>
               </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Estimated under the {market.countryName ?? marketCode} market
+                context. {marketPackNote ?? ""}
+              </p>
 
               {result.understood.length > 0 && (
                 <ul className="mt-3 space-y-1 text-sm">
