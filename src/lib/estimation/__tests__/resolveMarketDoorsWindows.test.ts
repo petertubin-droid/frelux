@@ -148,7 +148,7 @@ describe("resolveMarketDoorsWindows", () => {
     expect(result.unresolved).not.toContain("door-frame");
   });
 
-  it("resolves South Africa (ZA) doors & windows price book with 7 overrides and marks window-louver unresolved", async () => {
+  it("resolves South Africa (ZA) doors & windows price book with 6 overrides and marks non-equivalent items unresolved", async () => {
     const zaMaterials: Record<string, { id: string; name: string }> = {
       "door-flush": {
         id: "mat-za-flush",
@@ -185,7 +185,6 @@ describe("resolveMarketDoorsWindows", () => {
       "mat-za-hinge": 23.0,
       "mat-za-lockset": 250.0,
       "mat-za-window": 1434.0,
-      "mat-za-security": 3709.0,
     };
 
     materialChain.eq.mockImplementation(function (
@@ -229,9 +228,9 @@ describe("resolveMarketDoorsWindows", () => {
     expect(result.overrides["door-hinge"]).toBe(23.0);
     expect(result.overrides["door-lockset"]).toBe(250.0);
     expect(result.overrides["window-aluminium"]).toBe(1434.0);
-    expect(result.overrides["door-security"]).toBe(3709.0);
-
-    expect(result.unresolved).toContain("window-louver");
+    expect(result.unresolved).toEqual(
+      expect.arrayContaining(["door-security", "window-louver"]),
+    );
     expect(result.unresolved).not.toContain("door-flush");
   });
 

@@ -16,7 +16,7 @@
 --   door-hinge:       R23.00  (Doors Direct Lock Worx 100mm Galvanised Steel Butt Hinge Pair R46.00 / R23.00 each, SKU #LWFH100CH-1)
 --   door-lockset:     R250.00 (Leroy Merlin SA Eureka Lockset with Handles 2-Lever Fort Knox Satin Nickel, SKU #81439155, EAN 6002919166604)
 --   window-aluminium: R1434.00 (Doors Direct PT912M Aluminium Top Hung Window 900x1200mm, AAMSA certified, with 3mm glass and draft seals, SKU #PT912M)
---   door-security:    R3709.00 (Leroy Merlin SA Ibuild Aluminium Sliding Door 1790x2090mm Bronze with safety glass & hardware, SKU #81427020)
+--   door-security:    Unpriced (aluminium patio sliding door is not equivalent to a security door leaf)
 --   window-louver:    Unpriced (tropical jalousie louvres are not standard residential practice under SANS 10400-XA / SANS 204 fenestration)
 --
 -- FR (EUR TTC, Brico Dépôt France live listings):
@@ -40,7 +40,6 @@ WITH seeded AS (
     ('ZA', 'door-hinge',        23.00, 'ZAR', 'Doors Direct Lock Worx 100mm Galvanised Steel Butt Hinge Pair R46.00 (R23.00/ea), SKU #LWFH100CH-1, live listing 2026-10-15'),
     ('ZA', 'door-lockset',     250.00, 'ZAR', 'Leroy Merlin SA Eureka Lockset with Handles 2-Lever Fort Knox Satin Nickel R250.00, SKU #81439155, live listing 2026-10-15'),
     ('ZA', 'window-aluminium', 1434.00, 'ZAR', 'Doors Direct PT912M Aluminium Top Hung Window 900x1200mm AAMSA certified R1434.00, SKU #PT912M, live listing 2026-10-15'),
-    ('ZA', 'door-security',    3709.00, 'ZAR', 'Leroy Merlin SA Ibuild Aluminium Sliding Door 1790x2090mm Bronze R3709.00, SKU #81427020, live listing 2026-10-15'),
 
     -- France (FR)
     ('FR', 'door-flush',        39.90, 'EUR', 'Brico Dépôt Bloc-porte isoplane prépeint 204 x 73 cm 39.90 € TTC, Réf #3660568300447, Code #670722, live listing 2026-10-15'),
