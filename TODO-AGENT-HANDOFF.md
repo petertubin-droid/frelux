@@ -289,6 +289,26 @@ This audit details every identified usability defect, layout collision, informat
 ---
 
 ## 2. INCOMPLETE, PENDING, PARTIAL & UNVERIFIED WORK (Active Queue)
+### A0. Verified-complete (Solas, 2026-10-14)
+- [x] ELECTRICAL BOOKS ALL 20 MARKETS: live-verified via direct SELECT —
+      11/11 slugs per market, all scan_confidence='manual', all sourced,
+      local currencies (NG anchored on Konga/Coleman single-core + Bricmax
+      conduit listings). This queue item is CLOSED.
+- [x] DOORS/WINDOWS BOOK NG, APPLIED LIVE (2026-10-14, migration
+      20261015120000, commit pending): 4 rows manual — flush NGN 85,000
+      (Jiji Mushin HDF leaf), panel NGN 65,000 (Konga 5277134 SET incl.
+      4-inch frame), hinge NGN 3,000 (Jiji PH 4-inch), lockset NGN 15,500
+      (Konga Mission Door Lock). door-frame INTENTIONALLY UNPRICED:
+      verified market structure — all 156 Jiji frame-category listings
+      are bundled door sets; no standalone frame retail listing exists in
+      NG (Konga/Jiji surveyed). Never substitute; panel row is a set price
+      so panel-door estimates complete without a frame line.
+      GOTCHA: version prefix 20261014110000 was ALREADY TAKEN by
+      price_intel_pipeline — migration was silently skipped as "already
+      recorded". Always check schema_migrations for the exact version int
+      before naming a migration; renamed to 20261015120000.
+      Remaining doors books (9): BR SA AE IT MX JP CN ID KR.
+
 
 The following items represent all outstanding, in-progress, or unverified work on the platform. Completed past batches have been pruned.
 
