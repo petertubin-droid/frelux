@@ -35,7 +35,7 @@ END $$;
 -- Reclassify any categories not in the new CHECK constraint BEFORE adding it
 UPDATE tile_materials
   SET category = 'other', updated_at = now()
-  WHERE category NOT IN ('tile', 'adhesive', 'grout', 'spacer', 'cement', 'sand', 'waterproofing', 'labour', 'other');
+  WHERE category NOT IN ('tile', 'adhesive', 'grout', 'spacer', 'cement', 'sand', 'labour', 'other');
 
 DO $mig$
 BEGIN
@@ -43,7 +43,7 @@ BEGIN
                  AND conrelid = 'public.tile_materials'::regclass) THEN
 ALTER TABLE tile_materials
   ADD CONSTRAINT tile_materials_category_check
-  CHECK (category IN ('tile', 'adhesive', 'grout', 'spacer', 'cement', 'sand', 'waterproofing', 'labour', 'other'));
+  CHECK (category IN ('tile', 'adhesive', 'grout', 'spacer', 'cement', 'sand', 'labour', 'other'));
   END IF;
 END
 $mig$;
