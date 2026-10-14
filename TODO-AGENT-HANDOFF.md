@@ -293,8 +293,12 @@ This audit details every identified usability defect, layout collision, informat
 The following items represent all outstanding, in-progress, or unverified work on the platform. Completed past batches have been pruned.
 
 ### A. Live Supabase Database Migration Execution (PENDING / UNVERIFIED)
-- **Status**: UNVERIFIED — Migration files are committed in `supabase/migrations/`, but have NOT yet been executed against the production database `nfgaaohweygwydoelxnf`.
-- **Blocker**: Session environment lacks `SUPA_TOKEN` / Supabase Management API bearer token.
+- **Status**: SUPERSEDED (live-verified 2026-10-14 by Velo): 15 pending migrations WERE executed
+  against production `nfgaaohweygwydoelxnf` via scripts/apply_pending_migrations.py (electrical books,
+  wall_finishing_project_type, engine_capability_registry, construction_standards_evidence,
+  comprehensive_engine_inventory, reconcile CHECK, doors books US/GB/DE/CA/ZA/FR/KE/AU/IN/GH), each
+  recorded in supabase_migrations.schema_migrations. No token blocker exists; the Management API works.
+  Only genuinely-new migrations need this section going forward.
 - **Action Required**:
   - Obtain the bearer token from the workspace owner.
   - Run `scripts/apply_pending_migrations.py` via Management API endpoint:
@@ -310,18 +314,17 @@ The following items represent all outstanding, in-progress, or unverified work o
     - **Top-30 Expansion Markets**: France, Italy, Spain, Japan, South Korea, China, Indonesia, Mexico, Brazil, India, South Africa, Ghana, Kenya, Egypt, Saudi Arabia, UAE require verified rebar price books.
 
 ### C. Plumbing Fittings & Valves Expansion (PARTIAL / INCOMPLETE)
-- **Status**: PARTIAL
-  - Completed: US (PVC DWV + PEX-A/B + copper), DE/GB (copper, pushfit, drainage).
+- **Status**: GB/AT/DE COMPLETE (live-verified 2026-10-14 by Velo; see P2 batch 16 entry)
+  - Completed: US (PVC DWV + PEX-A/B + copper); GB 5/5, AT 5/5, DE 5/5 (migration 20261013170000, live).
+    Live data reality: GB union is GBP 4.04 Screwfix (not the GBP 2.25 quoted in the older batch-16 writeup).
   - Outstanding:
-    - **GB**: Straight union (`gb-union`) needs verification.
-    - **AT**: Austrian fittings (`at-elbow`, `at-union`, `at-valve`) pending verification on Hornbach.at.
     - **Other Markets**: Plumbing fittings and shut-off valves pending across non-EU/US markets.
 
 ### D. Doors & Windows Books for Remaining 12 Markets (PARTIAL / INCOMPLETE)
 - **Status**: PARTIAL
-  - Completed: GH, KE, US, CA, AU, IN, GB, DE.
+  - Completed (live-verified 2026-10-14/15): US 6, GB 4, DE 4, CA 6, ZA 6, FR 4, KE 5, AU 6, IN 5, GH 5 rows.
   - Outstanding:
-    - France, Brazil, Saudi Arabia, UAE, Italy, Mexico, Japan, China, Indonesia, South Korea, South Africa, Nigeria require verified entry door, interior door, and standard window price books.
+    - Brazil, Saudi Arabia, UAE, Italy, Mexico, Japan, China, Indonesia, South Korea, Nigeria require verified entry door, interior door, and standard window price books.
     - High-variability components (custom aluminium sliding windows, structural louvers, bulletproof security doors) must remain visibly unpriced with manual rate entry prompts.
 
 ### E. Price Campaign Remainder (~174 Low-Confidence Rows) (PENDING)
@@ -349,6 +352,68 @@ The following items represent all outstanding, in-progress, or unverified work o
   - Guest AI reservation atomicity and daily resets need strict edge function enforcement to prevent race conditions.
   - Task completion RPC currently accepts unverified client completion claims.
 
+### G. Cross-Agent Audit Reconciliation (Velo review of the Lovable audit, 2026-10-14)
+
+The Lovable audit above was independently verified line-by-line against main before
+endorsement. Evidence level for each statement below: "code-verified" (read in repo)
+or "live-verified" (queried live DB/deployment).
+
+**Verified and endorsed (code-verified):**
+- StickyActionBar (`sticky bottom-0 z-30`) vs MobileBottomNav (`fixed bottom-0 z-30
+  md:hidden`) collision: real, identical z and bottom coordinates on mobile.
+- Sticky sub-headers sliding behind the fixed `h-16` navbar: real
+  (BuildToRoofEstimator.tsx:674 `sticky top-0 z-30`, ProjectDetail.tsx:247 `sticky top-0 z-10`).
+- MarketSelector unconstrained dropdown (absolute, no max-h/overflow): real; 39+ markets
+  overflow any laptop viewport. Searchable combobox fix is right.
+- MaterialPrices.tsx:287 wraps its table in `overflow-hidden` with no `overflow-x-auto`:
+  real. Build-to-Roof STEPS array confirmed at 11 labels. Unlabelled-input scale confirmed
+  (322 `type="number"` inputs across 96 pages, 28 `inputMode` total).
+
+**Corrections to the Lovable audit (do NOT act on the original wording):**
+1. EntryExperience is NOT a blocking modal and does NOT affect SEO. Code-verified: it is
+   a once-only overlay (localStorage `frelux_entry_seen_v1`), rendered on top of the
+   fully-mounted homepage, absent from prerendered HTML, Esc-dismissible, with no content
+   gating. The real issue is first-visit interruption only. Do not "retire" it: cap it
+   <2.5s and honor prefers-reduced-motion.
+2. Hardcoded dark-mode color count: only 6 instances found in the three named files
+   (BuildToRoofEstimator, CompareColors, Rewards); ProductDetail shows 0. The "58
+   instances" figure is unverified; re-count before fixing.
+3. Single-country contact (+234 906 361 2439) lives in `src/pages/legal/About.tsx` and is
+   hardcoded into BOQ export letterhead (`boq-engine.ts`), NOT in the footer. Fix both
+   spots; market-aware contact routing recommendation stands.
+4. Exec summary says "44 estimation engines"; the live engine_capabilities registry has
+   54 rows (live-verified 2026-10-14). Use 54.
+
+**Findings the Lovable audit missed (add to scope, priority order):**
+1. STALE DEPLOYMENT (highest impact): Netlify auto-deploy is disabled (AdSense pending,
+   owner decision). NONE of the UI/UX work above is visible to users until a manual
+   redeploy of latest main. Every fix should be batched toward that redeploy.
+2. Numeric keyboards: 322 `type="number"` inputs vs 28 `inputMode` in 96 estimator
+   pages. Android users get a text keyboard in the core product. Add
+   `inputMode="decimal"` everywhere, and parse comma decimals ("3,5") for EU markets.
+3. Locale URLs promise languages they don't deliver: /es/ /fr/ etc. render English page
+   content with only translated chrome (code-verified in i18n.tsx; deliberately noindexed
+   after the 1,871-duplicate-pages GSC incident). Until real dictionaries exist
+   (Lovable's D.1 recommendation), hide the language picker or route it to the Translate
+   widget. Do NOT add locale URLs to the sitemap/hreflang before content is translated.
+4. Market selection is not shareable: market lives in context, not the URL. A GB
+   estimate cannot be sent as a link that opens in GB. Put market in the query string;
+   Lovable's ISO 4217 `formatMarketCurrency` helper aligns and should land with it.
+5. AdSense placement policy: the global footer ad slot can render on auth/admin/billing
+   routes (Credits, ContractorCredit, Pricing). Exclude those routes from ad slots
+   BEFORE re-enabling auto-deploy, or approval is at risk.
+6. Canonical domain is `freluxtools.netlify.app` (index.html): all canonical/OG URLs
+   point at a Netlify subdomain. International credibility needs a custom domain,
+   updated in canonical + OG + sitemap + robots in one commit.
+7. Silent error swallowing in calculators: `catch(() => {})` (e.g. TileCalculator.tsx:348)
+   hides price-fetch failures; a wrong price is worse than an error. Unified toast + retry.
+8. Mega-menu keyboard model: dropdowns open on hover/focus only; 3 aria-expanded in the
+   950-line Navbar. Full arrow-key/Escape menu model + axe in CI for WCAG 2.1 AA.
+9. App.tsx is 1,712 lines with 222 routes: split route groups by domain when doing the
+   5-pillar reorganization so the reorg does not make it worse.
+10. Command palette: with 44+ tools one searchable palette (Cmd+K) serves power users
+    better than any mega-menu arrangement; complements the pillar reorg.
+
 ### H. UI/UX Implementation Checklist (INCOMPLETE)
 - [ ] **Fix Mobile Collision**: Add `bottom-16 md:bottom-0` to `StickyActionBar.tsx`.
 - [ ] **Fix Sticky Steppers**: Change `sticky top-0` to `sticky top-16` on `BuildToRoofEstimator.tsx` and `ProjectDetail.tsx`.
@@ -356,7 +421,15 @@ The following items represent all outstanding, in-progress, or unverified work o
 - [ ] **De-interstitial Homepage**: Replace blocking `EntryExperience.tsx` splash with non-blocking hero interaction.
 - [ ] **Wrap Tables**: Add horizontal overflow scrolling wrapper to `MaterialPrices.tsx`.
 - [ ] **Harmonize Dark Mode**: Audit and eliminate 58 hardcoded `text-black` / `bg-white` classes.
-- [ ] **Reorganize Navigation**: Transition from 222 flat routes to the 5 structured pillars (`/tools/`, `/prices/`, `/projects/`, `/network/`, `/learn/`).
+- [ ] **Reorganize Navigation**: Transition from 222 flat routes to the 5 structured pillars (`/tools/`, `/prices/`, `/projects/`, `/network/`, `/learn/`); split App.tsx route groups by domain during the move; add a Cmd+K tool palette.
+- [ ] **Numeric Keyboards (Velo)**: Add `inputMode="decimal"` (+ comma-decimal parsing) to all 322 `type="number"` estimator inputs.
+- [ ] **Shareable Market Links (Velo)**: Market in URL query param + `formatMarketCurrency` (ISO 4217) helper.
+- [ ] **Ad Route Exclusions (Velo)**: Suppress ad slots on auth/admin/billing routes before auto-deploy is re-enabled.
+- [ ] **Custom Domain (Velo)**: Replace netlify.app canonical/OG/sitemap domain when the domain is chosen.
+- [ ] **Error Toasts (Velo)**: Replace `catch(() => {})` price-fetch swallowing with retryable toasts.
+- [ ] **Keyboard Nav + axe CI (Velo)**: Full keyboard model for Navbar dropdowns/drawer; add axe checks to CI.
+- [ ] **EntryExperience (Velo correction)**: Keep the splash; cap <2.5s and honor prefers-reduced-motion (do NOT retire).
+- [ ] **Redeploy (Velo)**: Manual Netlify deploy of latest main once UI fixes are batched, so any of this reaches users.
 
 ---
 
