@@ -168,9 +168,33 @@ requires_verification` with user-safe reasons.
       non-object data untouched); readMarketPin helper + ProjectDetail
       badge show the pinned market on historical saves.
       Certification suite extended (28 tests green).
-- [ ] P3.17 admin config center surfaces (pending)
-- [ ] P4.18–20 CN ID MX KR IT full profiles, e2e + regression matrix,
-      deployment verification report
+- [x] P3.17 admin config center surfaces — DONE 2026-10-15:
+      `AdminCapabilityAvailability` ("Availability" tab in Admin →
+      Engine Configuration) discloses the canonical capability
+      registry: per-engine verified/unverified market chips across
+      all 20 markets, evidence + unverified reasons verbatim from
+      the registry, category/search filters, registry-wide
+      verified-pair metrics. Discloses only — a DB availability row
+      can never manufacture capability. 6 component tests.
+- [x] P4.18–20 CN ID MX KR IT full profiles, e2e + regression matrix,
+      deployment verification report — DONE 2026-10-15: native
+      profiles were already in code (wall-finishing country
+      profiles/assemblies, electrical + plumbing profile records,
+      construction typologies for all five markets; parallel effort
+      commits 3352f336 + 8bccc391). Closed with:
+      `five-market-regression-matrix.test.ts` (36 tests) pinning
+      native-record coverage (resolvers' generic fallbacks rejected
+      as coverage), currency registration, mandate-set membership
+      and capability-registry honesty per market. Surfaced + fixed a
+      real bug: Indonesia had NO entry in the international country
+      currency table, so `getCountryCurrency("ID")` silently fell
+      back to NGN (now `ID → IDR`, `src/lib/international/countries.ts`).
+      Deployment verification report distinguishing code vs test-DB
+      vs production: `docs/DEPLOYMENT-VERIFICATION-REPORT.md`
+      (live Management API reads; 435 migrations recorded; workflow
+      edge functions deployed; registry stays honestly
+      `requires_verification` for these five markets until
+      evidence-backed role mappings + pricebooks exist).
 
 ## 5. Non-negotiables honoured
 

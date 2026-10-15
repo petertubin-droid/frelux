@@ -1,4 +1,5 @@
 import { AdminEngineMatrix } from "@/components/admin/AdminEngineMatrix";
+import { AdminCapabilityAvailability } from "@/components/admin/AdminCapabilityAvailability";
 /**
  * FRELUX Admin, Engine Configuration Dashboard
  *
@@ -87,7 +88,8 @@ type Tab =
   | "rules"
   | "settings"
   | "markets"
-  | "matrix";
+  | "matrix"
+  | "availability";
 
 const TABS: { key: Tab; label: string; icon: typeof Package }[] = [
   { key: "materials", label: "Material Profiles", icon: Package },
@@ -98,6 +100,7 @@ const TABS: { key: Tab; label: string; icon: typeof Package }[] = [
   { key: "settings", label: "Engine Settings", icon: Settings },
   { key: "markets", label: "Market Activation", icon: Globe },
   { key: "matrix", label: "Engine Matrix (54)", icon: Cpu },
+  { key: "availability", label: "Availability", icon: Globe },
 ];
 
 export default function AdminEngineConfig() {
@@ -148,6 +151,7 @@ export default function AdminEngineConfig() {
       {tab === "settings" && <SettingsTab />}
       {tab === "markets" && <MarketsTab />}
       {tab === "matrix" && <AdminEngineMatrix />}
+      {tab === "availability" && <AdminCapabilityAvailability />}
     </div>
   );
 }

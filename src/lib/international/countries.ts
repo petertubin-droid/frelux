@@ -60,6 +60,7 @@ export const COUNTRY_OPTIONS: CountryGroup[] = [
     countries: [
       { code: "CN", name: "China", currency: "CNY" },
       { code: "JP", name: "Japan", currency: "JPY" },
+      { code: "ID", name: "Indonesia", currency: "IDR" },
       { code: "IN", name: "India", currency: "INR" },
       { code: "KR", name: "South Korea", currency: "KRW" },
       { code: "SG", name: "Singapore", currency: "SGD" },
