@@ -54,7 +54,9 @@ describe("BimIfcImport page", () => {
     );
     upload(makeFile("drawing.pdf", "PDF content"));
     expect(
-      await screen.findByText(/only \.ifc files are supported/i),
+      await screen.findByText(
+        /only \.ifc and \.ifczip files are supported/i,
+      ),
     ).toBeInTheDocument();
     // no takeoff was produced
     expect(screen.queryByText("Material takeoff")).not.toBeInTheDocument();

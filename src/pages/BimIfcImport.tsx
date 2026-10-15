@@ -16,6 +16,11 @@ import {
   parseIfcTakeoff,
   type IfcParseResult,
 } from "@/lib/estimation/ifc-parser";
+import { readIfcZipFile } from "@/lib/estimation/ifczip";
+import {
+  validateIfcFile,
+  type IfcValidationReport,
+} from "@/lib/estimation/ifc-validation";
 import AdSlot from "@/components/ui/AdSlot";
 
 export default function BimIfcImport() {
@@ -33,28 +38,56 @@ export default function BimIfcImport() {
   const [result, setResult] = useState<IfcParseResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [validation, setValidation] = useState<IfcValidationReport | null>(
+    null,
+  );
 
   const onFile = async (file: File | null) => {
     setFileError(null);
     setResult(null);
     setFileName(null);
+    setValidation(null);
     if (!file) return;
-    if (!/\.ifc$/i.test(file.name) && !/\\.ifczip$/i.test(file.name)) {
+    if (!/\.ifc$/i.test(file.name) && !/\.ifczip$/i.test(file.name)) {
       setFileError(
-        "Only .ifc files are supported. Compressed .ifczip exports must be extracted first: their contents are never guessed at.",
+        "Only .ifc and .ifczip files are supported. Their contents are never guessed at.",
       );
       return;
     }
     setBusy(true);
     try {
-      const text = await file.text();
+      let ifcText: string;
+      let displayName: string;
+      if (/\.ifczip$/i.test(file.name)) {
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        const zr = readIfcZipFile(bytes);
+        if (!zr.ok) {
+          setFileError(zr.errors.join(" "));
+          return;
+        }
+        ifcText = zr.file_text ?? "";
+        displayName = file.name;
+      } else {
+        ifcText = await file.text();
+        displayName = file.name;
+      }
+
+      const report = validateIfcFile({
+        file_text: ifcText,
+        file_name: displayName,
+      });
+      setValidation(report);
+      if (report.verdict === "invalid") {
+        return;
+      }
+
       const r = parseIfcTakeoff({
-        file_text: text,
-        file_name: file.name,
+        file_text: ifcText,
+        file_name: displayName,
         rules: [],
       });
       setResult(r);
-      setFileName(file.name);
+      setFileName(displayName);
       if (r.ok) track("bim_ifc_imported");
     } catch {
       setFileError(
@@ -80,10 +113,10 @@ export default function BimIfcImport() {
 
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
           <label className="grid gap-2 text-sm font-medium">
-            IFC file (.ifc)
+            IFC file (.ifc or .ifczip)
             <input
               type="file"
-              accept=".ifc"
+              accept=".ifc,.ifczip"
               className="rounded-lg border border-border bg-background px-3 py-2 text-sm font-normal"
               onChange={(e) => onFile(e.target.files?.[0] ?? null)}
             />
@@ -98,6 +131,71 @@ export default function BimIfcImport() {
             <p className="mt-2 text-sm text-destructive">{fileError}</p>
           )}
         </div>
+
+        {validation && (
+          <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-semibold">
+                Import validation
+              </p>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                  validation.verdict === "invalid"
+                    ? "bg-red-500/10 text-red-600 dark:text-red-400"
+                    : validation.verdict === "valid_with_warnings"
+                      ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                      : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                }`}
+              >
+                {validation.verdict === "invalid"
+                  ? "Refused"
+                  : validation.verdict === "valid_with_warnings"
+                    ? "Passed with warnings"
+                    : "Passed"}
+              </span>
+            </div>
+            <ul className="mt-3 space-y-1.5">
+              {validation.checks.map((c) => (
+                <li
+                  key={c.id}
+                  className="flex items-start gap-2 text-xs"
+                >
+                  <span
+                    aria-label={c.status}
+                    className={
+                      c.status === "pass"
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : c.status === "warn"
+                          ? "text-amber-600 dark:text-amber-400"
+                          : "text-red-600 dark:text-red-400"
+                    }
+                  >
+                    {c.status === "pass" ? "✓" : c.status === "warn" ? "!" : "✗"}
+                  </span>
+                  <span className="text-muted-foreground">
+                    <span className="font-medium text-foreground">
+                      {c.label}:
+                    </span>{" "}
+                    {c.detail}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {validation.warnings.length > 0 && (
+              <ul className="mt-2 space-y-1">
+                {validation.warnings.map((w, i) => (
+                  <li key={i} className="text-xs text-amber-600 dark:text-amber-400">
+                    {w}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              Structural presence checks only: no IFC schema certification is
+              claimed, and no quantity is ever invented.
+            </p>
+          </div>
+        )}
 
         {result && !result.ok && (
           <div className="space-y-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
