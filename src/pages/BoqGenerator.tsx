@@ -37,6 +37,13 @@ import {
   type BoqResult,
 } from "@/lib/estimation/boq-engine";
 import { boqToBankHtml } from "@/lib/estimation/boq-bank-export";
+import {
+  type BoqStandard,
+  resolveMarketBoqStandard,
+  assembleStandardBoq,
+  exportBoqToPrintHtml,
+  mapItemToStandardDivision,
+} from "@/lib/finance/boq-standard";
 import { boqTaxLabel } from "@/lib/estimation/boq-tax-label";
 import { ALL_20_MARKETS } from "@/lib/international/engine-inventory-types";
 import type {
@@ -122,6 +129,12 @@ export default function BoqGenerator() {
   const [clientContact, setClientContact] = useState("");
   const [projectLocation, setProjectLocation] = useState("");
   const [marketCode, setMarketCode] = useState<string>(defaultMarketCode);
+  const [selectedStandard, setSelectedStandard] = useState<BoqStandard>(resolveMarketBoqStandard(defaultMarketCode()));
+
+  // Synchronize dialect standard when the market changes
+  useEffect(() => {
+    setSelectedStandard(resolveMarketBoqStandard(marketCode));
+  }, [marketCode]);
 
   const [items, setItems] = useState<BoqLineItem[]>([]);
   const [result, setResult] = useState<BoqResult | null>(null);
@@ -323,6 +336,73 @@ export default function BoqGenerator() {
     );
     w.document.close();
     w.print();
+  };
+
+    const exportStandardBoq = () => {
+    if (!result?.ok || !quoteRef) return;
+    
+    // Group line items into the target professional body standard divisions
+    const divisionsMap = new Map<string, { code: string; title: string; items: any[] }>();
+
+    items.forEach((item, idx) => {
+      const div = mapItemToStandardDivision(item.description, selectedStandard);
+      if (!divisionsMap.has(div.code)) {
+        divisionsMap.set(div.code, { code: div.code, title: div.title, items: [] });
+      }
+      divisionsMap.get(div.code)!.items.push({
+        itemNumber: `${div.code}.${idx + 1}`,
+        description: item.description,
+        quantity: item.quantity,
+        unit: item.unit,
+        materialRate: item.unit_cost,
+        laborRate: 0,
+        plantRate: 0,
+        standardCode: `${selectedStandard}-${div.code}`
+      });
+    });
+
+    const sections = Array.from(divisionsMap.values()).map(div => ({
+      code: div.code,
+      title: div.title,
+      subSections: [
+        {
+          code: '01',
+          title: 'Measured Works & Schedules',
+          items: div.items
+        }
+      ]
+    }));
+
+    const standardDoc = assembleStandardBoq({
+      metadata: {
+        title,
+        projectRef: quoteRef || `BOQ-${Date.now()}`,
+        clientName,
+        contractorName: company.name || 'Frelux Certified Contractor',
+        location: projectLocation || 'Global Project',
+        marketCode,
+        currency: getActiveDisplayCurrency(),
+        preparedBy: company.name || 'FRELUX User',
+        date: new Date().toISOString().split('T')[0],
+        revision: `Rev ${revision}`,
+        standard: selectedStandard,
+      },
+      commercials: {
+        preliminariesPercent: 5,
+        overheadProfitPercent: 10,
+        contingencyPercent: ruleRate('contingency_rate') || 5,
+        retentionPercent: 5,
+      },
+      sections,
+    });
+
+    const printHtml = exportBoqToPrintHtml(standardDoc);
+    const w = window.open('', '_blank');
+    if (!w) return;
+    w.document.write(printHtml);
+    w.document.close();
+    w.print();
+    track('boq_bank_export', { standard: selectedStandard, market: marketCode });
   };
 
   const exportBankBoq = () => {
@@ -651,6 +731,13 @@ export default function BoqGenerator() {
                   <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">
                     Pro
                   </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={exportStandardBoq}
+                  className="relative rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-500/20"
+                >
+                  Export {selectedStandard === 'CSI_MASTERFORMAT' ? 'CSI MasterFormat' : selectedStandard} BOQ
                 </button>
                 <button
                   type="button"

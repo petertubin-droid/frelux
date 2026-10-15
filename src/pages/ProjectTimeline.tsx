@@ -14,6 +14,12 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Calendar, Clock, AlertTriangle, TrendingUp, Flag } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/shadcn/button";
+import {
+  evaluateStageWeatherRisk,
+  type WeatherRiskAlert,
+  type Coordinates
+} from "@/lib/engineering/climate-risk-engine";
+import { CloudRain, CloudLightning, ThermometerSnowflake, Wind, MapPin } from "lucide-react";
 
 export default function ProjectTimeline() {
   useSeo({
@@ -40,6 +46,13 @@ export default function ProjectTimeline() {
     monsoon: "Monsoon",
   };
   const [season, setSeason] = useState<Season>(climate.defaultSeason);
+  // Hyper-Local GPS Weather Risk State
+  const [projectCoords, setProjectCoords] = useState<Coordinates>({
+    latitude: 6.5244,
+    longitude: 3.3792,
+    locationName: "Site Coordinates (6.5244° N, 3.3792° E)",
+  });
+  const [weatherAlertsEnabled, setWeatherAlertsEnabled] = useState(true);
 
   // Snap season to the market's default when the market changes (e.g. GB has no 'rainy')
   useEffect(() => {
@@ -297,6 +310,42 @@ export default function ProjectTimeline() {
                     {s.notes && (
                       <p className="text-xs text-amber-600 ml-8">⚠ {s.notes}</p>
                     )}
+                    {/* Weather Risk Evaluation for Outdoor Stages */}
+                    {(() => {
+                      const lower = s.stage_label.toLowerCase();
+                      let actType: any = null;
+                      if (lower.includes('concrete') || lower.includes('foundation') || lower.includes('slab')) actType = 'concrete_casting';
+                      else if (lower.includes('roof') || lower.includes('paint')) actType = 'roof_painting';
+                      else if (lower.includes('excavation') || lower.includes('earth')) actType = 'excavation_earthworks';
+                      else if (lower.includes('screed') || lower.includes('plaster')) actType = 'screeding_plastering';
+
+                      if (!actType) return null;
+
+                      const alert = evaluateStageWeatherRisk({
+                        stageName: s.stage_label,
+                        activityType: actType,
+                        scheduledDate: `Day ${Math.max(1, i * Math.max(1, s.estimated_days) + 1)}`,
+                        coords: projectCoords,
+                        forecastPrecipMm: season === 'rainy' || season === 'monsoon' ? 24 : 0,
+                        forecastTempMinC: season === 'winter' ? -2 : 26,
+                        forecastWindKph: 15
+                      });
+
+                      if (!alert) return null;
+
+                      return (
+                        <div className="ml-8 mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-amber-600 dark:text-amber-400 space-y-1">
+                          <div className="flex items-center gap-1.5 font-bold">
+                            <CloudRain className="h-4 w-4" />
+                            <span>{alert.alertMessage}</span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground ml-5">
+                            <strong className="text-foreground">Advisory:</strong> {alert.recommendation}
+                          </p>
+                        </div>
+                      );
+                    })()}
+
                     <div className="ml-8 mt-2 flex flex-wrap gap-1">
                       {s.activities.map((a, j) => (
                         <span

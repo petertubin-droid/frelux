@@ -18,7 +18,7 @@
 import { formatByCode } from "@/lib/international/currency-format";
 import { TaxCalculationResult } from "./tax-engine";
 
-export type BoqStandard = "NRM2" | "CESMM4" | "ICMS" | "Commercial";
+export type BoqStandard = "NRM2" | "CSI_MASTERFORMAT" | "CESMM4" | "ICMS" | "Commercial";
 
 export interface BoqItem {
   id: string;
@@ -98,6 +98,27 @@ export const STANDARD_SECTION_TEMPLATES: Record<
   BoqStandard,
   Array<{ code: string; title: string }>
 > = {
+  CSI_MASTERFORMAT: [
+    { code: "01", title: "General Requirements" },
+    { code: "02", title: "Existing Conditions" },
+    { code: "03", title: "Concrete (Foundations, Slabs & Structural)" },
+    { code: "04", title: "Masonry & Unit Assemblies" },
+    { code: "05", title: "Metals (Structural Steel & Light Gauge)" },
+    { code: "06", title: "Wood, Plastics, and Composites" },
+    { code: "07", title: "Thermal and Moisture Protection (Roofing & Waterproofing)" },
+    { code: "08", title: "Openings (Doors, Windows & Hardware)" },
+    { code: "09", title: "Finishes (Plaster, Screed, Tile & Painting)" },
+    { code: "10", title: "Specialties" },
+    { code: "11", title: "Equipment" },
+    { code: "12", title: "Furnishings" },
+    { code: "21", title: "Fire Suppression" },
+    { code: "22", title: "Plumbing (Pipes, Fixtures & Valves)" },
+    { code: "23", title: "Heating, Ventilating, and Air Conditioning (HVAC)" },
+    { code: "26", title: "Electrical & Lighting" },
+    { code: "31", title: "Earthwork & Excavation" },
+    { code: "32", title: "Exterior Improvements (Paving & Landscaping)" },
+    { code: "33", title: "Utilities" },
+  ],
   NRM2: [
     { code: "01", title: "Preliminaries & General Requirements" },
     { code: "02", title: "Off-site Manufactured Structures" },
@@ -715,4 +736,133 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
   </div>
 </body>
 </html>`;
+}
+
+
+// =========================================================
+// REGIONAL PROFESSIONAL STANDARDS MAPPER (CSI / NRM2 / COMMERCIAL)
+// =========================================================
+
+/**
+ * Automatically maps standard estimate/BOQ line items into regional standard
+ * structural divisions (e.g. CSI MasterFormat 50-Division for US/CA, NRM2 for UK/Commonwealth).
+ */
+export function mapItemToStandardDivision(
+  categoryOrDesc: string,
+  standard: BoqStandard
+): { code: string; title: string } {
+  const norm = (categoryOrDesc || "").toLowerCase();
+
+  if (standard === "CSI_MASTERFORMAT") {
+    if (norm.includes("concrete") || norm.includes("slab") || norm.includes("rebar") || norm.includes("cement")) {
+      return { code: "03", title: "Concrete (Foundations, Slabs & Structural)" };
+    }
+    if (norm.includes("block") || norm.includes("brick") || norm.includes("masonry")) {
+      return { code: "04", title: "Masonry & Unit Assemblies" };
+    }
+    if (norm.includes("steel") || norm.includes("iron") || norm.includes("metal")) {
+      return { code: "05", title: "Metals (Structural Steel & Light Gauge)" };
+    }
+    if (norm.includes("wood") || norm.includes("carpentry") || norm.includes("timber")) {
+      return { code: "06", title: "Wood, Plastics, and Composites" };
+    }
+    if (norm.includes("roof") || norm.includes("waterproof") || norm.includes("insulation")) {
+      return { code: "07", title: "Thermal and Moisture Protection (Roofing & Waterproofing)" };
+    }
+    if (norm.includes("door") || norm.includes("window") || norm.includes("glazing")) {
+      return { code: "08", title: "Openings (Doors, Windows & Hardware)" };
+    }
+    if (
+      norm.includes("paint") ||
+      norm.includes("tile") ||
+      norm.includes("screed") ||
+      norm.includes("pop") ||
+      norm.includes("plaster") ||
+      norm.includes("ceiling") ||
+      norm.includes("finish")
+    ) {
+      return { code: "09", title: "Finishes (Plaster, Screed, Tile & Painting)" };
+    }
+    if (norm.includes("plumb") || norm.includes("pipe") || norm.includes("valve") || norm.includes("drain")) {
+      return { code: "22", title: "Plumbing (Pipes, Fixtures & Valves)" };
+    }
+    if (norm.includes("electric") || norm.includes("wire") || norm.includes("conduit") || norm.includes("solar")) {
+      return { code: "26", title: "Electrical & Lighting" };
+    }
+    if (norm.includes("earth") || norm.includes("excavat") || norm.includes("foundation")) {
+      return { code: "31", title: "Earthwork & Excavation" };
+    }
+    return { code: "01", title: "General Requirements" };
+  }
+
+  if (standard === "NRM2") {
+    if (norm.includes("earth") || norm.includes("excavat") || norm.includes("foundation")) {
+      return { code: "04", title: "Substructure & Foundations" };
+    }
+    if (norm.includes("concrete") || norm.includes("block") || norm.includes("slab") || norm.includes("column")) {
+      return { code: "05", title: "Superstructure Frame, Walls & Floors" };
+    }
+    if (norm.includes("roof") || norm.includes("waterproof")) {
+      return { code: "07", title: "Roofing & Waterproofing" };
+    }
+    if (norm.includes("door") || norm.includes("window")) {
+      return { code: "09", title: "Internal Doors & Windows" };
+    }
+    if (
+      norm.includes("paint") ||
+      norm.includes("tile") ||
+      norm.includes("screed") ||
+      norm.includes("plaster")
+    ) {
+      return { code: "10", title: "Wall & Floor Finishes" };
+    }
+    if (norm.includes("ceiling") || norm.includes("pop")) {
+      return { code: "11", title: "Ceilings & Suspended Systems" };
+    }
+    if (norm.includes("plumb") || norm.includes("electric") || norm.includes("mep") || norm.includes("solar")) {
+      return { code: "12", title: "Mechanical, Electrical & Public Health (MEP)" };
+    }
+    return { code: "01", title: "Preliminaries & General Requirements" };
+  }
+
+  // Commercial / Default
+  if (norm.includes("excavat") || norm.includes("foundation")) {
+    return { code: "02", title: "Excavation, Earthworks & Foundations" };
+  }
+  if (norm.includes("concrete") || norm.includes("rebar")) {
+    return { code: "03", title: "Concrete, Formwork & Reinforcement" };
+  }
+  if (norm.includes("block") || norm.includes("masonry")) {
+    return { code: "04", title: "Blockwork, Brickwork & Masonry" };
+  }
+  if (norm.includes("roof")) {
+    return { code: "05", title: "Roofing, Timber & Trusses" };
+  }
+  if (norm.includes("door") || norm.includes("window")) {
+    return { code: "06", title: "Doors, Windows & Ironmongery" };
+  }
+  if (norm.includes("paint") || norm.includes("tile") || norm.includes("screed") || norm.includes("pop")) {
+    return { code: "07", title: "Plastering, Screeding & Finishes" };
+  }
+  if (norm.includes("plumb") || norm.includes("electric")) {
+    return { code: "08", title: "Plumbing, Drainage & Electrical Installations" };
+  }
+  return { code: "01", title: "Preliminaries & Site Establishment" };
+}
+
+/**
+ * Resolves the default professional body measurement standard based on market code.
+ * US / CA -> CSI MasterFormat
+ * GB / AU / NZ / ZA -> NRM2 (RICS New Rules of Measurement)
+ * International / EU -> ICMS / Standard Commercial
+ */
+export function resolveMarketBoqStandard(marketCode: string): BoqStandard {
+  const code = (marketCode || "").toUpperCase();
+  if (code === "US" || code === "CA") {
+    return "CSI_MASTERFORMAT";
+  }
+  if (code === "GB" || code === "UK" || code === "AU" || code === "NZ" || code === "ZA" || code === "KE" || code === "GH" || code === "NG") {
+    return "NRM2";
+  }
+  return "Commercial";
 }

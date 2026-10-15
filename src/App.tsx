@@ -98,6 +98,8 @@ const CookiePolicy = lazy(() => import("@/pages/legal/CookiePolicy"));
 const Disclaimer = lazy(() => import("@/pages/legal/Disclaimer"));
 const AiDisclaimer = lazy(() => import("@/pages/legal/AiDisclaimer"));
 const DeveloperPortal = lazy(() => import("@/pages/DeveloperPortal"));
+const DiasporaEscrow = lazy(() => import("@/pages/DiasporaEscrow"));
+const MerchantMarketplaceApi = lazy(() => import("@/pages/MerchantMarketplaceApi"));
 const LearnCategory = lazy(() => import("@/pages/learn/LearnCategory"));
 const LearnArticle = lazy(() => import("@/pages/learn/LearnArticle"));
 const LearnLibrary = lazy(() => import("@/pages/learn/LearnLibrary"));
@@ -1240,6 +1242,38 @@ export default function App() {
                         }
                       />
                       {/* Phase 7, FRELUX AI API docs + key manager */}
+                      <Route
+                        path="/escrow"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <DiasporaEscrow />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/pro-connect/escrow"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <DiasporaEscrow />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/developers/merchant-webhooks"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <MerchantMarketplaceApi />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/marketplace/merchant-api"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <MerchantMarketplaceApi />
+                          </Suspense>
+                        }
+                      />
                       <Route
                         path="/developers"
                         element={
