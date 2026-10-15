@@ -29,9 +29,7 @@ describe("EarthworksEstimator page", () => {
       fireEvent.change(screen.getByRole("spinbutton", { name: label }), {
         target: { value },
       });
-    const factors = screen.getAllByPlaceholderText("Enter verified factor", {
-      selector: "input",
-    });
+    const factors = screen.getAllByPlaceholderText("Enter verified factor");
     fireEvent.change(factors[0], { target: { value: "20" } });
     fireEvent.change(factors[1], { target: { value: "10" } });
     fireEvent.click(

@@ -10,10 +10,14 @@ import {
 
 const inputClass =
   "w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary";
-const blankStation = (): EarthworkStation => ({
-  chainageM: 0,
-  cutAreaM2: 0,
-  fillAreaM2: 0,
+const blankStation = (): {
+  chainageM: string;
+  cutAreaM2: string;
+  fillAreaM2: string;
+} => ({
+  chainageM: "",
+  cutAreaM2: "",
+  fillAreaM2: "",
 });
 const display = (n: number) =>
   new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(n);

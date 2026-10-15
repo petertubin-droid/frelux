@@ -43,6 +43,7 @@ describe("measured concrete slab takeoff", () => {
     expect(valid.data?.rebarWeightKg).toBeCloseTo((10 * 4 * 12 ** 2) / 162);
     expect(
       calculateConcreteTakeoff({
+        elementType: "slab",
         lengthM: 0,
         widthM: 4,
         depthM: 0.15,
