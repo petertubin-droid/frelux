@@ -321,6 +321,13 @@ Rolled out strictly one-at-a-time. Each market has its own migration (applied to
 - **Timeline/logistics:** continental climate and seasonal heuristics exist, but the shared timeline excludes public holidays/customs/shipping and no German state-specific working calendar or supply-chain feed was verified.
 - **Changes made for DE:** none. Outstanding items include incomplete calculator coverage, no live-service verification, uncertain transaction-tax/pricing coverage, missing regulated workforce checks, and the FR-to-DE scanner alias. Keep DE classified partial/unverified for the requested global engines. Next remaining market: **India (`IN`)**.
 
+#### Germany closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
+
+- **Live verification (2026-10-15):** DE profile `active`/visible (EUR); **8 active role mappings** and **36 active EUR price rows** confirmed live (incl. the existing din-en-1451 drainage product ref).
+- **Standards seeded (migration `20261015750000`, applied + verified live):** Musterbauordnung (MBO) as enacted through the 16 state Landesbauordnungen (LBO) → `medium` with the Länder adoption caveat (CPR/BauPVO noted for construction products); DIN EN 13914-1:2016 external rendering together with DIN 18550-2:2015-06 German supplementary provisions for internal plastering → `high`. No coverage rates asserted.
+- **Guard:** `src/lib/international/__tests__/de-construction-standards.test.ts` pins 2 rows only, the MBO/LBO caveat, the DIN refs as high, no unsubstantiated URLs, idempotency.
+- **Remaining honest gaps (unchanged):** Land-level approval workflows, workforce (Handwerkskammer) verification, DE holiday/logistics calibration. DE Engine-1 standards complete. Next per owner order: **India (`IN`)**.
+
 ### India market closeout (priority 14; audit only, 2026-10-14)
 
 - **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** India (`IN`) appears as active/visible, metric, INR in the built-in profile and country list. The seeded availability fixture does not include IN, and no live production query was made; the profile declaration is not evidence that all Indian services are actually deployed or enabled.
