@@ -419,6 +419,13 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** built-in tropical highland/wet-dry profile is a heuristic; no validated county-level productivity dataset, official holiday/work-calendar integration, customs/carrier feed, or predictive logistics operation was verified.
 - **Changes made for KE:** none. Source files and selected tests demonstrate localized components, but no live state, exhaustive calculator validation, tax, licensing, and logistics gate. Keep Kenya classified as partial/unverified until those checks pass; next priority: **South Africa (`ZA`)**.
 
+#### Kenya closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
+
+- **Live verification (2026-10-15):** KE profile `active`/visible (KES); **8 active role mappings** and **34 active KES price rows** confirmed live (incl. the KE putty 25 kg and screed guide refs).
+- **Standards seeded (migration `20261015710000`, applied + verified live):** National Building Code 2024 (Legal Notice No. 47, effective 2024-03-01, replacing the 1968 code; NCA) — `medium` with the 47-county enforcement caveat; KS 2647:2016 Gypsum plasterboard (KEBS) — `high`; KS EAS 18-1 Cement (KEBS EAS adoption) — `high`. All three web-verified 2026-10-15; no coverage rates asserted.
+- **Guard:** `src/lib/international/__tests__/ke-construction-standards.test.ts` pins 3 rows only, LN 47 + 2024-03-01 + 1968-replacement, the county caveat, both KS refs as high, no unsubstantiated URLs, idempotency.
+- **Remaining honest gaps (unchanged):** county-level approval workflows, workforce/NCA licensing verification, KE holiday/logistics calibration — outside Engine 1 scope here. KE Engine-1 complete: profile, 8 roles, 34 prices, standards, guard. Next per owner order: **South Africa (`ZA`)**.
+
 ### South Africa market closeout (priority 10; audit only, 2026-10-14)
 
 - **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** South Africa (`ZA`) is a country option and has a built-in active/visible, metric, ZAR profile. However, the seeded profile facts test explicitly marks ZA `coming_soon` and hidden; there is no live production-state evidence here to resolve that conflict. Do not treat migrations or profile code as proof of availability.
