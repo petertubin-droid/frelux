@@ -15,6 +15,10 @@ URL = f"https://api.supabase.com/v1/projects/{PROJECT}/database/query"
 MIGRATIONS_DIR = "supabase/migrations"
 
 PENDING = [
+    "20261010171500_header_image_overrides.sql",
+    "20261010174500_media_folder_headers.sql",
+    "20261010223000_adsense_dedicated_slots.sql",
+    "20261013110000_tile_materials_allow_waterproofing.sql",
     "20261013230000_electrical_books_ng_ca_au_in.sql",
     "20261013240000_electrical_books_gh_ke_za.sql",
     "20261013250000_electrical_books_fr_br_sa_ae.sql",
@@ -91,6 +95,7 @@ PENDING = [
     "20261017120000_project_imagery.sql",
     "20261017130000_project_outcomes.sql",
     "20261017140000_predictive_model_validations.sql",
+    "20261017000000_enterprise_workspaces_rbac.sql",
 ]
 
 
