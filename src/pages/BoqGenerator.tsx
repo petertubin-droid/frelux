@@ -21,6 +21,8 @@ import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
+import BoqTranslationCard from "@/components/dictionary/BoqTranslationCard";
+import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
 import {
   fetchEstimates,
@@ -116,6 +118,7 @@ export default function BoqGenerator() {
     { name: "BOQ / Quote Generator", path: "/boq-generator" },
   ]);
   const { user, isPaid } = useAuth();
+  const { language } = useLanguage();
   useSeo({
     title: "BOQ / Quote Generator: FRELUX",
     description:
@@ -717,6 +720,8 @@ export default function BoqGenerator() {
               ))}
             </div>
           )}
+
+          <BoqTranslationCard items={items} language={language} />
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <button

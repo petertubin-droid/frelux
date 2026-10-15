@@ -1372,6 +1372,41 @@ export const SEED_TRANSLATIONS: Array<{
 
 /** Convert drafts to full records (for tests and the seed
  *  loader; the DB assigns ids and timestamps). */
+/**
+ * Build translation-overlay seed records for one language the
+ * same way the live database stores them: the full English
+ * record with the translation overlay and provisional status.
+ * Used as an explicit, disclosed fallback when the DB pool is
+ * unavailable (offline / anon context), never silently.
+ */
+export function instantiateSeedTranslationRecords(
+  language: string,
+): ConstructionTerm[] {
+  const base = instantiateSeedRecords();
+  const translations = SEED_TRANSLATIONS.filter(
+    (t) => t.language === language,
+  );
+  return base
+    .filter((en) =>
+      translations.some((t) => t.canonical_term === en.canonical_term),
+    )
+    .map((en) => {
+      const t = translations.find(
+        (x) => x.canonical_term === en.canonical_term,
+      )!;
+      return {
+        ...en,
+        id: `seed-t-${language}-${en.canonical_term}`,
+        language,
+        translation: t.translation,
+        translation_notes: t.translation_notes,
+        confidence_score: t.confidence_score,
+        verified: false,
+        translation_status: "provisional" as const,
+      };
+    });
+}
+
 export function instantiateSeedRecords(): ConstructionTerm[] {
   const now = new Date().toISOString();
   return SEED_CONSTRUCTION_TERMS.map((d, i) => ({
