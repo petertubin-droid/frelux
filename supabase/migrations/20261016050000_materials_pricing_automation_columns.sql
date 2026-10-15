@@ -125,8 +125,10 @@ CREATE INDEX IF NOT EXISTS idx_materials_category ON public.materials(category, 
 ALTER TABLE public.materials ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "materials_public_read" ON public.materials;
+DROP POLICY IF EXISTS "materials_public_read" ON public.materials;
 CREATE POLICY "materials_public_read" ON public.materials FOR SELECT USING (is_active = true);
 
+DROP POLICY IF EXISTS "materials_admin_all" ON public.materials;
 DROP POLICY IF EXISTS "materials_admin_all" ON public.materials;
 CREATE POLICY "materials_admin_all" ON public.materials FOR ALL TO authenticated
   USING (public.is_admin()) WITH CHECK (public.is_admin());
