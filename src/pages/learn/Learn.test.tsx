@@ -195,6 +195,19 @@ describe("Learn", () => {
     expect(await screen.findByText("66+ Expert Articles")).toBeInTheDocument();
   });
 
+  it("presents the hub as a premium editorial destination", async () => {
+    await renderReady();
+    expect(screen.getByText("FRELUX Field Notes")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Knowledge for the built world/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("textbox", { name: "Search construction articles" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Editor’s Picks")).toBeInTheDocument();
+    expect(screen.getByText("Latest from FRELUX")).toBeInTheDocument();
+  });
+
   it("falls back to the un-numbered hero label when the count query fails", async () => {
     (supabase as unknown as { __count: number | null }).__count = null;
     await renderReady();
