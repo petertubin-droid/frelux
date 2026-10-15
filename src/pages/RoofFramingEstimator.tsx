@@ -3,7 +3,8 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
-import { checkRoofMember, type RoofMemberCheckResult } from "@/lib/estimation/roof-member-design";
+import { calculateRectangularSectionProperties, checkRoofMember, type RoofMemberCheckResult } from "@/lib/estimation/roof-member-design";
+import { lookupNigeriaRoofLiveLoad } from "@/lib/estimation/roof-load-reference";
 import {
   calculateRoofFraming,
   type RoofFramingInput,
@@ -59,12 +60,14 @@ const initialForm = (): Form => ({
 type DesignForm = {
   market: string; material: "timber" | "steel"; spanM: string; spacingM: string;
   areaLoadKNM2: string; sectionModulusMM3: string; secondMomentMM4: string;
+  sectionWidthMM: string; sectionDepthMM: string; roofRiseMMPerM: string; tributaryAreaM2: string;
   shearAreaMM2: string; elasticModulusGPa: string; bendingResistanceMPa: string;
   shearResistanceMPa: string; deflectionRatio: string;
 };
 const initialDesignForm = (): DesignForm => ({
   market: "", material: "timber", spanM: "", spacingM: "", areaLoadKNM2: "",
   sectionModulusMM3: "", secondMomentMM4: "", shearAreaMM2: "",
+  sectionWidthMM: "", sectionDepthMM: "", roofRiseMMPerM: "", tributaryAreaM2: "",
   elasticModulusGPa: "", bendingResistanceMPa: "", shearResistanceMPa: "",
   deflectionRatio: "200",
 });
@@ -82,6 +85,9 @@ export default function RoofFramingEstimator() {
   const [designForm, setDesignForm] = useState(initialDesignForm);
   const [designResult, setDesignResult] = useState<RoofMemberCheckResult | null>(null);
   const [designErrors, setDesignErrors] = useState<string[]>([]);
+  const [sectionErrors, setSectionErrors] = useState<string[]>([]);
+  const [roofLoadReference, setRoofLoadReference] = useState<{ loadKNM2: number; sourceUrl: string; sourceTable: string; scopeNote: string } | null>(null);
+  const [roofLoadErrors, setRoofLoadErrors] = useState<string[]>([]);
   const update = <K extends keyof Form>(key: K, value: Form[K]) =>
     setForm((current) => ({ ...current, [key]: value }));
   const run = () => {
@@ -116,6 +122,34 @@ export default function RoofFramingEstimator() {
     setDesignForm((current) => ({ ...current, [key]: value }));
     setDesignResult(null);
     setDesignErrors([]);
+  };
+  const calculateSection = () => {
+    const response = calculateRectangularSectionProperties(
+      Number(designForm.sectionWidthMM), Number(designForm.sectionDepthMM),
+    );
+    setSectionErrors(response.errors);
+    if (response.data) {
+      setDesignForm((current) => ({
+        ...current,
+        sectionModulusMM3: String(response.data!.sectionModulusMM3),
+        secondMomentMM4: String(response.data!.secondMomentMM4),
+        shearAreaMM2: String(response.data!.effectiveShearAreaMM2),
+      }));
+      setDesignResult(null);
+      setDesignErrors([]);
+    }
+  };
+  const lookupRoofLoad = () => {
+    if (!designForm.roofRiseMMPerM.trim() || !designForm.tributaryAreaM2.trim()) {
+      setRoofLoadReference(null);
+      setRoofLoadErrors(["Enter roof rise and tributary loaded area before looking up the reference."]);
+      return;
+    }
+    const response = lookupNigeriaRoofLiveLoad(
+      Number(designForm.roofRiseMMPerM), Number(designForm.tributaryAreaM2),
+    );
+    setRoofLoadErrors(response.errors);
+    setRoofLoadReference(response.data);
   };
   const runDesignCheck = () => {
     if (!designForm.market) {
@@ -439,6 +473,27 @@ export default function RoofFramingEstimator() {
                 <label className="grid gap-1 text-sm font-medium">Market context<select required className={inputClass} value={designForm.market} onChange={(e) => updateDesign("market", e.target.value)}><option value="">Select a FRELUX market</option>{COUNTRY_OPTIONS.map((group) => <optgroup key={group.group} label={group.group}>{group.countries.map((country) => <option key={country.code} value={country.code}>{country.name} — design basis unavailable</option>)}</optgroup>)}</select><span className="text-xs font-normal text-muted-foreground">All market codes remain unavailable until their local design basis is verified and reviewed.</span></label>
                 <label className="grid gap-1 text-sm font-medium">Roof member material<select className={inputClass} value={designForm.material} onChange={(e) => updateDesign("material", e.target.value as DesignForm["material"])}><option value="timber">Timber</option><option value="steel">Steel</option></select><span className="text-xs font-normal text-muted-foreground">Material-specific stability, connection, grade and code checks are not included.</span></label>
                 {([["spanM", "Clear span (m)"], ["spacingM", "Tributary spacing, horizontal (m)"], ["areaLoadKNM2", "Total downward load per plan area (kN/m²)"], ["sectionModulusMM3", "Section modulus S (mm³)"], ["secondMomentMM4", "Second moment I (mm⁴)"], ["shearAreaMM2", "Effective shear area (mm²)"], ["elasticModulusGPa", "Elastic modulus E (GPa)"], ["bendingResistanceMPa", "Design bending resistance (MPa)"], ["shearResistanceMPa", "Design shear resistance (MPa)"], ["deflectionRatio", "Deflection limit span / ratio"]] as const).map(([key, label]) => <label key={key} className="grid gap-1 text-sm font-medium">{label}<input aria-label={label} className={inputClass} type="number" min="0" step="any" value={designForm[key]} onChange={(e) => updateDesign(key, e.target.value)} /></label>)}
+              </div>
+              <div className="sm:col-span-2 rounded-xl border border-border bg-muted/20 p-4">
+                <h3 className="font-semibold">Solid rectangular section properties</h3>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Enter actual width and depth; properties are calculated about the strong axis of a solid rectangular section and copied into S, I, and effective shear area. Hollow, built-up, tapered, notched, or weak-axis sections are not represented.</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                  <label className="grid gap-1 text-sm font-medium">Section width (mm)<input aria-label="Section width (mm)" className={inputClass} type="number" min="0" step="any" value={designForm.sectionWidthMM} onChange={(e) => updateDesign("sectionWidthMM", e.target.value)} /></label>
+                  <label className="grid gap-1 text-sm font-medium">Section depth (mm)<input aria-label="Section depth (mm)" className={inputClass} type="number" min="0" step="any" value={designForm.sectionDepthMM} onChange={(e) => updateDesign("sectionDepthMM", e.target.value)} /></label>
+                  <button type="button" onClick={calculateSection} className="rounded-xl border border-border px-4 py-2.5 text-sm font-semibold hover:bg-muted">Calculate section properties</button>
+                </div>
+                {sectionErrors.length > 0 && <div role="alert" className="mt-3 text-xs text-destructive">{sectionErrors.map((error) => <p key={error}>{error}</p>)}</div>}
+              </div>
+              <div className="sm:col-span-2 rounded-xl border border-primary/25 bg-primary/5 p-4">
+                <p className="text-sm font-semibold">Nigeria roof live-load reference</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Reference-only values transcribed from Table 8.10 of the National Building Code hosted by Nigeria’s Federal Ministry of Housing and Urban Development. The table omits units beside the values; kN/m² is inferred from nearby load provisions and must be confirmed by a qualified engineer. This lookup does not assert current adoption or replace a complete design basis.</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label className="grid gap-1 text-sm font-medium">Roof rise (mm per 1 m horizontal)<input aria-label="Roof rise (mm per 1 m horizontal)" className={inputClass} type="number" min="0" step="any" value={designForm.roofRiseMMPerM} onChange={(e) => { updateDesign("roofRiseMMPerM", e.target.value); setRoofLoadReference(null); }} /></label>
+                  <label className="grid gap-1 text-sm font-medium">Member tributary loaded area (m²)<input aria-label="Member tributary loaded area (m²)" className={inputClass} type="number" min="0" step="any" value={designForm.tributaryAreaM2} onChange={(e) => { updateDesign("tributaryAreaM2", e.target.value); setRoofLoadReference(null); }} /></label>
+                </div>
+                <button type="button" onClick={lookupRoofLoad} className="mt-3 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold hover:bg-muted">Look up published live-load reference</button>
+                {roofLoadErrors.length > 0 && <div role="alert" className="mt-3 text-xs text-destructive">{roofLoadErrors.map((error) => <p key={error}>{error}</p>)}</div>}
+                {roofLoadReference && <div className="mt-3 rounded-lg bg-background p-3 text-sm"><p className="font-semibold">{format(roofLoadReference.loadKNM2)} kN/m² ordinary-roof live load</p><p className="mt-1 text-xs text-muted-foreground">Not automatically added to your total design load. Dead load, wind/uplift, earthquake, combinations, ponding, and special-use loads are not covered.</p><a className="mt-2 inline-block text-xs font-medium text-primary underline" href={roofLoadReference.sourceUrl} target="_blank" rel="noreferrer">{roofLoadReference.sourceTable} · open source PDF</a><p className="mt-1 text-xs text-muted-foreground">{roofLoadReference.scopeNote}</p></div>}
               </div>
               <button type="button" onClick={runDesignCheck} className="mt-6 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground">Run preliminary member check</button>
               {designErrors.length > 0 && <div role="alert" className="mt-4 rounded-xl border border-amber-400/50 bg-amber-50/60 p-4 text-sm text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">{designErrors.map((error) => <p key={error}>{error}</p>)}</div>}

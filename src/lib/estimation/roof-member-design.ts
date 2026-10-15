@@ -25,6 +25,40 @@ export interface RoofMemberCheckInput {
   maxDeflectionRatio: number;
 }
 
+
+export interface RectangularSectionProperties {
+  sectionModulusMM3: number;
+  secondMomentMM4: number;
+  effectiveShearAreaMM2: number;
+}
+
+export type RectangularSectionResponse = {
+  data: RectangularSectionProperties | null;
+  errors: string[];
+};
+
+/** Gross elastic properties for a solid, rectangular section with bending over depth. */
+export function calculateRectangularSectionProperties(
+  widthMM: number,
+  depthMM: number,
+): RectangularSectionResponse {
+  if (!Number.isFinite(widthMM) || widthMM <= 0) {
+    return { data: null, errors: ["Section width must be greater than zero."] };
+  }
+  if (!Number.isFinite(depthMM) || depthMM <= 0) {
+    return { data: null, errors: ["Section depth must be greater than zero."] };
+  }
+  const areaMM2 = widthMM * depthMM;
+  return {
+    data: {
+      sectionModulusMM3: (widthMM * depthMM ** 2) / 6,
+      secondMomentMM4: (widthMM * depthMM ** 3) / 12,
+      effectiveShearAreaMM2: (2 * areaMM2) / 3,
+    },
+    errors: [],
+  };
+}
+
 export interface RoofMemberCheckResult {
   lineLoadKNM: number;
   supportReactionKN: number;

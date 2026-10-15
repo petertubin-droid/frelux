@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  calculateRectangularSectionProperties,
   checkRoofMember,
   type RoofMemberCheckInput,
 } from "./roof-member-design";
@@ -52,5 +53,19 @@ describe("code-agnostic preliminary roof member check", () => {
     expect(result.errors).toContain(
       "Effective shear area must be greater than zero.",
     );
+  });
+});
+
+describe("calculateRectangularSectionProperties", () => {
+  it("calculates elastic properties for a solid rectangular strong-axis section", () => {
+    expect(calculateRectangularSectionProperties(100, 200).data).toEqual({
+      sectionModulusMM3: 666666.6666666666,
+      secondMomentMM4: 66666666.666666664,
+      effectiveShearAreaMM2: 13333.333333333334,
+    });
+  });
+  it("rejects non-positive dimensions", () => {
+    expect(calculateRectangularSectionProperties(0, 200).errors).toEqual(["Section width must be greater than zero."]);
+    expect(calculateRectangularSectionProperties(100, Number.NaN).errors).toEqual(["Section depth must be greater than zero."]);
   });
 });

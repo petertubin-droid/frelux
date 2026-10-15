@@ -96,3 +96,14 @@ it("keeps preliminary member checks separate and requires explicit engineer inpu
     screen.getByText(/No jurisdictional code, load factors/),
   ).toBeInTheDocument();
 });
+
+it("shows sourced Nigerian roof live-load references separately from total design load", () => {
+  render(<MemoryRouter><RoofFramingEstimator /></MemoryRouter>);
+  fireEvent.click(screen.getByRole("button", { name: /Preliminary structural check/i }));
+  fireEvent.change(screen.getByRole("spinbutton", { name: /Roof rise \(mm per 1 m horizontal\)/i }), { target: { value: "0" } });
+  fireEvent.change(screen.getByRole("spinbutton", { name: /Member tributary loaded area/i }), { target: { value: "500" } });
+  fireEvent.click(screen.getByRole("button", { name: /Look up published live-load reference/i }));
+  expect(screen.getByText(/2 kN\/m² ordinary-roof live load/i)).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /Table 8.10/i })).toHaveAttribute("href", "https://bend.fmhud.gov.ng/upload/download/25080529456.pdf");
+  expect(screen.getByRole("spinbutton", { name: /Total downward load per plan area/i })).toHaveValue(null);
+});
