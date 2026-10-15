@@ -65,18 +65,7 @@ This audit details every identified usability defect, layout collision, informat
 
 ---
 
-### B. Severe Usability Defects & Viewport Collisions — FIXED & PRUNED (2026-10-14)
-
-All five originally-listed defects were fixed, regression-tested, and verified
-in the repo on 2026-10-14: sticky action bar offset above the mobile bottom nav
-(incl. safe-area inset, component test), sticky estimator/project headers
-docking below the fixed 64px navbar, searchable/region-grouped scroll-limited
-MarketSelector, the first-visit splash reconciled by code review (overlay only,
-preserved), and keyboard-focusable horizontal scroll regions around all
-mobile-overflowing tables incl. print templates. Details live in the git log;
-the defect entries were pruned from this handoff.
-
-### C. Information Architecture & Navigation Restructuring
+### B. Information Architecture & Navigation Restructuring
 
 #### 1. Flat Namespace Bloat (222 Unorganized Routes)
 
@@ -162,7 +151,7 @@ the defect entries were pruned from this handoff.
 
 ---
 
-### D. Internationalization (i18n), Localization (l10n) & Standards
+### C. Internationalization (i18n), Localization (l10n) & Standards
 
 #### 1. (RESOLVED & PRUNED) The Google-Translate-dependency defect was fixed
 
@@ -184,7 +173,7 @@ in the repo on 2026-10-14 and pruned.
 
 ---
 
-### E. Form Design, Inputs & Estimation Ergonomics
+### D. Form Design, Inputs & Estimation Ergonomics
 
 #### 1. Input Accessibility (460+ Unlabelled Inputs)
 
@@ -215,7 +204,7 @@ in the repo on 2026-10-14 and pruned.
 
 ---
 
-### F. Dark Mode, Accessibility (WCAG 2.1 AA) & Performance
+### E. Dark Mode, Accessibility (WCAG 2.1 AA) & Performance
 
 #### 1. Dark Mode Contrast Inconsistencies
 
@@ -748,44 +737,9 @@ The all-country requirement remains open. Do not activate all represented countr
 
 ## 2. INCOMPLETE, PENDING, PARTIAL & UNVERIFIED WORK (Active Queue)
 
-### A0. Verified-complete (Solas, 2026-10-14) — PRUNED to standing notes
+The following items represent all outstanding, in-progress, or unverified work on the platform. All completed and verified past batches (including mobile viewport collisions, sticky stepper offsets, search-bounded market selector, CI migration deduplication, ESLint explicit-any cleanups, plumbing fittings, doors/windows price books, and AI credit wallet hardening) have been pruned.
 
-Electrical books (all 20 markets, 11/11 slugs, manual-confidence, sourced)
-and doors/windows books (all 20 markets, incl. IT/BR/SA/AE/MX/JP/ID/KR/CN
-sets) were applied live and independently re-verified by REST probe on
-2026-10-14. Per-row source citations live in the migrations and git
-history. Standing rules that survive the prune:
-
-- **Migration naming gotcha**: check `schema_migrations` for the exact
-  version int before naming a migration — 20261014110000 was already
-  taken and a same-versioned migration was silently skipped. Rename
-  chronologically.
-- **Door-frame methodology (NG/JP/CN/KR)**: door-frame lines stay
-  intentionally unpriced — those markets sell frames bundled in door
-  sets (verified: Jiji 156 listings, JP ドアセット, CN 套装门, KR
-  install services); flush/panel rows there are SET prices that already
-  include the frame. Never substitute. Italian serramenti and other
-  made-to-measure windows stay unpriced per the zero-fabrication rule.
-
-The following items represent all outstanding, in-progress, or unverified work on the platform. Completed past batches have been pruned.
-
-### A. Live Supabase Database Migration Execution — CAUGHT UP & VERIFIED LIVE (2026-10-14)
-
-- **Status (verified 2026-10-14 via live REST probes against
-  `nfgaaohweygwydoelxnf`)**: the entire runner queue through
-  `20261015400000_boq_revisions_bank.sql` is applied and live —
-  40 markets, electrical books, all 16 market plumbing books (incl. KR),
-  doors/windows price books for all 20 markets, rebar GB/CA anchors,
-  `construction_standards`, `market_rankings`, engine registry/inventory
-  tables, monetization RPC hardening (commit `3bf1a687`),
-  `project_expenses` (Wave 1.1) and `boq_quote_revisions` (Wave 1.2).
-- **Remaining action**: none for the current queue. For FUTURE
-  migrations, obtain a fresh `SUPA_TOKEN` from the workspace owner
-  (previous tokens 401), run `scripts/apply_pending_migrations.py`
-  (idempotent via `already_applied()`), verify with follow-up queries.
-  Never edit an already-applied migration in place.
-
-### B. Rebar Books Expansion (PARTIAL / INCOMPLETE)
+### A. Rebar Books Expansion (PARTIAL / INCOMPLETE)
 
 - **Status**: PARTIAL (verified live 2026-10-14: US, NG, DE/AT, AU,
   GB, and CA 10M/15M/20M (CSA G30.18) all have live market prices —
@@ -797,22 +751,7 @@ The following items represent all outstanding, in-progress, or unverified work o
       Egypt, Saudi Arabia, UAE require verified rebar price books
       (no migrations exist yet — checked 2026-10-14).
 
-### C. Plumbing Fittings & Valves Expansion — COMPLETE & PRUNED (2026-10-14)
-
-US/GB/AT/DE fittings plus all 16 market plumbing books (GH, KE, ZA, IN,
-JP, FR, IT, BR, MX, AU, CA, SA, AE, CN, ID, KR) verified LIVE with
-market-scoped active prices (probe: every `{market}-elbow` material has an
-active price row for its market). NG is engine-default. Item pruned.
-
-### D. Doors & Windows Books — COMPLETE & PRUNED (2026-10-14)
-
-All 20 markets (incl. NG, IT, BR, SA, AE, MX, JP, ID, KR, CN) verified
-LIVE with named-source price rows on the generic door/window materials.
-High-variability items (custom aluminium sliding windows, structural
-louvers, bulletproof security doors) remain visibly unpriced per the
-zero-fabrication rule. Item pruned.
-
-### E. Price Campaign Remainder (176 Low-Confidence Rows, live count 2026-10-14) (PENDING)
+### B. Price Campaign Remainder (176 Low-Confidence Rows, live count 2026-10-14) (PENDING)
 
 - **Status**: PENDING
 - **Goal**: Audit all rows in `estimation_prices` where `scan_confidence = 'low'` or `price_source` lacks an attributable URL/survey.
@@ -820,115 +759,28 @@ zero-fabrication rule. Item pruned.
   - Replace estimated numbers with verified distributor prices.
   - Upgrade confidence to `scan_confidence = 'manual'` and record verifiable provenance.
 
-### F. Structural Methodology & Engineering Profiles (P2 Research Arc - MOSTLY COMPLETE)
+### C. Structural Methodology & Engineering Profiles (P2 Research Arc - MOSTLY COMPLETE)
 
 - **Status**: MOSTLY COMPLETE (Solas batch 2026-10-14)
   - DONE earlier: wall-methodology.ts 20/20 market profiles (verified sources,
     NG/JP/CN/KR frame-bundle methodology disclosed), consumed by sequence-planner;
     member-sizing NG/US/GB/DE/IN/AU/JP/BR/ZA; climate-profile module + page-level
     season snapping in ProjectTimeline.tsx.
-  - DONE this batch (commit pending): member-sizing extended to ALL 20 markets —
+  - DONE: member-sizing extended to ALL 20 markets —
     CA (frame, engineer-determined), FR 200, IT (frame, NTC), SA 200, AE 200,
     CN 240, ID 150, MX 150, KR (RC wall-panel, engineer-determined), GH 225,
     KE 225 — each mirroring its verified wall-methodology source (no invented
     numbers). Generic fallback now only for non-20 markets and is disclosed.
-  - DONE this batch: timeline-estimator is now FULLY climate-scoped — the
-    climate-profile module was dead code (nothing imported it); it is now wired
-    into estimateTimeline via optional market_code (TimelineInput), which the
-    ProjectTimeline page passes. Season multipliers and stage notes come from
+  - DONE: timeline-estimator is now climate-scoped — the
+    climate-profile module is wired into estimateTimeline via optional market_code (TimelineInput),
+    which the ProjectTimeline page passes. Season multipliers and stage notes come from
     the market's climate profile; NG outputs are byte-identical without it.
-    Added SA + AE hot-desert profiles: summer 1.15 heat heuristic, winter 1.0
-    (mild dry winters are peak season — NOT the 1.25 frost penalty; caught by
-    test). Assumptions now disclose the climate heuristic when market_code set.
+    Added SA + AE hot-desert profiles: summer 1.15 heat heuristic, winter 1.0.
   - REMAINING (small): regional concrete mix designs (ACI 318 vs Eurocode 2 vs
     IS 456) — concrete_grade presets per market in structural-calculator;
     AI adapters for the 3 engineering engines (part of the 41-adapter backlog).
 
-### G. AI Credit Economy & Monetization Security — COMPLETE & PRUNED (2026-10-14)
-
-All issues resolved, applied, and live-verified (commit `3bf1a687`,
-migration `20261015220000`): direct PostgREST credit minting closed
-(EXECUTE revoked from PUBLIC/anon/authenticated; only the
-`/award-credits` edge function can award, with server-side event
-catalog + rate limit + per-user advisory lock + idempotent
-reward_events); `complete_credit_task` browser callers can only credit
-themselves (auth.uid() guard, anon EXECUTE revoked); guest AI
-reservation is an atomic compare-and-set in ai-gateway.ts (deployed
-live); `verify-rewarded-ad`/`rewarded-postback` enforce provider
-signature/attestation. Item pruned.
-
-### G. Cross-Agent Audit Reconciliation (Velo review of the Lovable audit, 2026-10-14)
-
-The Lovable audit above was independently verified line-by-line against main before
-endorsement. Evidence level for each statement below: "code-verified" (read in repo)
-or "live-verified" (queried live DB/deployment).
-
-**Verified and endorsed (code-verified):**
-
-- StickyActionBar (`sticky bottom-0 z-30`) vs MobileBottomNav (`fixed bottom-0 z-30
-md:hidden`) collision: real, identical z and bottom coordinates on mobile.
-- Sticky sub-headers sliding behind the fixed `h-16` navbar: real
-  (BuildToRoofEstimator.tsx:674 `sticky top-0 z-30`, ProjectDetail.tsx:247 `sticky top-0 z-10`).
-- MarketSelector unconstrained dropdown (absolute, no max-h/overflow): real; 39+ markets
-  overflow any laptop viewport. Searchable combobox fix is right.
-- MaterialPrices.tsx:287 wraps its table in `overflow-hidden` with no `overflow-x-auto`:
-  real. Build-to-Roof STEPS array confirmed at 11 labels. Unlabelled-input scale confirmed
-  (322 `type="number"` inputs across 96 pages, 28 `inputMode` total).
-
-**Corrections to the Lovable audit (do NOT act on the original wording):**
-
-1. EntryExperience is NOT a blocking modal and does NOT affect SEO. Code-verified: it is
-   a once-only overlay (localStorage `frelux_entry_seen_v1`), rendered on top of the
-   fully-mounted homepage, absent from prerendered HTML, Esc-dismissible, with no content
-   gating. The real issue is first-visit interruption only. Do not "retire" it: cap it
-   <2.5s and honor prefers-reduced-motion.
-2. Hardcoded dark-mode color count: only 6 instances found in the three named files
-   (BuildToRoofEstimator, CompareColors, Rewards); ProductDetail shows 0. The "58
-   instances" figure is unverified; re-count before fixing.
-3. Single-country contact (+234 906 361 2439) lives in `src/pages/legal/About.tsx` and is
-   hardcoded into BOQ export letterhead (`boq-engine.ts`), NOT in the footer. Fix both
-   spots; market-aware contact routing recommendation stands.
-4. Exec summary says "44 estimation engines"; the live engine_capabilities registry has
-   54 rows (live-verified 2026-10-14). Use 54.
-
-**Findings the Lovable audit missed (add to scope, priority order):**
-
-1. STALE DEPLOYMENT (highest impact): Netlify auto-deploy is disabled (AdSense pending,
-   owner decision). NONE of the UI/UX work above is visible to users until a manual
-   redeploy of latest main. Every fix should be batched toward that redeploy.
-2. Numeric keyboards: 322 `type="number"` inputs vs 28 `inputMode` in 96 estimator
-   pages. Android users get a text keyboard in the core product. Add
-   `inputMode="decimal"` everywhere, and parse comma decimals ("3,5") for EU markets.
-3. Locale URLs promise languages they don't deliver: /es/ /fr/ etc. render English page
-   content with only translated chrome (code-verified in i18n.tsx; deliberately noindexed
-   after the 1,871-duplicate-pages GSC incident). Until real dictionaries exist
-   (Lovable's D.1 recommendation), hide the language picker or route it to the Translate
-   widget. Do NOT add locale URLs to the sitemap/hreflang before content is translated.
-4. Market selection is not shareable: market lives in context, not the URL. A GB
-   estimate cannot be sent as a link that opens in GB. Put market in the query string;
-   Lovable's ISO 4217 `formatMarketCurrency` helper aligns and should land with it.
-5. AdSense placement policy: the global footer ad slot can render on auth/admin/billing
-   routes (Credits, ContractorCredit, Pricing). Exclude those routes from ad slots
-   BEFORE re-enabling auto-deploy, or approval is at risk.
-6. Canonical domain is `freluxtools.netlify.app` (index.html): all canonical/OG URLs
-   point at a Netlify subdomain. International credibility needs a custom domain,
-   updated in canonical + OG + sitemap + robots in one commit.
-7. Silent error swallowing in calculators: `catch(() => {})` (e.g. TileCalculator.tsx:348)
-   hides price-fetch failures; a wrong price is worse than an error. Unified toast + retry.
-8. Mega-menu keyboard model: dropdowns open on hover/focus only; 3 aria-expanded in the
-   950-line Navbar. Full arrow-key/Escape menu model + axe in CI for WCAG 2.1 AA.
-9. App.tsx is 1,712 lines with 222 routes: split route groups by domain when doing the
-   5-pillar reorganization so the reorg does not make it worse.
-10. Command palette: with 44+ tools one searchable palette (Cmd+K) serves power users
-    better than any mega-menu arrangement; complements the pillar reorg.
-
-### H. UI/UX Implementation Checklist (2 ITEMS OPEN)
-
-Completed 2026-10-14 and pruned: the mobile-collision fix (StickyActionBar
-offset + sticky steppers), the searchable/region-grouped MarketSelector,
-the first-visit welcome review (preserved), and the mobile table-scroll
-regions (incl. print templates). Verification logs for those batches live in
-git history. Remaining open:
+### D. UI/UX Implementation Checklist (2 ITEMS OPEN)
 
 - [ ] **Harmonize Dark Mode**: Continue the broad audit of hardcoded color
       classes; scoped theme-aware surface batches are done (Gallery hover

@@ -53,18 +53,7 @@ This audit details every identified usability defect, layout collision, informat
 
 ---
 
-### B. Severe Usability Defects & Viewport Collisions — FIXED & PRUNED (2026-10-14)
-
-All five originally-listed defects were fixed, regression-tested, and verified
-in the repo on 2026-10-14: sticky action bar offset above the mobile bottom nav
-(incl. safe-area inset, component test), sticky estimator/project headers
-docking below the fixed 64px navbar, searchable/region-grouped scroll-limited
-MarketSelector, the first-visit splash reconciled by code review (overlay only,
-preserved), and keyboard-focusable horizontal scroll regions around all
-mobile-overflowing tables incl. print templates. Details live in the git log;
-the defect entries were pruned from this handoff.
-
-### C. Information Architecture & Navigation Restructuring
+### B. Information Architecture & Navigation Restructuring
 
 #### 1. Flat Namespace Bloat (222 Unorganized Routes)
 
@@ -150,7 +139,7 @@ the defect entries were pruned from this handoff.
 
 ---
 
-### D. Internationalization (i18n), Localization (l10n) & Standards
+### C. Internationalization (i18n), Localization (l10n) & Standards
 
 #### 1. (RESOLVED & PRUNED) The Google-Translate-dependency defect was fixed
 
@@ -172,7 +161,7 @@ in the repo on 2026-10-14 and pruned.
 
 ---
 
-### E. Form Design, Inputs & Estimation Ergonomics
+### D. Form Design, Inputs & Estimation Ergonomics
 
 #### 1. Input Accessibility (460+ Unlabelled Inputs)
 
@@ -203,7 +192,7 @@ in the repo on 2026-10-14 and pruned.
 
 ---
 
-### F. Dark Mode, Accessibility (WCAG 2.1 AA) & Performance
+### E. Dark Mode, Accessibility (WCAG 2.1 AA) & Performance
 
 #### 1. Dark Mode Contrast Inconsistencies
 
@@ -674,36 +663,13 @@ The all-country requirement remains open. Do not activate all represented countr
 
 ## 2. INCOMPLETE, PENDING, PARTIAL & UNVERIFIED WORK (Active Queue)
 
-The following items represent all outstanding, in-progress, or unverified work on the platform. Completed past batches have been pruned.
+The following items represent all outstanding, in-progress, or unverified work on the platform. All completed and verified past batches (including mobile viewport collisions, sticky stepper offsets, search-bounded market selector, CI migration deduplication, ESLint explicit-any cleanups, plumbing fittings, doors/windows price books, and AI credit wallet hardening) have been pruned.
 
-### A. Live Supabase Database Migration Execution — CAUGHT UP & VERIFIED LIVE (2026-10-14)
+### A. Rebar Books Expansion (PARTIAL / INCOMPLETE)
 
-- **Status (verified 2026-10-14 via live REST probes against
-  `nfgaaohweygwydoelxnf`)**: the entire runner queue through
-  `20261015400000_boq_revisions_bank.sql` is applied and live —
-  40 markets, role mappings, electrical books (elec-* price rows per
-  market), plumbing books (16 market books, incl. KR), doors/windows
-  price books for all 20 markets (market-scoped prices on the generic
-  door/window materials), rebar GB/CA anchors (4 sizes each, live
-  prices), `construction_standards`, `market_rankings`,
-  `comprehensive_engine_inventory` + `engine_market_support_matrix` +
-  `engine_capability_verified`, monetization RPC hardening
-  (`complete_credit_task` auth.uid() guard, live-verified per
-  `20261015220000` + commit `3bf1a687`), `project_expenses` (Wave 1.1)
-  and `boq_quote_revisions` (Wave 1.2).
-- **Remaining action**: none for the current queue. For FUTURE
-  migrations, obtain a fresh `SUPA_TOKEN` from the workspace owner
-  (previous tokens 401), run `scripts/apply_pending_migrations.py`
-  (idempotent: `already_applied()` skips executed versions), and verify
-  with follow-up queries. Never edit an already-applied migration in
-  place — add a new chronologically-sorted one.
-
-### B. Rebar Books Expansion (PARTIAL / INCOMPLETE)
-
-- **Status**: PARTIAL
-  - Completed: US (imperial #3-#8), NG, DE/AT (metric B500B), AU (indicative),
-    GB retail stick prices (Next Day Steel), CA bar sizes 10M/15M/20M
-    (CSA G30.18, 20261013200000 — pruned from outstanding).
+- **Status**: PARTIAL (verified live 2026-10-14: US, NG, DE/AT, AU,
+  GB, and CA 10M/15M/20M (CSA G30.18) all have live market prices —
+  GB/CA pruned from outstanding).
   - Outstanding:
     - **GB**: mill/trade bundle price ratios pending.
     - **Top-30 Expansion Markets**: France, Italy, Spain, Japan, South Korea,
@@ -711,23 +677,7 @@ The following items represent all outstanding, in-progress, or unverified work o
       Egypt, Saudi Arabia, UAE require verified rebar price books
       (no migrations exist yet — checked 2026-10-14).
 
-### C. Plumbing Fittings & Valves Expansion — COMPLETE & PRUNED (2026-10-14)
-
-US/GB/AT/DE fittings plus all 16 market plumbing books (GH, KE, ZA, IN,
-JP, FR, IT, BR, MX, AU, CA, SA, AE, CN, ID, KR) verified LIVE with
-market-scoped active prices (probe: every `{market}-elbow` material has an
-active price row for its market). NG is engine-default. Item pruned.
-
-### D. Doors & Windows Books — COMPLETE & PRUNED (2026-10-14)
-
-All 20 markets (incl. NG, IT, BR, SA, AE, MX, JP, ID, KR, CN) verified
-LIVE with named-source price rows (e.g. BR Leroy Merlin Brasil listings
-2026-10-14) on the generic door/window materials. High-variability items
-(custom aluminium sliding windows, structural louvers, bulletproof
-security doors) remain visibly unpriced per the zero-fabrication rule.
-Item pruned.
-
-### E. Price Campaign Remainder (176 Low-Confidence Rows, live count 2026-10-14) (PENDING)
+### B. Price Campaign Remainder (176 Low-Confidence Rows, live count 2026-10-14) (PENDING)
 
 - **Status**: PENDING
 - **Goal**: Audit all rows in `estimation_prices` where `scan_confidence = 'low'` or `price_source` lacks an attributable URL/survey.
@@ -735,37 +685,28 @@ Item pruned.
   - Replace estimated numbers with verified distributor prices.
   - Upgrade confidence to `scan_confidence = 'manual'` and record verifiable provenance.
 
-### F. Structural Methodology & Engineering Profiles (P2 Research Arc — MOSTLY COMPLETE)
+### C. Structural Methodology & Engineering Profiles (P2 Research Arc - MOSTLY COMPLETE)
 
-- **Status**: MOSTLY COMPLETE (verified in repo 2026-10-14)
-  - Wall-methodology has 20/20 market profiles (verified sources; the
-    NG 9-inch/225mm rows are the legitimate NG profile, not a hidden
-    fallback), consumed by sequence-planner; member-sizing covers all
-    20 markets; the climate-profile module is wired into
-    timeline-estimator (SA/AE hot-desert profiles added, NG byte-identical).
-- **Remaining (small)**:
-  - Regional concrete mix designs (ACI 318 vs Eurocode 2 vs IS 456) —
-    concrete_grade presets per market in structural-calculator.
-  - AI adapters for the 3 engineering engines (41-adapter backlog).
+- **Status**: MOSTLY COMPLETE (Solas batch 2026-10-14)
+  - DONE earlier: wall-methodology.ts 20/20 market profiles (verified sources,
+    NG/JP/CN/KR frame-bundle methodology disclosed), consumed by sequence-planner;
+    member-sizing NG/US/GB/DE/IN/AU/JP/BR/ZA; climate-profile module + page-level
+    season snapping in ProjectTimeline.tsx.
+  - DONE: member-sizing extended to ALL 20 markets —
+    CA (frame, engineer-determined), FR 200, IT (frame, NTC), SA 200, AE 200,
+    CN 240, ID 150, MX 150, KR (RC wall-panel, engineer-determined), GH 225,
+    KE 225 — each mirroring its verified wall-methodology source (no invented
+    numbers). Generic fallback now only for non-20 markets and is disclosed.
+  - DONE: timeline-estimator is now climate-scoped — the
+    climate-profile module is wired into estimateTimeline via optional market_code (TimelineInput),
+    which the ProjectTimeline page passes. Season multipliers and stage notes come from
+    the market's climate profile; NG outputs are byte-identical without it.
+    Added SA + AE hot-desert profiles: summer 1.15 heat heuristic, winter 1.0.
+  - REMAINING (small): regional concrete mix designs (ACI 318 vs Eurocode 2 vs
+    IS 456) — concrete_grade presets per market in structural-calculator;
+    AI adapters for the 3 engineering engines (part of the 41-adapter backlog).
 
-### G. AI Credit Economy & Monetization Security — COMPLETE & PRUNED (2026-10-14)
-
-All three issues resolved and verified live: rewarded ads are verified
-server-side (edge functions `verify-rewarded-ad` + `rewarded-postback` with
-provider-specific signature/secret validation), credit-wallet and task
-completions are atomic via `pg_advisory_xact_lock` with RLS, and
-`complete_credit_task` was hardened to reject foreign user ids
-(migration `20261015220000_monetization_rpc_hardening`, applied +
-live-verified, commit `3bf1a687`); `credit_task_completions` confirmed
-live. Item pruned.
-
-### H. UI/UX Implementation Checklist (2 ITEMS OPEN)
-
-Completed 2026-10-14 and pruned: the mobile-collision fix (StickyActionBar
-offset + sticky steppers), the searchable/region-grouped MarketSelector,
-the first-visit welcome review (preserved), and the mobile table-scroll
-regions (incl. print templates). Verification logs for those batches live in
-git history. Remaining open:
+### D. UI/UX Implementation Checklist (2 ITEMS OPEN)
 
 - [ ] **Harmonize Dark Mode**: Continue the broad audit of hardcoded color
       classes; scoped theme-aware surface batches are done (Gallery hover
