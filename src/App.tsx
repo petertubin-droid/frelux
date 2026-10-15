@@ -149,6 +149,9 @@ const ProjectDashboard = lazy(
 );
 const PredictiveAnalytics = lazy(
   () => import("@/pages/contractor/PredictiveAnalytics"),
+)
+const IotTelemetry = lazy(
+  () => import("@/pages/contractor/IotTelemetry"),
 );
 const ComplianceStandards = lazy(
   () => import("@/pages/contractor/ComplianceStandards"),
@@ -1119,6 +1122,14 @@ export default function App() {
                         element={
                           <Suspense fallback={<PageLoader />}>
                             <PredictiveAnalytics />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/contractor/iot"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <IotTelemetry />
                           </Suspense>
                         }
                       />

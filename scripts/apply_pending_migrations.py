@@ -99,6 +99,7 @@ PENDING = [
     "20261017160000_tax_fx_engine4.sql",
     "20261017200000_compliance_engine5.sql",
     "20261017210000_translation_engine6.sql",
+    "20261018000000_iot_engine7.sql",
 ]
 
 
