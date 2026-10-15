@@ -34,7 +34,8 @@ A complete source-code and database migration audit was conducted across the act
 ### C. Supply Chain & Procurement
 
 - **Baseline State**: Schema for `supplier_profiles` and `supplier_inventory_items` exists (`20261016040000_hybrid_pricing_systems.sql`). Basic engine in `src/lib/international/supplier-inventory-engine.ts`.
-- **Planned for Priority 3**: Live supplier item linkage, integer packaging rounding (bags, cans, bundles), automated purchase orders.
+- **Partial implementation (2026-10-15)**: deterministic pack rounding and MOQ engine with explicit user-entered values only; project Procurement tab groups shopping rows and exports a CSV purchase requisition. Eight unit tests pass.
+- **Not complete**: supplier matching/live stock and quotes, persistence of packaging rules, approvals/signatures, PDF purchase orders, and supplier checkout are not implemented or verified. The requisition is not an order. See `TODO-AGENT-HANDOFF.md`, Priority 3 for remaining work and validation limits.
 
 ### D. Blueprint Intelligence, CAD & BIM
 
@@ -148,6 +149,6 @@ A complete source-code and database migration audit was conducted across the act
 - [x] **Phase 0**: Current-state audit & baseline inventory (COMPLETE)
 - [x] **Phase 1**: Secure Multi-User Collaboration & Enterprise RBAC (COMPLETE)
 - [x] **Phase 2**: International Finance & Multi-Currency (COMPLETE)
-- [ ] **Phase 3**: Supply Chain Intelligence & Procurement (Product Matching, Live Pricing, Purchase Lists)
+- [ ] **Phase 3**: Supply Chain Intelligence & Procurement (partial: local requisition CSV and explicit package rounding; supplier matching, persistence, approvals and PO workflows remain)
 - [ ] **Phase 4**: Blueprint Intelligence, CAD & BIM (Document Validation, Dimension Extraction, Engine Handoff)
 - [ ] **Phase 5**: Cross-Capability Verification & Market Matrix Validation

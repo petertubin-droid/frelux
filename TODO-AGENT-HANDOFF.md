@@ -684,24 +684,14 @@ See [`docs/ENTERPRISE-READINESS-PROGRESS.md`](docs/ENTERPRISE-READINESS-PROGRESS
 - Integrated UI tab (`src/components/workspace/ProjectFinanceTab.tsx`) mounted in `src/pages/ProjectDetail.tsx`.
 - Tests and verification: 13 tests passing, TypeScript clean.
 
-#### 4. Priority 3: Supply Chain & Procurement Intelligence — REMAINING WORK & IMPLEMENTATION STEPS
+#### 4. Priority 3: Supply Chain & Procurement Intelligence — PARTIAL IMPLEMENTATION (2026-10-15)
 
-- **Goal**: Connect geometric takeoff requirements to verified distributor products, enforce integer package rounding, and generate purchase orders with supplier links.
-- **Steps to Implement**:
-  1. _Schema Linkage_: Connect `public.supplier_inventory_items` to engine material roles (`market_material_roles`) across all 20 markets. Ensure each material can resolve to primary and alternative suppliers.
-  2. _Package Rounding Engine (`src/lib/procurement/packaging-engine.ts`)_:
-     - Implement commercial package rules: 50kg cement bags, 20L paint buckets, 12m rebar bundles, 25kg sandcrete bond bags, 1000-brick pallets.
-     - Provide dual reporting: exact theoretical quantity (for cost estimation) vs purchased packaging units (for field ordering and budget requisition).
-     - Calculate resulting material surplus and scrap allowance.
-  3. _Purchase Requisition & Order Generator (`src/lib/procurement/purchase-orders.ts`)_:
-     - Group takeoff items by trade supplier (Concrete & Masonry, Timber & Drywall, Steel & Rebar, MEP, Finishes).
-     - Include vendor contact, SKU, delivery lead-time, minimum order quantities (MOQ), and direct checkout/order URL.
-     - Generate exportable purchase orders in PDF and CSV format with approval signatures.
-  4. _UI Integration_:
-     - Add "Procurement & Orders" section into `ProjectDetail.tsx` or expand the Shopping tab with live vendor availability and package rounding toggle.
-  5. _Verification Gates_:
-     - Unit tests for packaging rounding edge cases (fractions, min-order thresholds).
-     - Integration test verifying purchase orders match takeoff line items.
+- Added `src/lib/procurement/packaging-engine.ts`: deterministic package rounding with explicit pack-size and MOQ inputs, no hardcoded market assumptions, and visible unconfigured state.
+- Added `src/lib/procurement/purchase-orders.ts`: groups project shopping rows by category and calculates requested quantity, package count, surplus, and an indicative total only when a project estimated rate exists.
+- Added `src/components/workspace/ProjectProcurementTab.tsx` and integrated the Procurement tab into `ProjectDetail.tsx`; users can enter package data and export a requisition CSV.
+- Verified 8 procurement unit tests, 347 estimation tests, and both TypeScript project checks.
+- Scope is deliberately a **purchase requisition prototype**, not a supplier-connected purchase order: supplier inventory/contacts/SKU/stock/lead-time/checkout links are not integrated; no approval signatures or PDF export; package data is browser-session state only and is not saved. Existing project estimated rates are not independently verified live prices. No migration was added or asserted applied.
+- Remaining work: verified supplier-to-market material-role linkage and data provenance; persist validated packaging specifications and approval workflow; include supplier quote/contact/stock/lead-time data only when sourced; produce approved PO exports (CSV/PDF) with signatures; integration testing against persisted takeoff/material lines and live supplier data.
 
 #### 5. Priority 4: Blueprint Intelligence, CAD & BIM Takeoff Integration — REMAINING WORK & IMPLEMENTATION STEPS
 

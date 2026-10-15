@@ -21,6 +21,8 @@ import {
 import { ProjectSiteLogsTab } from "@/components/workspace/ProjectSiteLogsTab";
 import { ProjectTeamTab } from "@/components/workspace/ProjectTeamTab";
 import { ProjectFinanceTab } from "@/components/workspace/ProjectFinanceTab";
+import { ProjectProcurementTab } from "@/components/workspace/ProjectProcurementTab";
+import { PackageCheck } from "lucide-react";
 import { Calendar, Users } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { useSeo } from "@/lib/seo";
@@ -82,6 +84,7 @@ type Tab =
   | "calculations"
   | "takeoff"
   | "shopping"
+  | "procurement"
   | "progress"
   | "finance"
   | "sitelogs"
@@ -94,6 +97,7 @@ const TABS: { key: Tab; label: string; icon: typeof TrendingUp }[] = [
   { key: "calculations", label: "Calculations", icon: Calculator },
   { key: "takeoff", label: "Takeoff & Risk", icon: ClipboardCheck },
   { key: "shopping", label: "Shopping", icon: ClipboardList },
+  { key: "procurement", label: "Procurement", icon: PackageCheck },
   { key: "progress", label: "Progress", icon: CheckCircle2 },
   { key: "finance", label: "Finance & BOQ", icon: DollarSign },
   { key: "sitelogs", label: "Site Logs", icon: Calendar },
@@ -737,6 +741,15 @@ export default function ProjectDetail() {
         {/* Shopping tab */}
         {tab === "shopping" && (
           <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-primary/20 bg-primary/5">
+              <div>
+                <p className="font-semibold text-sm">Need commercial package rounding or purchase requisitions?</p>
+                <p className="text-xs text-muted-foreground">Apply whole-pack rules and export a purchase requisition CSV.</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setTab("procurement")} className="shrink-0">
+                <PackageCheck className="h-4 w-4 mr-2 text-primary" /> Open Procurement Tab
+              </Button>
+            </div>
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-xl border bg-card p-5">
                 <p className="text-xs text-muted-foreground mb-1">
@@ -1293,6 +1306,13 @@ export default function ProjectDetail() {
               </Link>
             </div>
           </div>
+        )}
+        {tab === "procurement" && project && (
+          <ProjectProcurementTab
+            projectName={project.name || "Project"}
+            items={shoppingItems}
+            formatMoney={fmt}
+          />
         )}
         {tab === "finance" && project && (
           <ProjectFinanceTab project={project} />
