@@ -276,7 +276,7 @@ These are **draft backlog items**, not claims that work has started or that inte
 
 Process one country at a time. Complete evidence review, scoped implementation, tests and operational verification for a country; then update both handoff files with its evidence, status, changed capabilities, test results and remaining blockers before beginning the next country. Do not bundle unverified countries or mark a country operational because a previous market passed. Priority sequence: **US → UK (`GB`) → China (`CN`) → Italy (`IT`) → Nigeria (`NG`) → The Gambia (`GM`) → United Arab Emirates (`AE`) → every remaining country currently represented in FRELUX, one at a time.** `GM` is the ISO country code for The Gambia; Germany is `DE` and is not inferred from `GM`. If a country has no authoritative source/provider or accountable local review, document that blocker and keep the affected capability visibly partial/unverified rather than fabricating or skipping the gate.
 
-### Engine 1 market closeouts p1–p11 — COMPLETED 2026-10-15 (detail pruned; full evidence preserved in git history and per-market guard tests)
+### Engine 1 market closeouts p1–p21 — ALL 15 OWNER-MANDATED MARKETS COMPLETE (2026-10-15; detail pruned; full evidence preserved in git history and per-market guard tests)
 
 Rolled out strictly one-at-a-time. Each market has its own migration (applied to production and verified live via the Supabase Management API), a guard test in `src/lib/international/__tests__/`, and a dedicated commit. All migrations are registered in `scripts/apply_pending_migrations.py`.
 
@@ -293,6 +293,13 @@ Rolled out strictly one-at-a-time. Each market has its own migration (applied to
 | 9 | KE | `20261015710000` | National Building Code 2024 (LN 47, 2024-03-01, replaces 1968; 47-county caveat) + KS 2647:2016 + KS EAS 18-1 (high) |
 | 10 | ZA | `20261015720000` | NBR&BS Act 103/1977 + SANS 10400 (medium, municipal caveat) + SANS 2001-CC1/CC2 + SANS 10109-1/2 (high) |
 | 11 | CA | `20261015730000` | NBC 2020 (medium, MODEL code — provincial adoption caveat) + CAN/CSA-A82.31-M91 + CSA A82.30-M (high); stays hidden from picker per audit; placeholder product mappings untouched |
+| 12 | AU | `20261015740000` | NCC/BCA (medium, state/territory adoption caveat) + AS/NZS 2589:2017 + AS/NZS 2588 (high); picker hidden per audit |
+| 13 | DE | `20261015750000` | Musterbauordnung via 16 Landesbauordnungen (medium) + DIN EN 13914-1:2016 with DIN 18550-2 (high) |
+| 14 | IN | `20261015760000` | NBC 2026 SP 7:2026 (medium; NBC 2016 withdrawn; voluntary via state byelaws) + IS 2095-1 gypsum boards (high, mandatory QCO) |
+| 15 | JP | `20261015770000` | Building Standards Act 1950 (medium, confirmation caveat) + JIS A 6901:2014 gypsum boards (high, ISO 6308-aligned) |
+| 16 | FR | `20261015780000` | NF DTU 25.41 plasterboard works (high, Feb 2022 revision) + NF DTU 26.2 traditional renders (high) |
+| 17 | BR | `20261015790000` | ABNT NBR 14715-1:2021 drywall boards (high) + ABNT NBR 15575 performance (medium, municipal caveat) |
+| 21 | SA | `20261015800000` | Saudi Building Code 2024 edition (medium, mandatory nationwide 30 June 2025) + SASO gypsum application/finishing (high) |
 
 **Standing rules learned/confirmed in this rollout:**
 - Before naming any new migration file, `ls supabase/migrations` AND `git pull` — the parallel session actively consumes version numbers (collisions silently SKIP as "already recorded"; this bit GH twice).
@@ -300,101 +307,36 @@ Rolled out strictly one-at-a-time. Each market has its own migration (applied to
 - Full test suite stays deferred until every market in the rollout order is confirmed active (owner instruction); targeted guard tests + typecheck run per market before push.
 - Honest blockers carried forward: CN finishing price book; GM unsupported (no `market_profiles` row); CA placeholder cement/sand product mapping + picker hidden.
 
-### Australia market closeout (priority 12; audit only, 2026-10-14)
+### REMAINING MARKETS ROLLOUT QUEUE (next wave; NOT yet started)
 
-- **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Australia (`AU`) is a built-in active/visible, metric, AUD profile and country option. Yet seeded market facts/tests mark AU coming-soon and hidden, and priced calculations are gated; no live database read was performed to reconcile the state. Do not assert live AU availability from source configuration.
-- **Quantities/standards:** Australian metric terminology, local light-frame/typology and wall methodology, electrical profile (AS/NZS 3000) and plumbing profile (AS/NZS 3500) exist. The engine inventory marks some finishing, masonry/roofing and selected MEP capability, but marks many finish methods (including doors/windows and waterproofing) not implemented, and other engines partial or requiring verification. These are not a complete state/territory/code-specific quantity suite.
-- **Pricing/tax:** Selected AUD source-dated books exist for local electrical, plumbing and finishing; role/pricing mappings include Australian products. But joint tape mapping still points to a GB product slug, sandpaper is unpriced, and the 2026-10-13 ranking snapshot (7 prices, 5 mappings, 4 scan sources) is stale and does not establish current live deployment. A door/window migration explicitly says an Australian price capture was blocked and deliberately did not seed prices. Do not fill it from UK/American products. The scanner has a bounded AU retail catalog, not a continuous live market index. No state/territory GST treatment, comprehensive inflation/cost index or FX transaction evidence was verified; generic inventory “GST” labels are not proof of working AU tax calculation.
-- **Workforce compliance:** no Australian state/territory-specific contractor/trade registration, insurance, safety credential verification, expiry or revocation integration was established.
-- **Timeline/logistics:** broad climate/season heuristics exist, but do not cover state-specific public holidays, measured site productivity, remote-region supply lead times, customs/carrier feeds or predictive delay operation.
-- **Changes made for AU:** none. The live/fixture availability discrepancy, unimplemented/partial calculators, borrowed tape mapping and unavailable window/door prices block an accurate operational claim. Keep the market partial/unverified; next remaining market: **Germany (`DE`)**.
+The 15-market Engine-1 rollout is COMPLETE. The following markets remain from the broader 44-market audit, in priority order, each with its audit section below. They follow the same strict one-at-a-time gate (live-state check, web-verified standards, dedicated migration + guard test + handoff entry + commit, apply, live verify) before the next begins. Do not bundle them.
 
-#### Australia closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
-
-- **Live verification (2026-10-15):** AU profile `active` but **hidden from the picker** (`is_visible=false`, AUD — availability decision unchanged from the audit); **5 active role mappings** and **33 active AUD price rows** confirmed live; zero standards existed before this pass.
-- **Standards seeded (migration `20261015740000`, applied + verified live):** National Construction Code incl. Building Code of Australia volumes (ABCB) — adoption dates set by each state and territory (NCC 2022 adopted 1 May 2023; Amdt 1 from 1 May 2025; Amdt 2 from 29 July 2025; NCC 2025 adopting state-by-state from 1 May 2026) → `medium` with the state/territory caveat; AS/NZS 2589:2017 Gypsum linings — Application and finishing (Standards Australia) → `high`; AS/NZS 2588 Gypsum plasterboard (product spec) → `high`. No coverage rates asserted.
-- **Guard:** `src/lib/international/__tests__/au-construction-standards.test.ts` pins 3 rows only, the state-adoption caveat, both AS/NZS refs as high, no unsubstantiated URLs, idempotency.
-- **Remaining honest gaps (unchanged):** state approval workflows, workforce compliance, AU holiday/logistics calibration. AU Engine-1 standards complete; picker visibility intentionally unchanged. Next per owner order: **Germany (`DE`)**.
-
-### Germany market closeout (priority 13; audit only, 2026-10-14)
-
-- **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Germany (`DE`) has a built-in active/visible metric EUR profile with German terminology, and a dedicated reference price catalog. The seeded fixture does not cover DE, and this review did not query live production availability. Its apparent `active` setting is not evidence that every service is deployed or fully operational.
-- **Quantities/standards:** German-language product context, typology, DIN-oriented electrical and plumbing profiles, wall methodology and selected DIN/Eurocode construction assumptions are configured. The engine inventory explicitly marks several finishing methods (tyrolene, grafitex, mineral stone, stucco, flooring, waterproofing, doors/windows) and Build-to-Roof as not implemented; some other engine inventory entries are broad verified assertions rather than proof of source-backed, jurisdictional end-to-end tests. Local state/building requirements and project-specific structural design still require professionals.
-- **Pricing/tax:** source files contain a German EUR reference catalog and selected local plumbing, electrical, door/window and finishing prices. Internal 2026-10-13 snapshot lists 14 prices, 8 roles and 7 scan sources, but is not live and predates changes. France (`FR`) is currently mapped to Germany’s reference catalog in `price-scanner.ts`, so the reference scanner can present German products under French market/currency context; this is a concrete cross-market accuracy issue that remains open for FR’s own closeout. No comprehensive German supplier index/inflation system, VAT determination for individual transactions or real-time FX settlement was demonstrated.
-- **Workforce compliance:** no German trade-chamber registration/licensing, insurance, safety qualification verification, expiry or revocation integration was established.
-- **Timeline/logistics:** continental climate and seasonal heuristics exist, but the shared timeline excludes public holidays/customs/shipping and no German state-specific working calendar or supply-chain feed was verified.
-- **Changes made for DE:** none. Outstanding items include incomplete calculator coverage, no live-service verification, uncertain transaction-tax/pricing coverage, missing regulated workforce checks, and the FR-to-DE scanner alias. Keep DE classified partial/unverified for the requested global engines. Next remaining market: **India (`IN`)**.
-
-#### Germany closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
-
-- **Live verification (2026-10-15):** DE profile `active`/visible (EUR); **8 active role mappings** and **36 active EUR price rows** confirmed live (incl. the existing din-en-1451 drainage product ref).
-- **Standards seeded (migration `20261015750000`, applied + verified live):** Musterbauordnung (MBO) as enacted through the 16 state Landesbauordnungen (LBO) → `medium` with the Länder adoption caveat (CPR/BauPVO noted for construction products); DIN EN 13914-1:2016 external rendering together with DIN 18550-2:2015-06 German supplementary provisions for internal plastering → `high`. No coverage rates asserted.
-- **Guard:** `src/lib/international/__tests__/de-construction-standards.test.ts` pins 2 rows only, the MBO/LBO caveat, the DIN refs as high, no unsubstantiated URLs, idempotency.
-- **Remaining honest gaps (unchanged):** Land-level approval workflows, workforce (Handwerkskammer) verification, DE holiday/logistics calibration. DE Engine-1 standards complete. Next per owner order: **India (`IN`)**.
-
-### India market closeout (priority 14; audit only, 2026-10-14)
-
-- **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** India (`IN`) appears as active/visible, metric, INR in the built-in profile and country list. The seeded availability fixture does not include IN, and no live production query was made; the profile declaration is not evidence that all Indian services are actually deployed or enabled.
-- **Quantities/standards:** Indian profiles include IS/NBC electrical, plumbing, structural typology and wall/finish assumptions, along with Indian terminology and 40/50 kg pack references. The engine inventory explicitly marks a number of finish methods (including flooring, waterproofing, doors/windows) and Build-to-Roof not implemented, while other entries are broad verified claims that require their own source-backed tests. India-specific state/municipal variations and complete package/product coverage were not demonstrated.
-- **Pricing/tax:** The scanner has a dedicated INR catalog for selected cement, paint, primer, putty and waterproofing references. Local source migrations also add Indian electrical, plumbing and selected doors/windows records. The 2026-10-13 internal snapshot reports 12 price rows, 9 mappings, 7 scan sources but is a dated repository snapshot, not live verification. The cement mapping is explicitly price-pending approval; the doors/windows source leaves custom security and fabricated window/louver items unpriced. No end-to-end current supplier index, inflation tracker, state-specific GST computation or transaction FX operation was verified.
-- **Workforce compliance:** no India-wide/state/trade-specific license, insurance, safety credential, regulator verification, expiration or revocation integration was established.
-- **Timeline/logistics:** a monsoon-influenced climate heuristic and a rain-delay caution exist. The date estimator skips Sundays only; it does not account for Indian state holidays, regional monsoon timing, customs, carrier routes or live supply delays. No predictive logistics engine is established.
-- **Changes made for IN:** none. Partial country-specific profiles/catalogs do not satisfy the user's fully functional and accurate standard; keep the market classified partial/unverified until live availability, source-backed calculations, taxes, workforce credentials and calendars/logistics pass an end-to-end review. Next remaining market: **Japan (`JP`)**.
-
-#### India closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
-
-- **Live verification (2026-10-15):** IN profile `active`/visible (INR); **9 active role mappings** and **37 active INR price rows** confirmed live; zero standards existed before this pass.
-- **Standards seeded (migration `20261015760000`, applied + verified live):** National Building Code of India 2026 (SP 7:2026) — BIS has WITHDRAWN NBC 2016 (state byelaws referencing it remain valid until amended; NBC is voluntary nationally, applied through state/UT byelaws) → `medium` with the state-byelaw caveat; IS 2095-1 plain gypsum plaster boards (mandatory BIS QCO/ISI certification) → `high`. No coverage rates asserted.
-- **Guard:** `src/lib/international/__tests__/in-construction-standards.test.ts` pins 2 rows only, the withdrawal+voluntary caveat, the QCO note, no unsubstantiated URLs, idempotency.
-- **Remaining honest gaps (unchanged):** state byelaw verification, workforce compliance, IN holiday/logistics calibration. IN Engine-1 standards complete. Next per owner order: **Japan (`JP`)**.
-
-### Japan market closeout (priority 15; scoped scanner safety fix, 2026-10-14)
-
-- **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Japan (`JP`) is in the country selector and built-in profile as active/visible, metric, JPY; no corresponding JP case exists in the seeded availability fixture and no live production-state query was run. This leaves active service availability unverified.
-- **Quantities/standards:** Japanese profile context includes local gypsum/plasterboard formats and warnings that tatami area varies regionally, plus JIS-oriented electrical/plumbing configurations, seasonal climate heuristic and selected typology/wall-methodology logic. Engine inventory marks electrical/plumbing and finishing subsets verified but several finishes/doors-windows and Build-to-Roof not implemented; structural categories remain partial. This does not demonstrate exhaustive Japanese building-law, regional seismic, fire, packaging or quantity-method review.
-- **Pricing/tax:** Source migrations include Japanese plumbing and selected door/hardware prices in JPY; custom fabricated windows/louvers are not priced. The 2026-10-13 ranking snapshot reports 8 book rows, 8 role mappings and zero scanner sources, predating later migrations and not live proof. The reference scanner had mapped `JP` to `CA_REFERENCE_PRICES`, so it could compare Canadian products/amounts while labelling the report JPY. **Scoped safety fix:** introduced an empty `JP_REFERENCE_PRICES` catalog rather than expose that false comparison; added a regression test. This scanner change is separate from the JP-specific SQL price books and does not prove their production deployment. No nationwide live supplier index, inflation tracking, consumption-tax treatment for transactions or real-time FX settlement was verified.
-- **Workforce compliance:** no Japanese trade qualification/permit, insurance, safety credential, regulator verification or expiry/revocation integration was established.
-- **Timeline/logistics:** four-season climate notes are heuristics, not prefecture/site-calibrated work schedules. The date estimator excludes public holidays and customs/shipping; no national/prefecture holiday calendar or carrier/import lead-time feed was verified.
-- **Changes made for JP:** removed the Canada-catalog alias, added an empty catalog and regression test. Focused `src/lib/estimation/price-scanner.test.ts`: 18 tests passed; TypeScript and `git diff --check` passed. No full test suite/build was run for this narrow fix. Japan remains partial/unverified for full operational accuracy. Next remaining market: **France (`FR`)**; note its separate DE-reference alias for its upcoming market closeout.
-
-#### Japan closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
-
-- **Live verification (2026-10-15):** JP profile `active`/visible (JPY); **8 active role mappings** and **32 active JPY price rows** confirmed live (incl. the existing jp-gypsum-box product ref).
-- **Standards seeded (migration `20261015770000`, applied + verified live):** Building Standards Act (Law No. 201 of 1950) — national law enforced through the building-confirmation/inspection system (MLIT / local building officials) → `medium` with the confirmation caveat; JIS A 6901:2014 Gypsum Boards — JIS product standard integrating the former 5 gypsum-board specs, aligned with ISO 6308 → `high`. No coverage rates asserted.
-- **Guard:** `src/lib/international/__tests__/jp-construction-standards.test.ts` pins 2 rows only, the confirmation caveat, the JIS ref as high, no unsubstantiated URLs, idempotency.
-- **Remaining honest gaps (unchanged):** local building-confirmation workflow verification, workforce compliance, JP holiday/logistics calibration. JP Engine-1 standards complete. Next per owner order: **France (`FR`)**.
-
-### France market closeout (priority 16; scoped scanner safety fix, 2026-10-14)
-
-- **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** France (`FR`) has a built-in active/visible metric, French-language/EUR profile, but inherits unspecified context from Germany (`DE`). No live production-state check was performed. Inherited German defaults cannot be presented as French-validated without review.
-- **Quantities/standards:** French typology/wall methodology, climate heuristic, electrical/plumbing profiles and local finish terminology exist. Selected masonry/roof/foundation and several finish methods are partial; the inventory explicitly marks multiple finishing categories (including doors/windows, flooring, waterproofing and Build-to-Roof) not implemented. Generic EU inheritance is not verification of French codes, local/regional methods or every calculator.
-- **Pricing/tax:** FR-specific EUR references and source-dated material books exist for selected local products, plumbing, doors/hardware, finish and labor. However, the scanner had been mapping France to Germany's `DE_REFERENCE_PRICES`, a country mismatch; **scoped fix** replaces it with an empty `FR_REFERENCE_PRICES` until France has a verified scanner dataset, and tests that no German references are emitted under France. Product-mapping migration flags explicit unresolved pack mismatches (`fr-enduit-5kg` describes 15 kg, `fr-hydrofuge-5l` describes 10 L, and `fr-sable-25kg` describes 35 kg), each pending admin review. The 2026-10-13 snapshot reported 8 prices, 9 mappings, zero scanner sources but is stale and not live verification. No live inflation/material index, transaction-level French VAT calculation or FX settlement was confirmed.
-- **Workforce compliance:** no French trade credential/insurance/safety registry verification, renewal or revocation monitoring was verified.
-- **Timeline/logistics:** Mediterranean/temperate climate is a broad heuristic; the shared calendar skips Sundays, not French public holidays. No French holiday, carrier/customs or predictive logistics feed was established.
-- **Changes made for FR:** removed German scanner-price alias, added an empty French scanner catalog and regression test. Focused scanner tests: 19 passed; TypeScript and `git diff --check` passed. No full suite/build run for this narrow fix. France remains partial/unverified against the fully operational accuracy bar. Next remaining market: **Brazil (`BR`)**.
-
-#### France closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
-
-- **Live verification (2026-10-15):** FR profile `active`/visible (EUR); **10 active role mappings** and **33 active EUR price rows** confirmed live (existing refs: webercol-flex, nf-dtu-42-1 — untouched).
-- **Standards seeded (migration `20261015780000`, applied + verified live):** NF DTU 25.41 — ouvrages en plaques de plâtre (NF DTU status = French standard, revised February 2022) → `high`; NF DTU 26.2 — enduits traditionnels de ciment, chaux et mortier de ciment (rendering/plastering workmanship) → `high`. EN 520 / EN 998-1 / EN 13279 adoption noted. No coverage rates asserted.
-- **Guard:** `src/lib/international/__tests__/fr-construction-standards.test.ts` pins 2 rows only, the Feb 2022 revision, both DTUs as high, no unsubstantiated URLs, idempotency.
-- **Remaining honest gaps (unchanged):** permis de construire/DTA workflow verification, workforce (qualibat) verification, FR holiday/logistics calibration. FR Engine-1 standards complete. Next per owner order: **Brazil (`BR`)**.
-
-### Brazil market closeout (priority 17; scoped scanner safety fix, 2026-10-14)
-
-- **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Brazil (`BR`) appears in the selector and built-in profile as active/visible, metric, BRL, Portuguese. No live production-state check was performed; this does not prove all market calculators and data are currently deployed.
-- **Quantities/standards:** Brazilian terminology and selected ABNT/NBR-oriented electrical, plumbing, masonry/typology and wall-methodology profiles exist. The inventory marks several broader finishing categories as verified, but explicitly marks several methods (including flooring, waterproofing, doors/windows and Build-to-Roof) not implemented; masonry, roofing, foundation, structural and reinforcement takeoffs are partial. Local/state/city code and project-specific engineering are not comprehensively validated.
-- **Pricing/tax:** Repository sources include selected BRL material, electrical, plumbing and door/hardware prices with local retailers/products. The 2026-10-13 internal snapshot reports 8 price rows, 9 mappings and zero scan sources, but is stale and not live verification. Some categories remain indicative or unpriced. The scanner mapped Brazil to Mexico’s MX reference catalog, which could present Mexican products/amounts as Brazilian currency. **Scoped safety fix:** added an empty `BR_REFERENCE_PRICES` catalog and test instead of re-labeling those Mexican references as BRL. This does not affect separate Brazil-specific database books or establish their deployment. No broad current market index, inflation tracking, transaction FX or verified tax regime computation was found.
-- **Workforce compliance:** no CREA/CAU professional-registration check, trade credential/insurance/safety verification, expiration/revocation integration was confirmed. The structural typology itself notes ART/CREA and geotechnical engineer requirements; a code note is not a working credentials engine.
-- **Timeline/logistics:** tropical/temperate rainy-season heuristics are not region/site calibrated. The shared date estimate omits local holidays, customs/shipping and location-specific work calendars; no Brazil-specific carrier/logistics feed was found.
-- **Changes made for BR:** removed the Mexico reference catalog alias, added empty BR catalog and regression test. Focused scanner suite: 20 tests passed; TypeScript and `git diff --check` passed. No full suite/build run for this narrow correction. Brazil remains partial/unverified against the operational accuracy requirement. Next remaining market: **Indonesia (`ID`)**.
-
-#### Brazil closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
-
-- **Live verification (2026-10-15):** BR profile `active`/visible (BRL); **9 active role mappings** and **35 active BRL price rows** confirmed live (existing suvinil/argalit refs untouched).
-- **Standards seeded (migration `20261015790000`, applied + verified live):** ABNT NBR 14715-1:2021 — chapas de gesso para drywall, Parte 1 requisitos (with NBR 14715-2 test methods) → `high`; ABNT NBR 15575 — edificações habitacionais, desempenho (performance standard, applied through municipal codes/Caixa financing, Part 1 revised 2024) → `medium` with the municipal caveat. No coverage rates asserted.
-- **Guard:** `src/lib/international/__tests__/br-construction-standards.test.ts` pins 2 rows only, both ABNT refs, the municipal caveat, no unsubstantiated URLs, idempotency.
-- **Remaining honest gaps (unchanged):** municipal code verification, workforce (CREA) verification, BR holiday/logistics calibration. BR Engine-1 standards complete. Next per owner order: **Saudi Arabia (`SA`)**.
+- Indonesia
+- Mexico
+- South Korea
+- Ethiopia
+- Egypt
+- Tanzania
+- Côte d’Ivoire
+- Spain
+- Netherlands
+- Poland
+- Sweden
+- Switzerland
+- Singapore
+- Türkiye
+- New Zealand
+- Ireland
+- Norway
+- Malaysia
+- Philippines
+- Pakistan
+- Portugal
+- Austria
+- Belgium
+- Denmark
+- Finland
+- Thailand
 
 ### Indonesia market closeout (priority 18; audit only, 2026-10-14)
 
@@ -422,23 +364,6 @@ Rolled out strictly one-at-a-time. Each market has its own migration (applied to
 - **Workforce compliance:** no Korean license/credential verification, regional eligibility, insurance/safety registry, or expiry/revocation integration was demonstrated.
 - **Timeline/logistics:** the climate profile only gives broad summer/winter seasons; no public-holiday/site-calendar integration, construction-weather productivity validation, import/customs feed or predictive shipping-delay engine was established.
 - **Changes made for KR:** none. Keep market functionality partial until production role mappings, current source-backed prices, regional standards, tax, workforce and timeline/logistics are validated. Next remaining market: **Saudi Arabia (`SA`)**.
-
-### Saudi Arabia market closeout (priority 21; audit and scanner safety fix, 2026-10-14)
-
-- **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Saudi Arabia (`SA`) has an active visible metric, SAR, Arabic-language profile and local terminology. No live production status query was made.
-- **Quantities/standards:** Local Saudi Building Code/SASO typology and SBC 401 electrical/SBC 701 plumbing profiles are present; the construction note requires geotechnical investigation for sabkha soils and stamped review by a Saudi Council of Engineers-registered bureau. Inventory shows several finish/door/window calculators and Build-to-Roof not implemented; structural, roofing, foundation and reinforcement remain preliminary/partial.
-- **Pricing/tax:** A dedicated Saudi profile has some local references: an internal 2026-10-13 snapshot reports 8 price rows and 7 role mappings, with MP75 deliberately unmapped, and zero retailer scan sources. Saudi-specific electrical, door/window and plumbing price-book migrations exist; repo evidence does not prove migration application/current live prices or full quantity role coverage. No current live refresh, regional cost index, or Saudi-specific VAT/tax calculation was verified.
-- **Cross-market safety fix:** Price scanner incorrectly mapped `SA` to US reference prices while formatting results as SAR. Replaced the alias with an empty typed Saudi catalog until Saudi references are verified, and added a regression ensuring no USD references appear as SAR. Focused scanner tests: 21 passed; TypeScript and `git diff --check` passed.
-- **Workforce compliance:** no Saudi Council of Engineers/license registry, contractor insurance/safety credential validation, expiry or revocation integration was demonstrated.
-- **Timeline/logistics:** broad hot-desert seasonal heuristics only; no region-specific heat productivity, public-holiday/site calendar, procurement lead-time/customs or predictive international logistics engine was verified.
-- **Remaining operational gate:** confirm deployed mapping/prices, complete source-backed regional packages, tax, licensed-professional and calendar/logistics integrations before describing this market as verified. Next remaining market: **Ethiopia (`ET`)**.
-
-#### Saudi Arabia closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
-
-- **Live verification (2026-10-15):** SA profile `active`/visible (SAR); **7 active role mappings** and **31 active SAR price rows** confirmed live (existing knauf-mp75-datasheet ref untouched) — resolving the audit snapshot uncertainty with a live query.
-- **Standards seeded (migration `20261015800000`, applied + verified live):** Saudi Building Code — 2024 edition, mandatory nationwide since 30 June 2025 (first major revision since SBC 2018; e.g. SBC 301 based on ASCE) → `medium` with the edition caveat; SASO Standard Specification for Application and Finishing of Gypsum Board (official SASO standards library, 1444H; ISO 6308/EN 520 adoption noted for products) → `high`. No coverage rates asserted.
-- **Guard:** `src/lib/international/__tests__/sa-construction-standards.test.ts` pins 2 rows only, the mandatory/edition caveats, the SASO ref as high, no unsubstantiated URLs, idempotency.
-- **Remaining honest gaps (unchanged):** Baladiyah permit workflow verification, workforce (Saudi Council of Engineers) verification, SA holiday/climate calibration. SA Engine-1 standards complete. **This closes the owner-mandated 15-market Engine-1 rollout: all 15 markets now have verified jurisdiction standards.**
 
 ### Ethiopia market closeout (priority 22; audit only, 2026-10-14)
 
