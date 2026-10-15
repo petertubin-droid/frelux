@@ -35,7 +35,7 @@ function LocaleAwareRoutes({ children }: { children: ReactNode }) {
   return <SentryRoutes>{children}</SentryRoutes>;
 }
 import { useEffect, useState, lazy, Suspense, type ReactNode } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { MarketProvider } from "@/lib/international/market-context";
@@ -466,6 +466,12 @@ function RedirectToHub({ to, mode }: { to: string; mode?: string }) {
   return null;
 }
 
+
+function ProjectIdRedirect() {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={id ? `/contractor/projects/${id}` : "/my-projects"} replace />;
+}
+
 export default function App() {
   // FRELUX Entry Experience visibility: it gets exactly one chance, ever -
   // a brand-new visitor whose very first page load is the homepage.
@@ -555,8 +561,9 @@ export default function App() {
                         </Suspense>
                       }
                     />
-                    {/* Category landing URLs organize the tool library while
-                        preserving every existing calculator URL. */}
+                    {/* 5 Core Pillars Structure (Section 1.B.1 / 2.D.2) */}
+
+                    {/* Pillar 1: Tools & Estimators (/tools/) */}
                     <Route
                       path="/tools"
                       element={<Navigate to="/construction-tools" replace />}
@@ -569,6 +576,48 @@ export default function App() {
                         </Suspense>
                       }
                     />
+                    {/* Pillar 1 categorized tool subroutes */}
+                    <Route path="/tools/finishes/paint" element={<Navigate to="/paint-calculator" replace />} />
+                    <Route path="/tools/finishes/tiles" element={<Navigate to="/tile-calculator" replace />} />
+                    <Route path="/tools/finishes/screeding" element={<Navigate to="/screeding-calculator" replace />} />
+                    <Route path="/tools/finishes/pop" element={<Navigate to="/pop-ceiling-calculator" replace />} />
+                    <Route path="/tools/finishes/flooring" element={<Navigate to="/flooring" replace />} />
+                    <Route path="/tools/finishes/waterproofing" element={<Navigate to="/waterproofing" replace />} />
+                    <Route path="/tools/structure/build-to-roof" element={<Navigate to="/build-to-roof-estimator" replace />} />
+                    <Route path="/tools/structure/concrete" element={<Navigate to="/structural-calculator" replace />} />
+                    <Route path="/tools/structure/foundation" element={<Navigate to="/foundation-calculator" replace />} />
+                    <Route path="/tools/structure/rebar" element={<Navigate to="/reinforcement" replace />} />
+                    <Route path="/tools/services/electrical" element={<Navigate to="/electrical" replace />} />
+                    <Route path="/tools/services/plumbing" element={<Navigate to="/plumbing" replace />} />
+                    <Route path="/tools/services/solar" element={<Navigate to="/solar-pv-estimator" replace />} />
+                    <Route path="/tools/services/comfort" element={<Navigate to="/heat-comfort" replace />} />
+                    <Route path="/tools/components/doors-windows" element={<Navigate to="/doors-windows" replace />} />
+                    <Route path="/tools/project/boq" element={<Navigate to="/boq-generator" replace />} />
+                    <Route path="/tools/project/labour" element={<Navigate to="/labour-estimator" replace />} />
+                    <Route path="/tools/project/margin" element={<Navigate to="/margin-calculator" replace />} />
+                    <Route path="/tools/project/timeline" element={<Navigate to="/project-timeline" replace />} />
+                    <Route path="/tools/project/cash-flow" element={<Navigate to="/cash-flow-timeline" replace />} />
+                    <Route path="/tools/ai/photo-estimator" element={<Navigate to="/smart-calculator" replace />} />
+                    <Route path="/tools/ai/color-assistant" element={<Navigate to="/ai-color-assistant" replace />} />
+                    <Route path="/tools/ai/defects" element={<Navigate to="/defect-diagnosis" replace />} />
+
+                    {/* Pillar 2: Prices & Market Intelligence (/prices/) */}
+                    <Route path="/prices/trends" element={<Navigate to="/prices" replace />} />
+                    <Route path="/prices/regional-indices" element={<Navigate to="/regional-cost-index" replace />} />
+
+                    {/* Pillar 3: Project Workspace (/projects/) */}
+                    <Route path="/projects" element={<Navigate to="/my-projects" replace />} />
+                    <Route path="/projects/templates" element={<Navigate to="/templates" replace />} />
+                    <Route path="/projects/:id" element={<ProjectIdRedirect />} />
+
+                    {/* Pillar 4: Network & Commerce (/network/) */}
+                    <Route path="/network" element={<Navigate to="/pro-connect" replace />} />
+                    <Route path="/network/pros" element={<Navigate to="/pro-connect" replace />} />
+                    <Route path="/network/marketplace" element={<Navigate to="/marketplace" replace />} />
+
+                    {/* Pillar 5: Knowledge & Enterprise (/learn/) */}
+                    <Route path="/learn/glossary" element={<Navigate to="/learn" replace />} />
+
                     {/* Legacy path: every internal link, WhatsApp share and
                         search result pointing at /calculators keeps working. */}
                     <Route

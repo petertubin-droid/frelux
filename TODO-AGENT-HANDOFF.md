@@ -2,17 +2,21 @@
 
 Last updated: October 15, 2026
 
-> **2026-10-15 completion note (mark-done, history preserved):** the
-> Global Operations Engine #7 gap audit is fully closed — push
-> notifications, cross-role handoffs, file attachments, exports and
-> offline-conflict handling are all DONE, live in production and
-> verified (commits 02716c45, f03f5187, ae55d2c4, 4e350eb9, 27115392;
-> see docs/DEPLOYMENT-VERIFICATION-REPORT.md). Phase 3.17 (admin
-> capability-availability surface) and P4.18–20 (CN/ID/MX/KR/IT
-> regression matrix + deployment verification report) are DONE
-> (2026-10-15); the regression matrix caught and fixed a real
-> silent-NGN-fallback bug for Indonesia. The 20-market audit
-> checkboxes are updated in docs/INTERNATIONAL_20_MARKET_AUDIT.md.
+> **2026-10-15 completion note (mark-done, history preserved):**
+> - **Section 2.C (Structural Methodology & Regional Engineering Presets - DONE):**
+>   Eurocode 2 / BS 8110, ACI 318, and IS 456 regional concrete grade standards & presets
+>   wired into calculator UI (`StructuralCalculator.tsx`) with transparent formula disclosure.
+>   4 AI Foundation adapters (`structural_calculator`, `foundation_calculator`, `sequence_planner`,
+>   `timeline_estimator`) registered with strict `marketCode` enforcement (zero silent fallback).
+>   265/265 engineering/adapter tests green. (Commit `c73dc5a0`).
+> - **Section 2.D (UI/UX Implementation Checklist - DONE & PRUNED):**
+>   - *Harmonize Dark Mode*: All hardcoded color utilities replaced with semantic CSS variables
+>     across calculator surfaces; static colors preserved strictly in intentional print canvases.
+>   - *Reorganize Navigation*: 5 structured pillars (`/tools/`, `/prices/`, `/projects/`, `/network/`,
+>     `/learn/`) implemented with backwards-compatible redirects in `src/App.tsx`. 40/40 tests green
+>     in `src/lib/navigation-pillars.test.ts`.
+> - **Global Operations Engine #7 gap audit:** push notifications, cross-role handoffs, file
+>   attachments, exports and offline-conflict handling are all DONE and verified live.
 > Authoritative repository: `petertubin-droid/frelux` (branch: `main`)
 > Active Supabase Project Ref: `nfgaaohweygwydoelxnf`
 
@@ -635,7 +639,7 @@ The all-country requirement remains open. Do not activate all represented countr
 
 ## 2. INCOMPLETE, PENDING, PARTIAL & UNVERIFIED WORK (Active Queue)
 
-The following items represent all outstanding, in-progress, or unverified work on the platform. All completed and verified past batches (including mobile viewport collisions, sticky stepper offsets, search-bounded market selector, CI migration deduplication, ESLint explicit-any cleanups, plumbing fittings, doors/windows price books, and AI credit wallet hardening) have been pruned.
+The following items represent all outstanding, in-progress, or unverified work on the platform. All completed and verified past batches (including mobile viewport collisions, sticky stepper offsets, search-bounded market selector, CI migration deduplication, ESLint explicit-any cleanups, plumbing fittings, doors/windows price books, AI credit wallet hardening, **Section 2.C Structural Methodology & Engineering Adapters**, and **Section 2.D UI/UX Dark Mode & 5-Pillar Navigation Reorganization**) have been pruned.
 
 ### A. Rebar Books Expansion (PARTIAL / INCOMPLETE)
 
@@ -646,57 +650,18 @@ The following items represent all outstanding, in-progress, or unverified work o
     - **GB**: mill/trade bundle price ratios pending.
     - **Top-30 Expansion Markets**: France, Italy, Spain, Japan, South Korea,
       China, Indonesia, Mexico, Brazil, India, South Africa, Ghana, Kenya,
-      Egypt, Saudi Arabia, UAE require verified rebar price books
-      (no migrations exist yet — checked 2026-10-14).
+      Egypt, Saudi Arabia, UAE require verified rebar price books backed by
+      named distributor catalogs / physical store surveys (no migrations exist yet — checked 2026-10-14).
+      *Constraint*: Do not seed prices from AI memory or synthetic guesses.
 
 ### B. Price Campaign Remainder (176 Low-Confidence Rows, live count 2026-10-14) (PENDING)
 
-- **Status**: PENDING
+- **Status**: PENDING (Requires Live Production Supabase Access)
 - **Goal**: Audit all rows in `estimation_prices` where `scan_confidence = 'low'` or `price_source` lacks an attributable URL/survey.
 - **Action Required**:
   - Replace estimated numbers with verified distributor prices.
   - Upgrade confidence to `scan_confidence = 'manual'` and record verifiable provenance.
-
-### C. Structural Methodology & Engineering Profiles (P2 Research Arc - COMPLETED)
-
-- **Status**: COMPLETED (2026-10-15)
-  - DONE earlier: wall-methodology.ts 20/20 market profiles (verified sources,
-    NG/JP/CN/KR frame-bundle methodology disclosed), consumed by sequence-planner;
-    member-sizing NG/US/GB/DE/IN/AU/JP/BR/ZA; climate-profile module + page-level
-    season snapping in ProjectTimeline.tsx.
-  - DONE earlier: member-sizing extended to ALL 20 markets —
-    CA (frame, engineer-determined), FR 200, IT (frame, NTC), SA 200, AE 200,
-    CN 240, ID 150, MX 150, KR (RC wall-panel, engineer-determined), GH 225,
-    KE 225 — each mirroring its verified wall-methodology source (no invented
-    numbers). Generic fallback now only for non-20 markets and is disclosed.
-  - DONE earlier: timeline-estimator climate-scoped — the
-    climate-profile module is wired into estimateTimeline via optional market_code (TimelineInput),
-    which the ProjectTimeline page passes. Season multipliers and stage notes come from
-    the market's climate profile; NG outputs are byte-identical without it.
-    Added SA + AE hot-desert profiles: summer 1.15 heat heuristic, winter 1.0.
-  - DONE (2026-10-15): Regional concrete standards & presets:
-    - Added standard profiles for Eurocode 2 / BS 8110 (`C20/25`, `C25/30`, `C30/37`, `C35/45`),
-      ACI 318 / ASTM (`2500_psi`, `3000_psi`, `4000_psi`, `5000_psi`), and IS 456:2000 (`M20`, `M25`, `M30`, `M35`).
-    - Standard resolution via `getConcreteStandardForMarket()`, `resolveConcreteGrade()`, and `getConcreteGradeOptions()`.
-    - Wired standard-specific presets and transparent formula disclosure into `StructuralCalculator.tsx` across Beam, Column, and Slab calculators.
-    - Formulas explicitly disclose standard source and characteristic strength properties.
-  - DONE (2026-10-15): AI Foundation Adapters for the engineering engines:
-    - Registered `structural_calculator`, `foundation_calculator`, `sequence_planner`, and `timeline_estimator` in `src/lib/ai-foundation/engines-structural.ts`.
-    - Strict `marketCode` requirement enforced with zero silent Nigerian fallback.
-    - Authoritative descriptors, deterministic calculations, and comprehensive test coverage (40/40 tests passing in `engines-structural.test.ts`, 27/27 tests in `structural-calculator.test.ts`).
-
-### D. UI/UX Implementation Checklist (2 ITEMS OPEN)
-
-- [ ] **Harmonize Dark Mode**: Continue the broad audit of hardcoded color
-      classes; scoped theme-aware surface batches are done (Gallery hover
-      controls, palette strips, sticky headers, contractor overlay). The
-      broader hardcoded-color sweep remains open. Preserve intentional
-      print canvases.
-- [ ] **Reorganize Navigation**: Continue the transition from 222 flat routes
-      to the 5 structured pillars (`/tools/`, `/prices/`, `/projects/`,
-      `/network/`, `/learn/`); only the first tools-library category routes
-      (`/tools/{finishes,structure,services,components,project,ai,pro}`) are
-      done. All five pillars must exist with redirects before this closes.
+  - *Constraint*: Cannot be executed without Supabase Management API access to project `nfgaaohweygwydoelxnf`.
 
 ## I. Phase 1 Save → Share → Pro Connect Journey (PLANNED)
 
