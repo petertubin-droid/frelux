@@ -434,7 +434,7 @@ export default function LearnArticle() {
           {/* Table of contents sidebar (desktop) */}
           {tableOfContents.length > 0 && (
             <aside className="hidden w-56 shrink-0 lg:block">
-              <div className="sticky top-8">
+              <div className="sticky top-20">
                 <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                   <BookOpen className="h-3.5 w-3.5" /> Contents
                 </div>

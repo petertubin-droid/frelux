@@ -69,6 +69,8 @@ PENDING = [
     "20261015460000_keys_public_disclosure.sql",
     "20261016020000_workflow_participants.sql",
     "20261016030000_workflow_attachments.sql",
+    "20261016040000_hybrid_pricing_systems.sql",
+    "20261016050000_materials_pricing_automation_columns.sql",
 ]
 
 

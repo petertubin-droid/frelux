@@ -1,5 +1,5 @@
 -- ==========================================================================
--- Migration: 20261015440000_hybrid_pricing_systems.sql
+-- Migration: 20261016040000_hybrid_pricing_systems.sql
 -- Hybrid Pricing Systems:
 --   A. The Fluctuation Filter (Macro Tracker)
 --   B. The Closed-Loop Crowdsourcing Engine

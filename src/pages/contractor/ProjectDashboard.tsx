@@ -660,14 +660,17 @@ export default function ProjectDashboard() {
         });
       }
       if (crowdsourceOptIn) {
+        const projectRecord = project as unknown as Record<string, unknown>;
+        const resolvedMarketCode = typeof projectRecord.country_code === "string" ? projectRecord.country_code : "KE";
+        const resolvedCity = typeof projectRecord.location === "string" ? projectRecord.location : undefined;
         submitCrowdsourcedExpense({
-          marketCode: (project as any).country_code || "KE",
+          marketCode: resolvedMarketCode,
           materialCategory: expenseForm.category,
           materialName: expenseForm.name.trim(),
           unitPrice: amount,
           currency: project.currency,
           unit: "unit",
-          city: (project as any).location || undefined,
+          city: resolvedCity,
           optInVerified: true,
         }).catch(() => {});
       }
@@ -1228,8 +1231,8 @@ export default function ProjectDashboard() {
               onSubmit={handleExpenseSubmit}
               onEdit={handleEditExpense}
               onDelete={handleDeleteExpense}
-              marketCode={(project as any).country_code || "KE"}
-              projectCity={(project as any).location || undefined}
+              marketCode={typeof (project as unknown as Record<string, unknown>).country_code === "string" ? ((project as unknown as Record<string, unknown>).country_code as string) : "KE"}
+              projectCity={typeof (project as unknown as Record<string, unknown>).location === "string" ? ((project as unknown as Record<string, unknown>).location as string) : undefined}
               crowdsourceOptIn={crowdsourceOptIn}
               onToggleCrowdsourceOptIn={setCrowdsourceOptIn}
             />

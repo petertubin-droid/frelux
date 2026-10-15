@@ -597,7 +597,8 @@ export async function fetchSupplierOffersForMaterial(params: {
       .order("unit_price", { ascending: true });
 
     if (!error && data && data.length > 0) {
-      const filtered = data.filter((item: any) => {
+      const items = data as unknown as (SupplierInventoryItem & { supplier?: SupplierProfile })[];
+      const filtered = items.filter((item) => {
         const mkt = item.supplier?.market_code || item.currency;
         return (
           mkt?.toUpperCase() === marketCode.toUpperCase() ||
@@ -606,7 +607,7 @@ export async function fetchSupplierOffersForMaterial(params: {
       });
 
       if (filtered.length > 0) {
-        return filtered.map((item: any) => {
+        return filtered.map((item) => {
           const discount = calculateBulkSupplierDiscount(item, quantity);
           return {
             supplierId: item.supplier_id,

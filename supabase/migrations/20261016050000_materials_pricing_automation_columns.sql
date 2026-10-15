@@ -1,5 +1,5 @@
 -- ==========================================================================
--- Migration: 20261015460000_materials_pricing_automation_columns.sql
+-- Migration: 20261016050000_materials_pricing_automation_columns.sql
 -- Automatic Pricing Updates Across 20+ Countries:
 --   1. base_price: The manual fallback price.
 --   2. last_updated_via: Source identifier ('api', 'crowdsourced', or 'manual').

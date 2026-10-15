@@ -684,7 +684,7 @@ function MaterialForm({
         <AdminField label="Last Updated Via">
           <AdminSelect
             value={lastUpdatedVia}
-            onChange={(e) => setLastUpdatedVia(e.target.value as any)}
+            onChange={(e) => setLastUpdatedVia(e.target.value as DbMaterialPrice["last_updated_via"])}
           >
             <option value="manual">Manual</option>
             <option value="api">API Feed</option>

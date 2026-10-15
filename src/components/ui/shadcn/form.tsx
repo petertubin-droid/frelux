@@ -83,14 +83,14 @@ const FormControl = React.forwardRef<
       {...props}
     >
       {React.isValidElement(children)
-        ? React.cloneElement(children as React.ReactElement<any>, {
-            id: (children.props as any)?.id || formItemId,
+        ? React.cloneElement(children as React.ReactElement<Record<string, unknown>>, {
+            id: (children.props as Record<string, unknown>)?.id || formItemId,
             "aria-describedby":
-              (children.props as any)?.["aria-describedby"] ||
+              (children.props as Record<string, unknown>)?.["aria-describedby"] ||
               `${formDescriptionId} ${formMessageId}`.trim(),
             "aria-invalid": error
               ? true
-              : (children.props as any)?.["aria-invalid"],
+              : (children.props as Record<string, unknown>)?.["aria-invalid"],
           })
         : children}
     </div>
