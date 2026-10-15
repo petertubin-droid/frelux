@@ -424,6 +424,13 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** climate profile and stage durations are heuristics. No validated province-specific productivity, public-holiday/work calendar or customs/carrier logistics feed was found.
 - **Changes made for ZA:** none. Key blockers include profile activation conflict, open product mapping review and missing verified market scanner, broad pricing/tax, workforce and logistics coverage. Keep ZA partial/unverified; next priority: **United States (`US`)** in remaining-market pass (priority countries were previously handled in the user-specified order).
 
+#### South Africa closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
+
+- **Live verification (2026-10-15):** ZA profile `active`/visible (ZAR); **10 active role mappings** and **36 active ZAR price rows** confirmed live (incl. RhinoLite R399.95 Cashbuild and the Gyproc screed datasheet rows).
+- **Standards seeded (migration `20261015720000`, applied + verified live):** NBR&BS Act 103 of 1977 + SANS 10400 series (approval sits with local authorities → `medium` with the municipal caveat); SANS 2001-CC1:2012 / SANS 2001-CC2:2007 concrete works (`high`); SANS 10109-1 / SANS 10109-2 concrete floor bases and finishes (`high`, governs floor-screed work; cites the existing Gyproc datasheet rows for coverage). All web-verified 2026-10-15; no coverage rates asserted.
+- **Guard:** `src/lib/international/__tests__/za-construction-standards.test.ts` pins 3 rows only, Act 103 + SANS 10400 + municipal caveat, both SANS product/workmanship refs as high, no unsubstantiated URLs, idempotency.
+- **Remaining honest gaps (unchanged):** municipal approval workflows, workforce compliance, ZA holiday/logistics calibration — outside Engine 1 scope here. ZA Engine-1 complete: profile, 10 roles, 36 prices, standards, guard. Next per owner order: **Germany (`DE`)**.
+
 ### Canada market closeout (priority 11; audit only, 2026-10-14)
 
 - **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Canada (`CA`) is a country option and built-in active/visible profile, but the seeded profile fixture lists CA as `coming_soon` and hidden, and tests explicitly gate non-NG priced calculations. No live production-state query was made, so the profile/test conflict remains unresolved; do not claim public operational availability.
