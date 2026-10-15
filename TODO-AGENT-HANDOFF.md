@@ -53,24 +53,31 @@ Previously completed interface changes and historical audit metrics have been re
 
 ---
 
-## 1A. GLOBAL OPERATIONS ENGINES — OPEN, PARTIAL & UNVERIFIED WORK
+## 1A. GLOBAL OPERATIONS ENGINES — STATUS & OPEN GAPS
 
-This is a source-level backlog, not proof of production deployment, connected credentials, local regulatory review, or end-to-end operation. A route, seed row, migration, test fixture, or AI response is not operational verification. Closed milestones and completion logs are intentionally omitted.
+This is a source-level status board and backlog, not proof of current production deployment, connected credentials, local regulatory review, or end-to-end operation. A route, seed row, migration, test fixture, or AI response is not operational verification. Completed milestone records are retained concisely; current live behavior must be rechecked before operational claims.
 
-| Capability | Remaining work and release constraints |
-|---|---|
-| **BIM/CAD** | Current IFC import reports authored quantities for a constrained element set. Only explicitly assigned supported SI and conversion-based units are normalized; unresolved/unsupported units remain raw and labelled. No geometry inference or full IFC-schema support. Expand standards-tested coverage, then build a verified model viewer, revisions/federation, explicit-CRS georeferencing, schedule/cost links, and measurable clash/issues workflows. Never claim geometry or compliance from authored quantities. |
-| **GIS** | Broader GIS layers, interoperable formats, and additional licensed/provider-backed imagery remain open. Disclose coordinate system, provider/license, source/date/coverage, and unavailable data. A site map is not full GIS. |
-| **Tax, currency & settlement** | Maintain and independently verify jurisdictional source coverage, applicability dates, FX provenance/freshness and outage behavior. Qualified review is required before withholding/settlement rules are calculated. Display FX is not settlement or tax advice; never infer a rate or compute a pending rule. |
-| **Standards & compliance** | Maintain a versioned, jurisdiction/project-type scoped evidence catalog with primary sources, effective dates, applicability, amendments, and qualified review. Add deterministic provision-level checks that cite sources and disclose unknowns. No AI-only certification. |
-| **Technical translation** | UI translation does not provide reviewed technical-document, drawing-annotation, safety-manual, or field-log translation. Add terminology-managed human review, preserve source/units, test RTL and protected-data handling, and separate machine translation from approved safety instructions. |
-| **IoT/telematics** | No complete operational device-ingestion capability has been established. Any future work needs consent, authenticated device identity, validated timestamped signals, data-quality/retention controls, privacy safeguards, and independently reviewed safety alert rules. |
-| **Procurement/logistics** | Prototype requisitions are not supplier-connected purchase orders. Verify supplier/material mappings, stock/quotes/lead times, customs, shipment and delivery states by market; add approval/audit flows and provider-backed status. Keep listed, quoted, ordered, dispatched, and delivered distinct. |
-| **Regulated finance** | Checkout or milestone planning does not establish escrow custody/release, lien-waiver lifecycle, or AML/KYC/sanctions compliance. Use authorized providers and qualified jurisdiction review, with auditable reconciliation and dispute controls. Never imply funds are held or released by unsupported app logic. |
-| **Offline field data** | Local caches/queues do not establish secure multi-user, multi-device project sync. Remaining work includes identity/encryption, conflict resolution, retry/backoff, audit/status, attachment limits, and loss/reinstall recovery. Never promise unsynced browser data survives storage loss. |
-| **RBAC/security** | Inventory sensitive routes, RPCs, functions, tables, and storage; verify least privilege and tenant/project/region boundaries server-side. Add a permission matrix, threat model, revocation/audit controls, negative cross-tenant tests, and independent review before high-assurance claims. |
+### Engine status and remaining work
+
+Status summaries below preserve the completed implementation records found in GitHub history. They are not independent re-certification of current production behavior; recheck deployment, provider configuration, data freshness, and legal review before making current operational claims.
+
+| Engine | Status and evidence | Remaining work / limits |
+|---|---|---|
+| **#1 BIM/CAD** | **Partial; IFC takeoff/validation and explicit unit-handling milestones recorded complete.** `BimIfcImport` reports authored quantities for a constrained IFC element set. Commit `c3278aa` adds unit-resolution behavior for supported explicitly assigned SI and conversion-based units, and leaves unsupported/unresolved values raw and labelled. | No inferred geometry, full IFC-schema coverage, full model viewer, revisions/federation, 4D/5D schedule-cost integration, or clash/issues workflow. Expand standards-tested coverage; do not infer quantities or compliance. |
+| **#2 GIS** | **Imagery milestone M4 recorded complete** (implementation `f1ba4c6`; status recorded in `1da1527`). The recorded implementation gates Esri satellite imagery on an unexpired license record, stores license/capture-date/tile-template metadata for custom imagery, renders registered imagery, and refuses unregistered custom sources. | Broader GIS layers/formats and provider/market coverage remain open. Recheck credentials, license validity, RLS, and deployment before asserting current live operation. A site map is not a full GIS engine. |
+| **#3 Predictive analytics & AI** | **M1–M4 implementation recorded complete** (feature commits `b510df0`–`ee9a640`; status record `c8126f7`): outcome data, chronological walk-forward backtesting/calibration, regional data-quality/bias gates, and safety decision-support behind an independent-validation gate. | Do not call model predictions independently validated without a recorded independent review; safety outputs remain decision-support. No wearable/camera feed is implied. Recheck current runtime and representative data before operational claims. |
+| **#4 Tax & currency conversion** | **M1–M4 recorded complete** (implementation `8517c49`; status-board update `1da1527`): cited 20-market tax catalog, deterministic refusal for unknown/variable rates, provenance-bearing FX with explicit bridge paths and stale-rate limits, and the BOQ Tax & FX card. | Withholding remains informational until qualified legal review; not settlement execution or tax advice. Refresh citations/effective dates and verify provider freshness/outage behavior before release. Never infer missing rates. |
+| **#5 Regulatory compliance & standards** | **Partial.** A sourced construction-standards registry and market-specific entries exist in repo/live-audit history. | Registry is not comprehensive compliance coverage or automated blueprint checking. Continue the documented gaps, including construction-standards coverage for Indonesia, Mexico, and South Korea; verify current records and primary authorities. Add scoped, versioned provision checks with qualified review; no AI-only certification. |
+| **#6 Technical translation** | **Partial: translated UI only.** | Build terminology-managed, human-reviewed technical-document/drawing/safety/field-log translation. Preserve source and units, test RTL and protected-data handling, and distinguish machine translation from approved safety instructions. |
+| **#7 Workflow & automation** | **Construction workflow control plane recorded complete/live-verified** (implementation `0b776b8`; completion audit `e4e27a0`; later handoff describes notifications, role handoffs, attachments, exports, and offline-conflict disclosure). | Revalidate current provider configuration, RLS and end-to-end delivery before current production claims. Recorded caveats include client-triggered dispatch and no external non-app delivery. This does not make every operations engine complete. |
+| **#8 IoT & telematics** | **No complete operational device-ingestion capability established.** | Any implementation needs consent, authenticated device identity, validated timestamped signals, data-quality/retention controls, privacy safeguards, and independently reviewed safety alerts. |
+| **#9 Procurement & logistics** | **Partial: marketplace, supplier/price intelligence, and requisition prototypes.** | No verified global quote-to-fulfillment, stock/lead-time, customs, shipment tracking, or delivery chain established. Add market-specific supplier verification, approval/audit, and provider-backed status; keep listed, quoted, ordered, dispatched, and delivered distinct. |
+| **#10 Fintech, escrow, lien waivers & AML** | **Partial: checkout and milestone planning only.** | No regulated escrow custody/release, lien-waiver lifecycle, or AML/KYC/sanctions capability established. Requires authorized providers, qualified legal review, auditable reconciliation/dispute controls; never imply unsupported fund custody or compliance. |
+| **#11 Sync & offline-first field data** | **Partial: local cache/queue and offline prototypes.** | Not secure multi-user, multi-device project sync. Complete identity/encryption, conflict resolution, retry/backoff, audit/status, attachment limits, and loss/reinstall recovery. Do not promise unsynced browser data survives storage loss. |
+| **#12 RBAC / clearance and region-scoped security** | **Partial: application auth, roles, and database RLS exist; comprehensive boundary verification not established.** | Inventory sensitive routes, RPCs, functions, tables, and storage; verify least privilege and tenant/project/region boundaries server-side. Add permission matrix, threat model, revocation/audit, negative cross-tenant tests, and independent review before high-assurance claims. |
 
 ### Release gate
+
 
 For every engine/market: use authoritative sources or contracted providers; record coverage and effective dates; name an accountable local reviewer; test missing, stale, outage, permission, and offline states; configure secrets securely; verify end-to-end behavior; and assign monitoring and rollback ownership. Keep capabilities **partial/unverified** or **coming soon** until the applicable gate passes. Do not claim live operation based on repository history.
 
@@ -119,6 +126,21 @@ Only open work belongs here. Recheck current source and production state before 
 
 - Build a current market/capability matrix from live registry and production evidence. Test representative estimates, currency, data provenance, missing values, and no-silent-fallback behavior per enabled market. Add E2E confidence/provenance presentation only where supported by actual source data.
 - Verify migrations and RLS against the intended environment before claiming they are applied or production-ready. Add negative tenant/role tests and document deployment evidence.
+
+### F. Engine-specific remaining work — OPEN
+
+Use the status table in Section 1A as the source of truth for completed milestone records and limits. The items below are open follow-up, not claims that an engine is absent in full.
+
+- **#5 Regulatory standards:** Recheck current live `construction_standards` coverage and source dates first. The previous handoff flagged Indonesia (ID), Mexico (MX), and South Korea (KR) for verification; confirm whether those gaps remain, then fill only with current primary-authority sources and add jurisdiction-scoped review/checks.
+- **#6 Technical translation:** Build terminology dictionaries and a human-review workflow for construction terms, starting from the previously proposed locale list (JP, FR, BR, SA, AE) only after confirming current supported locales. Keep technical, safety, and regulatory instructions clearly separated from unreviewed machine translation.
+- **#8 IoT/telematics:** Define consent, authenticated device onboarding, data quality/retention, privacy, and independently reviewed alert gates before integrating any sensor or equipment feed.
+- **#9 Procurement/logistics:** Extend beyond requisition prototypes only with verified suppliers/providers; implement quote/order/dispatch/delivery states, market-specific customs/lead-time evidence, approvals, and exception audit.
+- **#10 Regulated finance:** Scope licensed payment/escrow and compliance providers with qualified jurisdiction counsel; design auditable reconciliation, dispute, lien-waiver, and AML/KYC controls before any production money movement claim.
+- **#11 Offline sync:** Replace local-only/demo behavior with authenticated durable sync, conflict review, retry/backoff, device recovery, and attachment handling; test multi-user and multi-device privacy boundaries.
+- **#12 RBAC/security:** Complete route/API/storage inventory, permission matrix, negative cross-tenant/role tests, revocation/audit controls, and independent security review before high-assurance claims.
+- **#2 GIS and #4 tax/FX:** Keep their completed milestone records, but revalidate current license/provider state, citation freshness, FX freshness/outage behavior, and production deployment before extending markets or making live-operation claims.
+
+---
 
 ---
 
