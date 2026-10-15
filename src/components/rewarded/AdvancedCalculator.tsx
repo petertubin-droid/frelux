@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Bot,
   Save,
@@ -67,6 +67,16 @@ export function AdvancedCalculator({
   const [pdfUnlocked, setPdfUnlocked] = useState(false);
   const { isPaid } = useAuth();
 
+  // Stability: the AI breakdown is a PAID ai-studio call. It is
+  // fetched lazily — when the AI Analysis tab is first opened —
+  // and only once per unique contextSummary, never on mount and
+  // never once per re-render (the inline template-literal prop
+  // changes identity every render, which used to retrigger the
+  // effect on every keystroke upstream). The Refresh button
+  // remains the explicit way to refetch.
+  const fetchedSignatureRef = useRef<string | null>(null);
+  const wasBreakdownTabRef = useRef(false);
+
   // Universal cost adjustment inputs (work for any calculator type)
   const [costAdjust, setCostAdjust] = useState({
     labourCost: 0,
@@ -116,8 +126,18 @@ Use ${currencySymbol} (${currencyCode}) for all currency. Be specific with numbe
   }, [contextSummary, currencySymbol, currencyCode]);
 
   useEffect(() => {
-    fetchAiBreakdown();
-  }, [fetchAiBreakdown]);
+    const onTab = tab === "breakdown";
+    if (
+      onTab &&
+      !wasBreakdownTabRef.current &&
+      fetchedSignatureRef.current !== contextSummary &&
+      !aiBreakdownLoading
+    ) {
+      fetchedSignatureRef.current = contextSummary;
+      fetchAiBreakdown();
+    }
+    wasBreakdownTabRef.current = onTab;
+  }, [tab, contextSummary, aiBreakdownLoading, fetchAiBreakdown]);
 
   useEffect(() => {
     fetchAdvancedEstimates(clientHash).then(({ data }) => {
@@ -138,7 +158,21 @@ Use ${currencySymbol} (${currencyCode}) for all currency. Be specific with numbe
     key: K,
     value: number,
   ) {
-    setCostAdjust((prev) => ({ ...prev, [key]: value }));
+    // Stability: NaN and negative/nonsense inputs must never reach
+    // the cost math, the AI context, or the PDF export. Costs are
+    // floored at 0; percentages are clamped to [0, 100].
+    let safe = Number.isFinite(value) ? value : 0;
+    if (
+      key === "wastePercentage" ||
+      key === "markupPercentage" ||
+      key === "profitPercentage" ||
+      key === "taxPercentage"
+    ) {
+      safe = Math.min(100, Math.max(0, safe));
+    } else {
+      safe = Math.max(0, safe);
+    }
+    setCostAdjust((prev) => ({ ...prev, [key]: safe }));
   }
 
   async function handleSave() {
@@ -179,7 +213,15 @@ Use ${currencySymbol} (${currencyCode}) for all currency. Be specific with numbe
   }
 
   async function handleDelete(id: string) {
-    await deleteAdvancedEstimate(id, clientHash);
+    // Stability: a failed delete (offline, RLS) must NOT silently
+    // remove the row from the list — the estimate still exists
+    // server-side. Surface the error and keep the row.
+    const { error } = await deleteAdvancedEstimate(id, clientHash);
+    if (error) {
+      setSaveStatus(`Error deleting estimate: ${error}`);
+      window.setTimeout(() => setSaveStatus(null), 5000);
+      return;
+    }
     setSavedEstimates((prev) => prev.filter((e) => e.id !== id));
   }
 
@@ -207,6 +249,41 @@ Use ${currencySymbol} (${currencyCode}) for all currency. Be specific with numbe
       contextSummary,
       aiBreakdown,
       costAdjust,
+      currencySymbol,
+    );
+    win.document.write(html);
+    win.document.close();
+    win.print();
+    // Session-scoped: reset unlock after use
+    setPdfUnlocked(false);
+  }
+
+  // Stability: exporting from the SAVED tab must print the row
+  // the user clicked — previously it silently printed whatever
+  // was currently loaded in the calculator, a wrong-document bug.
+  function handleExportSavedPDF(e: (typeof savedEstimates)[number]) {
+    if (!isPaid && !pdfUnlocked) {
+      setPdfGateOpen(true);
+      return;
+    }
+    const win = window.open("", "_blank");
+    if (!win) {
+      setSaveStatus(
+        "Popup blocked. Please allow popups for this site to export PDF.",
+      );
+      window.setTimeout(() => setSaveStatus(null), 5000);
+      return;
+    }
+    const data = e.estimateData as unknown as {
+      contextSummary?: string;
+      aiBreakdown?: string | null;
+      costAdjust?: typeof costAdjust;
+    };
+    const html = generateAiQuotationHTML(
+      e.title,
+      data.contextSummary ?? "Saved estimate",
+      data.aiBreakdown ?? null,
+      data.costAdjust ?? costAdjust,
       currencySymbol,
     );
     win.document.write(html);
@@ -372,7 +449,8 @@ Also flag any unrealistic values or potential issues. Use ${currencySymbol} for 
             <SavedTab
               estimates={savedEstimates}
               onDelete={handleDelete}
-              onExport={handleExportPDF}
+              onExport={handleExportSavedPDF}
+              status={saveStatus}
             />
           )}
         </div>
@@ -793,6 +871,7 @@ function SavedTab({
   estimates,
   onDelete,
   onExport,
+  status,
 }: {
   estimates: {
     id: string;
@@ -803,7 +882,15 @@ function SavedTab({
     createdAt: string;
   }[];
   onDelete: (id: string) => void;
-  onExport: () => void;
+  onExport: (e: {
+    id: string;
+    title: string;
+    totalCost: number;
+    currency: string;
+    estimateData: AdvancedEstimateData;
+    createdAt: string;
+  }) => void;
+  status: string | null;
 }) {
   if (estimates.length === 0) {
     return (
@@ -816,6 +903,11 @@ function SavedTab({
   }
   return (
     <div className="space-y-3">
+      {status && (
+        <p className="text-xs font-medium text-destructive" role="alert">
+          {status}
+        </p>
+      )}
       {estimates.map((e) => (
         <div
           key={e.id}
@@ -826,15 +918,20 @@ function SavedTab({
               {e.title}
             </p>
             <p className="text-xs text-muted-foreground">
-              {new Date(e.createdAt).toLocaleDateString()} · {e.currency}{" "}
-              {formatNumber(e.totalCost)}
+              {new Date(e.createdAt).toLocaleDateString()} ·{" "}
+              {/* AI estimates store the analysis text, not a
+                  computed numeric total — never display a fake
+                  "0" as if it were a real cost. */}
+              {e.totalCost > 0
+                ? `${e.currency} ${formatNumber(e.totalCost)}`
+                : "AI text estimate"}
             </p>
           </div>
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               type="button"
-              onClick={onExport}
+              onClick={() => onExport(e)}
               className="rounded p-1.5 text-muted-foreground hover:text-brand-purple"
               aria-label="Export"
             >
