@@ -49,3 +49,50 @@ describe("RoofFramingEstimator page", () => {
     ).toBeGreaterThanOrEqual(1);
   });
 });
+
+it("keeps preliminary member checks separate and requires explicit engineer inputs", () => {
+  render(
+    <MemoryRouter>
+      <RoofFramingEstimator />
+    </MemoryRouter>,
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: /Preliminary structural check/i }),
+  );
+  fireEvent.change(screen.getByRole("combobox", { name: /Market context/i }), {
+    target: { value: "NG" },
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: /Run preliminary member check/i }),
+  );
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    /Clear span must be greater than zero/,
+  );
+  expect(screen.getByText(/Jurisdictional structural design is not yet available/)).toBeInTheDocument();
+
+  const values: Record<string, string> = {
+    "Clear span (m)": "4",
+    "Tributary spacing, horizontal (m)": "0.6",
+    "Total downward load per plan area (kN/m²)": "2",
+    "Section modulus S (mm³)": "300000",
+    "Second moment I (mm⁴)": "30000000",
+    "Effective shear area (mm²)": "200",
+    "Elastic modulus E (GPa)": "10",
+    "Design bending resistance (MPa)": "10",
+    "Design shear resistance (MPa)": "15",
+    "Deflection limit span / ratio": "200",
+  };
+  for (const [label, value] of Object.entries(values))
+    fireEvent.change(screen.getByRole("spinbutton", { name: label }), {
+      target: { value },
+    });
+  fireEvent.click(
+    screen.getByRole("button", { name: /Run preliminary member check/i }),
+  );
+  expect(
+    screen.getByText(/Passes the entered bending, shear and deflection limits/),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(/No jurisdictional code, load factors/),
+  ).toBeInTheDocument();
+});

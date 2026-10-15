@@ -126,6 +126,13 @@ Only open work belongs here. Recheck current source and production state before 
 - Build a current market/capability matrix from live registry and production evidence. Test representative estimates, currency, data provenance, missing values, and no-silent-fallback behavior per enabled market. Add E2E confidence/provenance presentation only where supported by actual source data.
 - Verify migrations and RLS against the intended environment before claiming they are applied or production-ready. Add negative tenant/role tests and document deployment evidence.
 
+### F. Roof structural design — OPEN / PRELIMINARY CHECK ONLY
+
+- Roof framing quantity takeoff remains separate from structural design. The current UI adds an explicitly code-agnostic, single-span, simply-supported member check for timber/steel using user-entered design load, section properties and resistances; this is a preliminary calculation, not operational jurisdictional design or code-compliance verification.
+- Before expanding: select and verify one market’s current primary-source design basis, load combinations (including wind uplift), material grades and resistance factors; obtain a qualified local structural engineer’s review and benchmark cases. Do not treat market selection as code support or allow Nigerian defaults.
+- Add member/system coverage only after independently validated formulas for stability/buckling, bearing, connections, lateral restraint, uplift, bracing, multiple spans, and roof-system load paths. Keep unavailable/unverified markets explicit and design output non-certifying until the full market release gate passes.
+
+
 ### F. Engine-specific remaining work — OPEN
 
 Use the status table in Section 1A as the source of truth for completed milestone records and limits. The items below are open follow-up, not claims that an engine is absent in full.

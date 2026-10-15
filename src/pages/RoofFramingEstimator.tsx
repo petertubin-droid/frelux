@@ -2,6 +2,8 @@ import { useState } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
+import { COUNTRY_OPTIONS } from "@/lib/international/countries";
+import { checkRoofMember, type RoofMemberCheckResult } from "@/lib/estimation/roof-member-design";
 import {
   calculateRoofFraming,
   type RoofFramingInput,
@@ -54,6 +56,19 @@ const initialForm = (): Form => ({
   extra: [],
 });
 
+type DesignForm = {
+  market: string; material: "timber" | "steel"; spanM: string; spacingM: string;
+  areaLoadKNM2: string; sectionModulusMM3: string; secondMomentMM4: string;
+  shearAreaMM2: string; elasticModulusGPa: string; bendingResistanceMPa: string;
+  shearResistanceMPa: string; deflectionRatio: string;
+};
+const initialDesignForm = (): DesignForm => ({
+  market: "", material: "timber", spanM: "", spacingM: "", areaLoadKNM2: "",
+  sectionModulusMM3: "", secondMomentMM4: "", shearAreaMM2: "",
+  elasticModulusGPa: "", bendingResistanceMPa: "", shearResistanceMPa: "",
+  deflectionRatio: "200",
+});
+
 export default function RoofFramingEstimator() {
   useSeo({
     title: "Roof Framing & Board-Foot Calculator | FRELUX",
@@ -63,6 +78,10 @@ export default function RoofFramingEstimator() {
   const [form, setForm] = useState(initialForm);
   const [result, setResult] = useState<RoofFramingResult | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
+  const [mode, setMode] = useState<"takeoff" | "design">("takeoff");
+  const [designForm, setDesignForm] = useState(initialDesignForm);
+  const [designResult, setDesignResult] = useState<RoofMemberCheckResult | null>(null);
+  const [designErrors, setDesignErrors] = useState<string[]>([]);
   const update = <K extends keyof Form>(key: K, value: Form[K]) =>
     setForm((current) => ({ ...current, [key]: value }));
   const run = () => {
@@ -93,6 +112,31 @@ export default function RoofFramingEstimator() {
     setErrors(response.errors);
     setResult(response.data);
   };
+  const updateDesign = <K extends keyof DesignForm>(key: K, value: DesignForm[K]) => {
+    setDesignForm((current) => ({ ...current, [key]: value }));
+    setDesignResult(null);
+    setDesignErrors([]);
+  };
+  const runDesignCheck = () => {
+    if (!designForm.market) {
+      setDesignResult(null);
+      setDesignErrors(["Select a market context before running this preliminary check."]);
+      return;
+    }
+    const response = checkRoofMember({
+      spanM: Number(designForm.spanM), spacingM: Number(designForm.spacingM),
+      designAreaLoadKNM2: Number(designForm.areaLoadKNM2),
+      sectionModulusMM3: Number(designForm.sectionModulusMM3),
+      secondMomentMM4: Number(designForm.secondMomentMM4),
+      shearAreaMM2: Number(designForm.shearAreaMM2),
+      elasticModulusGPa: Number(designForm.elasticModulusGPa),
+      bendingResistanceMPa: Number(designForm.bendingResistanceMPa),
+      shearResistanceMPa: Number(designForm.shearResistanceMPa),
+      maxDeflectionRatio: Number(designForm.deflectionRatio),
+    });
+    setDesignErrors(response.errors);
+    setDesignResult(response.data);
+  };
   const addExtra = () =>
     update("extra", [
       ...form.extra,
@@ -112,7 +156,11 @@ export default function RoofFramingEstimator() {
         ]}
       />
       <Container className="py-8 sm:py-10">
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(330px,.8fr)]">
+        <div className="mb-6 flex flex-wrap gap-2 rounded-2xl border border-border bg-card p-2">
+          <button type="button" aria-pressed={mode === "takeoff"} onClick={() => setMode("takeoff")} className={`rounded-xl px-4 py-2.5 text-sm font-semibold ${mode === "takeoff" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Quantity takeoff</button>
+          <button type="button" aria-pressed={mode === "design"} onClick={() => setMode("design")} className={`rounded-xl px-4 py-2.5 text-sm font-semibold ${mode === "design" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Preliminary structural check</button>
+        </div>
+        {mode === "takeoff" ? <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(330px,.8fr)]">
           <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
             <h2 className="text-xl font-bold">Roof geometry</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -380,7 +428,31 @@ export default function RoofFramingEstimator() {
               </p>
             )}
           </aside>
-        </div>
+        </div> : (
+          <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(330px,.9fr)]">
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+              <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">Engineer-input design basis</p>
+              <h2 className="mt-2 text-xl font-bold">Single-span member check</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Enter design loads and section properties/resistances from the applicable, independently reviewed design basis. This preliminary elastic check does not select a code, load, section or material grade for you.</p>
+              <div className="mt-5 rounded-xl border border-amber-500/30 bg-amber-50/60 p-4 text-sm leading-relaxed text-amber-950 dark:bg-amber-950/20 dark:text-amber-100">Jurisdictional structural design is not yet available for any FRELUX market. The selector below records context only; this generic preliminary check does not apply local codes or certify a design.</div>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <label className="grid gap-1 text-sm font-medium">Market context<select required className={inputClass} value={designForm.market} onChange={(e) => updateDesign("market", e.target.value)}><option value="">Select a FRELUX market</option>{COUNTRY_OPTIONS.map((group) => <optgroup key={group.group} label={group.group}>{group.countries.map((country) => <option key={country.code} value={country.code}>{country.name} — design basis unavailable</option>)}</optgroup>)}</select><span className="text-xs font-normal text-muted-foreground">All market codes remain unavailable until their local design basis is verified and reviewed.</span></label>
+                <label className="grid gap-1 text-sm font-medium">Roof member material<select className={inputClass} value={designForm.material} onChange={(e) => updateDesign("material", e.target.value as DesignForm["material"])}><option value="timber">Timber</option><option value="steel">Steel</option></select><span className="text-xs font-normal text-muted-foreground">Material-specific stability, connection, grade and code checks are not included.</span></label>
+                {([["spanM", "Clear span (m)"], ["spacingM", "Tributary spacing, horizontal (m)"], ["areaLoadKNM2", "Total downward load per plan area (kN/m²)"], ["sectionModulusMM3", "Section modulus S (mm³)"], ["secondMomentMM4", "Second moment I (mm⁴)"], ["shearAreaMM2", "Effective shear area (mm²)"], ["elasticModulusGPa", "Elastic modulus E (GPa)"], ["bendingResistanceMPa", "Design bending resistance (MPa)"], ["shearResistanceMPa", "Design shear resistance (MPa)"], ["deflectionRatio", "Deflection limit span / ratio"]] as const).map(([key, label]) => <label key={key} className="grid gap-1 text-sm font-medium">{label}<input aria-label={label} className={inputClass} type="number" min="0" step="any" value={designForm[key]} onChange={(e) => updateDesign(key, e.target.value)} /></label>)}
+              </div>
+              <button type="button" onClick={runDesignCheck} className="mt-6 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground">Run preliminary member check</button>
+              {designErrors.length > 0 && <div role="alert" className="mt-4 rounded-xl border border-amber-400/50 bg-amber-50/60 p-4 text-sm text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">{designErrors.map((error) => <p key={error}>{error}</p>)}</div>}
+            </div>
+            <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+              <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">Preliminary results</p><h2 className="mt-2 text-xl font-bold">{designForm.material === "timber" ? "Timber" : "Steel"} member</h2>
+              {designResult ? <><p className={`mt-4 rounded-xl p-4 text-sm font-semibold ${designResult.passesEnteredChecks ? "bg-emerald-50 text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200" : "bg-amber-50 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200"}`}>{designResult.passesEnteredChecks ? "Passes the entered bending, shear and deflection limits" : "One or more entered limits are exceeded"}</p>
+                <div className="mt-4 grid grid-cols-2 gap-3">{([["Line load", designResult.lineLoadKNM, "kN/m"], ["Support reaction", designResult.supportReactionKN, "kN"], ["Max moment", designResult.maxMomentKNM, "kN·m"], ["Max shear", designResult.maxShearKN, "kN"], ["Bending utilization", designResult.bendingUtilization, "×"], ["Shear utilization", designResult.shearUtilization, "×"], ["Deflection", designResult.deflectionMM, "mm"], ["Deflection limit", designResult.deflectionLimitMM, "mm"]] as const).map(([label, value, unit]) => <div key={label} className="rounded-xl bg-muted/40 p-3"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-lg font-bold">{format(value)} <span className="text-xs font-medium">{unit}</span></p></div>)}</div>
+                <p className="mt-3 text-xs text-muted-foreground">Deflection utilization: {format(designResult.deflectionUtilization)}× · Model: {designResult.model}</p>
+                <div className="mt-5 rounded-xl border border-amber-500/30 bg-amber-50/50 p-4 text-xs leading-relaxed text-amber-900 dark:bg-amber-950/20 dark:text-amber-200"><b>Scope limitations</b><ul className="mt-2 list-disc space-y-1 pl-4">{designResult.exclusions.map((note) => <li key={note}>{note}</li>)}</ul></div>
+              </> : <p className="mt-5 rounded-xl bg-muted/40 p-4 text-sm text-muted-foreground">Enter a complete design basis and run the check. No default material properties, code loads or safety factors are assumed.</p>}
+            </aside>
+          </section>
+        )}
       </Container>
     </>
   );
