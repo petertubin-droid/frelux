@@ -58,6 +58,10 @@ import {
   type WorkflowAttachment,
 } from "@/lib/workflow/attachments";
 import {
+  exportWorkflowAudit,
+  exportWorkflowDocumentsCsv,
+} from "@/lib/workflow/exports";
+import {
   AlertTriangle,
   Calendar,
   ChevronDown,
@@ -72,6 +76,7 @@ import {
   UserPlus,
   Paperclip,
   Download,
+  FileDown,
   Trash2,
   X,
 } from "lucide-react";
@@ -641,9 +646,19 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
         </div>
         <button
           type="button"
+          onClick={() => exportWorkflowDocumentsCsv(docs ?? [], projectId)}
+          disabled={!docs || docs.length === 0}
+          aria-label="Export workflow CSV"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-muted-foreground hover:bg-accent disabled:opacity-50"
+        >
+          <FileDown className="h-4 w-4" />
+          Export CSV
+        </button>
+        <button
+          type="button"
           onClick={load}
           disabled={busy}
-          className="ml-auto inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-muted-foreground hover:bg-accent disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-muted-foreground hover:bg-accent disabled:opacity-50"
         >
           <RefreshCw className={`h-4 w-4 ${busy ? "animate-spin" : ""}`} />
           Refresh
@@ -917,6 +932,25 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                           </li>
                         )}
                       </ol>
+                    </div>
+
+                    {/* Export the full record */}
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          exportWorkflowAudit(
+                            doc,
+                            events[doc.id] ?? [],
+                            participants[doc.id] ?? [],
+                            attachments[doc.id] ?? [],
+                          )
+                        }
+                        aria-label={`Export record ${doc.reference_code}`}
+                        className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-accent"
+                      >
+                        <FileDown className="h-3.5 w-3.5" /> Export record
+                      </button>
                     </div>
 
                     {/* Cross-role handoff / share */}

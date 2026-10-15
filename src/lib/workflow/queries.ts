@@ -151,7 +151,7 @@ export async function transitionWorkflowDocument(
     .single();
   if (error) throw new Error(error.message);
 
-  await supabase.from("workflow_events").insert({
+  const { error: eventError } = await supabase.from("workflow_events").insert({
     document_id: doc.id,
     event_type: "transition",
     from_status: doc.status,
@@ -159,11 +159,21 @@ export async function transitionWorkflowDocument(
     actor,
     note: note ?? null,
   });
+  if (eventError) {
+    // Offline conflict: the transition IS persisted but its
+    // audit row is not. Never fake success, never notify from
+    // a missing audit row — surface the partial state so the
+    // user refreshes and verifies.
+    throw new Error(
+      `Transition saved, but the audit record could not be written (${eventError.message}). Refresh to verify the record.`,
+    );
+  }
 
   // Best-effort owner email notification (fire-and-forget;
   // only status transitions notify — comments/revisions are
   // deliberately quiet to avoid noise). Never blocks a
-  // successful transition.
+  // successful transition, and only fires when the audit row
+  // exists — the edge function delivers the LATEST event.
   void notifyWorkflowEvent(doc.id);
   return data as unknown as WorkflowDocument;
 }
@@ -189,7 +199,7 @@ export async function addWorkflowRevision(
     payload: {},
   });
   if (error) throw new Error(error.message);
-  await supabase
+  const { error: docError } = await supabase
     .from("workflow_documents")
     .update({
       revision_no: next,
@@ -199,12 +209,25 @@ export async function addWorkflowRevision(
       updated_at: new Date().toISOString(),
     })
     .eq("id", doc.id);
-  await supabase.from("workflow_events").insert({
+  if (docError) {
+    // Offline conflict: the revision row exists but the
+    // document still points at the old revision. Say so —
+    // a silent pass would make the NEXT revision collide.
+    throw new Error(
+      `Revision saved, but the document could not be updated (${docError.message}). Refresh before adding another revision.`,
+    );
+  }
+  const { error: eventError } = await supabase.from("workflow_events").insert({
     document_id: doc.id,
     event_type: "revision",
     actor: "owner",
     note: input.note ?? `Revision ${next} recorded`,
   });
+  if (eventError) {
+    throw new Error(
+      `Revision saved, but the audit record could not be written (${eventError.message}). Refresh to verify the record.`,
+    );
+  }
 }
 
 export async function addWorkflowComment(

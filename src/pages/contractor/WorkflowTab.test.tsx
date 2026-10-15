@@ -66,6 +66,11 @@ vi.mock("@/lib/workflow/attachments", () => ({
   getAttachmentUrl: vi.fn().mockResolvedValue("https://signed.example/dl"),
 }));
 
+vi.mock("@/lib/workflow/exports", () => ({
+  exportWorkflowDocumentsCsv: vi.fn(),
+  exportWorkflowAudit: vi.fn(),
+}));
+
 function mockDocs(): WorkflowDocument[] {
   const base = {
     project_id: "proj-1",
@@ -295,6 +300,56 @@ describe("WorkflowTab (global operations control plane)", () => {
       ),
     );
     open.mockRestore();
+  });
+
+  it("exports the workflow CSV from the header button", async () => {
+    render(<WorkflowTab projectId="proj-1" currency="EUR" />);
+    await screen.findByText("RFI-0001");
+    fireEvent.click(
+      screen.getByRole("button", { name: /export workflow csv/i }),
+    );
+    const { exportWorkflowDocumentsCsv } =
+      await import("@/lib/workflow/exports");
+    await waitFor(() =>
+      expect(exportWorkflowDocumentsCsv).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ reference_code: "RFI-0001" }),
+        ]),
+        "proj-1",
+      ),
+    );
+  });
+
+  it("exports a full record from the expanded card", async () => {
+    render(<WorkflowTab projectId="proj-1" currency="EUR" />);
+    await screen.findByText("RFI-0001");
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /expand details/i })[0],
+    );
+    const btn = await screen.findByRole("button", {
+      name: /export record rfi-0001/i,
+    });
+    fireEvent.click(btn);
+    const { exportWorkflowAudit } = await import("@/lib/workflow/exports");
+    await waitFor(() =>
+      expect(exportWorkflowAudit).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "d1" }),
+        expect.any(Array),
+        expect.any(Array),
+        expect.any(Array),
+      ),
+    );
+  });
+
+  it("disables the CSV export while documents are loading", async () => {
+    render(<WorkflowTab projectId="proj-1" currency="EUR" />);
+    expect(
+      screen.getByRole("button", { name: /export workflow csv/i }),
+    ).toBeDisabled();
+    await screen.findByText("RFI-0001");
+    expect(
+      screen.getByRole("button", { name: /export workflow csv/i }),
+    ).toBeEnabled();
   });
 
   it("discloses the email-notification status honestly (chip)", async () => {
