@@ -358,6 +358,12 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** base stage durations are explicitly described as Nigerian construction labour productivity heuristics; NG has a tropical wet/dry profile and rainy-season notes. The published six-day workweek date correction is tested, but not a measured NG regional productivity model or official holiday/site calendar; no supplier availability, transport or delivery-delay feed was verified. Heuristics must remain disclosed planning estimates.
 - **Changes made for NG:** none. Active home-market foundation confirmed; end-to-end accuracy, live database freshness, workforce compliance and predictive logistics remain unverified. Next priority: **The Gambia (`GM`)**.
 
+#### Nigeria closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED (home market; audit history above preserved)
+
+- **Live verification (2026-10-15):** NG (default market) active/visible; 16 role mappings, 49 active NGN price rows confirmed live — the fullest Engine-1 book of any market, as expected for the home market.
+- **Standards seeded (migration `20261015162000`, applied + verified live):** National Building Code of Nigeria 2006 (medium, state-level-enforcement caveat) and Lagos State Physical Planning and Development Regulations (medium, LAGOS-ONLY scope note — never apply Lagos rules to other states).
+- **Status:** NG Engine-1 complete: profile, roles, NGN price book, assemblies, standards, e2e. NGN behavior untouched throughout (additive-only rule). Next per owner order: **The Gambia (`GM`)**.
+
 ### The Gambia market closeout (priority 6; unsupported / audit only, 2026-10-14)
 
 - **Operational decision: NOT REPRESENTED / NOT OPERATIONAL.** The canonical country selector `src/lib/international/countries.ts`, built-in market profiles, market-specific engineering/estimation profiles, ranking snapshots and country-specific migrations contain no `GM`/Gambia entry. `GM` appears only in this rollout instruction. Germany is `DE`; it is not a substitute.
