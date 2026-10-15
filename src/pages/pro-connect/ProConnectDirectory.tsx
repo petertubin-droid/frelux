@@ -3,7 +3,7 @@ const CommercialReadiness = lazy(
   () => import("@/components/home/CommercialReadiness"),
 );
 import { useParams, useSearchParams, Link } from "react-router-dom";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X, ShieldCheck, Compass } from "lucide-react";
 import {
   fetchCategories,
   fetchServices,
@@ -517,22 +517,41 @@ export default function ProConnectDirectory() {
           ))}
         </div>
       ) : profiles.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card py-16 text-center dark:border-white/5 dark:bg-card">
-          <p className="text-muted-foreground dark:text-muted-foreground">
-            No professionals found matching your criteria.
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-            Try expanding your search area or removing some filters.
-          </p>
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              onClick={clearFilters}
-              className="mt-4 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
-            >
-              Clear all filters
-            </Button>
-          )}
+        <div className="rounded-2xl border border-border bg-card p-8 sm:p-12 text-center dark:border-white/5 space-y-5">
+          <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-foreground">
+              No Direct Profiles in This Territory Filter
+            </h3>
+            <p className="mt-1.5 text-sm text-muted-foreground max-w-lg mx-auto">
+              Under our <strong>Marketplace Liquidity & Seeding Protocol</strong>, we don't leave you stranded in emerging territories. Under our strategic seeding protocol, you can request assisted artisan matching via accredited regional trade associations or nominate and onboard your trusted local contractor for verified escrow milestones.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Link to="/pro-connect/liquidity">
+              <Button size="sm" className="gap-2 text-xs font-semibold">
+                <Compass className="w-4 h-4" /> View Seeding Options
+              </Button>
+            </Link>
+            <Link to="/pro-connect/liquidity">
+              <Button variant="outline" size="sm" className="gap-2 text-xs font-semibold">
+                Nominate Contractor
+              </Button>
+            </Link>
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                Clear all filters
+              </Button>
+            )}
+          </div>
         </div>
       ) : (
         <>

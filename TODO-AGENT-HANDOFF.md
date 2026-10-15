@@ -4,6 +4,13 @@ Last updated: October 15, 2026
 
 > **2026-10-15 completion note (mark-done, history preserved):**
 >
+> - **Global Infrastructure Gaps — Prototype surfaces added; production gaps remain:**
+>   - _Data Residency_: `/compliance/data-residency` is a local planning prototype. It does not route or store production data in regional infrastructure. Privacy helpers only affect browser-local demo data; use `/data-request` for formal request intake and verify fulfillment operationally.
+>   - _Offline_: `/tools/offline-sync` demonstrates a localStorage queue and simulated merge. It does not sync to a server, guarantee conflict-free multi-device reconciliation, or make every calculator work offline.
+>   - _Marketplace Seeding_: `/pro-connect/liquidity` stores requests only in the visitor's browser. Territory counts, partners, and response targets are illustrative; no verified partner dispatch, liquidity guarantee, or escrow clearance is connected.
+>   - _Verification Passed_: `npx tsc --noEmit -p tsconfig.json`, the estimation test suite (347 tests), 17 prototype/module tests, and `npm run build` passed in the local environment. Supabase environment variables were absent in tests; this does not validate live service behavior.
+>   - _Remaining before production_: configure actual data-region infrastructure and legal controls; implement persistent, authenticated, idempotent offline synchronization and conflict review; verify market partners and connect request workflows to staffed service operations.
+>
 > - **Section 2.C (Structural Methodology & Regional Engineering Presets - DONE):**
 >   Eurocode 2 / BS 8110, ACI 318, and IS 456 regional concrete grade standards & presets
 >   wired into calculator UI (`StructuralCalculator.tsx`) with transparent formula disclosure.

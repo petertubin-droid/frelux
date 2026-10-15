@@ -100,6 +100,9 @@ const AiDisclaimer = lazy(() => import("@/pages/legal/AiDisclaimer"));
 const DeveloperPortal = lazy(() => import("@/pages/DeveloperPortal"));
 const DiasporaEscrow = lazy(() => import("@/pages/DiasporaEscrow"));
 const MerchantMarketplaceApi = lazy(() => import("@/pages/MerchantMarketplaceApi"));
+const DataResidencyCenter = lazy(() => import("@/pages/compliance/DataResidencyCenter"));
+const OfflineSyncHub = lazy(() => import("@/pages/offline/OfflineSyncHub"));
+const MarketplaceSeedingHub = lazy(() => import("@/pages/marketplace/MarketplaceSeedingHub"));
 const LearnCategory = lazy(() => import("@/pages/learn/LearnCategory"));
 const LearnArticle = lazy(() => import("@/pages/learn/LearnArticle"));
 const LearnLibrary = lazy(() => import("@/pages/learn/LearnLibrary"));
@@ -1282,6 +1285,30 @@ export default function App() {
                         element={
                           <Suspense fallback={<PageLoader />}>
                             <MerchantMarketplaceApi />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/compliance/data-residency"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <DataResidencyCenter />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/tools/offline-sync"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <OfflineSyncHub />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/pro-connect/liquidity"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <MarketplaceSeedingHub />
                           </Suspense>
                         }
                       />
