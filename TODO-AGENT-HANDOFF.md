@@ -387,6 +387,12 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** hot-desert climate and seasonal timeline heuristics exist, but are not calibrated emirate/site productivity data. No UAE-specific holiday/weekend calendar, border/customs/carrier lead time or logistics feed was verified.
 - **Changes made for AE:** removed the US-reference-price alias, added an empty-catalog regression test, updated the catalog-coverage test. Focused `src/lib/estimation/price-scanner.test.ts`: 17 tests passed; `npx tsc --noEmit -p tsconfig.app.json` and `git diff --check` passed. No full suite/build was run for this narrow fix. Remaining operations and four-engine verification are partial/unconfirmed. Next: continue through the remaining represented markets one by one.
 
+#### UAE closeout UPDATE 2026-10-15 — Engine 1: EMIRATE STANDARDS SEEDED (audit history above preserved)
+
+- **Live verification (2026-10-15):** AE profile active but hidden from the picker; 7 role mappings, 32 active AED price rows, pre-existing Knauf MP75 datasheet standard (screeding, high).
+- **Standards seeded (migration `20261015162000`, applied + verified live):** UAE Fire and Life Safety Code of Practice (Dubai Civil Defence, medium, DUBAI-emirate scope caveat — finishing material fire classes for facade work follow it) and Abu Dhabi International Building Codes (ICC-based, medium, ABU DHABI-ONLY caveat). Emirate-level enforcement is disclosed per row; never blanket-apply one emirate's codes across the UAE.
+- **Status:** AE Engine-1 complete: profile (hidden per audit decision), roles, AED price book, standards. Next: continue the remaining represented markets one by one.
+
 ### Ghana market closeout (priority 8; audit only, 2026-10-14)
 
 - **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Ghana (`GH`) appears in the country selector and built-in profile as active/visible, metric, GHS, with Ghana-specific terminology. However, `src/lib/international/market-profiles.test.ts`'s seeded-state fixture asserts only Nigeria active and all other markets `coming_soon`; there is no live production query in this audit to resolve the mismatch. Do not claim Ghana is fully operational from profile code or migration files alone.
