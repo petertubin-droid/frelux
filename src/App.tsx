@@ -135,6 +135,9 @@ const ProjectWizard = lazy(
 const ProjectDashboard = lazy(
   () => import("@/pages/contractor/ProjectDashboard"),
 );
+const PredictiveAnalytics = lazy(
+  () => import("@/pages/contractor/PredictiveAnalytics"),
+);
 const AdminMaterialCatalog = lazy(
   () => import("@/pages/admin/AdminMaterialCatalog"),
 );
@@ -1069,6 +1072,14 @@ export default function App() {
                         element={
                           <Suspense fallback={<PageLoader />}>
                             <ProjectDashboard />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/contractor/predictive"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <PredictiveAnalytics />
                           </Suspense>
                         }
                       />

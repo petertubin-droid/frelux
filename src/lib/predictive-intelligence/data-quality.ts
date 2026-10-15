@@ -34,6 +34,9 @@
 import type { ProjectOutcomeRecord } from "./outcomes";
 import type { OutcomeLabelKey } from "./backtest";
 
+/** Labels a data-quality assessment can be run for. */
+export type DataQualityLabel = OutcomeLabelKey | "safety_incident_count";
+
 export const MIN_SAMPLE = 20;
 export const RECENCY_MAX_MONTHS = 24;
 export const SPAN_MIN_MONTHS = 6;
@@ -54,7 +57,7 @@ export interface DataQualityFinding {
 
 export interface MarketDataQualityReport {
   market_code: string;
-  label: OutcomeLabelKey;
+  label: DataQualityLabel;
   verdict: DataQualityVerdict;
   sample_size: number;
   labelled_size: number;
@@ -87,7 +90,7 @@ function parseDate(s: string): Date {
  */
 export function assessMarketDataQuality(input: {
   market_code: string;
-  label: OutcomeLabelKey;
+  label: DataQualityLabel;
   records: ProjectOutcomeRecord[];
   now?: Date;
 }): MarketDataQualityReport {
