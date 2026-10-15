@@ -7,9 +7,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { SiteTab } from "./SiteTab";
+import { checkImageryLicense } from "@/lib/geospatial/imagery";
 
 const mockGet = vi.fn();
 const mockSave = vi.fn();
+const mockFetchImagery = vi.fn();
+const mockSaveImagery = vi.fn();
+const mockDeleteImagery = vi.fn();
 
 vi.mock("@/lib/geospatial/site-location", () => ({
   getSiteLocation: (...a: unknown[]) => mockGet(...a),
@@ -17,6 +21,21 @@ vi.mock("@/lib/geospatial/site-location", () => ({
   AREA_ACCURACY_NOTE:
     "Spherical formula, ~0.5% ellipsoid accuracy. NOT for cadastral or legal boundaries.",
 }));
+
+vi.mock(
+  "@/lib/geospatial/imagery",
+  async (importOriginal) => {
+    const actual = await importOriginal<
+      typeof import("@/lib/geospatial/imagery")
+    >();
+    return {
+      ...actual,
+      fetchImageryRecords: (...a: unknown[]) => mockFetchImagery(...a),
+      saveImageryRecord: (...a: unknown[]) => mockSaveImagery(...a),
+      deleteImageryRecord: (...a: unknown[]) => mockDeleteImagery(...a),
+    };
+  },
+);
 
 const STORED = {
   project_id: "p1",
@@ -36,12 +55,17 @@ const STORED = {
 beforeEach(() => {
   mockGet.mockReset().mockResolvedValue(STORED);
   mockSave.mockReset().mockResolvedValue({ ok: true });
+  mockFetchImagery.mockReset().mockResolvedValue({ ok: true, records: [] });
+  mockSaveImagery.mockReset();
+  mockDeleteImagery.mockReset();
 });
 
 describe("SiteTab", () => {
   it("renders the stored site: map, pin coordinates, area, honesty notes", async () => {
     render(<SiteTab projectId="p1" />);
-    expect(await screen.findByText(/OpenStreetMap contributors/)).toBeInTheDocument();
+    // Attribution appears twice by design: on-map (license-required)
+    // and in the disclosure line below.
+    expect((await screen.findAllByText(/OpenStreetMap contributors/)).length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText(/6\.5244, 3\.3792/)).toBeInTheDocument();
     expect(screen.getByText(/100,000 m²/)).toBeInTheDocument();
     expect(screen.getByText(/NOT for cadastral/)).toBeInTheDocument();
@@ -50,7 +74,7 @@ describe("SiteTab", () => {
 
   it("refuses non-numeric pin input without saving", async () => {
     render(<SiteTab projectId="p1" />);
-    await screen.findByText(/OpenStreetMap contributors/);
+    expect((await screen.findAllByText(/OpenStreetMap contributors/)).length).toBeGreaterThanOrEqual(2);
     fireEvent.change(screen.getByLabelText(/^Latitude /), {
       target: { value: "not-a-number" },
     });
@@ -63,7 +87,7 @@ describe("SiteTab", () => {
 
   it("surfaces boundary parse errors honestly", async () => {
     render(<SiteTab projectId="p1" />);
-    await screen.findByText(/OpenStreetMap contributors/);
+    expect((await screen.findAllByText(/OpenStreetMap contributors/)).length).toBeGreaterThanOrEqual(2);
     fireEvent.change(screen.getByLabelText(/^Optional site boundary/i), {
       target: { value: "6.5\nbad line" },
     });
@@ -76,7 +100,7 @@ describe("SiteTab", () => {
 
   it("saves a valid pin and shows the saved confirmation", async () => {
     render(<SiteTab projectId="p1" />);
-    await screen.findByText(/OpenStreetMap contributors/);
+    expect((await screen.findAllByText(/OpenStreetMap contributors/)).length).toBeGreaterThanOrEqual(2);
     fireEvent.change(screen.getByLabelText(/^Latitude /), { target: { value: "9.0765" } });
     fireEvent.change(screen.getByLabelText(/^Longitude /), { target: { value: "7.3986" } });
     fireEvent.click(screen.getByRole("button", { name: /save site location/i }));
@@ -94,5 +118,159 @@ describe("SiteTab", () => {
       expect(screen.getByLabelText(/^Latitude /)).toHaveValue(""),
     );
     expect(screen.queryByText(/OpenStreetMap contributors/)).not.toBeInTheDocument();
+  });
+});
+
+describe("SiteTab — M4 licensed imagery", () => {
+  it("lists registered imagery records with their license disclosure", async () => {
+    mockFetchImagery.mockResolvedValue({
+      ok: true,
+      records: [
+        {
+          id: "i1",
+          project_id: "p1",
+          user_id: null,
+          provider_id: "custom",
+          name: "Site flyover 2026-09-30",
+          license_name: "Contractor survey license",
+          license_url: null,
+          attribution: "© Contractor",
+          captured_on: "2026-09-30",
+          coverage_note: "Full site, 2cm/px",
+          tile_url_template: "https://host/tiles/{z}/{x}/{y}.png",
+          license_expires_on: null,
+          notes: null,
+          created_at: "2026-10-01",
+        },
+      ],
+    });
+    render(<SiteTab projectId="p1" />);
+    expect(
+      await screen.findByText(/Site flyover 2026-09-30/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Captured 2026-09-30/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/License: Contractor survey license/),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the satellite license gate until a record exists", async () => {
+    render(<SiteTab projectId="p1" />);
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Esri World Imagery/i }),
+    );
+    expect(
+      await screen.findByText(/no registered imagery\/license record/i),
+    ).toBeInTheDocument();
+  });
+
+  it("registerDrone refuses incomplete records honestly (no record listed)", async () => {
+    // Emulate the real saveImageryRecord: the pure license check runs
+    // BEFORE any persistence — a record without name/license/date is
+    // refused and never reaches the database.
+    mockSaveImagery.mockImplementation(async (input: { provider_id: string; name: string; license_name: string; captured_on: string | null; tile_url_template: string | null; license_expires_on: string | null }) => {
+      const check = checkImageryLicense(input.provider_id, {
+        name: input.name,
+        license_name: input.license_name,
+        captured_on: input.captured_on,
+        tile_url_template: input.tile_url_template,
+        license_expires_on: input.license_expires_on,
+      });
+      if (!check.usable) return { ok: false, error: check.reason! };
+      throw new Error("persistence is mocked: refused inputs never reach here");
+    });
+    render(<SiteTab projectId="p1" />);
+    fireEvent.click(
+      await screen.findByText(/Register drone \/ hosted imagery/i),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /Register imagery record/i }),
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Custom imagery requires a record with the imagery set's name\./i),
+      ).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByText(/registered with its license record/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it("registerDrone saves a complete licensed record and lists it", async () => {
+    mockSaveImagery.mockImplementation(async () => {
+      mockFetchImagery.mockResolvedValue({
+        ok: true,
+        records: [
+          {
+            id: "i2",
+            project_id: "p1",
+            user_id: null,
+            provider_id: "custom",
+            name: "Flyover A",
+            license_name: "Contractor survey license",
+            license_url: null,
+            attribution: "© Contractor",
+            captured_on: "2026-09-30",
+            coverage_note: null,
+            tile_url_template: "https://t/{z}/{x}/{y}.png",
+            license_expires_on: null,
+            notes: null,
+            created_at: "2026-10-15",
+          },
+        ],
+      });
+      return {
+        ok: true,
+        record: {
+          id: "i2",
+          project_id: "p1",
+          user_id: null,
+          provider_id: "custom",
+          name: "Flyover A",
+          license_name: "Contractor survey license",
+          license_url: null,
+          attribution: "© Contractor",
+          captured_on: "2026-09-30",
+          coverage_note: null,
+          tile_url_template: "https://t/{z}/{x}/{y}.png",
+          license_expires_on: null,
+          notes: null,
+          created_at: "2026-10-15",
+        },
+      };
+    });
+    render(<SiteTab projectId="p1" />);
+    fireEvent.click(
+      await screen.findByText(/Register drone \/ hosted imagery/i),
+    );
+    fireEvent.change(
+      screen.getByLabelText(/Imagery set name \*/i),
+      { target: { value: "Flyover A" } },
+    );
+    fireEvent.change(
+      screen.getByLabelText(/License it is used under \*/i),
+      { target: { value: "Contractor survey license" } },
+    );
+    fireEvent.change(screen.getByLabelText(/Capture date \*/i), {
+      target: { value: "2026-09-30" },
+    });
+    fireEvent.change(
+      screen.getByLabelText(/Hosted XYZ tile URL/i),
+      { target: { value: "https://t/{z}/{x}/{y}.png" } },
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /Register imagery record/i }),
+    );
+    await waitFor(() => {
+      expect(mockSaveImagery).toHaveBeenCalledWith(
+        expect.objectContaining({ provider_id: "custom" }),
+      );
+    });
+    expect(await screen.findByText(/Flyover A/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/registered with its license record/i),
+    ).toBeInTheDocument();
   });
 });

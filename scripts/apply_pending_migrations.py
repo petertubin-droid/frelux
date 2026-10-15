@@ -88,6 +88,7 @@ PENDING = [
     "20261016100000_project_site_locations.sql",
     "20261016040000_hybrid_pricing_systems.sql",
     "20261016050000_materials_pricing_automation_columns.sql",
+    "20261017120000_project_imagery.sql",
 ]
 
 
