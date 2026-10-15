@@ -167,6 +167,7 @@ export interface SupplierInventoryItem {
   minimum_order_qty?: number;
   in_stock?: boolean;
   stock_status?: "in_stock" | "low_stock" | "out_of_stock";
+  stock_quantity?: number;
   lead_time_days?: number;
   delivery_available?: boolean;
   bulk_discount_threshold?: number;

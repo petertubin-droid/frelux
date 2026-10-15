@@ -19,13 +19,18 @@
 --     their key_value, as public-by-design values.
 -- =========================================================
 
-create or replace view public.integration_keys_public as
+drop view if exists public.integration_keys_public;
+
+create view public.integration_keys_public as
   select
     provider_id,
     case when client_visible then key_value else null end as key_value,
-    updated_at
+    updated_at,
+    status
   from public.integration_secrets
   where status = 'active';
+
+grant select on public.integration_keys_public to anon, authenticated;
 
 comment on view public.integration_keys_public is
   'Active provider keys. key_value is exposed ONLY for client_visible rows; server-side rows appear with a null value so the UI can honestly disclose configuration state without leaking secrets.';
