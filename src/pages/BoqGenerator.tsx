@@ -53,6 +53,7 @@ import type {
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import TaxAndFxCard from "@/components/tax/TaxAndFxCard";
+import StandardsCitationsCard from "@/components/regulatory/StandardsCitationsCard";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 
 /** Display names for the 20 Frelux markets. */
@@ -162,6 +163,18 @@ export default function BoqGenerator() {
   const [bankGateMsg, setBankGateMsg] = useState<string | null>(null);
 
   const tax = useMemo(() => boqTaxLabel(marketCode), [marketCode]);
+  /** Engine ids used by the quote's line items — drives the standards card. */
+  const quoteEngines = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          items
+            .map((i) => i.source_calculator_type)
+            .filter((t): t is string => !!t),
+        ),
+      ).sort(),
+    [items],
+  );
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -928,6 +941,9 @@ export default function BoqGenerator() {
                 </tbody>
               </table>
             </div>
+
+            {/* ── Engine #5: cite-and-flag the standards behind each engine ── */}
+            <StandardsCitationsCard marketCode={marketCode} engines={quoteEngines} />
 
             {/* ── Engine #4: verified tax + FX provenance + gated withholding ── */}
             <TaxAndFxCard
