@@ -115,6 +115,9 @@ describe("MarginCalculator page", () => {
   it("computes the hand-verified quote end-to-end", async () => {
     renderPage();
     await screen.findByRole("combobox");
+    fireEvent.click(
+      screen.getByRole("button", { name: "Enter one base cost" }),
+    );
     fireEvent.change(screen.getByPlaceholderText("e.g. 1000000"), {
       target: { value: "1000000" },
     });
@@ -134,6 +137,9 @@ describe("MarginCalculator page", () => {
   it("switching to the margin-on-price preset produces the different, correct price", async () => {
     renderPage();
     const select = await screen.findByRole("combobox");
+    fireEvent.click(
+      screen.getByRole("button", { name: "Enter one base cost" }),
+    );
     fireEvent.change(select, { target: { value: "p-2" } });
     fireEvent.change(screen.getByPlaceholderText("e.g. 1000000"), {
       target: { value: "1000000" },
@@ -154,9 +160,40 @@ describe("MarginCalculator page", () => {
   it("disables Calculate until a cost is entered", async () => {
     renderPage();
     await screen.findByRole("combobox");
+    fireEvent.click(
+      screen.getByRole("button", { name: "Enter one base cost" }),
+    );
     expect(
       screen.getByRole("button", { name: /Calculate Quote/i }),
     ).toBeDisabled();
+  });
+
+  it("calculates a quote from explicit materials, labor and weekly overhead", async () => {
+    renderPage();
+    await screen.findByRole("combobox");
+    const values: Record<string, string> = {
+      "Materials and subcontracted direct costs": "50000",
+      "Other direct costs": "5000",
+      "Labor hours": "120",
+      "Labor rate per hour": "25",
+      "Weekly overhead": "600",
+      "Project duration (weeks)": "8",
+    };
+    for (const [label, value] of Object.entries(values))
+      fireEvent.change(screen.getByRole("spinbutton", { name: label }), {
+        target: { value },
+      });
+    fireEvent.click(screen.getByRole("button", { name: /Calculate Quote/i }));
+    await waitFor(() =>
+      expect(screen.getAllByText(/62,800/).length).toBeGreaterThanOrEqual(1),
+    );
+    expect(screen.getByText("Cost build-up")).toBeInTheDocument();
+    expect(screen.getAllByText(/Markup on cost/).length).toBeGreaterThanOrEqual(
+      1,
+    );
+    expect(
+      screen.getByText(/Net margin on priced subtotal/),
+    ).toBeInTheDocument();
   });
 
   it("shows the empty state when no presets are configured", async () => {
@@ -186,6 +223,9 @@ describe("engine route registration (regression)", () => {
       '"/cash-flow-timeline"',
       '"/labour-estimator"',
       '"/margin-calculator"',
+      '"/concrete-takeoff-calculator"',
+      '"/earthworks-cut-fill"',
+      '"/roof-framing-calculator"',
     ]) {
       expect(app, `App.tsx must register the route ${path}`).toContain(path);
     }

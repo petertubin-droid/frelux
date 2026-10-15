@@ -18,7 +18,11 @@ import {
   type SlabType,
 } from "@/lib/engineering/structural-calculator";
 import { useMarket } from "@/lib/international/market-context";
-import type {} from "@/types/build-to-roof";
+import {
+  calculateConcreteTakeoff,
+  type ConcreteTakeoffResult,
+  type RebarBarGroup,
+} from "@/lib/estimation/advanced-takeoff-engine";
 import {
   Calculator,
   AlertTriangle,
@@ -37,7 +41,7 @@ import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 
-type Tab = "beam" | "column" | "slab";
+type Tab = "beam" | "column" | "slab" | "concrete";
 
 // Printable engineering design sheet: full results, checks,
 // formula transparency and warnings for a beam/column/slab run.
@@ -107,12 +111,13 @@ export default function StructuralCalculator() {
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         {/* Tabs */}
-        <div className="mb-6 inline-flex rounded-xl border border-border bg-card p-1 dark:border-white/10 dark:bg-card">
+        <div className="mb-6 inline-flex flex-wrap rounded-xl border border-border bg-card p-1 dark:border-white/10 dark:bg-card">
           {(
             [
               { id: "beam", label: "Beam Design", icon: Ruler },
               { id: "column", label: "Column Design", icon: Layers },
               { id: "slab", label: "Slab Design", icon: TrendingUp },
+              { id: "concrete", label: "Concrete Takeoff", icon: Calculator },
             ] as const
           ).map((t) => (
             <Button
@@ -134,6 +139,7 @@ export default function StructuralCalculator() {
         {tab === "beam" && <BeamCalculator />}
         {tab === "column" && <ColumnCalculator />}
         {tab === "slab" && <SlabCalculator />}
+        {tab === "concrete" && <ConcreteTakeoffCalculator />}
 
         {/* Disclaimer */}
         <div className="mt-8 rounded-2xl border border-amber-200/80 bg-amber-50/50 p-5 dark:border-amber-500/20 dark:bg-amber-500/5">
@@ -155,6 +161,270 @@ export default function StructuralCalculator() {
         </div>
       </div>
     </SubscriptionGate>
+  );
+}
+
+// ── Concrete quantity takeoff (separate from structural design) ──
+
+export function ConcreteTakeoffCalculator() {
+  const [elementType, setElementType] = useState<
+    "slab" | "beam" | "column" | "footing"
+  >("slab");
+  const [length, setLength] = useState("");
+  const [width, setWidth] = useState("");
+  const [depth, setDepth] = useState("");
+  const [cement, setCement] = useState("");
+  const [sand, setSand] = useState("");
+  const [aggregate, setAggregate] = useState("");
+  const [waste, setWaste] = useState("0");
+  const [bagMass, setBagMass] = useState("50");
+  const [bars, setBars] = useState<
+    Array<{ label: string; diameterMm: string; count: string; lengthM: string }>
+  >([]);
+  const [result, setResult] = useState<ConcreteTakeoffResult | null>(null);
+  const [errors, setErrors] = useState<string[]>([]);
+  const calculate = () => {
+    const scheduled: RebarBarGroup[] = bars.map((bar) => ({
+      label: bar.label,
+      diameterMm: Number(bar.diameterMm),
+      count: Number(bar.count),
+      lengthM: Number(bar.lengthM),
+    }));
+    const response = calculateConcreteTakeoff({
+      elementType,
+      lengthM: Number(length),
+      widthM: Number(width),
+      depthM: Number(depth),
+      cementParts: Number(cement),
+      sandParts: Number(sand),
+      aggregateParts: Number(aggregate),
+      wastePercent: Number(waste),
+      cementBagMassKg: Number(bagMass),
+      rebarGroups: scheduled,
+    });
+    setErrors(response.errors);
+    setResult(response.data);
+  };
+  const field = (
+    label: string,
+    value: string,
+    set: (value: string) => void,
+    placeholder: string,
+    min = "0",
+  ) => (
+    <label className="grid gap-1 text-sm font-medium">
+      {label}
+      <input
+        aria-label={label}
+        className="input-field"
+        type="number"
+        min={min}
+        step="any"
+        value={value}
+        onChange={(e) => set(e.target.value)}
+        placeholder={placeholder}
+      />
+    </label>
+  );
+  return (
+    <div className="space-y-6">
+      <div className="card p-5 sm:p-7">
+        <h2 className="text-xl font-bold">Measured concrete quantities</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Rectangular element quantity takeoff only. It does not size or design
+          structural elements.
+        </p>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <label className="grid gap-1 text-sm font-medium">
+            Concrete element type
+            <select
+              aria-label="Concrete element type"
+              className="input-field"
+              value={elementType}
+              onChange={(e) =>
+                setElementType(e.target.value as typeof elementType)
+              }
+            >
+              <option value="slab">Slab</option>
+              <option value="beam">Rectangular beam segment</option>
+              <option value="column">Rectangular column segment</option>
+              <option value="footing">Rectangular pad footing</option>
+            </select>
+          </label>
+          {field(
+            `${elementType === "column" ? "Column height" : elementType === "beam" ? "Beam length" : elementType === "footing" ? "Footing length" : "Slab length"} (m)`,
+            length,
+            setLength,
+            "Enter measured length",
+          )}
+          {field(
+            `${elementType === "column" ? "Column side A" : elementType === "beam" ? "Beam width" : elementType === "footing" ? "Footing width" : "Slab width"} (m)`,
+            width,
+            setWidth,
+            "Enter measured width",
+          )}
+          {field(
+            `${elementType === "column" ? "Column side B" : elementType === "beam" ? "Beam depth" : elementType === "footing" ? "Footing depth" : "Slab thickness"} (m)`,
+            depth,
+            setDepth,
+            "Enter specified dimension",
+          )}
+          {field("Mix cement parts", cement, setCement, "Specified mix")}
+          {field("Mix sand parts", sand, setSand, "Specified mix")}
+          {field(
+            "Mix coarse aggregate parts",
+            aggregate,
+            setAggregate,
+            "Specified mix",
+          )}
+          {field(
+            "Additional concrete allowance (%)",
+            waste,
+            setWaste,
+            "Enter allowance",
+          )}
+          {field(
+            "Cement bag size (kg)",
+            bagMass,
+            setBagMass,
+            "Enter local bag size",
+            "0.1",
+          )}
+        </div>
+        <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h3 className="text-base font-semibold">
+              Rebar schedule (optional)
+            </h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Only calculated from a supplied engineer/drawing schedule. No
+              reinforcement design is inferred.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() =>
+              setBars((items) => [
+                ...items,
+                { label: "", diameterMm: "", count: "", lengthM: "" },
+              ])
+            }
+          >
+            + Add bar group
+          </Button>
+        </div>
+        {bars.map((bar, i) => (
+          <div
+            key={i}
+            className="mt-3 grid gap-3 rounded-xl bg-muted/40 p-3 sm:grid-cols-4"
+          >
+            {(
+              [
+                ["label", "Schedule label"],
+                ["diameterMm", "Bar diameter (mm)"],
+                ["count", "Bar count"],
+                ["lengthM", "Length per bar (m)"],
+              ] as const
+            ).map(([key, label]) => (
+              <label
+                key={key}
+                className="grid gap-1 text-xs font-medium text-muted-foreground"
+              >
+                {label}
+                <input
+                  aria-label={`${label} ${i + 1}`}
+                  className="input-field"
+                  type={key === "label" ? "text" : "number"}
+                  min="0"
+                  step="any"
+                  value={bar[key]}
+                  onChange={(e) =>
+                    setBars((items) =>
+                      items.map((item, j) =>
+                        j === i ? { ...item, [key]: e.target.value } : item,
+                      ),
+                    )
+                  }
+                />
+              </label>
+            ))}
+            <button
+              type="button"
+              className="text-left text-xs text-destructive"
+              onClick={() =>
+                setBars((items) => items.filter((_, j) => j !== i))
+              }
+            >
+              Remove bar group
+            </button>
+          </div>
+        ))}
+        <Button className="mt-5" onClick={calculate}>
+          Calculate concrete takeoff
+        </Button>
+        {errors.length > 0 && (
+          <div
+            role="alert"
+            className="mt-4 rounded-xl border border-amber-500/40 bg-amber-50/60 p-4 text-sm text-amber-900 dark:bg-amber-950/20 dark:text-amber-200"
+          >
+            {errors.map((error) => (
+              <p key={error}>{error}</p>
+            ))}
+          </div>
+        )}
+      </div>
+      {result && (
+        <div className="card-elevated p-5 sm:p-7">
+          <p className="text-xs font-bold uppercase tracking-wider text-primary">
+            Material quantity schedule
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              [
+                `Wet ${result.elementType} volume`,
+                `${result.concreteVolumeM3.toFixed(3)} m³`,
+              ],
+              [
+                "Wet volume with allowance",
+                `${result.volumeWithWasteM3.toFixed(3)} m³`,
+              ],
+              ["Cement", `${result.cementBagsToBuy} whole ${bagMass} kg bags`],
+              ["Sand", `${result.sandM3.toFixed(3)} m³`],
+              ["Coarse aggregate", `${result.aggregateM3.toFixed(3)} m³`],
+              [
+                "Rebar weight",
+                result.rebarWeightKg === null
+                  ? "Not calculated: add an engineer's schedule"
+                  : `${result.rebarWeightKg.toFixed(2)} kg (${(result.rebarWeightKg / 1000).toFixed(4)} t)`,
+              ],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-xl border border-border bg-card p-4"
+              >
+                <p className="text-xs text-muted-foreground">{label}</p>
+                <p className="mt-1 font-semibold">{value}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Mix ratio {result.mixParts.join(":")} · unrounded cement calculation{" "}
+            {result.cementBagsRaw.toFixed(2)} bags
+          </p>
+          <ul className="mt-4 space-y-2 border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground">
+            {result.assumptions.map((note) => (
+              <li key={note}>• {note}</li>
+            ))}
+          </ul>
+          <p className="mt-4 rounded-xl border border-amber-500/30 bg-amber-50/50 p-3 text-xs text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
+            Quantity estimating only. Rectangular dimensions, concrete mix and
+            reinforcement must match the project specification and qualified
+            engineer's schedule. Irregular elements and combined pours are not
+            modeled.
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
 

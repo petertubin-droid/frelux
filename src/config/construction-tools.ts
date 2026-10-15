@@ -265,6 +265,43 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     navVisible: true,
   },
   {
+    slug: "concrete-slab-takeoff",
+    title: "Concrete Slab Takeoff",
+    category: "structure",
+    icon: Hammer,
+    does: "Estimate measured slab concrete volume and material quantities from a specified mix and optional engineer-provided rebar schedule.",
+    enters:
+      "Slab dimensions, specified mix ratio, additional allowance and optional bar schedule.",
+    gets: "Wet concrete volume, whole cement-bag procurement count, sand, coarse aggregate and scheduled rebar weight.",
+    to: "/concrete-takeoff-calculator",
+    benefit: "Free quantity takeoff",
+    navVisible: true,
+  },
+  {
+    slug: "earthworks-cut-fill",
+    title: "Earthworks Cut & Fill",
+    category: "structure",
+    icon: Ruler,
+    does: "Calculate cut, fill and haul quantities from surveyed or designed cross-sections.",
+    enters:
+      "Station chainages, cut/fill areas and project-specific bulking/shrinkage factors.",
+    gets: "Average-end-area cut, compacted fill, loose haul and a qualified reuse balance.",
+    to: "/earthworks-cut-fill",
+    navVisible: true,
+  },
+  {
+    slug: "roof-framing",
+    title: "Roof Framing & Board Feet",
+    category: "structure",
+    icon: Umbrella,
+    does: "Lay out timber quantities for regular rectangular gable or equal-pitch hip roofs.",
+    enters:
+      "Measured building dimensions, pitch, rafter spacing and timber sections.",
+    gets: "Common, jack, hip and ridge member counts, lengths, linear metres and board feet.",
+    to: "/roof-framing-calculator",
+    navVisible: true,
+  },
+  {
     slug: "foundation-designer",
     title: "Foundation Designer",
     category: "structure",

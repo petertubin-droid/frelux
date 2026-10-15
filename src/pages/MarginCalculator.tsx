@@ -20,6 +20,7 @@ import {
   calculateMargin,
   type MarginResult,
 } from "@/lib/estimation/margin-engine";
+import { calculateProjectCost } from "@/lib/estimation/advanced-takeoff-engine";
 import type { MarginPreset, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { formatCurrency } from "@/lib/utils";
@@ -46,6 +47,22 @@ export default function MarginCalculator() {
 
   const [presetId, setPresetId] = useState("");
   const [cost, setCost] = useState("");
+  const [costMode, setCostMode] = useState<"single" | "components">(
+    "components",
+  );
+  const [materials, setMaterials] = useState("");
+  const [otherDirect, setOtherDirect] = useState("");
+  const [laborHours, setLaborHours] = useState("");
+  const [laborRate, setLaborRate] = useState("");
+  const [weeklyOverhead, setWeeklyOverhead] = useState("");
+  const [durationWeeks, setDurationWeeks] = useState("");
+  const [costBreakdown, setCostBreakdown] = useState<{
+    materials: number;
+    otherDirectCosts: number;
+    laborCost: number;
+    overheadCost: number;
+    directAndOverheadCost: number;
+  } | null>(null);
   const [result, setResult] = useState<MarginResult | null>(null);
 
   useEffect(() => {
@@ -62,11 +79,84 @@ export default function MarginCalculator() {
   }, []);
 
   const selected = presets.find((p) => p.id === presetId) ?? null;
+  const componentInputs = [
+    materials,
+    otherDirect,
+    laborHours,
+    laborRate,
+    weeklyOverhead,
+    durationWeeks,
+  ];
+  const componentInputsValid = componentInputs.every(
+    (value) =>
+      value.trim() !== "" &&
+      Number.isFinite(Number(value)) &&
+      Number(value) >= 0,
+  );
 
   const run = () => {
     if (!selected) return;
+    let baseCost = Number(cost);
+    if (costMode === "components") {
+      const amountFields = [
+        materials,
+        otherDirect,
+        laborHours,
+        laborRate,
+        weeklyOverhead,
+        durationWeeks,
+      ];
+      if (amountFields.some((value) => value.trim() === "")) {
+        setCostBreakdown(null);
+        setResult({
+          ok: false,
+          basis: null,
+          base_cost: null,
+          margin_percent: null,
+          profit: null,
+          priced_subtotal: null,
+          equivalent_other_basis_percent: null,
+          vat_rate: null,
+          vat_amount: null,
+          quote_total: null,
+          warnings: [
+            "Enter each direct-cost, labor and duration field. Use 0 only when that amount or duration is truly zero.",
+          ],
+          steps: [],
+        });
+        return;
+      }
+      const totals = calculateProjectCost({
+        materials: Number(materials),
+        otherDirectCosts: Number(otherDirect),
+        laborHours: Number(laborHours),
+        laborRatePerHour: Number(laborRate),
+        weeklyOverhead: Number(weeklyOverhead),
+        durationWeeks: Number(durationWeeks),
+      });
+      if (!totals.data) {
+        setCostBreakdown(null);
+        setResult({
+          ok: false,
+          basis: null,
+          base_cost: null,
+          margin_percent: null,
+          profit: null,
+          priced_subtotal: null,
+          equivalent_other_basis_percent: null,
+          vat_rate: null,
+          vat_amount: null,
+          quote_total: null,
+          warnings: totals.errors,
+          steps: [],
+        });
+        return;
+      }
+      setCostBreakdown(totals.data);
+      baseCost = totals.data.directAndOverheadCost;
+    } else setCostBreakdown(null);
     const r = calculateMargin({
-      base_cost: Number(cost),
+      base_cost: baseCost,
       margin_percent: selected.margin_percent,
       basis: selected.basis,
       rules,
@@ -88,7 +178,7 @@ export default function MarginCalculator() {
             { label: "Profit Margin Calculator" },
           ]}
           title="Profit Margin Calculator"
-          subtitle="Client price and profit for any base cost, from admin-configured margin presets. Every quote shows whether the percent applied to the cost (markup) or the price (margin): the two are never confused, and VAT is added only from a configured rate, never guessed."
+          subtitle="Build a complete bid cost from direct costs, labor hours and weekly overhead, or enter one base cost. Apply a configured profit preset and distinguish markup on cost from margin on price. VAT is added only from a configured rate, never guessed."
         />
 
         {loadError && (
@@ -105,47 +195,134 @@ export default function MarginCalculator() {
               FRELUX never publishes guessed pricing.
             </p>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-1 text-sm font-medium">
-                Margin preset
-                <select
-                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                  value={presetId}
-                  onChange={(e) => {
-                    setPresetId(e.target.value);
-                    setResult(null);
-                  }}
-                >
-                  {presets.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}: {p.margin_percent}% {basisLabel(p)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="grid gap-1 text-sm font-medium">
-                Base cost ({currencySymbol})
-                <input
-                  type="number"
-                  min="1"
-                  step="any"
-                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                  value={cost}
-                  onChange={(e) => setCost(e.target.value)}
-                  placeholder="e.g. 1000000"
-                />
-              </label>
-              <div className="sm:col-span-2">
+            <>
+              <div
+                className="mb-5 flex flex-wrap gap-2"
+                role="group"
+                aria-label="Project cost entry method"
+              >
                 <button
                   type="button"
-                  onClick={run}
-                  disabled={!selected || !cost}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                  onClick={() => {
+                    setCostMode("components");
+                    setResult(null);
+                  }}
+                  className={`rounded-lg px-3 py-2 text-sm font-semibold ${costMode === "components" ? "bg-primary text-primary-foreground" : "border border-border"}`}
                 >
-                  Calculate Quote
+                  Build cost from components
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCostMode("single");
+                    setResult(null);
+                  }}
+                  className={`rounded-lg px-3 py-2 text-sm font-semibold ${costMode === "single" ? "bg-primary text-primary-foreground" : "border border-border"}`}
+                >
+                  Enter one base cost
                 </button>
               </div>
-            </div>
+              {costMode === "components" && (
+                <div className="mb-5 rounded-xl border border-border bg-muted/20 p-4 sm:p-5">
+                  <h2 className="font-semibold">Build your project cost</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Enter costs in the selected display currency; no cost, rate,
+                    duration or tax is inferred.
+                  </p>
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {(
+                      [
+                        [
+                          "Materials and subcontracted direct costs",
+                          materials,
+                          setMaterials,
+                        ],
+                        ["Other direct costs", otherDirect, setOtherDirect],
+                        ["Labor hours", laborHours, setLaborHours],
+                        ["Labor rate per hour", laborRate, setLaborRate],
+                        ["Weekly overhead", weeklyOverhead, setWeeklyOverhead],
+                        [
+                          "Project duration (weeks)",
+                          durationWeeks,
+                          setDurationWeeks,
+                        ],
+                      ] as const
+                    ).map(([label, value, setValue]) => (
+                      <label
+                        key={label}
+                        className="grid gap-1 text-sm font-medium"
+                      >
+                        {label}
+                        <input
+                          aria-label={label}
+                          type="number"
+                          min="0"
+                          step="any"
+                          className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                          value={value}
+                          onChange={(e) => {
+                            setValue(e.target.value);
+                            setResult(null);
+                          }}
+                          placeholder="Enter amount"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Labor cost = hours × rate · Overhead = weekly overhead ×
+                    project weeks · Cost basis = materials + other direct costs
+                    + labor + overhead.
+                  </p>
+                </div>
+              )}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="grid gap-1 text-sm font-medium">
+                  Margin preset
+                  <select
+                    className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                    value={presetId}
+                    onChange={(e) => {
+                      setPresetId(e.target.value);
+                      setResult(null);
+                    }}
+                  >
+                    {presets.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}: {p.margin_percent}% {basisLabel(p)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {costMode === "single" && (
+                  <label className="grid gap-1 text-sm font-medium">
+                    Base cost ({currencySymbol})
+                    <input
+                      type="number"
+                      min="1"
+                      step="any"
+                      className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                      value={cost}
+                      onChange={(e) => setCost(e.target.value)}
+                      placeholder="e.g. 1000000"
+                    />
+                  </label>
+                )}
+                <div className="sm:col-span-2">
+                  <button
+                    type="button"
+                    onClick={run}
+                    disabled={
+                      !selected ||
+                      (costMode === "single" ? !cost : !componentInputsValid)
+                    }
+                    className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                  >
+                    Calculate Quote
+                  </button>
+                </div>
+              </div>
+            </>
           )}
         </div>
 
@@ -181,10 +358,52 @@ export default function MarginCalculator() {
               <p className="mt-1 text-3xl font-bold">
                 {money(result.quote_total!)}
               </p>
+              {costBreakdown && (
+                <div className="mt-4 rounded-xl bg-muted/35 p-3 text-sm">
+                  <p className="mb-2 font-semibold">Cost build-up</p>
+                  {[
+                    [
+                      "Materials and subcontracted direct costs",
+                      costBreakdown.materials,
+                    ],
+                    ["Other direct costs", costBreakdown.otherDirectCosts],
+                    ["Labor (hours × rate)", costBreakdown.laborCost],
+                    [
+                      "Overhead (weekly × duration)",
+                      costBreakdown.overheadCost,
+                    ],
+                  ].map(([label, amount]) => (
+                    <p
+                      key={String(label)}
+                      className="flex justify-between gap-4 py-1"
+                    >
+                      <span className="text-muted-foreground">{label}</span>
+                      <span>{money(Number(amount))}</span>
+                    </p>
+                  ))}
+                </div>
+              )}
               <div className="mt-3 space-y-1 text-sm">
                 <p className="flex justify-between">
                   <span className="text-muted-foreground">Base cost</span>
                   <span>{money(result.base_cost!)}</span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="text-muted-foreground">Markup on cost</span>
+                  <span>
+                    {((result.profit! / result.base_cost!) * 100).toFixed(2)}%
+                  </span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    Net margin on priced subtotal
+                  </span>
+                  <span>
+                    {((result.profit! / result.priced_subtotal!) * 100).toFixed(
+                      2,
+                    )}
+                    %
+                  </span>
                 </p>
                 <p className="flex justify-between">
                   <span className="text-muted-foreground">Profit</span>

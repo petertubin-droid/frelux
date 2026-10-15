@@ -886,6 +886,11 @@ const routes = [
       'Plan building maintenance schedules with cost estimates for each task.',
   },
   {
+    path: '/concrete-takeoff-calculator',
+    title: 'Concrete Slab Takeoff | FRELUX SMART CALC',
+    description: 'Estimate concrete slab quantities from measured dimensions, a specified mix ratio and an optional engineer-provided rebar schedule.',
+  },
+  {
     path: '/margin-calculator',
     title: 'Margin Calculator | FRELUX SMART CALC',
     description:

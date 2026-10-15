@@ -99,10 +99,16 @@ const Disclaimer = lazy(() => import("@/pages/legal/Disclaimer"));
 const AiDisclaimer = lazy(() => import("@/pages/legal/AiDisclaimer"));
 const DeveloperPortal = lazy(() => import("@/pages/DeveloperPortal"));
 const DiasporaEscrow = lazy(() => import("@/pages/DiasporaEscrow"));
-const MerchantMarketplaceApi = lazy(() => import("@/pages/MerchantMarketplaceApi"));
-const DataResidencyCenter = lazy(() => import("@/pages/compliance/DataResidencyCenter"));
+const MerchantMarketplaceApi = lazy(
+  () => import("@/pages/MerchantMarketplaceApi"),
+);
+const DataResidencyCenter = lazy(
+  () => import("@/pages/compliance/DataResidencyCenter"),
+);
 const OfflineSyncHub = lazy(() => import("@/pages/offline/OfflineSyncHub"));
-const MarketplaceSeedingHub = lazy(() => import("@/pages/marketplace/MarketplaceSeedingHub"));
+const MarketplaceSeedingHub = lazy(
+  () => import("@/pages/marketplace/MarketplaceSeedingHub"),
+);
 const LearnCategory = lazy(() => import("@/pages/learn/LearnCategory"));
 const LearnArticle = lazy(() => import("@/pages/learn/LearnArticle"));
 const LearnLibrary = lazy(() => import("@/pages/learn/LearnLibrary"));
@@ -119,6 +125,9 @@ const BrandStudio = lazy(() => import("@/pages/BrandStudio"));
 const BuildToRoofEstimator = lazy(() => import("@/pages/BuildToRoofEstimator"));
 const ImageEstimator = lazy(() => import("@/pages/ImageEstimator"));
 const StructuralCalculator = lazy(() => import("@/pages/StructuralCalculator"));
+const ConcreteTakeoffPage = lazy(() => import("@/pages/ConcreteTakeoffPage"));
+const EarthworksEstimator = lazy(() => import("@/pages/EarthworksEstimator"));
+const RoofFramingEstimator = lazy(() => import("@/pages/RoofFramingEstimator"));
 const SmartCalculator = lazy(() => import("@/pages/SmartCalculator"));
 const FoundationCalculator = lazy(() => import("@/pages/FoundationCalculator"));
 const ProjectTimeline = lazy(() => import("@/pages/ProjectTimeline"));
@@ -861,6 +870,30 @@ export default function App() {
                         element={
                           <Suspense fallback={<PageLoader />}>
                             <StructuralCalculator />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/concrete-takeoff-calculator"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <ConcreteTakeoffPage />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/earthworks-cut-fill"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <EarthworksEstimator />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/roof-framing-calculator"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <RoofFramingEstimator />
                           </Suspense>
                         }
                       />
