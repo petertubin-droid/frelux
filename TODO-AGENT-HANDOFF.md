@@ -305,6 +305,13 @@ Rolled out strictly one-at-a-time. Each market has its own migration (applied to
 - **Timeline/logistics:** broad climate/season heuristics exist, but do not cover state-specific public holidays, measured site productivity, remote-region supply lead times, customs/carrier feeds or predictive delay operation.
 - **Changes made for AU:** none. The live/fixture availability discrepancy, unimplemented/partial calculators, borrowed tape mapping and unavailable window/door prices block an accurate operational claim. Keep the market partial/unverified; next remaining market: **Germany (`DE`)**.
 
+#### Australia closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
+
+- **Live verification (2026-10-15):** AU profile `active` but **hidden from the picker** (`is_visible=false`, AUD — availability decision unchanged from the audit); **5 active role mappings** and **33 active AUD price rows** confirmed live; zero standards existed before this pass.
+- **Standards seeded (migration `20261015740000`, applied + verified live):** National Construction Code incl. Building Code of Australia volumes (ABCB) — adoption dates set by each state and territory (NCC 2022 adopted 1 May 2023; Amdt 1 from 1 May 2025; Amdt 2 from 29 July 2025; NCC 2025 adopting state-by-state from 1 May 2026) → `medium` with the state/territory caveat; AS/NZS 2589:2017 Gypsum linings — Application and finishing (Standards Australia) → `high`; AS/NZS 2588 Gypsum plasterboard (product spec) → `high`. No coverage rates asserted.
+- **Guard:** `src/lib/international/__tests__/au-construction-standards.test.ts` pins 3 rows only, the state-adoption caveat, both AS/NZS refs as high, no unsubstantiated URLs, idempotency.
+- **Remaining honest gaps (unchanged):** state approval workflows, workforce compliance, AU holiday/logistics calibration. AU Engine-1 standards complete; picker visibility intentionally unchanged. Next per owner order: **Germany (`DE`)**.
+
 ### Germany market closeout (priority 13; audit only, 2026-10-14)
 
 - **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Germany (`DE`) has a built-in active/visible metric EUR profile with German terminology, and a dedicated reference price catalog. The seeded fixture does not cover DE, and this review did not query live production availability. Its apparent `active` setting is not evidence that every service is deployed or fully operational.
