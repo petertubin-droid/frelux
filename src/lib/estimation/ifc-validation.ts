@@ -165,19 +165,24 @@ export function validateIfcFile(input: {
   });
 
   // 6. Units ----------------------------------------------------------
-  const unitCount = countMatches(text, /IFCSIUNIT\s*\(/gi);
+  const siUnitCount = countMatches(text, /IFCSIUNIT\s*\(/gi);
+  const conversionUnitCount = countMatches(
+    text,
+    /IFCCONVERSIONBASEDUNIT\s*\(/gi,
+  );
+  const unitCount = siUnitCount + conversionUnitCount;
   checks.push({
     id: "units",
-    label: "SI units declared (IfcSIUnit)",
+    label: "Explicit unit declarations",
     status: unitCount > 0 ? "pass" : "warn",
     detail:
       unitCount > 0
-        ? `${unitCount} IfcSIUnit declaration(s) found.`
-        : "No IfcSIUnit declarations: declared quantity units are uncertain; reported units may be assumptions and are flagged in the takeoff.",
+        ? `${siUnitCount} IfcSIUnit and ${conversionUnitCount} IfcConversionBasedUnit declaration(s) found. The takeoff converts only supported, explicitly assigned units; other values remain raw and labelled.`
+        : "No IfcSIUnit or IfcConversionBasedUnit declarations: quantity units cannot be confirmed, so unresolved values remain raw and labelled in the takeoff.",
   });
   if (unitCount === 0) {
     warnings.push(
-      "The file declares no IfcSIUnit entries; unit fidelity cannot be confirmed.",
+      "The file declares no supported unit declarations; unit fidelity cannot be confirmed and unresolved values remain raw.",
     );
   }
 

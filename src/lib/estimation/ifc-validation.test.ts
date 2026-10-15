@@ -65,7 +65,7 @@ describe("validateIfcFile", () => {
     const r = validateIfcFile({ file_text: noUnits });
     expect(r.verdict).toBe("valid_with_warnings");
     expect(r.checks.find((c) => c.id === "units")?.status).toBe("warn");
-    expect(r.warnings.join(" ")).toMatch(/no IfcSIUnit/i);
+    expect(r.warnings.join(" ")).toMatch(/no supported unit declarations/i);
   });
 
   it("counts unparsed entity-shaped lines and keeps them as warnings only", () => {

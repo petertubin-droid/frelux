@@ -47,6 +47,14 @@ DATA;
 #50=IFCWINDOW('2aPqTXV3L9KxBhCPZJ3j0q',#1,'Window-Bed',$,$,$,$,$,$,$);
 /* a non-target entity that must NOT appear in the takeoff */
 #60=IFCFURNISHINGELEMENT('xyz',#1,'Sofa',$,$,$,$,$);
+/* project units: explicit SI assignments for area, volume, mass and time */
+#70=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);
+#71=IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);
+#72=IFCSIUNIT(*,.VOLUMEUNIT.,$,.CUBIC_METRE.);
+#73=IFCSIUNIT(*,.MASSUNIT.,$,.KILOGRAM.);
+#74=IFCSIUNIT(*,.TIMEUNIT.,$,.SECOND.);
+#75=IFCUNITASSIGNMENT((#70,#71,#72,#73,#74));
+#76=IFCPROJECT('project',#1,'Villa',$,$,$,$,$,#75);
 ENDSEC;
 END-ISO-10303-21;
 `;
@@ -67,7 +75,7 @@ describe("parseIfcTakeoff", () => {
       IFCDOOR: 1,
       IFCWINDOW: 1,
     });
-    expect(r.entity_count).toBe(16); // hand count of # entities in the fixture
+    expect(r.entity_count).toBe(23); // hand count of # entities in the fixture
   });
 
   it("sums ONLY the quantities the file declares (hand-verified)", () => {
@@ -118,6 +126,9 @@ DATA;
 #2=IFCQUANTITYAREA('Area (net, gross)',$,$,4.5,$);
 #3=IFCELEMENTQUANTITY('q',$,$,'',(#2));
 #4=IFCRELDEFINESBYPROPERTIES('r',$,$,$,(#1),#3);
+#5=IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);
+#6=IFCUNITASSIGNMENT((#5));
+#7=IFCPROJECT('p',$,'P',$,$,$,$,$,#6);
 ENDSEC;END-ISO-10303-21;`;
     const r = parseIfcTakeoff({ file_text: tricky, rules: RULES });
     const walls = r.elements.find((e) => e.type === "IFCWALL")!;
@@ -125,6 +136,110 @@ ENDSEC;END-ISO-10303-21;`;
     expect(walls.quantity_totals["Area (net, gross)"]).toEqual({
       unit: "m²",
       total: 4.5,
+      elements: 1,
+    });
+  });
+
+  it("converts explicitly assigned SI prefixes to canonical units", () => {
+    const file = `ISO-10303-21;
+HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;
+DATA;
+#1=IFCWALL('g1',$,'W1',$,$,$,$,$);
+#2=IFCQUANTITYLENGTH('Height',$,$,2500,$);
+#3=IFCELEMENTQUANTITY('q',$,$,'',(#2));
+#4=IFCRELDEFINESBYPROPERTIES('r',$,$,$,(#1),#3);
+#5=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+#6=IFCUNITASSIGNMENT((#5));
+#7=IFCPROJECT('p',$,'P',$,$,$,$,$,#6);
+ENDSEC;END-ISO-10303-21;`;
+    const r = parseIfcTakeoff({ file_text: file, rules: RULES });
+    expect(r.elements[0].quantity_totals.Height).toEqual({
+      unit: "m",
+      total: 2.5,
+      elements: 1,
+    });
+  });
+
+  it("parses valid STEP decimal forms with trailing or omitted leading digits", () => {
+    const file = `ISO-10303-21;
+HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;
+DATA;
+#1=IFCWALL('g1',$,'W1',$,$,$,$,$);
+#2=IFCQUANTITYLENGTH('Height',$,$,3.,$);
+#3=IFCELEMENTQUANTITY('q',$,$,'',(#2));
+#4=IFCRELDEFINESBYPROPERTIES('r',$,$,$,(#1),#3);
+#5=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);
+#6=IFCUNITASSIGNMENT((#5));
+#7=IFCPROJECT('p',$,'P',$,$,$,$,$,#6);
+ENDSEC;END-ISO-10303-21;`;
+    const r = parseIfcTakeoff({ file_text: file, rules: RULES });
+    expect(r.elements[0].quantity_totals.Height).toEqual({
+      unit: "m",
+      total: 3,
+      elements: 1,
+    });
+    const omittedLeadingDigit = file.replace(",3.,", ",.3,");
+    const decimal = parseIfcTakeoff({
+      file_text: omittedLeadingDigit,
+      rules: RULES,
+    });
+    expect(decimal.elements[0].quantity_totals.Height.total).toBe(0.3);
+  });
+
+  it("does not fall back to the project unit when an explicit local unit is unresolved", () => {
+    const file = `ISO-10303-21;
+HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;
+DATA;
+#1=IFCWALL('g1',$,'W1',$,$,$,$,$);
+#2=IFCQUANTITYLENGTH('Height',$,#99,2500,$);
+#3=IFCELEMENTQUANTITY('q',$,$,'',(#2));
+#4=IFCRELDEFINESBYPROPERTIES('r',$,$,$,(#1),#3);
+#5=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);
+#6=IFCUNITASSIGNMENT((#5));
+#7=IFCPROJECT('p',$,'P',$,$,$,$,$,#6);
+ENDSEC;END-ISO-10303-21;`;
+    const r = parseIfcTakeoff({ file_text: file, rules: RULES });
+    expect(r.elements[0].quantity_totals.Height).toEqual({
+      unit: "unit unresolved (raw IFC value)",
+      total: 2500,
+      elements: 1,
+    });
+  });
+
+  it("keeps unsupported or missing units raw and warns rather than claiming SI", () => {
+    const file = `ISO-10303-21;
+HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;
+DATA;
+#1=IFCWALL('g1',$,'W1',$,$,$,$,$);
+#2=IFCQUANTITYLENGTH('Height',$,$,2500,$);
+#3=IFCELEMENTQUANTITY('q',$,$,'',(#2));
+#4=IFCRELDEFINESBYPROPERTIES('r',$,$,$,(#1),#3);
+ENDSEC;END-ISO-10303-21;`;
+    const r = parseIfcTakeoff({ file_text: file, rules: RULES });
+    expect(r.elements[0].quantity_totals.Height).toEqual({
+      unit: "unit unresolved (raw IFC value)",
+      total: 2500,
+      elements: 1,
+    });
+    expect(r.warnings.join(" ")).toMatch(/no supported explicit local or project unit/i);
+  });
+
+  it("converts a locally declared conversion-based unit to SI", () => {
+    const file = `ISO-10303-21;
+HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;
+DATA;
+#1=IFCWALL('g1',$,'W1',$,$,$,$,$);
+#2=IFCQUANTITYLENGTH('Height',$,#5,10,$);
+#3=IFCELEMENTQUANTITY('q',$,$,'',(#2));
+#4=IFCRELDEFINESBYPROPERTIES('r',$,$,$,(#1),#3);
+#5=IFCCONVERSIONBASEDUNIT($,.LENGTHUNIT.,'foot',#6);
+#6=IFCMEASUREWITHUNIT(IFCLENGTHMEASURE(0.3048),#7);
+#7=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);
+ENDSEC;END-ISO-10303-21;`;
+    const r = parseIfcTakeoff({ file_text: file, rules: RULES });
+    expect(r.elements[0].quantity_totals.Height).toEqual({
+      unit: "m",
+      total: 3.05,
       elements: 1,
     });
   });
@@ -149,7 +264,7 @@ ENDSEC;END-ISO-10303-21;`;
     const r = parseIfcTakeoff({ file_text: FIXTURE, rules: bigRules });
     expect(r.ok).toBe(false);
     expect(r.warnings[0]).toMatch(/above the configured cap of 5/i);
-    expect(r.entity_count).toBe(16);
+    expect(r.entity_count).toBe(23);
   });
 
   it("warns honestly when a file has elements but NO quantities at all", () => {

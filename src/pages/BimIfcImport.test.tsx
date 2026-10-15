@@ -21,6 +21,9 @@ DATA;
 #3=IFCELEMENTQUANTITY('q',$,'BaseQuantities',$,'',(#2));
 #4=IFCRELDEFINESBYPROPERTIES('r',$,$,$,(#1),#3);
 #5=IFCDOOR('g2',$,'Front-Door',$,$,$,$,$);
+#6=IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);
+#7=IFCUNITASSIGNMENT((#6));
+#8=IFCPROJECT('p',$,'Project',$,$,$,$,$,$,#7);
 ENDSEC;
 END-ISO-10303-21;`;
 

@@ -254,7 +254,7 @@ export default function BimIfcImport() {
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {result.has_quantities
-                    ? "IFC standard SI units (m², m³, m, kg)"
+                    ? "Declared values; explicit supported units are converted to SI"
                     : "counts only: nothing invented"}
                 </p>
               </div>

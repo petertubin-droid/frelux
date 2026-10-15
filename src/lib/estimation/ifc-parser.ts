@@ -15,8 +15,10 @@
  *  - A file that is not valid IFC/STEP is refused, not guessed at.
  *  - A file larger than the admin-configured entity cap is refused
  *    with an honest error instead of freezing the tab.
- *  - IFC quantities are per the IFC standard in SI units (m², m³,
- *    m, kg) - reported as such, never converted silently.
+ *  - IFC quantities use the project's assigned units unless the
+ *    quantity supplies a local unit. Supported SI and conversion-based
+ *    units are normalized to m²/m³/m/kg/s; unresolved units remain raw
+ *    and are explicitly labelled rather than guessed to be SI.
  */
 
 // ============================================================
@@ -86,14 +88,141 @@ const TARGET_ELEMENT_TYPES = new Set([
   "IFCCHIMNEY",
 ]);
 
-const QUANTITY_TYPE_UNITS: Record<string, string> = {
-  IFCQUANTITYAREA: "m²",
-  IFCQUANTITYVOLUME: "m³",
-  IFCQUANTITYLENGTH: "m",
-  IFCQUANTITYCOUNT: "count",
-  IFCQUANTITYWEIGHT: "kg",
-  IFCQUANTITYTIME: "s",
+const QUANTITY_UNIT_TYPES: Record<string, string> = {
+  IFCQUANTITYAREA: "AREAUNIT",
+  IFCQUANTITYVOLUME: "VOLUMEUNIT",
+  IFCQUANTITYLENGTH: "LENGTHUNIT",
+  IFCQUANTITYWEIGHT: "MASSUNIT",
+  IFCQUANTITYTIME: "TIMEUNIT",
 };
+
+const CANONICAL_UNIT_LABELS: Record<string, string> = {
+  AREAUNIT: "m²",
+  VOLUMEUNIT: "m³",
+  LENGTHUNIT: "m",
+  MASSUNIT: "kg",
+  TIMEUNIT: "s",
+};
+
+const SI_PREFIX_FACTORS: Record<string, number> = {
+  EXA: 1e18, PETA: 1e15, TERA: 1e12, GIGA: 1e9, MEGA: 1e6,
+  KILO: 1e3, HECTO: 1e2, DECA: 1e1, DECI: 1e-1, CENTI: 1e-2,
+  MILLI: 1e-3, MICRO: 1e-6, NANO: 1e-9, PICO: 1e-12,
+  FEMTO: 1e-15, ATTO: 1e-18,
+};
+
+interface ResolvedIfcUnit {
+  unitType: string;
+  factorToCanonical: number;
+  label: string;
+}
+
+function enumValue(value: string | undefined): string {
+  return (value ?? "").replace(/^\.|\.$/g, "").toUpperCase();
+}
+
+function numericStepValue(value: string | undefined): number | null {
+  if (!value) return null;
+  const match = value.match(/[-+]?(?:\d+\.?\d*|\.\d+)(?:[Ee][-+]?\d+)?/);
+  if (!match) return null;
+  const number = Number(match[0]);
+  return Number.isFinite(number) ? number : null;
+}
+
+/** Resolves only explicitly declared units. Unknown or custom units stay raw. */
+function resolveIfcUnits(
+  entities: Map<string, StepEntity>,
+): { global: Map<string, ResolvedIfcUnit>; byId: Map<string, ResolvedIfcUnit> } {
+  const cache = new Map<string, ResolvedIfcUnit>();
+  const resolving = new Set<string>();
+  const resolve = (id: string): ResolvedIfcUnit | null => {
+    const cached = cache.get(id);
+    if (cached) return cached;
+    if (resolving.has(id)) return null;
+    const entity = entities.get(id);
+    if (!entity) return null;
+    resolving.add(id);
+    let unit: ResolvedIfcUnit | null = null;
+    if (entity.type === "IFCSIUNIT") {
+      const unitType = enumValue(entity.args[1]);
+      const prefixValue = enumValue(entity.args[2]);
+      const prefix = prefixValue === "$" ? "" : prefixValue;
+      const name = enumValue(entity.args[3]);
+      const prefixFactor = prefix ? SI_PREFIX_FACTORS[prefix] : 1;
+      if (prefixFactor && unitType === "LENGTHUNIT" && name === "METRE") {
+        unit = { unitType, factorToCanonical: prefixFactor, label: "m" };
+      } else if (prefixFactor && unitType === "AREAUNIT" && name === "SQUARE_METRE") {
+        unit = { unitType, factorToCanonical: prefixFactor ** 2, label: "m²" };
+      } else if (prefixFactor && unitType === "VOLUMEUNIT" && name === "CUBIC_METRE") {
+        unit = { unitType, factorToCanonical: prefixFactor ** 3, label: "m³" };
+      } else if (prefixFactor && unitType === "MASSUNIT" && name === "GRAM") {
+        unit = { unitType, factorToCanonical: prefixFactor / 1000, label: "kg" };
+      } else if (prefixFactor && unitType === "MASSUNIT" && name === "KILOGRAM") {
+        unit = { unitType, factorToCanonical: prefixFactor, label: "kg" };
+      } else if (prefixFactor && unitType === "TIMEUNIT" && name === "SECOND") {
+        unit = { unitType, factorToCanonical: prefixFactor, label: "s" };
+      }
+    } else if (entity.type === "IFCCONVERSIONBASEDUNIT") {
+      const unitType = enumValue(entity.args[1]);
+      const conversionId = entity.args[3]?.match(/^#(\d+)$/)?.[1];
+      const conversion = conversionId ? entities.get(conversionId) : undefined;
+      const measure = conversion?.type === "IFCMEASUREWITHUNIT" ? conversion : undefined;
+      const numericFactor = numericStepValue(measure?.args[0]);
+      const baseUnitId = measure?.args[1]?.match(/^#(\d+)$/)?.[1];
+      const baseUnit = baseUnitId ? resolve(baseUnitId) : null;
+      const factorToCanonical =
+        numericFactor !== null && baseUnit
+          ? numericFactor * baseUnit.factorToCanonical
+          : Number.NaN;
+      if (
+        numericFactor !== null && numericFactor > 0 &&
+        Number.isFinite(factorToCanonical) && baseUnit &&
+        baseUnit.unitType === unitType &&
+        (unitType === "LENGTHUNIT" || unitType === "AREAUNIT" ||
+          unitType === "VOLUMEUNIT" || unitType === "MASSUNIT" || unitType === "TIMEUNIT")
+      ) {
+        unit = {
+          unitType,
+          factorToCanonical,
+          label: CANONICAL_UNIT_LABELS[unitType],
+        };
+      }
+    }
+    resolving.delete(id);
+    if (unit) cache.set(id, unit);
+    return unit;
+  };
+
+  for (const [id, entity] of entities) {
+    if (entity.type === "IFCSIUNIT" || entity.type === "IFCCONVERSIONBASEDUNIT") {
+      resolve(id);
+    }
+  }
+
+  const globalUnits = new Map<string, ResolvedIfcUnit>();
+  let assignmentId: string | null = null;
+  for (const entity of entities.values()) {
+    if (entity.type !== "IFCPROJECT") continue;
+    for (const arg of entity.args) {
+      const ref = arg.match(/^#(\d+)$/)?.[1];
+      if (ref && entities.get(ref)?.type === "IFCUNITASSIGNMENT") assignmentId = ref;
+    }
+  }
+  const assignment = assignmentId ? entities.get(assignmentId) : undefined;
+  const unitRefs = assignment?.args.join(",").match(/#\d+/g) ?? [];
+  for (const ref of unitRefs) {
+    const id = ref.slice(1);
+    const entity = entities.get(id);
+    const resolved = resolve(id);
+    if (entity?.type === "IFCSIUNIT" && resolved) {
+      globalUnits.set(enumValue(entity.args[1]), resolved);
+    } else if (entity?.type === "IFCCONVERSIONBASEDUNIT" && resolved) {
+      globalUnits.set(enumValue(entity.args[1]), resolved);
+    }
+  }
+
+  return { global: globalUnits, byId: cache };
+}
 
 // ============================================================
 // STEP tokenizer (handles quoted strings with embedded commas)
@@ -150,25 +279,46 @@ function parseStepEntities(fileText: string): {
 } {
   const entities = new Map<string, StepEntity>();
   let unparsed = 0;
-  const lineRe = /#(\d+)\s*=\s*([A-Za-z0-9_]+)\s*\(([\s\S]*?)\)\s*;/g;
+  const startRe = /#(\d+)\s*=\s*([A-Za-z0-9_]+)\s*\(/g;
   let match: RegExpExecArray | null;
-  while ((match = lineRe.exec(fileText)) !== null) {
-    const [, id, type, rawArgs] = match;
+  while ((match = startRe.exec(fileText)) !== null) {
+    const [, id, type] = match;
+    const openParen = startRe.lastIndex - 1;
+    let depth = 1;
+    let inString = false;
+    let end = openParen + 1;
+    for (; end < fileText.length; end++) {
+      const char = fileText[end];
+      if (inString) {
+        if (char === "'") {
+          if (fileText[end + 1] === "'") end++;
+          else inString = false;
+        }
+        continue;
+      }
+      if (char === "'") {
+        inString = true;
+      } else if (char === "(") {
+        depth++;
+      } else if (char === ")") {
+        depth--;
+        if (depth === 0) break;
+      }
+    }
+    if (depth !== 0 || fileText.slice(end + 1).match(/^\s*;/) === null) {
+      unparsed++;
+      continue;
+    }
     try {
       entities.set(id, {
         type: type.toUpperCase(),
-        args: splitStepArgs(rawArgs),
+        args: splitStepArgs(fileText.slice(openParen + 1, end)),
       });
     } catch {
       unparsed++;
     }
+    startRe.lastIndex = end + 1 + (fileText.slice(end + 1).match(/^\s*/)?.[0].length ?? 0) + 1;
   }
-  // Any line that LOOKS like an entity but did not match the regex counts
-  // as unparsed so it is never silently dropped.
-  const candidateRe = /^\s*#\d+\s*=/gm;
-  let candidates = 0;
-  while (candidateRe.exec(fileText) !== null) candidates++;
-  unparsed += Math.max(0, candidates - entities.size);
   return { entities, unparsed };
 }
 
@@ -178,12 +328,19 @@ function parseStepEntities(fileText: string): {
 
 /** Extracts the numeric value from a quantity entity's arguments. */
 function quantityValue(entity: StepEntity): number | null {
-  // IfcQuantityX('Name', 'Description'?, Unit?, Value, ...) - the value is
-  // the first purely numeric argument after the name.
+  // IfcQuantityX stores its measurement in argument 4 (index 3). Looking
+  // there first is essential when argument 3 carries a local unit reference.
+  const declaredValue = entity.args[3];
+  const numericPattern = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$/;
+  if (declaredValue && numericPattern.test(declaredValue)) {
+    const value = Number(declaredValue);
+    if (Number.isFinite(value)) return value;
+  }
+  // Tolerate vendor variants only when the numeric value is still explicit.
   for (let i = 1; i < entity.args.length; i++) {
     const a = entity.args[i];
     if (a === "$" || a === "*") continue;
-    if (/^-?\d+(\.\d+)?([eE][-+]?\d+)?$/.test(a)) {
+    if (numericPattern.test(a)) {
       const v = Number(a);
       return Number.isFinite(v) ? v : null;
     }
@@ -279,19 +436,54 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
   }
 
   // ---- index quantity entities and their property-set relations ----
+  const resolvedUnits = resolveIfcUnits(entities);
   const quantities = new Map<
     string,
-    { name: string; type: string; value: number }
+    { name: string; type: string; value: number; unit: string; factor: number | null }
   >();
+  let unresolvedUnitCount = 0;
   for (const [id, ent] of entities) {
-    if (ent.type in QUANTITY_TYPE_UNITS) {
+    if (ent.type.startsWith("IFCQUANTITY")) {
       const qName =
         ent.args[0]?.replace(/^'|'$/g, "").replace(/''/g, "'") ?? "";
       const value = quantityValue(ent);
-      if (value !== null) {
-        quantities.set(id, { name: qName, type: ent.type, value });
+      if (value === null) continue;
+      if (ent.type === "IFCQUANTITYCOUNT") {
+        quantities.set(id, { name: qName, type: ent.type, value, unit: "count", factor: 1 });
+        continue;
       }
+      const unitType = QUANTITY_UNIT_TYPES[ent.type];
+      if (!unitType) continue;
+      const localUnitArg = ent.args[2]?.trim();
+      const hasLocalUnitReference = Boolean(
+        localUnitArg && localUnitArg !== "$" && localUnitArg !== "*",
+      );
+      const localUnitId = localUnitArg?.match(/^#(\d+)$/)?.[1];
+      const localUnit = localUnitId
+        ? resolvedUnits.byId.get(localUnitId)
+        : null;
+      const globalUnit = resolvedUnits.global.get(unitType) ?? null;
+      const resolvedUnit = hasLocalUnitReference
+        ? localUnit?.unitType === unitType ? localUnit : null
+        : globalUnit;
+      const convertedValue = resolvedUnit
+        ? value * resolvedUnit.factorToCanonical
+        : value;
+      const safeUnit = Number.isFinite(convertedValue) ? resolvedUnit : null;
+      if (!safeUnit) unresolvedUnitCount++;
+      quantities.set(id, {
+        name: qName,
+        type: ent.type,
+        value,
+        unit: safeUnit?.label ?? "unit unresolved (raw IFC value)",
+        factor: safeUnit?.factorToCanonical ?? null,
+      });
     }
+  }
+  if (unresolvedUnitCount > 0) {
+    warnings.push(
+      `${unresolvedUnitCount} declared measurement(s) have no supported explicit local or project unit. Their values remain raw and are labelled unit unresolved; no SI conversion is assumed.`,
+    );
   }
 
   // ---- map property definitions -> elements (IfcRelDefinesByProperties) ----
@@ -375,8 +567,8 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
         if (!q) continue;
         elementQuantities.push({
           name: q.name,
-          unit: QUANTITY_TYPE_UNITS[q.type] ?? "",
-          value: q.value,
+          unit: q.unit,
+          value: q.factor === null ? q.value : q.value * q.factor,
         });
       }
     }
@@ -395,35 +587,42 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
   let hasQuantities = false;
   for (const [type, namedMap] of byType) {
     let count = 0;
-    const totals: Record<
+    const groupedTotals = new Map<
       string,
-      { unit: string; total: number; elements: number }
-    > = {};
-    const seenElementsWith = new Map<string, Set<string>>();
+      { name: string; unit: string; total: number; elements: number; names: Set<string> }
+    >();
     for (const [name, entry] of namedMap) {
       count += entry.count;
       for (const q of entry.quantities) {
         hasQuantities = true;
-        const t = totals[q.name] ?? { unit: q.unit, total: 0, elements: 0 };
+        const groupKey = `${q.name}\u0000${q.unit}`;
+        const t = groupedTotals.get(groupKey) ?? {
+          name: q.name, unit: q.unit, total: 0, elements: 0, names: new Set<string>(),
+        };
         t.total += q.value;
-        if (!seenElementsWith.has(q.name))
-          seenElementsWith.set(q.name, new Set());
-        if (!seenElementsWith.get(q.name)!.has(name)) {
-          seenElementsWith.get(q.name)!.add(name);
+        if (!t.names.has(name)) {
+          t.names.add(name);
           t.elements += entry.count;
         }
-        totals[q.name] = t;
+        groupedTotals.set(groupKey, t);
       }
     }
     const roundedTotals: Record<
       string,
       { unit: string; total: number; elements: number }
     > = {};
-    for (const [qName, t] of Object.entries(totals)) {
-      roundedTotals[qName] = {
-        unit: t.unit,
-        total: Number(t.total.toFixed(decimals)),
-        elements: t.elements,
+    const groupsPerName = new Map<string, number>();
+    for (const total of groupedTotals.values()) {
+      groupsPerName.set(total.name, (groupsPerName.get(total.name) ?? 0) + 1);
+    }
+    for (const total of groupedTotals.values()) {
+      const key = groupsPerName.get(total.name)! > 1
+        ? `${total.name} (${total.unit})`
+        : total.name;
+      roundedTotals[key] = {
+        unit: total.unit,
+        total: Number(total.total.toFixed(decimals)),
+        elements: total.elements,
       };
     }
     elements.push({ type, count, quantity_totals: roundedTotals });
@@ -437,7 +636,7 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
   steps.push({
     label: "Authored quantities",
     detail: hasQuantities
-      ? "Areas, volumes, lengths and weights are taken ONLY from the quantities the file itself attaches to these elements (IFC standard SI units: m², m³, m, kg)."
+      ? "Quantities are taken ONLY from the values the file attaches to these elements. Explicit supported units are converted to m², m³, m, kg or s; unresolved units remain raw and are labelled."
       : "This file declares NO quantities for its elements: only element counts are reported. No area or volume is invented.",
   });
 
