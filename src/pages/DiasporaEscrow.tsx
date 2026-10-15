@@ -54,7 +54,7 @@ export default function DiasporaEscrow() {
         return m;
       })
     }));
-    setActionSuccess(`Milestone ${milestoneId} released successfully! Local bank payout dispatched to contractor.`);
+    setActionSuccess(`Simulated clearance: Milestone ${milestoneId} marked released in this session preview. Real fund movement requires linking an authorized licensed escrow custody partner.`);
     setTimeout(() => setActionSuccess(null), 5000);
   };
 
@@ -107,8 +107,8 @@ export default function DiasporaEscrow() {
               </h2>
             </div>
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-500">
-                <ShieldCheck className="h-4 w-4" /> Vault Custody Active
+              <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-500">
+                <ShieldCheck className="h-4 w-4" /> Interactive Simulation · Sandbox Preview
               </span>
             </div>
           </div>
