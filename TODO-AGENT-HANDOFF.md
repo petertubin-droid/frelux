@@ -389,6 +389,13 @@ Rolled out strictly one-at-a-time. Each market has its own migration (applied to
 - **Timeline/logistics:** tropical/temperate rainy-season heuristics are not region/site calibrated. The shared date estimate omits local holidays, customs/shipping and location-specific work calendars; no Brazil-specific carrier/logistics feed was found.
 - **Changes made for BR:** removed the Mexico reference catalog alias, added empty BR catalog and regression test. Focused scanner suite: 20 tests passed; TypeScript and `git diff --check` passed. No full suite/build run for this narrow correction. Brazil remains partial/unverified against the operational accuracy requirement. Next remaining market: **Indonesia (`ID`)**.
 
+#### Brazil closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
+
+- **Live verification (2026-10-15):** BR profile `active`/visible (BRL); **9 active role mappings** and **35 active BRL price rows** confirmed live (existing suvinil/argalit refs untouched).
+- **Standards seeded (migration `20261015790000`, applied + verified live):** ABNT NBR 14715-1:2021 — chapas de gesso para drywall, Parte 1 requisitos (with NBR 14715-2 test methods) → `high`; ABNT NBR 15575 — edificações habitacionais, desempenho (performance standard, applied through municipal codes/Caixa financing, Part 1 revised 2024) → `medium` with the municipal caveat. No coverage rates asserted.
+- **Guard:** `src/lib/international/__tests__/br-construction-standards.test.ts` pins 2 rows only, both ABNT refs, the municipal caveat, no unsubstantiated URLs, idempotency.
+- **Remaining honest gaps (unchanged):** municipal code verification, workforce (CREA) verification, BR holiday/logistics calibration. BR Engine-1 standards complete. Next per owner order: **Saudi Arabia (`SA`)**.
+
 ### Indonesia market closeout (priority 18; audit only, 2026-10-14)
 
 - **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Indonesia (`ID`) has an active/visible built-in metric, IDR, Bahasa Indonesia profile. Production availability is not verified by a live read. The internal 2026-10-13 snapshot says 8 book rows but **zero role mappings and zero scanner sources**, and explicitly notes that role mappings were pending; later country-specific door/plumbing migrations do not prove those mappings or market activation have been applied.
