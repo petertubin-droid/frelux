@@ -501,6 +501,7 @@ export default function CostEstimator({
       <>
         {!embedded && (
           <PageHeader
+            variant="tool"
             eyebrow="Tool"
             title="Cost Estimator"
             subtitle="Estimate the cost of your paint materials, buckets, primer, and supplies."
@@ -523,6 +524,7 @@ export default function CostEstimator({
     <>
       {!embedded && (
         <PageHeader
+          variant="tool"
           eyebrow="Tool"
           title="Cost Estimator"
           subtitle="Estimate the cost of your paint materials. Prices are editable so you can match local rates. Labour not included."

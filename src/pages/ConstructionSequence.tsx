@@ -44,6 +44,7 @@ export default function ConstructionSequence() {
   return (
     <SubscriptionGate feature="construction_sequence">
       <PageHeader
+        variant="tool"
         eyebrow="Planning Tool"
         title="Construction Sequence Planner"
         subtitle="The correct build order from site clearing to weathertight. Every step includes quality checks, materials, safety notes, and common mistakes."

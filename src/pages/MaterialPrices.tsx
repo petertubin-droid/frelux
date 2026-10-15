@@ -193,6 +193,7 @@ export default function MaterialPrices() {
     return (
       <>
         <PageHeader
+          variant="data"
           eyebrow="Market Intelligence"
           title="Material Prices"
           subtitle="The live FRELUX price book: what materials cost right now, where the numbers come from, and how they moved."
@@ -209,6 +210,7 @@ export default function MaterialPrices() {
     return (
       <>
         <PageHeader
+          variant="data"
           eyebrow="Market Intelligence"
           title="Material Prices"
           subtitle="The live FRELUX price book: what materials cost right now, where the numbers come from, and how they moved."
@@ -227,6 +229,7 @@ export default function MaterialPrices() {
   return (
     <>
       <PageHeader
+        variant="data"
         eyebrow="Market Intelligence"
         title="Material Prices"
         subtitle="The live FRELUX price book: what materials cost right now, where the numbers come from, and how they moved."

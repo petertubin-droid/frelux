@@ -127,6 +127,7 @@ export default function TileCalculatorHub() {
   return (
     <>
       <PageHeader
+        variant="tool"
         eyebrow="Calculator"
         title="Tile Calculator"
         subtitle="Calculate tile quantity, boxes, waste, adhesive, grout, and cost, all in one place."

@@ -212,14 +212,7 @@ export default function Learn() {
 
   return (
     <>
-      <PageHeader
-        eyebrow="Education"
-        title="Learn"
-        subtitle="Guides, tutorials, and expert tips for painting, screeding, POP ceiling, tiling, finishing, and construction."
-        breadcrumbs={[{ label: "Learn Hub" }]}
-      />
-
-      {/* Editorial hero: a premium, globally minded frame for practical guidance. */}
+      {/* Editorial hero doubles as the page header so the page has one clear introduction. */}
       <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-10">
         <div className="relative isolate overflow-hidden rounded-[2rem] border border-slate-200/80 bg-[radial-gradient(ellipse_at_82%_10%,rgba(124,92,246,0.17),transparent_35%),linear-gradient(135deg,#f8faff_0%,#ffffff_54%,#f3f0ff_100%)] p-6 shadow-sm dark:border-white/10 dark:bg-[radial-gradient(ellipse_at_82%_10%,rgba(124,92,246,0.2),transparent_35%),linear-gradient(135deg,#11121a_0%,#171824_54%,#1b1830_100%)] sm:p-10 lg:p-14">
           <div
@@ -237,12 +230,12 @@ export default function Learn() {
                   ? `${totalPublished}+ Expert Articles`
                   : "Expert Articles"}
               </div>
-              <h2 className="font-display text-4xl font-bold leading-[1.06] tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-[3.6rem]">
+              <h1 className="font-display text-4xl font-bold leading-[1.06] tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-[3.6rem]">
                 Knowledge for the{" "}
                 <span className="bg-gradient-to-r from-primary via-[#8a63f6] to-[#bd79d8] bg-clip-text text-transparent">
                   built world.
                 </span>
-              </h2>
+              </h1>
               <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg">
                 Clear, practical guidance for construction professionals
                 navigating materials, methods, and project decisions.

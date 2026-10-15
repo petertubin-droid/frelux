@@ -288,6 +288,7 @@ export default function ScreedingCostEstimator({
       <>
         {!embedded && (
           <PageHeader
+        variant="tool"
             eyebrow="Tool"
             title="Screeding Cost Estimator"
             subtitle="Estimate material and labour costs for your wall screeding project."
@@ -313,6 +314,7 @@ export default function ScreedingCostEstimator({
     <>
       {!embedded && (
         <PageHeader
+        variant="tool"
           eyebrow="Tool"
           title="Screeding Cost Estimator"
           subtitle="Calculate screeding material costs, Putty or White Cement + Screeding Paint. Coverage, coats, waste, and pricing are all admin-configured."

@@ -130,6 +130,7 @@ export default function PopCeilingCalculatorHub() {
   return (
     <>
       <PageHeader
+        variant="tool"
         eyebrow="Calculator"
         title="POP Ceiling Calculator"
         subtitle="Calculate POP ceiling material quantities, breakdown, and cost, all in one place."

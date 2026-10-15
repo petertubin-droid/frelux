@@ -131,6 +131,7 @@ export default function FinishingCalculatorHub() {
   return (
     <>
       <PageHeader
+        variant="tool"
         eyebrow="Calculator"
         title="Finishing Calculator"
         subtitle="Compare wall finishes and calculate Tyrolene material quantities, all in one place."

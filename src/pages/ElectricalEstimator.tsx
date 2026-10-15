@@ -388,6 +388,7 @@ export default function ElectricalEstimator() {
   return (
     <Container>
       <PageHeader
+        variant="tool"
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Construction Tools", path: "/construction-tools" },

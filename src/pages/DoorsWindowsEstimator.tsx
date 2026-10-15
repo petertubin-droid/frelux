@@ -341,6 +341,7 @@ export default function DoorsWindowsEstimator() {
   return (
     <Container>
       <PageHeader
+        variant="tool"
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Construction Tools", path: "/construction-tools" },

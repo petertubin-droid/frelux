@@ -63,4 +63,30 @@ describe("PageHeader", () => {
     renderHeader({ title: "My Page" });
     expect(screen.queryByText("Back")).toBeNull();
   });
+
+  it("supports a compact, task-first tool header", () => {
+    const { container } = renderHeader({
+      title: "Paint Calculator",
+      variant: "tool",
+    });
+    expect(
+      container.querySelector('[data-header-variant="tool"]'),
+    ).toBeTruthy();
+    expect(
+      container.querySelector("[data-header-variant=tool] .max-w-6xl"),
+    ).toBeTruthy();
+  });
+
+  it("supports a wide data-page header", () => {
+    const { container } = renderHeader({
+      title: "Material Prices",
+      variant: "data",
+    });
+    expect(
+      container.querySelector('[data-header-variant="data"]'),
+    ).toBeTruthy();
+    expect(
+      container.querySelector("[data-header-variant=data] .max-w-7xl"),
+    ).toBeTruthy();
+  });
 });

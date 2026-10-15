@@ -176,6 +176,7 @@ export default function ScreedingCalculator({
       {!embedded && (
         <>
           <PageHeader
+            variant="tool"
             eyebrow="Tool"
             title="Wall Screeding Calculator"
             subtitle="Calculate the exact wall surface area that needs screeding. Enter room dimensions in feet or metres, we handle the conversion."

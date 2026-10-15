@@ -94,6 +94,7 @@ export default function StructuralCalculator() {
   return (
     <SubscriptionGate feature="structural_calculator">
       <PageHeader
+        variant="tool"
         eyebrow="Engineering Tool"
         title="Structural Engineering Calculator"
         subtitle="Engineer-grade beam, column, and slab sizing aligned with Eurocode 2 / BS 8110, ACI 318, and IS 456 standards. Full formula transparency. Preliminary sizing, always verify with a qualified structural engineer."

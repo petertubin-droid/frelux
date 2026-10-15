@@ -158,6 +158,7 @@ export default function GlobalMarkets() {
         />
         <Container className="relative">
           <PageHeader
+            variant="data"
             title="Global Markets"
             subtitle="20 markets, locally verified prices, honest coverage. Every external figure cites its source — a metric without a verified source is shown as “not yet sourced”, never invented."
           />

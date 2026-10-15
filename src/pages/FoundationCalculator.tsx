@@ -89,6 +89,7 @@ export default function FoundationCalculator() {
   return (
     <SubscriptionGate feature="foundation_calculator">
       <PageHeader
+        variant="tool"
         eyebrow="Engineering Tool"
         title="Foundation Design Calculator"
         subtitle="Strip, pad, and raft foundation sizing based on soil bearing capacity. BS 8004 simplified method."

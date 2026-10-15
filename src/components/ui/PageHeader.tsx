@@ -15,6 +15,7 @@ export default function PageHeader({
   actions,
   breadcrumbs,
   image,
+  variant = "standard",
 }: {
   eyebrow?: string;
   title: string;
@@ -28,6 +29,8 @@ export default function PageHeader({
    *  technique as the homepage hero: the picture sits under the mesh
    *  and dissolves into the page background so there is no seam. */
   image?: string;
+  /** Standard for content pages, compact for task-first tools, and wide for data views. */
+  variant?: "standard" | "tool" | "data";
 }) {
   // Config-driven backdrop (owner directive 2026-10-10): unless the
   // caller passes an explicit image, every header resolves a
@@ -39,9 +42,12 @@ export default function PageHeader({
   const overrides = useHeaderImageOverrides();
   const resolvedImage =
     image ?? resolveHeaderImage(stripLocaleFromPathname(pathname), overrides);
+  const isTool = variant === "tool";
+  const isData = variant === "data";
 
   return (
     <div
+      data-header-variant={variant}
       className={`relative overflow-hidden ${
         resolvedImage
           ? "bg-background"
@@ -58,7 +64,7 @@ export default function PageHeader({
             aria-hidden="true"
             loading="lazy"
             decoding="async"
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25 dark:opacity-20"
+            className={`pointer-events-none absolute inset-0 h-full w-full object-cover ${isTool ? "opacity-15 dark:opacity-10" : "opacity-25 dark:opacity-20"}`}
           />
           <div
             className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/25 via-background/55 to-background"
@@ -97,7 +103,15 @@ export default function PageHeader({
         <div className="hero-shimmer-line absolute inset-0" />
       </div>
 
-      <div className="relative mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+      <div
+        className={`relative mx-auto px-4 sm:px-6 ${
+          isTool
+            ? "max-w-6xl py-6 sm:py-8"
+            : isData
+              ? "max-w-7xl py-8 sm:py-10"
+              : "max-w-5xl py-10 sm:py-14"
+        }`}
+      >
         {backTo && (
           <Link
             to={backTo}
@@ -142,17 +156,17 @@ export default function PageHeader({
           <div className="min-w-0">
             {/* Premium title: Clash Display with a staggered word reveal */}
             <HeroTitle
-              className="text-3xl sm:text-4xl text-foreground dark:text-primary-foreground"
+              className={`${isTool ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl"} text-foreground dark:text-primary-foreground`}
               title={title}
             />
             {/* Gradient underline, scaling in after the words settle */}
             <div
-              className="mt-3 h-[3px] w-16 origin-left scale-x-0 animate-scale-in rounded-full bg-gradient-to-r from-brand-purple-light via-primary to-accent-cyan [animation-fill-mode:forwards] [animation-delay:400ms]"
+              className={`${isTool ? "mt-2 w-12" : "mt-3 w-16"} h-[3px] origin-left scale-x-0 animate-scale-in rounded-full bg-gradient-to-r from-brand-purple-light via-primary to-accent-cyan [animation-fill-mode:forwards] [animation-delay:400ms]`}
               aria-hidden="true"
             />
             {subtitle && (
               <p
-                className="mt-4 max-w-2xl animate-fade-in-up text-base text-muted-foreground text-balance dark:text-muted-foreground"
+                className={`${isTool ? "mt-2 max-w-3xl text-sm" : "mt-4 max-w-2xl text-base"} animate-fade-in-up text-muted-foreground text-balance dark:text-muted-foreground`}
                 style={{ animationDelay: "0.3s" }}
               >
                 {subtitle}

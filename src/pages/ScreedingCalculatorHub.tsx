@@ -130,6 +130,7 @@ export default function ScreedingCalculatorHub() {
   return (
     <>
       <PageHeader
+        variant="tool"
         eyebrow="Calculator"
         title="Screeding Calculator"
         subtitle="Calculate wall screeding quantity, material requirements, and cost, all in one place."

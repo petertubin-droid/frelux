@@ -375,6 +375,7 @@ export default function PlumbingEstimator() {
   return (
     <Container>
       <PageHeader
+        variant="tool"
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Construction Tools", path: "/construction-tools" },

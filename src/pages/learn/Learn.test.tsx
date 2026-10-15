@@ -201,6 +201,10 @@ describe("Learn", () => {
     expect(
       screen.getByRole("heading", { name: /Knowledge for the built world/i }),
     ).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(
+      screen.queryByRole("heading", { name: "Learn" }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole("textbox", { name: "Search construction articles" }),
     ).toBeInTheDocument();

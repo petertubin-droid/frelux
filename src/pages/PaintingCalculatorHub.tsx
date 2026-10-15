@@ -136,6 +136,7 @@ export default function PaintingCalculatorHub() {
   return (
     <>
       <PageHeader
+        variant="tool"
         image="https://images.pexels.com/photos/34264478/pexels-photo-34264478.jpeg?auto=compress&cs=tinysrgb&w=1600"
         eyebrow="Calculator"
         title="Painting Calculator"

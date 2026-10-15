@@ -104,6 +104,7 @@ export default function ProjectTimeline() {
   return (
     <>
       <PageHeader
+        variant="tool"
         eyebrow="Planning Tool"
         title="Construction Timeline Estimator"
         subtitle="How long will your project take? Stage-by-stage estimates based on practical construction benchmarks."
