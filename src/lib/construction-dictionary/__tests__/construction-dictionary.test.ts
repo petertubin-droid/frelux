@@ -61,7 +61,7 @@ import {
 const seedTerms = instantiateSeedRecords();
 
 describe("dictionary: language registry (spec §1, §22)", () => {
-  it("supports the eleven worldwide languages as data", () => {
+  it("supports the twelve worldwide languages as data", () => {
     expect(LANGUAGE_CODES).toEqual([
       "en",
       "es",
@@ -74,6 +74,7 @@ describe("dictionary: language registry (spec §1, §22)", () => {
       "ar",
       "hi",
       "zh",
+      "ja",
     ]);
     expect(
       DICTIONARY_LANGUAGES.find((l) => l.code === "es")?.native_label,

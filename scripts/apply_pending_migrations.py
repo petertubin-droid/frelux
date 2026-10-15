@@ -98,6 +98,7 @@ PENDING = [
     "20261017000000_enterprise_workspaces_rbac.sql",
     "20261017160000_tax_fx_engine4.sql",
     "20261017200000_compliance_engine5.sql",
+    "20261017210000_translation_engine6.sql",
 ]
 
 

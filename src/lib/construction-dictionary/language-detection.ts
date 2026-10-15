@@ -79,6 +79,9 @@ export function detectLanguage(text: string): string {
   if (/[\u0600-\u06FF]/.test(trimmed)) return "ar";
   if (/[\u0900-\u097F]/.test(trimmed)) return "hi";
   if (/[\u0400-\u04FF]/.test(trimmed)) return "ru";
+  // kana is unique to Japanese; kanji-only text falls back to
+  // Chinese (zh) so mixed CJK never resolves to the wrong code
+  if (/[\u3040-\u30FF]/.test(trimmed)) return "ja";
   if (/[\u4E00-\u9FFF]/.test(trimmed)) return "zh";
 
   const lower = ` ${trimmed.toLowerCase()} `;

@@ -14,6 +14,13 @@ describe("detectLanguage", () => {
     expect(detectLanguage("мне нужно много цемента")).toBe("ru");
     expect(detectLanguage("मुझे कितने बैग चाहिए")).toBe("hi");
   });
+  it("detects Japanese via kana and Chinese via kanji-only text", () => {
+    // kana is unique to Japanese
+    expect(detectLanguage("セメントは何袋必要ですか")).toBe("ja");
+    expect(detectLanguage("コンクリートの打設")).toBe("ja");
+    // kanji-only text stays Chinese
+    expect(detectLanguage("需要多少水泥")).toBe("zh");
+  });
   it("detects latin vocabulary languages from two or more markers", () => {
     expect(detectLanguage("combien de peinture ai-je besoin")).toBe("fr");
     expect(detectLanguage("cuánta pintura necesito para el techo")).toBe("es");

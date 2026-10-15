@@ -101,6 +101,13 @@ export const DICTIONARY_LANGUAGES: readonly LanguageDefinition[] = [
     common_regions: ["CN"],
     script: "cjk",
   },
+  {
+    code: "ja",
+    label: "Japanese",
+    native_label: "日本語",
+    common_regions: ["JP"],
+    script: "cjk",
+  },
 ];
 
 /** All registered language codes. */
