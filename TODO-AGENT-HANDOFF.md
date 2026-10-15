@@ -369,6 +369,13 @@ Rolled out strictly one-at-a-time. Each market has its own migration (applied to
 - **Timeline/logistics:** Mediterranean/temperate climate is a broad heuristic; the shared calendar skips Sundays, not French public holidays. No French holiday, carrier/customs or predictive logistics feed was established.
 - **Changes made for FR:** removed German scanner-price alias, added an empty French scanner catalog and regression test. Focused scanner tests: 19 passed; TypeScript and `git diff --check` passed. No full suite/build run for this narrow fix. France remains partial/unverified against the fully operational accuracy bar. Next remaining market: **Brazil (`BR`)**.
 
+#### France closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
+
+- **Live verification (2026-10-15):** FR profile `active`/visible (EUR); **10 active role mappings** and **33 active EUR price rows** confirmed live (existing refs: webercol-flex, nf-dtu-42-1 — untouched).
+- **Standards seeded (migration `20261015780000`, applied + verified live):** NF DTU 25.41 — ouvrages en plaques de plâtre (NF DTU status = French standard, revised February 2022) → `high`; NF DTU 26.2 — enduits traditionnels de ciment, chaux et mortier de ciment (rendering/plastering workmanship) → `high`. EN 520 / EN 998-1 / EN 13279 adoption noted. No coverage rates asserted.
+- **Guard:** `src/lib/international/__tests__/fr-construction-standards.test.ts` pins 2 rows only, the Feb 2022 revision, both DTUs as high, no unsubstantiated URLs, idempotency.
+- **Remaining honest gaps (unchanged):** permis de construire/DTA workflow verification, workforce (qualibat) verification, FR holiday/logistics calibration. FR Engine-1 standards complete. Next per owner order: **Brazil (`BR`)**.
+
 ### Brazil market closeout (priority 17; scoped scanner safety fix, 2026-10-14)
 
 - **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Brazil (`BR`) appears in the selector and built-in profile as active/visible, metric, BRL, Portuguese. No live production-state check was performed; this does not prove all market calculators and data are currently deployed.
