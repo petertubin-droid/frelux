@@ -1,7 +1,7 @@
 import HeroTitle from "@/components/ui/HeroTitle";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { ConstructionExtractionPanel } from "@/components/estimation/ConstructionExtractionPanel";
-import { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback, useEffect, useId } from "react";
 import { Link } from "react-router-dom";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { getConstructionTypology } from "@/lib/estimation/construction-typologies";
@@ -15,7 +15,19 @@ import { useMarket } from "@/lib/international/market-context";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { formatAreaDual } from "@/lib/international/units-display";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import { CalculatorInput } from "@/components/estimation/CalculatorInput";
 import {
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+} from "@/components/ui/shadcn/form";
+import { useEstimatorDraft } from "@/hooks/useEstimatorDraft";
+import {
+  Check,
+  CheckCircle,
+  SlidersHorizontal,
   Building2,
   ChevronRight,
   ChevronLeft,
@@ -72,6 +84,38 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 
+const PHASES = [
+  {
+    id: 1,
+    title: "Building Footprint & Envelope",
+    shortTitle: "Envelope",
+    description: "Dimensions, openings, project info",
+    icon: Home,
+  },
+  {
+    id: 2,
+    title: "Assemblies (Modular)",
+    shortTitle: "Assemblies",
+    description: "Foundation, walls, roofing modules",
+    icon: Layers,
+  },
+  {
+    id: 3,
+    title: "Material & Labor Rates",
+    shortTitle: "Rates & Pricing",
+    description: "Market standard or custom rates",
+    icon: DollarSign,
+  },
+  {
+    id: 4,
+    title: "Summary BOQ & Export",
+    shortTitle: "Summary BOQ",
+    description: "Complete bill of quantities & export",
+    icon: Calculator,
+  },
+] as const;
+
+// Backward compatibility alias for internal step references
 const STEPS = [
   { id: "project", label: "Project", icon: Home },
   { id: "dimensions", label: "Dimensions", icon: Ruler },
@@ -147,6 +191,7 @@ const ROOFING_MATERIALS: { value: RoofingMaterial; label: string }[] = [
 // ── Reusable input components ──
 
 function Field({
+  id,
   label,
   value,
   onChange,
@@ -154,67 +199,92 @@ function Field({
   unit,
   placeholder,
   step,
+  min,
+  max,
+  hint,
+  error,
+  required,
+  className,
 }: {
+  id?: string;
   label: string;
   value: number | string;
   onChange: (v: string) => void;
-  type?: string;
+  type?: "text" | "number" | "email" | "tel";
   unit?: string;
   placeholder?: string;
-  step?: string;
+  step?: string | number;
+  min?: string | number;
+  max?: string | number;
+  hint?: string;
+  error?: string;
+  required?: boolean;
+  className?: string;
 }) {
   return (
-    <div>
-      <label className="text-xs sm:text-sm font-medium text-muted-foreground mb-1.5 block">
-        {label}
-      </label>
-      <div className="relative">
-        <input
-          type={type}
-          value={value}
-          step={step}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="w-full rounded-xl border border-border bg-card px-3.5 py-2.5 sm:py-3 text-sm text-foreground focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all duration-200 hover:border-border"
-        />
-        {unit && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none font-medium">
-            {unit}
-          </span>
-        )}
-      </div>
-    </div>
+    <CalculatorInput
+      id={id}
+      label={label}
+      value={value}
+      onChange={onChange}
+      type={type}
+      unit={unit}
+      placeholder={placeholder}
+      step={step}
+      min={min}
+      max={max}
+      hint={hint}
+      error={error}
+      required={required}
+      className={className}
+    />
   );
 }
 
 function SelectField({
+  id: customId,
   label,
   value,
   onChange,
   options,
+  hint,
+  error,
+  required,
 }: {
+  id?: string;
   label: string;
   value: string;
   onChange: (v: string) => void;
   options: { value: string; label: string }[];
+  hint?: string;
+  error?: string;
+  required?: boolean;
 }) {
+  const reactId = useId();
+  const selectId = customId || `select-${reactId}`;
   return (
-    <div>
-      <label className="text-xs sm:text-sm font-medium text-muted-foreground mb-1.5 block">
+    <FormItem>
+      <FormLabel htmlFor={selectId} error={!!error} required={required}>
         {label}
-      </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-border bg-card px-3.5 py-2.5 sm:py-3 text-sm text-foreground focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all duration-200 hover:border-border cursor-pointer"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </div>
+      </FormLabel>
+      <FormControl error={!!error}>
+        <select
+          id={selectId}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          aria-label={label}
+          className="w-full rounded-xl border border-border bg-card px-3.5 py-2.5 sm:py-3 text-sm text-foreground focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all duration-200 hover:border-border cursor-pointer"
+        >
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </FormControl>
+      {hint && !error && <FormDescription>{hint}</FormDescription>}
+      {error && <FormMessage>{error}</FormMessage>}
+    </FormItem>
   );
 }
 
@@ -358,7 +428,26 @@ export default function BuildToRoofEstimator() {
     ],
   });
 
+  const [phase, setPhase] = useState<1 | 2 | 3 | 4>(1);
   const [step, setStep] = useState(0);
+  const [useStandardRates, setUseStandardRates] = useState(true);
+  const [includedStages, setIncludedStages] = useState({
+    foundation: true,
+    walls: true,
+    roof: true,
+  });
+
+  const toggleStage = (stage: "foundation" | "walls" | "roof") => {
+    setIncludedStages((prev) => {
+      const next = { ...prev, [stage]: !prev[stage] };
+      setInput((inp) => ({
+        ...inp,
+        included_stages: next,
+      }));
+      return next;
+    });
+  };
+
   const [result, setResult] = useState<BuildToRoofResult | null>(null);
   const [roofGeometry, setRoofGeometry] = useState<RoofGeometry>(() =>
     createDefaultRoofGeometry(),
@@ -406,6 +495,35 @@ export default function BuildToRoofEstimator() {
     prices: DEFAULT_PRICES,
     labour: DEFAULT_LABOUR,
     contingency_percent: 5,
+    included_stages: {
+      foundation: true,
+      walls: true,
+      roof: true,
+    },
+  });
+
+  // Draft persistence and recovery hook
+  const {
+    isRestored,
+    hasSavedDraft,
+    lastSavedAt,
+    clearDraft,
+    dismissRestored,
+  } = useEstimatorDraft<BuildToRoofInput>("build_to_roof", input, {
+    onRestore: (saved) => {
+      setInput(saved);
+      if (saved.included_stages) {
+        setIncludedStages({
+          foundation: saved.included_stages.foundation !== false,
+          walls: saved.included_stages.walls !== false,
+          roof: saved.included_stages.roof !== false,
+        });
+      }
+    },
+    showToast: true,
+    customToastTitle: "Calculation restored",
+    customToastMessage:
+      "We restored your previous calculation. Click 'Start fresh' to reset.",
   });
 
   // Market price book prefill (non-NG only): cement onto the 50 kg bag
@@ -550,9 +668,11 @@ export default function BuildToRoofEstimator() {
   );
 
   const calculate = useCallback(() => {
-    // Invalid inputs must never produce an apparently-valid construction
-    // estimate, validate first and surface every problem at once.
-    const errors = validateBuildToRoofInput(input);
+    const fullInput: BuildToRoofInput = {
+      ...input,
+      included_stages: includedStages,
+    };
+    const errors = validateBuildToRoofInput(fullInput);
     if (errors.length > 0) {
       setValidationErrors(errors);
       setResult(null);
@@ -560,12 +680,13 @@ export default function BuildToRoofEstimator() {
     }
     setValidationErrors([]);
     const r = monitoredCalc("Build-to-Roof Estimator", () =>
-      calculateBuildToRoof(input),
+      calculateBuildToRoof(fullInput),
     );
     setResult(r);
+    setPhase(4);
     setStep(STEPS.length - 1);
     trackBuildToRoofRewards();
-  }, [input]);
+  }, [input, includedStages]);
 
   const next = () => step < STEPS.length - 1 && setStep(step + 1);
   const prev = () => step > 0 && setStep(step - 1);
@@ -670,1516 +791,1979 @@ export default function BuildToRoofEstimator() {
           </div>
         </div>
 
-        {/* Premium sticky progress bar */}
-        <div className="sticky top-16 z-30 border-b border-border bg-background/90 backdrop-blur-lg shadow-sm">
+        {/* Premium sticky 4-Phase progress bar with direct jump */}
+        <div className="sticky top-16 z-30 border-b border-border bg-background/95 backdrop-blur-lg shadow-sm">
           <div className="max-w-6xl mx-auto px-3 sm:px-4">
-            <div className="flex items-center gap-1 overflow-x-auto py-2.5 sm:py-3 scrollbar-hide snap-x">
-              {STEPS.map((s, i) => {
-                const Icon = s.icon;
-                const isActive = i === step;
-                const isDone = i < step;
+            <div className="flex items-center gap-1.5 overflow-x-auto py-2.5 sm:py-3 scrollbar-hide snap-x">
+              {PHASES.map((p) => {
+                const Icon = p.icon;
+                const isActive = p.id === phase;
+                const isDone = p.id < phase;
                 return (
                   <Button
                     variant="ghost"
-                    key={s.id}
-                    onClick={() => i <= step && setStep(i)}
-                    className={`flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all duration-200 snap-start ${
+                    key={p.id}
+                    onClick={() => {
+                      if (p.id === 4) {
+                        calculate();
+                      } else {
+                        setPhase(p.id as 1 | 2 | 3 | 4);
+                      }
+                    }}
+                    className={`flex items-center gap-2 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 snap-start ${
                       isActive
-                        ? "bg-gradient-to-r from-primary to-primary-light text-primary-foreground shadow-md shadow-brand-purple/20 scale-105"
+                        ? "bg-gradient-to-r from-primary to-primary-light text-primary-foreground shadow-md shadow-brand-purple/20 scale-[1.02]"
                         : isDone
                           ? "bg-primary/10 text-brand-purple hover:bg-primary/15"
-                          : "text-muted-foreground hover:bg-muted/50"
+                          : "text-muted-foreground hover:bg-muted/60"
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5 shrink-0" />
-                    <span className="hidden md:inline">{s.label}</span>
-                    <span className="md:hidden">{i + 1}</span>
+                    <div
+                      className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
+                        isActive
+                          ? "bg-primary-foreground text-primary"
+                          : isDone
+                            ? "bg-brand-purple text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {isDone ? <Check className="w-3 h-3 stroke-[3]" /> : p.id}
+                    </div>
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className="hidden md:inline">{p.title}</span>
+                    <span className="md:hidden">{p.shortTitle}</span>
                   </Button>
                 );
               })}
             </div>
+
             {/* Progress line with glow */}
             <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-primary to-accent-green transition-all duration-500 ease-out animate-progress-glow rounded-full"
-                style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+                style={{ width: `${(phase / 4) * 100}%` }}
               />
+            </div>
+
+            {/* Draft status & quick actions */}
+            <div className="flex items-center justify-between text-xs text-muted-foreground py-1.5 px-0.5">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-medium text-foreground/80">
+                  {hasSavedDraft
+                    ? "Draft saved locally"
+                    : "Auto-saving draft..."}
+                </span>
+                {lastSavedAt && (
+                  <span className="text-[11px] text-muted-foreground/70 hidden sm:inline">
+                    (last saved{" "}
+                    {new Date(lastSavedAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                    )
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Start fresh? This will reset all current specifications.",
+                    )
+                  ) {
+                    clearDraft();
+                    setInput({
+                      project_name: "",
+                      location: "",
+                      building_type: "bungalow",
+                      number_of_floors: 1,
+                      measurement_unit: "m",
+                      building_length: 15,
+                      building_width: 10,
+                      floor_to_floor_height: 3,
+                      wall_thickness: 0.225,
+                      internal_wall_length: 25,
+                      internal_wall_thickness: 0.15,
+                      openings: [
+                        { type: "door", width: 0.9, height: 2.1, count: 4 },
+                        { type: "window", width: 1.2, height: 1.2, count: 6 },
+                      ],
+                      foundation_type: "strip_footing",
+                      foundation_depth: 0.9,
+                      foundation_width: 0.675,
+                      footing_thickness: 0.225,
+                      blinding_thickness: 0.075,
+                      hardcore_thickness: 0.15,
+                      dpc_length: 50,
+                      block_size: "9inch",
+                      block_length: 18,
+                      block_height: 9,
+                      block_width: 9,
+                      concrete_mix_cement: 1,
+                      concrete_mix_sand: 2,
+                      concrete_mix_granite: 4,
+                      mortar_mix_cement: 1,
+                      mortar_mix_sand: 6,
+                      roof_type: "gable",
+                      roof_pitch_degrees: 25,
+                      roof_overhang: 0.6,
+                      roofing_material: "long_span_aluminium",
+                      structural_members: [],
+                      has_engineer_schedule: false,
+                      wastage: DEFAULT_WASTAGE,
+                      prices: DEFAULT_PRICES,
+                      labour: DEFAULT_LABOUR,
+                      contingency_percent: 5,
+                      included_stages: {
+                        foundation: true,
+                        walls: true,
+                        roof: true,
+                      },
+                    });
+                    setIncludedStages({
+                      foundation: true,
+                      walls: true,
+                      roof: true,
+                    });
+                    setResult(null);
+                    setPhase(1);
+                  }
+                }}
+                className="text-[11px] font-medium text-muted-foreground hover:text-brand-purple hover:underline"
+              >
+                Start fresh
+              </button>
             </div>
           </div>
         </div>
 
         <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
-          {/* Step content */}
-          {result && step === STEPS.length - 1 ? (
+          {/* Restored draft banner */}
+          {isRestored && (
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs sm:text-sm text-foreground shadow-xs">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+                <span>We restored your previous calculation draft.</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearDraft();
+                    setResult(null);
+                    setPhase(1);
+                  }}
+                  className="font-semibold text-brand-purple hover:underline"
+                >
+                  Start fresh
+                </button>
+                <button
+                  type="button"
+                  onClick={dismissRestored}
+                  className="text-muted-foreground hover:text-foreground text-xs"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Phase content */}
+          {result && phase === 4 ? (
             <EstimateResult
               result={result}
               onBack={() => {
                 setResult(null);
-                setStep(STEPS.length - 2);
+                setPhase(3);
               }}
             />
           ) : (
             <>
-              <div key={step} className="animate-step-slide-in">
-                {/* Step 0: Project */}
-                {step === 0 && (
-                  <div className="space-y-4">
-                    <SectionCard title="Project Information" icon={Home}>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        {/* Regional Construction Typology banner */}
-                        <div
-                          className="md:col-span-2 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm"
-                          data-testid="regional-construction-typology"
-                        >
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <p className="font-semibold text-foreground">
-                              Regional Structural Typology: {typology.name}
+              <div key={phase} className="animate-step-slide-in space-y-6">
+                {/* Phase 1: Building Footprint & Envelope */}
+                {phase === 1 && (
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <SectionCard title="Project Information" icon={Home}>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {/* Regional Construction Typology banner */}
+                          <div
+                            className="md:col-span-2 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm"
+                            data-testid="regional-construction-typology"
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <p className="font-semibold text-foreground">
+                                Regional Structural Typology: {typology.name}
+                              </p>
+                              <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                                {typology.applicableStandards}
+                              </span>
+                            </div>
+                            <div className="mt-2.5 grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
+                              <div>
+                                <span className="font-medium text-foreground">
+                                  Structural System:
+                                </span>{" "}
+                                {typology.primaryStructuralSystem}
+                              </div>
+                              <div>
+                                <span className="font-medium text-foreground">
+                                  Wall Assembly:
+                                </span>{" "}
+                                {typology.wallTypology}
+                              </div>
+                              <div>
+                                <span className="font-medium text-foreground">
+                                  Foundation Typology:
+                                </span>{" "}
+                                {typology.foundationTypology}
+                              </div>
+                              <div>
+                                <span className="font-medium text-foreground">
+                                  Roof System:
+                                </span>{" "}
+                                {typology.roofTypology}
+                              </div>
+                            </div>
+                            <p className="mt-2.5 text-xs italic text-muted-foreground">
+                              {typology.disclaimer}
                             </p>
-                            <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                              {typology.applicableStandards}
-                            </span>
                           </div>
-                          <div className="mt-2.5 grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
-                            <div>
-                              <span className="font-medium text-foreground">
-                                Structural System:
-                              </span>{" "}
-                              {typology.primaryStructuralSystem}
-                            </div>
-                            <div>
-                              <span className="font-medium text-foreground">
-                                Wall Assembly:
-                              </span>{" "}
-                              {typology.wallTypology}
-                            </div>
-                            <div>
-                              <span className="font-medium text-foreground">
-                                Foundation Typology:
-                              </span>{" "}
-                              {typology.foundationTypology}
-                            </div>
-                            <div>
-                              <span className="font-medium text-foreground">
-                                Roof System:
-                              </span>{" "}
-                              {typology.roofTypology}
-                            </div>
-                          </div>
-                          <p className="mt-2.5 text-xs italic text-muted-foreground">
-                            {typology.disclaimer}
-                          </p>
+                          <Field
+                            label="Project name"
+                            type="text"
+                            value={input.project_name}
+                            onChange={(v) => update("project_name", v)}
+                            placeholder="e.g. 3-Bedroom Bungalow"
+                          />
+                          <Field
+                            label="Location"
+                            type="text"
+                            value={input.location}
+                            onChange={(v) => update("location", v)}
+                            placeholder="e.g. Your City"
+                          />
+                          <SelectField
+                            label="Building type"
+                            value={input.building_type}
+                            onChange={(v) =>
+                              update("building_type", v as BuildingType)
+                            }
+                            options={BUILDING_TYPES}
+                          />
+                          <Field
+                            label="Number of floors"
+                            type="number"
+                            value={input.number_of_floors}
+                            onChange={(v) =>
+                              update("number_of_floors", parseInt(v) || 1)
+                            }
+                          />
                         </div>
+                      </SectionCard>
+                    </div>
+                    <SectionCard title="Building Dimensions" icon={Ruler}>
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="text-sm font-medium text-muted-foreground">
+                          Measurement unit:
+                        </span>
+                        <div className="inline-flex rounded-lg border border-border overflow-hidden">
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              if (input.measurement_unit === "ft") {
+                                // Convert EVERY ft-mappable field to m, the
+                                // engine reads all of them in the active unit.
+                                setInput((prev) => ({
+                                  ...convertBuildToRoofUnits(prev, 0.3048),
+                                  measurement_unit: "m" as const,
+                                }));
+                              }
+                            }}
+                            className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === "m" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50"}`}
+                          >
+                            Meters (m)
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              if (input.measurement_unit === "m") {
+                                // Convert EVERY ft-mappable field to ft, the
+                                // engine reads all of them in the active unit.
+                                setInput((prev) => ({
+                                  ...convertBuildToRoofUnits(prev, 1 / 0.3048),
+                                  measurement_unit: "ft" as const,
+                                }));
+                              }
+                            }}
+                            className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === "ft" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50"}`}
+                          >
+                            Feet (ft)
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="grid md:grid-cols-3 gap-4">
                         <Field
-                          label="Project name"
-                          type="text"
-                          value={input.project_name}
-                          onChange={(v) => update("project_name", v)}
-                          placeholder="e.g. 3-Bedroom Bungalow"
-                        />
-                        <Field
-                          label="Location"
-                          type="text"
-                          value={input.location}
-                          onChange={(v) => update("location", v)}
-                          placeholder="e.g. Your City"
-                        />
-                        <SelectField
-                          label="Building type"
-                          value={input.building_type}
+                          label="Building length"
+                          unit={input.measurement_unit}
+                          value={input.building_length}
                           onChange={(v) =>
-                            update("building_type", v as BuildingType)
+                            update("building_length", parseFloat(v) || 0)
                           }
-                          options={BUILDING_TYPES}
+                          step="0.1"
                         />
                         <Field
-                          label="Number of floors"
-                          type="number"
-                          value={input.number_of_floors}
+                          label="Building width"
+                          unit={input.measurement_unit}
+                          value={input.building_width}
                           onChange={(v) =>
-                            update("number_of_floors", parseInt(v) || 1)
+                            update("building_width", parseFloat(v) || 0)
                           }
+                          step="0.1"
                         />
+                        <Field
+                          label="Floor-to-floor height"
+                          unit={input.measurement_unit}
+                          value={input.floor_to_floor_height}
+                          onChange={(v) =>
+                            update("floor_to_floor_height", parseFloat(v) || 0)
+                          }
+                          step="0.1"
+                        />
+                        <Field
+                          label="External wall thickness"
+                          unit={input.measurement_unit}
+                          value={input.wall_thickness}
+                          onChange={(v) =>
+                            update("wall_thickness", parseFloat(v) || 0)
+                          }
+                          step="0.025"
+                        />
+                        <Field
+                          label="Internal wall total length"
+                          unit={input.measurement_unit}
+                          value={input.internal_wall_length}
+                          onChange={(v) =>
+                            update("internal_wall_length", parseFloat(v) || 0)
+                          }
+                          step="0.5"
+                        />
+                        <Field
+                          label="Internal wall thickness"
+                          unit={input.measurement_unit}
+                          value={input.internal_wall_thickness}
+                          onChange={(v) =>
+                            update(
+                              "internal_wall_thickness",
+                              parseFloat(v) || 0,
+                            )
+                          }
+                          step="0.025"
+                        />
+                      </div>
+                      <div className="mt-4 rounded-xl bg-blue-50 border border-blue-100 p-3 sm:p-4 flex items-start gap-2">
+                        <Info
+                          aria-hidden="true"
+                          className="w-4 h-4 text-blue-500 mt-0.5 shrink-0"
+                        />
+                        <p className="text-xs text-blue-700">
+                          Enter the total length of all internal partition walls
+                          combined. This is used for block and mortar
+                          calculations.
+                        </p>
                       </div>
                     </SectionCard>
-                  </div>
-                )}
-
-                {/* Step 1: Dimensions */}
-                {step === 1 && (
-                  <SectionCard title="Building Dimensions" icon={Ruler}>
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="text-sm font-medium text-muted-foreground">
-                        Measurement unit:
-                      </span>
-                      <div className="inline-flex rounded-lg border border-border overflow-hidden">
-                        <Button
-                          variant="ghost"
-                          onClick={() => {
-                            if (input.measurement_unit === "ft") {
-                              // Convert EVERY ft-mappable field to m, the
-                              // engine reads all of them in the active unit.
-                              setInput((prev) => ({
-                                ...convertBuildToRoofUnits(prev, 0.3048),
-                                measurement_unit: "m" as const,
-                              }));
-                            }
-                          }}
-                          className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === "m" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50"}`}
-                        >
-                          Meters (m)
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          onClick={() => {
-                            if (input.measurement_unit === "m") {
-                              // Convert EVERY ft-mappable field to ft, the
-                              // engine reads all of them in the active unit.
-                              setInput((prev) => ({
-                                ...convertBuildToRoofUnits(prev, 1 / 0.3048),
-                                measurement_unit: "ft" as const,
-                              }));
-                            }
-                          }}
-                          className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === "ft" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50"}`}
-                        >
-                          Feet (ft)
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <Field
-                        label="Building length"
-                        unit={input.measurement_unit}
-                        value={input.building_length}
-                        onChange={(v) =>
-                          update("building_length", parseFloat(v) || 0)
-                        }
-                        step="0.1"
-                      />
-                      <Field
-                        label="Building width"
-                        unit={input.measurement_unit}
-                        value={input.building_width}
-                        onChange={(v) =>
-                          update("building_width", parseFloat(v) || 0)
-                        }
-                        step="0.1"
-                      />
-                      <Field
-                        label="Floor-to-floor height"
-                        unit={input.measurement_unit}
-                        value={input.floor_to_floor_height}
-                        onChange={(v) =>
-                          update("floor_to_floor_height", parseFloat(v) || 0)
-                        }
-                        step="0.1"
-                      />
-                      <Field
-                        label="External wall thickness"
-                        unit={input.measurement_unit}
-                        value={input.wall_thickness}
-                        onChange={(v) =>
-                          update("wall_thickness", parseFloat(v) || 0)
-                        }
-                        step="0.025"
-                      />
-                      <Field
-                        label="Internal wall total length"
-                        unit={input.measurement_unit}
-                        value={input.internal_wall_length}
-                        onChange={(v) =>
-                          update("internal_wall_length", parseFloat(v) || 0)
-                        }
-                        step="0.5"
-                      />
-                      <Field
-                        label="Internal wall thickness"
-                        unit={input.measurement_unit}
-                        value={input.internal_wall_thickness}
-                        onChange={(v) =>
-                          update("internal_wall_thickness", parseFloat(v) || 0)
-                        }
-                        step="0.025"
-                      />
-                    </div>
-                    <div className="mt-4 rounded-xl bg-blue-50 border border-blue-100 p-3 sm:p-4 flex items-start gap-2">
-                      <Info
-                        aria-hidden="true"
-                        className="w-4 h-4 text-blue-500 mt-0.5 shrink-0"
-                      />
-                      <p className="text-xs text-blue-700">
-                        Enter the total length of all internal partition walls
-                        combined. This is used for block and mortar
-                        calculations.
+                    <SectionCard
+                      title="Door & Window Openings"
+                      icon={FolderOpen}
+                    >
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Openings are used only as wall deductions. Door/window
+                        purchase and installation costs are NOT included in the
+                        Build-to-Roof total.
                       </p>
-                    </div>
-                  </SectionCard>
-                )}
-
-                {/* Step 2: Openings */}
-                {step === 2 && (
-                  <SectionCard title="Door & Window Openings" icon={FolderOpen}>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Openings are used only as wall deductions. Door/window
-                      purchase and installation costs are NOT included in the
-                      Build-to-Roof total.
-                    </p>
-                    <div className="space-y-3">
-                      {input.openings.map((opening, i) => (
-                        <div
-                          key={i}
-                          className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-muted/50 border border-border/50"
-                        >
-                          <div>
-                            <label className="text-xs font-medium text-muted-foreground mb-1 block">
-                              Type
-                            </label>
-                            <select
-                              value={opening.type}
-                              onChange={(e) => {
+                      <div className="space-y-3">
+                        {input.openings.map((opening, i) => (
+                          <div
+                            key={i}
+                            className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-muted/50 border border-border/50"
+                          >
+                            <div>
+                              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                                Type
+                              </label>
+                              <select
+                                value={opening.type}
+                                onChange={(e) => {
+                                  const openings = [...input.openings];
+                                  openings[i] = {
+                                    ...opening,
+                                    type: e.target.value as "door" | "window",
+                                  };
+                                  update("openings", openings);
+                                }}
+                                className="w-full rounded-lg border border-border px-2.5 py-2 text-sm"
+                              >
+                                <option value="door">Door</option>
+                                <option value="window">Window</option>
+                              </select>
+                            </div>
+                            <Field
+                              label={`Width (${input.measurement_unit})`}
+                              value={opening.width}
+                              onChange={(v) => {
                                 const openings = [...input.openings];
                                 openings[i] = {
                                   ...opening,
-                                  type: e.target.value as "door" | "window",
+                                  width: parseFloat(v) || 0,
                                 };
                                 update("openings", openings);
                               }}
-                              className="w-full rounded-lg border border-border px-2.5 py-2 text-sm"
+                              step="0.1"
+                            />
+                            <Field
+                              label={`Height (${input.measurement_unit})`}
+                              value={opening.height}
+                              onChange={(v) => {
+                                const openings = [...input.openings];
+                                openings[i] = {
+                                  ...opening,
+                                  height: parseFloat(v) || 0,
+                                };
+                                update("openings", openings);
+                              }}
+                              step="0.1"
+                            />
+                            <Field
+                              label="Count"
+                              value={opening.count}
+                              onChange={(v) => {
+                                const openings = [...input.openings];
+                                openings[i] = {
+                                  ...opening,
+                                  count: parseInt(v) || 0,
+                                };
+                                update("openings", openings);
+                              }}
+                            />
+                            <Button
+                              variant="ghost"
+                              onClick={() =>
+                                update(
+                                  "openings",
+                                  input.openings.filter((_, idx) => idx !== i),
+                                )
+                              }
+                              className="text-sm text-red-500 hover:text-red-700 font-medium"
                             >
-                              <option value="door">Door</option>
-                              <option value="window">Window</option>
-                            </select>
+                              Remove
+                            </Button>
                           </div>
-                          <Field
-                            label={`Width (${input.measurement_unit})`}
-                            value={opening.width}
-                            onChange={(v) => {
-                              const openings = [...input.openings];
-                              openings[i] = {
-                                ...opening,
-                                width: parseFloat(v) || 0,
-                              };
-                              update("openings", openings);
-                            }}
-                            step="0.1"
-                          />
-                          <Field
-                            label={`Height (${input.measurement_unit})`}
-                            value={opening.height}
-                            onChange={(v) => {
-                              const openings = [...input.openings];
-                              openings[i] = {
-                                ...opening,
-                                height: parseFloat(v) || 0,
-                              };
-                              update("openings", openings);
-                            }}
-                            step="0.1"
-                          />
-                          <Field
-                            label="Count"
-                            value={opening.count}
-                            onChange={(v) => {
-                              const openings = [...input.openings];
-                              openings[i] = {
-                                ...opening,
-                                count: parseInt(v) || 0,
-                              };
-                              update("openings", openings);
-                            }}
-                          />
-                          <Button
-                            variant="ghost"
-                            onClick={() =>
-                              update(
-                                "openings",
-                                input.openings.filter((_, idx) => idx !== i),
-                              )
-                            }
-                            className="text-sm text-red-500 hover:text-red-700 font-medium"
-                          >
-                            Remove
-                          </Button>
+                        ))}
+                        <Button
+                          variant="ghost"
+                          onClick={() =>
+                            update("openings", [
+                              ...input.openings,
+                              {
+                                type: "window",
+                                width: 1.2,
+                                height: 1.2,
+                                count: 1,
+                              },
+                            ])
+                          }
+                          className="text-sm text-brand-purple hover:text-brand-purple-dark font-medium flex items-center gap-1"
+                        >
+                          + Add opening
+                        </Button>
+                      </div>
+                    </SectionCard>
+                    <SectionCard
+                      title="Upload Architectural Drawing (Optional)"
+                      icon={Upload}
+                    >
+                      <ConstructionExtractionPanel
+                        currentOpenings={input.openings}
+                        onApply={applyExtractionPatch}
+                      />
+                      {extractionApplied > 0 && (
+                        <div className="mt-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900 p-3 flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                          <span className="text-sm text-emerald-700 dark:text-emerald-300">
+                            {extractionApplied} confirmed value
+                            {extractionApplied === 1 ? "" : "s"} added to your
+                            estimate. Review and adjust them in the next steps,
+                            or calculate now.
+                          </span>
                         </div>
-                      ))}
-                      <Button
-                        variant="ghost"
-                        onClick={() =>
-                          update("openings", [
-                            ...input.openings,
-                            {
-                              type: "window",
-                              width: 1.2,
-                              height: 1.2,
-                              count: 1,
-                            },
-                          ])
-                        }
-                        className="text-sm text-brand-purple hover:text-brand-purple-dark font-medium flex items-center gap-1"
-                      >
-                        + Add opening
-                      </Button>
-                    </div>
-                  </SectionCard>
-                )}
-
-                {/* Step 3: Foundation */}
-                {step === 3 && (
-                  <SectionCard title="Foundation Details" icon={Layers}>
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <SelectField
-                        label="Foundation type"
-                        value={input.foundation_type}
-                        onChange={(v) =>
-                          update("foundation_type", v as FoundationType)
-                        }
-                        options={FOUNDATION_TYPES}
-                      />
-                      {input.foundation_type !== "strip_footing" && (
-                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
-                          Quantities are modelled on continuous strip-footing
-                          geometry. For pad, raft or pile foundations, treat the
-                          excavation, concrete and blockwork figures as
-                          strip-footing equivalents, verify with your engineer.
-                        </p>
                       )}
-                      <Field
-                        label="Foundation depth"
-                        unit={input.measurement_unit}
-                        value={input.foundation_depth}
-                        onChange={(v) =>
-                          update("foundation_depth", parseFloat(v) || 0)
-                        }
-                        step="0.1"
-                      />
-                      <Field
-                        label="Foundation width"
-                        unit={input.measurement_unit}
-                        value={input.foundation_width}
-                        onChange={(v) =>
-                          update("foundation_width", parseFloat(v) || 0)
-                        }
-                        step="0.025"
-                      />
-                      <Field
-                        label="Footing thickness"
-                        unit={input.measurement_unit}
-                        value={input.footing_thickness}
-                        onChange={(v) =>
-                          update("footing_thickness", parseFloat(v) || 0)
-                        }
-                        step="0.025"
-                      />
-                      <Field
-                        label="Blinding thickness"
-                        unit={input.measurement_unit}
-                        value={input.blinding_thickness}
-                        onChange={(v) =>
-                          update("blinding_thickness", parseFloat(v) || 0)
-                        }
-                        step="0.025"
-                      />
-                      <Field
-                        label="Hardcore thickness"
-                        unit={input.measurement_unit}
-                        value={input.hardcore_thickness}
-                        onChange={(v) =>
-                          update("hardcore_thickness", parseFloat(v) || 0)
-                        }
-                        step="0.025"
-                      />
-                      <Field
-                        label="DPC length"
-                        unit={input.measurement_unit}
-                        value={input.dpc_length}
-                        onChange={(v) =>
-                          update("dpc_length", parseFloat(v) || 0)
-                        }
-                      />
-                    </div>
-                  </SectionCard>
-                )}
-
-                {/* Step 4: Blocks & Mix */}
-                {step === 4 && (
-                  <div className="space-y-4">
-                    <SectionCard title="Block Specification" icon={Settings}>
-                      <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
-                        <p className="text-xs text-blue-600">
-                          <strong>Common block sizes in your market:</strong>{" "}
-                          9-inch (hollow) , foundations &amp; external
-                          load-bearing walls · 6-inch (hollow or solid),
-                          internal partitions · 5-inch (solid only),
-                          non-load-bearing partitions
-                        </p>
-                      </div>
-                      <div className="grid md:grid-cols-4 gap-4">
-                        <SelectField
-                          label="Block size"
-                          value={input.block_size}
-                          onChange={(v) => {
-                            const size = v as BlockSize;
-                            const dims: Record<
-                              string,
-                              [number, number, number]
-                            > = {
-                              "9inch": [18, 9, 9],
-                              "6inch": [18, 9, 6],
-                              "5inch": [18, 9, 5],
-                            };
-                            const d = dims[v] || [18, 9, 9];
-                            setInput((prev) => ({
-                              ...prev,
-                              block_size: size,
-                              block_length: d[0],
-                              block_height: d[1],
-                              block_width: d[2],
-                            }));
-                          }}
-                          options={BLOCK_SIZES}
-                        />
-                        <Field
-                          label="Block length"
-                          unit="in"
-                          value={input.block_length}
-                          onChange={(v) =>
-                            update("block_length", parseFloat(v) || 0)
-                          }
-                        />
-                        <Field
-                          label="Block height"
-                          unit="in"
-                          value={input.block_height}
-                          onChange={(v) =>
-                            update("block_height", parseFloat(v) || 0)
-                          }
-                        />
-                        <Field
-                          label="Block width"
-                          unit="in"
-                          value={input.block_width}
-                          onChange={(v) =>
-                            update("block_width", parseFloat(v) || 0)
-                          }
-                        />
-                      </div>
-                    </SectionCard>
-                    <SectionCard title="Concrete Mix Ratio" icon={Settings}>
-                      <div className="grid grid-cols-3 gap-4">
-                        <Field
-                          label="Cement (parts)"
-                          value={input.concrete_mix_cement}
-                          onChange={(v) =>
-                            update("concrete_mix_cement", parseFloat(v) || 1)
-                          }
-                        />
-                        <Field
-                          label="Sand (parts)"
-                          value={input.concrete_mix_sand}
-                          onChange={(v) =>
-                            update("concrete_mix_sand", parseFloat(v) || 1)
-                          }
-                        />
-                        <Field
-                          label="Granite (parts)"
-                          value={input.concrete_mix_granite}
-                          onChange={(v) =>
-                            update("concrete_mix_granite", parseFloat(v) || 1)
-                          }
-                        />
-                      </div>
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Current ratio: {input.concrete_mix_cement}:
-                        {input.concrete_mix_sand}:{input.concrete_mix_granite}{" "}
-                        (assumed budgeting mix, not a structural specification.
-                        Use the mix specified by your engineer's design).
-                      </p>
-                    </SectionCard>
-                    <SectionCard title="Mortar Mix Ratio" icon={Settings}>
-                      <div className="grid grid-cols-2 gap-4">
-                        <Field
-                          label="Cement (parts)"
-                          value={input.mortar_mix_cement}
-                          onChange={(v) =>
-                            update("mortar_mix_cement", parseFloat(v) || 1)
-                          }
-                        />
-                        <Field
-                          label="Sand (parts)"
-                          value={input.mortar_mix_sand}
-                          onChange={(v) =>
-                            update("mortar_mix_sand", parseFloat(v) || 1)
-                          }
-                        />
-                      </div>
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Current ratio: {input.mortar_mix_cement}:
-                        {input.mortar_mix_sand} (assumed budgeting mix, adjust
-                        to your site practice or engineer's specification).
-                      </p>
-                    </SectionCard>
-                    <SectionCard title="Wastage Allowances" icon={TrendingUp}>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Field
-                          label="Blocks"
-                          unit="%"
-                          value={input.wastage.blocks}
-                          onChange={(v) =>
-                            update("wastage", {
-                              ...input.wastage,
-                              blocks: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Cement"
-                          unit="%"
-                          value={input.wastage.cement}
-                          onChange={(v) =>
-                            update("wastage", {
-                              ...input.wastage,
-                              cement: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Sand"
-                          unit="%"
-                          value={input.wastage.sand}
-                          onChange={(v) =>
-                            update("wastage", {
-                              ...input.wastage,
-                              sand: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Granite"
-                          unit="%"
-                          value={input.wastage.granite}
-                          onChange={(v) =>
-                            update("wastage", {
-                              ...input.wastage,
-                              granite: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Reinforcement"
-                          unit="%"
-                          value={input.wastage.reinforcement}
-                          onChange={(v) =>
-                            update("wastage", {
-                              ...input.wastage,
-                              reinforcement: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Timber"
-                          unit="%"
-                          value={input.wastage.timber}
-                          onChange={(v) =>
-                            update("wastage", {
-                              ...input.wastage,
-                              timber: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Roofing sheets"
-                          unit="%"
-                          value={input.wastage.roofing_sheets}
-                          onChange={(v) =>
-                            update("wastage", {
-                              ...input.wastage,
-                              roofing_sheets: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Hardcore"
-                          unit="%"
-                          value={input.wastage.hardcore}
-                          onChange={(v) =>
-                            update("wastage", {
-                              ...input.wastage,
-                              hardcore: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                      </div>
                     </SectionCard>
                   </div>
                 )}
 
-                {/* Step 5: Roof */}
-                {step === 5 && (
-                  <SectionCard title="Roof Configuration" icon={Building2}>
-                    {/* Roof View, optional aerial imagery (Feature 2) */}
-                    <div className="mb-4">
-                      <RoofViewPanel />
-                    </div>
-                    {/* Roof Geometry Editor, editable tracing (Feature 3) */}
-                    <div className="mb-4">
-                      <p className="text-xs font-semibold text-muted-foreground mb-2">
-                        Roof Geometry (trace your roof outline)
-                      </p>
-                      <RoofGeometryEditor
-                        geometry={roofGeometry}
-                        onChange={setRoofGeometry}
-                      />
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Traced geometry is a visual reference only, estimates
-                        use the dimensions and roof type you enter below.
-                        Complex roof geometry (L-shaped, T-shaped, cross-gable,
-                        intersecting hips, multiple ridges or valleys) requires
-                        manual configuration or future support.
-                      </p>
-                    </div>
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <div>
-                        <SelectField
-                          label="Roof type"
-                          value={input.roof_type}
-                          onChange={(v) => update("roof_type", v as RoofType)}
-                          options={ROOF_TYPES}
-                        />
-                        {input.roof_type === "custom" && (
-                          <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
-                            Custom roofs are estimated with the explicit
-                            gable-equivalent model (2 planes, single ridge) at
-                            your entered pitch. Verify quantities manually for
-                            non-rectangular or multi-ridge roofs.
-                          </p>
-                        )}
-                      </div>
-                      <Field
-                        label="Roof pitch"
-                        unit="°"
-                        value={input.roof_pitch_degrees}
-                        onChange={(v) =>
-                          update("roof_pitch_degrees", parseFloat(v) || 0)
-                        }
-                      />
-                      <Field
-                        label="Overhang"
-                        unit={input.measurement_unit}
-                        value={input.roof_overhang}
-                        onChange={(v) =>
-                          update("roof_overhang", parseFloat(v) || 0)
-                        }
-                        step="0.1"
-                      />
-                      <SelectField
-                        label="Roofing material"
-                        value={input.roofing_material}
-                        onChange={(v) =>
-                          update("roofing_material", v as RoofingMaterial)
-                        }
-                        options={ROOFING_MATERIALS}
-                      />
-                    </div>
-                  </SectionCard>
-                )}
-
-                {/* Step 6: Structural */}
-                {step === 6 && (
-                  <div className="space-y-4">
-                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-6">
-                      <div className="flex items-start gap-3">
-                        <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                {/* Phase 2: Assemblies (Modular / Toggleable) */}
+                {phase === 2 && (
+                  <div className="space-y-6">
+                    <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                         <div>
-                          <h3 className="font-semibold text-amber-900 mb-1">
-                            Structural Engineering Safety Boundary
+                          <h3 className="text-base sm:text-lg font-bold text-foreground">
+                            Modular Assemblies Configuration
                           </h3>
-                          <p className="text-sm text-amber-800">
-                            FRELUX does NOT design or certify foundation sizes,
-                            column sizes, beam sizes, slab thicknesses, or
-                            reinforcement. If you have an engineer's structural
-                            schedule, enter the verified dimensions below for
-                            accurate material quantification. Without an
-                            engineer's schedule, structural quantities cannot be
-                            reliably determined and are marked as preliminary.
+                          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                            Include or skip specific building stages. You can
+                            customize which assemblies to quantify (e.g. Roof
+                            only, Foundation only, or Full Build).
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center rounded-md bg-brand-purple/10 px-2.5 py-1 text-xs font-semibold text-brand-purple">
+                            {
+                              [
+                                includedStages.foundation,
+                                includedStages.walls,
+                                includedStages.roof,
+                              ].filter(Boolean).length
+                            }{" "}
+                            of 3 Assemblies Active
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        {/* Foundation toggle */}
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => toggleStage("foundation")}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              toggleStage("foundation");
+                            }
+                          }}
+                          className={`cursor-pointer rounded-xl border p-4 transition-all duration-200 ${
+                            includedStages.foundation
+                              ? "border-brand-purple/50 bg-brand-purple/5 shadow-xs"
+                              : "border-border/60 bg-muted/20 opacity-60 hover:opacity-80"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Layers
+                                className={`w-4 h-4 ${
+                                  includedStages.foundation
+                                    ? "text-brand-purple"
+                                    : "text-muted-foreground"
+                                }`}
+                              />
+                              <span className="text-sm font-bold text-foreground">
+                                Foundation
+                              </span>
+                            </div>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                                includedStages.foundation
+                                  ? "bg-brand-purple text-primary-foreground"
+                                  : "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {includedStages.foundation
+                                ? "Included"
+                                : "Skipped"}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Excavation, footing concrete, blinding, hardcore
+                            fill & DPC.
+                          </p>
+                        </div>
+
+                        {/* Walls toggle */}
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => toggleStage("walls")}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              toggleStage("walls");
+                            }
+                          }}
+                          className={`cursor-pointer rounded-xl border p-4 transition-all duration-200 ${
+                            includedStages.walls
+                              ? "border-brand-purple/50 bg-brand-purple/5 shadow-xs"
+                              : "border-border/60 bg-muted/20 opacity-60 hover:opacity-80"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Settings
+                                className={`w-4 h-4 ${
+                                  includedStages.walls
+                                    ? "text-brand-purple"
+                                    : "text-muted-foreground"
+                                }`}
+                              />
+                              <span className="text-sm font-bold text-foreground">
+                                Superstructure Walls
+                              </span>
+                            </div>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                                includedStages.walls
+                                  ? "bg-brand-purple text-primary-foreground"
+                                  : "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {includedStages.walls ? "Included" : "Skipped"}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            External & internal blockwork, mortar joints,
+                            lintels & window deductions.
+                          </p>
+                        </div>
+
+                        {/* Roof toggle */}
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => toggleStage("roof")}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              toggleStage("roof");
+                            }
+                          }}
+                          className={`cursor-pointer rounded-xl border p-4 transition-all duration-200 ${
+                            includedStages.roof
+                              ? "border-brand-purple/50 bg-brand-purple/5 shadow-xs"
+                              : "border-border/60 bg-muted/20 opacity-60 hover:opacity-80"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Building2
+                                className={`w-4 h-4 ${
+                                  includedStages.roof
+                                    ? "text-brand-purple"
+                                    : "text-muted-foreground"
+                                }`}
+                              />
+                              <span className="text-sm font-bold text-foreground">
+                                Roofing & Trusses
+                              </span>
+                            </div>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                                includedStages.roof
+                                  ? "bg-brand-purple text-primary-foreground"
+                                  : "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {includedStages.roof ? "Included" : "Skipped"}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Timber trusses, rafters, purlins, facial boards &
+                            covering sheets.
                           </p>
                         </div>
                       </div>
                     </div>
-                    <SectionCard
-                      title="Engineer-Supplied Structural Schedule"
-                      icon={Hammer}
-                    >
-                      <label className="flex items-center gap-2 mb-4 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={input.has_engineer_schedule}
-                          onChange={(e) =>
-                            update("has_engineer_schedule", e.target.checked)
-                          }
-                          className="w-4 h-4 rounded border-border text-brand-purple focus:ring-brand-purple/20"
-                        />
-                        <span className="text-sm font-medium text-card-foreground">
-                          I have an engineer-supplied structural schedule
-                        </span>
-                      </label>
-                      {input.has_engineer_schedule && (
-                        <div className="space-y-3">
-                          {input.structural_members.map((member, i) => (
-                            <div
-                              key={i}
-                              className="grid grid-cols-2 md:grid-cols-6 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-muted/50 border border-border/50"
-                            >
-                              <div>
-                                <label className="text-xs font-medium text-muted-foreground mb-1 block">
-                                  Type
-                                </label>
-                                <select
-                                  value={member.type}
-                                  onChange={(e) => {
+
+                    {includedStages.foundation ? (
+                      <SectionCard title="Foundation Details" icon={Layers}>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <SelectField
+                            label="Foundation type"
+                            value={input.foundation_type}
+                            onChange={(v) =>
+                              update("foundation_type", v as FoundationType)
+                            }
+                            options={FOUNDATION_TYPES}
+                          />
+                          {input.foundation_type !== "strip_footing" && (
+                            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                              Quantities are modelled on continuous
+                              strip-footing geometry. For pad, raft or pile
+                              foundations, treat the excavation, concrete and
+                              blockwork figures as strip-footing equivalents,
+                              verify with your engineer.
+                            </p>
+                          )}
+                          <Field
+                            label="Foundation depth"
+                            unit={input.measurement_unit}
+                            value={input.foundation_depth}
+                            onChange={(v) =>
+                              update("foundation_depth", parseFloat(v) || 0)
+                            }
+                            step="0.1"
+                          />
+                          <Field
+                            label="Foundation width"
+                            unit={input.measurement_unit}
+                            value={input.foundation_width}
+                            onChange={(v) =>
+                              update("foundation_width", parseFloat(v) || 0)
+                            }
+                            step="0.025"
+                          />
+                          <Field
+                            label="Footing thickness"
+                            unit={input.measurement_unit}
+                            value={input.footing_thickness}
+                            onChange={(v) =>
+                              update("footing_thickness", parseFloat(v) || 0)
+                            }
+                            step="0.025"
+                          />
+                          <Field
+                            label="Blinding thickness"
+                            unit={input.measurement_unit}
+                            value={input.blinding_thickness}
+                            onChange={(v) =>
+                              update("blinding_thickness", parseFloat(v) || 0)
+                            }
+                            step="0.025"
+                          />
+                          <Field
+                            label="Hardcore thickness"
+                            unit={input.measurement_unit}
+                            value={input.hardcore_thickness}
+                            onChange={(v) =>
+                              update("hardcore_thickness", parseFloat(v) || 0)
+                            }
+                            step="0.025"
+                          />
+                          <Field
+                            label="DPC length"
+                            unit={input.measurement_unit}
+                            value={input.dpc_length}
+                            onChange={(v) =>
+                              update("dpc_length", parseFloat(v) || 0)
+                            }
+                          />
+                        </div>
+                      </SectionCard>
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-border/80 bg-muted/20 p-4 text-xs text-muted-foreground flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Layers className="w-4 h-4 text-muted-foreground" />
+                          <span>
+                            Foundation & Substructure is currently excluded from
+                            calculation.
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleStage("foundation")}
+                          className="font-semibold text-brand-purple hover:underline"
+                        >
+                          Include Foundation
+                        </button>
+                      </div>
+                    )}
+
+                    {includedStages.walls ? (
+                      <div className="space-y-4">
+                        <SectionCard
+                          title="Block Specification"
+                          icon={Settings}
+                        >
+                          <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
+                            <p className="text-xs text-blue-600">
+                              <strong>
+                                Common block sizes in your market:
+                              </strong>{" "}
+                              9-inch (hollow) , foundations &amp; external
+                              load-bearing walls · 6-inch (hollow or solid),
+                              internal partitions · 5-inch (solid only),
+                              non-load-bearing partitions
+                            </p>
+                          </div>
+                          <div className="grid md:grid-cols-4 gap-4">
+                            <SelectField
+                              label="Block size"
+                              value={input.block_size}
+                              onChange={(v) => {
+                                const size = v as BlockSize;
+                                const dims: Record<
+                                  string,
+                                  [number, number, number]
+                                > = {
+                                  "9inch": [18, 9, 9],
+                                  "6inch": [18, 9, 6],
+                                  "5inch": [18, 9, 5],
+                                };
+                                const d = dims[v] || [18, 9, 9];
+                                setInput((prev) => ({
+                                  ...prev,
+                                  block_size: size,
+                                  block_length: d[0],
+                                  block_height: d[1],
+                                  block_width: d[2],
+                                }));
+                              }}
+                              options={BLOCK_SIZES}
+                            />
+                            <Field
+                              label="Block length"
+                              unit="in"
+                              value={input.block_length}
+                              onChange={(v) =>
+                                update("block_length", parseFloat(v) || 0)
+                              }
+                            />
+                            <Field
+                              label="Block height"
+                              unit="in"
+                              value={input.block_height}
+                              onChange={(v) =>
+                                update("block_height", parseFloat(v) || 0)
+                              }
+                            />
+                            <Field
+                              label="Block width"
+                              unit="in"
+                              value={input.block_width}
+                              onChange={(v) =>
+                                update("block_width", parseFloat(v) || 0)
+                              }
+                            />
+                          </div>
+                        </SectionCard>
+                        <SectionCard title="Concrete Mix Ratio" icon={Settings}>
+                          <div className="grid grid-cols-3 gap-4">
+                            <Field
+                              label="Cement (parts)"
+                              value={input.concrete_mix_cement}
+                              onChange={(v) =>
+                                update(
+                                  "concrete_mix_cement",
+                                  parseFloat(v) || 1,
+                                )
+                              }
+                            />
+                            <Field
+                              label="Sand (parts)"
+                              value={input.concrete_mix_sand}
+                              onChange={(v) =>
+                                update("concrete_mix_sand", parseFloat(v) || 1)
+                              }
+                            />
+                            <Field
+                              label="Granite (parts)"
+                              value={input.concrete_mix_granite}
+                              onChange={(v) =>
+                                update(
+                                  "concrete_mix_granite",
+                                  parseFloat(v) || 1,
+                                )
+                              }
+                            />
+                          </div>
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            Current ratio: {input.concrete_mix_cement}:
+                            {input.concrete_mix_sand}:
+                            {input.concrete_mix_granite} (assumed budgeting mix,
+                            not a structural specification. Use the mix
+                            specified by your engineer's design).
+                          </p>
+                        </SectionCard>
+                        <SectionCard title="Mortar Mix Ratio" icon={Settings}>
+                          <div className="grid grid-cols-2 gap-4">
+                            <Field
+                              label="Cement (parts)"
+                              value={input.mortar_mix_cement}
+                              onChange={(v) =>
+                                update("mortar_mix_cement", parseFloat(v) || 1)
+                              }
+                            />
+                            <Field
+                              label="Sand (parts)"
+                              value={input.mortar_mix_sand}
+                              onChange={(v) =>
+                                update("mortar_mix_sand", parseFloat(v) || 1)
+                              }
+                            />
+                          </div>
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            Current ratio: {input.mortar_mix_cement}:
+                            {input.mortar_mix_sand} (assumed budgeting mix,
+                            adjust to your site practice or engineer's
+                            specification).
+                          </p>
+                        </SectionCard>
+                        <SectionCard
+                          title="Wastage Allowances"
+                          icon={TrendingUp}
+                        >
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <Field
+                              label="Blocks"
+                              unit="%"
+                              value={input.wastage.blocks}
+                              onChange={(v) =>
+                                update("wastage", {
+                                  ...input.wastage,
+                                  blocks: parseFloat(v) || 0,
+                                })
+                              }
+                            />
+                            <Field
+                              label="Cement"
+                              unit="%"
+                              value={input.wastage.cement}
+                              onChange={(v) =>
+                                update("wastage", {
+                                  ...input.wastage,
+                                  cement: parseFloat(v) || 0,
+                                })
+                              }
+                            />
+                            <Field
+                              label="Sand"
+                              unit="%"
+                              value={input.wastage.sand}
+                              onChange={(v) =>
+                                update("wastage", {
+                                  ...input.wastage,
+                                  sand: parseFloat(v) || 0,
+                                })
+                              }
+                            />
+                            <Field
+                              label="Granite"
+                              unit="%"
+                              value={input.wastage.granite}
+                              onChange={(v) =>
+                                update("wastage", {
+                                  ...input.wastage,
+                                  granite: parseFloat(v) || 0,
+                                })
+                              }
+                            />
+                            <Field
+                              label="Reinforcement"
+                              unit="%"
+                              value={input.wastage.reinforcement}
+                              onChange={(v) =>
+                                update("wastage", {
+                                  ...input.wastage,
+                                  reinforcement: parseFloat(v) || 0,
+                                })
+                              }
+                            />
+                            <Field
+                              label="Timber"
+                              unit="%"
+                              value={input.wastage.timber}
+                              onChange={(v) =>
+                                update("wastage", {
+                                  ...input.wastage,
+                                  timber: parseFloat(v) || 0,
+                                })
+                              }
+                            />
+                            <Field
+                              label="Roofing sheets"
+                              unit="%"
+                              value={input.wastage.roofing_sheets}
+                              onChange={(v) =>
+                                update("wastage", {
+                                  ...input.wastage,
+                                  roofing_sheets: parseFloat(v) || 0,
+                                })
+                              }
+                            />
+                            <Field
+                              label="Hardcore"
+                              unit="%"
+                              value={input.wastage.hardcore}
+                              onChange={(v) =>
+                                update("wastage", {
+                                  ...input.wastage,
+                                  hardcore: parseFloat(v) || 0,
+                                })
+                              }
+                            />
+                          </div>
+                        </SectionCard>
+                      </div>
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-border/80 bg-muted/20 p-4 text-xs text-muted-foreground flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Settings className="w-4 h-4 text-muted-foreground" />
+                          <span>
+                            Superstructure Blockwork & Walls are currently
+                            excluded from calculation.
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleStage("walls")}
+                          className="font-semibold text-brand-purple hover:underline"
+                        >
+                          Include Walls
+                        </button>
+                      </div>
+                    )}
+
+                    {includedStages.roof ? (
+                      <SectionCard title="Roof Configuration" icon={Building2}>
+                        {/* Roof View, optional aerial imagery (Feature 2) */}
+                        <div className="mb-4">
+                          <RoofViewPanel />
+                        </div>
+                        {/* Roof Geometry Editor, editable tracing (Feature 3) */}
+                        <div className="mb-4">
+                          <p className="text-xs font-semibold text-muted-foreground mb-2">
+                            Roof Geometry (trace your roof outline)
+                          </p>
+                          <RoofGeometryEditor
+                            geometry={roofGeometry}
+                            onChange={setRoofGeometry}
+                          />
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Traced geometry is a visual reference only,
+                            estimates use the dimensions and roof type you enter
+                            below. Complex roof geometry (L-shaped, T-shaped,
+                            cross-gable, intersecting hips, multiple ridges or
+                            valleys) requires manual configuration or future
+                            support.
+                          </p>
+                        </div>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <div>
+                            <SelectField
+                              label="Roof type"
+                              value={input.roof_type}
+                              onChange={(v) =>
+                                update("roof_type", v as RoofType)
+                              }
+                              options={ROOF_TYPES}
+                            />
+                            {input.roof_type === "custom" && (
+                              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                                Custom roofs are estimated with the explicit
+                                gable-equivalent model (2 planes, single ridge)
+                                at your entered pitch. Verify quantities
+                                manually for non-rectangular or multi-ridge
+                                roofs.
+                              </p>
+                            )}
+                          </div>
+                          <Field
+                            label="Roof pitch"
+                            unit="°"
+                            value={input.roof_pitch_degrees}
+                            onChange={(v) =>
+                              update("roof_pitch_degrees", parseFloat(v) || 0)
+                            }
+                          />
+                          <Field
+                            label="Overhang"
+                            unit={input.measurement_unit}
+                            value={input.roof_overhang}
+                            onChange={(v) =>
+                              update("roof_overhang", parseFloat(v) || 0)
+                            }
+                            step="0.1"
+                          />
+                          <SelectField
+                            label="Roofing material"
+                            value={input.roofing_material}
+                            onChange={(v) =>
+                              update("roofing_material", v as RoofingMaterial)
+                            }
+                            options={ROOFING_MATERIALS}
+                          />
+                        </div>
+                      </SectionCard>
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-border/80 bg-muted/20 p-4 text-xs text-muted-foreground flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-muted-foreground" />
+                          <span>
+                            Roofing & Trusses are currently excluded from
+                            calculation.
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleStage("roof")}
+                          className="font-semibold text-brand-purple hover:underline"
+                        >
+                          Include Roof
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="space-y-4">
+                      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-6">
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                          <div>
+                            <h3 className="font-semibold text-amber-900 mb-1">
+                              Structural Engineering Safety Boundary
+                            </h3>
+                            <p className="text-sm text-amber-800">
+                              FRELUX does NOT design or certify foundation
+                              sizes, column sizes, beam sizes, slab thicknesses,
+                              or reinforcement. If you have an engineer's
+                              structural schedule, enter the verified dimensions
+                              below for accurate material quantification.
+                              Without an engineer's schedule, structural
+                              quantities cannot be reliably determined and are
+                              marked as preliminary.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <SectionCard
+                        title="Engineer-Supplied Structural Schedule"
+                        icon={Hammer}
+                      >
+                        <label className="flex items-center gap-2 mb-4 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={input.has_engineer_schedule}
+                            onChange={(e) =>
+                              update("has_engineer_schedule", e.target.checked)
+                            }
+                            className="w-4 h-4 rounded border-border text-brand-purple focus:ring-brand-purple/20"
+                          />
+                          <span className="text-sm font-medium text-card-foreground">
+                            I have an engineer-supplied structural schedule
+                          </span>
+                        </label>
+                        {input.has_engineer_schedule && (
+                          <div className="space-y-3">
+                            {input.structural_members.map((member, i) => (
+                              <div
+                                key={i}
+                                className="grid grid-cols-2 md:grid-cols-6 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-muted/50 border border-border/50"
+                              >
+                                <div>
+                                  <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                                    Type
+                                  </label>
+                                  <select
+                                    value={member.type}
+                                    onChange={(e) => {
+                                      const members = [
+                                        ...input.structural_members,
+                                      ];
+                                      members[i] = {
+                                        ...member,
+                                        type: e.target
+                                          .value as StructuralMemberInput["type"],
+                                      };
+                                      update("structural_members", members);
+                                    }}
+                                    className="w-full rounded-lg border border-border px-2 py-1.5 text-xs"
+                                  >
+                                    <option value="column">Column</option>
+                                    <option value="ground_beam">
+                                      Ground Beam
+                                    </option>
+                                    <option value="suspended_beam">
+                                      Suspended Beam
+                                    </option>
+                                    <option value="ring_beam">Ring Beam</option>
+                                    <option value="lintel">Lintel</option>
+                                    <option value="slab">Slab</option>
+                                    <option value="other">Other</option>
+                                  </select>
+                                </div>
+                                <Field
+                                  label="Label"
+                                  value={member.label}
+                                  onChange={(v) => {
+                                    const members = [
+                                      ...input.structural_members,
+                                    ];
+                                    members[i] = { ...member, label: v };
+                                    update("structural_members", members);
+                                  }}
+                                  type="text"
+                                />
+                                <Field
+                                  label={`L (${input.measurement_unit})`}
+                                  value={member.length}
+                                  onChange={(v) => {
                                     const members = [
                                       ...input.structural_members,
                                     ];
                                     members[i] = {
                                       ...member,
-                                      type: e.target
-                                        .value as StructuralMemberInput["type"],
+                                      length: parseFloat(v) || 0,
                                     };
                                     update("structural_members", members);
                                   }}
-                                  className="w-full rounded-lg border border-border px-2 py-1.5 text-xs"
+                                  step="0.1"
+                                />
+                                <Field
+                                  label={`W (${input.measurement_unit})`}
+                                  value={member.width}
+                                  onChange={(v) => {
+                                    const members = [
+                                      ...input.structural_members,
+                                    ];
+                                    members[i] = {
+                                      ...member,
+                                      width: parseFloat(v) || 0,
+                                    };
+                                    update("structural_members", members);
+                                  }}
+                                  step="0.025"
+                                />
+                                <Field
+                                  label={`D (${input.measurement_unit})`}
+                                  value={member.depth}
+                                  onChange={(v) => {
+                                    const members = [
+                                      ...input.structural_members,
+                                    ];
+                                    members[i] = {
+                                      ...member,
+                                      depth: parseFloat(v) || 0,
+                                    };
+                                    update("structural_members", members);
+                                  }}
+                                  step="0.025"
+                                />
+                                <Field
+                                  label="Qty"
+                                  value={member.quantity}
+                                  onChange={(v) => {
+                                    const members = [
+                                      ...input.structural_members,
+                                    ];
+                                    members[i] = {
+                                      ...member,
+                                      quantity: parseInt(v) || 1,
+                                    };
+                                    update("structural_members", members);
+                                  }}
+                                />
+                                <Button
+                                  variant="ghost"
+                                  onClick={() =>
+                                    update(
+                                      "structural_members",
+                                      input.structural_members.filter(
+                                        (_, idx) => idx !== i,
+                                      ),
+                                    )
+                                  }
+                                  className="col-span-2 md:col-span-6 text-xs text-red-500 hover:text-red-700 font-medium text-left"
                                 >
-                                  <option value="column">Column</option>
-                                  <option value="ground_beam">
-                                    Ground Beam
+                                  Remove member
+                                </Button>
+                              </div>
+                            ))}
+                            <Button
+                              variant="ghost"
+                              onClick={() =>
+                                update("structural_members", [
+                                  ...input.structural_members,
+                                  {
+                                    id: `m${Date.now()}`,
+                                    type: "column",
+                                    label: "New Member",
+                                    length: 3,
+                                    width: 0.225,
+                                    depth: 0.225,
+                                    quantity: 1,
+                                  },
+                                ])
+                              }
+                              className="text-sm text-brand-purple hover:text-brand-purple-dark font-medium"
+                            >
+                              + Add structural member
+                            </Button>
+                          </div>
+                        )}
+                        {!input.has_engineer_schedule && (
+                          <div className="rounded-lg bg-muted/50 border border-border/50 p-4">
+                            <p className="text-sm text-muted-foreground">
+                              No engineer's schedule provided. Structural
+                              concrete quantities will not be calculated. The
+                              estimate will be labeled as{" "}
+                              <span className="font-medium text-amber-600">
+                                preliminary
+                              </span>{" "}
+                              for structural items.
+                            </p>
+                          </div>
+                        )}
+                      </SectionCard>
+                    </div>
+                  </div>
+                )}
+
+                {/* Phase 3: Material & Labor Rates */}
+                {phase === 3 && (
+                  <div className="space-y-6">
+                    <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <h3 className="text-base sm:text-lg font-bold text-foreground">
+                            Material & Labor Rates Mode
+                          </h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                            Select whether to calculate using verified country
+                            market books or your own custom rates.
+                          </p>
+                        </div>
+                        <div className="inline-flex rounded-xl border border-border bg-muted/40 p-1">
+                          <button
+                            type="button"
+                            onClick={() => setUseStandardRates(true)}
+                            className={`rounded-lg px-3.5 py-1.5 text-xs sm:text-sm font-semibold transition-all ${
+                              useStandardRates
+                                ? "bg-brand-purple text-primary-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            Country Standard Rates
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setUseStandardRates(false)}
+                            className={`rounded-lg px-3.5 py-1.5 text-xs sm:text-sm font-semibold transition-all ${
+                              !useStandardRates
+                                ? "bg-brand-purple text-primary-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            Custom Contractor Rates
+                          </button>
+                        </div>
+                      </div>
+
+                      {useStandardRates ? (
+                        <div className="mt-4 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/30 p-3.5 text-xs text-emerald-800 dark:text-emerald-200">
+                          <div className="flex items-center gap-2 font-semibold">
+                            <BadgeCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                            <span>
+                              Active: Country Standard Rates for {marketCode}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-emerald-700 dark:text-emerald-300">
+                            Rates are synchronized with the national material
+                            price book and regional commodity baseline. To
+                            modify individual rates, switch to "Custom
+                            Contractor Rates".
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="mt-4 rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/30 p-3.5 text-xs text-amber-800 dark:text-amber-200">
+                          <div className="flex items-center gap-2 font-semibold">
+                            <SlidersHorizontal className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                            <span>Active: Custom Contractor Rates</span>
+                          </div>
+                          <p className="mt-1 text-amber-700 dark:text-amber-300">
+                            All material unit costs and artisan day rates below
+                            can be adjusted to match your actual site
+                            procurement quotes.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-4">
+                      <SectionCard
+                        title={`Material Prices (${currencySymbol})`}
+                        icon={DollarSign}
+                      >
+                        {marketCementNote && (
+                          <p
+                            className="mb-3 rounded-md border border-border bg-muted/40 p-2 text-xs text-muted-foreground"
+                            data-testid="market-cement-note"
+                          >
+                            {marketCementNote}
+                          </p>
+                        )}
+                        {marketRebarNote && (
+                          <p
+                            className="mb-3 rounded-md border border-border bg-muted/40 p-2 text-xs text-muted-foreground"
+                            data-testid="market-rebar-note"
+                          >
+                            {marketRebarNote}
+                          </p>
+                        )}
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          <Field
+                            label="Cement per bag"
+                            unit={currencySymbol}
+                            value={input.prices.cement_per_bag}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                cement_per_bag: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Block per piece"
+                            unit={currencySymbol}
+                            value={input.prices.block_per_piece}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                block_per_piece: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Sand per m³ (ref)"
+                            unit={currencySymbol}
+                            value={input.prices.sand_per_m3}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                sand_per_m3: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Sand per trip (3.5m³)"
+                            unit={currencySymbol}
+                            value={input.prices.sand_per_trip}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                sand_per_trip: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Granite per m³ (ref)"
+                            unit={currencySymbol}
+                            value={input.prices.granite_per_m3}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                granite_per_m3: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Granite per trip (3.5m³)"
+                            unit={currencySymbol}
+                            value={input.prices.granite_per_trip}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                granite_per_trip: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Reinforcement per tonne (bulk)"
+                            unit={currencySymbol}
+                            value={input.prices.reinforcement_per_tonne}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                reinforcement_per_tonne: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <div className="col-span-2">
+                            <p className="text-xs text-muted-foreground mb-1">
+                              Rebar prices (per 12m standard length):
+                            </p>
+                          </div>
+                          <Field
+                            label="12mm rebar/length"
+                            unit={currencySymbol}
+                            value={input.prices.rebar_12mm_per_length}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                rebar_12mm_per_length: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="16mm rebar/length"
+                            unit={currencySymbol}
+                            value={input.prices.rebar_16mm_per_length}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                rebar_16mm_per_length: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="20mm rebar/length"
+                            unit={currencySymbol}
+                            value={input.prices.rebar_20mm_per_length}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                rebar_20mm_per_length: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="25mm rebar/length"
+                            unit={currencySymbol}
+                            value={input.prices.rebar_25mm_per_length}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                rebar_25mm_per_length: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Binding wire per kg"
+                            unit={currencySymbol}
+                            value={input.prices.binding_wire_per_kg}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                binding_wire_per_kg: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Timber per meter"
+                            unit={currencySymbol}
+                            value={input.prices.timber_per_m}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                timber_per_m: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Roofing sheet per piece"
+                            unit={currencySymbol}
+                            value={input.prices.roofing_sheet_per_piece}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                roofing_sheet_per_piece: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Ridge cap per meter"
+                            unit={currencySymbol}
+                            value={input.prices.ridge_cap_per_meter}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                ridge_cap_per_meter: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Roofing screws per piece"
+                            unit={currencySymbol}
+                            value={input.prices.roofing_screws_per_piece}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                roofing_screws_per_piece: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Fascia per meter"
+                            unit={currencySymbol}
+                            value={input.prices.fascia_per_meter}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                fascia_per_meter: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="DPC per meter"
+                            unit={currencySymbol}
+                            value={input.prices.dpc_per_meter}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                dpc_per_meter: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Formwork per m²"
+                            unit={currencySymbol}
+                            value={input.prices.formwork_per_m2}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                formwork_per_m2: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Hardcore per m³"
+                            unit={currencySymbol}
+                            value={input.prices.hardcore_per_m3}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                hardcore_per_m3: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="DPM per m²"
+                            unit={currencySymbol}
+                            value={input.prices.dpm_per_m2}
+                            onChange={(v) =>
+                              update("prices", {
+                                ...input.prices,
+                                dpm_per_m2: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Contingency"
+                            unit="%"
+                            value={input.contingency_percent}
+                            onChange={(v) =>
+                              update("contingency_percent", parseFloat(v) || 0)
+                            }
+                          />
+                        </div>
+                        <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+                          <Info aria-hidden="true" className="w-3.5 h-3.5" />
+                          <span>
+                            Prices are user-configurable and not permanently
+                            stored. Update with current local market rates.
+                          </span>
+                        </div>
+                      </SectionCard>
+                    </div>
+                    <div className="space-y-4">
+                      <SectionCard
+                        title={`Task-Based Labour Rates (${currencySymbol})`}
+                        icon={Users}
+                      >
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          <Field
+                            label="Excavation per m³"
+                            unit={currencySymbol}
+                            value={input.labour.excavation_per_m3}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                excavation_per_m3: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Blockwork per block"
+                            unit={currencySymbol}
+                            value={input.labour.blockwork_per_block}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                blockwork_per_block: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Concrete per m³"
+                            unit={currencySymbol}
+                            value={input.labour.concrete_per_m3}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                concrete_per_m3: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Reinforcement per tonne"
+                            unit={currencySymbol}
+                            value={input.labour.reinforcement_per_tonne}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                reinforcement_per_tonne: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Formwork per m²"
+                            unit={currencySymbol}
+                            value={input.labour.formwork_per_m2}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                formwork_per_m2: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Roofing per m²"
+                            unit={currencySymbol}
+                            value={input.labour.roofing_per_m2}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                roofing_per_m2: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Blinding per m³"
+                            unit={currencySymbol}
+                            value={input.labour.blinding_per_m3}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                blinding_per_m3: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Hardcore per m³"
+                            unit={currencySymbol}
+                            value={input.labour.hardcore_per_m3}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                hardcore_per_m3: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Sand filling per m³"
+                            unit={currencySymbol}
+                            value={input.labour.sand_filling_per_m3}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                sand_filling_per_m3: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Compaction per m³"
+                            unit={currencySymbol}
+                            value={input.labour.compaction_per_m3}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                compaction_per_m3: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Backfilling per m³"
+                            unit={currencySymbol}
+                            value={input.labour.backfilling_per_m3}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                backfilling_per_m3: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="General labour per day"
+                            unit={currencySymbol}
+                            value={input.labour.general_labour_per_day}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                general_labour_per_day: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Site prep days"
+                            unit="days"
+                            value={input.labour.general_labour_days}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                general_labour_days: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                        </div>
+                      </SectionCard>
+                      <SectionCard
+                        title={`Role-Based Daily/Contract Rates (${currencySymbol})`}
+                        icon={Users}
+                      >
+                        <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
+                          <p className="text-xs text-blue-600">
+                            <strong>Construction labour roles:</strong> Set
+                            daily or contract payment rates for each role. These
+                            are added to the labour total alongside task-based
+                            rates.
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          <Field
+                            label="Bricklayer per day"
+                            unit={`${currencySymbol}/day`}
+                            value={input.labour.bricklayer_per_day}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                bricklayer_per_day: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Bricklayer days"
+                            unit="days"
+                            value={input.labour.bricklayer_days}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                bricklayer_days: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <div></div>
+                          <Field
+                            label="Foreman per day"
+                            unit={`${currencySymbol}/day`}
+                            value={input.labour.foreman_per_day}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                foreman_per_day: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Foreman days"
+                            unit="days"
+                            value={input.labour.foreman_days}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                foreman_days: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <div></div>
+                          <Field
+                            label="Supervisor per day"
+                            unit={`${currencySymbol}/day`}
+                            value={input.labour.supervisor_per_day}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                supervisor_per_day: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Supervisor days"
+                            unit="days"
+                            value={input.labour.supervisor_days}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                supervisor_days: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <div></div>
+                          <Field
+                            label="Carpenter per day"
+                            unit={`${currencySymbol}/day`}
+                            value={input.labour.carpenter_per_day}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                carpenter_per_day: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Carpenter days"
+                            unit="days"
+                            value={input.labour.carpenter_days}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                carpenter_days: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <div></div>
+                          <Field
+                            label="Concrete labourer per day"
+                            unit={`${currencySymbol}/day`}
+                            value={input.labour.concrete_labourer_per_day}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                concrete_labourer_per_day: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <Field
+                            label="Concrete labourer days"
+                            unit="days"
+                            value={input.labour.concrete_labourer_days}
+                            onChange={(v) =>
+                              update("labour", {
+                                ...input.labour,
+                                concrete_labourer_days: parseFloat(v) || 0,
+                              })
+                            }
+                          />
+                          <div></div>
+                          <div className="md:col-span-3 border-t border-border/50 pt-4 mt-2">
+                            <p className="text-sm font-medium text-card-foreground mb-3">
+                              Contractor Payment
+                            </p>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                              <div>
+                                <label className="text-sm font-medium text-muted-foreground mb-1 block">
+                                  Payment type
+                                </label>
+                                <select
+                                  value={input.labour.contractor_fee_type}
+                                  onChange={(e) =>
+                                    update("labour", {
+                                      ...input.labour,
+                                      contractor_fee_type: e.target.value as
+                                        "daily" | "contract",
+                                    })
+                                  }
+                                  className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all"
+                                >
+                                  <option value="contract">
+                                    Lump sum (contract)
                                   </option>
-                                  <option value="suspended_beam">
-                                    Suspended Beam
-                                  </option>
-                                  <option value="ring_beam">Ring Beam</option>
-                                  <option value="lintel">Lintel</option>
-                                  <option value="slab">Slab</option>
-                                  <option value="other">Other</option>
+                                  <option value="daily">Daily rate</option>
                                 </select>
                               </div>
-                              <Field
-                                label="Label"
-                                value={member.label}
-                                onChange={(v) => {
-                                  const members = [...input.structural_members];
-                                  members[i] = { ...member, label: v };
-                                  update("structural_members", members);
-                                }}
-                                type="text"
-                              />
-                              <Field
-                                label={`L (${input.measurement_unit})`}
-                                value={member.length}
-                                onChange={(v) => {
-                                  const members = [...input.structural_members];
-                                  members[i] = {
-                                    ...member,
-                                    length: parseFloat(v) || 0,
-                                  };
-                                  update("structural_members", members);
-                                }}
-                                step="0.1"
-                              />
-                              <Field
-                                label={`W (${input.measurement_unit})`}
-                                value={member.width}
-                                onChange={(v) => {
-                                  const members = [...input.structural_members];
-                                  members[i] = {
-                                    ...member,
-                                    width: parseFloat(v) || 0,
-                                  };
-                                  update("structural_members", members);
-                                }}
-                                step="0.025"
-                              />
-                              <Field
-                                label={`D (${input.measurement_unit})`}
-                                value={member.depth}
-                                onChange={(v) => {
-                                  const members = [...input.structural_members];
-                                  members[i] = {
-                                    ...member,
-                                    depth: parseFloat(v) || 0,
-                                  };
-                                  update("structural_members", members);
-                                }}
-                                step="0.025"
-                              />
-                              <Field
-                                label="Qty"
-                                value={member.quantity}
-                                onChange={(v) => {
-                                  const members = [...input.structural_members];
-                                  members[i] = {
-                                    ...member,
-                                    quantity: parseInt(v) || 1,
-                                  };
-                                  update("structural_members", members);
-                                }}
-                              />
-                              <Button
-                                variant="ghost"
-                                onClick={() =>
-                                  update(
-                                    "structural_members",
-                                    input.structural_members.filter(
-                                      (_, idx) => idx !== i,
-                                    ),
-                                  )
-                                }
-                                className="col-span-2 md:col-span-6 text-xs text-red-500 hover:text-red-700 font-medium text-left"
-                              >
-                                Remove member
-                              </Button>
-                            </div>
-                          ))}
-                          <Button
-                            variant="ghost"
-                            onClick={() =>
-                              update("structural_members", [
-                                ...input.structural_members,
-                                {
-                                  id: `m${Date.now()}`,
-                                  type: "column",
-                                  label: "New Member",
-                                  length: 3,
-                                  width: 0.225,
-                                  depth: 0.225,
-                                  quantity: 1,
-                                },
-                              ])
-                            }
-                            className="text-sm text-brand-purple hover:text-brand-purple-dark font-medium"
-                          >
-                            + Add structural member
-                          </Button>
-                        </div>
-                      )}
-                      {!input.has_engineer_schedule && (
-                        <div className="rounded-lg bg-muted/50 border border-border/50 p-4">
-                          <p className="text-sm text-muted-foreground">
-                            No engineer's schedule provided. Structural concrete
-                            quantities will not be calculated. The estimate will
-                            be labeled as{" "}
-                            <span className="font-medium text-amber-600">
-                              preliminary
-                            </span>{" "}
-                            for structural items.
-                          </p>
-                        </div>
-                      )}
-                    </SectionCard>
-                  </div>
-                )}
-
-                {/* Step 7: Prices */}
-                {step === 7 && (
-                  <div className="space-y-4">
-                    <SectionCard
-                      title={`Material Prices (${currencySymbol})`}
-                      icon={DollarSign}
-                    >
-                      {marketCementNote && (
-                        <p
-                          className="mb-3 rounded-md border border-border bg-muted/40 p-2 text-xs text-muted-foreground"
-                          data-testid="market-cement-note"
-                        >
-                          {marketCementNote}
-                        </p>
-                      )}
-                      {marketRebarNote && (
-                        <p
-                          className="mb-3 rounded-md border border-border bg-muted/40 p-2 text-xs text-muted-foreground"
-                          data-testid="market-rebar-note"
-                        >
-                          {marketRebarNote}
-                        </p>
-                      )}
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <Field
-                          label="Cement per bag"
-                          unit={currencySymbol}
-                          value={input.prices.cement_per_bag}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              cement_per_bag: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Block per piece"
-                          unit={currencySymbol}
-                          value={input.prices.block_per_piece}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              block_per_piece: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Sand per m³ (ref)"
-                          unit={currencySymbol}
-                          value={input.prices.sand_per_m3}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              sand_per_m3: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Sand per trip (3.5m³)"
-                          unit={currencySymbol}
-                          value={input.prices.sand_per_trip}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              sand_per_trip: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Granite per m³ (ref)"
-                          unit={currencySymbol}
-                          value={input.prices.granite_per_m3}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              granite_per_m3: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Granite per trip (3.5m³)"
-                          unit={currencySymbol}
-                          value={input.prices.granite_per_trip}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              granite_per_trip: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Reinforcement per tonne (bulk)"
-                          unit={currencySymbol}
-                          value={input.prices.reinforcement_per_tonne}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              reinforcement_per_tonne: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <div className="col-span-2">
-                          <p className="text-xs text-muted-foreground mb-1">
-                            Rebar prices (per 12m standard length):
-                          </p>
-                        </div>
-                        <Field
-                          label="12mm rebar/length"
-                          unit={currencySymbol}
-                          value={input.prices.rebar_12mm_per_length}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              rebar_12mm_per_length: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="16mm rebar/length"
-                          unit={currencySymbol}
-                          value={input.prices.rebar_16mm_per_length}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              rebar_16mm_per_length: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="20mm rebar/length"
-                          unit={currencySymbol}
-                          value={input.prices.rebar_20mm_per_length}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              rebar_20mm_per_length: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="25mm rebar/length"
-                          unit={currencySymbol}
-                          value={input.prices.rebar_25mm_per_length}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              rebar_25mm_per_length: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Binding wire per kg"
-                          unit={currencySymbol}
-                          value={input.prices.binding_wire_per_kg}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              binding_wire_per_kg: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Timber per meter"
-                          unit={currencySymbol}
-                          value={input.prices.timber_per_m}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              timber_per_m: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Roofing sheet per piece"
-                          unit={currencySymbol}
-                          value={input.prices.roofing_sheet_per_piece}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              roofing_sheet_per_piece: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Ridge cap per meter"
-                          unit={currencySymbol}
-                          value={input.prices.ridge_cap_per_meter}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              ridge_cap_per_meter: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Roofing screws per piece"
-                          unit={currencySymbol}
-                          value={input.prices.roofing_screws_per_piece}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              roofing_screws_per_piece: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Fascia per meter"
-                          unit={currencySymbol}
-                          value={input.prices.fascia_per_meter}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              fascia_per_meter: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="DPC per meter"
-                          unit={currencySymbol}
-                          value={input.prices.dpc_per_meter}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              dpc_per_meter: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Formwork per m²"
-                          unit={currencySymbol}
-                          value={input.prices.formwork_per_m2}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              formwork_per_m2: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Hardcore per m³"
-                          unit={currencySymbol}
-                          value={input.prices.hardcore_per_m3}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              hardcore_per_m3: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="DPM per m²"
-                          unit={currencySymbol}
-                          value={input.prices.dpm_per_m2}
-                          onChange={(v) =>
-                            update("prices", {
-                              ...input.prices,
-                              dpm_per_m2: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Contingency"
-                          unit="%"
-                          value={input.contingency_percent}
-                          onChange={(v) =>
-                            update("contingency_percent", parseFloat(v) || 0)
-                          }
-                        />
-                      </div>
-                      <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-                        <Info aria-hidden="true" className="w-3.5 h-3.5" />
-                        <span>
-                          Prices are user-configurable and not permanently
-                          stored. Update with current local market rates.
-                        </span>
-                      </div>
-                    </SectionCard>
-                  </div>
-                )}
-
-                {/* Step 8: Labour */}
-                {step === 8 && (
-                  <div className="space-y-4">
-                    <SectionCard
-                      title={`Task-Based Labour Rates (${currencySymbol})`}
-                      icon={Users}
-                    >
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <Field
-                          label="Excavation per m³"
-                          unit={currencySymbol}
-                          value={input.labour.excavation_per_m3}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              excavation_per_m3: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Blockwork per block"
-                          unit={currencySymbol}
-                          value={input.labour.blockwork_per_block}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              blockwork_per_block: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Concrete per m³"
-                          unit={currencySymbol}
-                          value={input.labour.concrete_per_m3}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              concrete_per_m3: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Reinforcement per tonne"
-                          unit={currencySymbol}
-                          value={input.labour.reinforcement_per_tonne}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              reinforcement_per_tonne: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Formwork per m²"
-                          unit={currencySymbol}
-                          value={input.labour.formwork_per_m2}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              formwork_per_m2: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Roofing per m²"
-                          unit={currencySymbol}
-                          value={input.labour.roofing_per_m2}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              roofing_per_m2: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Blinding per m³"
-                          unit={currencySymbol}
-                          value={input.labour.blinding_per_m3}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              blinding_per_m3: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Hardcore per m³"
-                          unit={currencySymbol}
-                          value={input.labour.hardcore_per_m3}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              hardcore_per_m3: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Sand filling per m³"
-                          unit={currencySymbol}
-                          value={input.labour.sand_filling_per_m3}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              sand_filling_per_m3: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Compaction per m³"
-                          unit={currencySymbol}
-                          value={input.labour.compaction_per_m3}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              compaction_per_m3: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Backfilling per m³"
-                          unit={currencySymbol}
-                          value={input.labour.backfilling_per_m3}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              backfilling_per_m3: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="General labour per day"
-                          unit={currencySymbol}
-                          value={input.labour.general_labour_per_day}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              general_labour_per_day: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Site prep days"
-                          unit="days"
-                          value={input.labour.general_labour_days}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              general_labour_days: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                      </div>
-                    </SectionCard>
-                    <SectionCard
-                      title={`Role-Based Daily/Contract Rates (${currencySymbol})`}
-                      icon={Users}
-                    >
-                      <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
-                        <p className="text-xs text-blue-600">
-                          <strong>Construction labour roles:</strong> Set daily
-                          or contract payment rates for each role. These are
-                          added to the labour total alongside task-based rates.
-                        </p>
-                      </div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <Field
-                          label="Bricklayer per day"
-                          unit={`${currencySymbol}/day`}
-                          value={input.labour.bricklayer_per_day}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              bricklayer_per_day: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Bricklayer days"
-                          unit="days"
-                          value={input.labour.bricklayer_days}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              bricklayer_days: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <div></div>
-                        <Field
-                          label="Foreman per day"
-                          unit={`${currencySymbol}/day`}
-                          value={input.labour.foreman_per_day}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              foreman_per_day: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Foreman days"
-                          unit="days"
-                          value={input.labour.foreman_days}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              foreman_days: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <div></div>
-                        <Field
-                          label="Supervisor per day"
-                          unit={`${currencySymbol}/day`}
-                          value={input.labour.supervisor_per_day}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              supervisor_per_day: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Supervisor days"
-                          unit="days"
-                          value={input.labour.supervisor_days}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              supervisor_days: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <div></div>
-                        <Field
-                          label="Carpenter per day"
-                          unit={`${currencySymbol}/day`}
-                          value={input.labour.carpenter_per_day}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              carpenter_per_day: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Carpenter days"
-                          unit="days"
-                          value={input.labour.carpenter_days}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              carpenter_days: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <div></div>
-                        <Field
-                          label="Concrete labourer per day"
-                          unit={`${currencySymbol}/day`}
-                          value={input.labour.concrete_labourer_per_day}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              concrete_labourer_per_day: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <Field
-                          label="Concrete labourer days"
-                          unit="days"
-                          value={input.labour.concrete_labourer_days}
-                          onChange={(v) =>
-                            update("labour", {
-                              ...input.labour,
-                              concrete_labourer_days: parseFloat(v) || 0,
-                            })
-                          }
-                        />
-                        <div></div>
-                        <div className="md:col-span-3 border-t border-border/50 pt-4 mt-2">
-                          <p className="text-sm font-medium text-card-foreground mb-3">
-                            Contractor Payment
-                          </p>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <div>
-                              <label className="text-sm font-medium text-muted-foreground mb-1 block">
-                                Payment type
-                              </label>
-                              <select
-                                value={input.labour.contractor_fee_type}
-                                onChange={(e) =>
-                                  update("labour", {
-                                    ...input.labour,
-                                    contractor_fee_type: e.target.value as
-                                      "daily" | "contract",
-                                  })
-                                }
-                                className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all"
-                              >
-                                <option value="contract">
-                                  Lump sum (contract)
-                                </option>
-                                <option value="daily">Daily rate</option>
-                              </select>
-                            </div>
-                            {input.labour.contractor_fee_type === "contract" ? (
-                              <Field
-                                label="Contractor fee (lump sum)"
-                                unit={currencySymbol}
-                                value={input.labour.contractor_fee}
-                                onChange={(v) =>
-                                  update("labour", {
-                                    ...input.labour,
-                                    contractor_fee: parseFloat(v) || 0,
-                                  })
-                                }
-                              />
-                            ) : (
-                              <>
+                              {input.labour.contractor_fee_type ===
+                              "contract" ? (
                                 <Field
-                                  label="Contractor per day"
-                                  unit={`${currencySymbol}/day`}
+                                  label="Contractor fee (lump sum)"
+                                  unit={currencySymbol}
                                   value={input.labour.contractor_fee}
                                   onChange={(v) =>
                                     update("labour", {
@@ -2188,133 +2772,154 @@ export default function BuildToRoofEstimator() {
                                     })
                                   }
                                 />
-                                <Field
-                                  label="Contractor days"
-                                  unit="days"
-                                  value={input.labour.contractor_days}
-                                  onChange={(v) =>
-                                    update("labour", {
-                                      ...input.labour,
-                                      contractor_days: parseFloat(v) || 0,
-                                    })
-                                  }
-                                />
-                              </>
-                            )}
+                              ) : (
+                                <>
+                                  <Field
+                                    label="Contractor per day"
+                                    unit={`${currencySymbol}/day`}
+                                    value={input.labour.contractor_fee}
+                                    onChange={(v) =>
+                                      update("labour", {
+                                        ...input.labour,
+                                        contractor_fee: parseFloat(v) || 0,
+                                      })
+                                    }
+                                  />
+                                  <Field
+                                    label="Contractor days"
+                                    unit="days"
+                                    value={input.labour.contractor_days}
+                                    onChange={(v) =>
+                                      update("labour", {
+                                        ...input.labour,
+                                        contractor_days: parseFloat(v) || 0,
+                                      })
+                                    }
+                                  />
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="mt-4 rounded-lg bg-muted/50 border border-border/50 p-3">
-                        <p className="text-xs text-muted-foreground">
-                          Role-based total: {currencySymbol}
-                          {(
-                            input.labour.bricklayer_per_day *
-                              input.labour.bricklayer_days +
-                            input.labour.foreman_per_day *
-                              input.labour.foreman_days +
-                            input.labour.supervisor_per_day *
-                              input.labour.supervisor_days +
-                            input.labour.carpenter_per_day *
-                              input.labour.carpenter_days +
-                            input.labour.concrete_labourer_per_day *
-                              input.labour.concrete_labourer_days +
-                            (input.labour.contractor_fee_type === "contract"
-                              ? input.labour.contractor_fee
-                              : input.labour.contractor_fee *
-                                input.labour.contractor_days)
-                          ).toLocaleString()}
-                        </p>
-                      </div>
-                    </SectionCard>
+                        <div className="mt-4 rounded-lg bg-muted/50 border border-border/50 p-3">
+                          <p className="text-xs text-muted-foreground">
+                            Role-based total: {currencySymbol}
+                            {(
+                              input.labour.bricklayer_per_day *
+                                input.labour.bricklayer_days +
+                              input.labour.foreman_per_day *
+                                input.labour.foreman_days +
+                              input.labour.supervisor_per_day *
+                                input.labour.supervisor_days +
+                              input.labour.carpenter_per_day *
+                                input.labour.carpenter_days +
+                              input.labour.concrete_labourer_per_day *
+                                input.labour.concrete_labourer_days +
+                              (input.labour.contractor_fee_type === "contract"
+                                ? input.labour.contractor_fee
+                                : input.labour.contractor_fee *
+                                  input.labour.contractor_days)
+                            ).toLocaleString()}
+                          </p>
+                        </div>
+                      </SectionCard>
+                    </div>
                   </div>
                 )}
 
-                {/* Step 9: Drawing upload */}
-                {step === 9 && (
-                  <SectionCard
-                    title="Upload Architectural Drawing (Optional)"
-                    icon={Upload}
-                  >
-                    <ConstructionExtractionPanel
-                      currentOpenings={input.openings}
-                      onApply={applyExtractionPatch}
-                    />
-                    {extractionApplied > 0 && (
-                      <div className="mt-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900 p-3 flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                        <span className="text-sm text-emerald-700 dark:text-emerald-300">
-                          {extractionApplied} confirmed value
-                          {extractionApplied === 1 ? "" : "s"} added to your
-                          estimate. Review and adjust them in the next steps, or
-                          calculate now.
-                        </span>
+                {/* Phase 4: Summary BOQ & Export */}
+                {phase === 4 && !result && (
+                  <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 text-center space-y-4">
+                    <Calculator className="w-12 h-12 text-brand-purple mx-auto animate-bounce" />
+                    <h3 className="text-xl font-bold text-foreground">
+                      Ready to generate your Bill of Quantities?
+                    </h3>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                      We will calculate all quantities, material shopping lists,
+                      labour requirements, and costs according to your active
+                      assemblies and pricing specifications.
+                    </p>
+                    {validationErrors.length > 0 && (
+                      <div className="mx-auto max-w-md rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 p-4 text-left">
+                        <p className="text-xs font-semibold text-red-700 dark:text-red-300 mb-1.5">
+                          Please fix these issues before calculating:
+                        </p>
+                        <ul className="text-xs text-red-600 dark:text-red-400 space-y-1 list-disc list-inside">
+                          {validationErrors.map((e) => (
+                            <li key={e}>{e}</li>
+                          ))}
+                        </ul>
                       </div>
                     )}
-                  </SectionCard>
+                    <Button
+                      onClick={calculate}
+                      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-green to-green-600 px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30"
+                    >
+                      <Calculator className="w-4 h-4" />
+                      <span>Generate Summary BOQ & Estimate</span>
+                    </Button>
+                  </div>
                 )}
               </div>
+
               {/* Navigation */}
               <div className="relative flex items-center justify-between mt-6 sm:mt-8 pt-4 border-t border-border/50">
                 <Button
                   variant="ghost"
-                  onClick={prev}
-                  disabled={step === 0}
+                  onClick={() => {
+                    if (phase === 4) setPhase(3);
+                    else if (phase === 3) setPhase(2);
+                    else if (phase === 2) setPhase(1);
+                  }}
+                  disabled={phase === 1}
                   className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-muted-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors active:scale-95"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span className="hidden sm:inline">Back</span>
                 </Button>
-                <span className="text-xs text-muted-foreground font-medium">
-                  <span className="hidden sm:inline">Step </span>
-                  {step + 1}{" "}
-                  <span className="hidden sm:inline">
-                    of {STEPS.length - 1}
+
+                <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+                  <span>Phase {phase} of 4:</span>
+                  <span className="font-semibold text-foreground">
+                    {PHASES[phase - 1].shortTitle}
                   </span>
-                  <span className="sm:hidden">/{STEPS.length - 1}</span>
-                </span>
-                {step < STEPS.length - 2 ? (
+                </div>
+
+                {phase < 3 ? (
                   <Button
                     variant="ghost"
-                    onClick={next}
-                    disabled={!canProceed}
+                    onClick={() => {
+                      if (phase === 1) setPhase(2);
+                      else if (phase === 2) setPhase(3);
+                    }}
+                    disabled={phase === 1 && !canProceed}
                     className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-primary to-primary-light px-4 sm:px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-md shadow-brand-purple/20 disabled:opacity-40 hover:shadow-lg hover:shadow-brand-purple/25 transition-all active:scale-95"
                   >
-                    <span className="hidden sm:inline">Next</span>
+                    <span className="hidden sm:inline">Next Phase</span>
+                    <span className="sm:hidden">Next</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
-                ) : step === STEPS.length - 2 ? (
-                  <>
-                    {validationErrors.length > 0 && (
-                      <div className="absolute bottom-full right-0 mb-3 w-72 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 p-3 shadow-lg">
-                        <p className="text-xs font-semibold text-red-700 dark:text-red-300 mb-1">
-                          Please fix these before calculating:
-                        </p>
-                        <ul className="text-xs text-red-600 dark:text-red-400 space-y-0.5 list-disc list-inside">
-                          {validationErrors.slice(0, 4).map((e) => (
-                            <li key={e}>{e}</li>
-                          ))}
-                          {validationErrors.length > 4 && (
-                            <li>
-                              …and {validationErrors.length - 4} more (see the
-                              earlier steps)
-                            </li>
-                          )}
-                        </ul>
-                      </div>
-                    )}
-                    <Button
-                      variant="ghost"
-                      onClick={calculate}
-                      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-green to-green-600 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30 transition-all active:scale-95 animate-progress-glow"
-                    >
-                      <Calculator aria-hidden="true" className="w-4 h-4" />
-                      <span className="hidden sm:inline">
-                        Generate Estimate
-                      </span>
-                      <span className="sm:hidden">Calculate</span>
-                    </Button>
-                  </>
-                ) : null}
+                ) : phase === 3 ? (
+                  <Button
+                    variant="ghost"
+                    onClick={calculate}
+                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-green to-green-600 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30 transition-all active:scale-95"
+                  >
+                    <Calculator aria-hidden="true" className="w-4 h-4" />
+                    <span className="hidden sm:inline">
+                      Generate Summary BOQ
+                    </span>
+                    <span className="sm:hidden">Estimate</span>
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    onClick={() => setPhase(3)}
+                    className="inline-flex items-center gap-1 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
+                  >
+                    <span>Adjust Specifications</span>
+                  </Button>
+                )}
               </div>
             </>
           )}

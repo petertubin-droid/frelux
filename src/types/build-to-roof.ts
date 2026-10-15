@@ -9,22 +9,18 @@
 // ── Enums / Union types ──
 
 export type BuildingType =
-  | 'bungalow'
-  | 'duplex'
-  | 'two_storey'
-  | 'apartment'
-  | 'office'
-  | 'shop'
-  | 'custom';
+  | "bungalow"
+  | "duplex"
+  | "two_storey"
+  | "apartment"
+  | "office"
+  | "shop"
+  | "custom";
 
 export type FoundationType =
-  | 'strip_footing'
-  | 'pad_footing'
-  | 'raft'
-  | 'pile'
-  | 'custom';
+  "strip_footing" | "pad_footing" | "raft" | "pile" | "custom";
 
-export type RoofType = 'gable' | 'hip' | 'mono_pitch' | 'flat' | 'custom';
+export type RoofType = "gable" | "hip" | "mono_pitch" | "flat" | "custom";
 
 /**
  * Nigerian block sizes (inch-based, industry standard):
@@ -32,29 +28,25 @@ export type RoofType = 'gable' | 'hip' | 'mono_pitch' | 'flat' | 'custom';
  * - 6-inch: hollow or solid, used for internal walls and partitions
  * - 5-inch: solid block only, used for non-load-bearing partitions
  */
-export type BlockSize = '9inch' | '6inch' | '5inch' | 'custom';
+export type BlockSize = "9inch" | "6inch" | "5inch" | "custom";
 
 export type RoofingMaterial =
-  | 'long_span_aluminium'
-  | 'stone_coated'
-  | 'gi_sheet'
-  | 'shingle'
-  | 'custom';
+  "long_span_aluminium" | "stone_coated" | "gi_sheet" | "shingle" | "custom";
 
-export type ConfidenceLevel = 'high' | 'moderate' | 'preliminary';
+export type ConfidenceLevel = "high" | "moderate" | "preliminary";
 
 export type ConstructionStage =
-  | 'site_preparation'
-  | 'foundation'
-  | 'ground_floor'
-  | 'walls'
-  | 'structural_frame'
-  | 'roofing';
+  | "site_preparation"
+  | "foundation"
+  | "ground_floor"
+  | "walls"
+  | "structural_frame"
+  | "roofing";
 
 // ── Input types ──
 
 export interface OpeningInput {
-  type: 'door' | 'window';
+  type: "door" | "window";
   width: number; // meters
   height: number; // meters
   count: number;
@@ -63,7 +55,14 @@ export interface OpeningInput {
 
 export interface StructuralMemberInput {
   id: string;
-  type: 'column' | 'ground_beam' | 'suspended_beam' | 'ring_beam' | 'lintel' | 'slab' | 'other';
+  type:
+    | "column"
+    | "ground_beam"
+    | "suspended_beam"
+    | "ring_beam"
+    | "lintel"
+    | "slab"
+    | "other";
   label: string;
   length: number; // meters
   width: number; // meters (or diameter for columns)
@@ -78,13 +77,22 @@ export interface StructuralMemberInput {
   cover_mm?: number; // concrete cover
 }
 
+export interface IncludedStagesConfig {
+  foundation?: boolean;
+  walls?: boolean;
+  roof?: boolean;
+}
+
 export interface BuildToRoofInput {
+  // Modular assembly toggles (defaults to all included)
+  included_stages?: IncludedStagesConfig;
+
   // Project info
   project_name: string;
   location: string;
   building_type: BuildingType;
   number_of_floors: number;
-  measurement_unit: 'm' | 'ft';
+  measurement_unit: "m" | "ft";
 
   // Building dimensions (stored in meters internally; converted from ft if unit is ft)
   building_length: number;
@@ -208,7 +216,7 @@ export interface LabourConfig {
   bricklayer_per_day: number; // ₦ per day per bricklayer/mason
   bricklayer_days: number; // estimated bricklayer-days for blockwork
   contractor_fee: number; // ₦, lump sum or daily rate × days
-  contractor_fee_type: 'daily' | 'contract'; // payment mode
+  contractor_fee_type: "daily" | "contract"; // payment mode
   contractor_days: number; // if daily, estimated contractor days
   supervisor_per_day: number; // ₦ per day
   supervisor_days: number; // estimated supervisor days
@@ -239,7 +247,12 @@ export interface DrawingDetectedDimensions {
   floor_area?: number;
   room_count?: number;
   wall_lengths?: { label: string; length: number; thickness: number }[];
-  openings?: { type: 'door' | 'window'; width: number; height: number; count: number }[];
+  openings?: {
+    type: "door" | "window";
+    width: number;
+    height: number;
+    count: number;
+  }[];
   roof_type?: string;
   roof_pitch?: number;
   roof_dimensions?: { length: number; width: number };
@@ -314,15 +327,15 @@ export interface ConsolidatedMaterial {
 
 export interface ReinforcementBreakdownItem {
   diameter_mm: number;
-  label: string;           // e.g. "12mm Main Bars"
-  base_length_m: number;   // net length in meters (before wastage)
-  total_length_m: number;  // total length in meters (incl. wastage)
+  label: string; // e.g. "12mm Main Bars"
+  base_length_m: number; // net length in meters (before wastage)
+  total_length_m: number; // total length in meters (incl. wastage)
   standard_lengths: number; // number of 12m standard lengths
-  weight_kg: number;       // total weight
-  weight_tonnes: number;   // total weight in tonnes
-  unit_price: number;      // ₦ per standard 12m length
-  total_cost: number;      // standard_lengths × unit_price
-  source: 'main' | 'links'; // main bars or stirrups/links
+  weight_kg: number; // total weight
+  weight_tonnes: number; // total weight in tonnes
+  unit_price: number; // ₦ per standard 12m length
+  total_cost: number; // standard_lengths × unit_price
+  source: "main" | "links"; // main bars or stirrups/links
 }
 
 export interface ReinforcementBreakdown {

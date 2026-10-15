@@ -669,4 +669,31 @@ describe("decomposeRoofPlanes, explicit geometry", () => {
     // degrees-only input must never reach trig unconverted:
     expect(Math.cos(30)).toBeLessThan(1); // 30 rad ≠ 30°
   });
+  it("calculates only selected assemblies when included_stages is specified", () => {
+    const base = makeValidInput();
+    const fullResult = calculateBuildToRoof(base);
+    expect(fullResult.stages.length).toBe(5);
+
+    // Roof-only calculation
+    const roofOnlyInput = {
+      ...base,
+      included_stages: { foundation: false, walls: false, roof: true },
+    };
+    const roofResult = calculateBuildToRoof(roofOnlyInput);
+    expect(roofResult.stages.length).toBe(1);
+    expect(roofResult.stages[0].stage).toBe("roofing");
+    expect(roofResult.materials_total).toBeLessThan(fullResult.grand_total);
+
+    // Foundation-only calculation
+    const foundationOnlyInput = {
+      ...base,
+      included_stages: { foundation: true, walls: false, roof: false },
+    };
+    const foundationResult = calculateBuildToRoof(foundationOnlyInput);
+    expect(foundationResult.stages.length).toBe(2);
+    expect(foundationResult.stages.map((s) => s.stage)).toEqual([
+      "site_preparation",
+      "ground_floor",
+    ]);
+  });
 });

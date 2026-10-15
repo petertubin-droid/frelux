@@ -2186,11 +2186,30 @@ export function calculateBuildToRoof(
 
   const stages: StageResult[] = [];
 
-  stages.push(calcSiteAndFoundation(input_m));
-  stages.push(calcGroundFloor(input_m));
-  stages.push(calcWalls(input_m));
-  stages.push(calcStructuralFrame(input_m));
-  stages.push(calcRoofing(input_m));
+  const includeFoundation = input_m.included_stages?.foundation !== false;
+  const includeWalls = input_m.included_stages?.walls !== false;
+  const includeRoof = input_m.included_stages?.roof !== false;
+
+  if (includeFoundation) {
+    stages.push(calcSiteAndFoundation(input_m));
+    stages.push(calcGroundFloor(input_m));
+  }
+  if (includeWalls) {
+    stages.push(calcWalls(input_m));
+    stages.push(calcStructuralFrame(input_m));
+  }
+  if (includeRoof) {
+    stages.push(calcRoofing(input_m));
+  }
+
+  // Fallback to all stages if all toggles were disabled
+  if (stages.length === 0) {
+    stages.push(calcSiteAndFoundation(input_m));
+    stages.push(calcGroundFloor(input_m));
+    stages.push(calcWalls(input_m));
+    stages.push(calcStructuralFrame(input_m));
+    stages.push(calcRoofing(input_m));
+  }
 
   const shoppingList = consolidateMaterials(stages);
 
