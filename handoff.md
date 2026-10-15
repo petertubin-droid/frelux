@@ -80,7 +80,6 @@ Status summaries below preserve the completed implementation records found in Gi
 
 ### Release gate
 
-
 For every engine/market: use authoritative sources or contracted providers; record coverage and effective dates; name an accountable local reviewer; test missing, stale, outage, permission, and offline states; configure secrets securely; verify end-to-end behavior; and assign monitoring and rollback ownership. Keep capabilities **partial/unverified** or **coming soon** until the applicable gate passes. Do not claim live operation based on repository history.
 
 ---

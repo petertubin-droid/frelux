@@ -78,7 +78,6 @@ Status summaries below preserve the completed implementation records found in Gi
 
 ### Release gate
 
-
 For every engine/market: use authoritative sources or contracted providers; record coverage and effective dates; name an accountable local reviewer; test missing, stale, outage, permission, and offline states; configure secrets securely; verify end-to-end behavior; and assign monitoring and rollback ownership. Keep capabilities **partial/unverified** or **coming soon** until the applicable gate passes. Do not claim live operation based on repository history.
 
 ---
@@ -139,8 +138,6 @@ Use the status table in Section 1A as the source of truth for completed mileston
 - **#11 Offline sync:** Replace local-only/demo behavior with authenticated durable sync, conflict review, retry/backoff, device recovery, and attachment handling; test multi-user and multi-device privacy boundaries.
 - **#12 RBAC/security:** Complete route/API/storage inventory, permission matrix, negative cross-tenant/role tests, revocation/audit controls, and independent security review before high-assurance claims.
 - **#2 GIS and #4 tax/FX:** Keep their completed milestone records, but revalidate current license/provider state, citation freshness, FX freshness/outage behavior, and production deployment before extending markets or making live-operation claims.
-
----
 
 ---
 
