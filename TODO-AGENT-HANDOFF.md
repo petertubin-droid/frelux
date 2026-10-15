@@ -373,6 +373,11 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no Gambian work calendar, weather/productivity calibration, customs/carrier feed or logistics profile was found.
 - **Changes made for GM:** none; this requested country is not currently represented by the market implementation. Add it only after approved country data, authoritative/local reviewers and a full country activation gate are available. Next priority: **United Arab Emirates (`AE`)**.
 
+#### Gambia closeout UPDATE 2026-10-15 — Engine 1: BLOCKER RECONFIRMED, correctly skipped (audit history above preserved)
+
+- **Live re-verification (2026-10-15):** `GM` still has NO row in production `market_profiles` (39 represented markets; GM absent), no price book rows, no role mappings, no standards rows.
+- **Decision stands:** GM remains NOT represented, correctly skipped per the owner's documented blocker. No market row, price or standard was invented. Activation requires the full gate from the audit: approved GMD/Gambian country data, local reviewer sign-off, currency (GMD) wiring, then a dedicated single-market migration set — exactly like the one-at-a-time flow now in force. Next per owner order: **United Arab Emirates (`AE`)**.
+
 ### United Arab Emirates market closeout (priority 7; scoped safety fix, 2026-10-14)
 
 - **Operational decision: PARTIAL / NOT VERIFIED END TO END.** Built-in `AE` profile is active/visible with AED, metric defaults and Saudi/GCC inheritance. `market-profiles.test.ts` records AE as `coming_soon`, hidden and unsupported for priced calculations. The database override/fallback behavior means neither code nor test fixtures establish what production users currently see; resolve the availability discrepancy before any activation claim.
