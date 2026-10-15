@@ -337,6 +337,13 @@ Rolled out strictly one-at-a-time. Each market has its own migration (applied to
 - **Timeline/logistics:** a monsoon-influenced climate heuristic and a rain-delay caution exist. The date estimator skips Sundays only; it does not account for Indian state holidays, regional monsoon timing, customs, carrier routes or live supply delays. No predictive logistics engine is established.
 - **Changes made for IN:** none. Partial country-specific profiles/catalogs do not satisfy the user's fully functional and accurate standard; keep the market classified partial/unverified until live availability, source-backed calculations, taxes, workforce credentials and calendars/logistics pass an end-to-end review. Next remaining market: **Japan (`JP`)**.
 
+#### India closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
+
+- **Live verification (2026-10-15):** IN profile `active`/visible (INR); **9 active role mappings** and **37 active INR price rows** confirmed live; zero standards existed before this pass.
+- **Standards seeded (migration `20261015760000`, applied + verified live):** National Building Code of India 2026 (SP 7:2026) — BIS has WITHDRAWN NBC 2016 (state byelaws referencing it remain valid until amended; NBC is voluntary nationally, applied through state/UT byelaws) → `medium` with the state-byelaw caveat; IS 2095-1 plain gypsum plaster boards (mandatory BIS QCO/ISI certification) → `high`. No coverage rates asserted.
+- **Guard:** `src/lib/international/__tests__/in-construction-standards.test.ts` pins 2 rows only, the withdrawal+voluntary caveat, the QCO note, no unsubstantiated URLs, idempotency.
+- **Remaining honest gaps (unchanged):** state byelaw verification, workforce compliance, IN holiday/logistics calibration. IN Engine-1 standards complete. Next per owner order: **Japan (`JP`)**.
+
 ### Japan market closeout (priority 15; scoped scanner safety fix, 2026-10-14)
 
 - **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Japan (`JP`) is in the country selector and built-in profile as active/visible, metric, JPY; no corresponding JP case exists in the seeded availability fixture and no live production-state query was run. This leaves active service availability unverified.
