@@ -96,6 +96,7 @@ PENDING = [
     "20261017130000_project_outcomes.sql",
     "20261017140000_predictive_model_validations.sql",
     "20261017000000_enterprise_workspaces_rbac.sql",
+    "20261017160000_tax_fx_engine4.sql",
 ]
 
 

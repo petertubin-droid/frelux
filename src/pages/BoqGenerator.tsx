@@ -52,6 +52,7 @@ import type {
   EstimationCalcRule,
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import TaxAndFxCard from "@/components/tax/TaxAndFxCard";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 
 /** Display names for the 20 Frelux markets. */
@@ -927,6 +928,17 @@ export default function BoqGenerator() {
                 </tbody>
               </table>
             </div>
+
+            {/* ── Engine #4: verified tax + FX provenance + gated withholding ── */}
+            <TaxAndFxCard
+              marketCode={marketCode}
+              quoteCurrency={getActiveDisplayCurrency()}
+              grandTotal={
+                result?.totals?.grand_total != null
+                  ? Number(result.totals.grand_total)
+                  : null
+              }
+            />
 
             <details className="rounded-xl border border-border bg-card p-4 text-sm shadow-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
