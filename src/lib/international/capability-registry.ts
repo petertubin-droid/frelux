@@ -148,6 +148,11 @@ const FINISHING_VERIFIED_MARKETS: readonly string[] = [
   "BR",
   "SA",
   "AE",
+  // IT verified 2026-10-15 (Engine 1 closeout): 8 IT wall
+  // assemblies, 8 role mappings wired to EUR-priced materials
+  // (migration 20261015162000), paint/primer/stucco price book
+  // verified live, IT covered by the 5-market e2e matrix.
+  "IT",
 ];
 
 /** The full 20-market registry (matches BUILTIN_MARKET_PROFILES). */

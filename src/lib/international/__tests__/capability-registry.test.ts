@@ -21,6 +21,16 @@ const MIGRATION_SQL =
   readFileSync(
     MIGRATION_DIR + "/20261014160000_reconcile_engine_registry.sql",
     "utf8",
+  ) +
+  "\n" +
+  readFileSync(
+    MIGRATION_DIR + "/20261015163000_it_engine_capability_verified.sql",
+    "utf8",
+  ) +
+  "\n" +
+  readFileSync(
+    MIGRATION_DIR + "/20261015164000_it_capability_pair_fix.sql",
+    "utf8",
   );
 
 describe("capability-registry", () => {
@@ -85,6 +95,7 @@ describe("capability-registry", () => {
       "BR",
       "SA",
       "AE",
+      "IT",
     ];
     for (const id of [
       "painting",
@@ -96,10 +107,11 @@ describe("capability-registry", () => {
       const cap = getEngineCapability(id);
       expect(cap?.verifiedMarkets).toEqual(finishingMarkets);
     }
-    // CN/ID/MX/KR/IT are NOT verified for finishing engines yet
+    // CN/ID/MX/KR are NOT verified for finishing engines yet
+    // (IT was verified 2026-10-15: roles + EUR price book live)
     for (const id of ["painting", "wall_finishing"] as const) {
       const cap = getEngineCapability(id);
-      for (const mk of ["CN", "ID", "MX", "KR", "IT"]) {
+      for (const mk of ["CN", "ID", "MX", "KR"]) {
         expect(cap?.verifiedMarkets).not.toContain(mk);
       }
     }
@@ -169,6 +181,17 @@ describe("migration 20261014130000 stays in sync with the registry", () => {
         ),
       ),
     );
+    // Corrective migrations may DELETE miscoded pairs before
+    // re-seeding the right ones — the net seeded state (inserts
+    // minus deletes) is what must match the registry.
+    const deletes = MIGRATION_SQL.matchAll(
+      /DELETE FROM engine_capability_verified\s*WHERE market_code = '([A-Z]{2})'\s*AND engine_id IN \(([^)]+)\)/g,
+    );
+    for (const del of deletes) {
+      for (const eng of del[2].matchAll(/'([a-z_]+)'/g)) {
+        pairs.delete(`${eng[1]}:${del[1]}`);
+      }
+    }
     const registryPairs = new Set(
       ENGINE_CAPABILITIES.flatMap((e) =>
         e.verifiedMarkets.map((mk) => `${e.id}:${mk}`),
