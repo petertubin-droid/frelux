@@ -353,6 +353,13 @@ Rolled out strictly one-at-a-time. Each market has its own migration (applied to
 - **Timeline/logistics:** four-season climate notes are heuristics, not prefecture/site-calibrated work schedules. The date estimator excludes public holidays and customs/shipping; no national/prefecture holiday calendar or carrier/import lead-time feed was verified.
 - **Changes made for JP:** removed the Canada-catalog alias, added an empty catalog and regression test. Focused `src/lib/estimation/price-scanner.test.ts`: 18 tests passed; TypeScript and `git diff --check` passed. No full test suite/build was run for this narrow fix. Japan remains partial/unverified for full operational accuracy. Next remaining market: **France (`FR`)**; note its separate DE-reference alias for its upcoming market closeout.
 
+#### Japan closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
+
+- **Live verification (2026-10-15):** JP profile `active`/visible (JPY); **8 active role mappings** and **32 active JPY price rows** confirmed live (incl. the existing jp-gypsum-box product ref).
+- **Standards seeded (migration `20261015770000`, applied + verified live):** Building Standards Act (Law No. 201 of 1950) — national law enforced through the building-confirmation/inspection system (MLIT / local building officials) → `medium` with the confirmation caveat; JIS A 6901:2014 Gypsum Boards — JIS product standard integrating the former 5 gypsum-board specs, aligned with ISO 6308 → `high`. No coverage rates asserted.
+- **Guard:** `src/lib/international/__tests__/jp-construction-standards.test.ts` pins 2 rows only, the confirmation caveat, the JIS ref as high, no unsubstantiated URLs, idempotency.
+- **Remaining honest gaps (unchanged):** local building-confirmation workflow verification, workforce compliance, JP holiday/logistics calibration. JP Engine-1 standards complete. Next per owner order: **France (`FR`)**.
+
 ### France market closeout (priority 16; scoped scanner safety fix, 2026-10-14)
 
 - **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** France (`FR`) has a built-in active/visible metric, French-language/EUR profile, but inherits unspecified context from Germany (`DE`). No live production-state check was performed. Inherited German defaults cannot be presented as French-validated without review.
