@@ -324,6 +324,13 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** CN climate/season and heuristic timeline configuration exist but are not region-calibrated productivity or date data. No China national/provincial holiday calendar, local work-rest calendar, customs/shipping or carrier integration was verified.
 - **Changes made for CN:** none; no live deployment verification, local reviewer or authoritative full-engine evidence was available. Market profile is active/visible in code, but full accuracy and operational coverage are not established. Existing profile notes include “GB standards” in a China admin note; treat this as a suspected metadata error to correct only against approved China-specific sources. Next priority: **Italy (`IT`)**.
 
+#### China closeout UPDATE 2026-10-15 — Engine 1: jurisdiction standards SEEDED; finishing price book an honest BLOCKER (audit history above preserved)
+
+- **Live verification (2026-10-15):** production CN profile active/visible; 24 active CNY price rows (plumbing/electrical/doors) confirmed live. **Zero wall-finishing materials or prices exist for CN, and zero role mappings** — finishing priced calculations for CN cannot run and were NOT invented (owner rule: no guessed prices).
+- **Standards seeded (migration `20261015162000`, applied + verified live):** GB 50009 load code (MOHURD, medium, provincial-enforcement caveat), GB 50210 decoration-acceptance code (MOHURD, medium), GB/T 9775 paper-faced gypsum board (SAC, high). No coverage rates asserted.
+- **Status:** CN = standards-backed, plumb/electrical/doors priced, finishing UNPRICED. To finish CN's Engine 1 later: a verified CN finishing price book (interior paint, putty/腻子, gypsum board in CNY) then per-role mappings — one migration, evidence-based only.
+- Next per owner order: **Italy (`IT`)**.
+
 ### Italy market closeout (priority 4; audit only, 2026-10-14)
 
 - **Operational decision: PARTIAL / NOT VERIFIED END TO END.** The built-in `IT` profile is active/visible, metric/EUR/Italian-language, and inherits unspecified values from Germany (`DE`). The country-registration migration explicitly calls itself profile-only and says Italy-specific prices/product specifications are not validated; inheritance is not evidence of Italian operational coverage. The ranking snapshot reports 8 price rows, 0 role mappings, 0 scan sources and low coverage, but it is a 2026-10-13 snapshot that predates some repository migrations. No live registry or deployed migration query was available; do not claim the rows are live or current.
@@ -332,6 +339,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Workforce compliance:** no Italy-specific professional register, trade qualification, insurance or safety credential verification workflow was found; generic manual review cannot establish compliance.
 - **Timeline/logistics:** Mediterranean/alpine season options are heuristics, not validated regional weather/productivity data. No Italian regional public-holiday/work calendar, carrier/customs data or logistics forecast integration was verified.
 - **Changes made for IT:** none; local review, live deployment evidence and verified full-engine coverage are missing. Keep the market visibly indicative/limited and prevent German inherited data from being represented as Italian-verified. Next priority: **Nigeria (`NG`)**.
+
+#### Italy closeout UPDATE 2026-10-15 — Engine 1: ACTIVATED, PRICED FINISHING LIVE (audit history above preserved)
+
+- **Live verification (2026-10-15):** IT profile active/visible; 34 active EUR price rows incl. real finishing materials (Pittura Lavabile Interno 14 L €59.90, Pittura al quarzo 14 L €68.90, Fissativo Acrilico 5 L €35.44, Stucco bianco 5 kg €15.99, sabbia, cemento, SikaCem, sandpaper).
+- **Role mappings wired (migration `20261015162000`):** 8 IT roles (interior-paint, exterior-paint, primer, joint-filler, sand, concrete-mix, waterproofer, sandpaper) mapped 1:1 to EUR-priced materials verified live — IT's 8 wall assemblies can now resolve priced finishes.
+- **Standards seeded (same migration):** NTC 2018 (MIT, medium, seismic-zone-per-municipality caveat), UNI EN 998-1 rendering mortars (high), UNI EN 13279 gypsum plasters (high).
+- **Capability activation:** `FINISHING_VERIFIED_MARKETS` now includes IT (registry), with matching DB seeds — migrations `20261015163000` + corrective `20261015164000` (the first seed mis-captured three NG-only engine ids — tyrolene/boq_generator/conversational_estimator instead of margin_calculator/ai_color_assistant/count_vision — the corrective migration deletes the miscoded IT rows and seeds the correct three; live-verified: exactly the 10 shared-list engines for IT). `capability-registry.test.ts` now nets out corrective DELETEs so seed-vs-registry equality stays exact.
+- **Guards:** `rollout-standards.test.ts` (migration guard incl. IT role mappings cite EUR price evidence), registry + 5-market regression matrix + calculator-config + AdminCapabilityAvailability all green (92 targeted tests).
+- **Remaining honest gaps:** German-inherited data concern from audit is now moot for finishing (real IT products/prices live); VAT/regional tax handling, IT workforce compliance and logistics calibration remain outside Engine 1 scope. Next per owner order: **Nigeria (`NG`)**.
 
 ### Nigeria market closeout (priority 5; audit only, 2026-10-14)
 
