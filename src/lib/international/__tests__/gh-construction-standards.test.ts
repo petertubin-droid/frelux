@@ -16,11 +16,11 @@ import { ALL_MARKET_CODES } from "../capability-registry";
 
 const MIGRATION_PATH = resolve(
   __dirname,
-  "../../../../supabase/migrations/20261015200000_gh_construction_standards.sql",
+  "../../../../supabase/migrations/20261015700000_gh_construction_standards.sql",
 );
 const SQL = readFileSync(MIGRATION_PATH, "utf8");
 
-describe("migration 20261015200000 (GH construction standards)", () => {
+describe("migration 20261015700000 (GH construction standards)", () => {
   it("seeds exactly 2 GH rows for a canonical registry market", () => {
     const rows = Array.from(SQL.matchAll(/\('(GH)', '/g));
     expect(rows.length).toBe(2);
