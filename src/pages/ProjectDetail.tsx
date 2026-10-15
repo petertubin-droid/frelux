@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { ProjectSiteLogsTab } from "@/components/workspace/ProjectSiteLogsTab";
 import { ProjectTeamTab } from "@/components/workspace/ProjectTeamTab";
+import { ProjectFinanceTab } from "@/components/workspace/ProjectFinanceTab";
 import { Calendar, Users } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { useSeo } from "@/lib/seo";
@@ -82,6 +83,7 @@ type Tab =
   | "takeoff"
   | "shopping"
   | "progress"
+  | "finance"
   | "sitelogs"
   | "team"
   | "client"
@@ -93,6 +95,7 @@ const TABS: { key: Tab; label: string; icon: typeof TrendingUp }[] = [
   { key: "takeoff", label: "Takeoff & Risk", icon: ClipboardCheck },
   { key: "shopping", label: "Shopping", icon: ClipboardList },
   { key: "progress", label: "Progress", icon: CheckCircle2 },
+  { key: "finance", label: "Finance & BOQ", icon: DollarSign },
   { key: "sitelogs", label: "Site Logs", icon: Calendar },
   { key: "team", label: "Team & Roles", icon: Users },
   { key: "client", label: "Client", icon: FileText },
@@ -1290,6 +1293,9 @@ export default function ProjectDetail() {
               </Link>
             </div>
           </div>
+        )}
+        {tab === "finance" && project && (
+          <ProjectFinanceTab project={project} />
         )}
         {tab === "sitelogs" && project && (
           <ProjectSiteLogsTab project={project} />

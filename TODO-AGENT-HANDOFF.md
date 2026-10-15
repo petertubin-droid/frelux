@@ -3,6 +3,7 @@
 Last updated: October 15, 2026
 
 > **2026-10-15 completion note (mark-done, history preserved):**
+>
 > - **Section 2.C (Structural Methodology & Regional Engineering Presets - DONE):**
 >   Eurocode 2 / BS 8110, ACI 318, and IS 456 regional concrete grade standards & presets
 >   wired into calculator UI (`StructuralCalculator.tsx`) with transparent formula disclosure.
@@ -10,15 +11,15 @@ Last updated: October 15, 2026
 >   `timeline_estimator`) registered with strict `marketCode` enforcement (zero silent fallback).
 >   265/265 engineering/adapter tests green. (Commit `c73dc5a0`).
 > - **Section 2.D (UI/UX Implementation Checklist - DONE & PRUNED):**
->   - *Harmonize Dark Mode*: All hardcoded color utilities replaced with semantic CSS variables
+>   - _Harmonize Dark Mode_: All hardcoded color utilities replaced with semantic CSS variables
 >     across calculator surfaces; static colors preserved strictly in intentional print canvases.
->   - *Reorganize Navigation*: 5 structured pillars (`/tools/`, `/prices/`, `/projects/`, `/network/`,
+>   - _Reorganize Navigation_: 5 structured pillars (`/tools/`, `/prices/`, `/projects/`, `/network/`,
 >     `/learn/`) implemented with backwards-compatible redirects in `src/App.tsx`. 40/40 tests green
 >     in `src/lib/navigation-pillars.test.ts`.
 > - **Global Operations Engine #7 gap audit:** push notifications, cross-role handoffs, file
 >   attachments, exports and offline-conflict handling are all DONE and verified live.
-> Authoritative repository: `petertubin-droid/frelux` (branch: `main`)
-> Active Supabase Project Ref: `nfgaaohweygwydoelxnf`
+>   Authoritative repository: `petertubin-droid/frelux` (branch: `main`)
+>   Active Supabase Project Ref: `nfgaaohweygwydoelxnf`
 
 ---
 
@@ -252,63 +253,74 @@ in the repo on 2026-10-14 and pruned.
 Each milestone ships as its own additive commit behind the release gate (authoritative source, deterministic logic, tests, honest disclosure). One engine at a time.
 
 **#1 BIM & CAD rendering** (IN PROGRESS; milestone 1 done 2026-10-15)
+
 - M2: interactive model viewer — three.js scene from IFC geometry subset (IfcExtrudedAreaSolid, placements), deterministic, browser-only, premium header
 - M3: versioned model federation + georeferencing (site placement with explicit CRS)
 - M4: 4D schedule + 5D cost linking against the existing takeoff/pricing engines
 - M5: measurable clash rules + auditable issue workflows (reuse workflow engine)
 
 **#2 Geospatial / GIS** (NEXT — picked 2026-10-15)
+
 - M1: CRS-aware geospatial foundation lib (EPSG registry, coordinate validation, WGS84/Web-Mercator transforms, geodesy helpers; unsupported CRS refused, never guessed)
 - M2: project/site coordinate capture + persistence with explicit CRS metadata
 - M3: site map rendering with provider-backed tiles + source/date/coverage disclosure
 - M4: licensed imagery/data connectors (satellite/drone) with license tracking
 
 **#3 Predictive analytics & AI (delay, cost, safety)**
+
 - M1: outcome-label schema + historical project-outcome dataset structure
 - M2: back-test harness + calibration metrics with uncertainty bounds
 - M3: regional data-quality/bias assessment before any live claim
 - M4: safety-risk outputs as decision-support only, with independent-validation gate
 
 **#4 Tax & currency conversion**
+
 - M1: jurisdiction tax catalog (rates, bases, citations, effective dates; config-driven)
 - M2: deterministic tax calculator with unknown-tax honesty (no invented rates)
 - M3: FX conversion with provider + timestamp provenance (no silent cross-rates)
 - M4: settlement/withholding rules per market behind legal-review gate
 
 **#5 Regulatory compliance & standards**
+
 - M1: deterministic checklist generator from the live 15-market construction_standards registry (cites exact refs)
 - M2: provision-level checks wired into calculators (cite-and-flag, never certify)
 - M3: unknowns disclosure + expert-review workflow (reuse participants/audit machinery)
 
 **#6 Multi-language technical translation**
+
 - M1: technical terminology dictionaries per market (material/finish terms; JP FR BR SA AE first)
 - M2: dictionary-backed translation of technical content (not just UI chrome)
 - M3: locale QA matrix per engine page
 
 **#7 IoT & telematics**
+
 - M1: device/telemetry ingestion schema + strict validation API (no unauthenticated feeds)
 - M2: deterministic signal-to-project-state mapping (e.g. concrete maturity to schedule)
 - M3: provider connectors with coverage/license disclosure
 
 **#8 Global procurement & logistics**
+
 - M1: supplier/lead-time catalog per market (sourced, effective-dated)
 - M2: deterministic procurement cost engine (no guessed customs/duties)
 - M3: customs/duties rule registry per corridor
 - M4: predictive lead-time intelligence behind back-test gate
 
 **#9 Fintech, escrow, lien waivers & AML**
+
 - M1: verify/extend milestone-payment plan engine (already partial)
 - M2: escrow integration only with a licensed provider (disclose provider + jurisdictions)
 - M3: lien-waiver document generation per jurisdiction (legal-review gate)
 - M4: AML screening hooks (never self-certified compliance)
 
 **#10 Sync & offline-first field data**
+
 - M1: sync-queue schema + explicit conflict rules (LWW + audit, no silent overwrites)
 - M2: service-worker data layer for projects/workflows/field capture
 - M3: offline field-capture UI + resumable sync with honesty about partial state
 - M4: e2e offline/conflict test matrix
 
 **#11 RBAC / clearance & region-scoped security**
+
 - M1: per-table region-scoping policy audit (matrix of role x table)
 - M2: clearance levels on sensitive pages/data (admin-configurable)
 - M3: access tests per role incl. negative cases; independent security review before claims
@@ -630,7 +642,7 @@ The following items represent all outstanding, in-progress, or unverified work o
       China, Indonesia, Mexico, Brazil, India, South Africa, Ghana, Kenya,
       Egypt, Saudi Arabia, UAE require verified rebar price books backed by
       named distributor catalogs / physical store surveys (no migrations exist yet — checked 2026-10-14).
-      *Constraint*: Do not seed prices from AI memory or synthetic guesses.
+      _Constraint_: Do not seed prices from AI memory or synthetic guesses.
 
 ### B. Price Campaign Remainder (176 Low-Confidence Rows, live count 2026-10-14) (PENDING)
 
@@ -639,7 +651,81 @@ The following items represent all outstanding, in-progress, or unverified work o
 - **Action Required**:
   - Replace estimated numbers with verified distributor prices.
   - Upgrade confidence to `scan_confidence = 'manual'` and record verifiable provenance.
-  - *Constraint*: Cannot be executed without Supabase Management API access to project `nfgaaohweygwydoelxnf`.
+  - _Constraint_: Cannot be executed without Supabase Management API access to project `nfgaaohweygwydoelxnf`.
+
+### C. Enterprise Readiness Programme (Active Priorities & Execution Guide)
+
+See [`docs/ENTERPRISE-READINESS-PROGRESS.md`](docs/ENTERPRISE-READINESS-PROGRESS.md) for master verification evidence and schema documentation.
+
+#### 1. Priority 0: Baseline Audit & Capability Inventory — COMPLETED
+
+- Audited auth, project storage, FX display, supplier tables, and plan vision engines.
+
+#### 2. Priority 1: Secure Multi-User Collaboration & Enterprise RBAC — COMPLETED
+
+- Database migration `20261017000000_enterprise_workspaces_rbac.sql` created.
+- 8 construction roles (`owner`, `project_manager`, `contractor`, `foreman`, `architect`, `quantity_surveyor`, `finance_officer`, `viewer`) with granular permission evaluation (`canManageMembers`, `canDeleteProjects`, `canEditProjects`, `canViewFinancials`, `canEditFinancials`, `canPerformTakeoffs`, `canSubmitSiteLogs`, `canUploadBlueprints`).
+- Workspace context (`src/contexts/WorkspaceContext.tsx`), workspace switcher (`src/components/workspace/WorkspaceSwitcher.tsx`), team management (`src/pages/WorkspaceSettings.tsx`), invitation acceptance (`src/pages/AcceptInvitation.tsx`), site logs tab (`src/components/workspace/ProjectSiteLogsTab.tsx`), and team access tab (`src/components/workspace/ProjectTeamTab.tsx`).
+- Tests and verification: 11 tests passing, TypeScript clean. Pushed in commit `b7e9185eee407dc73e5263c254077ae08f59bdad`.
+
+#### 3. Priority 2: International Finance, 20-Market Tax & Standardized BOQ — COMPLETED
+
+- Multi-currency project accounting (`src/lib/finance/multi-currency.ts`) with 3-tier currency separation (Project Base Budget, Contractor Settlement, Client Quote), cross-rate triangular conversion, FX risk buffer (bps), audit-proof rate snapshots, and ISO 4217 rounding.
+- Jurisdictional tax engine (`src/lib/finance/tax-engine.ts`) supporting VAT, GST, Sales Tax, and Construction Withholding across all 20 target markets with strict no-hardcoded-rates and verified exemption audit trails.
+- Standardized BOQ assembly engine (`src/lib/finance/boq-standard.ts`) supporting NRM2, CESMM4, ICMS, and Commercial schedules with Material/Labor/Plant breakdowns, Preliminaries, OH&P, Contingency, Retention, and export to CSV and institutional Print/PDF HTML layouts.
+- Integrated UI tab (`src/components/workspace/ProjectFinanceTab.tsx`) mounted in `src/pages/ProjectDetail.tsx`.
+- Tests and verification: 13 tests passing, TypeScript clean.
+
+#### 4. Priority 3: Supply Chain & Procurement Intelligence — REMAINING WORK & IMPLEMENTATION STEPS
+
+- **Goal**: Connect geometric takeoff requirements to verified distributor products, enforce integer package rounding, and generate purchase orders with supplier links.
+- **Steps to Implement**:
+  1. _Schema Linkage_: Connect `public.supplier_inventory_items` to engine material roles (`market_material_roles`) across all 20 markets. Ensure each material can resolve to primary and alternative suppliers.
+  2. _Package Rounding Engine (`src/lib/procurement/packaging-engine.ts`)_:
+     - Implement commercial package rules: 50kg cement bags, 20L paint buckets, 12m rebar bundles, 25kg sandcrete bond bags, 1000-brick pallets.
+     - Provide dual reporting: exact theoretical quantity (for cost estimation) vs purchased packaging units (for field ordering and budget requisition).
+     - Calculate resulting material surplus and scrap allowance.
+  3. _Purchase Requisition & Order Generator (`src/lib/procurement/purchase-orders.ts`)_:
+     - Group takeoff items by trade supplier (Concrete & Masonry, Timber & Drywall, Steel & Rebar, MEP, Finishes).
+     - Include vendor contact, SKU, delivery lead-time, minimum order quantities (MOQ), and direct checkout/order URL.
+     - Generate exportable purchase orders in PDF and CSV format with approval signatures.
+  4. _UI Integration_:
+     - Add "Procurement & Orders" section into `ProjectDetail.tsx` or expand the Shopping tab with live vendor availability and package rounding toggle.
+  5. _Verification Gates_:
+     - Unit tests for packaging rounding edge cases (fractions, min-order thresholds).
+     - Integration test verifying purchase orders match takeoff line items.
+
+#### 5. Priority 4: Blueprint Intelligence, CAD & BIM Takeoff Integration — REMAINING WORK & IMPLEMENTATION STEPS
+
+- **Goal**: Ingest architectural/structural plans and IFC models into workspaces, extract geometric dimensions, and inject them into FRELUX calculation engines without manual re-entry.
+- **Steps to Implement**:
+  1. _IFC Quantity Takeoff Adapter (`src/lib/bim/ifc-takeoff-adapter.ts`)_:
+     - Map standard IFC entities (`IfcWallStandardCase`, `IfcSlab`, `IfcBeam`, `IfcColumn`, `IfcDoor`, `IfcWindow`) to FRELUX calculation engines (Wall Takeoff, Concrete/Rebar Engine, Doors & Windows Resolver).
+     - Extract net surface area, net volume, height, thickness, and profile properties.
+  2. _Interactive Scale Calibration & Measurement Verification (`src/components/bim/PlanMeasureVerification.tsx`)_:
+     - Visual dimension verification tool allowing users/QS to confirm scale markers (e.g. 1000mm door opening or grid line distance).
+     - Side-by-side verification before passing dimensions into calculation inputs.
+  3. _Workspace Plan Revisions & Markup Collaboration_:
+     - Enable multi-user annotations and punch-list pins on 2D plan extractions and 3D IFC models.
+     - Store annotations in `plan_documents` / `plan_extractions` linked to the active workspace.
+  4. _Verification Gates_:
+     - Unit tests verifying IFC parser correctly calculates concrete slab volume and wall surface area.
+     - Test plan measurement calibration math and tolerance thresholds.
+
+#### 6. Priority 5: Cross-Capability Verification & Market Matrix Validation — REMAINING WORK & IMPLEMENTATION STEPS
+
+- **Goal**: Full-system end-to-end regression across all 20 international markets, confidence scoring, and deployment readiness.
+- **Steps to Implement**:
+  1. _20-Market E2E Test Suite (`tests/e2e/market-matrix.test.ts`)_:
+     - Run a standardized reference 2-story building project through all 20 market configurations (US, GB, DE, FR, IT, ES, CA, AU, NG, GH, KE, ZA, IN, JP, KR, CN, ID, BR, MX, SA, AE).
+     - Verify: no NaN, no null exceptions, correct currency symbols, localized construction methods (e.g. platform timber for US/CA, sandcrete for NG/GH, monolithic reinforced concrete for JP/DE), accurate statutory tax calculations, and valid BOQ outputs.
+  2. _Automated Real-Time Confidence Score Engine_:
+     - Surface data confidence scores across each estimate: breakdown of verified supplier prices vs reference benchmark prices.
+  3. _Database Migration Execution & Verification_:
+     - Run and verify all enterprise migrations in production database (`20261017000000_enterprise_workspaces_rbac.sql` and related tables).
+     - Verify RLS policies with automated permission audit script.
+
+---
 
 ## I. Phase 1 Save → Share → Pro Connect Journey (PLANNED)
 
