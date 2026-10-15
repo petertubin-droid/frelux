@@ -429,7 +429,7 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Live verification (2026-10-15):** ZA profile `active`/visible (ZAR); **10 active role mappings** and **36 active ZAR price rows** confirmed live (incl. RhinoLite R399.95 Cashbuild and the Gyproc screed datasheet rows).
 - **Standards seeded (migration `20261015720000`, applied + verified live):** NBR&BS Act 103 of 1977 + SANS 10400 series (approval sits with local authorities → `medium` with the municipal caveat); SANS 2001-CC1:2012 / SANS 2001-CC2:2007 concrete works (`high`); SANS 10109-1 / SANS 10109-2 concrete floor bases and finishes (`high`, governs floor-screed work; cites the existing Gyproc datasheet rows for coverage). All web-verified 2026-10-15; no coverage rates asserted.
 - **Guard:** `src/lib/international/__tests__/za-construction-standards.test.ts` pins 3 rows only, Act 103 + SANS 10400 + municipal caveat, both SANS product/workmanship refs as high, no unsubstantiated URLs, idempotency.
-- **Remaining honest gaps (unchanged):** municipal approval workflows, workforce compliance, ZA holiday/logistics calibration — outside Engine 1 scope here. ZA Engine-1 complete: profile, 10 roles, 36 prices, standards, guard. Next per owner order: **Germany (`DE`)**.
+- **Remaining honest gaps (unchanged):** municipal approval workflows, workforce compliance, ZA holiday/logistics calibration — outside Engine 1 scope here. ZA Engine-1 complete: profile, 10 roles, 36 prices, standards, guard. Next per owner order: **Canada (`CA`)**.
 
 ### Canada market closeout (priority 11; audit only, 2026-10-14)
 
@@ -439,6 +439,14 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Workforce compliance:** no province/trade-specific license registry, insurance, safety-training verification, renewals or revocation integration was found.
 - **Timeline/logistics:** cold-climate typology is configured, but no province-specific productivity calibration, official holiday/working-day calendar, customs or carrier data, or predictive delivery-delay feed was verified.
 - **Changes made for CA:** none. Correcting the explicit cement/sand placeholders requires authoritative local product mappings and reviewing whether current deployed resolver behavior exposes inherited/placeholder values; production migration state and availability are not proven here. Keep CA partial/unverified. Next remaining market: **Australia (`AU`)**.
+
+#### Canada closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
+
+- **Live verification (2026-10-15):** CA profile `active` but **hidden from the picker** (`is_visible=false`, CAD — availability decision unchanged from the audit); **8 active role mappings** and **32 active CAD price rows** confirmed live; zero standards existed before this pass.
+- **Standards seeded (migration `20261015730000`, applied + verified live):** National Building Code of Canada 2020 (NRC) — a MODEL code with no legal status until a province/territory adopts it (Ontario/BC/Quebec keep their own editions) → `medium` with the provincial-adoption caveat; CAN/CSA-A82.31-M91 Gypsum Board Application (CSA) → `high`; CSA A82.30-M Interior Furring, Lathing and Gypsum Plastering (referenced in the BCBC Part 5 standards list) → `high`. No coverage rates asserted.
+- **Guard:** `src/lib/international/__tests__/ca-construction-standards.test.ts` pins 3 rows only, the MODEL-code caveat, both CSA refs as high, no unsubstantiated URLs, idempotency.
+- **Note:** the audit's cement/sand placeholder concern is a product-mapping data task, not a standards task; the placeholder values were NOT overwritten without authoritative local product mappings (additive rule).
+- **Remaining honest gaps (unchanged):** placeholder cement/sand product mapping, provincial approval workflows, workforce compliance, CA holiday/logistics calibration. CA Engine-1 standards complete; picker visibility intentionally unchanged. Next per owner order: **Australia (`AU`)**.
 
 ### Australia market closeout (priority 12; audit only, 2026-10-14)
 
