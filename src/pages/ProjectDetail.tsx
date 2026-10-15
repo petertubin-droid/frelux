@@ -18,6 +18,9 @@ import {
   ClipboardCheck,
   AlertTriangle,
 } from "lucide-react";
+import { ProjectSiteLogsTab } from "@/components/workspace/ProjectSiteLogsTab";
+import { ProjectTeamTab } from "@/components/workspace/ProjectTeamTab";
+import { Calendar, Users } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { useSeo } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
@@ -79,6 +82,8 @@ type Tab =
   | "takeoff"
   | "shopping"
   | "progress"
+  | "sitelogs"
+  | "team"
   | "client"
   | "gallery"
   | "ai";
@@ -88,6 +93,8 @@ const TABS: { key: Tab; label: string; icon: typeof TrendingUp }[] = [
   { key: "takeoff", label: "Takeoff & Risk", icon: ClipboardCheck },
   { key: "shopping", label: "Shopping", icon: ClipboardList },
   { key: "progress", label: "Progress", icon: CheckCircle2 },
+  { key: "sitelogs", label: "Site Logs", icon: Calendar },
+  { key: "team", label: "Team & Roles", icon: Users },
   { key: "client", label: "Client", icon: FileText },
   { key: "gallery", label: "Gallery", icon: Images },
   { key: "ai", label: "AI Assistant", icon: Brain },
@@ -1284,6 +1291,10 @@ export default function ProjectDetail() {
             </div>
           </div>
         )}
+        {tab === "sitelogs" && project && (
+          <ProjectSiteLogsTab project={project} />
+        )}
+        {tab === "team" && project && <ProjectTeamTab project={project} />}
       </div>
     </div>
   );

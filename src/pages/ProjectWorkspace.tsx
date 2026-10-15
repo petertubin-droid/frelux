@@ -28,6 +28,8 @@ import { Button } from "@/components/ui/shadcn/button";
 import LocationCard from "@/components/location/LocationCard";
 import type { FreluxLocation } from "@/lib/location-intelligence";
 import { formatCurrency } from "@/lib/utils";
+import { WorkspaceSwitcher } from "@/components/workspace/WorkspaceSwitcher";
+import { useWorkspace } from "@/contexts/WorkspaceContext";
 
 const STATUS_COLORS: Record<string, string> = {
   draft:
@@ -59,6 +61,7 @@ export default function ProjectWorkspace() {
     noIndex: true,
   });
   const { user } = useAuth();
+  const { activeWorkspace, can } = useWorkspace();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -86,6 +89,13 @@ export default function ProjectWorkspace() {
       .from("contractor_projects")
       .select("*")
       .order("updated_at", { ascending: false });
+    if (activeWorkspace) {
+      query = query.or(
+        `workspace_id.eq.${activeWorkspace.id},and(user_id.eq.${user.id},workspace_id.is.null)`,
+      );
+    } else {
+      query = query.eq("user_id", user.id);
+    }
     if (statusFilter) query = query.eq("status", statusFilter);
     const { data, error } = await query;
     if (error) {
@@ -101,7 +111,7 @@ export default function ProjectWorkspace() {
       setProjects(filtered);
     }
     setLoading(false);
-  }, [user, statusFilter, search, toast]);
+  }, [user, activeWorkspace, statusFilter, search, toast]);
 
   useEffect(() => {
     loadProjects();
@@ -122,6 +132,7 @@ export default function ProjectWorkspace() {
           project_type: newProject.project_type,
           building_type: newProject.building_type,
           location: draftLocation ?? null,
+          workspace_id: activeWorkspace?.id ?? null,
           status: "draft",
         })
         .select()
@@ -223,7 +234,20 @@ export default function ProjectWorkspace() {
           ))}
         </div>
 
-        {/* Toolbar */}
+        {/* Workspace selector & Toolbar */}
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border bg-card/60">
+          <WorkspaceSwitcher />
+          <div className="flex items-center gap-2">
+            <Link
+              to="/workspace-settings"
+              className="text-xs text-muted-foreground hover:text-foreground font-medium underline-offset-4 hover:underline"
+            >
+              Workspace Settings & Members
+            </Link>
+          </div>
+        </div>
+
+        {/* Search & Filter Toolbar */}
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

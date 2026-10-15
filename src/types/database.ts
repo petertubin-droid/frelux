@@ -1242,6 +1242,7 @@ export interface DbContractorProject {
   currency_symbol: string;
   /** Canonical FRELUX location record (location-intelligence); null = not set. */
   location: Record<string, unknown> | null;
+  workspace_id?: string | null;
   created_at: string;
   updated_at: string;
 }
