@@ -261,6 +261,462 @@ function registerStructuralAdapter(
   });
 }
 
+function registerStructuralCalculatorAdapter(): void {
+  registerEngine({
+    id: "structural_calculator",
+    domain: "building",
+    title: "FRELUX Structural Engineering Calculator",
+    authoritative: true,
+    creditedAs:
+      "Calculated by the authoritative FRELUX structural engineering engine (BS 8110, Eurocode 2, ACI 318, IS 456)",
+    async run(rawInput) {
+      const typed = rawInput as Record<string, unknown>;
+      const marketCode = (typed.marketCode as string | undefined)
+        ?.trim()
+        .toUpperCase();
+      if (!marketCode) {
+        return engineFail(
+          "structural_calculator",
+          "Market code is required (e.g. NG, US, GB). FRELUX AI will not assume a country — specify the project location so the correct engineering standards and member sizing apply.",
+        );
+      }
+      try {
+        const {
+          designBeam,
+          designColumn,
+          designSlab,
+          getConcreteStandardForMarket,
+          resolveConcreteGrade,
+        } = await import("@/lib/engineering/structural-calculator");
+
+        const memberType = ((typed.member_type as string) || "beam").toLowerCase();
+        const appliedDefaults: string[] = [];
+
+        if (memberType === "column") {
+          const axial_load =
+            typeof typed.axial_load === "number" ? typed.axial_load : 200;
+          const height = typeof typed.height === "number" ? typed.height : 3.0;
+          if (
+            Number.isNaN(axial_load) ||
+            axial_load <= 0 ||
+            Number.isNaN(height) ||
+            height <= 0
+          ) {
+            return engineFail(
+              "structural_calculator",
+              "Invalid column dimensions or load",
+            );
+          }
+          const defaultGrade =
+            getConcreteStandardForMarket(marketCode).defaultGrade;
+          const concrete_grade = (typed.concrete_grade as string) || defaultGrade;
+          const steel_grade = ((typed.steel_grade as string) || "Fe500") as any;
+          const cover_mm =
+            typeof typed.cover_mm === "number" ? typed.cover_mm : 25;
+          const is_rectangular = typed.is_rectangular !== false;
+          const unbraced_height_ratio =
+            typeof typed.unbraced_height_ratio === "number"
+              ? typed.unbraced_height_ratio
+              : 10;
+
+          if (!typed.axial_load) appliedDefaults.push("axial_load = 200 kN");
+          if (!typed.height) appliedDefaults.push("height = 3.0 m");
+
+          const res = designColumn({
+            axial_load,
+            height,
+            concrete_grade,
+            steel_grade,
+            cover_mm,
+            is_rectangular,
+            unbraced_height_ratio,
+            market_code: marketCode,
+          });
+
+          const quantities = [
+            quantityLine(
+              "Column section",
+              res.recommended_width,
+              `× ${res.recommended_depth} mm`,
+            ),
+            quantityLine("Gross area", res.required_area, "mm²"),
+            quantityLine(
+              "Main reinforcement",
+              res.recommended_bar_count,
+              `T${res.recommended_bar_diameter}`,
+            ),
+            quantityLine(
+              "Lateral ties",
+              1,
+              `T${res.link_diameter} @ ${res.link_spacing}mm c/c`,
+            ),
+          ];
+
+          return engineOk("structural_calculator", quantities, null, {
+            ...res,
+            member_type: "column",
+            marketCode,
+            concrete_standard: resolveConcreteGrade(concrete_grade, marketCode)
+              .standard,
+            adapter_assumptions: appliedDefaults,
+          });
+        } else if (memberType === "slab") {
+          const span_x = typeof typed.span_x === "number" ? typed.span_x : 4.0;
+          const span_y = typeof typed.span_y === "number" ? typed.span_y : 6.0;
+          if (
+            Number.isNaN(span_x) ||
+            span_x <= 0 ||
+            Number.isNaN(span_y) ||
+            span_y <= 0
+          ) {
+            return engineFail(
+              "structural_calculator",
+              "Invalid slab span dimensions",
+            );
+          }
+          const defaultGrade =
+            getConcreteStandardForMarket(marketCode).defaultGrade;
+          const concrete_grade = (typed.concrete_grade as string) || defaultGrade;
+          const steel_grade = ((typed.steel_grade as string) || "Fe500") as any;
+          const cover_mm =
+            typeof typed.cover_mm === "number" ? typed.cover_mm : 20;
+          const slab_type = ((typed.slab_type as string) || "one_way") as any;
+          const support_condition = ((typed.support_condition as string) ||
+            "simply_supported") as any;
+          const live_load =
+            typeof typed.live_load === "number" ? typed.live_load : 2.0;
+          const dead_load =
+            typeof typed.dead_load === "number" ? typed.dead_load : 1.5;
+
+          if (!typed.span_x) appliedDefaults.push("span_x = 4.0 m");
+          if (!typed.span_y) appliedDefaults.push("span_y = 6.0 m");
+
+          const res = designSlab({
+            span_x,
+            span_y,
+            slab_type,
+            support_condition,
+            live_load,
+            dead_load,
+            concrete_grade,
+            steel_grade,
+            cover_mm,
+            market_code: marketCode,
+          });
+
+          const quantities = [
+            quantityLine("Slab thickness", res.recommended_thickness, "mm"),
+            quantityLine("Steel area required", res.steel_area_required, "mm²/m"),
+            quantityLine(
+              "Bottom reinforcement",
+              1,
+              `T${res.recommended_bar_diameter} @ ${res.recommended_bar_spacing}mm c/c`,
+            ),
+          ];
+
+          return engineOk("structural_calculator", quantities, null, {
+            ...res,
+            member_type: "slab",
+            marketCode,
+            concrete_standard: resolveConcreteGrade(concrete_grade, marketCode)
+              .standard,
+            adapter_assumptions: appliedDefaults,
+          });
+        } else {
+          // Beam (default)
+          const span = typeof typed.span === "number" ? typed.span : 4.5;
+          if (Number.isNaN(span) || span <= 0) {
+            return engineFail("structural_calculator", "Invalid beam span");
+          }
+          const beam_type = ((typed.beam_type as string) ||
+            "suspended_beam") as any;
+          const support_condition = ((typed.support_condition as string) ||
+            "simply_supported") as any;
+          const live_load =
+            typeof typed.live_load === "number" ? typed.live_load : 2.0;
+          const dead_load =
+            typeof typed.dead_load === "number" ? typed.dead_load : 3.0;
+          const tributary_width =
+            typeof typed.tributary_width === "number"
+              ? typed.tributary_width
+              : 3.0;
+          const defaultGrade =
+            getConcreteStandardForMarket(marketCode).defaultGrade;
+          const concrete_grade = (typed.concrete_grade as string) || defaultGrade;
+          const steel_grade = ((typed.steel_grade as string) || "Fe500") as any;
+          const cover_mm =
+            typeof typed.cover_mm === "number" ? typed.cover_mm : 25;
+
+          if (!typed.span) appliedDefaults.push("span = 4.5 m");
+
+          const res = designBeam({
+            span,
+            beam_type,
+            support_condition,
+            live_load,
+            dead_load,
+            tributary_width,
+            concrete_grade,
+            steel_grade,
+            cover_mm,
+            market_code: marketCode,
+          });
+
+          const quantities = [
+            quantityLine("Beam depth", res.recommended_depth, "mm"),
+            quantityLine("Beam width", res.recommended_width, "mm"),
+            quantityLine(
+              "Tension steel required",
+              res.area_steel_required,
+              "mm²",
+            ),
+            quantityLine(
+              "Main reinforcement",
+              res.recommended_bar_count,
+              `T${res.recommended_bar_diameter}`,
+            ),
+            quantityLine(
+              "Shear links",
+              1,
+              `T${res.link_diameter} @ ${res.link_spacing}mm c/c`,
+            ),
+          ];
+
+          return engineOk("structural_calculator", quantities, null, {
+            ...res,
+            member_type: "beam",
+            marketCode,
+            concrete_standard: resolveConcreteGrade(concrete_grade, marketCode)
+              .standard,
+            adapter_assumptions: appliedDefaults,
+          });
+        }
+      } catch (err) {
+        return engineFail("structural_calculator", String(err));
+      }
+    },
+  });
+}
+
+function registerFoundationCalculatorAdapter(): void {
+  registerEngine({
+    id: "foundation_calculator",
+    domain: "building",
+    title: "FRELUX Geotechnical Foundation Design Calculator",
+    authoritative: true,
+    creditedAs:
+      "Calculated by the authoritative FRELUX foundation engineering engine (BS 8004 / Eurocode 7)",
+    async run(rawInput) {
+      const typed = rawInput as Record<string, unknown>;
+      const marketCode = (typed.marketCode as string | undefined)
+        ?.trim()
+        .toUpperCase();
+      if (!marketCode) {
+        return engineFail(
+          "foundation_calculator",
+          "Market code is required (e.g. NG, US, GB). FRELUX AI will not assume a country — specify the project location so the correct geotechnical profile applies.",
+        );
+      }
+      try {
+        const { designFoundation } = await import(
+          "@/lib/engineering/foundation-calculator"
+        );
+
+        const shape = ((typed.shape as string) || "strip") as any;
+        const soil_type = ((typed.soil_type as string) ||
+          (marketCode === "NG" ? "lateritic" : "firm_clay")) as any;
+        const wall_load =
+          typeof typed.wall_load === "number" ? typed.wall_load : 80;
+        const column_load =
+          typeof typed.column_load === "number" ? typed.column_load : undefined;
+        const foundation_depth =
+          typeof typed.foundation_depth === "number"
+            ? typed.foundation_depth
+            : 1.0;
+        const concrete_grade = (typed.concrete_grade as string) || "C20";
+        const building_length =
+          typeof typed.building_length === "number" ? typed.building_length : 15;
+        const building_width =
+          typeof typed.building_width === "number" ? typed.building_width : 10;
+        const safety_factor =
+          typeof typed.safety_factor === "number" ? typed.safety_factor : 3.0;
+
+        if (Number.isNaN(wall_load) || wall_load <= 0) {
+          return engineFail(
+            "foundation_calculator",
+            "Invalid wall load for foundation design",
+          );
+        }
+
+        const res = designFoundation({
+          shape,
+          soil_type,
+          wall_load,
+          column_load,
+          foundation_depth,
+          concrete_grade,
+          building_length,
+          building_width,
+          safety_factor,
+        });
+
+        const quantities = [
+          quantityLine("Footing width", res.recommended_width, "mm"),
+          quantityLine("Excavation volume", res.excavation_volume, "m³"),
+          quantityLine("Concrete volume", res.concrete_volume, "m³"),
+          quantityLine("Blinding volume", res.blinding_volume, "m³"),
+          quantityLine("Hardcore volume", res.hardcore_volume, "m³"),
+        ];
+
+        return engineOk("foundation_calculator", quantities, null, {
+          ...res,
+          marketCode,
+        });
+      } catch (err) {
+        return engineFail("foundation_calculator", String(err));
+      }
+    },
+  });
+}
+
+function registerSequencePlannerAdapter(): void {
+  registerEngine({
+    id: "sequence_planner",
+    domain: "building",
+    title: "FRELUX Construction Sequence Planner",
+    authoritative: true,
+    creditedAs:
+      "Calculated by the authoritative FRELUX construction sequence planning engine",
+    async run(rawInput) {
+      const typed = rawInput as Record<string, unknown>;
+      const marketCode = (typed.marketCode as string | undefined)
+        ?.trim()
+        .toUpperCase();
+      if (!marketCode) {
+        return engineFail(
+          "sequence_planner",
+          "Market code is required (e.g. NG, US, GB). FRELUX AI will not assume a country — specify the project location so the market's wall and structural methodology apply.",
+        );
+      }
+      try {
+        const { generateSequencePlan } = await import(
+          "@/lib/engineering/sequence-planner"
+        );
+
+        const buildingType = typed.building_type as string | undefined;
+        const plan = generateSequencePlan(buildingType, marketCode);
+
+        const quantities = [
+          quantityLine("Sequence steps", plan.total_steps, "stages"),
+          quantityLine("Sequence stages", plan.stages.length, "phases"),
+          quantityLine(
+            "Quality gates",
+            plan.quality_gates.length,
+            "inspection gates",
+          ),
+        ];
+
+        return engineOk("sequence_planner", quantities, null, {
+          ...plan,
+          marketCode,
+        });
+      } catch (err) {
+        return engineFail("sequence_planner", String(err));
+      }
+    },
+  });
+}
+
+function registerTimelineEstimatorAdapter(): void {
+  registerEngine({
+    id: "timeline_estimator",
+    domain: "building",
+    title: "FRELUX Climate-Aware Project Timeline Estimator",
+    authoritative: true,
+    creditedAs:
+      "Calculated by the authoritative FRELUX climate-aware project timeline engine",
+    async run(rawInput) {
+      const typed = rawInput as Record<string, unknown>;
+      const marketCode = (typed.marketCode as string | undefined)
+        ?.trim()
+        .toUpperCase();
+      if (!marketCode) {
+        return engineFail(
+          "timeline_estimator",
+          "Market code is required (e.g. NG, US, GB). FRELUX AI will not assume a country — specify the project location so climate multipliers and regional seasons apply.",
+        );
+      }
+      try {
+        const { estimateTimeline } = await import(
+          "@/lib/engineering/timeline-estimator"
+        );
+
+        const building_length =
+          typeof typed.building_length === "number" ? typed.building_length : 15;
+        const building_width =
+          typeof typed.building_width === "number" ? typed.building_width : 10;
+        const number_of_floors =
+          typeof typed.number_of_floors === "number" ? typed.number_of_floors : 1;
+        const building_type =
+          (typed.building_type as string) || "residential";
+        const foundation_type =
+          (typed.foundation_type as string) || "strip";
+        const roof_type =
+          (typed.roof_type as string) || "timber_truss";
+        const complexity =
+          ((typed.complexity as string) || "standard") as any;
+        const workforce =
+          ((typed.workforce as string) || "medium") as any;
+        const season =
+          ((typed.season as string) || "dry") as any;
+        const has_engineer_schedule = typed.has_engineer_schedule === true;
+
+        if (
+          Number.isNaN(building_length) ||
+          building_length <= 0 ||
+          Number.isNaN(building_width) ||
+          building_width <= 0
+        ) {
+          return engineFail(
+            "timeline_estimator",
+            "Invalid building dimensions for timeline estimation",
+          );
+        }
+
+        const res = estimateTimeline({
+          building_length,
+          building_width,
+          number_of_floors,
+          building_type,
+          foundation_type,
+          roof_type,
+          complexity,
+          workforce,
+          season,
+          has_engineer_schedule,
+          market_code: marketCode,
+        });
+
+        const quantities = [
+          quantityLine("Total duration", res.total_days, "working days"),
+          quantityLine("Duration in weeks", res.total_weeks, "weeks"),
+          quantityLine("Duration in months", res.total_months, "months"),
+          ...res.stages.map((st) =>
+            quantityLine(st.stage_label, st.estimated_days, "days"),
+          ),
+        ];
+
+        return engineOk("timeline_estimator", quantities, null, {
+          ...res,
+          marketCode,
+        });
+      } catch (err) {
+        return engineFail("timeline_estimator", String(err));
+      }
+    },
+  });
+}
+
 export function registerStructuralEngines(): void {
   registerStructuralAdapter(
     "foundation",
@@ -280,4 +736,8 @@ export function registerStructuralEngines(): void {
     "FRELUX International Reinforcement Engine",
     loadReinforcementEngine,
   );
+  registerStructuralCalculatorAdapter();
+  registerFoundationCalculatorAdapter();
+  registerSequencePlannerAdapter();
+  registerTimelineEstimatorAdapter();
 }

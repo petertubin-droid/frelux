@@ -70,7 +70,15 @@ beforeEach(() => {
   });
 });
 
-const STRUCTURAL_IDS = ["foundation", "doors_windows", "reinforcement"];
+const STRUCTURAL_IDS = [
+  "foundation",
+  "doors_windows",
+  "reinforcement",
+  "structural_calculator",
+  "foundation_calculator",
+  "sequence_planner",
+  "timeline_estimator",
+];
 
 describe("registerStructuralEngines", () => {
   it("registers all three adapters idempotently", () => {
@@ -213,5 +221,211 @@ describe("electrical/plumbing adapters (no-silent-NG guard)", () => {
     const res = await executeEngine("plumbing", { num_bathrooms: 2 });
     expect(res.ok).toBe(false);
     expect(res.error).toContain("Market code is required");
+  });
+});
+
+
+describe("structural_calculator AI adapter", () => {
+  it("registers as authoritative with credit text", () => {
+    const d = getEngineDescriptor("structural_calculator");
+    expect(d?.authoritative).toBe(true);
+    expect(d?.creditedAs).toContain("authoritative FRELUX structural engineering engine");
+  });
+
+  it("REFUSES to calculate without an explicit marketCode", async () => {
+    const res = await executeEngine("structural_calculator", {
+      member_type: "beam",
+      span: 4.5,
+    });
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain("Market code is required");
+    expect(res.error).toContain("will not assume a country");
+  });
+
+  it("calculates beam design for US with ACI 318 preset and quantities", async () => {
+    const res = await executeEngine("structural_calculator", {
+      marketCode: "US",
+      member_type: "beam",
+      span: 5.0,
+      tributary_width: 3.5,
+      dead_load: 6.0,
+      live_load: 2.5,
+    });
+    expect(res.ok).toBe(true);
+    expect(res.quantities.length).toBeGreaterThan(0);
+    const depthLine = res.quantities.find((q) => q.label === "Beam depth");
+    expect(depthLine?.quantity).toBeGreaterThan(0);
+    expect(depthLine?.unit).toBe("mm");
+
+    const raw = res.raw as { concrete_standard: string; formula_transparency: string[] };
+    expect(raw.concrete_standard).toBe("aci_astm");
+    expect(raw.formula_transparency.some((f) => f.includes("ACI 318"))).toBe(true);
+  });
+
+  it("calculates column design for IN with IS 456 preset and quantities", async () => {
+    const res = await executeEngine("structural_calculator", {
+      marketCode: "IN",
+      member_type: "column",
+      axial_load: 500,
+      height: 3.0,
+    });
+    expect(res.ok).toBe(true);
+    expect(res.quantities.length).toBeGreaterThan(0);
+    const raw = res.raw as { concrete_standard: string; formula_transparency: string[] };
+    expect(raw.concrete_standard).toBe("is_456");
+    expect(raw.formula_transparency.some((f) => f.includes("IS 456"))).toBe(true);
+  });
+
+  it("calculates slab design for NG with Eurocode 2 / BS 8110 preset", async () => {
+    const res = await executeEngine("structural_calculator", {
+      marketCode: "NG",
+      member_type: "slab",
+      span_x: 3.5,
+      span_y: 5.0,
+    });
+    expect(res.ok).toBe(true);
+    expect(res.quantities.some((q) => q.label === "Slab thickness")).toBe(true);
+    const raw = res.raw as { concrete_standard: string };
+    expect(raw.concrete_standard).toBe("eurocode_bs");
+  });
+
+  it("refuses invalid span honestly (no crash)", async () => {
+    const res = await executeEngine("structural_calculator", {
+      marketCode: "US",
+      member_type: "beam",
+      span: -5,
+    });
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain("Invalid beam span");
+  });
+});
+
+describe("foundation_calculator AI adapter", () => {
+  it("registers as authoritative with credit text", () => {
+    const d = getEngineDescriptor("foundation_calculator");
+    expect(d?.authoritative).toBe(true);
+    expect(d?.creditedAs).toContain("authoritative FRELUX foundation engineering engine");
+  });
+
+  it("REFUSES to calculate without an explicit marketCode", async () => {
+    const res = await executeEngine("foundation_calculator", {
+      shape: "strip",
+      wall_load: 80,
+    });
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain("Market code is required");
+  });
+
+  it("calculates strip footing geotechnical dimensions for NG", async () => {
+    const res = await executeEngine("foundation_calculator", {
+      marketCode: "NG",
+      shape: "strip",
+      wall_load: 75,
+      foundation_depth: 1.0,
+    });
+    expect(res.ok).toBe(true);
+    expect(res.quantities.length).toBeGreaterThan(0);
+    const widthLine = res.quantities.find((q) => q.label === "Footing width");
+    expect(widthLine?.quantity).toBeGreaterThan(0);
+    expect(widthLine?.unit).toBe("mm");
+    const excLine = res.quantities.find((q) => q.label === "Excavation volume");
+    expect(excLine?.quantity).toBeGreaterThan(0);
+  });
+
+  it("refuses invalid wall load honestly", async () => {
+    const res = await executeEngine("foundation_calculator", {
+      marketCode: "US",
+      wall_load: -10,
+    });
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain("Invalid wall load");
+  });
+});
+
+describe("sequence_planner AI adapter", () => {
+  it("registers as authoritative with credit text", () => {
+    const d = getEngineDescriptor("sequence_planner");
+    expect(d?.authoritative).toBe(true);
+    expect(d?.creditedAs).toContain("authoritative FRELUX construction sequence planning engine");
+  });
+
+  it("REFUSES to calculate without an explicit marketCode", async () => {
+    const res = await executeEngine("sequence_planner", {});
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain("Market code is required");
+  });
+
+  it("generates sequence plan for US reflecting regional CMU/framing methodology", async () => {
+    const res = await executeEngine("sequence_planner", {
+      marketCode: "US",
+    });
+    expect(res.ok).toBe(true);
+    expect(res.quantities.length).toBeGreaterThan(0);
+    const raw = res.raw as {
+      methodology_note: string;
+      steps: Array<{
+        title: string;
+        description: string;
+        activities: string[];
+        materials_required: string[];
+      }>;
+    };
+    expect(raw.steps.length).toBeGreaterThan(5);
+    const allText = [
+      raw.methodology_note,
+      ...raw.steps.flatMap((s) => [...s.activities, ...s.materials_required]),
+    ].join(" ");
+    expect(allText.toLowerCase()).toMatch(/cmu|framing|stud/);
+  });
+
+  it("generates sequence plan for NG reflecting blockwork methodology", async () => {
+    const res = await executeEngine("sequence_planner", {
+      marketCode: "NG",
+    });
+    expect(res.ok).toBe(true);
+    const raw = res.raw as { steps: Array<{ title: string; description: string }> };
+    const allDesc = raw.steps.map((s) => s.description).join(" ");
+    expect(allDesc.toLowerCase()).toMatch(/block|sandcrete|mortar/);
+  });
+});
+
+describe("timeline_estimator AI adapter", () => {
+  it("registers as authoritative with credit text", () => {
+    const d = getEngineDescriptor("timeline_estimator");
+    expect(d?.authoritative).toBe(true);
+    expect(d?.creditedAs).toContain("authoritative FRELUX climate-aware project timeline engine");
+  });
+
+  it("REFUSES to calculate without an explicit marketCode", async () => {
+    const res = await executeEngine("timeline_estimator", {
+      building_length: 15,
+      building_width: 10,
+    });
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain("Market code is required");
+  });
+
+  it("estimates timeline for SA with climate profile integration", async () => {
+    const res = await executeEngine("timeline_estimator", {
+      marketCode: "SA",
+      building_length: 20,
+      building_width: 15,
+      season: "dry",
+    });
+    expect(res.ok).toBe(true);
+    expect(res.quantities.some((q) => q.label === "Total duration")).toBe(true);
+    const raw = res.raw as { total_days: number; stages: Array<{ stage_name: string }> };
+    expect(raw.total_days).toBeGreaterThan(0);
+    expect(raw.stages.length).toBeGreaterThan(3);
+  });
+
+  it("refuses invalid building dimensions honestly", async () => {
+    const res = await executeEngine("timeline_estimator", {
+      marketCode: "GB",
+      building_length: -10,
+      building_width: 0,
+    });
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain("Invalid building dimensions");
   });
 });

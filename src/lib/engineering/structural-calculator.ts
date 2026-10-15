@@ -18,7 +18,47 @@
 
 // ── Types ──
 
-export type ConcreteGrade = 'C20' | 'C25' | 'C30' | 'C35';
+export type ConcreteGrade =
+  | 'C20'
+  | 'C25'
+  | 'C30'
+  | 'C35'
+  | 'C20/25'
+  | 'C25/30'
+  | 'C30/37'
+  | 'C35/45'
+  | '2500_psi'
+  | '3000_psi'
+  | '4000_psi'
+  | '5000_psi'
+  | 'M20'
+  | 'M25'
+  | 'M30'
+  | 'M35'
+  | (string & {});
+
+export type ConcreteStandardCode = 'eurocode_bs' | 'aci_astm' | 'is_456';
+
+export interface ConcreteGradePreset {
+  id: string;
+  label: string;
+  standard: ConcreteStandardCode;
+  fck: number; // characteristic cylinder strength (or characteristic cube strength for IS/BS) in MPa
+  fcu: number; // equivalent 150mm cube strength in MPa (used in BS 8110 equations)
+  Ec: number; // modulus of elasticity in GPa
+  nominalMix?: string; // e.g. "1:1.5:3" for IS 456 M20
+  psi?: number; // for ACI e.g. 3000
+  description: string;
+}
+
+export interface ConcreteStandardProfile {
+  code: ConcreteStandardCode;
+  name: string;
+  governingCodes: string[];
+  description: string;
+  defaultGrade: string;
+  grades: ConcreteGradePreset[];
+}
 export type SteelGrade = 'Fe410' | 'Fe500';
 export type SupportCondition = 'simply_supported' | 'fixed' | 'continuous' | 'cantilever';
 export type BeamType = 'ground_beam' | 'suspended_beam' | 'ring_beam' | 'lintel';
@@ -112,6 +152,7 @@ export interface SlabDesignInput {
   steel_grade: SteelGrade;
   cover_mm: number;
   existing_thickness?: number; // mm
+  market_code?: string; // market-scoped engineering defaults
 }
 
 export interface SlabDesignResult {
@@ -134,13 +175,275 @@ export interface SlabDesignResult {
   formula_transparency: string[];
 }
 
-// ── Material properties ──
+// ── Material properties & Regional Standards ──
 
-const CONCRETE_PROPS: Record<ConcreteGrade, { fcu: number; Ec: number }> = {
+export const CONCRETE_STANDARDS: Record<ConcreteStandardCode, ConcreteStandardProfile> = {
+  eurocode_bs: {
+    code: 'eurocode_bs',
+    name: 'Eurocode 2 / BS EN 1992-1-1 / BS 8110',
+    governingCodes: ['BS EN 1992-1-1', 'BS 8110', 'Eurocode 2'],
+    description: 'Cylinder/cube designation (fck/fcu in MPa), standard in Europe, UK, Nigeria, Ghana, Kenya, South Africa, Australia',
+    defaultGrade: 'C25/30',
+    grades: [
+      {
+        id: 'C20/25',
+        label: 'C20/25 (fck=20 / fcu=25 MPa)',
+        standard: 'eurocode_bs',
+        fck: 20,
+        fcu: 25,
+        Ec: 25,
+        description: 'Eurocode 2 C20/25 (20 MPa cylinder / 25 MPa cube characteristic strength)',
+      },
+      {
+        id: 'C25/30',
+        label: 'C25/30 (fck=25 / fcu=30 MPa)',
+        standard: 'eurocode_bs',
+        fck: 25,
+        fcu: 30,
+        Ec: 28,
+        description: 'Eurocode 2 C25/30 (25 MPa cylinder / 30 MPa cube characteristic strength)',
+      },
+      {
+        id: 'C30/37',
+        label: 'C30/37 (fck=30 / fcu=37 MPa)',
+        standard: 'eurocode_bs',
+        fck: 30,
+        fcu: 37,
+        Ec: 30,
+        description: 'Eurocode 2 C30/37 (30 MPa cylinder / 37 MPa cube characteristic strength)',
+      },
+      {
+        id: 'C35/45',
+        label: 'C35/45 (fck=35 / fcu=45 MPa)',
+        standard: 'eurocode_bs',
+        fck: 35,
+        fcu: 45,
+        Ec: 32,
+        description: 'Eurocode 2 C35/45 (35 MPa cylinder / 45 MPa cube characteristic strength)',
+      },
+    ],
+  },
+  aci_astm: {
+    code: 'aci_astm',
+    name: 'ACI 318 / ASTM',
+    governingCodes: ['ACI 318-19', 'ASTM C39', 'ASTM C94'],
+    description: 'Standard 28-day cylinder compressive strength (psi / MPa), standard in US, Canada, Latin America, Saudi Arabia, UAE commercial',
+    defaultGrade: '3000_psi',
+    grades: [
+      {
+        id: '2500_psi',
+        label: "2,500 psi (17.2 MPa / f'c)",
+        standard: 'aci_astm',
+        psi: 2500,
+        fck: 17.2,
+        fcu: 21.5,
+        Ec: 19.5,
+        description: 'ACI 318 2,500 psi (17.2 MPa cylinder / approx 21.5 MPa cube equivalent)',
+      },
+      {
+        id: '3000_psi',
+        label: "3,000 psi (20.7 MPa / f'c)",
+        standard: 'aci_astm',
+        psi: 3000,
+        fck: 20.7,
+        fcu: 25.9,
+        Ec: 21.4,
+        description: 'ACI 318 3,000 psi (20.7 MPa cylinder / approx 25.9 MPa cube equivalent)',
+      },
+      {
+        id: '4000_psi',
+        label: "4,000 psi (27.6 MPa / f'c)",
+        standard: 'aci_astm',
+        psi: 4000,
+        fck: 27.6,
+        fcu: 34.5,
+        Ec: 24.7,
+        description: 'ACI 318 4,000 psi (27.6 MPa cylinder / approx 34.5 MPa cube equivalent)',
+      },
+      {
+        id: '5000_psi',
+        label: "5,000 psi (34.5 MPa / f'c)",
+        standard: 'aci_astm',
+        psi: 5000,
+        fck: 34.5,
+        fcu: 43.1,
+        Ec: 27.6,
+        description: 'ACI 318 5,000 psi (34.5 MPa cylinder / approx 43.1 MPa cube equivalent)',
+      },
+    ],
+  },
+  is_456: {
+    code: 'is_456',
+    name: 'IS 456:2000',
+    governingCodes: ['IS 456:2000', 'SP 16', 'IS 10262:2019'],
+    description: '150mm cube characteristic compressive strength at 28 days (M20-M35 in MPa), standard in India and South Asia',
+    defaultGrade: 'M25',
+    grades: [
+      {
+        id: 'M20',
+        label: 'M20 (20 MPa, 1:1.5:3 nominal)',
+        standard: 'is_456',
+        nominalMix: '1:1.5:3',
+        fck: 20,
+        fcu: 20,
+        Ec: 22.4,
+        description: 'IS 456 M20 nominal mix (1:1.5:3 cement:sand:aggregate, 20 MPa 28-day cube strength)',
+      },
+      {
+        id: 'M25',
+        label: 'M25 (25 MPa, 1:1:2 nominal)',
+        standard: 'is_456',
+        nominalMix: '1:1:2',
+        fck: 25,
+        fcu: 25,
+        Ec: 25.0,
+        description: 'IS 456 M25 nominal mix (1:1:2 cement:sand:aggregate, 25 MPa 28-day cube strength)',
+      },
+      {
+        id: 'M30',
+        label: 'M30 (30 MPa, design mix)',
+        standard: 'is_456',
+        nominalMix: 'Design mix',
+        fck: 30,
+        fcu: 30,
+        Ec: 27.4,
+        description: 'IS 456 M30 standard design mix (30 MPa 28-day cube strength)',
+      },
+      {
+        id: 'M35',
+        label: 'M35 (35 MPa, design mix)',
+        standard: 'is_456',
+        nominalMix: 'Design mix',
+        fck: 35,
+        fcu: 35,
+        Ec: 29.6,
+        description: 'IS 456 M35 standard design mix (35 MPa 28-day cube strength)',
+      },
+    ],
+  },
+};
+
+const LEGACY_BS_GRADES: Record<string, ConcreteGradePreset> = {
+  C20: {
+    id: 'C20',
+    label: 'C20 (20 MPa)',
+    standard: 'eurocode_bs',
+    fck: 16,
+    fcu: 20,
+    Ec: 25,
+    description: 'BS 8110 C20 (fcu = 20 MPa cube strength)',
+  },
+  C25: {
+    id: 'C25',
+    label: 'C25 (25 MPa)',
+    standard: 'eurocode_bs',
+    fck: 20,
+    fcu: 25,
+    Ec: 28,
+    description: 'BS 8110 C25 (fcu = 25 MPa cube strength)',
+  },
+  C30: {
+    id: 'C30',
+    label: 'C30 (30 MPa)',
+    standard: 'eurocode_bs',
+    fck: 25,
+    fcu: 30,
+    Ec: 30,
+    description: 'BS 8110 C30 (fcu = 30 MPa cube strength)',
+  },
+  C35: {
+    id: 'C35',
+    label: 'C35 (35 MPa)',
+    standard: 'eurocode_bs',
+    fck: 28,
+    fcu: 35,
+    Ec: 32,
+    description: 'BS 8110 C35 (fcu = 35 MPa cube strength)',
+  },
+};
+
+export function getConcreteStandardForMarket(marketCode: string = "NG"): ConcreteStandardProfile {
+  const code = (marketCode || "NG").trim().toUpperCase();
+  if (code === "IN") return CONCRETE_STANDARDS.is_456;
+  if (["US", "CA", "MX", "BR", "SA", "AE"].includes(code)) return CONCRETE_STANDARDS.aci_astm;
+  return CONCRETE_STANDARDS.eurocode_bs;
+}
+
+export function resolveConcreteGrade(
+  grade?: string,
+  marketCode?: string,
+): ConcreteGradePreset {
+  const standard = getConcreteStandardForMarket(marketCode);
+  if (!grade) {
+    const def = standard.grades.find((g) => g.id === standard.defaultGrade);
+    return def ?? standard.grades[0];
+  }
+  const normalized = grade.trim();
+  if (LEGACY_BS_GRADES[normalized]) return LEGACY_BS_GRADES[normalized];
+
+  const activeMatch = standard.grades.find(
+    (g) => g.id.toLowerCase() === normalized.toLowerCase(),
+  );
+  if (activeMatch) return activeMatch;
+
+  for (const std of Object.values(CONCRETE_STANDARDS)) {
+    const match = std.grades.find(
+      (g) => g.id.toLowerCase() === normalized.toLowerCase(),
+    );
+    if (match) return match;
+  }
+
+  const cleanId = normalized.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+  for (const std of Object.values(CONCRETE_STANDARDS)) {
+    const match = std.grades.find(
+      (g) => g.id.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() === cleanId,
+    );
+    if (match) return match;
+  }
+
+  const fallback = standard.grades.find((g) => g.id === standard.defaultGrade);
+  return fallback ?? standard.grades[0];
+}
+
+export function getConcreteGradeOptions(
+  marketCode: string = "NG",
+): Array<{ v: string; l: string }> {
+  const standard = getConcreteStandardForMarket(marketCode);
+  const options: Array<{ v: string; l: string }> = [];
+  for (const g of standard.grades) {
+    options.push({ v: g.id, l: g.label });
+  }
+  for (const [code, std] of Object.entries(CONCRETE_STANDARDS)) {
+    if (code !== standard.code) {
+      for (const g of std.grades) {
+        options.push({ v: g.id, l: `${g.label} [${std.name}]` });
+      }
+    }
+  }
+  return options;
+}
+
+const CONCRETE_PROPS: Record<string, { fcu: number; Ec: number }> = {
   C20: { fcu: 20, Ec: 25 },
   C25: { fcu: 25, Ec: 28 },
   C30: { fcu: 30, Ec: 30 },
   C35: { fcu: 35, Ec: 32 },
+  'C20/25': { fcu: 25, Ec: 25 },
+  'C25/30': { fcu: 30, Ec: 28 },
+  'C30/37': { fcu: 37, Ec: 30 },
+  'C35/45': { fcu: 45, Ec: 32 },
+  '2500_psi': { fcu: 21.5, Ec: 19.5 },
+  '3000_psi': { fcu: 25.9, Ec: 21.4 },
+  '4000_psi': { fcu: 34.5, Ec: 24.7 },
+  '5000_psi': { fcu: 43.1, Ec: 27.6 },
+  '2500psi': { fcu: 21.5, Ec: 19.5 },
+  '3000psi': { fcu: 25.9, Ec: 21.4 },
+  '4000psi': { fcu: 34.5, Ec: 24.7 },
+  '5000psi': { fcu: 43.1, Ec: 27.6 },
+  M20: { fcu: 20, Ec: 22.4 },
+  M25: { fcu: 25, Ec: 25.0 },
+  M30: { fcu: 30, Ec: 27.4 },
+  M35: { fcu: 35, Ec: 29.6 },
 };
 
 const STEEL_PROPS: Record<SteelGrade, { fy: number }> = {
@@ -169,8 +472,13 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   const warnings: string[] = [];
   const formulas: string[] = [];
 
-  const fcu = CONCRETE_PROPS[input.concrete_grade].fcu;
+  const concretePreset = resolveConcreteGrade(input.concrete_grade, input.market_code);
+  const fcu = concretePreset.fcu;
   const fy = STEEL_PROPS[input.steel_grade].fy;
+
+  formulas.push(
+    `Concrete standard: ${CONCRETE_STANDARDS[concretePreset.standard].name} (${concretePreset.label}) — f_cu = ${concretePreset.fcu} MPa, E_c = ${concretePreset.Ec} GPa`,
+  );
 
   // Effective span (BS 8110: clear span + effective depth, or center-to-center)
   const effective_span = input.span + 0.1; // approximate
@@ -325,8 +633,13 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
   const warnings: string[] = [];
   const formulas: string[] = [];
 
-  const fcu = CONCRETE_PROPS[input.concrete_grade].fcu;
+  const concretePreset = resolveConcreteGrade(input.concrete_grade, input.market_code);
+  const fcu = concretePreset.fcu;
   const fy = STEEL_PROPS[input.steel_grade].fy;
+
+  formulas.push(
+    `Concrete standard: ${CONCRETE_STANDARDS[concretePreset.standard].name} (${concretePreset.label}) — f_cu = ${concretePreset.fcu} MPa, E_c = ${concretePreset.Ec} GPa`,
+  );
 
   // Factored load (BS 8110: 1.4 × dead + 1.6 × live, but for axial mostly 1.4)
   const factored_load = 1.4 * input.axial_load;
@@ -440,8 +753,13 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
   const warnings: string[] = [];
   const formulas: string[] = [];
 
-  const fcu = CONCRETE_PROPS[input.concrete_grade].fcu;
+  const concretePreset = resolveConcreteGrade(input.concrete_grade, input.market_code);
+  const fcu = concretePreset.fcu;
   const fy = STEEL_PROPS[input.steel_grade].fy;
+
+  formulas.push(
+    `Concrete standard: ${CONCRETE_STANDARDS[concretePreset.standard].name} (${concretePreset.label}) — f_cu = ${concretePreset.fcu} MPa, E_c = ${concretePreset.Ec} GPa`,
+  );
 
   // Determine if one-way or two-way
   const ratio = input.span_y / input.span_x;

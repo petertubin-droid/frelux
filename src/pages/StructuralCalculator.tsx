@@ -1,11 +1,13 @@
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { printQuote } from "@/lib/estimation/quote-export";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useSeo } from "@/lib/seo";
 import {
   designBeam,
   designColumn,
   designSlab,
+  getConcreteStandardForMarket,
+  getConcreteGradeOptions,
   type BeamDesignInput,
   type ColumnDesignInput,
   type SlabDesignInput,
@@ -94,7 +96,7 @@ export default function StructuralCalculator() {
       <PageHeader
         eyebrow="Engineering Tool"
         title="Structural Engineering Calculator"
-        subtitle="Engineer-grade beam, column, and slab sizing based on BS 8110. Full formula transparency. Preliminary sizing, always verify with a qualified structural engineer."
+        subtitle="Engineer-grade beam, column, and slab sizing aligned with Eurocode 2 / BS 8110, ACI 318, and IS 456 standards. Full formula transparency. Preliminary sizing, always verify with a qualified structural engineer."
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Calculators", path: "/calculators" },
@@ -164,7 +166,20 @@ function BeamCalculator() {
   const [liveLoad, setLiveLoad] = useState(2.0);
   const [deadLoad, setDeadLoad] = useState(3.0);
   const [tribWidth, setTribWidth] = useState(3.0);
-  const [concreteGrade, setConcreteGrade] = useState<ConcreteGrade>("C25");
+
+  const { market } = useMarket();
+  const concreteStandard = useMemo(
+    () => getConcreteStandardForMarket(market.marketCode),
+    [market.marketCode],
+  );
+  const concreteOptions = useMemo(
+    () => getConcreteGradeOptions(market.marketCode),
+    [market.marketCode],
+  );
+
+  const [concreteGrade, setConcreteGrade] = useState<ConcreteGrade>(
+    () => concreteStandard.defaultGrade as ConcreteGrade,
+  );
   const [steelGrade, setSteelGrade] = useState<SteelGrade>("Fe500");
   const [cover, setCover] = useState(25);
   const [result, setResult] = useState<ReturnType<typeof designBeam> | null>(
@@ -172,7 +187,9 @@ function BeamCalculator() {
   );
   const [showFormulas, setShowFormulas] = useState(false);
 
-  const { market } = useMarket();
+  useEffect(() => {
+    setConcreteGrade(concreteStandard.defaultGrade as ConcreteGrade);
+  }, [market.marketCode, concreteStandard.defaultGrade]);
 
   const calculate = useCallback(() => {
     const input: BeamDesignInput = {
@@ -256,15 +273,10 @@ function BeamCalculator() {
             step="0.5"
           />
           <SelectInput
-            label="Concrete grade"
+            label={`Concrete grade (${concreteStandard.name})`}
             value={concreteGrade}
             onChange={(v) => setConcreteGrade(v as ConcreteGrade)}
-            options={[
-              { v: "C20", l: "C20 (20 MPa)" },
-              { v: "C25", l: "C25 (25 MPa)" },
-              { v: "C30", l: "C30 (30 MPa)" },
-              { v: "C35", l: "C35 (35 MPa)" },
-            ]}
+            options={concreteOptions}
           />
           <SelectInput
             label="Steel grade"
@@ -437,7 +449,20 @@ function BeamCalculator() {
 function ColumnCalculator() {
   const [axialLoad, setAxialLoad] = useState(200);
   const [height, setHeight] = useState(3.0);
-  const [concreteGrade, setConcreteGrade] = useState<ConcreteGrade>("C25");
+
+  const { market } = useMarket();
+  const concreteStandard = useMemo(
+    () => getConcreteStandardForMarket(market.marketCode),
+    [market.marketCode],
+  );
+  const concreteOptions = useMemo(
+    () => getConcreteGradeOptions(market.marketCode),
+    [market.marketCode],
+  );
+
+  const [concreteGrade, setConcreteGrade] = useState<ConcreteGrade>(
+    () => concreteStandard.defaultGrade as ConcreteGrade,
+  );
   const [steelGrade, setSteelGrade] = useState<SteelGrade>("Fe500");
   const [cover, setCover] = useState(25);
   const [isRect, setIsRect] = useState(true);
@@ -446,7 +471,9 @@ function ColumnCalculator() {
   );
   const [showFormulas, setShowFormulas] = useState(false);
 
-  const { market } = useMarket();
+  useEffect(() => {
+    setConcreteGrade(concreteStandard.defaultGrade as ConcreteGrade);
+  }, [market.marketCode, concreteStandard.defaultGrade]);
 
   const calculate = useCallback(() => {
     const input: ColumnDesignInput = {
@@ -483,15 +510,10 @@ function ColumnCalculator() {
             step="0.1"
           />
           <SelectInput
-            label="Concrete grade"
+            label={`Concrete grade (${concreteStandard.name})`}
             value={concreteGrade}
             onChange={(v) => setConcreteGrade(v as ConcreteGrade)}
-            options={[
-              { v: "C20", l: "C20 (20 MPa)" },
-              { v: "C25", l: "C25 (25 MPa)" },
-              { v: "C30", l: "C30 (30 MPa)" },
-              { v: "C35", l: "C35 (35 MPa)" },
-            ]}
+            options={concreteOptions}
           />
           <SelectInput
             label="Steel grade"
@@ -657,13 +679,30 @@ function SlabCalculator() {
   const [support, setSupport] = useState<SupportCondition>("simply_supported");
   const [liveLoad, setLiveLoad] = useState(2.0);
   const [deadLoad, setDeadLoad] = useState(1.5);
-  const [concreteGrade, setConcreteGrade] = useState<ConcreteGrade>("C25");
+
+  const { market } = useMarket();
+  const concreteStandard = useMemo(
+    () => getConcreteStandardForMarket(market.marketCode),
+    [market.marketCode],
+  );
+  const concreteOptions = useMemo(
+    () => getConcreteGradeOptions(market.marketCode),
+    [market.marketCode],
+  );
+
+  const [concreteGrade, setConcreteGrade] = useState<ConcreteGrade>(
+    () => concreteStandard.defaultGrade as ConcreteGrade,
+  );
   const [steelGrade, setSteelGrade] = useState<SteelGrade>("Fe500");
   const [cover, setCover] = useState(20);
   const [result, setResult] = useState<ReturnType<typeof designSlab> | null>(
     null,
   );
   const [showFormulas, setShowFormulas] = useState(false);
+
+  useEffect(() => {
+    setConcreteGrade(concreteStandard.defaultGrade as ConcreteGrade);
+  }, [market.marketCode, concreteStandard.defaultGrade]);
 
   const calculate = useCallback(() => {
     const input: SlabDesignInput = {
@@ -676,6 +715,7 @@ function SlabCalculator() {
       concrete_grade: concreteGrade,
       steel_grade: steelGrade,
       cover_mm: cover,
+      market_code: market.marketCode,
     };
     setResult(monitoredCalc("Structural Calculator", () => designSlab(input)));
   }, [
@@ -688,6 +728,7 @@ function SlabCalculator() {
     concreteGrade,
     steelGrade,
     cover,
+    market.marketCode,
   ]);
 
   if (!result) calculate();
@@ -742,14 +783,10 @@ function SlabCalculator() {
             step="0.5"
           />
           <SelectInput
-            label="Concrete grade"
+            label={`Concrete grade (${concreteStandard.name})`}
             value={concreteGrade}
             onChange={(v) => setConcreteGrade(v as ConcreteGrade)}
-            options={[
-              { v: "C20", l: "C20 (20 MPa)" },
-              { v: "C25", l: "C25 (25 MPa)" },
-              { v: "C30", l: "C30 (30 MPa)" },
-            ]}
+            options={concreteOptions}
           />
           <SelectInput
             label="Steel grade"

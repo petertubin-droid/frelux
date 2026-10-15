@@ -3,6 +3,9 @@ import {
   designBeam,
   designColumn,
   designSlab,
+  getConcreteStandardForMarket,
+  resolveConcreteGrade,
+  getConcreteGradeOptions,
   type BeamDesignInput,
   type ColumnDesignInput,
   type SlabDesignInput,
@@ -171,5 +174,85 @@ describe("designSlab", () => {
     const result = designSlab(oneWay);
     expect(result.required_thickness).toBeGreaterThan(0);
     expect(result.steel_area_required).toBeGreaterThan(0);
+  });
+});
+
+
+describe("Regional Concrete Standards & Presets", () => {
+  it("resolves IS 456 standard for Indian market", () => {
+    const std = getConcreteStandardForMarket("IN");
+    expect(std.code).toBe("is_456");
+    expect(std.name).toContain("IS 456");
+    expect(std.defaultGrade).toBe("M25");
+    expect(std.grades.map((g) => g.id)).toEqual(["M20", "M25", "M30", "M35"]);
+  });
+
+  it("resolves ACI 318 standard for US and North America", () => {
+    const stdUS = getConcreteStandardForMarket("US");
+    expect(stdUS.code).toBe("aci_astm");
+    expect(stdUS.defaultGrade).toBe("3000_psi");
+    expect(stdUS.grades.map((g) => g.id)).toEqual([
+      "2500_psi",
+      "3000_psi",
+      "4000_psi",
+      "5000_psi",
+    ]);
+
+    const stdCA = getConcreteStandardForMarket("CA");
+    expect(stdCA.code).toBe("aci_astm");
+  });
+
+  it("resolves Eurocode 2 / BS 8110 for European and African markets", () => {
+    expect(getConcreteStandardForMarket("GB").code).toBe("eurocode_bs");
+    expect(getConcreteStandardForMarket("NG").code).toBe("eurocode_bs");
+    expect(getConcreteStandardForMarket("DE").code).toBe("eurocode_bs");
+  });
+
+  it("resolves concrete grades with appropriate strength properties", () => {
+    const m25 = resolveConcreteGrade("M25", "IN");
+    expect(m25.fcu).toBe(25);
+    expect(m25.standard).toBe("is_456");
+
+    const psi3000 = resolveConcreteGrade("3000_psi", "US");
+    expect(psi3000.fck).toBe(20.7);
+    expect(psi3000.fcu).toBeCloseTo(25.9, 1);
+    expect(psi3000.standard).toBe("aci_astm");
+
+    const c2530 = resolveConcreteGrade("C25/30", "GB");
+    expect(c2530.fck).toBe(25);
+    expect(c2530.fcu).toBe(30);
+    expect(c2530.standard).toBe("eurocode_bs");
+  });
+
+  it("designs beam with US ACI 318 preset and discloses formula transparency", () => {
+    const result = designBeam({
+      span: 5.0,
+      tributary_width: 3.5,
+      dead_load: 7,
+      live_load: 3,
+      concrete_grade: "3000_psi",
+      steel_grade: "Fe500",
+      support_condition: "simply_supported",
+      cover_mm: 38,
+      beam_type: "suspended_beam",
+      market_code: "US",
+    });
+    expect(result.recommended_depth).toBeGreaterThan(0);
+    expect(result.formula_transparency.some((f) => f.includes("ACI 318") && f.includes("3,000 psi"))).toBe(true);
+  });
+
+  it("designs column with Indian IS 456 preset and discloses formula transparency", () => {
+    const result = designColumn({
+      axial_load: 600,
+      height: 3.2,
+      concrete_grade: "M25",
+      steel_grade: "Fe500",
+      cover_mm: 40,
+      is_rectangular: true,
+      unbraced_height_ratio: 10,
+      market_code: "IN",
+    });
+    expect(result.recommended_width).toBeGreaterThan(0);
+    expect(result.formula_transparency.some((f) => f.includes("IS 456") && f.includes("M25"))).toBe(true);
   });
 });
