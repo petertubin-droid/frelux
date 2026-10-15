@@ -4,7 +4,6 @@ import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
 import {
   calculateEarthwork,
-  type EarthworkStation,
   type EarthworkResult,
 } from "@/lib/estimation/advanced-takeoff-engine";
 
