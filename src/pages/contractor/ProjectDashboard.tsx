@@ -1,4 +1,5 @@
 import { ExpenseCrowdsourceCard } from "@/components/contractor/ExpenseCrowdsourceCard";
+import { SiteTab } from "./SiteTab";
 import { submitCrowdsourcedExpense } from "@/lib/international/crowdsourcing-engine";
 /**
  * FRELUX, Smart Project Dashboard
@@ -20,7 +21,7 @@ import {
   Users,
   DollarSign,
   Clock,
-  TrendingUp,
+  TrendingUp, MapPin,
   Plus,
   Trash2,
   Edit,
@@ -116,6 +117,7 @@ function formatCurrency(value: number, currency: string): string {
 
 type TabKey =
   | "overview"
+  | "site"
   | "rooms"
   | "labour"
   | "shopping"
@@ -128,6 +130,7 @@ type TabKey =
 
 const TABS: { key: TabKey; label: string; icon: typeof Package }[] = [
   { key: "overview", label: "Overview", icon: TrendingUp },
+  { key: "site", label: "Site", icon: MapPin },
   { key: "rooms", label: "Rooms", icon: Package },
   { key: "labour", label: "Labour", icon: Users },
   { key: "shopping", label: "Shopping", icon: ClipboardList },
@@ -1138,6 +1141,8 @@ export default function ProjectDashboard() {
               project={project}
             />
           )}
+
+          {activeTab === "site" && <SiteTab projectId={project.id} />}
 
           {activeTab === "rooms" && (
             <RoomsTab
