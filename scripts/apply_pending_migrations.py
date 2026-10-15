@@ -84,6 +84,7 @@ PENDING = [
     "20261015770000_jp_construction_standards.sql",
     "20261015780000_fr_construction_standards.sql",
     "20261015790000_br_construction_standards.sql",
+    "20261015800000_sa_construction_standards.sql",
     "20261016040000_hybrid_pricing_systems.sql",
     "20261016050000_materials_pricing_automation_columns.sql",
 ]

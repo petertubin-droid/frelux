@@ -433,6 +433,13 @@ Rolled out strictly one-at-a-time. Each market has its own migration (applied to
 - **Timeline/logistics:** broad hot-desert seasonal heuristics only; no region-specific heat productivity, public-holiday/site calendar, procurement lead-time/customs or predictive international logistics engine was verified.
 - **Remaining operational gate:** confirm deployed mapping/prices, complete source-backed regional packages, tax, licensed-professional and calendar/logistics integrations before describing this market as verified. Next remaining market: **Ethiopia (`ET`)**.
 
+#### Saudi Arabia closeout UPDATE 2026-10-15 — Engine 1: JURISDICTION STANDARDS SEEDED, LIVE-VERIFIED (audit history above preserved)
+
+- **Live verification (2026-10-15):** SA profile `active`/visible (SAR); **7 active role mappings** and **31 active SAR price rows** confirmed live (existing knauf-mp75-datasheet ref untouched) — resolving the audit snapshot uncertainty with a live query.
+- **Standards seeded (migration `20261015800000`, applied + verified live):** Saudi Building Code — 2024 edition, mandatory nationwide since 30 June 2025 (first major revision since SBC 2018; e.g. SBC 301 based on ASCE) → `medium` with the edition caveat; SASO Standard Specification for Application and Finishing of Gypsum Board (official SASO standards library, 1444H; ISO 6308/EN 520 adoption noted for products) → `high`. No coverage rates asserted.
+- **Guard:** `src/lib/international/__tests__/sa-construction-standards.test.ts` pins 2 rows only, the mandatory/edition caveats, the SASO ref as high, no unsubstantiated URLs, idempotency.
+- **Remaining honest gaps (unchanged):** Baladiyah permit workflow verification, workforce (Saudi Council of Engineers) verification, SA holiday/climate calibration. SA Engine-1 standards complete. **This closes the owner-mandated 15-market Engine-1 rollout: all 15 markets now have verified jurisdiction standards.**
+
 ### Ethiopia market closeout (priority 22; audit only, 2026-10-14)
 
 - **Operational decision: NOT IMPLEMENTED / NOT VERIFIED.** Ethiopia (`ET`) appears in the country selector list with ETB, but searches found no Ethiopia-specific entry in the market context, price scanner, construction typologies, wall methodology, climate profiles, electrical/plumbing profiles, or market capability inventory. The selector entry alone does not establish a usable localized estimator or active production market.
