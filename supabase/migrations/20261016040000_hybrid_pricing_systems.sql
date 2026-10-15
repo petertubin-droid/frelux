@@ -156,32 +156,44 @@ ALTER TABLE public.supplier_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.supplier_inventory_items ENABLE ROW LEVEL SECURITY;
 
 -- Macro Indicators & Rules RLS
+DROP POLICY IF EXISTS "Public read macro indicators" ON public.macro_economic_indicators;
 CREATE POLICY "Public read macro indicators" ON public.macro_economic_indicators FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read macro elasticity rules" ON public.macro_elasticity_rules;
 CREATE POLICY "Public read macro elasticity rules" ON public.macro_elasticity_rules FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Admins manage macro indicators" ON public.macro_economic_indicators;
 CREATE POLICY "Admins manage macro indicators" ON public.macro_economic_indicators FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+DROP POLICY IF EXISTS "Admins manage macro elasticity rules" ON public.macro_elasticity_rules;
 CREATE POLICY "Admins manage macro elasticity rules" ON public.macro_elasticity_rules FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- Crowdsourced Benchmarks & Expenses RLS
+DROP POLICY IF EXISTS "Public read crowdsourced benchmarks" ON public.crowdsourced_market_benchmarks;
 CREATE POLICY "Public read crowdsourced benchmarks" ON public.crowdsourced_market_benchmarks FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Admins manage crowdsourced benchmarks" ON public.crowdsourced_market_benchmarks;
 CREATE POLICY "Admins manage crowdsourced benchmarks" ON public.crowdsourced_market_benchmarks FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- Contractors submit sanitized expenses
+DROP POLICY IF EXISTS "Contractors can submit sanitized expenses" ON public.crowdsourced_material_expenses;
 CREATE POLICY "Contractors can submit sanitized expenses" ON public.crowdsourced_material_expenses
   FOR INSERT WITH CHECK (opt_in_verified = true);
+DROP POLICY IF EXISTS "Admins read crowdsourced expenses" ON public.crowdsourced_material_expenses;
 CREATE POLICY "Admins read crowdsourced expenses" ON public.crowdsourced_material_expenses
   FOR SELECT TO authenticated USING (public.is_admin());
 
 -- Supplier Profiles RLS
+DROP POLICY IF EXISTS "Public read verified supplier profiles" ON public.supplier_profiles;
 CREATE POLICY "Public read verified supplier profiles" ON public.supplier_profiles
   FOR SELECT USING (is_active = true);
+DROP POLICY IF EXISTS "Suppliers can manage own profile" ON public.supplier_profiles;
 CREATE POLICY "Suppliers can manage own profile" ON public.supplier_profiles
   FOR ALL TO authenticated
   USING (user_id = auth.uid() OR public.is_admin())
   WITH CHECK (user_id = auth.uid() OR public.is_admin());
 
 -- Supplier Inventory Items RLS
+DROP POLICY IF EXISTS "Public read active supplier inventory" ON public.supplier_inventory_items;
 CREATE POLICY "Public read active supplier inventory" ON public.supplier_inventory_items
   FOR SELECT USING (is_active = true);
+DROP POLICY IF EXISTS "Suppliers can manage own inventory" ON public.supplier_inventory_items;
 CREATE POLICY "Suppliers can manage own inventory" ON public.supplier_inventory_items
   FOR ALL TO authenticated
   USING (
