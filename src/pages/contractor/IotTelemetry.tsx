@@ -30,6 +30,11 @@ import {
   type TelemetryRow,
 } from "@/lib/iot/device-client";
 import { useAuth } from "@/lib/auth";
+import {
+  classifySiteConditions,
+  computeNurseSaulMaturity,
+  VIBRATION_EVIDENCE_DISCLOSURE,
+} from "@/lib/iot/signal-mapping";
 import { useSeo } from "@/lib/seo";
 import { Loader2, Radio, Plus, ShieldCheck, X, Copy } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
@@ -386,6 +391,67 @@ export default function IotTelemetry() {
 
           {selectedDevice && (
             <div className="mt-6">
+              {(() => {
+                const device = devices.find((d) => d.id === selectedDevice);
+                const type = device?.device_type as DeviceType | undefined;
+                const maturity =
+                  type === "concrete_maturity_sensor"
+                    ? computeNurseSaulMaturity(telemetry)
+                    : null;
+                const conditions =
+                  type === "weather_station"
+                    ? classifySiteConditions(telemetry)
+                    : null;
+                return (
+                  <div className="mb-5 rounded-xl border border-border bg-muted/40 p-4">
+                    <h3 className="text-sm font-bold">Derived project state</h3>
+                    {maturity?.status === "computed" ? (
+                      <>
+                        <p className="mt-2 text-sm">
+                          Nurse-Saul maturity index:{" "}
+                          <strong>
+                            {maturity.totalMaturityIndex.toFixed(0)} °C·h
+                          </strong>{" "}
+                          (≈ {maturity.equivalentAgeHours20C.toFixed(1)} h at 20 °C,
+                          across {maturity.segments.length} segment
+                          {maturity.segments.length > 1 ? "s" : ""} from{" "}
+                          {maturity.readingCount} valid readings)
+                        </p>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {maturity.disclosure}
+                        </p>
+                      </>
+                    ) : maturity?.status === "refused" ? (
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {maturity.reason}
+                      </p>
+                    ) : null}
+                    {conditions && (
+                      <>
+                        <p className="mt-2 text-sm">
+                          Site conditions:{" "}
+                          <strong>{conditions.label}</strong>
+                          {conditions.asOf &&
+                            ` as of ${new Date(conditions.asOf).toLocaleString()}`}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Basis: {conditions.basis} — {conditions.disclosure}
+                        </p>
+                      </>
+                    )}
+                    {type === "vibration_monitor" && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {VIBRATION_EVIDENCE_DISCLOSURE}
+                      </p>
+                    )}
+                    {!maturity && !conditions && type !== "vibration_monitor" && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        No state mapping is derived for this device type yet.
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
               <h3 className="font-semibold">Telemetry</h3>
               {telemetryLoading ? (
                 <div className="flex justify-center py-6">
