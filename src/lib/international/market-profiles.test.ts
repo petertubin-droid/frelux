@@ -131,8 +131,8 @@ const SEEDED_PROFILE_FACTS: Record<
     default_measurement_system: "mixed",
     default_length_unit: "meters",
     default_area_unit: "sqm",
-    status: "coming_soon",
-    is_visible: false,
+    status: "active",
+    is_visible: true,
   },
   US: {
     country_code: "US",
@@ -142,8 +142,8 @@ const SEEDED_PROFILE_FACTS: Record<
     default_measurement_system: "imperial",
     default_length_unit: "feet",
     default_area_unit: "sqft",
-    status: "coming_soon",
-    is_visible: false,
+    status: "active",
+    is_visible: true,
   },
   CA: {
     country_code: "CA",
@@ -153,7 +153,7 @@ const SEEDED_PROFILE_FACTS: Record<
     default_measurement_system: "mixed",
     default_length_unit: "meters",
     default_area_unit: "sqm",
-    status: "coming_soon",
+    status: "active",
     is_visible: false,
   },
   AU: {
@@ -164,7 +164,7 @@ const SEEDED_PROFILE_FACTS: Record<
     default_measurement_system: "metric",
     default_length_unit: "meters",
     default_area_unit: "sqm",
-    status: "coming_soon",
+    status: "active",
     is_visible: false,
   },
   ZA: {
@@ -175,8 +175,8 @@ const SEEDED_PROFILE_FACTS: Record<
     default_measurement_system: "metric",
     default_length_unit: "meters",
     default_area_unit: "sqm",
-    status: "coming_soon",
-    is_visible: false,
+    status: "active",
+    is_visible: true,
   },
   AE: {
     country_code: "AE",
@@ -186,7 +186,7 @@ const SEEDED_PROFILE_FACTS: Record<
     default_measurement_system: "metric",
     default_length_unit: "meters",
     default_area_unit: "sqm",
-    status: "coming_soon",
+    status: "active",
     is_visible: false,
   },
 };
@@ -226,15 +226,26 @@ describe("Seeded market profile facts (NG / GB / US / CA / AU / ZA / AE)", () =>
     );
   });
 
-  it("only Nigeria is active, every other market honestly reports coming_soon", () => {
-    for (const [code, facts] of Object.entries(SEEDED_PROFILE_FACTS)) {
-      expect(facts.status).toBe(code === "NG" ? "active" : "coming_soon");
+  // Reconciled 2026-10-15 (Engine 1 US closeout): the original
+  // phase-40 seed marked every non-NG market coming_soon/hidden.
+  // Migrations since then ACTIVATED the verified markets — GB
+  // (20261006010000), US (20261007120000, imperial/feet/sqft
+  // profile), ZA and the 15-market expansion set — and the live
+  // registry was read on 2026-10-15: NG/GB/US/ZA active+visible,
+  // CA/AU/AE active but still hidden from the picker. This test
+  // now pins that reconciled truth instead of the stale
+  // pre-expansion seed.
+  const VISIBLE = new Set(["NG", "GB", "US", "ZA"]);
+
+  it("every registered market is active — activation is no longer NG-only", () => {
+    for (const facts of Object.values(SEEDED_PROFILE_FACTS)) {
+      expect(facts.status).toBe("active");
     }
   });
 
-  it("non-NG markets are NOT visible in the country selector (no priced data)", () => {
+  it("visibility is honest: released markets show, unreleased stay hidden", () => {
     for (const [code, facts] of Object.entries(SEEDED_PROFILE_FACTS)) {
-      expect(facts.is_visible).toBe(code === "NG");
+      expect(facts.is_visible).toBe(VISIBLE.has(code));
     }
   });
 

@@ -69,6 +69,11 @@ PENDING = [
     "20261015460000_keys_public_disclosure.sql",
     "20261016020000_workflow_participants.sql",
     "20261016030000_workflow_attachments.sql",
+    "20261015000000_us_construction_standards.sql",
+    "20261015161000_gb_construction_standards.sql",
+    "20261015162000_rollout_standards_cn_it_ng_ae.sql",
+    "20261015163000_it_engine_capability_verified.sql",
+    "20261015164000_it_capability_pair_fix.sql",
     "20261016040000_hybrid_pricing_systems.sql",
     "20261016050000_materials_pricing_automation_columns.sql",
 ]
