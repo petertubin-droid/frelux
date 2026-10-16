@@ -197,7 +197,7 @@ export async function getTokenPurchasePrices(): Promise<TokenPriceRow[]> {
  * through Flutterwave when it is configured; otherwise return null and
  * let the caller surface the original Paystack error.
  */
-const PAYSTACK_KEY_FAILURE = /invalid\s*(api\s*)?key/i;
+const PAYSTACK_KEY_FAILURE = /(?:invalid|incorrect|unauthori[sz]ed).{0,30}(?:api[\s_-]*)?key|(?:api[\s_-]*)?key.{0,30}(?:invalid|incorrect)/i;
 
 async function tryNgnFlutterwaveFallback(
   paystackError: string,

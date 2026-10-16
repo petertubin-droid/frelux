@@ -355,9 +355,9 @@ export default function AdminSettings() {
           </div>
           {(settings.premium_subscriptions_enabled ?? false) && (
             <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
-              ⚠️ Make sure your Paystack credentials are configured
-              (PAYSTACK_SECRET_KEY secret + VITE_PAYSTACK_PUBLIC_KEY env var)
-              before enabling. Users will be able to pay immediately.
+              ⚠️ Configure PAYSTACK_SECRET_KEY as a Supabase Edge Function secret and
+              deploy the payment checkout, verification, and webhook functions
+              before enabling. The hosted checkout does not use a browser public key.
             </div>
           )}
         </AdminCard>

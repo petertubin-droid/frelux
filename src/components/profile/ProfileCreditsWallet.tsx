@@ -11,6 +11,9 @@ import {
   MAX_ADS_PER_DAY,
   getTodayRewardedAdCount,
 } from "@/lib/credits";
+import { fetchAdConfig } from "@/lib/ad-config";
+import { getBridgedAdCandidates, REWARDED_AD_BRIDGES } from "@/lib/rewarded-bridges";
+import { getClientHash } from "@/lib/rewarded-access";
 import {
   Coins,
   Sparkles,
@@ -73,11 +76,45 @@ export const ProfileCreditsWallet: React.FC = () => {
     setAdWatching(true);
     setAdMessage(null);
     try {
-      // Calls centralized verify-rewarded-ad edge function with earn_credits mode
+      // Show an actual rewarded ad from the user's click before asking the
+      // server to award credits. Never call verification with no ad view.
+      const { providers } = await fetchAdConfig();
+      const candidates = getBridgedAdCandidates(providers);
+      let completedProvider: string | null = null;
+      let adMode: string | null = null;
+      let lastError = "No eligible rewarded advertisement is available.";
+      for (const provider of candidates) {
+        const bridge = REWARDED_AD_BRIDGES[provider.slug];
+        if (!bridge) continue;
+        try {
+          const view = await bridge(provider, {
+            ymid: getClientHash(),
+            toolKey: "earn_credits",
+          });
+          if (view.valued !== true) {
+            throw new Error("The ad provider did not confirm completion.");
+          }
+          completedProvider = provider.slug;
+          adMode = view.mode;
+          break;
+        } catch (error) {
+          lastError =
+            error instanceof Error ? error.message : "The ad could not be loaded.";
+        }
+      }
+      if (!completedProvider || !adMode) {
+        setAdMessage(lastError);
+        return;
+      }
+
+      const adEventId = `profile_ad_${user.id}_${Date.now()}`;
+      const adToken = `att_${completedProvider}_${adMode}_${Date.now()}`;
       const res = await verifyRewardedAd(
-        "monetag",
-        `profile_ad_${Date.now()}`,
+        completedProvider,
+        adEventId,
         "earn_credits",
+        { source: "profile_wallet", ad_mode: adMode },
+        adToken,
       );
       if (res.success) {
         setAdMessage(`Successfully earned ${res.creditsEarned ?? 5} credits!`);

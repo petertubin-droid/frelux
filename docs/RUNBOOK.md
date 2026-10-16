@@ -98,14 +98,20 @@ banks while accepting international cards and 30+ currencies.
    - `flutterwave-webhook`: `FLW_SECRET_HASH` (+ a random secret hash you
      also enter in the Flutterwave dashboard → Settings → Webhooks)
 3. Deploy all three functions (`supabase/functions/flutterwave-*`).
-4. Set `VITE_FLUTTERWAVE_PUBLIC_KEY` (Netlify env) — the gateway dispatch
-   checks it before routing checkout here.
+4. No Flutterwave public key is required by FRELUX's hosted checkout flow.
+   The browser calls `flutterwave-checkout`, which uses the server-side
+   `FLUTTERWAVE_SECRET_KEY`. Keep that secret configured on checkout and
+   verification functions.
 5. Webhook URL in the Flutterwave dashboard:
    `https://<project-ref>.supabase.co/functions/v1/flutterwave-webhook`
 6. Test end-to-end with the Flutterwave test cards; NGN amounts are in
    NAIRA (major units) in these functions — the edge function converts
    the canonical kobo prices itself.
-7. Until configured, the gateway falls back to Paystack (never breaks).
+7. The checkout selector cannot inspect server secrets at page load. If the
+   selected provider is not configured, checkout returns the provider's
+   actionable error. Paystack invalid-key initialization errors fall back to
+   Flutterwave before any transaction is created, when its Edge Function is
+   configured.
 
 ## Transactional email (Resend)
 

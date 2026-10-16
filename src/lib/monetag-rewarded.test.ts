@@ -134,50 +134,21 @@ describe("showMonetagRewardedAd", () => {
     delete (window as unknown as Record<string, unknown>)[`show_${zone}`];
   });
 
-  it("falls back to tag mode when no SDK is available", async () => {
+  it("rejects tag-only mode because it cannot prove a rewarded view", async () => {
     const pending = showMonetagRewardedAd({
       zone: "123456",
       ymid: "ch_test",
       minWatchTimeMs: 0,
     });
-    // jsdom does not fire script onload, dispatch it manually
     document
       .querySelector(
         'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
       )
       ?.dispatchEvent(new Event("load"));
-    const result = await pending;
-
-    expect(result.mode).toBe("tag");
-    expect(result.valued).toBeNull();
-
-    const tag = document.querySelector(
-      'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
-    );
-    expect(tag).not.toBeNull();
-    expect(tag?.getAttribute("data-zone")).toBe("123456");
-    expect(tag?.getAttribute("data-domain")).toBe("quge5.com");
+    await expect(pending).rejects.toThrow(/cannot verify a rewarded view/i);
   });
 
-  it("does not inject a duplicate tag script on subsequent calls", async () => {
-    const first = showMonetagRewardedAd({ zone: "123456", minWatchTimeMs: 0 });
-    document
-      .querySelector(
-        'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
-      )
-      ?.dispatchEvent(new Event("load"));
-    await first;
-
-    // Second call must resolve via dedup without a second injection
-    await showMonetagRewardedAd({ zone: "123456", minWatchTimeMs: 0 });
-
-    const tags = document.querySelectorAll(
-      'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
-    );
-    expect(tags.length).toBe(1);
-  });
-
-  it("resolves scripts that have already loaded without re-injecting", async () => {
+  it("does not treat a loaded tag script as proof of an ad view", async () => {
     const existing = document.createElement("script");
     existing.setAttribute(
       "data-monetag-src",
@@ -185,14 +156,10 @@ describe("showMonetagRewardedAd", () => {
     );
     document.head.appendChild(existing);
 
-    const result = await showMonetagRewardedAd({
-      zone: "123456",
-      minWatchTimeMs: 0,
-    });
-    expect(result.mode).toBe("tag");
-
-    const tags = document.querySelectorAll("[data-monetag-src]");
-    expect(tags.length).toBe(1);
+    await expect(
+      showMonetagRewardedAd({ zone: "123456", minWatchTimeMs: 0 }),
+    ).rejects.toThrow(/cannot verify a rewarded view/i);
+    expect(document.querySelectorAll("[data-monetag-src]")).toHaveLength(1);
   });
 });
 

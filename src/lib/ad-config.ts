@@ -244,8 +244,8 @@ export async function hasRewardedAdProvider(): Promise<boolean> {
     // a real client-side bridge OR an offerwall. Previously a provider
     // that was merely typed "rewarded"/"mixed" with no implementation
     // flipped this to true and users hit a dead "Watch Ad" button.
-    const { getRewardedAdCandidates } = await import("@/lib/rewarded-bridges");
-    return getRewardedAdCandidates(providers).length > 0;
+    const { getBridgedAdCandidates } = await import("@/lib/rewarded-bridges");
+    return getBridgedAdCandidates(providers).length > 0;
   } catch {
     return false;
   }

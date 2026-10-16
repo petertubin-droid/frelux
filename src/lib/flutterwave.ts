@@ -19,12 +19,16 @@
 // 6. Webhook (`flutterwave-webhook`) activates the subscription as
 //    the authoritative path; verify is the fallback path.
 //
-// Requires env vars:
-// - VITE_FLUTTERWAVE_PUBLIC_KEY (frontend config check)
-// - FLUTTERWAVE_SECRET_KEY, FLW_SECRET_HASH (edge secrets only)
+// Requires server-side Supabase Edge Function secrets:
+// - FLUTTERWAVE_SECRET_KEY, FLW_SECRET_HASH
+// Hosted checkout does not require a browser public key.
 // =========================================================
 
-import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import {
+  supabase,
+  isSupabaseConfigured,
+  getFunctionErrorMessage,
+} from "@/lib/supabase";
 import type { SubscriptionPlan } from "@/lib/subscription";
 
 export interface FlutterwaveVerifyResult {
@@ -53,7 +57,7 @@ export async function verifyFlutterwavePayment(
   );
 
   if (error) {
-    return { verified: false, error: error.message };
+    return { verified: false, error: await getFunctionErrorMessage(error) };
   }
 
   if (!data?.verified) {
@@ -73,5 +77,7 @@ export async function verifyFlutterwavePayment(
  * Check if Flutterwave is configured (public key exists).
  */
 export function isFlutterwaveConfigured(): boolean {
-  return !!import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY;
+  // Hosted checkout is initialized server-side; FLUTTERWAVE_SECRET_KEY lives
+  // in the Edge Function environment. No Flutterwave public key is used here.
+  return true;
 }

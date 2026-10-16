@@ -14,12 +14,9 @@
  *    rewarded ad is watched and closed. This is the preferred path: it
  *    gives a true completion callback.
  *
- * 2. Tag mode, the standard website tag (tag.min.js). The zone serves
- *    whatever formats it is configured for (interstitial, popunder,
- *    in-page push). There is no completion callback; the caller gates the
- *    reward with its own watch timer. The tag must be triggered from a
- *    direct user gesture (the "Watch Ad" tap) because mobile browsers
- *    block window-opening ad formats outside a tap.
+ * Standard website tag mode has no completion callback and is not a
+ * rewarded-ad proof. It may be used for display placements elsewhere, but
+ * it must never resolve a rewarded flow or authorize a credit grant.
  */
 
 import type { DbAdProvider } from "@/types/database";
@@ -201,9 +198,8 @@ function getSdkShowFn(zone: string): MonetagShowFn | null {
  *
  * - If the SDK is available (loaded or loadable), shows the rewarded ad and
  *   resolves when the user finishes watching it.
- * - Otherwise loads the website tag (the zone serves its configured
- *   formats) and resolves once the tag has loaded. The caller's watch
- *   timer gates the reward in this mode.
+ * - If no SDK completion callback is available, rejects. A display tag
+ *   load or elapsed timer cannot prove that a rewarded view completed.
  */
 export async function showMonetagRewardedAd(opts: {
   zone: string;
@@ -267,65 +263,9 @@ export async function showMonetagRewardedAd(opts: {
     }
   }
 
-  // Tag mode: the zone serves its configured formats (interstitial,
-  // popunder, in-page push). No completion callback exists for these.
-  //
-  // We do two things here:
-  // 1. Ensure the tag is loaded (it may already be from Layout.tsx).
-  // 2. Wait for minWatchTimeMs before resolving. This is critical :
-  //    without the wait, the caller grants the reward instantly and
-  //    the user never sees an ad. The wait gives the tag time to
-  //    trigger its ad format (interstitial, in-page push) from this
-  //    user gesture, and ensures the user actually spends the
-  //    configured watch time before getting their reward.
-  await loadMonetagTag(zone);
-
-  // Try to trigger a Monetag interstitial/on-demand ad if the tag
-  // exposes any callable functions. Monetag's tag.min.js may create
-  // global functions depending on the zone's configured formats.
-  // We check for common patterns without breaking if they don't exist.
-  try {
-    const w = window as unknown as Record<string, unknown>;
-    // Monetag may expose show functions for interstitial/rewarded formats
-    const possibleFns = [
-      `show_${sdkZone}`,
-      `interstitial_${sdkZone}`,
-      `zfgformhttp_${sdkZone}`,
-    ];
-    for (const fnName of possibleFns) {
-      const fn = w[fnName];
-      if (typeof fn === "function") {
-        // Call the function, it may show an interstitial overlay
-        const result = await (
-          fn as (
-            opts?: Record<string, unknown>,
-          ) => Promise<Record<string, unknown>>
-        )({
-          type: "end",
-          ymid,
-          requestVar,
-        });
-        // If the function returned a result with reward info, use it
-        if (result && typeof result === "object") {
-          return {
-            mode: "sdk",
-            valued: result?.reward_event_type === "valued",
-            estimatedPrice:
-              typeof result?.estimated_price === "number"
-                ? (result.estimated_price as number)
-                : null,
-          };
-        }
-        break;
-      }
-    }
-  } catch {
-    // No callable function available, continue with timer-based wait
-  }
-
-  // Wait for the minimum watch time before resolving.
-  // This ensures the user actually watches for the configured period.
-  await new Promise<void>((resolve) => setTimeout(resolve, minWatchTimeMs));
-
-  return { mode: "tag", valued: null, estimatedPrice: null };
+  // The standard site tag has no callback proving a user completed a
+  // rewarded view. Never translate script load or time spent into a reward.
+  throw new Error(
+    "Monetag rewarded ads require a configured SDK zone with a completion callback. The display tag cannot verify a rewarded view.",
+  );
 }

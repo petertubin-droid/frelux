@@ -2,6 +2,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("@/lib/supabase", () => ({
   isSupabaseConfigured: true,
+  getFunctionErrorMessage: vi.fn(async (error: unknown) =>
+    error instanceof Error
+      ? error.message
+      : typeof error === "object" && error !== null && "message" in error
+        ? String((error as { message: unknown }).message)
+        : "edge error",
+  ),
   supabase: {
     functions: {
       invoke: vi.fn(),

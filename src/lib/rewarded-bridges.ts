@@ -37,13 +37,19 @@ export const REWARDED_AD_BRIDGES: Record<string, RewardedAdBridge> = {
     const zone = getMonetagZone(provider);
     if (!zone)
       throw new Error("The ad zone is not configured. Please try again later.");
-    return showMonetagRewardedAd({
+    const result = await showMonetagRewardedAd({
       zone,
       ymid: opts.ymid,
       requestVar: opts.toolKey,
       sdkUrl: getMonetagSdkUrl(provider),
       minWatchTimeMs: 5000,
     });
+    if (result.valued !== true) {
+      throw new Error(
+        "The ad provider did not confirm a completed rewarded view. No reward was granted.",
+      );
+    }
+    return result;
   },
   // Google AdSense, H5 Games Ads adBreak bridge (src/lib/adsense-rewarded.ts)
   google_adsense: async (provider, opts) => {
@@ -56,14 +62,18 @@ export const REWARDED_AD_BRIDGES: Record<string, RewardedAdBridge> = {
     }
     const publisherId =
       typeof creds.publisher_id === "string" ? creds.publisher_id : "";
-    return showAdsenseRewardedAd({
+    const result = await showAdsenseRewardedAd({
       publisherId,
       requestVar: opts.toolKey,
-    }).then((res) => ({
+    });
+    if (!result.viewed) {
+      throw new Error("The ad was not completed. No reward was granted.");
+    }
+    return {
       mode: "adsense_h5_rewarded",
-      valued: res.viewed,
+      valued: true,
       estimatedPrice: null,
-    }));
+    };
   },
 };
 

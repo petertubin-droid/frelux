@@ -229,7 +229,7 @@ export default function Pricing() {
 
     const amount =
       billingCycle === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;
-    const amountInKobo = amount * 100; // Paystack expects kobo
+    const amountInKobo = amount * 100; // Legacy compatibility; hosted edge checkout resolves canonical prices.
 
     const result = await startSubscriptionCheckout(
       plan.id,

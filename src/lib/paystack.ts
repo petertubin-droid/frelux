@@ -14,7 +14,7 @@
 // - PAYSTACK_SECRET_KEY, secret key (edge function / server only)
 // =========================================================
 
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured, getFunctionErrorMessage } from '@/lib/supabase';
 import type { SubscriptionPlan } from '@/lib/subscription';
 
 export interface PaystackInitializeResponse {
@@ -91,7 +91,7 @@ export async function initializeSubscriptionCheckout(
   });
 
   if (error) {
-    return { error: error.message || 'Failed to initialize payment. Please try again.' };
+    return { error: await getFunctionErrorMessage(error) || 'Failed to initialize payment. Please try again.' };
   }
 
   if (!data?.data?.authorization_url) {
@@ -135,7 +135,10 @@ export async function verifyPayment(reference: string): Promise<{ verified: bool
  * Check if Paystack is configured (public key exists).
  */
 export function isPaystackConfigured(): boolean {
-  return !!(import.meta.env.VITE_PAYSTACK_PUBLIC_KEY);
+  // Checkout is initialized server-side by paystack-checkout. The browser
+  // never uses the Paystack public key, so the Edge Function secret is the
+  // actual operational prerequisite and must not be guessed from VITE_ env.
+  return true;
 }
 
 /**

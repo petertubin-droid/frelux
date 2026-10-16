@@ -5,16 +5,13 @@
 // Admin can select Stripe (international) or Flutterwave
 // (Pan-African) in Admin Settings → Payment gateway.
 //
-// Safety rule: checkout NEVER breaks. If the selected gateway is
-// not configured (missing publishable key or its edge function is
-// not deployed), we fall back to Paystack and log the reason.
-//
-// Stripe/Flutterwave require:
-//   - VITE_STRIPE_PUBLISHABLE_KEY / VITE_FLUTTERWAVE_PUBLIC_KEY (frontend)
-//   - a deployed `<gateway>-checkout` edge function holding the secret key
+// Paystack and Flutterwave use server-created hosted checkout URLs, so their
+// secret keys must stay in Edge Function secrets and cannot be inferred from
+// browser environment variables. Stripe still requires a browser publishable
+// key. The server reports missing/invalid provider credentials at checkout.
 // =========================================================
 
-import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured, getFunctionErrorMessage } from "@/lib/supabase";
 import {
   initializeSubscriptionCheckout,
   isPaystackConfigured,
@@ -44,8 +41,10 @@ export function isStripeConfigured(cfg: GatewayRuntimeConfig): boolean {
   return Boolean(cfg.stripePublishableKey);
 }
 
-export function isFlutterwaveConfigured(cfg: GatewayRuntimeConfig): boolean {
-  return Boolean(cfg.flutterwavePublicKey);
+export function isFlutterwaveConfigured(_cfg: GatewayRuntimeConfig): boolean {
+  // Flutterwave uses a server-created hosted checkout link. Its secret key is
+  // configured on the Edge Function, and no browser public key is used here.
+  return true;
 }
 
 export interface ResolvedGateway {
@@ -56,8 +55,9 @@ export interface ResolvedGateway {
 }
 
 /**
- * Pure resolution: which gateway actually runs checkout given the admin
- * setting and what is configured in this build. Paystack is always safe.
+ * Pure resolution: which gateway runs hosted checkout given the admin
+ * setting and what is available to the browser. Server-side secret validity
+ * is reported by checkout, never guessed from client environment variables.
  */
 export function resolveCheckoutGateway(
   setting: unknown,
@@ -81,14 +81,15 @@ export function resolveCheckoutGateway(
 }
 
 /**
- * Gateways usable in THIS build (keys present in the frontend env).
- * Paystack only counts when its public key is set, so a misconfigured
- * build offers an honest empty choice rather than a broken checkout.
+ * Gateways with a browser-side checkout path. Paystack/Flutterwave use
+ * hosted Edge Function checkout, so their secret configuration is not visible
+ * here. Stripe still requires its public browser key.
  */
 export function availableGateways(cfg: GatewayRuntimeConfig): PaymentGateway[] {
-  const list: PaymentGateway[] = [];
-  if (isPaystackConfigured()) list.push("paystack");
-  if (isFlutterwaveConfigured(cfg)) list.push("flutterwave");
+  // Paystack and Flutterwave both use hosted checkout initialized by Edge
+  // Functions. Their server-side secret keys cannot be reliably inferred from
+  // VITE_ variables, so don't hide these gateways based on unused public keys.
+  const list: PaymentGateway[] = ["paystack", "flutterwave"];
   if (isStripeConfigured(cfg)) list.push("stripe");
   return list;
 }
@@ -115,6 +116,31 @@ export async function fetchConfiguredGateway(): Promise<PaymentGateway> {
 
 export type CheckoutStartResult =
   { authorization_url: string } | { error: string };
+
+async function initializeFlutterwaveSubscription(
+  planId: SubscriptionPlan,
+  billingCycle: "monthly" | "yearly",
+  amountMinor: number,
+  email: string,
+  userId: string,
+): Promise<CheckoutStartResult> {
+  const { data, error } = await supabase.functions.invoke("flutterwave-checkout", {
+    body: {
+      plan_id: planId,
+      billing_cycle: billingCycle,
+      amount_minor: amountMinor,
+      email,
+      user_id: userId,
+    },
+  });
+  if (error) {
+    return { error: await getFunctionErrorMessage(error) };
+  }
+  const url = (data as { authorization_url?: string } | null)?.authorization_url;
+  return url
+    ? { authorization_url: url }
+    : { error: (data as { error?: string } | null)?.error ?? "Flutterwave did not return a payment URL." };
+}
 
 /**
  * Start subscription checkout through the effective gateway.
@@ -159,33 +185,30 @@ export async function startSubscriptionCheckout(
       email,
       userId,
     );
-    if ("error" in result) return { error: result.error };
-    return { authorization_url: result.authorization_url };
+    if (!("error" in result)) {
+      return { authorization_url: result.authorization_url };
+    }
+
+    // A rejected Paystack API key is a server configuration failure, not a
+    // failed transaction. Retry via Flutterwave's hosted checkout before any
+    // charge exists. Never retry after a redirect or verification attempt.
+    if (/(?:invalid|incorrect|unauthori[sz]ed).{0,30}(?:api[\s_-]*)?key|(?:api[\s_-]*)?key.{0,30}(?:invalid|incorrect)/i.test(result.error)) {
+      const fallback = await initializeFlutterwaveSubscription(
+        planId, billingCycle, amountMinor, email, userId,
+      );
+      if ("authorization_url" in fallback) return fallback;
+      return {
+        error: `Paystack rejected its API key. Flutterwave fallback could not start: ${fallback.error}`,
+      };
+    }
+    return { error: result.error };
   }
 
-  // Stripe / Flutterwave: secret key stays server-side in the
-  // `<gateway>-checkout` edge function (same pattern as paystack-checkout).
-  const { data, error } = await supabase.functions.invoke(
-    `${resolved.gateway}-checkout`,
-    {
-      body: {
-        plan_id: planId,
-        billing_cycle: billingCycle,
-        amount_minor: amountMinor,
-        email,
-        user_id: userId,
-      },
-    },
-  );
-  if (error) {
-    return {
-      error: `${resolved.gateway} checkout is unavailable (${error.message}). Falling back is required: configure the gateway or contact support.`,
-    };
+  if (resolved.gateway === "flutterwave") {
+    return initializeFlutterwaveSubscription(
+      planId, billingCycle, amountMinor, email, userId,
+    );
   }
-  const url = (data as { authorization_url?: string } | null)
-    ?.authorization_url;
-  if (!url) {
-    return { error: `${resolved.gateway} did not return a payment URL.` };
-  }
-  return { authorization_url: url };
+
+  return { error: "Stripe checkout is not available in this checkout flow." };
 }

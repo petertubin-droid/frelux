@@ -42,9 +42,9 @@ describe("configuration checks", () => {
     expect(isStripeConfigured(EMPTY)).toBe(false);
   });
 
-  it("flutterwave is configured only with a public key", () => {
+  it("Flutterwave hosted checkout does not require an unused browser key", () => {
     expect(isFlutterwaveConfigured(FULL)).toBe(true);
-    expect(isFlutterwaveConfigured(EMPTY)).toBe(false);
+    expect(isFlutterwaveConfigured(EMPTY)).toBe(true);
   });
 });
 
@@ -67,16 +67,15 @@ describe("resolveCheckoutGateway", () => {
     });
   });
 
-  it("falls back to paystack when the selected gateway is not configured", () => {
+  it("falls back to paystack only when the selected browser gateway is unavailable", () => {
     const stripeFallback = resolveCheckoutGateway("stripe", EMPTY);
     expect(stripeFallback.gateway).toBe("paystack");
     expect(stripeFallback.fallbackFrom).toBe("stripe");
     expect(stripeFallback.reason).toContain("stripe");
 
-    const fwFallback = resolveCheckoutGateway("flutterwave", EMPTY);
-    expect(fwFallback.gateway).toBe("paystack");
-    expect(fwFallback.fallbackFrom).toBe("flutterwave");
-    expect(fwFallback.reason).toContain("flutterwave");
+    expect(resolveCheckoutGateway("flutterwave", EMPTY)).toEqual({
+      gateway: "flutterwave",
+    });
   });
 
   it("never falls back to an unavailable gateway itself", () => {
@@ -94,7 +93,7 @@ describe("availableGateways", () => {
     ]);
   });
 
-  it("drops gateways that are not configured in this build", () => {
-    expect(availableGateways(EMPTY)).toEqual(["paystack"]);
+  it("keeps hosted gateways available without browser keys", () => {
+    expect(availableGateways(EMPTY)).toEqual(["paystack", "flutterwave"]);
   });
 });
