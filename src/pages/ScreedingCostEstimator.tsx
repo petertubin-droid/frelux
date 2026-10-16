@@ -23,7 +23,7 @@ import LabourCostSection, {
 import { formatCurrency, formatNumber } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 import { logAnalyticsEvent, fetchScreedingSystemConfig } from "@/lib/queries";
-import { useMarket } from "@/lib/international/market-context";
+import { useMarket, useLocalTerm } from "@/lib/international/market-context";
 import {
   resolveMaterialPriceByRole,
   type MaterialRole,
@@ -157,6 +157,10 @@ export default function ScreedingCostEstimator({
   // Regional data flow: project location -> market profile -> currency.
   // Hook must run before the loading early-return (Rules of Hooks).
   const { marketCode } = useMarket();
+  // Market-aware mix term (e.g. "Joint Compound / Sheetrock Skim Coat"
+  // in the US); NG keeps its established phrasing with no extra note.
+  const localTerm = useLocalTerm();
+  const screedingMixTerm = localTerm("screeding_mix", "");
   const finishTerm = getConstructionTerm(
     "wall_finishing",
     marketCode,
@@ -379,6 +383,12 @@ export default function ScreedingCostEstimator({
             <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3 space-y-6">
               {/* Material System Selector */}
               <Section title={`Select ${finishTerm} Material`}>
+                {screedingMixTerm && (
+                  <p className="mb-3 text-xs text-muted-foreground dark:text-muted-foreground">
+                    Material in your market: {screedingMixTerm}. The estimate
+                    below uses the configured systems and market pricing.
+                  </p>
+                )}
                 <div className="grid gap-3 sm:grid-cols-2">
                   {availableSystems.map((sys) => {
                     const Icon = sys.icon;

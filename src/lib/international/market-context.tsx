@@ -1247,6 +1247,9 @@ export function MarketProvider({ children }: { children: ReactNode }) {
       //    instead of the Nigerian default. Detection is the seed of a
       //    choice, never an override: once saved, the saved code wins.
       let hasSavedMarket = false;
+      let hasSavedLength = false;
+      let hasSavedArea = false;
+      let seedFromDetection = false;
       try {
         const savedCode = localStorage.getItem(MARKET_STORAGE_KEY);
         if (savedCode) {
@@ -1256,18 +1259,28 @@ export function MarketProvider({ children }: { children: ReactNode }) {
           const detected = detectMarketCode();
           if (detected) {
             marketCode = detected;
+            seedFromDetection = true;
             localStorage.setItem(MARKET_STORAGE_KEY, detected);
           }
         }
         const savedLength = localStorage.getItem(LENGTH_UNIT_STORAGE_KEY);
-        if (savedLength) prefLength = savedLength as PreferredLengthUnit;
+        if (savedLength) {
+          prefLength = savedLength as PreferredLengthUnit;
+          hasSavedLength = true;
+        }
         const savedArea = localStorage.getItem(AREA_UNIT_STORAGE_KEY);
-        if (savedArea) prefArea = savedArea as PreferredAreaUnit;
+        if (savedArea) {
+          prefArea = savedArea as PreferredAreaUnit;
+          hasSavedArea = true;
+        }
       } catch {
         // storage unavailable - detect without persisting
         if (!hasSavedMarket) {
           const detected = detectMarketCode();
-          if (detected) marketCode = detected;
+          if (detected) {
+            marketCode = detected;
+            seedFromDetection = true;
+          }
         }
       }
 
@@ -1283,10 +1296,14 @@ export function MarketProvider({ children }: { children: ReactNode }) {
 
           if (pref) {
             marketCode = pref.market_code || marketCode;
-            prefLength =
-              (pref.preferred_length_unit as PreferredLengthUnit) || prefLength;
-            prefArea =
-              (pref.preferred_area_unit as PreferredAreaUnit) || prefArea;
+            if (pref.preferred_length_unit) {
+              prefLength = pref.preferred_length_unit as PreferredLengthUnit;
+              hasSavedLength = true;
+            }
+            if (pref.preferred_area_unit) {
+              prefArea = pref.preferred_area_unit as PreferredAreaUnit;
+              hasSavedArea = true;
+            }
           }
         } catch {
           // ignore network/db error
@@ -1320,6 +1337,30 @@ export function MarketProvider({ children }: { children: ReactNode }) {
           resolved = profileToResolvedContext(builtin);
         } else {
           resolved = NIGERIA_DEFAULTS;
+        }
+      }
+
+      // First-visit detection is a seed of a choice, not an override:
+      // a brand-new non-NG visitor lands on their market's units and
+      // display currency, exactly as an explicit setMarket would. Saved
+      // unit preferences (this browser or the DB profile) always win.
+      if (seedFromDetection && resolved) {
+        if (!hasSavedLength) {
+          prefLength = resolved.defaultLengthUnit;
+        }
+        if (!hasSavedArea) {
+          prefArea = resolved.defaultAreaUnit;
+        }
+        try {
+          if (!hasSavedLength) {
+            localStorage.setItem(LENGTH_UNIT_STORAGE_KEY, prefLength);
+          }
+          if (!hasSavedArea) {
+            localStorage.setItem(AREA_UNIT_STORAGE_KEY, prefArea);
+          }
+          localStorage.setItem("frelux_currency", resolved.currencyCode);
+        } catch {
+          // storage unavailable - the in-memory seed still applies
         }
       }
 
@@ -1495,6 +1536,29 @@ export function useMarket(): MarketContextValue {
     };
   }
   return ctx;
+}
+
+/**
+ * Market-aware presentation of the curated local terminology carried by
+ * the visitor's market profile (pack sizes, container and material
+ * names such as "1 gal / 5 gal pail" or "Plasterboard").
+ *
+ * NG keeps the site's established phrasing: the fallback text IS the
+ * Nigerian local phrasing the product was written in, so rendering is
+ * byte-for-byte unchanged for the reference market. Every other market
+ * renders its curated profile term; a profile without the entry falls
+ * back to the same text - never a guessed synonym. Presentation only:
+ * calculator IDs, analytics and engine logic are untouched.
+ */
+export function useLocalTerm() {
+  const { market, marketCode } = useMarket();
+  return useCallback(
+    (key: string, fallback: string): string => {
+      if (marketCode === "NG") return fallback;
+      return market.localTerminology?.[key]?.trim() || fallback;
+    },
+    [market, marketCode],
+  );
 }
 
 // ============================================================

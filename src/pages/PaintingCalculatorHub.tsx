@@ -5,7 +5,10 @@ import CalculatorTabs from "@/components/ui/CalculatorTabs";
 import PageHeader from "@/components/ui/PageHeader";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { useSeo } from "@/lib/seo";
-import { useSeoOfferCurrency } from "@/lib/international/market-context";
+import {
+  useLocalTerm,
+  useSeoOfferCurrency,
+} from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
 import {
   FaqSection,
@@ -61,10 +64,42 @@ const FAQS = [
   },
 ];
 
+/**
+ * Market-aware FAQ copy: non-NG markets see their curated pack term
+ * (e.g. "1 gal / 5 gal pail") instead of the Nigerian "bucket" phrasing.
+ * The structured-data (JSON-LD) copy keeps the established NG English,
+ * which is the site's global SEO language.
+ */
+function localizeFaqs(
+  faqs: { question: string; answer: string }[],
+  packTerm: string,
+) {
+  if (!packTerm) return faqs;
+  return faqs.map((f) => ({
+    question: f.question
+      .split("paint buckets")
+      .join("paint containers")
+      .split("shown in buckets")
+      .join("shown in containers"),
+    answer: f.answer
+      .split("buckets (typically 20-litre containers) in many markets")
+      .join(`${packTerm} in your market`)
+      .split("paint buckets")
+      .join(`paint containers (${packTerm})`)
+      .split(" in buckets")
+      .join(" in containers")
+      .split("whole buckets")
+      .join("whole containers"),
+  }));
+}
+
 export default function PaintingCalculatorHub() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialMode = searchParams.get("mode") || "quantity";
   const [activeTab, setActiveTab] = useState(initialMode);
+  const localTerm = useLocalTerm();
+  const paintPackTerm = localTerm("paint_bucket", "");
+  const displayFaqs = localizeFaqs(FAQS, paintPackTerm);
 
   // Sync URL ?mode= changes to active tab (fixes calculator-to-calculator navigation)
   useEffect(() => {
@@ -227,7 +262,7 @@ export default function PaintingCalculatorHub() {
           </p>
         </div>
 
-        <FaqSection faqs={FAQS} />
+        <FaqSection faqs={displayFaqs} />
         <RelatedTools
           links={[
             CALC_LINKS.screedingCalc,

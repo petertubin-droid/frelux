@@ -15,7 +15,7 @@ import {
   isDefaultQualityId,
 } from "@/lib/estimation/default-quality";
 import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
-import { useMarket } from "@/lib/international/market-context";
+import { useMarket, useLocalTerm } from "@/lib/international/market-context";
 import {
   resolveMarketRoomUnit,
   ROOM_DIM_DEFAULTS,
@@ -194,6 +194,11 @@ export default function PaintingEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { marketCode, market } = useMarket();
+  // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
+  // established "buckets" phrasing.
+  const localTerm = useLocalTerm();
+  const paintPackTerm = localTerm("paint_bucket", "");
+  const bucketUnit = paintPackTerm ? "containers" : "buckets";
   const roomUnit = resolveMarketRoomUnit(market, "feet");
   const { defaults: _calcDefaults, rules: defaultCalcRules } =
     useCalcDefaults("painting");
@@ -923,7 +928,7 @@ export default function PaintingEstimator({
             <PageHeader
               eyebrow="FRELUX Estimator"
               title="Painting Estimator"
-              subtitle="Complete painting project overview: paint buckets, material costs, finishes, and assumptions."
+              subtitle={`Complete painting project overview: paint ${bucketUnit}, material costs, finishes, and assumptions.`}
               breadcrumbs={[
                 { label: "Calculators", path: "/paint-calculator" },
                 { label: "Painting Estimator" },
@@ -949,7 +954,7 @@ export default function PaintingEstimator({
           <PageHeader
             eyebrow="FRELUX Estimator"
             title="Painting Estimator"
-            subtitle="Complete painting project overview: paint buckets, material costs, finishes, and assumptions."
+            subtitle={`Complete painting project overview: paint ${bucketUnit}, material costs, finishes, and assumptions.`}
             breadcrumbs={[
               { label: "Calculators", path: "/paint-calculator" },
               { label: "Painting Estimator" },
@@ -1280,6 +1285,13 @@ function RoomCard({
   onRemoveWindow: (winIndex: number) => void;
 }) {
   const roomQualities = qualities.get(room.product_id) ?? [];
+  // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
+  // established "bucket(s)" phrasing.
+  const localTerm = useLocalTerm();
+  const paintPackTerm = localTerm("paint_bucket", "");
+  const bucketNoun = paintPackTerm
+    ? `containers (${paintPackTerm})`
+    : "bucket(s)";
 
   // Live validation, only shown after a failed Calculate attempt,
   // so the form isn't covered in red on first load. Errors clear
@@ -1745,6 +1757,15 @@ function EstimateResult({
   labourConfig: LabourConfig;
   setLabourConfig: (config: LabourConfig) => void;
 }) {
+  // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
+  // established "bucket(s)" phrasing.
+  const localTerm = useLocalTerm();
+  const paintPackTerm = localTerm("paint_bucket", "");
+  const bucketNoun = paintPackTerm
+    ? `containers (${paintPackTerm})`
+    : "bucket(s)";
+  const bucketUnit = paintPackTerm ? "containers" : "buckets";
+
   // Labour completion: area the painters actually cover
   const paintAreaM2 = result.rooms.reduce(
     (sum, r) =>
@@ -1904,8 +1925,10 @@ function EstimateResult({
             {/* Professional detail stats (supplementary, not primary) */}
             <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
               <StatBox
-                label="Paint Buckets Required"
-                value={`${room.practical_total_buckets} bucket(s)`}
+                label={
+                  paintPackTerm ? "Paint Required" : "Paint Buckets Required"
+                }
+                value={`${room.practical_total_buckets} ${bucketNoun}`}
                 highlight
               />
               <StatBox
@@ -1930,7 +1953,7 @@ function EstimateResult({
             {room.include_ceiling && (
               <div className="mt-3 rounded-lg bg-blue-50 px-4 py-2 dark:bg-blue-500/10">
                 <p className="text-xs text-blue-700 dark:text-blue-400">
-                  Ceiling: {room.ceiling_quantity_buckets} bucket(s) ·{" "}
+                  Ceiling: {room.ceiling_quantity_buckets} {bucketNoun} ·{" "}
                   {room.ceiling_colour} · Calculated separately
                 </p>
               </div>
@@ -2007,8 +2030,10 @@ function EstimateResult({
           {/* Combined quantities */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
             <StatBox
-              label="Total Paint Buckets"
-              value={`${result.combined_practical_buckets} bucket(s)`}
+              label={
+                paintPackTerm ? "Total Paint Required" : "Total Paint Buckets"
+              }
+              value={`${result.combined_practical_buckets} ${bucketNoun}`}
               highlight
             />
             <StatBox
@@ -2075,7 +2100,7 @@ function EstimateResult({
                         {entry.theoretical_litres.toFixed(2)} L theoretical
                       </span>
                       <span className="font-medium text-card-foreground dark:text-muted-foreground/60">
-                        {entry.practical_buckets} buckets
+                        {entry.practical_buckets} {bucketUnit}
                       </span>
                       <span className="font-semibold text-foreground dark:text-primary-foreground">
                         {formatCurrency(entry.material_cost, result.currency)}
@@ -2186,7 +2211,7 @@ function EstimateResult({
             required={result.combined_practical_buckets}
             alreadyHave={alreadyHave}
             onAlreadyHaveChange={onAlreadyHaveChange}
-            unit="buckets"
+            unit={bucketUnit}
           />
 
           {/* Waste selector */}

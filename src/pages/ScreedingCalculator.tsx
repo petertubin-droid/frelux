@@ -41,12 +41,13 @@ import {
 } from "@/components/engine";
 import { Button } from "@/components/ui/shadcn/button";
 import { useMarket } from "@/lib/international/market-context";
+import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 
 export default function ScreedingCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
-  const { marketCode } = useMarket();
+  const { marketCode, market } = useMarket();
   const finishTerm = getConstructionTerm(
     "wall_finishing",
     marketCode,
@@ -111,12 +112,30 @@ export default function ScreedingCalculator({
     updateMeasurement,
     removeMeasurement,
     resetWithMode,
+    setPreferredUnit,
     calculate,
   } = useMeasurementProject({
     calculatorContext: "screeding",
-    preferredUnit: "meters",
+    // Market-aware default: NG keeps the established metres default;
+    // imperial markets open in feet. Engine math is unit-converted
+    // upstream, never changed here.
+    preferredUnit: resolveMarketRoomUnit(market, "meters"),
     projectMode: "single_room",
   });
+
+  // First-visit market detection can resolve after first render: sync the
+  // pristine project's preferred unit to the market default without
+  // touching any measurements the visitor has already entered.
+  const marketRoomUnit = resolveMarketRoomUnit(market, "meters");
+  const appliedRoomUnitRef = useRef(marketRoomUnit);
+  useEffect(() => {
+    if (marketRoomUnit === appliedRoomUnitRef.current) return;
+    appliedRoomUnitRef.current = marketRoomUnit;
+    const pristine = project.sections.every(
+      (section) => section.groups.length === 0,
+    );
+    if (pristine) setPreferredUnit(marketRoomUnit);
+  }, [marketRoomUnit, project, setPreferredUnit]);
 
   // Template prefill (?template=<id>): loads the template's room into
   // the measurement project, converted to the visitor's market unit.

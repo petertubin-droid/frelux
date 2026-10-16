@@ -47,6 +47,31 @@ export function resolveMarketRoomUnit(
 }
 
 /**
+ * Resolve a page's area unit from the visitor's market context.
+ * Same contract as resolveMarketRoomUnit: NG keeps the page's
+ * existing default (no behaviour change for the reference market),
+ * imperial markets get square feet, everyone else square meters.
+ */
+export function resolveMarketAreaUnit(
+  market: Partial<
+    Pick<
+      ResolvedMarketContext,
+      "marketCode" | "measurementSystem" | "defaultAreaUnit"
+    >
+  > | null,
+  /** The page's pre-internationalization default, preserved for NG. */
+  legacyDefault: "m2" | "ft2",
+): "m2" | "ft2" {
+  // Defensive: a partially mocked or unresolved market context falls
+  // back to the page's legacy default (no behaviour change).
+  if (!market) return legacyDefault;
+  if (market.marketCode === "NG") return legacyDefault;
+  if (market.measurementSystem === "imperial") return "ft2";
+  if (market.defaultAreaUnit === "sqft") return "ft2";
+  return "m2";
+}
+
+/**
  * Per-unit default room dimensions. Scale-matched: never show a metric
  * market feet-scale defaults or vice versa.
  */

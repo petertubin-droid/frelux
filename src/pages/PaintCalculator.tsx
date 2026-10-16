@@ -1,6 +1,6 @@
 import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
-import { useMarket } from "@/lib/international/market-context";
+import { useMarket, useLocalTerm } from "@/lib/international/market-context";
 import { useLanguage } from "@/lib/i18n";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
@@ -1358,6 +1358,12 @@ function Step3({
 
   // Fence and exterior projects typically have no doors/windows to subtract.
   const showOpenings = !isFence && !isExterior;
+  // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
+  // established "bucket" phrasing, markets without a curated term keep
+  // the neutral fallback below.
+  const localTerm = useLocalTerm();
+  const paintPackTerm = localTerm("paint_bucket", "");
+  const perContainerText = paintPackTerm || "bucket";
 
   function updateDoorDim(key: keyof OpeningDimensions, value: number) {
     update("doorDims", { ...input.doorDims, [key]: value });
@@ -1548,7 +1554,7 @@ function Step3({
                 {availableQualities.map((q) => {
                   const qp = qualityPriceMap.get(q.id);
                   const price = qp
-                    ? ` · ${formatCurrency(qp.price)} / bucket`
+                    ? ` · ${formatCurrency(qp.price)} / ${perContainerText}`
                     : "";
                   const coverage = q.coverage ? ` · ${q.coverage} m²/L` : "";
                   return (
@@ -1581,7 +1587,7 @@ function Step3({
                             selectedQualityPrice.currency.toUpperCase(),
                         )?.symbol ?? selectedQualityPrice.currency,
                       )}{" "}
-                      per bucket
+                      per {perContainerText}
                     </p>
                   )}
                   {selectedQuality.description && (
@@ -1728,6 +1734,13 @@ function ResultCard({
   calcDefaults: CalcDefaults;
 }) {
   const { t } = useLanguage();
+  // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
+  // established "buckets" phrasing unchanged.
+  const localTerm = useLocalTerm();
+  const paintPackTerm = localTerm("paint_bucket", "");
+  const bucketNoun = paintPackTerm
+    ? `containers (${paintPackTerm})`
+    : "buckets";
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5 animate-fade-in-up dark:border-white/5">
       <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground sm:p-8">
@@ -1753,10 +1766,10 @@ function ResultCard({
         </p>
         <p className="relative mt-1 text-4xl font-bold sm:text-5xl animate-count-glow">
           {result.recommendedContainers.reduce((s, c) => s + c.count, 0)}{" "}
-          buckets
+          {bucketNoun}
         </p>
         <p className="relative mt-1 text-sm text-primary-foreground/60">
-          estimated paint buckets required for your project
+          estimated paint {bucketNoun} required for your project
         </p>
       </div>
 
@@ -1777,41 +1790,49 @@ function ResultCard({
           suffix=" m²/L"
         />
         <Stat
-          label="Paint buckets (theoretical)"
-          value={`${result.recommendedContainers.reduce((s, c) => s + c.count, 0)} buckets`}
+          label={
+            paintPackTerm
+              ? "Paint containers (theoretical)"
+              : "Paint buckets (theoretical)"
+          }
+          value={`${result.recommendedContainers.reduce((s, c) => s + c.count, 0)} ${bucketNoun}`}
           countValue={result.recommendedContainers.reduce(
             (s, c) => s + c.count,
             0,
           )}
           decimals={0}
-          suffix=" buckets"
+          suffix={` ${bucketNoun}`}
         />
         {input.wasteMargin > 0 && (
           <Stat
             label="After waste margin"
-            value={`${result.recommendedContainers.reduce((s, c) => s + c.count, 0)} buckets`}
+            value={`${result.recommendedContainers.reduce((s, c) => s + c.count, 0)} ${bucketNoun}`}
             countValue={result.recommendedContainers.reduce(
               (s, c) => s + c.count,
               0,
             )}
             decimals={0}
-            suffix=" buckets"
+            suffix={` ${bucketNoun}`}
           />
         )}
         <Stat
-          label="Total buckets to purchase"
-          value={`${result.recommendedContainers.reduce((s, c) => s + c.count, 0)} buckets`}
+          label={
+            paintPackTerm
+              ? "Total paint to purchase"
+              : "Total buckets to purchase"
+          }
+          value={`${result.recommendedContainers.reduce((s, c) => s + c.count, 0)} ${bucketNoun}`}
           countValue={result.recommendedContainers.reduce(
             (s, c) => s + c.count,
             0,
           )}
           decimals={0}
-          suffix=" buckets"
+          suffix={` ${bucketNoun}`}
           highlight
         />
         {result.leftoverLiters > 0 && (
           <Stat
-            label="Excess from buckets"
+            label={paintPackTerm ? "Excess paint" : "Excess from buckets"}
             value={`${formatNumber(result.leftoverLiters, 1)} L`}
             countValue={result.leftoverLiters}
             decimals={1}

@@ -30,6 +30,7 @@ import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
 import { useMarket } from "@/lib/international/market-context";
+import { resolveMarketAreaUnit } from "@/lib/international/room-unit-defaults";
 import { useCurrencySymbol } from "@/lib/international";
 import { calculateLabourCost } from "@/lib/labour";
 import PageHeader from "@/components/ui/PageHeader";
@@ -75,7 +76,8 @@ function rangeLabel(
   return `${fmt(min, digits)}–${fmt(max, digits)} ${unit}`;
 }
 
-export default function ConfigurableFinishCalculator({  category,
+export default function ConfigurableFinishCalculator({
+  category,
   refPrefix,
   title,
   subtitle,
@@ -83,7 +85,8 @@ export default function ConfigurableFinishCalculator({  category,
   calculatorType,
   embedded = false,
 }: ConfigurableFinishCalculatorProps) {
-  const { marketCode } = useMarket();
+  const market = useMarket();
+  const { marketCode } = market;
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     {
@@ -111,14 +114,27 @@ export default function ConfigurableFinishCalculator({  category,
   const [productId, setProductId] = useState<string>("");
   const [profileId, setProfileId] = useState<string>("");
   const [area, setArea] = useState("");
-  const [areaUnit, setAreaUnit] = useState("m2");
+  const [areaUnit, setAreaUnit] = useState<"m2" | "ft2">("m2");
+  // Market-aware area unit: NG keeps the established square-metre
+  // default; imperial markets open in square feet. Re-seeds only when
+  // the resolved market changes (never on every render).
+  const marketAreaUnit = resolveMarketAreaUnit(market.market, "m2");
+  const [areaUnitSeeded, setAreaUnitSeeded] = useState(false);
+  useEffect(() => {
+    if (areaUnitSeeded) return;
+    if (market.isLoading) return;
+    setAreaUnit(marketAreaUnit);
+    setAreaUnitSeeded(true);
+  }, [marketAreaUnit, market.isLoading, areaUnitSeeded]);
   const [coats, setCoats] = useState<string>("");
 
   // ── Result / save state ──
   const [result, setResult] = useState<MineralStoneResult | null>(null);
   // Shared labour layer: completes the estimate to the very end
-  const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("global", marketCode);
+  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig(
+    "global",
+    marketCode,
+  );
   const labourAreaM2 = result?.area_m2 ?? 0;
   const labourCost = calculateLabourCost(labourConfig, labourAreaM2);
   const [calculating, setCalculating] = useState(false);
@@ -530,7 +546,9 @@ export default function ConfigurableFinishCalculator({  category,
                     <select
                       className="rounded-lg border border-border bg-background px-3 py-2"
                       value={areaUnit}
-                      onChange={(e) => setAreaUnit(e.target.value)}
+                      onChange={(e) =>
+                        setAreaUnit(e.target.value as "m2" | "ft2")
+                      }
                     >
                       <option value="m2">m²</option>
                       <option value="ft2">ft²</option>
@@ -648,7 +666,7 @@ export default function ConfigurableFinishCalculator({  category,
                       {/* Labour: complete the estimate to the very end */}
                       <LabourCostSection
                         market={marketCode}
-          estimatorKey="global"
+                        estimatorKey="global"
                         config={labourConfig}
                         onChange={setLabourConfig}
                         currencySymbol={currencySymbol}
