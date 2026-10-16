@@ -10,13 +10,19 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   DEFAULT_FIELD_SYNC_RULES,
   FIELD_CAPTURE_KINDS,
+  MAX_DETAIL_CHARS,
+  MAX_PHOTOS_PER_CAPTURE,
+  MAX_PAYLOAD_BYTES,
+  MAX_PHOTO_BYTES,
   enqueueFieldCapture,
+  exportQueueDocument,
   listQueuedCaptures,
   parseFieldSyncRules,
   pruneExpiredCaptures,
   queuedCaptureCount,
   removeQueuedCapture,
   syncFieldCaptures,
+  validateCapturePayload,
   clearQueuedCaptures,
   getQueuedCapture,
   type FieldSyncRules,
@@ -400,5 +406,152 @@ describe("end-to-end scenario: capture in the field, sync at the hotel", () => {
     expect(report.synced).toBe(3);
     expect(report.remaining).toBe(0);
     expect(queuedCaptureCount()).toBe(0);
+  });
+});
+
+describe("engine #11: device identity on captures", () => {
+  it("records the device_id provided at enqueue time", () => {
+    const result = enqueueFieldCapture({
+      kind: "measurement",
+      project_label: "Pergola",
+      device_id: "11111111-2222-3333-4444-555555555555",
+      payload: { detail: "2.4 m" },
+    });
+    expect(result.accepted?.device_id).toBe(
+      "11111111-2222-3333-4444-555555555555",
+    );
+  });
+
+  it("leaves device_id unset when none is provided (no invented identity)", () => {
+    const result = enqueueFieldCapture({
+      kind: "progress_note",
+      project_label: "Pergola",
+      payload: { detail: "Bricklaying started" },
+    });
+    expect(result.accepted?.device_id).toBeUndefined();
+  });
+});
+
+describe("engine #11: payload limits refuse, never truncate", () => {
+  it("refuses a detail longer than the text cap with an honest reason", () => {
+    const result = validateCapturePayload("measurement", {
+      detail: "x".repeat(MAX_DETAIL_CHARS + 1),
+    });
+    expect(result.ok).toBe(false);
+    expect(result.reason).toContain(String(MAX_DETAIL_CHARS));
+  });
+
+  it("refuses a non-string detail", () => {
+    const result = validateCapturePayload("measurement", { detail: 42 });
+    expect(result.ok).toBe(false);
+    expect(result.reason).toContain("text");
+  });
+
+  it("refuses photos that is not a list", () => {
+    const result = validateCapturePayload("photo_reference", {
+      photos: "data:image/png;base64,AAAA",
+    });
+    expect(result.ok).toBe(false);
+    expect(result.reason).toContain("list");
+  });
+
+  it(`refuses more than ${MAX_PHOTOS_PER_CAPTURE} photos`, () => {
+    const result = validateCapturePayload("photo_reference", {
+      photos: Array.from(
+        { length: MAX_PHOTOS_PER_CAPTURE + 1 },
+        () => "data:image/png;base64,AAAA",
+      ),
+    });
+    expect(result.ok).toBe(false);
+    expect(result.reason).toContain(String(MAX_PHOTOS_PER_CAPTURE));
+  });
+
+  it("refuses a photo that is not a data URL", () => {
+    const result = validateCapturePayload("photo_reference", {
+      photos: ["https://example.com/photo.jpg"],
+    });
+    expect(result.ok).toBe(false);
+    expect(result.reason).toContain("data URL");
+  });
+
+  it("refuses an oversized photo", () => {
+    const result = validateCapturePayload("photo_reference", {
+      photos: ["data:image/png;base64," + "A".repeat(MAX_PHOTO_BYTES + 1)],
+    });
+    expect(result.ok).toBe(false);
+    expect(result.reason).toContain(String(MAX_PHOTO_BYTES));
+  });
+
+  it("accepts a valid photo payload", () => {
+    const result = validateCapturePayload("photo_reference", {
+      detail: "Crack above window",
+      photos: ["data:image/jpeg;base64,/9j/4AAQ"],
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it("accepts a photo_reference with only a text description (honest, not refused)", () => {
+    const result = validateCapturePayload("photo_reference", {
+      detail: "Crack above window, photo taken on the other phone",
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it("refuses a payload over the total byte cap (UTF-8 bytes, not chars)", () => {
+    // multi-byte characters: fewer chars than bytes
+    const result = validateCapturePayload("progress_note", {
+      detail: "\u00e9".repeat(Math.floor(MAX_PAYLOAD_BYTES / 2) + 1),
+    });
+    expect(result.ok).toBe(false);
+    expect(result.reason).toContain("limit");
+  });
+
+  it("enqueue throws (never queues) an oversized payload", () => {
+    expect(() =>
+      enqueueFieldCapture({
+        kind: "progress_note",
+        project_label: "Pergola",
+        payload: { detail: "x".repeat(MAX_DETAIL_CHARS + 1) },
+      }),
+    ).toThrow();
+    expect(queuedCaptureCount()).toBe(0);
+  });
+});
+
+describe("engine #11: queue backup export (storage-loss recovery)", () => {
+  it("exports an honest, parseable document of the unsynced queue", () => {
+    enqueueFieldCapture({
+      kind: "measurement",
+      project_label: "Pergola",
+      device_id: "11111111-2222-3333-4444-555555555555",
+      payload: { detail: "2.4 m" },
+    });
+    enqueueFieldCapture({
+      kind: "material_used",
+      project_label: "Pergola",
+      payload: { detail: "2 bags cement" },
+    });
+    const doc = JSON.parse(exportQueueDocument(new Date("2026-10-16T00:00:00Z")));
+    expect(doc.format).toBe("frelux_field_queue_v1");
+    expect(doc.exported_at).toBe("2026-10-16T00:00:00.000Z");
+    expect(doc.count).toBe(2);
+    expect(doc.captures).toHaveLength(2);
+    expect(doc.note).toContain("browser");
+  });
+
+  it("exporting does not modify the queue", () => {
+    enqueueFieldCapture({
+      kind: "progress_note",
+      project_label: "Pergola",
+      payload: { detail: "started" },
+    });
+    exportQueueDocument();
+    expect(queuedCaptureCount()).toBe(1);
+  });
+
+  it("an empty queue exports an honest empty document", () => {
+    const doc = JSON.parse(exportQueueDocument(new Date("2026-10-16T00:00:00Z")));
+    expect(doc.count).toBe(0);
+    expect(doc.captures).toEqual([]);
   });
 });

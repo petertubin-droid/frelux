@@ -101,6 +101,7 @@ PENDING = [
     "20261017210000_translation_engine6.sql",
     "20261018000000_iot_engine7.sql",
     "20261019000000_iot_safety_thresholds.sql",
+        "20261020100000_sync_engine11_m1.sql",
 ]
 
 

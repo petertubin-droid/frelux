@@ -1788,6 +1788,7 @@ export interface FieldCaptureLogRow {
   id: string;
   created_by: string | null;
   device_label: string;
+  device_id: string | null;
   project_label: string;
   entry_kind:
     "measurement" | "material_used" | "progress_note" | "photo_reference";
@@ -1815,6 +1816,7 @@ export async function insertFieldCapture(data: {
   id: string;
   created_by?: string | null;
   device_label: string;
+  device_id?: string | null;
   project_label: string;
   entry_kind: FieldCaptureLogRow["entry_kind"];
   payload: Record<string, unknown>;
@@ -1826,6 +1828,7 @@ export async function insertFieldCapture(data: {
     id: data.id,
     created_by: data.created_by ?? null,
     device_label: data.device_label,
+    device_id: data.device_id ?? null,
     project_label: data.project_label,
     entry_kind: data.entry_kind,
     payload: data.payload,

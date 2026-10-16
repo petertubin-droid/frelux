@@ -46,6 +46,7 @@ export interface FieldCapture {
   kind: FieldCaptureKind;
   project_label: string;
   device_label: string;
+  device_id?: string; // stable device UUID (device-identity.ts): multi-device truth
   payload: Record<string, unknown>;
   captured_at: string; // ISO: when the artisan recorded it, in the field
   queued_at: string; // ISO: when it entered the queue
@@ -188,6 +189,98 @@ export function parseFieldSyncRules(rows: CalcRuleRow[]): FieldSyncRules {
 }
 
 // ─────────────────────────────────────────────
+// Payload limits (Engine #11: attachment handling)
+// ─────────────────────────────────────────────
+
+/** Hard server CHECK: payload must stay inside 2 MiB (migration 20261020100000). */
+export const MAX_PAYLOAD_BYTES = 2097152;
+/** A photo attachment is a data URL: base64-inflated, so its own cap is 1 MiB. */
+export const MAX_PHOTO_BYTES = 1048576;
+export const MAX_PHOTOS_PER_CAPTURE = 4;
+/** Free-text detail on a capture: generous, but bounded. */
+export const MAX_DETAIL_CHARS = 20000;
+const PHOTO_DATA_URL_PREFIX = "data:";
+
+export interface PayloadValidation {
+  ok: boolean;
+  reason?: string;
+}
+
+/**
+ * Enforce capture payload limits BEFORE queueing. A payload that
+ * could never survive the server's CHECK is refused here with an
+ * honest reason — never silently truncated (that would falsify a
+ * field record), never queued (it would fail every sync attempt
+ * forever).
+ */
+export function validateCapturePayload(
+  kind: FieldCaptureKind,
+  payload: Record<string, unknown>,
+): PayloadValidation {
+  let serialized: string;
+  try {
+    serialized = JSON.stringify(payload);
+  } catch {
+    return { ok: false, reason: "Capture payload could not be serialized" };
+  }
+  if (serialized === undefined) {
+    return { ok: false, reason: "Capture payload could not be serialized" };
+  }
+  // byte length (UTF-8), not char count: matches the server CHECK
+  const bytes = new TextEncoder().encode(serialized).length;
+  if (bytes > MAX_PAYLOAD_BYTES) {
+    return {
+      ok: false,
+      reason: `Capture payload is ${bytes} bytes; the limit is ${MAX_PAYLOAD_BYTES}`,
+    };
+  }
+
+  const detail = payload.detail;
+  if (
+    detail !== undefined &&
+    (typeof detail !== "string" || detail.length > MAX_DETAIL_CHARS)
+  ) {
+    return {
+      ok: false,
+      reason: `Capture detail must be text of at most ${MAX_DETAIL_CHARS} characters`,
+    };
+  }
+
+  const photos = payload.photos;
+  if (photos !== undefined) {
+    if (!Array.isArray(photos)) {
+      return { ok: false, reason: "Capture photos must be a list" };
+    }
+    if (photos.length > MAX_PHOTOS_PER_CAPTURE) {
+      return {
+        ok: false,
+        reason: `A capture may carry at most ${MAX_PHOTOS_PER_CAPTURE} photos`,
+      };
+    }
+    for (const photo of photos) {
+      if (
+        typeof photo !== "string" ||
+        !photo.startsWith(PHOTO_DATA_URL_PREFIX) ||
+        photo.length > MAX_PHOTO_BYTES
+      ) {
+        return {
+          ok: false,
+          reason: `Each photo must be a data URL of at most ${MAX_PHOTO_BYTES} bytes`,
+        };
+      }
+    }
+  }
+
+  if (kind === "photo_reference" && photos === undefined) {
+    // Not a refusal: a photo_reference may be a text description when
+    // the camera is unavailable. The label is a reference, not a promise.
+    return { ok: true };
+  }
+
+  return { ok: true };
+}
+
+// ─────────────────────────────────────────────
 // Queue operations
 // ─────────────────────────────────────────────
 
@@ -216,11 +309,19 @@ export function enqueueFieldCapture(
     project_label: string;
     payload: Record<string, unknown>;
     device_label?: string;
+    device_id?: string;
     captured_at?: Date;
   },
   rules: FieldSyncRules = DEFAULT_FIELD_SYNC_RULES,
   now: Date = new Date(),
 ): EnqueueResult {
+  // Attachment/payload limits are enforced BEFORE the capture is
+  // accepted: an oversized payload is refused with a reason, never
+  // silently truncated, and never queued (it could not sync).
+  const validated = validateCapturePayload(input.kind, input.payload);
+  if (!validated.ok) {
+    throw new Error(validated.reason);
+  }
   const evicted_expired = pruneExpiredCaptures(rules, now);
   const queue = readQueue();
 
@@ -229,6 +330,7 @@ export function enqueueFieldCapture(
     kind: input.kind,
     project_label: input.project_label.trim() || "Untitled job",
     device_label: (input.device_label ?? "").trim() || "This device",
+    ...(input.device_id ? { device_id: input.device_id } : {}),
     payload: input.payload,
     captured_at: (input.captured_at ?? now).toISOString(),
     queued_at: now.toISOString(),
@@ -265,6 +367,30 @@ export function removeQueuedCapture(id: string): boolean {
 
 export function clearQueuedCaptures(): void {
   writeQueue([]);
+}
+
+/**
+ * Export the unsynced queue as a JSON document for manual backup
+ * (Engine #11: loss/reinstall recovery). Un-synced captures live
+ * ONLY in this browser's localStorage: a reinstall, a cleared
+ * browser profile, or private-mode storage eviction loses them.
+ * This export is the honest recovery path the user controls — a
+ * file they can keep and re-import by hand. It changes nothing on
+ * the device or the server.
+ */
+export function exportQueueDocument(now: Date = new Date()): string {
+  const queue = listQueuedCaptures();
+  return JSON.stringify(
+    {
+      format: "frelux_field_queue_v1",
+      exported_at: now.toISOString(),
+      note: "Un-synced Frelux field captures exported from this browser. Import manually if storage is lost.",
+      count: queue.length,
+      captures: queue,
+    },
+    null,
+    2,
+  );
 }
 
 export function queuedCaptureCount(): number {

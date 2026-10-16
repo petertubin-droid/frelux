@@ -15,7 +15,7 @@
  *   eviction is reported, never silent.
  */
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
@@ -27,8 +27,16 @@ import {
   fetchOfflineFieldRules,
   insertFieldCapture,
 } from "@/lib/estimation/queries";
+import { getDeviceId } from "@/lib/estimation/device-identity";
+import {
+  describeNextAttempt,
+  shouldAutoSync,
+  type SyncHistory,
+} from "@/lib/estimation/sync-scheduler";
+import { exportQueueDocument } from "@/lib/estimation/offline-field-engine";
 import {
   DEFAULT_FIELD_SYNC_RULES,
+  MAX_PHOTOS_PER_CAPTURE,
   FIELD_CAPTURE_KINDS,
   clearQueuedCaptures,
   enqueueFieldCapture,
@@ -79,6 +87,23 @@ export default function FieldSync() {
   const [syncReport, setSyncReport] = useState<SyncReport | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [syncHistory, setSyncHistory] = useState<SyncHistory>(() => {
+    try {
+      const raw = localStorage.getItem("frelux_sync_history");
+      if (!raw) return { consecutiveFailures: 0, lastAttemptAt: null };
+      const parsed = JSON.parse(raw) as SyncHistory;
+      return {
+        consecutiveFailures:
+          typeof parsed.consecutiveFailures === "number" && parsed.consecutiveFailures > 0
+            ? parsed.consecutiveFailures
+            : 0,
+        lastAttemptAt: typeof parsed.lastAttemptAt === "string" ? parsed.lastAttemptAt : null,
+      };
+    } catch {
+      return { consecutiveFailures: 0, lastAttemptAt: null };
+    }
+  });
+  const [autoReason, setAutoReason] = useState<string>("");
   const [online, setOnline] = useState(
     typeof navigator !== "undefined" ? navigator.onLine : true,
   );
@@ -135,6 +160,7 @@ export default function FieldSync() {
         device_label: user
           ? (user.email?.split("@")[0] ?? "This device")
           : "This device",
+        device_id: getDeviceId(),
         payload: { detail: form.detail.trim() },
       },
       rules,
@@ -160,6 +186,7 @@ export default function FieldSync() {
           id: capture.id,
           created_by: user?.id ?? null,
           device_label: capture.device_label,
+          device_id: capture.device_id ?? getDeviceId(),
           project_label: capture.project_label,
           entry_kind: capture.kind,
           payload: capture.payload,
@@ -170,6 +197,19 @@ export default function FieldSync() {
       const report = await syncFieldCaptures(persist, rules);
       setSyncReport(report);
       track("field_sync_run", { synced: report.synced, failed: report.failed });
+      const wasFailure = report.failed > 0 && report.synced + report.duplicates === 0;
+      setSyncHistory((prev) => {
+        const next: SyncHistory = {
+          consecutiveFailures: wasFailure ? prev.consecutiveFailures + 1 : 0,
+          lastAttemptAt: new Date().toISOString(),
+        };
+        try {
+          localStorage.setItem("frelux_sync_history", JSON.stringify(next));
+        } catch {
+          // history persistence is a convenience: the queue itself stays the truth
+        }
+        return next;
+      });
       refreshQueue();
     } catch (err) {
       setNotice(getSafeError(err));
@@ -178,13 +218,50 @@ export default function FieldSync() {
     }
   }, [refreshQueue, rules, syncing, user]);
 
-  // Auto-sync when connectivity returns and the admin allows it
+  // Auto-sync (engine #11): scheduler decides — admin rules, connectivity,
+  // queue state and honest retry backoff. Every decision states its reason.
+  const runSyncRef = useRef(runSync);
   useEffect(() => {
-    if (online && rules.auto_sync && queuedCaptureCount() > 0 && !syncing) {
-      runSync();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [online, rules.auto_sync]);
+    runSyncRef.current = runSync;
+  }, [runSync]);
+  const syncHistoryRef = useRef(syncHistory);
+  useEffect(() => {
+    syncHistoryRef.current = syncHistory;
+  }, [syncHistory]);
+
+  useEffect(() => {
+    const consider = () => {
+      const queueNow = listQueuedCaptures();
+      const decision = shouldAutoSync({
+        autoSync: rules.auto_sync,
+        online: typeof navigator !== "undefined" ? navigator.onLine : true,
+        queueCount: queueNow.length,
+        history: syncHistoryRef.current,
+        seed: queueNow[0]?.id ?? "queue",
+        now: new Date(),
+      });
+      setAutoReason(decision.reason);
+      if (decision.shouldSync) void runSyncRef.current();
+    };
+    consider();
+    const timer = window.setInterval(consider, 30_000);
+    window.addEventListener("online", consider);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("online", consider);
+    };
+  }, [rules.auto_sync, online, syncHistory, queue]);
+
+  const downloadBackup = useCallback(() => {
+    const doc = exportQueueDocument();
+    const blob = new Blob([doc], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "frelux-unsynced-captures.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
 
   const summary = useMemo(() => {
     const byKind = FIELD_CAPTURE_KINDS.map((k) => ({
@@ -215,9 +292,19 @@ export default function FieldSync() {
         }`}
         role="status"
       >
-        {online
-          ? "You are online. Captures sync when you tap Sync now: or automatically, per the admin settings."
-          : "You are offline. Captures are saved on this device and will sync when you are back online. Nothing is lost by closing the page."}
+        <p>
+          {online
+            ? "You are online. Captures sync when you tap Sync now, or automatically per the admin settings."
+            : "You are offline. Captures are saved on this device and will sync when you are back online. Nothing is lost by closing the page."}
+        </p>
+        {autoReason && (
+          <p className="mt-1 text-xs opacity-80">Auto-sync: {autoReason}</p>
+        )}
+        {syncHistory.consecutiveFailures > 0 && queue.length > 0 && (
+          <p className="mt-1 text-xs opacity-80">
+            {describeNextAttempt(syncHistory.consecutiveFailures, queue[0]?.id ?? "queue")}
+          </p>
+        )}
       </div>
 
       {/* Capture form: works with zero connectivity */}
@@ -311,6 +398,29 @@ export default function FieldSync() {
         >
           {syncing ? "Syncing…" : "Sync now"}
         </button>
+        <button
+          onClick={downloadBackup}
+          disabled={queue.length === 0}
+          className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
+          title="Download the unsynced queue as a JSON file you can keep"
+        >
+          Back up unsynced captures
+        </button>
+      </div>
+
+      {/* Engine #11 honest disclosure: where unsynced data lives */}
+      <div className="mb-6 rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
+        <p>
+          Un-synced captures live only in this browser's storage. Reinstalling,
+          clearing browser data or losing this device loses them — sync before
+          that happens, or keep a backup file. Already-synced captures are
+          durable on the server and tied to your account.
+        </p>
+        <p className="mt-1">
+          Captures synced while signed out are not attributed to your account;
+          sign in before syncing to keep them on your record. Photos carry at
+          most {MAX_PHOTOS_PER_CAPTURE} attachments per capture.
+        </p>
       </div>
 
       {syncReport && (

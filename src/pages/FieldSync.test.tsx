@@ -1,16 +1,19 @@
 /**
- * Field Sync page tests (Future Engine 17)
+ * Field Sync page tests (Engine #11 — sync & offline-first)
  *
- * The queue logic is covered by offline-field-engine.test.ts
- * (21 hand-verified tests). These pin the page wiring: offline
- * capture form, honest connectivity status, queue rendering
- * with per-capture status, sync report, the ads contract.
+ * The queue logic is covered by offline-field-engine.test.ts,
+ * the backoff planner by sync-scheduler.test.ts and the device
+ * id by device-identity.test.ts. These pin the page wiring:
+ * offline capture form, honest connectivity status, queue
+ * rendering with per-capture status, manual + automatic sync,
+ * retry disclosure, queue backup, the ads contract.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import FieldSync from "./FieldSync";
+import { fetchOfflineFieldRules } from "@/lib/estimation/queries";
 
 const insertMock = vi.fn();
 
@@ -32,22 +35,28 @@ beforeEach(() => {
   localStorage.clear();
   vi.clearAllMocks();
   insertMock.mockResolvedValue("synced");
+  vi.mocked(fetchOfflineFieldRules).mockResolvedValue({
+    data: [],
+    error: null,
+  });
 });
 
 afterEach(() => {
   localStorage.clear();
 });
 
-function fillCapture(label: string, detail: string) {
-  fireEvent.change(screen.getByLabelText(/job label/i), {
-    target: { value: label },
-  });
-  fireEvent.change(screen.getByLabelText(/what happened on site/i), {
-    target: { value: detail },
-  });
-  fireEvent.click(
-    screen.getByRole("button", { name: /save to device queue/i }),
-  );
+/** Admin-rules override: auto-sync on/off for a scenario. */
+function setAutoSyncRule(enabled: boolean) {
+  vi.mocked(fetchOfflineFieldRules).mockResolvedValue({
+    data: [
+      {
+        rule_key: "auto_sync",
+        rule_value: { value: enabled },
+        is_active: true,
+      },
+    ],
+    error: null,
+  } as never);
 }
 
 function goOffline() {
@@ -68,6 +77,18 @@ function goOnline() {
   window.dispatchEvent(new Event("online"));
 }
 
+function fillCapture(label: string, detail: string) {
+  fireEvent.change(screen.getByLabelText(/job label/i), {
+    target: { value: label },
+  });
+  fireEvent.change(screen.getByLabelText(/what happened on site/i), {
+    target: { value: detail },
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: /save to device queue/i }),
+  );
+}
+
 describe("FieldSync page", () => {
   it("states offline status honestly and lets the artisan capture with no network", () => {
     goOffline();
@@ -76,7 +97,9 @@ describe("FieldSync page", () => {
         <FieldSync />
       </MemoryRouter>,
     );
-    expect(screen.getByText(/you are offline/i)).toBeInTheDocument();
+    // The banner states offline twice by design (status line + auto-sync
+    // refusal), so query all matches (house convention for by-design dups)
+    expect(screen.getAllByText(/you are offline/i).length).toBeGreaterThanOrEqual(1);
     fillCapture(
       "Ikeja duplex: room 2",
       "Walls measured 4.2 x 3.1 m, two coats done",
@@ -112,12 +135,17 @@ describe("FieldSync page", () => {
   });
 
   it("queues a capture and syncs it on demand, reporting confirmed results", async () => {
+    // Manual sync: disable auto-sync so the button is the only path
+    setAutoSyncRule(false);
     goOnline();
     render(
       <MemoryRouter>
         <FieldSync />
       </MemoryRouter>,
     );
+    await waitFor(() => {
+      expect(screen.getByText(/auto-sync: auto-sync is disabled/i)).toBeInTheDocument();
+    });
     fillCapture("Lekki site", "Used 12 litres of satin in the sitting room");
     expect(screen.getAllByTestId("queued-capture").length).toBe(1);
 
@@ -133,12 +161,47 @@ describe("FieldSync page", () => {
     const persisted = insertMock.mock.calls[0][0] as {
       id: string;
       entry_kind: string;
+      device_id?: string;
     };
     expect(persisted.id).toMatch(/^[a-z0-9_-]{8,}$/);
     expect(persisted.entry_kind).toBe("measurement");
+    // Engine #11: the capture carries the stable device identity
+    expect(persisted.device_id).toMatch(/^[0-9a-f-]{8,}$/);
   });
 
-  it("a failed sync keeps the capture queued with the honest retry note", async () => {
+  it("auto-syncs queued work when connectivity allows (engine #11)", async () => {
+    goOnline();
+    render(
+      <MemoryRouter>
+        <FieldSync />
+      </MemoryRouter>,
+    );
+    fillCapture("Port Harcourt site", "Primed the corridor walls");
+    // No manual tap: the scheduler runs the sync by itself
+    await waitFor(() => {
+      expect(screen.getByText(/1 synced/i)).toBeInTheDocument();
+    });
+    expect(insertMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("auto-sync refusal while offline is disclosed, and the capture stays queued", async () => {
+    goOffline();
+    render(
+      <MemoryRouter>
+        <FieldSync />
+      </MemoryRouter>,
+    );
+    fillCapture("Enugu bungalow", "Cured slab wetted twice");
+    await waitFor(() => {
+      expect(
+        screen.getByText(/auto-sync: you are offline; queued captures stay on this device/i),
+      ).toBeInTheDocument();
+    });
+    expect(insertMock).not.toHaveBeenCalled();
+    expect(screen.getAllByTestId("queued-capture").length).toBe(1);
+  });
+
+  it("discloses the retry backoff after a failed auto-sync attempt", async () => {
     goOnline();
     insertMock.mockResolvedValue("failed");
     render(
@@ -146,6 +209,32 @@ describe("FieldSync page", () => {
         <FieldSync />
       </MemoryRouter>,
     );
+    fillCapture("Warri depot", "Crack noted in column 3");
+    await waitFor(() => {
+      expect(screen.getByText(/1 failed and still queued/i)).toBeInTheDocument();
+    });
+    // The honest backoff note appears: next attempt is ~1 minute away
+    await waitFor(() => {
+      expect(
+        screen.getByText(/next auto-sync attempt in ~1 minute/i),
+      ).toBeInTheDocument();
+    });
+    // Backoff respected: exactly one attempt, no immediate retry loop
+    expect(insertMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("a failed manual sync keeps the capture queued with the honest retry note", async () => {
+    setAutoSyncRule(false);
+    goOnline();
+    insertMock.mockResolvedValue("failed");
+    render(
+      <MemoryRouter>
+        <FieldSync />
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByText(/auto-sync: auto-sync is disabled/i)).toBeInTheDocument();
+    });
     fillCapture("Abuja flat", "Second coat done in bedroom");
     fireEvent.click(screen.getByRole("button", { name: /^sync now$/i }));
     await waitFor(() => {
@@ -160,6 +249,7 @@ describe("FieldSync page", () => {
   });
 
   it("a duplicate from a retried sync is reported as safe, and the capture is not double-kept", async () => {
+    setAutoSyncRule(false);
     goOnline();
     insertMock.mockResolvedValue("duplicate");
     render(
@@ -167,6 +257,9 @@ describe("FieldSync page", () => {
         <FieldSync />
       </MemoryRouter>,
     );
+    await waitFor(() => {
+      expect(screen.getByText(/auto-sync: auto-sync is disabled/i)).toBeInTheDocument();
+    });
     fillCapture("Kano depot", "Delivered 20 bags of cement");
     fireEvent.click(screen.getByRole("button", { name: /^sync now$/i }));
     await waitFor(() => {
@@ -175,6 +268,55 @@ describe("FieldSync page", () => {
       ).toBeInTheDocument();
     });
     expect(screen.getByText(/nothing queued/i)).toBeInTheDocument();
+  });
+
+  it("offers a backup export of the unsynced queue (storage-loss recovery)", async () => {
+    const createObjectURL = vi.fn((_: unknown) => "blob:mock");
+    const revokeObjectURL = vi.fn((_: unknown) => undefined);
+    Object.defineProperty(URL, "createObjectURL", {
+      value: createObjectURL,
+      configurable: true,
+      writable: true,
+    });
+    Object.defineProperty(URL, "revokeObjectURL", {
+      value: revokeObjectURL,
+      configurable: true,
+      writable: true,
+    });
+    render(
+      <MemoryRouter>
+        <FieldSync />
+      </MemoryRouter>,
+    );
+    const backup = screen.getByRole("button", {
+      name: /back up unsynced captures/i,
+    });
+    // Empty queue: nothing to back up yet
+    expect(backup).toBeDisabled();
+    fillCapture("Ibadan site", "Screed poured in the veranda");
+    expect(backup).toBeEnabled();
+    fireEvent.click(backup);
+    expect(createObjectURL).toHaveBeenCalledTimes(1);
+    expect(revokeObjectURL).toHaveBeenCalledTimes(1);
+    // The exported blob is honest JSON with the queue document format
+    const blob = createObjectURL.mock.calls[0][0] as Blob;
+    const doc = JSON.parse(await blob.text());
+    expect(doc.format).toBe("frelux_field_queue_v1");
+    expect(doc.count).toBe(1);
+  });
+
+  it("discloses where unsynced data lives (never promises storage survival)", () => {
+    render(
+      <MemoryRouter>
+        <FieldSync />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByText(/live only in this browser's storage/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/synced while signed out are not attributed/i),
+    ).toBeInTheDocument();
   });
 
   it("renders all three calculator ad slots (engine-page ads contract)", () => {
