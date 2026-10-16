@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CheckCircle2, RotateCcw, ArrowRight } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { track } from "@/lib/analytics";
 import { logAnalyticsEvent } from "@/lib/queries";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
+import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import {
   HowCalculatedSection,
   EstimateDisclaimer,
@@ -102,6 +103,29 @@ export default function ScreedingCalculator({
     preferredUnit: "meters",
     projectMode: "single_room",
   });
+
+  // Template prefill (?template=<id>): loads the template's room into
+  // the measurement project, converted to the visitor's market unit.
+  const { templateData: loadedTemplate } = useTemplateLoader();
+  const screedTemplateApplied = useRef<string | null>(null);
+  useEffect(() => {
+    if (!loadedTemplate?.input_data) return;
+    if (screedTemplateApplied.current === loadedTemplate.id) return;
+    screedTemplateApplied.current = loadedTemplate.id;
+    const d = loadedTemplate.input_data as Record<string, unknown>;
+    resetWithMode("single_room");
+    addMeasurement("Template room", {
+      spaceType: "living_room",
+      surfaceType: "wall",
+      length: Number(d.roomLength) || 0,
+      width: Number(d.roomWidth) || 0,
+      height: Number(d.wallHeight) || 0,
+      doors: Number(d.doors) || 0,
+      windows: Number(d.windows) || 0,
+      unit: d.unit === "feet" ? "feet" : "meters",
+      quantity: 1,
+    });
+  }, [loadedTemplate, addMeasurement, resetWithMode]);
 
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "screeding" });

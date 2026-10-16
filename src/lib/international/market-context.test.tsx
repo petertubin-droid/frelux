@@ -32,7 +32,7 @@ describe("market-context", () => {
 
   it("registers all fifteen markets with correct currencies", async () => {
     const mod = await import("@/lib/international/market-context");
-    expect(mod.BUILTIN_MARKET_PROFILES.length).toBe(20);
+    expect(mod.BUILTIN_MARKET_PROFILES.length).toBe(32); // 20 mandate + 12 template-globalization markets
 
     const expected: Record<string, { currency: string; name: string }> = {
       NG: { currency: "NGN", name: "Nigeria" },
@@ -68,7 +68,7 @@ describe("market-context", () => {
 
     // sort_order is unique and NG stays first (default market).
     const orders = mod.BUILTIN_MARKET_PROFILES.map((p) => p.sort_order);
-    expect(new Set(orders).size).toBe(20);
+    expect(new Set(orders).size).toBe(32);
     expect(mod.BUILTIN_MARKET_PROFILES[0]?.country_code).toBe("NG");
   });
 

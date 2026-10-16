@@ -19,10 +19,16 @@ import {
 import type { DbCalculatorTemplate } from "@/types/database";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
+import { useMarket } from "@/lib/international/market-context";
+import {
+  describeTemplateForMarket,
+  templateSummaryForMarket,
+} from "@/lib/templates-global";
 import { Button } from "@/components/ui/shadcn/button";
 
 export default function TemplateDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const { market } = useMarket();
   const navigate = useNavigate();
   const [template, setTemplate] = useState<DbCalculatorTemplate | null>(null);
   const [related, setRelated] = useState<DbCalculatorTemplate[]>([]);
@@ -168,7 +174,7 @@ export default function TemplateDetail() {
 
   const calcPath = CALCULATOR_META[template.calculator_type].path;
   const calcLabel = calculatorLabel(template.calculator_type);
-  const inputSummary = buildInputSummary(template);
+  const inputSummary = templateSummaryForMarket(template, market);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
@@ -189,11 +195,9 @@ export default function TemplateDetail() {
         <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground dark:text-primary-foreground sm:text-3xl">
           {template.name}
         </h1>
-        {template.description && (
-          <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-            {template.description}
-          </p>
-        )}
+        <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
+          {describeTemplateForMarket(template, market)}
+        </p>
       </div>
 
       {/* Explanatory content */}
@@ -234,10 +238,10 @@ export default function TemplateDetail() {
           When you click "Use This Template," the {calcLabel} opens with the
           configuration above already filled in. You can adjust any value to
           match your actual room or surface dimensions. The calculator uses
-          Nigerian coverage rates, admin-configured product sizes, and
-          admin-configured material prices to compute material quantities and
-          cost estimates. Every formula, waste factor, and coverage rate is
-          transparent and visible in the results.
+          coverage rates, product sizes, and material prices configured for your
+          market to compute material quantities and cost estimates. Every
+          formula, waste factor, and coverage rate is transparent and visible in
+          the results.
         </p>
       </div>
 
@@ -346,83 +350,4 @@ export default function TemplateDetail() {
       </div>
     </div>
   );
-}
-
-function buildInputSummary(
-  template: DbCalculatorTemplate,
-): { label: string; value: string }[] {
-  const d = template.input_data;
-  const parts: { label: string; value: string }[] = [];
-
-  if (template.calculator_type === "paint") {
-    if (d.length)
-      parts.push({ label: "Length", value: `${d.length} ${d.unit ?? ""}` });
-    if (d.width)
-      parts.push({ label: "Width", value: `${d.width} ${d.unit ?? ""}` });
-    if (d.wallHeight)
-      parts.push({
-        label: "Wall Height",
-        value: `${d.wallHeight} ${d.unit ?? ""}`,
-      });
-    if (d.coats) parts.push({ label: "Coats", value: String(d.coats) });
-    if (d.projectType)
-      parts.push({ label: "Project Type", value: String(d.projectType) });
-    if (d.includeCeiling) parts.push({ label: "Ceiling", value: "Included" });
-    if (d.doors) parts.push({ label: "Doors", value: String(d.doors) });
-    if (d.windows) parts.push({ label: "Windows", value: String(d.windows) });
-    if (d.wasteMargin)
-      parts.push({ label: "Waste Margin", value: `${d.wasteMargin}%` });
-  } else if (template.calculator_type === "tile") {
-    if (d.length)
-      parts.push({ label: "Length", value: `${d.length} ${d.unit ?? ""}` });
-    if (d.width)
-      parts.push({ label: "Width", value: `${d.width} ${d.unit ?? ""}` });
-    if (d.tileWidthMm)
-      parts.push({
-        label: "Tile Size",
-        value: `${d.tileWidthMm}x${d.tileHeightMm}mm`,
-      });
-    if (d.method) parts.push({ label: "Method", value: String(d.method) });
-    if (d.surfaceType)
-      parts.push({ label: "Surface", value: String(d.surfaceType) });
-    if (d.wasteMargin)
-      parts.push({ label: "Waste Margin", value: `${d.wasteMargin}%` });
-  } else if (template.calculator_type === "screeding") {
-    if (d.roomLength)
-      parts.push({
-        label: "Room Length",
-        value: `${d.roomLength} ${d.unit ?? ""}`,
-      });
-    if (d.roomWidth)
-      parts.push({
-        label: "Room Width",
-        value: `${d.roomWidth} ${d.unit ?? ""}`,
-      });
-    if (d.wallHeight)
-      parts.push({
-        label: "Wall Height",
-        value: `${d.wallHeight} ${d.unit ?? ""}`,
-      });
-    if (d.doors) parts.push({ label: "Doors", value: String(d.doors) });
-    if (d.windows) parts.push({ label: "Windows", value: String(d.windows) });
-  } else if (template.calculator_type === "pop") {
-    if (d.roomLength)
-      parts.push({
-        label: "Room Length",
-        value: `${d.roomLength} ${d.unit ?? ""}`,
-      });
-    if (d.roomWidth)
-      parts.push({
-        label: "Room Width",
-        value: `${d.roomWidth} ${d.unit ?? ""}`,
-      });
-    if (d.includeDecorative)
-      parts.push({ label: "Decorative", value: "Included" });
-    if (d.includeOptional)
-      parts.push({ label: "Optional Items", value: "Included" });
-    if (d.wasteMargin)
-      parts.push({ label: "Waste Margin", value: `${d.wasteMargin}%` });
-  }
-
-  return parts;
 }

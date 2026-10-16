@@ -1,6 +1,7 @@
 import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
 import { useMarket } from "@/lib/international/market-context";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
+import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import {
   useEffect,
   useMemo,
@@ -239,6 +240,20 @@ export default function PaintCalculator({
     includePrimer: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Template prefill (?template=<id>): public/private templates open
+  // the calculator with their inputs pre-filled, already converted to
+  // the visitor's market room unit by useTemplateLoader.
+  const { templateData: loadedTemplate } = useTemplateLoader();
+  useEffect(() => {
+    if (!loadedTemplate?.input_data) return;
+    const d = loadedTemplate.input_data as Partial<CalculatorInput>;
+    setInput((prev) => ({
+      ...prev,
+      ...d,
+      projectType: d.projectType === "exterior" ? "exterior" : prev.projectType,
+    }));
+  }, [loadedTemplate]);
 
   // First-visit market detection can resolve after first render: sync the
   // pristine input's unit to the market default without touching edits.

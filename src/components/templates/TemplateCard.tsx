@@ -10,6 +10,12 @@ import {
   Download,
 } from "lucide-react";
 import { calculatorLabel } from "@/lib/templates";
+import {
+  describeTemplateForMarket,
+  resolveTemplateRoomUnit,
+  convertTemplateInputForUnit,
+} from "@/lib/templates-global";
+import { useMarket } from "@/lib/international/market-context";
 import type { DbCalculatorTemplate } from "@/types/database";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
@@ -36,6 +42,13 @@ export default function TemplateCard({
   onExport,
 }: TemplateCardProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const { market } = useMarket();
+  // Public templates render their curated prose plus a generated
+  // dimension sentence in the visitor's market unit.
+  const marketDescription =
+    variant === "public"
+      ? describeTemplateForMarket(template, market)
+      : (template.description ?? "");
 
   const useHref =
     variant === "public" && template.slug
@@ -80,15 +93,15 @@ export default function TemplateCard({
         <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
           {template.name}
         </h3>
-        {template.description && (
+        {marketDescription && (
           <p className="mt-1 line-clamp-2 text-xs text-muted-foreground dark:text-muted-foreground">
-            {template.description}
+            {marketDescription}
           </p>
         )}
       </div>
 
       {/* Input summary */}
-      <TemplateInputSummary template={template} />
+      <TemplateInputSummary template={template} market={market} />
 
       {/* Actions */}
       <div className="mt-4 flex items-center gap-2">
@@ -174,30 +187,37 @@ export default function TemplateCard({
 
 function TemplateInputSummary({
   template,
+  market,
 }: {
   template: DbCalculatorTemplate;
+  market: ReturnType<typeof useMarket>["market"];
 }) {
-  const data = template.input_data;
+  const roomUnit = resolveTemplateRoomUnit(market);
+  const data = convertTemplateInputForUnit(
+    template.input_data as Record<string, unknown>,
+    roomUnit,
+  ) as typeof template.input_data;
+  const u = roomUnit === "feet" ? "ft" : "m";
   const parts: string[] = [];
 
   if (template.calculator_type === "paint") {
     if (data.length && data.width)
-      parts.push(`${data.length}×${data.width} ${data.unit ?? ""}`);
+      parts.push(`${data.length}×${data.width} ${u}`);
     if (data.coats) parts.push(`${data.coats} coats`);
     if (data.includeCeiling) parts.push("Ceiling");
   } else if (template.calculator_type === "tile") {
     if (data.length && data.width)
-      parts.push(`${data.length}×${data.width} ${data.unit ?? ""}`);
+      parts.push(`${data.length}×${data.width} ${u}`);
     if (data.tileWidthMm) parts.push(`${data.tileWidthMm}mm tile`);
     if (data.method)
       parts.push(data.method === "adhesive" ? "Adhesive" : "Cement");
   } else if (template.calculator_type === "screeding") {
     if (data.roomLength && data.roomWidth)
-      parts.push(`${data.roomLength}×${data.roomWidth} ${data.unit ?? ""}`);
-    if (data.wallHeight) parts.push(`${data.wallHeight}ft height`);
+      parts.push(`${data.roomLength}×${data.roomWidth} ${u}`);
+    if (data.wallHeight) parts.push(`${data.wallHeight}${u} height`);
   } else if (template.calculator_type === "pop") {
     if (data.roomLength && data.roomWidth)
-      parts.push(`${data.roomLength}×${data.roomWidth} ${data.unit ?? ""}`);
+      parts.push(`${data.roomLength}×${data.roomWidth} ${u}`);
     if (data.includeDecorative) parts.push("Decorative");
   }
 
