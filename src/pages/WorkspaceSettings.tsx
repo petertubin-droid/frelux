@@ -14,9 +14,15 @@ import {
   Activity,
   AlertCircle,
   FileText,
+  Pause,
+  RotateCcw,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
+import {
+  fetchSecurityPosture,
+  type SurfacePosture,
+} from "@/lib/rbac/security-posture";
 import {
   WORKSPACE_ROLES,
   type WorkspaceRole,
@@ -29,6 +35,7 @@ import {
   revokeInvitation,
   removeWorkspaceMember,
   updateMemberRole,
+  setMemberStatus,
   fetchWorkspaceActivity,
 } from "@/lib/workspace/workspace-service";
 import PageHeader from "@/components/ui/PageHeader";
@@ -219,6 +226,27 @@ export default function WorkspaceSettings() {
     }
   };
 
+  const handleSetStatus = async (memberId: string, status: "suspended" | "revoked" | "active") => {
+    if (!activeWorkspace) return;
+    const verb =
+      status === "active"
+        ? "restore"
+        : status === "suspended"
+          ? "suspend"
+          : "revoke access of";
+    if (!confirm(`Are you sure you want to ${verb} this member?`)) return;
+    const res = await setMemberStatus(activeWorkspace.id, memberId, status);
+    if (res.error) {
+      toast({ title: "Failed to update member status", message: res.error, variant: "error" });
+    } else {
+      toast({
+        title: status === "active" ? "Member restored" : `Member ${status}`,
+        variant: "success",
+      });
+      await refreshMembers();
+    }
+  };
+
   const copyInviteLink = (token: string) => {
     const inviteUrl = `${window.location.origin}/invite/${token}`;
     navigator.clipboard.writeText(inviteUrl);
@@ -227,7 +255,20 @@ export default function WorkspaceSettings() {
     setTimeout(() => setCopiedToken(null), 3000);
   };
 
+  const [posture, setPosture] = useState<SurfacePosture[]>([]);
+
   const isManager = can("canManageMembers") || currentRole === "owner";
+
+  // Engine #12: honest security-review disclosure (never self-certified)
+  useEffect(() => {
+    let alive = true;
+    fetchSecurityPosture().then(({ data }) => {
+      if (alive) setPosture(data);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   if (!user) {
     return (
@@ -405,6 +446,11 @@ export default function WorkspaceSettings() {
                               {roleInfo.label}
                             </span>
                           )}
+                          {m.status && m.status !== "active" && (
+                            <span className="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide bg-destructive/10 text-destructive border border-destructive/30">
+                              {m.status}
+                            </span>
+                          )}
                         </td>
 
                         <td className="p-3 max-w-xs">
@@ -418,18 +464,46 @@ export default function WorkspaceSettings() {
                         </td>
 
                         {isManager && (
-                          <td className="p-3 text-right">
+                          <td className="p-3 text-right space-x-1">
                             {!isOwner && !isSelf && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  handleRemoveMember(m.id, m.profile?.email)
-                                }
-                                className="text-destructive hover:bg-destructive/10 h-8 px-2"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              <>
+                                {m.status !== "active" && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleSetStatus(m.id, "active")
+                                    }
+                                    title="Restore member access"
+                                    className="h-8 px-2"
+                                  >
+                                    <RotateCcw className="h-4 w-4" />
+                                  </Button>
+                                )}
+                                {m.status === "active" && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleSetStatus(m.id, "suspended")
+                                    }
+                                    title="Suspend member access (reversible)"
+                                    className="h-8 px-2"
+                                  >
+                                    <Pause className="h-4 w-4" />
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    handleRemoveMember(m.id, m.profile?.email)
+                                  }
+                                  className="text-destructive hover:bg-destructive/10 h-8 px-2"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
                             )}
                           </td>
                         )}
@@ -603,6 +677,41 @@ export default function WorkspaceSettings() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* ENGINE #12: SECURITY REVIEW STATUS — honest disclosure, never
+          self-certified; approved claims can only come from an
+          admin-written review record. */}
+      <div className="mt-8 rounded-lg border bg-card p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <ShieldCheck className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold">Security review status</h3>
+        </div>
+        {posture.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Security review information is unavailable right now; no review
+            status is claimed.
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {posture.map((p) => (
+              <li key={p.surface} className="text-sm">
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide mr-2 border ${
+                    p.status === "approved"
+                      ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                      : p.status === "rejected"
+                        ? "bg-destructive/10 text-destructive border-destructive/30"
+                        : "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                  }`}
+                >
+                  {p.status === "pending" ? "awaiting review" : p.status}
+                </span>
+                {p.disclosure}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       {/* INVITE MEMBER MODAL */}
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>

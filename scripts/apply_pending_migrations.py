@@ -102,6 +102,9 @@ PENDING = [
     "20261018000000_iot_engine7.sql",
     "20261019000000_iot_safety_thresholds.sql",
         "20261020100000_sync_engine11_m1.sql",
+        "20261021100000_rbac_force_rls_all_tables.sql",
+        "20261021200000_rbac_rpc_escalation_hardening.sql",
+        "20261021210000_security_posture_reviews.sql",
 ]
 
 

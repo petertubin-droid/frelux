@@ -1,4 +1,9 @@
 import { supabase } from "@/lib/supabase";
+import {
+  canManageMembers as matrixCanManageMembers,
+  canWithStatus,
+  type MemberStatus,
+} from "@/lib/rbac/permission-matrix";
 import type {
   Workspace,
   WorkspaceMember,
@@ -317,10 +322,106 @@ export async function acceptInvitation(
   }
 }
 
+/**
+ * Engine #12 (RBAC): fetch the CALLER's own membership in a workspace.
+ * Used to gate mutations with the permission matrix client-side; the
+ * database RLS policies remain the hard boundary and enforce the same
+ * rule list (can_manage_workspace), so a tampered client cannot
+ * elevate itself — it just gets an honest refusal.
+ */
+export async function getMyMembership(
+  workspaceId: string,
+): Promise<{ data: { role: WorkspaceRole; status: MemberStatus } | null; error: string | null }> {
+  try {
+    const { data: userRes } = await supabase.auth.getUser();
+    const user = userRes?.user;
+    if (!user) return { data: null, error: "Authentication required" };
+    const { data, error } = await supabase
+      .from("workspace_members")
+      .select("role, status")
+      .eq("workspace_id", workspaceId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (error) return { data: null, error: error.message };
+    if (!data) return { data: null, error: "You are not a member of this workspace" };
+    return { data: { role: data.role as WorkspaceRole, status: data.status as MemberStatus }, error: null };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Failed to load membership";
+    return { data: null, error: msg };
+  }
+}
+
+/** Engine #12: matrix gate for member-management mutations. */
+async function requireManageMembers(workspaceId: string): Promise<{ allowed: boolean; error: string | null }> {
+  const { data: me, error } = await getMyMembership(workspaceId);
+  if (error || !me) return { allowed: false, error: error ?? "Membership check failed" };
+  const decision = canWithStatus(me.role, me.status, "manage_members");
+  if (!decision.allowed) return { allowed: false, error: decision.reason };
+  return { allowed: true, error: null };
+}
+
+/**
+ * Engine #12 (RBAC): suspend, revoke or restore a member. The owner
+ * member row cannot be suspended/revoked — it is the workspace's
+ * management anchor; owner transfer is a deliberate future feature
+ * and is refused honestly rather than half-supported.
+ */
+export async function setMemberStatus(
+  workspaceId: string,
+  memberId: string,
+  status: MemberStatus,
+): Promise<{ success: boolean; error: string | null }> {
+  const gate = await requireManageMembers(workspaceId);
+  if (!gate.allowed) return { success: false, error: gate.error };
+
+  try {
+    // Refuse to change the OWNER row's status
+    const { data: target, error: targetErr } = await supabase
+      .from("workspace_members")
+      .select("role, user_id")
+      .eq("id", memberId)
+      .eq("workspace_id", workspaceId)
+      .maybeSingle();
+    if (targetErr) return { success: false, error: targetErr.message };
+    if (!target) return { success: false, error: "Member not found in this workspace" };
+    if (target.role === "owner") {
+      return {
+        success: false,
+        error: "The workspace owner cannot be suspended or revoked; owner transfer is not supported yet",
+      };
+    }
+
+    const { error } = await supabase
+      .from("workspace_members")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", memberId)
+      .eq("workspace_id", workspaceId);
+
+    if (error) return { success: false, error: error.message };
+
+    await logWorkspaceActivity(
+      workspaceId,
+      null,
+      `member_${status}`,
+      "workspace_member",
+      memberId,
+      { newStatus: status },
+    );
+
+    return { success: true, error: null };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Failed to update member status";
+    return { success: false, error: msg };
+  }
+}
+
 export async function removeWorkspaceMember(
   workspaceId: string,
   memberId: string,
 ): Promise<{ success: boolean; error: string | null }> {
+  const gate = await requireManageMembers(workspaceId);
+  if (!gate.allowed) return { success: false, error: gate.error };
+
   try {
     const { error } = await supabase
       .from("workspace_members")
@@ -352,6 +453,9 @@ export async function updateMemberRole(
   role: WorkspaceRole,
   title?: string,
 ): Promise<{ success: boolean; error: string | null }> {
+  const gate = await requireManageMembers(workspaceId);
+  if (!gate.allowed) return { success: false, error: gate.error };
+
   try {
     const { error } = await supabase
       .from("workspace_members")
