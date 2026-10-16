@@ -6,21 +6,22 @@
  * and 3-way structural conflict resolution when cellular/Wi-Fi connection is restored.
  */
 
-export type SyncStatus = 'synced' | 'syncing' | 'offline_queued' | 'conflict_resolved' | 'failed';
+export type SyncStatus =
+  "synced" | "syncing" | "offline_queued" | "conflict_resolved" | "failed";
 
 export type EntityType =
-  | 'project_log'
-  | 'boq_item'
-  | 'timeline_stage'
-  | 'field_measurement'
-  | 'escrow_verification'
-  | 'material_price_override';
+  | "project_log"
+  | "boq_item"
+  | "timeline_stage"
+  | "field_measurement"
+  | "escrow_verification"
+  | "material_price_override";
 
 export interface OfflineMutation<T = Record<string, unknown>> {
   id: string;
   entityType: EntityType;
   entityId: string;
-  action: 'create' | 'update' | 'delete';
+  action: "create" | "update" | "delete";
   payload: T;
   clientTimestamp: string;
   lamportClock: number;
@@ -29,7 +30,7 @@ export interface OfflineMutation<T = Record<string, unknown>> {
   lastError?: string;
   conflictAudit?: {
     remoteTimestamp: string;
-    resolution: 'local_win' | 'remote_win' | 'three_way_merge';
+    resolution: "local_win" | "remote_win" | "three_way_merge";
     notes: string;
   };
 }
@@ -38,7 +39,10 @@ export interface RegionalPriceCache {
   marketCode: string;
   currency: string;
   updatedAt: string;
-  materials: Record<string, { unit: string; price: number; confidence: string }>;
+  materials: Record<
+    string,
+    { unit: string; price: number; confidence: string }
+  >;
 }
 
 export interface EdgeSyncState {
@@ -49,9 +53,9 @@ export interface EdgeSyncState {
   cacheStorageBytes: number;
 }
 
-const MUTATION_STORAGE_KEY = 'frelux_edge_sync_mutations';
-const PRICE_CACHE_KEY = 'frelux_edge_sync_prices';
-const CLIMATE_CACHE_KEY = 'frelux_edge_sync_climate';
+const MUTATION_STORAGE_KEY = "frelux_edge_sync_mutations";
+const PRICE_CACHE_KEY = "frelux_edge_sync_prices";
+const CLIMATE_CACHE_KEY = "frelux_edge_sync_climate";
 
 let simulatedOffline = false;
 let globalLamportClock = 0;
@@ -61,7 +65,10 @@ let globalLamportClock = 0;
  */
 export function isEdgeOnline(): boolean {
   if (simulatedOffline) return false;
-  if (typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean') {
+  if (
+    typeof navigator !== "undefined" &&
+    typeof navigator.onLine === "boolean"
+  ) {
     return navigator.onLine;
   }
   return true;
@@ -83,7 +90,7 @@ export function getSimulatedOffline(): boolean {
  */
 export function getQueuedMutations(): OfflineMutation[] {
   try {
-    if (typeof localStorage === 'undefined') return [];
+    if (typeof localStorage === "undefined") return [];
     const raw = localStorage.getItem(MUTATION_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
@@ -95,7 +102,7 @@ export function getQueuedMutations(): OfflineMutation[] {
 
 function saveQueuedMutations(mutations: OfflineMutation[]): void {
   try {
-    if (typeof localStorage !== 'undefined') {
+    if (typeof localStorage !== "undefined") {
       localStorage.setItem(MUTATION_STORAGE_KEY, JSON.stringify(mutations));
     }
   } catch {
@@ -109,8 +116,8 @@ function saveQueuedMutations(mutations: OfflineMutation[]): void {
 export function enqueueMutation<T extends Record<string, unknown>>(
   entityType: EntityType,
   entityId: string,
-  action: 'create' | 'update' | 'delete',
-  payload: T
+  action: "create" | "update" | "delete",
+  payload: T,
 ): OfflineMutation<T> {
   globalLamportClock += 1;
   const now = new Date().toISOString();
@@ -124,7 +131,7 @@ export function enqueueMutation<T extends Record<string, unknown>>(
     payload,
     clientTimestamp: now,
     lamportClock: globalLamportClock,
-    status: isEdgeOnline() ? 'synced' : 'offline_queued',
+    status: isEdgeOnline() ? "synced" : "offline_queued",
     retryCount: 0,
   };
 
@@ -140,17 +147,31 @@ export function enqueueMutation<T extends Record<string, unknown>>(
  */
 export function resolveStructuralConflict<T extends Record<string, unknown>>(
   localMutation: OfflineMutation<T>,
-  remoteState: { updatedAt: string; data: T; serverClock?: number }
-): { mergedData: T; resolution: 'local_win' | 'remote_win' | 'three_way_merge'; notes: string } {
+  remoteState: { updatedAt: string; data: T; serverClock?: number },
+): {
+  mergedData: T;
+  resolution: "local_win" | "remote_win" | "three_way_merge";
+  notes: string;
+} {
   const localTime = new Date(localMutation.clientTimestamp).getTime();
   const remoteTime = new Date(remoteState.updatedAt).getTime();
 
   // If payload is a list or collection items (e.g. milestones or BOQ line items)
-  if (Array.isArray(localMutation.payload.items) && Array.isArray((remoteState.data as any).items)) {
-    const localItems = localMutation.payload.items as Array<{ id?: string; [key: string]: unknown }>;
-    const remoteItems = (remoteState.data as any).items as Array<{ id?: string; [key: string]: unknown }>;
+  if (
+    Array.isArray(localMutation.payload.items) &&
+    Array.isArray((remoteState.data as { items?: unknown }).items)
+  ) {
+    const localItems = localMutation.payload.items as Array<{
+      id?: string;
+      [key: string]: unknown;
+    }>;
+    const remoteItems = (
+      remoteState.data as unknown as {
+        items: Array<{ id?: string; [key: string]: unknown }>;
+      }
+    ).items;
 
-    const itemMap = new Map<string, any>();
+    const itemMap = new Map<string, { id?: string; [key: string]: unknown }>();
     for (const item of remoteItems) {
       if (item.id) itemMap.set(String(item.id), item);
     }
@@ -167,7 +188,7 @@ export function resolveStructuralConflict<T extends Record<string, unknown>>(
 
     return {
       mergedData: merged,
-      resolution: 'three_way_merge',
+      resolution: "three_way_merge",
       notes: `Three-way structural merge: combined ${localItems.length} local items with ${remoteItems.length} remote items cleanly without data loss.`,
     };
   }
@@ -176,14 +197,14 @@ export function resolveStructuralConflict<T extends Record<string, unknown>>(
   if (localTime >= remoteTime) {
     return {
       mergedData: { ...remoteState.data, ...localMutation.payload },
-      resolution: 'local_win',
+      resolution: "local_win",
       notes: `Local modification (${localMutation.clientTimestamp}) has later timestamp than remote (${remoteState.updatedAt}). Local mutation accepted with audit trail.`,
     };
   }
 
   return {
     mergedData: { ...localMutation.payload, ...remoteState.data },
-    resolution: 'remote_win',
+    resolution: "remote_win",
     notes: `Remote server record is newer (${remoteState.updatedAt} > ${localMutation.clientTimestamp}). Preserved remote changes while logging client attempt.`,
   };
 }
@@ -218,14 +239,18 @@ export function processQueuedMutations(): SyncBatchResult {
   const remaining: OfflineMutation[] = [];
 
   for (const mut of queue) {
-    if (mut.status === 'offline_queued' || mut.status === 'failed') {
+    if (mut.status === "offline_queued" || mut.status === "failed") {
       // Simulate remote conflict check (e.g. 10% chance of peer change on the same project)
-      if (mut.entityType === 'boq_item' && mut.action === 'update' && mut.payload.concurrentRemoteEdit) {
+      if (
+        mut.entityType === "boq_item" &&
+        mut.action === "update" &&
+        mut.payload.concurrentRemoteEdit
+      ) {
         const resolution = resolveStructuralConflict(mut, {
           updatedAt: new Date(Date.now() - 60000).toISOString(),
           data: { ...mut.payload, price: 950 },
         });
-        mut.status = 'conflict_resolved';
+        mut.status = "conflict_resolved";
         mut.conflictAudit = {
           remoteTimestamp: new Date(Date.now() - 60000).toISOString(),
           resolution: resolution.resolution,
@@ -234,7 +259,7 @@ export function processQueuedMutations(): SyncBatchResult {
         conflicts += 1;
         synced += 1;
       } else {
-        mut.status = 'synced';
+        mut.status = "synced";
         synced += 1;
       }
     } else {
@@ -257,32 +282,66 @@ export function processQueuedMutations(): SyncBatchResult {
 /**
  * Pre-cache complete jobsite package (material price book & weather heuristics)
  */
-export function preCacheJobsitePackage(marketCode: string = 'NG'): RegionalPriceCache {
+export function preCacheJobsitePackage(
+  marketCode: string = "NG",
+): RegionalPriceCache {
   const cache: RegionalPriceCache = {
     marketCode: marketCode.toUpperCase(),
-    currency: marketCode.toUpperCase() === 'NG' ? 'NGN' : marketCode.toUpperCase() === 'GB' ? 'GBP' : 'USD',
+    currency:
+      marketCode.toUpperCase() === "NG"
+        ? "NGN"
+        : marketCode.toUpperCase() === "GB"
+          ? "GBP"
+          : "USD",
     updatedAt: new Date().toISOString(),
     materials: {
-      cement_50kg: { unit: 'bag', price: 9200, confidence: 'high' },
-      rebar_12mm: { unit: 'length_12m', price: 14500, confidence: 'high' },
-      sharp_sand_20t: { unit: 'trip_20t', price: 95000, confidence: 'verified_merchant' },
-      granite_30t: { unit: 'trip_30t', price: 210000, confidence: 'verified_merchant' },
-      vibrated_blocks_9in: { unit: 'unit', price: 650, confidence: 'high' },
-      hardwood_timber_2x4: { unit: 'length', price: 2800, confidence: 'medium' },
-      emulsion_paint_20l: { unit: 'drum_20l', price: 42000, confidence: 'high' },
+      cement_50kg: { unit: "bag", price: 9200, confidence: "high" },
+      rebar_12mm: { unit: "length_12m", price: 14500, confidence: "high" },
+      sharp_sand_20t: {
+        unit: "trip_20t",
+        price: 95000,
+        confidence: "verified_merchant",
+      },
+      granite_30t: {
+        unit: "trip_30t",
+        price: 210000,
+        confidence: "verified_merchant",
+      },
+      vibrated_blocks_9in: { unit: "unit", price: 650, confidence: "high" },
+      hardwood_timber_2x4: {
+        unit: "length",
+        price: 2800,
+        confidence: "medium",
+      },
+      emulsion_paint_20l: {
+        unit: "drum_20l",
+        price: 42000,
+        confidence: "high",
+      },
     },
   };
 
   try {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(`${PRICE_CACHE_KEY}_${marketCode.toLowerCase()}`, JSON.stringify(cache));
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(
+        `${PRICE_CACHE_KEY}_${marketCode.toLowerCase()}`,
+        JSON.stringify(cache),
+      );
       localStorage.setItem(
         CLIMATE_CACHE_KEY,
         JSON.stringify({
           cachedAt: new Date().toISOString(),
-          seasons: ['dry', 'rainy', 'harmattan', 'monsoon', 'winter', 'temperate'],
-          heuristics: 'Cached offline baseline: outdoor casting barred when rain probability exceeds 60%.',
-        })
+          seasons: [
+            "dry",
+            "rainy",
+            "harmattan",
+            "monsoon",
+            "winter",
+            "temperate",
+          ],
+          heuristics:
+            "Cached offline baseline: outdoor casting barred when rain probability exceeds 60%.",
+        }),
       );
     }
   } catch {
@@ -295,10 +354,14 @@ export function preCacheJobsitePackage(marketCode: string = 'NG'): RegionalPrice
 /**
  * Reads the cached regional material prices when offline
  */
-export function getCachedJobsitePrices(marketCode: string = 'NG'): RegionalPriceCache | null {
+export function getCachedJobsitePrices(
+  marketCode: string = "NG",
+): RegionalPriceCache | null {
   try {
-    if (typeof localStorage === 'undefined') return null;
-    const raw = localStorage.getItem(`${PRICE_CACHE_KEY}_${marketCode.toLowerCase()}`);
+    if (typeof localStorage === "undefined") return null;
+    const raw = localStorage.getItem(
+      `${PRICE_CACHE_KEY}_${marketCode.toLowerCase()}`,
+    );
     if (raw) return JSON.parse(raw) as RegionalPriceCache;
   } catch {
     // Ignore
@@ -311,11 +374,11 @@ export function getCachedJobsitePrices(marketCode: string = 'NG'): RegionalPrice
  */
 export function estimateOfflineStorageBytes(): number {
   try {
-    if (typeof localStorage === 'undefined') return 0;
+    if (typeof localStorage === "undefined") return 0;
     let total = 0;
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k && (k.startsWith('frelux') || k.startsWith('mut_'))) {
+      if (k && (k.startsWith("frelux") || k.startsWith("mut_"))) {
         const val = localStorage.getItem(k);
         if (val) total += (k.length + val.length) * 2; // UTF-16 approximate bytes
       }

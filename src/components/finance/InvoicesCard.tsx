@@ -14,6 +14,7 @@ import {
   DERIVED_STATUS_LABELS,
   PAYMENT_METHODS,
   type InvoiceSnapshotItem,
+  type InvoiceSnapshotTotals,
   type PaymentMethod,
 } from "@/lib/finance/invoice-engine";
 import {
@@ -35,7 +36,13 @@ export interface InvoiceQuoteSource {
   project_location: string | null;
   currency: string;
   items: InvoiceSnapshotItem[];
-  totals: { grand_total: number };
+  /**
+   * The quote's totals are snapshotted VERBATIM into the invoice
+   * (createInvoiceFromQuote), and the PDF renders subtotal + VAT lines
+   * from them — so the honest type is the snapshot shape, not a narrow
+   * grand_total-only pick.
+   */
+  totals: InvoiceSnapshotTotals;
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -124,7 +131,10 @@ export function InvoicesCard({
     await refresh();
   };
 
-  const changeStatus = async (invoiceId: string, status: "draft" | "issued" | "cancelled") => {
+  const changeStatus = async (
+    invoiceId: string,
+    status: "draft" | "issued" | "cancelled",
+  ) => {
     setBusy(true);
     const { error } = await setInvoiceStatus(invoiceId, status);
     setBusy(false);
@@ -152,7 +162,8 @@ export function InvoicesCard({
           .join("") +
         `</tbody></table>` +
         `<p><strong>Subtotal:</strong> ${formatByCode(inv.invoice.totals.subtotal, inv.invoice.currency)}</p>` +
-        (inv.invoice.totals.vat_amount != null && inv.invoice.totals.vat_rate != null
+        (inv.invoice.totals.vat_amount != null &&
+        inv.invoice.totals.vat_rate != null
           ? `<p><strong>${inv.invoice.tax_label ?? "Tax"} (${inv.invoice.totals.vat_rate}%):</strong> ${formatByCode(inv.invoice.totals.vat_amount, inv.invoice.currency)}</p>`
           : "") +
         `<p><strong>Grand total:</strong> ${formatByCode(inv.invoice.totals.grand_total, inv.invoice.currency)}</p>` +
@@ -239,8 +250,8 @@ export function InvoicesCard({
                 </span>
                 <span>
                   Paid:{" "}
-                  <strong>{formatByCode(paidTotal, invoice.currency)}</strong>{" "}
-                  ({payments.length} payment{payments.length === 1 ? "" : "s"})
+                  <strong>{formatByCode(paidTotal, invoice.currency)}</strong> (
+                  {payments.length} payment{payments.length === 1 ? "" : "s"})
                 </span>
                 {invoice.tax_label && (
                   <span>
@@ -272,7 +283,14 @@ export function InvoicesCard({
                 )}
                 <button
                   type="button"
-                  onClick={() => printInvoice({ invoice, derivedStatus, paidTotal, payments } as InvoiceWithState)}
+                  onClick={() =>
+                    printInvoice({
+                      invoice,
+                      derivedStatus,
+                      paidTotal,
+                      payments,
+                    } as InvoiceWithState)
+                  }
                   className="rounded border border-border px-2 py-1 text-[11px] font-medium transition-colors hover:bg-muted/50"
                 >
                   Print
@@ -305,7 +323,9 @@ export function InvoicesCard({
                     Method
                     <select
                       value={payMethod}
-                      onChange={(e) => setPayMethod(e.target.value as PaymentMethod)}
+                      onChange={(e) =>
+                        setPayMethod(e.target.value as PaymentMethod)
+                      }
                       className="ml-1 rounded border border-border bg-card px-2 py-1 text-xs"
                     >
                       {PAYMENT_METHODS.map((m) => (

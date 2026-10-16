@@ -17,9 +17,15 @@ import { Button } from "@/components/ui/shadcn/button";
 import {
   evaluateStageWeatherRisk,
   type WeatherRiskAlert,
-  type Coordinates
+  type Coordinates,
 } from "@/lib/engineering/climate-risk-engine";
-import { CloudRain, CloudLightning, ThermometerSnowflake, Wind, MapPin } from "lucide-react";
+import {
+  CloudRain,
+  CloudLightning,
+  ThermometerSnowflake,
+  Wind,
+  MapPin,
+} from "lucide-react";
 
 export default function ProjectTimeline() {
   useSeo({
@@ -56,11 +62,15 @@ export default function ProjectTimeline() {
 
   // Snap season to the market's default when the market changes (e.g. GB has no 'rainy')
   useEffect(() => {
-    setSeason((prev) => (climate.seasons.includes(prev) ? prev : climate.defaultSeason));
+    setSeason((prev) =>
+      climate.seasons.includes(prev) ? prev : climate.defaultSeason,
+    );
   }, [climate]);
   useEffect(() => {
     setBuildingType((prev) =>
-      typology.typologies.some((t) => t.typeCode === prev) ? prev : typology.defaultType,
+      typology.typologies.some((t) => t.typeCode === prev)
+        ? prev
+        : typology.defaultType,
     );
   }, [typology]);
   const [foundationType, setFoundationType] = useState("strip_footing");
@@ -123,7 +133,10 @@ export default function ProjectTimeline() {
               label="Building type"
               value={buildingType}
               onChange={setBuildingType}
-              options={typology.typologies.map((t) => ({ v: t.typeCode, l: t.label }))}
+              options={typology.typologies.map((t) => ({
+                v: t.typeCode,
+                l: t.label,
+              }))}
             />
             <Num
               label="Length (m)"
@@ -214,9 +227,11 @@ export default function ProjectTimeline() {
         </div>
 
         <p className="rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground">
-            Climate profile: {climate.climatePattern}. {climate.heuristicNote} Building types follow this market's standard typologies ({typology.note}).
-          </p>
-          {result && (
+          Climate profile: {climate.climatePattern}. {climate.heuristicNote}{" "}
+          Building types follow this market's standard typologies (
+          {typology.note}).
+        </p>
+        {result && (
           <>
             {/* Summary */}
             <div className="grid md:grid-cols-4 gap-4">
@@ -314,11 +329,29 @@ export default function ProjectTimeline() {
                     {/* Weather Risk Evaluation for Outdoor Stages */}
                     {(() => {
                       const lower = s.stage_label.toLowerCase();
-                      let actType: any = null;
-                      if (lower.includes('concrete') || lower.includes('foundation') || lower.includes('slab')) actType = 'concrete_casting';
-                      else if (lower.includes('roof') || lower.includes('paint')) actType = 'roof_painting';
-                      else if (lower.includes('excavation') || lower.includes('earth')) actType = 'excavation_earthworks';
-                      else if (lower.includes('screed') || lower.includes('plaster')) actType = 'screeding_plastering';
+                      let actType: WeatherRiskAlert["activityType"] | null =
+                        null;
+                      if (
+                        lower.includes("concrete") ||
+                        lower.includes("foundation") ||
+                        lower.includes("slab")
+                      )
+                        actType = "concrete_casting";
+                      else if (
+                        lower.includes("roof") ||
+                        lower.includes("paint")
+                      )
+                        actType = "roof_painting";
+                      else if (
+                        lower.includes("excavation") ||
+                        lower.includes("earth")
+                      )
+                        actType = "excavation_earthworks";
+                      else if (
+                        lower.includes("screed") ||
+                        lower.includes("plaster")
+                      )
+                        actType = "screeding_plastering";
 
                       if (!actType) return null;
 
@@ -327,9 +360,10 @@ export default function ProjectTimeline() {
                         activityType: actType,
                         scheduledDate: `Day ${Math.max(1, i * Math.max(1, s.estimated_days) + 1)}`,
                         coords: projectCoords,
-                        forecastPrecipMm: season === 'rainy' || season === 'monsoon' ? 24 : 0,
-                        forecastTempMinC: season === 'winter' ? -2 : 26,
-                        forecastWindKph: 15
+                        forecastPrecipMm:
+                          season === "rainy" || season === "monsoon" ? 24 : 0,
+                        forecastTempMinC: season === "winter" ? -2 : 26,
+                        forecastWindKph: 15,
                       });
 
                       if (!alert) return null;
@@ -341,7 +375,10 @@ export default function ProjectTimeline() {
                             <span>{alert.alertMessage}</span>
                           </div>
                           <p className="text-[11px] text-muted-foreground ml-5">
-                            <strong className="text-foreground">Advisory:</strong> {alert.recommendation}
+                            <strong className="text-foreground">
+                              Advisory:
+                            </strong>{" "}
+                            {alert.recommendation}
                           </p>
                         </div>
                       );

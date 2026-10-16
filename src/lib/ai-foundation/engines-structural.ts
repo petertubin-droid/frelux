@@ -22,6 +22,21 @@ import {
 import { resolveStructuralMarketPricing } from "@/lib/estimation/structural-market";
 import { getCountryCurrency } from "@/lib/international/countries";
 import type { EstimationMaterial } from "@/types/estimation";
+import type {
+  SteelGrade,
+  SupportCondition,
+  BeamType,
+  SlabType,
+} from "@/lib/engineering/structural-calculator";
+import type {
+  FoundationShape,
+  SoilType,
+} from "@/lib/engineering/foundation-calculator";
+import type {
+  ProjectComplexity,
+  WorkforceSize,
+  Season,
+} from "@/lib/engineering/timeline-estimator";
 
 function engineOk(
   id: string,
@@ -111,7 +126,11 @@ async function loadFoundationEngine(): Promise<StructuralEngineModule> {
   return {
     parseRules: (rows) => m.parseFoundationRules(rows as never),
     calculate: (input, rules, prices) =>
-      m.calculateFoundation(input as never, rules as never, prices) as unknown as StructuralOutcome,
+      m.calculateFoundation(
+        input as never,
+        rules as never,
+        prices,
+      ) as unknown as StructuralOutcome,
   };
 }
 
@@ -120,7 +139,11 @@ async function loadDoorsWindowsEngine(): Promise<StructuralEngineModule> {
   return {
     parseRules: (rows) => m.parseDoorsWindowsRules(rows as never),
     calculate: (input, rules, prices) =>
-      m.calculateDoorsWindows(input as never, rules as never, prices) as unknown as StructuralOutcome,
+      m.calculateDoorsWindows(
+        input as never,
+        rules as never,
+        prices,
+      ) as unknown as StructuralOutcome,
   };
 }
 
@@ -129,7 +152,11 @@ async function loadReinforcementEngine(): Promise<StructuralEngineModule> {
   return {
     parseRules: (rows) => m.parseReinforcementRules(rows as never),
     calculate: (input, rules, prices) =>
-      m.calculateReinforcement(input as never, rules as never, prices) as unknown as StructuralOutcome,
+      m.calculateReinforcement(
+        input as never,
+        rules as never,
+        prices,
+      ) as unknown as StructuralOutcome,
   };
 }
 
@@ -179,10 +206,13 @@ function listAdapterDefaults(raw: unknown, sanitized: unknown): string[] {
   const applied: string[] = [];
   for (const key of Object.keys(b)) {
     if (key !== "labour" && !(key in a) && b[key] !== undefined) {
-      applied.push(`${key} = ${JSON.stringify(b[key])} (engine default, disclosed)`);
+      applied.push(
+        `${key} = ${JSON.stringify(b[key])} (engine default, disclosed)`,
+      );
     }
   }
-  if (!("labour" in a)) applied.push("labour = { mode: 'none' } (engine default, disclosed)");
+  if (!("labour" in a))
+    applied.push("labour = { mode: 'none' } (engine default, disclosed)");
   return applied;
 }
 
@@ -214,7 +244,9 @@ function registerStructuralAdapter(
           loadEngine(),
         ]);
         const rules = engine.parseRules(rulesRes.data ?? []);
-        const sanitized = (ENGINE_INPUT_SANITIZERS[engineId] ?? ((r) => r))(rawInput);
+        const sanitized = (ENGINE_INPUT_SANITIZERS[engineId] ?? ((r) => r))(
+          rawInput,
+        );
         const adapterDefaults = listAdapterDefaults(rawInput, sanitized);
         const result = engine.calculate(sanitized, rules, priceMap);
         if (!result.ok) {
@@ -289,7 +321,9 @@ function registerStructuralCalculatorAdapter(): void {
           resolveConcreteGrade,
         } = await import("@/lib/engineering/structural-calculator");
 
-        const memberType = ((typed.member_type as string) || "beam").toLowerCase();
+        const memberType = (
+          (typed.member_type as string) || "beam"
+        ).toLowerCase();
         const appliedDefaults: string[] = [];
 
         if (memberType === "column") {
@@ -309,8 +343,10 @@ function registerStructuralCalculatorAdapter(): void {
           }
           const defaultGrade =
             getConcreteStandardForMarket(marketCode).defaultGrade;
-          const concrete_grade = (typed.concrete_grade as string) || defaultGrade;
-          const steel_grade = ((typed.steel_grade as string) || "Fe500") as any;
+          const concrete_grade =
+            (typed.concrete_grade as string) || defaultGrade;
+          const steel_grade = ((typed.steel_grade as string) ||
+            "Fe500") as SteelGrade;
           const cover_mm =
             typeof typed.cover_mm === "number" ? typed.cover_mm : 25;
           const is_rectangular = typed.is_rectangular !== false;
@@ -376,13 +412,16 @@ function registerStructuralCalculatorAdapter(): void {
           }
           const defaultGrade =
             getConcreteStandardForMarket(marketCode).defaultGrade;
-          const concrete_grade = (typed.concrete_grade as string) || defaultGrade;
-          const steel_grade = ((typed.steel_grade as string) || "Fe500") as any;
+          const concrete_grade =
+            (typed.concrete_grade as string) || defaultGrade;
+          const steel_grade = ((typed.steel_grade as string) ||
+            "Fe500") as SteelGrade;
           const cover_mm =
             typeof typed.cover_mm === "number" ? typed.cover_mm : 20;
-          const slab_type = ((typed.slab_type as string) || "one_way") as any;
+          const slab_type = ((typed.slab_type as string) ||
+            "one_way") as SlabType;
           const support_condition = ((typed.support_condition as string) ||
-            "simply_supported") as any;
+            "simply_supported") as SupportCondition;
           const live_load =
             typeof typed.live_load === "number" ? typed.live_load : 2.0;
           const dead_load =
@@ -406,7 +445,11 @@ function registerStructuralCalculatorAdapter(): void {
 
           const quantities = [
             quantityLine("Slab thickness", res.recommended_thickness, "mm"),
-            quantityLine("Steel area required", res.steel_area_required, "mm²/m"),
+            quantityLine(
+              "Steel area required",
+              res.steel_area_required,
+              "mm²/m",
+            ),
             quantityLine(
               "Bottom reinforcement",
               1,
@@ -429,9 +472,9 @@ function registerStructuralCalculatorAdapter(): void {
             return engineFail("structural_calculator", "Invalid beam span");
           }
           const beam_type = ((typed.beam_type as string) ||
-            "suspended_beam") as any;
+            "suspended_beam") as BeamType;
           const support_condition = ((typed.support_condition as string) ||
-            "simply_supported") as any;
+            "simply_supported") as SupportCondition;
           const live_load =
             typeof typed.live_load === "number" ? typed.live_load : 2.0;
           const dead_load =
@@ -442,8 +485,10 @@ function registerStructuralCalculatorAdapter(): void {
               : 3.0;
           const defaultGrade =
             getConcreteStandardForMarket(marketCode).defaultGrade;
-          const concrete_grade = (typed.concrete_grade as string) || defaultGrade;
-          const steel_grade = ((typed.steel_grade as string) || "Fe500") as any;
+          const concrete_grade =
+            (typed.concrete_grade as string) || defaultGrade;
+          const steel_grade = ((typed.steel_grade as string) ||
+            "Fe500") as SteelGrade;
           const cover_mm =
             typeof typed.cover_mm === "number" ? typed.cover_mm : 25;
 
@@ -518,13 +563,12 @@ function registerFoundationCalculatorAdapter(): void {
         );
       }
       try {
-        const { designFoundation } = await import(
-          "@/lib/engineering/foundation-calculator"
-        );
+        const { designFoundation } =
+          await import("@/lib/engineering/foundation-calculator");
 
-        const shape = ((typed.shape as string) || "strip") as any;
+        const shape = ((typed.shape as string) || "strip") as FoundationShape;
         const soil_type = ((typed.soil_type as string) ||
-          (marketCode === "NG" ? "lateritic" : "firm_clay")) as any;
+          (marketCode === "NG" ? "lateritic" : "firm_clay")) as SoilType;
         const wall_load =
           typeof typed.wall_load === "number" ? typed.wall_load : 80;
         const column_load =
@@ -535,7 +579,9 @@ function registerFoundationCalculatorAdapter(): void {
             : 1.0;
         const concrete_grade = (typed.concrete_grade as string) || "C20";
         const building_length =
-          typeof typed.building_length === "number" ? typed.building_length : 15;
+          typeof typed.building_length === "number"
+            ? typed.building_length
+            : 15;
         const building_width =
           typeof typed.building_width === "number" ? typed.building_width : 10;
         const safety_factor =
@@ -599,9 +645,8 @@ function registerSequencePlannerAdapter(): void {
         );
       }
       try {
-        const { generateSequencePlan } = await import(
-          "@/lib/engineering/sequence-planner"
-        );
+        const { generateSequencePlan } =
+          await import("@/lib/engineering/sequence-planner");
 
         const buildingType = typed.building_type as string | undefined;
         const plan = generateSequencePlan(buildingType, marketCode);
@@ -647,28 +692,27 @@ function registerTimelineEstimatorAdapter(): void {
         );
       }
       try {
-        const { estimateTimeline } = await import(
-          "@/lib/engineering/timeline-estimator"
-        );
+        const { estimateTimeline } =
+          await import("@/lib/engineering/timeline-estimator");
 
         const building_length =
-          typeof typed.building_length === "number" ? typed.building_length : 15;
+          typeof typed.building_length === "number"
+            ? typed.building_length
+            : 15;
         const building_width =
           typeof typed.building_width === "number" ? typed.building_width : 10;
         const number_of_floors =
-          typeof typed.number_of_floors === "number" ? typed.number_of_floors : 1;
-        const building_type =
-          (typed.building_type as string) || "residential";
-        const foundation_type =
-          (typed.foundation_type as string) || "strip";
-        const roof_type =
-          (typed.roof_type as string) || "timber_truss";
-        const complexity =
-          ((typed.complexity as string) || "standard") as any;
-        const workforce =
-          ((typed.workforce as string) || "medium") as any;
-        const season =
-          ((typed.season as string) || "dry") as any;
+          typeof typed.number_of_floors === "number"
+            ? typed.number_of_floors
+            : 1;
+        const building_type = (typed.building_type as string) || "residential";
+        const foundation_type = (typed.foundation_type as string) || "strip";
+        const roof_type = (typed.roof_type as string) || "timber_truss";
+        const complexity = ((typed.complexity as string) ||
+          "standard") as ProjectComplexity;
+        const workforce = ((typed.workforce as string) ||
+          "medium") as WorkforceSize;
+        const season = ((typed.season as string) || "dry") as Season;
         const has_engineer_schedule = typed.has_engineer_schedule === true;
 
         if (

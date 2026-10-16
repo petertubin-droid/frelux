@@ -23,7 +23,8 @@ function finite(n: number, label: string): void {
   if (!Number.isFinite(n)) {
     throw new RangeError(`${label} must be a finite number (received ${n}).`);
   }
-  if (n < -90 || n > 90) throw new RangeError(`latitude ${n} out of range [-90, 90].`);
+  if (n < -90 || n > 90)
+    throw new RangeError(`latitude ${n} out of range [-90, 90].`);
 }
 
 function finiteLon(n: number): void {
@@ -40,8 +41,10 @@ function finiteLon(n: number): void {
  * sphere). Deterministic; ~0.3-0.5% deviation vs ellipsoid.
  */
 export function haversineDistanceMeters(a: LatLon, b: LatLon): number {
-  finite(a.lat, "a.lat"); finiteLon(a.lon);
-  finite(b.lat, "b.lat"); finiteLon(b.lon);
+  finite(a.lat, "a.lat");
+  finiteLon(a.lon);
+  finite(b.lat, "b.lat");
+  finiteLon(b.lon);
   const dLat = toRadians(b.lat - a.lat);
   const dLon = toRadians(b.lon - a.lon);
   const lat1 = toRadians(a.lat);
@@ -64,18 +67,17 @@ export function haversineDistanceMeters(a: LatLon, b: LatLon): number {
  *  - edges are great-circle segments, not rhumb lines,
  *  - accuracy ~0.5% vs ellipsoid: not for cadastral use.
  */
-export function sphericalPolygonAreaMeters(
-  ring: LatLon[],
-): number {
+export function sphericalPolygonAreaMeters(ring: LatLon[]): number {
   if (ring.length < 3) {
     throw new RangeError(
       `A polygon needs at least 3 vertices; received ${ring.length}. Area is never invented.`,
     );
   }
-  let lons: number[] = [];
-  let lats: number[] = [];
+  const lons: number[] = [];
+  const lats: number[] = [];
   for (const v of ring) {
-    finite(v.lat, "lat"); finiteLon(v.lon);
+    finite(v.lat, "lat");
+    finiteLon(v.lon);
     lats.push(v.lat);
     lons.push(v.lon);
   }

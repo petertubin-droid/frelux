@@ -43,8 +43,21 @@ const quote: InvoiceQuoteSource = {
   client_contact: null,
   project_location: "Lekki",
   currency: "NGN",
-  items: [{ description: "Cement", quantity: 120, unit: "bags", unit_cost: 9500, total: 1140000 }],
-  totals: { subtotal: 1140000, vat_rate: 7.5, vat_amount: 85500, grand_total: 1225500 },
+  items: [
+    {
+      description: "Cement",
+      quantity: 120,
+      unit: "bags",
+      unit_cost: 9500,
+      total: 1140000,
+    },
+  ],
+  totals: {
+    subtotal: 1140000,
+    vat_rate: 7.5,
+    vat_amount: 85500,
+    grand_total: 1225500,
+  },
 };
 
 const invoice = {
@@ -62,7 +75,12 @@ const invoice = {
   currency: "NGN",
   status: "issued" as const,
   items: quote.items,
-  totals: { subtotal: 1140000, vat_rate: 7.5, vat_amount: 85500, grand_total: 1225500 },
+  totals: {
+    subtotal: 1140000,
+    vat_rate: 7.5,
+    vat_amount: 85500,
+    grand_total: 1225500,
+  },
   tax_label: "VAT",
   issue_date: "2026-10-16",
   due_date: "2026-11-15",
@@ -83,11 +101,15 @@ describe("InvoicesCard", () => {
       error: null,
     });
     render(<InvoicesCard quote={quote} marketCode="NG" userId="u1" />);
-    fireEvent.click(await screen.findByRole("button", { name: /create invoice from this quote/i }));
-    await waitFor(() =>
-      expect(mockedCreate).toHaveBeenCalledWith(quote, "NG"),
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: /create invoice from this quote/i,
+      }),
     );
-    expect(await screen.findByText(/INV-2026-0001 created as draft/i)).toBeTruthy();
+    await waitFor(() => expect(mockedCreate).toHaveBeenCalledWith(quote, "NG"));
+    expect(
+      await screen.findByText(/INV-2026-0001 created as draft/i),
+    ).toBeTruthy();
   });
 
   it("disables the create button for quotes without items or total", async () => {
@@ -99,36 +121,67 @@ describe("InvoicesCard", () => {
 
     rerender(
       <InvoicesCard
-        quote={{ ...quote, items: [], totals: { grand_total: 0 } }}
+        quote={{ ...quote, items: [], totals: { subtotal: 0, grand_total: 0 } }}
         marketCode="NG"
         userId="u1"
       />,
     );
-    expect(screen.getByRole("button", { name: /create invoice/i })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /create invoice/i }),
+    ).toBeDisabled();
   });
 
   it("renders the empty state honestly when no invoices exist", async () => {
     render(<InvoicesCard quote={quote} marketCode="NG" userId="u1" />);
-    expect(
-      await screen.findByText(/No invoices yet/i),
-    ).toBeTruthy();
+    expect(await screen.findByText(/No invoices yet/i)).toBeTruthy();
     expect(mockedFetch).toHaveBeenCalledWith("u1");
   });
 
   it("does not fetch invoices without a signed-in user", async () => {
     render(<InvoicesCard quote={quote} marketCode="NG" userId={null} />);
-    expect(
-      await screen.findByText(/No invoices yet/i),
-    ).toBeTruthy();
+    expect(await screen.findByText(/No invoices yet/i)).toBeTruthy();
     expect(mockedFetch).not.toHaveBeenCalled();
   });
 
   it("shows derived statuses: paid only with covering payments, partial stays partial", async () => {
     mockedFetch.mockResolvedValueOnce({
       data: [
-        { invoice: { ...invoice, id: "i-paid" }, derivedStatus: "paid", paidTotal: 1225500, payments: [{ amount: 1225500 }] },
-        { invoice: { ...invoice, id: "i-partial" }, derivedStatus: "partially_paid", paidTotal: 500, payments: [{ amount: 500 }] },
-        { invoice: { ...invoice, id: "i-unpaid" }, derivedStatus: "issued", paidTotal: 0, payments: [] },
+        {
+          invoice: { ...invoice, id: "i-paid" },
+          derivedStatus: "paid",
+          paidTotal: 1225500,
+          payments: [
+            {
+              id: "p1",
+              invoice_id: "i-paid",
+              amount: 1225500,
+              method: "transfer",
+              paid_at: "2026-10-16T09:00:00Z",
+              reference: null,
+            },
+          ],
+        },
+        {
+          invoice: { ...invoice, id: "i-partial" },
+          derivedStatus: "partially_paid",
+          paidTotal: 500,
+          payments: [
+            {
+              id: "p2",
+              invoice_id: "i-partial",
+              amount: 500,
+              method: "cash",
+              paid_at: "2026-10-16T10:00:00Z",
+              reference: null,
+            },
+          ],
+        },
+        {
+          invoice: { ...invoice, id: "i-unpaid" },
+          derivedStatus: "issued",
+          paidTotal: 0,
+          payments: [],
+        },
       ],
       error: null,
     });
@@ -147,7 +200,9 @@ describe("InvoicesCard", () => {
     });
     mockedPay.mockResolvedValueOnce({ data: null, error: null });
     render(<InvoicesCard quote={quote} marketCode="NG" userId="u1" />);
-    fireEvent.click(await screen.findByRole("button", { name: /record payment/i }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /record payment/i }),
+    );
     fireEvent.change(await screen.findByLabelText(/amount/i), {
       target: { value: "500000" },
     });
@@ -168,7 +223,9 @@ describe("InvoicesCard", () => {
       error: null,
     });
     render(<InvoicesCard quote={quote} marketCode="NG" userId="u1" />);
-    fireEvent.click(await screen.findByRole("button", { name: /record payment/i }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /record payment/i }),
+    );
     fireEvent.change(await screen.findByLabelText(/amount/i), {
       target: { value: "-10" },
     });
@@ -179,7 +236,14 @@ describe("InvoicesCard", () => {
 
   it("issues a draft invoice via the service (owner action)", async () => {
     mockedFetch.mockResolvedValueOnce({
-      data: [{ invoice: { ...invoice, status: "draft" }, derivedStatus: "draft", paidTotal: 0, payments: [] }],
+      data: [
+        {
+          invoice: { ...invoice, status: "draft" },
+          derivedStatus: "draft",
+          paidTotal: 0,
+          payments: [],
+        },
+      ],
       error: null,
     });
     mockedStatus.mockResolvedValueOnce({ error: null });
@@ -193,7 +257,12 @@ describe("InvoicesCard", () => {
   it("renders the market tax label (DE shows MwSt, never VAT)", async () => {
     mockedFetch.mockResolvedValueOnce({
       data: [
-        { invoice: { ...invoice, tax_label: "MwSt" }, derivedStatus: "issued", paidTotal: 0, payments: [] },
+        {
+          invoice: { ...invoice, tax_label: "MwSt" },
+          derivedStatus: "issued",
+          paidTotal: 0,
+          payments: [],
+        },
       ],
       error: null,
     });

@@ -58,6 +58,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import TaxAndFxCard from "@/components/tax/TaxAndFxCard";
 import StandardsCitationsCard from "@/components/regulatory/StandardsCitationsCard";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
+import type { InvoiceSnapshotTotals } from "@/lib/finance/invoice-engine";
 
 /** Display names for the 20 Frelux markets. */
 const MARKET_NAMES: Record<string, string> = {
@@ -135,7 +136,9 @@ export default function BoqGenerator() {
   const [clientContact, setClientContact] = useState("");
   const [projectLocation, setProjectLocation] = useState("");
   const [marketCode, setMarketCode] = useState<string>(defaultMarketCode);
-  const [selectedStandard, setSelectedStandard] = useState<BoqStandard>(resolveMarketBoqStandard(defaultMarketCode()));
+  const [selectedStandard, setSelectedStandard] = useState<BoqStandard>(
+    resolveMarketBoqStandard(defaultMarketCode()),
+  );
 
   // Synchronize dialect standard when the market changes
   useEffect(() => {
@@ -276,10 +279,7 @@ export default function BoqGenerator() {
       revision,
       items: items as unknown as Record<string, unknown>[],
       totals: result.totals as unknown as Record<string, unknown>,
-      rates_snapshot: (result.rates_snapshot ?? {}) as Record<
-        string,
-        unknown
-      >,
+      rates_snapshot: (result.rates_snapshot ?? {}) as Record<string, unknown>,
     };
     if (savedRef && savedId) {
       const nextRev = revision + 1;
@@ -311,9 +311,7 @@ export default function BoqGenerator() {
     else {
       setSavedRef(quoteRef);
       setSavedId(record?.id ?? null);
-      setSaveMsg(
-        `Quote saved to your BOQ history as revision v${revision}.`,
-      );
+      setSaveMsg(`Quote saved to your BOQ history as revision v${revision}.`);
       if (record?.id) {
         await snapshotRevision(record.id, revision);
         await refreshRevisions(record.id);
@@ -356,16 +354,36 @@ export default function BoqGenerator() {
     w.print();
   };
 
-    const exportStandardBoq = () => {
+  const exportStandardBoq = () => {
     if (!result?.ok || !quoteRef) return;
-    
+
     // Group line items into the target professional body standard divisions
-    const divisionsMap = new Map<string, { code: string; title: string; items: any[] }>();
+    const divisionsMap = new Map<
+      string,
+      {
+        code: string;
+        title: string;
+        items: Array<{
+          itemNumber: string;
+          description: string;
+          quantity: number;
+          unit: string;
+          materialRate: number;
+          laborRate: number;
+          plantRate: number;
+          standardCode: string;
+        }>;
+      }
+    >();
 
     items.forEach((item, idx) => {
       const div = mapItemToStandardDivision(item.description, selectedStandard);
       if (!divisionsMap.has(div.code)) {
-        divisionsMap.set(div.code, { code: div.code, title: div.title, items: [] });
+        divisionsMap.set(div.code, {
+          code: div.code,
+          title: div.title,
+          items: [],
+        });
       }
       divisionsMap.get(div.code)!.items.push({
         itemNumber: `${div.code}.${idx + 1}`,
@@ -375,20 +393,20 @@ export default function BoqGenerator() {
         materialRate: item.unit_cost,
         laborRate: 0,
         plantRate: 0,
-        standardCode: `${selectedStandard}-${div.code}`
+        standardCode: `${selectedStandard}-${div.code}`,
       });
     });
 
-    const sections = Array.from(divisionsMap.values()).map(div => ({
+    const sections = Array.from(divisionsMap.values()).map((div) => ({
       code: div.code,
       title: div.title,
       subSections: [
         {
-          code: '01',
-          title: 'Measured Works & Schedules',
-          items: div.items
-        }
-      ]
+          code: "01",
+          title: "Measured Works & Schedules",
+          items: div.items,
+        },
+      ],
     }));
 
     const standardDoc = assembleStandardBoq({
@@ -396,31 +414,34 @@ export default function BoqGenerator() {
         title,
         projectRef: quoteRef || `BOQ-${Date.now()}`,
         clientName,
-        contractorName: company.name || 'Frelux Certified Contractor',
-        location: projectLocation || 'Global Project',
+        contractorName: company.name || "Frelux Certified Contractor",
+        location: projectLocation || "Global Project",
         marketCode,
         currency: getActiveDisplayCurrency(),
-        preparedBy: company.name || 'FRELUX User',
-        date: new Date().toISOString().split('T')[0],
+        preparedBy: company.name || "FRELUX User",
+        date: new Date().toISOString().split("T")[0],
         revision: `Rev ${revision}`,
         standard: selectedStandard,
       },
       commercials: {
         preliminariesPercent: 5,
         overheadProfitPercent: 10,
-        contingencyPercent: ruleRate('contingency_rate') || 5,
+        contingencyPercent: ruleRate("contingency_rate") || 5,
         retentionPercent: 5,
       },
       sections,
     });
 
     const printHtml = exportBoqToPrintHtml(standardDoc);
-    const w = window.open('', '_blank');
+    const w = window.open("", "_blank");
     if (!w) return;
     w.document.write(printHtml);
     w.document.close();
     w.print();
-    track('boq_bank_export', { standard: selectedStandard, market: marketCode });
+    track("boq_bank_export", {
+      standard: selectedStandard,
+      market: marketCode,
+    });
   };
 
   const exportBankBoq = () => {
@@ -757,7 +778,11 @@ export default function BoqGenerator() {
                   onClick={exportStandardBoq}
                   className="relative rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-500/20"
                 >
-                  Export {selectedStandard === 'CSI_MASTERFORMAT' ? 'CSI MasterFormat' : selectedStandard} BOQ
+                  Export{" "}
+                  {selectedStandard === "CSI_MASTERFORMAT"
+                    ? "CSI MasterFormat"
+                    : selectedStandard}{" "}
+                  BOQ
                 </button>
                 <button
                   type="button"
@@ -776,8 +801,8 @@ export default function BoqGenerator() {
             {ruleRate("vat_rate") !== null &&
             ruleRate("contingency_rate") !== null ? (
               <span className="text-xs text-muted-foreground">
-                Rates from config: contingency {ruleRate("contingency_rate")}%
-                · {tax.short} {ruleRate("vat_rate")}%
+                Rates from config: contingency {ruleRate("contingency_rate")}% ·{" "}
+                {tax.short} {ruleRate("vat_rate")}%
               </span>
             ) : (
               <span className="text-xs text-amber-600 dark:text-amber-400">
@@ -949,7 +974,10 @@ export default function BoqGenerator() {
             </div>
 
             {/* ── Engine #5: cite-and-flag the standards behind each engine ── */}
-            <StandardsCitationsCard marketCode={marketCode} engines={quoteEngines} />
+            <StandardsCitationsCard
+              marketCode={marketCode}
+              engines={quoteEngines}
+            />
 
             {/* ── Wave 1.3: click-to-invoice from the saved quotation ── */}
             <InvoicesCard
@@ -971,7 +999,7 @@ export default function BoqGenerator() {
                         unit_cost: lt.item.unit_cost,
                         total: lt.line_total,
                       })),
-                      totals: result.totals as unknown as { grand_total: number },
+                      totals: result.totals as unknown as InvoiceSnapshotTotals,
                     }
                   : null
               }

@@ -76,7 +76,9 @@ export interface SafetyRefusal {
 
 export function isSafetyCriticalText(text: string): boolean {
   const lower = ` ${text.toLowerCase()} `;
-  return SAFETY_REGULATORY_MARKERS.some((m) => lower.includes(` ${m} `) || lower.includes(`${m} `));
+  return SAFETY_REGULATORY_MARKERS.some(
+    (m) => lower.includes(` ${m} `) || lower.includes(`${m} `),
+  );
 }
 
 /**
@@ -117,9 +119,10 @@ export function translateTechnicalLabel(
   }
 
   // Preserve measurements/numbers as protected segments.
-  const measurementRegex = /\d+(?:[.,]\d+)?\s*(?:mm|cm|m2|m3|m²|²|³|m|kg|bags?|litres?|ltr|tons?|tonnes?|cu\.? ?m|sq\.? ?m)\b/gi;
+  const measurementRegex =
+    /\d+(?:[.,]\d+)?\s*(?:mm|cm|m2|m3|m²|²|³|m|kg|bags?|litres?|ltr|tons?|tonnes?|cu\.? ?m|sq\.? ?m)\b/gi;
   const protectedSegments: string[] = [];
-  let working = label.replace(measurementRegex, (m) => {
+  const working = label.replace(measurementRegex, (m) => {
     protectedSegments.push(m);
     return `\u0000${protectedSegments.length - 1}\u0000`;
   });
@@ -144,7 +147,7 @@ export function translateTechnicalLabel(
   const translatedWords = translated.split(/\s+/);
   const untranslatedTokens: string[] = [];
   const protectedRestored: string[] = translatedWords.map((w) => {
-    const placeholder = w.match(/^\u0000(\d+)\u0000$/);
+    const placeholder = w.match(/^\u0000(\d+)\u0000$/u); // eslint-disable-line no-control-regex -- NUL bytes are deliberate placeholder sentinels
     if (placeholder) return protectedSegments[Number(placeholder[1])];
     return w;
   });
@@ -157,9 +160,7 @@ export function translateTechnicalLabel(
     }
   }
 
-  const contentWordCount = translatedWords.filter(
-    (w) => w.length > 2,
-  ).length;
+  const contentWordCount = translatedWords.filter((w) => w.length > 2).length;
   const knownCount = translatedWords.filter(
     (w) => w.includes("\u0000") || table.has(w) || !/^[a-z]/.test(w),
   ).length;

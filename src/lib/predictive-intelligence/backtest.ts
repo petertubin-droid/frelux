@@ -134,9 +134,7 @@ function calibrate(
   const mid = Math.floor(points.length / 2);
   const calibration = points.slice(0, mid);
   const evaluation = points.slice(mid);
-  const calResiduals = calibration
-    .map((p) => p.residual)
-    .sort((a, b) => a - b);
+  const calResiduals = calibration.map((p) => p.residual).sort((a, b) => a - b);
   const tail = (1 - nominal) / 2;
   const lower = quantile(calResiduals, tail);
   const upper = quantile(calResiduals, 1 - tail);
@@ -173,7 +171,7 @@ export function walkForwardBacktest<L extends OutcomeLabelKey>(input: {
   let skippedHistory = 0;
   let skippedUnlabelled = 0;
 
-  let trainWindow: ProjectOutcomeRecord[] = [];
+  const trainWindow: ProjectOutcomeRecord[] = [];
   for (const target of sorted) {
     const actual = target[label];
     if (actual === null || actual === undefined) {
@@ -239,10 +237,8 @@ export function walkForwardBacktest<L extends OutcomeLabelKey>(input: {
     nonZero.length > 0
       ? {
           value:
-            nonZero.reduce(
-              (s, p) => s + Math.abs(p.residual / p.actual),
-              0,
-            ) / nonZero.length,
+            nonZero.reduce((s, p) => s + Math.abs(p.residual / p.actual), 0) /
+            nonZero.length,
           on: nonZero.length,
         }
       : null;
