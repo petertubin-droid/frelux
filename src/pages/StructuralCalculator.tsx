@@ -18,6 +18,9 @@ import {
   type SlabType,
 } from "@/lib/engineering/structural-calculator";
 import { useMarket } from "@/lib/international/market-context";
+import { DimensionalInput } from "@/components/measurement/DimensionalInput";
+import { parseDimensionalInput } from "@/lib/globalization/dimensional-parser";
+import type { ExtendedLengthUnit } from "@/lib/measurement/extended-units";
 import {
   calculateConcreteTakeoff,
   type ConcreteTakeoffResult,
@@ -183,7 +186,15 @@ export function ConcreteTakeoffCalculator() {
   >([]);
   const [result, setResult] = useState<ConcreteTakeoffResult | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
+  const { market, preferredLengthUnit } = useMarket();
+  const [dimensionUnit, setDimensionUnit] = useState<ExtendedLengthUnit>(preferredLengthUnit);
+  useEffect(() => { setDimensionUnit(preferredLengthUnit); }, [market.marketCode, preferredLengthUnit]);
   const calculate = () => {
+    const parsedDimensions = [length, width, depth].map((value) => parseDimensionalInput(value, { defaultUnit: dimensionUnit, minMm: 0.000001, maxMm: 1_000_000_000 }));
+    const dimensionErrors = parsedDimensions.flatMap((parsed, index) => parsed.ok ? [] : [`${["Length", "Width", "Depth"][index]}: ${parsed.errors[0]}`]);
+    if (dimensionErrors.length) { setErrors(dimensionErrors); setResult(null); return; }
+    const [lengthParsed, widthParsed, depthParsed] = parsedDimensions;
+    if (!lengthParsed.ok || !widthParsed.ok || !depthParsed.ok) return;
     const scheduled: RebarBarGroup[] = bars.map((bar) => ({
       label: bar.label,
       diameterMm: Number(bar.diameterMm),
@@ -192,9 +203,9 @@ export function ConcreteTakeoffCalculator() {
     }));
     const response = calculateConcreteTakeoff({
       elementType,
-      lengthM: Number(length),
-      widthM: Number(width),
-      depthM: Number(depth),
+      lengthM: lengthParsed.millimeters / 1000,
+      widthM: widthParsed.millimeters / 1000,
+      depthM: depthParsed.millimeters / 1000,
       cementParts: Number(cement),
       sandParts: Number(sand),
       aggregateParts: Number(aggregate),
@@ -226,13 +237,14 @@ export function ConcreteTakeoffCalculator() {
       />
     </label>
   );
+  const dimensionField = (label: string, value: string, set: (value: string) => void) => <DimensionalInput label={label} value={value} onValueChange={set} unit={dimensionUnit} onUnitChange={setDimensionUnit} minMm={0.000001} maxMm={1_000_000_000} />;
   return (
     <div className="space-y-6">
       <div className="card p-5 sm:p-7">
         <h2 className="text-xl font-bold">Measured concrete quantities</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Rectangular element quantity takeoff only. It does not size or design
-          structural elements.
+          structural elements. Measurements accept metric or imperial units; bare values use the selected default unit.
         </p>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label className="grid gap-1 text-sm font-medium">
@@ -251,23 +263,20 @@ export function ConcreteTakeoffCalculator() {
               <option value="footing">Rectangular pad footing</option>
             </select>
           </label>
-          {field(
-            `${elementType === "column" ? "Column height" : elementType === "beam" ? "Beam length" : elementType === "footing" ? "Footing length" : "Slab length"} (m)`,
+          {dimensionField(
+            `${elementType === "column" ? "Column height" : elementType === "beam" ? "Beam length" : elementType === "footing" ? "Footing length" : "Slab length"}`,
             length,
             setLength,
-            "Enter measured length",
           )}
-          {field(
-            `${elementType === "column" ? "Column side A" : elementType === "beam" ? "Beam width" : elementType === "footing" ? "Footing width" : "Slab width"} (m)`,
+          {dimensionField(
+            `${elementType === "column" ? "Column side A" : elementType === "beam" ? "Beam width" : elementType === "footing" ? "Footing width" : "Slab width"}`,
             width,
             setWidth,
-            "Enter measured width",
           )}
-          {field(
-            `${elementType === "column" ? "Column side B" : elementType === "beam" ? "Beam depth" : elementType === "footing" ? "Footing depth" : "Slab thickness"} (m)`,
+          {dimensionField(
+            `${elementType === "column" ? "Column side B" : elementType === "beam" ? "Beam depth" : elementType === "footing" ? "Footing depth" : "Slab thickness"}`,
             depth,
             setDepth,
-            "Enter specified dimension",
           )}
           {field("Mix cement parts", cement, setCement, "Specified mix")}
           {field("Mix sand parts", sand, setSand, "Specified mix")}
