@@ -14,7 +14,8 @@
  * ARCHIE exclusion: migration files whose name contains "archie" are skipped,
  * and tables whose name contains "archie" are never touched.
  */
-import { readdir, readFile, writeFileSync } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const TOKEN = process.env.SUPABASE_ACCESS_TOKEN ?? "";
