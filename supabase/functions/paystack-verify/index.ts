@@ -21,6 +21,11 @@ import {
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
 import { rateLimitedResponse } from "../_shared/cors.ts";
+import {
+  configAsPack,
+  pickPack,
+  type TokenPackRow,
+} from "../_shared/token-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Headers":
@@ -134,14 +139,14 @@ serveWithCors(async (req: Request) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     // ── Token purchase: credit the wallet atomically (idempotent) ──
+    // Packs (2026-10-16): the bundle is identified by metadata.pack_id
+    // (default 1). Tokens and price are ALWAYS resolved server-side
+    // from the pack definition; echoed metadata is advisory only.
     if (purpose === "token_purchase") {
-      const tokens = metadata.tokens as number;
-      const priceKobo = (metadata.price_kobo as number) || transaction.amount;
-
-      if (!userId || !tokens) {
+      if (!userId) {
         return new Response(
           JSON.stringify({
-            error: "Missing user_id or tokens in transaction metadata",
+            error: "Missing user_id in transaction metadata",
           }),
           {
             status: 400,
@@ -149,6 +154,42 @@ serveWithCors(async (req: Request) => {
           },
         );
       }
+
+      const { data: packRows, error: packsError } = await supabase
+        .from("token_purchase_packs")
+        .select("id, key, name, token_amount, price_kobo, is_enabled");
+      let packs: TokenPackRow[] = (packRows ?? []) as TokenPackRow[];
+      if (packsError || packs.length === 0) {
+        const { data: config, error: configError } = await supabase
+          .from("token_purchase_config")
+          .select("token_amount, price_kobo, is_enabled")
+          .eq("id", 1)
+          .maybeSingle();
+        if (configError || !config) {
+          return new Response(
+            JSON.stringify({ error: "Token shop unavailable" }),
+            {
+              status: 500,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            },
+          );
+        }
+        packs = [configAsPack(config)];
+      }
+
+      const pack = pickPack(packs, metadata.pack_id as number | undefined);
+      if (!pack) {
+        return new Response(
+          JSON.stringify({ error: "Token pack unavailable" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const tokens = pack.token_amount;
+      const priceKobo = pack.price_kobo;
 
       // Sanity: the amount actually paid must match the configured price
       if (transaction.amount !== priceKobo) {

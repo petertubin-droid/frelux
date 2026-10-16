@@ -24,6 +24,11 @@ import {
 } from "../_shared/subscription-pricing.ts";
 import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+import {
+  configAsPack,
+  pickPack,
+  type TokenPackRow,
+} from "../_shared/token-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Headers":
@@ -185,17 +190,62 @@ serveWithCors(async (req: Request) => {
     }
 
     // ── Token purchase: credit tokens (idempotent via RPC reference check) ──
+    // Packs (2026-10-16): the bundle is identified by metadata.pack_id
+    // (default 1). Tokens and price are ALWAYS resolved server-side
+    // from the pack definition; the paid amount must match it.
     if (purpose === "token_purchase" && event === "charge.success") {
-      const tokens = metadata.tokens as number;
-      if (!userId || !tokens) {
+      if (!userId) {
+        return new Response(JSON.stringify({ error: "Missing user_id" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: packRows, error: packsError } = await supabase
+        .from("token_purchase_packs")
+        .select("id, key, name, token_amount, price_kobo, is_enabled");
+      let packs: TokenPackRow[] = (packRows ?? []) as TokenPackRow[];
+      if (packsError || packs.length === 0) {
+        const { data: config, error: configError } = await supabase
+          .from("token_purchase_config")
+          .select("token_amount, price_kobo, is_enabled")
+          .eq("id", 1)
+          .maybeSingle();
+        if (configError || !config) {
+          return new Response(
+            JSON.stringify({ error: "Token shop unavailable" }),
+            {
+              status: 500,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            },
+          );
+        }
+        packs = [configAsPack(config)];
+      }
+
+      const pack = pickPack(packs, metadata.pack_id as number | undefined);
+      if (!pack) {
         return new Response(
-          JSON.stringify({ error: "Missing user_id or tokens" }),
+          JSON.stringify({ error: "Token pack unavailable" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // The amount actually paid must match the configured pack price.
+      if ((data.amount as number) !== pack.price_kobo) {
+        return new Response(
+          JSON.stringify({ error: "Amount paid does not match token price" }),
           {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           },
         );
       }
+
+      const tokens = pack.token_amount;
       const { error: creditError } = await supabase.rpc(
         "credit_token_purchase",
         {

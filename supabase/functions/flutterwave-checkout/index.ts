@@ -27,7 +27,12 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { resolveSubscriptionPriceKobo } from "../_shared/subscription-pricing.ts";
-import { resolveTokenPrice } from "../_shared/token-pricing.ts";
+import {
+  configAsPack,
+  pickPack,
+  resolvePackPrice,
+  type TokenPackRow,
+} from "../_shared/token-pricing.ts";
 import { minorToMajor } from "../_shared/currency-units.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
@@ -69,6 +74,7 @@ serveWithCors(async (req: Request) => {
       user_id,
       currency,
       allow_ngn_fallback,
+      pack_id,
     } = await req.json();
     const plan = typeof plan_id === "string" ? plan_id : "";
     const cycle = billing_cycle === "yearly" ? "yearly" : "monthly";
@@ -110,24 +116,41 @@ serveWithCors(async (req: Request) => {
     // ignored entirely; resolveTokenPrice gives NGN the canonical
     // naira price from token_purchase_config.
     if (isTokenPurchase) {
-      const { data: tokenConfig, error: configError } = await admin
-        .from("token_purchase_config")
-        .select("token_amount, price_kobo, is_enabled")
-        .eq("id", 1)
-        .maybeSingle();
-      if (configError || !tokenConfig || !tokenConfig.is_enabled) {
-        return json({ error: "Token purchases are not available" }, 400);
+      // Packs (2026-10-16): the token shop sells multiple bundles.
+      // Pack definitions come from token_purchase_packs; the legacy
+      // single-row config remains the fallback for pack 1 so a
+      // rolled-back migration cannot break the existing flow.
+      const { data: packRows, error: packsError } = await admin
+        .from("token_purchase_packs")
+        .select("id, key, name, token_amount, price_kobo, is_enabled")
+        .order("sort_order");
+      let packs: TokenPackRow[] = (packRows ?? []) as TokenPackRow[];
+      if (packsError || packs.length === 0) {
+        const { data: tokenConfig, error: configError } = await admin
+          .from("token_purchase_config")
+          .select("token_amount, price_kobo, is_enabled")
+          .eq("id", 1)
+          .maybeSingle();
+        if (configError || !tokenConfig || !tokenConfig.is_enabled) {
+          return json({ error: "Token purchases are not available" }, 400);
+        }
+        packs = [configAsPack(tokenConfig)];
+      }
+
+      const pack = pickPack(packs, pack_id);
+      if (!pack) {
+        return json({ error: "That token pack is not available" }, 400);
       }
 
       const { data: priceRows, error: priceRowsError } = await admin
         .from("token_purchase_prices")
-        .select("currency_code, price_minor, is_active");
+        .select("pack_id, currency_code, price_minor, is_active");
       if (priceRowsError) {
         return json({ error: "Token pricing unavailable" }, 500);
       }
 
-      const resolution = resolveTokenPrice(
-        tokenConfig,
+      const resolution = resolvePackPrice(
+        pack,
         priceRows ?? [],
         chargeCurrency,
       );
@@ -168,12 +191,14 @@ serveWithCors(async (req: Request) => {
           customer: { email },
           customizations: {
             title: "FRELUX",
-            description: `FRELUX Tokens (${resolution.tokens})`,
+            description: `${pack.name ?? "FRELUX Tokens"} (${resolution.tokens} credits)`,
           },
           meta: {
             purpose: "token_purchase",
             user_id,
             tokens: resolution.tokens,
+            pack_id: pack.id,
+            pack_name: pack.name ?? "Token Pack",
             currency: resolution.currency,
             price_minor: resolution.priceMinor,
           },

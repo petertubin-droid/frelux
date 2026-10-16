@@ -29,7 +29,12 @@ import {
   validateSubscriptionPayment,
 } from "../_shared/subscription-pricing.ts";
 import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
-import { validateTokenPayment } from "../_shared/token-pricing.ts";
+import {
+  configAsPack,
+  pickPack,
+  validatePackPayment,
+  type TokenPackRow,
+} from "../_shared/token-pricing.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 
 const corsHeaders = {
@@ -88,29 +93,37 @@ serveWithCors(async (req: Request) => {
       const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const admin = createClient(supabaseUrl, serviceRoleKey);
 
-      const { data: tokenConfig, error: configError } = await admin
-        .from("token_purchase_config")
-        .select("token_amount, price_kobo, is_enabled")
-        .eq("id", 1)
-        .maybeSingle();
-      if (configError || !tokenConfig) {
-        return json({
-          received: true,
-          credited: false,
-          reason: "TOKENS_NOT_CONFIGURED",
-        });
+      // Packs (2026-10-16): bundle identified by meta.pack_id, priced
+      // server-side. Echoed meta is advisory only.
+      const { data: packRows, error: packsError } = await admin
+        .from("token_purchase_packs")
+        .select("id, key, name, token_amount, price_kobo, is_enabled");
+      let packs: TokenPackRow[] = (packRows ?? []) as TokenPackRow[];
+      if (packsError || packs.length === 0) {
+        const { data: tokenConfig, error: configError } = await admin
+          .from("token_purchase_config")
+          .select("token_amount, price_kobo, is_enabled")
+          .eq("id", 1)
+          .maybeSingle();
+        if (configError || !tokenConfig) {
+          return json({
+            received: true,
+            credited: false,
+            reason: "TOKENS_NOT_CONFIGURED",
+          });
+        }
+        packs = [configAsPack(tokenConfig)];
       }
       const { data: priceRows, error: priceRowsError } = await admin
         .from("token_purchase_prices")
-        .select("currency_code, price_minor, is_active");
+        .select("pack_id, currency_code, price_minor, is_active");
       if (priceRowsError) {
         return json({ error: "Token pricing unavailable" }, 500);
       }
 
-      const tokens = Number(meta.tokens) || 0;
       const userId = meta.user_id as string | undefined;
       const txRef = (typeof data.tx_ref === "string" && data.tx_ref) || null;
-      if (!userId || !tokens || !txRef) {
+      if (!userId || !txRef) {
         return json({
           received: true,
           credited: false,
@@ -118,8 +131,17 @@ serveWithCors(async (req: Request) => {
         });
       }
 
-      const validation = validateTokenPayment({
-        config: tokenConfig,
+      const pack = pickPack(packs, meta.pack_id as number | undefined);
+      if (!pack) {
+        return json({
+          received: true,
+          credited: false,
+          reason: "TOKENS_NOT_CONFIGURED",
+        });
+      }
+
+      const validation = validatePackPayment({
+        pack,
         priceRows: priceRows ?? [],
         currency: String(data.currency ?? ""),
         amountPaidMajor: Number(data.amount),

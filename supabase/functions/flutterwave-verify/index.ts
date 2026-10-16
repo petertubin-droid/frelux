@@ -21,7 +21,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { validateSubscriptionPayment } from "../_shared/subscription-pricing.ts";
 import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
-import { validateTokenPayment } from "../_shared/token-pricing.ts";
+import {
+  configAsPack,
+  pickPack,
+  validatePackPayment,
+  type TokenPackRow,
+} from "../_shared/token-pricing.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
   checkRateLimit,
@@ -101,17 +106,31 @@ serveWithCors(async (req: Request) => {
       const serviceRoleKey2 = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const admin2 = createClient(supabaseUrl2, serviceRoleKey2);
 
-      const { data: tokenConfig, error: configError } = await admin2
-        .from("token_purchase_config")
-        .select("token_amount, price_kobo, is_enabled")
-        .eq("id", 1)
-        .maybeSingle();
-      if (configError || !tokenConfig) {
-        return json({ verified: false, error: "Token shop unavailable" }, 200);
+      // Packs (2026-10-16): the purchased bundle is identified by
+      // meta.pack_id (default 1). Its price and token amount are
+      // ALWAYS resolved server-side — the echoed meta is advisory.
+      const { data: packRows, error: packsError } = await admin2
+        .from("token_purchase_packs")
+        .select("id, key, name, token_amount, price_kobo, is_enabled");
+      let packs: TokenPackRow[] = (packRows ?? []) as TokenPackRow[];
+      if (packsError || packs.length === 0) {
+        const { data: tokenConfig, error: configError } = await admin2
+          .from("token_purchase_config")
+          .select("token_amount, price_kobo, is_enabled")
+          .eq("id", 1)
+          .maybeSingle();
+        if (configError || !tokenConfig) {
+          return json(
+            { verified: false, error: "Token shop unavailable" },
+            200,
+          );
+        }
+        packs = [configAsPack(tokenConfig)];
       }
+
       const { data: priceRows, error: priceRowsError } = await admin2
         .from("token_purchase_prices")
-        .select("currency_code, price_minor, is_active");
+        .select("pack_id, currency_code, price_minor, is_active");
       if (priceRowsError) {
         return json(
           { verified: false, error: "Token pricing unavailable" },
@@ -119,17 +138,21 @@ serveWithCors(async (req: Request) => {
         );
       }
 
-      const tokens = Number(meta.tokens) || 0;
       const userId = meta.user_id as string | undefined;
-      if (!userId || !tokens) {
+      if (!userId) {
         return json(
           { verified: false, error: "Missing payment metadata" },
           200,
         );
       }
 
-      const validation = validateTokenPayment({
-        config: tokenConfig,
+      const pack = pickPack(packs, meta.pack_id as number | undefined);
+      if (!pack) {
+        return json({ verified: false, error: "Token pack unavailable" }, 200);
+      }
+
+      const validation = validatePackPayment({
+        pack,
         priceRows: priceRows ?? [],
         currency: String(tx.currency ?? ""),
         amountPaidMajor: Number(tx.amount),

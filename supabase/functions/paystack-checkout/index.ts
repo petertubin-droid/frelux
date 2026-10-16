@@ -24,6 +24,11 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { resolveSubscriptionPriceKobo } from "../_shared/subscription-pricing.ts";
+import {
+  configAsPack,
+  pickPack,
+  type TokenPackRow,
+} from "../_shared/token-pricing.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
   checkRateLimit,
@@ -60,6 +65,7 @@ serveWithCors(async (req: Request) => {
       callback_url,
       metadata,
       purpose,
+      pack_id,
     } = await req.json();
 
     const isApiPlanPurchase = purpose === "api_plan";
@@ -231,16 +237,37 @@ serveWithCors(async (req: Request) => {
         });
       }
 
-      // ALWAYS price server-side from config — never trust the client amount.
-      const { data: config, error: configError } = await admin
-        .from("token_purchase_config")
-        .select("token_amount, price_kobo, is_enabled")
-        .eq("id", 1)
-        .maybeSingle();
+      // ALWAYS price server-side from the pack definition — never
+      // trust the client amount. Packs (2026-10-16): the shop sells
+      // multiple bundles; legacy single-row config is the pack-1
+      // fallback when token_purchase_packs is unavailable.
+      const { data: packRows, error: packsError } = await admin
+        .from("token_purchase_packs")
+        .select("id, key, name, token_amount, price_kobo, is_enabled")
+        .order("sort_order");
+      let packs: TokenPackRow[] = (packRows ?? []) as TokenPackRow[];
+      if (packsError || packs.length === 0) {
+        const { data: config, error: configError } = await admin
+          .from("token_purchase_config")
+          .select("token_amount, price_kobo, is_enabled")
+          .eq("id", 1)
+          .maybeSingle();
+        if (configError || !config || !config.is_enabled) {
+          return new Response(
+            JSON.stringify({ error: "Token purchases are not available" }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            },
+          );
+        }
+        packs = [configAsPack(config)];
+      }
 
-      if (configError || !config || !config.is_enabled) {
+      const pack = pickPack(packs, pack_id);
+      if (!pack || !pack.is_enabled) {
         return new Response(
-          JSON.stringify({ error: "Token purchases are not available" }),
+          JSON.stringify({ error: "That token pack is not available" }),
           {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -248,22 +275,23 @@ serveWithCors(async (req: Request) => {
         );
       }
 
-      checkoutAmount = config.price_kobo;
+      checkoutAmount = pack.price_kobo;
       checkoutMetadata = {
         purpose: "token_purchase",
         user_id,
-        tokens: config.token_amount,
-        price_kobo: config.price_kobo,
+        pack_id: pack.id,
+        tokens: pack.token_amount,
+        price_kobo: pack.price_kobo,
         custom_fields: [
           {
             display_name: "Product",
             variable_name: "product",
-            value: `FRELUX Tokens (${config.token_amount})`,
+            value: `${pack.name ?? "FRELUX Tokens"} (${pack.token_amount})`,
           },
           {
             display_name: "Tokens",
             variable_name: "tokens",
-            value: String(config.token_amount),
+            value: String(pack.token_amount),
           },
           {
             display_name: "Platform",

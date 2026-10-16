@@ -76,9 +76,23 @@ export function formatNaira(kobo: number): string {
 // =========================================================
 
 export interface TokenPriceRow {
+  /** Which pack this price row belongs to (1 = Starter, 2 = Value...). */
+  pack_id?: number;
   currency_code: string;
   price_minor: number;
   is_active: boolean;
+  updated_at: string;
+}
+
+/** A purchasable token bundle from token_purchase_packs. */
+export interface TokenPack {
+  id: number;
+  key: string;
+  name: string;
+  token_amount: number;
+  price_kobo: number;
+  is_enabled: boolean;
+  sort_order: number;
   updated_at: string;
 }
 
@@ -115,6 +129,30 @@ export function resolveTokenCharge(
     return { mode: "native", currency: code, priceMinor: row.price_minor };
   }
   return { mode: "naira", currency: "NGN", priceMinor: priceKobo };
+}
+
+/**
+ * Pack-aware variant of resolveTokenCharge: resolves how ONE pack is
+ * charged for a display currency. Native mode requires an ACTIVE
+ * admin-configured price for that pack in that currency.
+ */
+export function resolvePackCharge(
+  pack: Pick<TokenPack, "id" | "price_kobo">,
+  displayCurrency: string | undefined | null,
+  prices: TokenPriceRow[] | undefined,
+): TokenCharge {
+  const code = String(displayCurrency ?? "").toUpperCase();
+  const row = (prices ?? []).find(
+    (p) =>
+      p.currency_code.toUpperCase() === code &&
+      p.is_active &&
+      p.price_minor > 0 &&
+      (p.pack_id ?? 1) === pack.id,
+  );
+  if (code && code !== "NGN" && row) {
+    return { mode: "native", currency: code, priceMinor: row.price_minor };
+  }
+  return { mode: "naira", currency: "NGN", priceMinor: pack.price_kobo };
 }
 
 /** Symbol for a currency code, from the display-currency registry. */
@@ -186,9 +224,27 @@ export async function getTokenPurchasePrices(): Promise<TokenPriceRow[]> {
   const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("token_purchase_prices")
-    .select("currency_code, price_minor, is_active, updated_at");
+    .select("pack_id, currency_code, price_minor, is_active, updated_at");
   if (error || !data) return [];
   return data as TokenPriceRow[];
+}
+
+// =========================================================
+// Public: read the purchasable token packs (pack-aware shop)
+// =========================================================
+
+export async function getTokenPacks(): Promise<TokenPack[]> {
+  if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
+  const { data, error } = await supabase
+    .from("token_purchase_packs")
+    .select(
+      "id, key, name, token_amount, price_kobo, is_enabled, sort_order, updated_at",
+    )
+    .eq("is_enabled", true)
+    .order("sort_order");
+  if (error || !data) return [];
+  return data as TokenPack[];
 }
 
 /**
@@ -197,7 +253,8 @@ export async function getTokenPurchasePrices(): Promise<TokenPriceRow[]> {
  * through Flutterwave when it is configured; otherwise return null and
  * let the caller surface the original Paystack error.
  */
-const PAYSTACK_KEY_FAILURE = /(?:invalid|incorrect|unauthori[sz]ed).{0,30}(?:api[\s_-]*)?key|(?:api[\s_-]*)?key.{0,30}(?:invalid|incorrect)/i;
+const PAYSTACK_KEY_FAILURE =
+  /(?:invalid|incorrect|unauthori[sz]ed).{0,30}(?:api[\s_-]*)?key|(?:api[\s_-]*)?key.{0,30}(?:invalid|incorrect)/i;
 
 async function tryNgnFlutterwaveFallback(
   paystackError: string,
@@ -461,7 +518,20 @@ export async function adminUpdateTokenPurchaseConfig(
     .from("token_purchase_config")
     .update({ ...updates, updated_at: new Date().toISOString() })
     .eq("id", 1);
-  return !error;
+  if (error) return false;
+  // Packs (2026-10-16): checkout prices read token_purchase_packs first,
+  // so keep pack 1 (the single plan) in sync. Best-effort — on databases
+  // without the packs table yet, the config row above remains the source.
+  const { error: packError } = await supabase
+    .from("token_purchase_packs")
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq("id", 1);
+  if (packError) {
+    console.warn(
+      "[token-purchase] Pack row not synced (packs table missing? Using config only).",
+    );
+  }
+  return true;
 }
 
 // =========================================================
@@ -473,7 +543,7 @@ export async function adminGetTokenPrices(): Promise<TokenPriceRow[]> {
   const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("token_purchase_prices")
-    .select("currency_code, price_minor, is_active, updated_at");
+    .select("pack_id, currency_code, price_minor, is_active, updated_at");
   if (error || !data) return [];
   return data as TokenPriceRow[];
 }
@@ -485,6 +555,7 @@ export async function adminGetTokenPrices(): Promise<TokenPriceRow[]> {
 export async function adminSaveTokenPrice(
   currency: string,
   priceMajor: number,
+  packId: number = 1,
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const code = currency.toUpperCase();
@@ -504,16 +575,33 @@ export async function adminSaveTokenPrice(
     priceMajor * Math.pow(10, currencyMinorUnits(code)),
   );
   if (priceMinor <= 0) return false;
-  const { error } = await supabase.from("token_purchase_prices").upsert(
-    {
-      currency_code: code,
-      price_minor: priceMinor,
-      is_active: true,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "currency_code" },
-  );
-  return !error;
+  // Packs (2026-10-16): price rows are per-pack. Older databases
+  // without the pack_id column keep the legacy single-column key.
+  const { error: packError } = await supabase
+    .from("token_purchase_prices")
+    .upsert(
+      {
+        pack_id: packId,
+        currency_code: code,
+        price_minor: priceMinor,
+        is_active: true,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "pack_id,currency_code" },
+    );
+  if (!packError) return true;
+  const { error: legacyError } = await supabase
+    .from("token_purchase_prices")
+    .upsert(
+      {
+        currency_code: code,
+        price_minor: priceMinor,
+        is_active: true,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "currency_code" },
+    );
+  return !legacyError;
 }
 
 export async function adminGetTokenPurchases(limit = 50): Promise<
