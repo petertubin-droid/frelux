@@ -228,7 +228,9 @@ describe("CountVision credit gate", () => {
 
     await waitFor(() => expect(gateMock).toHaveBeenCalledWith("count_vision"));
     expect(countMock).not.toHaveBeenCalled();
-    expect(screen.getByTestId("ai-feature-gate-stub")).toBeTruthy();
+    await waitFor(() =>
+      expect(screen.getByTestId("ai-feature-gate-stub")).toBeInTheDocument(),
+    );
   });
 
   it("signed-in users with credits get the count after the gate passes", async () => {
