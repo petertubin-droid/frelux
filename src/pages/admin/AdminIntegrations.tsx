@@ -24,6 +24,10 @@ import { AdminButton, StatusBadge } from "@/components/admin/AdminUi";
 import { SITE_URL } from "@/lib/seo";
 import { ProviderKeyCards } from "@/components/admin/ProviderKeyCards";
 
+const SUPABASE_FUNCTIONS_URL = import.meta.env.VITE_SUPABASE_URL
+  ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
+  : "<your-supabase-project-url>/functions/v1";
+
 const CATEGORY_ICONS: Record<string, typeof CreditCard> = {
   payment: CreditCard,
   analytics: BarChart3,
@@ -143,9 +147,18 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
     postback_url: `Paste into your CPX Research dashboard postback settings, replace the {macros} with the CPX variable names, and YOUR-CPX-SECRET with a dedicated secret (not the secure_hash, which is public in the offerwall URL): ${SITE_URL}/functions/v1/rewarded-postback/cpx_research?ext_user_id={ext_user_id}&payout={payout}&sig=YOUR-CPX-SECRET`,
   },
   ayet_studios: {
-    app_id: "Your Ayet Studios app ID. Register at ayetstudios.com.",
-    api_key: "Your Ayet Studios API key for postback verification.",
-    postback_url: `Paste into your Ayet Studios dashboard postback settings, replace the {macros} with the Ayet variable names, and YOUR-AYET-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/ayet_studios?user={user}&amount={amount}&sig=YOUR-AYET-API-KEY`,
+    app_id:
+      "Optional legacy offerwall identifier. Rewarded video uses the Website Placement and AdSlot configured under Admin → Ads.",
+    api_key:
+      "Publisher API key from ayeT Account Settings. Keep it only in the password field under Admin → Ads → ayeT Studios; it is used server-side to verify signed callbacks.",
+    placement_id:
+      "Numeric Website Placement ID from ayeT. Configure it under Admin → Ads → ayeT Studios.",
+    rewarded_video_enabled:
+      "Enable only after the ayeT website placement and Rewarded Video AdSlot are approved and configured.",
+    rewarded_adslot_name:
+      "Exact Rewarded Video AdSlot name from ayeT. Configure it under Admin → Ads → ayeT Studios.",
+    rewarded_adslot_id:
+      "Numeric AdSlot ID required to reject offerwall and other non-video callbacks.",
   },
   meta_pixel: {
     pixel_id:
@@ -185,7 +198,7 @@ const INTEGRATION_LINKS: Record<string, Record<string, string>> = {
     label: "Open CPX Research",
     url: "https://www.cpx-research.com",
   },
-  ayet_studios: { label: "Open Ayet Studios", url: "https://ayetstudios.com" },
+  ayet_studios: { label: "Open ayeT Studios", url: "https://ayetstudios.com" },
   meta_pixel: {
     pixel_id:
       "Your Meta/Facebook Pixel ID (e.g. 123456789012345). Find it in Meta Events Manager → Data Sources → Pixel.",
@@ -467,6 +480,34 @@ export default function AdminIntegrations() {
                       </a>
                     )}
 
+                    {integration.integration_key === "ayet_studios" && (
+                      <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
+                        <p className="font-semibold text-foreground">
+                          Secure rewarded-video setup
+                        </p>
+                        <p className="mt-1">
+                          Configure the publisher API key, website placement ID,
+                          exact AdSlot name and numeric AdSlot ID in Admin → Ads
+                          → ayeT Studios. Set the ayeT video callback URL to:
+                        </p>
+                        <code className="mt-2 block break-all rounded bg-background p-2 text-[11px] text-foreground">
+                          {SUPABASE_FUNCTIONS_URL}
+                          /ayet-rewarded-callback?transaction_id=
+                          {"{transaction_id}"}&amp;external_identifier=
+                          {"{external_identifier}"}&amp;adslot_id=
+                          {"{adslot_id}"}
+                        </code>
+                        <p className="mt-2">
+                          Enable “Send S2S Callbacks” for that Rewarded Video
+                          AdSlot in ayeT, add every ads.txt line shown in the
+                          placement dashboard, deploy the Supabase migrations
+                          and functions, then enable rewarded video here. The
+                          signature header is verified server-side; never add
+                          the API key or a shared secret to this URL. Callback
+                          verification is the only authority for credits.
+                        </p>
+                      </div>
+                    )}
                     {configFields.length > 0 && (
                       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                         {configFields.map(([key, _value]) => (

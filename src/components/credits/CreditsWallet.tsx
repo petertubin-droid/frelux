@@ -31,7 +31,6 @@ import {
   type AiFeatureCost,
   getAiFeatureCost,
   spendAiCredits,
-  unlockFeatureViaAd,
 } from "@/lib/credits";
 import {
   logAdEvent,
@@ -40,8 +39,8 @@ import {
 } from "@/lib/ad-config";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
-import { supportsRewardedAds } from "@/lib/ad-providers";
 import { getClientHash, REWARDED_AD_BRIDGES } from "@/lib/rewarded-access";
+import { getCreditRewardCandidates } from "@/lib/rewarded-bridges";
 
 // ───────────────────────────────────────────────────────
 // Main Credits Wallet Component
@@ -55,8 +54,18 @@ export function CreditsWallet({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"overview" | "history" | "ads">("overview");
   const [showEarnModal, setShowEarnModal] = useState(false);
-  const [adProviderReady, _setAdProviderReady] = useState(false);
+  const [adProviderReady, setAdProviderReady] = useState(false);
   const [todayEarned, setTodayEarned] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+    void hasRewardedAdProvider().then((ready) => {
+      if (mounted) setAdProviderReady(ready);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const load = useCallback(async () => {
     if (!userId) return;
@@ -422,10 +431,7 @@ function EarnCreditsModal({
     // The client callback is display-only and does not authorize a reward.
     try {
       const { providers } = await fetchAdConfig();
-      const activeProvider = providers.find(
-        (p) =>
-          supportsRewardedAds(p) && p.is_active && REWARDED_AD_BRIDGES[p.slug],
-      );
+      const activeProvider = getCreditRewardCandidates(providers)[0];
 
       if (!activeProvider) {
         setErrorMsg(
@@ -441,20 +447,29 @@ function EarnCreditsModal({
       );
 
       setPhase("verifying");
-      const result: EarnResult = await verifyRewardedAd(
-        activeProvider.slug,
-        adEventId,
-        "earn_credits",
-        {
-          source: "credits_wallet",
-          ad_mode: adResult.mode,
-          ...(adResult.estimatedPrice != null
-            ? { estimated_price: adResult.estimatedPrice }
-            : {}),
-        },
-      );
+      const result: EarnResult =
+        activeProvider.slug === "ayet_studios"
+          ? {
+              success: true,
+              creditsEarned: adResult.verifiedCreditsEarned ?? 0,
+              newBalance: adResult.verifiedBalance ?? 0,
+              message:
+                "ayeT confirmed your completed video through its secure server callback.",
+            }
+          : await verifyRewardedAd(
+              activeProvider.slug,
+              adEventId,
+              "earn_credits",
+              {
+                source: "credits_wallet",
+                ad_mode: adResult.mode,
+                ...(adResult.estimatedPrice != null
+                  ? { estimated_price: adResult.estimatedPrice }
+                  : {}),
+              },
+            );
 
-      if (result.success) {
+      if (result.success && (result.creditsEarned ?? 0) > 0) {
         setEarnedAmount(result.creditsEarned ?? creditsPerAd);
         setPhase("success");
 
@@ -721,7 +736,6 @@ export function AiFeatureGate({
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [loading, setLoading] = useState(true);
   const [spending, setSpending] = useState(false);
-  const [adUnlocking, setAdUnlocking] = useState(false);
   const [error, setError] = useState("");
   const [_success, setSuccess] = useState(false);
   const [mode, setMode] = useState<"choice" | "ad_watching" | "success">(
@@ -940,17 +954,9 @@ export function AiFeatureGate({
                     variant="default"
                     type="button"
                     onClick={handleWatchAd}
-                    disabled={adUnlocking}
                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 bg-card px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:bg-primary/5 disabled:opacity-50 dark:bg-transparent dark:text-brand-purple"
                   >
-                    {adUnlocking ? (
-                      <Loader2
-                        aria-hidden="true"
-                        className="h-5 w-5 animate-spin"
-                      />
-                    ) : (
-                      <PlayCircle className="h-5 w-5" />
-                    )}
+                    <PlayCircle className="h-5 w-5" />
                     Watch Ad to Unlock
                   </Button>
                 </>

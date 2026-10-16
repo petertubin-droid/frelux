@@ -388,6 +388,17 @@ function ProvidersTab() {
   );
 }
 
+function finalSlugForSetup(slug: string, name: string): string {
+  return (
+    slug ||
+    name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_|_$/g, "")
+  );
+}
+
 function ProviderForm({
   initial,
   onClose,
@@ -589,6 +600,28 @@ function ProviderForm({
           ))}
         </div>
       </div>
+
+      {finalSlugForSetup(slug, name) === "ayet_studios" && (
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed">
+          <h3 className="font-semibold text-foreground">
+            ayeT Rewarded Video for Web
+          </h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            In ayeT, create a Website placement and Rewarded Video AdSlot.
+            Enable “Send S2S Callbacks” for that AdSlot, add all required
+            ads.txt entries, then set this exact callback URL on the website
+            placement:
+          </p>
+          <code className="mt-2 block break-all rounded bg-background p-2 text-[11px]">{`${import.meta.env.VITE_SUPABASE_URL ?? "<your-supabase-project-url>"}/functions/v1/ayet-rewarded-callback?transaction_id={transaction_id}&external_identifier={external_identifier}&adslot_id={adslot_id}`}</code>
+          <p className="mt-2 text-xs text-muted-foreground">
+            The callback must include ayeT’s{" "}
+            <code>X-Ayetstudios-Security-Hash</code> header. The publisher API
+            key stays in the private Credentials field and is never put in this
+            URL. Keep rewarded video off until functions and migrations are
+            deployed.
+          </p>
+        </div>
+      )}
 
       {/* Setting fields */}
       {schema.setting_fields.length > 0 && (

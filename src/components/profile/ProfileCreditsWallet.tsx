@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useCredits } from "@/lib/credits-context";
 import { useAuth } from "@/lib/auth";
 import {
@@ -7,17 +7,19 @@ import {
   CreditTask,
   getCreditTransactions,
   CreditTransaction,
-  verifyRewardedAd,
   MAX_ADS_PER_DAY,
   getTodayRewardedAdCount,
 } from "@/lib/credits";
-import { hasRewardedAdProvider } from "@/lib/ad-config";
+import { fetchAdConfig, hasRewardedAdProvider } from "@/lib/ad-config";
+import {
+  getCreditRewardCandidates,
+  REWARDED_AD_BRIDGES,
+} from "@/lib/rewarded-bridges";
+import { getClientHash } from "@/lib/rewarded-access";
 import {
   Coins,
   Sparkles,
   PlayCircle,
-  CheckCircle2,
-  ShieldCheck,
   ArrowUpRight,
   ArrowDownLeft,
   Clock,
@@ -40,7 +42,7 @@ export const ProfileCreditsWallet: React.FC = () => {
 
   const isDailyAdLimitReached = todayAdCount >= MAX_ADS_PER_DAY;
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!user) return;
     setLoadingTasks(true);
     try {
@@ -57,21 +59,54 @@ export const ProfileCreditsWallet: React.FC = () => {
     } finally {
       setLoadingTasks(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     loadData();
-  }, [user]);
+  }, [loadData]);
 
   useEffect(() => {
     hasRewardedAdProvider().then(setAdProviderReady);
   }, []);
 
   const handleWatchAd = async () => {
-    if (!user || adWatching) return;
-    setAdMessage(
-      "Rewarded ads are temporarily unavailable while secure server verification is being configured. No ad was shown and no credits were granted.",
-    );
+    if (!user || adWatching || !adProviderReady || isDailyAdLimitReached)
+      return;
+    setAdWatching(true);
+    setAdMessage(null);
+    try {
+      const { providers } = await fetchAdConfig();
+      const provider = getCreditRewardCandidates(providers)[0];
+      if (!provider || provider.slug !== "ayet_studios") {
+        setAdMessage(
+          "No server-verified video provider is available right now.",
+        );
+        return;
+      }
+      const result = await REWARDED_AD_BRIDGES.ayet_studios(provider, {
+        ymid: getClientHash(),
+        toolKey: "earn_credits",
+      });
+      if (!result.verifiedCreditsEarned || !result.verifiedBalance) {
+        setAdMessage(
+          "ayeT has not confirmed the reward yet. No credits were added by this page.",
+        );
+        return;
+      }
+      await refreshWallet();
+      await loadData();
+      setAdMessage(
+        `ayeT securely verified the video. +${result.verifiedCreditsEarned} credits added.`,
+      );
+    } catch (error) {
+      setAdMessage(
+        error instanceof Error
+          ? error.message
+          : "The rewarded video could not be verified.",
+      );
+    } finally {
+      setAdWatching(false);
+    }
   };
 
   const handleCompleteTask = async (taskId: string) => {

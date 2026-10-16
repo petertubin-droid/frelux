@@ -35,3 +35,13 @@ verify_jwt = false
 
 [functions.price-digest]
 verify_jwt = false
+
+# ayeT S2S callback is authenticated by its provider HMAC header, not Supabase JWT.
+[functions.ayet-rewarded-callback]
+verify_jwt = false
+# ayeT session management requires an authenticated user JWT.
+[functions.create-ayet-rewarded-session]
+verify_jwt = true
+
+[functions.verify-ayet-rewarded-session]
+verify_jwt = true

@@ -7,6 +7,7 @@ import {
   REWARDED_AD_BRIDGES,
   getRewardedAdCandidates,
   getBridgedAdCandidates,
+  getCreditRewardCandidates,
   getUnlockProviderChain,
 } from "./rewarded-bridges";
 import type { DbAdProvider } from "@/types/database";
@@ -28,8 +29,8 @@ function makeProvider(overrides: Partial<DbAdProvider>): DbAdProvider {
   } as DbAdProvider;
 }
 
-describe("getBridgedAdCandidates", () => {
-  it("returns active bridged providers only", () => {
+describe("getCreditRewardCandidates", () => {
+  it("returns only active ayeT providers configured for verified credit grants", () => {
     const providers = [
       makeProvider({ id: "a", slug: "monetag" }),
       makeProvider({
@@ -37,11 +38,50 @@ describe("getBridgedAdCandidates", () => {
         slug: "google_adsense",
         settings: { rewarded_ads: true, adsense_h5_approval_confirmed: true },
       }),
+      makeProvider({
+        id: "ayet",
+        slug: "ayet_studios",
+        provider_type: "rewarded",
+        credentials: { placement_id: "123" },
+        settings: {
+          rewarded_video_enabled: true,
+          rewarded_adslot_name: "credits",
+          rewarded_adslot_id: "456",
+        },
+      }),
       makeProvider({ id: "c", slug: "taboola", is_active: false }),
-      makeProvider({ id: "d", slug: "adsterra" }), // active but no bridge
+      makeProvider({ id: "d", slug: "adsterra" }),
     ];
-    const candidates = getBridgedAdCandidates(providers);
-    expect(candidates.map((p) => p.id)).toEqual(["a", "b"]);
+    const candidates = getCreditRewardCandidates(providers);
+    expect(candidates.map((p) => p.id)).toEqual(["ayet"]);
+  });
+
+  it("requires complete ayeT configuration before exposing credit rewards", () => {
+    const incomplete = makeProvider({
+      id: "ayet-incomplete",
+      slug: "ayet_studios",
+      provider_type: "rewarded",
+      settings: {
+        rewarded_video_enabled: true,
+        rewarded_adslot_name: "credits",
+        rewarded_adslot_id: "456",
+      },
+    });
+    const complete = makeProvider({
+      id: "ayet-ready",
+      slug: "ayet_studios",
+      provider_type: "rewarded",
+      credentials: { placement_id: "123" },
+      settings: {
+        rewarded_video_enabled: true,
+        rewarded_adslot_name: "credits",
+        rewarded_adslot_id: "456",
+      },
+    });
+    expect(getCreditRewardCandidates([incomplete])).toEqual([]);
+    expect(getCreditRewardCandidates([complete]).map((p) => p.id)).toEqual([
+      "ayet-ready",
+    ]);
   });
 
   it("keeps AdSense out of reward candidates until approval is confirmed", () => {
@@ -50,7 +90,7 @@ describe("getBridgedAdCandidates", () => {
       slug: "google_adsense",
       settings: { rewarded_ads: true, adsense_h5_approval_confirmed: false },
     });
-    expect(getBridgedAdCandidates([pending])).toEqual([]);
+    expect(getCreditRewardCandidates([pending])).toEqual([]);
   });
 
   it("orders candidates by priority (lower first)", () => {
@@ -148,5 +188,6 @@ describe("REWARDED_AD_BRIDGES registry", () => {
   it("ships bridges for every provider the system depends on", () => {
     expect(Object.keys(REWARDED_AD_BRIDGES)).toContain("monetag");
     expect(Object.keys(REWARDED_AD_BRIDGES)).toContain("google_adsense");
+    expect(Object.keys(REWARDED_AD_BRIDGES)).toContain("ayet_studios");
   });
 });

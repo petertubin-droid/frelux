@@ -6,18 +6,19 @@ import {
 } from "@/lib/monetag-rewarded";
 import { showAdsenseRewardedAd } from "@/lib/adsense-rewarded";
 import { supportsOfferwall } from "@/lib/offerwall";
+import { showAyetRewardedAd } from "@/lib/ayet-rewarded";
 
-/**
- * Browser SDK callbacks are not server proof. This stays false until a
- * provider-native verifier creates/correlates a server-issued ad session.
- * Adapters remain provider-neutral for integration, but no client callback
- * is treated as authorization to mint a reward.
- */
+/** ayeT is the currently implemented server-verified web reward path. Other
+ * client-only bridges do not authorize rewards until independently correlated
+ * to provider-signed server events. */
 export const REWARDED_SERVER_VERIFICATION_CONFIGURED = false;
 export interface RewardedAdBridgeResult {
   mode: string;
   valued: boolean | null;
   estimatedPrice: number | null;
+  /** Present only when a provider's signed S2S callback already awarded the user. */
+  verifiedCreditsEarned?: number;
+  verifiedBalance?: number;
 }
 
 export type RewardedAdBridge = (
@@ -26,6 +27,18 @@ export type RewardedAdBridge = (
 ) => Promise<RewardedAdBridgeResult>;
 
 export const REWARDED_AD_BRIDGES: Record<string, RewardedAdBridge> = {
+  // ayeT browser playback only requests/plays a video. Credit authorization
+  // waits for the signed provider S2S callback and our correlated session.
+  ayet_studios: async () => {
+    const result = await showAyetRewardedAd();
+    return {
+      mode: "ayet_s2s_rewarded_video",
+      valued: true,
+      estimatedPrice: null,
+      verifiedCreditsEarned: result.creditsEarned,
+      verifiedBalance: result.newBalance,
+    };
+  },
   // Monetag, website tag / SDK bridge (src/lib/monetag-rewarded.ts)
   monetag: async (provider, opts) => {
     const zone = getMonetagZone(provider);
@@ -115,6 +128,29 @@ export function getBridgedAdCandidates(
         );
       }
       return true;
+    })
+    .sort((a, b) => (a.priority ?? 99) - (b.priority ?? 99));
+}
+
+/** Credit earning is narrower than ad playback: only server-correlated ayeT
+ * sessions can currently authorize a wallet grant. */
+export function getCreditRewardCandidates(
+  providers: DbAdProvider[],
+): DbAdProvider[] {
+  return providers
+    .filter((p) => {
+      if (!p.is_active || p.slug !== "ayet_studios") return false;
+      const credentials = (p.credentials ?? {}) as Record<string, unknown>;
+      const settings = (p.settings ?? {}) as Record<string, unknown>;
+      return (
+        settings.rewarded_video_enabled === true &&
+        typeof credentials.placement_id === "string" &&
+        /^\d+$/.test(credentials.placement_id) &&
+        typeof settings.rewarded_adslot_name === "string" &&
+        settings.rewarded_adslot_name.trim().length > 0 &&
+        typeof settings.rewarded_adslot_id === "string" &&
+        /^\d+$/.test(settings.rewarded_adslot_id)
+      );
     })
     .sort((a, b) => (a.priority ?? 99) - (b.priority ?? 99));
 }

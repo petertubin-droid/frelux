@@ -56,7 +56,7 @@ import {
 } from "@/lib/credits";
 import { getClientHash } from "@/lib/rewarded-access";
 import {
-  getBridgedAdCandidates,
+  getCreditRewardCandidates,
   REWARDED_AD_BRIDGES,
   type RewardedAdBridgeResult,
 } from "@/lib/rewarded-bridges";
@@ -321,7 +321,7 @@ export default function Rewards() {
       // ad from this tap. Browser callbacks are not server-side proof, so
       // the grant endpoint must independently verify each reward.
       const { providers } = await fetchAdConfig();
-      const candidates = getBridgedAdCandidates(providers);
+      const candidates = getCreditRewardCandidates(providers);
 
       if (candidates.length === 0) {
         toast({
@@ -369,18 +369,27 @@ export default function Rewards() {
 
       const adEventId = `ad_${user.id}_${Date.now()}`;
 
-      const result = await verifyRewardedAd(
-        activeProviderSlug,
-        adEventId,
-        "earn_credits",
-        {
-          ad_mode: adResult.mode,
-          ...(adResult.estimatedPrice != null
-            ? { estimated_price: adResult.estimatedPrice }
-            : {}),
-        },
-      );
-      if (result.success) {
+      const result =
+        activeProviderSlug === "ayet_studios"
+          ? {
+              success: true,
+              creditsEarned: adResult.verifiedCreditsEarned ?? 0,
+              newBalance: adResult.verifiedBalance ?? 0,
+              message:
+                "ayeT confirmed your completed video through its secure server callback.",
+            }
+          : await verifyRewardedAd(
+              activeProviderSlug,
+              adEventId,
+              "earn_credits",
+              {
+                ad_mode: adResult.mode,
+                ...(adResult.estimatedPrice != null
+                  ? { estimated_price: adResult.estimatedPrice }
+                  : {}),
+              },
+            );
+      if (result.success && (result.creditsEarned ?? 0) > 0) {
         toast({
           type: "success",
           title: `+${result.creditsEarned} Credits!`,
