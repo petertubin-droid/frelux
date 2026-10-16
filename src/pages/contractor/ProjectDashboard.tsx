@@ -21,7 +21,8 @@ import {
   Users,
   DollarSign,
   Clock,
-  TrendingUp, MapPin,
+  TrendingUp,
+  MapPin,
   Plus,
   Trash2,
   Edit,
@@ -374,7 +375,9 @@ export default function ProjectDashboard() {
   // ── Quotation form state ──
   const [quotMarkup, setQuotMarkup] = useState("15");
   const [quotProfit, setQuotProfit] = useState("10");
-  const [quotTax, setQuotTax] = useState("7.5");
+  // Empty means "tax not determined": the caller must enter a rate for
+  // tax to apply. FRELUX never assumes a jurisdiction rate.
+  const [quotTax, setQuotTax] = useState("");
   const [quotTransport, setQuotTransport] = useState("0");
   const [quotMisc, setQuotMisc] = useState("0");
 
@@ -664,8 +667,14 @@ export default function ProjectDashboard() {
       }
       if (crowdsourceOptIn) {
         const projectRecord = project as unknown as Record<string, unknown>;
-        const resolvedMarketCode = typeof projectRecord.country_code === "string" ? projectRecord.country_code : "KE";
-        const resolvedCity = typeof projectRecord.location === "string" ? projectRecord.location : undefined;
+        const resolvedMarketCode =
+          typeof projectRecord.country_code === "string"
+            ? projectRecord.country_code
+            : "KE";
+        const resolvedCity =
+          typeof projectRecord.location === "string"
+            ? projectRecord.location
+            : undefined;
         submitCrowdsourcedExpense({
           marketCode: resolvedMarketCode,
           materialCategory: expenseForm.category,
@@ -820,7 +829,8 @@ export default function ProjectDashboard() {
       await generateQuotation(id, {
         markupPercentage: parseFloat(quotMarkup) || 0,
         profitPercentage: parseFloat(quotProfit) || 0,
-        taxPercentage: parseFloat(quotTax) || 0,
+        taxPercentage:
+          quotTax.trim() === "" ? undefined : parseFloat(quotTax) || 0,
         transportCost: parseFloat(quotTransport) || 0,
         miscCost: parseFloat(quotMisc) || 0,
       });
@@ -1236,8 +1246,20 @@ export default function ProjectDashboard() {
               onSubmit={handleExpenseSubmit}
               onEdit={handleEditExpense}
               onDelete={handleDeleteExpense}
-              marketCode={typeof (project as unknown as Record<string, unknown>).country_code === "string" ? ((project as unknown as Record<string, unknown>).country_code as string) : "KE"}
-              projectCity={typeof (project as unknown as Record<string, unknown>).location === "string" ? ((project as unknown as Record<string, unknown>).location as string) : undefined}
+              marketCode={
+                typeof (project as unknown as Record<string, unknown>)
+                  .country_code === "string"
+                  ? ((project as unknown as Record<string, unknown>)
+                      .country_code as string)
+                  : "KE"
+              }
+              projectCity={
+                typeof (project as unknown as Record<string, unknown>)
+                  .location === "string"
+                  ? ((project as unknown as Record<string, unknown>)
+                      .location as string)
+                  : undefined
+              }
               crowdsourceOptIn={crowdsourceOptIn}
               onToggleCrowdsourceOptIn={setCrowdsourceOptIn}
             />
@@ -2623,10 +2645,16 @@ function QuotationTab(props: QuotationTabProps) {
             <input
               type="number"
               step="0.5"
+              min="0"
+              placeholder="Not determined"
               value={quotTax}
               onChange={(e) => setQuotTax(e.target.value)}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
             />
+            <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+              Leave empty if your local rate is not determined. No rate is
+              assumed; the quote stays a clearly marked pre-tax estimate.
+            </p>
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">
@@ -2762,7 +2790,9 @@ function QuotationTab(props: QuotationTabProps) {
                 </div>
                 <div className="rounded-lg bg-muted/50 p-3">
                   <p className="text-xs text-muted-foreground">
-                    Tax ({quot.tax_percentage}%)
+                    {quot.tax_percentage === null
+                      ? "Tax (not determined for this project location)"
+                      : `Tax (${quot.tax_percentage}%)`}
                   </p>
                   <p className="text-sm font-semibold text-foreground">
                     {formatCurrency(quot.tax_amount, currency)}

@@ -1349,7 +1349,7 @@ export interface DbProjectQuotation {
   markup_amount: number;
   profit_percentage: number;
   profit_amount: number;
-  tax_percentage: number;
+  tax_percentage: number | null;
   tax_amount: number;
   grand_total: number;
   terms_conditions: string | null;
@@ -1495,7 +1495,7 @@ export interface DbQuotationSettings {
   default_validity_days: number;
   default_markup_percentage: number;
   default_profit_percentage: number;
-  default_tax_percentage: number;
+  default_tax_percentage: number | null;
   currency: string;
   currency_symbol: string;
   is_active: boolean;

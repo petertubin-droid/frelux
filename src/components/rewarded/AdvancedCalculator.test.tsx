@@ -142,8 +142,11 @@ describe("AdvancedCalculator — stability contracts", () => {
     fireEvent.change(labour!, { target: { value: "-500" } });
     expect((labour as HTMLInputElement).value).toBe("0");
 
-    const tax = numberInputs.find((el) => el.value === "7.5");
-    expect(tax).toBeDefined();
+    // tax is the last cost-adjustment input (labour, transport,
+    // markup, profit, tax) — its default is now 0, never an
+    // assumed jurisdiction rate
+    const tax = numberInputs[numberInputs.length - 1];
+    expect((tax as HTMLInputElement).value).toBe("0");
     fireEvent.change(tax!, { target: { value: "150" } });
     expect((tax as HTMLInputElement).value).toBe("100");
     fireEvent.change(tax!, { target: { value: "-10" } });

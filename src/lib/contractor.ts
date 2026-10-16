@@ -1367,7 +1367,13 @@ export async function generateQuotation(
     options?.markupPercentage ?? settings?.default_markup_percentage ?? 15;
   const profit =
     options?.profitPercentage ?? settings?.default_profit_percentage ?? 10;
-  const tax = options?.taxPercentage ?? settings?.default_tax_percentage ?? 7.5;
+  // Tax is never silently defaulted (roadmap non-negotiable): it is
+  // applied only when the caller passed an explicit percentage or the
+  // contractor configured one in their quotation settings. Otherwise
+  // the quote is honestly pre-tax with tax_percentage NULL, meaning
+  // "not determined for this project location".
+  const tax: number | null =
+    options?.taxPercentage ?? settings?.default_tax_percentage ?? null;
   const transport = options?.transportCost ?? project.total_transport_cost;
   const misc = options?.miscCost ?? project.total_misc_cost;
 
@@ -1379,7 +1385,7 @@ export async function generateQuotation(
   const preProfit = subtotal + markupAmount;
   const profitAmount = preProfit * (profit / 100);
   const preTax = preProfit + profitAmount;
-  const taxAmount = preTax * (tax / 100);
+  const taxAmount = tax === null ? 0 : preTax * (tax / 100);
   const grandTotal = preTax + taxAmount;
 
   // Generate quotation number

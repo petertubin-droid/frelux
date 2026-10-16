@@ -212,8 +212,10 @@ export async function generateQuotationPDF(
       `Profit (${quotation.profit_percentage}%)`,
       quotation.profit_amount,
     ]);
-  if (quotation.tax_amount > 0)
+  if (quotation.tax_amount > 0 && quotation.tax_percentage !== null)
     rows.push([`Tax (${quotation.tax_percentage}%)`, quotation.tax_amount]);
+  else if (quotation.tax_percentage === null)
+    rows.push(["Tax (not determined for this project location)", 0]);
 
   for (const [label, amount] of rows) {
     doc.text(label, margin + 2, y);

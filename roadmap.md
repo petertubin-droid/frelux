@@ -1,8 +1,10 @@
 # FRELUX Global Operations Engines Roadmap
 
 **Status:** Proposed implementation backlog, not a claim of completed functionality  
-**Last reviewed:** 2026-10-14  
+**Last reviewed:** 2026-10-16  
 **Scope:** The remaining global tax and currency, workforce credential verification, and project logistics engines identified in `handoff.md` and `TODO-AGENT-HANDOFF.md`.
+
+**Review 2026-10-16:** Phase 1's first slice is closed at the quote-path level. The silent 7.5% fallback no longer exists anywhere: `generateQuotation` resolves tax only from an explicit call-time rate or a configured `quotation_settings.default_tax_percentage`, records NULL ("not determined for this project location") otherwise, and the schema no longer seeds 7.5 (existing default-seeded rows reset to NULL; migration `20261016190000`). The Advanced Calculator and quotation modal no longer pre-fill 7.5. Unresolved quotes render an explicit pre-tax disclosure in the dashboard, PDF and measurement quotation summary. Regression tests pin the behavior (`src/lib/__tests__/quotation-tax-defaults.test.ts`). Still open in Phase 1: the versioned tax-jurisdiction rules engine, jurisdiction-aware rate resolution, provider-backed settlement FX and the per-jurisdiction reviewer gates. Phase 0 remains partial: the `engine_capabilities` / `engine_capability_verified` registry exists live (54 engines, NG fully verified, 16 markets × 10 finishing engines) with a code-sync test, but the full state model (`unavailable/partial/configured/verified_operational/suspended`, evidence owner, blocking gaps) is not yet implemented. Phases 2 through 4 remain open backlogs.
 
 This roadmap is for implementation in the existing FRELUX application. It preserves the current estimators and useful partial workflows. A schema, UI, status label, seed row, or provider integration is not proof of operational accuracy. Keep unsupported jurisdictions and integrations visibly unavailable or partial until the release gates below pass.
 
@@ -118,7 +120,6 @@ This roadmap is for implementation in the existing FRELUX application. It preser
 ## Definition of done
 
 The tax engine, credential verification engine and logistics engine are individually releasable only when their relevant phase acceptance checks pass for a named jurisdiction/provider and are verified in the deployed environment. “All markets operational” requires those gates separately for every enabled market. Until then, retain the existing helpful estimator and manual-review behavior with prominent partial/unverified labels; do not make legal, tax, credential or delivery guarantees.
-
 
 ## Additional Product Journey — Save, Share, and Pro Connect
 

@@ -84,7 +84,7 @@ export function AdvancedCalculator({
     wastePercentage: 10,
     markupPercentage: 0,
     profitPercentage: 0,
-    taxPercentage: 7.5,
+    taxPercentage: 0, // never assume a jurisdiction rate; user enters theirs
   });
 
   // Fetch AI breakdown for non-screeding calculators on mount
@@ -694,6 +694,10 @@ function CostsTab({
           value={costAdjust.taxPercentage}
           onChange={(v) => update("taxPercentage", v)}
         />
+        <p className="col-span-full -mt-2 text-[11px] leading-snug text-muted-foreground">
+          Enter your applicable local rate. FRELUX does not assume a
+          jurisdiction tax rate; 0% keeps the estimate pre-tax.
+        </p>
       </div>
 
       <div className="rounded-lg border border-border p-4 dark:border-white/5">
