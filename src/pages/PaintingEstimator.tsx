@@ -8,6 +8,7 @@
  */
 
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import type { CustomerLocation } from "@/lib/estimation/painting-engine";
 import {
   withDefaultQuality,
@@ -210,6 +211,7 @@ export default function PaintingEstimator({
         unknown
       >
     )?.count as number) ?? 2;
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
     !embedded
       ? {
@@ -228,7 +230,11 @@ export default function PaintingEstimator({
               name: "FRELUX Painting Estimator",
               applicationCategory: "CalculatorApplication",
               operatingSystem: "Web",
-              offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: seoOfferCurrency,
+              },
             },
             {
               "@context": "https://schema.org",

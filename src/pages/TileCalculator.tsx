@@ -8,6 +8,7 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import { useMarket } from "@/lib/international/market-context";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import {
   RotateCcw,
@@ -98,6 +99,7 @@ export default function TileCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults("tile");
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
     !embedded
       ? {
@@ -115,7 +117,11 @@ export default function TileCalculator({
               name: "FRELUX Tile Calculator",
               applicationCategory: "CalculatorApplication",
               operatingSystem: "Web",
-              offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: seoOfferCurrency,
+              },
             },
             {
               "@context": "https://schema.org",

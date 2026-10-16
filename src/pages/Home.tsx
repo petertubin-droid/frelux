@@ -17,6 +17,7 @@ import { RecentlyUsed } from "@/components/ui/RecentlyUsed";
 import ProConnectHomeSection from "@/components/pro-connect/ProConnectHomeSection";
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useSeo } from "@/lib/seo";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { FaqSection } from "@/components/seo/SeoSections";
 import { faqSchema } from "@/lib/structured-data";
 
@@ -105,6 +106,7 @@ export default function Home() {
     })();
   }, []);
 
+  const seoOfferCurrency = useSeoOfferCurrency();
   const structuredData = useMemo(
     () => [
       {
@@ -114,7 +116,11 @@ export default function Home() {
         applicationCategory: "HomeAndGardenApplication",
         description:
           "Calculate materials and estimate costs for construction projects worldwide. Free calculators for every trade, full-building estimating, AI photo estimates, and professional BOQs.",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: seoOfferCurrency,
+        },
         ...(featuredSlugs.length > 0
           ? {
               itemListElement: featuredSlugs.map((t, i) => ({
@@ -142,7 +148,7 @@ export default function Home() {
       },
       faqSchema(HOME_FAQS),
     ],
-    [featuredSlugs],
+    [featuredSlugs, seoOfferCurrency],
   );
 
   useSeo({

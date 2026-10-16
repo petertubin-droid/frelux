@@ -24,6 +24,7 @@ import { requestColorConsultation, AiConsultError } from "@/lib/ai";
 import { isValidHexColor, normalizeHex, readableTextColor } from "@/lib/colors";
 import { fetchColorCombinations, fetchPaintColors } from "@/lib/queries";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import {
   fetchAiAccessConfig,
   getAiUsageStatus,
@@ -61,6 +62,7 @@ export default function AiColorAssistant() {
   useBreadcrumbJsonLd([
     { name: "Smart Color Assistant", path: "/ai-color-assistant" },
   ]);
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo({
     title: "Smart Color Assistant: Get Personalized Paint Color Ideas",
     description:
@@ -76,7 +78,7 @@ export default function AiColorAssistant() {
       url: `${SITE_URL}/ai-color-assistant`,
       applicationCategory: "DesignApplication",
       operatingSystem: "Web",
-      offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+      offers: { "@type": "Offer", price: "0", priceCurrency: seoOfferCurrency },
     },
   });
 

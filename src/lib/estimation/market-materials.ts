@@ -10,6 +10,11 @@
 // =========================================================
 
 import { supabase } from "@/lib/supabase";
+import {
+  shouldUseBundledBook,
+  bundledRoleMapping,
+  bundledMaterialForSlug,
+} from "@/lib/international/bundled-book";
 import type { EstimationMaterial, EstimationPrice } from "@/types/estimation";
 
 /** Engine-level material roles. Add a role here + a mapping per market. */
@@ -102,6 +107,57 @@ export async function resolveMaterialPriceByRole(
   role: MaterialRole,
   market: string,
 ): Promise<ResolvedMaterialPrice | null> {
+  // Offline path: the bundled static book serves when the project
+  // is not connected. Same honesty rules, same market-first order.
+  if (shouldUseBundledBook()) {
+    const chain = market === "NG" ? ["NG"] : [market, "NG"];
+    for (const candidate of chain) {
+      const mapping = await bundledRoleMapping(candidate, role);
+      if (!mapping) continue;
+      const resolved = await bundledMaterialForSlug(mapping.slug, candidate);
+      if (!resolved) continue;
+      return {
+        role,
+        resolved_market: resolved.market,
+        material: {
+          id: resolved.id,
+          name: mapping.name,
+          slug: mapping.slug,
+          category: "bundled-book",
+          description: mapping.notes ?? null,
+          unit_id: null,
+          pack_size: null,
+          pack_unit_id: null,
+          supplier: null,
+          notes: mapping.notes ?? null,
+          effective_date: resolved.price.effective_date,
+          is_active: true,
+          sort_order: 0,
+          created_at: resolved.price.effective_date,
+          updated_at: resolved.price.effective_date,
+        },
+        price: {
+          id: `${resolved.slug}:${resolved.market}`,
+          price_type: "material",
+          ref_id: resolved.id,
+          price: resolved.price.price,
+          currency: resolved.price.currency,
+          market: resolved.market,
+          pack_size_id: null,
+          effective_date: resolved.price.effective_date,
+          price_source: resolved.price.price_source,
+          notes: resolved.price.notes,
+          scan_confidence:
+            (resolved.price.scan_confidence as
+              "low" | "medium" | "high" | null) ?? null,
+          is_active: true,
+          created_at: resolved.price.effective_date,
+          updated_at: resolved.price.effective_date,
+        },
+      };
+    }
+    return null;
+  }
   const chain = await fetchInheritanceChain(market);
   for (const candidate of chain) {
     const { data: mapping } = (await supabase

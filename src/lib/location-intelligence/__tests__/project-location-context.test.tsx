@@ -23,6 +23,7 @@ vi.mock("@/lib/location-intelligence/regional", () => ({
   resolveRegionalContext: vi.fn(),
 }));
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: vi.fn(() => ({ currency: { code: "NGN", symbol: "₦" } })),
 }));
 

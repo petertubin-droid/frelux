@@ -5,6 +5,7 @@ import CalculatorTabs from "@/components/ui/CalculatorTabs";
 import PageHeader from "@/components/ui/PageHeader";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { useSeo } from "@/lib/seo";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
 import {
   FaqSection,
@@ -76,6 +77,7 @@ export default function ScreedingCalculatorHub() {
     if (mode !== activeTab) setActiveTab(mode);
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo({
     title: "Screeding Calculator, Wall Screeding Quantity & Cost",
     description:
@@ -94,7 +96,11 @@ export default function ScreedingCalculatorHub() {
         url: `${SITE_URL}/screeding-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: seoOfferCurrency,
+        },
       },
       {
         "@context": "https://schema.org",

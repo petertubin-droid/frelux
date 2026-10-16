@@ -3,6 +3,11 @@ import {
   isSupabaseConfigured,
   supabaseWithClientHash,
 } from "@/lib/supabase";
+import {
+  shouldUseBundledBook,
+  bundledPopMaterials,
+  bundledTileMaterials,
+} from "@/lib/international/bundled-book";
 import { saveLocalProject } from "@/lib/local-projects";
 import type {
   DbColorCombination,
@@ -202,6 +207,11 @@ export async function fetchAllFinishTypes(): Promise<{
 // =========================================================
 
 export async function fetchPopMaterials(workflow?: string, market?: string) {
+  // Offline path: the bundled static book serves the same production
+  // material rows when the project is not connected.
+  if (shouldUseBundledBook()) {
+    return bundledPopMaterials(workflow, market);
+  }
   // Market-first: the visitor's market's own ceiling system (e.g. US
   // drywall panels), falling back to the NG reference materials.
   async function run(mkt: string) {
@@ -248,6 +258,11 @@ export async function fetchTileSizes() {
 }
 
 export async function fetchTileMaterials(category?: string, market?: string) {
+  // Offline path: the bundled static book serves the same production
+  // material rows when the project is not connected.
+  if (shouldUseBundledBook()) {
+    return bundledTileMaterials(category, market);
+  }
   // Market-first: the visitor's market's own adhesive/grout set (e.g.
   // US thinset), falling back to the NG reference materials.
   async function run(mkt: string) {

@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { calculatePopCeiling } from "@/lib/pop-tile-calc";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
 import {
   logAnalyticsEvent,
@@ -120,6 +121,7 @@ export default function PopCeilingCostEstimator({
 }: { embedded?: boolean } = {}) {
   const { marketCode, market } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("pop_ceiling_cost");
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
     !embedded
       ? {
@@ -138,7 +140,11 @@ export default function PopCeilingCostEstimator({
             url: `${SITE_URL}/pop-ceiling-cost-estimator`,
             applicationCategory: "CalculatorApplication",
             operatingSystem: "Web",
-            offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: seoOfferCurrency,
+            },
           },
         }
       : null,

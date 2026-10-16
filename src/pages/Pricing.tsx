@@ -11,6 +11,7 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import PageHeader from "@/components/ui/PageHeader";
 import { useAuth } from "@/lib/auth";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { formatCurrency } from "@/lib/utils";
 import { isConverting } from "@/lib/international/fx-display";
 import { useSeo } from "@/lib/seo";
@@ -34,6 +35,7 @@ import { Button } from "@/components/ui/shadcn/button";
 type BillingCycle = "monthly" | "yearly";
 
 export default function Pricing() {
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo({
     title: "Pricing, FRELUX Premium",
     description:
@@ -59,7 +61,7 @@ export default function Pricing() {
             "@type": "Offer",
             name: "Pro Monthly",
             price: "5000",
-            priceCurrency: "NGN",
+            priceCurrency: seoOfferCurrency,
             url: `${SITE_URL}/pricing`,
             availability: "https://schema.org/PreOrder",
           },
@@ -67,7 +69,7 @@ export default function Pricing() {
             "@type": "Offer",
             name: "Premium Monthly",
             price: "10000",
-            priceCurrency: "NGN",
+            priceCurrency: seoOfferCurrency,
             url: `${SITE_URL}/pricing`,
             availability: "https://schema.org/PreOrder",
           },

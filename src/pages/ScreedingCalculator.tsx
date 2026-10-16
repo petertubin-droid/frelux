@@ -4,6 +4,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { SaveToProjectButton } from "@/components/calculators";
 import { formatNumber } from "@/lib/utils";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { Link } from "react-router-dom";
 import { track } from "@/lib/analytics";
 import { logAnalyticsEvent } from "@/lib/queries";
@@ -52,6 +53,7 @@ export default function ScreedingCalculator({
     "Wall Finishing",
   );
   useCalcDefaults("screeding");
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
     !embedded
       ? {
@@ -67,7 +69,11 @@ export default function ScreedingCalculator({
               name: "FRELUX Wall Screeding Calculator",
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web",
-              offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: seoOfferCurrency,
+              },
             },
             {
               "@context": "https://schema.org",

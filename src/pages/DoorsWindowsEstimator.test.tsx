@@ -44,7 +44,9 @@ vi.mock("@/lib/analytics", () => ({
   track: vi.fn(),
 }));
 vi.mock("@/components/calculators", () => ({
-  SaveToProjectButton: () => <div data-testid="save-to-project">SaveToProject</div>,
+  SaveToProjectButton: () => (
+    <div data-testid="save-to-project">SaveToProject</div>
+  ),
 }));
 vi.mock("@/components/ui/AdSlot", () => ({
   default: () => null,
@@ -56,6 +58,7 @@ vi.mock("@/lib/estimation/quote-export", () => ({
   printQuote: vi.fn(),
 }));
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({
     marketCode: mockMarket.code,
     market: mockMarket,
@@ -82,8 +85,18 @@ vi.mock("@/lib/estimation/queries", () => ({
   }),
   fetchEstimationMaterials: vi.fn().mockResolvedValue({
     data: [
-      { id: "mat-door-flush", slug: "door-flush", name: "Flush Door", unit: "unit" },
-      { id: "mat-door-frame", slug: "door-frame", name: "Door Frame", unit: "unit" },
+      {
+        id: "mat-door-flush",
+        slug: "door-flush",
+        name: "Flush Door",
+        unit: "unit",
+      },
+      {
+        id: "mat-door-frame",
+        slug: "door-frame",
+        name: "Door Frame",
+        unit: "unit",
+      },
     ],
     error: null,
   }),
@@ -98,17 +111,22 @@ vi.mock("@/lib/estimation/queries", () => ({
       fromReference: new Set(["mat-door-flush", "mat-door-frame"]),
     }),
   ),
-  createEstimate: vi.fn().mockResolvedValue({ data: { id: "est-1" }, error: null }),
-  createEstimateItem: vi.fn().mockResolvedValue({ data: { id: "item-1" }, error: null }),
+  createEstimate: vi
+    .fn()
+    .mockResolvedValue({ data: { id: "est-1" }, error: null }),
+  createEstimateItem: vi
+    .fn()
+    .mockResolvedValue({ data: { id: "item-1" }, error: null }),
 }));
 
 vi.mock("@/lib/estimation/structural-market", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/estimation/structural-market")>();
+  const actual =
+    await importOriginal<typeof import("@/lib/estimation/structural-market")>();
   return {
     ...actual,
-    resolveMarketDoorsWindows: vi.fn().mockImplementation(() =>
-      Promise.resolve(mockDoorsMarketResolution),
-    ),
+    resolveMarketDoorsWindows: vi
+      .fn()
+      .mockImplementation(() => Promise.resolve(mockDoorsMarketResolution)),
   };
 });
 
@@ -149,7 +167,9 @@ describe("DoorsWindowsEstimator", () => {
     });
     expect(screen.getByText(/Price book coverage \(US\)/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/The US price book does not yet cover doors, frames and hardware/i),
+      screen.getByText(
+        /The US price book does not yet cover doors, frames and hardware/i,
+      ),
     ).toBeInTheDocument();
   });
 
@@ -186,14 +206,26 @@ describe("DoorsWindowsEstimator", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("doors-windows-price-provenance")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("doors-windows-price-provenance"),
+      ).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/Market doors & windows prices \(US book\)/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/Hollow Core Flush Interior Door Slab, 32x80 in \(US\)/i),
+      screen.getByText(/Market doors & windows prices \(US book\)/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/reported unpriced, never silent substitution/i)).toBeInTheDocument();
-    expect(screen.getByText(/The US price book covers 1 of 8 door and window material types/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /Hollow Core Flush Interior Door Slab, 32x80 in \(US\)/i,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/reported unpriced, never silent substitution/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /The US price book covers 1 of 8 door and window material types/i,
+      ),
+    ).toBeInTheDocument();
   });
 });

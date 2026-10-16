@@ -24,6 +24,7 @@ vi.mock("@/lib/analytics", async () => {
 });
 
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({ marketCode: "NG", currency: "NGN", region: "Lagos" }),
 }));
 

@@ -112,6 +112,23 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Sign in": "Iniciar sesión",
     "Sign out": "Cerrar sesión",
     "Get Started": "Comenzar",
+
+    // Paint Calculator chrome (i18n deepening)
+    "Paint Calculator": "Calculadora de pintura",
+    "Estimate how many paint buckets your project requires, step by step.":
+      "Estima cuántos botes de pintura necesita tu proyecto, paso a paso.",
+    "Project type": "Tipo de proyecto",
+    Measurements: "Medidas",
+    "Surface details": "Detalles de superficie",
+    "Provide the dimensions of the area you're painting.":
+      "Introduce las dimensiones del área que vas a pintar.",
+    Length: "Largo",
+    "Fence length": "Largo de la cerca",
+    "Width (Optional if not applicable)": "Ancho (opcional si no aplica)",
+    "Wall height": "Altura de la pared",
+    "Fence height": "Altura de la cerca",
+    Calculate: "Calcular",
+    "Calculate Again": "Calcular de nuevo",
   },
   fr: {
     "Every trade. Every cost. One platform.":
@@ -139,6 +156,24 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Sign in": "Se connecter",
     "Sign out": "Se déconnecter",
     "Get Started": "Commencer",
+
+    // Paint Calculator chrome (i18n deepening)
+    "Paint Calculator": "Calculateur de peinture",
+    "Estimate how many paint buckets your project requires, step by step.":
+      "Estimez le nombre de pots de peinture nécessaires pour votre projet, étape par étape.",
+    "Project type": "Type de projet",
+    Measurements: "Dimensions",
+    "Surface details": "Détails de la surface",
+    "Provide the dimensions of the area you're painting.":
+      "Indiquez les dimensions de la zone à peindre.",
+    Length: "Longueur",
+    "Fence length": "Longueur de la clôture",
+    "Width (Optional if not applicable)":
+      "Largeur (facultatif si non applicable)",
+    "Wall height": "Hauteur du mur",
+    "Fence height": "Hauteur de la clôture",
+    Calculate: "Calculer",
+    "Calculate Again": "Calculer à nouveau",
   },
   de: {
     "Every trade. Every cost. One platform.":
@@ -166,6 +201,23 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Sign in": "Anmelden",
     "Sign out": "Abmelden",
     "Get Started": "Loslegen",
+
+    // Paint Calculator chrome (i18n deepening)
+    "Paint Calculator": "Farbrechner",
+    "Estimate how many paint buckets your project requires, step by step.":
+      "Schätzen Sie Schritt für Schritt, wie viele Farbeimer Ihr Projekt benötigt.",
+    "Project type": "Projekttyp",
+    Measurements: "Maße",
+    "Surface details": "Oberflächendetails",
+    "Provide the dimensions of the area you're painting.":
+      "Geben Sie die Maße des zu streichenden Bereichs an.",
+    Length: "Länge",
+    "Fence length": "Zaunlänge",
+    "Width (Optional if not applicable)": "Breite (optional, falls zutreffend)",
+    "Wall height": "Wandhöhe",
+    "Fence height": "Zaunhöhe",
+    Calculate: "Berechnen",
+    "Calculate Again": "Erneut berechnen",
   },
   pt: {
     "Every trade. Every cost. One platform.":
@@ -193,6 +245,24 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Sign in": "Entrar",
     "Sign out": "Sair",
     "Get Started": "Começar",
+
+    // Paint Calculator chrome (i18n deepening)
+    "Paint Calculator": "Calculadora de tinta",
+    "Estimate how many paint buckets your project requires, step by step.":
+      "Estime quantas latas de tinta seu projeto precisa, passo a passo.",
+    "Project type": "Tipo de projeto",
+    Measurements: "Medidas",
+    "Surface details": "Detalhes da superfície",
+    "Provide the dimensions of the area you're painting.":
+      "Informe as dimensões da área que você vai pintar.",
+    Length: "Comprimento",
+    "Fence length": "Comprimento do muro",
+    "Width (Optional if not applicable)":
+      "Largura (opcional, se não se aplicar)",
+    "Wall height": "Altura da parede",
+    "Fence height": "Altura do muro",
+    Calculate: "Calcular",
+    "Calculate Again": "Calcular novamente",
   },
   ru: {
     "Every trade. Every cost. One platform.":
@@ -220,6 +290,24 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Sign in": "Войти",
     "Sign out": "Выйти",
     "Get Started": "Начать",
+
+    // Paint Calculator chrome (i18n deepening)
+    "Paint Calculator": "Калькулятор краски",
+    "Estimate how many paint buckets your project requires, step by step.":
+      "Оцените, сколько вёдер краски нужно для вашего проекта, шаг за шагом.",
+    "Project type": "Тип проекта",
+    Measurements: "Размеры",
+    "Surface details": "Детали поверхности",
+    "Provide the dimensions of the area you're painting.":
+      "Укажите размеры окрашиваемой площади.",
+    Length: "Длина",
+    "Fence length": "Длина забора",
+    "Width (Optional if not applicable)":
+      "Ширина (необязательно, если не требуется)",
+    "Wall height": "Высота стены",
+    "Fence height": "Высота забора",
+    Calculate: "Рассчитать",
+    "Calculate Again": "Рассчитать снова",
   },
   id: {
     "Every trade. Every cost. One platform.":
@@ -247,6 +335,23 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Sign in": "Masuk",
     "Sign out": "Keluar",
     "Get Started": "Mulai",
+
+    // Paint Calculator chrome (i18n deepening)
+    "Paint Calculator": "Kalkulator cat",
+    "Estimate how many paint buckets your project requires, step by step.":
+      "Perkirakan berapa kaleng cat yang dibutuhkan proyek Anda, langkah demi langkah.",
+    "Project type": "Jenis proyek",
+    Measurements: "Ukuran",
+    "Surface details": "Detail permukaan",
+    "Provide the dimensions of the area you're painting.":
+      "Masukkan dimensi area yang akan dicat.",
+    Length: "Panjang",
+    "Fence length": "Panjang pagar",
+    "Width (Optional if not applicable)": "Lebar (opsional jika tidak berlaku)",
+    "Wall height": "Tinggi dinding",
+    "Fence height": "Tinggi pagar",
+    Calculate: "Hitung",
+    "Calculate Again": "Hitung lagi",
   },
   sw: {
     "Every trade. Every cost. One platform.":
@@ -274,6 +379,23 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Sign in": "Ingia",
     "Sign out": "Toka",
     "Get Started": "Anza",
+
+    // Paint Calculator chrome (i18n deepening)
+    "Paint Calculator": "Kikokotoo cha rangi",
+    "Estimate how many paint buckets your project requires, step by step.":
+      "Kadiria ni ndoo ngapi za rangi mradi wako unahitaji, hatua kwa hatua.",
+    "Project type": "Aina ya mradi",
+    Measurements: "Vipimo",
+    "Surface details": "Maelezo ya uso",
+    "Provide the dimensions of the area you're painting.":
+      "Weka vipimo ya eneo unalotaka kupaka rangi.",
+    Length: "Urefu",
+    "Fence length": "Urefu wa ua",
+    "Width (Optional if not applicable)": "Upana (si lazima kama haitumiki)",
+    "Wall height": "Kimo cha ukuta",
+    "Fence height": "Kimo cha ua",
+    Calculate: "Kokotoa",
+    "Calculate Again": "Kokotoa tena",
   },
   ar: {
     "Every trade. Every cost. One platform.":
@@ -301,6 +423,23 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Sign in": "تسجيل الدخول",
     "Sign out": "تسجيل الخروج",
     "Get Started": "ابدأ الآن",
+
+    // Paint Calculator chrome (i18n deepening)
+    "Paint Calculator": "حاسبة الطلاء",
+    "Estimate how many paint buckets your project requires, step by step.":
+      "قدّر عدد علب الطلاء التي يحتاجها مشروعك، خطوة بخطوة.",
+    "Project type": "نوع المشروع",
+    Measurements: "القياسات",
+    "Surface details": "تفاصيل السطح",
+    "Provide the dimensions of the area you're painting.":
+      "أدخل أبعاد المنطقة التي سترسمها.",
+    Length: "الطول",
+    "Fence length": "طول السياج",
+    "Width (Optional if not applicable)": "العرض (اختياري إن لم يكن مطلوبًا)",
+    "Wall height": "ارتفاع الجدار",
+    "Fence height": "ارتفاع السياج",
+    Calculate: "احسب",
+    "Calculate Again": "احسب مرة أخرى",
   },
   hi: {
     "Every trade. Every cost. One platform.":
@@ -328,6 +467,23 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Sign in": "साइन इन",
     "Sign out": "साइन आउट",
     "Get Started": "शुरू करें",
+
+    // Paint Calculator chrome (i18n deepening)
+    "Paint Calculator": "पेंट कैलकुलेटर",
+    "Estimate how many paint buckets your project requires, step by step.":
+      "अनुमान लगाएं कि आपकी परियोजना को कितने पेंट के डिब्बे चाहिए, कदम दर कदम।",
+    "Project type": "परियोजना प्रकार",
+    Measurements: "माप",
+    "Surface details": "सतह विवरण",
+    "Provide the dimensions of the area you're painting.":
+      "पेंट किए जाने वाले क्षेत्र के आयाम दर्ज करें।",
+    Length: "लंबाई",
+    "Fence length": "बाड़ की लंबाई",
+    "Width (Optional if not applicable)": "चौड़ाई (यदि लागू न हो तो वैकल्पिक)",
+    "Wall height": "दीवार की ऊंचाई",
+    "Fence height": "बाड़ की ऊंचाई",
+    Calculate: "गणना करें",
+    "Calculate Again": "फिर से गणना करें",
   },
   zh: {
     "Every trade. Every cost. One platform.": "所有工种，所有成本，一个平台。",
@@ -354,6 +510,23 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Sign in": "登录",
     "Sign out": "退出",
     "Get Started": "开始使用",
+
+    // Paint Calculator chrome (i18n deepening)
+    "Paint Calculator": "油漆计算器",
+    "Estimate how many paint buckets your project requires, step by step.":
+      "逐步估算您的项目需要多少桶油漆。",
+    "Project type": "项目类型",
+    Measurements: "尺寸",
+    "Surface details": "表面详情",
+    "Provide the dimensions of the area you're painting.":
+      "请输入您要粉刷的区域尺寸。",
+    Length: "长度",
+    "Fence length": "围栏长度",
+    "Width (Optional if not applicable)": "宽度（如不适用可留空）",
+    "Wall height": "墙高",
+    "Fence height": "围栏高度",
+    Calculate: "计算",
+    "Calculate Again": "重新计算",
   },
 };
 

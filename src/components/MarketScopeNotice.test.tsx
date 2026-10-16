@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 
 const useMarketMock = vi.fn();
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => useMarketMock(),
 }));
 

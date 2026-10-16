@@ -76,6 +76,20 @@ export const DISPLAY_CURRENCIES: DisplayCurrency[] = [
   },
   { code: "EGP", name: "Egyptian Pound", symbol: "E£", hint: "Egypt" },
   { code: "KRW", name: "South Korean Won", symbol: "₩", hint: "South Korea" },
+  // The remaining builtin-market currencies: every registered market
+  // formats with its own verified symbol, never bare ISO fallback.
+  { code: "CHF", name: "Swiss Franc", symbol: "CHF", hint: "Switzerland" },
+  {
+    code: "NZD",
+    name: "New Zealand Dollar",
+    symbol: "NZ$",
+    hint: "New Zealand",
+  },
+  { code: "SGD", name: "Singapore Dollar", symbol: "S$", hint: "Singapore" },
+  { code: "SEK", name: "Swedish Krona", symbol: "kr", hint: "Sweden" },
+  { code: "PLN", name: "Polish Złoty", symbol: "zł", hint: "Poland" },
+  { code: "ETB", name: "Ethiopian Birr", symbol: "Br", hint: "Ethiopia" },
+  { code: "TZS", name: "Tanzanian Shilling", symbol: "TSh", hint: "Tanzania" },
 ];
 
 /** Shape of site_settings.display_currencies. */

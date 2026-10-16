@@ -1,5 +1,7 @@
 import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { useMarket } from "@/lib/international/market-context";
+import { useLanguage } from "@/lib/i18n";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import {
@@ -154,6 +156,7 @@ export default function PaintCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { marketCode, market } = useMarket();
+  const { t } = useLanguage();
   const roomUnit = resolveMarketRoomUnit(market, "feet");
   const { defaults: calcDefaults, rules: _calcRules } =
     useCalcDefaults("painting");
@@ -170,6 +173,7 @@ export default function PaintCalculator({
   };
   const { toast } = useToast();
   const { user } = useAuth();
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
     !embedded
       ? {
@@ -188,7 +192,11 @@ export default function PaintCalculator({
               url: `${SITE_URL}/paint-calculator`,
               applicationCategory: "CalculatorApplication",
               operatingSystem: "Web",
-              offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: seoOfferCurrency,
+              },
             },
             {
               "@context": "https://schema.org",
@@ -882,8 +890,10 @@ export default function PaintCalculator({
             variant="tool"
             image="https://images.pexels.com/photos/6474478/pexels-photo-6474478.jpeg?auto=compress&cs=tinysrgb&w=1600"
             eyebrow="Tool"
-            title="Paint Calculator"
-            subtitle="Estimate how many paint buckets your project requires, step by step."
+            title={t("Paint Calculator")}
+            subtitle={t(
+              "Estimate how many paint buckets your project requires, step by step.",
+            )}
             breadcrumbs={[
               { label: "Home", path: "/" },
               { label: "Calculators", path: "/calculators" },
@@ -920,9 +930,9 @@ export default function PaintCalculator({
           <div className="mb-6">
             <MultiStepProgress
               steps={[
-                { label: "Project type", shortLabel: "Type" },
-                { label: "Measurements", shortLabel: "Measure" },
-                { label: "Surface details", shortLabel: "Details" },
+                { label: t("Project type"), shortLabel: "Type" },
+                { label: t("Measurements"), shortLabel: "Measure" },
+                { label: t("Surface details"), shortLabel: "Details" },
               ]}
               current={step - 1}
             />
@@ -987,7 +997,7 @@ export default function PaintCalculator({
                   onClick={compute}
                   className="btn-glow"
                 >
-                  Calculate
+                  {t("Calculate")}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               )}
@@ -1187,6 +1197,7 @@ function Step2({
   ) => void;
   errors: Record<string, string>;
 }) {
+  const { t } = useLanguage();
   const unitLabel = unitShortLabel(input.unit);
   const isFence = input.projectType === "fence";
   const isExterior = input.projectType === "exterior";
@@ -1197,7 +1208,7 @@ function Step2({
         Enter measurements
       </h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Provide the dimensions of the area you're painting.
+        {t("Provide the dimensions of the area you're painting.")}
       </p>
 
       <div className="mt-5">
@@ -1217,7 +1228,7 @@ function Step2({
         }
       >
         <Field
-          label={isFence ? "Fence length" : "Length"}
+          label={isFence ? t("Fence length") : t("Length")}
           suffix={unitLabel}
           error={errors.length}
         >
@@ -1233,7 +1244,7 @@ function Step2({
         </Field>
         {!isFence && (
           <Field
-            label="Width (Optional if not applicable)"
+            label={t("Width (Optional if not applicable)")}
             suffix={unitLabel}
             hint="Leave blank if only one pair of walls needs painting"
           >
@@ -1249,7 +1260,7 @@ function Step2({
           </Field>
         )}
         <Field
-          label={isFence ? "Fence height" : "Wall height"}
+          label={isFence ? t("Fence height") : t("Wall height")}
           suffix={unitLabel}
           error={errors.wallHeight}
         >
@@ -1716,6 +1727,7 @@ function ResultCard({
   onAskAi?: () => void;
   calcDefaults: CalcDefaults;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5 animate-fade-in-up dark:border-white/5">
       <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground sm:p-8">
@@ -1961,7 +1973,7 @@ function ResultCard({
           className="press-scale"
         >
           <RotateCcw className="h-4 w-4" />
-          Calculate Again
+          {t("Calculate Again")}
         </Button>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button

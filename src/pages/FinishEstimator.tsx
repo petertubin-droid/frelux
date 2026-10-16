@@ -36,6 +36,7 @@ import {
   unitShortLabel,
 } from "@/lib/utils";
 import { track } from "@/lib/analytics";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -142,6 +143,7 @@ export default function FinishEstimator({
     width: calcDefaults.windowWidthM,
     height: calcDefaults.windowHeightM,
   };
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
     !embedded
       ? {
@@ -157,7 +159,11 @@ export default function FinishEstimator({
             name: "FRELUX Finish Estimator",
             applicationCategory: "BusinessApplication",
             operatingSystem: "Web",
-            offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: seoOfferCurrency,
+            },
           },
         }
       : null,

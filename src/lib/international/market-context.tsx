@@ -1465,6 +1465,17 @@ export function MarketProvider({ children }: { children: ReactNode }) {
 // HOOK
 // ============================================================
 
+/**
+ * Currency code for structured-data Offer tags: the visitor's market
+ * currency, falling back to the NG reference currency. Free products
+ * (price 0) still need a valid ISO currency; this keeps the tag
+ * market-accurate instead of asserting NGN worldwide.
+ */
+export function useSeoOfferCurrency(): string {
+  const { market } = useMarket();
+  return market.currencyCode || "NGN";
+}
+
 export function useMarket(): MarketContextValue {
   const ctx = useContext(MarketContext);
   if (!ctx) {

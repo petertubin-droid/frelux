@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import CalculatorTabs from "@/components/ui/CalculatorTabs";
 import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
 import {
   FaqSection,
@@ -71,6 +72,7 @@ export default function FinishingCalculatorHub() {
     if (mode !== activeTab) setActiveTab(mode);
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo({
     title: "Finishing Calculator, Tyrolene, Grafitex & Painting Finishes",
     description:
@@ -89,7 +91,11 @@ export default function FinishingCalculatorHub() {
         url: `${SITE_URL}/finish-estimator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: seoOfferCurrency,
+        },
       },
       {
         "@context": "https://schema.org",

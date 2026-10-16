@@ -40,6 +40,7 @@ import {
   type FreluxLocation,
 } from "@/lib/location-intelligence";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
   EstimateDisclaimer,
@@ -124,6 +125,7 @@ export default function ScreedingCostEstimator({
     { name: "Screeding Cost Estimator", path: "/screeding-cost-estimator" },
   ]);
   const { defaults: calcDefaults } = useCalcDefaults("screeding_cost");
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
     !embedded
       ? {
@@ -139,7 +141,11 @@ export default function ScreedingCostEstimator({
             name: "FRELUX Wall Screeding Cost Estimator",
             applicationCategory: "BusinessApplication",
             operatingSystem: "Web",
-            offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: seoOfferCurrency,
+            },
           },
         }
       : null,

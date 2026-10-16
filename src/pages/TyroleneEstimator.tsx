@@ -14,6 +14,7 @@ import {
   type MaterialRole,
 } from "@/lib/estimation/market-materials";
 import { useMarket } from "@/lib/international/market-context";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import {
@@ -193,6 +194,7 @@ export default function TyroleneEstimator({
     passed.projectLocation ?? null,
   );
   const currency = projectCurrencyCode ?? "NGN";
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
     !embedded
       ? {
@@ -211,7 +213,11 @@ export default function TyroleneEstimator({
               name: "FRELUX Tyrolene Estimator",
               applicationCategory: "CalculatorApplication",
               operatingSystem: "Web",
-              offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: seoOfferCurrency,
+              },
             },
             {
               "@context": "https://schema.org",
@@ -302,8 +308,10 @@ export default function TyroleneEstimator({
   // ── State: Result ──
   const [result, setResult] = useState<TyroleneEstimateResult | null>(null);
   // Shared labour layer: completes the estimate to the very end
-  const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("screeding", marketCode);
+  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig(
+    "screeding",
+    marketCode,
+  );
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "tyrolene" });
   const [alreadyHave, setAlreadyHave] = useState(0);
@@ -1342,7 +1350,7 @@ export default function TyroleneEstimator({
                     {/* Labour: complete the estimate to the very end */}
                     <LabourCostSection
                       market={marketCode}
-          estimatorKey="screeding"
+                      estimatorKey="screeding"
                       config={labourConfig}
                       onChange={setLabourConfig}
                       currencySymbol={formatCurrency(

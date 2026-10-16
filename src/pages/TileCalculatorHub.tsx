@@ -5,6 +5,7 @@ import CalculatorTabs from "@/components/ui/CalculatorTabs";
 import PageHeader from "@/components/ui/PageHeader";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { useSeo } from "@/lib/seo";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
 import {
   FaqSection,
@@ -62,6 +63,7 @@ export default function TileCalculatorHub() {
     if (mode !== activeTab) setActiveTab(mode);
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo({
     title: "Tile Calculator, Tile Quantity, Boxes & Cost Estimate",
     description:
@@ -80,7 +82,11 @@ export default function TileCalculatorHub() {
         url: `${SITE_URL}/tile-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: seoOfferCurrency,
+        },
       },
       {
         "@context": "https://schema.org",

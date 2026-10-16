@@ -16,6 +16,7 @@ import {
 import PageHeader from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { calculateEstimatedTotal } from "@/lib/calc";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
 import {
   logAnalyticsEvent,
@@ -170,6 +171,7 @@ export default function CostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults("cost");
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
     !embedded
       ? {
@@ -189,7 +191,11 @@ export default function CostEstimator({
               url: `${SITE_URL}/cost-estimator`,
               applicationCategory: "CalculatorApplication",
               operatingSystem: "Web",
-              offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: seoOfferCurrency,
+              },
             },
             {
               "@context": "https://schema.org",

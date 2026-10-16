@@ -5,6 +5,7 @@ import React, { useState, useMemo, useCallback, useEffect, useId } from "react";
 import { Link } from "react-router-dom";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { getConstructionTypology } from "@/lib/estimation/construction-typologies";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import {
   resolveMarketCement,
   resolveMarketSandM3,
@@ -371,6 +372,7 @@ export default function BuildToRoofEstimator() {
   );
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   const currencySymbol = displayCurrencySymbol || market.currencySymbol || "₦";
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo({
     title:
       "Build-to-Roof Estimator, Construction Planning & Budgeting | FRELUX",
@@ -389,7 +391,11 @@ export default function BuildToRoofEstimator() {
           "Calculate materials, quantities, and costs for your building from foundation to roof with local market pricing: Nigerian price books by default, plus community-reported prices worldwide.",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: seoOfferCurrency,
+        },
         audience: {
           "@type": "Audience",
           audienceType: "Homeowners, Builders, Contractors",

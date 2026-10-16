@@ -37,7 +37,9 @@ vi.mock("@/lib/analytics", () => ({
   track: vi.fn(),
 }));
 vi.mock("@/components/calculators", () => ({
-  SaveToProjectButton: () => <div data-testid="save-to-project">SaveToProject</div>,
+  SaveToProjectButton: () => (
+    <div data-testid="save-to-project">SaveToProject</div>
+  ),
 }));
 vi.mock("@/components/ui/AdSlot", () => ({
   default: () => null,
@@ -50,6 +52,7 @@ vi.mock("@/lib/estimation/quote-export", () => ({
 }));
 
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({
     marketCode: currentMarket.code,
     market: currentMarket,
@@ -78,10 +81,30 @@ vi.mock("@/lib/estimation/queries", () => ({
   }),
   fetchEstimationMaterials: vi.fn().mockResolvedValue({
     data: [
-      { id: "mat-door-flush", slug: "door-flush", name: "Flush Door", unit: "unit" },
-      { id: "mat-door-frame", slug: "door-frame", name: "Door Frame", unit: "unit" },
-      { id: "mat-door-hinge", slug: "door-hinge", name: "Hinges", unit: "unit" },
-      { id: "mat-door-lockset", slug: "door-lockset", name: "Lockset", unit: "unit" },
+      {
+        id: "mat-door-flush",
+        slug: "door-flush",
+        name: "Flush Door",
+        unit: "unit",
+      },
+      {
+        id: "mat-door-frame",
+        slug: "door-frame",
+        name: "Door Frame",
+        unit: "unit",
+      },
+      {
+        id: "mat-door-hinge",
+        slug: "door-hinge",
+        name: "Hinges",
+        unit: "unit",
+      },
+      {
+        id: "mat-door-lockset",
+        slug: "door-lockset",
+        name: "Lockset",
+        unit: "unit",
+      },
     ],
     error: null,
   }),
@@ -125,7 +148,7 @@ describe("Tier 2 Estimators Integration Currency Regression", () => {
       render(
         <MemoryRouter>
           <DoorsWindowsEstimator />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       // Select labour mode per_door
@@ -149,7 +172,9 @@ describe("Tier 2 Estimators Integration Currency Regression", () => {
       });
 
       // Click Calculate
-      const calcButton = screen.getByRole("button", { name: /Calculate estimate/i });
+      const calcButton = screen.getByRole("button", {
+        name: /Calculate estimate/i,
+      });
       fireEvent.click(calcButton);
 
       // Material subtotal should be formatted with $, not ₦
@@ -187,13 +212,17 @@ describe("Tier 2 Estimators Integration Currency Regression", () => {
       }
 
       // Click Export quote
-      const exportButton = screen.getByRole("button", { name: /Export quote/i });
+      const exportButton = screen.getByRole("button", {
+        name: /Export quote/i,
+      });
       fireEvent.click(exportButton);
 
       expect(mockPrintQuote).toHaveBeenCalledTimes(1);
       const quoteOptions = mockPrintQuote.mock.calls[0][0];
 
-      const pricedSoFar = quoteOptions.totals.find((t: any) => t.label === "Priced so far");
+      const pricedSoFar = quoteOptions.totals.find(
+        (t: any) => t.label === "Priced so far",
+      );
       expect(pricedSoFar.value).toContain("$");
       expect(pricedSoFar.value).not.toContain("₦");
 
@@ -217,7 +246,7 @@ describe("Tier 2 Estimators Integration Currency Regression", () => {
       render(
         <MemoryRouter>
           <ElectricalEstimator />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       // Select per_point labour
@@ -233,7 +262,9 @@ describe("Tier 2 Estimators Integration Currency Regression", () => {
       fireEvent.change(rateInput, { target: { value: "15" } });
 
       // Calculate
-      const calcButton = screen.getByRole("button", { name: /Calculate estimate/i });
+      const calcButton = screen.getByRole("button", {
+        name: /Calculate estimate/i,
+      });
       fireEvent.click(calcButton);
 
       // Wait for results
@@ -261,11 +292,15 @@ describe("Tier 2 Estimators Integration Currency Regression", () => {
       expect(estimatePayload.currency).not.toBe("NGN");
 
       // Verify export quote contains £
-      const exportButton = screen.getByRole("button", { name: /Export quote/i });
+      const exportButton = screen.getByRole("button", {
+        name: /Export quote/i,
+      });
       fireEvent.click(exportButton);
       expect(mockPrintQuote).toHaveBeenCalledTimes(1);
       const quoteOptions = mockPrintQuote.mock.calls[0][0];
-      const labourTotal = quoteOptions.totals.find((t: any) => t.label === "Labour");
+      const labourTotal = quoteOptions.totals.find(
+        (t: any) => t.label === "Labour",
+      );
       expect(labourTotal.value).toContain("£");
       expect(labourTotal.value).not.toContain("₦");
     });
@@ -285,7 +320,7 @@ describe("Tier 2 Estimators Integration Currency Regression", () => {
       render(
         <MemoryRouter>
           <PlumbingEstimator />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       // Select per_fixture labour
@@ -301,7 +336,9 @@ describe("Tier 2 Estimators Integration Currency Regression", () => {
       fireEvent.change(rateInput, { target: { value: "30" } });
 
       // Calculate
-      const calcButton = screen.getByRole("button", { name: /Calculate estimate/i });
+      const calcButton = screen.getByRole("button", {
+        name: /Calculate estimate/i,
+      });
       fireEvent.click(calcButton);
 
       // Wait for results

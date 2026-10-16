@@ -9,8 +9,15 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
-vi.mock("@/lib/credits", () => ({ getCreditWallet: vi.fn().mockResolvedValue(null), getActivityStreak: vi.fn().mockResolvedValue(null), recordActivity: vi.fn().mockResolvedValue(true), REWARD_EVENTS: {} }));
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false })),
+}));
+vi.mock("@/lib/credits", () => ({
+  getCreditWallet: vi.fn().mockResolvedValue(null),
+  getActivityStreak: vi.fn().mockResolvedValue(null),
+  recordActivity: vi.fn().mockResolvedValue(true),
+  REWARD_EVENTS: {},
+}));
 vi.mock("@/lib/labour", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/labour")>()),
   fetchLabourSettings: vi.fn().mockResolvedValue(null),
@@ -36,6 +43,7 @@ vi.mock("@/lib/seo", async (importOriginal) => ({
   useSeo: vi.fn(),
 }));
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: vi.fn(() => ({ marketCode: "US" })),
   DEFAULT_MARKET_CODE: "NG",
 }));

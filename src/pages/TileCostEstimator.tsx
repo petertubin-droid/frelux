@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { calculateTile } from "@/lib/pop-tile-calc";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { calculateLabourCost } from "@/lib/labour";
 import LabourCostSection, {
   useLabourConfig,
@@ -157,6 +158,7 @@ export default function TileCostEstimator({
 }: { embedded?: boolean } = {}) {
   const { marketCode } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("tile_cost");
+  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
     !embedded
       ? {
@@ -174,7 +176,11 @@ export default function TileCostEstimator({
             url: `${SITE_URL}/tile-cost-estimator`,
             applicationCategory: "CalculatorApplication",
             operatingSystem: "Web",
-            offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: seoOfferCurrency,
+            },
           },
         }
       : null,

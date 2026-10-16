@@ -1,5 +1,8 @@
-
 import { supabase } from "@/lib/supabase";
+import {
+  shouldUseBundledBook,
+  bundledCategoryMaterials,
+} from "@/lib/international/bundled-book";
 
 // =========================================================
 // Single-material resolutions shared by other structural pages
@@ -38,6 +41,17 @@ async function fetchPricedMaterialsInCategory(
   marketCode: string,
 ): Promise<CategoryPriceResolution[]> {
   if (!marketCode || marketCode === "NG") return [];
+  // Offline path: resolve from the bundled static book (real
+  // production prices with provenance) when the project is not
+  // connected. Never a guess — a market with no bundled book row
+  // resolves to null exactly as the DB path does.
+  if (shouldUseBundledBook()) {
+    const rows = await bundledCategoryMaterials(category, marketCode);
+    return rows.map((r) => ({
+      material: r.material,
+      price: r.price,
+    }));
+  }
   const { data: materials } = await supabase
     .from("estimation_materials")
     .select("id, name")
@@ -85,7 +99,9 @@ function parsePackKg(name: string): number | null {
 
 /** True when the material name reads as a bulk volume sale (per m3, tonne, trip). */
 function packIsBulkVolume(name: string): boolean {
-  return /\b(m3|m\u00b3|cubic|tonne|ton\b|trip|tipper|lorry|bulk)\b/i.test(name);
+  return /\b(m3|m\u00b3|cubic|tonne|ton\b|trip|tipper|lorry|bulk)\b/i.test(
+    name,
+  );
 }
 
 export interface MarketCementResolution {
@@ -384,7 +400,8 @@ export async function resolveStructuralMarketPricing(
   const bulkMatches: Record<string, RegExp> = {
     "sand-per-m3": /\b(sand|bausand|gravel)\b/i,
     "granite-per-m3": /\b(granite|chippings|crushed stone)\b/i,
-    "hardcore-per-m3": /\b(hardcore|subbase|sub-base|mot|type 1|crusher run)\b/i,
+    "hardcore-per-m3":
+      /\b(hardcore|subbase|sub-base|mot|type 1|crusher run)\b/i,
   };
   for (const [engineKey, pattern] of Object.entries(bulkMatches)) {
     const hit = aggregates.find(
@@ -557,4 +574,3 @@ export async function resolveMarketDoorsWindows(
 
   return result;
 }
-
