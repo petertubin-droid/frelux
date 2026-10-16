@@ -116,6 +116,21 @@ async function rowCount(ref, table) {
 // ---------- report ----------
 async function doReport() {
   report.mode = "report";
+  const tokenTests = {};
+  for (const [label, ref] of [["old", OLD_REF], ["current", CUR_REF]]) {
+    try {
+      const rows = await query(ref, "SELECT version FROM supabase_migrations.schema_migrations ORDER BY version LIMIT 3");
+      tokenTests[label] = { ok: true };
+    } catch (e) {
+      tokenTests[label] = { ok: false, error: e.message.slice(0, 200) };
+    }
+  }
+  logStep("token", tokenTests);
+  if (tokenTests.current.ok === false || tokenTests.old.ok === false) {
+    writeFileSync("db-restore-report.json", JSON.stringify(report, null, 2));
+    console.log("token problem:", JSON.stringify(tokenTests));
+    return;
+  }
   const [oldApplied, curApplied, files, oldTables, curTables] = await Promise.all([
     appliedMigrations(OLD_REF),
     appliedMigrations(CUR_REF),
