@@ -47,7 +47,20 @@ describe("Footer", () => {
   it("uses compact vertical padding", () => {
     const { container } = renderComponent();
     const inner = container.querySelector("footer > div:last-child");
-    expect(inner?.className).toContain("py-8");
+    expect(inner?.className).toContain("py-6");
+    expect(inner?.className).toContain("sm:py-8");
     expect(inner?.className).not.toContain("py-16");
+  });
+
+  it("uses stronger light-theme contrast for footer content", () => {
+    const { container } = renderComponent();
+    const footer = container.querySelector("footer");
+    expect(footer?.className).toContain("bg-muted/70");
+    expect(
+      screen.getByRole("heading", { name: "Calculate" }).className,
+    ).toContain("text-foreground");
+    expect(
+      screen.getByRole("link", { name: "Painting Calculator" }).className,
+    ).toContain("text-foreground/80");
   });
 });

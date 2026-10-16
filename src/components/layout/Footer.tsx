@@ -73,7 +73,7 @@ export default function Footer() {
     <footer
       role="contentinfo"
       aria-label="Site footer"
-      className="neon-edge-soft relative overflow-hidden border-t border-border/60 bg-muted/50 dark:border-white/5 dark:bg-background"
+      className="neon-edge-soft relative overflow-hidden border-t border-border/70 bg-muted/70 dark:border-white/5 dark:bg-background"
       style={{ contentVisibility: "auto", containIntrinsicSize: "320px" }}
     >
       {/* Subtle top gradient */}
@@ -82,11 +82,11 @@ export default function Footer() {
       {/* Brand architectural backdrop (same layers as the entry screen) */}
       <BrandBackdrop variant="footer" />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-3 lg:grid-cols-6 lg:gap-x-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-5 md:grid-cols-3 lg:grid-cols-6 lg:gap-x-7">
           <div className="col-span-2 lg:col-span-2">
             <Logo />
-            <p className="mt-3 max-w-xs text-xs leading-relaxed text-muted-foreground sm:text-sm">
+            <p className="mt-2.5 max-w-xs text-xs leading-relaxed text-foreground/80 sm:text-sm dark:text-muted-foreground">
               Plan materials, estimate costs and manage construction projects
               worldwide: from a single room to an entire building.
             </p>
@@ -101,8 +101,8 @@ export default function Footer() {
               <Mail className="h-4 w-4" />
               {siteConfig.email}
             </a>
-            <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground dark:text-muted-foreground">
-              <span className="font-medium text-foreground dark:text-primary-foreground/90">
+            <p className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-foreground/80 dark:text-muted-foreground">
+              <span className="font-semibold text-foreground dark:text-primary-foreground/90">
                 39 markets
               </span>
               <span aria-hidden="true">·</span>
@@ -120,13 +120,13 @@ export default function Footer() {
           <FooterColumn title="Legal" links={legalLinks} />
         </div>
 
-        <div className="mt-6 flex flex-col gap-2 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-white/5">
+        <div className="mt-5 flex flex-col gap-2 border-t border-border/70 pt-3 sm:flex-row sm:items-center sm:justify-between dark:border-white/5">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-foreground/75 dark:text-muted-foreground">
               © {new Date().getFullYear()} {siteConfig.name}. All rights
               reserved.
             </p>
-            <p className="text-[11px] leading-snug text-muted-foreground sm:text-xs">
+            <p className="text-[11px] leading-snug text-foreground/75 sm:text-xs dark:text-muted-foreground">
               Estimates are for guidance only and not a guarantee of final cost
               or quantity.
             </p>
@@ -156,15 +156,15 @@ function FooterColumn({
 }) {
   return (
     <nav aria-label={title}>
-      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
+      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-foreground dark:text-foreground">
         {title}
       </h3>
-      <ul className="mt-2.5 space-y-1.5">
+      <ul className="mt-2 space-y-1">
         {links.map((link) => (
           <li key={link.path}>
             <Link
               to={link.path}
-              className="text-[13px] sm:text-sm text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+              className="text-[13px] text-foreground/80 transition-colors hover:text-brand-purple sm:text-sm dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
             >
               {link.label}
             </Link>
