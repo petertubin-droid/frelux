@@ -1,8 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 // The bundled book serves only when the Supabase project is not
-// configured; the offline test must not hit the network.
+// configured. These tests exercise the offline book explicitly, so the
+// configured flag is forced off regardless of ambient build env (the
+// production build may carry live connection vars) and nothing hits
+// the network.
 import { shouldUseBundledBook } from "@/lib/international/bundled-book";
+
+vi.mock("@/lib/supabase", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/supabase")>();
+  return { ...mod, isSupabaseConfigured: false };
+});
 
 const roleImport = () => import("@/lib/estimation/market-materials");
 const structuralImport = () => import("@/lib/estimation/structural-market");
