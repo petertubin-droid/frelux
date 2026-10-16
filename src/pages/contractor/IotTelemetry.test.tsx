@@ -2,9 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import IotTelemetry from "./IotTelemetry";
+import type { IotSafetyThresholdRow } from "@/lib/iot/safety-alerts";
 
 vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
-vi.mock("@/lib/auth", () => ({ useAuth: () => ({ user: { id: "u1" } }) }));
+vi.mock("@/lib/auth", () => {
+  const user = { id: "u1" };
+  return { useAuth: () => ({ user }) };
+});
 
 const devices = [
   {
@@ -40,6 +44,45 @@ const devices = [
     updated_date: "2026-10-11T00:00:00Z",
   },
 ];
+const safetyThresholds: IotSafetyThresholdRow[] = [
+  {
+    id: "t1",
+    metric: "vibration_mm_s",
+    device_type: "vibration_monitor",
+    market_code: "NG",
+    threshold_value: 5,
+    threshold_unit: "mm_s",
+    direction: "above",
+    basis: "Reviewed DIN 4150-3-derived limit",
+    source_url: null,
+    review_status: "approved",
+    reviewer_name: "Eng. Reviewer",
+    reviewer_credentials: "PE",
+    review_notes: null,
+    reviewed_at: "2026-10-14T00:00:00Z",
+    created_at: "2026-10-13T00:00:00Z",
+    updated_at: "2026-10-14T00:00:00Z",
+  },
+  {
+    id: "t2",
+    metric: "vibration_mm_s",
+    device_type: null,
+    market_code: null,
+    threshold_value: 1,
+    threshold_unit: "mm_s",
+    direction: "above",
+    basis: "PENDING — must never alert",
+    source_url: null,
+    review_status: "pending",
+    reviewer_name: null,
+    reviewer_credentials: null,
+    review_notes: null,
+    reviewed_at: null,
+    created_at: "2026-10-13T00:00:00Z",
+    updated_at: "2026-10-13T00:00:00Z",
+  },
+];
+
 const telemetry = [
   {
     id: 1,
@@ -76,6 +119,31 @@ const telemetry = [
   },
 ];
 
+const vibrationTelemetry = [
+  {
+    id: 10,
+    device_id: "d2",
+    recorded_at: "2026-10-15T08:00:00Z",
+    received_at: "2026-10-15T08:01:00Z",
+    metric: "vibration_mm_s",
+    value: 8.2,
+    unit: "mm_s",
+    quality_flag: "valid",
+    notes: null,
+  },
+  {
+    id: 11,
+    device_id: "d2",
+    recorded_at: "2026-10-15T10:00:00Z",
+    received_at: "2026-10-15T10:01:00Z",
+    metric: "vibration_mm_s",
+    value: 500,
+    unit: "mm_s",
+    quality_flag: "suspect",
+    notes: "above plausible range",
+  },
+];
+
 vi.mock("@/lib/iot/device-client", async () => {
   const actual = await vi.importActual<
     typeof import("@/lib/iot/device-client")
@@ -83,7 +151,9 @@ vi.mock("@/lib/iot/device-client", async () => {
   return {
     ...actual,
     listDevices: vi.fn(async () => devices),
-    listDeviceTelemetry: vi.fn(async () => telemetry),
+    listDeviceTelemetry: vi.fn(async (id: string) =>
+      id === "d2" ? vibrationTelemetry : telemetry,
+    ),
     registerDevice: vi.fn(async () => ({
       device: {
         ...devices[0],
@@ -95,6 +165,7 @@ vi.mock("@/lib/iot/device-client", async () => {
     recordConsent: vi.fn(async () => undefined),
     setDeviceStatus: vi.fn(async () => undefined),
     deleteDevice: vi.fn(async () => undefined),
+    listIotSafetyThresholds: vi.fn(async () => safetyThresholds),
   };
 });
 
@@ -253,5 +324,40 @@ describe("IotTelemetry provider catalog (engine #7 M3)", () => {
     expect(
       screen.queryByText(/Vendor A: /),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("IotTelemetry safety alerts (engine #7 M4)", () => {
+  it("renders an alert when an APPROVED threshold is breached, citing the reviewer", async () => {
+    render(
+      <MemoryRouter>
+        <IotTelemetry />
+      </MemoryRouter>,
+    );
+    fireEvent.click(
+      (await screen.findAllByRole("button", { name: /View telemetry/i }))[1],
+    );
+    expect(await screen.findByText(/Safety alerts/i)).toBeInTheDocument();
+    expect(screen.getByText(/breaches the reviewed maximum/i)).toBeInTheDocument();
+    expect(screen.getByText(/Reviewed by Eng. Reviewer/i)).toBeInTheDocument();
+  });
+
+  it("discloses no-verdict when only pending thresholds exist", async () => {
+    const { listIotSafetyThresholds } = await import("@/lib/iot/device-client");
+    (listIotSafetyThresholds as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
+      safetyThresholds[1],
+    ]);
+    render(
+      <MemoryRouter>
+        <IotTelemetry />
+      </MemoryRouter>,
+    );
+    fireEvent.click(
+      (await screen.findAllByRole("button", { name: /View telemetry/i }))[1],
+    );
+    expect(await screen.findByText(/Safety alerts/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/No independently reviewed safety threshold is on record/i),
+    ).toBeInTheDocument();
   });
 });

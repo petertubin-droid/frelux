@@ -43,6 +43,22 @@ export interface TelemetryRow {
   notes: string | null;
 }
 
+// M4: safety thresholds are PUBLIC reference data (RLS: everyone reads,
+// only admins write) — the app can never manufacture its own.
+export async function listIotSafetyThresholds(): Promise<
+  import("./safety-alerts").IotSafetyThresholdRow[]
+> {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase
+    .from("iot_safety_thresholds")
+    .select(
+      "id, metric, device_type, market_code, threshold_value, threshold_unit, direction, basis, source_url, review_status, reviewer_name, reviewer_credentials, review_notes, reviewed_at, created_at, updated_at",
+    )
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as import("./safety-alerts").IotSafetyThresholdRow[];
+}
+
 export const DEVICE_TYPES = [
   "concrete_maturity_sensor",
   "weather_station",

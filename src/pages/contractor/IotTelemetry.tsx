@@ -22,6 +22,7 @@ import {
   deleteDevice,
   listDeviceTelemetry,
   listDevices,
+  listIotSafetyThresholds,
   recordConsent,
   registerDevice,
   setDeviceStatus,
@@ -40,6 +41,10 @@ import {
   IOT_PROVIDER_REGISTRY,
   resolveProviderDisclosure,
 } from "@/lib/iot/iot-providers";
+import {
+  evaluateSafetyAlerts,
+  type IotSafetyThresholdRow,
+} from "@/lib/iot/safety-alerts";
 import { useSeo } from "@/lib/seo";
 import { Loader2, Radio, Plus, ShieldCheck, X, Copy } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
@@ -77,6 +82,7 @@ export default function IotTelemetry() {
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [telemetry, setTelemetry] = useState<TelemetryRow[]>([]);
   const [telemetryLoading, setTelemetryLoading] = useState(false);
+  const [safetyThresholds, setSafetyThresholds] = useState<IotSafetyThresholdRow[]>([]);
 
   const [form, setForm] = useState({
     name: "",
@@ -99,8 +105,14 @@ export default function IotTelemetry() {
   }, []);
 
   useEffect(() => {
-    if (user) void refresh();
-    else setLoading(false);
+    if (user) {
+      void refresh();
+      void listIotSafetyThresholds()
+        .then(setSafetyThresholds)
+        .catch(() => setSafetyThresholds([]));
+    } else {
+      setLoading(false);
+    }
   }, [user, refresh]);
 
   const loadTelemetry = useCallback(async (deviceId: string) => {
@@ -435,6 +447,49 @@ export default function IotTelemetry() {
 
           {selectedDevice && (
             <div className="mt-6">
+              {(() => {
+                const device = devices.find((d) => d.id === selectedDevice);
+                const type = device?.device_type as DeviceType | undefined;
+                const safety = device
+                  ? evaluateSafetyAlerts({
+                      deviceType: type ?? "generic_telemetry",
+                      marketCode: device.market_code,
+                      telemetry,
+                      thresholds: safetyThresholds,
+                    })
+                  : [];
+                return safety.length > 0 ? (
+                  <div className="mb-5 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
+                    <h3 className="text-sm font-bold">Safety alerts</h3>
+                    {safety.map((v) =>
+                      v.verdict === "alert" && v.alerts && v.alerts.length > 0 ? (
+                        v.alerts.map((a) => (
+                          <p
+                            key={a.thresholdId}
+                            className="mt-2 text-sm font-semibold text-destructive"
+                          >
+                            {a.metric}: latest {a.latestValue} {a.thresholdUnit} at{" "}
+                            {new Date(a.latestAt).toLocaleString()} breaches the reviewed{" "}
+                            {a.direction === "above" ? "maximum" : "minimum"}{" "}
+                            {a.thresholdValue} {a.thresholdUnit} (worst {a.worstValue},{" "}
+                            {a.breachCount} reading{a.breachCount > 1 ? "s" : ""}). Basis:{" "}
+                            {a.basis}. Reviewed by {a.reviewerName}
+                            {a.reviewedAt ? ` on ${new Date(a.reviewedAt).toLocaleDateString()}` : ""}.
+                            {a.disclosure}
+                          </p>
+                        ))
+                      ) : (
+                        <p
+                          key={v.metric}
+                          className="mt-2 text-xs text-muted-foreground"
+                        >
+                          {v.metric}: {v.disclosure}
+                        </p>
+                      ),
+                    )}
+                  </div>
+                ) : null;
+              })()}
               {(() => {
                 const device = devices.find((d) => d.id === selectedDevice);
                 const type = device?.device_type as DeviceType | undefined;
