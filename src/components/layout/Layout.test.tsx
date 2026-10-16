@@ -49,6 +49,6 @@ describe("Footer", () => {
   it("renders calculator links", () => {
     render(<Footer />);
     expect(screen.getByText("Painting Calculator")).toBeTruthy();
-    expect(screen.getByText("Screeding Calculator")).toBeTruthy();
+    expect(screen.getByText("Wall Screeding Calculator")).toBeTruthy();
   });
 });

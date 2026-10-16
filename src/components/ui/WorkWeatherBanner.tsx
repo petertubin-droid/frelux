@@ -20,6 +20,8 @@ import { useWeatherLocation } from "@/lib/weather-locations";
 import { WeatherLocationSelect } from "@/components/ui/WeatherLocationSelect";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useMarket } from "@/lib/international/market-context";
+import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 
 const WORK_LABELS: Record<WorkType, string> = {
   painting: "Painting",
@@ -48,11 +50,16 @@ function conditionIcon(condition: string, className?: string) {
 
 export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
   const { location } = useWeatherLocation();
+  const { marketCode } = useMarket();
   const { today, days, loading, canWorkToday, workRating } = useWorkWeather(
     workType,
     location,
   );
   const [expanded, setExpanded] = useState(false);
+  const workLabel =
+    workType === "screeding"
+      ? getConstructionTerm("wall_finishing", marketCode, "Wall Finishing")
+      : WORK_LABELS[workType];
 
   if (loading) {
     return (
@@ -61,7 +68,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
           <CloudRain className="h-5 w-5 animate-pulse text-brand-purple" />
         </div>
         <p className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-          Checking weather for {WORK_LABELS[workType].toLowerCase()}…
+          Checking weather for {workLabel.toLowerCase()}…
         </p>
       </div>
     );
@@ -124,8 +131,8 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
             <Icon className={classNames("h-4 w-4 shrink-0", config.color)} />
             <span className={classNames("text-sm font-bold", config.color)}>
               {canWorkToday
-                ? `${config.label} for ${WORK_LABELS[workType]}`
-                : `${config.label}, postpone ${WORK_LABELS[workType].toLowerCase()}`}
+                ? `${config.label} for ${workLabel}`
+                : `${config.label}, postpone ${workLabel.toLowerCase()}`}
             </span>
           </div>
           <p className="mt-0.5 flex min-w-0 items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">

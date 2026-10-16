@@ -56,6 +56,7 @@ import {
 import AdSlot from "@/components/ui/AdSlot";
 import { Button } from "@/components/ui/shadcn/button";
 import { getSafeError } from "@/lib/safeError";
+import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 
 interface PassedState {
   netScreedingArea?: number;
@@ -150,6 +151,12 @@ export default function ScreedingCostEstimator({
   // Regional data flow: project location -> market profile -> currency.
   // Hook must run before the loading early-return (Rules of Hooks).
   const { marketCode } = useMarket();
+  const finishTerm = getConstructionTerm(
+    "wall_finishing",
+    marketCode,
+    "Wall Finishing",
+  );
+  const finishTitle = `${finishTerm} Cost Estimator`;
   const { currencySymbol: projectCurrencySymbol } = useProjectLocationCurrency(
     passed.projectLocation ?? null,
   );
@@ -169,8 +176,10 @@ export default function ScreedingCostEstimator({
   const [result, setResult] = useState<ScreedingSystemResult | null>(null);
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "screeding_cost" });
-  const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("screeding", marketCode);
+  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig(
+    "screeding",
+    marketCode,
+  );
 
   // Labour follows the site-wide labour layer so international
   // visitors get a complete estimate, not materials alone.
@@ -288,14 +297,14 @@ export default function ScreedingCostEstimator({
       <>
         {!embedded && (
           <PageHeader
-        variant="tool"
+            variant="tool"
             eyebrow="Tool"
-            title="Screeding Cost Estimator"
-            subtitle="Estimate material and labour costs for your wall screeding project."
+            title={finishTitle}
+            subtitle={`Estimate material and labour costs for your ${finishTerm.toLowerCase()} project.`}
             breadcrumbs={[
               { label: "Home", path: "/" },
               { label: "Calculators", path: "/calculators" },
-              { label: "Screeding Cost Estimator" },
+              { label: finishTitle },
             ]}
           />
         )}
@@ -314,14 +323,14 @@ export default function ScreedingCostEstimator({
     <>
       {!embedded && (
         <PageHeader
-        variant="tool"
+          variant="tool"
           eyebrow="Tool"
-          title="Screeding Cost Estimator"
-          subtitle="Calculate screeding material costs, Putty or White Cement + Screeding Paint. Coverage, coats, waste, and pricing are all admin-configured."
+          title={finishTitle}
+          subtitle={`Calculate ${finishTerm.toLowerCase()} material costs using the configured systems, coverage, coats, waste, and pricing.`}
           breadcrumbs={[
             { label: "Home", path: "/" },
             { label: "Calculators", path: "/calculators" },
-            { label: "Screeding Cost Estimator" },
+            { label: finishTitle },
           ]}
         />
       )}

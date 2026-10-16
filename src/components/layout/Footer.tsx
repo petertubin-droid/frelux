@@ -6,6 +6,8 @@ import { siteConfig } from "@/config/site";
 import { withdrawConsent } from "@/lib/cookie-consent";
 import BrandBackdrop from "@/components/ui/BrandBackdrop";
 import { Button } from "@/components/ui/shadcn/button";
+import { useMarket } from "@/lib/international/market-context";
+import { getMarketNavigationLabel } from "@/lib/globalization/construction-terminology";
 
 const calculateLinks = [
   { label: "Painting Calculator", path: "/paint-calculator" },
@@ -62,6 +64,11 @@ const legalLinks = [
 ];
 
 export default function Footer() {
+  const { marketCode } = useMarket();
+  const marketCalculateLinks = calculateLinks.map((link) => ({
+    ...link,
+    label: getMarketNavigationLabel(link.path, marketCode, link.label),
+  }));
   return (
     <footer
       role="contentinfo"
@@ -95,7 +102,9 @@ export default function Footer() {
               {siteConfig.email}
             </a>
             <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground dark:text-muted-foreground">
-              <span className="font-medium text-foreground dark:text-primary-foreground/90">39 markets</span>
+              <span className="font-medium text-foreground dark:text-primary-foreground/90">
+                39 markets
+              </span>
               <span aria-hidden="true">·</span>
               <span>Local currency pricing</span>
               <span aria-hidden="true">·</span>
@@ -103,7 +112,7 @@ export default function Footer() {
             </p>
           </div>
 
-          <FooterColumn title="Calculate" links={calculateLinks} />
+          <FooterColumn title="Calculate" links={marketCalculateLinks} />
           <FooterColumn title="Estimate" links={estimateLinks} />
           <FooterColumn title="Explore" links={exploreLinks} />
           <FooterColumn title="Resources" links={resourcesLinks} />

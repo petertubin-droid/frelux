@@ -39,10 +39,18 @@ import {
   EngineWasteSelector,
 } from "@/components/engine";
 import { Button } from "@/components/ui/shadcn/button";
+import { useMarket } from "@/lib/international/market-context";
+import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 
 export default function ScreedingCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { marketCode } = useMarket();
+  const finishTerm = getConstructionTerm(
+    "wall_finishing",
+    marketCode,
+    "Wall Finishing",
+  );
   useCalcDefaults("screeding");
   useSeo(
     !embedded
@@ -202,12 +210,12 @@ export default function ScreedingCalculator({
           <PageHeader
             variant="tool"
             eyebrow="Tool"
-            title="Wall Screeding Calculator"
-            subtitle="Calculate the exact wall surface area that needs screeding. Enter room dimensions in feet or metres, we handle the conversion."
+            title={`${finishTerm} Calculator`}
+            subtitle={`Calculate the wall area for ${finishTerm.toLowerCase()}. Enter room dimensions in feet or metres, and FRELUX handles the conversion.`}
             breadcrumbs={[
               { label: "Home", path: "/" },
               { label: "Calculators", path: "/calculators" },
-              { label: "Screeding Calculator" },
+              { label: `${finishTerm} Calculator` },
             ]}
           />
           <WorkWeatherBanner workType="screeding" />
@@ -216,7 +224,7 @@ export default function ScreedingCalculator({
 
       <div
         role="region"
-        aria-label="Screeding calculator"
+        aria-label={`${finishTerm} calculator`}
         className="mx-auto max-w-3xl px-4 py-10 sm:px-6"
       >
         {!screedingResult && (

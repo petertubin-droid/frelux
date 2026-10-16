@@ -20,6 +20,8 @@ import {
 import { getRecentTools } from "@/lib/smart-defaults";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useMarket } from "@/lib/international/market-context";
+import { getMarketNavigationLabel } from "@/lib/globalization/construction-terminology";
 
 interface CommandItem {
   id: string;
@@ -206,6 +208,7 @@ export function CommandPalette({
   onClose: () => void;
 }) {
   const [query, setQuery] = useState("");
+  const { marketCode } = useMarket();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -237,13 +240,20 @@ export function CommandPalette({
     const q = query.toLowerCase();
     const results = ALL_COMMANDS.filter(
       (item) =>
+        getMarketNavigationLabel(
+          item.path.split("?")[0],
+          marketCode,
+          item.label,
+        )
+          .toLowerCase()
+          .includes(q) ||
         item.label.toLowerCase().includes(q) ||
         item.description.toLowerCase().includes(q) ||
         item.keywords?.includes(q) ||
         item.category.toLowerCase().includes(q),
     );
     return { recent: [], all: results };
-  }, [query, recent]);
+  }, [query, recent, marketCode]);
 
   const flatResults = useMemo(
     () => [...filtered.recent, ...filtered.all],
@@ -285,7 +295,12 @@ export function CommandPalette({
   if (!open) return null;
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Command palette" className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Command palette"
+      className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4"
+    >
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"
@@ -296,7 +311,10 @@ export function CommandPalette({
       <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl dark:border-white/10 dark:bg-card animate-fade-in-up">
         {/* Search input */}
         <div className="flex items-center gap-3 border-b border-border/50 px-4 py-3 dark:border-white/5">
-          <Search aria-hidden="true" className="h-5 w-5 text-muted-foreground" />
+          <Search
+            aria-hidden="true"
+            className="h-5 w-5 text-muted-foreground"
+          />
           <input
             ref={inputRef}
             type="text"
@@ -324,6 +342,7 @@ export function CommandPalette({
                 <CommandRow
                   key={`r-${item.id}`}
                   item={item}
+                  marketCode={marketCode}
                   index={i}
                   selectedIndex={selectedIndex}
                   onSelect={() => {
@@ -346,6 +365,7 @@ export function CommandPalette({
                 <CommandRow
                   key={item.id}
                   item={item}
+                  marketCode={marketCode}
                   index={i + filtered.recent.length}
                   selectedIndex={selectedIndex}
                   onSelect={() => {
@@ -400,14 +420,17 @@ function CommandRow({
   index,
   selectedIndex,
   onSelect,
+  marketCode,
 }: {
   item: CommandItem;
+  marketCode: string;
   index: number;
   selectedIndex: number;
   onSelect: () => void;
 }) {
   return (
-    <Button variant="ghost"
+    <Button
+      variant="ghost"
       onClick={onSelect}
       onMouseEnter={() => {}}
       className={classNames(
@@ -429,12 +452,21 @@ function CommandRow({
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-          {item.label}
+          {getMarketNavigationLabel(
+            item.path.split("?")[0],
+            marketCode,
+            item.label,
+          )}
         </p>
-        <p className="truncate text-xs text-muted-foreground">{item.description}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {item.description}
+        </p>
       </div>
       {index === selectedIndex && (
-        <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0 text-brand-purple" />
+        <ArrowRight
+          aria-hidden="true"
+          className="h-4 w-4 shrink-0 text-brand-purple"
+        />
       )}
     </Button>
   );

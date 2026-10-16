@@ -29,8 +29,9 @@ import {
   type Tool,
   type ToolCategoryId,
 } from "@/config/construction-tools";
-import { SITE_URL } from "@/lib/seo";
 import { EstimateDisclaimer } from "@/components/calculators";
+import { useMarket } from "@/lib/international/market-context";
+import { getMarketToolCopy } from "@/lib/globalization/construction-terminology";
 
 /**
  * Construction Tools - the single FRELUX tool library.
@@ -69,8 +70,9 @@ function rememberTool(slug: string) {
   }
 }
 
-function ToolCard({ tool }: { tool: Tool }) {
+function ToolCard({ tool, marketCode }: { tool: Tool; marketCode: string }) {
   const Icon = tool.icon;
+  const copy = getMarketToolCopy(tool.slug, marketCode, tool);
   return (
     <Link
       to={tool.to}
@@ -104,13 +106,13 @@ function ToolCard({ tool }: { tool: Tool }) {
           <dt className="shrink-0 font-bold uppercase tracking-wide text-muted-foreground/90">
             You enter:
           </dt>
-          <dd className="text-muted-foreground">{tool.enters}</dd>
+          <dd className="text-muted-foreground">{copy.enters}</dd>
         </div>
         <div className="flex gap-2 text-xs">
           <dt className="shrink-0 font-bold uppercase tracking-wide text-muted-foreground/90">
             You get:
           </dt>
-          <dd className="text-muted-foreground">{tool.gets}</dd>
+          <dd className="text-muted-foreground">{copy.gets}</dd>
         </div>
       </dl>
       <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-purple">
@@ -128,6 +130,7 @@ export default function ConstructionTools() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { category: categorySlug } = useParams();
+  const { marketCode } = useMarket();
   const routedCategory = TOOL_CATEGORIES.find(
     (category) => category.id === categorySlug,
   );
@@ -176,10 +179,10 @@ export default function ConstructionTools() {
       if (!inCategory) return false;
       if (!q) return true;
       const haystack =
-        `${t.title} ${t.does} ${t.gets} ${t.benefit ?? ""} ${t.category}`.toLowerCase();
+        `${getMarketToolCopy(t.slug, marketCode, t).title} ${getMarketToolCopy(t.slug, marketCode, t).does} ${getMarketToolCopy(t.slug, marketCode, t).gets} ${t.title} ${t.does} ${t.gets} ${t.benefit ?? ""} ${t.category}`.toLowerCase();
       return q.split(/\s+/).every((w) => haystack.includes(w));
     });
-  }, [query, activeCategory]);
+  }, [query, activeCategory, marketCode]);
 
   // ---- Pagination: every section of the library shows 10 tools ----
   // The ordered list respects category + search; the default view pages
@@ -465,7 +468,11 @@ export default function ConstructionTools() {
                   </div>
                   <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {tools.map((tool) => (
-                      <ToolCard key={tool.slug} tool={tool} />
+                      <ToolCard
+                        key={tool.slug}
+                        tool={tool}
+                        marketCode={marketCode}
+                      />
                     ))}
                   </div>
                 </section>
@@ -478,7 +485,11 @@ export default function ConstructionTools() {
                 </p>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {pageTools.map((tool) => (
-                    <ToolCard key={tool.slug} tool={tool} />
+                    <ToolCard
+                      key={tool.slug}
+                      tool={tool}
+                      marketCode={marketCode}
+                    />
                   ))}
                 </div>
               </section>

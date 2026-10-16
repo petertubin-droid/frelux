@@ -39,6 +39,8 @@ import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { CurrencySwitcher } from "@/components/ui/CurrencySwitcher";
 import { AccessibilityToggle } from "@/components/ui/AccessibilityToggle";
 import { MarketSelector } from "@/components/ui/MarketSelector";
+import { useMarket } from "@/lib/international/market-context";
+import { getMarketNavigationLabel } from "@/lib/globalization/construction-terminology";
 import { Button } from "@/components/ui/shadcn/button";
 
 export default function Navbar() {
@@ -57,6 +59,7 @@ export default function Navbar() {
   const location = useLocation();
   const { user, profile, signOut, isPaid } = useAuth();
   const { wallet } = useCredits();
+  const { marketCode } = useMarket();
   const { theme, toggle } = useTheme();
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -319,7 +322,11 @@ export default function Navbar() {
                                                 : "text-card-foreground group-hover:text-brand-purple dark:text-muted-foreground/60 dark:group-hover:text-brand-purple-lighter",
                                             )}
                                           >
-                                            {child.label}
+                                            {getMarketNavigationLabel(
+                                              child.path,
+                                              marketCode,
+                                              child.label,
+                                            )}
                                           </p>
                                           {child.description && (
                                             <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground dark:text-muted-foreground">
@@ -760,7 +767,11 @@ export default function Navbar() {
                                 }
                               >
                                 <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
-                                {child.label}
+                                {getMarketNavigationLabel(
+                                  child.path,
+                                  marketCode,
+                                  child.label,
+                                )}
                               </NavLink>
                             ));
                           // No section name (e.g. Services): show the links

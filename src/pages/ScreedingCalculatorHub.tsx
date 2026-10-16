@@ -14,6 +14,8 @@ import {
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
 import { SITE_URL } from "@/lib/seo";
+import { useMarket } from "@/lib/international/market-context";
+import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 
 const ScreedingCalculator = lazy(() => import("@/pages/ScreedingCalculator"));
 const ScreedingCostEstimator = lazy(
@@ -21,7 +23,7 @@ const ScreedingCostEstimator = lazy(
 );
 
 const TABS = [
-  { id: "quantity", label: "Screeding Quantity" },
+  { id: "quantity", label: "Quantity" },
   { id: "cost", label: "Cost Estimate" },
 ];
 
@@ -56,6 +58,13 @@ const FAQS = [
 
 export default function ScreedingCalculatorHub() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { marketCode } = useMarket();
+  const finishTerm = getConstructionTerm(
+    "wall_finishing",
+    marketCode,
+    "Wall Finishing",
+  );
+  const finishTitle = `${finishTerm} Calculator`;
   const initialMode = searchParams.get("mode") || "quantity";
   const [activeTab, setActiveTab] = useState(initialMode);
 
@@ -132,11 +141,11 @@ export default function ScreedingCalculatorHub() {
       <PageHeader
         variant="tool"
         eyebrow="Calculator"
-        title="Screeding Calculator"
-        subtitle="Calculate wall screeding quantity, material requirements, and cost, all in one place."
+        title={finishTitle}
+        subtitle={`Calculate ${finishTerm.toLowerCase()} quantities, material requirements, and cost, all in one place.`}
         breadcrumbs={[
           { label: "Calculators", path: "/calculators" },
-          { label: "Screeding Calculator" },
+          { label: finishTitle },
         ]}
       />
       <WorkWeatherBanner workType="screeding" />
@@ -144,7 +153,7 @@ export default function ScreedingCalculatorHub() {
         tabs={TABS}
         activeTab={activeTab}
         onTabChange={handleTabChange}
-        ariaLabel="Screeding calculator mode"
+        ariaLabel={`${finishTitle} mode`}
       />
 
       <div
@@ -168,12 +177,12 @@ export default function ScreedingCalculatorHub() {
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
           <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
-            About the FRELUX Screeding Calculator
+            About the FRELUX {finishTitle}
           </h2>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
-            The FRELUX Screeding Calculator combines screeding surface area
-            calculation with material cost estimation in a single unified tool.
-            Whether you're screeding interior walls or exterior fences, it
+            The FRELUX {finishTitle} combines {finishTerm.toLowerCase()} surface
+            area calculation with material cost estimation in a single unified
+            tool. Whether you're screeding interior walls or exterior fences, it
             handles both metric and imperial measurements and converts
             everything to m² for accurate material calculation.
           </p>
@@ -182,9 +191,9 @@ export default function ScreedingCalculatorHub() {
           </h3>
           <ul>
             <li>
-              <strong>Screeding Quantity</strong>, Enter room or wall dimensions
-              to calculate the net screeding surface area in m², with doors and
-              windows deducted.
+              <strong>{finishTerm} Quantity</strong>, Enter room or wall
+              dimensions to calculate the net screeding surface area in m², with
+              doors and windows deducted.
             </li>
             <li>
               <strong>Cost Estimate</strong>, Get a full material cost breakdown
@@ -192,7 +201,7 @@ export default function ScreedingCalculatorHub() {
             </li>
           </ul>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            FRELUX Screeding Methodology
+            FRELUX {finishTerm} Methodology
           </h3>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             Screeding quantities are calculated in m² according to established

@@ -32,7 +32,7 @@ describe("CommandPalette", () => {
   it("renders calculator commands", () => {
     renderPalette();
     expect(screen.getByText("Paint Calculator")).toBeTruthy();
-    expect(screen.getByText("Screeding Calculator")).toBeTruthy();
+    expect(screen.getByText("Wall Screeding Calculator")).toBeTruthy();
   });
 
   it("filters results based on search query", () => {
