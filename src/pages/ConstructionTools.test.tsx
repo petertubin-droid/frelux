@@ -6,6 +6,8 @@ import {
   CONSTRUCTION_TOOLS,
   TOOL_CATEGORIES,
 } from "@/config/construction-tools";
+import { DEFAULT_MARKET_CODE } from "@/lib/international/market-context";
+import { getMarketToolCopy } from "@/lib/globalization/construction-terminology";
 
 vi.mock("@/lib/auth", () => ({
   useAuth: vi.fn(() => ({ user: null, loading: false })),
@@ -52,7 +54,8 @@ describe("ConstructionTools", () => {
     renderPage();
     // Section 1: exactly the first 10 tools, not the whole registry
     for (const tool of CONSTRUCTION_TOOLS.slice(0, 10)) {
-      expect(await screen.findByText(tool.title)).toBeTruthy();
+      const localized = getMarketToolCopy(tool.slug, DEFAULT_MARKET_CODE, tool);
+      expect(await screen.findByText(localized.title)).toBeTruthy();
     }
     const totalSections = Math.ceil(CONSTRUCTION_TOOLS.length / 10);
     expect(sectionIndicator()).toBe(`Section 1 of ${totalSections}`);
@@ -60,14 +63,16 @@ describe("ConstructionTools", () => {
     // Next advances to section 2 with the next 10 tools
     fireEvent.click(screen.getByRole("button", { name: /^next$/i }));
     for (const tool of CONSTRUCTION_TOOLS.slice(10, 20)) {
-      expect(await screen.findByText(tool.title)).toBeTruthy();
+      const localized = getMarketToolCopy(tool.slug, DEFAULT_MARKET_CODE, tool);
+      expect(await screen.findByText(localized.title)).toBeTruthy();
     }
     expect(sectionIndicator()).toBe(`Section 2 of ${totalSections}`);
 
     // Previous returns to section 1
     fireEvent.click(screen.getByRole("button", { name: /^previous$/i }));
     for (const tool of CONSTRUCTION_TOOLS.slice(0, 10)) {
-      expect(await screen.findByText(tool.title)).toBeTruthy();
+      const localized = getMarketToolCopy(tool.slug, DEFAULT_MARKET_CODE, tool);
+      expect(await screen.findByText(localized.title)).toBeTruthy();
     }
     expect(sectionIndicator()).toBe(`Section 1 of ${totalSections}`);
   });

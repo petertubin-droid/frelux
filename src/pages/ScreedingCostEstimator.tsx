@@ -359,7 +359,7 @@ export default function ScreedingCostEstimator({
                 to="/screeding-calculator/"
                 className="font-semibold text-brand-purple underline"
               >
-                Wall Screeding Calculator
+                {finishTerm} Calculator
               </Link>{" "}
               first, then continue here. Your screeding area will carry over
               automatically.
@@ -372,7 +372,7 @@ export default function ScreedingCostEstimator({
             {/* Input panel */}
             <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3 space-y-6">
               {/* Material System Selector */}
-              <Section title="Select Screeding Material">
+              <Section title={`Select ${finishTerm} Material`}>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {availableSystems.map((sys) => {
                     const Icon = sys.icon;
@@ -406,9 +406,9 @@ export default function ScreedingCostEstimator({
                 </div>
               </Section>
 
-              <Section title="Screeding Area">
+              <Section title={`${finishTerm} Area`}>
                 <Field
-                  label="Net screeding area (m²)"
+                  label={`Net ${finishTerm.toLowerCase()} area (m²)`}
                   hint="From the calculator or enter manually"
                 >
                   <input
@@ -594,7 +594,7 @@ export default function ScreedingCostEstimator({
                         <h3 className="font-display text-sm font-bold text-foreground dark:text-primary-foreground">
                           {result.systemType === "putty"
                             ? "Putty Requirement"
-                            : "Screeding Materials Requirement"}
+                            : `${finishTerm} Materials Requirement`}
                         </h3>
                       </div>
 
@@ -602,7 +602,7 @@ export default function ScreedingCostEstimator({
                       <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs dark:border-white/5 dark:bg-white/5">
                         <div className="flex items-center justify-between">
                           <span className="text-muted-foreground">
-                            Total screeding area
+                            Total {finishTerm.toLowerCase()} area
                           </span>
                           <span className="font-semibold text-foreground dark:text-primary-foreground">
                             {formatNumber(result.netScreedingArea, 2)} m²
@@ -791,6 +791,7 @@ export default function ScreedingCostEstimator({
                               result,
                               labourCost,
                               currencySymbol,
+                              finishTerm,
                             })
                           }
                           className="rounded-lg border px-4 py-2 text-sm font-semibold"
@@ -800,7 +801,7 @@ export default function ScreedingCostEstimator({
                         <SaveToProjectButton
                           calculatorType="screeding"
                           calculatorSlug="screeding-cost-estimator"
-                          calcTitle={`Screeding Cost (${result.systemType === "putty" ? "Putty" : "Cement+Paint"}): ${formatNumber(result.netScreedingArea, 2)} m²`}
+                          calcTitle={`${finishTerm} Cost (${result.systemType === "putty" ? "Putty" : "Cement+Paint"}): ${formatNumber(result.netScreedingArea, 2)} m²`}
                           calcData={{
                             netArea,
                             ...result,
@@ -857,7 +858,8 @@ export default function ScreedingCostEstimator({
                     </>
                   ) : (
                     <p className="text-xs text-muted-foreground">
-                      Enter the screeding area to see your estimate.
+                      Enter the {finishTerm.toLowerCase()} area to see your
+                      estimate.
                     </p>
                   )}
                 </div>
@@ -1038,8 +1040,9 @@ function exportScreedingQuote(args: {
   result: ScreedingSystemResult;
   labourCost: number;
   currencySymbol: string;
+  finishTerm: string;
 }) {
-  const { result, labourCost, currencySymbol } = args;
+  const { result, labourCost, currencySymbol, finishTerm } = args;
   const fmt = (v: number) => formatCurrency(v, currencySymbol);
   const breakdowns =
     result.systemType === "putty"
@@ -1047,11 +1050,11 @@ function exportScreedingQuote(args: {
       : [result.paint, result.cement, ...(result.extra ? [result.extra] : [])];
   printQuote(
     {
-      title: `FRELUX Screeding Estimate (${result.systemType === "putty" ? "Putty" : "White Cement + Paint"})`,
+      title: `FRELUX ${finishTerm} Estimate (${result.systemType === "putty" ? "Putty" : "White Cement + Paint"})`,
       subtitle: `Generated ${new Date().toLocaleDateString()} · ${formatNumber(result.netScreedingArea, 2)} m² · ${result.coats} coats`,
       metaRows: [
         [
-          "Net screeding area",
+          `Net ${finishTerm.toLowerCase()} area`,
           `${formatNumber(result.netScreedingArea, 2)} m²`,
         ],
         ["Coats", String(result.coats)],

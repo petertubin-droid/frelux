@@ -241,7 +241,7 @@ export default function ScreedingCalculator({
               {project.projectMode === "fence" && (
                 <div className="rounded-xl border border-border/80 bg-muted/50 p-4 text-xs text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground">
                   <p className="font-medium text-foreground dark:text-primary-foreground mb-1.5">
-                    Fence Screeding
+                    {finishTerm} for Fence
                   </p>
                   Each fence dimension has its own partition count. The area is
                   calculated as: partition length × height × number of
@@ -267,7 +267,7 @@ export default function ScreedingCalculator({
               disabled={!validation.valid}
               className="w-full btn-glow py-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Calculate Screeding Area
+              Calculate {finishTerm} Area
             </Button>
           </div>
         )}
@@ -277,7 +277,7 @@ export default function ScreedingCalculator({
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="h-5 w-5 text-emerald-500" />
               <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                Screeding Area Result
+                {finishTerm} Area Result
               </h2>
               {confidence && (
                 <div className="ml-auto">
@@ -289,7 +289,7 @@ export default function ScreedingCalculator({
             <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary/10 p-8 text-center dark:border-brand-purple/30">
               <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-primary/10 blur-3xl" />
               <p className="relative text-sm font-medium text-muted-foreground">
-                Total Screeding Area
+                Total {finishTerm} Area
               </p>
               <p className="relative mt-3 text-4xl font-bold text-foreground dark:text-primary-foreground">
                 {formatNumber(screedingResult.totalAreaM2, 2)}{" "}
@@ -321,10 +321,10 @@ export default function ScreedingCalculator({
               <p className="font-medium text-foreground dark:text-primary-foreground mb-1.5">
                 Next Step
               </p>
-              This area feeds into the FRELUX screeding material calculation
-              rules, which determine material quantity based on coverage rate
-              and package configuration. The waste allowance above will apply
-              when material quantity is calculated.
+              This area feeds into the FRELUX {finishTerm.toLowerCase()}{" "}
+              material calculation rules, which determine material quantity
+              based on coverage rate and package configuration. The waste
+              allowance above will apply when material quantity is calculated.
             </div>
 
             <div className="flex items-center gap-3">
@@ -351,7 +351,7 @@ export default function ScreedingCalculator({
               <SaveToProjectButton
                 calculatorType="screeding"
                 calculatorSlug="screeding-calculator"
-                calcTitle={`Screeding: ${formatNumber(screedingResult.totalAreaM2, 2)} m²`}
+                calcTitle={`${finishTerm}: ${formatNumber(screedingResult.totalAreaM2, 2)} m²`}
                 calcData={{
                   totalAreaM2: screedingResult.totalAreaM2,
                   steps: screedingResult.steps,

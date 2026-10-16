@@ -96,7 +96,7 @@ function ToolCard({ tool, marketCode }: { tool: Tool; marketCode: string }) {
         )}
       </div>
       <h3 className="mt-4 text-lg font-bold text-foreground dark:text-primary-foreground">
-        {tool.title}
+        {copy.title}
       </h3>
       <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
         {tool.does}

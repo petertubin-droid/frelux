@@ -17,7 +17,11 @@ import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useMarket } from "@/lib/international/market-context";
-import { resolveMarketRebar, type RebarMarketResolution } from "@/lib/estimation/structural-market";
+import {
+  resolveMarketRebar,
+  type RebarMarketResolution,
+} from "@/lib/estimation/structural-market";
+import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -48,10 +52,10 @@ import type {
 type LenField = "len_12mm_m" | "len_16mm_m" | "len_20mm_m" | "len_25mm_m";
 
 const LEN_LABELS: Record<LenField, string> = {
-  len_12mm_m: "12 mm rebar: total cutting length (m)",
-  len_16mm_m: "16 mm rebar: total cutting length (m)",
-  len_20mm_m: "20 mm rebar: total cutting length (m)",
-  len_25mm_m: "25 mm rebar: total cutting length (m)",
+  len_12mm_m: "12 mm: total cutting length (m)",
+  len_16mm_m: "16 mm: total cutting length (m)",
+  len_20mm_m: "20 mm: total cutting length (m)",
+  len_25mm_m: "25 mm: total cutting length (m)",
 };
 
 function fmtN(v: number | null): string {
@@ -63,9 +67,13 @@ export default function ReinforcementEstimator() {
   const { user } = useAuth();
 
   const { marketCode, market } = useMarket();
+  const reinforcementTerm = getConstructionTerm("reinforcement", marketCode);
+  const pageTitle = `${reinforcementTerm} Estimator`;
   const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
   const currencyCode = market?.currencyCode || "NGN";
-  const [rebarMarket, setRebarMarket] = useState<RebarMarketResolution | null>(null);
+  const [rebarMarket, setRebarMarket] = useState<RebarMarketResolution | null>(
+    null,
+  );
   const [lens, setLens] = useState<Record<LenField, string>>({
     len_12mm_m: "",
     len_16mm_m: "",
@@ -171,9 +179,13 @@ export default function ReinforcementEstimator() {
             l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
           unit: l.unit,
           unit_price:
-            l.unit_price === null ? "unpriced" : formatCurrency(l.unit_price, currencySymbol),
+            l.unit_price === null
+              ? "unpriced"
+              : formatCurrency(l.unit_price, currencySymbol),
           line_total:
-            l.line_total === null ? "N/A" : formatCurrency(l.line_total, currencySymbol),
+            l.line_total === null
+              ? "N/A"
+              : formatCurrency(l.line_total, currencySymbol),
           detail: l.detail,
         })),
         totals: [
@@ -310,9 +322,9 @@ export default function ReinforcementEstimator() {
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Construction Tools", path: "/construction-tools" },
-          { label: "Reinforcement Estimator" },
+          { label: pageTitle },
         ]}
-        title="Reinforcement Estimator"
+        title={pageTitle}
         subtitle="Enter your bar schedule cutting lengths per diameter. The engine converts them to whole 12 m stock lengths with a visible lap/waste allowance, computes BS 4449 tonnage for delivery planning, and prices from the shared material database. It does NOT design reinforcement."
       />
 
@@ -324,18 +336,21 @@ export default function ReinforcementEstimator() {
         >
           <p className="font-semibold">Price book coverage ({marketCode})</p>
           <p className="mt-1 text-muted-foreground">
-            The {marketCode} price book does not yet cover reinforcement steel and binding wire. Prices
-            on this page come from the Nigerian price book (disclosed above);
-            adjust them for your market before relying on cost totals.
+            The {marketCode} price book does not yet cover reinforcement steel
+            and binding wire. Prices on this page come from the Nigerian price
+            book (disclosed above); adjust them for your market before relying
+            on cost totals.
           </p>
         </div>
       )}
-      {rebarMarket && (marketCode !== "NG") && (
+      {rebarMarket && marketCode !== "NG" && (
         <div
           className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
           data-testid="rebar-price-provenance"
         >
-          <p className="font-semibold">Rebar prices ({marketCode} book)</p>
+          <p className="font-semibold">
+            {reinforcementTerm} prices ({marketCode} book)
+          </p>
           <ul className="mt-2 space-y-1 text-muted-foreground">
             {rebarMarket.provenance.map((p) => (
               <li key={p.engineKey}>
@@ -352,11 +367,10 @@ export default function ReinforcementEstimator() {
         </div>
       )}
 
-
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
         <h3 className="mb-1 font-semibold">
-          Bar schedule: cutting lengths per diameter
+          {reinforcementTerm} schedule: cutting lengths per diameter
         </h3>
         <p className="mb-2 text-xs text-muted-foreground">
           The engine never invents steel. Read the total cutting length per
@@ -368,8 +382,10 @@ export default function ReinforcementEstimator() {
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           {(Object.keys(LEN_LABELS) as LenField[]).map((k) =>
-            numberInput(LEN_LABELS[k], lens[k], (v) =>
-              setLens((l) => ({ ...l, [k]: v })),
+            numberInput(
+              `${LEN_LABELS[k].replace(": total", ` ${reinforcementTerm.toLowerCase()}: total`)}`,
+              lens[k],
+              (v) => setLens((l) => ({ ...l, [k]: v })),
             ),
           )}
         </div>

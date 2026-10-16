@@ -1,9 +1,10 @@
 /**
- * Market-specific labels for construction operations.
+ * Market-aware construction vocabulary for public display surfaces.
  *
- * Keep these presentation labels separate from operation IDs, routes and
- * persisted calculation types. Only add a market-specific name when the
- * same work is described by the term; otherwise callers use a neutral label.
+ * This is presentation-only: routes, calculator IDs, analytics, saved project
+ * types and calculation logic remain stable. Specific local terms are limited
+ * to terms already curated in the market profiles or construction dictionary.
+ * Every other market uses clear neutral English instead of a guessed synonym.
  */
 export type ConstructionOperation =
   | "board_material"
@@ -11,36 +12,113 @@ export type ConstructionOperation =
   | "reinforcement"
   | "temporary_concrete_support";
 
-export type TerminologyMarket = "US" | "GB" | "NG";
+export const TERMINOLOGY_MARKETS = [
+  "NG",
+  "US",
+  "GB",
+  "CA",
+  "AU",
+  "DE",
+  "IN",
+  "GH",
+  "KE",
+  "ZA",
+  "JP",
+  "FR",
+  "BR",
+  "SA",
+  "AE",
+  "CN",
+  "ID",
+  "MX",
+  "KR",
+  "IT",
+  "ET",
+  "EG",
+  "TZ",
+  "CI",
+  "ES",
+  "NL",
+  "PL",
+  "SE",
+  "CH",
+  "SG",
+  "TR",
+  "NZ",
+] as const;
+export type TerminologyMarket = (typeof TERMINOLOGY_MARKETS)[number];
 
-export const CONSTRUCTION_TERMINOLOGY: Readonly<
-  Record<ConstructionOperation, Readonly<Record<TerminologyMarket, string>>>
+const NEUTRAL_TERMS: Readonly<Record<ConstructionOperation, string>> = {
+  board_material: "Gypsum Board",
+  wall_finishing: "Wall Finishing",
+  reinforcement: "Reinforcement Steel",
+  temporary_concrete_support: "Formwork",
+};
+
+/**
+ * Local variants are included only where FRELUX already has terminology in
+ * market profiles or its curated construction dictionary. Product names such
+ * as a bag size are not treated as trade names. Missing entries intentionally
+ * resolve to the neutral label above.
+ */
+const MARKET_TERMS: Readonly<
+  Partial<
+    Record<ConstructionOperation, Partial<Record<TerminologyMarket, string>>>
+  >
 > = {
   board_material: {
+    NG: "Gypsum Board / Ceiling Sheet",
     US: "Drywall",
     GB: "Plasterboard",
-    NG: "Gypsum Board / Ceiling Sheet",
+    CA: "Drywall",
+    AU: "Plasterboard",
+    DE: "Gipskartonplatte",
+    ZA: "Rhinoboard / Gypsum Board",
+    ID: "Papan Gipsum",
+    MX: "Panel de yeso",
+    KR: "Gypsum Board (석고보드)",
+    IT: "Cartongesso",
+    ES: "Placa de yeso laminado",
+    NL: "Gipsplaat",
+    PL: "Płyta gipsowo-kartonowa",
+    SE: "Gipsskiva",
+    CH: "Gipsplatte",
+    TR: "Alçıpan",
+    NZ: "GIB / Plasterboard",
   },
-  // The US calculator measures full wall area. “Mudding” alone can imply
-  // joint-only taping, so the label makes the full-surface skim-coat scope clear.
   wall_finishing: {
+    NG: "Wall Screeding",
     US: "Wall Mudding / Skim Coating",
     GB: "Wall Skimming",
-    NG: "Wall Screeding",
+    // The remaining markets retain this calculator's neutral wall-area scope.
+    // Their configured material names do not by themselves prove equivalent
+    // trade scopes (e.g. floor screed vs wall plaster, or jointing vs skim coat).
   },
   reinforcement: {
+    NG: "Iron Rods",
     US: "Rebar",
     GB: "Reinforcement Bar",
-    NG: "Iron Rods",
+    CA: "Rebar",
+    AU: "Reinforcing Bar",
+    JP: "Reinforcing Bar (鉄筋)",
+    FR: "Reinforcing Steel (Armature)",
+    BR: "Reinforcing Bar (Vergalhão)",
+    SA: "Reinforcing Steel (حديد التسليح)",
+    AE: "Reinforcing Steel (حديد التسليح)",
   },
   temporary_concrete_support: {
+    NG: "Wood Boarding / Carpentry Box",
     US: "Formwork",
     GB: "Shuttering",
-    NG: "Wood Boarding / Carpentry Box",
+    DE: "Formwork (Schalung)",
+    JP: "Formwork (型枠)",
+    FR: "Formwork (Coffrage)",
+    BR: "Formwork (Fôrma)",
+    SA: "Formwork (شدات)",
+    AE: "Formwork (شدات)",
   },
 };
 
-/** Display copy for high-visibility tool listings. Stable slugs and URLs remain unchanged. */
 export interface MarketToolCopy {
   title: string;
   does: string;
@@ -48,78 +126,57 @@ export interface MarketToolCopy {
   gets: string;
 }
 
-const MARKET_TOOL_COPY: Readonly<
-  Partial<Record<string, Partial<Record<TerminologyMarket, MarketToolCopy>>>>
+const GENERIC_FINISHING_COPY: MarketToolCopy = {
+  title: "Wall Finishing",
+  does: "Estimate material quantities and costs for smooth wall finishes.",
+  enters: "Wall area and finish thickness, or room dimensions.",
+  gets: "Estimated wall-finishing materials and costs, where market data is configured.",
+};
+
+const FINISHING_COPY: Readonly<
+  Partial<Record<TerminologyMarket, MarketToolCopy>>
 > = {
-  screeding: {
-    US: {
-      title: "Wall Mudding / Skim Coat",
-      does: "Estimate full-wall skim-coat materials and costs. This is an area-based skim-coat estimate, not joint-only drywall taping.",
-      enters: "Wall area and finish thickness, or room dimensions.",
-      gets: "Estimated skim-coat materials and costs, using the configured market data available.",
-    },
-    GB: {
-      title: "Wall Skimming",
-      does: "Estimate wall-skimming material quantities and costs for smooth wall finishes.",
-      enters: "Wall area and finish thickness, or room dimensions.",
-      gets: "Estimated skimming materials and costs, using the configured market data available.",
-    },
-    NG: {
-      title: "Wall Screeding",
-      does: "Calculate screeding material quantities and cost for smooth wall finishes.",
-      enters: "Wall area and thickness, or room dimensions.",
-      gets: "Bags of screeding, putty and finishing materials with total cost.",
-    },
+  NG: {
+    title: "Wall Screeding",
+    does: "Calculate screeding material quantities and cost for smooth wall finishes.",
+    enters: "Wall area and finish thickness, or room dimensions.",
+    gets: "Configured screeding, putty and finishing material quantities and costs.",
   },
-  reinforcement: {
-    US: {
-      title: "Rebar Calculator",
-      does: "Calculate reinforcement quantities, weights and binding wire for structural elements.",
-      enters: "Element type and dimensions, bar spacing.",
-      gets: "Rebar lengths and tonnage, with cost where market prices are configured.",
-    },
-    GB: {
-      title: "Reinforcement Bar Calculator",
-      does: "Calculate reinforcement quantities, weights and binding wire for structural elements.",
-      enters: "Element type and dimensions, bar spacing.",
-      gets: "Reinforcement bar lengths and tonnage, with cost where market prices are configured.",
-    },
-    NG: {
-      title: "Iron Rod Calculator",
-      does: "Calculate iron rod quantities, weights and binding wire for structural elements.",
-      enters: "Element type and dimensions, bar spacing.",
-      gets: "Iron rod lengths and tonnage, with cost where market prices are configured.",
-    },
+  US: {
+    title: "Wall Mudding / Skim Coat",
+    does: "Estimate full-wall skim-coat materials and costs. This is an area-based skim-coat estimate, not joint-only drywall taping.",
+    enters: "Wall area and finish thickness, or room dimensions.",
+    gets: "Estimated skim-coat materials and costs, using the configured market data available.",
+  },
+  GB: {
+    title: "Wall Skimming",
+    does: "Estimate wall-skimming material quantities and costs for smooth wall finishes.",
+    enters: "Wall area and finish thickness, or room dimensions.",
+    gets: "Estimated skimming materials and costs, using configured market data where available.",
   },
 };
 
-const NEUTRAL_TOOL_COPY: Readonly<Record<string, Partial<MarketToolCopy>>> = {
-  screeding: {
-    title: "Wall Finishing",
-    does: "Estimate material quantities and costs for smooth wall finishes.",
-    enters: "Wall area and finish thickness, or room dimensions.",
-    gets: "Estimated wall-finishing materials and costs, where market data is configured.",
-  },
-  reinforcement: {
-    title: "Reinforcement / Steel",
-    does: "Calculate reinforcement quantities, weights and binding wire for structural elements.",
-    enters: "Element type and dimensions, bar spacing.",
-    gets: "Reinforcement lengths and tonnage, with cost where market prices are configured.",
-  },
+const GENERIC_REINFORCEMENT_COPY: MarketToolCopy = {
+  title: "Reinforcement / Steel",
+  does: "Calculate reinforcement quantities, weights and binding wire for structural elements.",
+  enters: "Element type and dimensions, bar spacing or the bar schedule.",
+  gets: "Reinforcement lengths and tonnage, with cost where market prices are configured.",
 };
+
+function isTerminologyMarket(code: string): code is TerminologyMarket {
+  return (TERMINOLOGY_MARKETS as readonly string[]).includes(code);
+}
 
 export function getConstructionTerm(
   operation: ConstructionOperation,
   marketCode: string,
   fallback?: string,
 ): string {
-  const term =
-    CONSTRUCTION_TERMINOLOGY[operation][
-      marketCode.toUpperCase() as TerminologyMarket
-    ];
-  if (term) return term;
-  if (fallback) return fallback;
-  return operation.replace(/_/g, " ");
+  const code = marketCode.toUpperCase();
+  const local = isTerminologyMarket(code)
+    ? MARKET_TERMS[operation]?.[code]
+    : undefined;
+  return local ?? fallback ?? NEUTRAL_TERMS[operation];
 }
 
 export function getMarketToolCopy<T extends MarketToolCopy>(
@@ -127,41 +184,56 @@ export function getMarketToolCopy<T extends MarketToolCopy>(
   marketCode: string,
   base: T,
 ): T {
-  const code = marketCode.toUpperCase() as TerminologyMarket;
-  const local = MARKET_TOOL_COPY[slug]?.[code];
-  const neutral = NEUTRAL_TOOL_COPY[slug];
-  return { ...base, ...(local ?? neutral ?? {}) };
+  const code = marketCode.toUpperCase();
+  const isMarket = isTerminologyMarket(code);
+  let localized: Partial<MarketToolCopy> | undefined;
+
+  if (slug === "screeding") {
+    localized = isMarket
+      ? (FINISHING_COPY[code] ?? {
+          ...GENERIC_FINISHING_COPY,
+          title: getConstructionTerm("wall_finishing", code),
+        })
+      : GENERIC_FINISHING_COPY;
+  } else if (slug === "reinforcement") {
+    localized = isMarket
+      ? {
+          ...GENERIC_REINFORCEMENT_COPY,
+          title: `${getConstructionTerm("reinforcement", code)} Estimator`,
+        }
+      : GENERIC_REINFORCEMENT_COPY;
+  }
+
+  return localized ? { ...base, ...localized } : base;
 }
 
-/** Resolve labels in shared navigation by their stable path, not display text. */
+/** Resolve labels in shared navigation by stable route, never display text. */
 export function getMarketNavigationLabel(
   path: string,
   marketCode: string,
   fallback: string,
 ): string {
-  const operation =
+  const slug =
     path === "/screeding-calculator"
       ? "screeding"
       : path === "/reinforcement"
         ? "reinforcement"
         : null;
-  if (!operation) return fallback;
+  if (!slug) return fallback;
 
-  const localized = getMarketToolCopy(operation, marketCode, {
+  const copy = getMarketToolCopy(slug, marketCode, {
     title: fallback,
     does: "",
     enters: "",
     gets: "",
-  }).title;
-  // Keep the navigation item's role (calculator vs cost estimator) while
-  // replacing only its market-dependent trade name.
-  const suffix = fallback.match(/( Cost Estimator| Calculator)$/)?.[0] ?? "";
-  const baseTerm = suffix ? fallback.slice(0, -suffix.length) : fallback;
-  const isAlreadyComplete = localized
-    .toLowerCase()
-    .endsWith(suffix.toLowerCase());
-  if (!suffix || isAlreadyComplete) return localized;
-  if (baseTerm === "Screeding Cost Estimator")
-    return `${localized} Cost Estimator`;
-  return `${localized}${suffix}`;
+  });
+  const suffix =
+    fallback.match(/( Cost Estimator| Estimator| Calculator)$/)?.[0] ?? "";
+  if (!suffix || copy.title.toLowerCase().endsWith(suffix.toLowerCase())) {
+    return copy.title;
+  }
+  if (fallback === "Screeding Cost Estimator") {
+    return `${copy.title} Cost Estimator`;
+  }
+  return `${copy.title}${suffix}`;
 }

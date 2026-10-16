@@ -27,34 +27,35 @@ const TABS = [
   { id: "cost", label: "Cost Estimate" },
 ];
 
-const FAQS = [
-  {
-    question: "How does the FRELUX screeding calculator work?",
-    answer:
-      "Enter your room or wall dimensions, including doors and windows. The calculator determines the exact wall surface area that needs screeding in m², then calculates material requirements (cement, sand, bonding agents) based on the FRELUX mix configuration.",
-  },
-  {
-    question: "Can I calculate screeding for fences?",
-    answer:
-      "Yes. You can enter fence dimensions in either feet or metres. The calculator converts the surface area to m² for accurate material calculation.",
-  },
-  {
-    question:
-      "What is the difference between Screeding Quantity and Cost Estimate?",
-    answer:
-      "Screeding Quantity calculates the wall surface area and material requirements. Cost Estimate adds admin-configured material prices for cement, sand, and bonding agents to give you a full cost breakdown.",
-  },
-  {
-    question: "Does the calculator account for doors and windows?",
-    answer:
-      "Yes. Doors and windows are automatically deducted from the total wall surface area to give you the net screeding area.",
-  },
-  {
-    question: "Are material prices in Nigerian Naira?",
-    answer:
-      "Yes. The FRELUX screeding cost estimator uses admin-configured material prices for cement, sand, and other screeding materials.",
-  },
-];
+function buildFaqs(finishTerm: string) {
+  const term = finishTerm.toLowerCase();
+  return [
+    {
+      question: `How does the FRELUX ${term} calculator work?`,
+      answer: `Enter room or wall dimensions, including doors and windows. The calculator determines the net wall surface area for ${term}. Material quantities and costs are calculated only when the relevant market configuration is available.`,
+    },
+    {
+      question: `Can I calculate ${term} for fences?`,
+      answer:
+        "Yes. Enter fence dimensions in feet or metres. The calculator converts the resulting surface area to square metres for the area calculation.",
+    },
+    {
+      question: `What is the difference between ${term} quantity and cost estimate?`,
+      answer:
+        "Quantity calculates wall surface area. The cost estimate can add configured material quantities, prices, and labour costs when those market details are available.",
+    },
+    {
+      question: "Does the calculator account for doors and windows?",
+      answer:
+        "Yes. Entered door and window openings are deducted from the wall surface area to calculate the net area.",
+    },
+    {
+      question: "Are prices localized to my selected market?",
+      answer:
+        "Prices use the selected market and currency where market data is configured. Missing prices are disclosed rather than guessed.",
+    },
+  ];
+}
 
 export default function ScreedingCalculatorHub() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -65,6 +66,7 @@ export default function ScreedingCalculatorHub() {
     "Wall Finishing",
   );
   const finishTitle = `${finishTerm} Calculator`;
+  const faqs = buildFaqs(finishTerm);
   const initialMode = searchParams.get("mode") || "quantity";
   const [activeTab, setActiveTab] = useState(initialMode);
 
@@ -121,7 +123,7 @@ export default function ScreedingCalculatorHub() {
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
-        mainEntity: FAQS.map((f) => ({
+        mainEntity: faqs.map((f) => ({
           "@type": "Question",
           name: f.question,
           acceptedAnswer: { "@type": "Answer", text: f.answer },
@@ -180,11 +182,10 @@ export default function ScreedingCalculatorHub() {
             About the FRELUX {finishTitle}
           </h2>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
-            The FRELUX {finishTitle} combines {finishTerm.toLowerCase()} surface
-            area calculation with material cost estimation in a single unified
-            tool. Whether you're screeding interior walls or exterior fences, it
-            handles both metric and imperial measurements and converts
-            everything to m² for accurate material calculation.
+            The FRELUX {finishTitle} calculates wall surface area for{" "}
+            {finishTerm.toLowerCase()} and can estimate materials and costs
+            where market configuration is available. Enter metric or imperial
+            dimensions; area results are normalized to square metres.
           </p>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
             Calculation Modes
@@ -192,7 +193,7 @@ export default function ScreedingCalculatorHub() {
           <ul>
             <li>
               <strong>{finishTerm} Quantity</strong>, Enter room or wall
-              dimensions to calculate the net screeding surface area in m², with
+              dimensions to calculate the net wall surface area in m², with
               doors and windows deducted.
             </li>
             <li>
@@ -204,16 +205,15 @@ export default function ScreedingCalculatorHub() {
             FRELUX {finishTerm} Methodology
           </h3>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
-            Screeding quantities are calculated in m² according to established
-            FRELUX rules. The calculator uses admin-configured mix ratios and
-            material packaging sizes to produce accurate material quantities,
-            not generic m²-per-bag estimates. For fences, the calculator accepts
-            dimensions in feet or metres and converts the resulting surface area
-            to m² before applying material calculations.
+            Wall areas are calculated in m² using entered dimensions and
+            openings. Material quantities depend on the configured market mix
+            ratios and packaging; unavailable configurations are disclosed
+            rather than replaced with assumed values. Fence measurements may be
+            entered in feet or metres and are normalized to m².
           </p>
         </div>
 
-        <FaqSection faqs={FAQS} />
+        <FaqSection faqs={faqs} />
         <RelatedTools
           links={[
             CALC_LINKS.paintCalculator,

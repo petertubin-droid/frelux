@@ -9,6 +9,7 @@ import {
   getConstructionTerm,
   getMarketNavigationLabel,
   getMarketToolCopy,
+  TERMINOLOGY_MARKETS,
 } from "../construction-terminology";
 describe("market configuration", () => {
   it("matches all 32 configured market profiles without inventing material sizes", () => {
@@ -44,13 +45,43 @@ describe("construction terminology", () => {
       "Wood Boarding / Carpentry Box",
     );
   });
-  it("uses neutral labels for markets without curated equivalents", () => {
-    expect(getConstructionTerm("wall_finishing", "DE", "Wall Finishing")).toBe(
+  it("covers every built-in market with a non-empty term for each operation", () => {
+    const profileCodes = BUILTIN_MARKET_PROFILES.map(
+      (profile) => profile.country_code,
+    ).sort();
+    expect([...TERMINOLOGY_MARKETS].sort()).toEqual(profileCodes);
+
+    for (const marketCode of TERMINOLOGY_MARKETS) {
+      for (const operation of [
+        "board_material",
+        "wall_finishing",
+        "reinforcement",
+        "temporary_concrete_support",
+      ] as const) {
+        expect(getConstructionTerm(operation, marketCode).trim()).not.toBe("");
+      }
+      const base = {
+        title: "Base",
+        does: "Base",
+        enters: "Base",
+        gets: "Base",
+      };
+      expect(
+        getMarketToolCopy("screeding", marketCode, base).title.trim(),
+      ).not.toBe("");
+      expect(
+        getMarketToolCopy("reinforcement", marketCode, base).title.trim(),
+      ).not.toBe("");
+    }
+  });
+  it("preserves supplied fallbacks for unknown markets and unrelated routes", () => {
+    expect(getConstructionTerm("wall_finishing", "XX", "Wall Finishing")).toBe(
       "Wall Finishing",
     );
-    expect(
-      getMarketNavigationLabel("/screeding-calculator", "DE", "Wall Screeding"),
-    ).toBe("Wall Finishing");
+    expect(getConstructionTerm("wall_finishing", "DE")).toBe("Wall Finishing");
+    expect(getMarketNavigationLabel("/unrelated", "US", "Existing Label")).toBe(
+      "Existing Label",
+    );
     expect(
       getMarketNavigationLabel(
         "/screeding-calculator",
@@ -59,6 +90,7 @@ describe("construction terminology", () => {
       ),
     ).toBe("Wall Mudding / Skim Coat Calculator");
   });
+
   it("localizes catalogue copy without changing stable slugs or routes", () => {
     const base = {
       title: "Wall Screeding",
@@ -70,9 +102,11 @@ describe("construction terminology", () => {
     };
     const us = getMarketToolCopy("screeding", "US", base);
     const de = getMarketToolCopy("screeding", "DE", base);
+    const usRebar = getMarketToolCopy("reinforcement", "US", base);
     expect(us.title).toBe("Wall Mudding / Skim Coat");
     expect(us.to).toBe(base.to);
     expect(de.title).toBe("Wall Finishing");
+    expect(usRebar.title).toBe("Rebar Estimator");
     expect(de.to).toBe(base.to);
   });
 });
