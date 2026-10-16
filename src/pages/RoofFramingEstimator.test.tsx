@@ -59,9 +59,11 @@ it("keeps preliminary member checks separate and requires explicit engineer inpu
   fireEvent.click(
     screen.getByRole("button", { name: /Preliminary structural check/i }),
   );
-  fireEvent.change(screen.getByRole("combobox", { name: /Market context/i }), {
+  fireEvent.change(screen.getByRole("combobox", { name: /Market research context/i }), {
     target: { value: "NG" },
   });
+  expect(screen.getByText(/reference\/research context only/i)).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /National Building Code/i })).toHaveAttribute("href", "https://bend.fmhud.gov.ng/upload/download/25080529456.pdf");
   fireEvent.click(
     screen.getByRole("button", { name: /Run preliminary member check/i }),
   );
