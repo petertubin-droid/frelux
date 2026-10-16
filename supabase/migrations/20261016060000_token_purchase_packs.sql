@@ -69,7 +69,8 @@ BEGIN
   END IF;
 END $$;
 
-DROP CONSTRAINT IF EXISTS token_purchase_prices_pkey;
+ALTER TABLE public.token_purchase_prices
+  DROP CONSTRAINT IF EXISTS token_purchase_prices_pkey;
 ALTER TABLE public.token_purchase_prices
   ADD CONSTRAINT token_purchase_prices_pkey PRIMARY KEY (pack_id, currency_code);
 
