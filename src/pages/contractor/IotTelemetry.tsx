@@ -35,6 +35,11 @@ import {
   computeNurseSaulMaturity,
   VIBRATION_EVIDENCE_DISCLOSURE,
 } from "@/lib/iot/signal-mapping";
+import {
+  IOT_CONNECTOR_DISCLOSURE,
+  IOT_PROVIDER_REGISTRY,
+  resolveProviderDisclosure,
+} from "@/lib/iot/iot-providers";
 import { useSeo } from "@/lib/seo";
 import { Loader2, Radio, Plus, ShieldCheck, X, Copy } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
@@ -214,6 +219,37 @@ export default function IotTelemetry() {
         </div>
       )}
 
+      <section className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <h2 className="text-lg font-bold">Verified provider catalog</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {IOT_CONNECTOR_DISCLOSURE}
+        </p>
+        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+          {IOT_PROVIDER_REGISTRY.map((p) => (
+            <li key={p.id} className="rounded-xl border border-border p-3">
+              <p className="text-sm font-semibold">
+                {p.name}
+                <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
+                  {p.deviceType.replace(/_/g, " ")}
+                </span>
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">{p.capabilities}</p>
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                Verified {p.verifiedDate} from{" "}
+                <a
+                  className="underline"
+                  href={p.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  {new URL(p.sourceUrl).hostname}
+                </a>
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
           <h2 className="flex items-center gap-2 text-lg font-bold">
@@ -344,6 +380,14 @@ export default function IotTelemetry() {
                       ` · last seen ${new Date(d.last_seen_at).toLocaleString()}`}
                     {` · retention ${d.retention_days} days`}
                   </p>
+                  {(() => {
+                    const rp = resolveProviderDisclosure(d.provider);
+                    return rp.provider ? (
+                      <p className="mt-2 rounded-lg bg-muted px-2 py-1 text-xs text-muted-foreground">
+                        {rp.disclosure}
+                      </p>
+                    ) : null;
+                  })()}
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Button
                       type="button"

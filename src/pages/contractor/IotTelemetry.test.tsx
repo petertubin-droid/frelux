@@ -23,6 +23,22 @@ const devices = [
     created_date: "2026-10-10T00:00:00Z",
     updated_date: "2026-10-10T00:00:00Z",
   },
+  {
+    id: "d2",
+    owner: "u1",
+    name: "Site vibration monitor",
+    device_type: "vibration_monitor",
+    provider: "Instantel Micromate",
+    market_code: "NG",
+    status: "paused",
+    api_key_hash: "b".repeat(64),
+    consent_granted_at: "2026-10-11T00:00:00Z",
+    consent_scope: "ground vibration evidence",
+    retention_days: 90,
+    last_seen_at: null,
+    created_date: "2026-10-11T00:00:00Z",
+    updated_date: "2026-10-11T00:00:00Z",
+  },
 ];
 const telemetry = [
   {
@@ -94,9 +110,9 @@ describe("IotTelemetry page (engine #7 M1)", () => {
       </MemoryRouter>,
     );
     expect(await screen.findByText("Pour 12 sensor")).toBeInTheDocument();
-    expect(screen.getByText(/Consent recorded/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Consent recorded/).length).toBe(2);
 
-    fireEvent.click(screen.getByRole("button", { name: /View telemetry/i }));
+    fireEvent.click(screen.getAllByRole("button", { name: /View telemetry/i })[0]);
     expect((await screen.findAllByText("24.5 celsius")).length).toBe(2);
     expect(screen.getAllByText("valid").length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("suspect")).toBeInTheDocument();
@@ -159,7 +175,7 @@ describe("IotTelemetry derived project state (engine #7 M2)", () => {
       </MemoryRouter>,
     );
     fireEvent.click(
-      await screen.findByRole("button", { name: /View telemetry/i }),
+      (await screen.findAllByRole("button", { name: /View telemetry/i }))[0],
     );
     expect(await screen.findByText(/Derived project state/i)).toBeInTheDocument();
     expect(screen.getByText(/°C·h/)).toBeInTheDocument();
@@ -179,10 +195,63 @@ describe("IotTelemetry derived project state (engine #7 M2)", () => {
       </MemoryRouter>,
     );
     fireEvent.click(
-      await screen.findByRole("button", { name: /View telemetry/i }),
+      (await screen.findAllByRole("button", { name: /View telemetry/i }))[0],
     );
     expect(
       await screen.findByText(/At least 2 valid concrete_temp_c readings/),
     ).toBeInTheDocument();
+  });
+});
+
+describe("IotTelemetry provider catalog (engine #7 M3)", () => {
+  it("renders the verified catalog with citations and the no-connection disclosure", async () => {
+    render(
+      <MemoryRouter>
+        <IotTelemetry />
+      </MemoryRouter>,
+    );
+    expect(
+      await screen.findByText(/Verified provider catalog/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/no authorized API connection to any telemetry provider/i).length,
+    ).toBeGreaterThanOrEqual(1);
+    // every catalog entry shows its verified source host
+    for (const hostPattern of [
+      /giatecscientific\.com/,
+      /commandcenterconcrete\.com/,
+      /instantel\.com/,
+      /orica\.com/,
+      /davisinstruments\.com/,
+      /samsara\.com/,
+      /developers\.geotab\.com/,
+    ]) {
+      expect(screen.getAllByText(hostPattern).length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("shows the matched provider disclosure on known-provider device cards", async () => {
+    render(
+      <MemoryRouter>
+        <IotTelemetry />
+      </MemoryRouter>,
+    );
+    expect(await screen.findByText("Site vibration monitor")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Instantel Micromate:.*Vibration, sound\/noise, and air-overpressure/s),
+    ).toBeInTheDocument();
+  });
+
+  it("never shows a catalog disclosure for unknown provider text", async () => {
+    render(
+      <MemoryRouter>
+        <IotTelemetry />
+      </MemoryRouter>,
+    );
+    await screen.findByText("Pour 12 sensor");
+    // Vendor A is unknown — no invented disclosure on its card
+    expect(
+      screen.queryByText(/Vendor A: /),
+    ).not.toBeInTheDocument();
   });
 });
