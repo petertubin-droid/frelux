@@ -89,7 +89,16 @@ Already built — do NOT rebuild:
 - Localized: currency + measurement-system columns per market, bilingual labels
   where required (FR/DE markets), VAT/tax naming per market (VAT/MwSt/GST/IVA).
 
-### 1.3 Click-to-Invoice  ← IN PROGRESS
+### 1.3 Click-to-Invoice  ← COMPLETE (2026-10-16)
+- `invoices` + `invoice_payments` + `invoice_counters` tables live (RLS
+  forced, owner policies); `reserve_invoice_number` RPC = atomic
+  per-user/per-year numbering (INV-YYYY-####).
+- Pure `invoice-engine.ts`: verbatim quote snapshot (deep copy),
+  derived-only paid/overdue/partially-paid statuses (no recorded
+  payments = not paid), `XXX` currency fallback (never NGN), tax label
+  per market (VAT/MwSt/GST/IVA — presentation only).
+- `InvoicesCard` on the BOQ page: create-from-quote, issue/cancel,
+  payment recording, derived status badges, branded print.
 - New `invoices` entity: sequential numbering, issued/paid/overdue status,
   payment recording, client block; one-click estimate/quotation → invoice.
 - Rendering reuses quote-export (already invoice-styled, branded, printable).

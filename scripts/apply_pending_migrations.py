@@ -105,6 +105,8 @@ PENDING = [
         "20261021100000_rbac_force_rls_all_tables.sql",
         "20261021200000_rbac_rpc_escalation_hardening.sql",
         "20261021210000_security_posture_reviews.sql",
+        "20261022100000_invoices.sql",
+        "20261022110000_invoice_counter_rpc.sql",
 ]
 
 

@@ -22,6 +22,7 @@ import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
 import BoqTranslationCard from "@/components/dictionary/BoqTranslationCard";
+import { InvoicesCard } from "@/components/finance/InvoicesCard";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
 import {
@@ -949,6 +950,34 @@ export default function BoqGenerator() {
 
             {/* ── Engine #5: cite-and-flag the standards behind each engine ── */}
             <StandardsCitationsCard marketCode={marketCode} engines={quoteEngines} />
+
+            {/* ── Wave 1.3: click-to-invoice from the saved quotation ── */}
+            <InvoicesCard
+              quote={
+                savedId && result?.ok && result?.totals
+                  ? {
+                      id: savedId,
+                      user_id: user?.id ?? null,
+                      quote_ref: savedRef ?? quoteRef ?? "",
+                      title: title || "Untitled BOQ",
+                      client_name: clientName || "Client",
+                      client_contact: null,
+                      project_location: projectLocation || null,
+                      currency: getActiveDisplayCurrency(),
+                      items: (result.line_totals ?? []).map((lt) => ({
+                        description: lt.item.description,
+                        quantity: lt.item.quantity,
+                        unit: lt.item.unit,
+                        unit_cost: lt.item.unit_cost,
+                        total: lt.line_total,
+                      })),
+                      totals: result.totals as unknown as { grand_total: number },
+                    }
+                  : null
+              }
+              marketCode={marketCode}
+              userId={user?.id ?? null}
+            />
 
             {/* ── Engine #4: verified tax + FX provenance + gated withholding ── */}
             <TaxAndFxCard

@@ -121,6 +121,16 @@ Only open work belongs here. Recheck current source and production state before 
 - Expand standards-tested IFC coverage. Keep geometry extraction separate until supported primitives, placements, and transforms are implemented and independently tested. Then stage a model viewer, measurement verification, revisions/annotations, federation/georeferencing, schedule/cost links, and auditable clash/issues workflows.
 - Tests must cover declared quantities, supported unit conversions, unresolved-unit honesty, malformed/unsupported inputs, and limits. Do not require invented slab volumes or wall areas when the file supplies no such quantities.
 
+### E2. Wave 1.3 Click-to-Invoice — COMPLETE (2026-10-16)
+
+Migrations `20261022100000_invoices.sql` + `20261022110000_invoice_counter_rpc.sql` applied live + verified. Tables: `invoices` (snapshot of a boq_quote, per-invoice currency DEFAULT 'XXX' — never NGN, stored status draft/issued/cancelled only), `invoice_payments` (amount>0 CHECK, method CHECK, CASCADE), `invoice_counters` (per-user/per-year); all RLS FORCED with owner policies (payments scoped via owning invoice). `reserve_invoice_number(year)` RPC: single-statement atomic upsert-increment, auth.uid()-pinned, EXEC revoked from PUBLIC, granted to authenticated — PostgREST upserts cannot express "last_number + 1", so the RPC is the only reservation path.
+
+Code: `src/lib/finance/invoice-engine.ts` (pure — verbatim deep-copied quote snapshot, `INV-YYYY-####` refs, due date = issue + terms, `deriveInvoiceStatus()`: paid requires covering payments, partially_paid never claims paid, overdue is date-based not time-of-day, currency `XXX` when unknown). `src/lib/finance/invoice-service.ts` (create-from-quote via RPC ref, record/delete payment, issue/cancel/draft status, `fetchInvoices` derives state at read time). `src/components/finance/InvoicesCard.tsx` on BoqGenerator: create-from-quote (per-line totals from `result.line_totals`, NOT raw BoqLineItem which has no `total`), issue/cancel, payment recording, derived badges, branded print.
+
+GOTCHAS: (1) `boqTaxLabel(market).short` — the interface has `.long`/`.short`, NOT `.label`; a `.label` access silently yields undefined. (2) thenable-chain mocks: make every chain method return the chain and give the chain a `then` — per-method resolve mocks break under any composition order. (3) Don't `setMsg(null)` inside a shared refresh — it erases the action success message the instant it renders (tests caught this as a real UX bug). (4) Card fetches only with a signed-in userId; RLS is the law, the eq filter is just a shape.
+
+Remaining follow-ups (optional, not blockers): invoice email/share delivery, per-market numbering format config (currently global INV-YYYY-####), and credit-ledger integration with the existing billing engines when #10 regulated finance is scoped.
+
 ### E. Cross-capability and market verification — OPEN
 
 - Build a current market/capability matrix from live registry and production evidence. Test representative estimates, currency, data provenance, missing values, and no-silent-fallback behavior per enabled market. Add E2E confidence/provenance presentation only where supported by actual source data.
