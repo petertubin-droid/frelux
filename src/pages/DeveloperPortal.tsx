@@ -286,7 +286,7 @@ export default function DeveloperPortal() {
         <h2 id="quickstart-heading" className="mb-3 text-lg font-semibold">
           Quick start
         </h2>
-        <CodeBlock>{`curl -X POST "https://hqhvlkunkdrxyuvziorm.supabase.co/functions/v1/frelix-api/v1/calculators/tyrolene_partition_area" \\
+        <CodeBlock>{`curl -X POST "https://YOUR-SUPABASE-PROJECT.supabase.co/functions/v1/frelix-api/v1/calculators/tyrolene_partition_area" \\
   -H "Authorization: Bearer FLX-YOUR-KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"input":{"length":4,"width":3,"height":3}}'`}</CodeBlock>
@@ -357,8 +357,8 @@ export default function DeveloperPortal() {
           <p className="text-sm text-muted-foreground">
             Market prices are labeled OBSERVED vs CONFIGURED and are never
             presented as guaranteed current pricing. Regions without a FRELUX
-            profile return an explicit "not available", another region's data
-            is never silently substituted.
+            profile return an explicit "not available", another region's data is
+            never silently substituted.
           </p>
         </div>
       </section>
