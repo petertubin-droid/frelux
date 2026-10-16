@@ -12,8 +12,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import CountVision from "./CountVision";
+import { useAuth } from "@/lib/auth";
 
 const countMock = vi.fn();
+const gateMock = vi.fn();
 
 vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
 vi.mock("@/lib/seo", () => ({
@@ -24,6 +26,12 @@ vi.mock("@/lib/auth", () => ({
   useAuth: vi.fn(() => ({ user: null, loading: false })),
 }));
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
+vi.mock("@/lib/ai-credit-gate", () => ({
+  checkAndSpendCredits: (...args: unknown[]) => gateMock(...args),
+}));
+vi.mock("@/components/credits/CreditsWallet", () => ({
+  AiFeatureGate: () => <div data-testid="ai-feature-gate-stub" />,
+}));
 vi.mock("@/lib/estimation/queries", () => ({
   fetchCountVisionRules: vi.fn().mockResolvedValue({ data: [], error: null }),
   countPhoto: (...args: unknown[]) => countMock(...args),
@@ -194,5 +202,82 @@ describe("CountVision page", () => {
       screen.queryByAltText(/ready for counting/i),
     ).not.toBeInTheDocument();
     expect(screen.getByText(/count what's visible/i)).toBeDisabled();
+  });
+});
+
+describe("CountVision credit gate", () => {
+  it("signed-in users hit the count_vision credit gate before the count", async () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "u1" },
+      loading: false,
+    } as never);
+    gateMock.mockResolvedValue({
+      allowed: false,
+      feature: null,
+      spend: null,
+      error: "Not enough FRELUX Credits.",
+      newBalance: null,
+      adUnlockAvailable: true,
+    });
+
+    renderPage();
+    pickPhoto(makePhoto());
+    fireEvent.click(
+      screen.getByRole("button", { name: /count what's visible/i }),
+    );
+
+    await waitFor(() => expect(gateMock).toHaveBeenCalledWith("count_vision"));
+    expect(countMock).not.toHaveBeenCalled();
+    expect(screen.getByTestId("ai-feature-gate-stub")).toBeTruthy();
+  });
+
+  it("signed-in users with credits get the count after the gate passes", async () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "u1" },
+      loading: false,
+    } as never);
+    gateMock.mockResolvedValue({
+      allowed: true,
+      feature: null,
+      spend: { success: true },
+      error: null,
+      newBalance: 45,
+      adUnlockAvailable: true,
+    });
+    countMock.mockResolvedValue({
+      verdict: "counted",
+      count: 42,
+      unitLabel: "bags",
+      confidence: 0.92,
+      reason: "Two neat rows of cement bags, all visible",
+    });
+
+    renderPage();
+    pickPhoto(makePhoto());
+    fireEvent.click(
+      screen.getByRole("button", { name: /count what's visible/i }),
+    );
+
+    await waitFor(() => expect(countMock).toHaveBeenCalledTimes(1));
+  });
+
+  it("guests are never credit-gated: the edge function rate limit is the guard", async () => {
+    vi.mocked(useAuth).mockReturnValue({ user: null, loading: false } as never);
+    countMock.mockResolvedValue({
+      verdict: "counted",
+      count: 7,
+      unitLabel: "bags",
+      confidence: 0.9,
+      reason: "Visible stack",
+    });
+
+    renderPage();
+    pickPhoto(makePhoto());
+    fireEvent.click(
+      screen.getByRole("button", { name: /count what's visible/i }),
+    );
+
+    await waitFor(() => expect(countMock).toHaveBeenCalledTimes(1));
+    expect(gateMock).not.toHaveBeenCalled();
   });
 });

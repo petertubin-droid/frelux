@@ -19,6 +19,8 @@ import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import { useAuth } from "@/lib/auth";
+import { checkAndSpendCredits } from "@/lib/ai-credit-gate";
+import { AiFeatureGate } from "@/components/credits/CreditsWallet";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
@@ -50,6 +52,7 @@ export default function CountVision() {
     { name: "Counter-Vision", path: "/count-vision" },
   ]);
   const { user } = useAuth();
+  const [gateOpen, setGateOpen] = useState(false);
 
   const [rules, setRules] = useState<CountVisionRules>(
     DEFAULT_COUNT_VISION_RULES,
@@ -99,7 +102,7 @@ export default function CountVision() {
     [rules],
   );
 
-  const runCount = useCallback(async () => {
+  const doCount = useCallback(async () => {
     if (!photo || counting) return;
     setCounting(true);
     setError(null);
@@ -122,7 +125,25 @@ export default function CountVision() {
     } finally {
       setCounting(false);
     }
-  }, [counting, itemHint, photo, rules, user]);
+  }, [counting, itemHint, photo, rules]);
+
+  /**
+   * Gated entry point: signed-in users spend credits server-side
+   * (cost + daily limit live in ai_feature_costs, Admin-configurable)
+   * before the edge function is called. Guests stay on the edge
+   * function's own rate limits, same contract as the Copilot.
+   */
+  const runCount = useCallback(async () => {
+    if (!photo || counting) return;
+    if (user) {
+      const gate = await checkAndSpendCredits("count_vision");
+      if (!gate.allowed) {
+        setGateOpen(true);
+        return;
+      }
+    }
+    await doCount();
+  }, [counting, doCount, photo, user]);
 
   return (
     <Container>
@@ -305,6 +326,17 @@ export default function CountVision() {
       </section>
 
       <AdSlot slotKey="calculator_bottom" className="mt-8" />
+      {gateOpen && (
+        <AiFeatureGate
+          featureKey="count_vision"
+          featureName="Counter-Vision"
+          onUnlocked={() => {
+            setGateOpen(false);
+            doCount();
+          }}
+          onClose={() => setGateOpen(false)}
+        />
+      )}
     </Container>
   );
 }
