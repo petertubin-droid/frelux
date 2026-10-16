@@ -11,9 +11,7 @@ import {
   MAX_ADS_PER_DAY,
   getTodayRewardedAdCount,
 } from "@/lib/credits";
-import { fetchAdConfig } from "@/lib/ad-config";
-import { getBridgedAdCandidates, REWARDED_AD_BRIDGES } from "@/lib/rewarded-bridges";
-import { getClientHash } from "@/lib/rewarded-access";
+import { hasRewardedAdProvider } from "@/lib/ad-config";
 import {
   Coins,
   Sparkles,
@@ -36,6 +34,7 @@ export const ProfileCreditsWallet: React.FC = () => {
   const [loadingTasks, setLoadingTasks] = useState(false);
   const [adWatching, setAdWatching] = useState(false);
   const [adMessage, setAdMessage] = useState<string | null>(null);
+  const [adProviderReady, setAdProviderReady] = useState(false);
   const [todayAdCount, setTodayAdCount] = useState<number>(0);
   const navigate = useNavigate();
 
@@ -64,78 +63,15 @@ export const ProfileCreditsWallet: React.FC = () => {
     loadData();
   }, [user]);
 
+  useEffect(() => {
+    hasRewardedAdProvider().then(setAdProviderReady);
+  }, []);
+
   const handleWatchAd = async () => {
-    if (!user) return;
-    if (isDailyAdLimitReached) {
-      setAdMessage(
-        "Daily limit reached (maximum 4 ads per day). Come back tomorrow to earn more credits!",
-      );
-      return;
-    }
-
-    setAdWatching(true);
-    setAdMessage(null);
-    try {
-      // Show an actual rewarded ad from the user's click before asking the
-      // server to award credits. Never call verification with no ad view.
-      const { providers } = await fetchAdConfig();
-      const candidates = getBridgedAdCandidates(providers);
-      let completedProvider: string | null = null;
-      let adMode: string | null = null;
-      let lastError = "No eligible rewarded advertisement is available.";
-      for (const provider of candidates) {
-        const bridge = REWARDED_AD_BRIDGES[provider.slug];
-        if (!bridge) continue;
-        try {
-          const view = await bridge(provider, {
-            ymid: getClientHash(),
-            toolKey: "earn_credits",
-          });
-          if (view.valued !== true) {
-            throw new Error("The ad provider did not confirm completion.");
-          }
-          completedProvider = provider.slug;
-          adMode = view.mode;
-          break;
-        } catch (error) {
-          lastError =
-            error instanceof Error ? error.message : "The ad could not be loaded.";
-        }
-      }
-      if (!completedProvider || !adMode) {
-        setAdMessage(lastError);
-        return;
-      }
-
-      const adEventId = `profile_ad_${user.id}_${Date.now()}`;
-      const adToken = `att_${completedProvider}_${adMode}_${Date.now()}`;
-      const res = await verifyRewardedAd(
-        completedProvider,
-        adEventId,
-        "earn_credits",
-        { source: "profile_wallet", ad_mode: adMode },
-        adToken,
-      );
-      if (res.success) {
-        setAdMessage(`Successfully earned ${res.creditsEarned ?? 5} credits!`);
-        await refreshWallet();
-        await loadData();
-      } else {
-        if (res.code === "DAILY_LIMIT") {
-          setTodayAdCount(MAX_ADS_PER_DAY);
-        }
-        setAdMessage(
-          res.error ||
-            "No eligible rewarded advertisement available at this moment.",
-        );
-      }
-    } catch (_e) {
-      setAdMessage(
-        "Unable to complete ad reward verification. Please try again later.",
-      );
-    } finally {
-      setAdWatching(false);
-    }
+    if (!user || adWatching) return;
+    setAdMessage(
+      "Rewarded ads are temporarily unavailable while secure server verification is being configured. No ad was shown and no credits were granted.",
+    );
   };
 
   const handleCompleteTask = async (taskId: string) => {
@@ -241,9 +177,9 @@ export const ProfileCreditsWallet: React.FC = () => {
                 </span>
               ) : (
                 <>
-                  Watch an eligible sponsor ad to earn{" "}
-                  <strong>+5 credits</strong> (you can watch{" "}
-                  {MAX_ADS_PER_DAY - todayAdCount} more today).
+                  {adProviderReady
+                    ? `You can watch ${MAX_ADS_PER_DAY - todayAdCount} more today.`
+                    : "Secure server verification is not configured yet. Ad rewards are temporarily unavailable."}
                 </>
               )}
             </p>
@@ -255,14 +191,16 @@ export const ProfileCreditsWallet: React.FC = () => {
           </div>
           <button
             onClick={handleWatchAd}
-            disabled={adWatching || isDailyAdLimitReached}
+            disabled={adWatching || isDailyAdLimitReached || !adProviderReady}
             className="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {adWatching
               ? "Verifying Ad..."
               : isDailyAdLimitReached
                 ? `Daily Limit Reached (${MAX_ADS_PER_DAY}/${MAX_ADS_PER_DAY})`
-                : "Watch Ad (+5 Credits)"}
+                : adProviderReady
+                  ? "Watch Ad (+5 Credits)"
+                  : "Ads Temporarily Unavailable"}
           </button>
         </div>
 

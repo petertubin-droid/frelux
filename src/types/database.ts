@@ -1022,6 +1022,7 @@ export interface AdProviderSchema {
     default?: string | number | boolean;
     required?: boolean;
     placeholder?: string;
+    help?: string;
   }[];
   icon: string;
 }

@@ -18,7 +18,7 @@ describe("adsense-rewarded", () => {
       is_active: true,
       priority: 1,
       credentials: { publisher_id: "ca-pub-1234567890123456" },
-      settings: {},
+      settings: { rewarded_ads: true, adsense_h5_approval_confirmed: false },
       is_system: true,
       created_at: "",
       updated_at: "",
@@ -28,7 +28,7 @@ describe("adsense-rewarded", () => {
         ymid: "u1",
         toolKey: "tool",
       }),
-    ).rejects.toThrow(/disabled/i);
+    ).rejects.toThrow(/pending Google approval/i);
   });
 
   it("rejects an invalid publisher ID before loading any script", async () => {

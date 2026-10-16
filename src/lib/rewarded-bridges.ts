@@ -8,18 +8,12 @@ import { showAdsenseRewardedAd } from "@/lib/adsense-rewarded";
 import { supportsOfferwall } from "@/lib/offerwall";
 
 /**
- * Rewarded ad bridges, one entry per provider with a working client-side
- * rewarded implementation. A bridge shows the real ad and reports how it
- * completed; the unlock is then granted server-side with a client
- * attestation token (att_<slug>_<mode>_<timestamp>) that the edge
- * function validates against the active providers in the database.
- *
- * To support a new provider (of the 35+ in ad_providers, or a future one):
- * 1. Implement its rewarded flow (see src/lib/monetag-rewarded.ts).
- * 2. Register it here. No edge-function or database change is needed.
- * Providers without a bridge honestly fail, the unlock is never
- * granted without a real ad being shown.
+ * Browser SDK callbacks are not server proof. This stays false until a
+ * provider-native verifier creates/correlates a server-issued ad session.
+ * Adapters remain provider-neutral for integration, but no client callback
+ * is treated as authorization to mint a reward.
  */
+export const REWARDED_SERVER_VERIFICATION_CONFIGURED = false;
 export interface RewardedAdBridgeResult {
   mode: string;
   valued: boolean | null;
@@ -55,9 +49,12 @@ export const REWARDED_AD_BRIDGES: Record<string, RewardedAdBridge> = {
   google_adsense: async (provider, opts) => {
     const settings = (provider.settings ?? {}) as Record<string, unknown>;
     const creds = (provider.credentials ?? {}) as Record<string, unknown>;
-    if (settings.rewarded_ads !== true) {
+    if (
+      settings.rewarded_ads !== true ||
+      settings.adsense_h5_approval_confirmed !== true
+    ) {
       throw new Error(
-        "AdSense rewarded ads are disabled. Enable Rewarded Ads in Admin → Ads → Google AdSense.",
+        "AdSense H5 Games rewarded ads are pending Google approval and are not available yet.",
       );
     }
     const publisherId =
@@ -108,7 +105,17 @@ export function getBridgedAdCandidates(
   providers: DbAdProvider[],
 ): DbAdProvider[] {
   return providers
-    .filter((p) => p.is_active && !!REWARDED_AD_BRIDGES[p.slug])
+    .filter((p) => {
+      if (!p.is_active || !REWARDED_AD_BRIDGES[p.slug]) return false;
+      if (p.slug === "google_adsense") {
+        const settings = (p.settings ?? {}) as Record<string, unknown>;
+        return (
+          settings.rewarded_ads === true &&
+          settings.adsense_h5_approval_confirmed === true
+        );
+      }
+      return true;
+    })
     .sort((a, b) => (a.priority ?? 99) - (b.priority ?? 99));
 }
 

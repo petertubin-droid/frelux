@@ -11,9 +11,9 @@ export interface DbProCategory {
   icon: string | null;
   sort_order: number;
   is_active: boolean;
-  seo_title: string | null;
-  seo_description: string | null;
-  seo_indexable: boolean;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  seo_indexable?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -86,32 +86,32 @@ export interface DbProProfile {
   availability: ProAvailability;
   verification_status: ProVerificationStatus;
   // Phase 26: Tiered verification columns
-  contact_verified_at: string | null;
-  identity_verified_at: string | null;
-  pro_level: boolean;
-  pro_level_awarded_at: string | null;
-  phone_verified: boolean;
-  phone_number: string | null;
+  contact_verified_at?: string | null;
+  identity_verified_at?: string | null;
+  pro_level?: boolean;
+  pro_level_awarded_at?: string | null;
+  phone_verified?: boolean;
+  phone_number?: string | null;
   // Phase 31: KYC + mobile verification
-  nin_number: string | null;
-  nin_verified: boolean;
-  nin_verified_at: string | null;
-  mobile_otp_verified: boolean;
-  mobile_otp_verified_at: string | null;
-  mobile_number: string | null;
-  is_profile_complete: boolean;
-  is_listed: boolean;
-  contact_email_public: boolean;
-  contact_phone_public: boolean;
-  contact_phone: string | null;
+  nin_number?: string | null;
+  nin_verified?: boolean;
+  nin_verified_at?: string | null;
+  mobile_otp_verified?: boolean;
+  mobile_otp_verified_at?: string | null;
+  mobile_number?: string | null;
+  is_profile_complete?: boolean;
+  is_listed?: boolean;
+  contact_email_public?: boolean;
+  contact_phone_public?: boolean;
+  contact_phone?: string | null;
   website_url: string | null;
   rating_avg: number;
   rating_count: number;
   project_count: number;
   sort_order: number;
-  seo_title: string | null;
-  seo_description: string | null;
-  seo_indexable: boolean;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  seo_indexable?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -142,9 +142,9 @@ export interface DbProPortfolioItem {
   image_urls: string[];
   completed_date: string | null;
   sort_order: number;
-  seo_title: string | null;
-  seo_description: string | null;
-  seo_indexable: boolean;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  seo_indexable?: boolean;
   created_at: string;
   updated_at: string;
 }

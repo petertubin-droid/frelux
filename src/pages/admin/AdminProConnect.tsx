@@ -131,10 +131,7 @@ function AdminProfessionalsTab() {
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("pro_profiles")
-      .select("*")
-      .order("created_at DESC");
+    const { data } = await supabase.rpc("admin_list_pro_profiles");
     setProfiles((data || []) as DbProProfile[]);
     setLoading(false);
   }, []);
@@ -151,10 +148,12 @@ function AdminProfessionalsTab() {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return;
-    await supabase
-      .from("pro_profiles")
-      .update({ verification_status: status })
-      .eq("id", profileId);
+    const { error } = await supabase.rpc("admin_set_pro_profile_status", {
+      p_profile_id: profileId,
+      p_status: status,
+      p_admin_id: user.id,
+    });
+    if (error) return;
     await supabase
       .from("pro_verification_logs")
       .insert({ profile_id: profileId, admin_id: user.id, new_status: status });

@@ -11,11 +11,17 @@ import {
   updateProfileServices,
   updateProfileLocations,
   getMyProProfile,
+  getMyProContactPhone,
   generateProSlug,
   isSlugAvailable,
   upgradeToProWorker,
   getAccountType,
 } from "@/lib/pro-connect";
+import {
+  sendMobileOTP,
+  verifyMobileOTP,
+  submitNIN,
+} from "@/lib/worker-channels";
 import type { AccountType } from "@/types/pro-connect";
 import type {
   DbProCategory,
@@ -24,7 +30,6 @@ import type {
   DbProProfile,
 } from "@/types/pro-connect";
 import { classNames } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 
@@ -123,7 +128,7 @@ export default function ProConnectRegister() {
           setSlug(existing.slug);
           setBio(existing.bio || "");
           setYearsExperience(existing.years_experience?.toString() || "");
-          setPhone(existing.contact_phone || "");
+          setPhone((await getMyProContactPhone()) || "");
           if (existing.country) setCountry(existing.country);
           setWebsite(existing.website_url || "");
           setAvailability(existing.availability);
@@ -242,12 +247,10 @@ export default function ProConnectRegister() {
     setOtpError("");
     setOtpSuccess("");
     try {
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        phone: mobileNumber,
-      });
-      if (otpError) throw otpError;
+      const result = await sendMobileOTP(mobileNumber, user!.id);
+      if (!result.success) throw new Error(result.message);
       setOtpSent(true);
-      setOtpSuccess("OTP sent to " + mobileNumber);
+      setOtpSuccess("Verification code sent to " + mobileNumber);
       setResendCooldown(30);
       const interval = setInterval(() => {
         setResendCooldown((prev) => {
@@ -273,12 +276,8 @@ export default function ProConnectRegister() {
     setOtpSending(true);
     setOtpError("");
     try {
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        phone: mobileNumber,
-        token: otpCode,
-        type: "sms",
-      });
-      if (verifyError) throw verifyError;
+      const result = await verifyMobileOTP(mobileNumber, otpCode, user!.id);
+      if (!result.success) throw new Error(result.message);
       setOtpSuccess("Phone number verified successfully!");
       setOtpVerified(true);
     } catch (err: unknown) {
@@ -289,22 +288,17 @@ export default function ProConnectRegister() {
   }
 
   async function handleSubmitNIN() {
-    if (!ninNumber.trim()) {
-      setNinError("Enter your NIN");
+    if (!/^\d{11}$/.test(ninNumber.trim())) {
+      setNinError("Enter your 11-digit NIN");
       return;
     }
     setNinSubmitting(true);
     setNinError("");
     setNinSuccess("");
     try {
-      const { error: ninError } = await supabase
-        .from("pro_profiles")
-        .update({ nin_number: ninNumber, nin_status: "pending" })
-        .eq("user_id", user?.id);
-      if (ninError) throw ninError;
-      setNinSuccess(
-        "NIN verification submitted. Status will be updated once verified.",
-      );
+      const result = await submitNIN(ninNumber.trim(), user!.id);
+      if (!result.success) throw new Error(result.message);
+      setNinSuccess("NIN submitted for admin review. It is not verified yet.");
       setNinSubmitted(true);
     } catch (err: unknown) {
       setNinError(getSafeError(err, "NIN verification failed"));
@@ -900,8 +894,8 @@ export default function ProConnectRegister() {
             Profile Created!
           </h2>
           <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
-            Your professional profile is now live on FRELUX Pro Connect.
-            Customers can find you in the directory.
+            Your profile details have been saved. Identity checks remain pending
+            until approved by FRELUX administrators.
           </p>
           {(otpVerified || ninSubmitted) && (
             <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-3 text-sm">
@@ -934,13 +928,11 @@ export default function ProConnectRegister() {
             >
               Go to Dashboard
             </Link>
-            {otpVerified && ninSubmitted && (
-              <Link
-                to="/worker-channels/"
-                className="rounded-lg border border-brand-purple/30 py-3 text-sm font-semibold text-brand-purple"
-              >
-                Join Worker Channels →
-              </Link>
+            {ninSubmitted && (
+              <p className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+                Worker Channels access becomes available after identity review
+                is approved.
+              </p>
             )}
           </div>
         </div>

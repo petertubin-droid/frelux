@@ -4,10 +4,8 @@ import { useCredits } from "@/lib/credits-context";
 import {
   getAiGatewayStatus,
   AiGatewayStatus,
-  unlockGuestAiAllowance,
   getClientId,
 } from "@/lib/ai-access";
-import { showMonetagRewardedAd, getMonetagZone } from "@/lib/monetag-rewarded";
 import {
   Sparkles,
   Lock,
@@ -51,44 +49,6 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
   useEffect(() => {
     checkStatus();
   }, [user, wallet?.balance]);
-
-  // Handler for anonymous guests to watch 1 sponsor ad and unlock 1 daily use
-  const handleGuestWatchAd = async () => {
-    setAdWatching(true);
-    setAdError(null);
-    try {
-      // 1. Trigger ad bridge playback
-      const zone = getMonetagZone() || "default";
-      const clientHash = getClientId();
-      try {
-        await showMonetagRewardedAd({
-          zone,
-          ymid: clientHash,
-          requestVar: `guest_${featureName.toLowerCase().replace(/\s+/g, "_")}`,
-          minWatchTimeMs: 4000,
-        });
-      } catch (adPlayErr) {
-        console.warn("Ad bridge notice:", adPlayErr);
-      }
-
-      // 2. Authorize guest unlock via server verification
-      const adEventId = `guest_ad_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-      const adToken = `att_monetag_guest_${Date.now()}`;
-      const res = await unlockGuestAiAllowance("monetag", adEventId, adToken);
-
-      if (res.success) {
-        await checkStatus();
-      } else {
-        setAdError(
-          res.error || "Could not verify sponsor ad. Please try again.",
-        );
-      }
-    } catch (_err) {
-      setAdError("Failed to complete ad unlock. Please try again.");
-    } finally {
-      setAdWatching(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -178,28 +138,14 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
         </h3>
 
         <p className="text-sm text-muted-foreground mb-4">
-          Watch a short sponsor ad to unlock your 1 free daily AI estimation for{" "}
-          <strong>{featureName}</strong>. No account required.
+          Secure ad verification is not configured yet, so sponsored AI access
+          is temporarily unavailable. You can still create an account or sign in
+          to use your available credits.
         </p>
 
-        {adError && (
-          <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-xs text-destructive flex items-center gap-2 text-left">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{adError}</span>
-          </div>
-        )}
-
-        <div className="flex flex-col gap-3 justify-center mb-6">
-          <button
-            onClick={handleGuestWatchAd}
-            disabled={adWatching}
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
-          >
-            <PlayCircle className="w-4 h-4" />
-            {adWatching
-              ? "Verifying Sponsor Ad..."
-              : "Watch Ad to Unlock (1 Free Use)"}
-          </button>
+        <div className="mb-4 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+          Rewarded ads are disabled until an authenticated provider-side
+          completion can be verified. No ad impression will be requested.
         </div>
 
         <div className="pt-4 border-t border-border">

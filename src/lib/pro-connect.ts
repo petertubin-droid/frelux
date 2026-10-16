@@ -120,7 +120,9 @@ export async function getMyProProfile(
   if (!isSupabaseConfigured) return null;
   const { data, error } = await supabase
     .from("pro_profiles")
-    .select("*")
+    .select(
+      "id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
+    )
     .eq("user_id", userId)
     .maybeSingle();
   if (error) {
@@ -131,13 +133,26 @@ export async function getMyProProfile(
   return data as DbProProfile | null;
 }
 
+export async function getMyProContactPhone(): Promise<string | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await supabase.rpc("get_own_pro_contact_phone");
+  if (error) {
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getMyProContactPhone:", error.message);
+    return null;
+  }
+  return typeof data === "string" ? data : null;
+}
+
 export async function getProProfileBySlug(
   slug: string,
 ): Promise<DbProProfile | null> {
   if (!isSupabaseConfigured) return null;
   const { data, error } = await supabase
     .from("pro_profiles")
-    .select("*")
+    .select(
+      "id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
+    )
     .eq("slug", slug)
     .maybeSingle();
   if (error) {
@@ -263,7 +278,10 @@ export async function searchProfessionals(
 
   let query = supabase
     .from("pro_profiles")
-    .select("*", { count: "exact" })
+    .select(
+      "id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
+      { count: "exact" },
+    )
     .eq("is_listed", true)
     .neq("verification_status", "suspended");
 
@@ -386,7 +404,9 @@ export async function createProProfile(profile: {
       contact_phone: profile.contact_phone || null,
       website_url: profile.website_url || null,
     })
-    .select("*")
+    .select(
+      "id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
+    )
     .single();
   if (error) {
     if (import.meta.env.DEV)
@@ -585,7 +605,9 @@ export async function getOrCreateConversation(
   // Check if conversation already exists
   let query = supabase
     .from("pro_conversations")
-    .select("*, professional:pro_profiles(*)")
+    .select(
+      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
+    )
     .eq("customer_id", user.id)
     .eq("professional_id", professionalId);
   if (projectRef) {
@@ -605,7 +627,9 @@ export async function getOrCreateConversation(
       project_ref: projectRef || null,
       project_context: projectContext || null,
     })
-    .select("*, professional:pro_profiles(*)")
+    .select(
+      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
+    )
     .single();
   if (error) {
     if (import.meta.env.DEV)
@@ -625,7 +649,9 @@ export async function getMyConversations(): Promise<DbProConversation[]> {
   // Get conversations where user is the customer
   const { data: asCustomer, error: err1 } = await supabase
     .from("pro_conversations")
-    .select("*, professional:pro_profiles(*)")
+    .select(
+      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
+    )
     .eq("customer_id", user.id)
     .order("last_message_at DESC", { nullsFirst: false });
 
@@ -640,7 +666,9 @@ export async function getMyConversations(): Promise<DbProConversation[]> {
   if (proProfile) {
     const { data: proConvos } = await supabase
       .from("pro_conversations")
-      .select("*, professional:pro_profiles(*)")
+      .select(
+        "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
+      )
       .eq("professional_id", (proProfile as { id: string }).id)
       .order("last_message_at DESC", { nullsFirst: false });
     asProfessional = (proConvos || []) as DbProConversation[];
@@ -1049,12 +1077,6 @@ export async function createVerificationRequest(
     return null;
   }
 
-  // Update profile verification_status to 'pending'
-  await supabase
-    .from("pro_profiles")
-    .update({ verification_status: "pending" })
-    .eq("id", profileId);
-
   return data as DbProVerificationRequest;
 }
 
@@ -1099,10 +1121,17 @@ export async function withdrawVerificationRequest(
   requestId: string,
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase
-    .from("pro_verification_requests")
-    .update({ status: "withdrawn" })
-    .eq("id", requestId);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return false;
+  const { data, error } = await supabase.rpc(
+    "withdraw_own_verification_request",
+    {
+      p_request_id: requestId,
+      p_user_id: user.id,
+    },
+  );
   if (error) {
     if (import.meta.env.DEV)
       console.error(
@@ -1111,7 +1140,7 @@ export async function withdrawVerificationRequest(
       );
     return false;
   }
-  return true;
+  return data === true;
 }
 
 // -- Admin verification actions (via RPC functions) --

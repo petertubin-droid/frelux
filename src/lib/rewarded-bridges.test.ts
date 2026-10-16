@@ -32,7 +32,11 @@ describe("getBridgedAdCandidates", () => {
   it("returns active bridged providers only", () => {
     const providers = [
       makeProvider({ id: "a", slug: "monetag" }),
-      makeProvider({ id: "b", slug: "google_adsense" }),
+      makeProvider({
+        id: "b",
+        slug: "google_adsense",
+        settings: { rewarded_ads: true, adsense_h5_approval_confirmed: true },
+      }),
       makeProvider({ id: "c", slug: "taboola", is_active: false }),
       makeProvider({ id: "d", slug: "adsterra" }), // active but no bridge
     ];
@@ -40,10 +44,24 @@ describe("getBridgedAdCandidates", () => {
     expect(candidates.map((p) => p.id)).toEqual(["a", "b"]);
   });
 
+  it("keeps AdSense out of reward candidates until approval is confirmed", () => {
+    const pending = makeProvider({
+      id: "pending-adsense",
+      slug: "google_adsense",
+      settings: { rewarded_ads: true, adsense_h5_approval_confirmed: false },
+    });
+    expect(getBridgedAdCandidates([pending])).toEqual([]);
+  });
+
   it("orders candidates by priority (lower first)", () => {
     const providers = [
       makeProvider({ id: "hi", slug: "monetag", priority: 10 }),
-      makeProvider({ id: "lo", slug: "google_adsense", priority: 2 }),
+      makeProvider({
+        id: "lo",
+        slug: "google_adsense",
+        priority: 2,
+        settings: { rewarded_ads: true, adsense_h5_approval_confirmed: true },
+      }),
     ];
     expect(getBridgedAdCandidates(providers).map((p) => p.id)).toEqual([
       "lo",
@@ -54,7 +72,12 @@ describe("getBridgedAdCandidates", () => {
   it("treats missing priority as lowest priority", () => {
     const providers = [
       makeProvider({ id: "p1", slug: "monetag", priority: 1 }),
-      makeProvider({ id: "np", slug: "google_adsense", priority: undefined }),
+      makeProvider({
+        id: "np",
+        slug: "google_adsense",
+        priority: undefined,
+        settings: { rewarded_ads: true, adsense_h5_approval_confirmed: true },
+      }),
     ];
     expect(getBridgedAdCandidates(providers).map((p) => p.id)).toEqual([
       "p1",
@@ -85,6 +108,7 @@ describe("getUnlockProviderChain", () => {
     const primary = makeProvider({
       id: "primary",
       slug: "google_adsense",
+      settings: { rewarded_ads: true, adsense_h5_approval_confirmed: true },
       priority: 9,
     });
     const fallback = makeProvider({
@@ -95,20 +119,21 @@ describe("getUnlockProviderChain", () => {
     const other = makeProvider({
       id: "other",
       slug: "google_adsense",
+      settings: { rewarded_ads: true, adsense_h5_approval_confirmed: true },
       priority: 1,
     });
     const chain = getUnlockProviderChain([other], primary, fallback);
     expect(chain.map((p) => p.id)).toEqual(["primary", "fallback", "other"]);
   });
 
-  it("falls back to priority-ordered bridged providers without config", () => {
+  it("excludes AdSense until its H5 Games approval is confirmed", () => {
     const providers = [
       makeProvider({ id: "lo", slug: "monetag", priority: 1 }),
-      makeProvider({ id: "hi", slug: "google_adsense", priority: 7 }),
+      makeProvider({ id: "pending", slug: "google_adsense", priority: 7 }),
     ];
     expect(
       getUnlockProviderChain(providers, null, null).map((p) => p.id),
-    ).toEqual(["lo", "hi"]);
+    ).toEqual(["lo"]);
   });
 
   it("dedupes by id", () => {

@@ -11,7 +11,8 @@ export function supportsRewardedAds(provider: DbAdProvider): boolean {
     provider.provider_type === "rewarded" ||
     provider.provider_type === "mixed" ||
     (provider.slug === "google_adsense" &&
-      provider.settings?.rewarded_ads === true)
+      provider.settings?.rewarded_ads === true &&
+      provider.settings?.adsense_h5_approval_confirmed === true)
   );
 }
 
@@ -79,6 +80,13 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         label: "Rewarded Ads (H5 Games adBreak)",
         type: "boolean",
         default: false,
+      },
+      {
+        key: "adsense_h5_approval_confirmed",
+        label: "Google H5 Games Ads approval confirmed",
+        type: "boolean",
+        default: false,
+        help: "Keep disabled until Google approves H5 Games Ads for this publisher and the placement is an eligible HTML5 game. This is not approval for ordinary calculator pages.",
       },
     ],
   },

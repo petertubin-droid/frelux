@@ -547,7 +547,7 @@ export async function fetchChatUserProfile(
 export async function sendMobileOTP(
   phoneNumber: string,
   userId: string,
-): Promise<{ success: boolean; message: string; otpCode?: string }> {
+): Promise<{ success: boolean; message: string }> {
   const { data, error } = await supabase.rpc("send_mobile_otp", {
     p_phone_number: phoneNumber,
     p_user_id: userId,
@@ -557,16 +557,30 @@ export async function sendMobileOTP(
       console.error("[worker-channels] sendMobileOTP:", error.message);
     return { success: false, message: error.message };
   }
-  const result = data as {
-    success: boolean;
-    otp_code: string | null;
-    message: string;
-  } | null;
-  return {
-    success: result?.success ?? false,
-    message: result?.message ?? "Failed to send OTP",
-    otpCode: result?.otp_code ?? undefined,
-  };
+  const result = (data as { success: boolean; message: string }[] | null)?.[0];
+  if (!result?.success) {
+    return { success: false, message: result?.message ?? "Failed to send OTP" };
+  }
+
+  // OTP delivery is server-side. The RPC never returns the code to browser code.
+  const { data: delivery, error: deliveryError } =
+    await supabase.functions.invoke("send-sms-otp", {
+      body: { phone_number: phoneNumber },
+    });
+  if (deliveryError || !delivery?.success) {
+    if (import.meta.env.DEV && deliveryError)
+      console.error(
+        "[worker-channels] sendMobileOTP delivery:",
+        deliveryError.message,
+      );
+    return {
+      success: false,
+      message:
+        delivery?.message ??
+        "Could not deliver the verification code. Please try again later.",
+    };
+  }
+  return { success: true, message: "Verification code sent." };
 }
 
 export async function verifyMobileOTP(

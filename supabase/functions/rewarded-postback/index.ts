@@ -69,78 +69,15 @@ function timingSafeEqual(a: string, b: string): boolean {
  *    sees which providers still need a secret added to their postback URL.
  */
 async function offerwallSecretOk(
-  supabase: ReturnType<typeof createClient>,
-  providerSlug: string,
-  provider: { credentials?: Record<string, unknown> } | null,
-  url: URL,
+  _supabase: ReturnType<typeof createClient>,
+  _providerSlug: string,
+  _provider: { credentials?: Record<string, unknown> } | null,
+  _url: URL,
 ): Promise<boolean> {
-  const creds = provider?.credentials ?? {};
-  let storedSecret =
-    (typeof creds.api_key === "string" && creds.api_key) ||
-    (typeof creds.secret === "string" && creds.secret) ||
-    (typeof creds.secure_hash === "string" && creds.secure_hash) ||
-    (typeof creds.app_signature === "string" && creds.app_signature) ||
-    (typeof creds.sdk_key === "string" && creds.sdk_key) ||
-    "";
-
-  // Fall back to the Integrations page (integration_settings.config) when
-  // the ad_providers row has no secret — admins may keep credentials in
-  // either place. Service role can read both tables.
-  if (!storedSecret) {
-    const { data: integration } = await supabase
-      .from("integration_settings")
-      .select("config")
-      .eq("integration_key", providerSlug)
-      .maybeSingle();
-    const iCreds = (integration?.config ?? {}) as Record<string, unknown>;
-    storedSecret =
-      (typeof iCreds.api_key === "string" && iCreds.api_key) ||
-      (typeof iCreds.secret === "string" && iCreds.secret) ||
-      (typeof iCreds.secure_hash === "string" && iCreds.secure_hash) ||
-      "";
-  }
-
-  if (!storedSecret) {
-    await supabase
-      .from("ad_analytics_events")
-      .insert({
-        event_type: "postback_secret_missing",
-        tool_key: "offerwall_security",
-        metadata: {
-          provider_slug: providerSlug,
-          note: "Postback accepted without secret — add the provider's api_key/secret to its credentials and append &sig=<secret> to the postback URL in the provider dashboard.",
-        },
-      })
-      .catch(() => {});
-    return true;
-  }
-
-  const provided =
-    url.searchParams.get("sig") ?? url.searchParams.get("secret") ?? "";
-  if (provided && timingSafeEqual(provided, storedSecret)) {
-    return true;
-  }
-
-  await supabase
-    .from("ad_analytics_events")
-    .insert({
-      event_type: "postback_secret_mismatch",
-      tool_key: "offerwall_security",
-      client_hash:
-        url.searchParams.get("user_id") ?? url.searchParams.get("uid") ?? "",
-      metadata: {
-        provider_slug: providerSlug,
-        note: "Rejected offerwall postback: missing/incorrect secret param.",
-      },
-    })
-    .catch(() => {});
+  // A shared secret in a callback URL is exposed in logs and can be replayed.
+  // Legacy providers are disabled until they have a documented signed callback.
   return false;
 }
-
-// Offerwall.ad event context (set during parsing, used in processing)
-let owEventType = "";
-let owOriginalTxId = "";
-let owIsReversal = false;
 
 serveWithCors(async (req: Request) => {
   // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
@@ -175,11 +112,10 @@ serveWithCors(async (req: Request) => {
   let rewardAmount = 0;
   let providerName = "";
   let isValid = false;
-
-  // Reset Offerwall.ad event context
-  owEventType = "";
-  owOriginalTxId = "";
-  owIsReversal = false;
+  // Keep provider event state request-local; module globals race under concurrent callbacks.
+  let owEventType = "";
+  let owOriginalTxId = "";
+  let owIsReversal = false;
 
   try {
     if (providerSlug === "adgate_media" || url.searchParams.has("af")) {
@@ -414,88 +350,22 @@ serveWithCors(async (req: Request) => {
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
     } else if (providerSlug === "offerwall_ad") {
-      // ── Offerwall.ad HMAC-signed postback ──
-      // The signing secret is stored as OFFERWALL_AD_SIGNING_SECRET
-      // env var. It is NEVER read from the database or frontend.
       providerName = "Offerwall Ad";
-
-      // Read query params
-      const owUid = url.searchParams.get("uid") ?? "";
-      const owAmountRaw = url.searchParams.get("amount") ?? "";
-      const owTxId =
-        url.searchParams.get("tx_id") ??
-        url.searchParams.get("transaction_id") ??
-        "";
-
-      // Read HMAC + event headers
-      const signatureHeader = req.headers.get("X-Offerwall-Ad-Signature") ?? "";
-      const eventHeader = req.headers.get("X-Offerwall-Ad-Event") ?? "";
-      const eventIdHeader = req.headers.get("X-Offerwall-Ad-Event-Id") ?? "";
-
-      // Read shared password from query (if configured)
-      const sharedPassword =
-        url.searchParams.get("password") ??
-        url.searchParams.get("secret") ??
-        url.searchParams.get("token") ??
-        url.searchParams.get("api_key") ??
-        "";
-
-      // ── Parameter validation ──
-      if (!owUid) {
-        console.error("Offerwall postback: missing uid");
-        return jsonResponse({ error: "Missing uid" }, 400);
-      }
-      if (!owAmountRaw) {
-        console.error("Offerwall postback: missing amount");
-        return jsonResponse({ error: "Missing amount" }, 400);
-      }
-      if (!owTxId && !eventIdHeader) {
-        console.error("Offerwall postback: missing transaction/event ID");
-        return jsonResponse({ error: "Missing tx_id" }, 400);
-      }
-
-      const owAmount = parseFloat(owAmountRaw);
-      if (isNaN(owAmount) || owAmount <= 0) {
-        console.error("Offerwall postback: invalid amount", owAmountRaw);
-        return jsonResponse({ error: "Invalid amount" }, 400);
-      }
-
-      // ── HMAC signature verification ──
-      const signingSecret = Deno.env.get("OFFERWALL_AD_SIGNING_SECRET") ?? "";
-
-      if (!signingSecret) {
-        console.error(
-          "Offerwall postback: OFFERWALL_AD_SIGNING_SECRET not configured",
+      if (req.method !== "POST") {
+        return jsonResponse(
+          { error: "Signed POST callbacks are required" },
+          405,
         );
+      }
+      const signingSecret = Deno.env.get("OFFERWALL_AD_SIGNING_SECRET") ?? "";
+      if (!signingSecret)
         return jsonResponse({ error: "Server configuration error" }, 500);
-      }
+      const signatureHeader = req.headers.get("X-Offerwall-Ad-Signature") ?? "";
+      const match = /^sha256=([a-fA-F0-9]{64})$/.exec(signatureHeader);
+      if (!match)
+        return jsonResponse({ error: "Missing or invalid signature" }, 401);
 
-      if (!signatureHeader) {
-        console.error("Offerwall postback: missing X-Offerwall-Ad-Signature");
-        return jsonResponse({ error: "Missing signature" }, 401);
-      }
-
-      // Read the raw body once — needed regardless of method since
-      // Offerwall Ad's current published spec signs the raw request
-      // body: X-Offerwall-Ad-Signature: sha256=HMAC_SHA256(raw_body, secret)
-      // See: https://offerwall.ad/help/verify-publisher-webhook-signatures
-      // For GET-configured callbacks the body is typically empty, so we
-      // also try the URL / query-string as fallback candidates — this
-      // keeps compatibility with GET deliveries that sign the request
-      // line instead of an (empty) body, without weakening security
-      // (every candidate still requires the correct shared secret to
-      // produce a matching signature).
-      let rawBody = "";
-      try {
-        rawBody = await req.text();
-      } catch {
-        rawBody = "";
-      }
-
-      const receivedSig = signatureHeader.startsWith("sha256=")
-        ? signatureHeader.slice(7)
-        : signatureHeader;
-
+      const rawBody = await req.text();
       const key = await crypto.subtle.importKey(
         "raw",
         new TextEncoder().encode(signingSecret),
@@ -503,144 +373,94 @@ serveWithCors(async (req: Request) => {
         false,
         ["sign"],
       );
-
-      async function computeHmacHex(payload: string): Promise<string> {
-        const sigBuf = await crypto.subtle.sign(
-          "HMAC",
-          key,
-          new TextEncoder().encode(payload),
-        );
-        return Array.from(new Uint8Array(sigBuf))
-          .map((b) => b.toString(16).padStart(2, "0"))
-          .join("");
-      }
-
-      // Candidate payloads, tried in order of likelihood per current docs.
-      // Offerwall Ad docs: "HMAC_SHA256(raw_body, secret)"
-      // For GET callbacks raw_body is empty. But some implementations
-      // sign the query string, the path+query, or other variants.
-      const pathAndQuery = url.pathname + url.search;
-      const pathOnly = url.pathname;
-      const candidates: Array<{ label: string; payload: string }> = [
-        { label: "raw_body", payload: rawBody },
-        { label: "full_url", payload: req.url },
-        { label: "query_string_with_qmark", payload: url.search },
-        { label: "query_string_no_qmark", payload: url.search.slice(1) },
-        { label: "path_plus_query", payload: pathAndQuery },
-        { label: "path_only", payload: pathOnly },
-        {
-          label: "path_plus_query_no_provider",
-          payload: url.pathname.replace("/offerwall_ad", "") + url.search,
-        },
-      ];
-
-      let sigValid = false;
-      let matchedCandidate = "";
-      for (const candidate of candidates) {
-        // Skip empty payloads except raw_body (an empty body is a
-        // legitimate case for GET requests with no body at all).
-        if (candidate.payload === "" && candidate.label !== "raw_body")
-          continue;
-        const computedHex = await computeHmacHex(candidate.payload);
-        if (timingSafeEqual(computedHex, receivedSig)) {
-          sigValid = true;
-          matchedCandidate = candidate.label;
-          break;
-        }
-      }
-
-      if (!sigValid) {
-        // Store debug info to ad_analytics_events so we can read it back
-        const debugCandidates = await Promise.all(
-          candidates.map(async (c) => ({
-            label: c.label,
-            payloadPreview: c.payload.slice(0, 300),
-            payloadLength: c.payload.length,
-            computedHex:
-              c.payload === "" && c.label !== "raw_body"
-                ? null
-                : await computeHmacHex(c.payload),
-          })),
-        );
-        const allHeaders: Record<string, string> = {};
-        req.headers.forEach((value, key) => {
-          allHeaders[key] = key.toLowerCase().includes("secret")
-            ? "[REDACTED]"
-            : value;
-        });
-        const debugData = {
-          method: req.method,
-          receivedSig,
-          receivedSigLen: receivedSig.length,
-          secretByteLength: new TextEncoder().encode(signingSecret).length,
-          reqUrl: req.url,
-          reqPath: url.pathname,
-          reqSearch: url.search,
-          rawBodyLen: rawBody.length,
-          rawBodyPreview: rawBody.slice(0, 300),
-          allHeaders,
-          candidates: debugCandidates,
-        };
-        // Write to ad_analytics_events for later retrieval
-        await supabase.from("ad_analytics_events").insert({
-          event_type: "sig_debug",
-          tool_key: "offerwall_ad",
-          client_hash: owUid || "unknown",
-          metadata: debugData,
-        });
-        return jsonResponse(
-          {
-            error: "Invalid signature",
-            debug: debugData,
-          },
-          403,
-        );
-      }
-
-      console.log(
-        `Offerwall postback: signature verified via "${matchedCandidate}"`,
+      const signature = await crypto.subtle.sign(
+        "HMAC",
+        key,
+        new TextEncoder().encode(rawBody),
       );
-
-      // ── Shared password verification (if configured) ──
-      const expectedPassword =
-        Deno.env.get("OFFERWALL_AD_SHARED_PASSWORD") ?? "";
-      if (expectedPassword && sharedPassword !== expectedPassword) {
-        console.error("Offerwall postback: shared password mismatch");
-        return jsonResponse({ error: "Invalid credentials" }, 403);
+      const expected = Array.from(new Uint8Array(signature), (b) =>
+        b.toString(16).padStart(2, "0"),
+      ).join("");
+      if (!timingSafeEqual(expected.toLowerCase(), match[1].toLowerCase())) {
+        return jsonResponse({ error: "Invalid signature" }, 403);
       }
 
-      // ── Event type handling ──
-      const eventType = eventHeader || "conversion.approved";
-      const eventId = eventIdHeader || owTxId;
-
-      // Determine if this event should award, reverse, or ignore
-      const _isAwardable =
-        eventType === "conversion.approved" ||
-        eventType === "conversion.released";
-      const isReversal = eventType === "conversion.reversed";
-      const isIgnorable =
-        eventType === "conversion.held" || eventType === "conversion.rejected";
-
-      if (isIgnorable) {
-        console.log(
-          `Offerwall event ${eventType} for tx ${owTxId}, uid ${owUid} — not awarding`,
+      const contentType = (req.headers.get("Content-Type") ?? "").toLowerCase();
+      let payload: Record<string, unknown>;
+      try {
+        if (contentType.includes("application/json")) {
+          const parsed: unknown = JSON.parse(rawBody);
+          if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
+            throw new Error("Invalid JSON object");
+          payload = parsed as Record<string, unknown>;
+        } else if (contentType.includes("application/x-www-form-urlencoded")) {
+          payload = Object.fromEntries(new URLSearchParams(rawBody).entries());
+        } else {
+          return jsonResponse(
+            { error: "Unsupported signed callback content type" },
+            415,
+          );
+        }
+      } catch {
+        return jsonResponse({ error: "Invalid signed callback payload" }, 400);
+      }
+      const field = (...names: string[]) => {
+        for (const name of names) {
+          const value = payload[name];
+          if (typeof value === "string" && value.trim()) return value.trim();
+          if (typeof value === "number" && Number.isFinite(value))
+            return String(value);
+        }
+        return "";
+      };
+      const userId = field("uid", "user_id", "ext_user_id");
+      const rawAmount = field("amount", "credits");
+      const eventId = field("event_id", "tx_id", "transaction_id");
+      const eventType = field("event_type", "event") || "conversion.approved";
+      const amount = Number(rawAmount);
+      if (
+        !userId ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+          userId,
+        )
+      ) {
+        return jsonResponse(
+          { error: "Missing or invalid signed user id" },
+          400,
         );
+      }
+      if (!eventId || eventId.length > 200)
+        return jsonResponse({ error: "Missing signed event id" }, 400);
+      if (!Number.isFinite(amount) || amount <= 0 || amount > 100000)
+        return jsonResponse({ error: "Invalid signed amount" }, 400);
+      const validEvents = new Set([
+        "conversion.approved",
+        "conversion.released",
+        "conversion.reversed",
+        "conversion.held",
+        "conversion.rejected",
+      ]);
+      if (!validEvents.has(eventType))
+        return jsonResponse({ error: "Unsupported event type" }, 400);
+      if (
+        eventType === "conversion.held" ||
+        eventType === "conversion.rejected"
+      ) {
         return jsonResponse({
           success: true,
-          message: `Event ${eventType} acknowledged — no credits awarded`,
+          message: "Event acknowledged; no credits awarded",
         });
       }
 
-      // Store values for the processing section
-      clientHash = owUid;
-      rewardAmount = owAmount;
+      clientHash = userId;
+      rewardAmount = amount;
       isValid = true;
-      toolKey = eventId; // Use event ID for idempotency
-
-      // Store event type in a way the processing section can read
+      toolKey = eventId;
       owEventType = eventType;
-      owOriginalTxId = isReversal ? owTxId : "";
-      owIsReversal = isReversal;
+      owOriginalTxId =
+        field("original_tx_id", "original_transaction_id") ||
+        (eventType === "conversion.reversed" ? eventId : "");
+      owIsReversal = eventType === "conversion.reversed";
     } else {
       return jsonResponse(
         { error: "Unknown provider", slug: providerSlug },

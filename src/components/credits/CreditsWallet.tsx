@@ -419,14 +419,12 @@ function EarnCreditsModal({
     // Find an active provider with a real client-side rewarded bridge
     // (e.g. Monetag). The ad must be shown from this tap, mobile browsers
     // block window-opening ad formats outside a direct user gesture :
-    // then we pass a client attestation token to the server.
+    // The client callback is display-only and does not authorize a reward.
     try {
       const { providers } = await fetchAdConfig();
       const activeProvider = providers.find(
         (p) =>
-          supportsRewardedAds(p) &&
-          p.is_active &&
-          REWARDED_AD_BRIDGES[p.slug],
+          supportsRewardedAds(p) && p.is_active && REWARDED_AD_BRIDGES[p.slug],
       );
 
       if (!activeProvider) {
@@ -443,8 +441,6 @@ function EarnCreditsModal({
       );
 
       setPhase("verifying");
-
-      const adToken = `att_${activeProvider.slug}_${adResult.mode}_${Date.now()}`;
       const result: EarnResult = await verifyRewardedAd(
         activeProvider.slug,
         adEventId,
@@ -456,7 +452,6 @@ function EarnCreditsModal({
             ? { estimated_price: adResult.estimatedPrice }
             : {}),
         },
-        adToken,
       );
 
       if (result.success) {
@@ -789,48 +784,10 @@ export function AiFeatureGate({
   }
 
   async function handleWatchAd() {
-    if (!featureCost) return;
-    if (!adProviderReady) {
-      setError("No ad provider is configured yet. Please check back later!");
-      return;
-    }
-    setAdUnlocking(true);
-    setError("");
-    setMode("ad_watching");
-
-    const adEventId =
-      "ad_unlock_" + Date.now() + "_" + Math.random().toString(36).slice(2);
-
-    await logAdEvent({
-      event_type: "impression",
-      tool_key: featureKey,
-      metadata: { ad_event_id: adEventId, mode: "unlock_feature" },
-    });
-
-    // Simulate ad watch (real SDK replaces this)
-    setTimeout(async () => {
-      const result = await unlockFeatureViaAd(featureKey, "adsense", adEventId);
-
-      setAdUnlocking(false);
-
-      if (result.success) {
-        setSuccess(true);
-        setMode("success");
-        await logAdEvent({
-          event_type: "reward",
-          tool_key: featureKey,
-          metadata: { ad_event_id: adEventId, mode: "unlock_feature" },
-        });
-        setTimeout(() => {
-          onUnlocked();
-        }, 800);
-      } else {
-        setError(
-          result.error ?? "Ad verification failed. Feature not unlocked.",
-        );
-        setMode("choice");
-      }
-    }, 3000);
+    setError(
+      "Rewarded ads are temporarily unavailable while secure server verification is being configured. No ad was shown and no feature was unlocked.",
+    );
+    setMode("choice");
   }
 
   if (loading) {

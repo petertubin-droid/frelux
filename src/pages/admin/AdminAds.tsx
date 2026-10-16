@@ -572,7 +572,7 @@ function ProviderForm({
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
           {schema.credential_fields.map((field) => (
-            <AdminField key={field.key} label={field.label}>
+            <AdminField key={field.key} label={field.label} hint={field.help}>
               <AdminInput
                 type={field.type}
 
@@ -598,7 +598,7 @@ function ProviderForm({
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
             {schema.setting_fields.map((field) => (
-              <AdminField key={field.key} label={field.label}>
+              <AdminField key={field.key} label={field.label} hint={field.help}>
                 {field.type === "boolean" ? (
                   <div className="pt-2">
                     <Toggle

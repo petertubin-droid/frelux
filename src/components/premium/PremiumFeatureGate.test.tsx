@@ -324,7 +324,6 @@ describe("PremiumFeatureGate", () => {
           source: "premium_gate",
           provider: "adsense",
         }),
-        expect.any(String),
       );
     });
   });

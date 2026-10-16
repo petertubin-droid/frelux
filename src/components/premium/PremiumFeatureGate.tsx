@@ -140,9 +140,7 @@ export function PremiumFeatureGate({
       const { providers } = await fetchAdConfig();
       const activeProvider = providers.find(
         (p) =>
-          supportsRewardedAds(p) &&
-          p.is_active &&
-          REWARDED_AD_BRIDGES[p.slug],
+          supportsRewardedAds(p) && p.is_active && REWARDED_AD_BRIDGES[p.slug],
       );
 
       if (!activeProvider) {
@@ -155,14 +153,11 @@ export function PremiumFeatureGate({
         activeProvider,
         { ymid: getClientHash(), toolKey: featureKey },
       );
-
-      const adToken = `att_${activeProvider.slug}_${adResult.mode}_${Date.now()}`;
       result = await unlockFeatureViaAd(
         featureKey,
         activeProvider.slug,
         adEventId,
         { source: "premium_gate", provider: activeProvider.slug },
-        adToken,
       );
     } catch (e) {
       const msg =

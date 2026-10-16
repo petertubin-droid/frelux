@@ -157,30 +157,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   async function setAccountType(
     userId: string,
-    email: string,
+    _email: string,
     accountType: AccountType,
   ) {
     const supabase = await getSupabase();
-    // First try to update existing row
-    const { error: updateError } = await supabase
+    const { data: updated, error: updateError } = await supabase
       .from("profiles")
       .update({ account_type: accountType })
-      .eq("id", userId);
-    if (updateError) {
-      // Row might not exist yet, try upsert
-      const { error: upsertError } = await supabase
-        .from("profiles")
-        .upsert(
-          { id: userId, email, role: "user", account_type: accountType },
-          { onConflict: "id" },
-        );
-      if (upsertError && import.meta.env.DEV) {
-        console.error(
-          "[auth] setAccountType upsert failed:",
-          upsertError.message,
-        );
-      }
-    }
+      .eq("id", userId)
+      .select("id")
+      .maybeSingle();
+    if (updateError) throw updateError;
+    if (updated) return;
+
+    const { error: ensureError } = await supabase.rpc("ensure_own_profile", {
+      requested_account_type: accountType,
+    });
+    if (ensureError) throw ensureError;
   }
 
   useEffect(() => {
@@ -295,12 +288,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       signUp: async (email, password, accountType = "client") => {
         const supabase = await getSupabase();
-        const { data, error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { account_type: accountType } },
+        });
         if (error) return { error: error.message, needsConfirmation: false };
         const needsConfirmation = !data.session;
         // If auto-signed-in, set account type on profile immediately
         if (data.user && !needsConfirmation) {
-          await setAccountType(data.user.id, email, accountType);
+          try {
+            await setAccountType(data.user.id, email, accountType);
+          } catch (setupError) {
+            if (import.meta.env.DEV)
+              console.error("[auth] Signup profile setup failed:", setupError);
+            return {
+              error:
+                "Your account was created, but profile setup did not finish. Please sign in again or try once more.",
+              needsConfirmation: false,
+            };
+          }
           const profile = await loadProfile(data.user.id);
           const { status: paidStatus, isPaid } = await loadPaidStatus(
             data.user.id,
@@ -318,18 +325,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         return { error: null, needsConfirmation };
       },
-      signInWithGoogle: async (accountType = "client") => {
-        // Store selected account type in localStorage so we can set it after OAuth redirect
-        if (accountType)
+      signInWithGoogle: async (accountType) => {
+        // Only signup has a pending profile choice; existing users must never be
+        // silently changed from pro_worker to client during ordinary sign-in.
+        if (accountType) {
           localStorage.setItem("frelux_pending_account_type", accountType);
+        } else {
+          localStorage.removeItem("frelux_pending_account_type");
+        }
         const supabase = await getSupabase();
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: `${window.location.origin}/login?redirect=/dashboard`,
-          },
-        });
-        return { error: error ? error.message : null };
+        try {
+          const { error } = await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+              redirectTo: `${window.location.origin}/login?redirect=/dashboard`,
+            },
+          });
+          if (error) localStorage.removeItem("frelux_pending_account_type");
+          return { error: error ? error.message : null };
+        } catch (error) {
+          localStorage.removeItem("frelux_pending_account_type");
+          return {
+            error:
+              error instanceof Error
+                ? error.message
+                : "Google sign-in could not be started.",
+          };
+        }
       },
       signInWithOtp: async (email) => {
         const supabase = await getSupabase();

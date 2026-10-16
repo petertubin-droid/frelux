@@ -819,7 +819,6 @@ export async function verifyRewardedAd(
   adEventId: string,
   mode: "earn_credits" = "earn_credits",
   metadata?: Record<string, unknown>,
-  adToken?: string,
 ): Promise<EarnResult> {
   if (!isSupabaseConfigured)
     return { success: false, error: "Not configured", code: "CONFIG_ERROR" };
@@ -828,7 +827,7 @@ export async function verifyRewardedAd(
     const { data, error } = await supabase.functions.invoke(
       "verify-rewarded-ad",
       {
-        body: { adProvider, adEventId, mode, metadata, adToken },
+        body: { adProvider, adEventId, mode, metadata },
       },
     );
     if (error)
@@ -856,7 +855,6 @@ export async function unlockFeatureViaAd(
   adProvider: string,
   adEventId: string,
   metadata?: Record<string, unknown>,
-  adToken?: string,
 ): Promise<{ success: boolean; error?: string; message?: string }> {
   if (!isSupabaseConfigured) return { success: false, error: "Not configured" };
   const supabase = await getSupabase();
@@ -870,7 +868,6 @@ export async function unlockFeatureViaAd(
           mode: "unlock_feature",
           featureKey,
           metadata,
-          adToken,
         },
       },
     );

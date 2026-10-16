@@ -303,7 +303,6 @@ export async function getAiGatewayStatus(): Promise<AiGatewayStatus> {
 export async function unlockGuestAiAllowance(
   adProvider = "monetag",
   adEventId?: string,
-  adToken?: string,
 ): Promise<{
   success: boolean;
   error?: string;
@@ -323,7 +322,6 @@ export async function unlockGuestAiAllowance(
           mode: "unlock_guest",
           adProvider,
           adEventId: eventId,
-          adToken,
           clientHash,
         },
         headers: {

@@ -17,6 +17,7 @@ import {
   REWARDED_AD_BRIDGES,
   getBridgedAdCandidates,
   getUnlockProviderChain,
+  REWARDED_SERVER_VERIFICATION_CONFIGURED,
 } from "@/lib/rewarded-bridges";
 
 // Re-exported for existing consumers/tests; the registry itself now lives
@@ -308,6 +309,12 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
 
   const requestUnlock = useCallback(() => {
     if (isUnlocked) return;
+    if (!REWARDED_SERVER_VERIFICATION_CONFIGURED) {
+      setError(
+        "Rewarded ads are temporarily unavailable while secure server verification is being configured. No ad will be shown and no reward will be granted.",
+      );
+      return;
+    }
     // Client-side hint checks (server enforces for real)
     const feat = featureConfig;
     const cfg = config;
@@ -345,6 +352,12 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
   const watchAd = useCallback(async () => {
     if (!config || !config.is_enabled) {
       setError("This feature is currently disabled.");
+      return;
+    }
+    if (!REWARDED_SERVER_VERIFICATION_CONFIGURED) {
+      setError(
+        "Rewarded ads are temporarily unavailable while secure server verification is being configured. No ad was shown and no reward was granted.",
+      );
       return;
     }
     // Guard against double-clicks / rapid repeated calls
@@ -448,7 +461,6 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     // ──────────────────────────────────────────────────────
     const grantUnlock = async (
       provider: string,
-      adToken: string | null,
       extraMetadata?: Record<string, unknown>,
     ): Promise<void> => {
       try {
@@ -459,7 +471,6 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
               toolKey,
               clientHash,
               adProvider: provider,
-              adToken,
             },
           },
         );
@@ -562,16 +573,12 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
             ymid: clientHash,
             toolKey,
           });
-          await grantUnlock(
-            provider.name,
-            `att_${provider.slug}_${adResult.mode}_${Date.now()}`,
-            {
-              ad_mode: adResult.mode,
-              ...(adResult.estimatedPrice != null
-                ? { estimated_price: adResult.estimatedPrice }
-                : {}),
-            },
-          );
+          await grantUnlock(provider.name, {
+            ad_mode: adResult.mode,
+            ...(adResult.estimatedPrice != null
+              ? { estimated_price: adResult.estimatedPrice }
+              : {}),
+          });
           return;
         } catch (e) {
           // This provider could not show an ad - try the next one.
@@ -590,10 +597,10 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     }
 
     // ──────────────────────────────────────────────────────
-    // Other providers: grant via the edge function. adToken is
-    // provided by the provider SDK when one is integrated.
+    // Providers without a client bridge cannot begin a rewarded flow.
     // ──────────────────────────────────────────────────────
-    await grantUnlock(providerName, null);
+    setError("This ad provider does not have a supported rewarded-ad bridge.");
+    setAdLoading(false);
   }, [
     config,
     featureConfig,

@@ -14,6 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useAuth, type AccountType } from "@/lib/auth";
+import { getSafeAuthRedirect } from "@/lib/auth-redirect";
 
 import Logo from "@/components/brand/Logo";
 import { useSeo } from "@/lib/seo";
@@ -56,7 +57,7 @@ export default function Login() {
     useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirect") ?? "/dashboard";
+  const redirectTo = getSafeAuthRedirect(searchParams.get("redirect"));
 
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
@@ -65,6 +66,10 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [oauthProfileProcessing, setOauthProfileProcessing] = useState(false);
+  const [oauthProfileError, setOauthProfileError] = useState<string | null>(
+    null,
+  );
   const [info, setInfo] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -75,32 +80,94 @@ export default function Login() {
     noIndex: true,
   });
 
-  useEffect(() => {
+  async function completePendingOAuthProfile() {
     const pending = localStorage.getItem("frelux_pending_account_type");
-    if (pending && user) {
-      (async () => {
-        try {
-          const { supabase } = await import("@/lib/supabase");
-          const { error } = await supabase
-            .from("profiles")
-            .update({ account_type: pending })
-            .eq("id", user.id);
-          if (error) {
-            if (import.meta.env.DEV)
-              console.error("Failed to update account type:", error.message);
-            return;
-          }
-          localStorage.removeItem("frelux_pending_account_type");
-          setShowSuccess(true);
-        } catch (err) {
-          if (import.meta.env.DEV) console.error("Profile update failed:", err);
-        }
-      })();
+    if (!pending || (pending !== "client" && pending !== "pro_worker") || !user)
+      return;
+    setOauthProfileProcessing(true);
+    setOauthProfileError(null);
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      const { data: updated, error } = await supabase
+        .from("profiles")
+        .update({ account_type: pending })
+        .eq("id", user.id)
+        .select("id")
+        .maybeSingle();
+      if (error) throw error;
+      if (!updated) {
+        const { error: ensureError } = await supabase.rpc(
+          "ensure_own_profile",
+          {
+            requested_account_type: pending,
+          },
+        );
+        if (ensureError) throw ensureError;
+      }
+      localStorage.removeItem("frelux_pending_account_type");
+      setAccountType(pending);
+      setShowSuccess(true);
+    } catch (err) {
+      if (import.meta.env.DEV)
+        console.error("OAuth profile setup failed:", err);
+      setOauthProfileError(
+        "You’re signed in, but account setup could not finish. Retry setup before continuing.",
+      );
+    } finally {
+      setOauthProfileProcessing(false);
+    }
+  }
+
+  const hasPendingOAuthProfile =
+    user !== null &&
+    typeof window !== "undefined" &&
+    window.localStorage.getItem("frelux_pending_account_type") !== null;
+
+  useEffect(() => {
+    if (user && localStorage.getItem("frelux_pending_account_type")) {
+      void completePendingOAuthProfile();
     }
   }, [user]);
 
-  if (user && !showSuccess) {
+  if (
+    user &&
+    !showSuccess &&
+    !hasPendingOAuthProfile &&
+    !oauthProfileProcessing
+  ) {
     return <Navigate to={redirectTo} replace />;
+  }
+
+  if (user && (oauthProfileProcessing || oauthProfileError)) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4 text-center">
+        {oauthProfileProcessing ? (
+          <Loader2
+            className="h-8 w-8 animate-spin text-primary"
+            aria-label="Finishing account setup"
+          />
+        ) : (
+          <AlertCircle
+            className="h-8 w-8 text-destructive"
+            aria-hidden="true"
+          />
+        )}
+        <h1 className="text-xl font-semibold text-foreground">
+          Finish setting up your account
+        </h1>
+        <p className="max-w-md text-sm text-muted-foreground">
+          {oauthProfileError ?? "Applying your selected account type securely…"}
+        </p>
+        {oauthProfileError && (
+          <Button
+            type="button"
+            onClick={() => void completePendingOAuthProfile()}
+          >
+            Retry account setup
+          </Button>
+        )}
+      </div>
+    );
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -131,7 +198,7 @@ export default function Login() {
       }
       if (result.needsConfirmation) {
         setInfo(
-          "Account created! You can sign in now with your email and password.",
+          "Account created. Check your email to confirm your address, then sign in.",
         );
         setMode("signin");
         setPassword("");
@@ -159,7 +226,7 @@ export default function Login() {
     setError(null);
     setGoogleLoading(true);
     const { error } = await signInWithGoogle(
-      mode === "signup" ? accountType : "client",
+      mode === "signup" ? accountType : undefined,
     );
     if (error) {
       setError(error);

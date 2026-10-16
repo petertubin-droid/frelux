@@ -318,10 +318,8 @@ export default function Rewards() {
       // Multi-provider earn flow (owner directive 2026-09-15): walk every
       // active provider with a real client-side rewarded bridge, in
       // priority order, until one actually shows an ad. We must show the
-      // ad from this tap - mobile browsers block window-opening ad
-      // formats outside a direct user gesture - then pass a client
-      // attestation token so the server verifies a real ad was shown
-      // before granting credits.
+      // ad from this tap. Browser callbacks are not server-side proof, so
+      // the grant endpoint must independently verify each reward.
       const { providers } = await fetchAdConfig();
       const candidates = getBridgedAdCandidates(providers);
 
@@ -370,7 +368,6 @@ export default function Rewards() {
       }
 
       const adEventId = `ad_${user.id}_${Date.now()}`;
-      const adToken = `att_${activeProviderSlug}_${adResult.mode}_${Date.now()}`;
 
       const result = await verifyRewardedAd(
         activeProviderSlug,
@@ -382,7 +379,6 @@ export default function Rewards() {
             ? { estimated_price: adResult.estimatedPrice }
             : {}),
         },
-        adToken,
       );
       if (result.success) {
         toast({
