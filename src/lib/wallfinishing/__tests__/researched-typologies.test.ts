@@ -36,7 +36,16 @@ describe("researched wall-finishing typology registry", () => {
     expect(RESEARCHED_TYPOLOGIES).toHaveLength(195);
     const existingTitles = getWallFinishingCandidates().length;
     expect(existingTitles).toBe(140);
-    // Expanded registry target: (140 verified + 195 researched candidates) x 5
+    // Expanded registry: (140 verified + 195 researched candidates) x 5 = 1,675
     expect((existingTitles + RESEARCHED_TYPOLOGIES.length) * 5).toBe(1675);
+  });
+
+  it("documents the production target with Nigeria excluded (owner directive 2026-10-17)", () => {
+    // NG articles already exist (66 seeded NG Learn articles live in the hub);
+    // its 12 titles / 60 articles are out of the production queue.
+    const ngTitles = 4 + RESEARCHED_TYPOLOGIES.filter((t) => t.marketCode === "NG").length;
+    expect(ngTitles * 5).toBe(60);
+    // Remaining production target across the other 31 markets.
+    expect(1675 - ngTitles * 5).toBe(1615);
   });
 });

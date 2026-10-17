@@ -31,6 +31,12 @@ required five-article pipeline. See section 2b for the per-market lists.
 
 **TOTAL: 335 titles × 5 articles = 1,675 articles.**
 
+**EXCLUSION (owner directive 2026-10-17): Nigeria is DONE.** Its wall-finishing
+articles already exist (the 66 seeded NG Learn articles across screeding, POP,
+tile, finishing and construction categories). NG's 12 titles / 60 articles are
+removed from the production queue. **Remaining production target: 323 titles
+× 5 = 1,615 articles across the other 31 markets.**
+
 Every title needs five genuinely distinct articles (no rewrites of the same text):
 1. Introduction and material fundamentals
 2. Materials, tools and technical specifications
@@ -521,15 +527,16 @@ document's counts must be updated in the same change.
 
 | Market | Titles (verified + researched) | Required articles | Drafted | Reviewed | Approved | Published |
 |---|---|---|---|---|---|---|
+| NG | 12 | 60 | 60 | 60 | n/a (pre-review pipeline) | 60 (already live in Learn hub) |
 | US | 5 + 6 = 11 | 55 | 5 (timber-stud drywall topic) | 0 | 0 | 0 |
-| all other 31 | 4–6 + 4–8 each | 45–65 each | 0 | 0 | 0 | 0 |
+| other 30 | 4–6 + 4–8 each | 45–65 each | 0 | 0 | 0 | 0 |
 
-Per-market required-article totals after the research pass: NG 60, US 55, GB 60, CA 50,
-AU 55, DE 55, IN 65, GH 60, KE 60, ZA 55, JP 45, FR 45, BR 55, SA 45, AE 45, CN 55,
-ID 45, MX 55, KR 45, IT 50, ET 60, EG 50, TZ 60, CI 50, ES 55, NL 45, PL 45, SE 45,
-CH 50, SG 55, TR 55, NZ 45. Sum = 1,675. 0 |
+Per-market required-article totals after the research pass (NG excluded as complete):
+US 55, GB 60, CA 50, AU 55, DE 55, IN 65, GH 60, KE 60, ZA 55, JP 45, FR 45, BR 55,
+SA 45, AE 45, CN 55, ID 45, MX 55, KR 45, IT 50, ET 60, EG 50, TZ 60, CI 50, ES 55,
+NL 45, PL 45, SE 45, CH 50, SG 55, TR 55, NZ 45. Remaining sum = 1,615. 0 |
 
-- **Drafted to date: 5 / 1,675** (US timber-stud drywall, five editorial themes, seeded as `draft` / editorial_review_status `draft`, market='US').
+- **Drafted to date: 5 / 1,615** remaining (US timber-stud drywall, five editorial themes, seeded as `draft` / editorial_review_status `draft`, market='US'). Nigeria is complete and excluded from the queue.
 - **Researched candidates: 195 titles awaiting editorial review** (see section 2b); they enter the 1,675 total only after verification. The verified-catalog baseline of 700 articles stands regardless.
 - **Published to date: 0.** Nothing may publish without real technical review (DB CHECK constraint enforces reviewer identity on every approval transition).
 - 34 manually inserted Learn articles (Oct 9–10) are part of the general Learn hub, not this wall-finishing library, and are not counted here.
@@ -549,35 +556,35 @@ Process markets in the registry order below, one topic at a time, five articles 
 topic, before moving on. Record progress in section 3 after every batch. Counts below
 are the expanded registry (verified catalog + researched candidates once reviewed):
 
-1. NG — 12 titles — 60 articles
-2. US — 11 titles — 55 (1 topic already drafted)
-3. GB — 12 — 60
-4. CA — 10 — 50
-5. AU — 11 — 55
-6. DE — 11 — 55
-7. IN — 13 — 65
-8. GH — 12 — 60
-9. KE — 12 — 60
-10. ZA — 11 — 55
-11. JP — 9 — 45
-12. FR — 9 — 45
-13. BR — 11 — 55
-14. SA — 9 — 45
-15. AE — 9 — 45
-16. CN — 11 — 55
-17. ID — 9 — 45
-18. MX — 11 — 55
-19. KR — 9 — 45
-20. IT — 10 — 50
-21. ET — 12 — 60
-22. EG — 10 — 50
-23. TZ — 12 — 60
-24. CI — 10 — 50
-25. ES — 11 — 55
-26. NL — 9 — 45
-27. PL — 9 — 45
-28. SE — 9 — 45
-29. CH — 10 — 50
-30. SG — 11 — 55
-31. TR — 11 — 55
-32. NZ — 9 — 45
+0. NG — EXCLUDED, articles already done (66 NG articles live in the Learn hub)
+1. US — 11 titles — 55 (1 topic already drafted)
+2. GB — 12 — 60
+3. CA — 10 — 50
+4. AU — 11 — 55
+5. DE — 11 — 55
+6. IN — 13 — 65
+7. GH — 12 — 60
+8. KE — 12 — 60
+9. ZA — 11 — 55
+10. JP — 9 — 45
+11. FR — 9 — 45
+12. BR — 11 — 55
+13. SA — 9 — 45
+14. AE — 9 — 45
+15. CN — 11 — 55
+16. ID — 9 — 45
+17. MX — 11 — 55
+18. KR — 9 — 45
+19. IT — 10 — 50
+20. ET — 12 — 60
+21. EG — 10 — 50
+22. TZ — 12 — 60
+23. CI — 10 — 50
+24. ES — 11 — 55
+25. NL — 9 — 45
+26. PL — 9 — 45
+27. SE — 9 — 45
+28. CH — 10 — 50
+29. SG — 11 — 55
+30. TR — 11 — 55
+31. NZ — 9 — 45
