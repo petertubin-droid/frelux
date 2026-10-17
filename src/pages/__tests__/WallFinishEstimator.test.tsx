@@ -138,7 +138,7 @@ describe("WallFinishEstimator", () => {
   it("removes a layer, adds it back and reorders layers with indicators", async () => {
     renderPage();
     fireEvent.click(
-      screen.getByRole("button", { name: /Calculate finishing estimate/i }),
+      await screen.findByRole("button", { name: /Calculate finishing estimate/i }),
     );
     await waitFor(
       () => expect(screen.getByText(/Estimated cost summary/i)).toBeTruthy(),
@@ -150,7 +150,7 @@ describe("WallFinishEstimator", () => {
     const removeBtn = screen.getAllByText(/^remove$/)[0];
     fireEvent.click(removeBtn);
     fireEvent.click(
-      screen.getByRole("button", { name: /Calculate finishing estimate/i }),
+      await screen.findByRole("button", { name: /Calculate finishing estimate/i }),
     );
     await waitFor(
       () => expect(screen.getAllByText(/add back/i).length).toBeGreaterThan(0),
@@ -163,7 +163,7 @@ describe("WallFinishEstimator", () => {
       expect(screen.queryAllByText(/add back/i).length).toBe(0),
     );
     fireEvent.click(
-      screen.getByRole("button", { name: /Calculate finishing estimate/i }),
+      await screen.findByRole("button", { name: /Calculate finishing estimate/i }),
     );
     await waitFor(
       () => expect(screen.getByText(/Estimated cost summary/i)).toBeTruthy(),
@@ -174,7 +174,7 @@ describe("WallFinishEstimator", () => {
     // reorder: move the first layer down, then verify the order indicator
     fireEvent.click(screen.getAllByRole("button", { name: /down$/i })[0]);
     fireEvent.click(
-      screen.getByRole("button", { name: /Calculate finishing estimate/i }),
+      await screen.findByRole("button", { name: /Calculate finishing estimate/i }),
     );
     await waitFor(
       () =>
@@ -218,7 +218,7 @@ describe("wall-finishing data integrity (every page render depends on it)", () =
     async function calculateAndSave() {
       renderPage();
       fireEvent.click(
-        screen.getByRole("button", { name: /Calculate finishing estimate/i }),
+        await screen.findByRole("button", { name: /Calculate finishing estimate/i }),
       );
       await waitFor(
         () => expect(screen.getByText(/Estimated cost summary/i)).toBeTruthy(),
@@ -288,7 +288,7 @@ describe("wall-finishing data integrity (every page render depends on it)", () =
     it("offers PDF and Excel exports once a result exists", async () => {
       renderPage();
       fireEvent.click(
-        screen.getByRole("button", { name: /Calculate finishing estimate/i }),
+        await screen.findByRole("button", { name: /Calculate finishing estimate/i }),
       );
       await waitFor(
         () => expect(screen.getByText(/Estimated cost summary/i)).toBeTruthy(),
