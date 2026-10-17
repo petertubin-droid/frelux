@@ -21,7 +21,11 @@ npm run build      # production bundle
 ## Database migrations
 
 The sandbox (and CI) cannot open Postgres ports; migrations are applied over
-HTTPS with the Supabase Management API:
+HTTPS with the Supabase Management API. `scripts/apply_pending_migrations.py`
+derives the pending list dynamically (every repo migration not yet recorded in
+`supabase_migrations.schema_migrations`, in filename order) — never
+hand-maintain a list. It is idempotent-safe: files are guarded, re-applies
+just re-record the history row. Run with `SUPABASE_ACCESS_TOKEN` exported:
 
 ```
 POST https://api.supabase.com/v1/projects/{ref}/database/query
@@ -58,7 +62,8 @@ Authorization: Bearer <access token>   body: { "query": "<sql>" }
 
 ## Deploy
 
-Netlify auto-deploys `main` when CI is green. Verify with:
+Netlify auto-build is PAUSED (owner directive, 2026-09-11): pushes to `main`
+do NOT deploy until the owner resumes builds. Verify deployment state with:
 
 - CI history: https://github.com/petertubin-droid/frelux/actions
 - Live: https://freluxtools.netlify.app/metrics (public platform status)
