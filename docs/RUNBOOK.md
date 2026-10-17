@@ -136,3 +136,31 @@ Setup remaining (one-time, in the Resend dashboard / DNS provider):
 3. Sending is best-effort and rate limited (5/min/IP). Recipients are
    derived from stored rows only; the admin panel stays the source
    of truth for contact messages.
+
+## Learn article publication policy (owner directive, Oct 17 2026)
+
+Every article series - global or local, seeded by migration - goes live
+immediately, with `petertubin` as the author byline (FRELUX editorial
+team). Reference implementation:
+`supabase/migrations/20261024200000_publish_us_articles_petertubin.sql`.
+
+Recipe for a new series (replace `US` with the market code):
+
+1. Resolve a reviewer auth user (prefer an account with a `profiles`
+   row) and `SET LOCAL request.jwt.claims` to it inside the
+   transaction - the attribution triggers stamp `reviewed_by`,
+   `verified_by` and `editorial_reviewed_by` from the JWT, so a raw
+   `postgres`-session UPDATE would otherwise fail the source CHECK
+   constraint (accepted status requires a real reviewer id).
+2. Accept the topic's pending sources (`learn_wall_finishing_sources`).
+3. Verify the topic (`learn_wall_finishing_topics` guard requires at
+   least one accepted citation first).
+4. Approve + publish the articles:
+   `status='published', editorial_review_status='approved',
+   author='petertubin', published_at=now()`.
+
+The publication guard (`guard_wall_finishing_article_publication`)
+blocks `status='published'` on wall-finishing articles without recorded
+editorial approval, a verified topic and an accepted citation - never
+weaken it; run the recipe instead. The dynamic `/sitemap.xml` function
+picks the articles up automatically (status=published).
