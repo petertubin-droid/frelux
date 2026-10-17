@@ -129,8 +129,8 @@ function emptyContext(currency: string): WallFinResolutionContext {
 }
 
 describe("Phase 8: every market runs the full estimate pipeline", () => {
-  it("covers all twenty markets in the profile registry", () => {
-    expect(WALLFIN_COUNTRY_PROFILES).toHaveLength(20);
+  it("covers all thirty-two markets in the profile registry", () => {
+    expect(WALLFIN_COUNTRY_PROFILES).toHaveLength(32);
     const codes = WALLFIN_COUNTRY_PROFILES.map((p) => p.code).sort();
     expect(codes).toEqual(
       [
@@ -154,6 +154,18 @@ describe("Phase 8: every market runs the full estimate pipeline", () => {
         "MX",
         "KR",
         "IT",
+        "ET",
+        "EG",
+        "TZ",
+        "CI",
+        "ES",
+        "NL",
+        "PL",
+        "SE",
+        "CH",
+        "SG",
+        "TR",
+        "NZ",
       ].sort(),
     );
   });

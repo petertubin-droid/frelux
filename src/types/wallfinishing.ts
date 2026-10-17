@@ -44,7 +44,19 @@ export type WallFinMarketCode =
   | "ID"
   | "MX"
   | "KR"
-  | "IT";
+  | "IT"
+  | "ET"
+  | "EG"
+  | "TZ"
+  | "CI"
+  | "ES"
+  | "NL"
+  | "PL"
+  | "SE"
+  | "CH"
+  | "SG"
+  | "TR"
+  | "NZ";
 
 export interface WallFinCountryProfile {
   /** ISO 3166-1 alpha-2 */

@@ -3,8 +3,8 @@
 //
 // FRELUX is not limited to any country: EVERY market in the
 // country selector gets a wall-finishing starting template.
-// Seven markets carry native templates (NG, US, GB, DE, IN, CA,
-// AU); every other market is mapped to its closest verified
+// 2026-10-16: every website market (all 32) now carries a native
+// template; unlisted future markets map to the closest verified
 // template through market_profiles.inherits_from, and the UI
 // always reports which template is in use. Adding a native
 // profile later is a data-only change.
@@ -22,29 +22,12 @@ import { WALLFIN_COUNTRY_MAP, WALLFIN_FALLBACK_COUNTRY } from "./countries";
  * market price books (market_profiles.inherits_from).
  */
 export const WALLFIN_TEMPLATE_BY_MARKET: Record<string, WallFinMarketCode> = {
-  // 2026-10-13: JP/FR/BR/SA/AE/GH/KE/ZA now have NATIVE wall-finishing
-  // profiles and resolve natively, so they no longer appear here.
-  // Africa → NG reference
-  ET: "NG",
-  EG: "GB",
-  TZ: "NG",
-  CI: "NG",
-  // Americas → US/GB
-  MX: "US",
-  // Europe → DE/GB
-  IT: "DE",
-  ES: "DE",
-  NL: "DE",
-  PL: "DE",
-  SE: "DE",
-  CH: "DE",
-  // Asia & Middle East
-  CN: "US",
-  KR: "US",
-  SG: "GB",
-  TR: "DE",
-  // Oceania
-  NZ: "AU",
+  // 2026-10-16 globalization wave: all 32 website markets now have
+  // NATIVE wall-finishing profiles, so no market needs a mapped
+  // fallback template anymore. The mechanism stays: any future
+  // market added without a native profile inherits the NG reference
+  // through this map (or WALLFIN_FALLBACK_COUNTRY), always with a
+  // notice - never a silent substitution.
 };
 
 export interface ResolvedWallFinCountry {

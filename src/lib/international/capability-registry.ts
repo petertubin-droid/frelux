@@ -155,7 +155,7 @@ const FINISHING_VERIFIED_MARKETS: readonly string[] = [
   "IT",
 ];
 
-/** The full 20-market registry (matches BUILTIN_MARKET_PROFILES). */
+/** The full 32-market registry (matches BUILTIN_MARKET_PROFILES). */
 export const ALL_MARKET_CODES: readonly string[] = [
   "NG",
   "US",
@@ -177,6 +177,22 @@ export const ALL_MARKET_CODES: readonly string[] = [
   "MX",
   "KR",
   "IT",
+  // 2026-10-16 globalization wave: the final 12 BUILTIN_MARKET_PROFILES
+  // markets join the registry. Native wall-finishing profiles exist for
+  // all of them; engine VERIFICATION still follows the honest per-market
+  // price book process, so they are NOT in FINISHING_VERIFIED_MARKETS.
+  "ET",
+  "EG",
+  "TZ",
+  "CI",
+  "ES",
+  "NL",
+  "PL",
+  "SE",
+  "CH",
+  "SG",
+  "TR",
+  "NZ",
 ];
 
 // ============================================================

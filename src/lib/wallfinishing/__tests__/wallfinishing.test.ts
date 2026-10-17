@@ -106,7 +106,7 @@ function priceContext(
 // ─── country profiles ───────────────────────────
 
 describe("wall-finishing country profiles", () => {
-  it("covers all twenty markets with multiple systems each", () => {
+  it("covers all thirty-two markets with multiple systems each", () => {
     expect(WALLFIN_COUNTRY_PROFILES.map((p) => p.code)).toEqual([
       "NG",
       "US",
@@ -128,6 +128,18 @@ describe("wall-finishing country profiles", () => {
       "MX",
       "KR",
       "IT",
+      "ET",
+      "EG",
+      "TZ",
+      "CI",
+      "ES",
+      "NL",
+      "PL",
+      "SE",
+      "CH",
+      "SG",
+      "TR",
+      "NZ",
     ]);
     for (const p of WALLFIN_COUNTRY_PROFILES) {
       expect(p.wallSystemIds.length).toBeGreaterThanOrEqual(2);
@@ -149,13 +161,20 @@ describe("wall-finishing country profiles", () => {
     expect(resolveWallFinCountry("BR").native).toBe(true);
     expect(resolveWallFinCountry("SA").native).toBe(true);
     expect(resolveWallFinCountry("AE").native).toBe(true);
-    // Unprofiled markets still inherit a reported template.
+    // 2026-10-16 globalization wave: the final 12 markets resolve
+    // natively too, so nothing inherits anymore.
     const et = resolveWallFinCountry("ET");
-    expect(et.native).toBe(false);
-    expect(et.profile.code).toBe("NG");
-    expect(et.inheritedNotice).toContain("ET");
+    expect(et.native).toBe(true);
+    expect(et.profile.code).toBe("ET");
+    expect(et.inheritedNotice).toBeNull();
     const nz = resolveWallFinCountry("NZ");
-    expect(nz.profile.code).toBe("AU");
+    expect(nz.native).toBe(true);
+    expect(nz.profile.code).toBe("NZ");
+    // an unknown future market still inherits the NG reference, reported
+    const xx = resolveWallFinCountry("XX");
+    expect(xx.native).toBe(false);
+    expect(xx.profile.code).toBe("NG");
+    expect(xx.inheritedNotice).toContain("XX");
   });
 
   it("every expansion profile references real systems and assemblies", () => {

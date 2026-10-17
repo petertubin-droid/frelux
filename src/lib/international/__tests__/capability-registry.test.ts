@@ -34,10 +34,13 @@ const MIGRATION_SQL =
   );
 
 describe("capability-registry", () => {
-  it("covers the 20 mandate markets", () => {
-    expect(ALL_MARKET_CODES).toHaveLength(20);
+  it("covers the 32 website markets", () => {
+    expect(ALL_MARKET_CODES).toHaveLength(32);
     expect(ALL_MARKET_CODES).toContain("NG");
     expect(ALL_MARKET_CODES).toContain("IT");
+    // 2026-10-16 globalization wave: the final 12 markets registered
+    expect(ALL_MARKET_CODES).toContain("ET");
+    expect(ALL_MARKET_CODES).toContain("NZ");
   });
 
   it("every engine has unique ids, names and evidence", () => {
