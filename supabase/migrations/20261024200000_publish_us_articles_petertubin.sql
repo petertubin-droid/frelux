@@ -40,12 +40,16 @@ END $$;
 -- Run the rest of the transaction as that user so the attribution triggers
 -- (set_wall_finishing_review_attribution / guard_wall_finishing_article_publication)
 -- record reviewer/editor ids for every acceptance, verification and approval.
-SET LOCAL request.jwt.claims = (
-  SELECT json_build_object('sub', u.id::text, 'role', 'authenticated')
-  FROM auth.users u
-  ORDER BY (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = u.id)) DESC,
-           u.created_at
-  LIMIT 1
+-- SET LOCAL cannot take a subquery; set_config with is_local=true is the
+-- transaction-scoped equivalent and accepts the subquery expression.
+SELECT set_config(
+  'request.jwt.claims',
+  (SELECT json_build_object('sub', u.id::text, 'role', 'authenticated')::text
+   FROM auth.users u
+   ORDER BY (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = u.id)) DESC,
+            u.created_at
+   LIMIT 1),
+  true
 );
 
 -- ---------------------------------------------------------------------------

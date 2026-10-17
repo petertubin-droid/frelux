@@ -147,7 +147,7 @@ team). Reference implementation:
 Recipe for a new series (replace `US` with the market code):
 
 1. Resolve a reviewer auth user (prefer an account with a `profiles`
-   row) and `SET LOCAL request.jwt.claims` to it inside the
+   row) and set the transaction-local claims config (set_config) to it inside the
    transaction - the attribution triggers stamp `reviewed_by`,
    `verified_by` and `editorial_reviewed_by` from the JWT, so a raw
    `postgres`-session UPDATE would otherwise fail the source CHECK

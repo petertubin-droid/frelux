@@ -11,13 +11,14 @@
 | # | Finding | Severity | Status |
 |---|---------|----------|--------|
 | 1 | Deployed build is **stale** — today's fixes (footer duplication, sitemap 301 cleanup, type repairs) are not live | **High** | Needs redeploy |
-| 2 | US knowledge library (50 articles) still **draft** in DB — publication migration written, blocked by expired Supabase token | **High** | Needs fresh `sbp_` token |
+| 2 | ~~US knowledge library unpublished~~ **RESOLVED Oct 17:** all 50 articles published under petertubin byline, verified rendering live | — | Done |
 | 3 | Google OAuth **not configured** on freluxproject — "Continue with Google" will fail | **High** | Owner: Supabase dashboard |
 | 4 | Unknown routes return **soft 200** (generic SPA shell, homepage canonical) instead of 404 | Medium | Fix in repo |
 | 5 | /learn/ hub article listing is JS-driven (not in prerendered HTML) | Medium | Fix in repo |
 | 6 | Marketplace hero copy still Nigeria-only ("Nigeria's #1… 36 States Covered") vs 39 markets | Low | Admin panel edit |
 | 7 | Marketplace shows 0 active listings / "No jobs found" | Low | Content seeding |
 | 8 | /api/heartbeat 200 ✓, security headers present ✓, article prerender ✓, cookie consent ✓ | — | Healthy |
+| 9 | Live `/sitemap.xml` function env still queries the **old** Supabase project — the 50 new US articles are missing from the sitemap (deployed SPA bundle already targets freluxproject) | **High** | Fix Netlify site env |
 
 ---
 
@@ -41,11 +42,15 @@ Evidence: `/marketplace/` still renders **two stacked full footers** (site chrom
 
 Netlify auto-build is off (owner directive). **Action: owner triggers one manual deploy of `main` (now `cc13a14e`).** That single deploy picks up: the footer duplication fix, sitemap legacy-slug removal, the naira-sweep type fixes, and this audit doc.
 
-### 2. US knowledge library unpublished (High)
+### 2. US knowledge library published (RESOLVED Oct 17)
 
-All 50 US wall-finishing articles (10 series × 5) sit in the DB as `status='draft'` with author `FRELUX Editorial`, invisible to the public (RLS allows only published). Publication migration `20261024200000_publish_us_articles_petertubin.sql` (pushed, commit `cc13a14e`) publishes them under the **petertubin** byline per the standing editorial policy, passing the real editorial gates (accepted sources → verified topics → approved + published, with genuine reviewer attribution via `request.jwt.claims`).
+Fresh `sbp_` token supplied by owner. Applied `20261024200000_publish_us_articles_petertubin.sql` (with a fix: `SET LOCAL request.jwt.claims` cannot take a subquery; replaced with `set_config(..., is_local=true)`). Verified in DB: **50/50 US articles `published`, author `petertubin`**, 10 topics `verified`, 86 sources `accepted` with genuine reviewer attribution. Total published on freluxproject: 150.
 
-**Blocked:** both stored Supabase management tokens return 401 (expired). **Action: owner provides a fresh `sbp_` access token**; agent then applies pending migrations and the articles go live + enter the sitemap automatically (no redeploy needed).
+Verified live in a real browser: `/learn/us-timber-stud-drywall-installation/` renders full content with petertubin byline and Oct 17 2026 date (SPA fetch + RLS working).
+
+**Remaining gaps from this item:**
+- **Sitemap:** the live `/sitemap.xml` function still returns only the old 100 articles — its runtime env on Netlify queries the old Supabase project while the deployed SPA bundle targets freluxproject. Fix: set `SUPABASE_URL` + `SUPABASE_ANON_KEY` (freluxproject values) in the Netlify site env and redeploy. Committed `public/sitemap.xml` regeneration already drops the 6 legacy calculator slugs.
+- **Crawler HTML:** the 50 new articles serve the generic SPA shell to crawlers (no build-time prerender entries — `scripts/seo-content-map.mjs` covers only pre-existing pages). Google indexes them via JS rendering, but prerendering or a dynamic article-render function would speed indexing. Recommend after redeploy.
 
 ### 3. Google OAuth not configured (High)
 
@@ -76,12 +81,15 @@ Hero reads "Nigeria's #1 marketplace… 36 States Covered" while the site footer
 | `24106a39` | Fix marketplace duplicated site chrome (footer ×2, navbar ×2) + regression test |
 | `015afabe` | Drop 6 legacy calculator slugs from sitemap sources (GSC redirect flags) |
 | `cc13a14e` | Publish US knowledge library under petertubin byline + RUNBOOK editorial recipe + this audit |
+| (this) | `set_config` fix in publication migration; regenerated public/sitemap.xml (legacy slugs dropped); audit updated after live publication |
 
 ---
 
 ## Owner action checklist (shortest path to fully healthy)
 
-1. **Deploy** latest `main` on Netlify (manual — auto-build is off).
-2. **Paste a fresh Supabase `sbp_` token** so the agent can apply the pending publication migration (and future DB work).
+1. **Set Netlify site env vars** `SUPABASE_URL` + `SUPABASE_ANON_KEY` to the freluxproject values (fixes the sitemap function, item 9).
+2. **Deploy** latest `main` on Netlify (manual — auto-build is off).
 3. **Enable Google OAuth** on freluxproject + redirect URLs.
-4. After 1–3: agent re-runs the verification pass (footer, sitemap, live articles, login) and updates this document.
+4. After 1–3: agent re-runs the verification pass (footer, sitemap with 150 articles, live articles, login) and updates this document.
+
+*(Done this session: fresh `sbp_` token supplied and used; US library published and verified live.)*
