@@ -120,7 +120,9 @@ export type WallSubstrate =
   | "block"
   | "timber"
   | "steel"
-  | "aac";
+  | "aac"
+  /** natural stone walls (e.g. TZ stone construction) */
+  | "stone";
 
 // ─────────────────────────────────────────────
 // 3. Wall assemblies (layer sequences)
@@ -136,7 +138,9 @@ export type WallLayerCategory =
   | "finish"
   | "lining"
   | "render"
-  | "plaster";
+  | "plaster"
+  /** joint tape / mesh layers that reinforce base coats (drywall systems) */
+  | "reinforcement";
 
 export type LayerQuantityMode =
   /** area × coats ÷ coverage */
