@@ -160,36 +160,37 @@ export default function SharedProject() {
               </div>
             )}
 
-            {/* Project data as JSON-like display */}
+            {/* Project data as privacy-bounded summary */}
             {projectData && (
               <div className="rounded-xl border border-border bg-muted/50 p-5">
                 <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                  Project Details
+                  Project Estimation Summary
                 </h2>
                 <dl className="mt-3 grid gap-3 sm:grid-cols-2">
                   {Object.entries(projectData)
-                    .filter(
-                      ([key]) =>
-                        ![
-                          "id",
-                          "user_id",
-                          "created_at",
-                          "updated_at",
-                          "name",
-                          "description",
-                          "saved_colors",
-                        ].includes(key),
+                    .filter(([key]) =>
+                      // Explicit allowed fields only; strictly exclude private fields
+                      [
+                        "total_cost",
+                        "area",
+                        "volume",
+                        "quantities",
+                        "market_code",
+                        "unit_system",
+                        "summary",
+                        "materials",
+                      ].includes(key),
                     )
                     .map(([key, value]) => (
                       <div key={key}>
                         <dt className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                           {key.replace(/_/g, " ")}
                         </dt>
-                        <dd className="mt-0.5 text-sm text-card-foreground dark:text-muted-foreground/60">
+                        <dd className="mt-0.5 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                           {value === null || value === undefined
                             ? "N/A"
                             : typeof value === "object"
-                              ? JSON.stringify(value)
+                              ? JSON.stringify(value, null, 2)
                               : String(value)}
                         </dd>
                       </div>

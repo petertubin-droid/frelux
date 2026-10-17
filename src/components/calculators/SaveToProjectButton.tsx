@@ -145,6 +145,58 @@ export default function SaveToProjectButton({
     if (showModal && user) loadProjects();
   }, [showModal, user, loadProjects]);
 
+  function handleSaveIntentAndSignIn() {
+    try {
+      const pendingPayload = {
+        calculatorType,
+        calculatorSlug,
+        calcTitle: calcTitle || `${calculatorSlug} calculation`,
+        calcData,
+        resultSummary,
+        materials,
+        timestamp: Date.now(),
+      };
+      sessionStorage.setItem(
+        "frelux_pending_calc_save",
+        JSON.stringify(pendingPayload),
+      );
+    } catch (e) {
+      if (import.meta.env.DEV)
+        console.error("Failed to store pending calc intent:", e);
+    }
+    const currentPath = window.location.pathname + window.location.search;
+    window.location.href = `/login/?redirect=${encodeURIComponent(currentPath)}`;
+  }
+
+  // Check if we just authenticated and have a pending calculation to save
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const savedRaw = sessionStorage.getItem("frelux_pending_calc_save");
+      if (!savedRaw) return;
+      const parsed = JSON.parse(savedRaw);
+      // Ensure it is fresh (< 60 minutes) and matches this calculator slug/type
+      if (Date.now() - (parsed.timestamp || 0) < 60 * 60 * 1000) {
+        if (
+          parsed.calculatorSlug === calculatorSlug ||
+          parsed.calculatorType === calculatorType
+        ) {
+          setShowModal(true);
+          sessionStorage.removeItem("frelux_pending_calc_save");
+          toast({
+            title: "Ready to save!",
+            message: "Choose a project to sync your pending calculation.",
+            type: "info",
+          });
+        }
+      } else {
+        sessionStorage.removeItem("frelux_pending_calc_save");
+      }
+    } catch {
+      sessionStorage.removeItem("frelux_pending_calc_save");
+    }
+  }, [user, calculatorSlug, calculatorType, toast]);
+
   function handleSaveLocalOnly() {
     const title = calcTitle || `${calculatorSlug} calculation`;
     const localTypeMap: Record<
@@ -318,12 +370,13 @@ export default function SaveToProjectButton({
                   >
                     <Save className="h-4 w-4" /> Save to This Device
                   </Button>
-                  <Link
-                    to="/login/?redirect=/my-projects"
+                  <button
+                    type="button"
+                    onClick={handleSaveIntentAndSignIn}
                     className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold hover:bg-muted transition-all text-center"
                   >
                     <LogIn className="h-4 w-4" /> Sign In to Sync with Cloud
-                  </Link>
+                  </button>
                 </div>
               </div>
             ) : loading ? (

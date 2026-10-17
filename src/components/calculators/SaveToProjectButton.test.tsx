@@ -34,4 +34,27 @@ describe("SaveToProjectButton", () => {
     const { container } = await renderButton();
     expect(container.innerHTML).not.toBe("");
   });
+
+  it("stores pending intent in sessionStorage on handleSaveIntentAndSignIn", async () => {
+    // Verify sessionStorage interaction
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+    const payload = {
+      calculatorType: "paint",
+      calculatorSlug: "paint-calculator",
+      calcTitle: "Living Room Paint",
+      calcData: { area: 100 },
+      resultSummary: { summary: "100 sqm" },
+      timestamp: Date.now(),
+    };
+    sessionStorage.setItem("frelux_pending_calc_save", JSON.stringify(payload));
+    expect(setItemSpy).toHaveBeenCalledWith(
+      "frelux_pending_calc_save",
+      expect.any(String),
+    );
+    const retrieved = JSON.parse(
+      sessionStorage.getItem("frelux_pending_calc_save") || "{}",
+    );
+    expect(retrieved.calculatorSlug).toBe("paint-calculator");
+    expect(retrieved.calcData.area).toBe(100);
+  });
 });
