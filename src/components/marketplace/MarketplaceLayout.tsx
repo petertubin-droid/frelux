@@ -1,10 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { Store, Briefcase, Plus, LayoutDashboard, Package } from "lucide-react";
 import { classNames } from "@/lib/utils";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import SupportChatWidget from "@/components/layout/SupportChatWidget";
-
 export default function MarketplaceLayout() {
   const location = useLocation();
 
@@ -21,7 +17,9 @@ export default function MarketplaceLayout() {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <Navbar />
+      {/* No Navbar/Footer here: this layout renders inside the public Layout
+          (see App.tsx route tree), which already provides the site chrome.
+          Rendering them here duplicated the footer on every marketplace page. */}
       <main className="w-full flex-1 pt-16 pb-16 md:pb-0">
         {/* Marketplace sub-nav */}
         <div className="sticky top-16 z-30 border-b border-border/50 bg-white/80 backdrop-blur dark:border-white/5 dark:bg-background/80">
@@ -70,8 +68,6 @@ export default function MarketplaceLayout() {
 
         <Outlet />
       </main>
-      <Footer />
-      <SupportChatWidget />
     </div>
   );
 }
