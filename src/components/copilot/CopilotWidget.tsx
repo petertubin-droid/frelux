@@ -39,6 +39,8 @@ import {
 import { interpretWithAi } from "@/lib/ai-foundation/copilot-client";
 import { trustBadge } from "@/lib/ai-foundation/trust";
 import { generateArchieCalculationReport } from "@/lib/copilot-intelligence/calculator-intelligence";
+import { useMarket } from "@/lib/international/market-context";
+import { formatByCode } from "@/lib/international/currency-format";
 
 type Phase = "input" | "review" | "running" | "result" | "refused";
 
@@ -494,7 +496,10 @@ function ResultPanel({
   onNewRequest: () => void;
 }) {
   const result = outcome.result as EngineResult;
-  const fmt = (n: number) => `₦${Math.round(n).toLocaleString()}`;
+  // Engine costs are in the visitor's market currency: format through
+  // the central currency layer (NG visitors still see ₦).
+  const { market } = useMarket();
+  const fmt = (n: number) => formatByCode(Math.round(n), market.currencyCode);
   // ARCHIE structured report: assumptions, materials, waste, pricing
   // basis, methodology and confidence - all verbatim from the engine.
   const report = generateArchieCalculationReport(outcome);

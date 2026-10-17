@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
+import { formatByCode } from "@/lib/international/currency-format";
 
 type Status = "loading" | "ready" | "error";
 
@@ -35,23 +36,13 @@ interface Movement {
   created_at: string;
 }
 
-/** CURRENCY FORMATTING: symbol + locale grouping, trailing ".00" trimmed. */
-const SYMBOLS: Record<string, string> = {
-  NGN: "₦",
-  USD: "$",
-  GBP: "£",
-  EUR: "€",
-  GHS: "GH₵",
-  KES: "KSh",
-  ZAR: "R",
-};
-
+/** CURRENCY FORMATTING: delegated to the central currency layer
+ * (verified symbol metadata for every supported market currency,
+ * unknown codes render the ISO code instead of a guessed symbol). */
 function money(v: number, currency: string): string {
-  const sym = SYMBOLS[currency] ?? currency + " ";
-  const formatted = new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: currency === "NGN" ? 0 : 2,
-  }).format(v);
-  return `${sym}${formatted}`;
+  return formatByCode(v, currency, {
+    decimals: currency === "NGN" ? 0 : 2,
+  });
 }
 
 function prettyCategory(slug: string | null): string {

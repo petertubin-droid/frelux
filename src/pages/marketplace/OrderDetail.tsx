@@ -30,6 +30,7 @@ import { ORDER_STATUS_LABELS, PROJECT_TYPE_LABELS } from "@/types/marketplace";
 import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+import { formatByCode } from "@/lib/international/currency-format";
 
 const STATUS_FLOW = [
   "pending_start",
@@ -208,7 +209,7 @@ export default function OrderDetail() {
             </div>
             <div className="text-right">
               <p className="text-lg font-extrabold text-foreground dark:text-primary-foreground">
-                ₦{order.agreed_price.toLocaleString()}
+                {formatByCode(order.agreed_price, order.currency)}
               </p>
               {order.agreed_timeline_days && (
                 <p className="text-xs text-muted-foreground dark:text-muted-foreground">

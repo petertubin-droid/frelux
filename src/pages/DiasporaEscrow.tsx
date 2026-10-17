@@ -146,7 +146,8 @@ export default function DiasporaEscrow() {
                 {formatByCode(summary.totalPayout, contract.localCurrency)}
               </p>
               <p className="text-xs text-muted-foreground">
-                Locked FX: 1 {contract.sourceCurrency} = ₦2,050 NGN
+                Locked FX: 1 {contract.sourceCurrency} ={" "}
+                {formatByCode(contract.fxRateLocked, contract.localCurrency)}
               </p>
             </div>
           </div>

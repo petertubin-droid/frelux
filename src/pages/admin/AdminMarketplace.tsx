@@ -117,6 +117,7 @@ export default function AdminMarketplace() {
 }
 
 import AdminPagination from "@/components/admin/AdminPagination";
+import { formatByCode } from "@/lib/international/currency-format";
 
 function ListingsTab() {
   const [listings, setListings] = useState<DbMarketplaceListing[]>([]);
@@ -425,7 +426,7 @@ function ProductsTab() {
                   {p.title}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  ₦{p.price.toLocaleString()} ·{" "}
+                  {formatByCode(p.price, p.currency)} ·{" "}
                   {p.category?.name || "No category"} ·{" "}
                   {PRODUCT_CONDITION_LABELS[p.condition]}
                   {p.brand && ` · ${p.brand}`}
@@ -562,7 +563,7 @@ function OrdersTab() {
                 Pro: {o.pro_profile?.display_name || "Unknown"}
               </p>
               <p className="mt-1 text-sm font-bold text-foreground dark:text-primary-foreground">
-                ₦{o.agreed_price.toLocaleString()}
+                {formatByCode(o.agreed_price, o.currency)}
               </p>
               <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
                 <span>Payment: {o.payment_status.replace("_", " ")}</span>

@@ -29,6 +29,7 @@ import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import AdSlot from "@/components/ui/AdSlot";
 import { Button } from "@/components/ui/shadcn/button";
+import { formatByCode, getCurrencySymbol } from "@/lib/international/currency-format";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -142,8 +143,8 @@ export default function ProductDetail() {
   }
 
   function formatPrice(p: number, currency: string) {
-    const sym = currency === "NGN" ? "₦" : "";
-    return `${sym}${p.toLocaleString()}`;
+    // Central currency layer: non-NGN products render their real symbol.
+    return formatByCode(p, currency);
   }
 
   if (loading) {
@@ -315,7 +316,7 @@ export default function ProductDetail() {
               <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 dark:bg-blue-500/10">
                 <Truck className="h-3 w-3" /> Delivery
                 {product.delivery_fee
-                  ? ` (₦${product.delivery_fee.toLocaleString()})`
+                  ? ` (${formatByCode(product.delivery_fee, product.currency)})`
                   : " available"}
               </span>
             )}
@@ -437,7 +438,7 @@ export default function ProductDetail() {
                   type="number"
                   value={inquiryPrice}
                   onChange={(e) => setInquiryPrice(e.target.value)}
-                  placeholder="Offer price (₦)"
+                  placeholder={`Offer price (${getCurrencySymbol(product.currency) || "₦"})`}
                   className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
                 <input

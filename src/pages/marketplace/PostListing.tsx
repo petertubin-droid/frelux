@@ -12,6 +12,8 @@ import { useSeo } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
+import { useMarket } from "@/lib/international/market-context";
+import { getCurrencySymbol } from "@/lib/international/currency-format";
 
 const NIGERIAN_STATES = [
   "Lagos",
@@ -29,6 +31,10 @@ const NIGERIAN_STATES = [
 ];
 
 export default function PostListing() {
+  // Budgets are entered in the visitor's market currency (NG visitors
+  // still see ₦ — zero behavior change for the reference market).
+  const { market } = useMarket();
+  const budgetSymbol = getCurrencySymbol(market.currencyCode) || "₦";
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   useSeo({
@@ -112,6 +118,7 @@ export default function PostListing() {
         project_type: projectType,
         budget_min: budgetMin ? parseFloat(budgetMin) : undefined,
         budget_max: budgetMax ? parseFloat(budgetMax) : undefined,
+        currency: market.currencyCode,
         location_country: country === "OTHER" ? undefined : country,
         location_state: state || undefined,
         location_city: city || undefined,
@@ -227,7 +234,7 @@ export default function PostListing() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                Budget Min (₦)
+                Budget Min ({budgetSymbol})
               </label>
               <input
                 type="number"
@@ -239,7 +246,7 @@ export default function PostListing() {
             </div>
             <div>
               <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                Budget Max (₦)
+                Budget Max ({budgetSymbol})
               </label>
               <input
                 type="number"

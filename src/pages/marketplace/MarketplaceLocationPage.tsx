@@ -11,6 +11,7 @@ import type { DbMarketplaceListing } from "@/types/marketplace";
 import type { DbProProfile } from "@/types/pro-connect";
 import { PROJECT_TYPE_LABELS } from "@/types/marketplace";
 import LocationPicker from "@/components/ui/LocationPicker";
+import { formatByCode } from "@/lib/international/currency-format";
 
 // ============================================================
 // SEO Page: /marketplace/sellers/:locationSlug
@@ -22,11 +23,12 @@ function formatBudget(
   max: number | null,
   currency: string,
 ) {
-  const sym = currency === "NGN" ? "₦" : "";
+  // Per-item currency from the listing row: format through the
+  // central currency layer so non-NGN budgets render their real symbol.
   if (min && max)
-    return `${sym}${min.toLocaleString()} – ${sym}${max.toLocaleString()}`;
-  if (min) return `From ${sym}${min.toLocaleString()}`;
-  if (max) return `Up to ${sym}${max.toLocaleString()}`;
+    return `${formatByCode(min, currency)} – ${formatByCode(max, currency)}`;
+  if (min) return `From ${formatByCode(min, currency)}`;
+  if (max) return `Up to ${formatByCode(max, currency)}`;
   return "Budget negotiable";
 }
 

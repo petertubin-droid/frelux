@@ -15,6 +15,7 @@ import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { formatByCode } from "@/lib/international/currency-format";
 
 export default function MyProducts() {
   useSeo({
@@ -73,7 +74,8 @@ export default function MyProducts() {
   );
 
   function formatPrice(p: number, c: string) {
-    return `${c === "NGN" ? "₦" : ""}${p.toLocaleString()}`;
+    // Central currency layer: non-NGN products render their real symbol.
+    return formatByCode(p, c);
   }
 
   if (loading) {

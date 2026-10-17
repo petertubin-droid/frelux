@@ -52,6 +52,7 @@ type ApplyStatus = {
 };
 
 import type { ReferenceMarket } from "@/lib/estimation/price-scanner";
+import { formatByCode } from "@/lib/international/currency-format";
 
 type Market = ReferenceMarket;
 
@@ -402,7 +403,8 @@ export default function AdminPriceUpdater() {
                     Confidence
                   </th>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                    Verified price (₦)
+                    Verified price (
+                    {MARKET_CONFIG[market].currency})
                   </th>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                     Status
@@ -437,13 +439,19 @@ export default function AdminPriceUpdater() {
                           NOT CONFIGURED
                         </span>
                       ) : (
-                        `₦${r.configuredPrice.toLocaleString()}`
+                        formatByCode(
+                          r.configuredPrice,
+                          MARKET_CONFIG[market].currency,
+                        )
                       )}
                     </td>
                     <td className="px-4 py-3 text-right text-muted-foreground">
                       {r.referencePrice === null
                         ? "no reference"
-                        : `₦${r.referencePrice.toLocaleString()}`}
+                        : formatByCode(
+                            r.referencePrice,
+                            MARKET_CONFIG[market].currency,
+                          )}
                     </td>
                     <td className="px-4 py-3 text-center">
                       {r.changePercent === null ? (

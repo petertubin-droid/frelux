@@ -33,6 +33,7 @@ import {
 import type { DbMarketplaceProduct } from "@/types/marketplace-products";
 import { PRODUCT_STATUS_LABELS } from "@/types/marketplace-products";
 import { Button } from "@/components/ui/shadcn/button";
+import { formatByCode } from "@/lib/international/currency-format";
 
 export default function SellerDashboard() {
   useSeo({
@@ -446,8 +447,7 @@ export default function SellerDashboard() {
                     </p>
                   </div>
                   <p className="text-sm font-semibold text-brand-purple">
-                    {prod.currency === "NGN" ? "₦" : ""}
-                    {Number(prod.price).toLocaleString()}
+                    {formatByCode(Number(prod.price), prod.currency)}
                   </p>
                 </Link>
               );

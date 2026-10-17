@@ -37,6 +37,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
+import { formatByCode } from "@/lib/international/currency-format";
 
 const PROJECT_TYPES = [
   { value: "painting", label: "Painting" },
@@ -73,17 +74,18 @@ function formatBudget(
   max: number | null,
   currency: string,
 ) {
-  const sym = currency === "NGN" ? "₦" : "";
+  // Per-item currency from the listing row: format through the central
+  // currency layer so non-NGN listings render their real symbol
+  // (USD, GHS, ...) instead of a bare number.
   if (min && max)
-    return `${sym}${min.toLocaleString()} – ${sym}${max.toLocaleString()}`;
-  if (min) return `From ${sym}${min.toLocaleString()}`;
-  if (max) return `Up to ${sym}${max.toLocaleString()}`;
+    return `${formatByCode(min, currency)} – ${formatByCode(max, currency)}`;
+  if (min) return `From ${formatByCode(min, currency)}`;
+  if (max) return `Up to ${formatByCode(max, currency)}`;
   return "Budget negotiable";
 }
 
 function formatPrice(p: number, currency: string) {
-  const sym = currency === "NGN" ? "₦" : "";
-  return `${sym}${p.toLocaleString()}`;
+  return formatByCode(p, currency);
 }
 
 function timeAgo(dateStr: string) {

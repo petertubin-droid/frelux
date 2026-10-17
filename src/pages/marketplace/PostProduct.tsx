@@ -18,6 +18,8 @@ import { useSeo } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
+import { useMarket } from "@/lib/international/market-context";
+import { getCurrencySymbol } from "@/lib/international/currency-format";
 
 const NIGERIAN_STATES = [
   "Lagos",
@@ -52,6 +54,10 @@ const CONDITIONS: { value: ProductCondition; label: string }[] = [
 ];
 
 export default function PostProduct() {
+  // Prices are entered in the visitor's market currency (NG visitors
+  // still see ₦ — zero behavior change for the reference market).
+  const { market } = useMarket();
+  const priceSymbol = getCurrencySymbol(market.currencyCode) || "₦";
   useSeo({
     description: "FRELUX marketplace",
     title: "Post a Product, FRELUX Marketplace",
@@ -168,7 +174,7 @@ export default function PostProduct() {
         compare_at_price: compareAtPrice
           ? parseFloat(compareAtPrice)
           : undefined,
-        currency: "NGN",
+        currency: market.currencyCode,
         negotiable,
         condition,
         quantity: parseInt(quantity) || 1,
@@ -271,7 +277,7 @@ export default function PostProduct() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Price (₦) *
+              Price ({priceSymbol}) *
             </label>
             <input
               type="number"
@@ -547,7 +553,7 @@ export default function PostProduct() {
                 type="number"
                 value={deliveryFee}
                 onChange={(e) => setDeliveryFee(e.target.value)}
-                placeholder="Delivery fee (₦)"
+                placeholder={`Delivery fee (${priceSymbol})`}
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             )}

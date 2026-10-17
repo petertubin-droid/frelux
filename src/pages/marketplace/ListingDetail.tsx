@@ -35,17 +35,19 @@ import { useSeo } from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { formatByCode, getCurrencySymbol } from "@/lib/international/currency-format";
 
 function formatBudget(
   min: number | null,
   max: number | null,
   currency: string,
 ) {
-  const sym = currency === "NGN" ? "₦" : "";
+  // Per-item currency from the listing row: format through the
+  // central currency layer so non-NGN budgets render their real symbol.
   if (min && max)
-    return `${sym}${min.toLocaleString()} – ${sym}${max.toLocaleString()}`;
-  if (min) return `From ${sym}${min.toLocaleString()}`;
-  if (max) return `Up to ${sym}${max.toLocaleString()}`;
+    return `${formatByCode(min, currency)} – ${formatByCode(max, currency)}`;
+  if (min) return `From ${formatByCode(min, currency)}`;
+  if (max) return `Up to ${formatByCode(max, currency)}`;
   return "Budget negotiable";
 }
 
@@ -405,7 +407,7 @@ export default function ListingDetail() {
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                    Your Price (₦)
+                    Your Price ({getCurrencySymbol(listing.currency) || "₦"})
                   </label>
                   <input
                     type="number"
@@ -548,7 +550,7 @@ export default function ListingDetail() {
                     {/* Price */}
                     <div className="text-left sm:text-right">
                       <p className="text-lg font-extrabold text-foreground dark:text-primary-foreground">
-                        ₦{bid.proposed_price.toLocaleString()}
+                        {formatByCode(bid.proposed_price, listing.currency)}
                       </p>
                       {bid.proposed_timeline_days && (
                         <p className="text-xs text-muted-foreground dark:text-muted-foreground">

@@ -13,6 +13,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
 import { fetchCaseStudyById, type CaseStudyView } from "@/lib/case-studies";
 import { CATEGORY_LABELS } from "@/lib/case-study-labels";
+import { getCurrencySymbol } from "@/lib/international/currency-format";
 
 export default function CaseStudyDetail() {
   const { id } = useParams<{ id: string }>();
@@ -80,7 +81,7 @@ export default function CaseStudyDetail() {
 
   const { caseStudy, entry, beforeImage, afterImage, images } = view;
   const currency = caseStudy.currency ?? "NGN";
-  const currencySymbol = currency === "NGN" ? "₦" : `${currency} `;
+  const currencySymbol = getCurrencySymbol(currency) ?? `${currency} `;
 
   return (
     <article className="mx-auto max-w-4xl px-4 py-8">

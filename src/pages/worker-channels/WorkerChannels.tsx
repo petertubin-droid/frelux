@@ -41,6 +41,7 @@ import { classNames } from "@/lib/utils";
 import PageHeader from "@/components/ui/PageHeader";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { formatByCode } from "@/lib/international/currency-format";
 
 const QUICK_EMOJIS = ["👍", "❤️", "🔥", "📈", "🇳🇬", "💰"];
 
@@ -270,7 +271,11 @@ export default function WorkerChannels() {
     if (!priceForm.item.trim() || !priceForm.amount || !activeChannel || !user)
       return;
     setSending(true);
-    const content = `📊 PRICE UPDATE: ${priceForm.item}, ₦${Number(priceForm.amount).toLocaleString()}${priceForm.location ? ` in ${priceForm.location}` : ""}${priceForm.store ? ` (${priceForm.store})` : ""}`;
+    // Channel price updates are posted in the channel's currency; NG
+    // worker communities remain NGN (₦) — formatting goes through the
+    // central layer so the stored price_currency always renders right.
+    const priceCurrency = "NGN";
+    const content = `📊 PRICE UPDATE: ${priceForm.item}, ${formatByCode(Number(priceForm.amount), priceCurrency)}${priceForm.location ? ` in ${priceForm.location}` : ""}${priceForm.store ? ` (${priceForm.store})` : ""}`;
     const msg = await sendMessage({
       channelId: activeChannel.id,
       userId: user.id,
@@ -278,7 +283,7 @@ export default function WorkerChannels() {
       messageType: "price_update",
       priceItem: priceForm.item.trim(),
       priceAmount: Number(priceForm.amount),
-      priceCurrency: "NGN",
+      priceCurrency,
       priceLocation: priceForm.location.trim() || undefined,
       priceStore: priceForm.store.trim() || undefined,
     });
@@ -965,7 +970,10 @@ function MessageBubble({
             <div className="mt-1 text-sm font-bold">{message.price_item}</div>
             {message.price_amount != null && (
               <div className="text-lg font-bold">
-                ₦{Number(message.price_amount).toLocaleString()}
+                {formatByCode(
+                  Number(message.price_amount),
+                  message.price_currency || "NGN",
+                )}
               </div>
             )}
             <div className="flex flex-wrap gap-2 text-xs opacity-80">

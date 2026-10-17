@@ -47,6 +47,7 @@ import { classNames } from "@/lib/utils";
 import { checkProLevelEligibility } from "@/lib/pro-connect";
 import type { DbProVerificationRequest } from "@/types/pro-connect";
 import { Button } from "@/components/ui/shadcn/button";
+import { formatByCode } from "@/lib/international/currency-format";
 
 export default function ProConnectDashboard() {
   const { user } = useAuth();
@@ -968,7 +969,12 @@ export default function ProConnectDashboard() {
                     {bid.listing?.title || "Untitled job"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Bid: ₦{bid.proposed_price.toLocaleString()} ·{" "}
+                    Bid:{" "}
+                    {formatByCode(
+                      bid.proposed_price,
+                      bid.listing?.currency || "NGN",
+                    )}{" "}
+                    ·{" "}
                     {new Date(bid.created_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -1017,8 +1023,8 @@ export default function ProConnectDashboard() {
                       {order.listing?.title || "Untitled job"}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {order.order_number} · ₦
-                      {order.agreed_price.toLocaleString()}
+                      {order.order_number} ·{" "}
+                      {formatByCode(order.agreed_price, order.currency)}
                     </p>
                   </div>
                   <span
