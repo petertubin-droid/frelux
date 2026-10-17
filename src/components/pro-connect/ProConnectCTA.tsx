@@ -60,6 +60,7 @@ const ctaTexts: Record<string, { title: string; subtitle: string }> = {
 
 export default function ProConnectCTA({
   calculatorType,
+  projectContext,
   className = "",
 }: ProConnectCTAProps) {
   const categorySlug = getCategorySlug(calculatorType);
@@ -67,6 +68,13 @@ export default function ProConnectCTA({
 
   const text = ctaTexts[calculatorType] || ctaTexts.paint;
   const label = categoryLabels[categorySlug] || "Professionals";
+
+  // Build target query string preserving legitimate search criteria (e.g. market, category)
+  const params = new URLSearchParams();
+  params.set("category", categorySlug);
+  if (projectContext && typeof projectContext.market === "string" && projectContext.market.trim()) {
+    params.set("country", projectContext.market.trim().toUpperCase());
+  }
 
   return (
     <div
@@ -79,7 +87,7 @@ export default function ProConnectCTA({
         {text.subtitle}
       </p>
       <Link
-        to={`/pro-connect/?category=${categorySlug}`}
+        to={`/pro-connect/?${params.toString()}`}
         className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
       >
         Find {label}

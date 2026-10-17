@@ -182,7 +182,7 @@ export default function SaveToProjectButton({
           parsed.calculatorType === calculatorType
         ) {
           setShowModal(true);
-          sessionStorage.removeItem("frelux_pending_calc_save");
+          // Retain pending payload until save or modal dismissal so hydrated values are preserved
           toast({
             title: "Ready to save!",
             message: "Choose a project to sync your pending calculation.",
@@ -252,6 +252,7 @@ export default function SaveToProjectButton({
         materials: materials || [],
       });
       trackProjectSaveWithRewards();
+      sessionStorage.removeItem("frelux_pending_calc_save");
       toast({ title: "Calculation saved to project!", type: "success" });
       setShowModal(false);
       setSelectedProject(null);
@@ -293,6 +294,7 @@ export default function SaveToProjectButton({
         materials: materials || [],
       });
       trackProjectSaveWithRewards();
+      sessionStorage.removeItem("frelux_pending_calc_save");
       toast({
         title: "Project created and calculation saved!",
         type: "success",

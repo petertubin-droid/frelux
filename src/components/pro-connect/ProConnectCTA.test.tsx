@@ -56,4 +56,15 @@ describe("ProConnectCTA", () => {
     const link = screen.getByText("Find Painters").closest("a");
     expect(link?.getAttribute("href")).toContain("category=painters");
   });
+
+  it("links to correct pro-connect category with country when context provided", () => {
+    render(
+      <MemoryRouter>
+        <ProConnectCTA calculatorType="paint" projectContext={{ market: "ng" }} />
+      </MemoryRouter>,
+    );
+    const link = screen.getByText("Find Painters").closest("a");
+    expect(link?.getAttribute("href")).toContain("category=painters");
+    expect(link?.getAttribute("href")).toContain("country=NG");
+  });
 });
