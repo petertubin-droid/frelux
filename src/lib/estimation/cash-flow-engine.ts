@@ -12,6 +12,11 @@
  */
 
 import type { EstimationCalcRule } from "@/types/estimation";
+import { formatNGNForDisplay } from "@/lib/international/fx-display";
+
+// Engine-narrative formatting: honours the visitor display currency and
+// keeps trailing decimals (up to 2) so exact math values stay visible.
+const fmtAuto = (n: number) => formatNGNForDisplay(n, { decimals: "auto" });
 
 // ─────────────────────────────────────────────
 // Contracts
@@ -191,14 +196,14 @@ export function calculateCashFlow(input: CashFlowInput): CashFlowResult {
     });
     result.steps.push({
       label: m.label,
-      detail: `${m.percent}% × ₦${total.toLocaleString()} = ₦${amount.toLocaleString()}, due ${date} (${m.offset_months} month${m.offset_months === 1 ? "" : "s"} after start).`,
+      detail: `${m.percent}% × ${fmtAuto(total)} = ${fmtAuto(amount)}, due ${date} (${m.offset_months} month${m.offset_months === 1 ? "" : "s"} after start).`,
     });
   }
 
   result.scheduled_total = cumulative;
   result.steps.push({
     label: "Total",
-    detail: `₦${cumulative.toLocaleString()} scheduled across ${result.payments.length} milestones, matching the ₦${total.toLocaleString()} estimate.`,
+    detail: `${fmtAuto(cumulative)} scheduled across ${result.payments.length} milestones, matching the ${fmtAuto(total)} estimate.`,
   });
 
   result.ok = true;

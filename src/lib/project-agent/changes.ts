@@ -40,6 +40,11 @@ import {
   recordedSpend,
   unpurchasedEstimatedTotal,
 } from "@/lib/predictive-intelligence/spend";
+import { formatNGNForDisplay } from "@/lib/international/fx-display";
+
+// Engine-narrative formatting: honours the visitor display currency and
+// keeps trailing decimals (up to 2) so exact math values stay visible.
+const fmtAuto = (n: number) => formatNGNForDisplay(n, { decimals: "auto" });
 
 // ---------------------------------------------------------
 // Types
@@ -179,8 +184,10 @@ function recordedCauseForPriceChange(
     .pop();
   if (!match) return null;
   const oldPart =
-    match.oldPrice !== null ? `from ₦${match.oldPrice.toLocaleString()} ` : "";
-  return `A material price update was recorded for "${match.materialName}" on ${match.changedAt.split("T")[0]} (${oldPart}to ₦${match.newPrice.toLocaleString()}${match.priceSource ? `, source: ${match.priceSource}` : ""}).`;
+    match.oldPrice !== null
+      ? `from ${fmtAuto(match.oldPrice)} `
+      : "";
+  return `A material price update was recorded for "${match.materialName}" on ${match.changedAt.split("T")[0]} (${oldPart}to ${fmtAuto(match.newPrice)}${match.priceSource ? `, source: ${match.priceSource}` : ""}).`;
 }
 
 function unknownCause(ctx: DiffCtx): string {

@@ -183,13 +183,29 @@ export function activeRateDescription(): string | null {
  * exactly like before (₦ + grouping, 0 decimals); a converting currency
  * renders with its own symbol and up to 2 decimals.
  */
-export function formatNGNForDisplay(amountNGN: number): string {
+export function formatNGNForDisplay(
+  amountNGN: number,
+  options?: {
+    /**
+     * Fractional digits shown when rendering NGN (no conversion active).
+     * 0 (default): whole naira, the site-wide NGN convention.
+     * "auto": trailing decimals up to 2 - for calculation narratives
+     *         (engine breakdowns) where the exact value matters.
+     * 2: always two decimals.
+     * Ignored while converting (converted amounts always use up to 2).
+     */
+    decimals?: 0 | 2 | "auto";
+  },
+): string {
   if (!isConverting()) {
     const safe =
       typeof amountNGN === "number" && !isNaN(amountNGN) ? amountNGN : 0;
+    const max =
+      options?.decimals === 2 ? 2 : options?.decimals === "auto" ? 2 : 0;
+    const min = options?.decimals === 2 ? 2 : 0;
     return `₦${safe.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      minimumFractionDigits: min,
+      maximumFractionDigits: max,
     })}`;
   }
   const converted = convertFromNGN(amountNGN);

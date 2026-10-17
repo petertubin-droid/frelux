@@ -27,6 +27,15 @@
  *    dropped or silently zero-costed.
  */
 
+// Display formatting only (no engine logic): honours the visitor
+// display currency; NGN renders exactly as before.
+import { formatNGNForDisplay } from "@/lib/international/fx-display";
+
+// Engine-narrative formatting: honours the visitor display currency and
+// keeps trailing decimals (up to 2) so exact math values stay visible.
+const fmtAuto = (n: number) => formatNGNForDisplay(n, { decimals: "auto" });
+
+
 export interface PanelModelInput {
   watt_peak: number;
   length_m: number;
@@ -409,7 +418,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   );
   steps.push({
     label: "Installation labour",
-    detail: `${panelCount} panels × ₦${rv.labor_cost_per_panel_naira.toLocaleString("en-NG")} per panel = ₦${labor.toLocaleString("en-NG")}.`,
+    detail: `${panelCount} panels × ${fmtAuto(rv.labor_cost_per_panel_naira)} per panel = ${fmtAuto(labor)}.`,
   });
 
   if (unpriced.length > 0) {

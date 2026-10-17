@@ -12,6 +12,11 @@
  */
 
 import type { EstimationCalcRule } from "@/types/estimation";
+import { formatNGNForDisplay } from "@/lib/international/fx-display";
+
+// Engine-narrative formatting: honours the visitor display currency and
+// keeps trailing decimals (up to 2) so exact math values stay visible.
+const fmtAuto = (n: number) => formatNGNForDisplay(n, { decimals: "auto" });
 
 // ─────────────────────────────────────────────
 // Contracts
@@ -130,7 +135,7 @@ export function calculateMargin(input: MarginInput): MarginResult {
     subtotal = roundTo(cost + profit, decimals);
     result.steps.push({
       label: "Markup on cost",
-      detail: `₦${cost.toLocaleString()} × ${marginPercent}% = ₦${profit.toLocaleString()} profit (markup on cost: the percent applies to the COST).`,
+      detail: `${fmtAuto(cost)} × ${marginPercent}% = ${fmtAuto(profit)} profit (markup on cost: the percent applies to the COST).`,
     });
   } else {
     // price = cost ÷ (1 − %), profit = price − cost
@@ -138,7 +143,7 @@ export function calculateMargin(input: MarginInput): MarginResult {
     profit = roundTo(subtotal - cost, decimals);
     result.steps.push({
       label: "Margin on price",
-      detail: `₦${cost.toLocaleString()} ÷ (1 − ${marginPercent}%) = ₦${subtotal.toLocaleString()} price (margin on price: the percent applies to the PRICE), profit ₦${profit.toLocaleString()}.`,
+      detail: `${fmtAuto(cost)} ÷ (1 − ${marginPercent}%) = ${fmtAuto(subtotal)} price (margin on price: the percent applies to the PRICE), profit ${fmtAuto(profit)}.`,
     });
   }
 
@@ -170,14 +175,14 @@ export function calculateMargin(input: MarginInput): MarginResult {
       label: "VAT",
       detail:
         vatAmount > 0
-          ? `₦${subtotal.toLocaleString()} × ${vatRate}% = ₦${vatAmount.toLocaleString()} VAT (configured rate, never guessed).`
+          ? `${fmtAuto(subtotal)} × ${vatRate}% = ${fmtAuto(vatAmount)} VAT (configured rate, never guessed).`
           : `Configured VAT rate is 0%: no VAT line.`,
     });
   }
 
   result.steps.push({
     label: "Quote total",
-    detail: `₦${quoteTotal.toLocaleString()} (payable by the client).`,
+    detail: `${fmtAuto(quoteTotal)} (payable by the client).`,
   });
 
   result.ok = true;

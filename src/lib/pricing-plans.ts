@@ -6,6 +6,7 @@
 // =========================================================
 
 import type { SubscriptionPlan } from '@/lib/subscription';
+import { formatNGNForDisplay } from "@/lib/international/fx-display";
 
 export interface PricingPlan {
   id: SubscriptionPlan;
@@ -99,12 +100,9 @@ export const PRICING_PLANS: PricingPlan[] = [
 ];
 
 export function formatNaira(amount: number): string {
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+  // Central currency layer (fx-display): honours the visitor display
+  // currency; NGN renders exactly as before.
+  return formatNGNForDisplay(amount);
 }
 
 export function getPlanById(id: SubscriptionPlan): PricingPlan | undefined {

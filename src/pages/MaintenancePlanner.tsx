@@ -34,6 +34,7 @@ import {
 } from "@/lib/estimation/maintenance-engine";
 import type { MaintenanceProfile } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import { formatNGNForDisplay } from "@/lib/international/fx-display";
 
 export default function MaintenancePlanner({
   embedded = false,
@@ -174,13 +175,13 @@ export default function MaintenancePlanner({
     const rows = result.events
       .map(
         (e) =>
-          `<tr><td>${e.type.replace(/_/g, " ")}</td><td>${e.year_min === e.year_max ? `year ${e.year_min}` : `years ${e.year_min}–${e.year_max}`}</td><td>${e.date_min} → ${e.date_max}</td><td>${e.cost !== null ? `NGN ${e.cost.toLocaleString()}` : "N/A"}</td></tr>`,
+          `<tr><td>${e.type.replace(/_/g, " ")}</td><td>${e.year_min === e.year_max ? `year ${e.year_min}` : `years ${e.year_min}–${e.year_max}`}</td><td>${e.date_min} → ${e.date_max}</td><td>${e.cost !== null ? formatNGNForDisplay(e.cost) : "N/A"}</td></tr>`,
       )
       .join("");
     const miles = result.milestones
       .map(
         (m) =>
-          `<tr><td>Year ${m.year}</td><td>${m.cumulative_cost !== null ? `NGN ${m.cumulative_cost.toLocaleString()}` : "timing only"}</td><td>${m.events_included}</td></tr>`,
+          `<tr><td>Year ${m.year}</td><td>${m.cumulative_cost !== null ? formatNGNForDisplay(m.cumulative_cost) : "timing only"}</td><td>${m.events_included}</td></tr>`,
       )
       .join("");
 

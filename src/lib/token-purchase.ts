@@ -65,7 +65,12 @@ export interface TokenVerifyResult {
   error?: string;
 }
 
-/** Format kobo as a Naira string, e.g. 150000 → "₦1,500" */
+/**
+ * Format kobo as a Naira string, e.g. 150000 → "₦1,500".
+ * CHARGE-currency formatter: the actual gateway charge is always in
+ * Naira (Paystack), so this NEVER converts. Visitor-currency
+ * conversion lives in formatTokenPriceForDisplay (display layer).
+ */
 export function formatNaira(kobo: number): string {
   return `₦${(kobo / 100).toLocaleString("en-NG")}`;
 }

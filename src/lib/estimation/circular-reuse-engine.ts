@@ -17,6 +17,15 @@
  *    missing the verdict is omitted, not defaulted.
  */
 
+// Display formatting only (no engine logic): honours the visitor
+// display currency; NGN renders exactly as before.
+import { formatNGNForDisplay } from "@/lib/international/fx-display";
+
+// Engine-narrative formatting: honours the visitor display currency and
+// keeps trailing decimals (up to 2) so exact math values stay visible.
+const fmtAuto = (n: number) => formatNGNForDisplay(n, { decimals: "auto" });
+
+
 export interface MaterialReuseFactorInput {
   recovery_rate: number;
   reuse_fraction: number;
@@ -207,7 +216,7 @@ export function calculateCircularReuse(
     reuseValue = r(reused * unit_value_naira);
     steps.push({
       label: "Reuse value",
-      detail: `${r(reused)} × ₦${unit_value_naira} (configured reclaimed value per unit) = ₦${reuseValue.toLocaleString("en-NG")}.`,
+      detail: `${r(reused)} × ${fmtAuto(unit_value_naira)} (configured reclaimed value per unit) = ${fmtAuto(reuseValue)}.`,
     });
   }
 

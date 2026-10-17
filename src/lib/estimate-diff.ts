@@ -1,4 +1,9 @@
 import type { DbEstimateHistory } from "@/types/database";
+import { formatNGNForDisplay } from "@/lib/international/fx-display";
+
+// Engine-narrative formatting: honours the visitor display currency and
+// keeps trailing decimals (up to 2) so exact math values stay visible.
+const fmtAuto = (n: number) => formatNGNForDisplay(n, { decimals: "auto" });
 
 // =========================================================
 // Saved Estimate Diff (workspace item 6)
@@ -246,7 +251,9 @@ export function formatDiffValue(
   if (value === null || value === undefined || value === "") return "—";
   if (field.kind === "currency") {
     const n = numOrNull(value);
-    return n === null ? "—" : `₦${n.toLocaleString()}`;
+    // Central currency layer: honours the visitor's display currency,
+    // renders NGN unchanged when no conversion is active.
+    return n === null ? "—" : fmtAuto(n);
   }
   if (field.kind === "number") return String(value);
   const s = stableStringify(value);

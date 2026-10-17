@@ -20,9 +20,15 @@ import {
 } from "@/lib/estimation/price-forecast-engine";
 import type { EstimationCalcRule } from "@/types/estimation";
 import type { DbMaterialPriceHistory } from "@/types/database";
+import { formatNGNForDisplay } from "@/lib/international/fx-display";
 
-const money = (v: number) =>
-  `₦${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+// Engine-narrative formatting: honours the visitor display currency and
+// keeps trailing decimals (up to 2) so exact math values stay visible.
+const fmtAuto = (n: number) => formatNGNForDisplay(n, { decimals: "auto" });
+
+// Display goes through the central currency layer (DUP-08 / fx-display):
+// visitor display-currency conversion applies, NGN renders unchanged.
+const money = (v: number) => fmtAuto(v);
 
 export default function MaterialPriceForecast() {
   const [history, setHistory] = useState<DbMaterialPriceHistory[]>([]);
