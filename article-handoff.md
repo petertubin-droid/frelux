@@ -12,15 +12,24 @@ Total required articles = sum over markets of (verified wall-finishing titles ×
 
 All 32 markets have native wall-finishing profiles in the verified FRELUX catalog
 (`src/lib/wallfinishing/` + `knowledge-library.ts`). The verified candidate registry
-resolves to **140 titles** (86 wall systems + 54 finish assemblies):
+resolves to **140 titles** (86 wall systems + 54 finish assemblies).
 
-| Titles per market | Markets | Articles per market |
+**Research pass (2026-10-17)** added **195 researched candidate titles** covering
+real local typologies in every market (local decorative plasters, wet-area tiling,
+cladding, false ceilings, crack repair and repaint prep, traditional finishes,
+wallpaper where it is the local standard, and board-jointing chains missing from
+the verified catalog). Candidates are recorded in
+`src/lib/wallfinishing/researched-typologies.ts` with local terms and evidence
+URLs, and must pass editorial review (candidate -> verified) before entering the
+required five-article pipeline. See section 2b for the per-market lists.
+
+| Registry | Titles | Articles |
 |---|---|---|
-| 4 | 21 markets | 20 |
-| 5 | 10 markets | 25 |
-| 6 | 1 market (GB) | 30 |
+| Verified catalog (existing) | 140 | 700 |
+| Researched candidates (pending review) | 195 | 975 |
+| **Expanded library total** | **335** | **1,675** |
 
-**TOTAL: 140 titles × 5 articles = 700 articles.**
+**TOTAL: 335 titles × 5 articles = 1,675 articles.**
 
 Every title needs five genuinely distinct articles (no rewrites of the same text):
 1. Introduction and material fundamentals
@@ -212,14 +221,316 @@ document's counts must be updated in the same change.
 
 ---
 
+## 2b. Research pass 2026-10-17: researched typology candidates per market
+
+### NG Nigeria: 4 verified + 8 researched = 12 titles -> 60 articles
+
+- [ceiling] POP (plaster of Paris) false ceiling and cornices (local: POP) Ubiquitous interior ceiling system; established local practice, capture manufacturer/standard sources at drafting.
+- [board_system] Gypsum board partition with skim finish (local: drywall) Growing in urban residential and commercial fit-outs.
+- [cladding] Ceramic wall tile cladding for wet areas (local: wall tiles) Standard for bathrooms and kitchens.
+- [cladding] PVC and 3D decorative wall panels (local: 3D panels) [evidence: https://jiji.ng/53-3d-wall-panels] Active Lagos retail market confirmed.
+- [leveling] Screeding putty leveling application (local: screeding putty) Distinct from the full paint chain; leveling-only scope.
+- [paint] Gloss enamel finish for trim and doors (local: gloss) Oil-based trim finishes remain standard.
+- [exterior] Exterior textured acrylic coating over render (local: texture) Used on feature walls and facades.
+- [repair_prep] Crack repair and surface preparation for repainting Repaint prep chain distinct from new-build finishing.
+
+### US United States: 5 verified + 6 researched = 11 titles -> 55 articles
+
+- [board_system] Drywall levels of finish (Level 0-5) Reference: GA-214 recommended levels of gypsum board finish; confirm current edition at drafting.
+- [board_system] Veneer plaster skim over gypsum board (local: veneer plaster) Blue-board veneer systems; capture manufacturer sources at drafting.
+- [exterior] Exterior stucco and EIFS cladding Established cladding systems; ASTM references to confirm at drafting.
+- [wet_area] Ceramic tile for wet areas TCNA handbook references to confirm at drafting.
+- [repair_prep] Drywall repair and patching Patch/repair scope distinct from new finishing.
+- [decorative] Interior spray textures (orange peel, knockdown) Texture-only scope; established practice.
+
+### GB United Kingdom: 6 verified + 6 researched = 12 titles -> 60 articles
+
+- [leveling] Two-coat wet plaster (browning or hardwall plus multi-finish skim) (local: wet plaster) Traditional backing+skim; BS EN 998-1 references to confirm at drafting.
+- [traditional] Lime plaster and render for heritage solid walls Heritage sector standard practice; capture conservation guidance at drafting.
+- [board_system] Dot and dab plasterboard drylining over masonry Standard drylining method over blockwork.
+- [exterior] Through-colour silicone render systems (local: K-rend) Established modern facade render; capture manufacturer sources at drafting.
+- [wet_area] Wet room and bathroom tiling Wet-area tanking plus tile; established practice.
+- [repair_prep] Plaster crack and patch repair Repair scope distinct from new finishing.
+
+### CA Canada: 5 verified + 5 researched = 10 titles -> 50 articles
+
+- [board_system] Drywall levels of finish and taping standards Canadian taping/finishing levels; confirm references at drafting.
+- [exterior] Exterior stucco cladding Ubiquitous in Western Canada; confirm standards at drafting.
+- [wet_area] Ceramic tile for wet areas Standard wet-area finish.
+- [repair_prep] Drywall repair and patching Patch/repair scope.
+- [decorative] Stipple and textured ceiling finishes Common ceiling texture; includes stipple repair/removal context.
+
+### AU Australia: 5 verified + 6 researched = 11 titles -> 55 articles
+
+- [leveling] Solid plastering (render, set and skim coats) (local: solid plaster) Traditional trade over masonry; capture AS references at drafting.
+- [exterior] Exterior acrylic texture coat over render Standard painted-render facade system.
+- [wet_area] Ceramic tile for wet areas AS 3958.1 references to confirm at drafting.
+- [repair_prep] Plasterboard repair and patching Patch/repair scope.
+- [ceiling] Cornice installation and finishing Standard cornice trade scope.
+- [wallpaper] Wallpaper hanging and removal Active trade; established practice.
+
+### DE Germany: 5 verified + 6 researched = 11 titles -> 55 articles
+
+- [traditional] Kalkputz (lime interior render) (local: Kalkputz) Established interior lime render; DIN 18550 references to confirm at drafting.
+- [decorative] Filzputz and Spachtelputz decorative renders Felt and spatula texture renders; established product category.
+- [wet_area] Fliesen for wet rooms (local: Fliesen) Standard wet-room tile.
+- [repair_prep] Rissinstandsetzung (crack repair and injection) Systematic crack repair trade; established practice.
+- [exterior] WDVS exterior insulation with Oberputz ETICS plus top render; established facade system.
+- [cladding] Wood panelling and timber interior cladding (local: Holzverkleidung) Traditional and modern interior timber finishes.
+
+### IN India: 5 verified + 8 researched = 13 titles -> 65 articles
+
+- [ceiling] POP false ceiling and cornices (local: POP) [evidence: https://www.birlawhite.com/en/media/blogs/which-one-is-better-pop-or-wall-putty] POP vs putty use confirmed by manufacturer content.
+- [leveling] White cement wall putty leveling application (local: wall putty) [evidence: https://www.birlawhite.com/en/media/blogs/how-to-make-use-of-wall-putty-to-beautify-your-home] Birla White wall putty is the dominant leveling product.
+- [board_system] Gypsum board drywall partition finishing Growing urban drywall use; capture sources at drafting.
+- [decorative] Interior texture paint and stucco finishes (local: texture paint) Feature-wall finishes; established retail category.
+- [cladding] Ceramic wall tile cladding for wet areas Standard wet-area finish.
+- [cladding] PVC and HPL wall panelling (local: wall panels) Growing modular panelling market.
+- [repair_prep] Crack repair and waterproofing preparation Includes seepage-driven repaint prep; established practice.
+- [paint] Enamel finish for trim and doors (local: enamel) Standard trim finish.
+
+### GH Ghana: 4 verified + 8 researched = 12 titles -> 60 articles
+
+- [ceiling] POP false ceiling and cornices (local: POP) Established local practice; capture sources at drafting.
+- [board_system] Gypsum board partition with skim finish Common in Accra residential and commercial fit-outs.
+- [cladding] Ceramic wall tile cladding for wet areas Standard wet-area finish.
+- [cladding] PVC and 3D decorative wall panels Retail market active; capture sources at drafting.
+- [leveling] Gypsum putty leveling application (local: putty) Leveling-only scope.
+- [paint] Gloss enamel finish for trim and doors Established practice.
+- [exterior] Exterior textured coating over render Established practice.
+- [repair_prep] Crack repair and surface preparation for repainting Repaint prep chain.
+
+### KE Kenya: 4 verified + 8 researched = 12 titles -> 60 articles
+
+- [ceiling] POP and gypsum board false ceiling with cornices (local: POP ceiling) Standard in Nairobi residential finishing.
+- [board_system] Gypsum board partition with skim finish Growing with Knauf East Africa supply.
+- [cladding] Ceramic wall tile cladding for wet areas Standard wet-area finish.
+- [cladding] PVC and 3D decorative wall panels Retail market active.
+- [leveling] Wall putty leveling application (local: putty) Leveling-only scope.
+- [paint] Gloss enamel finish for trim and doors Established practice.
+- [exterior] Exterior textured coating over render Established practice.
+- [repair_prep] Crack repair and surface preparation for repainting Repaint prep chain.
+
+### ZA South Africa: 4 verified + 7 researched = 11 titles -> 55 articles
+
+- [ceiling] RhinoLite skimmed ceilings and cornices (local: RhinoLite) [evidence: https://www.gyproc.co.za/news/comprehensive-guide-using-gypsum-plaster] Gyproc RhinoLite range confirmed (Multipurpose, Natural Plus, CreteStone).
+- [repair_prep] Plaster crack repair and reinstatement [evidence: https://plasterer.co.za/rhinolite-plastering/] Crack repair part of standard skim trade scope.
+- [cladding] Ceramic wall tile cladding for wet areas Standard wet-area finish.
+- [board_system] Drywall tape and joint finishing Finishing chain for metal-stud drywall (assembly does not exist yet in catalog).
+- [exterior] Exterior roughcast and texture coat Common facade finish over render.
+- [ceiling] Suspended T-grid ceiling installation Commercial and residential suspended ceilings.
+- [repair_prep] Preparation and repaint of previously painted walls Repaint prep chain.
+
+### JP Japan: 4 verified + 5 researched = 9 titles -> 45 articles
+
+- [wallpaper] Kabekami kurosu hari (wallpaper over gypsum board) (local: kurosu) [evidence: https://miyagawa38.com/column/388.html] Wallpaper is the dominant Japanese interior finish over gypsum board.
+- [board_system] Binilon board lining (local: vinylon) Vinylon cement board for wet and impact areas.
+- [traditional] Shikkui and nuri-kabe traditional plaster finishes (local: shikkui) Lime and earth plasters; heritage and modern reinterpretations.
+- [cladding] Kabe tile cladding (local: tile) Exterior tiling over ALC/mortar substrates.
+- [repair_prep] Pate board repair and repapering preparation (local: pate) [evidence: https://e-sumaile.net/word/interior-putty] Putty and substrate prep before papering.
+
+### FR France: 4 verified + 5 researched = 9 titles -> 45 articles
+
+- [cladding] Carrelage mural interieur (local: carrelage) Standard wall tile; capture CPT and DTU 52 sources at drafting.
+- [board_system] Cloison seche BA13: bande, enduit et peinture Drywall finishing chain (jointing assembly does not exist yet for FR).
+- [decorative] Stuc decoratif (effet beton, tadelakt, enduits de finition) (local: stuc) Growing decorative plaster category.
+- [repair_prep] Traitement des fissures avant peinture Fissure repair plus calicot; established practice.
+- [ceiling] Staff, moulures et corniches en platre (local: staff) Plaster cornices and mouldings; heritage and modern.
+
+### BR Brazil: 4 verified + 7 researched = 11 titles -> 55 articles
+
+- [board_system] Gesso acartonado finishing (fita e massa) (local: gesso acartonado) Drywall finishing chain; capture NBR 13215/ABNT references at drafting.
+- [decorative] Textura acrilica decorative finish (local: textura) Established decorative category.
+- [cladding] Azulejo and porcelanato wall cladding (local: azulejo) Extremely common wall finish.
+- [cladding] PVC wall panels (roletes) Retail panelling category.
+- [leveling] Massa corrida smoothing application (local: massa corrida) Leveling-only scope distinct from the paint chain.
+- [repair_prep] Reparo de trincas e prep para pintura Repaint prep chain.
+- [wet_area] Impermeabilizacao e revestimento de areas molhadas (local: impermeabilizacao) Waterproofing plus render/tile in wet areas.
+
+### SA Saudi Arabia: 4 verified + 5 researched = 9 titles -> 45 articles
+
+- [board_system] Gypsum board skim finishing (partition assembly) Board plus skim chain for partitions (assembly missing from catalog).
+- [cladding] Ceramic and porcelain tile cladding Standard wet-area and feature-wall finish.
+- [exterior] Exterior decorative stucco render Facade texture render; established practice.
+- [repair_prep] Crack repair in gypsum and cement finishes Repaint prep chain.
+- [cladding] Natural stone and marble wall cladding (local: marble) Common premium feature-wall finish.
+
+### AE United Arab Emirates: 4 verified + 5 researched = 9 titles -> 45 articles
+
+- [board_system] Gypsum board skim finishing (partition assembly) Board plus skim chain for partitions (assembly missing from catalog).
+- [cladding] Porcelain and ceramic tile cladding Standard wet-area and feature-wall finish.
+- [exterior] Exterior texture and spatter-dash render Facade texture build-up; established practice.
+- [repair_prep] Crack repair in gypsum and cement finishes Repaint prep chain.
+- [decorative] Acoustic wall panel systems Commercial fit-out category.
+
+### CN China: 4 verified + 7 researched = 11 titles -> 55 articles
+
+- [decorative] Guizao ni (diatom mud decorative finish) (local: guizao ni) [evidence: https://m.fang.com/news/wf/12188_27070488.html] Mainstream interior decorative material alongside latex paint and wallpaper.
+- [wallpaper] Bizhi and qiangbu (wallpaper and fabric wall finishes) (local: bizhi) [evidence: https://www.sohu.com/a/238072618_628288] Major interior finish category.
+- [ceiling] Gypsum board ceiling with joint treatment (local: shigao ban diaoding) Standard residential false ceiling system.
+- [cladding] Qiangzhuan (wall tile cladding) (local: qiangzhuan) Standard wet-area tile.
+- [decorative] Jili qi and yishu qi (texture and art paints) (local: jili qi) Growing art-paint category.
+- [cladding] Jicheng qiangban (integrated WPC wall panels) (local: jicheng qiangban) Fast-growing modular panelling category.
+- [repair_prep] Crack repair and substrate preparation (kailie xiufu) (local: kailie xiufu) Substrate prep before putty and repaint.
+
+### ID Indonesia: 4 verified + 5 researched = 9 titles -> 45 articles
+
+- [leveling] Plamir smoothing application (local: plamir) [evidence: https://www.indosteger.co.id/berita/detail/perbedaan-acian-dan-plamir] Plamir (gypsum-based putty) distinct from cement acian confirmed.
+- [board_system] Gypsum board plafon and partition with compound finishing (local: gypsum plafon) [evidence: https://ibb.jatimprov.go.id/page/artikel/RkpxOUw3ZHpzSTdCNmdYdFlzNU5ldz09] Plafon finishing products confirmed (Top Mortar plamir instan).
+- [cladding] Keramik and granite wall cladding (local: keramik) Standard wet-area tile.
+- [cladding] PVC wall panels Large retail category.
+- [repair_prep] Perbaikan retak dan persiapan pengecatan ulang Repaint prep chain.
+
+### MX Mexico: 4 verified + 7 researched = 11 titles -> 55 articles
+
+- [leveling] Pasta fina interior smoothing finish (local: pasta fina) [evidence: https://www.tiktok.com/@oropesarq/video/7500615869094202632] Resin-cement-lime fine paste confirmed; capture technical sources at drafting.
+- [decorative] Pasta veneciana and estuco veneciano (local: pasta veneciana) Marble-look decorative finish; established category.
+- [traditional] Pasta de chukum (regional Mayan finish) (local: chukum) Regional Yucatan finish; verify scope and usage during review.
+- [board_system] Tablaroca with estuco joint finishing (local: tablaroca) Drywall finishing chain.
+- [cladding] Azulejo wall tile cladding (local: azulejo) Standard wet-area tile.
+- [cladding] PVC marble-look wall panels Retail panels confirmed; capture technical sources at drafting.
+- [repair_prep] Reparacion de grietas en repello Crack repair in rendered walls.
+
+### KR South Korea: 4 verified + 5 researched = 9 titles -> 45 articles
+
+- [wallpaper] Dobae and byeokji (wallpaper finishing) (local: dobae) [evidence: https://karipaint.com/why-do-korean-apartments-use-so-much-wallpaper-%ED%95%9C%EA%B5%AD-%EC%95%84%ED%8C%8C%ED%8A%B8%EB%8A%94-%EC%99%9C-%EB%8F%84%EB%B0%B0%EA%B0%80-%EB%A7%8E%EC%9D%84%EA%B9%8C%EC%9A%94/] Wallpaper is the standard Korean apartment wall finish.
+- [leveling] Mortar mijang (cement mortar finishing) (local: mijang) Mortar smoothing over concrete; established practice.
+- [cladding] Wall tile cladding (local: tile) Wet-area tile standard.
+- [decorative] Interior film (fildeureom) surface renewal (local: interior film) Popular retrofit finish; established retail category.
+- [repair_prep] Crack repair and repainting preparation Repaint prep chain.
+
+### IT Italy: 4 verified + 6 researched = 10 titles -> 50 articles
+
+- [traditional] Grassello di calce (heritage lime finish) (local: grassello) Herage lime finishing; capture norms (UNI 11437 context) at drafting.
+- [decorative] Stucco veneziano and marmorino Established decorative plaster category.
+- [wet_area] Piastrelle e porcellanato per bagni (local: piastrelle) Standard wet-area tile.
+- [exterior] Cappotto termico con rasatura ETICS plus skim; established facade system.
+- [repair_prep] Restauro intonaci e riparazione fessure Plaster restoration and crack repair.
+- [ceiling] Controsoffitto in cartongesso False ceilings in plasterboard; established practice.
+
+### ET Ethiopia: 4 verified + 8 researched = 12 titles -> 60 articles
+
+- [board_system] Gypsum board ceiling and partition finishing (local: gypsum board) [evidence: https://www.tiktok.com/@modernfinishing2026/video/7660145125577805077] Market evidence is social-media trade content; capture authoritative supplier sources at drafting.
+- [leveling] Gypsum putty leveling application (local: putty) Interior leveling before emulsion.
+- [cladding] Ceramic wall tile cladding for wet areas Standard in urban apartments.
+- [traditional] Chika traditional mud plaster finish (local: chika) Traditional mud-and-straw plaster; verify applicability and current usage during review.
+- [exterior] Exterior textured coating over render Established practice.
+- [paint] Gloss enamel finish for trim and doors Established practice.
+- [repair_prep] Crack repair and surface preparation for repainting Repaint prep chain.
+- [cladding] PVC and 3D decorative wall panels Urban retail market active.
+
+### EG Egypt: 4 verified + 6 researched = 10 titles -> 50 articles
+
+- [cladding] Ceramic wall tile cladding for wet areas (local: sarmouk/ceramic) Ubiquitous in Egyptian apartments; capture sources at drafting.
+- [ceiling] Gypsum board false ceilings and partitions (local: gypsum board) Growing interior fit-out system.
+- [exterior] Exterior textured plastic paint over render (local: plastic paint) Common facade finish.
+- [paint] Gloss enamel finish for trim and doors Established practice.
+- [repair_prep] Crack repair and surface preparation for repainting Repaint prep chain.
+- [cladding] Interior stone and marble cladding (local: marble) Common feature-wall finish; capture sources at drafting.
+
+### TZ Tanzania: 4 verified + 8 researched = 12 titles -> 60 articles
+
+- [board_system] Gypsum board ceiling and partition finishing (local: gypsum board) [evidence: https://www.magicbuilders.co.tz/] Local board/putty supply chain confirmed (BBG, Knauf, Magic Builders).
+- [leveling] Putty powder leveling application (local: putty powder) [evidence: https://jakonda.co.tz/finishes] Local putty brands confirmed (BBG, Yapfix, white skim putty).
+- [cladding] Ceramic wall tile cladding for wet areas Standard wet-area finish.
+- [cladding] PVC and 3D decorative wall panels Retail market active.
+- [ceiling] Gypsum cornice and ceiling mouldings Common decorative ceiling detail.
+- [exterior] Exterior textured coating over render Established practice.
+- [paint] Gloss enamel finish for trim and doors Established practice.
+- [repair_prep] Crack repair and surface preparation for repainting Repaint prep chain.
+
+### CI Côte d'Ivoire: 4 verified + 6 researched = 10 titles -> 50 articles
+
+- [board_system] Habillage en plaques de platre (cloisons et plafonds) (local: placo) [evidence: http://www.cote-d-ivoire.prix-construction.info/construction_neuve/Amenagements_et_finitions/Doublages/Habillages_en_plaques_de_platre/FDH010_Systeme_d_habillage__PLACO___en_plaques.html] Placoplatre systems priced locally in Abidjan.
+- [cladding] Carrelage mural pour pieces humides (local: carrelage) [evidence: http://www.cote-d-ivoire.prix-construction.info/renovation/Amenagements_et_finitions/Revetements_de_murs/Carrelage/FMC040_Carrelage_sur_surface_support_inter.html] Wall tile priced locally (faience 20x20 and large format).
+- [leveling] Enduit de finition glace (nivellation interieure) (local: enduit de finition) Fine finishing coat before paint.
+- [exterior] Crepi textile exterieur sur enduit (local: crepi) Facade texture finish.
+- [paint] Peinture email pour boiseries (local: peinture email) Trim enamel finish.
+- [repair_prep] Reparation de fissures avant repinture (local: reparation fissures) Repaint prep chain.
+
+### ES Spain: 5 verified + 6 researched = 11 titles -> 55 articles
+
+- [cladding] Azulejo y porcelanico para humedades (local: azulejo) Standard wall tile; UNE references to confirm at drafting.
+- [decorative] Estuco veneciano y pasta de marmol Established decorative plaster category.
+- [traditional] Yeso tradicional y esgrafiado Heritage gypsum finishes; verify regional applicability during review.
+- [paint] Pintura de cal para muros (local: pintura de cal) Lime paint for heritage and healthy-building use.
+- [ceiling] Techos de pladur (falsos techos) False ceilings with plasterboard; established practice.
+- [repair_prep] Reparacion de grietas y preparacion para repintar Repaint prep chain.
+
+### NL Netherlands: 5 verified + 4 researched = 9 titles -> 45 articles
+
+- [decorative] Sierpleister (decorative plaster) Established decorative plaster category.
+- [wet_area] Wandtegel voor natte ruimten (local: wandtegel) Standard wet-room tile.
+- [paint] Kalkverf en kalkverfzalf (local: kalkverf) Lime paint for heritage interiors.
+- [repair_prep] Reparatiepleister en scheurherstel Crack repair trade scope.
+
+### PL Poland: 4 verified + 5 researched = 9 titles -> 45 articles
+
+- [leveling] Gladz gipsowa (gypsum smoothing coat) (local: gladz gipsowa) Dominant interior smoothing method; PN-EN 998-1 references to confirm at drafting.
+- [decorative] Tynki dekoracyjne (decorative plasters) Established decorative category.
+- [cladding] Plytki ceramiczne na sciany (local: plytki) Standard wall tile.
+- [board_system] G-K zabudowa: spoinowanie i szpachlowanie Drywall finishing chain (jointing assembly does not exist yet for PL).
+- [repair_prep] Naprawa pekniec i przygotowanie do malowania Repaint prep chain.
+
+### SE Sweden: 4 verified + 5 researched = 9 titles -> 45 articles
+
+- [leveling] Gipsputs for inner tak och vagg (interior fine plaster) (local: gipsputs) Interior skim plaster; established practice.
+- [wet_area] Vatrumskakel (wet room tiling) (local: vatrum) Regulated wet-room build-up (board, sealing layer, tile); capture Boverket/BBR and industry rules at drafting.
+- [board_system] Fog och spackel for gipsplank Drywall jointing chain.
+- [repair_prep] Sprickreparation och omalningsforberedelse Crack repair scope.
+- [wallpaper] Tapetsering (wallpaper hanging) (local: tapetsering) Common interior finishing method.
+
+### CH Switzerland: 5 verified + 5 researched = 10 titles -> 50 articles
+
+- [traditional] Kalkputz mit Kaseinfarbe (lime render and casein paint) Heritage finishing combination; SIA references to confirm at drafting.
+- [board_system] Gipsplatten mit Gipsspachtel (board jointing) Drywall jointing chain.
+- [wet_area] Fliesen fuer Nassraeume (local: Fliesen) Standard wet-room tile.
+- [repair_prep] Rissanierung (crack rehabilitation) Systematic crack repair practice.
+- [decorative] Sierputz (decorative render) Established decorative category.
+
+### SG Singapore: 5 verified + 6 researched = 11 titles -> 55 articles
+
+- [leveling] HDB skim coat and putty plastering (local: skim coat) [evidence: https://dkconstructionandengineering.com/our-services/plastering-works] Cement plaster and skim to level HDB walls before painting.
+- [ceiling] Gypsum board false ceiling and L-box finishing Standard residential false ceiling system.
+- [cladding] Homogeneous and porcelain wall tiles Standard wet-area and facade tile.
+- [wet_area] Waterproofing and wet-area tiling Sealing plus tile build-up; established practice.
+- [repair_prep] Spalling concrete repair (local: spalling) HDB-specific concrete ceiling and wall repair scope.
+- [wallpaper] Wallpaper hanging Common condo and commercial finish.
+
+### TR Türkiye: 5 verified + 6 researched = 11 titles -> 55 articles
+
+- [leveling] Saten alci (satin gypsum interior finish) (local: saten alci) [evidence: https://www.yapikatalogu.com/blog/saten-alci-nedir-ozellikleri_524] The standard Turkish interior wall finish.
+- [board_system] Alcipan derz and saten finishing (local: alcipan) [evidence: https://dalsan.com.tr/Belgeler] Board jointing plus satin gypsum; Dalsan product range confirmed.
+- [cladding] Seramik karo wall cladding (local: seramik karo) Standard wet-area tile.
+- [exterior] Mantolama with mineral siva (ETICS facade) Standard insulated facade render system.
+- [decorative] Venezien siva (Venetian plaster) Established decorative category.
+- [repair_prep] Catlak onarimi ve yeniden boyama hazirligi Repaint prep chain.
+
+### NZ New Zealand: 4 verified + 5 researched = 9 titles -> 45 articles
+
+- [board_system] GIB stopping and finishing levels (local: stopping) GIB stopping levels are the local standard; capture Winstone/manufacturer sources at drafting.
+- [leveling] Solid plaster (cement render and skim) Traditional solid plaster trade.
+- [wet_area] Wet-area linings (villaboard and tile) (local: villaboard) Villaboard plus tile is the standard wet-area chain.
+- [repair_prep] Plasterboard repair and patching Patch/repair scope.
+- [cladding] Ceramic wall tile cladding Standard wet-area finish.
+
+
+---
+
 ## 3. Completion tracking
 
-| Market | Titles | Required articles | Drafted | Reviewed | Approved | Published |
+| Market | Titles (verified + researched) | Required articles | Drafted | Reviewed | Approved | Published |
 |---|---|---|---|---|---|---|
-| US | 5 | 25 | 5 (timber-stud drywall topic) | 0 | 0 | 0 |
-| all other 31 | 4–6 | 20–30 each | 0 | 0 | 0 | 0 |
+| US | 5 + 6 = 11 | 55 | 5 (timber-stud drywall topic) | 0 | 0 | 0 |
+| all other 31 | 4–6 + 4–8 each | 45–65 each | 0 | 0 | 0 | 0 |
 
-- **Drafted to date: 5 / 700** (US timber-stud drywall, five editorial themes, seeded as `draft` / editorial_review_status `draft`, market='US').
+Per-market required-article totals after the research pass: NG 60, US 55, GB 60, CA 50,
+AU 55, DE 55, IN 65, GH 60, KE 60, ZA 55, JP 45, FR 45, BR 55, SA 45, AE 45, CN 55,
+ID 45, MX 55, KR 45, IT 50, ET 60, EG 50, TZ 60, CI 50, ES 55, NL 45, PL 45, SE 45,
+CH 50, SG 55, TR 55, NZ 45. Sum = 1,675. 0 |
+
+- **Drafted to date: 5 / 1,675** (US timber-stud drywall, five editorial themes, seeded as `draft` / editorial_review_status `draft`, market='US').
+- **Researched candidates: 195 titles awaiting editorial review** (see section 2b); they enter the 1,675 total only after verification. The verified-catalog baseline of 700 articles stands regardless.
 - **Published to date: 0.** Nothing may publish without real technical review (DB CHECK constraint enforces reviewer identity on every approval transition).
 - 34 manually inserted Learn articles (Oct 9–10) are part of the general Learn hub, not this wall-finishing library, and are not counted here.
 
@@ -235,37 +546,38 @@ document's counts must be updated in the same change.
 ## 5. Write order (resumable batches)
 
 Process markets in the registry order below, one topic at a time, five articles per
-topic, before moving on. Record progress in section 3 after every batch.
+topic, before moving on. Record progress in section 3 after every batch. Counts below
+are the expanded registry (verified catalog + researched candidates once reviewed):
 
-1. NG — 4 titles — 20 articles
-2. US — 5 titles — 25 articles (1 topic already drafted)
-3. GB — 6 titles — 30 articles
-4. CA — 5 titles — 25
-5. AU — 5 — 25
-6. DE — 5 — 25
-7. IN — 5 — 25
-8. GH — 4 — 20
-9. KE — 4 — 20
-10. ZA — 4 — 20
-11. JP — 4 — 20
-12. FR — 4 — 20
-13. BR — 4 — 20
-14. SA — 4 — 20
-15. AE — 4 — 20
-16. CN — 4 — 20
-17. ID — 4 — 20
-18. MX — 4 — 20
-19. KR — 4 — 20
-20. IT — 4 — 20
-21. ET — 4 — 20
-22. EG — 4 — 20
-23. TZ — 4 — 20
-24. CI — 4 — 20
-25. ES — 5 — 25
-26. NL — 5 — 25
-27. PL — 4 — 20
-28. SE — 4 — 20
-29. CH — 5 — 25
-30. SG — 5 — 25
-31. TR — 5 — 25
-32. NZ — 4 — 20
+1. NG — 12 titles — 60 articles
+2. US — 11 titles — 55 (1 topic already drafted)
+3. GB — 12 — 60
+4. CA — 10 — 50
+5. AU — 11 — 55
+6. DE — 11 — 55
+7. IN — 13 — 65
+8. GH — 12 — 60
+9. KE — 12 — 60
+10. ZA — 11 — 55
+11. JP — 9 — 45
+12. FR — 9 — 45
+13. BR — 11 — 55
+14. SA — 9 — 45
+15. AE — 9 — 45
+16. CN — 11 — 55
+17. ID — 9 — 45
+18. MX — 11 — 55
+19. KR — 9 — 45
+20. IT — 10 — 50
+21. ET — 12 — 60
+22. EG — 10 — 50
+23. TZ — 12 — 60
+24. CI — 10 — 50
+25. ES — 11 — 55
+26. NL — 9 — 45
+27. PL — 9 — 45
+28. SE — 9 — 45
+29. CH — 10 — 50
+30. SG — 11 — 55
+31. TR — 11 — 55
+32. NZ — 9 — 45
