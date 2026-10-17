@@ -27,6 +27,11 @@ const SITE_URL = "https://freluxtools.netlify.app";
 const ARTICLES_PER_PAGE = 20;
 
 /** Static site routes kept in parity with the previous static sitemap. */
+// NOTE: legacy calculator slugs (cost-estimator, painting-estimator, screeding-cost-estimator,
+// pop-ceiling-cost-estimator, tile-cost-estimator, tyrolene-estimator) are intentionally NOT
+// listed here: netlify.toml 301-redirects them to the consolidated calculator routes, and a
+// sitemap must only contain canonical 200 URLs. Listing them made Google flag 240 sitemap
+// URLs with 6 redirects.
 const STATIC_PATHS = [
   "/",
   "/calculators/",
@@ -36,13 +41,9 @@ const STATIC_PATHS = [
   "/start-building/",
   "/paint-calculator/",
   "/screeding-calculator/",
-  "/screeding-cost-estimator/",
   "/pop-ceiling-calculator/",
-  "/pop-ceiling-cost-estimator/",
   "/tile-calculator/",
-  "/tile-cost-estimator/",
   "/finish-estimator/",
-  "/painting-estimator/",
   "/colors/",
   "/colors/compare/",
   "/ai-color-assistant/",
@@ -83,7 +84,6 @@ const STATIC_PATHS = [
   "/cash-flow-timeline/",
   "/circular-reuse/",
   "/contractor-credit/",
-  "/cost-estimator/",
   "/defect-diagnosis/",
   "/estimate-refresh/",
   "/heat-comfort/",
@@ -91,7 +91,6 @@ const STATIC_PATHS = [
   "/maintenance-planner/",
   "/margin-calculator/",
   "/regional-cost-index/",
-  "/tyrolene-estimator/",
   "/warranty-certificate/",
   "/carbon-footprint/",
   "/brand-studio/",
