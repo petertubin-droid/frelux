@@ -528,7 +528,7 @@ document's counts must be updated in the same change.
 | Market | Titles (verified + researched) | Required articles | Drafted | Reviewed | Approved | Published |
 |---|---|---|---|---|---|---|
 | NG | 12 | 60 | 60 | 60 | n/a (pre-review pipeline) | 60 (already live in Learn hub) |
-| US | 5 + 6 = 11 | 55 | 25 (ALL 5 verified titles complete) | 0 | 0 | 0 |
+| US | 5 + 6 = 11 | 55 | 30 (5 verified topics + 1 researched candidate: drywall-finish-levels) | 0 | 0 | 0 |
 | other 30 | 4–6 + 4–8 each | 45–65 each | 0 | 0 | 0 | 0 |
 
 Per-market required-article totals after the research pass (NG excluded as complete):
@@ -536,7 +536,7 @@ US 55, GB 60, CA 50, AU 55, DE 55, IN 65, GH 60, KE 60, ZA 55, JP 45, FR 45, BR 
 SA 45, AE 45, CN 55, ID 45, MX 55, KR 45, IT 50, ET 60, EG 50, TZ 60, CI 50, ES 55,
 NL 45, PL 45, SE 45, CH 50, SG 55, TR 55, NZ 45. Remaining sum = 1,615. 0 |
 
-- **Drafted to date: 25 / 1,615** remaining (all five US verified catalog topics complete: timber-stud drywall, steel-stud drywall, masonry-veneer, interior drywall-paint, exterior masonry-paint; five editorial themes each, seeded as `draft` / editorial_review_status `draft`, market='US'). Nigeria is complete and excluded from the queue. Next: US researched candidates, then GB.
+- **Drafted to date: 30 / 1,615** remaining (US: all five verified catalog topics complete PLUS the first researched candidate, `assembly:us-drywall-finish-levels`, seeded 2026-10-17 as verification_status `candidate` in the topics table (schema requires an authenticated admin to promote to `verified` via the admin console); its five articles are `draft` / editorial_review_status `draft`, market='US'). Nigeria is complete and excluded from the queue. Next: remaining 5 US researched candidates, then GB.
 - **Researched candidates: 195 titles awaiting editorial review** (see section 2b); they enter the 1,675 total only after verification. The verified-catalog baseline of 700 articles stands regardless.
 - **Published to date: 0.** Nothing may publish without real technical review (DB CHECK constraint enforces reviewer identity on every approval transition).
 - 34 manually inserted Learn articles (Oct 9–10) are part of the general Learn hub, not this wall-finishing library, and are not counted here.
