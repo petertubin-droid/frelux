@@ -18,6 +18,12 @@ vi.mock("@/lib/analytics", () => ({
   logAnalyticsEvent: vi.fn(),
 }));
 
+const useMarketMock = vi.fn();
+vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
+  useMarket: () => useMarketMock(),
+}));
+
 // Capture every AdSlot render so tests can assert policy-relevant props
 // (ad blocks must never be hidden-labeled).
 const adSlotRenders: Array<{ slotKey: string; hideLabel?: boolean }> = [];
@@ -75,6 +81,7 @@ const article = {
   status: "published",
   is_featured: false,
   reading_time_minutes: 5,
+  market: "NG",
   published_at: "2026-08-28T09:22:05.000Z",
   cover_url: null,
   seo_title: "Test Article",
@@ -101,11 +108,25 @@ function makeBuilder(resultFor: (calls: Call[]) => unknown) {
 
 vi.mock("@/lib/supabase", () => {
   const supabase = {
+    __marketFilters: [] as string[][],
+    __eqMarketArgs: [] as string[],
     from: vi.fn((table: string) =>
       makeBuilder((calls) => {
         const isSingle = calls.some(
           (c) => c.method === "maybeSingle" || c.method === "single",
         );
+        if (table === "learn_articles") {
+          const marketIn = calls.find(
+            (c) => c.method === "in" && c.args[0] === "market",
+          );
+          if (marketIn)
+            supabase.__marketFilters.push(marketIn.args[1] as string[]);
+          const marketEq = calls.find(
+            (c) => c.method === "eq" && c.args[0] === "market",
+          );
+          if (marketEq)
+            supabase.__eqMarketArgs.push(String(marketEq.args[1]));
+        }
         if (table === "learn_articles" && isSingle) {
           return { data: article, error: null };
         }
@@ -140,9 +161,19 @@ vi.mock("@/lib/supabase", () => {
   return { supabase };
 });
 
+import { supabase } from "@/lib/supabase";
+
 beforeEach(() => {
   vi.clearAllMocks();
   adSlotRenders.length = 0;
+  (
+    supabase as unknown as { __marketFilters: string[][] }
+  ).__marketFilters = [];
+  (supabase as unknown as { __eqMarketArgs: string[] }).__eqMarketArgs = [];
+  useMarketMock.mockReturnValue({
+    market: { countryName: "Nigeria" },
+    marketCode: "NG",
+  });
 });
 
 async function renderArticle() {
@@ -215,5 +246,37 @@ describe("LearnArticle", () => {
       "learn_in_article",
       "learn_article_bottom",
     ]);
+  });
+});
+
+describe("LearnArticle market scoping", () => {
+  beforeEach(() => {
+    useMarketMock.mockReturnValue({
+      market: { countryName: "United States" },
+      marketCode: "US",
+    });
+  });
+
+  it("scopes related and recent listings to the visitor's market plus GLOBAL", async () => {
+    await renderArticle();
+    await waitFor(() => {
+      const filters = (
+        supabase as unknown as { __marketFilters: string[][] }
+      ).__marketFilters;
+      expect(filters.length).toBeGreaterThan(0);
+      for (const codes of filters) {
+        expect(codes).toEqual(["US", "GLOBAL"]);
+      }
+    });
+  });
+
+  it("keeps prev/next navigation inside the article's own market", async () => {
+    await renderArticle();
+    await waitFor(() => {
+      expect(
+        (supabase as unknown as { __eqMarketArgs: string[] })
+          .__eqMarketArgs,
+      ).toEqual(["NG", "NG"]);
+    });
   });
 });

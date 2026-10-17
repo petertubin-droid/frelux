@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
+import { useLearnMarketScope } from "@/lib/learn-scope";
 import type {
   DbLearnArticle,
   DbLearnArticleFaq,
@@ -28,6 +29,7 @@ import { Button } from "@/components/ui/shadcn/button";
 type Status = "loading" | "ready" | "error" | "notfound";
 
 export default function LearnArticle() {
+  const scope = useLearnMarketScope();
   const { articleSlug } = useParams<{ articleSlug: string }>();
 
   const [article, setArticle] = useState<DbLearnArticle | null>(null);
@@ -156,6 +158,7 @@ export default function LearnArticle() {
 
       const currentId = art.id;
       const currentCategory = art.category_slug;
+      const currentMarket = art.market ?? "NG";
       const currentPublishedAt = art.published_at ?? art.created_at;
 
       const [relatedRes, recentRes, prevRes, nextRes, faqRes, insertRes] =
@@ -164,6 +167,7 @@ export default function LearnArticle() {
             .from("learn_articles")
             .select("*")
             .eq("status", "published")
+            .in("market", scope.visibleMarkets)
             .eq("category_slug", currentCategory)
             .neq("id", currentId)
             .order("published_at", { ascending: false })
@@ -172,6 +176,7 @@ export default function LearnArticle() {
             .from("learn_articles")
             .select("*")
             .eq("status", "published")
+            .in("market", scope.visibleMarkets)
             .neq("id", currentId)
             .order("published_at", { ascending: false })
             .limit(4),
@@ -179,6 +184,7 @@ export default function LearnArticle() {
             .from("learn_articles")
             .select("*")
             .eq("status", "published")
+            .eq("market", currentMarket)
             .lt("published_at", currentPublishedAt)
             .order("published_at", { ascending: false })
             .limit(1),
@@ -186,6 +192,7 @@ export default function LearnArticle() {
             .from("learn_articles")
             .select("*")
             .eq("status", "published")
+            .eq("market", currentMarket)
             .gt("published_at", currentPublishedAt)
             .order("published_at", { ascending: true })
             .limit(1),
@@ -214,7 +221,8 @@ export default function LearnArticle() {
       }
     }
     load();
-  }, [articleSlug]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [articleSlug, scope.marketCode]);
 
   // Reading progress + active heading tracking
   useEffect(() => {

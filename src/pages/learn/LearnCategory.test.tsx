@@ -18,6 +18,12 @@ vi.mock("@/lib/analytics", () => ({
   logAnalyticsEvent: vi.fn(),
 }));
 
+const useMarketMock = vi.fn();
+vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
+  useMarket: () => useMarketMock(),
+}));
+
 // Capture every AdSlot render so tests can assert policy-relevant props
 // (ad blocks must never be hidden-labeled).
 const adSlotRenders: Array<{ slotKey: string; hideLabel?: boolean }> = [];
@@ -87,6 +93,7 @@ function makeBuilder(resultFor: (calls: Call[]) => unknown) {
 
 vi.mock("@/lib/supabase", () => {
   const supabase = {
+    __marketFilters: [] as string[][],
     from: vi.fn((table: string) =>
       makeBuilder((calls) => {
         const isSingle = calls.some(
@@ -102,6 +109,14 @@ vi.mock("@/lib/supabase", () => {
           const usesIn = calls.some(
             (c) => c.method === "in" && c.args[0] === "category_slug",
           );
+          const marketIn = calls.find(
+            (c) => c.method === "in" && c.args[0] === "market",
+          );
+          if (marketIn) {
+            supabase.__marketFilters.push(marketIn.args[1] as string[]);
+            const codes = marketIn.args[1] as string[];
+            if (!codes.includes("NG")) return { data: [], error: null };
+          }
           if (usesIn) return { data: state.childArticles, error: null };
           return { data: state.leafArticles, error: null };
         }
@@ -120,9 +135,17 @@ vi.mock("@/lib/supabase", () => {
   return { supabase };
 });
 
+import { supabase } from "@/lib/supabase";
+
 beforeEach(() => {
   vi.clearAllMocks();
   adSlotRenders.length = 0;
+  (supabase as unknown as { __marketFilters: string[][] }).__marketFilters =
+    [];
+  useMarketMock.mockReturnValue({
+    market: { countryName: "Nigeria" },
+    marketCode: "NG",
+  });
   state.category = {
     id: "cat-1",
     slug: "screeding",
@@ -295,5 +318,40 @@ describe("LearnCategory", () => {
     expect(slotKeys).toContain("learn_category_mid");
     expect(slotKeys).toContain("learn_category_native");
     expect(slotKeys).toContain("learn_category_bottom");
+  });
+});
+
+describe("LearnCategory market scoping", () => {
+  beforeEach(() => {
+    useMarketMock.mockReturnValue({
+      market: { countryName: "United States" },
+      marketCode: "US",
+    });
+    (supabase as unknown as { __marketFilters: string[][] }).__marketFilters =
+      [];
+    state.leafArticles = [article("screed-leveling")];
+    state.subcategories = [];
+    state.childArticles = [];
+  });
+
+  it("scopes category listings to the visitor's market plus GLOBAL", async () => {
+    await renderCategory();
+    await waitFor(() => {
+      const filters = (
+        supabase as unknown as { __marketFilters: string[][] }
+      ).__marketFilters;
+      expect(filters.length).toBeGreaterThan(0);
+      for (const codes of filters) {
+        expect(codes).toEqual(["US", "GLOBAL"]);
+      }
+    });
+  });
+
+  it("shows a market-aware empty state instead of NG articles", async () => {
+    await renderCategory();
+    expect(
+      await screen.findByText("No United States guides here yet"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Article screed-leveling")).not.toBeInTheDocument();
   });
 });

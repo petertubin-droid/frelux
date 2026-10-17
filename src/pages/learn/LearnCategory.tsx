@@ -16,6 +16,7 @@ import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import type { DbLearnCategory, DbLearnArticle } from "@/types/database";
 import Pagination from "@/components/ui/Pagination";
+import { useLearnMarketScope } from "@/lib/learn-scope";
 
 type Status = "loading" | "ready" | "error" | "notfound";
 
@@ -24,6 +25,7 @@ type Status = "loading" | "ready" | "error" | "notfound";
 const ARTICLES_PER_PAGE = 20;
 
 export default function LearnCategory() {
+  const scope = useLearnMarketScope();
   const { categorySlug } = useParams<{ categorySlug: string }>();
 
   const [category, setCategory] = useState<DbLearnCategory | null>(null);
@@ -103,6 +105,7 @@ export default function LearnCategory() {
           .select("*")
           .eq("category_slug", categorySlug)
           .eq("status", "published")
+          .in("market", scope.visibleMarkets)
           .order("published_at", { ascending: false }),
         supabase
           .from("learn_categories")
@@ -129,6 +132,7 @@ export default function LearnCategory() {
           .select("*")
           .in("category_slug", childSlugs)
           .eq("status", "published")
+          .in("market", scope.visibleMarkets)
           .order("published_at", { ascending: false });
         setArticles((childArticles ?? []) as DbLearnArticle[]);
       } else {
@@ -137,7 +141,8 @@ export default function LearnCategory() {
       setStatus("ready");
     }
     load();
-  }, [categorySlug]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categorySlug, scope.marketCode]);
 
   if (status === "loading")
     return (
@@ -381,10 +386,14 @@ export default function LearnCategory() {
                 className="mx-auto h-12 w-12 text-muted-foreground/80"
               />
               <p className="mt-5 text-base font-semibold text-muted-foreground dark:text-muted-foreground/80">
-                No articles yet
+                {scope.isReferenceMarket
+                  ? "No articles yet"
+                  : `No ${scope.countryName} guides here yet`}
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Articles in this category are coming soon. Check back shortly.
+                {scope.isReferenceMarket
+                  ? "Articles in this category are coming soon. Check back shortly."
+                  : `We're writing ${scope.countryName}-specific articles for this topic. Check back shortly.`}
               </p>
             </div>
           )

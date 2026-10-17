@@ -706,6 +706,8 @@ export interface DbLearnArticle {
   meta_keywords: string | null;
   published_at: string | null;
   sort_order: number;
+  /** Market this article is scoped to: "NG" | ISO alpha-2 | "GLOBAL". */
+  market: string;
   created_at: string;
   updated_at: string;
 }

@@ -18,6 +18,15 @@ vi.mock("@/lib/analytics", () => ({
   logAnalyticsEvent: vi.fn(),
 }));
 
+// Learn Hub market scoping: pages resolve the visitor's market via
+// useMarket(); tests default to the Nigeria reference market and
+// switch with useMarketMock.mockReturnValue in individual tests.
+const useMarketMock = vi.fn();
+vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
+  useMarket: () => useMarketMock(),
+}));
+
 // ── Supabase mock: per-query PostgREST builder ────────────────────────
 // Each `from(table)` returns a chainable, thenable builder. When awaited,
 // it resolves to a result chosen from the recorded chain calls, so tests
@@ -107,6 +116,7 @@ function makeBuilder(resultFor: (calls: Call[]) => unknown) {
 vi.mock("@/lib/supabase", () => {
   const supabase = {
     __orCalls: [] as string[],
+    __marketFilters: [] as string[][],
     from: vi.fn((table: string) =>
       makeBuilder((calls) => {
         if (table === "learn_categories") {
@@ -118,6 +128,20 @@ vi.mock("@/lib/supabase", () => {
             select?.args[1] &&
             typeof select.args[1] === "object" &&
             (select.args[1] as Record<string, unknown>).count === "exact";
+          // Record the market scope filter on every article query so
+          // tests can assert exactly what listings asked for, and
+          // answer non-NG scopes with the honest empty result.
+          const marketIn = calls.find(
+            (c) => c.method === "in" && c.args[0] === "market",
+          );
+          if (marketIn) {
+            supabase.__marketFilters.push(marketIn.args[1] as string[]);
+            const codes = marketIn.args[1] as string[];
+            if (!codes.includes("NG")) {
+              if (isCountQuery) return { data: null, error: null, count: 0 };
+              return { data: [], error: null };
+            }
+          }
           if (isCountQuery) {
             return { data: null, error: null, count: supabase.__count };
           }
@@ -159,6 +183,12 @@ beforeEach(() => {
   vi.clearAllMocks();
   (supabase as unknown as { __count: number | null }).__count = 66;
   (supabase as unknown as { __orCalls: string[] }).__orCalls = [];
+  (supabase as unknown as { __marketFilters: string[][] }).__marketFilters =
+    [];
+  useMarketMock.mockReturnValue({
+    market: { countryName: "Nigeria" },
+    marketCode: "NG",
+  });
 });
 
 function orCalls(): string[] {
@@ -257,5 +287,38 @@ describe("Learn", () => {
     await renderReady();
     const link = screen.getByRole("link", { name: /browse the full library/i });
     expect(link.getAttribute("href")).toBe("/learn/library");
+  });
+});
+
+describe("Learn market scoping", () => {
+  beforeEach(() => {
+    useMarketMock.mockReturnValue({
+      market: { countryName: "United States" },
+      marketCode: "US",
+    });
+    (supabase as unknown as { __marketFilters: string[][] }).__marketFilters =
+      [];
+  });
+
+  it("scopes every hub listing to the visitor's market plus GLOBAL", async () => {
+    await renderReady();
+    const filters = (
+      supabase as unknown as { __marketFilters: string[][] }
+    ).__marketFilters;
+    expect(filters.length).toBeGreaterThan(0);
+    for (const codes of filters) {
+      expect(codes).toEqual(["US", "GLOBAL"]);
+    }
+  });
+
+  it("never shows the Nigerian library to a US visitor", async () => {
+    await renderReady();
+    // All scoped queries came back empty for the US market: the hub
+    // shows the market coming-soon state instead of NG articles.
+    expect(
+      screen.getByTestId("learn-empty-state"),
+    ).toHaveTextContent("Guides for United States are on the way");
+    expect(screen.queryByText("Article recent-1")).not.toBeInTheDocument();
+    expect(screen.queryByText("Article featured-1")).not.toBeInTheDocument();
   });
 });

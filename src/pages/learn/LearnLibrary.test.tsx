@@ -18,6 +18,12 @@ vi.mock("@/lib/analytics", () => ({
   logAnalyticsEvent: vi.fn(),
 }));
 
+const useMarketMock = vi.fn();
+vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
+  useMarket: () => useMarketMock(),
+}));
+
 type Call = { method: string; args: unknown[] };
 
 const METHODS = [
@@ -79,6 +85,7 @@ function makeBuilder(resultFor: (calls: Call[]) => unknown) {
 vi.mock("@/lib/supabase", () => {
   const supabase = {
     __orCalls: [] as string[],
+    __marketFilters: [] as string[][],
     from: vi.fn((table: string) =>
       makeBuilder((calls) => {
         if (table === "learn_articles") {
@@ -87,6 +94,17 @@ vi.mock("@/lib/supabase", () => {
             select?.args[1] &&
             typeof select.args[1] === "object" &&
             (select.args[1] as Record<string, unknown>).count === "exact";
+          const marketIn = calls.find(
+            (c) => c.method === "in" && c.args[0] === "market",
+          );
+          if (marketIn) {
+            supabase.__marketFilters.push(marketIn.args[1] as string[]);
+            const codes = marketIn.args[1] as string[];
+            if (!codes.includes("NG")) {
+              if (isCountQuery) return { data: null, error: null, count: 0 };
+              return { data: [], error: null };
+            }
+          }
           if (isCountQuery) {
             return { data: null, error: null, count: supabase.__count };
           }
@@ -119,6 +137,12 @@ beforeEach(() => {
   vi.clearAllMocks();
   (supabase as unknown as { __count: number | null }).__count = 45;
   (supabase as unknown as { __orCalls: string[] }).__orCalls = [];
+  (supabase as unknown as { __marketFilters: string[][] }).__marketFilters =
+    [];
+  useMarketMock.mockReturnValue({
+    market: { countryName: "Nigeria" },
+    marketCode: "NG",
+  });
 });
 
 async function renderPage() {
@@ -156,5 +180,42 @@ describe("LearnLibrary", () => {
         "title.ilike.%50   milk   bag in%,excerpt.ilike.%50   milk   bag in%",
       ]);
     });
+  });
+});
+
+describe("LearnLibrary market scoping", () => {
+  beforeEach(() => {
+    useMarketMock.mockReturnValue({
+      market: { countryName: "United States" },
+      marketCode: "US",
+    });
+    (supabase as unknown as { __marketFilters: string[][] }).__marketFilters =
+      [];
+  });
+
+  it("scopes the library listing and count to the visitor's market plus GLOBAL", async () => {
+    await renderPage();
+    await waitFor(() => {
+      expect(
+        (supabase as unknown as { __marketFilters: string[][] })
+          .__marketFilters.length,
+      ).toBeGreaterThan(0);
+    });
+    const filters = (
+      supabase as unknown as { __marketFilters: string[][] }
+    ).__marketFilters;
+    for (const codes of filters) {
+      expect(codes).toEqual(["US", "GLOBAL"]);
+    }
+  });
+
+  it("shows the market coming-soon state instead of the Nigerian library", async () => {
+    await renderPage();
+    await waitFor(() => {
+      expect(
+        screen.getByText("The United States library is being written"),
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByText("Article one")).not.toBeInTheDocument();
   });
 });

@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
+import { useLearnMarketScope } from "@/lib/learn-scope";
 import type { DbLearnArticle } from "@/types/database";
 
 type Status = "loading" | "ready" | "error";
@@ -37,6 +38,7 @@ export default function LearnLibrary() {
     ],
   });
 
+  const scope = useLearnMarketScope();
   const [articles, setArticles] = useState<DbLearnArticle[]>([]);
   const [total, setTotal] = useState<number | null>(null);
   const [status, setStatus] = useState<Status>("loading");
@@ -65,12 +67,14 @@ export default function LearnLibrary() {
             .from("learn_articles")
             .select("*")
             .eq("status", "published")
+            .in("market", scope.visibleMarkets)
             .order("published_at", { ascending: false })
             .range(from, from + ARTICLES_PER_PAGE - 1),
           supabase
             .from("learn_articles")
             .select("id", { count: "exact", head: true })
-            .eq("status", "published"),
+            .eq("status", "published")
+            .in("market", scope.visibleMarkets),
         ]);
         if (cancelled) return;
         if (pageRes.error) throw pageRes.error;
@@ -89,7 +93,8 @@ export default function LearnLibrary() {
     return () => {
       cancelled = true;
     };
-  }, [page]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, scope.marketCode]);
 
   // Debounced search across the whole library
   useEffect(() => {
@@ -110,6 +115,7 @@ export default function LearnLibrary() {
         .from("learn_articles")
         .select("*")
         .eq("status", "published")
+        .in("market", scope.visibleMarkets)
         .or(`title.ilike.%${q}%,excerpt.ilike.%${q}%`)
         .order("published_at", { ascending: false })
         .limit(20);
@@ -117,7 +123,8 @@ export default function LearnLibrary() {
       setSearching(false);
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, scope.marketCode]);
 
   if (status === "loading")
     return (
@@ -225,10 +232,16 @@ export default function LearnLibrary() {
             <p className="mt-5 text-base font-semibold text-muted-foreground dark:text-muted-foreground/80">
               {searchQuery.trim()
                 ? "No guides match your search"
-                : "No guides yet"}
+                : scope.isReferenceMarket
+                  ? "No guides yet"
+                  : `The ${scope.countryName} library is being written`}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Try a different keyword, or browse the topics on the Learn hub.
+              {searchQuery.trim()
+                ? "Try a different keyword, or browse the topics on the Learn hub."
+                : scope.isReferenceMarket
+                  ? "Try a different keyword, or browse the topics on the Learn hub."
+                  : `We're preparing market-specific guides for ${scope.countryName} — local materials, prices, and methods. Meanwhile the calculators, price books, and templates already adapt to your market.`}
             </p>
           </div>
         )}

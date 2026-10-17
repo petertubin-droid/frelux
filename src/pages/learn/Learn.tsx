@@ -21,6 +21,7 @@ import type { DbLearnCategory, DbLearnArticle } from "@/types/database";
 import AskAiWidget from "@/components/learn/AskAiWidget";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
+import { useLearnMarketScope } from "@/lib/learn-scope";
 
 type Status = "loading" | "ready" | "error";
 
@@ -60,6 +61,7 @@ export default function Learn() {
     ],
   });
 
+  const scope = useLearnMarketScope();
   const [categories, setCategories] = useState<DbLearnCategory[]>([]);
   const [featured, setFeatured] = useState<DbLearnArticle[]>([]);
   const [recent, setRecent] = useState<DbLearnArticle[]>([]);
@@ -85,6 +87,7 @@ export default function Learn() {
               .from("learn_articles")
               .select("*")
               .eq("status", "published")
+              .in("market", scope.visibleMarkets)
               .eq("is_featured", true)
               .order("published_at", { ascending: false })
               .limit(3),
@@ -92,16 +95,19 @@ export default function Learn() {
               .from("learn_articles")
               .select("*")
               .eq("status", "published")
+              .in("market", scope.visibleMarkets)
               .order("published_at", { ascending: false })
               .limit(6),
             supabase
               .from("learn_articles")
               .select("id", { count: "exact", head: true })
-              .eq("status", "published"),
+              .eq("status", "published")
+              .in("market", scope.visibleMarkets),
             supabase
               .from("learn_articles")
               .select("category_slug")
-              .eq("status", "published"),
+              .eq("status", "published")
+              .in("market", scope.visibleMarkets),
           ]);
 
         setCategories((catRes.data ?? []) as DbLearnCategory[]);
@@ -122,7 +128,8 @@ export default function Learn() {
       }
     }
     load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scope.marketCode]);
 
   // Debounced search
   useEffect(() => {
@@ -144,6 +151,7 @@ export default function Learn() {
         .from("learn_articles")
         .select("*")
         .eq("status", "published")
+        .in("market", scope.visibleMarkets)
         .or(`title.ilike.%${q}%,excerpt.ilike.%${q}%`)
         .order("published_at", { ascending: false })
         .limit(8);
@@ -151,7 +159,8 @@ export default function Learn() {
       setSearching(false);
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, scope.marketCode]);
 
   // Article counts per category slug, from the published-article sample.
   const countBySlug: Record<string, number> = {};
@@ -226,7 +235,7 @@ export default function Learn() {
                 FRELUX Field Notes
               </div>
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-brand-purple">
-                {totalPublished !== null
+                {totalPublished !== null && totalPublished > 0
                   ? `${totalPublished}+ Expert Articles`
                   : "Expert Articles"}
               </div>
@@ -513,17 +522,23 @@ export default function Learn() {
         )}
 
         {recent.length === 0 && featured.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-border bg-muted/50 p-20 text-center dark:border-white/10 dark:bg-white/5">
+          <div
+            className="rounded-2xl border border-dashed border-border bg-muted/50 p-20 text-center dark:border-white/10 dark:bg-white/5"
+            data-testid="learn-empty-state"
+          >
             <BookOpen
               aria-hidden="true"
               className="mx-auto h-12 w-12 text-muted-foreground/80"
             />
             <p className="mt-5 text-base font-semibold text-muted-foreground dark:text-muted-foreground/80">
-              Articles coming soon
+              {scope.isReferenceMarket
+                ? "Articles coming soon"
+                : `Guides for ${scope.countryName} are on the way`}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
-              We're preparing in-depth guides, tutorials, and expert tips. Check
-              back shortly.
+              {scope.isReferenceMarket
+                ? "We're preparing in-depth guides, tutorials, and expert tips. Check back shortly."
+                : `We're writing a dedicated ${scope.countryName} library for this market — practical guides with local materials, prices, and methods. Meanwhile every calculator, price book, and template on the site already adapts to your market.`}
             </p>
           </div>
         )}
