@@ -270,6 +270,25 @@ describe("ad-network-formats, Monetag auto zones", () => {
       "popunder",
       "vignette",
     ]);
+  });
+
+  it("resolves native banner and in-page push zones when configured", () => {
+    const monetagProvider = {
+      ...baseProvider,
+      slug: "monetag",
+      credentials: {
+        native_banner_zone_id: "275356",
+        inpage_push_zone_id: "275357",
+      },
+    };
+    const zones = getMonetagAutoZoneScripts(monetagProvider);
+    expect(zones).toHaveLength(2);
+    expect(zones.map((z) => z.format)).toEqual([
+      "native_banner",
+      "inpage_push",
+    ]);
+    expect(zones[0].zone).toBe("275356");
+    expect(zones[1].zone).toBe("275357");
     expect(zones[0]).toEqual({
       format: "interstitial",
       zone: "275353",

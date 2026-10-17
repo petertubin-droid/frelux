@@ -149,6 +149,16 @@ Remaining follow-ups (optional, not blockers): invoice email/share delivery, per
 - A solid rectangular strong-axis geometry helper calculates gross elastic section modulus, second moment, and effective shear area from entered width/depth. It does not infer material strength or cover hollow/built-up sections. Maintain validation and review gates before extending this helper.
 - Add member/system coverage only after independently validated formulas for stability/buckling, bearing, connections, lateral restraint, uplift, bracing, multiple spans, and roof-system load paths. Keep unavailable/unverified markets explicit and design output non-certifying until the full market release gate passes.
 
+### G. Multi-Network Ad Monetization & Simultaneous Serving (Monetag, Adsterra, AdSense, ayeT-Studios) — COMPLETE (2026-10-17)
+
+- **Audit & Root Cause Analysis**:
+  * **Adsterra-only display**: Prior implementation in `AdSlot.tsx` had a rigid single-provider waterfall where AdSense required an explicit per-slot `ad_unit_id` or `default_display_unit_id` (leaving pure `publisher_id` auto-ad configs unresolved in slot waterfalls), Monetag in-slot display required a dedicated `native_banner_zone_id` (falling through when only `zone_id` MultiTag was configured, while `MONETAG_AUTO_ZONES` omitted native/inpage units), and ayeT-Studios was treated as modal rewarded-only without web offerwall embedding.
+  * **Adsterra Native Banner Race Condition**: `src/components/ui/adsterra.ts` appended the async `invoke.js` script tag into the container before appending the target `div#container-${key}`. In fast DOM runs, `invoke.js` executed before the target container was present. Fixed by mounting the container div before appending the invoke script tag.
+  * **Simultaneous Multi-Network Delivery**: Implemented multi-provider slot distribution across active and eligible networks (`google_adsense`, `adsterra`, `monetag`) so distinct slots on the page lead with different providers simultaneously across the layout while strictly preserving cookie consent, paid-user suppression, density caps, and impression accounting.
+  * **Monetag In-Slot & In-Page Push**: Added `native_banner_zone_id` and `inpage_push_zone_id` to `MONETAG_AUTO_ZONES` in `src/lib/ad-network-formats.ts`, added in-slot container script injection in `AdSlot.tsx`, and updated `providerCanFill` in `AdminAds.tsx`.
+  * **ayeT-Studios Web Offerwall & Engagement**: Expanded `src/lib/offerwall.ts` to support ayeT Website Placement ID (`/offers/web_offerwall/{placement_id}`) alongside legacy `app_id`, wired iframe embedding into `AdSlot.tsx`, and updated admin fill logic.
+  * **Test Coverage**: Added regression tests in `src/components/ui/adsterra.test.ts` (DOM order check for invoke.js), `src/lib/ad-network-formats.test.ts` (catalog recognition for native/inpage push), and `src/components/ui/AdSlot.test.tsx` (AdSense publisher-id auto-fill).
+
 ### F. Engine-specific remaining work — OPEN
 
 Use the status table in Section 1A as the source of truth for completed milestone records and limits. The items below are open follow-up, not claims that an engine is absent in full.

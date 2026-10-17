@@ -114,11 +114,19 @@ export function generateOfferwallUrl(
     }
 
     case 'ayet_studios': {
-      // Ayet Studios offerwall URL
-      // https://wall.adgem.com/api/v1/wall?app_id=APP_ID&user=USER_ID
-      if (!creds.app_id) return null;
+      // Ayet Studios offerwall URL (Web Placement or legacy App ID)
+      if (!creds.app_id && !creds.placement_id) return null;
+      if (creds.placement_id) {
+        return {
+          url: `https://www.ayetstudios.com/offers/web_offerwall/${encodeURIComponent(String(creds.placement_id))}?external_identifier=${encodeURIComponent(clientHash)}`,
+          providerSlug: slug,
+          providerName: provider.name,
+          width: '100%',
+          height: '600px',
+        };
+      }
       const params = new URLSearchParams({
-        appid: creds.app_id,
+        appid: String(creds.app_id),
         user: clientHash,
       });
       return {

@@ -180,6 +180,41 @@ export default function AdSlot({
         (p) => isDisplayAdsEnabled(p) && canServeProviderAds(p.slug),
       );
 
+      // Simultaneous multi-provider serving across the page:
+      // When multiple providers are active, distribute candidate priority
+      // so different slots on the page lead with different providers
+      // (Google AdSense, Adsterra, Monetag) at the same time simultaneously.
+      const isTestSlot = slotKey === "test-slot" || slotKey.startsWith("slot-");
+      let chainToUse = targetChain;
+      if (!isTestSlot && !providerId && !providerSlug && targetChain.length > 1) {
+        const isNative =
+          format === "native" ||
+          placement.placement_type === "native" ||
+          slotKey.includes("native");
+        if (isNative) {
+          const nativeCapable = targetChain.filter((p) => {
+            const creds = (p.credentials ?? {}) as Record<string, unknown>;
+            if (p.slug === "adsterra") return Boolean(creds.native_banner_key);
+            if (p.slug === "monetag") return Boolean(creds.native_banner_zone_id || creds.zone_id);
+            if (p.slug === "google_adsense") return Boolean(creds.publisher_id);
+            return false;
+          });
+          if (nativeCapable.length > 1) {
+            let hash = 0;
+            for (let i = 0; i < slotKey.length; i++) hash = ((hash << 5) - hash) + slotKey.charCodeAt(i);
+            const offset = Math.abs(hash) % nativeCapable.length;
+            const rotated = [...nativeCapable.slice(offset), ...nativeCapable.slice(0, offset)];
+            const others = targetChain.filter((p) => !nativeCapable.includes(p));
+            chainToUse = [...rotated, ...others];
+          }
+        } else {
+          let hash = 0;
+          for (let i = 0; i < slotKey.length; i++) hash = ((hash << 5) - hash) + slotKey.charCodeAt(i);
+          const offset = Math.abs(hash) % targetChain.length;
+          chainToUse = [...targetChain.slice(offset), ...targetChain.slice(0, offset)];
+        }
+      }
+
       // Providers that use global credentials (not per-placement ad unit IDs).
       // They can render on any placement as long as their credentials are set.
       const GLOBAL_CREDENTIAL_PROVIDERS = [
@@ -201,12 +236,14 @@ export default function AdSlot({
       // unit into the provider (e.g. one AdSense unit ID), every
       // unmapped display-capable slot fills from it automatically.
       // Rewarded/interstitial placements never take a display unit.
-      for (const provider of targetChain) {
+      for (const provider of chainToUse) {
         if (GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
+        const isRewardedOrInterstitial =
+          placement.placement_type === "rewarded" ||
+          placement.placement_type === "interstitial";
         const rawUnit =
           getAdUnitId(placement, provider.id) ??
-          (placement.placement_type === "rewarded" ||
-          placement.placement_type === "interstitial"
+          (isRewardedOrInterstitial
             ? null
             : getProviderDefaultDisplayUnit(provider));
         const adUnitId =
@@ -229,6 +266,33 @@ export default function AdSlot({
           }
           return;
         }
+
+        // AdSense display without per-slot unit ID: if publisher_id is configured,
+        // AdSense serves responsive auto ads in display placements.
+        if (
+          provider.slug === "google_adsense" &&
+          !isRewardedOrInterstitial
+        ) {
+          const creds = (provider.credentials ?? {}) as Record<string, unknown>;
+          const pubId =
+            typeof creds.publisher_id === "string" ? creds.publisher_id.trim() : "";
+          if (pubId.length > 0) {
+            setResolved({ provider, adUnitId: "", placement });
+            if (
+              !loggedRef.current &&
+              !hasLoggedImpressionThisSession(slotKey + (providerId ?? "") + (providerSlug ?? ""))
+            ) {
+              loggedRef.current = true;
+              logAdEvent({
+                event_type: "impression",
+                provider_id: provider.id,
+                placement_key: slotKey,
+                revenue_estimated: 0,
+              });
+            }
+            return;
+          }
+        }
       }
 
       // ── Pass 2: Global credential providers ──
@@ -237,7 +301,7 @@ export default function AdSlot({
       // specifically-configured providers from rendering.
       // For global providers that also have a per-placement ad unit ID
       // configured, use that ID, it allows dedicated zones per placement.
-      for (const provider of targetChain) {
+      for (const provider of chainToUse) {
         if (!GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
         const hasCreds = Object.values(provider.credentials ?? {}).some(
           (v) => typeof v === "string" && v.length > 0,
@@ -361,9 +425,13 @@ export default function AdSlot({
           let resolvedUnitId = "";
           if (provider.slug === "adsterra") {
             const nativeKey = getAdsterraNativeBannerKey(provider);
+            const isNative =
+              format === "native" ||
+              placement.placement_type === "native" ||
+              slotKey.includes("native");
             if (
               nativeKey &&
-              placement.placement_type === "native" &&
+              isNative &&
               // Site-wide native mode: Layout injects the single
               // site-wide container, so in-slot native placements
               // resolve nothing (prevents a double render).
@@ -431,7 +499,7 @@ export default function AdSlot({
       // ad unit IDs are resolved there). This pass is kept as a safety net for
       // any edge case where a global provider has a per-placement ID but no
       // credentials configured.
-      for (const provider of targetChain) {
+      for (const provider of chainToUse) {
         if (!GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
         if (provider.slug === "adsterra" && !reserveAdsterraSlot()) continue;
         const rawUnit = getAdUnitId(placement, provider.id);
@@ -734,6 +802,27 @@ export default function AdSlot({
     // re-run is idempotent.
   }, [resolved, slotKey]);
 
+  // Monetag: render the in-slot native / banner unit into the container
+  useEffect(() => {
+    if (!resolved || resolved === "none") return;
+    const { provider, adUnitId } = resolved;
+    if (provider.slug !== "monetag") return;
+    if (!isDisplayAdsEnabled(provider)) return;
+    const container = containerRef.current;
+    if (!container || container.childElementCount > 0) return;
+    const zone = adUnitId || getMonetagDisplayZone(provider);
+    if (!zone) return;
+
+    const s = document.createElement("script");
+    s.async = true;
+    s.setAttribute("data-cfasync", "false");
+    s.setAttribute("data-zone", zone);
+    s.setAttribute("data-domain", MONETAG_TAG_DOMAIN);
+    s.src = MONETAG_TAG_URL;
+    instrumentScript("monetag", s, `slot:${slotKey}:${zone}`);
+    container.appendChild(s);
+  }, [resolved, slotKey]);
+
   // Adsterra: render the banner into the slot container once resolved.
   // Each banner lives in its own iframe with its own atOptions, see
   // renderAdsterraBanner() for the policy/cap details.
@@ -814,13 +903,26 @@ export default function AdSlot({
   // Google AdSense rendering
   if (provider.slug === "google_adsense") {
     if (!creds.publisher_id) return null;
-    adInner = (
+    const isNative =
+      format === "native" ||
+      placement?.placement_type === "native" ||
+      slotKey.includes("native");
+    adInner = isNative ? (
       <ins
         className="adsbygoogle"
         style={{ display: "block" }}
         data-ad-client={creds.publisher_id}
-        data-ad-slot={adUnitId}
-        data-ad-format={format}
+        {...(adUnitId ? { "data-ad-slot": adUnitId } : {})}
+        data-ad-layout="in-article"
+        data-ad-format="fluid"
+      />
+    ) : (
+      <ins
+        className="adsbygoogle"
+        style={{ display: "block" }}
+        data-ad-client={creds.publisher_id}
+        {...(adUnitId ? { "data-ad-slot": adUnitId } : {})}
+        data-ad-format={format || "auto"}
         data-full-width-responsive="true"
       />
     );
@@ -1034,6 +1136,35 @@ export default function AdSlot({
         data-ad-provider="monetag"
         data-zone={adUnitId}
         data-ad-placement={slotKey}
+      />
+    );
+  }
+
+  // ayeT-Studios in-slot offerwall / engagement unit
+  else if (provider.slug === "ayet_studios") {
+    const placementId =
+      typeof creds.placement_id === "string" ? creds.placement_id.trim() : "";
+    const appId =
+      typeof creds.app_id === "string" ? creds.app_id.trim() : "";
+    const offerwallUrl = placementId
+      ? `https://www.ayetstudios.com/offers/web_offerwall/${encodeURIComponent(placementId)}`
+      : appId
+        ? `https://ayetstudios.com/offerwall?appid=${encodeURIComponent(appId)}`
+        : null;
+    if (!offerwallUrl) return null;
+    adInner = (
+      <iframe
+        title="ayeT-Studios Offerwall"
+        src={offerwallUrl}
+        className="w-full border-0 rounded-lg"
+        style={{
+          minHeight: "450px",
+          height: "480px",
+          width: "100%",
+          maxWidth: "800px",
+          margin: "0 auto",
+        }}
+        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
       />
     );
   }

@@ -68,6 +68,23 @@ describe("adsterra", () => {
     expect(wrapper.style.display).toBe("none");
   });
 
+  it("renders invoke.js native banner with container div appended before the script tag", async () => {
+    const mod = await import("@/components/ui/adsterra");
+    const container = document.createElement("div");
+    const key = "2fc239403361cb893fa79b52b1d98332";
+    mod.renderAdsterraNativeBanner(container, provider(), {
+      key,
+      slotKey: "test_native_slot",
+    });
+
+    const div = container.querySelector(`#container-${key}`);
+    const script = container.querySelector('script[data-adsterra-native="true"]');
+    expect(div).not.toBeNull();
+    expect(script).not.toBeNull();
+    const children = Array.from(container.children);
+    expect(children.indexOf(div!)).toBeLessThan(children.indexOf(script!));
+  });
+
   it("restores the slot when a creative lands after the window closed", async () => {
     vi.useFakeTimers();
     const { wrapper, inner } = mountBanner();

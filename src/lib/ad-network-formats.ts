@@ -222,6 +222,8 @@ export const MONETAG_AUTO_ZONES = [
   { credentialKey: "interstitial_zone_id", format: "interstitial" },
   { credentialKey: "popunder_zone_id", format: "popunder" },
   { credentialKey: "vignette_zone_id", format: "vignette" },
+  { credentialKey: "native_banner_zone_id", format: "native_banner" },
+  { credentialKey: "inpage_push_zone_id", format: "inpage_push" },
 ] as const;
 
 function validMonetagZoneId(raw: unknown): string | null {

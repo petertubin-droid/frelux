@@ -399,16 +399,16 @@ export function renderAdsterraNativeBanner(
   // snippet (see getAdsterraNativeBannerScript), render the matching tag
   // or the zone silently no-fills.
   if (getAdsterraNativeBannerScript(provider) === "invoke") {
+    const div = document.createElement("div");
+    div.id = `container-${key}`;
     const s = document.createElement("script");
     s.async = true;
     s.setAttribute("data-cfasync", "false");
     s.setAttribute("data-adsterra-native", "true");
     s.setAttribute("data-ad-zone", key);
     s.src = `https://${serveDomain}/${key}/invoke.js`;
-    const div = document.createElement("div");
-    div.id = `container-${key}`;
-    container.appendChild(s);
     container.appendChild(div);
+    container.appendChild(s);
     adDebug("adsterra", "native-banner:invoke-rendered", {
       slotKey: opts.slotKey,
       host: serveDomain,

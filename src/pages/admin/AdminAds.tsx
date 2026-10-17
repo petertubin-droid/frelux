@@ -833,14 +833,21 @@ function providerCanFill(pl: DbAdPlacement, prov: DbAdProvider): boolean {
       return false;
     const creds = (prov.credentials ?? {}) as Record<string, unknown>;
     const def = creds.default_display_unit_id;
-    return typeof def === "string" && def.trim().length > 0;
+    if (typeof def === "string" && def.trim().length > 0) return true;
+    if (prov.slug === "google_adsense") {
+      const pubId = creds.publisher_id;
+      return typeof pubId === "string" && pubId.trim().length > 0;
+    }
+    return false;
   }
   const creds = (prov.credentials ?? {}) as Record<string, unknown>;
-  // Monetag in-slot display works through the Native Banner zone.
+  // Monetag in-slot display works through the Native Banner zone or in-page push.
   if (prov.slug === "monetag")
     return (
-      typeof creds.native_banner_zone_id === "string" &&
-      creds.native_banner_zone_id.trim().length > 0
+      (typeof creds.native_banner_zone_id === "string" &&
+        creds.native_banner_zone_id.trim().length > 0) ||
+      (typeof creds.inpage_push_zone_id === "string" &&
+        creds.inpage_push_zone_id.trim().length > 0)
     );
   // Adsterra banners render from the zone key; native needs the native key.
   if (prov.slug === "adsterra") {
@@ -850,6 +857,13 @@ function providerCanFill(pl: DbAdPlacement, prov: DbAdProvider): boolean {
         ? creds.native_banner_key
         : "";
     return key.trim().length > 0 || nativeKey.trim().length > 0;
+  }
+  // ayeT-Studios fills rewarded and offerwall placements
+  if (prov.slug === "ayet_studios") {
+    const appId = typeof creds.app_id === "string" ? creds.app_id.trim() : "";
+    const placementId =
+      typeof creds.placement_id === "string" ? creds.placement_id.trim() : "";
+    return appId.length > 0 || placementId.length > 0;
   }
   return Object.values(creds).some(
     (v) => typeof v === "string" && v.trim().length > 0,
