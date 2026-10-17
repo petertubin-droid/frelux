@@ -176,14 +176,24 @@ async function fetchLearnRoutes() {
     }
 
     // Published articles (RLS: public read, published + published_at <= now)
-    const artRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/learn_articles?select=slug,updated_at&status=eq.published&order=published_at.desc&limit=1000`,
+    let artRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/learn_articles?select=slug,updated_at,wall_market_code&status=eq.published&order=published_at.desc&limit=1000`,
       { headers }
     );
+    // Keep builds compatible until the additive library migration is applied.
+    // The fallback still lists ordinary Learn articles; market-tagged URLs are
+    // emitted as soon as the database exposes wall_market_code.
+    let hasMarketField = artRes.ok;
+    if (!artRes.ok) {
+      artRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/learn_articles?select=slug,updated_at&status=eq.published&order=published_at.desc&limit=1000`,
+        { headers }
+      );
+    }
     if (artRes.ok) {
       const arts = await artRes.json();
       for (const a of arts) {
-        learnRoutes.push({ path: `/learn/${a.slug}`, priority: '0.7', changefreq: 'monthly' });
+        learnRoutes.push({ path: hasMarketField && a.wall_market_code ? `/learn/wall-finishing/${a.wall_market_code.toLowerCase()}/${a.slug}` : `/learn/${a.slug}`, priority: '0.7', changefreq: 'monthly' });
       }
     }
     console.log(`  ✅ Learn: ${learnRoutes.length} dynamic URLs`);

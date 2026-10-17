@@ -112,6 +112,8 @@ const MarketplaceSeedingHub = lazy(
 const LearnCategory = lazy(() => import("@/pages/learn/LearnCategory"));
 const LearnArticle = lazy(() => import("@/pages/learn/LearnArticle"));
 const LearnLibrary = lazy(() => import("@/pages/learn/LearnLibrary"));
+const WallFinishingLibrary = lazy(() => import("@/pages/learn/WallFinishingLibrary"));
+const WallFinishingArticle = lazy(() => import("@/pages/learn/WallFinishingArticle"));
 const PaintColorDetail = lazy(() => import("@/pages/PaintColorDetail"));
 const CompareColors = lazy(() => import("@/pages/CompareColors"));
 const MyProjects = lazy(() => import("@/pages/MyProjects"));
@@ -288,6 +290,7 @@ const AdminScreedingMaterials = lazy(
   () => import("@/pages/admin/AdminScreedingMaterials"),
 );
 const AdminLearn = lazy(() => import("@/pages/admin/AdminLearn"));
+const AdminWallFinishingLibrary = lazy(() => import("@/pages/admin/AdminWallFinishingLibrary"));
 const AdminMarkets = lazy(() => import("@/pages/admin/AdminMarkets"));
 const AdminMarketIntelligence = lazy(
   () => import("@/pages/admin/AdminMarketIntelligence"),
@@ -1211,6 +1214,14 @@ export default function App() {
                         }
                       />
                       <Route
+                        path="/learn/wall-finishing/:marketCode/:articleSlug"
+                        element={<Suspense fallback={<PageLoader />}><WallFinishingArticle /></Suspense>}
+                      />
+                      <Route
+                        path="/learn/wall-finishing/:marketCode"
+                        element={<Suspense fallback={<PageLoader />}><WallFinishingLibrary /></Suspense>}
+                      />
+                      <Route
                         path="/learn/library"
                         element={
                           <Suspense fallback={<PageLoader />}>
@@ -1659,6 +1670,7 @@ export default function App() {
 
                       {/* Content */}
                       <Route path="learn" element={<AdminLearn />} />
+                      <Route path="learn/wall-finishing" element={<AdminWallFinishingLibrary />} />
                       <Route
                         path="ai-learning"
                         element={<AdminAiLearningAssistant />}
