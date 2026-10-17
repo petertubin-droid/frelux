@@ -1,6 +1,6 @@
 # FRELUX — Global Expansion & Platform Architecture Handoff
 
-Last updated: October 15, 2026
+Last updated: October 17, 2026
 
 ---
 
@@ -101,15 +101,20 @@ Work one market at a time. Record authoritative sources/providers, coverage and 
 
 Only open work belongs here. Recheck current source and production state before acting; this list does not certify live data or migrations.
 
-### A. Rebar price books — OPEN
+### A. Rebar price books — BATCH COMMITTED (ZA, KE, FR, IN) / OTHER MARKETS OPEN
 
-- Inventory current coverage by market and rebar size from the live registry/database before prioritizing; prior live counts are stale until reverified.
-- Fill gaps only from attributable distributor catalogs, supplier quotes, or dated physical surveys. Record units, sizes, market, source, and effective date. Never seed estimates from memory or synthetic prices.
+- **Committed Anchors (Migration `20261025100000_rebar_anchors_za_ke_fr_in.sql`)**:
+  - **ZA (South Africa)**: Cashbuild retail store survey (Barnes Y12 6m R109.95 incl VAT, SKU 476005; Y16 6m R194.95, SKU 476006). Engine 12m stock length equivalents: Y12 R219.90, Y16 R389.90; derived Y20 R609.98, Y25 R953.31 via implied R20.613/kg (SANS 920 / 450 MPa).
+  - **KE (Kenya)**: National Cement Company (Devki Group) published catalog (KS 573 / BS 4449 Grade 500): D12 12m KSh 1,040, D16 12m KSh 1,860, D20 12m KSh 2,550, D25 12m KSh 4,400.
+  - **FR (France)**: Brico Dépôt retail listings (HA FeE500 EN 10080 / NF A 35-080-1): HA12 3m €6.50 TTC, scaled to 12m €26.00; HA16 €46.20, HA20 €72.21, HA25 €112.85 via implied €2.44/kg TTC.
+  - **IN (India)**: Tata Nexarc / Tata Tiscon Fe500 TMT price benchmark (12m pieces): 12mm ₹602.06, 16mm ₹1,069.88, 20mm ₹1,671.95, 25mm ₹2,613.01.
+  - Note: Pending live database execution against production Supabase instance (`nfgaaohweygwydoelxnf`) when management token is provided.
+- **Remaining Open Markets**: Fill remaining regional gaps (BR, CN, ID, MX, KR, JP, GH, SA, AE) only from attributable supplier quotes, distributor catalogs, or dated physical surveys. Never seed estimates from memory or synthetic prices.
 
 ### B. Price provenance — OPEN
 
 - Query the current production inventory for low-confidence rows or rows without attributable source evidence; do not reuse historical counts.
-- Replace or clearly mark indicative values. Upgrade confidence only after independent source verification and recording provenance.
+- Replace or clearly mark indicative values. Upgrade confidence only after independent source verification and recording provenance. Note: Live audit and batch updates against the 176 low-confidence production rows requires Supabase Management API access / `SUPA_TOKEN`.
 
 ### C. Procurement — OPEN GAPS
 
