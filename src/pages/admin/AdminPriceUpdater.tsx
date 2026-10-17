@@ -404,7 +404,7 @@ export default function AdminPriceUpdater() {
                   </th>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                     Verified price (
-                    {MARKET_CONFIG[market].currency})
+                    {MARKET_META[market].currency})
                   </th>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                     Status
@@ -441,7 +441,7 @@ export default function AdminPriceUpdater() {
                       ) : (
                         formatByCode(
                           r.configuredPrice,
-                          MARKET_CONFIG[market].currency,
+                          MARKET_META[market].currency,
                         )
                       )}
                     </td>
@@ -450,7 +450,7 @@ export default function AdminPriceUpdater() {
                         ? "no reference"
                         : formatByCode(
                             r.referencePrice,
-                            MARKET_CONFIG[market].currency,
+                            MARKET_META[market].currency,
                           )}
                     </td>
                     <td className="px-4 py-3 text-center">

@@ -147,7 +147,11 @@ export default function DiasporaEscrow() {
               </p>
               <p className="text-xs text-muted-foreground">
                 Locked FX: 1 {contract.sourceCurrency} ={" "}
-                {formatByCode(contract.fxRateLocked, contract.localCurrency)}
+                {formatByCode(
+                  contract.milestones[0]?.fxRateLocked ??
+                    contract.totalLocalPayout / contract.totalFundedSource,
+                  contract.localCurrency,
+                )}
               </p>
             </div>
           </div>

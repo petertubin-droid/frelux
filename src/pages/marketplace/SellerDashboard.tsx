@@ -447,7 +447,7 @@ export default function SellerDashboard() {
                     </p>
                   </div>
                   <p className="text-sm font-semibold text-brand-purple">
-                    {formatByCode(Number(prod.price), prod.currency)}
+                    {formatByCode(Number(prod.price), prod.currency as string)}
                   </p>
                 </Link>
               );
