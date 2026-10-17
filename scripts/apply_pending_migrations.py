@@ -34,7 +34,7 @@ def run_sql(sql: str):
     )
     try:
         with urllib.request.urlopen(req) as resp:
-            return True, resp.read().decode()[:2000]
+            return True, resp.read().decode()[:500000]
     except urllib.error.HTTPError as e:
         body = e.read().decode()[:2000]
         return False, f"HTTP {e.code}: {body}"
