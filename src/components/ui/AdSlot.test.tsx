@@ -144,7 +144,9 @@ describe("AdSlot", () => {
     await waitFor(() => {
       const ins = container.querySelector("ins.adsbygoogle");
       expect(ins).not.toBeNull();
-      expect(ins!.getAttribute("data-ad-client")).toBe("ca-pub-1234567890123456");
+      expect(ins!.getAttribute("data-ad-client")).toBe(
+        "ca-pub-1234567890123456",
+      );
       expect(ins!.getAttribute("data-ad-format")).toBe("auto");
     });
     expect(logAdEvent).toHaveBeenCalledWith(
@@ -803,7 +805,12 @@ describe("AdSlot, Adsterra rendering", () => {
       key: nativeKey,
       slotKey: "test-slot",
     });
-    const script = appended[0] as HTMLScriptElement;
+    // The invoke.js branch appends the zone's container div
+    // FIRST, then the script (Adsterra's own snippet order).
+    expect(appended).toHaveLength(2);
+    const div = appended[0] as HTMLDivElement;
+    expect(div.id).toBe(`container-${nativeKey}`);
+    const script = appended[1] as HTMLScriptElement;
     expect(script.getAttribute("src")).toBe(
       `https://pl31194884.profitableratecpmnetwork.com/${nativeKey}/invoke.js`,
     );

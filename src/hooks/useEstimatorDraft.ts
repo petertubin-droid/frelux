@@ -101,8 +101,16 @@ export function useEstimatorDraft<T>(
               customToastMessage ||
               "We restored your previous calculation. Click 'Start fresh' to reset.",
           });
-        } else if (typeof (toastApi as unknown as Record<string, unknown>).showToast === "function") {
-          ((toastApi as unknown as Record<string, Function>).showToast)({
+        } else if (
+          typeof (toastApi as unknown as Record<string, unknown>).showToast ===
+          "function"
+        ) {
+          (
+            toastApi as unknown as Record<
+              string,
+              (t: Record<string, unknown>) => void
+            >
+          ).showToast({
             type: "info",
             title: customToastTitle || "Calculation restored",
             message:

@@ -72,13 +72,25 @@ describe("adsterra", () => {
     const mod = await import("@/components/ui/adsterra");
     const container = document.createElement("div");
     const key = "2fc239403361cb893fa79b52b1d98332";
-    mod.renderAdsterraNativeBanner(container, provider(), {
+    // The admin's pasted snippet marks this zone as a classic
+    // invoke.js Native Banner (not the newer native.js unit).
+    const invokeProvider = {
+      ...provider(),
+      credentials: {
+        key,
+        serve_domain: "www.highrevenueformat.com",
+        native_banner_key: `https://pl31194882.profitableratecpmnetwork.com/${key}/invoke.js`,
+      },
+    } as unknown as Parameters<typeof mod.renderAdsterraNativeBanner>[1];
+    mod.renderAdsterraNativeBanner(container, invokeProvider, {
       key,
       slotKey: "test_native_slot",
     });
 
     const div = container.querySelector(`#container-${key}`);
-    const script = container.querySelector('script[data-adsterra-native="true"]');
+    const script = container.querySelector(
+      'script[data-adsterra-native="true"]',
+    );
     expect(div).not.toBeNull();
     expect(script).not.toBeNull();
     const children = Array.from(container.children);

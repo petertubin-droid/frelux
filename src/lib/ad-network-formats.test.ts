@@ -290,12 +290,15 @@ describe("ad-network-formats, Monetag auto zones", () => {
     expect(zones[0].zone).toBe("275356");
     expect(zones[1].zone).toBe("275357");
     expect(zones[0]).toEqual({
-      format: "interstitial",
-      zone: "275353",
+      format: "native_banner",
+      zone: "275356",
       src: "https://quge5.com/88/tag.min.js",
     });
-    // numeric credential values are coerced cleanly
-    expect(zones[1].zone).toBe("275354");
+    expect(zones[1]).toEqual({
+      format: "inpage_push",
+      zone: "275357",
+      src: "https://quge5.com/88/tag.min.js",
+    });
   });
 
   it("rejects non-numeric zone values (injection safety)", () => {
