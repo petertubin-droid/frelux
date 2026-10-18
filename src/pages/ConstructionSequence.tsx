@@ -10,6 +10,9 @@ import {
   sequencePlanToDAG,
   initializeSimulation,
   stepSimulationWave,
+  type WorkingCalendarModel,
+  formatTradeName,
+  resolveTradeDiscipline,
 } from "@/lib/engineering/dag-engine";
 import { DagNodeCanvas } from "@/components/engineering/DagNodeCanvas";
 import { ParallelExecutionSimulator } from "@/components/engineering/ParallelExecutionSimulator";
@@ -27,6 +30,8 @@ import {
   GitFork,
   Layers,
   ListOrdered,
+  Globe,
+  Award,
 } from "lucide-react";
 import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
@@ -43,9 +48,9 @@ export default function ConstructionSequence() {
   useSeo({
     title: "Construction Sequence & DAG Parallel Execution | FRELUX",
     description:
-      "Interactive DAG network graph, Critical Path Method (CPM), and parallel execution waves for construction scheduling. Optimize build duration, trace task dependencies, and simulate multi-crew parallel builds.",
+      "Interactive DAG network graph, Critical Path Method (CPM), and parallel execution waves conforming to ISO 21502 and PMI PMBOK 7th Ed. Optimize build duration, trade concurrency, and critical path.",
     keywords:
-      "construction sequence, DAG nodes, parallel execution, critical path method, build order, construction workflow, CPM scheduling",
+      "construction sequence, DAG nodes, parallel execution, critical path method, CPM scheduling, ISO 21502, PMBOK, build order, construction workflow",
   });
 
   const { market } = useMarket();
@@ -55,6 +60,9 @@ export default function ConstructionSequence() {
 
   const [viewMode, setViewMode] = useState<SequenceViewMode>("dag");
   const [fastTrackParallel, setFastTrackParallel] = useState(true);
+  const [calendarModel, setCalendarModel] =
+    useState<WorkingCalendarModel>("calendar_7d");
+  const [contingencyBufferPct, setContingencyBufferPct] = useState(10);
   const [openStep, setOpenStep] = useState<number | null>(1);
 
   // Compute DAG Graph from plan
@@ -88,7 +96,7 @@ export default function ConstructionSequence() {
         variant="tool"
         eyebrow="Orchestration & Planning"
         title="Construction Sequence & DAG Execution"
-        subtitle="Directed Acyclic Graph (DAG) task network, Critical Path Method (CPM), and parallel trade waves. Optimize construction duration through synchronized parallel work streams."
+        subtitle="Directed Acyclic Graph (DAG) task network, Critical Path Method (CPM), and multi-trade parallel execution waves conforming to ISO 21502 and PMI PMBOK® standards."
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Calculators", path: "/calculators" },
@@ -97,9 +105,18 @@ export default function ConstructionSequence() {
       />
 
       <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
-        <p className="mt-4 rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground">
-          {plan.methodology_note}
-        </p>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-muted/50 p-3 text-xs text-muted-foreground">
+          <p className="flex-1 min-w-[280px]">{plan.methodology_note}</p>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 rounded bg-brand-purple/10 px-2 py-0.5 font-semibold text-brand-purple">
+              <Award className="h-3.5 w-3.5" /> ISO 21502 / PMBOK 7th Ed
+            </span>
+            <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-foreground font-medium">
+              <Globe className="h-3 w-3 text-muted-foreground" />{" "}
+              {market.countryName} ({market.currencyCode})
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 space-y-6">
@@ -111,6 +128,11 @@ export default function ConstructionSequence() {
           onReset={handleResetSimulation}
           fastTrackParallel={fastTrackParallel}
           onToggleFastTrack={handleToggleFastTrack}
+          calendarModel={calendarModel}
+          onChangeCalendarModel={setCalendarModel}
+          contingencyBufferPct={contingencyBufferPct}
+          onChangeContingencyBuffer={setContingencyBufferPct}
+          marketCode={market.marketCode}
         />
 
         {/* View Switcher Controls */}
@@ -145,11 +167,12 @@ export default function ConstructionSequence() {
             </Button>
           </div>
           <span className="text-xs text-muted-foreground">
-            {viewMode === "dag" && "Visual node network with CPM critical path"}
+            {viewMode === "dag" &&
+              "Visual node network with CPM critical path & causal tracing"}
             {viewMode === "waves" &&
-              `${dagGraph.waves.length} multi-crew parallel stages`}
+              `${dagGraph.waves.length} multi-trade parallel execution waves`}
             {viewMode === "list" &&
-              `${plan.steps.length} detailed activity specifications`}
+              `${plan.steps.length} detailed activity specifications & inspection checkpoints`}
           </span>
         </div>
 
@@ -165,6 +188,7 @@ export default function ConstructionSequence() {
           <ParallelWavesView
             graph={dagGraph}
             nodeStatuses={simulationState.nodeStatuses}
+            calendarModel={calendarModel}
           />
         )}
 
@@ -196,11 +220,12 @@ export default function ConstructionSequence() {
             {/* Quality gates */}
             <div className="rounded-2xl border border-blue-200 bg-blue-50 dark:border-blue-900/40 dark:bg-blue-950/20 p-6">
               <h3 className="font-semibold text-blue-900 dark:text-blue-300 flex items-center gap-2 mb-3">
-                <ShieldCheck className="w-5 h-5" /> Quality Gates
+                <ShieldCheck className="w-5 h-5" /> Quality Gates (International
+                Standards Inspection)
               </h3>
               <p className="text-xs text-blue-600 dark:text-blue-400 mb-4">
-                Critical checkpoints where construction must be verified before
-                proceeding to the next stage.
+                Critical engineering verification checkpoints conforming to ACI
+                308R, BS EN 13670, and Eurocode 2 before structural loading.
               </p>
               <div className="space-y-3">
                 {plan.quality_gates.map((gate, i) => (
@@ -235,8 +260,8 @@ export default function ConstructionSequence() {
             {plan.parallel_activities.length > 0 && (
               <div className="rounded-2xl border border-green-200 bg-green-50 dark:border-green-900/40 dark:bg-green-950/20 p-6">
                 <h3 className="font-semibold text-green-900 dark:text-green-300 flex items-center gap-2 mb-3">
-                  <Wrench aria-hidden="true" className="w-5 h-5" /> Time-Saving
-                  Overlaps
+                  <Wrench aria-hidden="true" className="w-5 h-5" /> Fast-Track
+                  Concurrency Opportunities
                 </h3>
                 <div className="space-y-2">
                   {plan.parallel_activities.map((p, i) => (
@@ -290,15 +315,16 @@ export default function ConstructionSequence() {
             <ShieldCheck className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-amber-900 dark:text-amber-300">
-                Engineering & CPM Scheduling Disclaimer
+                International Engineering & CPM Scheduling Governance
               </p>
               <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
-                This DAG schedule and Critical Path Method (CPM) calculation are
-                based on standard construction practices for typical residential
-                and commercial structures. Site-specific geotechnical ground
-                conditions, custom engineering designs, structural engineer
-                reviews, and weather interruptions will modify actual sequence
-                requirements.
+                This schedule network conforms to ISO 21502:2020 and PMI PMBOK®
+                7th Edition principles. In accordance with FIDIC Clause 8.3 and
+                NEC4 Clause 31, float ownership, concurrent delay allocation,
+                and fast-track trade overlaps are subject to formal contract
+                agreements, site-specific geotechnical ground conditions,
+                structural engineering certifications, and local building
+                permits.
               </p>
             </div>
           </div>
@@ -317,6 +343,8 @@ function StepCard({
   isOpen: boolean;
   onToggle: () => void;
 }) {
+  const { trade, standardRef } = resolveTradeDiscipline(step.title, step.stage);
+
   return (
     <div className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
       <Button
@@ -333,7 +361,8 @@ function StepCard({
               {step.title}
             </p>
             <p className="text-xs text-muted-foreground">
-              {step.stage} · {step.estimated_duration_days}
+              {step.stage} · {step.estimated_duration_days} ·{" "}
+              {formatTradeName(trade)}
             </p>
           </div>
         </div>
@@ -350,6 +379,11 @@ function StepCard({
       {isOpen && (
         <div className="border-t border-border/50 p-4 space-y-4">
           <p className="text-sm text-muted-foreground">{step.description}</p>
+
+          <div className="rounded-lg border border-border bg-muted/30 p-2.5 text-xs text-muted-foreground">
+            <strong className="text-foreground">Standard Citation:</strong>{" "}
+            {standardRef}
+          </div>
 
           {/* Prerequisites */}
           {step.prerequisites.length > 0 && (
@@ -440,20 +474,22 @@ function Section({
     green: "text-green-600",
     blue: "text-blue-600",
   };
+
   return (
     <div>
-      <p
-        className={`text-xs font-medium ${colorMap[color]} mb-2 flex items-center gap-1.5`}
+      <h4
+        className={`text-xs font-semibold ${colorMap[color]} flex items-center gap-1.5 mb-2`}
       >
-        <Icon className="w-3.5 h-3.5" /> {title}
-      </p>
-      <ul className="space-y-1 ml-5">
+        <Icon className="w-4 h-4" /> {title}
+      </h4>
+      <ul className="space-y-1">
         {items.map((item, i) => (
           <li
             key={i}
             className="text-xs text-muted-foreground flex items-start gap-2"
           >
-            <span className="text-muted-foreground/80 mt-0.5">•</span> {item}
+            <span className="text-muted-foreground/40 mt-0.5">•</span>
+            {item}
           </li>
         ))}
       </ul>

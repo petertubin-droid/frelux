@@ -4,23 +4,32 @@ import type {
   DAGNode,
   NodeExecutionStatus,
 } from "@/lib/engineering/dag-engine";
+import { formatTradeName } from "@/lib/engineering/dag-engine";
 import type { SequenceStep } from "@/lib/engineering/sequence-planner";
 import {
   Clock,
   CheckCircle2,
   HardHat,
+  ShieldCheck,
+  AlertTriangle,
   ZoomIn,
   ZoomOut,
   Maximize2,
   Layers,
+  Search,
+  Filter,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
+import { Input } from "@/components/ui/shadcn/input";
 
 interface DagNodeCanvasProps {
   graph: DAGGraph<SequenceStep>;
   nodeStatuses?: Record<string, NodeExecutionStatus>;
   onSelectNode?: (nodeId: string | null) => void;
 }
+
+type FilterMode = "all" | "critical" | "float";
 
 export function DagNodeCanvas({
   graph,
@@ -29,6 +38,8 @@ export function DagNodeCanvas({
 }: DagNodeCanvasProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const [nodePositions, setNodePositions] = useState<
     Record<string, { x: number; y: number }>
@@ -36,7 +47,7 @@ export function DagNodeCanvas({
 
   const selectedNode = useMemo(() => {
     if (!selectedId) return null;
-    return graph.nodes.get(selectedId) ?? null;
+    return graph.nodes.get(selectedId) || null;
   }, [selectedId, graph]);
 
   const { ancestorIds, descendantIds } = useMemo(() => {
@@ -50,7 +61,7 @@ export function DagNodeCanvas({
     const descendants = new Set<string>();
 
     const traceAncestors = (id: string) => {
-      const preds = graph.nodes.get(id)?.dependencies ?? [];
+      const preds = graph.predecessors[id] || [];
       for (const p of preds) {
         if (!ancestors.has(p)) {
           ancestors.add(p);
@@ -60,7 +71,7 @@ export function DagNodeCanvas({
     };
 
     const traceDescendants = (id: string) => {
-      const succs = graph.nodes.get(id)?.dependents ?? [];
+      const succs = graph.successors[id] || [];
       for (const s of succs) {
         if (!descendants.has(s)) {
           descendants.add(s);
@@ -88,7 +99,6 @@ export function DagNodeCanvas({
         const id = el.getAttribute("data-node-id");
         if (id) {
           const rect = el.getBoundingClientRect();
-          // Middle right for outgoing, middle left for incoming
           positions[id] = {
             x: (rect.left - containerRect.left + rect.width / 2) / zoom,
             y: (rect.top - containerRect.top + rect.height / 2) / zoom,
@@ -113,6 +123,20 @@ export function DagNodeCanvas({
     onSelectNode?.(next);
   };
 
+  const matchesFilter = (node: DAGNode<SequenceStep>) => {
+    if (filterMode === "critical" && !node.isCritical) return false;
+    if (filterMode === "float" && node.isCritical) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      return (
+        node.name.toLowerCase().includes(q) ||
+        node.stage.toLowerCase().includes(q) ||
+        node.standardReference.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  };
+
   return (
     <div className="space-y-4">
       {/* Canvas Header & Toolbar */}
@@ -126,27 +150,64 @@ export function DagNodeCanvas({
               Interactive DAG Network Graph
             </h4>
             <p className="text-xs text-muted-foreground">
-              {graph.nodes.size} nodes · {graph.edges.length} dependency edges ·{" "}
-              {graph.waves.length} parallel waves
+              {graph.metrics.totalNodes} nodes · {graph.metrics.totalEdges}{" "}
+              dependency edges · {graph.waves.length} parallel waves · CPM
+              Critical Path
             </p>
           </div>
         </div>
 
-        {/* Legend */}
-        <div className="flex flex-wrap items-center gap-3 text-xs">
-          <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full border-2 border-amber-500 bg-amber-500/20" />
-            <span className="text-muted-foreground">Critical Path</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full border-2 border-emerald-500 bg-emerald-500/20" />
-            <span className="text-muted-foreground">Float Available</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-brand-purple animate-pulse" />
-            <span className="text-muted-foreground">Simulating</span>
-          </span>
+        {/* Filter & Search Controls */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative w-44">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search tasks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-8 pl-8 text-xs"
+            />
+          </div>
 
+          <div className="flex items-center rounded-lg border border-border p-0.5 bg-muted/40 text-xs">
+            <button
+              type="button"
+              onClick={() => setFilterMode("all")}
+              className={`rounded-md px-2.5 py-1 font-medium transition-colors ${
+                filterMode === "all"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              All ({graph.metrics.totalNodes})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterMode("critical")}
+              className={`rounded-md px-2.5 py-1 font-medium transition-colors ${
+                filterMode === "critical"
+                  ? "bg-card text-amber-600 shadow-sm"
+                  : "text-muted-foreground hover:text-amber-600"
+              }`}
+            >
+              Critical ({graph.metrics.criticalNodesCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterMode("float")}
+              className={`rounded-md px-2.5 py-1 font-medium transition-colors ${
+                filterMode === "float"
+                  ? "bg-card text-emerald-600 shadow-sm"
+                  : "text-muted-foreground hover:text-emerald-600"
+              }`}
+            >
+              With Float (
+              {graph.metrics.totalNodes - graph.metrics.criticalNodesCount})
+            </button>
+          </div>
+
+          {/* Zoom controls */}
           <div className="flex items-center gap-1 border-l border-border pl-2">
             <Button
               variant="outline"
@@ -182,15 +243,15 @@ export function DagNodeCanvas({
       {/* Main Canvas Area */}
       <div
         ref={containerRef}
-        className="relative min-h-[460px] overflow-x-auto rounded-2xl border border-border bg-muted/20 p-6 shadow-inner"
+        className="relative min-h-[480px] overflow-x-auto rounded-2xl border border-border bg-muted/20 p-6 shadow-inner"
         style={{ transform: `scale(${zoom})`, transformOrigin: "top left" }}
       >
         {/* SVG Dependency Lines */}
         <svg
           className="pointer-events-none absolute inset-0 h-full w-full"
           style={{
-            minWidth: `${graph.waves.length * 320}px`,
-            minHeight: "500px",
+            minWidth: `${Math.max(graph.waves.length * 340, 1100)}px`,
+            minHeight: "540px",
           }}
         >
           <defs>
@@ -255,7 +316,7 @@ export function DagNodeCanvas({
 
             const dx = toPos.x - fromPos.x;
             const curve = Math.max(30, dx * 0.45);
-            const pathData = `M ${fromPos.x + 110} ${fromPos.y} C ${fromPos.x + 110 + curve} ${fromPos.y}, ${toPos.x - 110 - curve} ${toPos.y}, ${toPos.x - 110} ${toPos.y}`;
+            const pathData = `M ${fromPos.x + 115} ${fromPos.y} C ${fromPos.x + 115 + curve} ${fromPos.y}, ${toPos.x - 115 - curve} ${toPos.y}, ${toPos.x - 115} ${toPos.y}`;
 
             return (
               <path
@@ -276,7 +337,7 @@ export function DagNodeCanvas({
         {/* Waves Columns */}
         <div className="relative flex min-w-max gap-8 pb-8 pt-2">
           {graph.waves.map((wave) => (
-            <div key={wave.waveIndex} className="flex w-72 flex-col space-y-4">
+            <div key={wave.waveIndex} className="flex w-76 flex-col space-y-4">
               {/* Wave Column Header */}
               <div className="sticky top-0 z-10 rounded-xl border border-border/80 bg-card/95 p-3 shadow-sm backdrop-blur">
                 <div className="flex items-center justify-between">
@@ -284,13 +345,13 @@ export function DagNodeCanvas({
                     Wave {wave.waveIndex + 1}
                   </span>
                   <span className="rounded bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-brand-purple">
-                    ~{wave.waveDuration}d max
+                    ~{wave.waveDuration}d window
                   </span>
                 </div>
                 <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
                   <span>
-                    {wave.nodes.length} concurrent{" "}
-                    {wave.nodes.length === 1 ? "task" : "tasks"}
+                    {wave.nodes.length}{" "}
+                    {wave.nodes.length === 1 ? "task" : "parallel tasks"}
                   </span>
                   <span>Day {wave.cumulativeDuration}</span>
                 </div>
@@ -299,6 +360,9 @@ export function DagNodeCanvas({
               {/* Node Cards in this Wave */}
               <div className="space-y-4">
                 {wave.nodes.map((node) => {
+                  const isVisible = matchesFilter(node);
+                  if (!isVisible) return null;
+
                   const status = nodeStatuses[node.id] || "pending";
                   const isSelected = selectedId === node.id;
                   const isAncestor = ancestorIds.has(node.id);
@@ -328,9 +392,9 @@ export function DagNodeCanvas({
                       onClick={() => handleSelect(node.id)}
                       className={`relative z-10 cursor-pointer rounded-2xl border p-4 shadow-card transition-all duration-200 hover:shadow-md ${borderClass} ${bgClass}`}
                     >
-                      {/* Status indicator badge */}
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {/* Status indicator & Float badge */}
+                      <div className="mb-2 flex items-center justify-between gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground truncate max-w-[120px]">
                           {node.stage}
                         </span>
                         {status === "in_progress" && (
@@ -346,12 +410,12 @@ export function DagNodeCanvas({
                         )}
                         {status === "pending" && node.isCritical && (
                           <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-600">
-                            Critical
+                            Critical (0d float)
                           </span>
                         )}
                         {status === "pending" && !node.isCritical && (
-                          <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                            Float: {node.totalFloat}d
+                          <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-700 dark:text-emerald-400 font-medium">
+                            TF: {node.totalFloat}d
                           </span>
                         )}
                       </div>
@@ -360,13 +424,17 @@ export function DagNodeCanvas({
                         {node.name}
                       </h5>
 
+                      <p className="mt-1 text-[10px] text-muted-foreground">
+                        {formatTradeName(node.trade)}
+                      </p>
+
                       <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 text-[11px] text-muted-foreground">
                         <span className="inline-flex items-center gap-1 font-medium text-foreground">
                           <Clock className="h-3 w-3 text-brand-purple" />
                           {node.duration}d
                         </span>
-                        <span>
-                          D{node.earlyStart} → D{node.earlyFinish}
+                        <span className="font-mono text-[10px]">
+                          ES:{node.earlyStart} · EF:{node.earlyFinish}
                         </span>
                       </div>
                     </div>
@@ -390,15 +458,27 @@ export function DagNodeCanvas({
                 <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   {selectedNode.stage}
                 </span>
-                {selectedNode.isCritical && (
+                <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                  {formatTradeName(selectedNode.trade)}
+                </span>
+                {selectedNode.isCritical ? (
                   <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs font-bold text-amber-600">
-                    Critical Path (Float: 0d)
+                    CPM Critical Path (Total Float: 0d)
+                  </span>
+                ) : (
+                  <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                    Float Available: {selectedNode.totalFloat}d (Free Float:{" "}
+                    {selectedNode.freeFloat}d)
                   </span>
                 )}
               </div>
               <h4 className="mt-2 text-lg font-bold text-foreground">
                 {selectedNode.name}
               </h4>
+              <p className="mt-1 text-xs text-muted-foreground">
+                <strong className="text-foreground">Standard Citation:</strong>{" "}
+                {selectedNode.standardReference}
+              </p>
             </div>
             <Button
               variant="outline"
@@ -409,7 +489,7 @@ export function DagNodeCanvas({
             </Button>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-border bg-muted/40 p-3 text-xs sm:grid-cols-5">
+          <div className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-border bg-muted/40 p-3 text-xs sm:grid-cols-6">
             <div>
               <span className="block text-[11px] text-muted-foreground">
                 Duration
@@ -420,35 +500,100 @@ export function DagNodeCanvas({
             </div>
             <div>
               <span className="block text-[11px] text-muted-foreground">
-                Early Start
+                Early Start (ES)
               </span>
-              <strong className="text-sm text-foreground">
+              <strong className="text-sm text-foreground font-mono">
                 Day {selectedNode.earlyStart}
               </strong>
             </div>
             <div>
               <span className="block text-[11px] text-muted-foreground">
-                Early Finish
+                Early Finish (EF)
               </span>
-              <strong className="text-sm text-foreground">
+              <strong className="text-sm text-foreground font-mono">
                 Day {selectedNode.earlyFinish}
               </strong>
             </div>
             <div>
               <span className="block text-[11px] text-muted-foreground">
-                Late Finish
+                Late Start (LS)
               </span>
-              <strong className="text-sm text-foreground">
+              <strong className="text-sm text-foreground font-mono">
+                Day {selectedNode.lateStart}
+              </strong>
+            </div>
+            <div>
+              <span className="block text-[11px] text-muted-foreground">
+                Late Finish (LF)
+              </span>
+              <strong className="text-sm text-foreground font-mono">
                 Day {selectedNode.lateFinish}
               </strong>
             </div>
             <div>
               <span className="block text-[11px] text-muted-foreground">
-                Total Float
+                Total Float / Free Float
               </span>
-              <strong className="text-sm text-foreground">
-                {selectedNode.totalFloat} days
+              <strong className="text-sm text-foreground font-mono">
+                {selectedNode.totalFloat}d / {selectedNode.freeFloat}d
               </strong>
+            </div>
+          </div>
+
+          {/* Predecessors & Successors causal links */}
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-xl border border-border/80 bg-card p-3">
+              <span className="text-xs font-semibold text-muted-foreground">
+                Prerequisites ({selectedNode.dependencies.length})
+              </span>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {selectedNode.dependencies.length === 0 ? (
+                  <span className="text-xs text-muted-foreground">
+                    None (Project Milestone / Root)
+                  </span>
+                ) : (
+                  selectedNode.dependencies.map((depId) => {
+                    const parent = graph.nodes.get(depId);
+                    return (
+                      <button
+                        key={depId}
+                        type="button"
+                        onClick={() => setSelectedId(depId)}
+                        className="rounded bg-muted px-2 py-0.5 text-xs text-brand-purple hover:underline"
+                      >
+                        {parent?.name || depId}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border/80 bg-card p-3">
+              <span className="text-xs font-semibold text-muted-foreground">
+                Successors ({selectedNode.dependents.length})
+              </span>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {selectedNode.dependents.length === 0 ? (
+                  <span className="text-xs text-muted-foreground">
+                    None (Terminal Activity / Project Completion)
+                  </span>
+                ) : (
+                  selectedNode.dependents.map((succId) => {
+                    const child = graph.nodes.get(succId);
+                    return (
+                      <button
+                        key={succId}
+                        type="button"
+                        onClick={() => setSelectedId(succId)}
+                        className="rounded bg-muted px-2 py-0.5 text-xs text-brand-purple hover:underline"
+                      >
+                        {child?.name || succId}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
 
@@ -463,31 +608,36 @@ export function DagNodeCanvas({
                     <HardHat className="h-4 w-4" /> Activities
                   </p>
                   <ul className="space-y-1.5">
-                    {selectedNode.data.activities.map((item, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-2 text-xs text-muted-foreground"
-                      >
-                        <span className="text-brand-purple">•</span>
-                        {item}
-                      </li>
-                    ))}
+                    {selectedNode.data.activities.map(
+                      (item: string, i: number) => (
+                        <li
+                          key={i}
+                          className="flex items-start gap-2 text-xs text-muted-foreground"
+                        >
+                          <span className="text-brand-purple">•</span>
+                          {item}
+                        </li>
+                      ),
+                    )}
                   </ul>
                 </div>
                 <div className="rounded-xl border border-border p-4">
                   <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
-                    <CheckCircle2 className="h-4 w-4" /> Quality Checks
+                    <CheckCircle2 className="h-4 w-4" /> Quality Checks &
+                    International Standards
                   </p>
                   <ul className="space-y-1.5">
-                    {selectedNode.data.quality_checks.map((item, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-2 text-xs text-muted-foreground"
-                      >
-                        <span className="text-emerald-500">✓</span>
-                        {item}
-                      </li>
-                    ))}
+                    {selectedNode.data.quality_checks.map(
+                      (item: string, i: number) => (
+                        <li
+                          key={i}
+                          className="flex items-start gap-2 text-xs text-muted-foreground"
+                        >
+                          <span className="text-emerald-500">✓</span>
+                          {item}
+                        </li>
+                      ),
+                    )}
                   </ul>
                 </div>
               </div>
