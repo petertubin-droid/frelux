@@ -11,6 +11,15 @@ export const siteConfig = {
   description:
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, from a single room to an entire building, foundation to roof. Free, professional-grade estimation in multiple languages, for builders worldwide.",
   email: "frenzyanthony39@gmail.com",
+  // Verified support contact options and operating response standards
+  supportContact: {
+    email: "frenzyanthony39@gmail.com",
+    whatsappPhone: "+2349063612439",
+    whatsappDisplay: "+234 906 361 2439",
+    whatsappUrl: "https://wa.me/2349063612439",
+    operatingHours: "Monday – Friday: 8:00 AM – 6:00 PM (WAT / UTC+1)",
+    responseExpectation: "WhatsApp: typically within hours during business days. Email: within 1 business day.",
+  },
   // AdSense, leave empty until approved; ads component renders nothing when unset.
   adsense: {
     publisherId: "ca-pub-3404100134534192",

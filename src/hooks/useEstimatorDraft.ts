@@ -93,13 +93,23 @@ export function useEstimatorDraft<T>(
       }
 
       if (showToast && toastApi) {
-        toastApi.toast({
-          type: "info",
-          title: customToastTitle || "Calculation restored",
-          message:
-            customToastMessage ||
-            "We restored your previous calculation. Click 'Start fresh' to reset.",
-        });
+        if (typeof toastApi.toast === "function") {
+          toastApi.toast({
+            type: "info",
+            title: customToastTitle || "Calculation restored",
+            message:
+              customToastMessage ||
+              "We restored your previous calculation. Click 'Start fresh' to reset.",
+          });
+        } else if (typeof (toastApi as unknown as Record<string, unknown>).showToast === "function") {
+          ((toastApi as unknown as Record<string, Function>).showToast)({
+            type: "info",
+            title: customToastTitle || "Calculation restored",
+            message:
+              customToastMessage ||
+              "We restored your previous calculation. Click 'Start fresh' to reset.",
+          });
+        }
       }
     } catch (err) {
       console.warn(

@@ -34,6 +34,8 @@ import {
   createEstimateItem,
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
+import { useEstimatorDraft } from "@/hooks/useEstimatorDraft";
+import { CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
@@ -62,6 +64,19 @@ function fmtN(v: number | null): string {
   return v === null ? "N/A" : v.toLocaleString();
 }
 
+interface ReinforcementDraftState {
+  lens: Record<LenField, string>;
+  labourMode: "none" | "per_tonne" | "lump_sum";
+  labourRate: string;
+}
+
+const DEFAULT_LENS: Record<LenField, string> = {
+  len_12mm_m: "",
+  len_16mm_m: "",
+  len_20mm_m: "",
+  len_25mm_m: "",
+};
+
 export default function ReinforcementEstimator() {
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   const { user } = useAuth();
@@ -74,16 +89,28 @@ export default function ReinforcementEstimator() {
   const [rebarMarket, setRebarMarket] = useState<RebarMarketResolution | null>(
     null,
   );
-  const [lens, setLens] = useState<Record<LenField, string>>({
-    len_12mm_m: "",
-    len_16mm_m: "",
-    len_20mm_m: "",
-    len_25mm_m: "",
-  });
+  const [lens, setLens] = useState<Record<LenField, string>>(DEFAULT_LENS);
   const [labourMode, setLabourMode] = useState<
     "none" | "per_tonne" | "lump_sum"
   >("none");
   const [labourRate, setLabourRate] = useState("");
+
+  const draftState = useMemo<ReinforcementDraftState>(
+    () => ({ lens, labourMode, labourRate }),
+    [lens, labourMode, labourRate],
+  );
+
+  const { isRestored, clearDraft, dismissRestored } =
+    useEstimatorDraft<ReinforcementDraftState>("reinforcement_estimator", draftState, {
+      onRestore: (saved) => {
+        if (saved?.lens) setLens((prev) => ({ ...prev, ...saved.lens }));
+        if (saved?.labourMode) setLabourMode(saved.labourMode);
+        if (typeof saved?.labourRate === "string") setLabourRate(saved.labourRate);
+      },
+      showToast: true,
+      customToastTitle: "Reinforcement draft restored",
+      customToastMessage: "Your previous reinforcement inputs were restored from this device.",
+    });
   const [result, setResult] = useState<ReinforcementResult | null>(null);
   const [saveState, setSaveState] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -327,6 +354,36 @@ export default function ReinforcementEstimator() {
         title={pageTitle}
         subtitle="Enter your bar schedule cutting lengths per diameter. The engine converts them to whole 12 m stock lengths with a visible lap/waste allowance, computes BS 4449 tonnage for delivery planning, and prices from the shared material database. It does NOT design reinforcement."
       />
+
+      {isRestored && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs sm:text-sm text-foreground shadow-xs">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span>We restored your previous reinforcement calculation draft from your browser.</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                clearDraft();
+                setLens(DEFAULT_LENS);
+                setLabourMode("none");
+                setLabourRate("");
+              }}
+              className="font-medium text-muted-foreground hover:text-foreground underline cursor-pointer"
+            >
+              Start fresh
+            </button>
+            <button
+              type="button"
+              onClick={dismissRestored}
+              className="font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       <MarketScopeNotice />
       {marketCode !== "NG" && (

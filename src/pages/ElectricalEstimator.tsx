@@ -30,6 +30,8 @@ import {
   createEstimateItem,
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
+import { useEstimatorDraft } from "@/hooks/useEstimatorDraft";
+import { CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
@@ -87,6 +89,31 @@ function fmtN(v: number | null): string {
   return v === null ? "N/A" : v.toLocaleString();
 }
 
+interface ElectricalDraftState {
+  buildingType: string;
+  counts: Record<NumField, string>;
+  runs: Record<RunField, string>;
+  labourMode: "none" | "per_point" | "lump_sum";
+  labourRate: string;
+}
+
+const DEFAULT_BUILDING_TYPE = BUILDING_TYPES[0];
+const DEFAULT_COUNTS: Record<NumField, string> = {
+  lighting_points: "10",
+  socket_points: "8",
+  dedicated_points: "1",
+  switches: "10",
+  distribution_boards: "1",
+};
+
+const DEFAULT_RUNS: Record<RunField, string> = {
+  avg_run_lighting_m: "",
+  avg_run_socket_m: "",
+  avg_run_dedicated_m: "",
+  avg_run_earth_m: "",
+  avg_run_feeder_m: "",
+};
+
 export default function ElectricalEstimator() {
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
@@ -103,25 +130,32 @@ export default function ElectricalEstimator() {
     [marketCode],
   );
   const isFeet = electricalProfile.runDistanceUnit === "ft";
-  const [buildingType, setBuildingType] = useState(BUILDING_TYPES[0]);
-  const [counts, setCounts] = useState<Record<NumField, string>>({
-    lighting_points: "10",
-    socket_points: "8",
-    dedicated_points: "1",
-    switches: "10",
-    distribution_boards: "1",
-  });
-  const [runs, setRuns] = useState<Record<RunField, string>>({
-    avg_run_lighting_m: "",
-    avg_run_socket_m: "",
-    avg_run_dedicated_m: "",
-    avg_run_earth_m: "",
-    avg_run_feeder_m: "",
-  });
+  const [buildingType, setBuildingType] = useState(DEFAULT_BUILDING_TYPE);
+  const [counts, setCounts] = useState<Record<NumField, string>>(DEFAULT_COUNTS);
+  const [runs, setRuns] = useState<Record<RunField, string>>(DEFAULT_RUNS);
   const [labourMode, setLabourMode] = useState<
     "none" | "per_point" | "lump_sum"
   >("none");
   const [labourRate, setLabourRate] = useState("");
+
+  const draftState = useMemo<ElectricalDraftState>(
+    () => ({ buildingType, counts, runs, labourMode, labourRate }),
+    [buildingType, counts, runs, labourMode, labourRate],
+  );
+
+  const { isRestored, clearDraft, dismissRestored } =
+    useEstimatorDraft<ElectricalDraftState>("electrical_estimator", draftState, {
+      onRestore: (saved) => {
+        if (saved?.buildingType) setBuildingType(saved.buildingType);
+        if (saved?.counts) setCounts((prev) => ({ ...prev, ...saved.counts }));
+        if (saved?.runs) setRuns((prev) => ({ ...prev, ...saved.runs }));
+        if (saved?.labourMode) setLabourMode(saved.labourMode);
+        if (typeof saved?.labourRate === "string") setLabourRate(saved.labourRate);
+      },
+      showToast: true,
+      customToastTitle: "Electrical draft restored",
+      customToastMessage: "Your previous electrical inputs were restored from this device.",
+    });
   const [result, setResult] = useState<ElectricalResult | null>(null);
   const [saveState, setSaveState] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -397,6 +431,38 @@ export default function ElectricalEstimator() {
         title="Electrical Wiring Estimator"
         subtitle="Enter your point counts and estimated average cable runs. The engine sizes each cable category separately, counts circuits and accessories from your inputs, and shows every step of the calculation. Estimation only: not professional electrical design."
       />
+
+      {isRestored && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs sm:text-sm text-foreground shadow-xs">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span>We restored your previous electrical calculation draft from your browser.</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                clearDraft();
+                setBuildingType(DEFAULT_BUILDING_TYPE);
+                setCounts(DEFAULT_COUNTS);
+                setRuns(DEFAULT_RUNS);
+                setLabourMode("none");
+                setLabourRate("");
+              }}
+              className="font-medium text-muted-foreground hover:text-foreground underline cursor-pointer"
+            >
+              Start fresh
+            </button>
+            <button
+              type="button"
+              onClick={dismissRestored}
+              className="font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       <MarketScopeNotice />
       {marketCode !== "NG" && (

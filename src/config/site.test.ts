@@ -7,6 +7,8 @@ describe("config/site", () => {
     expect(siteConfig.shortName).toBeTruthy();
     expect(siteConfig.tagline).toBeTruthy();
     expect(siteConfig.email).toBeTruthy();
+    expect(siteConfig.supportContact.whatsappUrl).toContain("wa.me");
+    expect(siteConfig.supportContact.whatsappDisplay).toBeTruthy();
   });
 
   it("siteConfig has contact email config", () => {

@@ -4,6 +4,8 @@ import {
   Send,
   CheckCircle2,
   AlertCircle,
+  MessageCircle,
+  Clock,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { siteConfig } from "@/config/site";
@@ -158,16 +160,31 @@ export default function Contact() {
               {status === "error" && (
                 <div
                   role="alert"
-                  className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+                  className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-950/30 dark:text-red-300"
                 >
                   <AlertCircle
                     aria-hidden="true"
                     className="mt-0.5 h-4 w-4 shrink-0"
                   />
-                  <p>
-                    The contact form isn’t connected to a backend yet. For now,
-                    please reach us on WhatsApp and we’ll respond shortly.
-                  </p>
+                  <div className="space-y-1">
+                    <p className="font-semibold">Unable to send message right now.</p>
+                    <p className="text-xs">
+                      Please send an email directly to{" "}
+                      <a href={`mailto:${siteConfig.email}`} className="underline font-medium hover:text-foreground">
+                        {siteConfig.email}
+                      </a>{" "}
+                      or reach us via WhatsApp at{" "}
+                      <a
+                        href={siteConfig.supportContact.whatsappUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline font-medium hover:text-foreground"
+                      >
+                        {siteConfig.supportContact.whatsappDisplay}
+                      </a>
+                      .
+                    </p>
+                  </div>
                 </div>
               )}
               {status === "success" && (
@@ -193,21 +210,50 @@ export default function Contact() {
               </h2>
               <ul className="mt-4 space-y-4 text-sm">
                 <li className="flex items-start gap-3 rounded-lg border border-border p-3 dark:border-white/5">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <MessageCircle aria-hidden="true" className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <span className="block font-semibold text-foreground dark:text-primary-foreground">
+                      WhatsApp Support
+                    </span>
+                    <a
+                      href={siteConfig.supportContact.whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-0.5 inline-block text-emerald-600 hover:underline dark:text-emerald-400 font-medium"
+                    >
+                      {siteConfig.supportContact.whatsappDisplay}
+                    </a>
+                    <span className="block text-xs text-muted-foreground mt-0.5">
+                      Fastest response on business days
+                    </span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3 rounded-lg border border-border p-3 dark:border-white/5">
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                     <Mail aria-hidden="true" className="h-4 w-4" />
                   </span>
-                  <span>
+                  <div>
                     <span className="block font-semibold text-foreground dark:text-primary-foreground">
                       Email
                     </span>
-                    <span className="block text-muted-foreground dark:text-muted-foreground">
+                    <a
+                      href={`mailto:${siteConfig.email}`}
+                      className="text-muted-foreground hover:underline dark:text-muted-foreground"
+                    >
                       {siteConfig.email}
-                    </span>
-                  </span>
+                    </a>
+                  </div>
                 </li>
               </ul>
-              <div className="mt-6 rounded-lg bg-muted/50 p-4 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
-                Typical response time: within one business day on weekdays.
+
+              <div className="mt-6 space-y-2 rounded-lg bg-muted/50 p-4 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-3.5 w-3.5 shrink-0 text-primary" />
+                  <span>{siteConfig.supportContact.operatingHours}</span>
+                </div>
+                <p>{siteConfig.supportContact.responseExpectation}</p>
               </div>
             </div>
           </div>

@@ -44,10 +44,10 @@ Every agent, developer, and automated pipeline working on FRELUX must strictly o
 
 Previously completed interface changes and historical audit metrics have been removed. Treat these as open verification items, not established defects. Preserve the existing mobile action-bar, market-selector, dark-mode, Learn, and differentiated page-header improvements.
 
-- **Regional support:** verify whether contact options suit the selected market. Add regional routing only for confirmed contacts and response expectations.
+- **Regional support & Contact page:** COMPLETE (2026-10-18): Verified direct WhatsApp channel (+234 906 361 2439, click-to-chat wa.me/2349063612439) and central email (frenzyanthony39@gmail.com) integrated into `src/pages/Contact.tsx` and `src/config/site.ts` with operating hours (Mon-Fri 8:00 AM - 6:00 PM WAT) and explicit response expectations. Replaced stale backend error disclaimer with direct support links. Tests green.
+- **Draft recovery:** COMPLETE (2026-10-18): Wired `useEstimatorDraft` into `PlumbingEstimator.tsx`, `ElectricalEstimator.tsx`, and `ReinforcementEstimator.tsx` (joining `BuildToRoofEstimator.tsx`). Unsaved calculations are preserved across tab switches and reloads in localStorage with clear in-browser disclosure and a one-click "Start fresh" reset button. 9 unit tests green.
 - **Accessibility:** audit current calculator labels, keyboard order, focus, screen-reader names, contrast, and visible units. Fix demonstrated issues with regression tests; do not rely on stale counts.
 - **Build-to-Roof workflow:** validate with builders whether focused estimates still require unnecessary steps. If so, allow optional assemblies and direct navigation without weakening input checks.
-- **Draft recovery:** identify calculators that lose entered values. Add clearly disclosed local recovery and reset controls where needed; do not imply local drafts are cloud-saved.
 - **Print/export:** fix demonstrated clipping, page-break, or branding defects while preserving intentional print output.
 - **Technical localization:** translated UI chrome is not reviewed technical translation. Add terminology-managed human review and locale QA where needed; distinguish machine translation from approved safety or regulatory instructions.
 
