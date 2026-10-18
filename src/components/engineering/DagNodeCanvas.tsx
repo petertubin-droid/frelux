@@ -9,8 +9,6 @@ import {
   Clock,
   CheckCircle2,
   HardHat,
-  ShieldCheck,
-  AlertTriangle,
   ZoomIn,
   ZoomOut,
   Maximize2,
@@ -38,7 +36,7 @@ export function DagNodeCanvas({
 
   const selectedNode = useMemo(() => {
     if (!selectedId) return null;
-    return graph.nodes.find((n) => n.id === selectedId) || null;
+    return graph.nodes.get(selectedId) ?? null;
   }, [selectedId, graph]);
 
   const { ancestorIds, descendantIds } = useMemo(() => {
@@ -52,7 +50,7 @@ export function DagNodeCanvas({
     const descendants = new Set<string>();
 
     const traceAncestors = (id: string) => {
-      const preds = graph.predecessors[id] || [];
+      const preds = graph.nodes.get(id)?.dependencies ?? [];
       for (const p of preds) {
         if (!ancestors.has(p)) {
           ancestors.add(p);
@@ -62,7 +60,7 @@ export function DagNodeCanvas({
     };
 
     const traceDescendants = (id: string) => {
-      const succs = graph.successors[id] || [];
+      const succs = graph.nodes.get(id)?.dependents ?? [];
       for (const s of succs) {
         if (!descendants.has(s)) {
           descendants.add(s);
@@ -128,8 +126,8 @@ export function DagNodeCanvas({
               Interactive DAG Network Graph
             </h4>
             <p className="text-xs text-muted-foreground">
-              {graph.nodes.length} nodes · {graph.edges.length} dependency edges
-              · {graph.waves.length} parallel waves
+              {graph.nodes.size} nodes · {graph.edges.length} dependency edges ·{" "}
+              {graph.waves.length} parallel waves
             </p>
           </div>
         </div>
@@ -335,7 +333,7 @@ export function DagNodeCanvas({
                         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                           {node.stage}
                         </span>
-                        {status === "active" && (
+                        {status === "in_progress" && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold text-brand-purple animate-pulse">
                             <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" />
                             Executing
