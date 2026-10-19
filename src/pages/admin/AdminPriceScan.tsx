@@ -74,6 +74,7 @@ export default function AdminPriceScan() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busySource, setBusySource] = useState<string | null>(null);
+  const [batchBusy, setBatchBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [newSource, setNewSource] = useState({
@@ -131,8 +132,11 @@ export default function AdminPriceScan() {
           candidate?: { status?: string; scrape_error?: string | null };
         }>("price-scan", { body: { source_id: source.id } });
         if (fnError) throw fnError;
-        const scanned = (data as { candidate?: { status?: string; scrape_error?: string | null } } | null)
-          ?.candidate;
+        const scanned = (
+          data as {
+            candidate?: { status?: string; scrape_error?: string | null };
+          } | null
+        )?.candidate;
         // A blocked/unparseable page is a normal scan outcome, recorded as
         // a FAILED candidate — tell the admin WHY instead of implying success.
         setNotice(
@@ -253,6 +257,91 @@ export default function AdminPriceScan() {
     },
     [load],
   );
+
+  const approveAllEligible = useCallback(async () => {
+    const eligible = candidates.filter(
+      (c) => c.status === "pending" && c.scraped_price && c.scraped_price > 0,
+    );
+    if (eligible.length === 0) return;
+    setBatchBusy(true);
+    setError(null);
+    let count = 0;
+    try {
+      for (const cand of eligible) {
+        try {
+          const { data: material } = await supabase
+            .from("estimation_materials")
+            .select("id")
+            .eq("slug", cand.material_slug)
+            .maybeSingle();
+          if (!material) continue;
+          const today = new Date().toISOString().slice(0, 10);
+          const { data: applied, error: writeError } =
+            await createOrUpdatePrice({
+              price_type: "material",
+              ref_id: material.id,
+              price: cand.scraped_price ?? 0,
+              currency: cand.currency,
+              market: cand.market,
+              effective_date: today,
+              price_source: cand.retailer,
+              scan_source: cand.product_url,
+              scan_confidence: cand.confidence,
+              last_scanned_at: cand.created_at,
+              notes: `Auto-promoted scan (${cand.retailer}, ${cand.extraction ?? "page"} extraction). Unit: ${cand.unit ?? "unit"}.`,
+              is_active: true,
+            });
+          if (!writeError && applied) {
+            await supabase
+              .from("price_scan_candidates")
+              .update({
+                status: "approved",
+                reviewed_at: new Date().toISOString(),
+                applied_price_id: applied.id,
+              })
+              .eq("id", cand.id);
+            count++;
+          }
+        } catch {
+          // Continue with next candidate
+        }
+      }
+      setNotice(
+        `Batch approval complete: ${count} verified candidate prices promoted to active books.`,
+      );
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Batch operation failed");
+    } finally {
+      setBatchBusy(false);
+    }
+  }, [candidates, load]);
+
+  const rejectAllFailed = useCallback(async () => {
+    const failed = candidates.filter(
+      (c) =>
+        c.status === "pending" &&
+        (!c.scraped_price || c.scraped_price <= 0 || c.scrape_error),
+    );
+    if (failed.length === 0) return;
+    setBatchBusy(true);
+    try {
+      const ids = failed.map((f) => f.id);
+      await supabase
+        .from("price_scan_candidates")
+        .update({
+          status: "rejected",
+          reviewed_at: new Date().toISOString(),
+        })
+        .in("id", ids);
+      setNotice(`Rejected ${ids.length} invalid/failed scan candidates.`);
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Batch rejection failed");
+    } finally {
+      setBatchBusy(false);
+    }
+  }, [candidates, load]);
 
   const pending = candidates.filter((c) => c.status === "pending");
   const reviewed = candidates
@@ -447,12 +536,37 @@ export default function AdminPriceScan() {
           className="rounded-lg border bg-card p-6"
           data-testid="pending-candidates"
         >
-          <h2 className="mb-4 text-lg font-semibold">
-            Pending review
-            <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-              {pending.length}
-            </span>
-          </h2>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              Pending review
+              <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                {pending.length}
+              </span>
+            </h2>
+            {pending.length > 0 && (
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={approveAllEligible}
+                  disabled={batchBusy}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                  data-testid="approve-all-candidates-btn"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {batchBusy ? "Processing…" : "Auto-Approve All Valid"}
+                </Button>
+                <Button
+                  onClick={rejectAllFailed}
+                  disabled={batchBusy}
+                  variant="outline"
+                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-muted disabled:opacity-50"
+                  data-testid="reject-failed-candidates-btn"
+                >
+                  <XCircle className="w-3.5 h-3.5" />
+                  Reject Invalids
+                </Button>
+              </div>
+            )}
+          </div>
           {pending.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No scans awaiting review. Scan a source above: results land here

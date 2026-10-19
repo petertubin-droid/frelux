@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Loader2, AlertCircle, Share2, Clock } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
-import { fetchSharedResource } from "@/lib/queries";
+import { fetchSharedResource, fetchSharedProject } from "@/lib/queries";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import { readableTextColor } from "@/lib/colors";
@@ -41,15 +41,14 @@ export default function SharedProject() {
       setLink(linkData);
 
       if (linkData.resource_type === "project") {
-        const { data: proj } = await supabase
-          .from("user_projects")
-          .select("*")
-          .eq("id", linkData.resource_id)
-          .maybeSingle();
+        const { data: proj, error: projError } = await fetchSharedProject(
+          linkData.id,
+          linkData.resource_id,
+        );
         if (proj) {
           setProject(proj as DbUserProject);
-          const savedColors = (proj as Record<string, unknown>).saved_colors as
-            { color_id?: string }[] | undefined;
+          const savedColors = (proj as unknown as Record<string, unknown>)
+            .saved_colors as { color_id?: string }[] | undefined;
           if (savedColors && savedColors.length > 0) {
             const colorIds = savedColors
               .map((c) => c.color_id)
@@ -60,6 +59,10 @@ export default function SharedProject() {
               .in("id", colorIds);
             setColors((colData ?? []) as DbPaintColor[]);
           }
+        } else if (projError) {
+          setError(
+            "Unable to load project data. The project may be private or deleted.",
+          );
         }
       }
       setLoading(false);

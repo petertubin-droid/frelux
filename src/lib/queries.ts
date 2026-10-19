@@ -1018,6 +1018,36 @@ export async function fetchSharedResource(
   };
 }
 
+export async function fetchSharedProject(
+  linkId: string,
+  resourceId: string,
+): Promise<{ data: DbUserProject | null; error: string | null }> {
+  // 1. Try secure RPC first (works seamlessly for anon and external viewers)
+  try {
+    const { data: rpcData, error: rpcError } = await supabase.rpc(
+      "get_public_shared_project",
+      { p_link_id: linkId },
+    );
+    if (!rpcError && rpcData) {
+      return { data: rpcData as unknown as DbUserProject, error: null };
+    }
+  } catch {
+    // If RPC is unavailable or fails, fall through to direct table select
+  }
+
+  // 2. Direct table select (authorized via user_proj_shared_select RLS policy)
+  const { data, error } = await supabase
+    .from("user_projects")
+    .select("*")
+    .eq("id", resourceId)
+    .maybeSingle();
+
+  return {
+    data: data as DbUserProject | null,
+    error: error ? error.message : null,
+  };
+}
+
 // =========================================================
 // Media Library
 // =========================================================
