@@ -119,19 +119,6 @@ describe("checkAuthority: the single decision point", () => {
     });
   });
 
-  it("allows when an ADMIN record covers the scope, and reports ADMIN_AUTHORIZED", () => {
-    const d = checkAuthority(
-      { authority: "deploy_code", scope: "repo:frelux" },
-      reg({ id: "auth_admin", scope: "repo:*", granted_by: "ADMIN" }),
-      NOW,
-    );
-    expect(d).toMatchObject({
-      allowed: true,
-      basis: "ADMIN_AUTHORIZED",
-      authorizationId: "auth_admin",
-    });
-  });
-
   it("refuses expired authorizations: expiry is enforced at decision time", () => {
     const d = checkAuthority(
       { authority: "deploy_code", scope: "repo:frelux" },
@@ -163,10 +150,6 @@ describe("production-change pipeline: ARCHIE can never self-approve", () => {
     expect(nextProductionStage("TESTED", "OWNER")).toEqual({
       ok: true,
       to: "OWNER_APPROVED_2",
-    });
-    expect(nextProductionStage("PROPOSED", "ADMIN")).toEqual({
-      ok: true,
-      to: "OWNER_APPROVED_1",
     });
   });
 

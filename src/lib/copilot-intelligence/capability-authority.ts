@@ -59,7 +59,7 @@ export interface AuthorizationRecord {
   authority: ArchieAuthority;
   /** What the authorization covers, e.g. a URL, repo path or target scope. */
   scope: string;
-  granted_by: "OWNER" | "ADMIN" | "SYSTEM" | "AUTO";
+  granted_by: "OWNER";
   /** Epoch ms when granted. */
   granted_at: number;
   /** Epoch ms after which the authorization is void. */
@@ -113,14 +113,9 @@ export class AuthorizationRegistry {
   /** OWNER-ONLY action (enforced by callers/RLS; ARCHIE never
    *  invokes this). Grants an authority for a scope. */
   grant(
-    record: Omit<AuthorizationRecord, "granted_by"> & {
-      granted_by?: "OWNER" | "ADMIN" | "SYSTEM" | "AUTO";
-    },
+    record: Omit<AuthorizationRecord, "granted_by"> & { granted_by?: "OWNER" },
   ): AuthorizationRecord {
-    const full: AuthorizationRecord = {
-      ...record,
-      granted_by: record.granted_by ?? "OWNER",
-    };
+    const full: AuthorizationRecord = { ...record, granted_by: "OWNER" };
     if (full.expires_at <= full.granted_at) {
       throw new Error("Authorization expiry must be after grant time.");
     }
@@ -141,6 +136,7 @@ export class AuthorizationRegistry {
     for (const r of this.records.values()) {
       if (
         r.authority === authority &&
+        r.granted_by === "OWNER" &&
         r.expires_at > now &&
         scopeMatches(r.scope, scope)
       ) {
@@ -181,11 +177,7 @@ export function scopeMatches(
 export type AuthorityDecision =
   | {
       allowed: true;
-      basis:
-        | "CAPABILITY_FREE"
-        | "OWNER_AUTHORIZED"
-        | "ADMIN_AUTHORIZED"
-        | "SYSTEM_AUTHORIZED";
+      basis: "CAPABILITY_FREE" | "OWNER_AUTHORIZED";
       authorizationId?: string;
     }
   | { allowed: false; required: ArchieAuthority; reason: string };
@@ -215,15 +207,9 @@ export function checkAuthority(
   const scope = action.scope ?? "";
   for (const r of registry.listValid(now)) {
     if (r.authority === action.authority && scopeMatches(r.scope, scope)) {
-      const basis =
-        r.granted_by === "ADMIN"
-          ? "ADMIN_AUTHORIZED"
-          : r.granted_by === "SYSTEM" || r.granted_by === "AUTO"
-            ? "SYSTEM_AUTHORIZED"
-            : "OWNER_AUTHORIZED";
       return {
         allowed: true,
-        basis,
+        basis: "OWNER_AUTHORIZED",
         authorizationId: r.id,
       };
     }
@@ -264,16 +250,16 @@ const PRODUCTION_PIPELINE: readonly ProductionChangeStage[] = [
 
 export function nextProductionStage(
   from: ProductionChangeStage,
-  actor: "ARCHIE" | "OWNER" | "ADMIN",
+  actor: "ARCHIE" | "OWNER",
 ): { ok: true; to: ProductionChangeStage } | { ok: false; error: string } {
   const idx = PRODUCTION_PIPELINE.indexOf(from);
   if (idx === -1 || idx === PRODUCTION_PIPELINE.length - 1) {
     return { ok: false, error: `No next stage from "${from}".` };
   }
   const next = PRODUCTION_PIPELINE[idx + 1];
-  // Approvals are the only stages ARCHIE cannot perform.
+  // Owner approvals are the only stages ARCHIE cannot perform.
   if (next === "OWNER_APPROVED_1" || next === "OWNER_APPROVED_2") {
-    if (actor === "ARCHIE") {
+    if (actor !== "OWNER") {
       return {
         ok: false,
         error: `Stage ${next} is an OWNER gate. ARCHIE cannot approve its own production changes.`,
