@@ -164,7 +164,10 @@ describe("WorkflowTab (global operations control plane)", () => {
       screen.getAllByRole("button", { name: /expand details/i })[0],
     );
     expect(await screen.findByText(/Audit trail/i)).toBeInTheDocument();
-    expect(screen.getByText(/Created as RFI-0001/)).toBeInTheDocument();
+    // The trail's events load async after the header renders — await
+    // the note instead of asserting it synchronously (CI runners are
+    // slower than local and resolve the header first).
+    expect(await screen.findByText(/Created as RFI-0001/)).toBeInTheDocument();
   });
 
   it("filtering narrows the list to the selected type", async () => {
