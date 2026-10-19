@@ -28,9 +28,15 @@ BEGIN
       CHECK (granted_by IN ('OWNER'));
 
     -- Restore admin-only RLS (matching the ARCHIE project's posture)
+    -- Drop BOTH the loosened policy names (auth_*) and the
+    -- original names (owner_*) before re-creating — the preview
+    -- DB may carry either (they coexist by name).
     DROP POLICY IF EXISTS "auth_read_authorizations" ON public.archie_global_authorizations;
     DROP POLICY IF EXISTS "auth_write_authorizations" ON public.archie_global_authorizations;
     DROP POLICY IF EXISTS "auth_update_authorizations" ON public.archie_global_authorizations;
+    DROP POLICY IF EXISTS "owner_read_authorizations" ON public.archie_global_authorizations;
+    DROP POLICY IF EXISTS "owner_write_authorizations" ON public.archie_global_authorizations;
+    DROP POLICY IF EXISTS "owner_revoke_authorizations" ON public.archie_global_authorizations;
 
     CREATE POLICY "owner_read_authorizations"
       ON public.archie_global_authorizations FOR SELECT
