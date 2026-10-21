@@ -277,7 +277,7 @@ describe("REFERENCE TEST, manual path vs plan-vision path (§25)", () => {
       windows: 0,
       coats: 2,
       includeCeiling: true,
-      wasteMargin: 10,
+      wasteMargin: 0,
       unit: "meters",
     });
     expect(manual.ok).toBe(true);

@@ -82,7 +82,7 @@ export default function InteractiveEstimatePreview() {
       paintType: "premium-emulsion",
       unit: "feet",
       includeCeiling: false,
-      wasteMargin: 10,
+      wasteMargin: 0,
     };
     return calculatePaint(input, {
       coverageRate: DEFAULT_COVERAGE_M2_PER_LITER,
@@ -287,9 +287,9 @@ export default function InteractiveEstimatePreview() {
                     </span>
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Theoretical: {result.paintRequiredLiters.toFixed(1)} L +{" "}
-                    {result.wasteMargin}% waste ={" "}
-                    {result.adjustedLiters.toFixed(1)} L (rounded up to buckets)
+                    Theoretical: {result.paintRequiredLiters.toFixed(1)} L ·
+                    optional allowance: {result.wasteMargin}% · purchase rounded
+                    up to full buckets
                   </p>
                 </div>
 

@@ -161,7 +161,7 @@ export default function PaintCalculator({
   const { defaults: calcDefaults, rules: _calcRules } =
     useCalcDefaults("painting");
   const WASTE_OPTIONS = (calcDefaults.wasteMarginOptions as number[]) ?? [
-    0, 5, 10, 15,
+    0, 1, 2, 5,
   ];
   const defaultDoorDims: OpeningDimensions = {
     width: calcDefaults.doorWidthM,
@@ -242,7 +242,7 @@ export default function PaintCalculator({
     paintType: "",
     unit: roomUnit,
     includeCeiling: false,
-    wasteMargin: 10,
+    wasteMargin: 0,
     surfaceCondition: "smooth",
     colorCondition: "same_or_light",
     includePrimer: false,
@@ -794,7 +794,7 @@ export default function PaintCalculator({
       paintType: paintTypes[0]?.id ?? "",
       unit: roomUnit,
       includeCeiling: false,
-      wasteMargin: 10,
+      wasteMargin: 0,
       surfaceCondition: "smooth",
       colorCondition: "same_or_light",
       includePrimer: false,
@@ -1604,10 +1604,11 @@ function Step3({
 
       <div className="mt-4">
         <span className="block text-sm font-semibold text-card-foreground">
-          Waste / safety margin
+          Optional extra allowance
         </span>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Extra paint added to account for spills, roller waste, and touch ups.
+          Optional buffer for site-specific application losses or touch-ups.
+          Container rounding is calculated separately.
         </p>
         <WasteMarginControl
           value={input.wasteMargin}

@@ -127,12 +127,12 @@ describe("buildConversationalEstimate", () => {
     expect(r.followUpQuestions).toHaveLength(0);
     expect(r.paintEstimate).not.toBeNull();
     const est = r.paintEstimate!;
-    // Hand-verified: 49.23 m² net, 9.85 L base, 10.83 L with waste.
+    // Hand-verified: 49.23 m² net, 9.85 L theoretical with no default allowance.
     expect(est.paintableArea).toBeCloseTo(49.23, 1);
-    expect(est.liters).toBeCloseTo(10.83, 1);
+    expect(est.liters).toBeCloseTo(9.85, 1);
     expect(est.coats).toBe(2);
     // Containers: the engine recommends practical buckets (20 L
-    // preferred) - a single 20 L bucket more than covers 10.83 L.
+    // preferred) - a single 20 L bucket more than covers 9.85 L.
     expect(est.containers.length).toBeGreaterThan(0);
     const totalLiters = est.containers.reduce(
       (a, c) => a + c.size * c.count,

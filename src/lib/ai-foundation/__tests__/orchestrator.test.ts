@@ -174,7 +174,7 @@ describe("end-to-end execution", () => {
       paintType: "standard",
       unit: "meters" as never,
       includeCeiling: true,
-      wasteMargin: 10,
+      wasteMargin: 0,
     });
     const raw = outcome.result?.raw as typeof manual | undefined;
     expect(raw?.paintableArea).toBe(manual.paintableArea);

@@ -709,7 +709,7 @@ export function buildConversationalEstimate(
       paintType: "standard",
       unit,
       includeCeiling: true,
-      wasteMargin: 10,
+      wasteMargin: 0,
       surfaceCondition: "smooth",
       colorCondition: "same_or_light",
       includePrimer: false,

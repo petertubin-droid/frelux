@@ -60,7 +60,7 @@ export function registerPhase2Engines(): void {
         doors: input.doors ?? 0,
         windows: input.windows ?? 0,
         coats: input.coats ?? 2,
-        wasteMargin: input.wasteMargin ?? 10,
+        wasteMargin: input.wasteMargin ?? 0,
       });
       if (invalid) {
         return {
@@ -123,7 +123,7 @@ export function registerPhase2Engines(): void {
           paintType: input.paintType ?? "standard",
           unit: (input.unit ?? "meters") as never,
           includeCeiling: input.includeCeiling ?? true,
-          wasteMargin: input.wasteMargin ?? 10,
+          wasteMargin: input.wasteMargin ?? 0,
         },
         {
           coverageRate,
@@ -419,7 +419,9 @@ export function registerPhase2Engines(): void {
         {
           workflow:
             input.workflow ??
-            (input.market && input.market !== "NG" ? "international" : "nigeria"),
+            (input.market && input.market !== "NG"
+              ? "international"
+              : "nigeria"),
           roomLength: input.roomLength,
           roomWidth: input.roomWidth,
           unit: (input.unit ?? "meters") as never,

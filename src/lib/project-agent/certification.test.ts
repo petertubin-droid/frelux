@@ -1266,7 +1266,7 @@ describe("PROPAGATION, admin config change reaches every consumer", () => {
         paintType: "standard",
         unit: "meters",
         includeCeiling: true,
-        wasteMargin: 10,
+        wasteMargin: 0,
       },
       {
         coverageRate: DEFAULT_COVERAGE_M2_PER_LITER,

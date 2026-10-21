@@ -80,9 +80,9 @@ describe("ConversationalEstimator page", () => {
     pasteAndSubmit(
       "Hello, I want to paint my room. It is 4 by 3 meters, 2 coats, in Lagos",
     );
-    // 49.23 m² / 10.83 L - same chain as the Paint Calculator.
+    // 49.23 m² / 9.85 L theoretical; no default allowance.
     expect(await screen.findByText(/49\.23 m²/)).toBeInTheDocument();
-    expect(screen.getByText(/10\.83 litres/)).toBeInTheDocument();
+    expect(screen.getByText(/9\.85 litres/)).toBeInTheDocument();
     // The engine shows what it heard, with evidence
     expect(screen.getByText(/“4 by 3”/)).toBeInTheDocument();
     // No follow-up questions: the thread had the size

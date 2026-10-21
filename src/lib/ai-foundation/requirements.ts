@@ -18,13 +18,21 @@
 // "missing" and the Copilot asks the user.
 // =========================================================
 
-import type { AiFact, CopilotTaskType, FreluxContext, RequirementFieldLite } from './types';
-import { canUseInCalculation, createFact } from './trust';
-import { defaultBuildToRoofInput, getEngineDescriptor } from './engines-registry';
-import { normalizeLengthUnit, convertToEngineUnit } from './units';
+import type {
+  AiFact,
+  CopilotTaskType,
+  FreluxContext,
+  RequirementFieldLite,
+} from "./types";
+import { canUseInCalculation, createFact } from "./trust";
+import {
+  defaultBuildToRoofInput,
+  getEngineDescriptor,
+} from "./engines-registry";
+import { normalizeLengthUnit, convertToEngineUnit } from "./units";
 
 /** Priority order, lower number wins. */
-const ORIGIN_PRIORITY: Record<AiFact['origin'], number> = {
+const ORIGIN_PRIORITY: Record<AiFact["origin"], number> = {
   user_input: 0,
   user_confirmed: 1,
   project_data: 2,
@@ -45,126 +53,140 @@ export interface RequirementField extends RequirementFieldLite {
   assumption?: string;
 }
 
-export const TASK_REQUIREMENTS: Record<Exclude<CopilotTaskType, 'unsupported'>, {
-  engineId: string;
-  fields: RequirementField[];
-}> = {
+export const TASK_REQUIREMENTS: Record<
+  Exclude<CopilotTaskType, "unsupported">,
+  {
+    engineId: string;
+    fields: RequirementField[];
+  }
+> = {
   building_estimate: {
-    engineId: 'build_to_roof',
+    engineId: "build_to_roof",
     fields: [
-      { key: 'building_length', label: 'Building length', unit: 'm' },
-      { key: 'building_width', label: 'Building width', unit: 'm' },
-      { key: 'number_of_floors', label: 'Number of floors', unit: 'count' },
-      { key: 'building_type', label: 'Building type' },
-      { key: 'location', label: 'Location (town/city)' },
+      { key: "building_length", label: "Building length", unit: "m" },
+      { key: "building_width", label: "Building width", unit: "m" },
+      { key: "number_of_floors", label: "Number of floors", unit: "count" },
+      { key: "building_type", label: "Building type" },
+      { key: "location", label: "Location (town/city)" },
     ],
   },
   roof_estimate: {
-    engineId: 'roof_geometry',
+    engineId: "roof_geometry",
     fields: [
-      { key: 'building_length', label: 'Building length', unit: 'm' },
-      { key: 'building_width', label: 'Building width', unit: 'm' },
-      { key: 'roof_type', label: 'Roof type' },
-      { key: 'roof_pitch_degrees', label: 'Roof pitch', unit: 'degrees' },
-      { key: 'roof_overhang', label: 'Roof overhang', unit: 'm' },
+      { key: "building_length", label: "Building length", unit: "m" },
+      { key: "building_width", label: "Building width", unit: "m" },
+      { key: "roof_type", label: "Roof type" },
+      { key: "roof_pitch_degrees", label: "Roof pitch", unit: "degrees" },
+      { key: "roof_overhang", label: "Roof overhang", unit: "m" },
     ],
   },
   painting_estimate: {
-    engineId: 'painting_wall_area',
+    engineId: "painting_wall_area",
     fields: [
-      { key: 'length', label: 'Room length', unit: 'm' },
-      { key: 'width', label: 'Room width', unit: 'm' },
-      { key: 'height', label: 'Wall height', unit: 'm' },
+      { key: "length", label: "Room length", unit: "m" },
+      { key: "width", label: "Room width", unit: "m" },
+      { key: "height", label: "Wall height", unit: "m" },
     ],
   },
   tyrolene_estimate: {
-    engineId: 'tyrolene_partition_area',
+    engineId: "tyrolene_partition_area",
     fields: [
-      { key: 'width', label: 'Partition width', unit: 'm' },
-      { key: 'height', label: 'Partition height', unit: 'm' },
+      { key: "width", label: "Partition width", unit: "m" },
+      { key: "height", label: "Partition height", unit: "m" },
     ],
   },
   painting_materials: {
-    engineId: 'painting_project',
+    engineId: "painting_project",
     fields: [
-      { key: 'length', label: 'Room length', unit: 'm' },
-      { key: 'width', label: 'Room width', unit: 'm' },
-      { key: 'wallHeight', label: 'Wall height', unit: 'm' },
+      { key: "length", label: "Room length", unit: "m" },
+      { key: "width", label: "Room width", unit: "m" },
+      { key: "wallHeight", label: "Wall height", unit: "m" },
       // Defaultable inputs, resolved from TASK_SMART_DEFAULTS and shown
       // as editable assumptions, never asked unless the user overrides.
       {
- key: 'doors', label: 'Doors', unit: 'count' },
-      { key: 'windows', label: 'Windows', unit: 'count' },
-      { key: 'coats', label: 'Coats', unit: 'count' },
-      { key: 'wasteMargin', label: 'Waste margin', unit: '%' },
-      { key: 'includeCeiling', label: 'Include ceiling' },
+        key: "doors",
+        label: "Doors",
+        unit: "count",
+      },
+      { key: "windows", label: "Windows", unit: "count" },
+      { key: "coats", label: "Coats", unit: "count" },
+      { key: "wasteMargin", label: "Waste margin", unit: "%" },
+      { key: "includeCeiling", label: "Include ceiling" },
     ],
   },
   screeding_estimate: {
-    engineId: 'screeding_system',
+    engineId: "screeding_system",
     fields: [
-      { key: 'areaM2', label: 'Screeding area', unit: 'm²' },
-      { key: 'systemType', label: 'Screeding system' },
+      { key: "areaM2", label: "Screeding area", unit: "m²" },
+      { key: "systemType", label: "Screeding system" },
     ],
   },
   tile_estimate: {
-    engineId: 'tile_estimate',
+    engineId: "tile_estimate",
     fields: [
-      { key: 'surfaceType', label: 'Surface type (floor or wall)' },
-      { key: 'length', label: 'Surface length', unit: 'm' },
-      { key: 'width', label: 'Surface width', unit: 'm' },
-      { key: 'tileWidthMm', label: 'Tile width', unit: 'mm' },
-      { key: 'tileHeightMm', label: 'Tile height', unit: 'mm' },
-      { key: 'tilesPerBox', label: 'Tiles per box', unit: 'count' },
-      { key: 'tilePricePerBox', label: 'Tile price per box' },
-      { key: 'method', label: 'Installation method' },
-      { key: 'wasteMargin', label: 'Waste margin', unit: '%' },
+      { key: "surfaceType", label: "Surface type (floor or wall)" },
+      { key: "length", label: "Surface length", unit: "m" },
+      { key: "width", label: "Surface width", unit: "m" },
+      { key: "tileWidthMm", label: "Tile width", unit: "mm" },
+      { key: "tileHeightMm", label: "Tile height", unit: "mm" },
+      { key: "tilesPerBox", label: "Tiles per box", unit: "count" },
+      { key: "tilePricePerBox", label: "Tile price per box" },
+      { key: "method", label: "Installation method" },
+      { key: "wasteMargin", label: "Waste margin", unit: "%" },
     ],
   },
   pop_estimate: {
-    engineId: 'pop_ceiling',
+    engineId: "pop_ceiling",
     fields: [
-      { key: 'roomLength', label: 'Room length', unit: 'm' },
-      { key: 'roomWidth', label: 'Room width', unit: 'm' },
-      { key: 'wasteMargin', label: 'Waste margin', unit: '%' },
-      { key: 'includeDecorative', label: 'Include decorative' },
-      { key: 'includeOptional', label: 'Include optional items' },
-      { key: 'workflow', label: 'Material workflow' },
+      { key: "roomLength", label: "Room length", unit: "m" },
+      { key: "roomWidth", label: "Room width", unit: "m" },
+      { key: "wasteMargin", label: "Waste margin", unit: "%" },
+      { key: "includeDecorative", label: "Include decorative" },
+      { key: "includeOptional", label: "Include optional items" },
+      { key: "workflow", label: "Material workflow" },
     ],
   },
   foundation_estimate: {
-    engineId: 'foundation',
+    engineId: "foundation",
     fields: [
-      { key: 'marketCode', label: 'Country/market (e.g. NG, US, GB)' },
-      { key: 'concrete_volume_m3', label: 'Foundation concrete volume', unit: 'm³' },
-      { key: 'block_wall_area_m2', label: 'Blockwork-to-DPC wall area', unit: 'm²' },
-      { key: 'hardcore_volume_m3', label: 'Hardcore fill volume', unit: 'm³' },
+      { key: "marketCode", label: "Country/market (e.g. NG, US, GB)" },
+      {
+        key: "concrete_volume_m3",
+        label: "Foundation concrete volume",
+        unit: "m³",
+      },
+      {
+        key: "block_wall_area_m2",
+        label: "Blockwork-to-DPC wall area",
+        unit: "m²",
+      },
+      { key: "hardcore_volume_m3", label: "Hardcore fill volume", unit: "m³" },
     ],
   },
   doors_windows_estimate: {
-    engineId: 'doors_windows',
+    engineId: "doors_windows",
     fields: [
-      { key: 'marketCode', label: 'Country/market (e.g. NG, US, GB)' },
-      { key: 'flush_doors', label: 'Flush doors', unit: 'count' },
-      { key: 'panel_doors', label: 'Panel doors', unit: 'count' },
-      { key: 'security_doors', label: 'Security doors', unit: 'count' },
-      { key: 'aluminium_windows', label: 'Aluminium windows', unit: 'count' },
-      { key: 'louvre_windows', label: 'Louvre windows', unit: 'count' },
+      { key: "marketCode", label: "Country/market (e.g. NG, US, GB)" },
+      { key: "flush_doors", label: "Flush doors", unit: "count" },
+      { key: "panel_doors", label: "Panel doors", unit: "count" },
+      { key: "security_doors", label: "Security doors", unit: "count" },
+      { key: "aluminium_windows", label: "Aluminium windows", unit: "count" },
+      { key: "louvre_windows", label: "Louvre windows", unit: "count" },
     ],
   },
   reinforcement_estimate: {
-    engineId: 'reinforcement',
+    engineId: "reinforcement",
     fields: [
-      { key: 'marketCode', label: 'Country/market (e.g. NG, US, GB)' },
-      { key: 'len_12mm_m', label: 'Total 12 mm cutting length', unit: 'm' },
-      { key: 'len_16mm_m', label: 'Total 16 mm cutting length', unit: 'm' },
-      { key: 'len_20mm_m', label: 'Total 20 mm cutting length', unit: 'm' },
-      { key: 'len_25mm_m', label: 'Total 25 mm cutting length', unit: 'm' },
+      { key: "marketCode", label: "Country/market (e.g. NG, US, GB)" },
+      { key: "len_12mm_m", label: "Total 12 mm cutting length", unit: "m" },
+      { key: "len_16mm_m", label: "Total 16 mm cutting length", unit: "m" },
+      { key: "len_20mm_m", label: "Total 20 mm cutting length", unit: "m" },
+      { key: "len_25mm_m", label: "Total 25 mm cutting length", unit: "m" },
     ],
   },
-  finish_compare: { engineId: 'finish_compare', fields: [] }, // config-backed, future phase
-  scenario_compare: { engineId: 'build_to_roof', fields: [] }, // resolved per scenario
-  project_question: { engineId: '', fields: [] }, // answered from context, no engine
+  finish_compare: { engineId: "finish_compare", fields: [] }, // config-backed, future phase
+  scenario_compare: { engineId: "build_to_roof", fields: [] }, // resolved per scenario
+  project_question: { engineId: "", fields: [] }, // answered from context, no engine
 };
 
 /**
@@ -172,39 +194,107 @@ export const TASK_REQUIREMENTS: Record<Exclude<CopilotTaskType, 'unsupported'>, 
  * engine itself), these are surfaced as explicit, editable ASSUMPTIONS :
  * never silently applied.
  */
-const TASK_SMART_DEFAULTS: Partial<Record<Exclude<CopilotTaskType, 'unsupported'>, Record<string, {
-  value: AiFact['value'];
-  unit?: string;
-  assumption: string;
-  confidence?: number;
-}>>> = {
+const TASK_SMART_DEFAULTS: Partial<
+  Record<
+    Exclude<CopilotTaskType, "unsupported">,
+    Record<
+      string,
+      {
+        value: AiFact["value"];
+        unit?: string;
+        assumption: string;
+        confidence?: number;
+      }
+    >
+  >
+> = {
   doors_windows_estimate: {
     include_locksets: {
       value: true,
-      unit: 'count',
-      assumption: 'Locksets included (same default as the doors & windows estimator page)',
+      unit: "count",
+      assumption:
+        "Locksets included (same default as the doors & windows estimator page)",
       confidence: 0.5,
     },
   },
   painting_materials: {
-    doors: { value: 1, unit: 'count', assumption: '1 standard door (0.9 × 2.1 m), the FRELUX manual calculator default', confidence: 0.5 },
-    windows: { value: 2, unit: 'count', assumption: '2 standard windows (0.9 × 1.2 m), the FRELUX manual calculator default', confidence: 0.5 },
-    coats: { value: 2, unit: 'count', assumption: '2 coats, standard for emulsion', confidence: 0.7 },
-    wasteMargin: { value: 10, unit: '%', assumption: '10% waste margin, FRELUX standard', confidence: 0.7 },
-    includeCeiling: { value: true, assumption: 'Ceiling included in the paint estimate', confidence: 0.6 },
+    doors: {
+      value: 1,
+      unit: "count",
+      assumption:
+        "1 standard door (0.9 × 2.1 m), the FRELUX manual calculator default",
+      confidence: 0.5,
+    },
+    windows: {
+      value: 2,
+      unit: "count",
+      assumption:
+        "2 standard windows (0.9 × 1.2 m), the FRELUX manual calculator default",
+      confidence: 0.5,
+    },
+    coats: {
+      value: 2,
+      unit: "count",
+      assumption: "2 coats, standard for emulsion",
+      confidence: 0.7,
+    },
+    wasteMargin: {
+      value: 0,
+      unit: "%",
+      assumption:
+        "No extra paint allowance by default; optional user-selected buffer, with container rounding handled separately",
+      confidence: 0.9,
+    },
+    includeCeiling: {
+      value: true,
+      assumption: "Ceiling included in the paint estimate",
+      confidence: 0.6,
+    },
   },
   screeding_estimate: {
-    systemType: { value: 'white_cement_paint', assumption: 'White cement + screeding paint system, the common Nigerian screed finish', confidence: 0.6 },
+    systemType: {
+      value: "white_cement_paint",
+      assumption:
+        "White cement + screeding paint system, the common Nigerian screed finish",
+      confidence: 0.6,
+    },
   },
   tile_estimate: {
-    method: { value: 'traditional', assumption: 'Traditional cement-and-sand installation method', confidence: 0.6 },
-    wasteMargin: { value: 10, unit: '%', assumption: '10% waste margin, FRELUX standard', confidence: 0.7 },
+    method: {
+      value: "traditional",
+      assumption: "Traditional cement-and-sand installation method",
+      confidence: 0.6,
+    },
+    wasteMargin: {
+      value: 10,
+      unit: "%",
+      assumption: "10% waste margin, FRELUX standard",
+      confidence: 0.7,
+    },
   },
   pop_estimate: {
-    wasteMargin: { value: 10, unit: '%', assumption: '10% waste margin, FRELUX standard', confidence: 0.7 },
-    includeDecorative: { value: false, assumption: 'Plain POP ceiling (no decorative mouldings)', confidence: 0.7 },
-    includeOptional: { value: false, assumption: 'Optional items excluded', confidence: 0.7 },
-    workflow: { value: 'nigeria', assumption: 'Nigerian POP material workflow, the only material list currently configured', confidence: 0.8 },
+    wasteMargin: {
+      value: 10,
+      unit: "%",
+      assumption: "10% waste margin, FRELUX standard",
+      confidence: 0.7,
+    },
+    includeDecorative: {
+      value: false,
+      assumption: "Plain POP ceiling (no decorative mouldings)",
+      confidence: 0.7,
+    },
+    includeOptional: {
+      value: false,
+      assumption: "Optional items excluded",
+      confidence: 0.7,
+    },
+    workflow: {
+      value: "nigeria",
+      assumption:
+        "Nigerian POP material workflow, the only material list currently configured",
+      confidence: 0.8,
+    },
   },
 };
 
@@ -230,7 +320,7 @@ function usableFact(fact: AiFact | undefined): AiFact | undefined {
  * smart defaults (assumptions).
  */
 export function resolveRequirements(
-  taskType: Exclude<CopilotTaskType, 'unsupported'>,
+  taskType: Exclude<CopilotTaskType, "unsupported">,
   context: FreluxContext,
   facts: AiFact[],
 ): RequirementResolution {
@@ -240,27 +330,34 @@ export function resolveRequirements(
     const usable = usableFact(fact);
     if (!usable) continue;
     const existing = byKey.get(fact.key);
-    if (!existing || ORIGIN_PRIORITY[usable.origin] < ORIGIN_PRIORITY[existing.origin]) {
+    if (
+      !existing ||
+      ORIGIN_PRIORITY[usable.origin] < ORIGIN_PRIORITY[existing.origin]
+    ) {
       byKey.set(fact.key, usable);
     }
   }
 
   // Context-provided values (location intelligence, project data)
   if (context.location?.region || context.location?.city) {
-    const locText = [context.location.city, context.location.region, context.location.country]
+    const locText = [
+      context.location.city,
+      context.location.region,
+      context.location.country,
+    ]
       .filter(Boolean)
-      .join(', ');
+      .join(", ");
     if (locText) {
       byKey.set(
-        'location',
+        "location",
         createFact({
-          key: 'location',
-          label: 'Location',
+          key: "location",
+          label: "Location",
           value: context.location.city || context.location.region || locText,
-          origin: 'location_data',
-          source: 'FRELUX-location-intelligence',
+          origin: "location_data",
+          source: "FRELUX-location-intelligence",
           confidence: 1,
-          evidence: 'From your project location (Location Intelligence)',
+          evidence: "From your project location (Location Intelligence)",
         }),
       );
     }
@@ -271,28 +368,33 @@ export function resolveRequirements(
   const assumptions: AiFact[] = [];
   const needsConfirmation: AiFact[] = [];
 
-  const defaults = defaultBuildToRoofInput() as unknown as Record<string, unknown>;
+  const defaults = defaultBuildToRoofInput() as unknown as Record<
+    string,
+    unknown
+  >;
 
   for (const field of spec.fields) {
     const fact = usableFact(byKey.get(field.key));
     if (fact) {
       resolved[field.key] = fact;
-      if (fact.trust === 'needs_confirmation') needsConfirmation.push(fact);
+      if (fact.trust === "needs_confirmation") needsConfirmation.push(fact);
       continue;
     }
     // Smart default → assumption, clearly labelled, never hidden.
-    const defaultValue = spec.engineId === 'build_to_roof' ? defaults[field.key] : undefined;
+    const defaultValue =
+      spec.engineId === "build_to_roof" ? defaults[field.key] : undefined;
     const taskDefault = TASK_SMART_DEFAULTS[taskType]?.[field.key];
     if (defaultValue !== undefined || taskDefault !== undefined) {
       const originValue = taskDefault?.value ?? defaultValue;
-      const assumptionText = taskDefault?.assumption ?? 'FRELUX standard assumption (editable)';
+      const assumptionText =
+        taskDefault?.assumption ?? "FRELUX standard assumption (editable)";
       const assumptionFact = createFact({
         key: field.key,
         label: field.label,
-        value: originValue as AiFact['value'],
+        value: originValue as AiFact["value"],
         unit: taskDefault?.unit ?? field.unit,
-        origin: 'smart_default',
-        source: 'FRELUX-smart-defaults',
+        origin: "smart_default",
+        source: "FRELUX-smart-defaults",
         confidence: taskDefault?.confidence ?? 0.6,
         evidence: assumptionText,
       });
@@ -304,7 +406,13 @@ export function resolveRequirements(
     missing.push(field);
   }
 
-  return { resolved, missing, assumptions, needsConfirmation, engineId: spec.engineId };
+  return {
+    resolved,
+    missing,
+    assumptions,
+    needsConfirmation,
+    engineId: spec.engineId,
+  };
 }
 
 /**
@@ -312,7 +420,11 @@ export function resolveRequirements(
  * own established convention (Phase-2 contract point 6). For these, feet
  * are passed THROUGH, the engine converts them itself.
  */
-const NATIVE_UNIT_ENGINES = new Set(['painting_project', 'tile_estimate', 'pop_ceiling']);
+const NATIVE_UNIT_ENGINES = new Set([
+  "painting_project",
+  "tile_estimate",
+  "pop_ceiling",
+]);
 
 /** Unit conversions applied at the AI→engine boundary, for provenance. */
 export interface EngineInputConversion {
@@ -338,13 +450,13 @@ export function buildEngineInput(
 
   for (const [key, fact] of Object.entries(resolution.resolved)) {
     let value = fact.value;
-    if (typeof value === 'number' && Number.isFinite(value)) {
+    if (typeof value === "number" && Number.isFinite(value)) {
       const from = normalizeLengthUnit(fact.unit ?? null);
-      if (from === 'ft') {
+      if (from === "ft") {
         if (native) {
           sawFeet = true; // engine converts internally, its convention wins
         } else {
-          const converted = convertToEngineUnit(value, 'ft', 'm');
+          const converted = convertToEngineUnit(value, "ft", "m");
           if (converted.converted) value = converted.value;
         }
       }
@@ -352,13 +464,15 @@ export function buildEngineInput(
     input[key] = value;
   }
 
-  if (native) input.unit = sawFeet ? 'feet' : 'meters';
+  if (native) input.unit = sawFeet ? "feet" : "meters";
   return { ...input, ...extra };
 }
 
 /** Does the engine descriptor for this task actually exist? */
-export function engineExistsForTask(taskType: Exclude<CopilotTaskType, 'unsupported'>): boolean {
+export function engineExistsForTask(
+  taskType: Exclude<CopilotTaskType, "unsupported">,
+): boolean {
   const engineId = TASK_REQUIREMENTS[taskType].engineId;
-  if (!engineId) return taskType === 'project_question'; // no engine needed
+  if (!engineId) return taskType === "project_question"; // no engine needed
   return getEngineDescriptor(engineId) !== null;
 }

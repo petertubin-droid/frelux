@@ -7,9 +7,9 @@
  * instead of importing constants from calc.ts or utils.ts.
  */
 
-import { useEffect, useState, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
-import type { EstimationCalcRule } from '@/types/estimation';
+import { useEffect, useState, useCallback } from "react";
+import { supabase } from "@/lib/supabase";
+import type { EstimationCalcRule } from "@/types/estimation";
 
 export interface CalcDefaults {
   // Global
@@ -31,7 +31,8 @@ const EMPTY_DEFAULTS: CalcDefaults = {
   doorHeightM: 2.4,
   windowWidthM: 1.2,
   windowHeightM: 1.2,
-  estimateDisclaimer: 'These estimates are calculated based on the assumptions shown above and may vary according to site conditions, products used, and current market prices. Always confirm with your supplier or contractor before purchasing.',
+  estimateDisclaimer:
+    "These estimates are calculated based on the assumptions shown above and may vary according to site conditions, products used, and current market prices. Always confirm with your supplier or contractor before purchasing.",
 };
 
 /**
@@ -48,11 +49,16 @@ export function useCalcRules(calculatorType?: string) {
     setError(null);
     try {
       // Fetch global rules (calculator_type IS NULL) + calculator-specific rules
-      let query = supabase.from('estimation_calc_rules').select('*').eq('is_active', true);
+      let query = supabase
+        .from("estimation_calc_rules")
+        .select("*")
+        .eq("is_active", true);
       if (calculatorType) {
-        query = query.or(`calculator_type.is.null,calculator_type.eq.${calculatorType}`);
+        query = query.or(
+          `calculator_type.is.null,calculator_type.eq.${calculatorType}`,
+        );
       } else {
-        query = query.is('calculator_type', null);
+        query = query.is("calculator_type", null);
       }
       const { data, error: dbError } = await query;
       if (dbError) throw new Error(dbError.message);
@@ -65,7 +71,9 @@ export function useCalcRules(calculatorType?: string) {
       }
       setRules(map);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load calc rules');
+      setError(
+        err instanceof Error ? err.message : "Failed to load calc rules",
+      );
     } finally {
       setLoading(false);
     }
@@ -81,25 +89,36 @@ export function useCalcRules(calculatorType?: string) {
 /**
  * Extract a numeric value from a calc rule's rule_value JSON.
  */
-export function getRuleValue(rule: EstimationCalcRule | undefined, fallback: number): number {
+export function getRuleValue(
+  rule: EstimationCalcRule | undefined,
+  fallback: number,
+): number {
   if (!rule?.rule_value) return fallback;
   const v = (rule.rule_value as Record<string, unknown>)?.value;
-  return typeof v === 'number' ? v : fallback;
+  return typeof v === "number" ? v : fallback;
 }
 
 /**
  * Extract a string value from a calc rule's rule_value JSON.
  */
-export function getRuleString(rule: EstimationCalcRule | undefined, fallback: string): string {
+export function getRuleString(
+  rule: EstimationCalcRule | undefined,
+  fallback: string,
+): string {
   if (!rule?.rule_value) return fallback;
-  const v = (rule.rule_value as Record<string, unknown>)?.value ?? (rule.rule_value as Record<string, unknown>)?.text;
-  return typeof v === 'string' ? v : fallback;
+  const v =
+    (rule.rule_value as Record<string, unknown>)?.value ??
+    (rule.rule_value as Record<string, unknown>)?.text;
+  return typeof v === "string" ? v : fallback;
 }
 
 /**
  * Extract a number array from a calc rule's rule_value JSON.
  */
-export function getRuleArray(rule: EstimationCalcRule | undefined, fallback: number[]): number[] {
+export function getRuleArray(
+  rule: EstimationCalcRule | undefined,
+  fallback: number[],
+): number[] {
   if (!rule?.rule_value) return fallback;
   const v = (rule.rule_value as Record<string, unknown>)?.value;
   return Array.isArray(v) ? v : fallback;
@@ -112,21 +131,42 @@ export function useCalcDefaults(calculatorType?: string) {
   const { rules, loading, error } = useCalcRules(calculatorType);
 
   const defaults: CalcDefaults = {
-    doorWidthM: getRuleValue(rules['default_door_width_m'], 0.8),
-    doorHeightM: getRuleValue(rules['default_door_height_m'], 2.4),
-    windowWidthM: getRuleValue(rules['default_window_width_m'], 1.2),
-    windowHeightM: getRuleValue(rules['default_window_height_m'], 1.2),
-    estimateDisclaimer: getRuleString(rules['estimate_disclaimer'], EMPTY_DEFAULTS.estimateDisclaimer),
+    doorWidthM: getRuleValue(rules["default_door_width_m"], 0.8),
+    doorHeightM: getRuleValue(rules["default_door_height_m"], 2.4),
+    windowWidthM: getRuleValue(rules["default_window_width_m"], 1.2),
+    windowHeightM: getRuleValue(rules["default_window_height_m"], 1.2),
+    estimateDisclaimer: getRuleString(
+      rules["estimate_disclaimer"],
+      EMPTY_DEFAULTS.estimateDisclaimer,
+    ),
   };
 
   // Calculator-specific defaults
   if (calculatorType) {
-    defaults.coverageM2PerLiter = getRuleValue(rules['default_coverage_m2_per_liter'], 10);
-    defaults.containerSizes = getRuleArray(rules['default_container_sizes_liters'], [1, 4, 20]);
-    defaults.defaultWasteMargin = getRuleValue(rules['default_waste_margin_pct'], 10);
-    defaults.wasteMarginOptions = getRuleArray(rules['waste_margin_options'], [0, 5, 10, 15]);
-    defaults.howCalculatedText = getRuleString(rules['how_calculated_text'], '');
-    defaults.standardRoomHeightM = getRuleValue(rules['standard_room_height_m'], 2.4384);
+    defaults.coverageM2PerLiter = getRuleValue(
+      rules["default_coverage_m2_per_liter"],
+      10,
+    );
+    defaults.containerSizes = getRuleArray(
+      rules["default_container_sizes_liters"],
+      [1, 4, 20],
+    );
+    defaults.defaultWasteMargin = getRuleValue(
+      rules["default_waste_margin_pct"],
+      calculatorType === "painting" ? 0 : 10,
+    );
+    defaults.wasteMarginOptions = getRuleArray(
+      rules["waste_margin_options"],
+      calculatorType === "painting" ? [0, 1, 2, 5] : [0, 5, 10, 15],
+    );
+    defaults.howCalculatedText = getRuleString(
+      rules["how_calculated_text"],
+      "",
+    );
+    defaults.standardRoomHeightM = getRuleValue(
+      rules["standard_room_height_m"],
+      2.4384,
+    );
   }
 
   return { defaults, rules, loading, error };

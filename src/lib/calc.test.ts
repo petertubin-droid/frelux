@@ -255,6 +255,12 @@ describe("calculatePaint", () => {
     expect(result.adjustedLiters).toBeCloseTo(17.74, 1);
   });
 
+  it("keeps paint quantity at theoretical litres when the optional allowance is zero", () => {
+    const result = calculatePaint({ ...baseInput, wasteMargin: 0 });
+    expect(result.adjustedLiters).toBe(result.paintRequiredLiters);
+    expect(result.wasteMargin).toBe(0);
+  });
+
   it("respects custom coverage rate via config", () => {
     const result = calculatePaint(baseInput, { coverageRate: 5 });
     // With 5 m²/L instead of 10, paint required doubles
