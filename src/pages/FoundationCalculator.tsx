@@ -2,6 +2,7 @@ import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { useState, useCallback } from "react";
 import { useSeo } from "@/lib/seo";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
+import StructuralScopeNotice from "@/components/StructuralScopeNotice";
 import { useMarket } from "@/lib/international/market-context";
 import {
   designFoundation,
@@ -103,6 +104,7 @@ export default function FoundationCalculator() {
       />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
+        <StructuralScopeNotice />
         <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">

@@ -43,6 +43,7 @@ import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
+import StructuralScopeNotice from "@/components/StructuralScopeNotice";
 
 type Tab = "beam" | "column" | "slab" | "concrete";
 
@@ -118,7 +119,8 @@ export default function StructuralCalculator() {
         ]}
       />
 
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+      <div className="mx-auto max-w-5xl space-y-6 px-4 py-10 sm:px-6">
+        <StructuralScopeNotice />
         {/* Tabs */}
         <div className="mb-6 inline-flex flex-wrap rounded-xl border border-border bg-card p-1 dark:border-white/10 dark:bg-card">
           {(
