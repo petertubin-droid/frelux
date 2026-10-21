@@ -60,7 +60,13 @@ function exportDesignSheet(args: {
     {
       title: `FRELUX ${args.kind} Design Sheet`,
       subtitle: `Generated ${new Date().toLocaleDateString()} · ${args.title}`,
-      metaRows: [...args.metaRows, ["Standard", "BS 8110 preliminary sizing"]],
+      metaRows: [
+        ...args.metaRows,
+        [
+          "Basis",
+          "Simplified preliminary calculations; no code-compliance certification",
+        ],
+      ],
       lines: args.checks.map((c) => ({
         label: c.label,
         quantity: c.pass ? "PASS" : "FAIL",
@@ -81,7 +87,7 @@ function exportDesignSheet(args: {
         detail: f,
       })),
       footer:
-        "Preliminary sizing only, per BS 8110. Final design, detailing and safety requirements must come from a qualified structural engineer working from actual drawings and site investigations.",
+        "Preliminary screening and quantity-planning output only. FRELUX does not certify compliance with BS 8110, Eurocodes, ACI, IS 456, or any jurisdictional building code. Concrete-grade profiles do not mean the full design method for that code is implemented. A locally licensed structural engineer must independently verify the design using current applicable codes, project drawings, load combinations, material data, and site investigations before use or construction.",
     },
     `frelux-${args.kind.toLowerCase()}-design-sheet.html`,
   );
@@ -91,7 +97,7 @@ export default function StructuralCalculator() {
   useSeo({
     title: "Structural Calculator | FRELUX",
     description:
-      "Engineering-grade beam, column, and slab sizing for construction projects. BS 8110 simplified method with full formula transparency.",
+      "Preliminary beam, column, and slab sizing estimates with formula transparency. Not a certified structural design or code-compliance check.",
     keywords:
       "structural calculator, beam design, column design, slab design, structural engineering",
   });
@@ -104,7 +110,7 @@ export default function StructuralCalculator() {
         variant="tool"
         eyebrow="Engineering Tool"
         title="Structural Engineering Calculator"
-        subtitle="Engineer-grade beam, column, and slab sizing aligned with Eurocode 2 / BS 8110, ACI 318, and IS 456 standards. Full formula transparency. Preliminary sizing, always verify with a qualified structural engineer."
+        subtitle="Preliminary beam, column, and slab sizing estimates with formula transparency. Concrete grade profiles are available for selected standards, but this tool does not implement or certify full jurisdictional code compliance. A locally licensed structural engineer must verify designs before use or construction."
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Calculators", path: "/calculators" },
@@ -153,11 +159,14 @@ export default function StructuralCalculator() {
                 Professional Disclaimer
               </p>
               <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400 mt-1.5">
-                These calculations provide preliminary member sizing based on BS
-                8110 simplified methods. They are for budgetary planning and
-                initial design only. A qualified structural engineer must verify
-                and approve all structural designs before construction. FRELUX
-                is not liable for designs based solely on this tool.
+                Preliminary screening and budget-planning only. Concrete-grade
+                profiles do not mean the full design provisions of Eurocode, BS
+                8110, ACI 318, IS 456, or local amendments are implemented. This
+                tool does not certify code compliance or produce construction
+                designs. A locally licensed structural engineer must
+                independently verify loads, combinations, detailing, materials,
+                drawings, site conditions, and current jurisdictional
+                requirements before use.
               </p>
             </div>
           </div>
@@ -187,12 +196,29 @@ export function ConcreteTakeoffCalculator() {
   const [result, setResult] = useState<ConcreteTakeoffResult | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const { market, preferredLengthUnit } = useMarket();
-  const [dimensionUnit, setDimensionUnit] = useState<ExtendedLengthUnit>(preferredLengthUnit);
-  useEffect(() => { setDimensionUnit(preferredLengthUnit); }, [market.marketCode, preferredLengthUnit]);
+  const [dimensionUnit, setDimensionUnit] =
+    useState<ExtendedLengthUnit>(preferredLengthUnit);
+  useEffect(() => {
+    setDimensionUnit(preferredLengthUnit);
+  }, [market.marketCode, preferredLengthUnit]);
   const calculate = () => {
-    const parsedDimensions = [length, width, depth].map((value) => parseDimensionalInput(value, { defaultUnit: dimensionUnit, minMm: 0.000001, maxMm: 1_000_000_000 }));
-    const dimensionErrors = parsedDimensions.flatMap((parsed, index) => parsed.ok ? [] : [`${["Length", "Width", "Depth"][index]}: ${parsed.errors[0]}`]);
-    if (dimensionErrors.length) { setErrors(dimensionErrors); setResult(null); return; }
+    const parsedDimensions = [length, width, depth].map((value) =>
+      parseDimensionalInput(value, {
+        defaultUnit: dimensionUnit,
+        minMm: 0.000001,
+        maxMm: 1_000_000_000,
+      }),
+    );
+    const dimensionErrors = parsedDimensions.flatMap((parsed, index) =>
+      parsed.ok
+        ? []
+        : [`${["Length", "Width", "Depth"][index]}: ${parsed.errors[0]}`],
+    );
+    if (dimensionErrors.length) {
+      setErrors(dimensionErrors);
+      setResult(null);
+      return;
+    }
     const [lengthParsed, widthParsed, depthParsed] = parsedDimensions;
     if (!lengthParsed.ok || !widthParsed.ok || !depthParsed.ok) return;
     const scheduled: RebarBarGroup[] = bars.map((bar) => ({
@@ -237,14 +263,29 @@ export function ConcreteTakeoffCalculator() {
       />
     </label>
   );
-  const dimensionField = (label: string, value: string, set: (value: string) => void) => <DimensionalInput label={label} value={value} onValueChange={set} unit={dimensionUnit} onUnitChange={setDimensionUnit} minMm={0.000001} maxMm={1_000_000_000} />;
+  const dimensionField = (
+    label: string,
+    value: string,
+    set: (value: string) => void,
+  ) => (
+    <DimensionalInput
+      label={label}
+      value={value}
+      onValueChange={set}
+      unit={dimensionUnit}
+      onUnitChange={setDimensionUnit}
+      minMm={0.000001}
+      maxMm={1_000_000_000}
+    />
+  );
   return (
     <div className="space-y-6">
       <div className="card p-5 sm:p-7">
         <h2 className="text-xl font-bold">Measured concrete quantities</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Rectangular element quantity takeoff only. It does not size or design
-          structural elements. Measurements accept metric or imperial units; bare values use the selected default unit.
+          structural elements. Measurements accept metric or imperial units;
+          bare values use the selected default unit.
         </p>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label className="grid gap-1 text-sm font-medium">

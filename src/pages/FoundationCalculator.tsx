@@ -34,7 +34,7 @@ export default function FoundationCalculator() {
   useSeo({
     title: "Foundation Design Calculator | FRELUX",
     description:
-      "Calculate strip, pad, and raft foundation sizes based on soil bearing capacity. Common soil types with BS 8004 simplified methods.",
+      "Preliminary strip, pad, and raft foundation sizing estimates. Not a certified geotechnical or structural design, and not a jurisdictional code-compliance check.",
     keywords:
       "foundation calculator, strip footing, pad footing, raft foundation, soil bearing capacity",
   });
@@ -47,7 +47,9 @@ export default function FoundationCalculator() {
   const [depth, setDepth] = useState(0.9);
   const [buildingLength, setBuildingLength] = useState(15);
   const [buildingWidth, setBuildingWidth] = useState(10);
-  const [measurementUnit, setMeasurementUnit] = useState<"m" | "ft">(() => (preferredLengthUnit === "feet" ? "ft" : "m"));
+  const [measurementUnit, setMeasurementUnit] = useState<"m" | "ft">(() =>
+    preferredLengthUnit === "feet" ? "ft" : "m",
+  );
   const [result, setResult] = useState<ReturnType<
     typeof designFoundation
   > | null>(null);
@@ -92,7 +94,7 @@ export default function FoundationCalculator() {
         variant="tool"
         eyebrow="Engineering Tool"
         title="Foundation Design Calculator"
-        subtitle="Strip, pad, and raft foundation sizing based on soil bearing capacity. BS 8004 simplified method."
+        subtitle="Preliminary strip, pad, and raft sizing estimates using assumed or user-entered soil bearing capacity. Not a certified geotechnical or structural design or code-compliance check."
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Calculators", path: "/calculators" },
@@ -108,7 +110,10 @@ export default function FoundationCalculator() {
               Looking for Complete Material Takeoff & Bill of Quantities?
             </span>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              For live localized material quantities (cement, sand, granite, blocks, formwork, hardcore) and market pricing across all 20 international markets, use the canonical <strong>Foundation Estimator</strong>.
+              For live localized material quantities (cement, sand, granite,
+              blocks, formwork, hardcore) and market pricing across all 20
+              international markets, use the canonical{" "}
+              <strong>Foundation Estimator</strong>.
             </p>
           </div>
           <a
@@ -455,11 +460,14 @@ export default function FoundationCalculator() {
                 Geotechnical Disclaimer
               </p>
               <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400 mt-1.5">
-                Soil bearing capacities shown are typical values for common soil
-                types. A geotechnical investigation (soil test) is mandatory for
-                actual foundation design. These calculations are for preliminary
-                sizing and budgetary purposes only. Final design must come from
-                a qualified structural engineer.
+                Soil capacities shown are generic assumptions, not site test
+                results. These simplified calculations do not implement or
+                certify compliance with BS 8004 or any jurisdiction-specific
+                foundation code. They are for preliminary screening and
+                budgeting only. A geotechnical investigation and independent
+                design by a locally licensed geotechnical/structural
+                professional are required before foundation selection, approval,
+                or construction.
               </p>
             </div>
           </div>
