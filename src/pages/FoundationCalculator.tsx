@@ -2,7 +2,7 @@ import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { useState, useCallback } from "react";
 import { useSeo } from "@/lib/seo";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
-import StructuralScopeNotice from "@/components/StructuralScopeNotice";
+import EngineerReviewBadge from "@/components/EngineerReviewBadge";
 import { useMarket } from "@/lib/international/market-context";
 import {
   designFoundation,
@@ -104,7 +104,6 @@ export default function FoundationCalculator() {
       />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
-        <StructuralScopeNotice discipline="foundation" />
         <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
@@ -299,11 +298,14 @@ export default function FoundationCalculator() {
         {/* Results */}
         {result && (
           <div className="card-elevated p-6 sm:p-8">
-            <div className="mb-6 flex items-center gap-2">
-              <Layers className="h-5 w-5 text-brand-purple" />
-              <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                Foundation Design Results
-              </h2>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Layers className="h-5 w-5 text-brand-purple" />
+                <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
+                  Foundation Design Results
+                </h2>
+              </div>
+              <EngineerReviewBadge discipline="foundation" />
             </div>
 
             {/* Key results, premium stat cards */}

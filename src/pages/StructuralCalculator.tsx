@@ -43,7 +43,7 @@ import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
-import StructuralScopeNotice from "@/components/StructuralScopeNotice";
+import EngineerReviewBadge from "@/components/EngineerReviewBadge";
 
 type Tab = "beam" | "column" | "slab" | "concrete";
 
@@ -120,7 +120,6 @@ export default function StructuralCalculator() {
       />
 
       <div className="mx-auto max-w-5xl space-y-6 px-4 py-10 sm:px-6">
-        <StructuralScopeNotice />
         {/* Tabs */}
         <div className="mb-6 inline-flex flex-wrap rounded-xl border border-border bg-card p-1 dark:border-white/10 dark:bg-card">
           {(
@@ -427,9 +426,12 @@ export function ConcreteTakeoffCalculator() {
       </div>
       {result && (
         <div className="card-elevated p-5 sm:p-7">
-          <p className="text-xs font-bold uppercase tracking-wider text-primary">
-            Material quantity schedule
-          </p>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">
+              Material quantity schedule
+            </p>
+            <EngineerReviewBadge />
+          </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
               [
@@ -1324,7 +1326,14 @@ function SelectInput({
 }
 
 function ResultCard({ children }: { children: React.ReactNode }) {
-  return <div className="card-elevated p-6 sm:p-8">{children}</div>;
+  return (
+    <div className="card-elevated p-6 sm:p-8">
+      <div className="mb-5 flex justify-end">
+        <EngineerReviewBadge />
+      </div>
+      {children}
+    </div>
+  );
 }
 
 function StatBox({
