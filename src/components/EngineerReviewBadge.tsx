@@ -17,14 +17,14 @@ const REVIEW_ITEMS: Record<EngineerReviewDiscipline, string[]> = {
   ],
 };
 
-/** Compact, country-agnostic human-review reminder; code references never imply compliance. */
+/** Compact, country-aware human-review reminder; code references provide regulatory context and never imply automatic compliance. */
 export default function EngineerReviewBadge({
   discipline = "structural",
 }: {
   discipline?: EngineerReviewDiscipline;
 }) {
   const { marketCode, market } = useMarket();
-  const scope = getStructuralJurisdictionScope(marketCode);
+  const scope = getStructuralJurisdictionScope(marketCode, market?.countryName);
 
   return (
     <details
@@ -46,7 +46,7 @@ export default function EngineerReviewBadge({
         />
       </summary>
       <div
-        className="absolute right-0 top-full mt-2 w-[min(22rem,calc(100vw-2rem))] rounded-xl border border-amber-500/25 bg-card p-4 text-left text-foreground shadow-xl shadow-black/10 dark:border-amber-400/20"
+        className="absolute right-0 top-full mt-2 w-[min(24rem,calc(100vw-2rem))] rounded-xl border border-amber-500/25 bg-card p-4 text-left text-foreground shadow-xl shadow-black/10 dark:border-amber-400/20"
         role="region"
         aria-label="Engineer review details"
       >
@@ -64,7 +64,8 @@ export default function EngineerReviewBadge({
           market; choosing a country does not certify code compliance.
         </p>
         <p className="mt-3 text-xs font-semibold">
-          Review for {market.countryName} ({marketCode})
+          Review for {market?.countryName || scope?.country || marketCode} (
+          {marketCode})
         </p>
         <ul className="mt-1 list-disc space-y-1 pl-4 text-xs leading-relaxed text-muted-foreground">
           {REVIEW_ITEMS[discipline].map((item) => (
@@ -72,15 +73,32 @@ export default function EngineerReviewBadge({
           ))}
         </ul>
         {scope ? (
-          <a
-            className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
-            href={scope.verifiedSource}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {scope.sourceLabel} (reference only){" "}
-            <ExternalLink aria-hidden="true" className="h-3 w-3" />
-          </a>
+          <div className="mt-3 space-y-1.5 border-t border-border/50 pt-2.5">
+            <div>
+              <p className="text-[11px] font-semibold text-foreground/90">
+                Governing Code Reference:
+              </p>
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                {scope.framework}
+              </p>
+            </div>
+            <div>
+              <a
+                className="inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
+                href={scope.verifiedSource}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {scope.sourceLabel} (reference only){" "}
+                <ExternalLink aria-hidden="true" className="h-3 w-3" />
+              </a>
+            </div>
+            {scope.localScope && (
+              <p className="text-[10px] leading-relaxed text-muted-foreground/80">
+                {scope.localScope}
+              </p>
+            )}
+          </div>
         ) : (
           <p className="mt-3 rounded-lg bg-muted/70 p-2 text-xs leading-relaxed text-muted-foreground">
             No structural code reference is maintained here for this market.
