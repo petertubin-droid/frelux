@@ -1,3 +1,5 @@
+import { getPackagingEvidence } from "./market-packaging-verification";
+
 /**
  * FRELUX Standalone Masonry, Brickwork & Blockwork Engine
  *
@@ -1686,6 +1688,7 @@ export interface MasonryCalculationResult {
     helperHours: number;
   };
   marketNotes: string;
+  packagingEvidence: ReturnType<typeof getPackagingEvidence>;
 }
 
 export const MORTAR_PARTS: Record<string, { cement: number; sand: number }> = {
@@ -1797,6 +1800,17 @@ export function calculateMasonryTakeoff(
   // Densities: Cement = 1440 kg/m3, Sand = 1600 kg/m3 (dry loose/bulk)
   const cementKg = cementVolM3 * 1440.0;
   const cementBagWeight = config.cementBagWeightKg;
+  const packagingEvidence = getPackagingEvidence(
+    config.marketCode,
+    "cement",
+    MASONRY_MARKET_REGISTRY[config.marketCode]?.cementBagWeightKg,
+  );
+  if (!MASONRY_MARKET_REGISTRY[config.marketCode]) {
+    packagingEvidence.guidance = `No maintained cement pack profile for ${config.marketCode}; the legacy 50 kg placeholder is used only to preserve a rough quantity output. Confirm actual packaging before use.`;
+    packagingEvidence.label =
+      "Unverified placeholder · supplier confirmation required";
+    packagingEvidence.status = "not_available";
+  }
   const cementBagsRequired = Math.ceil(cementKg / cementBagWeight);
 
   const sandWeightTonnes = Number((sandVolM3 * 1.6).toFixed(2));
@@ -1828,6 +1842,7 @@ export function calculateMasonryTakeoff(
       masonHours,
       helperHours,
     },
-    marketNotes: `${config.regulatoryNote} Cement bags calculated at ${cementBagWeight} kg standard packaging for ${config.countryName}.`,
+    marketNotes: `${config.regulatoryNote} ${packagingEvidence.guidance}`,
+    packagingEvidence,
   };
 }

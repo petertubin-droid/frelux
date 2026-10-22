@@ -8,6 +8,8 @@
  * dry volume bulking/shrinkage factors, and trade labor norms.
  */
 
+import { getPackagingEvidence } from "./market-packaging-verification";
+
 export type PlasterApplicationType =
   | "internal_plaster"
   | "external_render"
@@ -50,6 +52,7 @@ export interface PlasteringCalculationResult {
     tenderHours: number;
   };
   marketNotes: string;
+  packagingEvidence: ReturnType<typeof getPackagingEvidence>;
 }
 
 export const CEMENT_BAG_WEIGHT_BY_MARKET: Record<string, number> = {
@@ -118,11 +121,21 @@ export function calculatePlasteringTakeoff(
   input: PlasteringCalculationInput,
 ): PlasteringCalculationResult {
   const market = (input.marketCode || "UNSPECIFIED").toUpperCase();
-  const cementBagWeightKg = CEMENT_BAG_WEIGHT_BY_MARKET[market] ?? 50;
-  const packagingVerified = Object.prototype.hasOwnProperty.call(
-    CEMENT_BAG_WEIGHT_BY_MARKET,
+  const configuredBagWeight = CEMENT_BAG_WEIGHT_BY_MARKET[market];
+  // Preserve the legacy calculation output, but never present an unknown-market
+  // 50 kg fallback as a verified local package format.
+  const cementBagWeightKg = configuredBagWeight ?? 50;
+  const packagingEvidence = getPackagingEvidence(
     market,
+    "cement",
+    configuredBagWeight,
   );
+  if (configuredBagWeight === undefined) {
+    packagingEvidence.guidance = `No maintained cement pack profile for ${market}; the legacy 50 kg placeholder is used only to preserve a rough quantity output. Confirm actual packaging before use.`;
+    packagingEvidence.label =
+      "Unverified placeholder · supplier confirmation required";
+    packagingEvidence.status = "not_available";
+  }
 
   // Compute surface area
   let areaM2 = 0;
@@ -202,6 +215,7 @@ export function calculatePlasteringTakeoff(
       plastererHours,
       tenderHours,
     },
-    marketNotes: `${packagingVerified ? `Editable planning pack assumption: ${cementBagWeightKg} kg for ${market}` : `No maintained pack profile for ${market}; using an unverified 50 kg planning placeholder`}. Verify the actual supplier bag weight and mix/product specification. Dry batch factor 1.33 is an estimate, not a local code requirement.`,
+    marketNotes: `${packagingEvidence.guidance} Dry batch factor 1.33 is an estimate, not a local code requirement.`,
+    packagingEvidence,
   };
 }

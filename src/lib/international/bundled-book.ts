@@ -86,8 +86,9 @@ async function loadBook(): Promise<BundledBook> {
 /**
  * Resolve a material's price for a market from the bundled book.
  * Returns DB-shaped rows so existing consumers are unchanged.
- * Mirrors the DB path's market chain: own market first, then the
- * NG reference book — the same never-silent-substitution rules.
+ * Returns only an exact-market price. The role resolver may explicitly
+ * traverse its configured inheritance chain, but this low-level lookup
+ * never substitutes a different market's currency or price.
  */
 export async function bundledMaterialForSlug(
   slug: string,
@@ -108,12 +109,12 @@ export async function bundledMaterialForSlug(
   };
 } | null> {
   const book = await loadBook();
-  for (const candidate of [market, "NG"]) {
-    const hit = book.getBundledPrice(slug, candidate);
-    if (!hit) continue;
+  const candidate = market;
+  const hit = book.getBundledPrice(slug, candidate);
+  if (hit) {
     const entry = book.getBundledPrice(hit.slug, candidate);
     const price = entry ? entry : null;
-    if (!price) continue;
+    if (!price) return null;
     return {
       id: hit.slug,
       name: hit.slug, // name filled by caller from role mapping display name
@@ -147,10 +148,7 @@ export async function bundledCategoryMaterials(
   }>
 > {
   const book = await loadBook();
-  let rows = book.getBundledCategoryMaterials(category, market);
-  if (!rows.length && market !== "NG") {
-    rows = book.getBundledCategoryMaterials(category, "NG");
-  }
+  const rows = book.getBundledCategoryMaterials(category, market);
   return rows.map((r) => ({
     material: { id: r.slug, name: r.name },
     price: { price: r.price.p, scan_confidence: r.price.f },

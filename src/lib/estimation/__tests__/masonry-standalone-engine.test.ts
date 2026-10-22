@@ -53,6 +53,17 @@ describe("Masonry Standalone Engine", () => {
     }
   });
 
+  it("flags generic unknown-market packaging instead of claiming local verification", () => {
+    const res = calculateMasonryTakeoff({
+      marketCode: "ZZ",
+      wallLengthM: 4,
+      wallHeightM: 3,
+    });
+    expect(res.packagingEvidence.status).toBe("not_available");
+    expect(res.packagingEvidence.label).toContain("Unverified placeholder");
+    expect(res.marketNotes).toContain("Confirm actual packaging before use");
+  });
+
   it("calculates accurate takeoff for Nigerian 9-inch sandcrete block wall", () => {
     const res = calculateMasonryTakeoff({
       marketCode: "NG",
@@ -70,6 +81,8 @@ describe("Masonry Standalone Engine", () => {
     expect(res.unitsRequiredGross).toBeLessThan(300);
     expect(res.cementBagsRequired).toBeGreaterThan(0);
     expect(res.sandWeightTonnes).toBeGreaterThan(0);
+    expect(res.packagingEvidence.status).toBe("planning_assumption");
+    expect(res.marketNotes).toContain("not a verified country-wide standard");
   });
 
   it("calculates accurate takeoff for US 8x8x16 CMU wall with opening deduction", () => {

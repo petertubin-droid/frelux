@@ -95,5 +95,20 @@ describe("Plastering & Rendering Standalone Engine", () => {
 
     expect(res.totalAreaM2).toBe(60);
     expect(res.cementBagWeightKg).toBe(42.6);
+    expect(res.packagingEvidence.status).toBe("planning_assumption");
+    expect(res.packagingEvidence.guidance).toContain(
+      "not a verified country-wide standard",
+    );
+  });
+
+  it("explicitly flags unknown-market placeholder packaging", () => {
+    const res = calculatePlasteringTakeoff({
+      marketCode: "ZZ",
+      surfaceAreaM2: 10,
+    });
+    expect(res.cementBagWeightKg).toBe(50);
+    expect(res.packagingEvidence.status).toBe("not_available");
+    expect(res.packagingEvidence.label).toContain("Unverified placeholder");
+    expect(res.marketNotes).toContain("legacy 50 kg placeholder");
   });
 });

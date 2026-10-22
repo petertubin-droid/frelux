@@ -595,6 +595,16 @@ export default function StandaloneTakeoffPage({
                     </div>
                   ))}
                 </div>
+                {"packagingEvidence" in result && result.packagingEvidence && (
+                  <div className="mt-5 rounded-xl border border-border bg-muted/30 p-4 text-sm">
+                    <div className="font-semibold">
+                      {result.packagingEvidence.label}
+                    </div>
+                    <p className="mt-1 text-muted-foreground">
+                      {result.packagingEvidence.guidance}
+                    </p>
+                  </div>
+                )}
                 <div className="mt-5 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm">
                   <div className="mb-1 flex items-center gap-2 font-semibold">
                     <AlertTriangle className="h-4 w-4 text-amber-600" />
