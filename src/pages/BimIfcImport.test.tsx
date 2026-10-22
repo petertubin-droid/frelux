@@ -57,9 +57,7 @@ describe("BimIfcImport page", () => {
     );
     upload(makeFile("drawing.pdf", "PDF content"));
     expect(
-      await screen.findByText(
-        /only \.ifc and \.ifczip files are supported/i,
-      ),
+      await screen.findByText(/only \.ifc and \.ifczip files are supported/i),
     ).toBeInTheDocument();
     // no takeoff was produced
     expect(screen.queryByText("Material takeoff")).not.toBeInTheDocument();
@@ -81,6 +79,9 @@ describe("BimIfcImport page", () => {
     expect(screen.getByText(/20\.4 m²/)).toBeInTheDocument();
     // declared quantities flag
     expect(screen.getByText("Declared by the file")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /export review record/i }),
+    ).toBeInTheDocument();
   });
 
   it("reports an IFC file with no construction elements honestly", async () => {

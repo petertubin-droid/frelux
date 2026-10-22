@@ -22,6 +22,9 @@ import {
   type IfcValidationReport,
 } from "@/lib/estimation/ifc-validation";
 import AdSlot from "@/components/ui/AdSlot";
+import { serializeIfcTakeoffExport } from "@/lib/estimation/ifc-takeoff-export";
+import { Button } from "@/components/ui/shadcn/button";
+import { Download } from "lucide-react";
 
 export default function BimIfcImport() {
   useBreadcrumbJsonLd([
@@ -135,9 +138,7 @@ export default function BimIfcImport() {
         {validation && (
           <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-semibold">
-                Import validation
-              </p>
+              <p className="text-sm font-semibold">Import validation</p>
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                   validation.verdict === "invalid"
@@ -156,10 +157,7 @@ export default function BimIfcImport() {
             </div>
             <ul className="mt-3 space-y-1.5">
               {validation.checks.map((c) => (
-                <li
-                  key={c.id}
-                  className="flex items-start gap-2 text-xs"
-                >
+                <li key={c.id} className="flex items-start gap-2 text-xs">
                   <span
                     aria-label={c.status}
                     className={
@@ -170,7 +168,11 @@ export default function BimIfcImport() {
                           : "text-red-600 dark:text-red-400"
                     }
                   >
-                    {c.status === "pass" ? "✓" : c.status === "warn" ? "!" : "✗"}
+                    {c.status === "pass"
+                      ? "✓"
+                      : c.status === "warn"
+                        ? "!"
+                        : "✗"}
                   </span>
                   <span className="text-muted-foreground">
                     <span className="font-medium text-foreground">
@@ -184,7 +186,10 @@ export default function BimIfcImport() {
             {validation.warnings.length > 0 && (
               <ul className="mt-2 space-y-1">
                 {validation.warnings.map((w, i) => (
-                  <li key={i} className="text-xs text-amber-600 dark:text-amber-400">
+                  <li
+                    key={i}
+                    className="text-xs text-amber-600 dark:text-amber-400"
+                  >
                     {w}
                   </li>
                 ))}
@@ -260,6 +265,37 @@ export default function BimIfcImport() {
               </div>
             </div>
 
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 dark:border-white/5">
+              <div>
+                <h3 className="text-sm font-semibold">
+                  Portable review record
+                </h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Export declared quantities and warnings as JSON. The source
+                  IFC is not included.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  const text = serializeIfcTakeoffExport(
+                    fileName ?? "source.ifc",
+                    result,
+                  );
+                  const url = URL.createObjectURL(
+                    new Blob([text], { type: "application/json" }),
+                  );
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.download = `${(fileName ?? "ifc-takeoff").replace(/\.ifc(z|x)?$/i, "")}-takeoff.json`;
+                  link.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >
+                <Download className="mr-2 h-4 w-4" /> Export review record
+              </Button>
+            </div>
             <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
               <h3 className="mb-2 text-sm font-semibold">Material takeoff</h3>
               <div className="overflow-x-auto">
