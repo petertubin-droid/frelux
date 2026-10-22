@@ -65,14 +65,11 @@ describe("System C: Localized Supplier Inventory Engine", () => {
     expect(items[0].unit_price).toBe(980);
   });
 
-  it("transforms sample inventory into user-facing offers", () => {
-    const items = SAMPLE_SUPPLIER_INVENTORY.filter(
-      (i) => i.market_code === "KE",
-    );
-    const offers = toSupplierOffers(items);
-    expect(offers.length).toBeGreaterThan(0);
-    expect(offers[0].supplierName).toBe("Savannah Build Supplies Ltd");
-    expect(offers[0].isVerified).toBe(true);
+  it("does not infer supplier identity or verification from demo fixture ids", () => {
+    const fixture = SAMPLE_SUPPLIER_INVENTORY.find((i) => i.market_code === "KE")!;
+    const offer = toSupplierOffers([{ ...fixture, supplier: undefined }])[0];
+    expect(offer.supplierName).toBe("Supplier identity unavailable");
+    expect(offer.isVerified).toBe(false);
   });
 
   it("has supplier profiles for all seeded markets", () => {

@@ -1328,7 +1328,8 @@ function SelectInput({
 function ResultCard({ children }: { children: React.ReactNode }) {
   return (
     <div className="card-elevated p-6 sm:p-8">
-      <div className="mb-5 flex justify-end">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs text-muted-foreground">Preliminary member analysis only · excludes material takeoff and project-wide design coordination</p>
         <EngineerReviewBadge />
       </div>
       {children}

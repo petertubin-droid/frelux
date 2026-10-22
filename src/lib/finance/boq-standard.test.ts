@@ -179,3 +179,15 @@ describe("Standardized BOQ Assembly Engine", () => {
     expect(html).toContain("PREPARED & VERIFIED BY:");
   });
 });
+
+
+describe("BOQ export disclosure", () => {
+  it("labels the generated document as a draft and disclaims standards certification", async () => {
+    const { exportBoqToPrintHtml, assembleStandardBoq } = await import("./boq-standard");
+    const doc = assembleStandardBoq({ metadata: { title: "Test", projectRef: "T-1", clientName: "Client", marketCode: "US", currency: "USD", preparedBy: "User", date: "2026-01-01", revision: "1", standard: "CSI_MASTERFORMAT" }, commercials: {}, sections: [] });
+    const html = exportBoqToPrintHtml(doc);
+    expect(html).toContain("DRAFT QUANTITY & COST SCHEDULE");
+    expect(html).toContain("Not an official standards-compliant BOQ or certified measurement.");
+    expect(html).not.toContain("OFFICIAL BILL OF QUANTITIES");
+  });
+});

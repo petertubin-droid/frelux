@@ -62,7 +62,7 @@ export function ProjectProcurementTab({ projectName, items, formatMoney }: Props
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
           <div>
             <h2 className="font-semibold">Requisition planning, not live procurement</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Package sizes and minimum orders are entered by you. Supplier inventory, checkout, purchase approval, and live prices are not connected here. Any displayed amount is a projection using the project’s estimated unit rate.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Package sizes and minimum orders are entered by you. Supplier inventory, verified supplier feeds, checkout, purchase approval, and order fulfillment are not connected here. Any displayed amount is a projection using the project’s saved estimated unit rate, not a current supplier quote.</p>
           </div>
         </div>
         <Button onClick={exportCsv} variant="outline" className="shrink-0" aria-label="Export purchase requisition CSV">

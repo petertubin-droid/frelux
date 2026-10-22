@@ -298,7 +298,7 @@ export function calculateMacroAdjustment(params: {
     marketCode,
     materialCategory,
     basePrice,
-    indicators = DEFAULT_MACRO_INDICATORS[marketCode.toUpperCase()] || [],
+    indicators = [],
     rules = DEFAULT_ELASTICITY_RULES,
   } = params;
 
@@ -392,12 +392,14 @@ export async function fetchMarketMacroIndicators(
       .select("*")
       .eq("market_code", marketCode.toUpperCase());
 
-    if (error || !data || data.length === 0) {
-      return DEFAULT_MACRO_INDICATORS[marketCode.toUpperCase()] || [];
-    }
-    return data as MacroIndicator[];
+    if (error || !data) return [];
+    const now = Date.now();
+    return (data as MacroIndicator[]).filter((indicator) => {
+      const timestamp = Date.parse(indicator.published_at || indicator.last_synced_at || "");
+      return Number.isFinite(timestamp) && now - timestamp <= 90 * 24 * 60 * 60 * 1000;
+    });
   } catch {
-    return DEFAULT_MACRO_INDICATORS[marketCode.toUpperCase()] || [];
+    return [];
   }
 }
 

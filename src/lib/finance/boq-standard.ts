@@ -677,7 +677,8 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
   <div class="header">
     <div>
       <div class="brand">FRELUX GLOBAL ENTERPRISE</div>
-      <div class="doc-type">OFFICIAL BILL OF QUANTITIES — ${metadata.standard}</div>
+      <div class="doc-type">DRAFT QUANTITY & COST SCHEDULE — ${metadata.standard} classification aid</div>
+      <div style="margin-top:6px;padding:8px;border:1px solid #f59e0b;background:#fffbeb;color:#78350f;font-size:10px"><b>Not an official standards-compliant BOQ or certified measurement.</b> Division assignment is heuristic. Review quantities, scope, rates, local measurement rules and contract requirements with a qualified local quantity surveyor before issue. This document is not structural design approval or a purchase order.</div>
     </div>
     <div style="text-align: right; font-size: 10px; color: #64748b;">
       <div>Ref: <b>${metadata.projectRef}</b></div>

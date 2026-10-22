@@ -32,8 +32,6 @@ import {
   fetchMarketMacroIndicators,
   fetchMarketElasticityRules,
   simulateMacroImpact,
-  DEFAULT_MACRO_INDICATORS,
-  DEFAULT_ELASTICITY_RULES,
 } from "@/lib/international/macro-tracker";
 import type {
   MacroIndicator,
@@ -77,17 +75,11 @@ export default function AdminMacroTracker() {
         fetchMarketMacroIndicators(mkt),
         fetchMarketElasticityRules(mkt),
       ]);
-      setIndicators(
-        fetchedInd.length > 0
-          ? fetchedInd
-          : DEFAULT_MACRO_INDICATORS[mkt] || [],
-      );
-      setRules(
-        fetchedRules.length > 0 ? fetchedRules : DEFAULT_ELASTICITY_RULES,
-      );
+      setIndicators(fetchedInd);
+      setRules(fetchedRules);
     } catch {
-      setIndicators(DEFAULT_MACRO_INDICATORS[mkt] || []);
-      setRules(DEFAULT_ELASTICITY_RULES);
+      setIndicators([]);
+      setRules([]);
     } finally {
       setLoading(false);
     }
@@ -320,6 +312,7 @@ export default function AdminMacroTracker() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+        {indicators.length === 0 && !loading && <div role="status" className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">No macro indicator is connected for this market. Add a sourced, dated observation before the fluctuation filter can use it.</div>}
               <div>
                 <label className="text-xs font-medium text-slate-700 dark:text-slate-300 block mb-1.5">
                   Commodity Trigger

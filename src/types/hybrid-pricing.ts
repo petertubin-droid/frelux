@@ -215,7 +215,7 @@ export type PricingLayer =
 
 export interface HybridPriceResolution {
   price?: number;
-  resolvedPrice: number;
+  resolvedPrice?: number;
   currency: string;
   unit: string | null;
   layer: PricingLayer;

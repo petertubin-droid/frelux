@@ -18,7 +18,6 @@ import { Button } from "@/components/ui/shadcn/button";
 import {
   fetchMarketMacroIndicators,
   fetchMarketElasticityRules,
-  DEFAULT_MACRO_INDICATORS,
   DEFAULT_ELASTICITY_RULES,
 } from "@/lib/international/macro-tracker";
 import type {
@@ -50,17 +49,13 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
         fetchMarketMacroIndicators(marketCode),
         fetchMarketElasticityRules(marketCode),
       ]);
-      setIndicators(
-        fetchedIndicators.length > 0
-          ? fetchedIndicators
-          : DEFAULT_MACRO_INDICATORS[marketCode.toUpperCase()] || [],
-      );
+      setIndicators(fetchedIndicators);
       setRules(
         fetchedRules.length > 0 ? fetchedRules : DEFAULT_ELASTICITY_RULES,
       );
     } catch {
-      setIndicators(DEFAULT_MACRO_INDICATORS[marketCode.toUpperCase()] || []);
-      setRules(DEFAULT_ELASTICITY_RULES);
+      setIndicators([]);
+      setRules([]);
     } finally {
       setLoading(false);
     }
@@ -91,8 +86,7 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
                 </Badge>
               </CardTitle>
               <CardDescription className="text-xs text-slate-500">
-                Macro-economic commodity indices & rule-based elasticity
-                adjustment
+                Database-fed macro indicators only. No live feed means no market adjustment.
               </CardDescription>
             </div>
           </div>

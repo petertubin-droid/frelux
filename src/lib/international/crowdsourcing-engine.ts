@@ -233,19 +233,7 @@ export async function fetchCrowdsourcedBenchmark(params: {
     // Graceful fallback to verified sample benchmarks
   }
 
-  // Fallback to sample benchmarks
-  const matched = SAMPLE_CROWDSOURCE_BENCHMARKS.find(
-    (b) =>
-      b.market_code === normMkt &&
-      (b.material_slug === normSlug ||
-        normSlug.includes(b.material_slug) ||
-        b.material_slug.includes(normSlug)) &&
-      (!params.city ||
-        !b.city ||
-        b.city.toLowerCase() === params.city.toLowerCase()),
-  );
-
-  return matched || null;
+  return null;
 }
 
 /**

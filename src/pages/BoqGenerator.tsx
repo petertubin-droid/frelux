@@ -414,7 +414,7 @@ export default function BoqGenerator() {
         title,
         projectRef: quoteRef || `BOQ-${Date.now()}`,
         clientName,
-        contractorName: company.name || "Frelux Certified Contractor",
+        contractorName: company.name || "Not specified",
         location: projectLocation || "Global Project",
         marketCode,
         currency: getActiveDisplayCurrency(),
@@ -581,6 +581,16 @@ export default function BoqGenerator() {
                 onChange={(e) => setProjectLocation(e.target.value)}
                 placeholder="e.g. City, Area (optional)"
               />
+            </label>
+            <label className="grid gap-1 text-sm font-medium">
+              Draft WBS / measurement framework
+              <select aria-label="Draft WBS / measurement framework" className="rounded-lg border border-border bg-background px-3 py-2 font-normal" value={selectedStandard} onChange={(e) => setSelectedStandard(e.target.value as BoqStandard)}>
+                <option value="NRM2">NRM2 classification aid</option>
+                <option value="CSI_MASTERFORMAT">CSI MasterFormat classification aid</option>
+                <option value="CESMM4">CESMM4 classification aid</option>
+                <option value="ICMS">ICMS classification aid</option>
+                <option value="Commercial">Commercial WBS</option>
+              </select>
             </label>
             <label className="grid gap-1 text-sm font-medium">
               Tax scheme ({tax.short})
@@ -974,6 +984,10 @@ export default function BoqGenerator() {
             </div>
 
             {/* ── Engine #5: cite-and-flag the standards behind each engine ── */}
+            <div role="note" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-950 dark:text-amber-100">
+              <p className="font-semibold">Draft quantity and cost schedule · not an official standards-compliant BOQ</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{selectedStandard} is used here as a market-context WBS classification aid. The automatic description-to-division mapping is heuristic, not a standards measurement audit, takeoff verification, procurement order, structural design or professional certification. Have a qualified local quantity surveyor review measurements, scope, rates, tax and contract terms before issue.</p>
+            </div>
             <StandardsCitationsCard
               marketCode={marketCode}
               engines={quoteEngines}

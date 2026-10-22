@@ -45,27 +45,30 @@ export async function resolveHybridPrice(
     marketCode,
     materialCategory,
     materialSlug,
-    basePrice = 1000,
-    currency = "USD",
+    basePrice,
+    currency,
     unit = "unit",
     city,
     quantity = 1,
   } = params;
 
   const resolvedAt = new Date().toISOString();
+  const priceCurrency = currency || "";
 
   // ============================================================
   // LAYER 1: LIVE VERIFIED SUPPLIER INVENTORY
   // ============================================================
-  const supplierOffers = await fetchVerifiedSupplierOffers({
-    marketCode,
-    materialSlug,
-    materialCategory,
-    city,
-    minQty: quantity,
+  const supplierOffers = await fetchVerifiedSupplierOffers({ marketCode, materialSlug, materialCategory, city, minQty: quantity });
+  const freshSupplierOffers = supplierOffers.filter((item) => {
+    const updatedAt = item.last_updated_at ? Date.parse(item.last_updated_at) : NaN;
+    const fresh = Number.isFinite(updatedAt) && Date.now() - updatedAt <= 30 * 24 * 60 * 60 * 1000;
+    const sameMarket = item.market_code?.toUpperCase() === marketCode.toUpperCase();
+    const sameCurrency = Boolean(currency) && item.currency.toUpperCase() === currency!.toUpperCase();
+    const sameCity = !city || !item.supplier?.city || item.supplier.city.toLowerCase() === city.toLowerCase();
+    return fresh && sameMarket && sameCurrency && sameCity;
   });
 
-  const bestSupplierItem = selectBestSupplierQuote(supplierOffers, quantity);
+  const bestSupplierItem = selectBestSupplierQuote(freshSupplierOffers, quantity);
 
   if (bestSupplierItem) {
     const resolvedPrice = bestSupplierItem.unit_price;
@@ -110,7 +113,9 @@ export async function resolveHybridPrice(
   if (
     benchmark &&
     benchmark.is_promoted &&
-    benchmark.sample_size >= benchmark.quorum_threshold
+    benchmark.sample_size >= benchmark.quorum_threshold &&
+    Date.now() - Date.parse(benchmark.updated_at || benchmark.last_promoted_at || "") <= Math.min(benchmark.window_days || 30, 60) * 24 * 60 * 60 * 1000 &&
+    Boolean(currency) && benchmark.currency.toUpperCase() === currency!.toUpperCase()
   ) {
     const resolvedPrice = benchmark.trimmed_mean_price;
     return {
@@ -143,29 +148,27 @@ export async function resolveHybridPrice(
   // ============================================================
   // LAYER 3: MACRO FLUCTUATION FILTER
   // ============================================================
-  const macroResult: MacroAdjustmentResult = await applyFluctuationFilter({
-    marketCode,
-    materialCategory,
-    basePrice,
-  });
+  const macroResult: MacroAdjustmentResult | null = basePrice == null
+    ? null
+    : await applyFluctuationFilter({ marketCode, materialCategory, basePrice });
 
-  if (macroResult.adjustmentPct !== 0) {
+  if (macroResult && macroResult.adjustmentPct !== 0) {
     const resolvedPrice = macroResult.adjustedPrice;
     return {
       price: resolvedPrice,
       resolvedPrice,
       layer: "macro_adjusted",
-      confidence: "medium",
-      currency,
+      confidence: "estimated",
+      currency: priceCurrency,
       unit,
-      isVerified: true,
+      isVerified: false,
       marketCode,
       materialSlug,
       materialCategory,
       provenance: {
         sourceName:
           macroResult.triggerIndicator?.headline_name || "Macro Economic Index",
-        sourceType: "The Fluctuation Filter",
+        sourceType: "Macro indicator adjustment (not a supplier quote)",
         macroAdjustmentPct: macroResult.adjustmentPct,
         timestamp: macroResult.appliedAt,
         description: macroResult.rationale,
@@ -183,26 +186,25 @@ export async function resolveHybridPrice(
   // LAYER 4: DEFAULT BASELINE PRICEBOOK
   // ============================================================
   return {
-    price: basePrice,
-    resolvedPrice: basePrice,
+    ...(basePrice == null ? {} : { price: basePrice, resolvedPrice: basePrice }),
     layer: "baseline",
     confidence: "estimated",
-    currency,
-    unit,
+    currency: priceCurrency,
+    unit: basePrice == null ? null : unit,
     isVerified: false,
     marketCode,
     materialSlug,
     materialCategory,
     provenance: {
-      sourceName: "Frelux Baseline Pricebook",
-      sourceType: "Baseline Reference",
+      sourceName: basePrice == null ? "No price data available" : "User-provided baseline",
+      sourceType: basePrice == null ? "Unavailable" : "Unverified Baseline Reference",
       timestamp: resolvedAt,
-      description: `Default baseline estimate for ${marketCode}. No active supplier inventory, crowdsourced quorum, or macro trigger detected.`,
-      rationale: "Default reference estimate",
+      description: basePrice == null
+        ? `No verified supplier quote, promoted crowd benchmark, live macro indicator, or explicit baseline is available for ${marketCode}. No price has been invented.`
+        : `User-provided baseline for ${marketCode}; no verified market feed is available.`,
+      rationale: basePrice == null ? "Unpriced: provide a market baseline or connect an approved data source." : "Unverified user-provided reference",
     },
-    alternatives: {
-      basePrice,
-    },
+    alternatives: basePrice == null ? {} : { basePrice },
     resolvedAt,
   };
 }
@@ -249,10 +251,10 @@ export function getHybridPriceBadgeInfo(resolution: HybridPriceResolution): {
     case "macro_adjusted":
     case "macro_filtered":
       return {
-        label: "Macro-Adjusted",
+        label: "Macro-Adjusted Estimate",
         badgeClass:
           "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800",
-        sourceText: `Fluctuation Filter (${resolution.provenance.macroAdjustmentPct && resolution.provenance.macroAdjustmentPct > 0 ? "+" : ""}${resolution.provenance.macroAdjustmentPct}%)`,
+        sourceText: `Macro reference only (${resolution.provenance.macroAdjustmentPct && resolution.provenance.macroAdjustmentPct > 0 ? "+" : ""}${resolution.provenance.macroAdjustmentPct}%)`,
         confidencePct,
       };
     case "baseline":

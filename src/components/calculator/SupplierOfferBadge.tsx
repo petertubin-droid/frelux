@@ -59,10 +59,10 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
       <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
         <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
           <Store className="w-3.5 h-3.5" />
-          Verified Local Supplier Available
+          Matching-market verified supplier quote
         </span>
         <span className="text-[11px] text-slate-400">
-          Live Inventory ({bestOffer.leadTimeDays}d delivery)
+          Supplier quote · updated within 30 days
         </span>
       </div>
 
@@ -77,7 +77,7 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
               className="text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-300"
             >
               <CheckCircle2 className="w-2.5 h-2.5 mr-0.5 inline" />
-              Verified Merchant
+              Verified supplier
             </Badge>
             <span className="text-[11px] text-slate-400">{bestOffer.city}</span>
           </div>
@@ -97,7 +97,7 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
               </Badge>
             )}
             <span className="text-[11px] text-emerald-600 font-medium">
-              ({bestOffer.stockQuantity} in stock)
+              {(bestOffer.stockQuantity ?? 0) > 0 ? `(${bestOffer.stockQuantity} in stock)` : "(stock quantity not provided)"}
             </span>
           </div>
         </div>
@@ -115,7 +115,7 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
                 )
               }
             >
-              Use Live Supplier Quote
+              Use Supplier Quote
             </Button>
           )}
           {bestOffer.phone && (

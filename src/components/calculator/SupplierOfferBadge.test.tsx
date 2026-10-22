@@ -1,24 +1,17 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { SupplierOfferBadge } from "./SupplierOfferBadge";
 
 describe("SupplierOfferBadge Component", () => {
-  it("renders verified supplier offer for concrete or cement", async () => {
-    const handleSelect = vi.fn();
+  it("does not display demo supplier offers when live database data is unavailable", async () => {
     render(
       <SupplierOfferBadge
         materialName="Portland Cement 50kg"
         marketCode="KE"
         quantity={20}
-        onSelectSupplierPrice={handleSelect}
       />,
     );
-
-    await waitFor(() => {
-      expect(screen.getByText(/Savannah Build Supplies Ltd/i)).toBeDefined();
-    });
-
-    expect(screen.getByText("Use Live Supplier Quote")).toBeDefined();
-    expect(screen.getByText(/Verified Merchant/i)).toBeDefined();
+    await waitFor(() => expect(screen.queryByText(/Savannah Build Supplies Ltd/i)).toBeNull());
+    expect(screen.queryByText(/Verified Merchant/i)).toBeNull();
   });
 });

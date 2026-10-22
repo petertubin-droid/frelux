@@ -7,6 +7,11 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
+import { COUNTRY_OPTIONS } from "@/lib/international/countries";
+import { ALL_20_MARKETS } from "@/lib/international/engine-inventory-types";
 import {
   Store,
   Package,
@@ -33,8 +38,8 @@ import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import {
-  SAMPLE_SUPPLIER_PROFILES,
-  SAMPLE_SUPPLIER_INVENTORY,
+  fetchSupplierProfiles,
+  saveSupplierProfile,
   saveSupplierInventoryItem,
 } from "@/lib/international/supplier-inventory-engine";
 import type {
@@ -42,42 +47,63 @@ import type {
   SupplierInventoryItem,
 } from "@/types/hybrid-pricing";
 
-const COUNTRY_OPTIONS = [
-  { code: "KE", name: "Kenya", currency: "KES", flag: "🇰🇪" },
-  { code: "NG", name: "Nigeria", currency: "NGN", flag: "🇳🇬" },
-  { code: "GH", name: "Ghana", currency: "GHS", flag: "🇬🇭" },
-  { code: "ZA", name: "South Africa", currency: "ZAR", flag: "🇿🇦" },
-  { code: "US", name: "United States", currency: "USD", flag: "🇺🇸" },
-  { code: "GB", name: "United Kingdom", currency: "GBP", flag: "🇬🇧" },
-];
+const MARKET_OPTIONS = COUNTRY_OPTIONS.flatMap((group) => group.countries).filter((country) => ALL_20_MARKETS.includes(country.code as (typeof ALL_20_MARKETS)[number]));
 
 export default function SupplierPortal() {
+  const { user, loading: authLoading } = useAuth();
   const [selectedCountry, setSelectedCountry] = useState<string>("KE");
-  const [profile, setProfile] = useState<SupplierProfile>(
-    SAMPLE_SUPPLIER_PROFILES[0],
-  );
+  const [profile, setProfile] = useState<SupplierProfile | null>(null);
   const [inventory, setInventory] = useState<SupplierInventoryItem[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [saveSuccessId, setSaveSuccessId] = useState<string | null>(null);
-
-  // New item modal/inline form
-  const [showAddForm, setShowAddForm] = useState<boolean>(false);
-  const [newItemName, setNewItemName] = useState<string>("");
-  const [newItemCategory, setNewItemCategory] = useState<string>("cement");
-  const [newItemPrice, setNewItemPrice] = useState<string>("1000");
-  const [newItemUnit, setNewItemUnit] = useState<string>("50kg bag");
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newItemName, setNewItemName] = useState("");
+  const [newItemCategory, setNewItemCategory] = useState("cement");
+  const [newItemPrice, setNewItemPrice] = useState("");
+  const [newItemUnit, setNewItemUnit] = useState("50kg bag");
+  const [companyName, setCompanyName] = useState("");
+  const [city, setCity] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+  const market = MARKET_OPTIONS.find((item) => item.code === selectedCountry);
+  const currency = market?.currency || "";
 
   useEffect(() => {
-    const prof =
-      SAMPLE_SUPPLIER_PROFILES.find((p) => p.market_code === selectedCountry) ||
-      SAMPLE_SUPPLIER_PROFILES[0];
-    setProfile(prof);
+    let active = true;
+    async function load() {
+      if (!user) { setLoadingData(false); setProfile(null); setInventory([]); return; }
+      setLoadingData(true); setLoadError(null);
+      try {
+        const profiles = await fetchSupplierProfiles(selectedCountry);
+        const ownProfile = profiles.find((item) => item.user_id === user.id) || null;
+        if (!active) return;
+        setProfile(ownProfile);
+        if (!ownProfile) { setInventory([]); return; }
+        const { data, error } = await supabase.from("supplier_inventory_items")
+          .select("*, supplier:supplier_profiles(*)")
+          .eq("supplier_id", ownProfile.id).eq("market_code", selectedCountry)
+          .order("product_name");
+        if (error) throw error;
+        if (active) setInventory((data || []) as SupplierInventoryItem[]);
+      } catch (error) {
+        if (active) setLoadError(error instanceof Error ? error.message : "Unable to load supplier records.");
+      } finally { if (active) setLoadingData(false); }
+    }
+    void load();
+    return () => { active = false; };
+  }, [user, selectedCountry]);
 
-    const items = SAMPLE_SUPPLIER_INVENTORY.filter(
-      (item) => item.market_code === selectedCountry,
-    );
-    setInventory(items.length > 0 ? items : SAMPLE_SUPPLIER_INVENTORY);
-  }, [selectedCountry]);
+  const handleCreateProfile = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!user || !companyName.trim() || !city.trim() || !market) return;
+    setSavingProfile(true); setLoadError(null);
+    try {
+      const saved = await saveSupplierProfile({ user_id: user.id, company_name: companyName.trim(), city: city.trim(), market_code: selectedCountry, country_name: market.name, email: user.email || "" });
+      setProfile(saved);
+    } catch (error) { setLoadError(error instanceof Error ? error.message : "Supplier profile was not saved."); }
+    finally { setSavingProfile(false); }
+  };
 
   const handlePriceChange = (id: string, newPrice: number) => {
     setInventory((prev) =>
@@ -104,20 +130,20 @@ export default function SupplierPortal() {
   const handleSaveItem = async (item: SupplierInventoryItem) => {
     setSavingId(item.id);
     try {
-      await saveSupplierInventoryItem(item);
+      const saved = await saveSupplierInventoryItem(item);
+      setInventory((prev) => prev.map((entry) => entry.id === item.id ? saved : entry));
       setSaveSuccessId(item.id);
       setTimeout(() => setSaveSuccessId(null), 2500);
-    } finally {
-      setSavingId(null);
-    }
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "Price update failed.");
+    } finally { setSavingId(null); }
   };
 
   const handleAddNewItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newItemName || !newItemPrice) return;
+    if (!user || !profile || !newItemName.trim() || !newItemPrice || Number(newItemPrice) <= 0) return;
 
-    const newItem: SupplierInventoryItem = {
-      id: `custom-item-${Date.now()}`,
+    const newItem: Partial<SupplierInventoryItem> & Pick<SupplierInventoryItem, "supplier_id" | "market_code" | "material_category" | "material_slug" | "product_name" | "unit" | "unit_price" | "currency"> = {
       supplier_id: profile.id,
       market_code: selectedCountry,
       category: newItemCategory,
@@ -126,7 +152,7 @@ export default function SupplierPortal() {
       product_name: newItemName,
       unit: newItemUnit,
       unit_price: parseFloat(newItemPrice) || 0,
-      currency: profile.country_name === "Kenya" ? "KES" : "USD",
+      currency,
       in_stock: true,
       stock_status: "in_stock",
       lead_time_days: 1,
@@ -134,12 +160,11 @@ export default function SupplierPortal() {
       is_active: true,
     };
 
-    setInventory((prev) => [newItem, ...prev]);
-    setShowAddForm(false);
-    setNewItemName("");
-    setNewItemPrice("1000");
-
-    await saveSupplierInventoryItem(newItem);
+    try {
+      const saved = await saveSupplierInventoryItem(newItem);
+      setInventory((prev) => [saved, ...prev]);
+      setShowAddForm(false); setNewItemName(""); setNewItemPrice("");
+    } catch (error) { setLoadError(error instanceof Error ? error.message : "Inventory item was not saved."); }
   };
 
   return (
@@ -156,8 +181,7 @@ export default function SupplierPortal() {
             </h1>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Free merchant dashboard to publish live material prices directly
-            into the Frelux calculator.
+            Manage your own market-specific inventory. Saved quotes are not purchase orders, and pending supplier accounts are never labeled verified.
           </p>
         </div>
 
@@ -172,15 +196,19 @@ export default function SupplierPortal() {
             onChange={(e) => setSelectedCountry(e.target.value)}
             className="text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 font-semibold text-slate-800 dark:text-slate-200"
           >
-            {COUNTRY_OPTIONS.map((c) => (
-              <option key={c.code} value={c.code}>
-                {c.flag} {c.name} ({c.currency})
-              </option>
-            ))}
+            {COUNTRY_OPTIONS.map((group) => <optgroup key={group.group} label={group.group}>
+              {group.countries.filter((c) => ALL_20_MARKETS.includes(c.code as (typeof ALL_20_MARKETS)[number])).map((c) => <option key={c.code} value={c.code}>{c.name} ({c.currency})</option>)}
+            </optgroup>)}
           </select>
         </div>
       </div>
 
+      {authLoading || loadingData ? <Card><CardContent className="p-6 text-sm text-slate-500">Loading supplier records…</CardContent></Card> : null}
+      {!authLoading && !user ? <Card><CardContent className="p-6 space-y-3"><h2 className="font-semibold">Sign in to manage supplier listings</h2><p className="text-sm text-muted-foreground">Supplier prices are account-owned and saved to the database. Demo inventory is not displayed as live pricing.</p><Button asChild><Link to="/login">Sign in</Link></Button></CardContent></Card> : null}
+      {user && !loadingData && !profile ? <Card><CardHeader><CardTitle>Create your supplier profile</CardTitle><CardDescription>Real supplier details only. New profiles require verification before quotes can be treated as verified.</CardDescription></CardHeader><CardContent><form onSubmit={handleCreateProfile} className="grid gap-3 sm:grid-cols-3"><Input aria-label="Company name" placeholder="Company name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required /><Input aria-label="City" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} required /><Button disabled={savingProfile}>{savingProfile ? "Saving…" : "Create profile"}</Button></form></CardContent></Card> : null}
+      {loadError ? <div role="alert" className="rounded-md border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">{loadError}</div> : null}
+      {user && profile && inventory.length === 0 && !loadingData ? <Card><CardContent className="p-6 text-sm text-muted-foreground">No saved supplier inventory in {market?.name} yet. Add a real quote to begin; no sample prices are used.</CardContent></Card> : null}
+      {user && profile ? <>
       {/* Supplier Profile Banner */}
       <Card className="border-emerald-100 dark:border-emerald-950 bg-gradient-to-r from-emerald-50/50 via-white to-white dark:from-emerald-950/20 dark:via-slate-900 dark:to-slate-900">
         <CardContent className="p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -191,23 +219,20 @@ export default function SupplierPortal() {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                  {profile.company_name}
+                  {profile?.company_name || "Supplier workspace"}
                 </h2>
-                <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300">
-                  <CheckCircle2 className="w-3 h-3 mr-1 inline" />
-                  Verified Merchant
-                </Badge>
+                {profile?.is_verified ? <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300"><CheckCircle2 className="w-3 h-3 mr-1 inline" />Verified supplier</Badge> : <Badge variant="outline">Pending verification</Badge>}
               </div>
               <p className="text-xs text-slate-500 flex items-center gap-3 mt-0.5">
                 <span>
-                  {profile.city}, {profile.country_name}
+                  {profile?.city || city || "Set your city"}, {profile?.country_name || market?.name}
                 </span>
                 <span>•</span>
                 <span>{profile.address}</span>
                 <span>•</span>
                 <span className="flex items-center gap-1 font-mono text-slate-600">
                   <Phone className="w-3 h-3" />
-                  {profile.phone}
+                  {profile?.phone || "Contact not provided"}
                 </span>
               </p>
             </div>
@@ -216,10 +241,10 @@ export default function SupplierPortal() {
           <div className="flex items-center gap-2 text-xs">
             <div className="text-right">
               <div className="font-semibold text-emerald-600 dark:text-emerald-400">
-                Top Pricing Priority
+                {profile?.is_verified ? "Verified supplier listing" : "Verification pending"}
               </div>
               <div className="text-[11px] text-slate-400">
-                Calculator displays verified quotes first
+                Quotes are shown only when account and market data qualify
               </div>
             </div>
           </div>
@@ -236,8 +261,7 @@ export default function SupplierPortal() {
                 Live Price List & Inventory Controls
               </CardTitle>
               <CardDescription className="text-xs">
-                Prices modified below reflect in customer calculators
-                immediately.
+                Only successfully saved, eligible supplier quotes can be considered by matching-market calculators. Listings are not procurement orders.
               </CardDescription>
             </div>
             <Button
@@ -299,12 +323,12 @@ export default function SupplierPortal() {
             </div>
             <div>
               <label className="text-[11px] font-semibold text-slate-600 block mb-1">
-                Price ({profile.country_name === "Kenya" ? "KES" : "USD"})
+                Price ({currency})
               </label>
               <Input
                 type="number"
                 placeholder="950"
-                value={newItemPrice}
+                min="0.01" step="any" value={newItemPrice}
                 onChange={(e) => setNewItemPrice(e.target.value)}
                 className="h-8 text-xs bg-white dark:bg-slate-900 font-bold"
                 required
@@ -316,7 +340,7 @@ export default function SupplierPortal() {
                 size="sm"
                 className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white w-full"
               >
-                Save & Broadcast
+                Save supplier quote
               </Button>
             </div>
           </form>
@@ -438,6 +462,7 @@ export default function SupplierPortal() {
           </div>
         </CardContent>
       </Card>
+      </> : null}
     </div>
   );
 }

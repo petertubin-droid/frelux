@@ -301,16 +301,10 @@ export async function fetchSupplierProfiles(
       .eq("is_active", true)
       .order("rating", { ascending: false });
 
-    if (error || !data || data.length === 0) {
-      return SAMPLE_SUPPLIER_PROFILES.filter(
-        (p) => p.market_code === marketCode.toUpperCase(),
-      );
-    }
+    if (error || !data) return [];
     return data as SupplierProfile[];
   } catch {
-    return SAMPLE_SUPPLIER_PROFILES.filter(
-      (p) => p.market_code === marketCode.toUpperCase(),
-    );
+    return [];
   }
 }
 
@@ -332,7 +326,8 @@ export async function fetchVerifiedSupplierOffers(params: {
       .eq("market_code", params.marketCode.toUpperCase())
       .eq("is_active", true)
       .eq("in_stock", true)
-      .eq("supplier.is_verified", true);
+      .eq("supplier.is_verified", true)
+      .eq("supplier.is_active", true);
 
     if (params.materialSlug) {
       query = query.eq("material_slug", params.materialSlug);
@@ -346,27 +341,11 @@ export async function fetchVerifiedSupplierOffers(params: {
       ascending: true,
     });
 
-    if (!error && data && data.length > 0) {
-      return data as SupplierInventoryItem[];
-    }
+    if (error || !data) return [];
+    return data as SupplierInventoryItem[];
   } catch {
-    // Graceful fallback to sample inventory
+    return [];
   }
-
-  // Sample fallback for UX and local demonstration
-  return SAMPLE_SUPPLIER_INVENTORY.filter((item) => {
-    if (item.market_code !== params.marketCode.toUpperCase()) return false;
-    if (params.materialSlug && item.material_slug !== params.materialSlug) {
-      return false;
-    }
-    if (
-      params.materialCategory &&
-      item.material_category !== params.materialCategory
-    ) {
-      return false;
-    }
-    return item.in_stock === true;
-  }).sort((a, b) => a.unit_price - b.unit_price);
 }
 
 /**
@@ -376,14 +355,11 @@ export function toSupplierOffers(
   items: SupplierInventoryItem[],
 ): SupplierOffer[] {
   return items.map((item) => {
-    const supplier =
-      item.supplier ||
-      SAMPLE_SUPPLIER_PROFILES.find((p) => p.id === item.supplier_id);
+    const supplier = item.supplier;
     return {
       id: item.id,
       supplierId: item.supplier_id,
-      supplierName:
-        supplier?.company_name || "Verified Building Materials Supplier",
+      supplierName: supplier?.company_name || "Supplier identity unavailable",
       isVerified:
         supplier?.is_verified === true ||
         supplier?.verification_status === "verified",
@@ -394,7 +370,7 @@ export function toSupplierOffers(
       currency: item.currency,
       unit: item.unit,
       inStock: item.in_stock === true,
-      leadTimeDays: item.lead_time_days || 1,
+      leadTimeDays: item.lead_time_days ?? 0,
       phone: supplier?.phone || "",
       whatsapp: supplier?.whatsapp,
     };
@@ -470,34 +446,20 @@ export async function saveSupplierProfile(
     is_active: true,
   };
 
-  const { data, error } = await supabase
+  const existing = await supabase
     .from("supplier_profiles")
-    .upsert(payload, { onConflict: "user_id,market_code" })
-    .select()
-    .single();
+    .select("id")
+    .eq("user_id", profile.user_id)
+    .eq("market_code", profile.market_code.toUpperCase())
+    .maybeSingle();
+  if (existing.error) throw new Error(existing.error.message);
 
-  if (error || !data) {
-    // Don't throw — user can still use the UI locally during backend setup
-    return {
-      id: "local-draft",
-      user_id: profile.user_id,
-      company_name: profile.company_name,
-      contact_name: profile.contact_name || "",
-      country_name: profile.country_name || "",
-      market_code: profile.market_code.toUpperCase(),
-      city: profile.city || "",
-      phone: profile.phone || "",
-      email: profile.email || "",
-      is_verified: false,
-      verification_status: "pending",
-      verification_tier: "tier1_basic",
-      status: "pending_review",
-      rating: 5,
-      total_quotes_served: 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-  }
+  const write = existing.data
+    ? await supabase.from("supplier_profiles").update(payload).eq("id", existing.data.id).select().single()
+    : await supabase.from("supplier_profiles").insert(payload).select().single();
+  const { data, error } = write;
+
+  if (error || !data) throw new Error(error?.message || "Supplier profile was not saved.");
 
   return data as SupplierProfile;
 }
@@ -543,24 +505,19 @@ export async function saveSupplierInventoryItem(
     last_updated_at: new Date().toISOString(),
   };
 
-  const { data, error } = await supabase
-    .from("supplier_inventory_items")
-    .upsert(payload, { onConflict: "supplier_id,material_slug" })
-    .select("*, supplier:supplier_profiles(*)")
-    .single();
-
-  if (error || !data) {
-    // Return local item so the user can continue with preview
-    return {
-      id: item.id || `local-item-${Date.now()}`,
-      ...payload,
-      product_name: item.product_name,
-      material_slug: item.material_slug,
-      unit: item.unit,
-      unit_price: item.unit_price,
-      currency: item.currency,
-    } as SupplierInventoryItem;
+  let write;
+  if (item.id) {
+    write = await supabase.from("supplier_inventory_items").update(payload).eq("id", item.id).eq("supplier_id", item.supplier_id).select("*, supplier:supplier_profiles(*)").single();
+  } else {
+    const existing = await supabase.from("supplier_inventory_items").select("id").eq("supplier_id", item.supplier_id).eq("material_slug", item.material_slug).maybeSingle();
+    if (existing.error) throw new Error(existing.error.message);
+    write = existing.data
+      ? await supabase.from("supplier_inventory_items").update(payload).eq("id", existing.data.id).eq("supplier_id", item.supplier_id).select("*, supplier:supplier_profiles(*)").single()
+      : await supabase.from("supplier_inventory_items").insert(payload).select("*, supplier:supplier_profiles(*)").single();
   }
+  const { data, error } = write;
+
+  if (error || !data) throw new Error(error?.message || "Supplier inventory was not saved.");
 
   return data as SupplierInventoryItem;
 }
@@ -586,95 +543,46 @@ export async function fetchSupplierOffersForMaterial(params: {
   quantity?: number;
 }): Promise<SupplierOfferCardData[]> {
   const { marketCode, materialSlug, quantity = 1 } = params;
-
-  // Attempt Supabase fetch
   try {
     const { data, error } = await supabase
       .from("supplier_inventory_items")
-      .select("*, supplier:supplier_profiles(*)")
+      .select("*, supplier:supplier_profiles!inner(*)")
+      .eq("market_code", marketCode.toUpperCase())
       .eq("material_slug", materialSlug)
       .eq("is_active", true)
+      .eq("in_stock", true)
+      .eq("supplier.is_active", true)
+      .eq("supplier.is_verified", true)
       .order("unit_price", { ascending: true });
-
-    if (!error && data && data.length > 0) {
-      const items = data as unknown as (SupplierInventoryItem & { supplier?: SupplierProfile })[];
-      const filtered = items.filter((item) => {
-        const mkt = item.supplier?.market_code || item.currency;
-        return (
-          mkt?.toUpperCase() === marketCode.toUpperCase() ||
-          item.currency?.toUpperCase() === marketCode.toUpperCase()
-        );
+    if (error || !data) return [];
+    const now = Date.now();
+    return (data as unknown as (SupplierInventoryItem & { supplier?: SupplierProfile })[])
+      .filter((item) => {
+        const updatedAt = Date.parse(item.last_updated_at || "");
+        return item.market_code?.toUpperCase() === marketCode.toUpperCase()
+          && item.supplier?.market_code?.toUpperCase() === marketCode.toUpperCase()
+          && item.supplier?.is_verified === true
+          && Number.isFinite(updatedAt)
+          && now - updatedAt <= 30 * 24 * 60 * 60 * 1000;
+      })
+      .map((item) => {
+        const discount = calculateBulkSupplierDiscount(item, quantity);
+        return {
+          supplierId: item.supplier_id,
+          supplierName: item.supplier!.company_name,
+          city: item.supplier!.city || "",
+          materialSlug: item.material_slug,
+          productName: item.product_name || item.material_slug,
+          unitPrice: discount.unitPrice,
+          currency: item.currency,
+          unit: item.unit,
+          stockQuantity: item.stock_quantity ?? 0,
+          leadTimeDays: item.lead_time_days ?? 0,
+          phone: item.supplier!.phone || undefined,
+          bulkDiscountApplied: discount.discountPct > 0,
+        };
       });
-
-      if (filtered.length > 0) {
-        return filtered.map((item) => {
-          const discount = calculateBulkSupplierDiscount(item, quantity);
-          return {
-            supplierId: item.supplier_id,
-            supplierName:
-              item.supplier?.company_name || "Local Building Supplier",
-            city: item.supplier?.city || "Regional Hub",
-            materialSlug: item.material_slug,
-            productName: item.product_name || item.material_slug,
-            unitPrice: discount.unitPrice,
-            currency: item.currency,
-            unit: item.unit,
-            stockQuantity: item.stock_quantity ?? 100,
-            leadTimeDays: item.lead_time_days || 1,
-            phone: item.supplier?.phone || undefined,
-            bulkDiscountApplied: discount.discountPct > 0,
-          };
-        });
-      }
-    }
   } catch {
-    // fallback to static sample
+    return [];
   }
-
-  // Fallback to sample inventory
-  const cleanSlug = materialSlug.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const matches = SAMPLE_SUPPLIER_INVENTORY.filter((item) => {
-    const itemSlugClean = item.material_slug
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, "");
-    const itemCatClean = (
-      item.material_category ||
-      item.category ||
-      ""
-    ).toLowerCase();
-    const cleanMaterial = materialSlug.toLowerCase();
-
-    return (
-      item.material_slug.toLowerCase() === materialSlug.toLowerCase() ||
-      itemSlugClean.includes(cleanSlug) ||
-      cleanSlug.includes(itemSlugClean) ||
-      (cleanMaterial.includes("cement") && itemCatClean === "cement") ||
-      (cleanMaterial.includes("steel") && itemCatClean === "steel") ||
-      (cleanMaterial.includes("paint") && itemCatClean === "paint")
-    );
-  });
-
-  return matches.map((item) => {
-    const supplier = SAMPLE_SUPPLIER_PROFILES.find(
-      (s) => s.id === item.supplier_id,
-    );
-    const discount = calculateBulkSupplierDiscount(item, quantity);
-    return {
-      supplierId: item.supplier_id,
-      supplierName:
-        supplier?.company_name ||
-        supplier?.company_name ||
-        "Verified Local Merchant",
-      city: supplier?.city || "Industrial Area",
-      materialSlug: item.material_slug,
-      productName: item.product_name || item.material_slug,
-      unitPrice: discount.unitPrice,
-      currency: item.currency,
-      unit: item.unit,
-      stockQuantity: 250,
-      leadTimeDays: item.lead_time_days || 1,
-      phone: supplier?.phone || supplier?.phone || "+254 700 123456",
-      bulkDiscountApplied: discount.discountPct > 0,
-    };
-  });
 }
