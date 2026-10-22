@@ -97,98 +97,38 @@ Work one market at a time. Record authoritative sources/providers, coverage and 
 
 ---
 
-## 2. INCOMPLETE, PENDING, PARTIAL & UNVERIFIED WORK (Active Queue)
+## 2. CONSTRUCTION CALCULATORS & PLAN TAKEOFF — DELIVERY STATUS / ROADMAP
 
-Only open work belongs here. Recheck current source and production state before acting; this list does not certify live data or migrations.
+This section supersedes the previous active queue. It records source-level implementation only; route presence or unit tests do not establish field validation, country-specific standards compliance, pricing coverage, or production deployment. The supported market list is currently 32 market codes in `src/lib/international/market-context.tsx`; confirm the live list before expanding it.
 
-### A. Rebar price books — BATCH COMMITTED (ZA, KE, FR, IN) / OTHER MARKETS OPEN
+### Phase 1 — Standalone quantity worksheets (initial implementation in repository; market validation open)
 
-- **Committed Anchors (Migration `20261025100000_rebar_anchors_za_ke_fr_in.sql`)**:
-  - **ZA (South Africa)**: Cashbuild retail store survey (Barnes Y12 6m R109.95 incl VAT, SKU 476005; Y16 6m R194.95, SKU 476006). Engine 12m stock length equivalents: Y12 R219.90, Y16 R389.90; derived Y20 R609.98, Y25 R953.31 via implied R20.613/kg (SANS 920 / 450 MPa).
-  - **KE (Kenya)**: National Cement Company (Devki Group) published catalog (KS 573 / BS 4449 Grade 500): D12 12m KSh 1,040, D16 12m KSh 1,860, D20 12m KSh 2,550, D25 12m KSh 4,400.
-  - **FR (France)**: Brico Dépôt retail listings (HA FeE500 EN 10080 / NF A 35-080-1): HA12 3m €6.50 TTC, scaled to 12m €26.00; HA16 €46.20, HA20 €72.21, HA25 €112.85 via implied €2.44/kg TTC.
-  - **IN (India)**: Tata Nexarc / Tata Tiscon Fe500 TMT price benchmark (12m pieces): 12mm ₹602.06, 16mm ₹1,069.88, 20mm ₹1,671.95, 25mm ₹2,613.01.
-  - Note: Pending live database execution against production Supabase instance (`nfgaaohweygwydoelxnf`) when management token is provided.
-- **Remaining Open Markets**: Fill remaining regional gaps (BR, CN, ID, MX, KR, JP, GH, SA, AE) only from attributable supplier quotes, distributor catalogs, or dated physical surveys. Never seed estimates from memory or synthetic prices.
+The following routes are registered in the tool catalogue and application: masonry, plastering/rendering, drywall/partitions, paving, gravity drainage, temporary works, insulation, demolition, and a septic/soakaway worksheet. They calculate preliminary quantities from measured or user-entered assumptions. They are not structural, sanitation, stormwater, code-compliance, or permit designs.
 
-### B. Price provenance — OPEN
+- **Market caveat:** market selection and editable starting profiles are available, but country-specific product sizes, packaging, norms, rates, standards, and local adoption have not been independently verified across all 32 markets. Treat displayed profiles as planning defaults; verify against supplier datasheets, local specifications, and qualified professionals. Missing/unknown market data must be explicitly disclosed, never presented as a verified national value.
+- **Masonry/plaster/drywall/paving:** check product geometry, openings, mortar/mix, coat thickness, board/framing, joints, compaction and waste assumptions against actual project specifications. The drywall worksheet does not yet constitute a complete shop-drawing frame schedule.
+- **Drainage/septic:** gravity drainage quantities and an explicit-input septic/soakaway worksheet exist. Septic sizing requires user-supplied locally approved flow/retention/soil criteria. Stormwater hydraulic sizing, percolation testing, groundwater/setback checks, septic treatment selection and authority approvals remain out of scope.
+- **Temporary works:** form-contact/scaffold quantities are not scaffold, shoring, access, tie, wind or stability design. Engineering sign-off and safe-work documentation remain mandatory.
+- **Insulation/demolition:** preliminary area/volume/product and debris quantities only; no thermal-code compliance, hazardous-material survey, disposal classification, or waste contractor confirmation.
+- **Pricing:** no new calculator may imply live local supplier prices unless the price has verified source, location, date and provenance. Keep unverified prices unpriced or clearly marked.
 
-- Query the current production inventory for low-confidence rows or rows without attributable source evidence; do not reuse historical counts.
-- Replace or clearly mark indicative values. Upgrade confidence only after independent source verification and recording provenance. Note: Live audit and batch updates against the 176 low-confidence production rows requires Supabase Management API access / `SUPA_TOKEN`.
+### Phase 2 — Interactive Blueprint & PDF Plan Takeoff (browser MVP; integration/persistence open)
 
-### C. Procurement — OPEN GAPS
+`/blueprint-takeoff` supports image/PDF display, page navigation, known-length scale calibration, linear/area/count marks and CSV schedule export. Measurements are browser-session state and are not currently a saved cloud project. Users must calibrate each drawing and independently verify scale and marked quantities.
 
-- The existing interface is a purchase-requisition prototype, not a supplier-connected purchase order. Verify supplier-to-market material-role mappings and sourcing; persist validated packaging data; add approval/audit steps; integrate quotes, stock, and lead times only from confirmed providers; distinguish requisitions from confirmed orders and delivery.
+Remaining work: persistent drawings/markups with explicit privacy and retention controls; importable/exportable takeoff project format; robust PDF page/unit/rotation testing; multi-page per-page calibration; undo/edit/delete and keyboard/touch accessibility; item/category labels; saved schedules; overlay/print/PDF report; and documented device/file-size limits. Do not describe the MVP as CAD/BIM, automated dimension extraction, code-checking, or live quantity synchronization.
 
-### D. BIM/CAD — OPEN GAPS
+### Phase 3 — Safe operational readiness, one market/trade at a time
 
-- IFC import reports authored quantities for a constrained element set. It converts only explicitly assigned supported SI and conversion-based units; missing, unsupported, or unresolved units stay raw and visibly labelled. It does not infer geometry or support the full IFC schema.
-- Expand standards-tested IFC coverage. Keep geometry extraction separate until supported primitives, placements, and transforms are implemented and independently tested. Then stage a model viewer, measurement verification, revisions/annotations, federation/georeferencing, schedule/cost links, and auditable clash/issues workflows.
-- Tests must cover declared quantities, supported unit conversions, unresolved-unit honesty, malformed/unsupported inputs, and limits. Do not require invented slab volumes or wall areas when the file supplies no such quantities.
+Before calling a calculator market-ready, record an authoritative source or supplier datasheet and effective date for each default, an accountable local reviewer, representative project benchmarks, unit/rounding tests, missing/stale/outage behavior, user-facing assumptions, and end-to-end release evidence. Do not silently substitute Nigerian values or infer local regulations. Keep every unverified market/capability explicitly preliminary.
 
-### E2. Wave 1.3 Click-to-Invoice — COMPLETE (2026-10-16)
+### Phase 4 — Blueprint-to-estimate workflow
 
-Migrations `20261022100000_invoices.sql` + `20261022110000_invoice_counter_rpc.sql` applied live + verified. Tables: `invoices` (snapshot of a boq_quote, per-invoice currency DEFAULT 'XXX' — never NGN, stored status draft/issued/cancelled only), `invoice_payments` (amount>0 CHECK, method CHECK, CASCADE), `invoice_counters` (per-user/per-year); all RLS FORCED with owner policies (payments scoped via owning invoice). `reserve_invoice_number(year)` RPC: single-statement atomic upsert-increment, auth.uid()-pinned, EXEC revoked from PUBLIC, granted to authenticated — PostgREST upserts cannot express "last_number + 1", so the RPC is the only reservation path.
+Only after the takeoff record format and units are validated, connect selected measured quantities to matching worksheets with user confirmation and full provenance. Preserve source drawing, page, scale calibration, mark, unit and any manual override. Never transform a measured quantity into a structural design or claim code compliance. Keep procurement integrations and market pricing separate and provenance-backed.
 
-Code: `src/lib/finance/invoice-engine.ts` (pure — verbatim deep-copied quote snapshot, `INV-YYYY-####` refs, due date = issue + terms, `deriveInvoiceStatus()`: paid requires covering payments, partially_paid never claims paid, overdue is date-based not time-of-day, currency `XXX` when unknown). `src/lib/finance/invoice-service.ts` (create-from-quote via RPC ref, record/delete payment, issue/cancel/draft status, `fetchInvoices` derives state at read time). `src/components/finance/InvoicesCard.tsx` on BoqGenerator: create-from-quote (per-line totals from `result.line_totals`, NOT raw BoqLineItem which has no `total`), issue/cancel, payment recording, derived badges, branded print.
+### Phase 5 — Classification, exports and broader workflows
 
-GOTCHAS: (1) `boqTaxLabel(market).short` — the interface has `.long`/`.short`, NOT `.label`; a `.label` access silently yields undefined. (2) thenable-chain mocks: make every chain method return the chain and give the chain a `then` — per-method resolve mocks break under any composition order. (3) Don't `setMsg(null)` inside a shared refresh — it erases the action success message the instant it renders (tests caught this as a real UX bug). (4) Card fetches only with a signed-in userId; RLS is the law, the eq filter is just a shape.
-
-Remaining follow-ups (optional, not blockers): invoice email/share delivery, per-market numbering format config (currently global INV-YYYY-####), and credit-ledger integration with the existing billing engines when #10 regulated finance is scoped.
-
-### E. Cross-capability and market verification — OPEN
-
-- Build a current market/capability matrix from live registry and production evidence. Test representative estimates, currency, data provenance, missing values, and no-silent-fallback behavior per enabled market. Add E2E confidence/provenance presentation only where supported by actual source data.
-- Verify migrations and RLS against the intended environment before claiming they are applied or production-ready. Add negative tenant/role tests and document deployment evidence.
-
-### F. Roof structural design — OPEN / PRELIMINARY CHECK ONLY
-
-- Roof framing quantity takeoff remains separate from structural design. The current UI adds an explicitly code-agnostic, single-span, simply-supported member check for timber/steel using user-entered design load, section properties and resistances; this is a preliminary calculation, not operational jurisdictional design or code-compliance verification.
-- Before expanding: select and verify one market’s current primary-source design basis, load combinations (including wind uplift), material grades and resistance factors; obtain a qualified local structural engineer’s review and benchmark cases. Do not treat market selection as code support or allow Nigerian defaults.
-- Research update: the Federal Ministry of Housing and Urban Development-hosted Nigerian National Building Code PDF includes Table 8.10 ordinary roof live-load values by slope/tributary area and separate provisions requiring wind/earthquake resistance, ponding consideration, and special-use roof loads. The app exposes the Table 8.10 figure only as a linked, reference-only lookup and never adds it to the total design load. Source: https://bend.fmhud.gov.ng/upload/download/25080529456.pdf. The PDF references separate NCP2 timber design tables; no verified complete market design basis or published universal member capacities were found. Keep jurisdictional structural design open and unavailable.
-- A solid rectangular strong-axis geometry helper calculates gross elastic section modulus, second moment, and effective shear area from entered width/depth. It does not infer material strength or cover hollow/built-up sections. Maintain validation and review gates before extending this helper.
-- Add member/system coverage only after independently validated formulas for stability/buckling, bearing, connections, lateral restraint, uplift, bracing, multiple spans, and roof-system load paths. Keep unavailable/unverified markets explicit and design output non-certifying until the full market release gate passes.
-
-### G. Multi-Network Ad Monetization & Simultaneous Serving (Monetag, Adsterra, AdSense, ayeT-Studios) — COMPLETE (2026-10-17)
-
-- **Audit & Root Cause Analysis**:
-  * **Adsterra-only display**: Prior implementation in `AdSlot.tsx` had a rigid single-provider waterfall where AdSense required an explicit per-slot `ad_unit_id` or `default_display_unit_id` (leaving pure `publisher_id` auto-ad configs unresolved in slot waterfalls), Monetag in-slot display required a dedicated `native_banner_zone_id` (falling through when only `zone_id` MultiTag was configured, while `MONETAG_AUTO_ZONES` omitted native/inpage units), and ayeT-Studios was treated as modal rewarded-only without web offerwall embedding.
-  * **Adsterra Native Banner Race Condition**: `src/components/ui/adsterra.ts` appended the async `invoke.js` script tag into the container before appending the target `div#container-${key}`. In fast DOM runs, `invoke.js` executed before the target container was present. Fixed by mounting the container div before appending the invoke script tag.
-  * **Simultaneous Multi-Network Delivery**: Implemented multi-provider slot distribution across active and eligible networks (`google_adsense`, `adsterra`, `monetag`) so distinct slots on the page lead with different providers simultaneously across the layout while strictly preserving cookie consent, paid-user suppression, density caps, and impression accounting.
-  * **Monetag In-Slot & In-Page Push**: Added `native_banner_zone_id` and `inpage_push_zone_id` to `MONETAG_AUTO_ZONES` in `src/lib/ad-network-formats.ts`, added in-slot container script injection in `AdSlot.tsx`, and updated `providerCanFill` in `AdminAds.tsx`.
-  * **ayeT-Studios Web Offerwall & Engagement**: Expanded `src/lib/offerwall.ts` to support ayeT Website Placement ID (`/offers/web_offerwall/{placement_id}`) alongside legacy `app_id`, wired iframe embedding into `AdSlot.tsx`, and updated admin fill logic.
-  * **Test Coverage**: Added regression tests in `src/components/ui/adsterra.test.ts` (DOM order check for invoke.js), `src/lib/ad-network-formats.test.ts` (catalog recognition for native/inpage push), and `src/components/ui/AdSlot.test.tsx` (AdSense publisher-id auto-fill).
-
-### F. Engine-specific remaining work — OPEN
-
-Use the status table in Section 1A as the source of truth for completed milestone records and limits. The items below are open follow-up, not claims that an engine is absent in full.
-
-- **#5 Regulatory standards:** Recheck current live `construction_standards` coverage and source dates first. The previous handoff flagged Indonesia (ID), Mexico (MX), and South Korea (KR) for verification; confirm whether those gaps remain, then fill only with current primary-authority sources and add jurisdiction-scoped review/checks.
-- **#6 Technical translation:** Build terminology dictionaries and a human-review workflow for construction terms, starting from the previously proposed locale list (JP, FR, BR, SA, AE) only after confirming current supported locales. Keep technical, safety, and regulatory instructions clearly separated from unreviewed machine translation.
-- **#8 IoT/telematics:** Define consent, authenticated device onboarding, data quality/retention, privacy, and independently reviewed alert gates before integrating any sensor or equipment feed.
-- **#9 Procurement/logistics:** Extend beyond requisition prototypes only with verified suppliers/providers; implement quote/order/dispatch/delivery states, market-specific customs/lead-time evidence, approvals, and exception audit.
-- **#10 Regulated finance:** Scope licensed payment/escrow and compliance providers with qualified jurisdiction counsel; design auditable reconciliation, dispute, lien-waiver, and AML/KYC controls before any production money movement claim.
-- **#11 Offline sync:** COMPLETE — see engine row.
-- **#12 RBAC/security:** COMPLETE M1-M4 — see engine row. Audit + hardening live-verified; independent review intentionally pending via security_posture_reviews.
-
-- **#2 GIS and #4 tax/FX:** Keep their completed milestone records, but revalidate current license/provider state, citation freshness, FX freshness/outage behavior, and production deployment before extending markets or making live-operation claims.
-
----
-
-## I. Phase 1 Save → Share → Pro Connect Journey (IN PROGRESS / BATCH 1 COMPLETE)
-
-See [`docs/phase1-save-share-pro-connect-roadmap.md`](docs/phase1-save-share-pro-connect-roadmap.md) for acceptance gates.
-
-- **Batch 1 (Complete)**:
-  - Preserved pending calculation intent across OAuth sign-in with auto-resume dialog in `SaveToProjectButton.tsx`.
-  - Hardened read-only privacy boundary in `SharedProject.tsx` with explicit field filtering (excluded private identifiers/notes).
-  - Verified Pro Connect directory integrity: dynamic verified professional matching with 0-result honesty (no synthetic testimonials/counts).
-
-- Keep calculating/exporting free and anonymous; make cloud save an optional sign-in gate that resumes the intended save after Google OAuth. Keep local/device saves distinct; do not silently upload them.
-- Enable phone sign-in only after production SMS coverage, abuse controls, delivery, and redirect configuration are verified. Pro Connect phone confirmation is not general app phone authentication.
-- Reconcile saved calculator records (`contractor_projects`/project calculations) with `/shared/:id` before offering live share. Build a read-only, least-data public view with owner preview, explicit consent, revocation/expiry, and anonymous-access tests. Do not expose addresses, contacts, private notes, or unrelated records by default.
-- Show screeder discovery only for screeding work and actual trade/service-area matches. Do not hard-code counts or claim “near you,” “vetted,” “verified,” or “available” beyond matching evidence; request location when needed and keep project data private.
-- Verify auth resume, save-once behavior, owner isolation/RLS, share privacy/revocation, match/empty/stale states, mobile accessibility, migration replay, production build, and deployed behavior before calling the journey operational.
+Evaluate CSI MasterFormat, NRM2, SMM7 and CESMM4 mappings with qualified estimators and local licensing before generating classified BOQs. Extend to approved report exports, procurement and WBS only with verified inputs and clear review states. Avoid promising unsupported live suppliers, availability, lead times, or fulfillment.
 
 ## 3. VERIFICATION COMMANDS & RUNTIME ENVIRONMENT
 

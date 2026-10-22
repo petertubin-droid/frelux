@@ -933,6 +933,56 @@ const routes = [
       'Size a solar power system, get the bill of materials, and estimate installation cost for your market.',
   },
   {
+    path: '/masonry-calculator',
+    title: 'Masonry & Blockwork Calculator | FRELUX SMART CALC',
+    description: 'Estimate masonry units and mortar quantities from wall measurements.',
+  },
+  {
+    path: '/plastering-calculator',
+    title: 'Plastering & Rendering Calculator | FRELUX SMART CALC',
+    description: 'Estimate plaster and render material quantities from surface area and thickness.',
+  },
+  {
+    path: '/drywall-calculator',
+    title: 'Drywall & Partition Calculator | FRELUX SMART CALC',
+    description: 'Estimate drywall boards, framing and jointing material quantities.',
+  },
+  {
+    path: '/paving-calculator',
+    title: 'Paving Takeoff Calculator | FRELUX SMART CALC',
+    description: 'Estimate pavers, bedding and sub-base quantities for external works.',
+  },
+  {
+    path: '/drainage-calculator',
+    title: 'External Drainage Takeoff | FRELUX SMART CALC',
+    description: 'Estimate drainage pipe, trench and bedding quantities; not a hydraulic design.',
+  },
+  {
+    path: '/septic-sizing-calculator',
+    title: 'Septic & Soakaway Worksheet | FRELUX SMART CALC',
+    description: 'Estimate preliminary tank volume and soakaway area from locally approved, user-entered design criteria.',
+  },
+  {
+    path: '/temporary-works-calculator',
+    title: 'Formwork & Temporary Works Calculator | FRELUX SMART CALC',
+    description: 'Estimate form contact area and simplified temporary works quantities; not a design.',
+  },
+  {
+    path: '/insulation-calculator',
+    title: 'Insulation Takeoff Calculator | FRELUX SMART CALC',
+    description: 'Estimate insulation product quantities by area, thickness and coverage.',
+  },
+  {
+    path: '/demolition-calculator',
+    title: 'Demolition & Debris Takeoff | FRELUX SMART CALC',
+    description: 'Estimate demolition debris volumes and indicative skip loads.',
+  },
+  {
+    path: '/blueprint-takeoff',
+    title: 'Blueprint & PDF Plan Takeoff | FRELUX SMART CALC',
+    description: 'Calibrate a plan drawing and measure linear, area and counted quantities.',
+  },
+  {
     path: '/wall-finish-estimator',
     title: 'Wall Finish Estimator | FRELUX SMART CALC',
     description:

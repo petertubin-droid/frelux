@@ -112,8 +112,12 @@ const MarketplaceSeedingHub = lazy(
 const LearnCategory = lazy(() => import("@/pages/learn/LearnCategory"));
 const LearnArticle = lazy(() => import("@/pages/learn/LearnArticle"));
 const LearnLibrary = lazy(() => import("@/pages/learn/LearnLibrary"));
-const WallFinishingLibrary = lazy(() => import("@/pages/learn/WallFinishingLibrary"));
-const WallFinishingArticle = lazy(() => import("@/pages/learn/WallFinishingArticle"));
+const WallFinishingLibrary = lazy(
+  () => import("@/pages/learn/WallFinishingLibrary"),
+);
+const WallFinishingArticle = lazy(
+  () => import("@/pages/learn/WallFinishingArticle"),
+);
 const PaintColorDetail = lazy(() => import("@/pages/PaintColorDetail"));
 const CompareColors = lazy(() => import("@/pages/CompareColors"));
 const MyProjects = lazy(() => import("@/pages/MyProjects"));
@@ -138,6 +142,10 @@ const ClientManagement = lazy(() => import("@/pages/ClientManagement"));
 const EstimateAnalytics = lazy(() => import("@/pages/EstimateAnalytics"));
 const ColorPreview = lazy(() => import("@/pages/ColorPreview"));
 const StartBuilding = lazy(() => import("@/pages/StartBuilding"));
+const StandaloneTakeoffPage = lazy(
+  () => import("@/pages/StandaloneTakeoffPage"),
+);
+const BlueprintTakeoff = lazy(() => import("@/pages/BlueprintTakeoff"));
 
 // Contractor experience pages
 const ContractorProjects = lazy(
@@ -151,10 +159,8 @@ const ProjectDashboard = lazy(
 );
 const PredictiveAnalytics = lazy(
   () => import("@/pages/contractor/PredictiveAnalytics"),
-)
-const IotTelemetry = lazy(
-  () => import("@/pages/contractor/IotTelemetry"),
 );
+const IotTelemetry = lazy(() => import("@/pages/contractor/IotTelemetry"));
 const ComplianceStandards = lazy(
   () => import("@/pages/contractor/ComplianceStandards"),
 );
@@ -290,7 +296,9 @@ const AdminScreedingMaterials = lazy(
   () => import("@/pages/admin/AdminScreedingMaterials"),
 );
 const AdminLearn = lazy(() => import("@/pages/admin/AdminLearn"));
-const AdminWallFinishingLibrary = lazy(() => import("@/pages/admin/AdminWallFinishingLibrary"));
+const AdminWallFinishingLibrary = lazy(
+  () => import("@/pages/admin/AdminWallFinishingLibrary"),
+);
 const AdminMarkets = lazy(() => import("@/pages/admin/AdminMarkets"));
 const AdminMarketIntelligence = lazy(
   () => import("@/pages/admin/AdminMarketIntelligence"),
@@ -1215,11 +1223,19 @@ export default function App() {
                       />
                       <Route
                         path="/learn/wall-finishing/:marketCode/:articleSlug"
-                        element={<Suspense fallback={<PageLoader />}><WallFinishingArticle /></Suspense>}
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <WallFinishingArticle />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/learn/wall-finishing/:marketCode"
-                        element={<Suspense fallback={<PageLoader />}><WallFinishingLibrary /></Suspense>}
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <WallFinishingLibrary />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/learn/library"
@@ -1594,6 +1610,64 @@ export default function App() {
                         path="/wall-finish-estimator"
                         element={<WallFinishEstimator />}
                       />
+                      <Route
+                        path="/masonry-calculator"
+                        element={
+                          <StandaloneTakeoffPage initialEngine="masonry" />
+                        }
+                      />
+                      <Route
+                        path="/plastering-calculator"
+                        element={
+                          <StandaloneTakeoffPage initialEngine="plastering" />
+                        }
+                      />
+                      <Route
+                        path="/drywall-calculator"
+                        element={
+                          <StandaloneTakeoffPage initialEngine="drywall" />
+                        }
+                      />
+                      <Route
+                        path="/paving-calculator"
+                        element={
+                          <StandaloneTakeoffPage initialEngine="paving" />
+                        }
+                      />
+                      <Route
+                        path="/drainage-calculator"
+                        element={
+                          <StandaloneTakeoffPage initialEngine="drainage" />
+                        }
+                      />
+                      <Route
+                        path="/septic-sizing-calculator"
+                        element={
+                          <StandaloneTakeoffPage initialEngine="septic" />
+                        }
+                      />
+                      <Route
+                        path="/temporary-works-calculator"
+                        element={
+                          <StandaloneTakeoffPage initialEngine="temporary-works" />
+                        }
+                      />
+                      <Route
+                        path="/insulation-calculator"
+                        element={
+                          <StandaloneTakeoffPage initialEngine="insulation" />
+                        }
+                      />
+                      <Route
+                        path="/demolition-calculator"
+                        element={
+                          <StandaloneTakeoffPage initialEngine="demolition" />
+                        }
+                      />
+                      <Route
+                        path="/blueprint-takeoff"
+                        element={<BlueprintTakeoff />}
+                      />
                       <Route path="/flooring" element={<FlooringEstimator />} />
                       <Route
                         path="/reinforcement"
@@ -1670,7 +1744,10 @@ export default function App() {
 
                       {/* Content */}
                       <Route path="learn" element={<AdminLearn />} />
-                      <Route path="learn/wall-finishing" element={<AdminWallFinishingLibrary />} />
+                      <Route
+                        path="learn/wall-finishing"
+                        element={<AdminWallFinishingLibrary />}
+                      />
                       <Route
                         path="ai-learning"
                         element={<AdminAiLearningAssistant />}

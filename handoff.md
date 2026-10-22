@@ -99,59 +99,38 @@ Work one market at a time. Record authoritative sources/providers, coverage and 
 
 ---
 
-## 2. INCOMPLETE, PENDING, PARTIAL & UNVERIFIED WORK (Active Queue)
+## 2. CONSTRUCTION CALCULATORS & PLAN TAKEOFF — DELIVERY STATUS / ROADMAP
 
-Only open work belongs here. Recheck current source and production state before acting; this list does not certify live data or migrations.
+This section supersedes the previous active queue. It records source-level implementation only; route presence or unit tests do not establish field validation, country-specific standards compliance, pricing coverage, or production deployment. The supported market list is currently 32 market codes in `src/lib/international/market-context.tsx`; confirm the live list before expanding it.
 
-### A. Rebar price books — OPEN
+### Phase 1 — Standalone quantity worksheets (initial implementation in repository; market validation open)
 
-- Inventory current coverage by market and rebar size from the live registry/database before prioritizing; prior live counts are stale until reverified.
-- Fill gaps only from attributable distributor catalogs, supplier quotes, or dated physical surveys. Record units, sizes, market, source, and effective date. Never seed estimates from memory or synthetic prices.
+The following routes are registered in the tool catalogue and application: masonry, plastering/rendering, drywall/partitions, paving, gravity drainage, temporary works, insulation, demolition, and a septic/soakaway worksheet. They calculate preliminary quantities from measured or user-entered assumptions. They are not structural, sanitation, stormwater, code-compliance, or permit designs.
 
-### B. Price provenance — OPEN
+- **Market caveat:** market selection and editable starting profiles are available, but country-specific product sizes, packaging, norms, rates, standards, and local adoption have not been independently verified across all 32 markets. Treat displayed profiles as planning defaults; verify against supplier datasheets, local specifications, and qualified professionals. Missing/unknown market data must be explicitly disclosed, never presented as a verified national value.
+- **Masonry/plaster/drywall/paving:** check product geometry, openings, mortar/mix, coat thickness, board/framing, joints, compaction and waste assumptions against actual project specifications. The drywall worksheet does not yet constitute a complete shop-drawing frame schedule.
+- **Drainage/septic:** gravity drainage quantities and an explicit-input septic/soakaway worksheet exist. Septic sizing requires user-supplied locally approved flow/retention/soil criteria. Stormwater hydraulic sizing, percolation testing, groundwater/setback checks, septic treatment selection and authority approvals remain out of scope.
+- **Temporary works:** form-contact/scaffold quantities are not scaffold, shoring, access, tie, wind or stability design. Engineering sign-off and safe-work documentation remain mandatory.
+- **Insulation/demolition:** preliminary area/volume/product and debris quantities only; no thermal-code compliance, hazardous-material survey, disposal classification, or waste contractor confirmation.
+- **Pricing:** no new calculator may imply live local supplier prices unless the price has verified source, location, date and provenance. Keep unverified prices unpriced or clearly marked.
 
-- Query the current production inventory for low-confidence rows or rows without attributable source evidence; do not reuse historical counts.
-- Replace or clearly mark indicative values. Upgrade confidence only after independent source verification and recording provenance.
+### Phase 2 — Interactive Blueprint & PDF Plan Takeoff (browser MVP; integration/persistence open)
 
-### C. Procurement — OPEN GAPS
+`/blueprint-takeoff` supports image/PDF display, page navigation, known-length scale calibration, linear/area/count marks and CSV schedule export. Measurements are browser-session state and are not currently a saved cloud project. Users must calibrate each drawing and independently verify scale and marked quantities.
 
-- The existing interface is a purchase-requisition prototype, not a supplier-connected purchase order. Verify supplier-to-market material-role mappings and sourcing; persist validated packaging data; add approval/audit steps; integrate quotes, stock, and lead times only from confirmed providers; distinguish requisitions from confirmed orders and delivery.
+Remaining work: persistent drawings/markups with explicit privacy and retention controls; importable/exportable takeoff project format; robust PDF page/unit/rotation testing; multi-page per-page calibration; undo/edit/delete and keyboard/touch accessibility; item/category labels; saved schedules; overlay/print/PDF report; and documented device/file-size limits. Do not describe the MVP as CAD/BIM, automated dimension extraction, code-checking, or live quantity synchronization.
 
-### D. BIM/CAD — OPEN GAPS
+### Phase 3 — Safe operational readiness, one market/trade at a time
 
-- IFC import reports authored quantities for a constrained element set. It converts only explicitly assigned supported SI and conversion-based units; missing, unsupported, or unresolved units stay raw and visibly labelled. It does not infer geometry or support the full IFC schema.
-- Expand standards-tested IFC coverage. Keep geometry extraction separate until supported primitives, placements, and transforms are implemented and independently tested. Then stage a model viewer, measurement verification, revisions/annotations, federation/georeferencing, schedule/cost links, and auditable clash/issues workflows.
-- Tests must cover declared quantities, supported unit conversions, unresolved-unit honesty, malformed/unsupported inputs, and limits. Do not require invented slab volumes or wall areas when the file supplies no such quantities.
+Before calling a calculator market-ready, record an authoritative source or supplier datasheet and effective date for each default, an accountable local reviewer, representative project benchmarks, unit/rounding tests, missing/stale/outage behavior, user-facing assumptions, and end-to-end release evidence. Do not silently substitute Nigerian values or infer local regulations. Keep every unverified market/capability explicitly preliminary.
 
-### E. Cross-capability and market verification — OPEN
+### Phase 4 — Blueprint-to-estimate workflow
 
-- Build a current market/capability matrix from live registry and production evidence. Test representative estimates, currency, data provenance, missing values, and no-silent-fallback behavior per enabled market. Add E2E confidence/provenance presentation only where supported by actual source data.
-- Verify migrations and RLS against the intended environment before claiming they are applied or production-ready. Add negative tenant/role tests and document deployment evidence.
+Only after the takeoff record format and units are validated, connect selected measured quantities to matching worksheets with user confirmation and full provenance. Preserve source drawing, page, scale calibration, mark, unit and any manual override. Never transform a measured quantity into a structural design or claim code compliance. Keep procurement integrations and market pricing separate and provenance-backed.
 
-### F. Roof structural design — OPEN / PRELIMINARY CHECK ONLY
+### Phase 5 — Classification, exports and broader workflows
 
-- Roof framing quantity takeoff remains separate from structural design. The current UI adds an explicitly code-agnostic, single-span, simply-supported member check for timber/steel using user-entered design load, section properties and resistances; this is a preliminary calculation, not operational jurisdictional design or code-compliance verification.
-- Before expanding: select and verify one market’s current primary-source design basis, load combinations (including wind uplift), material grades and resistance factors; obtain a qualified local structural engineer’s review and benchmark cases. Do not treat market selection as code support or allow Nigerian defaults.
-- Research update: the Federal Ministry of Housing and Urban Development-hosted Nigerian National Building Code PDF includes Table 8.10 ordinary roof live-load values by slope/tributary area and separate provisions requiring wind/earthquake resistance, ponding consideration, and special-use roof loads. The app exposes the Table 8.10 figure only as a linked, reference-only lookup and never adds it to the total design load. Source: https://bend.fmhud.gov.ng/upload/download/25080529456.pdf. The PDF references separate NCP2 timber design tables; no verified complete market design basis or published universal member capacities were found. Keep jurisdictional structural design open and unavailable.
-- A solid rectangular strong-axis geometry helper calculates gross elastic section modulus, second moment, and effective shear area from entered width/depth. It does not infer material strength or cover hollow/built-up sections. Maintain validation and review gates before extending this helper.
-- Add member/system coverage only after independently validated formulas for stability/buckling, bearing, connections, lateral restraint, uplift, bracing, multiple spans, and roof-system load paths. Keep unavailable/unverified markets explicit and design output non-certifying until the full market release gate passes.
-
----
-
-## I. Phase 1 Save → Share → Pro Connect Journey (IN PROGRESS / BATCH 1 COMPLETE)
-
-See [`docs/phase1-save-share-pro-connect-roadmap.md`](docs/phase1-save-share-pro-connect-roadmap.md) for acceptance gates.
-
-- **Batch 1 (Complete)**:
-  - Preserved pending calculation intent across OAuth sign-in with auto-resume dialog in `SaveToProjectButton.tsx`.
-  - Hardened read-only privacy boundary in `SharedProject.tsx` with explicit field filtering (excluded private identifiers/notes).
-  - Verified Pro Connect directory integrity: dynamic verified professional matching with 0-result honesty (no synthetic testimonials/counts).
-
-- Keep calculating/exporting free and anonymous; make cloud save an optional sign-in gate that resumes the intended save after Google OAuth. Keep local/device saves distinct; do not silently upload them.
-- Enable phone sign-in only after production SMS coverage, abuse controls, delivery, and redirect configuration are verified. Pro Connect phone confirmation is not general app phone authentication.
-- Reconcile saved calculator records (`contractor_projects`/project calculations) with `/shared/:id` before offering live share. Build a read-only, least-data public view with owner preview, explicit consent, revocation/expiry, and anonymous-access tests. Do not expose addresses, contacts, private notes, or unrelated records by default.
-- Show screeder discovery only for screeding work and actual trade/service-area matches. Do not hard-code counts or claim “near you,” “vetted,” “verified,” or “available” beyond matching evidence; request location when needed and keep project data private.
-- Verify auth resume, save-once behavior, owner isolation/RLS, share privacy/revocation, match/empty/stale states, mobile accessibility, migration replay, production build, and deployed behavior before calling the journey operational.
+Evaluate CSI MasterFormat, NRM2, SMM7 and CESMM4 mappings with qualified estimators and local licensing before generating classified BOQs. Extend to approved report exports, procurement and WBS only with verified inputs and clear review states. Avoid promising unsupported live suppliers, availability, lead times, or fulfillment.
 
 ## 3. VERIFICATION COMMANDS & RUNTIME ENVIRONMENT
 
