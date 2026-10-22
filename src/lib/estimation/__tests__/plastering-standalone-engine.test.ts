@@ -95,9 +95,9 @@ describe("Plastering & Rendering Standalone Engine", () => {
 
     expect(res.totalAreaM2).toBe(60);
     expect(res.cementBagWeightKg).toBe(42.6);
-    expect(res.packagingEvidence.status).toBe("planning_assumption");
+    expect(res.packagingEvidence.status).toBe("source_observed");
     expect(res.packagingEvidence.guidance).toContain(
-      "not a verified country-wide standard",
+      "not a country-wide standard",
     );
   });
 

@@ -81,8 +81,8 @@ describe("Masonry Standalone Engine", () => {
     expect(res.unitsRequiredGross).toBeLessThan(300);
     expect(res.cementBagsRequired).toBeGreaterThan(0);
     expect(res.sandWeightTonnes).toBeGreaterThan(0);
-    expect(res.packagingEvidence.status).toBe("planning_assumption");
-    expect(res.marketNotes).toContain("not a verified country-wide standard");
+    expect(res.packagingEvidence.status).toBe("source_observed");
+    expect(res.marketNotes).toContain("not a country-wide standard");
   });
 
   it("calculates accurate takeoff for US 8x8x16 CMU wall with opening deduction", () => {

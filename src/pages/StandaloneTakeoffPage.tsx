@@ -603,6 +603,26 @@ export default function StandaloneTakeoffPage({
                     <p className="mt-1 text-muted-foreground">
                       {result.packagingEvidence.guidance}
                     </p>
+                    {result.packagingEvidence.sources.length > 0 && (
+                      <ul className="mt-3 space-y-1 border-t border-border pt-3">
+                        {result.packagingEvidence.sources.map((source) => (
+                          <li key={source.url}>
+                            <a
+                              href={source.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="font-medium text-primary underline underline-offset-2"
+                            >
+                              {source.publisher} source ↗
+                            </a>
+                            <span className="text-muted-foreground">
+                              {" "}
+                              · {source.scopeNote}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 )}
                 <div className="mt-5 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm">
