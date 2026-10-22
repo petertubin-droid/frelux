@@ -1,4 +1,5 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useMarket } from "@/lib/international/market-context";
 import PageHeader from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/shadcn/button";
@@ -107,6 +108,8 @@ export default function StandaloneTakeoffPage({
   initialEngine?: Engine;
 }) {
   const { market, availableMarkets } = useMarket();
+  const [searchParams] = useSearchParams();
+  const [bridgeProvenance, setBridgeProvenance] = useState("");
   const [engine, setEngine] = useState<Engine>(initialEngine);
   const [marketCode, setMarketCode] = useState(market.marketCode);
   const [result, setResult] = useState<Result | null>(null);
@@ -144,6 +147,27 @@ export default function StandaloneTakeoffPage({
     [marketCode],
   );
   const [unitId, setUnitId] = useState("");
+  useEffect(() => {
+    if (searchParams.get("source") !== "blueprint-takeoff") return;
+    const marketParam = searchParams.get("market");
+    if (
+      marketParam &&
+      availableMarkets.some((entry) => entry.country_code === marketParam)
+    )
+      setMarketCode(marketParam);
+    const allowedKeys = ["length", "area", "runLength", "elementLength"];
+    const targetKey = allowedKeys.find((key) => searchParams.has(key));
+    const raw = targetKey ? searchParams.get(targetKey) : null;
+    const measured = raw === null ? NaN : Number(raw);
+    if (!targetKey || !Number.isFinite(measured) || measured <= 0) return;
+    setValues((current) => ({ ...current, [targetKey]: String(measured) }));
+    const plan = searchParams.get("plan") || "Unnamed plan";
+    const page = searchParams.get("page") || "?";
+    const mark = searchParams.get("label") || "Measurement";
+    setBridgeProvenance(
+      `${mark} from ${plan}, page ${page}. Imported quantity: ${measured} ${searchParams.get("unit") || "units"}. Verify before calculation.`,
+    );
+  }, [searchParams, availableMarkets]);
   const title =
     ENGINES.find((item) => item.id === engine)?.label ?? "Construction takeoff";
   const number = (key: string, fallback = 0) =>
@@ -400,6 +424,15 @@ export default function StandaloneTakeoffPage({
             </button>
           ))}
         </div>
+        {bridgeProvenance && (
+          <div
+            role="status"
+            className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm"
+          >
+            <strong>Imported measured quantity for review</strong>
+            <p className="mt-1 text-muted-foreground">{bridgeProvenance}</p>
+          </div>
+        )}
         <div className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
           <form
             onSubmit={runCalculation}

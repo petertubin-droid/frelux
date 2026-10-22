@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   AlertTriangle,
   Download,
@@ -13,37 +14,53 @@ import {
 import PageHeader from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/shadcn/button";
 import { useMarket } from "@/lib/international/market-context";
+import {
+  buildWorksheetBridgeUrl,
+  createTakeoffProjectExport,
+  parseTakeoffProjectExport,
+  serializeTakeoffProject,
+  TAKEOFF_CATEGORIES,
+  type TakeoffCategory,
+  type TakeoffMark,
+  type TakeoffProjectExport,
+} from "@/lib/estimation/blueprint-takeoff-project";
 
 type Mode = "calibrate" | "linear" | "area" | "count" | "select";
-type Mark = {
-  id: string;
-  page: number;
-  type: "linear" | "area" | "count";
-  points: { x: number; y: number }[];
-  label: string;
-  color: string;
-};
+type Mark = TakeoffMark;
 const COLORS = ["#2563eb", "#e11d48", "#059669", "#d97706", "#7c3aed"];
 
 export default function BlueprintTakeoff() {
   const { marketCode } = useMarket();
+  const [, setSearchParams] = useSearchParams();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const pdfDocRef = useRef<any>(null);
   const [mode, setMode] = useState<Mode>("calibrate");
   const [marks, setMarks] = useState<Mark[]>([]);
   const [draft, setDraft] = useState<{ x: number; y: number }[]>([]);
-  const [scale, setScale] = useState<number | null>(null); // px per metre
+  const [page, setPage] = useState(1);
+  const [scalesByPage, setScalesByPage] = useState<Record<number, number>>({});
+  const scale = scalesByPage[page] ?? null;
+  const setScale = (value: number | null) =>
+    setScalesByPage((current) => {
+      const next = { ...current };
+      if (value === null) delete next[page];
+      else next[page] = value;
+      return next;
+    });
+  const [activeCategory, setActiveCategory] =
+    useState<TakeoffCategory>("general");
+  const [labelInput, setLabelInput] = useState("");
   const [calibrationLength, setCalibrationLength] = useState("1");
   const [zoom, setZoom] = useState(1);
   const [fileName, setFileName] = useState("");
   const [message, setMessage] = useState(
     "Upload a plan image or PDF to begin.",
   );
-  const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(1);
   const [nativePdfCanvas, setNativePdfCanvas] =
     useState<HTMLCanvasElement | null>(null);
+  const importedProjectRef = useRef<TakeoffProjectExport | null>(null);
 
   const loadPdfPage = async (doc: any, pageNumber: number) => {
     const pdfPage = await doc.getPage(pageNumber);
@@ -55,9 +72,20 @@ export default function BlueprintTakeoff() {
     setNativePdfCanvas(c);
   };
   const loadFile = async (file: File) => {
-    setMarks([]);
+    const importedProject = importedProjectRef.current;
+    const restoreProject = Boolean(
+      importedProject && importedProject.sourceFileName === file.name,
+    );
+    if (restoreProject && importedProject) {
+      setMarks(importedProject.marks);
+      setScalesByPage(importedProject.scalesByPage);
+      setPageCount(importedProject.pageCount);
+      importedProjectRef.current = null;
+    } else {
+      setMarks([]);
+      setScalesByPage({});
+    }
     setDraft([]);
-    setScale(null);
     setZoom(1);
     setPage(1);
     setFileName(file.name);
@@ -235,10 +263,14 @@ export default function BlueprintTakeoff() {
         id: crypto.randomUUID(),
         page,
         type: "count",
+        category: activeCategory,
         points: [point],
-        label: "1 item",
+        quantity: 1,
+        unit: "items",
+        label: labelInput.trim() || `Item ${marks.length + 1}`,
         color: COLORS[marks.length % COLORS.length],
       };
+      setLabelInput("");
       setMarks((current) => [...current, mark]);
       return;
     }
@@ -253,55 +285,113 @@ export default function BlueprintTakeoff() {
       );
       return;
     }
-    const type = mode === "area" ? "area" : "linear";
-    const pixels = draft
-      .slice(1)
-      .reduce(
-        (sum, point, i) =>
-          sum + Math.hypot(point.x - draft[i].x, point.y - draft[i].y),
-        0,
-      );
-    const label =
-      type === "area"
-        ? `${(polygonArea(draft) / scale ** 2).toFixed(2)} m²`
-        : `${(pixels / scale).toFixed(2)} m`;
+    const type: Mark["type"] = mode === "area" ? "area" : "linear";
+    let quantity = 0;
+    if (type === "linear")
+      quantity =
+        draft
+          .slice(1)
+          .reduce(
+            (sum, point, i) =>
+              sum + Math.hypot(point.x - draft[i].x, point.y - draft[i].y),
+            0,
+          ) / scale;
+    else quantity = polygonArea(draft) / (scale * scale);
+    const unit = type === "area" ? "m²" : "m";
     setMarks((current) => [
       ...current,
       {
         id: crypto.randomUUID(),
         page,
         type,
+        category: activeCategory,
         points: draft,
-        label,
+        quantity: Number(quantity.toFixed(3)),
+        unit,
+        label:
+          labelInput.trim() ||
+          `${type === "area" ? quantity.toFixed(2) + " m²" : quantity.toFixed(2) + " m"}`,
         color: COLORS[current.length % COLORS.length],
       },
     ]);
+    setLabelInput("");
     setDraft([]);
+  };
+  const downloadFile = (name: string, content: string, type: string) => {
+    const url = URL.createObjectURL(new Blob([content], { type }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = name;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+  const exportProject = () => {
+    const project = createTakeoffProjectExport({
+      sourceFileName: fileName,
+      marketCode,
+      pageCount,
+      scalesByPage,
+      marks,
+    });
+    downloadFile(
+      `${fileName || "takeoff"}.frelux-takeoff.json`,
+      serializeTakeoffProject(project),
+      "application/json",
+    );
+    setMessage("Takeoff project exported. The source drawing is not included.");
+  };
+  const importProject = async (file: File) => {
+    const parsed = parseTakeoffProjectExport(await file.text());
+    if (!parsed.ok || !parsed.project) {
+      setMessage(parsed.error || "Could not read project file.");
+      return;
+    }
+    const project = parsed.project;
+    importedProjectRef.current = project;
+    setMarks(project.marks);
+    setFileName(project.sourceFileName);
+    setPageCount(project.pageCount);
+    setScalesByPage(project.scalesByPage);
+    setPage(1);
+    if (project.marketCode)
+      setSearchParams((params) => {
+        params.set("market", project.marketCode);
+        return params;
+      });
+    setMessage(
+      "Project imported. Upload the matching original drawing to restore the measurement overlay.",
+    );
+  };
+  const bridgeToWorksheet = (mark: Mark) => {
+    const bridge = buildWorksheetBridgeUrl({
+      mark,
+      sourceFileName: fileName,
+      marketCode,
+    });
+    if (bridge) window.location.href = bridge.url;
   };
   const exportCsv = () => {
     const rows = [
       ["Plan", fileName],
       ["Market", marketCode],
-      ["Type", "Label", "Quantity", "Page"],
-    ];
-    marks.forEach((mark) =>
-      rows.push([
-        mark.type,
-        mark.label,
-        mark.type === "count" ? "1" : mark.label.replace(/ [m²]+$/, ""),
+      ["ID", "Page", "Type", "Category", "Label", "Quantity", "Unit", "Notes"],
+      ...marks.map((mark) => [
+        mark.id,
         String(mark.page),
+        mark.type,
+        mark.category,
+        mark.label,
+        String(mark.quantity),
+        mark.unit,
+        mark.notes || "",
       ]),
-    );
+    ];
     const csv = rows
       .map((row) =>
-        row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(","),
+        row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(","),
       )
       .join("\n");
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-    link.download = "frelux-plan-takeoff.csv";
-    link.click();
-    window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    downloadFile("frelux-plan-takeoff.csv", csv, "text/csv");
   };
   return (
     <div className="min-h-screen bg-background pb-14">
@@ -314,6 +404,27 @@ export default function BlueprintTakeoff() {
         backLabel="All tools"
       />
       <main className="mx-auto max-w-7xl space-y-5 px-4 pt-6 sm:px-6">
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={exportProject}>
+            Export project JSON
+          </Button>
+          <Button variant="outline" onClick={exportCsv}>
+            Export CSV
+          </Button>
+          <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm">
+            Import project
+            <input
+              type="file"
+              accept="application/json,.json"
+              className="sr-only"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) void importProject(file);
+                event.currentTarget.value = "";
+              }}
+            />
+          </label>
+        </div>
         <section className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-end">
           <label className="block text-sm font-medium">
             Plan image or vector PDF
@@ -363,6 +474,30 @@ export default function BlueprintTakeoff() {
         <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
           <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card">
             <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
+              <label className="text-xs">
+                Category{" "}
+                <select
+                  aria-label="Measurement category"
+                  value={activeCategory}
+                  onChange={(event) =>
+                    setActiveCategory(event.target.value as TakeoffCategory)
+                  }
+                  className="ml-1 rounded border bg-background p-1"
+                >
+                  {Object.entries(TAKEOFF_CATEGORIES).map(([key, value]) => (
+                    <option key={key} value={key}>
+                      {value.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <input
+                aria-label="Measurement label"
+                value={labelInput}
+                onChange={(event) => setLabelInput(event.target.value)}
+                placeholder="Measurement label"
+                className="w-36 rounded border bg-background px-2 py-1 text-xs"
+              />
               <Button
                 size="sm"
                 variant={mode === "linear" ? "default" : "outline"}
@@ -484,9 +619,23 @@ export default function BlueprintTakeoff() {
                         className="h-2.5 w-2.5 rounded-full"
                         style={{ background: mark.color }}
                       />
-                      {index + 1}. {mark.type} · page {mark.page}
+                      {index + 1}. {mark.category} · {mark.type} · page{" "}
+                      {mark.page} · {mark.quantity} {mark.unit}
                     </span>
                     <span className="text-sm font-semibold">{mark.label}</span>
+                    {buildWorksheetBridgeUrl({
+                      mark,
+                      sourceFileName: fileName,
+                      marketCode,
+                    }) && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => bridgeToWorksheet(mark)}
+                      >
+                        Use in worksheet
+                      </Button>
+                    )}
                   </div>
                 ))}
                 {!marks.length && (
