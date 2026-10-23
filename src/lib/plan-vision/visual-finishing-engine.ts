@@ -267,7 +267,7 @@ export function applyCalibrationToSurfaces(
 
     if (copy.category === "wall") {
       let widthM: number | null = null;
-      let heightM: number | null = wallH;
+      const heightM: number | null = wallH;
 
       if (copy.id === "surf-wall-primary" && roomL !== null && roomL > 0) {
         widthM = roomL;

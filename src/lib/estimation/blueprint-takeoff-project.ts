@@ -139,10 +139,19 @@ export function createTakeoffProjectExport(params: {
   let totalCount = 0;
 
   const categories = Object.keys(TAKEOFF_CATEGORIES) as TakeoffCategory[];
-  const byCategory: Record<
+  const byCategory = Object.fromEntries(
+    categories.map((cat) => [
+      cat,
+      {
+        count: 0,
+        totalQuantity: 0,
+        unit: TAKEOFF_CATEGORIES[cat].defaultUnit,
+      },
+    ]),
+  ) as Record<
     TakeoffCategory,
     { count: number; totalQuantity: number; unit: string }
-  > = {} as any;
+  >;
 
   for (const cat of categories) {
     byCategory[cat] = {
@@ -236,7 +245,7 @@ export function parseTakeoffProjectExport(rawJson: string): {
       if (
         !Array.isArray(m.points) ||
         m.points.some(
-          (p: any) =>
+          (p: { x?: unknown; y?: unknown }) =>
             !Number.isFinite(Number(p?.x)) || !Number.isFinite(Number(p?.y)),
         )
       ) {
@@ -267,7 +276,7 @@ export function parseTakeoffProjectExport(rawJson: string): {
         type: m.type,
         category,
         label: typeof m.label === "string" ? m.label : `Mark ${i + 1}`,
-        points: m.points.map((p: any) => ({
+        points: m.points.map((p: { x?: unknown; y?: unknown }) => ({
           x: Number(p.x),
           y: Number(p.y),
         })),
