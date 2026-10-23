@@ -7,18 +7,14 @@
  *    engines calculate quantities and costs.
  * 2. An inferred pixel dimension is NEVER converted to metric dimensions
  *    without explicit user calibration or user-supplied real dimensions.
- * 3. 32-market resolution separates verified pricebook markets from unverified
- *    markets. Missing prices remain transparently 'price_unavailable' or 'user_provided'.
+ * 3. Market price availability is explicit; absent validated prices stay unavailable
+ *    unless supplied by the user.
  * 4. All business rules (waste factors, coats, pack sizes, rounding) come from
  *    existing FRELUX engines.
  */
 
 export type VisualFinishingActivity =
-  | "painting"
-  | "screeding"
-  | "tiling"
-  | "pop_ceiling"
-  | "flooring";
+  "painting" | "screeding" | "tiling" | "pop_ceiling" | "flooring";
 
 export const VISUAL_FINISHING_ACTIVITIES: {
   id: VisualFinishingActivity;
@@ -29,31 +25,36 @@ export const VISUAL_FINISHING_ACTIVITIES: {
   {
     id: "painting",
     name: "Wall & Ceiling Painting",
-    description: "Calculates primer, emulsion/gloss/satin paint buckets, coverage rates and coat requirements.",
+    description:
+      "Calculates primer, emulsion/gloss/satin paint buckets, coverage rates and coat requirements.",
     supportedSurfaces: ["wall", "ceiling"],
   },
   {
     id: "screeding",
     name: "Wall Screeding",
-    description: "Calculates putty or white cement + screeding paint mix systems and layer thicknesses.",
+    description:
+      "Calculates putty or white cement + screeding paint mix systems and layer thicknesses.",
     supportedSurfaces: ["wall"],
   },
   {
     id: "tiling",
     name: "Floor & Wall Tiling",
-    description: "Calculates tile counts, boxes, tile adhesive or cement/sand mortars, grout and spacers.",
+    description:
+      "Calculates tile counts, boxes, tile adhesive or cement/sand mortars, grout and spacers.",
     supportedSurfaces: ["floor", "wall"],
   },
   {
     id: "pop_ceiling",
     name: "POP / Ceiling Finishing",
-    description: "Calculates POP plaster of paris, cement, fibre, framing components and release agent.",
+    description:
+      "Calculates POP plaster of paris, cement, fibre, framing components and release agent.",
     supportedSurfaces: ["ceiling"],
   },
   {
     id: "flooring",
     name: "Plank & Sheet Flooring",
-    description: "Calculates laminate packs, vinyl, parquet, underlay rolls, adhesive and perimeter skirting.",
+    description:
+      "Calculates laminate packs, vinyl, parquet, underlay rolls, adhesive and perimeter skirting.",
     supportedSurfaces: ["floor"],
   },
 ];
@@ -105,7 +106,8 @@ export interface VisualSurface {
   openings: DetectedOpening[];
   deductedOpeningAreaM2: number;
   netAreaM2: number | null;
-  surfaceCondition: "smooth_new" | "painted_good" | "rough_damaged" | "plastered";
+  surfaceCondition:
+    "smooth_new" | "painted_good" | "rough_damaged" | "plastered";
   isPartiallyObscured: boolean;
   notes: string[];
 }
@@ -132,7 +134,9 @@ export interface VisualMediaInput {
   widthPx?: number;
   heightPx?: number;
   capturedAt: string;
-  sourceType: "upload" | "camera";
+  sourceType: "upload" | "camera" | "video_walkthrough";
+  durationSec?: number;
+  keyframes?: VideoKeyframe[];
 }
 
 export interface FinishingOptions {
@@ -227,4 +231,60 @@ export interface VisualFinishingEstimateResult {
   assumptions: string[];
   warnings: string[];
   auditSteps: Array<{ label: string; detail: string }>;
+}
+
+// =========================================================
+// PHASE 2 & 3: VIDEO WALKTHROUGH & AI VISION EXTENSIONS
+// =========================================================
+
+export interface VideoKeyframe {
+  index: number;
+  timestampSec: number;
+  dataUrl: string;
+  sharpnessScore: number; // 0..1 normalized variance score
+  isUnique: boolean;
+  width: number;
+  height: number;
+}
+
+export interface VideoSamplingOptions {
+  intervalSec?: number; // default 1.5s
+  maxFrames?: number; // default 10
+  sharpnessThreshold?: number; // default 0.20
+  similarityThreshold?: number; // default 0.88
+  targetMaxDimension?: number; // default 1280px
+}
+
+export interface VideoExtractionProgress {
+  stage: "loading" | "seeking" | "scoring" | "filtering" | "complete" | "error";
+  progressPct: number;
+  currentFrame: number;
+  totalFrames: number;
+  message: string;
+}
+
+export interface VideoWalkthroughResult {
+  durationSec: number;
+  sampledFramesCount: number;
+  keptKeyframesCount: number;
+  keyframes: VideoKeyframe[];
+  reconstructedSurfaces: VisualSurface[];
+  warnings: string[];
+}
+
+export interface AiVisualFinishingRequest {
+  imageDataUrl?: string;
+  imageDataUrls?: string[];
+  preferredActivity?: VisualFinishingActivity;
+  roomTypeHint?: string;
+  clientId?: string;
+}
+
+export interface AiVisualFinishingResponse {
+  detected_surfaces: VisualSurface[];
+  detected_room_type?: string;
+  scene_notes: string[];
+  warnings: string[];
+  provider: "gemini-live" | "local-heuristic";
+  processed_at: string;
 }

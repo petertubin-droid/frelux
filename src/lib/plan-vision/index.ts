@@ -14,3 +14,5 @@ export * from "./copilot-bridge";
 export * from "./persistence";
 export * from "./visual-finishing-types";
 export * from "./visual-finishing-engine";
+export * from "./video-walkthrough";
+export * from "./ai-visual-finishing";

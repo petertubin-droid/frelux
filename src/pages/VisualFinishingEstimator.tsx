@@ -6,10 +6,11 @@ import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 
 export default function VisualFinishingEstimatorPage() {
   useSeo({
-    title: "Visual Finishing Estimator | FRELUX Global Visual Construction Intelligence",
+    title:
+      "Visual Finishing Estimator | FRELUX Global Visual Construction Intelligence",
     description:
       "Estimate painting, screeding, tiling, POP ceilings, and flooring directly from room and surface photographs with verified metric calibration and deterministic calculation engines.",
-    canonical: "/tools/visual-finishing-estimator",
+    canonicalPath: "/tools/visual-finishing-estimator",
   });
 
   return (
@@ -21,15 +22,16 @@ export default function VisualFinishingEstimatorPage() {
             className="text-3xl font-extrabold sm:text-4xl text-foreground"
           />
           <p className="mx-auto max-w-2xl text-sm sm:text-base text-muted-foreground">
-            Image intelligence meets deterministic quantity surveying. Photograph rooms and architectural surfaces,
-            confirm verified dimensions, and calculate exact material takeoffs across all 32 supported markets.
+            Gemini proposes editable 2D finishing-surface candidates. Enter
+            measured dimensions for each surface, then calculate deterministic
+            quantities with price availability shown explicitly.
           </p>
         </div>
 
         <VisualFinishingEstimator />
 
         <div className="pt-8 border-t border-border">
-          <RelatedTools currentSlug="visual-finishing-estimator" tools={CALC_LINKS} />
+          <RelatedTools links={Object.values(CALC_LINKS)} />
         </div>
       </div>
     </div>

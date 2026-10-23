@@ -7,7 +7,11 @@ import {
   MAX_VISUAL_MEDIA_BYTES,
 } from "../visual-finishing-engine";
 import { ALL_MARKET_CODES } from "@/lib/international/capability-registry";
-import type { VisualMediaInput, CalibrationData, FinishingOptions } from "../visual-finishing-types";
+import type {
+  VisualMediaInput,
+  CalibrationData,
+  FinishingOptions,
+} from "../visual-finishing-types";
 
 describe("Visual Finishing Engine - Layer A: Media Validation", () => {
   it("accepts valid image uploads under 25MB", () => {
@@ -20,18 +24,32 @@ describe("Visual Finishing Engine - Layer A: Media Validation", () => {
   });
 
   it("accepts PNG and WebP files", () => {
-    expect(validateVisualMedia({ name: "plan.png", type: "image/png", size: 1024 }).ok).toBe(true);
-    expect(validateVisualMedia({ name: "snap.webp", type: "image/webp", size: 2048 }).ok).toBe(true);
+    expect(
+      validateVisualMedia({ name: "plan.png", type: "image/png", size: 1024 })
+        .ok,
+    ).toBe(true);
+    expect(
+      validateVisualMedia({ name: "snap.webp", type: "image/webp", size: 2048 })
+        .ok,
+    ).toBe(true);
   });
 
   it("rejects empty files", () => {
-    const res = validateVisualMedia({ name: "empty.jpg", type: "image/jpeg", size: 0 });
+    const res = validateVisualMedia({
+      name: "empty.jpg",
+      type: "image/jpeg",
+      size: 0,
+    });
     expect(res.ok).toBe(false);
     expect(res.code).toBe("EMPTY");
   });
 
   it("rejects unsupported document or media types", () => {
-    const res = validateVisualMedia({ name: "doc.pdf", type: "application/pdf", size: 5000 });
+    const res = validateVisualMedia({
+      name: "doc.pdf",
+      type: "application/pdf",
+      size: 5000,
+    });
     expect(res.ok).toBe(false);
     expect(res.code).toBe("UNSUPPORTED_TYPE");
   });
@@ -103,7 +121,10 @@ describe("Visual Finishing Engine - Layer C: Calibration & Real-World Dimensions
       isCalibrated: true,
     };
 
-    const { surfaces, warnings } = applyCalibrationToSurfaces(rawSurfaces, calib);
+    const { surfaces, warnings } = applyCalibrationToSurfaces(
+      rawSurfaces,
+      calib,
+    );
     const wall1 = surfaces.find((s) => s.id === "surf-wall-primary");
     expect(wall1?.measurementStatus).toBe("user_confirmed");
     expect(wall1?.widthM).toBe(5.0);
@@ -138,10 +159,14 @@ describe("Visual Finishing Engine - Layer C: Calibration & Real-World Dimensions
       roomLengthM: 2.0,
       roomWidthM: 2.0,
       wallHeightM: 2.0,
+      ceilingHeightM: 2.0,
       isCalibrated: true,
     };
 
-    const { surfaces, warnings } = applyCalibrationToSurfaces(rawSurfaces, calib);
+    const { surfaces, warnings } = applyCalibrationToSurfaces(
+      rawSurfaces,
+      calib,
+    );
     const calibratedWall = surfaces.find((s) => s.id === "surf-wall-primary")!;
     expect(calibratedWall.netAreaM2).toBe(0);
     expect(warnings.length).toBeGreaterThan(0);
@@ -172,7 +197,7 @@ describe("Visual Finishing Engine - Layer E & F: Deterministic Estimation across
     return applyCalibrationToSurfaces(rawSurfaces, calib).surfaces;
   };
 
-  it("calculates deterministic painting requirements for verified market NG", () => {
+  it("calculates deterministic painting quantities for NG without unsupported default pricing", () => {
     const surfaces = getCalibratedSurfaces();
     const options: FinishingOptions = {
       activity: "painting",
@@ -195,11 +220,11 @@ describe("Visual Finishing Engine - Layer E & F: Deterministic Estimation across
     const wallPaint = res.materials.find((m) => m.id === "mat-paint-wall")!;
     expect(wallPaint.quantity).toBeGreaterThan(0);
     expect(wallPaint.packageCount).toBeGreaterThan(0);
-    expect(wallPaint.priceStatus).toBe("verified");
-    expect(wallPaint.unitPrice).toBe(35000);
-    expect(wallPaint.totalCost).toBe(wallPaint.packageCount! * 35000);
-    expect(res.isFullyPriced).toBe(true);
-    expect(res.subtotalMaterialCost).toBeGreaterThan(0);
+    expect(wallPaint.priceStatus).toBe("price_unavailable");
+    expect(wallPaint.unitPrice).toBeNull();
+    expect(wallPaint.totalCost).toBeNull();
+    expect(res.isFullyPriced).toBe(false);
+    expect(res.subtotalMaterialCost).toBeNull();
   });
 
   it("calculates exact quantities for unverified market CI (Côte d'Ivoire) without fabricating prices", () => {
@@ -231,7 +256,11 @@ describe("Visual Finishing Engine - Layer E & F: Deterministic Estimation across
     expect(wallPaint.totalCost).toBeNull();
     expect(res.isFullyPriced).toBe(false);
     expect(res.subtotalMaterialCost).toBeNull();
-    expect(res.assumptions.some((a) => a.includes("does not have verified finishing pricebook"))).toBe(true);
+    expect(
+      res.assumptions.some((a) =>
+        a.includes("No validated finishing price rows are available"),
+      ),
+    ).toBe(true);
   });
 
   it("accepts user-provided unit price in an unverified market", () => {
@@ -288,7 +317,9 @@ describe("Visual Finishing Engine - Layer E & F: Deterministic Estimation across
       unitSystem: "metric",
       screeding: { systemType: "putty", coats: 2 },
     });
-    expect(puttyRes.materials.some((m) => m.id === "mat-screed-putty")).toBe(true);
+    expect(puttyRes.materials.some((m) => m.id === "mat-screed-putty")).toBe(
+      true,
+    );
 
     const mixRes = calculateVisualFinishingEstimate(surfaces, {
       activity: "screeding",
@@ -298,8 +329,12 @@ describe("Visual Finishing Engine - Layer E & F: Deterministic Estimation across
       unitSystem: "metric",
       screeding: { systemType: "white_cement_paint", coats: 2 },
     });
-    expect(mixRes.materials.some((m) => m.id === "mat-screed-paint")).toBe(true);
-    expect(mixRes.materials.some((m) => m.id === "mat-screed-cement")).toBe(true);
+    expect(mixRes.materials.some((m) => m.id === "mat-screed-paint")).toBe(
+      true,
+    );
+    expect(mixRes.materials.some((m) => m.id === "mat-screed-cement")).toBe(
+      true,
+    );
   });
 
   it("calculates tile takeoff with boxes, adhesive, grout, and spacers", () => {
@@ -308,6 +343,8 @@ describe("Visual Finishing Engine - Layer E & F: Deterministic Estimation across
       method: "user_supplied",
       roomLengthM: 5.0,
       roomWidthM: 4.0,
+      wallHeightM: 2.8,
+      ceilingHeightM: 2.8,
       isCalibrated: true,
     };
     const surfaces = applyCalibrationToSurfaces(rawSurfaces, calib).surfaces;
@@ -340,6 +377,8 @@ describe("Visual Finishing Engine - Layer E & F: Deterministic Estimation across
       method: "user_supplied",
       roomLengthM: 6.0,
       roomWidthM: 5.0,
+      wallHeightM: 2.8,
+      ceilingHeightM: 2.8,
       isCalibrated: true,
     };
     const surfaces = applyCalibrationToSurfaces(rawSurfaces, calib).surfaces;
@@ -350,7 +389,11 @@ describe("Visual Finishing Engine - Layer E & F: Deterministic Estimation across
       currency: "NGN",
       currencySymbol: "₦",
       unitSystem: "metric",
-      popCeiling: { workflow: "nigeria", includeDecorative: true, wastePct: 10 },
+      popCeiling: {
+        workflow: "nigeria",
+        includeDecorative: true,
+        wastePct: 10,
+      },
     });
 
     expect(res.materials.some((m) => m.id === "mat-pop-plaster")).toBe(true);
@@ -364,6 +407,8 @@ describe("Visual Finishing Engine - Layer E & F: Deterministic Estimation across
       method: "user_supplied",
       roomLengthM: 5.0,
       roomWidthM: 4.0,
+      wallHeightM: 2.8,
+      ceilingHeightM: 2.8,
       isCalibrated: true,
     };
     const surfaces = applyCalibrationToSurfaces(rawSurfaces, calib).surfaces;

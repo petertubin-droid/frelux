@@ -29,10 +29,7 @@ import {
   calculateScreedingPutty,
   calculateScreedingMixSystem,
 } from "@/lib/calc";
-import {
-  calculateTile,
-  calculatePopCeiling,
-} from "@/lib/pop-tile-calc";
+import { calculateTile, calculatePopCeiling } from "@/lib/pop-tile-calc";
 import {
   calculateFlooring,
   DEFAULT_FLOORING_RULES,
@@ -41,7 +38,7 @@ import {
 import type { ScreedingSystemConfig, Unit } from "@/types";
 import type {
   VisualFinishingActivity,
-  VisualFinishingSurface,
+  VisualSurface,
   DetectedOpening,
   CalibrationData,
   VisualMediaInput,
@@ -61,7 +58,8 @@ export const SUPPORTED_IMAGE_MIME_TYPES = [
   "image/heif",
 ] as const;
 
-// Verified finishing market pricebook baseline rates for the 16 verified markets
+// No validated price rows are available in this client-side visual estimation path.
+// Prices stay unavailable unless the user supplies a price explicitly.
 const VERIFIED_FINISHING_PRICEBOOK: Record<
   string,
   {
@@ -71,24 +69,7 @@ const VERIFIED_FINISHING_PRICEBOOK: Record<
     popBag: number;
     flooringPack: number;
   }
-> = {
-  NG: { paintBucket: 35000, puttyBucket: 14000, tileBox: 6500, popBag: 9500, flooringPack: 18500 },
-  US: { paintBucket: 68, puttyBucket: 38, tileBox: 45, popBag: 32, flooringPack: 58 },
-  GB: { paintBucket: 54, puttyBucket: 29, tileBox: 36, popBag: 25, flooringPack: 46 },
-  CA: { paintBucket: 85, puttyBucket: 48, tileBox: 55, popBag: 40, flooringPack: 72 },
-  AU: { paintBucket: 95, puttyBucket: 52, tileBox: 60, popBag: 45, flooringPack: 80 },
-  DE: { paintBucket: 60, puttyBucket: 32, tileBox: 38, popBag: 28, flooringPack: 50 },
-  IN: { paintBucket: 4200, puttyBucket: 1600, tileBox: 1200, popBag: 850, flooringPack: 2200 },
-  GH: { paintBucket: 850, puttyBucket: 320, tileBox: 240, popBag: 180, flooringPack: 450 },
-  KE: { paintBucket: 7500, puttyBucket: 2800, tileBox: 2200, popBag: 1600, flooringPack: 3800 },
-  ZA: { paintBucket: 1100, puttyBucket: 450, tileBox: 380, popBag: 290, flooringPack: 620 },
-  JP: { paintBucket: 9800, puttyBucket: 4500, tileBox: 5200, popBag: 3600, flooringPack: 7500 },
-  FR: { paintBucket: 62, puttyBucket: 34, tileBox: 40, popBag: 30, flooringPack: 52 },
-  BR: { paintBucket: 320, puttyBucket: 140, tileBox: 160, popBag: 110, flooringPack: 220 },
-  SA: { paintBucket: 240, puttyBucket: 110, tileBox: 130, popBag: 95, flooringPack: 190 },
-  AE: { paintBucket: 230, puttyBucket: 105, tileBox: 125, popBag: 90, flooringPack: 185 },
-  IT: { paintBucket: 58, puttyBucket: 31, tileBox: 37, popBag: 27, flooringPack: 48 },
-};
+> = {};
 
 // =========================================================
 // LAYER A: MEDIA INGESTION & VALIDATION
@@ -102,7 +83,11 @@ export function validateVisualMedia(file: {
   if (!file.size || file.size <= 0) {
     return { ok: false, code: "EMPTY", message: "The selected file is empty." };
   }
-  if (!SUPPORTED_IMAGE_MIME_TYPES.includes(file.type as typeof SUPPORTED_IMAGE_MIME_TYPES[number])) {
+  if (
+    !SUPPORTED_IMAGE_MIME_TYPES.includes(
+      file.type as (typeof SUPPORTED_IMAGE_MIME_TYPES)[number],
+    )
+  ) {
     return {
       ok: false,
       code: "UNSUPPORTED_TYPE",
@@ -227,10 +212,7 @@ export function detectVisualSurfaces(
   }
 
   // Candidate Floor Surface
-  if (
-    preferredActivity === "tiling" ||
-    preferredActivity === "flooring"
-  ) {
+  if (preferredActivity === "tiling" || preferredActivity === "flooring") {
     surfaces.push({
       id: "surf-floor-main",
       category: "floor",
@@ -247,9 +229,7 @@ export function detectVisualSurfaces(
       netAreaM2: null,
       surfaceCondition: "plastered",
       isPartiallyObscured: true,
-      notes: [
-        "Floor surface plane visible. Base floor area uncalibrated.",
-      ],
+      notes: ["Floor surface plane visible. Base floor area uncalibrated."],
     });
   }
 
@@ -325,12 +305,16 @@ export function applyCalibrationToSurfaces(
           deductedOpeningArea = grossArea;
         }
 
-        const netArea = Math.max(0, Math.round((grossArea - deductedOpeningArea) * 100) / 100);
+        const netArea = Math.max(
+          0,
+          Math.round((grossArea - deductedOpeningArea) * 100) / 100,
+        );
 
         copy.widthM = widthM;
         copy.heightM = heightM;
         copy.grossAreaM2 = grossArea;
-        copy.deductedOpeningAreaM2 = Math.round(deductedOpeningArea * 100) / 100;
+        copy.deductedOpeningAreaM2 =
+          Math.round(deductedOpeningArea * 100) / 100;
         copy.netAreaM2 = netArea;
         copy.calibrationMethod = calibration.method;
         copy.measurementStatus = "user_confirmed";
@@ -348,7 +332,9 @@ export function applyCalibrationToSurfaces(
         copy.netAreaM2 = area;
         copy.calibrationMethod = calibration.method;
         copy.measurementStatus = "user_confirmed";
-        copy.notes.push(`Measured from room dimensions: ${roomL}m × ${roomW}m = ${area} m².`);
+        copy.notes.push(
+          `Measured from room dimensions: ${roomL}m × ${roomW}m = ${area} m².`,
+        );
       }
     }
 
@@ -377,14 +363,27 @@ export function calculateVisualFinishingEstimate(
   const marketCode = options.marketCode.toUpperCase();
   const validMarket = ALL_MARKET_CODES.includes(marketCode);
   if (!validMarket) {
-    warnings.push(`Market code "${options.marketCode}" not in standard 32-market registry; falling back to NGN.`);
+    warnings.push(
+      `Market code "${options.marketCode}" not in standard 32-market registry; falling back to NGN.`,
+    );
   }
 
   const allCountries = COUNTRY_OPTIONS.flatMap((g) => g.countries);
   const countryRecord = allCountries.find((c) => c.code === marketCode);
-  const marketName = countryRecord?.name ?? (marketCode === "NG" ? "Nigeria" : marketCode);
+  const marketName =
+    countryRecord?.name ?? (marketCode === "NG" ? "Nigeria" : marketCode);
   const currency = options.currency || getCountryCurrency(marketCode);
-  const currencySymbol = options.currencySymbol || (currency === "USD" ? "$" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : currency === "NGN" ? "₦" : currency);
+  const currencySymbol =
+    options.currencySymbol ||
+    (currency === "USD"
+      ? "$"
+      : currency === "EUR"
+        ? "€"
+        : currency === "GBP"
+          ? "£"
+          : currency === "NGN"
+            ? "₦"
+            : currency);
 
   const isVerifiedMarket = Boolean(VERIFIED_FINISHING_PRICEBOOK[marketCode]);
   const verifiedPriceBook = VERIFIED_FINISHING_PRICEBOOK[marketCode];
@@ -399,7 +398,9 @@ export function calculateVisualFinishingEstimate(
 
   for (const s of surfaces) {
     if (s.netAreaM2 === null || s.measurementStatus === "incomplete") {
-      missingInformation.push(`Surface "${s.name}" is uncalibrated or has unconfirmed dimensions.`);
+      missingInformation.push(
+        `Surface "${s.name}" is uncalibrated or has unconfirmed dimensions.`,
+      );
       continue;
     }
     totalGross += s.grossAreaM2 ?? 0;
@@ -437,19 +438,21 @@ export function calculateVisualFinishingEstimate(
       provenance: {
         mediaSource,
         calibrationMethod: "uncalibrated",
-        surfaceConfidence: 0.85,
+        surfaceConfidence: 0,
         measurementConfidence: 0.0,
         timestamp: new Date().toISOString(),
       },
       confidenceBreakdown: {
-        surfaceDetection: 0.85,
+        surfaceDetection: 0,
         geometricCalibration: 0.0,
         quantityEngine: 0.0,
         overall: 0.0,
       },
       missingInformation,
       assumptions,
-      warnings: ["Cannot compute material takeoff: dimensions are missing or unconfirmed."],
+      warnings: [
+        "Cannot compute material takeoff: dimensions are missing or unconfirmed.",
+      ],
       auditSteps,
     };
   }
@@ -472,7 +475,11 @@ export function calculateVisualFinishingEstimate(
     const bucketLitres = 20;
 
     // Wall Paint Calculation using central deterministic formula
-    const wallLitres = calculateTheoreticalLitres(wallNetArea, coats, coverageM2PerL);
+    const wallLitres = calculateTheoreticalLitres(
+      wallNetArea,
+      coats,
+      coverageM2PerL,
+    );
     const wallBuckets = Math.ceil(wallLitres / bucketLitres);
 
     auditSteps.push({
@@ -494,7 +501,9 @@ export function calculateVisualFinishingEstimate(
           ? "verified"
           : "price_unavailable";
 
-    const paintCost = paintPricePerBucket ? wallBuckets * paintPricePerBucket : null;
+    const paintCost = paintPricePerBucket
+      ? wallBuckets * paintPricePerBucket
+      : null;
     if (paintCost === null) allPriced = false;
 
     materials.push({
@@ -516,9 +525,15 @@ export function calculateVisualFinishingEstimate(
 
     // Optional Ceiling Paint
     if (includeCeiling && ceilingArea > 0) {
-      const ceilLitres = calculateTheoreticalLitres(ceilingArea, coats, coverageM2PerL);
+      const ceilLitres = calculateTheoreticalLitres(
+        ceilingArea,
+        coats,
+        coverageM2PerL,
+      );
       const ceilBuckets = Math.ceil(ceilLitres / bucketLitres);
-      const ceilCost = paintPricePerBucket ? ceilBuckets * paintPricePerBucket : null;
+      const ceilCost = paintPricePerBucket
+        ? ceilBuckets * paintPricePerBucket
+        : null;
       if (ceilCost === null) allPriced = false;
 
       materials.push({
@@ -539,7 +554,9 @@ export function calculateVisualFinishingEstimate(
     if (includePrimer) {
       const primerLitres = Math.round((wallNetArea / 12) * 100) / 100; // 1 coat primer @ 12m²/L
       const primerBuckets = Math.ceil(primerLitres / bucketLitres);
-      const primerPrice = paintPricePerBucket ? Math.round(paintPricePerBucket * 0.8) : null;
+      const primerPrice = paintPricePerBucket
+        ? Math.round(paintPricePerBucket * 0.8)
+        : null;
       const primerCost = primerPrice ? primerBuckets * primerPrice : null;
       if (primerCost === null) allPriced = false;
 
@@ -578,7 +595,8 @@ export function calculateVisualFinishingEstimate(
 
     const config: ScreedingSystemConfig = {
       systemType: sysType,
-      displayName: sysType === "putty" ? "Acrylic Wall Putty" : "White Cement + Paint Mix",
+      displayName:
+        sysType === "putty" ? "Acrylic Wall Putty" : "White Cement + Paint Mix",
       description: "Surface screeding system",
       coverageAreaM2: sysType === "putty" ? 12 : 20,
       coverageUnit: "m2",
@@ -605,18 +623,20 @@ export function calculateVisualFinishingEstimate(
       const res = calculateScreedingPutty(wallNetArea, config, coats);
       auditSteps.push({
         label: "Screeding Putty Takeoff",
-        detail: `${wallNetArea.toFixed(1)} m² wall area @ ${res.putty.quantityToBuy} buckets putty with ${config.wastePercentage}% waste.`,
+        detail: `${wallNetArea.toFixed(1)} m² wall area @ ${res.putty.purchaseQuantity} buckets putty with ${config.wastePercentage}% waste.`,
       });
-      const cost = res.putty.totalCost ?? (unitPrice ? res.putty.quantityToBuy * unitPrice : null);
+      const cost =
+        res.putty.totalCost ??
+        (unitPrice ? res.putty.purchaseQuantity * unitPrice : null);
       if (cost === null) allPriced = false;
 
       materials.push({
         id: "mat-screed-putty",
         name: res.putty.name,
         category: "screeding",
-        quantity: res.putty.quantityToBuy,
+        quantity: res.putty.purchaseQuantity,
         unit: "buckets",
-        packageCount: res.putty.quantityToBuy,
+        packageCount: res.putty.purchaseQuantity,
         packageUnit: "buckets (20L)",
         unitPrice: res.putty.pricePerUnit,
         totalCost: cost,
@@ -626,10 +646,16 @@ export function calculateVisualFinishingEstimate(
       const res = calculateScreedingMixSystem(wallNetArea, config, coats);
       auditSteps.push({
         label: "Screeding Mix Takeoff",
-        detail: `${wallNetArea.toFixed(1)} m² wall area requires ${res.paint.quantityToBuy} buckets screeding paint + ${res.cement.quantityToBuy} bags white cement.`,
+        detail: `${wallNetArea.toFixed(1)} m² wall area requires ${res.paint.purchaseQuantity} buckets screeding paint + ${res.cement.purchaseQuantity} bags white cement.`,
       });
-      const paintCost = res.paint.totalCost ?? (unitPrice ? res.paint.quantityToBuy * unitPrice : null);
-      const cementCost = res.cement.totalCost ?? (unitPrice ? res.cement.quantityToBuy * Math.round(unitPrice * 0.7) : null);
+      const paintCost =
+        res.paint.totalCost ??
+        (unitPrice ? res.paint.purchaseQuantity * unitPrice : null);
+      const cementCost =
+        res.cement.totalCost ??
+        (unitPrice
+          ? res.cement.purchaseQuantity * Math.round(unitPrice * 0.7)
+          : null);
       if (paintCost === null || cementCost === null) allPriced = false;
 
       materials.push(
@@ -637,9 +663,9 @@ export function calculateVisualFinishingEstimate(
           id: "mat-screed-paint",
           name: res.paint.name,
           category: "screeding",
-          quantity: res.paint.quantityToBuy,
+          quantity: res.paint.purchaseQuantity,
           unit: "buckets",
-          packageCount: res.paint.quantityToBuy,
+          packageCount: res.paint.purchaseQuantity,
           packageUnit: "buckets",
           unitPrice: res.paint.pricePerUnit,
           totalCost: paintCost,
@@ -649,9 +675,9 @@ export function calculateVisualFinishingEstimate(
           id: "mat-screed-cement",
           name: res.cement.name,
           category: "screeding",
-          quantity: res.cement.quantityToBuy,
+          quantity: res.cement.purchaseQuantity,
           unit: "bags",
-          packageCount: res.cement.quantityToBuy,
+          packageCount: res.cement.purchaseQuantity,
           packageUnit: "40kg bags",
           unitPrice: res.cement.pricePerUnit,
           totalCost: cementCost,
@@ -717,9 +743,15 @@ export function calculateVisualFinishingEstimate(
     });
 
     const tileCost = tileBoxPrice ? res.boxesNeeded * tileBoxPrice : null;
-    const adhesiveCost = tileBoxPrice ? Math.ceil(res.adhesiveNeeded) * Math.round(tileBoxPrice * 0.6) : null;
-    const groutCost = tileBoxPrice ? Math.ceil(res.groutNeeded) * Math.round(tileBoxPrice * 0.15) : null;
-    const spacerCost = tileBoxPrice ? res.spacersNeeded * Math.round(tileBoxPrice * 0.1) : null;
+    const adhesiveCost = tileBoxPrice
+      ? Math.ceil(res.adhesiveNeeded) * Math.round(tileBoxPrice * 0.6)
+      : null;
+    const groutCost = tileBoxPrice
+      ? Math.ceil(res.groutNeeded) * Math.round(tileBoxPrice * 0.15)
+      : null;
+    const spacerCost = tileBoxPrice
+      ? res.spacerNeeded * Math.round(tileBoxPrice * 0.1)
+      : null;
 
     if (tileCost === null) allPriced = false;
 
@@ -764,9 +796,9 @@ export function calculateVisualFinishingEstimate(
         id: "mat-tile-spacers",
         name: "Tile Spacers (3mm)",
         category: "spacers",
-        quantity: res.spacersNeeded,
+        quantity: res.spacerNeeded,
         unit: "packs",
-        packageCount: res.spacersNeeded,
+        packageCount: res.spacerNeeded,
         packageUnit: "100-pc packs",
         unitPrice: tileBoxPrice ? Math.round(tileBoxPrice * 0.1) : null,
         totalCost: spacerCost,
@@ -804,8 +836,12 @@ export function calculateVisualFinishingEstimate(
     });
 
     const popCost = popBagPrice ? popBags * popBagPrice : null;
-    const cementCost = popBagPrice ? cementBags * Math.round(popBagPrice * 0.8) : null;
-    const fibreCost = popBagPrice ? fibrePacks * Math.round(popBagPrice * 0.4) : null;
+    const cementCost = popBagPrice
+      ? cementBags * Math.round(popBagPrice * 0.8)
+      : null;
+    const fibreCost = popBagPrice
+      ? fibrePacks * Math.round(popBagPrice * 0.4)
+      : null;
 
     if (popCost === null) allPriced = false;
 
@@ -926,9 +962,9 @@ export function calculateVisualFinishingEstimate(
   }
   subtotalCost = allPriced ? Math.round(totalCostSum * 100) / 100 : null;
 
-  if (!isVerifiedMarket && !allPriced) {
+  if (!allPriced) {
     assumptions.push(
-      `Market "${marketCode}" does not have verified finishing pricebook rows in the database. Calculated physical quantities are exact; price fields remain unpriced until a user or admin configures them.`,
+      `No validated finishing price rows are available for this estimate in market "${marketCode}". Physical quantities are calculated from the entered dimensions; price fields remain unpriced until a user supplies local prices.`,
     );
   }
 
@@ -964,15 +1000,39 @@ export function calculateVisualFinishingEstimate(
     provenance: {
       mediaSource,
       calibrationMethod: surfaces[0]?.calibrationMethod ?? "user_supplied",
-      surfaceConfidence: 0.88,
-      measurementConfidence: 0.95,
+      surfaceConfidence:
+        surfaces.length > 0
+          ? Math.min(...surfaces.map((surface) => surface.confidence))
+          : 0,
+      measurementConfidence:
+        surfaces.length > 0 &&
+        surfaces.every(
+          (surface) => surface.measurementStatus === "user_confirmed",
+        )
+          ? 1
+          : 0,
       timestamp: new Date().toISOString(),
     },
     confidenceBreakdown: {
-      surfaceDetection: 0.88,
-      geometricCalibration: 0.95,
+      surfaceDetection:
+        surfaces.length > 0
+          ? Math.min(...surfaces.map((surface) => surface.confidence))
+          : 0,
+      geometricCalibration:
+        surfaces.length > 0 &&
+        surfaces.every(
+          (surface) => surface.measurementStatus === "user_confirmed",
+        )
+          ? 1
+          : 0,
       quantityEngine: 1.0,
-      overall: 0.94,
+      overall:
+        surfaces.length > 0 &&
+        surfaces.every(
+          (surface) => surface.measurementStatus === "user_confirmed",
+        )
+          ? Math.min(...surfaces.map((surface) => surface.confidence))
+          : 0,
     },
     missingInformation,
     assumptions,
