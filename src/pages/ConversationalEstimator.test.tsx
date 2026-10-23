@@ -100,7 +100,11 @@ describe("ConversationalEstimator page", () => {
     );
     const note = await screen.findByText(/market context/i);
     expect(note.textContent).toMatch(/Nigeria|NG/i);
-    expect(note.textContent).toMatch(/20 L/);
+    // The retail-pack sentence arrives via a second async effect
+    // (pricebook -> pack-size join) after the market-context render.
+    // Poll instead of asserting immediately: CI envs resolve the mocked
+    // chain later than the first paint of the note.
+    await waitFor(() => expect(note.textContent).toMatch(/20 L/));
     // market pinning reaches the parse-log telemetry
     const { insertConversationalParseLog } =
       await import("@/lib/estimation/queries");
