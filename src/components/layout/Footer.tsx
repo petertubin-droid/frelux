@@ -103,7 +103,7 @@ export default function Footer() {
             </a>
             <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground dark:text-muted-foreground">
               <span className="font-medium text-foreground dark:text-primary-foreground/90">
-                39 markets
+                32 markets
               </span>
               <span aria-hidden="true">·</span>
               <span>Local currency pricing</span>

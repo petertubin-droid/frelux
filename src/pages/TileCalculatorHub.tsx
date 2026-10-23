@@ -46,9 +46,9 @@ const FAQS = [
       "Yes. You can set a waste percentage to account for cuts, breakages, and pattern matching. The calculator includes waste tiles in the total recommendation.",
   },
   {
-    question: "Are tile prices in Nigerian Naira?",
+    question: "Which currency do tile estimates use?",
     answer:
-      "Yes. The FRELUX tile cost estimator uses admin-configured material prices for tiles, adhesive, grout, and accessories.",
+      "Estimates calculate in your chosen project market currency using verified price books for tiles, adhesive, grout, and accessories where available, with customizable rates for unpriced markets.",
   },
 ];
 

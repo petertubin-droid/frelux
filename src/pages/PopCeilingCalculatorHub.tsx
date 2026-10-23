@@ -49,9 +49,9 @@ const FAQS = [
       "Yes. You can save calculations to your projects, export as PDF, and share via WhatsApp using the existing FRELUX functionality.",
   },
   {
-    question: "Are material prices in Nigerian Naira?",
+    question: "Which currency do POP ceiling estimates use?",
     answer:
-      "Yes. The FRELUX POP ceiling cost estimator uses admin-configured material prices for POP cement, fibreglass mesh, and other materials.",
+      "Prices resolve in your active project market currency using market-specific verified price books for POP cement, mesh, and accessories, with Nigerian Naira available for the Nigerian market configuration and manual rate adjustments for international projects.",
   },
 ];
 

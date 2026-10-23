@@ -57,7 +57,7 @@ const FAQS = [
   {
     question: "Which currency do the tools use?",
     answer:
-      "Estimates calculate in Nigerian Naira from admin-configured material prices (cement, sand, acrylic bond, additives and more). You can switch the DISPLAY currency in the navbar to see approximate amounts in your own currency; the calculation itself always stays exact.",
+      "Estimates calculate in your chosen project market currency using market-specific verified material prices (cement, sand, acrylic bond, additives and more). When local prices are not yet verified for your market, you can enter custom rates directly in the estimate.",
   },
 ];
 
