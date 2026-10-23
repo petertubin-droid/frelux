@@ -40,7 +40,7 @@ const HOME_FAQS = [
   {
     question: "Which countries and markets does FRELUX support?",
     answer:
-      "FRELUX calculation engines, quantity takeoff tools, and measurement standards (NRM2, CESMM4, ICMS) operate globally across 32 supported country selections and 20 regional market profiles. Where verified local catalog pricebooks are active, regional material and labor rates load automatically; in other regions, users can customize local rates or export detailed bills of quantities in any currency.",
+      "FRELUX tools are available to users in multiple markets, but support varies by calculator and location. Construction methods, measurement units, languages, and verified local price data are not uniform across every market. Where a verified local price book is available, it can be loaded; otherwise, you can enter local rates and review the estimate assumptions before use.",
   },
   {
     question: "Can contractors use the estimates with clients?",
