@@ -288,3 +288,68 @@ export interface AiVisualFinishingResponse {
   provider: "gemini-live" | "local-heuristic";
   processed_at: string;
 }
+
+// =========================================================
+// PHASE 4: MARKET PRICEBOOKS & REFERENCE OBJECT TYPES
+// =========================================================
+
+export interface MarketFinishingRates {
+  marketCode: string;
+  currency: string;
+  currencySymbol: string;
+  paintBucketPrice: number | null;
+  puttyBucketPrice: number | null;
+  tileBoxPrice: number | null;
+  popBagPrice: number | null;
+  flooringPackPrice: number | null;
+  source: "verified_db" | "supplier_inventory" | "unverified" | "user_provided";
+  lastUpdated?: string;
+  provenanceNote?: string;
+}
+
+export type KnownReferenceTarget =
+  | "a4_sheet" // 0.297m height / 0.210m width
+  | "standard_door" // 2.10m height / 0.90m width
+  | "credit_card" // 0.0856m width / 0.054m height
+  | "ruler_30cm" // 0.30m
+  | "custom";
+
+export interface ReferenceTargetSpec {
+  id: KnownReferenceTarget;
+  label: string;
+  description: string;
+  metricDimensionM: number;
+  orientation: "horizontal" | "vertical";
+}
+
+export const KNOWN_REFERENCE_TARGETS: ReferenceTargetSpec[] = [
+  {
+    id: "a4_sheet",
+    label: "A4 Paper Sheet (Portrait)",
+    description:
+      "Standard ISO 216 paper sheet placed against wall (29.7 cm height).",
+    metricDimensionM: 0.297,
+    orientation: "vertical",
+  },
+  {
+    id: "standard_door",
+    label: "Standard Interior Door",
+    description: "Standard residential door frame (2.10 m height).",
+    metricDimensionM: 2.1,
+    orientation: "vertical",
+  },
+  {
+    id: "credit_card",
+    label: "Standard Card (ID / Bank Card)",
+    description: "Standard 85.6 mm width reference card placed on surface.",
+    metricDimensionM: 0.0856,
+    orientation: "horizontal",
+  },
+  {
+    id: "ruler_30cm",
+    label: "30 cm Builder's Ruler",
+    description: "Standard 300 mm metric steel or plastic rule.",
+    metricDimensionM: 0.3,
+    orientation: "horizontal",
+  },
+];

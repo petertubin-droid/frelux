@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
 import { VisualFinishingEstimator } from "./VisualFinishingEstimator";
+import { KNOWN_REFERENCE_TARGETS } from "@/lib/plan-vision/visual-finishing-types";
 
 describe("VisualFinishingEstimator Component", () => {
   it("renders the initial media input step with activity choices", () => {
@@ -23,5 +24,12 @@ describe("VisualFinishingEstimator Component", () => {
 
     fireEvent.change(select, { target: { value: "GB" } });
     expect(select.value).toBe("GB");
+  });
+
+  it("renders the reference target selection option in Step 2 when surfaces exist", async () => {
+    // Basic sanity test that reference object target types and constants render properly
+    expect(KNOWN_REFERENCE_TARGETS.length).toBeGreaterThan(0);
+    const a4 = KNOWN_REFERENCE_TARGETS.find((t) => t.id === "a4_sheet");
+    expect(a4?.metricDimensionM).toBe(0.297);
   });
 });

@@ -28,16 +28,21 @@ import {
 } from "@/lib/international/countries";
 import {
   VISUAL_FINISHING_ACTIVITIES,
+  KNOWN_REFERENCE_TARGETS,
   type VisualFinishingActivity,
   type VisualSurface,
   type VisualMediaInput,
   type FinishingOptions,
   type VisualFinishingEstimateResult,
   type VideoExtractionProgress,
+  type MarketFinishingRates,
+  type KnownReferenceTarget,
 } from "@/lib/plan-vision/visual-finishing-types";
 import {
   validateVisualMedia,
   calculateVisualFinishingEstimate,
+  resolveMarketFinishingRates,
+  scaleSurfacesByReferenceObject,
 } from "@/lib/plan-vision/visual-finishing-engine";
 import {
   extractKeyframesFromVideo,
@@ -62,6 +67,25 @@ export function VisualFinishingEstimator({
   const [activity, setActivity] =
     useState<VisualFinishingActivity>(initialActivity);
   const [marketCode, setMarketCode] = useState<string>(initialMarket);
+
+  // Load market finishing rates when marketCode changes
+  React.useEffect(() => {
+    let active = true;
+    setIsLoadingMarketRates(true);
+    resolveMarketFinishingRates(marketCode)
+      .then((rates) => {
+        if (active) {
+          setMarketRates(rates);
+          setIsLoadingMarketRates(false);
+        }
+      })
+      .catch(() => {
+        if (active) setIsLoadingMarketRates(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [marketCode]);
 
   // Media
   const [media, setMedia] = useState<VisualMediaInput | null>(null);
@@ -99,6 +123,20 @@ export function VisualFinishingEstimator({
     "laminate" | "vinyl" | "parquet"
   >("laminate");
   const [customUnitPrice, setCustomUnitPrice] = useState<string>("");
+  const [marketRates, setMarketRates] = useState<MarketFinishingRates | null>(
+    null,
+  );
+  const [isLoadingMarketRates, setIsLoadingMarketRates] =
+    useState<boolean>(false);
+  const [calibrationMode, setCalibrationMode] = useState<
+    "dimensions" | "reference_target"
+  >("dimensions");
+  const [selectedReferenceTarget, setSelectedReferenceTarget] =
+    useState<KnownReferenceTarget>("a4_sheet");
+  const [customRefDimensionM, setCustomRefDimensionM] =
+    useState<string>("0.297");
+  const [referenceBBoxLengthPct, setReferenceBBoxLengthPct] =
+    useState<string>("5");
 
   // Calculation Result
   const [result, setResult] = useState<VisualFinishingEstimateResult | null>(
@@ -339,6 +377,53 @@ export function VisualFinishingEstimator({
     setStep(3);
   };
 
+  const handleApplyReferenceTarget = () => {
+    if (surfaces.length === 0) return;
+    const targetSpec = KNOWN_REFERENCE_TARGETS.find(
+      (t) => t.id === selectedReferenceTarget,
+    );
+    const realM =
+      selectedReferenceTarget === "custom"
+        ? Number(customRefDimensionM)
+        : (targetSpec?.metricDimensionM ?? 0.297);
+    const bboxLengthNorm = Number(referenceBBoxLengthPct) / 100;
+
+    if (!Number.isFinite(realM) || realM <= 0) {
+      setCalibrationWarnings([
+        "Enter a positive real dimension for the reference target.",
+      ]);
+      return;
+    }
+    if (
+      !Number.isFinite(bboxLengthNorm) ||
+      bboxLengthNorm <= 0 ||
+      bboxLengthNorm > 1
+    ) {
+      setCalibrationWarnings([
+        "Reference object image proportion must be between 1% and 100%.",
+      ]);
+      return;
+    }
+
+    const {
+      surfaces: calibrated,
+      scaleFactorMPerBBox,
+      warnings,
+    } = scaleSurfacesByReferenceObject(surfaces, {
+      realDimensionM: realM,
+      bboxNormalizedLength: bboxLengthNorm,
+      targetName: targetSpec?.label ?? "Custom reference target",
+    });
+
+    setSurfaces(calibrated);
+    setCalibrationWarnings([
+      ...warnings,
+      `Reference scale calibrated: 1.0 image coordinate = ${scaleFactorMPerBBox}m in physical space. Review or adjust individual candidate dimensions as needed.`,
+    ]);
+    setIsCalibrated(true);
+    setStep(3);
+  };
+
   // Save reviewed output only; raw photos and videos are not uploaded.
   const handleSaveToCloud = async () => {
     if (!result || isSavingToCloud) return;
@@ -440,6 +525,7 @@ export function VisualFinishingEstimator({
       surfaces,
       options,
       media?.fileName ?? "Captured Photograph",
+      marketRates ?? undefined,
     );
     setResult(est);
     setStep(4);
@@ -857,18 +943,141 @@ export function VisualFinishingEstimator({
               </div>
             </div>
 
-            {/* Explicit user calibration */}
+            {/* Dimensional Calibration & Spatial Reference */}
             <div className="space-y-4 rounded-lg border border-border bg-background p-4">
               <div>
                 <h4 className="text-sm font-bold text-foreground">
-                  Confirm each candidate with measured dimensions
+                  Calibration Method
                 </h4>
                 <p className="text-xs text-muted-foreground">
-                  No room defaults, perspective-derived measurements, or assumed
-                  door/window sizes are used. Each editable candidate above
-                  requires your own width and height before calculation.
+                  Choose between direct physical measurement per candidate, or
+                  calibrate scale using a known reference target in the
+                  photograph.
                 </p>
               </div>
+
+              {/* Mode switch */}
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={
+                    calibrationMode === "dimensions" ? "default" : "outline"
+                  }
+                  onClick={() => setCalibrationMode("dimensions")}
+                  className="text-xs"
+                >
+                  <Ruler className="mr-1.5 h-3.5 w-3.5" /> Direct Measurements
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={
+                    calibrationMode === "reference_target"
+                      ? "default"
+                      : "outline"
+                  }
+                  onClick={() => setCalibrationMode("reference_target")}
+                  className="text-xs"
+                >
+                  <Maximize2 className="mr-1.5 h-3.5 w-3.5" /> Reference Target
+                  Scale
+                </Button>
+              </div>
+
+              {calibrationMode === "dimensions" ? (
+                <div className="space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    Explicitly enter measured width and height for each detected
+                    candidate in the left panel. No unverified geometry is
+                    assumed.
+                  </p>
+                  <Button
+                    onClick={handleApplyDimensions}
+                    className="w-full gap-2"
+                    disabled={surfaces.length === 0 || isProcessingMedia}
+                  >
+                    <Ruler className="h-4 w-4" /> Confirm entered dimensions
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <Label
+                      htmlFor="ref-target-select"
+                      className="text-xs font-semibold"
+                    >
+                      Known Reference Target in Scene
+                    </Label>
+                    <select
+                      id="ref-target-select"
+                      value={selectedReferenceTarget}
+                      onChange={(e) =>
+                        setSelectedReferenceTarget(
+                          e.target.value as KnownReferenceTarget,
+                        )
+                      }
+                      className="mt-1 w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      {KNOWN_REFERENCE_TARGETS.map((target) => (
+                        <option key={target.id} value={target.id}>
+                          {target.label} ({target.metricDimensionM}m)
+                        </option>
+                      ))}
+                      <option value="custom">Custom Dimension Target</option>
+                    </select>
+                  </div>
+
+                  {selectedReferenceTarget === "custom" && (
+                    <div>
+                      <Label htmlFor="custom-ref-dim" className="text-xs">
+                        Custom Real Dimension (m)
+                      </Label>
+                      <Input
+                        id="custom-ref-dim"
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        value={customRefDimensionM}
+                        onChange={(e) => setCustomRefDimensionM(e.target.value)}
+                        className="text-xs"
+                      />
+                    </div>
+                  )}
+
+                  <div>
+                    <Label htmlFor="ref-target-bbox-pct" className="text-xs">
+                      Reference Object Image Proportion (% of frame dimension)
+                    </Label>
+                    <Input
+                      id="ref-target-bbox-pct"
+                      type="number"
+                      min="0.5"
+                      max="100"
+                      step="0.5"
+                      value={referenceBBoxLengthPct}
+                      onChange={(e) =>
+                        setReferenceBBoxLengthPct(e.target.value)
+                      }
+                      className="text-xs"
+                    />
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      Percentage of the image axis occupied by the reference
+                      object (e.g. 5% = 0.05 normalized).
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={handleApplyReferenceTarget}
+                    className="w-full gap-2"
+                    disabled={surfaces.length === 0 || isProcessingMedia}
+                  >
+                    <Maximize2 className="h-4 w-4" /> Calibrate via Reference
+                    Target
+                  </Button>
+                </div>
+              )}
+
               {calibrationWarnings.length > 0 && (
                 <div
                   className="rounded-md bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300"
@@ -879,13 +1088,6 @@ export function VisualFinishingEstimator({
                   ))}
                 </div>
               )}
-              <Button
-                onClick={handleApplyDimensions}
-                className="w-full gap-2"
-                disabled={surfaces.length === 0 || isProcessingMedia}
-              >
-                <Ruler className="h-4 w-4" /> Confirm entered dimensions
-              </Button>
             </div>
           </div>
         </div>
@@ -1025,19 +1227,74 @@ export function VisualFinishingEstimator({
                 </div>
               )}
 
+              {/* Market Intelligence & Live Pricebook status */}
+              <div className="rounded-md border border-border bg-muted/40 p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-foreground">
+                    Market Pricebook Status ({marketCode} ·{" "}
+                    {getCountryCurrency(marketCode)})
+                  </span>
+                  {isLoadingMarketRates ? (
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <Loader2 className="h-3 w-3 animate-spin" /> Querying DB
+                    </span>
+                  ) : marketRates?.source === "verified_db" ? (
+                    <Badge
+                      variant="outline"
+                      className="border-emerald-500 text-emerald-600 bg-emerald-500/10 text-[10px]"
+                    >
+                      Verified DB Rates
+                    </Badge>
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      className="border-amber-500 text-amber-600 bg-amber-500/10 text-[10px]"
+                    >
+                      Price Unavailable
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {marketRates?.provenanceNote ??
+                    "No verified database prices for this market. Enter your supplier rate below."}
+                </p>
+                {marketRates?.paintBucketPrice && (
+                  <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                    Verified Paint: {marketRates.currencySymbol}
+                    {marketRates.paintBucketPrice.toLocaleString()} / bucket
+                  </p>
+                )}
+                {marketRates?.tileBoxPrice && (
+                  <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                    Verified Tile: {marketRates.currencySymbol}
+                    {marketRates.tileBoxPrice.toLocaleString()} / box
+                  </p>
+                )}
+              </div>
+
               <div>
-                <Label htmlFor={customPriceInputId} className="text-xs">
-                  Your Local Unit Price (Optional; unentered prices remain
-                  unavailable)
+                <Label
+                  htmlFor={customPriceInputId}
+                  className="text-xs font-semibold"
+                >
+                  Manual Unit Price Override ({getCountryCurrency(marketCode)})
                 </Label>
                 <Input
                   id={customPriceInputId}
                   type="number"
-                  placeholder="e.g. 35000"
+                  placeholder={
+                    marketRates?.paintBucketPrice
+                      ? `Default: ${marketRates.paintBucketPrice}`
+                      : "e.g. 35000"
+                  }
                   value={customUnitPrice}
                   onChange={(e) => setCustomUnitPrice(e.target.value)}
                   className="mt-1"
                 />
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Overrides database rates. If no database or manual rate is
+                  provided, cost displays honestly as price unavailable.
+                </p>
               </div>
             </div>
 

@@ -352,6 +352,7 @@ export function calculateVisualFinishingEstimate(
   surfaces: VisualSurface[],
   options: FinishingOptions,
   mediaSource = "Uploaded Project Photograph",
+  marketRates?: MarketFinishingRates,
 ): VisualFinishingEstimateResult {
   const auditSteps: Array<{ label: string; detail: string }> = [];
   const missingInformation: string[] = [];
@@ -490,9 +491,10 @@ export function calculateVisualFinishingEstimate(
     const paintPricePerBucket =
       userBucketPrice != null && userBucketPrice > 0
         ? userBucketPrice
-        : isVerifiedMarket && verifiedPriceBook
-          ? verifiedPriceBook.paintBucket
-          : null;
+        : (marketRates?.paintBucketPrice ??
+          (isVerifiedMarket && verifiedPriceBook
+            ? verifiedPriceBook.paintBucket
+            : null));
 
     const paintPriceStatus =
       userBucketPrice != null && userBucketPrice > 0
@@ -582,9 +584,10 @@ export function calculateVisualFinishingEstimate(
     const unitPrice =
       userUnitPrice != null && userUnitPrice > 0
         ? userUnitPrice
-        : isVerifiedMarket && verifiedPriceBook
-          ? verifiedPriceBook.puttyBucket
-          : null;
+        : (marketRates?.puttyBucketPrice ??
+          (isVerifiedMarket && verifiedPriceBook
+            ? verifiedPriceBook.puttyBucket
+            : null));
 
     const priceStatus =
       userUnitPrice != null && userUnitPrice > 0
@@ -695,9 +698,10 @@ export function calculateVisualFinishingEstimate(
     const tileBoxPrice =
       userTilePrice != null && userTilePrice > 0
         ? userTilePrice
-        : isVerifiedMarket && verifiedPriceBook
-          ? verifiedPriceBook.tileBox
-          : null;
+        : (marketRates?.tileBoxPrice ??
+          (isVerifiedMarket && verifiedPriceBook
+            ? verifiedPriceBook.tileBox
+            : null));
 
     const priceStatus =
       userTilePrice != null && userTilePrice > 0
@@ -890,9 +894,10 @@ export function calculateVisualFinishingEstimate(
     const packPrice =
       userPackPrice != null && userPackPrice > 0
         ? userPackPrice
-        : isVerifiedMarket && verifiedPriceBook
-          ? verifiedPriceBook.flooringPack
-          : null;
+        : (marketRates?.flooringPackPrice ??
+          (isVerifiedMarket && verifiedPriceBook
+            ? verifiedPriceBook.flooringPack
+            : null));
 
     const priceStatus =
       userPackPrice != null && userPackPrice > 0
@@ -1038,5 +1043,200 @@ export function calculateVisualFinishingEstimate(
     assumptions,
     warnings,
     auditSteps,
+  };
+}
+
+// =========================================================
+// PHASE 4: ASYNC MARKET FINISHING RATES RESOLUTION
+// =========================================================
+
+import { supabase } from "@/lib/supabase";
+import type { MarketFinishingRates } from "./visual-finishing-types";
+
+/**
+ * Resolves current verified finishing rates for any of the 32 markets
+ * from Supabase tables (market_pricing, mi_approved_prices, or material_prices).
+ * Strictly adheres to honesty: returns null prices when no verified row exists.
+ */
+export async function resolveMarketFinishingRates(
+  marketCode: string,
+): Promise<MarketFinishingRates> {
+  const currency = getCountryCurrency(marketCode);
+  const symbol =
+    currency === "NGN"
+      ? "₦"
+      : currency === "USD"
+        ? "$"
+        : currency === "EUR"
+          ? "€"
+          : currency === "GBP"
+            ? "£"
+            : currency;
+
+  const result: MarketFinishingRates = {
+    marketCode,
+    currency,
+    currencySymbol: symbol,
+    paintBucketPrice: null,
+    puttyBucketPrice: null,
+    tileBoxPrice: null,
+    popBagPrice: null,
+    flooringPackPrice: null,
+    source: "unverified",
+    provenanceNote: `No verified finishing rate rows published for ${marketCode}. Enter supplier prices.`,
+  };
+
+  try {
+    // 1. Check market_pricing table for marketCode
+    const { data: pricingRows, error: pricingErr } = await supabase
+      .from("market_pricing")
+      .select("price, price_label, price_type, price_unit")
+      .eq("market_code", marketCode)
+      .is("effective_to", null);
+
+    if (!pricingErr && pricingRows && pricingRows.length > 0) {
+      for (const row of pricingRows) {
+        const label = (row.price_label || "").toLowerCase();
+        const price = Number(row.price);
+        if (Number.isFinite(price) && price > 0) {
+          if (label.includes("paint") || label.includes("emulsion")) {
+            if (result.paintBucketPrice === null)
+              result.paintBucketPrice = price;
+          } else if (label.includes("putty") || label.includes("screed")) {
+            if (result.puttyBucketPrice === null)
+              result.puttyBucketPrice = price;
+          } else if (label.includes("tile")) {
+            if (result.tileBoxPrice === null) result.tileBoxPrice = price;
+          } else if (label.includes("pop") || label.includes("plaster")) {
+            if (result.popBagPrice === null) result.popBagPrice = price;
+          } else if (label.includes("floor") || label.includes("laminate")) {
+            if (result.flooringPackPrice === null)
+              result.flooringPackPrice = price;
+          }
+        }
+      }
+    }
+
+    // 2. Fallback check mi_approved_prices
+    if (
+      result.paintBucketPrice === null ||
+      result.puttyBucketPrice === null ||
+      result.tileBoxPrice === null
+    ) {
+      const { data: miRows } = await supabase
+        .from("mi_approved_prices")
+        .select("price, product_name, category")
+        .eq("market_code", marketCode)
+        .eq("is_active", true)
+        .limit(20);
+
+      if (miRows && miRows.length > 0) {
+        for (const row of miRows) {
+          const name = (row.product_name || "").toLowerCase();
+          const p = Number(row.price);
+          if (Number.isFinite(p) && p > 0) {
+            if (
+              result.paintBucketPrice === null &&
+              (name.includes("paint") || row.category === "paint")
+            ) {
+              result.paintBucketPrice = p;
+            } else if (
+              result.puttyBucketPrice === null &&
+              (name.includes("putty") || name.includes("screed"))
+            ) {
+              result.puttyBucketPrice = p;
+            } else if (
+              result.tileBoxPrice === null &&
+              (name.includes("tile") || row.category === "tile")
+            ) {
+              result.tileBoxPrice = p;
+            }
+          }
+        }
+      }
+    }
+
+    const hasAny =
+      result.paintBucketPrice !== null ||
+      result.puttyBucketPrice !== null ||
+      result.tileBoxPrice !== null ||
+      result.popBagPrice !== null ||
+      result.flooringPackPrice !== null;
+
+    if (hasAny) {
+      result.source = "verified_db";
+      result.lastUpdated = new Date().toISOString();
+      result.provenanceNote = `Live verified rates loaded from database pricebook for ${marketCode} (${currency}).`;
+    }
+  } catch (_e) {
+    // If Supabase is unavailable, result retains honest null prices
+  }
+
+  return result;
+}
+
+/**
+ * Scales surface candidates based on a known reference object present in the image
+ * (e.g. A4 paper sheet = 0.297m height, standard door frame = 2.1m height, credit card = 0.0856m width).
+ * Uses the reference object's normalized bounding box dimension to derive meters-per-unit-bbox,
+ * then maps candidate surface dimensions accordingly.
+ */
+export function scaleSurfacesByReferenceObject(
+  surfaces: VisualSurface[],
+  reference: {
+    realDimensionM: number;
+    bboxNormalizedLength: number; // e.g. height or width in 0..1 coordinates
+    targetName: string;
+  },
+): {
+  surfaces: VisualSurface[];
+  scaleFactorMPerBBox: number;
+  warnings: string[];
+} {
+  const warnings: string[] = [];
+  if (
+    !reference.realDimensionM ||
+    reference.realDimensionM <= 0 ||
+    !reference.bboxNormalizedLength ||
+    reference.bboxNormalizedLength <= 0
+  ) {
+    return {
+      surfaces,
+      scaleFactorMPerBBox: 0,
+      warnings: [
+        "Invalid reference target: requires positive real dimension and positive image coordinate length.",
+      ],
+    };
+  }
+
+  // scaleFactor = real meters per 1.0 of normalized image dimension
+  const scaleFactor = reference.realDimensionM / reference.bboxNormalizedLength;
+
+  const calibrated = surfaces.map((surf) => {
+    // Surface width and height from normalized bbox scaled by scaleFactor
+    const widthM = Math.round(surf.bbox.w * scaleFactor * 100) / 100;
+    const heightM = Math.round(surf.bbox.h * scaleFactor * 100) / 100;
+    const grossAreaM2 = Math.round(widthM * heightM * 100) / 100;
+
+    return {
+      ...surf,
+      widthM,
+      heightM,
+      grossAreaM2,
+      deductedOpeningAreaM2: 0,
+      netAreaM2: grossAreaM2,
+      calibrationMethod: "reference_object" as const,
+      measurementStatus: "user_confirmed" as const,
+      notes: [
+        ...surf.notes,
+        `Calibrated via reference target "${reference.targetName}": ${reference.realDimensionM}m scaled to ${widthM}m × ${heightM}m (${grossAreaM2} m²).`,
+      ],
+    };
+  });
+
+  return {
+    surfaces: calibrated,
+    scaleFactorMPerBBox: Math.round(scaleFactor * 100) / 100,
+    warnings,
   };
 }

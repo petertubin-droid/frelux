@@ -4,6 +4,8 @@ import {
   detectVisualSurfaces,
   applyCalibrationToSurfaces,
   calculateVisualFinishingEstimate,
+  scaleSurfacesByReferenceObject,
+  resolveMarketFinishingRates,
   MAX_VISUAL_MEDIA_BYTES,
 } from "../visual-finishing-engine";
 import { ALL_MARKET_CODES } from "@/lib/international/capability-registry";
@@ -428,5 +430,53 @@ describe("Visual Finishing Engine - Layer E & F: Deterministic Estimation across
     });
 
     expect(res.materials.some((m) => m.category === "flooring")).toBe(true);
+  });
+});
+
+describe("Visual Finishing Engine - Phase 4: Reference Target Scaling & Market Rates", () => {
+  it("scales candidate surfaces using a known reference target (A4 sheet)", () => {
+    const rawSurfaces: VisualSurface[] = [
+      {
+        id: "surf-wall-test",
+        category: "wall",
+        name: "Test Wall",
+        confidence: 0.9,
+        bbox: { x: 0.1, y: 0.1, w: 0.8, h: 0.6 }, // 0.8w x 0.6h normalized
+        measurementStatus: "incomplete",
+        calibrationMethod: "uncalibrated",
+        widthM: null,
+        heightM: null,
+        grossAreaM2: null,
+        openings: [],
+        deductedOpeningAreaM2: 0,
+        netAreaM2: null,
+        surfaceCondition: "painted_good",
+        isPartiallyObscured: false,
+        notes: [],
+      },
+    ];
+
+    // Reference target: A4 sheet (0.297m height) occupying 0.05 normalized height in image
+    const { surfaces, scaleFactorMPerBBox, warnings } =
+      scaleSurfacesByReferenceObject(rawSurfaces, {
+        realDimensionM: 0.297,
+        bboxNormalizedLength: 0.05,
+        targetName: "A4 Paper Sheet (Portrait)",
+      });
+
+    expect(warnings.length).toBe(0);
+    expect(scaleFactorMPerBBox).toBeCloseTo(0.297 / 0.05, 1);
+    expect(surfaces[0].measurementStatus).toBe("user_confirmed");
+    expect(surfaces[0].calibrationMethod).toBe("reference_object");
+    expect(surfaces[0].widthM).toBeGreaterThan(0);
+    expect(surfaces[0].heightM).toBeGreaterThan(0);
+    expect(surfaces[0].grossAreaM2).toBeGreaterThan(0);
+  });
+
+  it("handles async market rates resolution gracefully", async () => {
+    const rates = await resolveMarketFinishingRates("NG");
+    expect(rates.marketCode).toBe("NG");
+    expect(rates.currency).toBe("NGN");
+    expect(rates.currencySymbol).toBe("₦");
   });
 });
