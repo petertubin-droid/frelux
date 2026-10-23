@@ -301,6 +301,12 @@ export default function MarketplaceHome() {
 
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <div className="text-center">
+            {/* Regional directory badge */}
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-primary-foreground/80 backdrop-blur">
+              <Store aria-hidden="true" className="h-3.5 w-3.5 text-brand-purple-lighter" />
+              Regional Trade Marketplace · Nigeria
+            </div>
+
             {/* Tagline words */}
             <div className="mb-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
               <span className="text-primary-foreground">BUILD.</span>

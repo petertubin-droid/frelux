@@ -38,9 +38,9 @@ const HOME_FAQS = [
       "No. All public tools run directly in your browser without sign-up. Creating a free account only adds extras like saved projects, templates, and client estimates.",
   },
   {
-    question: "Can I use FRELUX outside Nigeria?",
+    question: "Which countries and markets does FRELUX support?",
     answer:
-      "Yes. The calculation methodology works for any project anywhere, and prices are adjustable to your local market. Where we hold verified market data, estimators can load it automatically; everywhere else, you enter your own rates.",
+      "FRELUX calculation engines, quantity takeoff tools, and measurement standards (NRM2, CESMM4, ICMS) operate globally across 32 supported country selections and 20 regional market profiles. Where verified local catalog pricebooks are active, regional material and labor rates load automatically; in other regions, users can customize local rates or export detailed bills of quantities in any currency.",
   },
   {
     question: "Can contractors use the estimates with clients?",
@@ -230,14 +230,14 @@ export default function Home() {
           <div className="mx-auto max-w-2xl text-center">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
               <ShoppingBag aria-hidden="true" className="h-3.5 w-3.5" />
-              FRELUX Marketplace
+              FRELUX Marketplace · Nigeria Directory
             </div>
             <h2 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
               Post a Job & Get Bids from Verified Pros
             </h2>
             <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground sm:text-base">
               Run a calculation, post it as a job, and receive competitive bids
-              from verified construction professionals in your area.
+              from verified contractors and material suppliers across Nigeria.
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link

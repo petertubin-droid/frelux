@@ -45,15 +45,14 @@ export default function ProConnectHomeSection() {
         <div className="mx-auto max-w-2xl text-center">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
             <Users aria-hidden="true" className="h-3.5 w-3.5" />
-            FRELUX Pro Connect
+            FRELUX Pro Connect · Regional Directory
           </div>
           <h2 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
             Find the Right Professional for Your Project
           </h2>
           <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground sm:text-base">
-            Connect with painters, tilers, contractors, engineers, screeders,
-            POP installers and other construction professionals based on your
-            project needs and location.
+            Connect with verified painters, tilers, contractors, engineers, screeders,
+            and POP specialists across Nigeria. International artisan network expansion is currently in progress.
           </p>
         </div>
 
