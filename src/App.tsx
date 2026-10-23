@@ -130,6 +130,7 @@ const DataRequest = lazy(() => import("@/pages/legal/DataRequest"));
 const BrandStudio = lazy(() => import("@/pages/BrandStudio"));
 const BuildToRoofEstimator = lazy(() => import("@/pages/BuildToRoofEstimator"));
 const ImageEstimator = lazy(() => import("@/pages/ImageEstimator"));
+const VisualFinishingEstimator = lazy(() => import("@/pages/VisualFinishingEstimator"));
 const StructuralCalculator = lazy(() => import("@/pages/StructuralCalculator"));
 const ConcreteTakeoffPage = lazy(() => import("@/pages/ConcreteTakeoffPage"));
 const EarthworksEstimator = lazy(() => import("@/pages/EarthworksEstimator"));
@@ -868,6 +869,22 @@ export default function App() {
                         element={
                           <Suspense fallback={<PageLoader />}>
                             <ImageEstimator />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/visual-finishing-estimator"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <VisualFinishingEstimator />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/tools/visual-finishing-estimator"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <VisualFinishingEstimator />
                           </Suspense>
                         }
                       />

@@ -12,3 +12,5 @@ export * from "./takeoff";
 export * from "./extraction";
 export * from "./copilot-bridge";
 export * from "./persistence";
+export * from "./visual-finishing-types";
+export * from "./visual-finishing-engine";
