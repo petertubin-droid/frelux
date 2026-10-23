@@ -128,17 +128,17 @@ export function useSeo(meta: SeoMeta | null) {
 
     // Locale URLs (/es/, /fr/, ...) are client-side language switching
     // over the same underlying English content: prerender emits exactly
-    // one content-bearing page per route. Google consolidates them anyway
-    // (Search Console kept only ~107 of 2,058 submitted URLs), so the
-    // canonical above stays the English page and no hreflang alternate
-    // set is declared while locale URLs serve duplicate content. If
-    // locale URLs ever carry genuinely translated content, restore the
-    // alternate set here.
+    // one content-bearing page per route. The canonical above stays the
+    // English page and no hreflang alternate set is declared while
+    // locale URLs serve machine-translated duplicate content (an
+    // alternate set requires genuinely translated content per locale).
 
-    // Robots. Locale-prefixed URLs (/es/..., /fr/...) are 301-redirected
-    // to the English canonical at the server (netlify.toml). If one is
-    // ever rendered client-side anyway (stale cache, dev server), it must
-    // never present itself as an indexable page: that is exactly what
+    // Robots. Since the 2026-10-23 i18n batch, locale-prefixed URLs serve
+    // 200 (URL-durable language switching, netlify.toml) and carry a
+    // server-side X-Robots-Tag: noindex header (public/_headers). This
+    // client-side noindex is defense in depth: a locale page rendered
+    // without the header (stale cache, dev server) still never presents
+    // itself as indexable — indexable duplicates are exactly what
     // produced Search Console's "Alternate page with proper canonical" /
     // "Google chose different canonical" reports.
     if (meta.noIndex || seoLocale) {

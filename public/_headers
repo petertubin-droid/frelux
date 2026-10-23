@@ -35,3 +35,96 @@
 # Service worker: no cache
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate
+
+# ── Locale URL noindex (i18n batch, 2026-10-23) ─────────────────────────
+# Locale-prefixed URLs (/es/..., /fr/...) now serve 200 (URL-durable,
+# see netlify.toml). They render the same underlying English content in
+# the client's language (dictionary chrome + Google Translate), so they
+# must NEVER enter the index: X-Robots-Tag is stronger than the old
+# canonical-only approach that produced Search Console's "duplicate,
+# Google chose different canonical" reports. seo.ts also sets noindex
+# client-side as defense in depth.
+
+/es
+  X-Robots-Tag: noindex, nofollow
+/es/*
+  X-Robots-Tag: noindex, nofollow
+
+/fr
+  X-Robots-Tag: noindex, nofollow
+/fr/*
+  X-Robots-Tag: noindex, nofollow
+
+/de
+  X-Robots-Tag: noindex, nofollow
+/de/*
+  X-Robots-Tag: noindex, nofollow
+
+/pt
+  X-Robots-Tag: noindex, nofollow
+/pt/*
+  X-Robots-Tag: noindex, nofollow
+
+/ru
+  X-Robots-Tag: noindex, nofollow
+/ru/*
+  X-Robots-Tag: noindex, nofollow
+
+/id
+  X-Robots-Tag: noindex, nofollow
+/id/*
+  X-Robots-Tag: noindex, nofollow
+
+/sw
+  X-Robots-Tag: noindex, nofollow
+/sw/*
+  X-Robots-Tag: noindex, nofollow
+
+/ar
+  X-Robots-Tag: noindex, nofollow
+/ar/*
+  X-Robots-Tag: noindex, nofollow
+
+/hi
+  X-Robots-Tag: noindex, nofollow
+/hi/*
+  X-Robots-Tag: noindex, nofollow
+
+/zh
+  X-Robots-Tag: noindex, nofollow
+/zh/*
+  X-Robots-Tag: noindex, nofollow
+
+# ── Private route noindex (robots.txt parity, 2026-10-23) ─────────────
+# robots.txt disallows these routes, but robots.txt is only a request —
+# the URLs were still indexable 200s with the generic shell. A server-
+# side X-Robots-Tag guarantees they never enter the index even if a
+# crawler ignores robots.txt. The routes stay functional for users.
+/admin*
+  X-Robots-Tag: noindex, nofollow
+/login*
+  X-Robots-Tag: noindex, nofollow
+/dashboard*
+  X-Robots-Tag: noindex, nofollow
+/profile*
+  X-Robots-Tag: noindex, nofollow
+/metrics*
+  X-Robots-Tag: noindex, nofollow
+/properties*
+  X-Robots-Tag: noindex, nofollow
+/achievements*
+  X-Robots-Tag: noindex, nofollow
+/my-projects*
+  X-Robots-Tag: noindex, nofollow
+/my-templates*
+  X-Robots-Tag: noindex, nofollow
+/project-workspace*
+  X-Robots-Tag: noindex, nofollow
+/color-preview*
+  X-Robots-Tag: noindex, nofollow
+/shared/*
+  X-Robots-Tag: noindex, nofollow
+/gallery/new*
+  X-Robots-Tag: noindex, nofollow
+/data-request/resolve*
+  X-Robots-Tag: noindex, nofollow

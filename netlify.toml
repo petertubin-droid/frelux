@@ -107,15 +107,28 @@
   status = 301
   force = true
 
-# ── Duplicate-URL consolidation (Google Search Console) ───────────────
-# GSC reported "Alternate page with proper canonical" and "Duplicate,
-# Google chose different canonical than user". Cause: locale-prefixed
-# URLs (/es/..., /fr/..., /en/...) and /index.html copies were served as
-# indexable 200 pages whose canonical pointed at a different URL. A 301
-# to the single English canonical removes the duplicate from the index
-# for good. Language is still chosen by the visitor's saved preference /
-# switcher, so no functionality is lost. Order matters: these rules must
-# stay ABOVE the SPA fallback below.
+# ── Locale URL architecture (i18n batch, 2026-10-23) ───────────────────
+# HISTORY: locale-prefixed URLs (/es/..., /fr/...) were previously
+# 301-redirected to the English canonical. That fixed Search Console's
+# "Duplicate page, Google chose different canonical" reports — but it
+# also destroyed URL durability: shared links, bookmarks and refreshes
+# lost the locale, and the client-side language architecture
+# (App.tsx LocaleAwareRoutes + LanguageProvider, URL locale wins on
+# boot) could never be exercised from a full page load.
+#
+# NEW DESIGN: locale prefixes serve 200 (the prerendered English page,
+# URL preserved) while a server-side X-Robots-Tag: noindex header
+# (public/_headers) keeps them out of the index. noindex is STRONGER
+# than the canonical that produced the original GSC duplicate reports:
+# the pages cannot be indexed at all, so the duplicate-content problem
+# cannot return. The client boots on /fr/paint-calculator, renders the
+# page in French (dictionary chrome + Google Translate for content),
+# and seo.ts independently sets noindex client-side for locale pages.
+# /en stays a 301 to / because English is the default origin — the
+# prefix adds nothing.
+#
+# Order matters: these rules must stay ABOVE the SPA fallback below.
+
 [[redirects]]
   from = "/index.html"
   to = "/"
@@ -146,124 +159,218 @@
   status = 301
   force = true
 
+
+# /es — serve the app in es (URL durable, noindex via header)
 [[redirects]]
   from = "/es"
   to = "/"
-  status = 301
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/es/"
+  to = "/"
+  status = 200
   force = true
 
 [[redirects]]
   from = "/es/*"
-  to = "/:splat"
-  status = 301
+  to = "/:splat/"
+  status = 200
   force = true
 
+# /fr — serve the app in fr (URL durable, noindex via header)
 [[redirects]]
   from = "/fr"
   to = "/"
-  status = 301
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/fr/"
+  to = "/"
+  status = 200
   force = true
 
 [[redirects]]
   from = "/fr/*"
-  to = "/:splat"
-  status = 301
+  to = "/:splat/"
+  status = 200
   force = true
 
+# /de — serve the app in de (URL durable, noindex via header)
 [[redirects]]
   from = "/de"
   to = "/"
-  status = 301
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/de/"
+  to = "/"
+  status = 200
   force = true
 
 [[redirects]]
   from = "/de/*"
-  to = "/:splat"
-  status = 301
+  to = "/:splat/"
+  status = 200
   force = true
 
+# /pt — serve the app in pt (URL durable, noindex via header)
 [[redirects]]
   from = "/pt"
   to = "/"
-  status = 301
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/pt/"
+  to = "/"
+  status = 200
   force = true
 
 [[redirects]]
   from = "/pt/*"
-  to = "/:splat"
-  status = 301
+  to = "/:splat/"
+  status = 200
   force = true
 
+# /ru — serve the app in ru (URL durable, noindex via header)
 [[redirects]]
   from = "/ru"
   to = "/"
-  status = 301
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/ru/"
+  to = "/"
+  status = 200
   force = true
 
 [[redirects]]
   from = "/ru/*"
-  to = "/:splat"
-  status = 301
+  to = "/:splat/"
+  status = 200
   force = true
 
+# /id — serve the app in id (URL durable, noindex via header)
 [[redirects]]
   from = "/id"
   to = "/"
-  status = 301
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/id/"
+  to = "/"
+  status = 200
   force = true
 
 [[redirects]]
   from = "/id/*"
-  to = "/:splat"
-  status = 301
+  to = "/:splat/"
+  status = 200
   force = true
 
+# /sw — serve the app in sw (URL durable, noindex via header)
 [[redirects]]
   from = "/sw"
   to = "/"
-  status = 301
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/sw/"
+  to = "/"
+  status = 200
   force = true
 
 [[redirects]]
   from = "/sw/*"
-  to = "/:splat"
-  status = 301
+  to = "/:splat/"
+  status = 200
   force = true
 
+# /ar — serve the app in ar (URL durable, noindex via header)
 [[redirects]]
   from = "/ar"
   to = "/"
-  status = 301
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/ar/"
+  to = "/"
+  status = 200
   force = true
 
 [[redirects]]
   from = "/ar/*"
-  to = "/:splat"
-  status = 301
+  to = "/:splat/"
+  status = 200
   force = true
 
+# /hi — serve the app in hi (URL durable, noindex via header)
 [[redirects]]
   from = "/hi"
   to = "/"
-  status = 301
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/hi/"
+  to = "/"
+  status = 200
   force = true
 
 [[redirects]]
   from = "/hi/*"
-  to = "/:splat"
-  status = 301
+  to = "/:splat/"
+  status = 200
   force = true
 
+# /zh — serve the app in zh (URL durable, noindex via header)
 [[redirects]]
   from = "/zh"
   to = "/"
-  status = 301
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/zh/"
+  to = "/"
+  status = 200
   force = true
 
 [[redirects]]
   from = "/zh/*"
-  to = "/:splat"
-  status = 301
+  to = "/:splat/"
+  status = 200
+  force = true
+
+# Conventional asset paths that DO NOT exist in this build. The SPA
+# fallback previously served index.html (text/html) with status 200 for
+# /service-worker.js and /asset-manifest.json — a real service worker is
+# registered at /sw.js, so these requests (stale PWAs, scanners, tooling
+# expecting the conventional names) must get an honest 404, never HTML.
+[[redirects]]
+  from = "/service-worker.js"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/asset-manifest.json"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/precache-manifest.json"
+  to = "/404.html"
+  status = 404
   force = true
 
 # SPA fallback — all routes serve index.html so React Router can handle

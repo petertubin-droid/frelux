@@ -25,6 +25,26 @@ const CURRENCY_SYMBOLS: Record<string, string> = Object.fromEntries(
   DISPLAY_CURRENCIES.map((c) => [c.code, c.symbol]),
 );
 
+/**
+ * Active UI language, set by LanguageProvider (i18n.tsx) so grouping and
+ * decimal separators follow the visitor's chosen locale (i18n batch
+ * 2026-10-23): a French visitor sees "₦1 250 000", a German visitor
+ * "₦1.250.000". Null (tests, SSR, pre-hydration) keeps the previous
+ * en-US default, so every existing call site and snapshot is unchanged
+ * unless a language is actually active.
+ */
+let activeLocale: string | null = null;
+
+/** Set by the i18n LanguageProvider; pass null to restore the default. */
+export function setActiveCurrencyLocale(locale: string | null): void {
+  activeLocale = locale && locale.trim() ? locale.trim() : null;
+}
+
+/** Grouping locale for display: explicit option > active UI language > en-US. */
+function displayLocale(explicit?: string): string {
+  return explicit ?? activeLocale ?? "en-US";
+}
+
 /** Decimal presentation modes. */
 export type CurrencyDecimals = 0 | 2 | "auto" | "native";
 
@@ -95,7 +115,7 @@ export function formatByCode(
   const symbol = CURRENCY_SYMBOLS[upper] || upper;
   const { min, max } = decimalDigits(options.decimals ?? 0, upper);
   const formatted = safeAmount(amount).toLocaleString(
-    options.locale ?? "en-US",
+    displayLocale(options.locale),
     {
       minimumFractionDigits: min,
       maximumFractionDigits: max,
@@ -117,7 +137,7 @@ export function formatWithSymbol(
 ): string {
   const { min, max } = decimalDigits(options.decimals ?? 0, "NGN");
   const formatted = safeAmount(amount).toLocaleString(
-    options.locale ?? "en-US",
+    displayLocale(options.locale),
     {
       minimumFractionDigits: min,
       maximumFractionDigits: max,

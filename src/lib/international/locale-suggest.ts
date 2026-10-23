@@ -22,13 +22,39 @@ const REGISTERED = new Set<string>(LANGUAGES.map((l) => l.value));
  * unambiguous home markets; English-speaking regions are absent
  * because English never needs a suggestion. */
 export const LOCALE_TIMEZONES: Record<Exclude<Language, "en">, string[]> = {
-  fr: ["Europe/Paris"],
+  // fr: home market + francophone West/Central Africa and the DRC —
+  // core ECOWAS/CEMAC construction markets for FRELUX. Added 2026-10-23:
+  // the previous Europe-only map left Abidjan, Dakar, Kinshasa etc.
+  // with no suggestion at all despite French being their sole official
+  // language (i18n crawl finding: the product's own expansion region
+  // was undetectable).
+  fr: [
+    "Europe/Paris",
+    "Africa/Abidjan",
+    "Africa/Dakar",
+    "Africa/Bamako",
+    "Africa/Ouagadougou",
+    "Africa/Niamey",
+    "Africa/Lome",
+    "Africa/Porto-Novo",
+    "Africa/Conakry",
+    "Africa/Douala",
+    "Africa/Libreville",
+    "Africa/Brazzaville",
+    "Africa/Kinshasa",
+    "Africa/Bangui",
+  ],
   es: ["Europe/Madrid", "Atlantic/Canary", "America/Mexico_City"],
   de: ["Europe/Berlin", "Europe/Vienna", "Europe/Zurich", "Europe/Busingen"],
   pt: [
     "Europe/Lisbon",
     "Atlantic/Azores",
     "Atlantic/Madeira",
+    // Lusophone Africa (added 2026-10-23): Angola and Mozambique are
+    // major construction markets where Portuguese is the official
+    // language and previously produced no suggestion.
+    "Africa/Luanda",
+    "Africa/Maputo",
     "America/Sao_Paulo",
     "America/Bahia",
     "America/Fortaleza",
@@ -57,6 +83,11 @@ export const LOCALE_TIMEZONES: Record<Exclude<Language, "en">, string[]> = {
   sw: ["Africa/Nairobi", "Africa/Dar_es_Salaam", "Africa/Kampala"],
   ar: [
     "Africa/Cairo",
+    // Maghreb (added 2026-10-23): Arabic-majority home markets that
+    // previously produced no suggestion.
+    "Africa/Algiers",
+    "Africa/Casablanca",
+    "Africa/Tunis",
     "Asia/Riyadh",
     "Asia/Dubai",
     "Asia/Qatar",

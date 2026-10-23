@@ -5,14 +5,17 @@
  * Worldwide language layer. Every registered language has:
  *  1. a locale URL prefix (/es/, /fr/, /de/, /pt/, /ru/,
  *     /id/, /sw/, /ar/, /hi/, /zh/ - plus /en/), routed by App's
- *     LocaleAwareRoutes. Locale URLs are CLIENT-SIDE language
- *     switching, not crawlable SEO pages: prerender emits one
- *     content-bearing page per route (English), so locale URLs are
- *     absent from the sitemap and canonicalize to the English page.
- *     Listing them in the sitemap previously shipped 1,871 duplicate
- *     home pages to Google (Search Console kept ~107 of 2,058 URLs).
- *     Restore hreflang + sitemap entries only once locale URLs carry
- *     genuinely translated content.
+ *     LocaleAwareRoutes. Since the 2026-10-23 i18n batch the server
+ *     serves locale URLs with 200 (URL durable: shared links,
+ *     bookmarks and refreshes keep the locale; netlify.toml) and an
+ *     X-Robots-Tag: noindex header keeps them out of the index
+ *     (public/_headers) — stronger than the previous canonical-only
+ *     approach that produced Search Console's duplicate reports.
+ *     Locale URLs are still NOT SEO pages: prerender emits one
+ *     content-bearing page per route (English), locale URLs stay
+ *     absent from the sitemap, and hreflang + sitemap entries return
+ *     only once locale URLs carry genuinely translated content.
+ *     /en/ stays a 301 to / (English is the default origin).
  *  2. real React-level chrome translations (nav labels and common
  *     actions) so locale URLs render translated chrome without the
  *     Google Translate widget. Keys are the English source strings;
@@ -31,6 +34,8 @@ import {
   type ReactNode,
 } from "react";
 import { GoogleTranslateSync } from "@/components/ui/GoogleTranslate";
+// Currency grouping follows the active language (i18n batch 2026-10-23).
+import { setActiveCurrencyLocale } from "@/lib/international/currency-format";
 
 export type Language =
   "en" | "es" | "fr" | "de" | "pt" | "ru" | "id" | "sw" | "ar" | "hi" | "zh";
@@ -129,6 +134,20 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Fence height": "Altura de la cerca",
     Calculate: "Calcular",
     "Calculate Again": "Calcular de nuevo",
+    // Nav chrome (account dropdown, sections, mobile bottom nav)
+    Account: "Cuenta",
+    Business: "Negocios",
+    Plan: "Plan",
+    "Saved Estimates & Projects": "Estimaciones y proyectos guardados",
+    "My Job Listings": "Mis ofertas de trabajo",
+    "My Products": "Mis productos",
+    "Contractor Workspace": "Área del contratista",
+    Analytics: "Analítica",
+    "Brand Studio": "Estudio de marca",
+    Home: "Inicio",
+    Tools: "Herramientas",
+    Market: "Mercado",
+    Projects: "Proyectos",
   },
   fr: {
     "Every trade. Every cost. One platform.":
@@ -174,6 +193,20 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Fence height": "Hauteur de la clôture",
     Calculate: "Calculer",
     "Calculate Again": "Calculer à nouveau",
+    // Nav chrome (account dropdown, sections, mobile bottom nav)
+    Account: "Compte",
+    Business: "Entreprise",
+    Plan: "Abonnement",
+    "Saved Estimates & Projects": "Devis et projets enregistrés",
+    "My Job Listings": "Mes annonces d'emploi",
+    "My Products": "Mes produits",
+    "Contractor Workspace": "Espace entrepreneur",
+    Analytics: "Statistiques",
+    "Brand Studio": "Studio de marque",
+    Home: "Accueil",
+    Tools: "Outils",
+    Market: "Marché",
+    Projects: "Projets",
   },
   de: {
     "Every trade. Every cost. One platform.":
@@ -218,6 +251,21 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Fence height": "Zaunhöhe",
     Calculate: "Berechnen",
     "Calculate Again": "Erneut berechnen",
+    // Nav chrome (account dropdown, sections, mobile bottom nav)
+    Account: "Konto",
+    Business: "Geschäft",
+    Plan: "Tarif",
+    "Saved Estimates & Projects":
+      "Gespeicherte Kostenvoranschläge und Projekte",
+    "My Job Listings": "Meine Stellenanzeigen",
+    "My Products": "Meine Produkte",
+    "Contractor Workspace": "Auftragnehmer-Bereich",
+    Analytics: "Analyse",
+    "Brand Studio": "Markenstudio",
+    Home: "Startseite",
+    Tools: "Werkzeuge",
+    Market: "Marktplatz",
+    Projects: "Projekte",
   },
   pt: {
     "Every trade. Every cost. One platform.":
@@ -263,6 +311,20 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Fence height": "Altura do muro",
     Calculate: "Calcular",
     "Calculate Again": "Calcular novamente",
+    // Nav chrome (account dropdown, sections, mobile bottom nav)
+    Account: "Conta",
+    Business: "Negócios",
+    Plan: "Plano",
+    "Saved Estimates & Projects": "Estimativas e projetos guardados",
+    "My Job Listings": "Minhas vagas de trabalho",
+    "My Products": "Meus produtos",
+    "Contractor Workspace": "Área do empreiteiro",
+    Analytics: "Análises",
+    "Brand Studio": "Estúdio de marca",
+    Home: "Início",
+    Tools: "Ferramentas",
+    Market: "Mercado",
+    Projects: "Projetos",
   },
   ru: {
     "Every trade. Every cost. One platform.":
@@ -308,6 +370,20 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Fence height": "Высота забора",
     Calculate: "Рассчитать",
     "Calculate Again": "Рассчитать снова",
+    // Nav chrome (account dropdown, sections, mobile bottom nav)
+    Account: "Аккаунт",
+    Business: "Бизнес",
+    Plan: "Тариф",
+    "Saved Estimates & Projects": "Сохранённые расчёты и проекты",
+    "My Job Listings": "Мои объявления о работе",
+    "My Products": "Мои товары",
+    "Contractor Workspace": "Кабинет подрядчика",
+    Analytics: "Аналитика",
+    "Brand Studio": "Студия бренда",
+    Home: "Главная",
+    Tools: "Инструменты",
+    Market: "Рынок",
+    Projects: "Проекты",
   },
   id: {
     "Every trade. Every cost. One platform.":
@@ -352,6 +428,20 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Fence height": "Tinggi pagar",
     Calculate: "Hitung",
     "Calculate Again": "Hitung lagi",
+    // Nav chrome (account dropdown, sections, mobile bottom nav)
+    Account: "Akun",
+    Business: "Bisnis",
+    Plan: "Paket",
+    "Saved Estimates & Projects": "Estimasi dan proyek tersimpan",
+    "My Job Listings": "Lowongan pekerjaan saya",
+    "My Products": "Produk saya",
+    "Contractor Workspace": "Area kontraktor",
+    Analytics: "Analitik",
+    "Brand Studio": "Studio merek",
+    Home: "Beranda",
+    Tools: "Alat",
+    Market: "Pasar",
+    Projects: "Proyek",
   },
   sw: {
     "Every trade. Every cost. One platform.":
@@ -396,6 +486,20 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Fence height": "Kimo cha ua",
     Calculate: "Kokotoa",
     "Calculate Again": "Kokotoa tena",
+    // Nav chrome (account dropdown, sections, mobile bottom nav)
+    Account: "Akaunti",
+    Business: "Biashara",
+    Plan: "Mpango",
+    "Saved Estimates & Projects": "Makadirio na miradi iliyohifadhiwa",
+    "My Job Listings": "Matangazo yangu ya kazi",
+    "My Products": "Bidhaa zangu",
+    "Contractor Workspace": "Eneo la mkandarasi",
+    Analytics: "Uchambuzi",
+    "Brand Studio": "Studio ya chapa",
+    Home: "Nyumbani",
+    Tools: "Zana",
+    Market: "Soko",
+    Projects: "Miradi",
   },
   ar: {
     "Every trade. Every cost. One platform.":
@@ -440,6 +544,20 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Fence height": "ارتفاع السياج",
     Calculate: "احسب",
     "Calculate Again": "احسب مرة أخرى",
+    // Nav chrome (account dropdown, sections, mobile bottom nav)
+    Account: "الحساب",
+    Business: "الأعمال",
+    Plan: "الخطة",
+    "Saved Estimates & Projects": "التقديرات والمشاريع المحفوظة",
+    "My Job Listings": "إعلاناتي الوظيفية",
+    "My Products": "منتجاتي",
+    "Contractor Workspace": "مساحة المقاول",
+    Analytics: "التحليلات",
+    "Brand Studio": "استوديو العلامة التجارية",
+    Home: "الرئيسية",
+    Tools: "الأدوات",
+    Market: "السوق",
+    Projects: "المشاريع",
   },
   hi: {
     "Every trade. Every cost. One platform.":
@@ -484,6 +602,20 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Fence height": "बाड़ की ऊंचाई",
     Calculate: "गणना करें",
     "Calculate Again": "फिर से गणना करें",
+    // Nav chrome (account dropdown, sections, mobile bottom nav)
+    Account: "खाता",
+    Business: "व्यवसाय",
+    Plan: "योजना",
+    "Saved Estimates & Projects": "सहेजे गए अनुमान और प्रोजेक्ट",
+    "My Job Listings": "मेरी नौकरी सूचनाएँ",
+    "My Products": "मेरे उत्पाद",
+    "Contractor Workspace": "ठेकेदार कार्यक्षेत्र",
+    Analytics: "विश्लेषण",
+    "Brand Studio": "ब्रांड स्टूडियो",
+    Home: "होम",
+    Tools: "औज़ार",
+    Market: "बाज़ार",
+    Projects: "प्रोजेक्ट",
   },
   zh: {
     "Every trade. Every cost. One platform.": "所有工种，所有成本，一个平台。",
@@ -527,6 +659,20 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     "Fence height": "围栏高度",
     Calculate: "计算",
     "Calculate Again": "重新计算",
+    // Nav chrome (account dropdown, sections, mobile bottom nav)
+    Account: "账户",
+    Business: "商业",
+    Plan: "套餐",
+    "Saved Estimates & Projects": "已保存的估算和项目",
+    "My Job Listings": "我的招聘信息",
+    "My Products": "我的产品",
+    "Contractor Workspace": "承包商工作区",
+    Analytics: "数据分析",
+    "Brand Studio": "品牌工作室",
+    Home: "主页",
+    Tools: "工具",
+    Market: "市场",
+    Projects: "项目",
   },
 };
 
@@ -564,6 +710,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       "dir",
       language === "ar" ? "rtl" : "ltr",
     );
+    // Currency presentation follows the active language: the Intl
+    // language tag ("fr") resolves grouping/decimal separators for
+    // every formatByCode/formatWithSymbol call without an explicit
+    // locale option (i18n batch 2026-10-23).
+    setActiveCurrencyLocale(language === "en" ? null : language);
   }, [language]);
 
   function setLanguage(lang: Language) {

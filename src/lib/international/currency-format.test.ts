@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   formatByCode,
+  setActiveCurrencyLocale,
   formatWithSymbol,
   getCurrencySymbol,
 } from "@/lib/international/currency-format";
@@ -142,5 +143,40 @@ describe("getCurrencySymbol", () => {
     expect(getCurrencySymbol("NGN")).toBe("₦");
     expect(getCurrencySymbol("usd")).toBe("$");
     expect(getCurrencySymbol("XYZ")).toBeNull();
+  });
+});
+
+describe("active UI language grouping (i18n batch 2026-10-23)", () => {
+  afterEach(() => setActiveCurrencyLocale(null));
+
+  it("keeps en-US grouping when no language is active (back-compat)", () => {
+    expect(formatByCode(1250000, "NGN")).toBe("₦1,250,000");
+  });
+
+  it("formats with French grouping when fr is active", () => {
+    setActiveCurrencyLocale("fr");
+    const formatted = formatByCode(1250000, "NGN");
+    // fr uses narrow/space grouping and comma decimals: never commas.
+    expect(formatted).not.toContain(",");
+    expect(formatted).toMatch(/1[\s\u202f\u00a0]?250[\s\u202f\u00a0]?000/);
+  });
+
+  it("formats with German grouping when de is active", () => {
+    setActiveCurrencyLocale("de");
+    const formatted = formatByCode(1250000, "NGN");
+    expect(formatted).toContain("1.250.000");
+  });
+
+  it("an explicit locale option still wins over the active language", () => {
+    setActiveCurrencyLocale("fr");
+    expect(formatByCode(1250000, "NGN", { locale: "en-US" })).toBe(
+      "₦1,250,000",
+    );
+  });
+
+  it("resets cleanly when the provider clears the locale", () => {
+    setActiveCurrencyLocale("de");
+    setActiveCurrencyLocale(null);
+    expect(formatByCode(1250000, "NGN")).toBe("₦1,250,000");
   });
 });

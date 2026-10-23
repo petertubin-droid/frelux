@@ -295,7 +295,7 @@ export default function Navbar() {
                                     {group.section && (
                                       <div className="px-3 pb-1 pt-2.5">
                                         <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 dark:text-muted-foreground">
-                                          {group.section}
+                                          {t(group.section)}
                                         </p>
                                       </div>
                                     )}
@@ -799,7 +799,7 @@ export default function Navbar() {
                                 }
                                 className="flex w-full items-center justify-between rounded-md bg-muted/70 px-3 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-muted dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10"
                               >
-                                {group.section}
+                                {t(group.section)}
                                 <ChevronDown
                                   className={classNames(
                                     "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",

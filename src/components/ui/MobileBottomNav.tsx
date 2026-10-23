@@ -3,9 +3,11 @@ import { Home, Wrench, ShoppingBag, FolderOpen, Trophy } from "lucide-react";
 import { classNames } from "@/lib/utils";
 import { getAchievements } from "@/lib/achievements";
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 
 export default function MobileBottomNav() {
   const { pathname } = useLocation();
+  const { t } = useLanguage();
   const [unlockedCount, setUnlockedCount] = useState(0);
 
   useEffect(() => {
@@ -65,7 +67,7 @@ export default function MobileBottomNav() {
                   </span>
                 )}
               </span>
-              {item.label}
+              {t(item.label)}
             </Link>
           );
         })}
