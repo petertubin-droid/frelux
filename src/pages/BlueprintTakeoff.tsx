@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import {
   AlertTriangle,
   Download,
+  FileCheck2,
   FileUp,
   MousePointer2,
   Pencil,
@@ -28,6 +29,19 @@ import {
   type TakeoffMark,
   type TakeoffProjectExport,
 } from "@/lib/estimation/blueprint-takeoff-project";
+import {
+  buildTakeoffEngineHandoff,
+  detectScaleFromSheet,
+  extractDimensionCandidates,
+  marksFromDxf,
+  parseDxfDocument,
+  parseScaleAnnotation,
+  validateBlueprintDocument,
+  type DimensionCandidate,
+  type DocumentValidation,
+  type SheetPageInfo,
+  type TakeoffEngineHandoff,
+} from "@/lib/estimation/blueprint-intelligence";
 
 type Mode = "calibrate" | "linear" | "area" | "count" | "select";
 type Mark = TakeoffMark;
@@ -42,6 +56,11 @@ interface PdfPageProxy {
   render: (options: { canvas: HTMLCanvasElement; viewport: PdfViewport }) => {
     promise: Promise<void>;
   };
+  rotate?: number;
+  getTextContent?: () => Promise<{
+    items: Array<{ str?: string; transform?: number[] }>;
+  }>;
+  getOperatorList?: () => Promise<{ fnArray: number[] }>;
 }
 
 interface PdfDocumentProxy {
@@ -91,6 +110,13 @@ export default function BlueprintTakeoff() {
     "Upload a plan image or PDF to begin.",
   );
   const [pageCount, setPageCount] = useState(1);
+  const [validation, setValidation] = useState<DocumentValidation | null>(null);
+  const [dimensionCandidates, setDimensionCandidates] = useState<
+    DimensionCandidate[]
+  >([]);
+  const [slabDepthInput, setSlabDepthInput] = useState("");
+  const [handoff, setHandoff] = useState<TakeoffEngineHandoff | null>(null);
+  const [handoffError, setHandoffError] = useState<string | null>(null);
   const [nativePdfCanvas, setNativePdfCanvas] =
     useState<HTMLCanvasElement | null>(null);
   const importedProjectRef = useRef<TakeoffProjectExport | null>(null);
@@ -129,6 +155,53 @@ export default function BlueprintTakeoff() {
     setNativePdfCanvas(null);
     imageRef.current = null;
     const url = URL.createObjectURL(file);
+    if (file.name.toLowerCase().endsWith(".dxf")) {
+      try {
+        const raw = await file.text();
+        const parsed = parseDxfDocument(raw);
+        if ("error" in parsed) {
+          setMessage(parsed.error);
+          URL.revokeObjectURL(url);
+          return;
+        }
+        const dxf = parsed.dxf;
+        const bbox = dxf.bboxM;
+        if (!bbox) {
+          setMessage("The DXF contains no plottable geometry.");
+          URL.revokeObjectURL(url);
+          return;
+        }
+        const { marks: dxfMarks } = marksFromDxf(dxf, {
+          category: "general",
+        });
+        const spanX = Math.max(bbox.maxX - bbox.minX, 1e-6);
+        const spanY = Math.max(bbox.maxY - bbox.minY, 1e-6);
+        const pxPerM = Math.min(1080 / spanX, 680 / spanY);
+        const toCanvas = (point: { x: number; y: number }) => ({
+          x: 60 + (point.x - bbox.minX) * pxPerM,
+          y: 740 - (point.y - bbox.minY) * pxPerM,
+        });
+        setMarks(
+          dxfMarks.map((m) => ({ ...m, points: m.points.map(toCanvas) })),
+        );
+        setScalesByPage({ 1: pxPerM });
+        setPageCount(1);
+        setPage(1);
+        setNativePdfCanvas(null);
+        imageRef.current = null;
+        setValidation(null);
+        setDimensionCandidates([]);
+        setHandoff(null);
+        setHandoffError(null);
+        setMessage(
+          `DXF loaded in ${dxf.units}: ${dxf.entityCounts.line} line(s), ${dxf.entityCounts.polyline} polyline(s), ${dxf.entityCounts.circle} circle(s) imported as marks. Review each category before use.`,
+        );
+      } catch {
+        setMessage("This DXF file could not be read.");
+      }
+      URL.revokeObjectURL(url);
+      return;
+    }
     if (
       file.type === "application/pdf" ||
       file.name.toLowerCase().endsWith(".pdf")
@@ -147,8 +220,12 @@ export default function BlueprintTakeoff() {
         setPageCount(doc.numPages);
         await loadPdfPage(pdfDocRef.current, 1);
         URL.revokeObjectURL(url);
+        setValidation(null);
+        setDimensionCandidates([]);
+        setHandoff(null);
+        setHandoffError(null);
         setMessage(
-          "PDF loaded. Choose scale calibration, then draw measurements.",
+          "PDF loaded. Calibrate manually, or run document validation and auto-detect scale.",
         );
       } catch (error) {
         setMessage(
@@ -178,6 +255,151 @@ export default function BlueprintTakeoff() {
     const doc = pdfDocRef.current;
     if (doc) void loadPdfPage(doc, page);
   }, [page]);
+
+  const validateDocument = async () => {
+    const doc = pdfDocRef.current;
+    if (!doc) {
+      setMessage("Load a vector PDF first; validation covers PDF sheets.");
+      return;
+    }
+    setMessage("Reading sheet geometry across all pages…");
+    try {
+      const pdfjs = await import("pdfjs-dist");
+      const pathOps = new Set<number>([
+        pdfjs.OPS.constructPath,
+        pdfjs.OPS.fill,
+        pdfjs.OPS.eoFill,
+        pdfjs.OPS.stroke,
+        pdfjs.OPS.fillStroke,
+        pdfjs.OPS.eoFillStroke,
+      ]);
+      const pages: SheetPageInfo[] = [];
+      for (let n = 1; n <= doc.numPages; n++) {
+        const pg = await doc.getPage(n);
+        const vp = pg.getViewport({ scale: 1 });
+        let hasTextContent = false;
+        let hasVectorContent = true;
+        try {
+          const text = await (pg.getTextContent?.() ?? {
+            items: [] as Array<{ str?: string; transform?: number[] }>,
+          });
+          hasTextContent = text.items.length > 0;
+        } catch {
+          hasTextContent = false;
+        }
+        try {
+          const ops = await (pg.getOperatorList?.() ?? { fnArray: [] });
+          hasVectorContent =
+            typeof ops.fnArray === "undefined" ||
+            ops.fnArray.some((fn) => pathOps.has(fn));
+        } catch {
+          hasVectorContent = true;
+        }
+        pages.push({
+          pageNumber: n,
+          widthPt: vp.width,
+          heightPt: vp.height,
+          rotation: pg.rotate ?? 0,
+          hasTextContent,
+          hasVectorContent,
+        });
+      }
+      const result = validateBlueprintDocument({
+        fileName,
+        pageCount: doc.numPages,
+        pages,
+      });
+      setValidation(result);
+      setMessage(result.summary);
+    } catch {
+      setMessage("The document could not be validated.");
+    }
+  };
+
+  const autoDetectScale = async () => {
+    const doc = pdfDocRef.current;
+    const canvas = nativePdfCanvas;
+    if (!doc || !canvas) {
+      setMessage(
+        "Load a vector PDF page first; scale detection reads sheet text.",
+      );
+      return;
+    }
+    try {
+      const pg = await doc.getPage(page);
+      const vp = pg.getViewport({ scale: 1 });
+      const longPt = Math.max(vp.width, vp.height);
+      const text = await (pg.getTextContent?.() ?? {
+        items: [] as Array<{ str?: string; transform?: number[] }>,
+      });
+      const items = text.items;
+      const fullText = items.map((item) => item.str ?? "").join(" ");
+      const annotation = parseScaleAnnotation(fullText);
+      if (!annotation) {
+        setMessage(
+          `No drawing scale annotation (for example "1:100") was found in the text of sheet ${page}. Calibrate from a known dimension instead.`,
+        );
+        return;
+      }
+      const single = validateBlueprintDocument({
+        fileName,
+        pageCount: 1,
+        pages: [
+          {
+            pageNumber: 1,
+            widthPt: vp.width,
+            heightPt: vp.height,
+            rotation: pg.rotate ?? 0,
+            hasTextContent: items.length > 0,
+            hasVectorContent: true,
+          },
+        ],
+      });
+      const sheetClass = single.sheets[0]?.sheetClass ?? null;
+      const detected = detectScaleFromSheet({
+        pageLongPt: longPt,
+        annotation,
+        sheetClass,
+      });
+      if ("error" in detected) {
+        setMessage(detected.error);
+        return;
+      }
+      const fit = Math.min(1200 / canvas.width, 800 / canvas.height);
+      const pxPerM = (1.5 * fit) / detected.scale.metersPerPt;
+      setScale(pxPerM);
+      setMode("select");
+      setDraft([]);
+      setMessage(
+        `Auto-calibrated from "${annotation.matchedText}" on a ${detected.scale.sheetClass} sheet. ${detected.scale.note} Verify against a known dimension before trusting measurements.`,
+      );
+      const candidates = extractDimensionCandidates(
+        items.map((item) => ({
+          str: item.str ?? "",
+          x: item.transform?.[4] ?? 0,
+          y: item.transform?.[5] ?? 0,
+        })),
+      );
+      setDimensionCandidates(candidates);
+    } catch {
+      setMessage("Scale could not be auto-detected on this sheet.");
+    }
+  };
+
+  const buildHandoff = () => {
+    const out = buildTakeoffEngineHandoff({
+      marks,
+      scalesByPage,
+      slabThicknessM: Number(slabDepthInput),
+    });
+    if ("errors" in out) {
+      setHandoff(null);
+      setHandoffError(out.errors.join(" "));
+      return;
+    }
+    setHandoffError(null);
+    setHandoff(out.handoff);
+  };
   useEffect(
     () => () => {
       if (pdfDocRef.current?.destroy) void pdfDocRef.current.destroy();
@@ -466,7 +688,7 @@ export default function BlueprintTakeoff() {
             <input
               className="mt-2 block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:font-semibold file:text-primary-foreground"
               type="file"
-              accept="image/*,.pdf,application/pdf"
+              accept="image/*,.pdf,application/pdf,.dxf"
               onChange={(event) => {
                 const file = event.target.files?.[0];
                 if (file) void loadFile(file);
@@ -505,6 +727,30 @@ export default function BlueprintTakeoff() {
               </Button>
             </div>
           </div>
+        </section>
+        <section className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-3">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => void validateDocument()}
+          >
+            <FileCheck2 className="mr-2 h-4 w-4" />
+            Validate document
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => void autoDetectScale()}
+          >
+            <Ruler className="mr-2 h-4 w-4" />
+            Auto-detect scale
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Validation classifies every PDF sheet and flags scans. Auto-detect
+            reads the printed scale annotation of the current sheet.
+          </p>
         </section>
         <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
           <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card">
@@ -625,6 +871,112 @@ export default function BlueprintTakeoff() {
             </div>
           </section>
           <aside className="space-y-4">
+            {validation && (
+              <section className="rounded-2xl border border-border bg-card p-4">
+                <h2 className="font-semibold">Document validation</h2>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {validation.summary}
+                </p>
+                <ul className="mt-3 space-y-1 text-xs">
+                  {validation.sheets.map((sheet) => (
+                    <li key={sheet.pageNumber}>
+                      Sheet {sheet.pageNumber}:{" "}
+                      {sheet.sheetClass ?? "unclassified"} · {sheet.orientation}
+                      {sheet.rotated ? " · rotated 90°" : ""}
+                    </li>
+                  ))}
+                </ul>
+                {validation.findings.length > 0 && (
+                  <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
+                    {validation.findings.map((finding, index) => (
+                      <li key={index}>
+                        {finding.severity === "error" ? "Error: " : "Warning: "}
+                        {finding.message}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            )}
+            {dimensionCandidates.length > 0 && (
+              <section className="rounded-2xl border border-border bg-card p-4">
+                <h2 className="font-semibold">Detected dimensions</h2>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Dimension text found on sheet {page}. Cross-check before use.
+                </p>
+                <ul className="mt-3 max-h-40 space-y-1 overflow-auto text-xs">
+                  {dimensionCandidates.slice(0, 40).map((candidate, index) => (
+                    <li key={index}>
+                      {candidate.text} = {candidate.meters.toFixed(2)} m (
+                      {candidate.unit})
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+            <section className="rounded-2xl border border-border bg-card p-4">
+              <h2 className="font-semibold">Engine handoff</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Recompute every mark from its page calibration and hand paving
+                and general areas to the concrete takeoff engine.
+              </p>
+              <label className="mt-3 block text-sm font-medium">
+                Slab depth (m)
+                <input
+                  value={slabDepthInput}
+                  onChange={(event) => setSlabDepthInput(event.target.value)}
+                  placeholder="0.15"
+                  inputMode="decimal"
+                  className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-sm"
+                />
+              </label>
+              <Button
+                type="button"
+                size="sm"
+                className="mt-2 w-full"
+                onClick={buildHandoff}
+                disabled={!marks.length}
+              >
+                Build engine handoff
+              </Button>
+              {handoffError && (
+                <p className="mt-2 text-xs text-destructive">{handoffError}</p>
+              )}
+              {handoff && (
+                <div className="mt-3 space-y-2 text-xs">
+                  <p>
+                    Linear runs: {handoff.linearRunsM.toFixed(2)} m · Areas:{" "}
+                    {handoff.totalAreaM2.toFixed(2)} m² · Counts:{" "}
+                    {handoff.totalCount}
+                  </p>
+                  {handoff.concreteSlabs.map((slab) => (
+                    <div
+                      key={slab.markId}
+                      className="rounded-lg border border-border p-2"
+                    >
+                      <p className="font-semibold">Slab {slab.markId}</p>
+                      <p>
+                        {slab.lengthM.toFixed(2)} x {slab.widthM.toFixed(2)} x{" "}
+                        {slab.depthM} m
+                      </p>
+                      <p>
+                        Concrete: {slab.result.concreteVolumeM3.toFixed(2)} m³ (
+                        {slab.result.volumeWithWasteM3.toFixed(2)} m³ with
+                        waste)
+                      </p>
+                      <p>
+                        Cement: {slab.result.cementBagsToBuy} bags · Sand:{" "}
+                        {slab.result.sandM3.toFixed(2)} m³ · Aggregate:{" "}
+                        {slab.result.aggregateM3.toFixed(2)} m³
+                      </p>
+                    </div>
+                  ))}
+                  <p className="text-muted-foreground">
+                    {handoff.notes.join(" ")}
+                  </p>
+                </div>
+              )}
+            </section>
             <section className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-start justify-between">
                 <div>
