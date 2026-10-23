@@ -13,6 +13,7 @@ import type {
   VisualMediaInput,
   CalibrationData,
   FinishingOptions,
+  VisualSurface,
 } from "../visual-finishing-types";
 
 describe("Visual Finishing Engine - Layer A: Media Validation", () => {

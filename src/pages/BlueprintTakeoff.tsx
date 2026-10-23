@@ -55,7 +55,8 @@ export default function BlueprintTakeoff() {
   const { marketCode } = useMarket();
   useSeo({
     title: "Blueprint & Plan Takeoff | FRELUX",
-    description: "Calibrate a construction drawing, trace linear and area quantities, count items, and export an editable takeoff schedule.",
+    description:
+      "Calibrate a construction drawing, trace linear and area quantities, count items, and export an editable takeoff schedule.",
     canonicalPath: "/blueprint-takeoff",
   });
   useBreadcrumbJsonLd([
@@ -139,9 +140,12 @@ export default function BlueprintTakeoff() {
         const worker = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
         pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
         const doc = await pdfjs.getDocument({ url }).promise;
-        pdfDocRef.current = doc;
+        // Structural cast: this page keeps its own minimal proxy
+        // interfaces above so it compiles even when pdfjs-dist is not
+        // installed (optional dependency); pdfjs ships richer types.
+        pdfDocRef.current = doc as unknown as PdfDocumentProxy;
         setPageCount(doc.numPages);
-        await loadPdfPage(doc, 1);
+        await loadPdfPage(pdfDocRef.current, 1);
         URL.revokeObjectURL(url);
         setMessage(
           "PDF loaded. Choose scale calibration, then draw measurements.",

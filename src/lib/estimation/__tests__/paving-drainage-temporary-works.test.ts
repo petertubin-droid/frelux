@@ -38,7 +38,7 @@ describe("standalone external works quantity engines", () => {
   it("calculates form-contact and scaffold grid quantities with safety caveats", () => {
     const result = calculateTemporaryWorksTakeoff({
       marketCode: "US",
-      elements: [{ type: "slab", lengthM: 10, widthM: 8 }],
+      elements: [{ type: "slab", lengthM: 10, widthM: 8, depthOrHeightM: 0 }],
       scaffoldRunLengthM: 12,
       scaffoldWorkingHeightM: 6,
     });
