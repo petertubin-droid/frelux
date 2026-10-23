@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMarket } from "@/lib/international/market-context";
 import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
+import AdSlot from "@/components/ui/AdSlot";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import {
-  AlertTriangle,
   BrickWall,
   CheckCircle2,
   Ruler,
@@ -107,6 +110,7 @@ export default function StandaloneTakeoffPage({
 }: {
   initialEngine?: Engine;
 }) {
+  const navigate = useNavigate();
   const { market, availableMarkets } = useMarket();
   const [searchParams] = useSearchParams();
   const [bridgeProvenance, setBridgeProvenance] = useState("");
@@ -141,6 +145,9 @@ export default function StandaloneTakeoffPage({
     freeboard: "20",
     soilLoading: "",
     soakawayDepth: "2",
+    packCoverage: "5",
+    bulking: "1.35",
+    skipCapacity: "6",
   });
   const masonryConfig = useMemo(
     () => resolveMarketMasonryConfig(marketCode),
@@ -170,6 +177,24 @@ export default function StandaloneTakeoffPage({
   }, [searchParams, availableMarkets]);
   const title =
     ENGINES.find((item) => item.id === engine)?.label ?? "Construction takeoff";
+  const currentPath = `/${engine === "septic" ? "septic-sizing" : engine}-calculator`;
+
+  useEffect(() => {
+    setEngine(initialEngine);
+    setResult(null);
+    setError("");
+  }, [initialEngine]);
+
+  useSeo({
+    title: `${title} Calculator | FRELUX`,
+    description: `${title} construction quantity takeoff calculator with editable measurements and market profile.`,
+    canonicalPath: currentPath,
+  });
+  useBreadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Construction Tools", path: "/construction-tools" },
+    { name: `${title} Calculator`, path: currentPath },
+  ]);
   const number = (key: string, fallback = 0) =>
     Number.isFinite(Number(values[key])) ? Number(values[key]) : fallback;
   const update = (key: string, value: string) =>
@@ -383,6 +408,8 @@ export default function StandaloneTakeoffPage({
     setEngine(id);
     setResult(null);
     setError("");
+    const route = id === "septic" ? "septic-sizing" : id;
+    navigate(`/${route}-calculator`);
   };
   const rows = result
     ? Object.entries(result)
@@ -405,24 +432,32 @@ export default function StandaloneTakeoffPage({
         eyebrow="Construction quantity tools"
         title={`${title} Calculator`}
         subtitle="Transparent material takeoffs with editable assumptions. Quantities are estimates, not structural or code-compliance designs."
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: `${title} Takeoff` },
+        ]}
         backTo="/construction-tools"
         backLabel="All tools"
       />
-      <main className="mx-auto max-w-6xl px-4 pt-7 sm:px-6">
-        <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+      <Container as="main" className="space-y-6 py-6 sm:py-8">
+        <div className="rounded-2xl border border-border bg-card p-2 shadow-sm">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
           {ENGINES.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => selectEngine(item.id)}
-              className={`rounded-2xl border p-3 text-left transition ${engine === item.id ? "border-primary bg-primary/5 shadow-sm" : "border-border bg-card hover:border-primary/40"}`}
+              aria-current={engine === item.id ? "page" : undefined}
+              className={`shrink-0 rounded-xl px-3.5 py-2 text-left text-xs font-medium transition ${engine === item.id ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
             >
-              <span className="block text-sm font-semibold">{item.label}</span>
-              <span className="mt-1 block text-xs text-muted-foreground">
+              <span className="block">{item.label}</span>
+              <span className={`mt-0.5 block text-[11px] ${engine === item.id ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
                 {item.subtitle}
               </span>
             </button>
           ))}
+          </div>
         </div>
         {bridgeProvenance && (
           <div
@@ -436,7 +471,7 @@ export default function StandaloneTakeoffPage({
         <div className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
           <form
             onSubmit={runCalculation}
-            className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-7"
+            className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7 dark:border-white/5"
           >
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
@@ -595,7 +630,7 @@ export default function StandaloneTakeoffPage({
             )}
           </form>
           <section
-            className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-7"
+            className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7 dark:border-white/5"
             aria-live="polite"
           >
             <div className="mb-5 flex items-start gap-3">
@@ -658,18 +693,7 @@ export default function StandaloneTakeoffPage({
                     )}
                   </div>
                 )}
-                <div className="mt-5 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm">
-                  <div className="mb-1 flex items-center gap-2 font-semibold">
-                    <AlertTriangle className="h-4 w-4 text-amber-600" />
-                    Review before procurement
-                  </div>
-                  <p className="text-muted-foreground">
-                    Confirm product datasheets, site measurements, local
-                    requirements, and waste assumptions with the responsible
-                    professional. Drainage, sanitation, and temporary-works
-                    quantities are not a design.
-                  </p>
-                </div>
+                <EstimateDisclaimer text="Confirm product datasheets, site measurements, local requirements, soil conditions, and waste assumptions with the responsible professional. Drainage, sanitation, and temporary-works quantities are planning takeoffs, not engineered designs." />
                 <p className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
                   <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
                   Calculation assumptions and output are shown for review;
@@ -688,7 +712,9 @@ export default function StandaloneTakeoffPage({
             )}
           </section>
         </div>
-      </main>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_bottom" className="mt-8" />
+      </Container>
     </div>
   );
 }

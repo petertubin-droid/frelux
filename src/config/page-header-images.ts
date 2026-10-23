@@ -51,7 +51,7 @@ const HEADER_IMAGE_RULES: HeaderImageRule[] = [
   },
   {
     // Building envelope & construction sequence.
-    test: /^\/(build-to-roof-estimator|start-building|construction-sequence|construction-tools|cost-estimator|roof)/,
+    test: /^\/(build-to-roof-estimator|start-building|construction-sequence|construction-tools|cost-estimator|roof|blueprint-takeoff|masonry-calculator|plastering-calculator|drywall-calculator|paving-calculator|drainage-calculator|septic-sizing-calculator|temporary-works-calculator|insulation-calculator|demolition-calculator)/,
     image: "/assets/headers/build.jpg",
   },
   {
@@ -262,6 +262,57 @@ export const PAGE_CATALOG: CatalogEntry[] = [
     title: "Construction Tools Hub",
     group: "Calculators",
   },
+  {
+    path: "/blueprint-takeoff",
+    title: "Blueprint & Plan Takeoff",
+    group: "Calculators",
+  },
+  {
+    path: "/masonry-calculator",
+    title: "Masonry & Blockwork Calculator",
+    group: "Calculators",
+  },
+  {
+    path: "/plastering-calculator",
+    title: "Plastering & Render Calculator",
+    group: "Calculators",
+  },
+  {
+    path: "/drywall-calculator",
+    title: "Drywall & Partition Calculator",
+    group: "Calculators",
+  },
+  {
+    path: "/paving-calculator",
+    title: "Paving & External Works Calculator",
+    group: "Calculators",
+  },
+  {
+    path: "/drainage-calculator",
+    title: "Drainage & Trench Calculator",
+    group: "Calculators",
+  },
+  {
+    path: "/septic-sizing-calculator",
+    title: "Septic Tank & Soakaway Sizing",
+    group: "Calculators",
+  },
+  {
+    path: "/temporary-works-calculator",
+    title: "Temporary Works & Formwork Calculator",
+    group: "Calculators",
+  },
+  {
+    path: "/insulation-calculator",
+    title: "Insulation Quantity Calculator",
+    group: "Calculators",
+  },
+  {
+    path: "/demolition-calculator",
+    title: "Demolition & Debris Calculator",
+    group: "Calculators",
+  },
+
 
   // ── Estimators & AI ─────────────────────────────────────
   {

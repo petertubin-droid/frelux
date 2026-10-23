@@ -12,6 +12,10 @@ import {
   ZoomOut,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
+import AdSlot from "@/components/ui/AdSlot";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { useMarket } from "@/lib/international/market-context";
 import {
@@ -27,14 +31,42 @@ import {
 
 type Mode = "calibrate" | "linear" | "area" | "count" | "select";
 type Mark = TakeoffMark;
+
+interface PdfViewport {
+  width: number;
+  height: number;
+}
+
+interface PdfPageProxy {
+  getViewport: (options: { scale: number }) => PdfViewport;
+  render: (options: { canvas: HTMLCanvasElement; viewport: PdfViewport }) => {
+    promise: Promise<void>;
+  };
+}
+
+interface PdfDocumentProxy {
+  numPages: number;
+  getPage: (pageNumber: number) => Promise<PdfPageProxy>;
+  destroy?: () => Promise<void> | void;
+}
 const COLORS = ["#2563eb", "#e11d48", "#059669", "#d97706", "#7c3aed"];
 
 export default function BlueprintTakeoff() {
   const { marketCode } = useMarket();
+  useSeo({
+    title: "Blueprint & Plan Takeoff | FRELUX",
+    description: "Calibrate a construction drawing, trace linear and area quantities, count items, and export an editable takeoff schedule.",
+    canonicalPath: "/blueprint-takeoff",
+  });
+  useBreadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Construction Tools", path: "/construction-tools" },
+    { name: "Blueprint Takeoff", path: "/blueprint-takeoff" },
+  ]);
   const [, setSearchParams] = useSearchParams();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
-  const pdfDocRef = useRef<any>(null);
+  const pdfDocRef = useRef<PdfDocumentProxy | null>(null);
   const [mode, setMode] = useState<Mode>("calibrate");
   const [marks, setMarks] = useState<Mark[]>([]);
   const [draft, setDraft] = useState<{ x: number; y: number }[]>([]);
@@ -62,7 +94,7 @@ export default function BlueprintTakeoff() {
     useState<HTMLCanvasElement | null>(null);
   const importedProjectRef = useRef<TakeoffProjectExport | null>(null);
 
-  const loadPdfPage = async (doc: any, pageNumber: number) => {
+  const loadPdfPage = async (doc: PdfDocumentProxy, pageNumber: number) => {
     const pdfPage = await doc.getPage(pageNumber);
     const viewport = pdfPage.getViewport({ scale: 1.5 });
     const c = document.createElement("canvas");
@@ -89,12 +121,6 @@ export default function BlueprintTakeoff() {
     setZoom(1);
     setPage(1);
     setFileName(file.name);
-    if (pdfDocRef.current?.destroy) {
-      void pdfDocRef.current.destroy();
-      pdfDocRef.current = null;
-    }
-    setNativePdfCanvas(null);
-    imageRef.current = null;
     if (pdfDocRef.current?.destroy) {
       void pdfDocRef.current.destroy();
       pdfDocRef.current = null;
@@ -223,7 +249,7 @@ export default function BlueprintTakeoff() {
     if (draft.length)
       draw(draft, "#ef4444", mode === "area" ? "area" : "linear", "");
     ctx.restore();
-  }, [nativePdfCanvas, marks, draft, zoom, mode]);
+  }, [nativePdfCanvas, marks, draft, zoom, mode, page]);
 
   const pointFromEvent = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -397,13 +423,18 @@ export default function BlueprintTakeoff() {
     <div className="min-h-screen bg-background pb-14">
       <PageHeader
         variant="tool"
-        eyebrow="Professional takeoff workspace"
+        eyebrow="Construction quantity tools"
         title="Blueprint & PDF Plan Takeoff"
-        subtitle="Calibrate a drawing, trace linear and area quantities, count items, and export a takeoff schedule."
+        subtitle="Calibrate a drawing, trace linear and area quantities, count items, and export an editable takeoff schedule."
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Blueprint Takeoff" },
+        ]}
         backTo="/construction-tools"
         backLabel="All tools"
       />
-      <main className="mx-auto max-w-7xl space-y-5 px-4 pt-6 sm:px-6">
+      <Container as="main" className="space-y-5 py-6 sm:py-8">
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={exportProject}>
             Export project JSON
@@ -696,7 +727,9 @@ export default function BlueprintTakeoff() {
             </label>
           </aside>
         </div>
-      </main>
+        <EstimateDisclaimer text="Plan scale, scan resolution, drawing distortion, and manual measurement points affect accuracy. Cross-check takeoff quantities against the source drawings and site conditions; this tool does not provide structural design or code-compliance approval." />
+        <AdSlot slotKey="calculator_bottom" className="mt-8" />
+      </Container>
     </div>
   );
 }
