@@ -5,7 +5,7 @@
  * waste factor intelligence, surface assessment, material recommendations.
  */
 import { supabase } from "@/lib/supabase";
-import { resolveQuoteTax } from "@/lib/tax/quote-tax";
+import { computeQuoteTax, resolveQuoteTax } from "@/lib/tax/quote-tax";
 import type {
   DbContractorProject,
   DbProjectRoom,
@@ -1393,8 +1393,20 @@ export async function generateQuotation(
   const preProfit = subtotal + markupAmount;
   const profitAmount = preProfit * (profit / 100);
   const preTax = preProfit + profitAmount;
-  const taxAmount = tax === null ? 0 : preTax * (tax / 100);
-  const grandTotal = preTax + taxAmount;
+  // Verified rules are computed by the deterministic jurisdiction
+  // engine (authored bases, compounding, rounding). Inclusive-basis
+  // rules leave the grand total unchanged: tax is already inside.
+  const taxComputation = computeQuoteTax(taxResolution, preTax);
+  const taxAmount = taxComputation
+    ? taxComputation.totalTax
+    : tax === null
+      ? 0
+      : preTax * (tax / 100);
+  const grandTotal = taxComputation
+    ? taxComputation.basisInclusive
+      ? preTax
+      : taxComputation.gross
+    : preTax + taxAmount;
 
   // Generate quotation number
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -1426,6 +1438,15 @@ export async function generateQuotation(
       tax_effective_from: taxResolution.effectiveFrom ?? null,
       tax_assumption_author: taxResolution.assumptionAuthor,
       tax_resolved_at: taxResolution.resolvedAt,
+      tax_components: taxComputation
+        ? taxComputation.lines.map((l) => ({
+            name: l.name,
+            rate_pct: l.ratePct,
+            base: l.base,
+            amount: l.amount,
+            compounded_on: l.compoundedOn,
+          }))
+        : null,
       grand_total: grandTotal,
       terms_conditions:
         options?.termsConditions ?? settings?.default_terms_conditions ?? null,

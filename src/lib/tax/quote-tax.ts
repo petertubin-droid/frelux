@@ -22,6 +22,7 @@
  */
 
 import {
+  computeJurisdictionTax,
   resolveJurisdictionTax,
   type JurisdictionTaxResolution,
   type TaxJurisdiction,
@@ -33,6 +34,28 @@ export type QuoteTaxKind =
 export interface QuoteTaxComponentLine {
   name: string;
   ratePct: number;
+  /** Component this one compounds on (author-directed), or null. */
+  compoundOn: string | null;
+}
+
+/** Per-component computed tax for a verified rule on a quote's base. */
+export interface QuoteTaxLine {
+  name: string;
+  ratePct: number;
+  /** The base this component was computed on (net, or net + prior tax). */
+  base: number;
+  amount: number;
+  compoundedOn: string | null;
+}
+
+export interface QuoteTaxComputation {
+  lines: QuoteTaxLine[];
+  totalTax: number;
+  /** The grand total the quote should show: net + tax (exclusive
+   *  basis) or the net unchanged (inclusive basis, tax is inside). */
+  gross: number;
+  /** True when tax is already included in the quoted prices. */
+  basisInclusive: boolean;
 }
 
 export interface QuoteTaxResolution {
@@ -60,8 +83,12 @@ export interface QuoteTaxResolution {
   assumptionAuthor: string | null;
   /** ISO timestamp of resolution. */
   resolvedAt: string;
-  /** True when a verified compound rule exists but cannot flatten. */
+  /** True when a verified compound rule cannot flatten to one pct. */
   compoundUnsupported: boolean;
+  /** Whether the rule's basis is inclusive (tax inside prices). */
+  basisInclusive: boolean;
+  /** Rounding method from the rule, when verified. */
+  roundingMethod: string | null;
   /** User-safe explanation, including unresolved questions. */
   message: string;
 }
@@ -107,10 +134,14 @@ function manualResolution(
     rule: null,
     citation: null,
     effectiveFrom: null,
-    components: [{ name: "Manually entered tax", ratePct: pct }],
+    components: [
+      { name: "Manually entered tax", ratePct: pct, compoundOn: null },
+    ],
     assumptionAuthor: author,
     resolvedAt: new Date().toISOString(),
     compoundUnsupported: false,
+    basisInclusive: false,
+    roundingMethod: null,
     message:
       `Tax at ${pct}% is a manually entered assumption (${author}). ` +
       "It is not a verified rate for this project location and must not " +
@@ -131,6 +162,8 @@ function notDetermined(reason: string): QuoteTaxResolution {
     assumptionAuthor: null,
     resolvedAt: new Date().toISOString(),
     compoundUnsupported: false,
+    basisInclusive: false,
+    roundingMethod: null,
     message: `Tax not determined for this project location. ${reason}`,
   };
 }
@@ -138,35 +171,22 @@ function notDetermined(reason: string): QuoteTaxResolution {
 function verifiedFromJurisdiction(
   resolution: JurisdictionTaxResolution,
 ): QuoteTaxResolution {
-  const components = resolution.components.map((c) => ({
-    name: c.name,
-    ratePct: c.rate_pct,
-  }));
+  const components: QuoteTaxComponentLine[] = resolution.components.map(
+    (c) => ({
+      name: c.name,
+      ratePct: c.rate_pct,
+      compoundOn: c.compound_on,
+    }),
+  );
   const compound = resolution.components.some((c) => c.compound_on !== null);
   // The jurisdiction resolver's source is "none" only when nothing
   // resolved; a quote-level not_determined carries null instead.
   const source = resolution.source === "none" ? null : resolution.source;
-  if (compound) {
-    return {
-      kind: "not_determined",
-      pct: null,
-      source,
-      jurisdiction: resolution.resolvedJurisdiction,
-      rule: resolution.rule,
-      citation: resolution.citation,
-      effectiveFrom: resolution.effective?.from ?? null,
-      components,
-      assumptionAuthor: null,
-      resolvedAt: new Date().toISOString(),
-      compoundUnsupported: true,
-      message:
-        `A verified tax rule exists (${resolution.rule?.code}) but its ` +
-        "components compound, so no single percentage can be shown honestly. " +
-        "Component-level quote display is required before this rule can " +
-        "be applied to a quote.",
-    };
-  }
-  const pct = components.reduce((s, c) => s + c.ratePct, 0);
+  // Compound rules cannot flatten to one honest percentage, so pct
+  // stays NULL and the quote shows component-level amounts instead.
+  const pct = compound
+    ? null
+    : components.reduce((sum, c) => sum + c.ratePct, 0);
   return {
     kind: "verified_rule",
     pct,
@@ -179,7 +199,57 @@ function verifiedFromJurisdiction(
     assumptionAuthor: null,
     resolvedAt: new Date().toISOString(),
     compoundUnsupported: false,
-    message: resolution.message,
+    basisInclusive: resolution.basisInclusive ?? false,
+    roundingMethod: resolution.roundingMethod ?? null,
+    message: compound
+      ? `${resolution.message} Components compound, so the quote shows each component amount instead of a single percentage.`
+      : resolution.message,
+  };
+}
+
+/**
+ * Compute a verified resolution's tax on a quote's taxable base.
+ * Returns null when there is nothing verified to compute (manual
+ * assumptions and not_determined keep their existing arithmetic).
+ *
+ * The computation is the deterministic jurisdiction engine's: bases,
+ * compounding and rounding all come from the authored rule.
+ */
+export function computeQuoteTax(
+  resolution: QuoteTaxResolution,
+  net: number,
+): QuoteTaxComputation | null {
+  if (
+    resolution.kind !== "verified_rule" ||
+    resolution.components.length === 0
+  ) {
+    return null;
+  }
+  const underlying = {
+    ...resolution,
+    status: "ok" as const,
+    components: resolution.components.map((c) => ({
+      name: c.name,
+      rate_pct: c.ratePct,
+      compound_on: c.compoundOn,
+    })),
+    effective: resolution.effectiveFrom
+      ? { from: resolution.effectiveFrom }
+      : null,
+  } as unknown as JurisdictionTaxResolution;
+  const computed = computeJurisdictionTax(net, underlying);
+  if (!computed) return null;
+  return {
+    lines: computed.components.map((c) => ({
+      name: c.name,
+      ratePct: c.ratePct,
+      base: c.computedBase,
+      amount: c.amount,
+      compoundedOn: c.compoundedOn,
+    })),
+    totalTax: computed.totalTax,
+    gross: computed.gross,
+    basisInclusive: computed.resolution.basisInclusive ?? false,
   };
 }
 

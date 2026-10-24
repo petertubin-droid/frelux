@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import type { TaxCatalogRow } from "./tax-catalog";
 import type { TaxJurisdictionRule } from "./jurisdiction-rules";
-import { resolveQuoteTax, siteJurisdictionFromLocation } from "./quote-tax";
+import {
+  computeQuoteTax,
+  resolveQuoteTax,
+  siteJurisdictionFromLocation,
+} from "./quote-tax";
 import { __clearTaxCatalogCache } from "./tax-catalog";
 
 // ---------------------------------------------------------------------------
@@ -201,7 +205,7 @@ describe("resolveQuoteTax precedence", () => {
 // ---------------------------------------------------------------------------
 
 describe("compound rule honesty", () => {
-  it("a compound rule cannot flatten to one pct: not determined with reason", async () => {
+  it("a compound rule resolves verified with pct null and component-level amounts", async () => {
     state.rules = [
       rule({
         components: [
@@ -213,10 +217,25 @@ describe("compound rule honesty", () => {
     const r = await resolveQuoteTax({
       siteLocation: { country_code: "NG" },
     });
-    expect(r.kind).toBe("not_determined");
+    expect(r.kind).toBe("verified_rule");
     expect(r.pct).toBeNull();
-    expect(r.compoundUnsupported).toBe(true);
-    expect(r.message).toContain("components compound");
+    expect(r.compoundUnsupported).toBe(false);
+    expect(r.message).toContain("Components compound");
+    expect(r.components).toEqual([
+      { name: "VAT", ratePct: 10, compoundOn: null },
+      { name: "Levy", ratePct: 2, compoundOn: "VAT" },
+    ]);
+    // Deterministic computation: the levy compounds on net + VAT.
+    const comp = computeQuoteTax(r, 1000);
+    expect(comp).not.toBeNull();
+    expect(comp?.lines[0]).toMatchObject({ name: "VAT", amount: 100 });
+    expect(comp?.lines[1]).toMatchObject({
+      name: "Levy",
+      base: 1100,
+      amount: 22,
+    });
+    expect(comp?.totalTax).toBe(122);
+    expect(comp?.gross).toBe(1122);
   });
 
   it("multi-component additive rules flatten to the exact sum", async () => {
@@ -235,6 +254,11 @@ describe("compound rule honesty", () => {
     expect(r.kind).toBe("verified_rule");
     expect(r.pct).toBe(20);
     expect(r.components).toHaveLength(3);
+    const comp = computeQuoteTax(r, 1000);
+    expect(comp?.lines.map((l) => l.amount)).toEqual([150, 25, 25]);
+    expect(comp?.totalTax).toBe(200);
+    expect(comp?.gross).toBe(1200);
+    expect(comp?.basisInclusive).toBe(false);
   });
 });
 
@@ -248,6 +272,13 @@ describe("invalid manual inputs", () => {
     expect(r.kind).toBe("not_determined");
     const r2 = await resolveQuoteTax({ explicitTaxPct: Number.NaN });
     expect(r2.kind).toBe("not_determined");
+  });
+
+  it("computeQuoteTax returns null for manual and not-determined resolutions", async () => {
+    const manual = await resolveQuoteTax({ explicitTaxPct: 5 });
+    expect(computeQuoteTax(manual, 1000)).toBeNull();
+    const nd = await resolveQuoteTax({});
+    expect(computeQuoteTax(nd, 1000)).toBeNull();
   });
 
   it("rejects out-of-range settings defaults", async () => {

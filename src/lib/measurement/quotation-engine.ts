@@ -100,7 +100,11 @@ export interface QuotationSection {
 // QUOTATION DOCUMENT
 // =========================================================
 
-import type { QuoteTaxResolution } from "@/lib/tax/quote-tax";
+import type {
+  QuoteTaxComputation,
+  QuoteTaxResolution,
+} from "@/lib/tax/quote-tax";
+import { computeQuoteTax } from "@/lib/tax/quote-tax";
 
 export interface QuotationDocument {
   quotationNumber: string;
@@ -126,6 +130,8 @@ export interface QuotationDocument {
   taxAmount: number;
   /** Shared Phase 1 resolution provenance, when the caller resolved one. */
   taxResolution?: QuoteTaxResolution;
+  /** Component-level computation for verified rules, when resolvable. */
+  taxComputation?: QuoteTaxComputation;
   grandTotal: number;
   currency: string;
   /** Confidence */
@@ -204,8 +210,21 @@ export function buildQuotation(params: {
     taxPercent = taxResolution.pct;
   }
   const taxableBase = materialsTotal + labourTotal + contingencyAmount;
-  const taxAmount = taxPercent === null ? 0 : taxableBase * (taxPercent / 100);
-  const grandTotal = taxableBase + taxAmount;
+  let taxAmount = taxPercent === null ? 0 : taxableBase * (taxPercent / 100);
+  let grandTotal = taxableBase + taxAmount;
+  // Verified rules are computed by the deterministic jurisdiction
+  // engine: authored bases, compounding and rounding, component by
+  // component. Inclusive-basis rules leave the total unchanged (tax
+  // is already inside the quoted prices).
+  const taxComputation: QuoteTaxComputation | null = taxResolution
+    ? computeQuoteTax(taxResolution, taxableBase)
+    : null;
+  if (taxComputation) {
+    taxAmount = taxComputation.totalTax;
+    grandTotal = taxComputation.basisInclusive
+      ? taxableBase
+      : taxComputation.gross;
+  }
   const currency = settings.currency;
 
   // Build sections
@@ -330,38 +349,43 @@ export function buildQuotation(params: {
       value: `${contingencyAmount.toLocaleString()} ${currency}`,
     });
   }
-  if (taxPercent !== null && taxPercent > 0) {
+  const hasComputedComponents = taxComputation !== null && taxAmount > 0;
+  if (hasComputedComponents) {
+    // Verified rule (flat percentage or compound component-level).
+    const basisLabel =
+      taxComputation!.basisInclusive === true ? " included in prices" : "";
+    summaryFields.push({
+      label:
+        taxPercent === null
+          ? `Tax (component-level, verified: ${taxResolution?.rule?.code ?? "rule"}${basisLabel})`
+          : `Tax (${taxPercent}%, verified: ${taxResolution?.rule?.code ?? taxResolution?.source}${basisLabel})`,
+      value: `${taxAmount.toLocaleString()} ${currency}`,
+    });
+    for (const line of taxComputation!.lines) {
+      summaryFields.push({
+        label: `  ${line.name} (${line.ratePct}%${line.compoundedOn ? ` on ${line.base.toLocaleString()} ${currency}` : ""})`,
+        value: `${line.amount.toLocaleString()} ${currency}`,
+      });
+    }
+    if (taxResolution?.citation) {
+      summaryFields.push({
+        label: `  Source: ${taxResolution.citation.publisher}`,
+        value: `Effective ${taxResolution.effectiveFrom ?? "n/a"}`,
+      });
+    }
+  } else if (taxPercent !== null && taxPercent > 0) {
     const manualLabel =
       taxResolution?.kind === "manual_assumption"
         ? ", manual assumption, not tax due"
-        : taxResolution?.kind === "verified_rule"
-          ? `, verified: ${taxResolution.rule?.code ?? taxResolution.source}`
-          : "";
+        : "";
     summaryFields.push({
       label: `Tax (${taxPercent}%${manualLabel})`,
       value: `${taxAmount.toLocaleString()} ${currency}`,
     });
-    if (taxResolution?.kind === "verified_rule") {
-      for (const comp of taxResolution.components) {
-        summaryFields.push({
-          label: `  ${comp.name} (${comp.ratePct}%)`,
-          value: "",
-        });
-      }
-      if (taxResolution.citation) {
-        summaryFields.push({
-          label: `  Source: ${taxResolution.citation.publisher}`,
-          value: `Effective ${taxResolution.effectiveFrom ?? "n/a"}`,
-        });
-      }
-    }
-  } else if (taxPercent === null) {
+  } else {
     summaryFields.push({
       label: "Tax",
-      value:
-        taxResolution && taxResolution.compoundUnsupported
-          ? "Verified rule exists but compounds; component-level display required (pre-tax estimate)"
-          : "Not determined for this project location (pre-tax estimate)",
+      value: "Not determined for this project location (pre-tax estimate)",
     });
   }
   summaryFields.push({
@@ -433,6 +457,16 @@ export function buildQuotation(params: {
           ? `Tax (${taxResolution.rule?.code ?? "verified rule"})`
           : "Tax";
     explanation.push(`${label}: ${taxAmount.toLocaleString()} ${currency}`);
+    if (taxComputation?.basisInclusive) {
+      explanation.push(
+        "Tax is included in the quoted prices (inclusive basis).",
+      );
+    }
+    for (const line of taxComputation?.lines ?? []) {
+      explanation.push(
+        `${line.name}: ${line.amount.toLocaleString()} ${currency} on ${line.base.toLocaleString()} ${currency} (${line.ratePct}%)`,
+      );
+    }
     if (taxResolution?.kind === "verified_rule" && taxResolution.citation) {
       explanation.push(
         `Tax source: ${taxResolution.citation.publisher}, effective ${taxResolution.effectiveFrom ?? "n/a"}`,
@@ -465,6 +499,7 @@ export function buildQuotation(params: {
     taxPercent,
     taxAmount,
     ...(taxResolution ? { taxResolution } : {}),
+    ...(taxComputation ? { taxComputation } : {}),
     grandTotal,
     currency,
     confidence: params.costEstimate.confidence.toUpperCase(),

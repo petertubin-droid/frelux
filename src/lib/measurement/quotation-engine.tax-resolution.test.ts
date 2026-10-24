@@ -51,11 +51,15 @@ function resolution(
         : null,
     effectiveFrom: kind === "verified_rule" ? "2019-02-01" : null,
     components:
-      kind === "not_determined" ? [] : [{ name: "VAT", ratePct: 7.5 }],
+      kind === "not_determined"
+        ? []
+        : [{ name: "VAT", ratePct: 7.5, compoundOn: null }],
     assumptionAuthor:
       kind === "manual_assumption" ? "entered on this quotation" : null,
     resolvedAt: "2026-10-24T12:00:00.000Z",
     compoundUnsupported: false,
+    basisInclusive: false,
+    roundingMethod: "half_up",
     message: "",
     ...over,
   };
@@ -102,30 +106,36 @@ describe("buildQuotation tax resolution surface", () => {
     );
   });
 
-  it("renders the compound-unsupported state without a computed amount", () => {
+  it("renders a compound rule component-level: exact authored bases and compounding", () => {
     const doc = buildQuotation({
       costEstimate: estimate,
       projectName: "P",
-      taxResolution: resolution("not_determined", {
-        compoundUnsupported: true,
+      taxResolution: resolution("verified_rule", {
+        pct: null,
         components: [
-          { name: "VAT", ratePct: 10 },
-          { name: "Levy", ratePct: 2 },
+          { name: "VAT", ratePct: 10, compoundOn: null },
+          { name: "Levy", ratePct: 2, compoundOn: "VAT" },
         ],
         rule: { code: "XX-T", version: 1 },
       }),
     });
-    const values = doc.sections
-      .flatMap(
-        (sec) =>
-          (sec as { fields?: { label: string; value: string }[] }).fields ?? [],
-      )
-      .filter((f) => f.label === "Tax")
-      .map((f) => f.value);
-    expect(values[0]).toContain("component-level display required");
+    // VAT 10% on 1500 = 150; Levy 2% on (1500 + 150) = 33; total 183.
     expect(doc.taxPercent).toBeNull();
-    expect(doc.taxAmount).toBe(0);
-    expect(doc.grandTotal).toBe(1500);
+    expect(doc.taxAmount).toBe(183);
+    expect(doc.grandTotal).toBe(1683);
+    const fields = doc.sections.flatMap(
+      (sec) =>
+        (sec as { fields?: { label: string; value: string }[] }).fields ?? [],
+    );
+    const taxLabel =
+      fields.find((f) => f.label.startsWith("Tax (component-level"))?.label ??
+      "";
+    expect(taxLabel).toContain("XX-T");
+    expect(fields.some((f) => f.label.includes("Levy (2% on 1,650"))).toBe(
+      true,
+    );
+    expect(fields.some((f) => f.label.startsWith("  VAT (10%)"))).toBe(true);
+    expect(doc.explanation.some((e) => e.startsWith("Levy: 33"))).toBe(true);
   });
 
   it("a resolution with null pct overrides a settings percentage (fail closed)", () => {

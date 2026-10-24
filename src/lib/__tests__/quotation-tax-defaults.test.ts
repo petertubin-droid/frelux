@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import type { DbContractorProject } from "@/types/database";
+import { __clearTaxCatalogCache } from "@/lib/tax/tax-catalog";
 
 // ============================================================
 // ROADMAP PHASE 1 REGRESSION GUARDS (roadmap.md non-negotiables)
@@ -13,6 +14,8 @@ import type { DbContractorProject } from "@/types/database";
 
 let insertedQuote: Record<string, unknown> | null = null;
 let quotationSettings: Record<string, unknown> | null = null;
+let jurisdictionRules: Record<string, unknown>[] = [];
+let catalogRows: Record<string, unknown>[] = [];
 
 const project: Partial<DbContractorProject> = {
   id: "p1",
@@ -31,6 +34,7 @@ const res = (data: unknown, error: unknown = null) =>
       Promise.resolve({ data, error }).then(resolve),
     select: () => res(data, error),
     eq: () => res(data, error),
+    order: () => res(data, error),
     maybeSingle: () => res(data, error),
   }) as unknown as Promise<{ data: unknown; error: unknown }>;
 
@@ -39,6 +43,8 @@ vi.mock("@/lib/supabase", () => ({
     from: (table: string) => {
       if (table === "contractor_projects") return res(project);
       if (table === "quotation_settings") return res(quotationSettings);
+      if (table === "tax_jurisdiction_rules") return res(jurisdictionRules);
+      if (table === "market_tax_catalog") return res(catalogRows);
       if (table === "project_quotations") {
         return {
           insert: (rows: Record<string, unknown>) => {
@@ -61,6 +67,9 @@ describe("generateQuotation — roadmap phase 1: no silent tax default", () => {
   beforeEach(() => {
     insertedQuote = null;
     quotationSettings = null;
+    jurisdictionRules = [];
+    catalogRows = [];
+    __clearTaxCatalogCache();
   });
 
   it("applies no tax when nothing is configured — never 7.5%", async () => {
@@ -91,5 +100,64 @@ describe("generateQuotation — roadmap phase 1: no silent tax default", () => {
     await generateQuotation("p1", { taxPercentage: 10 });
 
     expect(insertedQuote!.tax_percentage).toBe(10);
+  });
+
+  it("stores a compound verified rule component-level with exact provenance", async () => {
+    jurisdictionRules = [
+      {
+        id: "r1",
+        rule_code: "NG-VAT-FED",
+        version: 1,
+        market_code: "NG",
+        jurisdiction_level: "national",
+        jurisdiction_code: "NG",
+        tax_category: "consumption",
+        tax_name: "VAT",
+        components: [
+          { name: "VAT", rate_pct: 7.5, compound_on: null },
+          { name: "Levy", rate_pct: 2, compound_on: "VAT" },
+        ],
+        basis_inclusive: false,
+        taxable_base_definition: "Taxable supplies.",
+        rounding_method: "half_up",
+        exemption_handling: "excluded_from_base",
+        unknown_handling: "not_determined",
+        applies_to: "both",
+        effective_from: "2019-02-01",
+        effective_to: null,
+        source_title: "VAT Act",
+        source_url: "https://firs.gov.ng/",
+        source_publisher: "Federal Inland Revenue Service (FIRS)",
+        reviewer_name: "FRELUX Tax Review",
+        next_review_date: "2027-02-01",
+        is_active: true,
+      },
+    ];
+    // project location drives the site jurisdiction (NG)
+    (project as Record<string, unknown>).location = {
+      country_code: "NG",
+    };
+
+    await generateQuotation("p1");
+
+    expect(insertedQuote).not.toBeNull();
+    // subtotal 150000, markup 15% -> 172500, profit 10% -> 189750
+    // VAT 7.5% of 189750 = 14231.25; Levy 2% on (189750+14231.25)=4079.625
+    // total tax 18310.88 (half-up); no single pct is stored.
+    expect(insertedQuote!.tax_source).toBe("verified_rule");
+    expect(insertedQuote!.tax_percentage).toBeNull();
+    expect(insertedQuote!.tax_rule_code).toBe("NG-VAT-FED");
+    expect(insertedQuote!.tax_citation_publisher).toContain("FIRS");
+    const comps = insertedQuote!.tax_components as Array<{
+      name: string;
+      amount: number;
+    }>;
+    expect(comps).toHaveLength(2);
+    expect(comps[0].name).toBe("VAT");
+    expect(comps[0].amount).toBeCloseTo(14231.25, 2);
+    expect(comps[1].name).toBe("Levy");
+    expect(comps[1].amount).toBeCloseTo(4079.63, 2);
+    expect(insertedQuote!.tax_amount).toBeCloseTo(18310.88, 2);
+    expect(insertedQuote!.grand_total).toBeCloseTo(208060.88, 2);
   });
 });

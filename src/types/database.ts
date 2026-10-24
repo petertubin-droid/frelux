@@ -1353,6 +1353,24 @@ export interface DbProjectQuotation {
   profit_amount: number;
   tax_percentage: number | null;
   tax_amount: number;
+  /** manual_assumption | verified_rule | not_determined (null on legacy rows). */
+  tax_source: "manual_assumption" | "verified_rule" | "not_determined" | null;
+  tax_rule_code: string | null;
+  tax_rule_version: number | null;
+  tax_citation_title: string | null;
+  tax_citation_url: string | null;
+  tax_citation_publisher: string | null;
+  tax_effective_from: string | null;
+  tax_assumption_author: string | null;
+  tax_resolved_at: string | null;
+  /** Verified jurisdiction computation lines: name, rate_pct, base, amount, compounded_on. */
+  tax_components: Array<{
+    name: string;
+    rate_pct: number;
+    base: number;
+    amount: number;
+    compounded_on: string | null;
+  }> | null;
   grand_total: number;
   terms_conditions: string | null;
   timeline_days: number | null;
