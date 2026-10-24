@@ -1032,9 +1032,12 @@ export function resolveOperationalState(
         blockingGaps: [],
       };
     }
+    // Not enabled: any non-enabled availability (disabled,
+    // not_configured, not_implemented, requires_verification)
+    // cannot run user-facing estimates.
     return {
       state: null,
-      operational: availability.state === "enabled",
+      operational: false,
       reason: availability.reason,
       engine,
       evidenceOwner: null,
