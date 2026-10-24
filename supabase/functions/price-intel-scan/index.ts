@@ -56,6 +56,10 @@ import { serveWithCors } from "../_shared/serve.ts";
 const CONCURRENCY = 6;
 const STAGGER_MS = 700;
 const FETCH_TIMEOUT_MS = 10_000;
+/** Search sources rotate across this many weekly groups so the
+ *  bounded 200-source run covers every material at least once
+ *  per cycle. Product sources always run. */
+const ROTATION_GROUPS = 6;
 
 interface ScanSource {
   id: string;
@@ -619,13 +623,18 @@ serveWithCors(async (req: Request) => {
   }
   const runId = run.id;
 
-  // ── Load active sources ──
+  // ── Load active sources (search sources on their rotation week) ──
+  const epochWeek = Math.floor(Date.now() / (7 * 24 * 3600 * 1000));
+  const weekMod = epochWeek % ROTATION_GROUPS;
   let query = supabase
     .from("price_scan_sources")
     .select(
       "id, market, material_slug, retailer, label, product_url, expected_unit, currency, last_scanned_at, source_type",
     )
     .eq("is_active", true)
+    // product sources scan every week; search sources only on
+    // their rotation week, keeping the run inside its budget.
+    .or(`rotation_group.eq.${weekMod},source_type.eq.product`)
     .order("market")
     .limit(200);
   if (marketFilter) query = query.eq("market", marketFilter);
