@@ -350,6 +350,44 @@
   status = 200
   force = true
 
+# /ja — serve the app in ja (URL durable, noindex via header)
+[[redirects]]
+  from = "/ja"
+  to = "/"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/ja/"
+  to = "/"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/ja/*"
+  to = "/:splat/"
+  status = 200
+  force = true
+
+# /nl — serve the app in nl (URL durable, noindex via header)
+[[redirects]]
+  from = "/nl"
+  to = "/"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/nl/"
+  to = "/"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/nl/*"
+  to = "/:splat/"
+  status = 200
+  force = true
+
 # Conventional asset paths that DO NOT exist in this build. The SPA
 # fallback previously served index.html (text/html) with status 200 for
 # /service-worker.js and /asset-manifest.json — a real service worker is

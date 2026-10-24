@@ -62,7 +62,9 @@ describe("nav chrome translations (i18n batch 2026-10-23)", () => {
         ).toBeTruthy();
         // Legitimate cognates (Spanish "Plan" IS the correct
         // translation of the Pricing-section label "Plan").
-        const cognateOk = lang.value === "es" && key === "Plan";
+        const cognateOk =
+          (lang.value === "es" && key === "Plan") ||
+          (lang.value === "nl" && key === "Account");
         if (!cognateOk) {
           expect(
             dict[key],

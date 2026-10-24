@@ -38,7 +38,19 @@ import { GoogleTranslateSync } from "@/components/ui/GoogleTranslate";
 import { setActiveCurrencyLocale } from "@/lib/international/currency-format";
 
 export type Language =
-  "en" | "es" | "fr" | "de" | "pt" | "ru" | "id" | "sw" | "ar" | "hi" | "zh";
+  | "en"
+  | "es"
+  | "fr"
+  | "de"
+  | "pt"
+  | "ru"
+  | "id"
+  | "sw"
+  | "ar"
+  | "hi"
+  | "zh"
+  | "ja"
+  | "nl";
 
 export const LANGUAGES: {
   value: Language;
@@ -62,6 +74,8 @@ export const LANGUAGES: {
   { value: "ar", label: "Arabic", nativeLabel: "العربية", flag: "🇸🇦" },
   { value: "hi", label: "Hindi", nativeLabel: "हिन्दी", flag: "🇮🇳" },
   { value: "zh", label: "Chinese", nativeLabel: "中文", flag: "🇨🇳" },
+  { value: "ja", label: "Japanese", nativeLabel: "日本語", flag: "🇯🇵" },
+  { value: "nl", label: "Dutch", nativeLabel: "Nederlands", flag: "🇳🇱" },
 ];
 
 /** URL path prefix per language - every language gets a locale URL. */
@@ -673,6 +687,117 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     Tools: "工具",
     Market: "市场",
     Projects: "项目",
+  },
+  ja: {
+    "Every trade. Every cost. One platform.":
+      "すべての職種、すべてのコスト、ひとつのプラットフォーム。",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
+      "FRELUXは、1つの部屋から建物全体、基礎から屋根まで、測定値を正確な資材数量と市場で検証済みの実際のコストに変換します。写真を撮るだけでAI見積もりを作成し、プロフェッショナルな数量明細書（BOQ）を生成し、準備ができたら認証済みの専門業者を雇えます。無料で、多言語に対応しています。",
+    "Start Estimating Free": "無料で見積もりを開始",
+    "Try the AI Photo Estimator": "AI写真見積もりを試す",
+    Calculators: "計算ツール",
+    "Construction Tools": "建設ツール",
+    Marketplace: "マーケットプレイス",
+    Pricing: "料金",
+    "AI Studio": "AIスタジオ",
+    "Learn Hub": "ラーニングハブ",
+    About: "会社概要",
+    Contact: "お問い合わせ",
+    "My Profile": "マイプロフィール",
+    Dashboard: "ダッシュボード",
+    "My Estimates": "見積もり一覧",
+    "Calculator Templates": "計算テンプレート",
+    "Browse Marketplace": "マーケットを見る",
+    "My Projects": "マイプロジェクト",
+    Clients: "クライアント",
+    Rewards: "リワード",
+    "Sign in": "ログイン",
+    "Sign out": "ログアウト",
+    "Get Started": "はじめる",
+    "Paint Calculator": "塗料計算ツール",
+    "Estimate how many paint buckets your project requires, step by step.":
+      "ステップごとに、プロジェクトに必要な塗料の缶数を見積もります。",
+    "Project type": "プロジェクトの種類",
+    Measurements: "寸法",
+    "Surface details": "表面の詳細",
+    "Provide the dimensions of the area you're painting.":
+      "塗装する面積の寸法を入力してください。",
+    Length: "長さ",
+    "Fence length": "フェンスの長さ",
+    "Width (Optional if not applicable)": "幅（該当しない場合は省略可）",
+    "Wall height": "壁の高さ",
+    "Fence height": "フェンスの高さ",
+    Calculate: "計算",
+    "Calculate Again": "再計算",
+    Account: "アカウント",
+    Business: "ビジネス",
+    Plan: "プラン",
+    "Saved Estimates & Projects": "保存した見積もりとプロジェクト",
+    "My Job Listings": "求人一覧",
+    "My Products": "商品一覧",
+    "Contractor Workspace": "工事業者ワークスペース",
+    Analytics: "分析",
+    "Brand Studio": "ブランドスタジオ",
+    Home: "ホーム",
+    Tools: "ツール",
+    Market: "マーケット",
+    Projects: "プロジェクト",
+  },
+  nl: {
+    "Every trade. Every cost. One platform.":
+      "Elk vak. Elke kostenpost. Eén platform.",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
+      "FRELUX zet uw afmetingen om in exacte materiaalhoeveelheden en echte, marktverifieerde kosten, van één kamer tot een volledig gebouw, van fundering tot dak. Maak een foto voor een AI-raming, genereer een professioneel bestek (BOQ) en huur geverifieerde vakmensen in wanneer u er klaar voor bent. Gratis, in meerdere talen.",
+    "Start Estimating Free": "Gratis ramingen maken",
+    "Try the AI Photo Estimator": "Probeer de AI-foto-estimator",
+    Calculators: "Calculators",
+    "Construction Tools": "Bouwgereedschap",
+    Marketplace: "Marktplaats",
+    Pricing: "Prijzen",
+    "AI Studio": "AI-studio",
+    "Learn Hub": "Leercentrum",
+    About: "Over ons",
+    Contact: "Contact",
+    "My Profile": "Mijn profiel",
+    Dashboard: "Dashboard",
+    "My Estimates": "Mijn ramingen",
+    "Calculator Templates": "Calculatorsjablonen",
+    "Browse Marketplace": "Marktplaats bekijken",
+    "My Projects": "Mijn projecten",
+    Clients: "Klanten",
+    Rewards: "Beloningen",
+    "Sign in": "Inloggen",
+    "Sign out": "Uitloggen",
+    "Get Started": "Aan de slag",
+    "Paint Calculator": "Verfcalculator",
+    "Estimate how many paint buckets your project requires, step by step.":
+      "Schat stap voor stap hoeveel verfbakken uw project nodig heeft.",
+    "Project type": "Projecttype",
+    Measurements: "Afmetingen",
+    "Surface details": "Oppervlaktedetails",
+    "Provide the dimensions of the area you're painting.":
+      "Voer de afmetingen in van het gebied dat u gaat schilderen.",
+    Length: "Lengte",
+    "Fence length": "Heklengte",
+    "Width (Optional if not applicable)":
+      "Breedte (optioneel indien niet van toepassing)",
+    "Wall height": "Muurhoogte",
+    "Fence height": "Hekhoogte",
+    Calculate: "Berekenen",
+    "Calculate Again": "Opnieuw berekenen",
+    Account: "Account",
+    Business: "Zakelijk",
+    Plan: "Plannen",
+    "Saved Estimates & Projects": "Opgeslagen ramingen en projecten",
+    "My Job Listings": "Mijn vacatures",
+    "My Products": "Mijn producten",
+    "Contractor Workspace": "Aannemerswerkruimte",
+    Analytics: "Analyses",
+    "Brand Studio": "Merkenstudio",
+    Home: "Startpagina",
+    Tools: "Gereedschap",
+    Market: "Markt",
+    Projects: "Projecten",
   },
 };
 

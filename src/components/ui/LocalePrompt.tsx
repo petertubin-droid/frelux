@@ -90,6 +90,18 @@ const PROMPT_COPY: Record<
     decline: "不用了，谢谢",
     country: "China",
   },
+  ja: {
+    question:
+      "日本からアクセスしているようです。FRELUXを日本語で表示しますか？",
+    decline: "いいえ、結構です",
+    country: "Japan",
+  },
+  nl: {
+    question:
+      "U lijkt vanuit Nederland te surfen. FRELUX in het Nederlands weergeven?",
+    decline: "Nee, bedankt",
+    country: "Netherlands",
+  },
 };
 
 type PromptHistory = Record<string, "accepted" | "dismissed">;

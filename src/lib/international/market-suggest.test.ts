@@ -25,6 +25,7 @@ const BUILTIN_MARKET_CODES = [
   "BR",
   "SA",
   "AE",
+  "NL",
 ];
 
 describe("timezoneToMarket", () => {
@@ -34,6 +35,10 @@ describe("timezoneToMarket", () => {
     expect(timezoneToMarket("America/Los_Angeles")).toBe("US");
     expect(timezoneToMarket("Europe/London")).toBe("GB");
     expect(timezoneToMarket("Australia/Sydney")).toBe("AU");
+  });
+
+  it("maps the 2026-10-24 NL timezone", () => {
+    expect(timezoneToMarket("Europe/Amsterdam")).toBe("NL");
   });
 
   it("maps the 2026-10-13 expansion timezones", () => {

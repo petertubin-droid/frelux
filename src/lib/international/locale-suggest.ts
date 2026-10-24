@@ -96,6 +96,8 @@ export const LOCALE_TIMEZONES: Record<Exclude<Language, "en">, string[]> = {
   ],
   hi: ["Asia/Kolkata", "Asia/Calcutta"],
   zh: ["Asia/Shanghai", "Asia/Urumqi", "Asia/Hong_Kong", "Asia/Macau"],
+  ja: ["Asia/Tokyo"],
+  nl: ["Europe/Amsterdam"],
 };
 
 const TIMEZONE_INDEX: Map<string, Language> = (() => {

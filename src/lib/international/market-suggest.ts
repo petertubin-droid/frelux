@@ -25,6 +25,7 @@ const MARKET_TIMEZONES: Record<string, string[]> = {
   KE: ["Africa/Nairobi"],
   ZA: ["Africa/Johannesburg"],
   JP: ["Asia/Tokyo"],
+  NL: ["Europe/Amsterdam"],
   FR: ["Europe/Paris"],
   BR: [
     "America/Sao_Paulo",
