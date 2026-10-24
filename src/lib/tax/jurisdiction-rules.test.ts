@@ -39,10 +39,10 @@ vi.mock("@/lib/supabase", () => ({
                 [...filters].filter(([k]) => k.startsWith(`${table}:`)),
               );
               filters.clear();
-              let data =
-                table === "tax_jurisdiction_rules"
-                  ? state.rules
-                  : state.catalog;
+              let data: Record<string, unknown>[] = (table ===
+              "tax_jurisdiction_rules"
+                ? state.rules
+                : state.catalog) as unknown as Record<string, unknown>[];
               for (const [col, val] of eqFilters) {
                 const key = col.split(":")[1];
                 data = data.filter(
