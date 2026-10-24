@@ -175,7 +175,12 @@ export async function bundledPopMaterials(
   if (market && market !== "NG") {
     const local = run(market);
     if (local.length > 0)
-      return { data: local, error: null, fellBackToNg: false };
+      return {
+        data: local,
+        error: null,
+        fellBackToNg: false,
+        marketConfigured: true,
+      };
     // Owner-approved (2026-10-24): no automatic NG substitution offline
     // either. Unconfigured market = empty set; the caller must get
     // local input or explicitly request the NG reference set.
@@ -214,7 +219,12 @@ export async function bundledTileMaterials(
   if (market && market !== "NG") {
     const local = run(market);
     if (local.length > 0)
-      return { data: local, error: null, fellBackToNg: false };
+      return {
+        data: local,
+        error: null,
+        fellBackToNg: false,
+        marketConfigured: true,
+      };
     // Owner-approved (2026-10-24): no automatic NG substitution offline
     // either. Unconfigured market = empty set; the caller must get
     // local input or explicitly request the NG reference set.

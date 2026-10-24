@@ -215,7 +215,7 @@ function priceFieldProps(
       const next = {
         ...(prices as unknown as Record<string, number>),
         [key]: parsed,
-      } as BuildToRoofInput["prices"];
+      } as unknown as BuildToRoofInput["prices"];
       update("prices", next);
       if (parsed > 0 && isMissing) setMissing(missing.filter((k) => k !== key));
     },
