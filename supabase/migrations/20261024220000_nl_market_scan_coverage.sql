@@ -41,7 +41,7 @@ SELECT
   'pipe',
   'Per ' || k.unit_word || '. FX reference price until the first weekly live scan replaces it; the weekly price-intel scan auto-updates this market row under reviewable gates.',
   CURRENT_DATE, true, 10
-FROM keys
+FROM keys AS k
 ON CONFLICT (slug) DO NOTHING;
 
 -- ── 3. FX reference prices from the live NG book ──────────
