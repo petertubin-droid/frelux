@@ -5,6 +5,7 @@
  * waste factor intelligence, surface assessment, material recommendations.
  */
 import { supabase } from "@/lib/supabase";
+import { resolveQuoteTax } from "@/lib/tax/quote-tax";
 import type {
   DbContractorProject,
   DbProjectRoom,
@@ -1367,13 +1368,20 @@ export async function generateQuotation(
     options?.markupPercentage ?? settings?.default_markup_percentage ?? 15;
   const profit =
     options?.profitPercentage ?? settings?.default_profit_percentage ?? 10;
-  // Tax is never silently defaulted (roadmap non-negotiable): it is
-  // applied only when the caller passed an explicit percentage or the
-  // contractor configured one in their quotation settings. Otherwise
-  // the quote is honestly pre-tax with tax_percentage NULL, meaning
-  // "not determined for this project location".
-  const tax: number | null =
-    options?.taxPercentage ?? settings?.default_tax_percentage ?? null;
+  // Tax is never silently defaulted (roadmap non-negotiable). Every
+  // quote path consumes the SAME resolution object (Phase 1): an
+  // explicit caller percentage or the contractor's settings default
+  // is preserved as a labeled, non-verified manual assumption, a
+  // verified jurisdiction rule for the project site wins over the
+  // settings default, and otherwise the quote is honestly pre-tax
+  // with tax_percentage NULL ("not determined for this project
+  // location").
+  const taxResolution = await resolveQuoteTax({
+    explicitTaxPct: options?.taxPercentage ?? null,
+    settingsTaxPct: settings?.default_tax_percentage ?? null,
+    siteLocation: project.location ?? null,
+  });
+  const tax: number | null = taxResolution.pct;
   const transport = options?.transportCost ?? project.total_transport_cost;
   const misc = options?.miscCost ?? project.total_misc_cost;
 
@@ -1409,6 +1417,15 @@ export async function generateQuotation(
       profit_amount: profitAmount,
       tax_percentage: tax,
       tax_amount: taxAmount,
+      tax_source: taxResolution.kind,
+      tax_rule_code: taxResolution.rule?.code ?? null,
+      tax_rule_version: taxResolution.rule?.version ?? null,
+      tax_citation_title: taxResolution.citation?.title ?? null,
+      tax_citation_url: taxResolution.citation?.url ?? null,
+      tax_citation_publisher: taxResolution.citation?.publisher ?? null,
+      tax_effective_from: taxResolution.effectiveFrom ?? null,
+      tax_assumption_author: taxResolution.assumptionAuthor,
+      tax_resolved_at: taxResolution.resolvedAt,
       grand_total: grandTotal,
       terms_conditions:
         options?.termsConditions ?? settings?.default_terms_conditions ?? null,

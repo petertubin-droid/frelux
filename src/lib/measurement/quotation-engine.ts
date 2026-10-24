@@ -100,6 +100,8 @@ export interface QuotationSection {
 // QUOTATION DOCUMENT
 // =========================================================
 
+import type { QuoteTaxResolution } from "@/lib/tax/quote-tax";
+
 export interface QuotationDocument {
   quotationNumber: string;
   dateIssued: string;
@@ -122,6 +124,8 @@ export interface QuotationDocument {
   /** null when not determined (pre-tax estimate) */
   taxPercent: number | null;
   taxAmount: number;
+  /** Shared Phase 1 resolution provenance, when the caller resolved one. */
+  taxResolution?: QuoteTaxResolution;
   grandTotal: number;
   currency: string;
   /** Confidence */
@@ -164,6 +168,9 @@ export function buildQuotation(params: {
   projectLocation?: string;
   dateIssued?: string;
   quotationNumber?: string;
+  /** Resolved by the caller via resolveQuoteTax (all quote surfaces
+   *  consume the same resolution object). */
+  taxResolution?: QuoteTaxResolution;
 }): QuotationDocument {
   const settings: QuotationSettings = {
     ...DEFAULT_QUOTATION_SETTINGS,
@@ -188,8 +195,14 @@ export function buildQuotation(params: {
     params.costEstimate.labourTotal;
   const contingencyPercent = params.costEstimate.contingencyPercent;
   const contingencyAmount = params.costEstimate.contingencyAmount;
-  // null = tax not determined: never assume a jurisdiction rate.
-  const taxPercent: number | null = settings.taxPercent ?? null;
+  // Phase 1: when the caller passed the shared resolution object it
+  // wins; a settings taxPercent remains a manual assumption and is
+  // labeled as such. Null = not determined: never assume a rate.
+  let taxPercent: number | null = settings.taxPercent ?? null;
+  const taxResolution: QuoteTaxResolution | undefined = params.taxResolution;
+  if (taxResolution) {
+    taxPercent = taxResolution.pct;
+  }
   const taxableBase = materialsTotal + labourTotal + contingencyAmount;
   const taxAmount = taxPercent === null ? 0 : taxableBase * (taxPercent / 100);
   const grandTotal = taxableBase + taxAmount;
@@ -318,14 +331,37 @@ export function buildQuotation(params: {
     });
   }
   if (taxPercent !== null && taxPercent > 0) {
+    const manualLabel =
+      taxResolution?.kind === "manual_assumption"
+        ? ", manual assumption, not tax due"
+        : taxResolution?.kind === "verified_rule"
+          ? `, verified: ${taxResolution.rule?.code ?? taxResolution.source}`
+          : "";
     summaryFields.push({
-      label: `Tax (${taxPercent}%)`,
+      label: `Tax (${taxPercent}%${manualLabel})`,
       value: `${taxAmount.toLocaleString()} ${currency}`,
     });
+    if (taxResolution?.kind === "verified_rule") {
+      for (const comp of taxResolution.components) {
+        summaryFields.push({
+          label: `  ${comp.name} (${comp.ratePct}%)`,
+          value: "",
+        });
+      }
+      if (taxResolution.citation) {
+        summaryFields.push({
+          label: `  Source: ${taxResolution.citation.publisher}`,
+          value: `Effective ${taxResolution.effectiveFrom ?? "n/a"}`,
+        });
+      }
+    }
   } else if (taxPercent === null) {
     summaryFields.push({
       label: "Tax",
-      value: "Not determined for this project location (pre-tax estimate)",
+      value:
+        taxResolution && taxResolution.compoundUnsupported
+          ? "Verified rule exists but compounds; component-level display required (pre-tax estimate)"
+          : "Not determined for this project location (pre-tax estimate)",
     });
   }
   summaryFields.push({
@@ -390,7 +426,18 @@ export function buildQuotation(params: {
     );
   }
   if (taxAmount > 0) {
-    explanation.push(`Tax: ${taxAmount.toLocaleString()} ${currency}`);
+    const label =
+      taxResolution?.kind === "manual_assumption"
+        ? "Tax (manual assumption, not tax due)"
+        : taxResolution?.kind === "verified_rule"
+          ? `Tax (${taxResolution.rule?.code ?? "verified rule"})`
+          : "Tax";
+    explanation.push(`${label}: ${taxAmount.toLocaleString()} ${currency}`);
+    if (taxResolution?.kind === "verified_rule" && taxResolution.citation) {
+      explanation.push(
+        `Tax source: ${taxResolution.citation.publisher}, effective ${taxResolution.effectiveFrom ?? "n/a"}`,
+      );
+    }
   } else if (taxPercent === null) {
     explanation.push(
       "Tax: not determined for this project location (pre-tax estimate)",
@@ -417,6 +464,7 @@ export function buildQuotation(params: {
     contingencyAmount,
     taxPercent,
     taxAmount,
+    ...(taxResolution ? { taxResolution } : {}),
     grandTotal,
     currency,
     confidence: params.costEstimate.confidence.toUpperCase(),
