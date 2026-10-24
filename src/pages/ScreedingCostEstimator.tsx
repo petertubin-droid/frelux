@@ -179,6 +179,7 @@ export default function ScreedingCostEstimator({
   );
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [marketNotConfigured, setMarketNotConfigured] = useState(false);
   const [netArea, setNetArea] = useState(passed.netScreedingArea ?? 0);
   const [selectedSystem, setSelectedSystem] =
     useState<ScreedingMaterialSystem | null>(null);
@@ -219,12 +220,11 @@ export default function ScreedingCostEstimator({
         ]);
         if (puttyRes.error) setLoadError(puttyRes.error);
         if (mixRes.error) setLoadError(mixRes.error);
-        // Never silently fall back: if this market has no verified
-        // screeding system, say so instead of pretending NG is local.
-        if (marketCode !== "NG" && (puttyRes.fellBackToNg || !puttyRes.data)) {
-          setLoadError(
-            `No ${marketCode} screeding system is verified yet. Showing the Nigerian reference system - check products and prices locally.`,
-          );
+        // Never silently fall back (owner-approved 2026-10-24): if
+        // this market has no verified screeding system, no NG config is
+        // substituted. Say so and require local input.
+        if (marketCode !== "NG" && !puttyRes.data) {
+          setMarketNotConfigured(true);
         }
         if (puttyRes.data) {
           const cfg = dbToSystemConfig(puttyRes.data);
@@ -345,6 +345,21 @@ export default function ScreedingCostEstimator({
         />
       )}
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+        {marketNotConfigured && (
+          <div
+            className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200"
+            data-testid="screeding-market-not-configured-notice"
+          >
+            <p className="font-semibold">
+              No verified {marketCode} screeding system yet.
+            </p>
+            <p className="mt-1 leading-relaxed">
+              No default is assumed for your market (nothing is silently
+              substituted). Enter your local material rates below, or switch the
+              project market to one with a verified system.
+            </p>
+          </div>
+        )}
         {loadError && (
           <div className="mb-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             <AlertCircle

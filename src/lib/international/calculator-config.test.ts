@@ -86,16 +86,16 @@ describe("calculator-config (registry-driven truthful availability)", () => {
     expect(await isCalculatorAvailable("KE", "screeding")).toBe(false);
   });
 
-  it("an NG-only engine is not available in an unverified market, even with an available DB row", async () => {
+  it("owner-directed 2026-10-24: every approved market is verified, so an available DB row enables the engine", async () => {
     mockEq.mockResolvedValueOnce({
       data: [{ calculator_type: "block", is_available: true }],
       error: null,
     });
-    // DB cannot manufacture capability
-    expect(await isCalculatorAvailable("KE", "block")).toBe(false);
+    // All 32 approved markets are verified pairs now; the DB row no
+    // longer conflicts with verification.
+    expect(await isCalculatorAvailable("KE", "block")).toBe(true);
     const resolution = await resolveCalculatorAvailability("KE", "block");
-    expect(resolution?.state).toBe("requires_verification");
-    expect(resolution?.reason).toContain("not yet verified");
+    expect(resolution?.state).toBe("enabled");
   });
 
   it("resolves all five availability states with reasons", async () => {
@@ -115,15 +115,16 @@ describe("calculator-config (registry-driven truthful availability)", () => {
       "disabled",
     );
 
-    // not_implemented: NG-bound method engine, no row
+    // Owner-directed 2026-10-24: all approved pairs are verified, so
+    // the former NG-bound method engine resolves enabled for the US
+    // (market-first pricing, local-price entry where book gaps exist).
     mockEq.mockResolvedValueOnce({ data: [], error: null });
     const usB2R = await resolveCalculatorAvailability("US", "build_to_roof");
-    expect(usB2R?.state).toBe("not_implemented");
-    expect(usB2R?.reason).toContain("Build to Roof");
+    expect(usB2R?.state).toBe("enabled");
 
-    // requires_verification: portable engine without market data
+    // portable engine without market data resolves enabled likewise
     const usSolar = await resolveCalculatorAvailability("US", "solar_pv");
-    expect(usSolar?.state).toBe("requires_verification");
+    expect(usSolar?.state).toBe("enabled");
 
     // not_configured is reported through the underlying reason text for
     // unverified pairs; unknown engines resolve to null
@@ -217,8 +218,9 @@ describe("calculator-config (registry-driven truthful availability)", () => {
     expect(calculators).not.toContain("tile");
     // painting verified → included
     expect(calculators).toContain("painting");
-    // cost_estimator row claims available but KE is not verified → excluded
-    expect(calculators).not.toContain("cost_estimator");
+    // owner-directed 2026-10-24: KE is a verified market, so the
+    // available cost_estimator row includes it
+    expect(calculators).toContain("cost_estimator");
   });
 
   it("clearCalculatorConfigCache clears the cache", async () => {

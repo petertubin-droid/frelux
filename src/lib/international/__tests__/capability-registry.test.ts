@@ -31,6 +31,11 @@ const MIGRATION_SQL =
   readFileSync(
     MIGRATION_DIR + "/20261015164000_it_capability_pair_fix.sql",
     "utf8",
+  ) +
+  "\n" +
+  readFileSync(
+    MIGRATION_DIR + "/20261024120000_capability_all_32_markets.sql",
+    "utf8",
   );
 
 describe("capability-registry", () => {
@@ -81,42 +86,12 @@ describe("capability-registry", () => {
     }
   });
 
-  it("the 15-market finishing set is verified for the finishing engines", () => {
-    const finishingMarkets = [
-      "NG",
-      "US",
-      "GB",
-      "CA",
-      "AU",
-      "DE",
-      "IN",
-      "GH",
-      "KE",
-      "ZA",
-      "JP",
-      "FR",
-      "BR",
-      "SA",
-      "AE",
-      "IT",
-    ];
-    for (const id of [
-      "painting",
-      "screeding",
-      "pop_ceiling",
-      "tile",
-      "wall_finishing",
-    ] as const) {
-      const cap = getEngineCapability(id);
-      expect(cap?.verifiedMarkets).toEqual(finishingMarkets);
-    }
-    // CN/ID/MX/KR are NOT verified for finishing engines yet
-    // (IT was verified 2026-10-15: roles + EUR price book live)
-    for (const id of ["painting", "wall_finishing"] as const) {
-      const cap = getEngineCapability(id);
-      for (const mk of ["CN", "ID", "MX", "KR"]) {
-        expect(cap?.verifiedMarkets).not.toContain(mk);
-      }
+  it("every approved market is verified for every engine (owner-directed 2026-10-24)", () => {
+    // Owner approval 2026-10-24: all 32 approved markets verified for
+    // all 54 engines under the market-first + local-price-entry
+    // standard (no cross-market substitution, regression-guarded).
+    for (const e of ENGINE_CAPABILITIES) {
+      expect(e.verifiedMarkets).toEqual(ALL_MARKET_CODES);
     }
   });
 
@@ -130,29 +105,31 @@ describe("capability-registry", () => {
         is_available: false,
       })?.state,
     ).toBe("disabled");
-    // requires_verification: DB row claims available but pair not verified
+    // Owner-directed 2026-10-24: block:KE is a verified pair now, so
+    // an admin availability row resolves enabled (verified pairs win).
     const rv = resolveCapability("block", "KE", {
       calculator_type: "block",
       is_available: true,
     });
-    expect(rv?.state).toBe("requires_verification");
-    expect(rv?.reason).toContain("cannot take effect");
-    // not_implemented: NG-bound method engine, no row
+    expect(rv?.state).toBe("enabled");
+    // Owner-directed 2026-10-24: all approved markets are verified, so
+    // build_to_roof for US resolves enabled (market-first pricing with
+    // explicit local-price entry where the US book has gaps).
     expect(resolveCapability("build_to_roof", "US", null)?.state).toBe(
-      "not_implemented",
+      "enabled",
     );
-    // requires_verification: portable engine, no row
-    expect(resolveCapability("solar_pv", "GB", null)?.state).toBe(
-      "requires_verification",
-    );
+    // Owner-directed 2026-10-24: all approved pairs are verified, so
+    // solar_pv for GB resolves enabled (missing GB price-book items
+    // require explicit local price entry, disclosed per estimate).
+    expect(resolveCapability("solar_pv", "GB", null)?.state).toBe("enabled");
     // unknown engine
     expect(resolveCapability("warp_drive", "NG", null)).toBeNull();
   });
 
-  it("defaultSeedAvailability only seeds verified pairs", () => {
+  it("defaultSeedAvailability seeds every approved pair (owner-directed 2026-10-24)", () => {
     expect(defaultSeedAvailability("painting", "NG")).toBe(true);
-    expect(defaultSeedAvailability("painting", "CN")).toBe(false);
-    expect(defaultSeedAvailability("build_to_roof", "US")).toBe(false);
+    expect(defaultSeedAvailability("painting", "CN")).toBe(true);
+    expect(defaultSeedAvailability("build_to_roof", "US")).toBe(true);
     expect(defaultSeedAvailability("unknown_engine", "NG")).toBe(false);
   });
 });
@@ -164,8 +141,9 @@ describe("migration 20261014130000 stays in sync with the registry", () => {
     const checks = MIGRATION_SQL.matchAll(
       /CHECK \(calculator_type (?:IN \(|= ANY \(ARRAY\[)([\s\S]*?)\)?\]?\)?\);/g,
     );
-    const ids = Array.from(checks)
-      .flatMap((c) => Array.from(c[1].matchAll(/'([a-z_]+)'/g)).map((m) => m[1]));
+    const ids = Array.from(checks).flatMap((c) =>
+      Array.from(c[1].matchAll(/'([a-z_]+)'/g)).map((m) => m[1]),
+    );
     expect(ids.length).toBeGreaterThan(0);
     expect(new Set(ids).size).toBe(ENGINE_CAPABILITIES.length);
     for (const e of ENGINE_CAPABILITIES) {
@@ -174,35 +152,50 @@ describe("migration 20261014130000 stays in sync with the registry", () => {
   });
 
   it("the verified-pairs seed matches the registry exactly", () => {
-    const seeds = MIGRATION_SQL.matchAll(
-      /INSERT INTO engine_capability_verified \(engine_id, market_code\) VALUES\n([\s\S]*?)\nON CONFLICT/g,
-    );
-    const pairs = new Set(
-      Array.from(seeds).flatMap((seed) =>
-        Array.from(seed[1].matchAll(/'([a-z_]+)',\s*'([A-Z]{2})'\)/g)).map(
-          (m) => `${m[1]}:${m[2]}`,
-        ),
+    // Model the SQL sequentially: a later INSERT re-adds a pair an
+    // earlier corrective DELETE removed (chronological truth).
+    const inserts = Array.from(
+      MIGRATION_SQL.matchAll(
+        /INSERT INTO engine_capability_verified \(engine_id, market_code\) VALUES\n([\s\S]*?)\nON CONFLICT/g,
       ),
+      (m) => ({
+        op: "insert" as const,
+        at: m.index ?? 0,
+        body: m[1],
+      }),
     );
-    // Corrective migrations may DELETE miscoded pairs before
-    // re-seeding the right ones — the net seeded state (inserts
-    // minus deletes) is what must match the registry.
-    const deletes = MIGRATION_SQL.matchAll(
-      /DELETE FROM engine_capability_verified\s*WHERE market_code = '([A-Z]{2})'\s*AND engine_id IN \(([^)]+)\)/g,
+    const deletes = Array.from(
+      MIGRATION_SQL.matchAll(
+        /DELETE FROM engine_capability_verified\s+WHERE market_code = '([A-Z]{2})'\s+AND engine_id IN \(([^)]+)\)/g,
+      ),
+      (m) => ({
+        op: "delete" as const,
+        at: m.index ?? 0,
+        code: m[1],
+        engines: m[2],
+      }),
     );
-    for (const del of deletes) {
-      for (const eng of del[2].matchAll(/'([a-z_]+)'/g)) {
-        pairs.delete(`${eng[1]}:${del[1]}`);
+    const orderedPairs = new Set<string>();
+    for (const st of [...inserts, ...deletes].sort((a, b) => a.at - b.at)) {
+      if (st.op === "insert") {
+        for (const m of st.body.matchAll(/'([a-z_]+)',\s*'([A-Z]{2})'\)/g)) {
+          orderedPairs.add(`${m[1]}:${m[2]}`);
+        }
+      } else {
+        for (const eng of st.engines.matchAll(/'([a-z_]+)'/g)) {
+          orderedPairs.delete(`${eng[1]}:${st.code}`);
+        }
       }
     }
-    const registryPairs = new Set(
+    const legacyPairs = new Set(
       ENGINE_CAPABILITIES.flatMap((e) =>
         e.verifiedMarkets.map((mk) => `${e.id}:${mk}`),
       ),
     );
-    expect(pairs.size).toBe(registryPairs.size);
-    expect([...registryPairs].every((p) => pairs.has(p))).toBe(true);
-    expect([...pairs].every((p) => registryPairs.has(p))).toBe(true);
+    // the sequential net seeded state must equal the code registry
+    expect(orderedPairs.size).toBe(legacyPairs.size);
+    expect([...legacyPairs].every((p) => orderedPairs.has(p))).toBe(true);
+    expect([...orderedPairs].every((p) => legacyPairs.has(p))).toBe(true);
   });
 
   it("seeds market_calculator_config from verified pairs only, preserving admin rows", () => {

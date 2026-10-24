@@ -61,15 +61,27 @@ describe("bundled static price book", () => {
     expect(Number.isFinite(cement!.price50kgBasis)).toBe(true);
   });
 
-  it("serves POP materials market-first with NG fallback flag", async () => {
+  it("serves POP materials market-first and never substitutes NG (owner-approved)", async () => {
     const { fetchPopMaterials } = await queriesImport();
+    // A configured market resolves its OWN rows.
     const us = await fetchPopMaterials(undefined, "US");
     if (us.data.length > 0 && !us.fellBackToNg) {
       expect(us.data.every((m) => m.market === "US")).toBe(true);
     }
-    const fallback = await fetchPopMaterials(undefined, "NG");
-    expect(fallback.fellBackToNg).toBe(true);
-    expect(fallback.data.length).toBeGreaterThan(0);
+    // NG itself resolves the reference set without a fallback flag.
+    const ng = await fetchPopMaterials(undefined, "NG");
+    expect(ng.fellBackToNg).toBe(false);
+    expect(ng.data.length).toBeGreaterThan(0);
+  });
+
+  it("resolves an unconfigured POP market to an EMPTY set, not NG (owner-approved)", async () => {
+    const { fetchPopMaterials } = await queriesImport();
+    // A market with no bundled POP materials gets an honest empty
+    // result — never Nigerian materials dressed as local.
+    const res = await fetchPopMaterials(undefined, "XX");
+    expect(res.data.length).toBe(0);
+    expect(res.fellBackToNg).toBe(false);
+    expect(res.marketConfigured).toBe(false);
   });
 
   it("presents EVERY website market in the bundled book (whole-market rule)", async () => {
@@ -104,10 +116,18 @@ describe("bundled static price book", () => {
     expect(cable!.f).toBe("manual");
   });
 
-  it("serves tile materials market-first with NG fallback flag", async () => {
+  it("serves tile materials market-first and never substitutes NG (owner-approved)", async () => {
     const { fetchTileMaterials } = await queriesImport();
     const ng = await fetchTileMaterials(undefined, "NG");
-    expect(ng.fellBackToNg).toBe(true);
+    expect(ng.fellBackToNg).toBe(false);
     expect(ng.data.length).toBeGreaterThan(0);
+  });
+
+  it("resolves an unconfigured tile market to an EMPTY set, not NG (owner-approved)", async () => {
+    const { fetchTileMaterials } = await queriesImport();
+    const res = await fetchTileMaterials(undefined, "XX");
+    expect(res.data.length).toBe(0);
+    expect(res.fellBackToNg).toBe(false);
+    expect(res.marketConfigured).toBe(false);
   });
 });

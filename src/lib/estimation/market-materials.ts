@@ -110,7 +110,10 @@ export async function resolveMaterialPriceByRole(
   // Offline path: the bundled static book serves when the project
   // is not connected. Same honesty rules, same market-first order.
   if (shouldUseBundledBook()) {
-    const chain = market === "NG" ? ["NG"] : [market, "NG"];
+    // Owner-approved (2026-10-24): resolve the market's OWN bundled data
+    // only. No forced NG inheritance offline; unresolved roles return
+    // null and the caller reports "not priced in this market".
+    const chain = [market];
     for (const candidate of chain) {
       const mapping = await bundledRoleMapping(candidate, role);
       if (!mapping) continue;

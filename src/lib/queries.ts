@@ -228,11 +228,25 @@ export async function fetchPopMaterials(workflow?: string, market?: string) {
     const local = await run(market);
     if (local.length > 0)
       return { data: local, error: null, fellBackToNg: false };
+    // Owner-approved (2026-10-24): no automatic NG substitution. An
+    // unconfigured market resolves empty; the caller must either get
+    // local input or explicitly request the NG reference set via
+    // fetchPopMaterials(workflow, "NG").
+    return {
+      data: [],
+      error: null,
+      fellBackToNg: false,
+      marketConfigured: false,
+    };
   }
-  // Explicit, never silent: the caller can disclose that this is the
-  // Nigerian reference system, not the visitor's own market.
-  const fallback = await run("NG");
-  return { data: fallback, error: null, fellBackToNg: true };
+  // No market context, or NG itself: the Nigerian reference system.
+  const reference = await run("NG");
+  return {
+    data: reference,
+    error: null,
+    fellBackToNg: market != null && market !== "NG",
+    marketConfigured: true,
+  };
 }
 
 export async function fetchPopWorkflows() {
@@ -279,11 +293,25 @@ export async function fetchTileMaterials(category?: string, market?: string) {
     const local = await run(market);
     if (local.length > 0)
       return { data: local, error: null, fellBackToNg: false };
+    // Owner-approved (2026-10-24): no automatic NG substitution. An
+    // unconfigured market resolves empty; the caller must either get
+    // local input or explicitly request the NG reference set via
+    // fetchPopMaterials(workflow, "NG").
+    return {
+      data: [],
+      error: null,
+      fellBackToNg: false,
+      marketConfigured: false,
+    };
   }
-  // Explicit, never silent: the caller can disclose that this is the
-  // Nigerian reference system, not the visitor's own market.
-  const fallback = await run("NG");
-  return { data: fallback, error: null, fellBackToNg: true };
+  // No market context, or NG itself: the Nigerian reference system.
+  const reference = await run("NG");
+  return {
+    data: reference,
+    error: null,
+    fellBackToNg: market != null && market !== "NG",
+    marketConfigured: true,
+  };
 }
 
 // =========================================================
@@ -1245,8 +1273,18 @@ export async function fetchScreedingSystemConfig(
         data: local.data as DbScreedingSystemConfig,
         error: null,
         fellBackToNg: false,
+        marketConfigured: true,
       };
     }
+    // Owner-approved (2026-10-24): no automatic NG substitution. An
+    // unconfigured market resolves to no config; the caller asks for
+    // local input or an explicit NG reference opt-in.
+    return {
+      data: null,
+      error: null,
+      fellBackToNg: false,
+      marketConfigured: false,
+    };
   }
   const { data, error } = await supabase
     .from("screeding_system_config")

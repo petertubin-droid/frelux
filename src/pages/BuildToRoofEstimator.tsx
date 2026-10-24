@@ -192,6 +192,36 @@ const ROOFING_MATERIALS: { value: RoofingMaterial; label: string }[] = [
 
 // ── Reusable input components ──
 
+// Price-field props implementing the owner-approved local-price behavior:
+// a price key with no market book value renders EMPTY with an "Enter
+// local price" placeholder (never a Nigerian default); typing a value
+// supplies the local price and clears the missing flag.
+function priceFieldProps(
+  key: string,
+  prices: BuildToRoofInput["prices"],
+  update: (key: "prices", value: BuildToRoofInput["prices"]) => void,
+  missing: string[],
+  setMissing: (v: string[]) => void,
+) {
+  const isMissing = missing.includes(key);
+  return {
+    value: isMissing ? "" : (prices as unknown as Record<string, number>)[key],
+    placeholder: isMissing ? "Enter local price" : undefined,
+    hint: isMissing
+      ? "No verified price in your market - enter yours"
+      : undefined,
+    onChange: (v: string) => {
+      const parsed = parseFloat(v) || 0;
+      const next = {
+        ...(prices as unknown as Record<string, number>),
+        [key]: parsed,
+      } as BuildToRoofInput["prices"];
+      update("prices", next);
+      if (parsed > 0 && isMissing) setMissing(missing.filter((k) => k !== key));
+    },
+  };
+}
+
 function Field({
   id,
   label,
@@ -538,6 +568,10 @@ export default function BuildToRoofEstimator() {
   // basis, sand as a real bulk m3 price, and rebar by diameter. Missing books keep the NG default.
   const [marketCementNote, setMarketCementNote] = useState<string | null>(null);
   const [marketRebarNote, setMarketRebarNote] = useState<string | null>(null);
+  // Price keys with no market book value and no user-entered local price.
+  // Owner-approved behavior (2026-10-24): never carry Nigerian defaults into
+  // another market's estimate; unpriced items show "enter your local price".
+  const [missingLocalPrices, setMissingLocalPrices] = useState<string[]>([]);
 
   useEffect(() => {
     let alive = true;
@@ -572,36 +606,62 @@ export default function BuildToRoofEstimator() {
           rebar.overrides["rebar-25mm-per-length"];
       }
 
+      // Resolved keys are prefilled from the market's own price book.
+      // Unresolved keys are reset (never Nigerian defaults) and marked
+      // "enter your local price" per the owner-approved behavior.
+      const resolvedKeys = new Set<string>([
+        ...(cement ? ["cement_per_bag"] : []),
+        ...(sandM3 != null ? ["sand_per_m3"] : []),
+        ...Object.keys(rebarOverrides),
+      ]);
+      const REBAR_KEYS = [
+        "rebar_12mm_per_length",
+        "rebar_16mm_per_length",
+        "rebar_20mm_per_length",
+        "rebar_25mm_per_length",
+      ];
+      // Every material price field that the market's own book did not
+      // resolve. No Nigerian default is carried into another market's
+      // estimate (owner-approved 2026-10-24); these require a local
+      // price. Keys the user already entered are preserved.
+      const ALL_PRICE_KEYS = Object.keys(DEFAULT_PRICES).filter(
+        (k) =>
+          typeof DEFAULT_PRICES[k as keyof typeof DEFAULT_PRICES] === "number",
+      );
+      const unresolved = ALL_PRICE_KEYS.filter((k) => !resolvedKeys.has(k));
+      const missing = unresolved;
       setInput((prev) => ({
         ...prev,
         prices: {
           ...prev.prices,
           ...(cement
-            ? {
-                cement_per_bag: cement.price50kgBasis,
-              }
-            : {}),
-          ...(sandM3 != null ? { sand_per_m3: sandM3 } : {}),
+            ? { cement_per_bag: cement.price50kgBasis }
+            : { cement_per_bag: 0 }),
+          ...(sandM3 != null ? { sand_per_m3: sandM3 } : { sand_per_m3: 0 }),
           ...rebarOverrides,
+          ...(Object.fromEntries(unresolved.map((k) => [k, 0])) as Partial<
+            BuildToRoofInput["prices"]
+          >),
         },
       }));
+      setMissingLocalPrices(missing);
       setMarketCementNote(
         cement
           ? `Cement prefilled from the ${marketCode} price book: ${cement.materialName} at ${cement.bookPrice} per ${cement.packKg} kg pack, converted to the 50 kg bag basis.`
-          : `No verified cement price in the ${marketCode} book - the Nigerian default is shown and marked; edit it in the Prices step.`,
+          : `No verified cement price in the ${marketCode} book. Enter your local price in the Prices step; no default is assumed.`,
       );
       const rebarResolvedCount = Object.keys(rebarOverrides).length;
       if (rebarResolvedCount > 0) {
         setMarketRebarNote(
           `Rebar prefilled from the ${marketCode} price book (${rebarResolvedCount}/4 diameters resolved per 12 m length).${
             rebar.unresolved.length > 0
-              ? ` Unresolved diameters (${rebar.unresolved.join(", ")}) keep the baseline default; adjust in Prices.`
+              ? ` Unresolved diameters (${rebar.unresolved.join(", ")}) require your local price in the Prices step.`
               : ""
           }`,
         );
       } else {
         setMarketRebarNote(
-          `No verified rebar prices in the ${marketCode} book - Nigerian baseline defaults are shown and marked; edit them in the Prices step.`,
+          `No verified rebar prices in the ${marketCode} book. Enter your local prices in the Prices step; no defaults are assumed.`,
         );
       }
     })().catch(() => {});
@@ -982,6 +1042,7 @@ export default function BuildToRoofEstimator() {
           {result && phase === 4 ? (
             <EstimateResult
               result={result}
+              missingLocalPrices={missingLocalPrices}
               onBack={() => {
                 setResult(null);
                 setPhase(3);
@@ -2211,79 +2272,79 @@ export default function BuildToRoofEstimator() {
                           <Field
                             label="Cement per bag"
                             unit={currencySymbol}
-                            value={input.prices.cement_per_bag}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                cement_per_bag: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "cement_per_bag",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Block per piece"
                             unit={currencySymbol}
-                            value={input.prices.block_per_piece}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                block_per_piece: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "block_per_piece",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Sand per m³ (ref)"
                             unit={currencySymbol}
-                            value={input.prices.sand_per_m3}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                sand_per_m3: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "sand_per_m3",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Sand per trip (3.5m³)"
                             unit={currencySymbol}
-                            value={input.prices.sand_per_trip}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                sand_per_trip: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "sand_per_trip",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Granite per m³ (ref)"
                             unit={currencySymbol}
-                            value={input.prices.granite_per_m3}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                granite_per_m3: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "granite_per_m3",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Granite per trip (3.5m³)"
                             unit={currencySymbol}
-                            value={input.prices.granite_per_trip}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                granite_per_trip: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "granite_per_trip",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Reinforcement per tonne (bulk)"
                             unit={currencySymbol}
-                            value={input.prices.reinforcement_per_tonne}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                reinforcement_per_tonne: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "reinforcement_per_tonne",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <div className="col-span-2">
                             <p className="text-xs text-muted-foreground mb-1">
@@ -2293,156 +2354,156 @@ export default function BuildToRoofEstimator() {
                           <Field
                             label="12mm rebar/length"
                             unit={currencySymbol}
-                            value={input.prices.rebar_12mm_per_length}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                rebar_12mm_per_length: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "rebar_12mm_per_length",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="16mm rebar/length"
                             unit={currencySymbol}
-                            value={input.prices.rebar_16mm_per_length}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                rebar_16mm_per_length: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "rebar_16mm_per_length",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="20mm rebar/length"
                             unit={currencySymbol}
-                            value={input.prices.rebar_20mm_per_length}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                rebar_20mm_per_length: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "rebar_20mm_per_length",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="25mm rebar/length"
                             unit={currencySymbol}
-                            value={input.prices.rebar_25mm_per_length}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                rebar_25mm_per_length: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "rebar_25mm_per_length",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Binding wire per kg"
                             unit={currencySymbol}
-                            value={input.prices.binding_wire_per_kg}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                binding_wire_per_kg: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "binding_wire_per_kg",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Timber per meter"
                             unit={currencySymbol}
-                            value={input.prices.timber_per_m}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                timber_per_m: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "timber_per_m",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Roofing sheet per piece"
                             unit={currencySymbol}
-                            value={input.prices.roofing_sheet_per_piece}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                roofing_sheet_per_piece: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "roofing_sheet_per_piece",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Ridge cap per meter"
                             unit={currencySymbol}
-                            value={input.prices.ridge_cap_per_meter}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                ridge_cap_per_meter: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "ridge_cap_per_meter",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Roofing screws per piece"
                             unit={currencySymbol}
-                            value={input.prices.roofing_screws_per_piece}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                roofing_screws_per_piece: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "roofing_screws_per_piece",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Fascia per meter"
                             unit={currencySymbol}
-                            value={input.prices.fascia_per_meter}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                fascia_per_meter: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "fascia_per_meter",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="DPC per meter"
                             unit={currencySymbol}
-                            value={input.prices.dpc_per_meter}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                dpc_per_meter: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "dpc_per_meter",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Formwork per m²"
                             unit={currencySymbol}
-                            value={input.prices.formwork_per_m2}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                formwork_per_m2: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "formwork_per_m2",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Hardcore per m³"
                             unit={currencySymbol}
-                            value={input.prices.hardcore_per_m3}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                hardcore_per_m3: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "hardcore_per_m3",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="DPM per m²"
                             unit={currencySymbol}
-                            value={input.prices.dpm_per_m2}
-                            onChange={(v) =>
-                              update("prices", {
-                                ...input.prices,
-                                dpm_per_m2: parseFloat(v) || 0,
-                              })
-                            }
+                            {...priceFieldProps(
+                              "dpm_per_m2",
+                              input.prices,
+                              update,
+                              missingLocalPrices,
+                              setMissingLocalPrices,
+                            )}
                           />
                           <Field
                             label="Contingency"
@@ -2976,9 +3037,11 @@ export default function BuildToRoofEstimator() {
 function EstimateResult({
   result,
   onBack,
+  missingLocalPrices = [],
 }: {
   result: BuildToRoofResult;
   onBack: () => void;
+  missingLocalPrices?: string[];
 }) {
   const confidenceColors: Record<string, string> = {
     high: "bg-green-50 text-green-700 border-green-200",
@@ -3077,6 +3140,28 @@ function EstimateResult({
         </p>
       </div>
 
+      {/* Owner-approved honesty state: items still missing local prices */}
+      {missingLocalPrices.length > 0 && (
+        <div
+          className="rounded-2xl border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/30 p-4 text-xs text-amber-800 dark:text-amber-200"
+          data-testid="missing-local-prices-notice"
+        >
+          <p className="font-semibold">
+            {missingLocalPrices.length} material price
+            {missingLocalPrices.length > 1 ? "s" : ""} still need your local
+            rate
+          </p>
+          <p className="mt-1 leading-relaxed">
+            No default was assumed for your market. Quantities are complete; the
+            total below excludes {missingLocalPrices.length} unpriced item
+            {missingLocalPrices.length > 1 ? "s" : ""} until you enter local
+            price{missingLocalPrices.length > 1 ? "s" : ""} in the Prices step (
+            {missingLocalPrices.slice(0, 6).join(", ")}
+            {missingLocalPrices.length > 6 ? ", …" : ""}).
+          </p>
+        </div>
+      )}
+
       {/* Grand Total */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <div className="rounded-2xl border border-border bg-brand-navy p-4 sm:p-6 text-primary-foreground animate-stat-count-in col-span-2 md:col-span-1 relative overflow-hidden">
@@ -3089,7 +3174,9 @@ function EstimateResult({
           />
           <div className="relative">
             <p className="text-xs text-primary-foreground/60 mb-1">
-              Estimated Build-to-Roof Cost
+              {missingLocalPrices.length > 0
+                ? "Estimated Cost (partial - local prices pending)"
+                : "Estimated Build-to-Roof Cost"}
             </p>
             <p className="text-xl sm:text-2xl font-bold">
               {formatCurrency(result.grand_total)}

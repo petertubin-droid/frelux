@@ -171,8 +171,22 @@ export async function bundledPopMaterials(
     const local = run(market);
     if (local.length > 0)
       return { data: local, error: null, fellBackToNg: false };
+    // Owner-approved (2026-10-24): no automatic NG substitution offline
+    // either. Unconfigured market = empty set; the caller must get
+    // local input or explicitly request the NG reference set.
+    return {
+      data: [],
+      error: null,
+      fellBackToNg: false,
+      marketConfigured: false,
+    };
   }
-  return { data: run("NG"), error: null, fellBackToNg: true };
+  return {
+    data: run("NG"),
+    error: null,
+    fellBackToNg: false,
+    marketConfigured: true,
+  };
 }
 
 /** Tile materials from the bundled book, market-first. */
@@ -191,8 +205,22 @@ export async function bundledTileMaterials(
     const local = run(market);
     if (local.length > 0)
       return { data: local, error: null, fellBackToNg: false };
+    // Owner-approved (2026-10-24): no automatic NG substitution offline
+    // either. Unconfigured market = empty set; the caller must get
+    // local input or explicitly request the NG reference set.
+    return {
+      data: [],
+      error: null,
+      fellBackToNg: false,
+      marketConfigured: false,
+    };
   }
-  return { data: run("NG"), error: null, fellBackToNg: true };
+  return {
+    data: run("NG"),
+    error: null,
+    fellBackToNg: false,
+    marketConfigured: true,
+  };
 }
 
 /** The bundled role mapping for a market (display name travels). */

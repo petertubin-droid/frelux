@@ -195,6 +195,10 @@ export default function TileCostEstimator({
   // True when the visitor's market has no verified adhesive/grout set
   // and the NG reference materials were used instead (never silent).
   const [usingNgReference, setUsingNgReference] = useState(false);
+  // Market without configured tile materials: no NG substitution is
+  // applied automatically (owner-approved 2026-10-24). Adhesive/grout
+  // rates and prices are manual inputs below.
+  const [marketNotConfigured, setMarketNotConfigured] = useState(false);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<TileCalcResult | null>(null);
@@ -257,6 +261,7 @@ export default function TileCostEstimator({
       setTileSizes(sizesRes.data);
       setTileMaterials(matRes.data);
       setUsingNgReference(marketCode !== "NG" && Boolean(matRes.fellBackToNg));
+      setMarketNotConfigured(matRes.data.length === 0 && marketCode !== "NG");
       setSettings(settingsRes.data);
 
       const adhesive = matRes.data.find((m) => m.category === "adhesive");
@@ -409,6 +414,33 @@ export default function TileCostEstimator({
         <div className="grid gap-6 lg:grid-cols-5">
           {/* Input panel */}
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3">
+            {marketNotConfigured && (
+              <div
+                className="mb-4 rounded-lg border border-border bg-muted/40 p-3 text-xs"
+                data-testid="tile-market-not-configured-notice"
+              >
+                <p className="font-semibold">
+                  No verified {marketCode} tile material system yet.
+                </p>
+                <p className="mt-1 text-muted-foreground">
+                  No default is assumed for your market. Enter your local
+                  adhesive and grout coverage rates and prices below, or
+                  explicitly use the Nigerian reference set.
+                </p>
+                <button
+                  type="button"
+                  className="mt-2 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
+                  onClick={async () => {
+                    const res = await fetchTileMaterials(undefined, "NG");
+                    setTileMaterials(res.data);
+                    setUsingNgReference(true);
+                    setMarketNotConfigured(false);
+                  }}
+                >
+                  Use Nigerian reference materials (marked)
+                </button>
+              </div>
+            )}
             {usingNgReference && (
               <div
                 className="mb-4 rounded-lg border border-border bg-muted/40 p-3 text-xs"
