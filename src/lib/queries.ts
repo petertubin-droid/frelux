@@ -227,7 +227,12 @@ export async function fetchPopMaterials(workflow?: string, market?: string) {
   if (market && market !== "NG") {
     const local = await run(market);
     if (local.length > 0)
-      return { data: local, error: null, fellBackToNg: false };
+      return {
+        data: local,
+        error: null,
+        fellBackToNg: false,
+        marketConfigured: true,
+      };
     // Owner-approved (2026-10-24): no automatic NG substitution. An
     // unconfigured market resolves empty; the caller must either get
     // local input or explicitly request the NG reference set via
@@ -292,7 +297,12 @@ export async function fetchTileMaterials(category?: string, market?: string) {
   if (market && market !== "NG") {
     const local = await run(market);
     if (local.length > 0)
-      return { data: local, error: null, fellBackToNg: false };
+      return {
+        data: local,
+        error: null,
+        fellBackToNg: false,
+        marketConfigured: true,
+      };
     // Owner-approved (2026-10-24): no automatic NG substitution. An
     // unconfigured market resolves empty; the caller must either get
     // local input or explicitly request the NG reference set via
