@@ -59,7 +59,7 @@ interface ScanCandidate {
   extraction: string | null;
   confidence: "low" | "medium" | "high";
   scrape_error: string | null;
-  status: "pending" | "approved" | "rejected" | "failed";
+  status: "pending" | "approved" | "rejected" | "failed" | "auto_applied";
   reviewed_at: string | null;
   created_at: string;
 }
@@ -632,14 +632,16 @@ export default function AdminPriceScan() {
                 >
                   <span
                     className={
-                      c.status === "approved"
+                      c.status === "approved" || c.status === "auto_applied"
                         ? "text-green-600"
                         : c.status === "rejected"
                           ? "text-red-600"
                           : "text-yellow-600"
                     }
                   >
-                    {c.status}
+                    {c.status === "auto_applied"
+                      ? "auto_applied (weekly scan)"
+                      : c.status}
                   </span>
                   <span className="truncate">
                     {c.material_slug} · {c.scraped_price ?? "N/A"} {c.currency}{" "}

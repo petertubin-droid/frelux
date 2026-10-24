@@ -30,11 +30,22 @@
 //      last_scan_error) and closes the price_scan_runs audit row
 //      with counts.
 //
-// IT NEVER WRITES estimation_prices. Promoting a candidate into
-// the live price book stays an explicit admin approval in
-// AdminPriceScan — so admin overrides and manual prices survive
-// automation by construction. A failing source never aborts the
-// batch; it is recorded as a failed candidate.
+// AUTO-APPLY PHASE (2026-10-24): after filing candidates, groups
+// this run's pending candidates by (market, material_slug) and
+// applies the group median into estimation_prices ONLY when the
+// per-market gates in price_auto_apply_rules all pass:
+//   - every candidate meets the rule's min_confidence
+//   - total agreeing observations >= min_agreeing_observations
+//     (a search candidate counts its agreeing listings; a product
+//     candidate counts 1)
+//   - group prices agree within 25% of their median
+//   - median deviates from the current book by at most the rule's
+//     max_deviation_percent (no bound check when no current price)
+// MANUAL prices (estimation_prices.origin='manual') are NEVER
+// overwritten: those groups stay pending for explicit admin
+// approval. Applied rows carry origin='scan' with full provenance
+// and a estimation_price_history audit row. Anything failing a
+// gate stays pending exactly as before.
 //
 // Deploy with --no-verify-jwt (the token header IS the gate).
 // =========================================================
@@ -56,6 +67,7 @@ interface ScanSource {
   expected_unit: string | null;
   currency: string;
   last_scanned_at: string | null;
+  source_type: "product" | "search";
 }
 
 interface ExtractedPrice {
@@ -226,6 +238,106 @@ function extract(html: string): ExtractedPrice {
   };
 }
 
+/** Walks parsed JSON-LD and COLLECTS every product price (search pages
+ *  embed many products; product pages embed one). */
+function collectJsonLdPrices(
+  node: unknown,
+  found: Array<{ price: number; currency: string | null }>,
+  depth = 0,
+): void {
+  if (depth > 6 || node === null || typeof node !== "object") return;
+  const obj = node as Record<string, unknown>;
+  if (Array.isArray(obj["@graph"])) {
+    for (const child of obj["@graph"] as unknown[])
+      collectJsonLdPrices(child, found, depth + 1);
+  }
+  if (Array.isArray(obj.offers)) {
+    for (const offer of obj.offers as unknown[])
+      collectJsonLdPrices(offer, found, depth + 1);
+  } else if (obj.offers && typeof obj.offers === "object") {
+    collectJsonLdPrices(obj.offers, found, depth + 1);
+  }
+  if (obj["@type"] === "Offer" || obj["@type"] === "AggregateOffer") {
+    const raw = obj.lowPrice ?? obj.highPrice ?? obj.price;
+    if (raw !== undefined && raw !== null) {
+      const num = Number(String(raw).replace(/[^0-9.]/g, ""));
+      if (Number.isFinite(num) && num > 0) {
+        found.push({
+          price: num,
+          currency:
+            typeof obj.priceCurrency === "string" ? obj.priceCurrency : null,
+        });
+      }
+    }
+  }
+  for (const v of Object.values(obj)) {
+    if (v !== null && typeof v === "object")
+      collectJsonLdPrices(v, found, depth + 1);
+  }
+}
+
+/** Median-of-listings extraction for search result pages: robust
+ *  against single-listing outliers, requires agreement, and
+ *  reports how many listings agree (the observation count). */
+function extractSearchMedian(html: string): {
+  price: number | null;
+  currency: string | null;
+  agreeing: number;
+  confidence: "high" | "medium" | "low" | null;
+} {
+  const found: Array<{ price: number; currency: string | null }> = [];
+  const ldBlocks =
+    html.match(
+      /<script[^>]+application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi,
+    ) ?? [];
+  for (const block of ldBlocks) {
+    const body = block.replace(/<[^>]+>/g, "").trim();
+    try {
+      collectJsonLdPrices(JSON.parse(body), found);
+    } catch {
+      // malformed JSON-LD — fall through
+    }
+  }
+  if (found.length < 2) {
+    return { price: null, currency: null, agreeing: 0, confidence: null };
+  }
+  // Drop 3x/one-third outliers around the raw median, then re-median.
+  const sorted = found.map((f) => f.price).sort((a, b) => a - b);
+  const rawMedian =
+    sorted.length % 2 === 1
+      ? sorted[(sorted.length - 1) / 2]
+      : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
+  const kept = found.filter(
+    (f) => f.price >= rawMedian / 3 && f.price <= rawMedian * 3,
+  );
+  if (kept.length < 2) {
+    return { price: null, currency: null, agreeing: 0, confidence: null };
+  }
+  const kSorted = kept.map((f) => f.price).sort((a, b) => a - b);
+  const median =
+    kSorted.length % 2 === 1
+      ? kSorted[(kSorted.length - 1) / 2]
+      : (kSorted[kSorted.length / 2 - 1] + kSorted[kSorted.length / 2]) / 2;
+  // Agreement band: listings within 25% of the median.
+  const agreeing = kept.filter(
+    (f) => f.price >= median * 0.75 && f.price <= median * 1.25,
+  );
+  if (agreeing.length < 2) {
+    return { price: null, currency: null, agreeing: 0, confidence: null };
+  }
+  const currency =
+    agreeing.find((f) => f.currency)?.currency ??
+    found.find((f) => f.currency)?.currency ??
+    null;
+  const confidence = agreeing.length >= 4 ? "high" : "medium";
+  return {
+    price: Math.round(median * 100) / 100,
+    currency,
+    agreeing: agreeing.length,
+    confidence,
+  };
+}
+
 interface ScanOutcome {
   source: ScanSource;
   ok: boolean;
@@ -285,6 +397,26 @@ async function scanOneSource(
   // ── Validation (never auto-apply; only metadata for review) ──
   const notes: string[] = [];
   let confidence = result.confidence ?? "low";
+
+  // Search sources: replace the single-product extraction with the
+  // median-of-agreeing-listings extraction, and record how many
+  // listings agreed (the observation count for the auto-apply gate).
+  let observations = 1;
+  if (!fetchError && source.source_type === "search") {
+    const searchMedian = extractSearchMedian(html);
+    if (searchMedian.price !== null) {
+      result.price = searchMedian.price;
+      result.currency = searchMedian.currency;
+      result.extraction = "json_ld";
+      result.confidence = searchMedian.confidence;
+      confidence = searchMedian.confidence;
+      observations = searchMedian.agreeing;
+      notes.push(`search median of ${searchMedian.agreeing} agreeing listings`);
+    } else {
+      // No agreeing JSON-LD listings on the search page.
+      notes.push("search page yielded no agreeing product listings");
+    }
+  }
 
   // Currency sanity: extracted vs configured.
   const extractedCurrency = result.currency;
@@ -364,6 +496,7 @@ async function scanOneSource(
         fetchError ??
         (result.price === null ? "No price found on the page" : null),
       status: failed ? "failed" : "pending",
+      observations,
       review_note: reviewNote,
     });
   if (insertError && /duplicate key|unique/i.test(insertError.message)) {
@@ -490,7 +623,7 @@ serveWithCors(async (req: Request) => {
   let query = supabase
     .from("price_scan_sources")
     .select(
-      "id, market, material_slug, retailer, label, product_url, expected_unit, currency, last_scanned_at",
+      "id, market, material_slug, retailer, label, product_url, expected_unit, currency, last_scanned_at, source_type",
     )
     .eq("is_active", true)
     .order("market")
@@ -559,6 +692,239 @@ serveWithCors(async (req: Request) => {
     });
   }
 
+  // ── Auto-apply phase: promote gated candidate groups ──────
+  let autoApplied = 0;
+  const autoApplySkipped: Array<{
+    market: string;
+    slug: string;
+    reason: string;
+  }> = [];
+
+  if (candidatesCreated > 0) {
+    const { data: runCandidates } = await supabase
+      .from("price_scan_candidates")
+      .select(
+        "id, source_id, market, material_slug, retailer, scraped_price, currency, unit, confidence, observations, review_note",
+      )
+      .eq("run_id", runId)
+      .eq("status", "pending")
+      .not("scraped_price", "is", null);
+    const pending = (runCandidates ?? []) as Array<{
+      id: string;
+      source_id: string | null;
+      market: string;
+      material_slug: string;
+      retailer: string;
+      scraped_price: number | null;
+      currency: string;
+      unit: string | null;
+      confidence: string;
+      observations: number | null;
+      review_note: string | null;
+    }>;
+
+    const { data: rulesRows } = await supabase
+      .from("price_auto_apply_rules")
+      .select(
+        "market, min_confidence, max_deviation_percent, min_agreeing_observations",
+      )
+      .eq("is_active", true);
+    const rules = new Map(
+      (
+        (rulesRows ?? []) as Array<{
+          market: string;
+          min_confidence: string;
+          max_deviation_percent: number;
+          min_agreeing_observations: number;
+        }>
+      ).map((r) => [r.market, r]),
+    );
+
+    const groups = new Map<string, typeof pending>();
+    for (const c of pending) {
+      const key = `${c.market}|${c.material_slug}`;
+      const arr = groups.get(key) ?? [];
+      arr.push(c);
+      groups.set(key, arr);
+    }
+
+    const rank = { low: 0, medium: 1, high: 2 } as Record<string, number>;
+
+    for (const [key, group] of groups) {
+      const [market, slug] = key.split("|");
+      const rule = rules.get(market);
+      if (!rule) {
+        autoApplySkipped.push({ market, slug, reason: "no active rule" });
+        continue;
+      }
+
+      // Gate 1: every candidate meets the confidence floor.
+      const ranked = group.filter(
+        (c) => (rank[c.confidence] ?? -1) >= (rank[rule.min_confidence] ?? 2),
+      );
+      if (ranked.length === 0) {
+        autoApplySkipped.push({
+          market,
+          slug,
+          reason: `below min_confidence ${rule.min_confidence}`,
+        });
+        continue;
+      }
+
+      // Gate 2: total agreeing observations.
+      const observations = ranked.reduce(
+        (sum, c) => sum + (c.observations ?? 1),
+        0,
+      );
+      if (observations < rule.min_agreeing_observations) {
+        autoApplySkipped.push({
+          market,
+          slug,
+          reason: `only ${observations} agreeing observations (need ${rule.min_agreeing_observations})`,
+        });
+        continue;
+      }
+
+      // Gate 3: prices agree within 25% of the group median.
+      const prices = ranked
+        .map((c) => Number(c.scraped_price))
+        .sort((a, b) => a - b);
+      const median =
+        prices.length % 2 === 1
+          ? prices[(prices.length - 1) / 2]
+          : (prices[prices.length / 2 - 1] + prices[prices.length / 2]) / 2;
+      const inBand = prices.every(
+        (p) => p >= median * 0.75 && p <= median * 1.25,
+      );
+      if (!inBand) {
+        autoApplySkipped.push({
+          market,
+          slug,
+          reason: "sources disagree by more than 25%",
+        });
+        continue;
+      }
+
+      const currency = ranked[0].currency;
+
+      // Resolve the market material record.
+      const { data: material } = await supabase
+        .from("estimation_materials")
+        .select("id")
+        .eq("slug", slug)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (!material) {
+        autoApplySkipped.push({
+          market,
+          slug,
+          reason: "no material record for slug",
+        });
+        continue;
+      }
+
+      // Current book price (latest active) + origin protection.
+      const { data: currentRows } = await supabase
+        .from("estimation_prices")
+        .select("id, price, origin")
+        .eq("price_type", "material")
+        .eq("ref_id", material.id)
+        .eq("market", market)
+        .eq("is_active", true)
+        .order("effective_date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const current = currentRows as {
+        id: string;
+        price: number;
+        origin: string;
+      } | null;
+
+      if (current && current.origin === "manual") {
+        autoApplySkipped.push({
+          market,
+          slug,
+          reason: "current price is admin-manual; stays pending for review",
+        });
+        continue;
+      }
+
+      // Gate 4: deviation vs the current book price.
+      if (current && Number(current.price) > 0) {
+        const deviation = (median / Number(current.price) - 1) * 100;
+        if (Math.abs(deviation) > Number(rule.max_deviation_percent)) {
+          autoApplySkipped.push({
+            market,
+            slug,
+            reason: `deviation ${deviation.toFixed(1)}% exceeds ${rule.max_deviation_percent}% gate`,
+          });
+          continue;
+        }
+      }
+
+      // Deactivate the current active row, insert the scan row.
+      if (current) {
+        await supabase
+          .from("estimation_prices")
+          .update({ is_active: false, updated_at: new Date().toISOString() })
+          .eq("id", current.id);
+      }
+      const appliedNote = `Weekly auto-scan (run ${runId.slice(0, 8)}): median of ${observations} agreeing observations from ${[...new Set(ranked.map((c) => c.retailer))].join(", ")}. Replaces the previous ${current ? current.origin : "first"} price.`;
+      const { data: appliedRow, error: applyError } = await supabase
+        .from("estimation_prices")
+        .insert({
+          price_type: "material",
+          ref_id: material.id,
+          price: median,
+          currency,
+          effective_date: new Date().toISOString().slice(0, 10),
+          notes: appliedNote,
+          is_active: true,
+          price_source: appliedNote,
+          scan_confidence: ranked[0].confidence,
+          market,
+          origin: "scan",
+        })
+        .select("id")
+        .single();
+      if (applyError || !appliedRow) {
+        autoApplySkipped.push({
+          market,
+          slug,
+          reason: `apply insert failed: ${applyError?.message ?? "unknown"}`,
+        });
+        continue;
+      }
+
+      // Audit history row.
+      await supabase.from("estimation_price_history").insert({
+        price_type: "material",
+        ref_id: material.id,
+        old_price: current ? Number(current.price) : null,
+        new_price: median,
+        currency,
+        changed_by: null,
+        change_reason: `weekly_auto_scan (run ${runId.slice(0, 8)}): ${appliedNote}`,
+      });
+
+      // Mark the group's candidates applied.
+      const ids = ranked.map((c) => c.id);
+      await supabase
+        .from("price_scan_candidates")
+        .update({
+          status: "auto_applied",
+          applied_price_id: appliedRow.id,
+          reviewed_at: new Date().toISOString(),
+          review_note:
+            (ranked.length && ranked[0].review_note
+              ? ranked[0].review_note + " "
+              : "") + `AUTO-APPLIED: ${appliedNote}`,
+        })
+        .in("id", ids);
+      autoApplied++;
+    }
+  }
+
   // ── Close the run audit row ──
   const finishedAt = new Date().toISOString();
   await supabase
@@ -569,11 +935,15 @@ serveWithCors(async (req: Request) => {
       sources_scanned: scanned,
       candidates_created: candidatesCreated,
       candidates_failed: candidatesFailed,
+      auto_applied: autoApplied,
       finished_at: finishedAt,
       notes:
-        failures.length > 0
+        (failures.length > 0
           ? `${failures.length} source-level failures; first: ${failures[0].market}/${failures[0].slug} (${failures[0].reason})`
-          : null,
+          : "") +
+          (autoApplySkipped.length > 0
+            ? `${failures.length > 0 ? "; " : ""}${autoApplySkipped.length} group(s) not auto-applied; first: ${autoApplySkipped[0].market}/${autoApplySkipped[0].slug} (${autoApplySkipped[0].reason})`
+            : "") || null,
     })
     .eq("id", runId);
 
@@ -586,6 +956,8 @@ serveWithCors(async (req: Request) => {
       scanned,
       candidates_created: candidatesCreated,
       candidates_failed: candidatesFailed,
+      auto_applied: autoApplied,
+      auto_apply_skipped: autoApplySkipped.slice(0, 20),
       failures: failures.slice(0, 20),
     }),
     { status: 200, headers: { "Content-Type": "application/json" } },
