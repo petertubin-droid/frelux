@@ -143,11 +143,14 @@ function verifiedFromJurisdiction(
     ratePct: c.rate_pct,
   }));
   const compound = resolution.components.some((c) => c.compound_on !== null);
+  // The jurisdiction resolver's source is "none" only when nothing
+  // resolved; a quote-level not_determined carries null instead.
+  const source = resolution.source === "none" ? null : resolution.source;
   if (compound) {
     return {
       kind: "not_determined",
       pct: null,
-      source: resolution.source,
+      source,
       jurisdiction: resolution.resolvedJurisdiction,
       rule: resolution.rule,
       citation: resolution.citation,
@@ -167,7 +170,7 @@ function verifiedFromJurisdiction(
   return {
     kind: "verified_rule",
     pct,
-    source: resolution.source,
+    source,
     jurisdiction: resolution.resolvedJurisdiction,
     rule: resolution.rule,
     citation: resolution.citation,
