@@ -926,3 +926,157 @@ export function defaultSeedAvailability(
   if (!engine) return false;
   return engine.verifiedMarkets.includes(marketCode);
 }
+
+// ============================================================
+// OPERATIONAL STATE MODEL (roadmap Phase 0 item 1)
+// ============================================================
+
+/**
+ * The full operational state of an engine in a market, mirroring the
+ * engine_capability_state table (migration 20261024170000).
+ *
+ *  - unavailable: the engine cannot run in this market at all.
+ *  - partial: the engine runs for only a subset of its scope.
+ *  - configured: market config resolves; not yet operationally verified.
+ *  - verified_operational: market-first resolution regression-verified.
+ *  - suspended: previously verified, temporarily withdrawn.
+ */
+export type OperationalState =
+  | "unavailable"
+  | "partial"
+  | "configured"
+  | "verified_operational"
+  | "suspended";
+
+export const OPERATIONAL_STATES: readonly OperationalState[] = [
+  "unavailable",
+  "partial",
+  "configured",
+  "verified_operational",
+  "suspended",
+];
+
+/** Row shape of the engine_capability_state table. */
+export interface CapabilityStateRow {
+  engine_id: string;
+  market_code: string;
+  state: OperationalState;
+  evidence_owner: string;
+  blocking_gaps: string[];
+  last_verification: string | null;
+  state_note: string | null;
+}
+
+export interface OperationalResolution {
+  /** The operational state from the registry row (never manufactured). */
+  state: OperationalState | null;
+  /** True when the engine may run user-facing estimates in this market. */
+  operational: boolean;
+  /** Human-readable explanation, safe to show to end users. */
+  reason: string;
+  engine: EngineCapability;
+  /** Owner accountable for the evidence behind the state. */
+  evidenceOwner: string | null;
+  /** Open release-blocking gaps, empty when none are recorded. */
+  blockingGaps: string[];
+}
+
+const STATE_USER_GUIDANCE: Record<OperationalState, string> = {
+  unavailable: "is not available in this market yet.",
+  partial:
+    "runs for part of its scope in this market; some scenarios are not covered.",
+  configured:
+    "is configured for this market but not yet operationally verified; estimates require explicit local price entry where the market price book has gaps.",
+  verified_operational:
+    "is operationally verified for this market (market-first resolution, no cross-market substitution).",
+  suspended:
+    "is temporarily suspended in this market pending an operational review.",
+};
+
+/**
+ * Resolve the operational state of an engine in a market.
+ *
+ * Combines the availability resolution (admin config + verified set)
+ * with the operational state row. The row can only ever NARROW what
+ * the availability resolution allows: a `configured` row on a verified
+ * pair downgrades the user-facing claim to "not operationally
+ * verified", while a `verified_operational` row can never rescue an
+ * unverified or disabled pair (fail closed).
+ */
+export function resolveOperationalState(
+  engineId: string,
+  marketCode: string,
+  stateRow: CapabilityStateRow | null | undefined,
+  configRow?: CalculatorConfigRowLike | null,
+): OperationalResolution | null {
+  const engine = CAPABILITY_MAP.get(engineId);
+  if (!engine) return null;
+
+  const availability = resolveCapability(engineId, marketCode, configRow);
+
+  // No operational row: availability alone decides, and the claim
+  // stays honest about verification depth.
+  if (
+    !stateRow ||
+    stateRow.engine_id !== engineId ||
+    stateRow.market_code !== marketCode
+  ) {
+    if (!availability) return null;
+    if (availability.state === "enabled") {
+      return {
+        state: null,
+        operational: true,
+        reason: `${engine.name} ` + STATE_USER_GUIDANCE.verified_operational,
+        engine,
+        evidenceOwner: null,
+        blockingGaps: [],
+      };
+    }
+    return {
+      state: null,
+      operational: availability.state === "enabled",
+      reason: availability.reason,
+      engine,
+      evidenceOwner: null,
+      blockingGaps: [],
+    };
+  }
+
+  const state = stateRow.state;
+
+  // The state row can only narrow, never widen. An unavailable or
+  // suspended row on an enabled pair blocks operation (fail closed).
+  let operational: boolean;
+  switch (state) {
+    case "verified_operational":
+      operational = availability?.state === "enabled";
+      break;
+    case "partial":
+    case "configured":
+      // Configured/partial pairs may still run market-first estimates
+      // with explicit local price entry, matching the no-substitution
+      // behaviour shipped for unverified price books.
+      operational = availability?.state === "enabled";
+      break;
+    case "unavailable":
+    case "suspended":
+      operational = false;
+      break;
+    default:
+      operational = false;
+  }
+
+  const gaps = stateRow.blocking_gaps ?? [];
+  const reason =
+    `${engine.name} ${STATE_USER_GUIDANCE[state]}` +
+    (gaps.length > 0 ? ` Open gaps: ${gaps.join("; ")}.` : "");
+
+  return {
+    state,
+    operational,
+    reason,
+    engine,
+    evidenceOwner: stateRow.evidence_owner,
+    blockingGaps: gaps,
+  };
+}
