@@ -34,8 +34,10 @@ export default function Terms() {
               construction and finishing projects. You are responsible for
               verifying all measurements, prices, and product suitability before
               making purchases or starting work. The Service is available to
-              users in Nigeria and internationally, but pricing and product data
-              are calibrated for the Nigerian market.
+              users across international markets. Market-sensitive data such as
+              prices, product sizes, and construction standards is calibrated
+              per market and varies by location: each estimate discloses whether
+              its market data is verified, partially verified, or user-supplied.
             </p>
           ),
         },

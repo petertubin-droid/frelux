@@ -301,8 +301,8 @@ const routes = [
   },
   {
     path: '/case-studies',
-    title: 'Before & After Case Studies: Real Projects, Real Numbers | FRELUX SMART CALC',
-    description: 'In-depth before and after case studies of real painting, screeding, POP ceiling and tiling projects: scope, challenges, outcome and cost.',
+    title: 'Before & After Case Studies | FRELUX SMART CALC',
+    description: 'In-depth before and after walkthroughs of Nigerian painting, screeding, POP ceiling and tiling example projects: scope, challenges, outcome and cost breakdown.',
     priority: '0.7',
     changefreq: 'weekly',
     structuredData: [
@@ -647,7 +647,7 @@ const routes = [
   {
     path: '/about',
     title: 'About FRELUX SMART CALC',
-    description: 'Learn about FRELUX SMART CALC: free professional paint calculators, cost estimators, and AI tools for painting projects.',
+    description: 'Learn about FRELUX, a global construction intelligence and project estimation platform helping homeowners, decorators, and construction professionals across international markets plan projects with confidence.',
     priority: '0.5',
     changefreq: 'monthly',
   },

@@ -12,6 +12,7 @@ import {
   resolveMarketRebar,
 } from "@/lib/estimation/structural-market";
 import { useSeo } from "@/lib/seo";
+import { APPROVED_MARKET_CODES } from "@/lib/international/countries";
 import { useMarket } from "@/lib/international/market-context";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { formatAreaDual } from "@/lib/international/units-display";
@@ -388,7 +389,7 @@ export default function BuildToRoofEstimator() {
         name: "Build-to-Roof Construction Cost Estimator",
         url: `${SITE_URL}/build-to-roof-estimator`,
         description:
-          "Calculate materials, quantities, and costs for your building from foundation to roof with local market pricing: Nigerian price books by default, plus community-reported prices worldwide.",
+          "Calculate materials, quantities, and costs for your building from foundation to roof with market-specific price books for your selected market, community-reported prices worldwide, and clearly disclosed assumptions.",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
         offers: {
@@ -400,12 +401,13 @@ export default function BuildToRoofEstimator() {
           "@type": "Audience",
           audienceType: "Homeowners, Builders, Contractors",
         },
-        areaServed: [
-          { "@type": "Country", name: "Nigeria" },
-          { "@type": "Country", name: "Ghana" },
-          { "@type": "Country", name: "Kenya" },
-          { "@type": "Country", name: "South Africa" },
-        ],
+        // The configured international market registry (countries.ts).
+        // areaServed lists configured markets only; verified data depth
+        // varies per market and is disclosed per estimate, not here.
+        areaServed: APPROVED_MARKET_CODES.map((code) => ({
+          "@type": "Country",
+          name: code,
+        })),
       },
       {
         "@context": "https://schema.org",

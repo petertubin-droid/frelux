@@ -78,6 +78,11 @@ export const COUNTRY_OPTIONS: CountryGroup[] = [
   },
 ];
 
+/** Flat list of the approved market codes (the 32-market registry). */
+export const APPROVED_MARKET_CODES: string[] = COUNTRY_OPTIONS.flatMap((g) =>
+  g.countries.map((c) => c.code),
+);
+
 export const COUNTRY_CURRENCY: Record<string, string> = Object.fromEntries(
   COUNTRY_OPTIONS.flatMap((g) =>
     g.countries.map((c) => [c.code, c.currency] as const),

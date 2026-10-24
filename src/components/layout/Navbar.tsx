@@ -426,7 +426,7 @@ export default function Navbar() {
               </a>
             </div>
 
-            {/* Language switcher, Nigerian languages */}
+            {/* Language switcher (11 supported languages) */}
             <div className="relative">
               <button
                 type="button"

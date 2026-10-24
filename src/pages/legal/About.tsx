@@ -6,7 +6,7 @@ export default function About() {
   useSeo({
     title: "About: FRELUX",
     description:
-      "Learn about FRELUX, a practical painting, construction, and color platform helping homeowners, decorators, and contractors in Nigeria and beyond plan projects with confidence.",
+      "Learn about FRELUX, a global construction intelligence and project estimation platform helping homeowners, decorators, and construction professionals across international markets plan projects with confidence.",
     canonicalPath: "/about",
     ogType: "website",
     structuredData: {
@@ -22,7 +22,10 @@ export default function About() {
         url: SITE_URL,
         logo: `${SITE_URL}/logo-mark.png`,
         foundingDate: "2025",
-        areaServed: "Nigeria",
+        // Served markets reflect the configured international market
+        // registry; availability of verified data varies per market and is
+        // disclosed per tool, not claimed globally.
+        areaServed: "International",
         knowsAbout: [
           "Paint calculation",
           "Construction cost estimation",
@@ -116,9 +119,13 @@ export default function About() {
               Whether you are a homeowner planning a weekend refresh, a
               decorator quoting a client project, a contractor estimating
               materials for a tender, or a DIYer learning the ropes, our tools
-              are designed to be clear and practical. We focus on the Nigerian
-              market for pricing and product availability, but the calculation
-              methodology works for any project anywhere in the world.
+              are designed to be clear and practical. The calculation
+              methodology works for any project, and market-sensitive data
+              (prices, product sizes, standards) is configured and verified
+              market by market, starting with Nigeria and extending across the
+              configured international markets. Each estimate discloses which
+              market configuration it uses and whether its data is verified or
+              user-supplied.
             </p>
           ),
         },

@@ -22,7 +22,7 @@ export default function CaseStudies() {
   useSeo({
     title: "Before & After Case Studies: Real Projects, Real Numbers | FRELUX",
     description:
-      "In-depth before and after case studies of real Nigerian painting, screeding, POP ceiling and tiling projects: the scope, the challenges, the outcome and what it cost.",
+      "In-depth before and after walkthroughs of Nigerian painting, screeding, POP ceiling and tiling example projects: the scope, the challenges, the outcome and the cost breakdown.",
     canonicalPath: "/case-studies",
     ogType: "website",
     structuredDataArray: [

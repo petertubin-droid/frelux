@@ -42,7 +42,7 @@ export default function UserGuide() {
     canonicalPath: "/user-guide",
     ogType: "article",
     keywords:
-      "FRELUX user guide, how to use paint calculator, construction calculator guide, estimate materials Nigeria",
+      "FRELUX user guide, how to use paint calculator, construction calculator guide, estimate construction materials, market settings",
     structuredDataArray: [
       {
         "@context": "https://schema.org",
