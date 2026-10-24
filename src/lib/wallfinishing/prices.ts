@@ -169,14 +169,16 @@ export async function fetchWallFinLabourRates(
       "market, task_key, method, rate, currency, output_per_worker_day, source_reference, effective_date, is_active",
     )
     .eq("is_active", true)
-    .or(`market.eq.${market},market.eq.NG`);
+    .eq("market", market);
   if (error) return [];
   return (data ?? []) as WallFinLabourRateRow[];
 }
 
 /**
- * Resolve a labour rate for a task: the market's own rate first,
- * then the NG/US reference book, then null - never a guess.
+ * Resolve a labour rate for a task: the market's own rate only,
+ * else null - never a guess and never another market's value
+ * (owner-approved no-substitution behaviour, 2026-10-24). The
+ * caller surfaces "enter local rate" states for unresolved tasks.
  */
 export async function resolveLabourRate(
   taskKey: string,
@@ -184,9 +186,7 @@ export async function resolveLabourRate(
   currency: string,
 ): Promise<ResolvedLabourRate | null> {
   const rows = await fetchWallFinLabourRates(market);
-  const own = rows.find((r) => r.market === market && r.task_key === taskKey);
-  const ref = rows.find((r) => r.market === "NG" && r.task_key === taskKey);
-  const row = own ?? ref;
+  const row = rows.find((r) => r.market === market && r.task_key === taskKey);
   if (!row) return null;
   return {
     taskKey,
