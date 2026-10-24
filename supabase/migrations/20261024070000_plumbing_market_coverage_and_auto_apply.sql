@@ -112,7 +112,7 @@ SELECT
   'pipe',
   'Per ' || k.unit_word || '. FX reference price until the first weekly live scan replaces it; the weekly price-intel scan auto-updates this market row under reviewable gates.',
   CURRENT_DATE, true, 10
-FROM mkt CROSS JOIN keys
+FROM mkt CROSS JOIN keys AS k
 ON CONFLICT (slug) DO NOTHING;
 
 -- ── 6. FX reference prices derived from the LIVE NG book ──
@@ -144,7 +144,7 @@ WITH ng AS (
     lower(f.market) || CASE WHEN k.kind = 'pipe' THEN '-pipe-' ELSE '-' END || k.suffix AS market_slug,
     CASE WHEN k.kind = 'pipe' THEN 'plumb-pipe-' || k.suffix ELSE 'plumb-' || k.suffix END AS ng_slug,
     f.market, f.currency, f.rate
-  FROM fx
+  FROM fx AS f
   CROSS JOIN (VALUES
     ('pipe','cold'),('pipe','hot'),('pipe','waste'),('pipe','drainage'),
     ('fitting','elbow'),('fitting','tee'),('fitting','reducer'),
