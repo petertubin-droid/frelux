@@ -6,6 +6,7 @@
  */
 import { supabase } from "@/lib/supabase";
 import { computeQuoteTax, resolveQuoteTax } from "@/lib/tax/quote-tax";
+import { resolveSettlementFx } from "@/lib/fx/settlement-fx";
 import type {
   DbContractorProject,
   DbProjectRoom,
@@ -1358,6 +1359,11 @@ export async function generateQuotation(
     termsConditions?: string;
     paymentTerms?: string;
     validityDays?: number;
+    /** Attempt a provider-backed settlement conversion of the
+     *  grand total into the market's configured settlement
+     *  currency. Fail-closed when the market has no active,
+     *  reviewed settlement_fx_config row. */
+    includeSettlement?: boolean;
   },
 ): Promise<DbProjectQuotation> {
   const project = await fetchContractorProject(projectId);
@@ -1408,6 +1414,22 @@ export async function generateQuotation(
       : taxComputation.gross
     : preTax + taxAmount;
 
+  // Settlement conversion is opt-in and fail-closed: the market
+  // must carry an active, legally reviewed settlement_fx_config
+  // row and a recorded FX rate with provider provenance. Any
+  // refusal keeps the quote in its own currency.
+  const siteCountry =
+    (project.location as { country_code?: string } | null)?.country_code ??
+    null;
+  const settlement =
+    options?.includeSettlement === true && siteCountry
+      ? await resolveSettlementFx({
+          quoteAmount: grandTotal,
+          quoteCurrency: project.currency ?? "NGN",
+          marketCode: siteCountry,
+        })
+      : null;
+
   // Generate quotation number
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const random = Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -1448,6 +1470,29 @@ export async function generateQuotation(
           }))
         : null,
       grand_total: grandTotal,
+      fx_settlement_status: settlement?.status ?? null,
+      fx_settlement_currency: settlement?.settlementCurrency ?? null,
+      fx_total_payable: settlement?.totalPayable ?? null,
+      fx_settlement: settlement
+        ? {
+            status: settlement.status,
+            quote_currency: settlement.quoteCurrency,
+            settlement_currency: settlement.settlementCurrency,
+            quote_amount: settlement.quoteAmount,
+            converted_amount: settlement.convertedAmount,
+            applied_rate: settlement.appliedRate,
+            legs: settlement.legs,
+            via: settlement.via,
+            provider_fee: settlement.providerFee,
+            total_payable: settlement.totalPayable,
+            payment_provider: settlement.paymentProvider,
+            reconciliation_path: settlement.reconciliationPath,
+            reviewed_by: settlement.reviewedBy,
+            legal_review_date: settlement.legalReviewDate,
+            next_review_date: settlement.nextReviewDate,
+            message: settlement.message,
+          }
+        : null,
       terms_conditions:
         options?.termsConditions ?? settings?.default_terms_conditions ?? null,
       payment_terms:

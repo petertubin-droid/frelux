@@ -1371,6 +1371,13 @@ export interface DbProjectQuotation {
     amount: number;
     compounded_on: string | null;
   }> | null;
+  /** converted | not_configured | unavailable | stale; null when not requested. */
+  fx_settlement_status:
+    "converted" | "not_configured" | "unavailable" | "stale" | null;
+  fx_settlement_currency: string | null;
+  fx_total_payable: number | null;
+  /** Full settlement provenance (rate, legs, fees, provider, review). */
+  fx_settlement: Record<string, unknown> | null;
   grand_total: number;
   terms_conditions: string | null;
   timeline_days: number | null;

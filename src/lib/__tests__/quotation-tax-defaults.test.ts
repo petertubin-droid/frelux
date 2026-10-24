@@ -16,6 +16,8 @@ let insertedQuote: Record<string, unknown> | null = null;
 let quotationSettings: Record<string, unknown> | null = null;
 let jurisdictionRules: Record<string, unknown>[] = [];
 let catalogRows: Record<string, unknown>[] = [];
+let settlementConfig: Record<string, unknown> | null = null;
+let fxRateRows: Record<string, unknown>[] = [];
 
 const project: Partial<DbContractorProject> = {
   id: "p1",
@@ -45,6 +47,8 @@ vi.mock("@/lib/supabase", () => ({
       if (table === "quotation_settings") return res(quotationSettings);
       if (table === "tax_jurisdiction_rules") return res(jurisdictionRules);
       if (table === "market_tax_catalog") return res(catalogRows);
+      if (table === "settlement_fx_config") return res(settlementConfig);
+      if (table === "fx_rates") return res(fxRateRows);
       if (table === "project_quotations") {
         return {
           insert: (rows: Record<string, unknown>) => {
@@ -69,6 +73,8 @@ describe("generateQuotation — roadmap phase 1: no silent tax default", () => {
     quotationSettings = null;
     jurisdictionRules = [];
     catalogRows = [];
+    settlementConfig = null;
+    fxRateRows = [];
     __clearTaxCatalogCache();
   });
 
@@ -159,5 +165,68 @@ describe("generateQuotation — roadmap phase 1: no silent tax default", () => {
     expect(comps[1].amount).toBeCloseTo(4079.63, 2);
     expect(insertedQuote!.tax_amount).toBeCloseTo(18310.88, 2);
     expect(insertedQuote!.grand_total).toBeCloseTo(208060.88, 2);
+  });
+
+  it("opt-in settlement stores full provider-backed provenance when configured", async () => {
+    settlementConfig = {
+      id: "c1",
+      market_code: "NG",
+      payment_provider: "stripe",
+      charge_currency: "USD",
+      settlement_currency: "USD",
+      fee_pct: 2.5,
+      fee_fixed: 1,
+      reconciliation_path: "stripe-payouts-ng",
+      rate_source: "fx_rates",
+      reviewer_name: "FRELUX Legal Review",
+      legal_review_date: "2026-10-01",
+      next_review_date: "2027-10-01",
+      is_active: true,
+    };
+    fxRateRows = [
+      {
+        id: "r1",
+        base_currency: "NGN",
+        quote_currency: "USD",
+        rate: 0.0006,
+        provider: "open.er-api.com",
+        source_url: "https://open.er-api.com/v6/latest/NGN",
+        fetched_at: new Date(Date.now() - 3600_000).toISOString(),
+        is_active: true,
+      },
+    ];
+    (project as Record<string, unknown>).location = {
+      country_code: "NG",
+    };
+
+    await generateQuotation("p1", { includeSettlement: true });
+
+    expect(insertedQuote).not.toBeNull();
+    expect(insertedQuote!.fx_settlement_status).toBe("converted");
+    expect(insertedQuote!.fx_settlement_currency).toBe("USD");
+    const fx = insertedQuote!.fx_settlement as Record<string, unknown>;
+    expect(fx.payment_provider).toBe("stripe");
+    expect(fx.reviewed_by).toBe("FRELUX Legal Review");
+    expect(fx.applied_rate).toBe(0.0006);
+    expect(fx.provider_fee).toBeGreaterThan(0);
+    expect(fx.total_payable).toBeGreaterThan(0);
+  });
+
+  it("opt-in settlement fails closed as not_configured without a config row", async () => {
+    (project as Record<string, unknown>).location = {
+      country_code: "NG",
+    };
+
+    await generateQuotation("p1", { includeSettlement: true });
+
+    expect(insertedQuote!.fx_settlement_status).toBe("not_configured");
+    expect(insertedQuote!.fx_settlement_currency).toBeNull();
+    expect(insertedQuote!.fx_total_payable).toBeNull();
+  });
+
+  it("settlement is skipped entirely when not requested", async () => {
+    await generateQuotation("p1");
+    expect(insertedQuote!.fx_settlement_status).toBeNull();
+    expect(insertedQuote!.fx_settlement).toBeNull();
   });
 });
