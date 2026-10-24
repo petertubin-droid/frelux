@@ -159,7 +159,12 @@ export async function bundledCategoryMaterials(
 export async function bundledPopMaterials(
   workflow: string | undefined,
   market: string | undefined,
-): Promise<{ data: DbPopMaterial[]; error: null; fellBackToNg: boolean }> {
+): Promise<{
+  data: DbPopMaterial[];
+  error: null;
+  fellBackToNg: boolean;
+  marketConfigured: boolean;
+}> {
   const book = await loadBook();
   const all = book.BUNDLED_POP_MATERIALS as unknown as DbPopMaterial[];
   const run = (mkt: string) =>
@@ -193,7 +198,12 @@ export async function bundledPopMaterials(
 export async function bundledTileMaterials(
   category: string | undefined,
   market: string | undefined,
-): Promise<{ data: DbTileMaterial[]; error: null; fellBackToNg: boolean }> {
+): Promise<{
+  data: DbTileMaterial[];
+  error: null;
+  fellBackToNg: boolean;
+  marketConfigured: boolean;
+}> {
   const book = await loadBook();
   const all = book.BUNDLED_TILE_MATERIALS as unknown as DbTileMaterial[];
   const run = (mkt: string) =>
