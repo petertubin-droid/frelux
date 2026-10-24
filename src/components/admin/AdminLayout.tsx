@@ -341,6 +341,7 @@ const navModules: NavModule[] = [
     heading: "Content",
     items: [
       { label: "Learn Articles", to: "/admin/learn", icon: BookOpen },
+      { label: "Wall Finishing Library", to: "/admin/learn/wall-finishing", icon: Globe },
       {
         label: "Construction Dictionary",
         to: "/admin/dictionary",
