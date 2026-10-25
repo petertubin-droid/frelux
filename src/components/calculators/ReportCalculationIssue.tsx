@@ -76,7 +76,8 @@ export default function ReportCalculationIssue({
           Report submitted. Our team will review this calculation. Thank you for
           helping improve FRELUX.
         </p>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           type="button"
           onClick={() => {
             setSubmitted(false);
@@ -93,7 +94,8 @@ export default function ReportCalculationIssue({
 
   return (
     <div className="mt-2">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/80"
@@ -127,10 +129,14 @@ export default function ReportCalculationIssue({
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+            <label
+              htmlFor="report-issue-expected-result"
+              className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground"
+            >
               What should the correct result be? (optional)
             </label>
             <input
+              id="report-issue-expected-result"
               type="text"
               value={expectedResult}
               onChange={(e) => setExpectedResult(e.target.value)}
@@ -141,10 +147,14 @@ export default function ReportCalculationIssue({
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+            <label
+              htmlFor="report-issue-contact-email"
+              className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground"
+            >
               Your email (optional, for follow-up)
             </label>
             <input
+              id="report-issue-contact-email"
               type="email"
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
@@ -156,7 +166,8 @@ export default function ReportCalculationIssue({
 
           {error && <p className="text-xs text-red-500">{error}</p>}
 
-          <Button variant="default"
+          <Button
+            variant="default"
             type="submit"
             disabled={submitting || !description.trim()}
             className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-opacity disabled:opacity-50"

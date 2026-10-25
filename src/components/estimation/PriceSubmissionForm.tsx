@@ -131,10 +131,14 @@ export default function PriceSubmissionForm() {
       </p>
       <form onSubmit={submit} className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="text-xs font-medium text-muted-foreground">
+          <label
+            htmlFor="price-submission-market"
+            className="text-xs font-medium text-muted-foreground"
+          >
             Market
           </label>
           <select
+            id="price-submission-market"
             value={market}
             onChange={(e) => {
               setMarket(e.target.value as Market);
@@ -154,11 +158,15 @@ export default function PriceSubmissionForm() {
           </select>
         </div>
         <div>
-          <label className="text-xs font-medium text-muted-foreground">
+          <label
+            htmlFor="price-submission-region"
+            className="text-xs font-medium text-muted-foreground"
+          >
             Region
           </label>
           {regions ? (
             <select
+              id="price-submission-region"
               value={region}
               onChange={(e) => setRegion(e.target.value)}
               className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -172,6 +180,7 @@ export default function PriceSubmissionForm() {
             </select>
           ) : (
             <input
+              id="price-submission-region"
               value={region}
               onChange={(e) => setRegion(e.target.value)}
               placeholder="Region"
@@ -180,10 +189,14 @@ export default function PriceSubmissionForm() {
           )}
         </div>
         <div>
-          <label className="text-xs font-medium text-muted-foreground">
+          <label
+            htmlFor="price-submission-item"
+            className="text-xs font-medium text-muted-foreground"
+          >
             Item
           </label>
           <input
+            id="price-submission-item"
             value={itemName}
             onChange={(e) => setItemName(e.target.value)}
             placeholder="e.g. Bag of cement"
@@ -191,10 +204,14 @@ export default function PriceSubmissionForm() {
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-muted-foreground">
+          <label
+            htmlFor="price-submission-unit"
+            className="text-xs font-medium text-muted-foreground"
+          >
             Unit
           </label>
           <input
+            id="price-submission-unit"
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
             placeholder="bag, m², kg…"
@@ -202,10 +219,14 @@ export default function PriceSubmissionForm() {
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-muted-foreground">
+          <label
+            htmlFor="price-submission-price"
+            className="text-xs font-medium text-muted-foreground"
+          >
             Price ({currency})
           </label>
           <input
+            id="price-submission-price"
             type="number"
             min="0"
             step="any"
@@ -216,10 +237,14 @@ export default function PriceSubmissionForm() {
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-muted-foreground">
+          <label
+            htmlFor="price-submission-vendor"
+            className="text-xs font-medium text-muted-foreground"
+          >
             Vendor <span className="opacity-70">(optional)</span>
           </label>
           <input
+            id="price-submission-vendor"
             value={vendor}
             onChange={(e) => setVendor(e.target.value)}
             placeholder="Where you saw this price"

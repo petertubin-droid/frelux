@@ -390,13 +390,27 @@ export default function SaveToProjectButton({
                 <p className="text-sm text-muted-foreground">
                   Create a new project to save this calculation to.
                 </p>
+                <label
+                  htmlFor="save-to-project-new-name"
+                  className="block text-xs font-medium text-muted-foreground"
+                >
+                  Project name
+                </label>
                 <input
+                  id="save-to-project-new-name"
+                  aria-describedby="save-to-project-new-name-hint"
                   className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
                   placeholder="Project name (e.g. 3-Bedroom House)"
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
                   autoFocus
                 />
+                <p
+                  id="save-to-project-new-name-hint"
+                  className="text-xs text-muted-foreground"
+                >
+                  e.g. 3-Bedroom House
+                </p>
                 <div className="flex gap-3">
                   <Button
                     variant="ghost"

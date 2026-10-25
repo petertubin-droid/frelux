@@ -33,6 +33,22 @@ describe("ReportCalculationIssue", () => {
     ).toBeTruthy();
   });
 
+  it("associates optional-field labels with their inputs", async () => {
+    render(<ReportCalculationIssue calculatorType="paint" />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /report an issue|report/i }),
+    );
+    await waitFor(() => {
+      const expected = screen.getByLabelText(
+        /what should the correct result be/i,
+      );
+      expect(expected).toBeTruthy();
+      expect((expected as HTMLElement).id).toBe("report-issue-expected-result");
+    });
+    const email = screen.getByLabelText(/your email/i);
+    expect((email as HTMLElement).id).toBe("report-issue-contact-email");
+  });
+
   it("submit button is disabled when description is empty", () => {
     render(<ReportCalculationIssue calculatorType="paint" />);
     fireEvent.click(screen.getByText(/Report incorrect calculation/i));
