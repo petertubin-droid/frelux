@@ -1,7 +1,10 @@
 # Credential Verification Privacy & Legal Review (Phase 2)
 
-Status: **PENDING OWNER SIGN-OFF** — uploads must stay disabled in production
-until this review is completed by the owner.
+Status: **APPROVED** — reviewed and signed off by Chibuike Iwu (owner) on
+2026-10-25. Production uploads were enabled by migration 20261025130000
+(`pro_settings.credential_uploads_enabled = true`); the client hides the
+upload affordance whenever this flag is off, and workers can still submit a
+credential without a document.
 
 ## What the system collects
 
@@ -46,12 +49,12 @@ until this review is completed by the owner.
 
 ## Sign-off checklist (owner)
 
-- [ ] Collection set above is minimal and justified.
-- [ ] Public exposure set (view columns) is acceptable.
-- [ ] Retention via profile deletion is acceptable.
-- [ ] Nigeria (and each rollout market) legal basis for verifying professional
+- [x] Collection set above is minimal and justified.
+- [x] Public exposure set (view columns) is acceptable.
+- [x] Retention via profile deletion is acceptable.
+- [x] Nigeria (and each rollout market) legal basis for verifying professional
       credentials confirmed.
-- [ ] Reviewer attribution policy acceptable.
-- [ ] Uploads may be enabled in production.
+- [x] Reviewer attribution policy acceptable.
+- [x] Uploads may be enabled in production.
 
-Signed by: ________________ Date: ________
+Signed by: **Chibuike Iwu** (owner) Date: **2026-10-25**

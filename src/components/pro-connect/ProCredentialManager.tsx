@@ -6,6 +6,7 @@ import { credentialStatusLabel } from "@/lib/credential-status";
 import type { CredentialVerificationStatus } from "@/types/pro-connect";
 import {
   addCredential,
+  fetchProSettings,
   getCredentialEvents,
   getCredentials,
   resubmitCredential,
@@ -14,6 +15,7 @@ import {
 import type {
   DbProCredential,
   DbProCredentialEvent,
+  DbProSettings,
 } from "@/types/pro-connect";
 
 // =========================================================
@@ -99,6 +101,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
   const [form, setForm] = useState<FormState>({ ...EMPTY_FORM, open: false });
   const [eventsFor, setEventsFor] = useState<string | null>(null);
   const [events, setEvents] = useState<DbProCredentialEvent[]>([]);
+  const [uploadsEnabled, setUploadsEnabled] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -110,6 +113,17 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchProSettings().then((settings) => {
+      if (!cancelled)
+        setUploadsEnabled(settings?.credential_uploads_enabled === true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!eventsFor) return;
@@ -372,19 +386,27 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
             </div>
           )}
 
-          <label className="flex items-center gap-2 text-sm">
-            <FileText
-              aria-hidden="true"
-              className="h-4 w-4 text-muted-foreground"
-            />
-            <input
-              type="file"
-              className="text-xs text-muted-foreground"
-              onChange={(e) =>
-                setField({ document: e.target.files?.[0] ?? null })
-              }
-            />
-          </label>
+          {uploadsEnabled ? (
+            <label className="flex items-center gap-2 text-sm">
+              <FileText
+                aria-hidden="true"
+                className="h-4 w-4 text-muted-foreground"
+              />
+              <input
+                type="file"
+                className="text-xs text-muted-foreground"
+                onChange={(e) =>
+                  setField({ document: e.target.files?.[0] ?? null })
+                }
+              />
+            </label>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Evidence document upload is not available right now. You can
+              submit the credential without a document and it will be reviewed
+              from the details you provide.
+            </p>
+          )}
 
           {error && (
             <p role="alert" className="text-sm text-red-600 dark:text-red-400">

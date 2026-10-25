@@ -412,6 +412,8 @@ export interface DbProSettings {
   verified_boost_in_search: boolean;
   auto_publish_reviews: boolean;
   require_review_approval: boolean;
+  /** Production gate for credential evidence uploads (privacy review sign-off). */
+  credential_uploads_enabled: boolean;
   created_at: string;
   updated_at: string;
 }

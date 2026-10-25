@@ -4,6 +4,7 @@ import { ProCredentialManager } from "./ProCredentialManager";
 import type {
   DbProCredential,
   DbProCredentialEvent,
+  DbProSettings,
 } from "@/types/pro-connect";
 
 // ============================================================
@@ -47,6 +48,9 @@ const addCredential = vi.fn();
 const resubmitCredential = vi.fn();
 const getCredentials = vi.fn();
 const getCredentialEvents = vi.fn();
+const fetchProSettings = vi.fn(
+  async () => ({ credential_uploads_enabled: true }) as DbProSettings,
+);
 
 vi.mock("@/lib/pro-connect", async (importOriginal) => ({
   ...(await importOriginal<object>()),
@@ -54,6 +58,7 @@ vi.mock("@/lib/pro-connect", async (importOriginal) => ({
   resubmitCredential: (...args: unknown[]) => resubmitCredential(...args),
   getCredentials: (...args: unknown[]) => getCredentials(...args),
   getCredentialEvents: (...args: unknown[]) => getCredentialEvents(...args),
+  fetchProSettings: () => fetchProSettings(),
   uploadVerificationDocument: vi.fn(async () => "docs/1.pdf"),
 }));
 
@@ -154,6 +159,22 @@ describe("ProCredentialManager", () => {
     );
     expect(await screen.findByText(/Resubmitted for review/i)).toBeTruthy();
     expect(getCredentials).toHaveBeenCalledTimes(2);
+  });
+
+  it("hides the document upload affordance when uploads are disabled", async () => {
+    fetchProSettings.mockResolvedValueOnce({
+      credential_uploads_enabled: false,
+    } as DbProSettings);
+    getCredentials.mockResolvedValueOnce([]);
+    render(<ProCredentialManager profileId="p1" />);
+    await screen.findByRole("button", { name: /Add credential/i });
+    fireEvent.click(screen.getByRole("button", { name: /Add credential/i }));
+    expect(
+      await screen.findByText(
+        /Evidence document upload is not available right now/i,
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText(/document/i)).toBeNull();
   });
 
   it("discloses the event history for a credential", async () => {
