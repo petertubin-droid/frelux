@@ -122,6 +122,8 @@ This roadmap is for implementation in the existing FRELUX application. It preser
 - Add comprehensive loading, empty, unavailable, stale, permission-denied, provider-error, pending-review and success states. Explain what is and is not verified in plain language.
 - Do not add country-specific placeholder rates, credentials, calendar events or logistics samples to production fixtures. Demonstrations must be clearly labeled test data.
 
+**Progress (2026-10-25, Phase 4 slice 1):** the project-level Operations tab is live in ProjectDashboard (new "Operations" tab) rendering four cross-engine sections with evidence and actions: tax status from the latest quotation's stored provenance (verified rule with citation/validation vs. manual assumption vs. tax_not_determined, never a green state for gaps); workforce credentials with registry-verified and document-reviewed kept distinct plus pending and expiring-soon states; procurement grouped by the deterministic state machine (open, in motion, needs attention, delivered) for records linked to the project with a path to the logistics board; and schedule impact reporting phase progress plus calendar availability from the fail-closed resolver (no invented dates; missing site country and missing/stale calendars are explicit gaps). 13 component tests cover the honesty rules; full gate 993 files / 8,709 tests, build clean.
+
 ## Phase 5 — Verification, rollout and operation
 
 1. Start with implementation infrastructure and tests, then one explicitly selected pilot jurisdiction per engine only after primary sources, an accountable local reviewer and provider access are available. The pilot selection remains open; do not choose a country or fabricate source data on another agent’s behalf.

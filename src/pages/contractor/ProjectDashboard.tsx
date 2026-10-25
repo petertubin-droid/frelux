@@ -44,6 +44,7 @@ import {
   Brain,
   Receipt,
   ClipboardCheck,
+  Gauge,
 } from "lucide-react";
 import {
   fetchContractorProject,
@@ -102,6 +103,7 @@ import { useSeo } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { WorkflowTab } from "./WorkflowTab";
+import { OperationsTab } from "./OperationsTab";
 
 // ============================================================
 // CONSTANTS & HELPERS
@@ -126,6 +128,7 @@ type TabKey =
   | "workflows"
   | "quotation"
   | "timeline"
+  | "operations"
   | "notes"
   | "ai";
 
@@ -139,6 +142,7 @@ const TABS: { key: TabKey; label: string; icon: typeof Package }[] = [
   { key: "workflows", label: "Workflows", icon: ClipboardCheck },
   { key: "quotation", label: "Quotation", icon: FileText },
   { key: "timeline", label: "Timeline", icon: Calendar },
+  { key: "operations", label: "Operations", icon: Gauge },
   { key: "notes", label: "Notes", icon: Hammer },
   { key: "ai", label: "AI Assistant", icon: Brain },
 ];
@@ -1300,6 +1304,15 @@ export default function ProjectDashboard() {
               actionLoading={actionLoading}
               onGenerate={handleGenerateTimeline}
               onMarkComplete={handleMarkPhaseComplete}
+            />
+          )}
+
+          {activeTab === "operations" && (
+            <OperationsTab
+              project={project}
+              quotations={quotations}
+              timeline={timeline}
+              onNavigateTab={(tab) => setActiveTab(tab)}
             />
           )}
 
