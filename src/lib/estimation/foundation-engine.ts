@@ -27,6 +27,8 @@
  */
 
 import type { CalcRuleRow } from "./count-vision-engine";
+import { CEMENT_BAG_WEIGHT_BY_MARKET } from "./plastering-standalone-engine";
+
 
 // ─────────────────────────────────────────────
 // Standard mix-math constants (shown in the breakdown)
@@ -165,6 +167,14 @@ export interface FoundationResult {
 
 export type FoundationPriceMap = Record<string, number | null>;
 
+export interface FoundationOptions {
+  /** Target market code (e.g. 'GB', 'DE', 'AU', 'CA', 'NG') to adapt cement bag sizing */
+  marketCode?: string;
+  /** Explicit cement bag weight override in kg. If provided, takes precedence over market lookup. */
+  bagWeightKg?: number;
+}
+
+
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
@@ -190,6 +200,7 @@ export function calculateFoundation(
   input: FoundationInput,
   rules: FoundationRules,
   prices: FoundationPriceMap,
+  options?: FoundationOptions,
 ): FoundationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -241,7 +252,17 @@ export function calculateFoundation(
       const wet = input.concrete_volume_m3;
       const dry = wet * wasteFactor * DRY_VOLUME_FACTOR;
 
-      const cementBags = ceilU(((cement / parts) * dry) / CEMENT_BAG_VOLUME_M3);
+      // Resolve cement bag weight and nominal bag volume based on market or options override
+      const market = options?.marketCode?.toUpperCase();
+      const bagWeightKg =
+        options?.bagWeightKg ??
+        (market && CEMENT_BAG_WEIGHT_BY_MARKET[market]
+          ? CEMENT_BAG_WEIGHT_BY_MARKET[market]
+          : 50);
+      // Bulk density of loose Portland cement is standard 1440 kg/m³
+      const bagVolumeM3 = bagWeightKg === 50 ? CEMENT_BAG_VOLUME_M3 : bagWeightKg / 1440.0;
+
+      const cementBags = ceilU(((cement / parts) * dry) / bagVolumeM3);
       const sandM3 = ceilU((sand / parts) * dry);
       const graniteM3 = ceilU((granite / parts) * dry);
 
@@ -251,18 +272,18 @@ export function calculateFoundation(
       });
       steps.push({
         label: "Cement bags",
-        detail: `${roundTo((cement / parts) * dry, 3)} m³ ÷ ${CEMENT_BAG_VOLUME_M3} m³/bag (50 kg) = ${roundTo(((cement / parts) * dry) / CEMENT_BAG_VOLUME_M3, 2)} → ${cementBags} bags (whole, up).`,
+        detail: `${roundTo((cement / parts) * dry, 3)} m³ ÷ ${roundTo(bagVolumeM3, 4)} m³/bag (${bagWeightKg} kg) = ${roundTo(((cement / parts) * dry) / bagVolumeM3, 2)} → ${cementBags} bags (whole, up).`,
       });
 
       const bagPrice = prices["cement-per-bag"] ?? null;
       lines.push({
         key: "cement",
-        label: "Cement (50 kg bags)",
+        label: `Cement (${bagWeightKg} kg bags)`,
         material_slug: "cement-per-bag",
         quantity: cementBags,
         quantity_source: "rule_derived",
         unit: "bags",
-        detail: `${wet} m³ concrete, mix ${cement}:${sand}:${granite}, dry factor ${DRY_VOLUME_FACTOR} → ${cementBags} bags`,
+        detail: `${wet} m³ concrete, mix ${cement}:${sand}:${granite}, dry factor ${DRY_VOLUME_FACTOR} → ${cementBags} bags (${bagWeightKg} kg)`,
         unit_price: bagPrice,
         line_total: bagPrice !== null ? money(cementBags * bagPrice) : null,
       });

@@ -22,6 +22,16 @@ describe("Plumbing Market Profiles", () => {
     expect(de.drainageDwvMaterial).toContain("HT-Rohr");
   });
 
+  it("resolves SG profile with SS 675 / PUB regulations and metric sizing", () => {
+    const sg = getPlumbingProfile("SG");
+    expect(sg.marketCode).toBe("SG");
+    expect(sg.runDistanceUnit).toBe("m");
+    expect(sg.measurementSystem).toBe("metric");
+    expect(sg.standardsRef).toContain("SS 675");
+    expect(sg.waterSupplyMaterial).toContain("Copper");
+    expect(sg.drainageDwvMaterial).toContain("uPVC");
+  });
+
   it("resolves all 20 markets to valid non-null plumbing profiles", () => {
     const markets = [
       "NG",
@@ -44,6 +54,7 @@ describe("Plumbing Market Profiles", () => {
       "MX",
       "KR",
       "IT",
+      "SG",
     ];
     for (const code of markets) {
       const p = getPlumbingProfile(code);

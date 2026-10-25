@@ -225,6 +225,17 @@ describe("Electrical Market Profiles", () => {
     expect(kr.conduitRequired).toBe(true);
   });
 
+  it("resolves SG profile with SS 638, EMA requirements, and mandatory conduit", () => {
+    const sg = getElectricalProfile("SG");
+    expect(sg.marketCode).toBe("SG");
+    expect(sg.runDistanceUnit).toBe("m");
+    expect(sg.measurementSystem).toBe("metric");
+    expect(sg.standardsRef).toContain("SS 638");
+    expect(sg.conduitRequired).toBe(true);
+    expect(sg.lightingConductorSize).toContain("1.5 mm²");
+    expect(sg.socketConductorSize).toContain("2.5 mm²");
+  });
+
   it("resolves all 20 markets to valid non-null electrical profiles", () => {
     const markets = [
       "NG",
@@ -247,6 +258,7 @@ describe("Electrical Market Profiles", () => {
       "MX",
       "KR",
       "IT",
+      "SG",
     ];
     for (const code of markets) {
       const p = getElectricalProfile(code);

@@ -500,6 +500,27 @@ export const ELECTRICAL_PROFILES: Record<string, ElectricalMarketProfile> = {
     notes:
       "Preliminary takeoff only. Standard Italian Livello 1/2/3 classification per CEI 64-8. Mandatory Dichiarazione di Conformità (Di.Co.) per DM 37/08 is legally required.",
   },
+  SG: {
+    marketCode: "SG",
+    name: "Singapore (SS 638 / Energy Market Authority)",
+    standardsRef:
+      "SS 638:2018 (formerly CP 5 - Code of practice for electrical installations) & SS 246",
+    nominalVoltage: "230V single-phase / 400V 3-phase",
+    frequencyHz: 50,
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    primaryWiringMethod:
+      "PVC insulated Cu cables (SS 358-3 / BS 6004) enclosed in surface or concealed high-impact uPVC/steel conduit",
+    lightingConductorSize: "1.5 mm² single-core Cu in conduit (SS 358-3)",
+    socketConductorSize: "2.5 mm² single-core Cu in conduit (typically 32A ring final or 20A radial)",
+    dedicatedConductorSize: "4.0 mm² to 10.0 mm² Cu (air-con compressor, induction hob, storage water heater)",
+    boxType: "Galvanized steel flush boxes or surface uPVC patress boxes (SS 246)",
+    protectionDevices: "Consumer unit with 30mA Type A/AC RCCB and miniature circuit breakers (MCBs)",
+    cableReelSize: "100 m coil",
+    conduitRequired: true,
+    notes:
+      "Singapore EMA regulations mandate all concealed and surface residential wiring be drawn through conduit or trunking. HDB renovations strictly prohibit hacking of structural precast walls.",
+  },
 };
 
 export function getElectricalProfile(

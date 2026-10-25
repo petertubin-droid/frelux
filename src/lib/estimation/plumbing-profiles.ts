@@ -507,6 +507,33 @@ export const PLUMBING_PROFILES: Record<string, PlumbingMarketProfile> = {
     notes:
       "Preliminary takeoff only. Central manifold system (collettore complanare di distribuzione) inside wall inspection box. Dichiarazione di Conformità (DM 37/08) required.",
   },
+  SG: {
+    marketCode: "SG",
+    name: "Singapore (PUB Code of Practice on Water Services / SS 675)",
+    standardsRef:
+      "PUB Singapore Public Utilities (Water Supply) Regulations, SS 675 / SS 213 (Sanitary drainage)",
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    nominalSizingFormat: "metric_dn_od",
+    waterSupplyMaterial:
+      "Copper pipe (SS 245 / BS EN 1057) or Stainless steel Grade 316 (SS 508 / BS EN 10312)",
+    drainageDwvMaterial:
+      "uPVC soil and waste pipe (SS 213 / BS EN 1329) or cast iron for commercial discharge stacks",
+    typicalColdSupplyPipeSize:
+      "Ø22 mm main incoming to consumer gate valve, Ø15 mm branch runs to fittings",
+    typicalHotSupplyPipeSize:
+      "Ø15 mm or Ø22 mm copper / stainless steel pipe with thermal lagging",
+    typicalBranchWastePipeSize:
+      "Ø32 mm (wash basin), Ø40 mm (kitchen sink), Ø50 mm (floor trap waste discharge)",
+    typicalSoilDrainPipeSize:
+      "Ø100 mm / Ø110 mm uPVC discharge pipe connected to ventilated soil stack",
+    drainageSlopeRule:
+      "1:40 to 1:60 fall (minimum 1.6% to 2.5% gradient per SS 675 Code of Practice)",
+    standardPipePurchasingLength:
+      "6 m lengths for copper/stainless steel or 5.8 m for uPVC drainage pipes",
+    notes:
+      "Strict PUB water efficiency labelling scheme (WELS) mandatory for all sanitary fitting discharge rates. HDB flats require specific approved coring locations and floor trap connections.",
+  },
 };
 
 export function getPlumbingProfile(marketCode: string): PlumbingMarketProfile {
