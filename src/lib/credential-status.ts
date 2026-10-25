@@ -84,7 +84,7 @@ const TRANSITIONS: Partial<
     verified_by_reviewer: ["admin"],
     rejected: ["admin"],
     unable_to_verify: ["admin"],
-    submitted: ["worker", "admin"], // correction requested: back to the worker
+    submitted: ["admin"], // only a reviewer sends it back; workers wait for the decision
   },
   verified_by_source: {
     expired: ["admin"],

@@ -948,12 +948,16 @@ import type {
   DbProVerificationRequest,
   DbProVerificationDocument,
   DbProCredential,
+  DbProCredentialEvent,
   DbProCredentialPublic,
+  DbCredentialVerificationSource,
+  CredentialVerificationStatus,
   DbProSettings,
   VerificationRequestType,
   AccountType,
 } from "@/types/pro-connect";
 import { DbProVerificationLog } from "@/types/pro-connect";
+import { canTransition } from "@/lib/credential-status";
 
 // -- Account Type --
 
@@ -1335,15 +1339,34 @@ export async function getPublicCredentials(
   return data as DbProCredentialPublic[];
 }
 
+/**
+ * Phase 2 guided submission: a worker submits a credential
+ * for review. The status transition is guarded in the database
+ * (migration 20261025100000); verification outcomes are never
+ * worker-supplied.
+ */
+export interface CredentialSubmission {
+  professional_body: string;
+  registration_number: string;
+  credential_type: string;
+  credential_class?: string;
+  country_code?: string;
+  subnational_scope?: string;
+  registry_identifier?: string;
+  issued_at?: string;
+  expires_at?: string;
+  evidence_type?: "document_upload" | "registry_record" | "third_party_api";
+  document_path?: string;
+  insurance_provider?: string;
+  insurance_policy_number?: string;
+  insurance_expiry?: string;
+  safety_training_type?: string;
+  safety_training_expiry?: string;
+}
+
 export async function addCredential(
   profileId: string,
-  credential: {
-    professional_body: string;
-    registration_number: string;
-    credential_type: string;
-    expires_at?: string;
-    document_path?: string;
-  },
+  credential: CredentialSubmission,
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase.from("pro_credentials").insert({
@@ -1351,8 +1374,20 @@ export async function addCredential(
     professional_body: credential.professional_body,
     registration_number: credential.registration_number,
     credential_type: credential.credential_type,
+    credential_class: credential.credential_class ?? null,
+    country_code: credential.country_code ?? null,
+    subnational_scope: credential.subnational_scope ?? null,
+    registry_identifier: credential.registry_identifier ?? null,
+    issued_at: credential.issued_at ?? null,
     expires_at: credential.expires_at || null,
+    evidence_type: credential.evidence_type ?? "document_upload",
     document_path: credential.document_path || null,
+    insurance_provider: credential.insurance_provider ?? null,
+    insurance_policy_number: credential.insurance_policy_number ?? null,
+    insurance_expiry: credential.insurance_expiry ?? null,
+    safety_training_type: credential.safety_training_type ?? null,
+    safety_training_expiry: credential.safety_training_expiry ?? null,
+    verification_status: "submitted",
   });
   if (error) {
     if (import.meta.env.DEV)
@@ -1362,58 +1397,247 @@ export async function addCredential(
   return true;
 }
 
-export async function deleteCredential(credentialId: string): Promise<boolean> {
+/** Worker correction: update own credential content and
+ * resubmit it for review. Only allowed while the credential
+ * is back with the worker (submitted or rejected). */
+export async function resubmitCredential(
+  credentialId: string,
+  updates: Partial<CredentialSubmission>,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
+  const { data: current } = await supabase
+    .from("pro_credentials")
+    .select("verification_status")
+    .eq("id", credentialId)
+    .maybeSingle();
+  const status = current?.verification_status as
+    CredentialVerificationStatus | undefined;
+  if (!status || !canTransition(status, "submitted", "worker")) {
+    return false;
+  }
   const { error } = await supabase
     .from("pro_credentials")
-    .delete()
+    .update({
+      ...updates,
+      verification_status: "submitted",
+    })
     .eq("id", credentialId);
   if (error) {
     if (import.meta.env.DEV)
-      console.error("[pro-connect] deleteCredential:", error.message);
+      console.error("[pro-connect] resubmitCredential:", error.message);
     return false;
   }
   return true;
 }
 
-export async function adminVerifyCredential(
+/** Append-only audit trail for one credential (owner/admin). */
+export async function getCredentialEvents(
   credentialId: string,
+): Promise<DbProCredentialEvent[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from("pro_credential_events")
+    .select("*")
+    .eq("credential_id", credentialId)
+    .order("occurred_at", { ascending: true });
+  if (error) {
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getCredentialEvents:", error.message);
+    return [];
+  }
+  return data as DbProCredentialEvent[];
+}
+
+/** Jurisdiction verification sources visible to signed-in
+ * users (configuration only; no secrets). */
+export async function getVerificationSources(
+  countryCode: string,
+): Promise<DbCredentialVerificationSource[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from("credential_verification_sources")
+    .select("*")
+    .eq("country_code", countryCode.toUpperCase())
+    .eq("is_active", true);
+  if (error) {
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getVerificationSources:", error.message);
+    return [];
+  }
+  return data as DbCredentialVerificationSource[];
+}
+
+/** Record a verification attempt without changing the
+ * decision (registry unreachable, lookup inconclusive). */
+export async function recordVerificationAttempt(
+  credentialId: string,
+  outcome: {
+    method: "registry_lookup" | "manual_review";
+    result: "match" | "mismatch" | "not_found" | "error" | "inconclusive";
+    reason?: string;
+    metadata?: Record<string, unknown>;
+  },
+): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase.from("pro_credential_events").insert({
+    credential_id: credentialId,
+    event_type: "verification_attempt",
+    actor_role: "admin",
+    reason: outcome.reason ?? null,
+    metadata: {
+      ...(outcome.metadata ?? {}),
+      method: outcome.method,
+      result: outcome.result,
+    },
+  });
+  if (error) {
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] recordVerificationAttempt:", error.message);
+    return false;
+  }
+  return true;
+}
+
+async function adminTransitionCredential(
+  credentialId: string,
+  to: CredentialVerificationStatus,
+  fields: {
+    verification_method?: "registry_lookup" | "manual_review";
+    verification_result?:
+      "match" | "mismatch" | "not_found" | "error" | "inconclusive";
+    reason?: string;
+    metadata?: Record<string, unknown>;
+  },
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return false;
+  const { data: current } = await supabase
+    .from("pro_credentials")
+    .select("verification_status")
+    .eq("id", credentialId)
+    .maybeSingle();
+  const status = current?.verification_status as
+    CredentialVerificationStatus | undefined;
+  if (!status || !canTransition(status, to, "admin")) {
+    return false;
+  }
+  const patch: Record<string, unknown> = {
+    verification_status: to,
+    verified_by: user.id,
+    verified_at: new Date().toISOString(),
+  };
+  if (fields.verification_method)
+    patch.verification_method = fields.verification_method;
+  if (fields.verification_result)
+    patch.verification_result = fields.verification_result;
   const { error } = await supabase
     .from("pro_credentials")
-    .update({
-      verification_status: "verified",
-      verified_by: user.id,
-      verified_at: new Date().toISOString(),
-    })
+    .update(patch)
     .eq("id", credentialId);
   if (error) {
     if (import.meta.env.DEV)
-      console.error("[pro-connect] adminVerifyCredential:", error.message);
+      console.error("[pro-connect] adminTransitionCredential:", error.message);
     return false;
   }
   return true;
 }
 
-export async function adminRejectCredential(
+/** Reviewer confirmed the evidence (document review). */
+export async function adminVerifyCredentialByReviewer(
   credentialId: string,
+  outcome?: { result?: "match" | "inconclusive"; reason?: string },
+): Promise<boolean> {
+  return adminTransitionCredential(credentialId, "verified_by_reviewer", {
+    verification_method: "manual_review",
+    verification_result: outcome?.result ?? "match",
+    reason: outcome?.reason,
+  });
+}
+
+/** Registry/source confirmed the credential (strong claim).
+ * A lookup that did not match is recorded as an attempt, not
+ * used to verify. */
+export async function adminVerifyCredentialBySource(
+  credentialId: string,
+  outcome?: {
+    result?: "match" | "not_found" | "error";
+    reason?: string;
+    metadata?: Record<string, unknown>;
+  },
+): Promise<boolean> {
+  const ok = await adminTransitionCredential(
+    credentialId,
+    "verified_by_source",
+    {
+      verification_method: "registry_lookup",
+      verification_result: outcome?.result ?? "match",
+      reason: outcome?.reason,
+      metadata: outcome?.metadata,
+    },
+  );
+  if (ok && (outcome?.result ?? "match") !== "match") {
+    await recordVerificationAttempt(credentialId, {
+      method: "registry_lookup",
+      result: outcome?.result ?? "match",
+      reason: outcome?.reason,
+      metadata: outcome?.metadata,
+    });
+  }
+  return ok;
+}
+
+/** Send the credential back to the worker for corrections. */
+export async function adminRequestCredentialCorrection(
+  credentialId: string,
+  reason: string,
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase
-    .from("pro_credentials")
-    .update({ verification_status: "rejected" })
-    .eq("id", credentialId);
+  const ok = await adminTransitionCredential(credentialId, "submitted", {});
+  if (!ok) return false;
+  const { error } = await supabase.from("pro_credential_events").insert({
+    credential_id: credentialId,
+    event_type: "correction_requested",
+    actor_role: "admin",
+    reason,
+  });
   if (error) {
     if (import.meta.env.DEV)
-      console.error("[pro-connect] adminRejectCredential:", error.message);
+      console.error(
+        "[pro-connect] adminRequestCredentialCorrection:",
+        error.message,
+      );
     return false;
   }
   return true;
+}
+
+/** Mark a credential as unable to verify (honest dead end). */
+export async function adminUnableToVerifyCredential(
+  credentialId: string,
+  reason: string,
+): Promise<boolean> {
+  return adminTransitionCredential(credentialId, "unable_to_verify", {
+    reason,
+  });
+}
+
+/** Suspend a credential (pending investigation). */
+export async function adminSuspendCredential(
+  credentialId: string,
+  reason: string,
+): Promise<boolean> {
+  return adminTransitionCredential(credentialId, "suspended", { reason });
+}
+
+/** Revoke a credential (fraud, falsified evidence). */
+export async function adminRevokeCredential(
+  credentialId: string,
+  reason: string,
+): Promise<boolean> {
+  return adminTransitionCredential(credentialId, "revoked", { reason });
 }
 
 // -- Verification Documents (private storage) --
