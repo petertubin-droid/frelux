@@ -456,6 +456,7 @@ const WaterproofingEstimator = lazy(
 );
 const WallFinishEstimator = lazy(() => import("@/pages/WallFinishEstimator"));
 const FlooringEstimator = lazy(() => import("@/pages/FlooringEstimator"));
+const IncreteFlooringEstimator = lazy(() => import("@/pages/IncreteFlooringEstimator"));
 const ReinforcementEstimator = lazy(
   () => import("@/pages/ReinforcementEstimator"),
 );
@@ -1686,6 +1687,7 @@ export default function App() {
                         element={<BlueprintTakeoff />}
                       />
                       <Route path="/flooring" element={<FlooringEstimator />} />
+                      <Route path="/increte-flooring-calculator" element={<IncreteFlooringEstimator />} />
                       <Route
                         path="/reinforcement"
                         element={<ReinforcementEstimator />}

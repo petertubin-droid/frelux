@@ -207,6 +207,18 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     navVisible: true,
   },
   {
+    slug: "increte-flooring-calculator",
+    title: "Decorative Concrete Flooring",
+    category: "finishes",
+    icon: Footprints,
+    does: "Estimate decorative concrete flooring quantities and costs from product coverage, local prices and project measurements.",
+    enters: "Market, floor dimensions, decorative system, product coverage, coats, waste and local prices.",
+    gets: "Surface area, optional concrete volume, package counts, itemized costs and missing-data warnings.",
+    to: "/increte-flooring-calculator",
+    benefit: "Stamped · Overlay · Sealer",
+    navVisible: true,
+  },
+  {
     slug: "flooring",
     title: "Flooring",
     category: "finishes",
