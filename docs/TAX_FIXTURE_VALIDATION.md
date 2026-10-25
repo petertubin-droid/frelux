@@ -31,7 +31,7 @@ For the market's fixture, check against local knowledge and current law:
 ## Recording a verdict
 
 A verdict is a row in `tax_rule_validations` (migration
-`20261024220000_tax_rule_validations.sql`). The database refuses a `validated`
+`20261024220001_tax_rule_validations.sql`). The database refuses a `validated`
 verdict without an accountable reviewer (name, role, location) and a complete
 checklist. Example:
 

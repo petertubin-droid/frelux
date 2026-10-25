@@ -91,6 +91,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS engine_capability_state_gate_trg ON engine_capability_state;
+
 CREATE TRIGGER engine_capability_state_gate_trg
 BEFORE INSERT OR UPDATE OF state ON engine_capability_state
 FOR EACH ROW EXECUTE FUNCTION engine_capability_state_gate();

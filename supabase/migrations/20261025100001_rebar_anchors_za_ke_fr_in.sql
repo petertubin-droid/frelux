@@ -130,4 +130,11 @@ WITH seeded AS (
 INSERT INTO estimation_prices (price_type, ref_id, price, currency, effective_date, notes, is_active, price_source, scan_confidence, market)
 SELECT 'material', s.material_id, s.price, s.currency, CURRENT_DATE, s.source, true, s.source, 'manual', s.market
 FROM seeded s
+WHERE NOT EXISTS (
+  SELECT 1 FROM estimation_prices p
+  WHERE p.price_type = 'material'
+    AND p.ref_id = s.material_id
+    AND p.market = s.market
+    AND p.is_active = true
+)
 ON CONFLICT DO NOTHING;

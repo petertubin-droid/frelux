@@ -107,6 +107,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS tax_jurisdiction_rules_gate_trg ON tax_jurisdiction_rules;
+
 CREATE TRIGGER tax_jurisdiction_rules_gate_trg
 BEFORE INSERT OR UPDATE ON tax_jurisdiction_rules
 FOR EACH ROW EXECUTE FUNCTION tax_jurisdiction_rules_component_gate();
