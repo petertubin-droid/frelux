@@ -130,7 +130,9 @@ const DataRequest = lazy(() => import("@/pages/legal/DataRequest"));
 const BrandStudio = lazy(() => import("@/pages/BrandStudio"));
 const BuildToRoofEstimator = lazy(() => import("@/pages/BuildToRoofEstimator"));
 const ImageEstimator = lazy(() => import("@/pages/ImageEstimator"));
-const VisualFinishingEstimator = lazy(() => import("@/pages/VisualFinishingEstimator"));
+const VisualFinishingEstimator = lazy(
+  () => import("@/pages/VisualFinishingEstimator"),
+);
 const StructuralCalculator = lazy(() => import("@/pages/StructuralCalculator"));
 const ConcreteTakeoffPage = lazy(() => import("@/pages/ConcreteTakeoffPage"));
 const EarthworksEstimator = lazy(() => import("@/pages/EarthworksEstimator"));
@@ -164,6 +166,9 @@ const PredictiveAnalytics = lazy(
 const IotTelemetry = lazy(() => import("@/pages/contractor/IotTelemetry"));
 const ComplianceStandards = lazy(
   () => import("@/pages/contractor/ComplianceStandards"),
+);
+const LogisticsBoard = lazy(
+  () => import("@/components/procurement/LogisticsBoard"),
 );
 const AdminMaterialCatalog = lazy(
   () => import("@/pages/admin/AdminMaterialCatalog"),
@@ -456,7 +461,9 @@ const WaterproofingEstimator = lazy(
 );
 const WallFinishEstimator = lazy(() => import("@/pages/WallFinishEstimator"));
 const FlooringEstimator = lazy(() => import("@/pages/FlooringEstimator"));
-const IncreteFlooringEstimator = lazy(() => import("@/pages/IncreteFlooringEstimator"));
+const IncreteFlooringEstimator = lazy(
+  () => import("@/pages/IncreteFlooringEstimator"),
+);
 const ReinforcementEstimator = lazy(
   () => import("@/pages/ReinforcementEstimator"),
 );
@@ -1163,6 +1170,14 @@ export default function App() {
                         }
                       />
                       <Route
+                        path="/contractor/logistics"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <LogisticsBoard />
+                          </Suspense>
+                        }
+                      />
+                      <Route
                         path="/contractor/compliance"
                         element={
                           <Suspense fallback={<PageLoader />}>
@@ -1687,7 +1702,10 @@ export default function App() {
                         element={<BlueprintTakeoff />}
                       />
                       <Route path="/flooring" element={<FlooringEstimator />} />
-                      <Route path="/increte-flooring-calculator" element={<IncreteFlooringEstimator />} />
+                      <Route
+                        path="/increte-flooring-calculator"
+                        element={<IncreteFlooringEstimator />}
+                      />
                       <Route
                         path="/reinforcement"
                         element={<ReinforcementEstimator />}
