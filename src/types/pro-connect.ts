@@ -265,9 +265,29 @@ export interface DbProVerificationDocument {
   created_at: string;
 }
 
-// Phase 26: Professional Credential (regulated professions)
+// Professional Credential (regulated professions)
+// Phase 26 legacy values are preserved verbatim and never remapped.
+// Phase 2 adds the precise statuses; legacy 'verified' is NOT
+// verified_by_source (registry) — the distinction is explicit.
 export type CredentialVerificationStatus =
-  "unverified" | "pending" | "verified" | "rejected" | "expired";
+  // legacy
+  | "unverified"
+  | "pending"
+  | "verified"
+  | "rejected"
+  | "expired"
+  // phase 2 precise statuses
+  | "submitted" // created by the worker, awaiting review
+  | "pending_review" // under active review
+  | "verified_by_source" // confirmed against the issuing registry/authority
+  | "verified_by_reviewer" // document reviewed by an accountable human reviewer
+  | "suspended" // temporarily inactive
+  | "revoked" // withdrawn by the authority/reviewer
+  | "unable_to_verify"; // source unavailable or evidence inconclusive
+
+/** Public credential label: never an unqualified "compliant" badge. */
+export type CredentialPublicLabel =
+  "registry_verified" | "document_reviewed" | "not_verified";
 
 export interface DbProCredential {
   id: string;
@@ -280,6 +300,37 @@ export interface DbProCredential {
   verified_at: string | null;
   expires_at: string | null;
   document_path: string | null;
+  // Phase 2: jurisdiction, evidence and verification provenance
+  country_code: string | null;
+  subnational_scope: string | null;
+  credential_class:
+    | "trade_registration"
+    | "professional_license"
+    | "safety_training"
+    | "insurance"
+    | "identification"
+    | "other"
+    | null;
+  credential_scope: string | null;
+  issued_at: string | null;
+  registry_identifier: string | null;
+  registry_url: string | null;
+  evidence_type:
+    | "registry_record"
+    | "document_upload"
+    | "third_party_api"
+    | "human_review"
+    | null;
+  evidence_source: string | null;
+  verification_method: "registry_lookup" | "manual_review" | "none" | null;
+  verification_result:
+    "match" | "mismatch" | "not_found" | "error" | "inconclusive" | null;
+  verification_checked_at: string | null;
+  insurance_provider: string | null;
+  insurance_policy_ref: string | null;
+  insurance_expiry: string | null;
+  safety_training_type: string | null;
+  safety_training_expiry: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -291,9 +342,60 @@ export interface DbProCredentialPublic {
   professional_body: string;
   credential_type: string;
   verification_status: CredentialVerificationStatus;
+  /** "registry_verified" vs "document_reviewed" vs "not_verified" — never a global "compliant". */
+  public_verification_label: CredentialPublicLabel;
+  country_code: string | null;
+  subnational_scope: string | null;
+  credential_class: DbProCredential["credential_class"];
   verified_at: string | null;
+  verification_method: DbProCredential["verification_method"];
+  verification_checked_at: string | null;
   expires_at: string | null;
   created_at: string;
+}
+
+// Phase 2: append-only credential audit trail (pro_credential_events)
+export type ProCredentialEventType =
+  | "submission"
+  | "correction_requested"
+  | "verification_attempt"
+  | "decision"
+  | "expiry"
+  | "suspension"
+  | "revocation"
+  | "appeal";
+
+export interface DbProCredentialEvent {
+  id: string;
+  credential_id: string;
+  event_type: ProCredentialEventType;
+  actor: string | null;
+  actor_role: "worker" | "reviewer" | "admin" | "system";
+  method: string | null;
+  result: string | null;
+  reason: string | null;
+  notes_private: string | null;
+  metadata: Record<string, unknown> | null;
+  occurred_at: string;
+}
+
+// Phase 2: jurisdiction-specific verification source configuration
+export interface DbCredentialVerificationSource {
+  id: string;
+  country_code: string;
+  subnational_scope: string | null;
+  credential_class: DbProCredential["credential_class"];
+  allowed_credential_types: string[];
+  lookup_type: "registry_api" | "registry_manual_check" | "manual_review";
+  registry_name: string | null;
+  registry_url: string | null;
+  lookup_procedure: string | null;
+  freshness_days: number | null;
+  escalation_owner: string | null;
+  escalation_contact: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 // Phase 26: Pro Settings (admin-configurable)
