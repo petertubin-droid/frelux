@@ -1321,123 +1321,6 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     },
   },
   {
-    id: "doors_windows",
-    name: "Doors & Windows Takeoff Engine",
-    category: "structural",
-    classification: "independent_engine",
-    sourceFiles: ["src/lib/estimation/doors-windows-engine.ts"],
-    consumers: ["src/pages/calculator/DoorsWindowsCalculator.tsx"],
-    dependencies: ["src/lib/estimation/market-materials.ts"],
-    calculationPurpose:
-      "Computes rough opening deductions, door frames, architraves, ironmongery/hardware sets, glazing areas, and sealant lengths.",
-    keyFormulas:
-      "TotalOpeningArea = sum(Width * Height); ArchitraveLength = sum(2 * Height + Width); SealantTubes = ceil(sum(Perimeter) / 10)",
-    marketAssumptions:
-      "Modular standard door dimensions (e.g. 2ft 8in x 6ft 8in US; 826x2040mm UK; 900x2100mm NG/EU).",
-    internationalizationStatus: "requires_verification",
-    marketMatrix: {
-      NG: {
-        status: "verified",
-        notes: "Authoritative Nigerian specification and market method.",
-      },
-      US: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for US local construction typology.",
-      },
-      GB: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for GB local construction typology.",
-      },
-      CA: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for CA local construction typology.",
-      },
-      AU: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for AU local construction typology.",
-      },
-      DE: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for DE local construction typology.",
-      },
-      IN: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for IN local construction typology.",
-      },
-      GH: {
-        status: "partially_verified",
-        notes:
-          "West African compatible method; requires local Ghana packaging verification.",
-      },
-      KE: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for KE local construction typology.",
-      },
-      ZA: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for ZA local construction typology.",
-      },
-      JP: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for JP local construction typology.",
-      },
-      FR: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for FR local construction typology.",
-      },
-      BR: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for BR local construction typology.",
-      },
-      SA: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for SA local construction typology.",
-      },
-      AE: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for AE local construction typology.",
-      },
-      CN: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for CN local construction typology.",
-      },
-      ID: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for ID local construction typology.",
-      },
-      MX: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for MX local construction typology.",
-      },
-      KR: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for KR local construction typology.",
-      },
-      IT: {
-        status: "not_implemented",
-        notes:
-          "Method-bound calculation not appropriate for IT local construction typology.",
-      },
-    },
-  },
-  {
     id: "block",
     name: "Block & Masonry Calculation Engine",
     category: "structural",
@@ -2121,6 +2004,123 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
         status: "partially_verified",
         notes:
           "Typology configured for IT; structural takeoff preliminary only pending local design.",
+      },
+    },
+  },
+  {
+    id: "doors_windows",
+    name: "Doors & Windows Takeoff Engine",
+    category: "structural",
+    classification: "independent_engine",
+    sourceFiles: ["src/lib/estimation/doors-windows-engine.ts"],
+    consumers: ["src/pages/calculator/DoorsWindowsCalculator.tsx"],
+    dependencies: ["src/lib/estimation/market-materials.ts"],
+    calculationPurpose:
+      "Computes rough opening deductions, door frames, architraves, ironmongery/hardware sets, glazing areas, and sealant lengths.",
+    keyFormulas:
+      "TotalOpeningArea = sum(Width * Height); ArchitraveLength = sum(2 * Height + Width); SealantTubes = ceil(sum(Perimeter) / 10)",
+    marketAssumptions:
+      "Modular standard door dimensions (e.g. 2ft 8in x 6ft 8in US; 826x2040mm UK; 900x2100mm NG/EU).",
+    internationalizationStatus: "requires_verification",
+    marketMatrix: {
+      NG: {
+        status: "verified",
+        notes: "Authoritative Nigerian specification and market method.",
+      },
+      US: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for US local construction typology.",
+      },
+      GB: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for GB local construction typology.",
+      },
+      CA: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for CA local construction typology.",
+      },
+      AU: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for AU local construction typology.",
+      },
+      DE: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for DE local construction typology.",
+      },
+      IN: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for IN local construction typology.",
+      },
+      GH: {
+        status: "partially_verified",
+        notes:
+          "West African compatible method; requires local Ghana packaging verification.",
+      },
+      KE: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for KE local construction typology.",
+      },
+      ZA: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for ZA local construction typology.",
+      },
+      JP: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for JP local construction typology.",
+      },
+      FR: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for FR local construction typology.",
+      },
+      BR: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for BR local construction typology.",
+      },
+      SA: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for SA local construction typology.",
+      },
+      AE: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for AE local construction typology.",
+      },
+      CN: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for CN local construction typology.",
+      },
+      ID: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for ID local construction typology.",
+      },
+      MX: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for MX local construction typology.",
+      },
+      KR: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for KR local construction typology.",
+      },
+      IT: {
+        status: "not_implemented",
+        notes:
+          "Method-bound calculation not appropriate for IT local construction typology.",
       },
     },
   },
@@ -3193,6 +3193,729 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
       "EarlyStart = max(Predecessors.EarlyFinish); EarlyFinish = EarlyStart + Duration; TotalFloat = LateStart - EarlyStart",
     marketAssumptions:
       "Curing times depend on ambient climate: 7-28 days standard concrete curing.",
+    internationalizationStatus: "verified_full",
+    marketMatrix: {
+      NG: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for NG with validated currency and jurisdiction rules.",
+      },
+      US: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for US with validated currency and jurisdiction rules.",
+      },
+      GB: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GB with validated currency and jurisdiction rules.",
+      },
+      CA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
+      },
+      AU: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
+      },
+      DE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
+      },
+      IN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
+      },
+      GH: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
+      },
+      KE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
+      },
+      ZA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
+      },
+      JP: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
+      },
+      FR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
+      },
+      BR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
+      },
+      SA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
+      },
+      AE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
+      },
+      CN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
+      },
+      ID: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
+      },
+      MX: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
+      },
+      KR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
+      },
+      IT: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
+      },
+    },
+  },
+  {
+    id: "ai_image_estimator",
+    name: "AI Photo & Plan Feature Extractor",
+    category: "ai_measurement",
+    classification: "ai_pipeline",
+    sourceFiles: [
+      "src/pages/calculator/ImageEstimation.tsx",
+      "src/lib/ai-foundation/copilot-client.ts",
+    ],
+    consumers: ["src/pages/calculator/ImageEstimation.tsx"],
+    dependencies: ["src/lib/ai-foundation/orchestrator.ts"],
+    calculationPurpose:
+      "Multi-modal vision extraction: reads site photos or architectural drawings, extracts elements, and routes to deterministic calculators.",
+    keyFormulas:
+      "VisionModel.extract(image) -> Dimensions -> executeEngine(deterministicId, validatedInputs)",
+    marketAssumptions:
+      "AI vision never invents formulas or prices; always delegates to registered deterministic engines.",
+    internationalizationStatus: "verified_full",
+    marketMatrix: {
+      NG: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for NG with validated currency and jurisdiction rules.",
+      },
+      US: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for US with validated currency and jurisdiction rules.",
+      },
+      GB: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GB with validated currency and jurisdiction rules.",
+      },
+      CA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
+      },
+      AU: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
+      },
+      DE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
+      },
+      IN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
+      },
+      GH: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
+      },
+      KE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
+      },
+      ZA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
+      },
+      JP: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
+      },
+      FR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
+      },
+      BR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
+      },
+      SA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
+      },
+      AE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
+      },
+      CN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
+      },
+      ID: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
+      },
+      MX: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
+      },
+      KR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
+      },
+      IT: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
+      },
+    },
+  },
+  {
+    id: "ai_color_assistant",
+    name: "AI Paint Color & Palette Advisor",
+    category: "ai_measurement",
+    classification: "ai_pipeline",
+    sourceFiles: ["src/lib/ai-foundation/orchestrator.ts"],
+    consumers: ["src/pages/calculator/PaintingCalculator.tsx"],
+    dependencies: ["src/lib/estimation/paint-engine.ts"],
+    calculationPurpose:
+      "Maps user aesthetic requests or room lighting conditions to verified regional paint manufacturer color palettes.",
+    keyFormulas:
+      "ColorHarmonyMatching(CIELAB_Coordinates, LightReflectanceValue)",
+    marketAssumptions:
+      "Dulux, Asian Paints, Sherwin-Williams, Benjamin Moore, Berger, Coral, Nippon Paint local palettes.",
+    internationalizationStatus: "verified_full",
+    marketMatrix: {
+      NG: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for NG with validated currency and jurisdiction rules.",
+      },
+      US: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for US with validated currency and jurisdiction rules.",
+      },
+      GB: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GB with validated currency and jurisdiction rules.",
+      },
+      CA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
+      },
+      AU: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
+      },
+      DE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
+      },
+      IN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
+      },
+      GH: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
+      },
+      KE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
+      },
+      ZA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
+      },
+      JP: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
+      },
+      FR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
+      },
+      BR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
+      },
+      SA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
+      },
+      AE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
+      },
+      CN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
+      },
+      ID: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
+      },
+      MX: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
+      },
+      KR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
+      },
+      IT: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
+      },
+    },
+  },
+  {
+    id: "conversational_estimator",
+    name: "Multi-Lingual Conversational Estimator",
+    category: "ai_measurement",
+    classification: "ai_pipeline",
+    sourceFiles: [
+      "src/lib/estimation/conversational-engine.ts",
+      "src/lib/ai-foundation/copilot-client.ts",
+    ],
+    consumers: ["src/pages/calculator/ConversationalEstimator.tsx"],
+    dependencies: ["src/lib/ai-foundation/orchestrator.ts"],
+    calculationPurpose:
+      "Natural language understanding for trade takeoffs across 10+ languages (English, French, Spanish, German, Portuguese, Swahili, Arabic, etc.).",
+    keyFormulas:
+      "NLP.parseIntentAndEntities(text) -> canonicalValues -> executeEngine(taskEngine, normalizedUnits)",
+    marketAssumptions:
+      "Translates colloquial regional trade terms (e.g. 'caterpillar/dumper', 'parpaing', 'bata merah', 'chuveiro', 'sandcrete') to canonical materials.",
+    internationalizationStatus: "verified_full",
+    marketMatrix: {
+      NG: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for NG with validated currency and jurisdiction rules.",
+      },
+      US: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for US with validated currency and jurisdiction rules.",
+      },
+      GB: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GB with validated currency and jurisdiction rules.",
+      },
+      CA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
+      },
+      AU: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
+      },
+      DE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
+      },
+      IN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
+      },
+      GH: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
+      },
+      KE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
+      },
+      ZA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
+      },
+      JP: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
+      },
+      FR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
+      },
+      BR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
+      },
+      SA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
+      },
+      AE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
+      },
+      CN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
+      },
+      ID: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
+      },
+      MX: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
+      },
+      KR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
+      },
+      IT: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
+      },
+    },
+  },
+  {
+    id: "count_vision",
+    name: "Drawing Symbol & Fixture Count Vision Engine",
+    category: "ai_measurement",
+    classification: "ai_pipeline",
+    sourceFiles: ["src/lib/estimation/count-vision-engine.ts"],
+    consumers: [
+      "src/pages/calculator/CountVisionCalculator.tsx",
+      "src/pages/admin/AdminCountVision.tsx",
+    ],
+    dependencies: [],
+    calculationPurpose:
+      "Automated object detection on blueprint PDFs and architectural plans for electrical outlets, light fixtures, plumbing points, and doors.",
+    keyFormulas:
+      "BoundingBoxMatch(symbolTemplate, drawingCanvas, iouThreshold) -> detectedCount",
+    marketAssumptions:
+      "Standard architectural drafting symbols (ANSI/IEEE in US vs IEC in Europe/Commonwealth).",
+    internationalizationStatus: "verified_full",
+    marketMatrix: {
+      NG: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for NG with validated currency and jurisdiction rules.",
+      },
+      US: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for US with validated currency and jurisdiction rules.",
+      },
+      GB: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GB with validated currency and jurisdiction rules.",
+      },
+      CA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
+      },
+      AU: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
+      },
+      DE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
+      },
+      IN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
+      },
+      GH: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
+      },
+      KE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
+      },
+      ZA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
+      },
+      JP: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
+      },
+      FR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
+      },
+      BR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
+      },
+      SA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
+      },
+      AE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
+      },
+      CN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
+      },
+      ID: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
+      },
+      MX: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
+      },
+      KR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
+      },
+      IT: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
+      },
+    },
+  },
+  {
+    id: "defect_diagnosis",
+    name: "Visual Defect & Crack Diagnosis Engine",
+    category: "ai_measurement",
+    classification: "ai_pipeline",
+    sourceFiles: ["src/lib/estimation/defect-diagnosis-engine.ts"],
+    consumers: [
+      "src/pages/calculator/DefectDiagnosisCalculator.tsx",
+      "src/pages/admin/AdminDefects.tsx",
+    ],
+    dependencies: [],
+    calculationPurpose:
+      "Classifies plaster cracks, structural shear fissures, concrete spalling, rising damp, and efflorescence from site photos.",
+    keyFormulas:
+      "ClassifyCrackPattern(widthMm, orientation, propagationRate) -> RootCauseSeverityRating",
+    marketAssumptions:
+      "Building pathology rules for structural movement vs shrinkage cracks.",
+    internationalizationStatus: "verified_full",
+    marketMatrix: {
+      NG: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for NG with validated currency and jurisdiction rules.",
+      },
+      US: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for US with validated currency and jurisdiction rules.",
+      },
+      GB: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GB with validated currency and jurisdiction rules.",
+      },
+      CA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
+      },
+      AU: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
+      },
+      DE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
+      },
+      IN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
+      },
+      GH: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
+      },
+      KE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
+      },
+      ZA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
+      },
+      JP: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
+      },
+      FR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
+      },
+      BR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
+      },
+      SA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
+      },
+      AE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
+      },
+      CN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
+      },
+      ID: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
+      },
+      MX: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
+      },
+      KR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
+      },
+      IT: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
+      },
+    },
+  },
+  {
+    id: "surface_assessment",
+    name: "Surface Condition & Substrate Prep Engine",
+    category: "ai_measurement",
+    classification: "ai_pipeline",
+    sourceFiles: ["src/lib/wallfinishing/quantity-engine.ts"],
+    consumers: [
+      "src/pages/calculator/WallFinishingEstimator.tsx",
+      "src/pages/admin/AdminSurfaceConditions.tsx",
+    ],
+    dependencies: ["src/lib/wallfinishing/materials.ts"],
+    calculationPurpose:
+      "Evaluates substrate porosity, moisture levels, flaking paint percentage, and assigns prep multiplier factors (sanding, washing, bonding primer).",
+    keyFormulas:
+      "PrepMultiplier = 1.0 + (PorosityLevel * 0.15) + (DamageSeverity * 0.20)",
+    marketAssumptions:
+      "Verified substrate types across blockwork, drywall, concrete, and lime plaster.",
     internationalizationStatus: "verified_full",
     marketMatrix: {
       NG: {
@@ -5217,729 +5940,6 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
       "resolveSyncConflict(localTimestamp, serverTimestamp, mutationVector)",
     marketAssumptions:
       "Designed for low-connectivity construction job sites worldwide.",
-    internationalizationStatus: "verified_full",
-    marketMatrix: {
-      NG: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for NG with validated currency and jurisdiction rules.",
-      },
-      US: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for US with validated currency and jurisdiction rules.",
-      },
-      GB: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GB with validated currency and jurisdiction rules.",
-      },
-      CA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
-      },
-      AU: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
-      },
-      DE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
-      },
-      IN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
-      },
-      GH: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
-      },
-      KE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
-      },
-      ZA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
-      },
-      JP: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
-      },
-      FR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
-      },
-      BR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
-      },
-      SA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
-      },
-      AE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
-      },
-      CN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
-      },
-      ID: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
-      },
-      MX: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
-      },
-      KR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
-      },
-      IT: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
-      },
-    },
-  },
-  {
-    id: "ai_image_estimator",
-    name: "AI Photo & Plan Feature Extractor",
-    category: "ai_measurement",
-    classification: "ai_pipeline",
-    sourceFiles: [
-      "src/pages/calculator/ImageEstimation.tsx",
-      "src/lib/ai-foundation/copilot-client.ts",
-    ],
-    consumers: ["src/pages/calculator/ImageEstimation.tsx"],
-    dependencies: ["src/lib/ai-foundation/orchestrator.ts"],
-    calculationPurpose:
-      "Multi-modal vision extraction: reads site photos or architectural drawings, extracts elements, and routes to deterministic calculators.",
-    keyFormulas:
-      "VisionModel.extract(image) -> Dimensions -> executeEngine(deterministicId, validatedInputs)",
-    marketAssumptions:
-      "AI vision never invents formulas or prices; always delegates to registered deterministic engines.",
-    internationalizationStatus: "verified_full",
-    marketMatrix: {
-      NG: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for NG with validated currency and jurisdiction rules.",
-      },
-      US: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for US with validated currency and jurisdiction rules.",
-      },
-      GB: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GB with validated currency and jurisdiction rules.",
-      },
-      CA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
-      },
-      AU: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
-      },
-      DE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
-      },
-      IN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
-      },
-      GH: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
-      },
-      KE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
-      },
-      ZA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
-      },
-      JP: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
-      },
-      FR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
-      },
-      BR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
-      },
-      SA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
-      },
-      AE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
-      },
-      CN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
-      },
-      ID: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
-      },
-      MX: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
-      },
-      KR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
-      },
-      IT: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
-      },
-    },
-  },
-  {
-    id: "ai_color_assistant",
-    name: "AI Paint Color & Palette Advisor",
-    category: "ai_measurement",
-    classification: "ai_pipeline",
-    sourceFiles: ["src/lib/ai-foundation/orchestrator.ts"],
-    consumers: ["src/pages/calculator/PaintingCalculator.tsx"],
-    dependencies: ["src/lib/estimation/paint-engine.ts"],
-    calculationPurpose:
-      "Maps user aesthetic requests or room lighting conditions to verified regional paint manufacturer color palettes.",
-    keyFormulas:
-      "ColorHarmonyMatching(CIELAB_Coordinates, LightReflectanceValue)",
-    marketAssumptions:
-      "Dulux, Asian Paints, Sherwin-Williams, Benjamin Moore, Berger, Coral, Nippon Paint local palettes.",
-    internationalizationStatus: "verified_full",
-    marketMatrix: {
-      NG: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for NG with validated currency and jurisdiction rules.",
-      },
-      US: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for US with validated currency and jurisdiction rules.",
-      },
-      GB: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GB with validated currency and jurisdiction rules.",
-      },
-      CA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
-      },
-      AU: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
-      },
-      DE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
-      },
-      IN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
-      },
-      GH: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
-      },
-      KE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
-      },
-      ZA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
-      },
-      JP: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
-      },
-      FR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
-      },
-      BR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
-      },
-      SA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
-      },
-      AE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
-      },
-      CN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
-      },
-      ID: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
-      },
-      MX: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
-      },
-      KR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
-      },
-      IT: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
-      },
-    },
-  },
-  {
-    id: "conversational_estimator",
-    name: "Multi-Lingual Conversational Estimator",
-    category: "ai_measurement",
-    classification: "ai_pipeline",
-    sourceFiles: [
-      "src/lib/estimation/conversational-engine.ts",
-      "src/lib/ai-foundation/copilot-client.ts",
-    ],
-    consumers: ["src/pages/calculator/ConversationalEstimator.tsx"],
-    dependencies: ["src/lib/ai-foundation/orchestrator.ts"],
-    calculationPurpose:
-      "Natural language understanding for trade takeoffs across 10+ languages (English, French, Spanish, German, Portuguese, Swahili, Arabic, etc.).",
-    keyFormulas:
-      "NLP.parseIntentAndEntities(text) -> canonicalValues -> executeEngine(taskEngine, normalizedUnits)",
-    marketAssumptions:
-      "Translates colloquial regional trade terms (e.g. 'caterpillar/dumper', 'parpaing', 'bata merah', 'chuveiro', 'sandcrete') to canonical materials.",
-    internationalizationStatus: "verified_full",
-    marketMatrix: {
-      NG: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for NG with validated currency and jurisdiction rules.",
-      },
-      US: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for US with validated currency and jurisdiction rules.",
-      },
-      GB: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GB with validated currency and jurisdiction rules.",
-      },
-      CA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
-      },
-      AU: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
-      },
-      DE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
-      },
-      IN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
-      },
-      GH: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
-      },
-      KE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
-      },
-      ZA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
-      },
-      JP: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
-      },
-      FR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
-      },
-      BR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
-      },
-      SA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
-      },
-      AE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
-      },
-      CN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
-      },
-      ID: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
-      },
-      MX: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
-      },
-      KR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
-      },
-      IT: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
-      },
-    },
-  },
-  {
-    id: "count_vision",
-    name: "Drawing Symbol & Fixture Count Vision Engine",
-    category: "ai_measurement",
-    classification: "ai_pipeline",
-    sourceFiles: ["src/lib/estimation/count-vision-engine.ts"],
-    consumers: [
-      "src/pages/calculator/CountVisionCalculator.tsx",
-      "src/pages/admin/AdminCountVision.tsx",
-    ],
-    dependencies: [],
-    calculationPurpose:
-      "Automated object detection on blueprint PDFs and architectural plans for electrical outlets, light fixtures, plumbing points, and doors.",
-    keyFormulas:
-      "BoundingBoxMatch(symbolTemplate, drawingCanvas, iouThreshold) -> detectedCount",
-    marketAssumptions:
-      "Standard architectural drafting symbols (ANSI/IEEE in US vs IEC in Europe/Commonwealth).",
-    internationalizationStatus: "verified_full",
-    marketMatrix: {
-      NG: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for NG with validated currency and jurisdiction rules.",
-      },
-      US: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for US with validated currency and jurisdiction rules.",
-      },
-      GB: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GB with validated currency and jurisdiction rules.",
-      },
-      CA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
-      },
-      AU: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
-      },
-      DE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
-      },
-      IN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
-      },
-      GH: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
-      },
-      KE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
-      },
-      ZA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
-      },
-      JP: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
-      },
-      FR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
-      },
-      BR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
-      },
-      SA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
-      },
-      AE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
-      },
-      CN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
-      },
-      ID: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
-      },
-      MX: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
-      },
-      KR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
-      },
-      IT: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
-      },
-    },
-  },
-  {
-    id: "defect_diagnosis",
-    name: "Visual Defect & Crack Diagnosis Engine",
-    category: "ai_measurement",
-    classification: "ai_pipeline",
-    sourceFiles: ["src/lib/estimation/defect-diagnosis-engine.ts"],
-    consumers: [
-      "src/pages/calculator/DefectDiagnosisCalculator.tsx",
-      "src/pages/admin/AdminDefects.tsx",
-    ],
-    dependencies: [],
-    calculationPurpose:
-      "Classifies plaster cracks, structural shear fissures, concrete spalling, rising damp, and efflorescence from site photos.",
-    keyFormulas:
-      "ClassifyCrackPattern(widthMm, orientation, propagationRate) -> RootCauseSeverityRating",
-    marketAssumptions:
-      "Building pathology rules for structural movement vs shrinkage cracks.",
-    internationalizationStatus: "verified_full",
-    marketMatrix: {
-      NG: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for NG with validated currency and jurisdiction rules.",
-      },
-      US: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for US with validated currency and jurisdiction rules.",
-      },
-      GB: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GB with validated currency and jurisdiction rules.",
-      },
-      CA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
-      },
-      AU: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
-      },
-      DE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
-      },
-      IN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
-      },
-      GH: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
-      },
-      KE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
-      },
-      ZA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
-      },
-      JP: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
-      },
-      FR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
-      },
-      BR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
-      },
-      SA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
-      },
-      AE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
-      },
-      CN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
-      },
-      ID: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
-      },
-      MX: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
-      },
-      KR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
-      },
-      IT: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
-      },
-    },
-  },
-  {
-    id: "surface_assessment",
-    name: "Surface Condition & Substrate Prep Engine",
-    category: "ai_measurement",
-    classification: "ai_pipeline",
-    sourceFiles: ["src/lib/wallfinishing/quantity-engine.ts"],
-    consumers: [
-      "src/pages/calculator/WallFinishingEstimator.tsx",
-      "src/pages/admin/AdminSurfaceConditions.tsx",
-    ],
-    dependencies: ["src/lib/wallfinishing/materials.ts"],
-    calculationPurpose:
-      "Evaluates substrate porosity, moisture levels, flaking paint percentage, and assigns prep multiplier factors (sanding, washing, bonding primer).",
-    keyFormulas:
-      "PrepMultiplier = 1.0 + (PorosityLevel * 0.15) + (DamageSeverity * 0.20)",
-    marketAssumptions:
-      "Verified substrate types across blockwork, drywall, concrete, and lime plaster.",
     internationalizationStatus: "verified_full",
     marketMatrix: {
       NG: {
