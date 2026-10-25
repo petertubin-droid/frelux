@@ -73,8 +73,13 @@ describe("Comprehensive Engine Inventory & 20-Market Matrix", () => {
     }
   });
 
-  it("ELECTRICAL_PROFILES provides verified explicit profiles for all 20 markets", () => {
-    expect(Object.keys(ELECTRICAL_PROFILES).length).toBe(20);
+  it("ELECTRICAL_PROFILES provides verified explicit profiles for all inventory markets", () => {
+    // Every inventory market must have a fully native profile.
+    // Additional markets are allowed only when equally native
+    // (explicit standards reference), never via fallbacks.
+    expect(Object.keys(ELECTRICAL_PROFILES).length).toBeGreaterThanOrEqual(
+      ALL_20_MARKETS.length,
+    );
     for (const code of ALL_20_MARKETS) {
       const p = getElectricalProfile(code);
       expect(p).toBeDefined();
@@ -83,10 +88,18 @@ describe("Comprehensive Engine Inventory & 20-Market Matrix", () => {
       expect(p.socketConductorSize).toBeTruthy();
       expect(p.standardsRef).toBeTruthy();
     }
+    for (const code of Object.keys(ELECTRICAL_PROFILES)) {
+      expect(
+        ELECTRICAL_PROFILES[code as keyof typeof ELECTRICAL_PROFILES]
+          .standardsRef,
+      ).toBeTruthy();
+    }
   });
 
-  it("PLUMBING_PROFILES provides verified explicit profiles for all 20 markets", () => {
-    expect(Object.keys(PLUMBING_PROFILES).length).toBe(20);
+  it("PLUMBING_PROFILES provides verified explicit profiles for all inventory markets", () => {
+    expect(Object.keys(PLUMBING_PROFILES).length).toBeGreaterThanOrEqual(
+      ALL_20_MARKETS.length,
+    );
     for (const code of ALL_20_MARKETS) {
       const p = getPlumbingProfile(code);
       expect(p).toBeDefined();
@@ -94,6 +107,11 @@ describe("Comprehensive Engine Inventory & 20-Market Matrix", () => {
       expect(p.drainageDwvMaterial).toBeTruthy();
       expect(p.drainageSlopeRule).toBeTruthy();
       expect(p.standardsRef).toBeTruthy();
+    }
+    for (const code of Object.keys(PLUMBING_PROFILES)) {
+      expect(
+        PLUMBING_PROFILES[code as keyof typeof PLUMBING_PROFILES].standardsRef,
+      ).toBeTruthy();
     }
   });
 
