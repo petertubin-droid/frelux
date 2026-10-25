@@ -49,6 +49,16 @@ export interface IfcElementSummary {
   >;
 }
 
+export interface IfcSchemaCoverage {
+  schema: string | null;
+  spatial_structures: Record<string, number>;
+  recognized_elements: Record<string, number>;
+  geometric_representations: Record<string, number>;
+  distinct_entity_types: number;
+  unsupported_entity_types: Record<string, number>;
+  notes: string[];
+}
+
 export interface IfcParseResult {
   ok: boolean;
   /** Total STEP entities parsed. */
@@ -61,6 +71,7 @@ export interface IfcParseResult {
   unparsed_lines: number;
   warnings: string[];
   steps: { label: string; detail: string }[];
+  schema_coverage: IfcSchemaCoverage;
 }
 
 // ============================================================
@@ -87,6 +98,36 @@ const TARGET_ELEMENT_TYPES = new Set([
   "IFCCOVERING",
   "IFCCHIMNEY",
 ]);
+
+const SPATIAL_STRUCTURE_TYPES = new Set(["IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE"]);
+const GEOMETRIC_REPRESENTATION_TYPES = new Set([
+  "IFCGEOMETRICREPRESENTATIONCONTEXT", "IFCSHAPEREPRESENTATION", "IFCPRODUCTDEFINITIONSHAPE",
+  "IFCEXTRUDEDAREASOLID", "IFCFACETEDBREP", "IFCBOUNDARYREPRESENTATION", "IFCMAPPEDITEM",
+  "IFCCARTESIANPOINT", "IFCPOLYLINE", "IFCDIRECTION", "IFCAXIS2PLACEMENT3D", "IFCLOCALPLACEMENT",
+  "IFCGEOMETRICCURVESET", "IFCSHELLBASEDSURFACEMODEL", "IFCCOMPOSITECURVE", "IFCTRIMMEDCURVE",
+]);
+
+function buildIfcSchemaCoverage(entities: Map<string, StepEntity>, fileText: string): IfcSchemaCoverage {
+  const schema = fileText.match(/FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i)?.[1] ?? null;
+  const counts = new Map<string, number>();
+  for (const entity of entities.values()) counts.set(entity.type, (counts.get(entity.type) ?? 0) + 1);
+  const spatial: Record<string, number> = {}, recognized: Record<string, number> = {}, geometry: Record<string, number> = {}, unsupported: Record<string, number> = {};
+  for (const [type, count] of counts) {
+    if (SPATIAL_STRUCTURE_TYPES.has(type)) spatial[type] = count;
+    else if (TARGET_ELEMENT_TYPES.has(type)) recognized[type] = count;
+    else if (GEOMETRIC_REPRESENTATION_TYPES.has(type)) geometry[type] = count;
+    else unsupported[type] = count;
+  }
+  return {
+    schema, spatial_structures: spatial, recognized_elements: recognized,
+    geometric_representations: geometry, distinct_entity_types: counts.size,
+    unsupported_entity_types: Object.fromEntries(Object.entries(unsupported).sort((a,b) => b[1]-a[1])),
+    notes: [
+      "Spatial structures and geometry entities are cataloged only; no 3D geometry or dimensions are inferred.",
+      "Takeoff quantities remain limited to IfcQuantity values explicitly declared by the source file.",
+    ],
+  };
+}
 
 const QUANTITY_UNIT_TYPES: Record<string, string> = {
   IFCQUANTITYAREA: "AREAUNIT",
@@ -412,6 +453,7 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
         `${input.file_name ?? "The uploaded file"} is not a valid IFC/STEP file (no ISO-10303-21 header or FILE_SCHEMA). The takeoff is refused rather than guessed at.`,
       ],
       steps: [],
+      schema_coverage: buildIfcSchemaCoverage(new Map(), fileText),
     };
   }
 
@@ -432,6 +474,7 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
         `The file contains ${entities.size.toLocaleString("en-NG")} entities, above the configured cap of ${maxEntities.toLocaleString("en-NG")} (admin rule max_entities_per_file). It is refused with an honest error instead of freezing your browser.`,
       ],
       steps,
+      schema_coverage: buildIfcSchemaCoverage(entities, fileText),
     };
   }
 
@@ -656,6 +699,9 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
     );
   }
 
+  const schema_coverage = buildIfcSchemaCoverage(entities, fileText);
+  steps.push({ label: "Schema coverage", detail: `Schema ${schema_coverage.schema ?? "unspecified"}; ${schema_coverage.distinct_entity_types} distinct entity types. Geometry is presence-only; no geometry or dimensions are inferred.` });
+
   return {
     ok: elements.length > 0,
     entity_count: entities.size,
@@ -664,5 +710,6 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
     unparsed_lines: unparsed,
     warnings,
     steps,
+    schema_coverage,
   };
 }

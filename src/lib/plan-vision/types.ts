@@ -307,6 +307,14 @@ export interface PlanExtraction {
   /** Unit the document predominantly uses (native display unit). */
   nativeUnit: LengthUnit;
   extractedAt: string;
+  /** Recorded independent human review; not professional licensure or server authorization. */
+  certification?: {
+    reviewerId: string;
+    verdict: "approved" | "rejected";
+    checklist: { sourceChecked: boolean; dimensionsChecked: boolean; issuesResolved: boolean };
+    notes: string;
+    reviewedAt: string;
+  };
 }
 
 // =========================================================

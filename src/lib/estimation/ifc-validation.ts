@@ -24,6 +24,8 @@ export interface IfcValidationCheck {
 }
 
 export interface IfcValidationReport {
+  /** IFC schema entity-presence summary, not schema certification. */
+  schema_coverage: { schema: string | null; distinct_entity_types: number; observed_entity_types: Record<string, number> };
   verdict: IfcValidationVerdict;
   /** FILE_SCHEMA value, e.g. IFC4 (null when absent). */
   schema: string | null;
@@ -245,7 +247,13 @@ export function validateIfcFile(input: {
     );
   }
 
+  const observedEntityTypes: Record<string, number> = {};
+  for (const match of text.matchAll(/#\d+\s*=\s*([A-Za-z0-9_]+)\s*\(/g)) {
+    const type = match[1].toUpperCase();
+    observedEntityTypes[type] = (observedEntityTypes[type] ?? 0) + 1;
+  }
   return {
+    schema_coverage: { schema, distinct_entity_types: Object.keys(observedEntityTypes).length, observed_entity_types: observedEntityTypes },
     verdict,
     schema,
     entity_count: entityCount,

@@ -5,6 +5,8 @@
 import { describe, it, expect } from "vitest";
 import {
   allRoomsReviewed,
+  certifyExtractionReview,
+  isExtractionReviewApproved,
   confirmElement,
   editBuildingFact,
   editOpening,
@@ -62,6 +64,36 @@ function extraction(
     extractedAt: "2026-09-07T00:00:00Z",
   };
 }
+
+describe("independent extraction review record", () => {
+  it("requires all extracted content and checklist items before approval", () => {
+    const reviewedRoom = confirmElement(room());
+    const base = extraction([reviewedRoom]);
+    const approved = certifyExtractionReview(base, {
+      reviewerId: "reviewer-2", verdict: "approved",
+      checklist: { sourceChecked: true, dimensionsChecked: true, issuesResolved: true },
+      now: "2026-10-24T00:00:00Z",
+    });
+    expect(isExtractionReviewApproved(approved)).toBe(true);
+    expect(approved.certification?.reviewerId).toBe("reviewer-2");
+  });
+
+  it("refuses approval with an unreviewed item or blocking issue", () => {
+    const checklist = { sourceChecked: true, dimensionsChecked: true, issuesResolved: true };
+    expect(() => certifyExtractionReview(extraction([room()]), { reviewerId: "r2", verdict: "approved", checklist })).toThrow(/each extracted item/i);
+    const broken = extraction([confirmElement(room())], [{ code: "rooms_overlap", severity: "error", elementIds: ["r1"], message: "Overlap" }]);
+    expect(() => certifyExtractionReview(broken, { reviewerId: "r2", verdict: "approved", checklist })).toThrow(/blocking/i);
+    expect(isExtractionReviewApproved(broken)).toBe(false);
+  });
+
+  it("requires a reviewer identifier and allows an explicit rejection record", () => {
+    const base = extraction([room()]);
+    const checklist = { sourceChecked: false, dimensionsChecked: false, issuesResolved: false };
+    expect(() => certifyExtractionReview(base, { reviewerId: " ", verdict: "rejected", checklist })).toThrow(/identifier/i);
+    const rejected = certifyExtractionReview(base, { reviewerId: "reviewer-2", verdict: "rejected", checklist });
+    expect(isExtractionReviewApproved(rejected)).toBe(false);
+  });
+});
 
 describe("review state machine (§8)", () => {
   it("starts review only from ai_extracted", () => {

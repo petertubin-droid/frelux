@@ -13,6 +13,7 @@ const parsed: IfcParseResult = {
   unparsed_lines: 0,
   warnings: ["No quantities declared; counts only."],
   steps: [],
+  schema_coverage: { schema: "IFC4", spatial_structures: {}, recognized_elements: { IFCWALL: 2 }, geometric_representations: {}, distinct_entity_types: 1, unsupported_entity_types: {}, notes: [] },
 };
 
 describe("portable IFC takeoff export", () => {

@@ -393,3 +393,54 @@ export function verifiedRooms(extraction: PlanExtraction): ExtractedRoom[] {
 export function hasBlockingIssues(extraction: PlanExtraction): boolean {
   return extraction.issues.some((i) => i.severity === "error");
 }
+
+
+/**
+ * Record a second-person review of an extraction. This is an audit workflow,
+ * not proof of identity, professional licensure, or server-side authorization.
+ */
+export function certifyExtractionReview(
+  extraction: PlanExtraction,
+  input: {
+    reviewerId: string;
+    verdict: "approved" | "rejected";
+    checklist: { sourceChecked: boolean; dimensionsChecked: boolean; issuesResolved: boolean };
+    notes?: string;
+    now?: string;
+  },
+): PlanExtraction {
+  const reviewerId = input.reviewerId.trim();
+  if (!reviewerId) throw new Error("A reviewer identifier is required.");
+  if (extraction.rooms.length === 0 && extraction.buildingFacts.length === 0 && !extraction.roof) {
+    throw new Error("There is no extracted content to review.");
+  }
+  if (input.verdict === "approved") {
+    if (extraction.issues.some((issue) => issue.severity === "error")) {
+      throw new Error("Resolve blocking consistency issues before approving this review.");
+    }
+    if (!input.checklist.sourceChecked || !input.checklist.dimensionsChecked || !input.checklist.issuesResolved) {
+      throw new Error("Complete every review checklist item before approval.");
+    }
+    const allReviewed = [...extraction.rooms, ...extraction.buildingFacts, ...(extraction.roof ? [extraction.roof] : [])]
+      .every((element) => element.reviewStatus === "user_confirmed" || element.reviewStatus === "user_edited" || element.reviewStatus === "user_rejected");
+    if (!allReviewed) throw new Error("Review or reject each extracted item before approval.");
+  }
+  return {
+    ...extraction,
+    certification: {
+      reviewerId,
+      verdict: input.verdict,
+      checklist: { ...input.checklist },
+      notes: input.notes?.trim() ?? "",
+      reviewedAt: input.now ?? new Date().toISOString(),
+    },
+  };
+}
+
+/** True only for a recorded approved review with no current blocking issue. */
+export function isExtractionReviewApproved(extraction: PlanExtraction): boolean {
+  const record = extraction.certification;
+  return Boolean(record?.verdict === "approved" && record.reviewerId.trim() &&
+    record.checklist.sourceChecked && record.checklist.dimensionsChecked && record.checklist.issuesResolved &&
+    !extraction.issues.some((issue) => issue.severity === "error"));
+}

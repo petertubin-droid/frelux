@@ -315,6 +315,24 @@ ENDSEC;END-ISO-10303-21;`;
     expect(r.elements.find((e) => e.type === "IFCWALL")!.count).toBe(1);
   });
 
+  it("reports schema, spatial, takeoff, and geometry entity presence without inferring quantities", () => {
+    const file = `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;DATA;
+#1=IFCPROJECT('p',$,'Project',$,$,$,$,$,$);
+#2=IFCBUILDINGSTOREY('s',$,'Ground',$,$,$,$,$,$);
+#3=IFCWALL('w',$,'Wall',$,$,$,$,$,$);
+#4=IFCPRODUCTDEFINITIONSHAPE($,$,());
+#5=IFCUNKNOWNENTITY($);
+ENDSEC;END-ISO-10303-21;`;
+    const r = parseIfcTakeoff({ file_text: file, rules: RULES });
+    expect(r.schema_coverage.schema).toBe("IFC4");
+    expect(r.schema_coverage.spatial_structures.IFCPROJECT).toBe(1);
+    expect(r.schema_coverage.recognized_elements.IFCWALL).toBe(1);
+    expect(r.schema_coverage.geometric_representations.IFCPRODUCTDEFINITIONSHAPE).toBe(1);
+    expect(r.schema_coverage.unsupported_entity_types.IFCUNKNOWNENTITY).toBe(1);
+    expect(r.has_quantities).toBe(false);
+    expect(r.schema_coverage.notes.join(" ")).toMatch(/no 3D geometry/i);
+  });
+
   it("rounds totals to the configured decimals", () => {
     const precise = `ISO-10303-21;
 HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;
