@@ -13,6 +13,9 @@ verify_jwt = false
 [functions.paystack-webhook]
 verify_jwt = false
 
+[functions.pdf-studio-export]
+verify_jwt = true
+
 [functions.ai-admin-assistant]
 verify_jwt = true
 

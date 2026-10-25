@@ -11,6 +11,7 @@ import {
   ClipboardList,
   Crown,
   FileStack,
+  FileText,
   Gem,
   LayoutDashboard,
   LogIn,
@@ -149,6 +150,7 @@ export default function Navbar() {
       items: [
         { label: "Pricing", to: "/pricing", icon: Crown },
         { label: "Brand Studio", to: "/brand-studio", icon: Crown },
+        { label: "Document Studio", to: "/document-studio", icon: FileText },
         { label: "Rewards", to: "/rewards", icon: Gem },
       ],
     },

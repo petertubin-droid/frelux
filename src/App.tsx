@@ -128,6 +128,7 @@ const Pricing = lazy(() => import("@/pages/Pricing"));
 const Metrics = lazy(() => import("@/pages/Metrics"));
 const DataRequest = lazy(() => import("@/pages/legal/DataRequest"));
 const BrandStudio = lazy(() => import("@/pages/BrandStudio"));
+const DocumentStudio = lazy(() => import("@/pages/DocumentStudio"));
 const BuildToRoofEstimator = lazy(() => import("@/pages/BuildToRoofEstimator"));
 const ImageEstimator = lazy(() => import("@/pages/ImageEstimator"));
 const VisualFinishingEstimator = lazy(
@@ -1108,6 +1109,14 @@ export default function App() {
                         element={
                           <Suspense fallback={<PageLoader />}>
                             <BrandStudio />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/document-studio"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <DocumentStudio />
                           </Suspense>
                         }
                       />
