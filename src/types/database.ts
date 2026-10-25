@@ -1371,6 +1371,11 @@ export interface DbProjectQuotation {
     amount: number;
     compounded_on: string | null;
   }> | null;
+  /** Local fixture-validation state of the rule used; pending until a human verdict exists. */
+  tax_validation_state:
+    "pending" | "validated" | "rejected" | "needs_changes" | null;
+  tax_validated_by: string | null;
+  tax_validated_at: string | null;
   /** converted | not_configured | unavailable | stale; null when not requested. */
   fx_settlement_status:
     "converted" | "not_configured" | "unavailable" | "stale" | null;

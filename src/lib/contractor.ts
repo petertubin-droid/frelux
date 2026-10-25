@@ -7,6 +7,7 @@
 import { supabase } from "@/lib/supabase";
 import { computeQuoteTax, resolveQuoteTax } from "@/lib/tax/quote-tax";
 import { resolveSettlementFx } from "@/lib/fx/settlement-fx";
+import { fetchTaxValidationState } from "@/lib/tax/fixture-validation";
 import type {
   DbContractorProject,
   DbProjectRoom,
@@ -1414,6 +1415,15 @@ export async function generateQuotation(
       : taxComputation.gross
     : preTax + taxAmount;
 
+  // Local fixture-validation provenance: PENDING is the honest
+  // default until an accountable local reviewer records a verdict
+  // in tax_rule_validations for the rule's market.
+  const taxValidation =
+    taxResolution.kind === "verified_rule" &&
+    taxResolution.jurisdiction?.marketCode
+      ? await fetchTaxValidationState(taxResolution.jurisdiction.marketCode)
+      : null;
+
   // Settlement conversion is opt-in and fail-closed: the market
   // must carry an active, legally reviewed settlement_fx_config
   // row and a recorded FX rate with provider provenance. Any
@@ -1469,6 +1479,9 @@ export async function generateQuotation(
             compounded_on: l.compoundedOn,
           }))
         : null,
+      tax_validation_state: taxValidation?.state ?? null,
+      tax_validated_by: taxValidation?.reviewerName ?? null,
+      tax_validated_at: taxValidation?.reviewDate ?? null,
       grand_total: grandTotal,
       fx_settlement_status: settlement?.status ?? null,
       fx_settlement_currency: settlement?.settlementCurrency ?? null,

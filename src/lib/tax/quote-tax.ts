@@ -260,6 +260,9 @@ export interface ResolveQuoteTaxInput {
   settingsTaxPct?: number | null;
   /** The project's canonical location record (site jurisdiction). */
   siteLocation?: unknown;
+  /** What the rule must apply to; defaults to "both". Market
+   *  fixtures exercise materials/services-specific rules with it. */
+  appliesTo?: "materials" | "services" | "both";
   asOf?: string;
 }
 
@@ -270,6 +273,7 @@ export async function resolveQuoteTax(
   input: ResolveQuoteTaxInput = {},
 ): Promise<QuoteTaxResolution> {
   const { explicitTaxPct, settingsTaxPct, siteLocation, asOf } = input;
+  const appliesTo = input.appliesTo ?? "both";
 
   // 1. Explicit per-call percentage: a labeled manual assumption.
   if (validPct(explicitTaxPct)) {
@@ -285,6 +289,7 @@ export async function resolveQuoteTax(
   if (jurisdiction) {
     const resolution = await resolveJurisdictionTax(jurisdiction, {
       ...(asOf ? { asOf } : {}),
+      appliesTo,
     });
     if (resolution.status === "ok") {
       return verifiedFromJurisdiction(resolution);

@@ -18,6 +18,7 @@ let jurisdictionRules: Record<string, unknown>[] = [];
 let catalogRows: Record<string, unknown>[] = [];
 let settlementConfig: Record<string, unknown> | null = null;
 let fxRateRows: Record<string, unknown>[] = [];
+let taxValidationRows: Record<string, unknown>[] = [];
 
 const project: Partial<DbContractorProject> = {
   id: "p1",
@@ -37,6 +38,7 @@ const res = (data: unknown, error: unknown = null) =>
     select: () => res(data, error),
     eq: () => res(data, error),
     order: () => res(data, error),
+    limit: () => res(data, error),
     maybeSingle: () => res(data, error),
   }) as unknown as Promise<{ data: unknown; error: unknown }>;
 
@@ -49,6 +51,7 @@ vi.mock("@/lib/supabase", () => ({
       if (table === "market_tax_catalog") return res(catalogRows);
       if (table === "settlement_fx_config") return res(settlementConfig);
       if (table === "fx_rates") return res(fxRateRows);
+      if (table === "tax_rule_validations") return res(taxValidationRows);
       if (table === "project_quotations") {
         return {
           insert: (rows: Record<string, unknown>) => {
@@ -75,6 +78,7 @@ describe("generateQuotation — roadmap phase 1: no silent tax default", () => {
     catalogRows = [];
     settlementConfig = null;
     fxRateRows = [];
+    taxValidationRows = [];
     __clearTaxCatalogCache();
   });
 
@@ -228,5 +232,95 @@ describe("generateQuotation — roadmap phase 1: no silent tax default", () => {
     await generateQuotation("p1");
     expect(insertedQuote!.fx_settlement_status).toBeNull();
     expect(insertedQuote!.fx_settlement).toBeNull();
+  });
+
+  it("stores the local fixture-validation state alongside the verified rule", async () => {
+    jurisdictionRules = [
+      {
+        id: "r1",
+        rule_code: "NG-VAT-FED",
+        version: 1,
+        market_code: "NG",
+        jurisdiction_level: "national",
+        jurisdiction_code: "NG",
+        tax_category: "consumption",
+        tax_name: "VAT",
+        components: [{ name: "VAT", rate_pct: 7.5, compound_on: null }],
+        basis_inclusive: false,
+        taxable_base_definition: "Taxable supplies.",
+        rounding_method: "half_up",
+        exemption_handling: "excluded_from_base",
+        unknown_handling: "not_determined",
+        applies_to: "both",
+        effective_from: "2019-02-01",
+        effective_to: null,
+        source_title: "VAT Act",
+        source_url: "https://firs.gov.ng/",
+        source_publisher: "Federal Inland Revenue Service (FIRS)",
+        reviewer_name: "FRELUX Tax Review",
+        next_review_date: "2027-02-01",
+        is_active: true,
+      },
+    ];
+    taxValidationRows = [
+      {
+        id: "v1",
+        market_code: "NG",
+        rule_ref: "NG-VAT-FED",
+        verdict: "validated",
+        reviewer_name: "Adaeze Okonkwo",
+        reviewer_role: "Chartered Accountant",
+        reviewer_location: "Lagos, NG",
+        review_date: "2026-11-01",
+        checklist: {},
+        evidence_url: null,
+        notes: null,
+      },
+    ];
+    (project as Record<string, unknown>).location = { country_code: "NG" };
+
+    await generateQuotation("p1");
+
+    expect(insertedQuote!.tax_source).toBe("verified_rule");
+    expect(insertedQuote!.tax_validation_state).toBe("validated");
+    expect(insertedQuote!.tax_validated_by).toBe("Adaeze Okonkwo");
+    expect(insertedQuote!.tax_validated_at).toBe("2026-11-01");
+  });
+
+  it("quotes an honest pending validation state when no reviewer verdict exists", async () => {
+    jurisdictionRules = [
+      {
+        id: "r1",
+        rule_code: "NG-VAT-FED",
+        version: 1,
+        market_code: "NG",
+        jurisdiction_level: "national",
+        jurisdiction_code: "NG",
+        tax_category: "consumption",
+        tax_name: "VAT",
+        components: [{ name: "VAT", rate_pct: 7.5, compound_on: null }],
+        basis_inclusive: false,
+        taxable_base_definition: "Taxable supplies.",
+        rounding_method: "half_up",
+        exemption_handling: "excluded_from_base",
+        unknown_handling: "not_determined",
+        applies_to: "both",
+        effective_from: "2019-02-01",
+        effective_to: null,
+        source_title: "VAT Act",
+        source_url: "https://firs.gov.ng/",
+        source_publisher: "Federal Inland Revenue Service (FIRS)",
+        reviewer_name: "FRELUX Tax Review",
+        next_review_date: "2027-02-01",
+        is_active: true,
+      },
+    ];
+    (project as Record<string, unknown>).location = { country_code: "NG" };
+
+    await generateQuotation("p1");
+
+    expect(insertedQuote!.tax_source).toBe("verified_rule");
+    expect(insertedQuote!.tax_validation_state).toBe("pending");
+    expect(insertedQuote!.tax_validated_by).toBeNull();
   });
 });
