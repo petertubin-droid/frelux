@@ -118,3 +118,9 @@ VALUES
    'https://www.qppstudio.net/public-holidays/nigeria.htm')
 ON CONFLICT (country_code, subnational_scope, effective_year, version)
 DO NOTHING;
+
+-- Access grants: calendars are public reference data; only
+-- admins (RLS) can write.
+GRANT SELECT ON public.work_calendars TO anon, authenticated, service_role;
+GRANT INSERT, UPDATE, DELETE ON public.work_calendars
+  TO authenticated, service_role;
