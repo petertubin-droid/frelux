@@ -50,16 +50,18 @@ vi.mock("@/lib/calendars/work-calendar", () => ({
   resolveWorkCalendar: (...a: unknown[]) => mockCalendar(...a),
 }));
 
-function setCredentials(data: unknown[] | null, error = false) {
+type MockError = string | { code: string } | null;
+
+function setCredentials(data: unknown[] | null, error: MockError = null) {
   mockCredThen.mockImplementation(
     (cb: (r: { data: unknown; error: unknown }) => void) => {
-      cb({ data: error ? null : data, error: error ? "db down" : null });
+      cb({ data: error ? null : data, error });
       return Promise.resolve();
     },
   );
 }
 
-function setProcurement(data: unknown[] | null, error = false) {
+function setProcurement(data: unknown[] | null, error: MockError = null) {
   mockProcThen.mockImplementation(
     (cb: (r: { data: unknown; error: unknown }) => void) => {
       // Mirror the component's updated_at descending ordering.
@@ -67,7 +69,7 @@ function setProcurement(data: unknown[] | null, error = false) {
       const sorted = rows
         .slice()
         .sort((a, b) => b.updated_at.localeCompare(a.updated_at));
-      cb({ data: error ? null : sorted, error: error ? "db down" : null });
+      cb({ data: error ? null : sorted, error });
       return Promise.resolve();
     },
   );
@@ -305,6 +307,38 @@ describe("Procurement section", () => {
     expect(screen.getByText(/1 record needs\s*attention/)).toBeTruthy();
     expect(screen.getByText("Exception")).toBeTruthy();
     expect(screen.getByText(/only through the auditable trail/i)).toBeTruthy();
+  });
+});
+
+describe("Access and provider error states", () => {
+  it("names permission denied explicitly for credentials (42501)", async () => {
+    setCredentials(null, { code: "42501" });
+    renderTab();
+    await waitFor(() =>
+      expect(
+        screen.getByText("Permission denied for saved credentials"),
+      ).toBeTruthy(),
+    );
+    expect(screen.getByText(/sign-in or access-level matter/i)).toBeTruthy();
+  });
+
+  it("names permission denied explicitly for procurement (42501)", async () => {
+    setProcurement(null, { code: "42501" });
+    renderTab();
+    await waitFor(() =>
+      expect(
+        screen.getByText("Permission denied for procurement records"),
+      ).toBeTruthy(),
+    );
+  });
+
+  it("keeps a generic provider error distinct from permission denial", async () => {
+    setProcurement(null, "db down");
+    renderTab();
+    await waitFor(() =>
+      expect(screen.getByText("Procurement data unavailable")).toBeTruthy(),
+    );
+    expect(screen.queryByText(/Permission denied/i)).toBeNull();
   });
 });
 

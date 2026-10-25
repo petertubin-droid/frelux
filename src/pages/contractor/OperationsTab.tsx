@@ -83,6 +83,13 @@ interface CredentialRow {
   expires_at: string | null;
 }
 
+/** A fetch failure, kept distinct from "no records exist". */
+interface LoadError {
+  source: "credentials" | "procurement";
+  /** PostgREST error code when available (42501 = permission denied). */
+  code?: string | null;
+}
+
 interface CalendarAvailability {
   status: "verified" | "missing" | "unavailable" | "no_country";
   note: string;
@@ -115,7 +122,7 @@ function SectionCard({
           (action.to ? (
             <Link
               to={action.to}
-              className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-foreground underline-offset-4 hover:underline"
+              className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {action.label}
               <ArrowRight aria-hidden="true" className="h-3 w-3" />
@@ -152,6 +159,18 @@ function StatusLine({
   return <p className={`font-medium ${toneClass}`}>{children}</p>;
 }
 
+function PermissionDeniedLine({ what }: { what: string }) {
+  return (
+    <>
+      <StatusLine tone="attention">Permission denied for {what}</StatusLine>
+      <EvidenceLine>
+        Your account is not allowed to read this data. This is usually a sign-in
+        or access-level matter, not a problem with the project.
+      </EvidenceLine>
+    </>
+  );
+}
+
 function EvidenceLine({ children }: { children: React.ReactNode }) {
   return (
     <p className="text-xs leading-relaxed text-muted-foreground">{children}</p>
@@ -173,6 +192,7 @@ export function OperationsTab({
   const [credentials, setCredentials] = useState<CredentialRow[] | null>(null);
   const [procurement, setProcurement] = useState<ProcurementRow[] | null>(null);
   const [calendar, setCalendar] = useState<CalendarAvailability | null>(null);
+  const [loadError, setLoadError] = useState<LoadError | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Latest quotation by version carries the current tax posture.
@@ -191,6 +211,7 @@ export function OperationsTab({
     let cancelled = false;
     (async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const client = supabaseClient;
         const tasks: PromiseLike<void>[] = [];
@@ -207,6 +228,10 @@ export function OperationsTab({
                 if (cancelled) return;
                 if (error) {
                   setCredentials(null);
+                  setLoadError({
+                    source: "credentials",
+                    code: (error as { code?: string | null }).code ?? null,
+                  });
                   return;
                 }
                 setCredentials((data as CredentialRow[]) ?? []);
@@ -222,10 +247,14 @@ export function OperationsTab({
             .select("id, title, supplier, status, updated_at")
             .eq("project_ref", project.id)
             .order("updated_at", { ascending: false })
-            .then(({ data, error }) => {
+            .then(async ({ data, error }) => {
               if (cancelled) return;
               if (error) {
                 setProcurement(null);
+                setLoadError({
+                  source: "procurement",
+                  code: (error as { code?: string | null }).code ?? null,
+                });
                 return;
               }
               setProcurement((data as ProcurementRow[]) ?? []);
@@ -339,7 +368,11 @@ export function OperationsTab({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div
+      aria-live="polite"
+      aria-busy={loading}
+      className="grid grid-cols-1 gap-4 lg:grid-cols-2"
+    >
       {/* ---------------- Tax status ---------------- */}
       <SectionCard
         icon={<FileText className="h-4 w-4" />}
@@ -427,7 +460,9 @@ export function OperationsTab({
         title="Workforce credentials"
         action={{ label: "Manage", to: "/pro-connect/dashboard" }}
       >
-        {!credentialSummary ? (
+        {loadError?.source === "credentials" && loadError.code === "42501" ? (
+          <PermissionDeniedLine what="saved credentials" />
+        ) : !credentialSummary ? (
           <>
             <StatusLine tone="neutral">Credentials unavailable</StatusLine>
             <EvidenceLine>
@@ -481,7 +516,9 @@ export function OperationsTab({
         title="Procurement and shipments"
         action={{ label: "Open logistics board", to: "/contractor/logistics" }}
       >
-        {!procurementGroups ? (
+        {loadError?.source === "procurement" && loadError.code === "42501" ? (
+          <PermissionDeniedLine what="procurement records" />
+        ) : !procurementGroups ? (
           <>
             <StatusLine tone="neutral">Procurement data unavailable</StatusLine>
             <EvidenceLine>
