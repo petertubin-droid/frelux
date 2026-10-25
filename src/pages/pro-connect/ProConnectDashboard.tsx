@@ -47,6 +47,7 @@ import { classNames } from "@/lib/utils";
 import { checkProLevelEligibility } from "@/lib/pro-connect";
 import type { DbProVerificationRequest } from "@/types/pro-connect";
 import { Button } from "@/components/ui/shadcn/button";
+import { ProCredentialManager } from "@/components/pro-connect/ProCredentialManager";
 import { formatByCode } from "@/lib/international/currency-format";
 
 export default function ProConnectDashboard() {
@@ -737,6 +738,9 @@ export default function ProConnectDashboard() {
         )}
       </div>
 
+      {/* Professional credentials (Phase 2 auditable verification) */}
+      <ProCredentialManager profileId={profile.id} />
+
       {/* Portfolio management */}
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-between">
@@ -974,8 +978,7 @@ export default function ProConnectDashboard() {
                       bid.proposed_price,
                       bid.listing?.currency || "NGN",
                     )}{" "}
-                    ·{" "}
-                    {new Date(bid.created_at).toLocaleDateString()}
+                    · {new Date(bid.created_at).toLocaleDateString()}
                   </p>
                 </div>
                 <span

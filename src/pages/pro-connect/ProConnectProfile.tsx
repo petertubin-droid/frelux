@@ -416,20 +416,42 @@ export default function ProConnectProfile() {
             {credentials.map((cred) => (
               <div
                 key={cred.id}
-                className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 dark:border-white/5 dark:bg-card"
+                className="rounded-xl border border-border bg-card px-4 py-3 dark:border-white/5 dark:bg-card"
               >
-                <div>
-                  <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
-                    {cred.professional_body}
-                  </p>
-                  <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                    {cred.credential_type}
-                  </p>
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
+                      {cred.credential_type}
+                    </p>
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                      {cred.professional_body}
+                      {cred.country_code ? ` · ${cred.country_code}` : ""}
+                      {cred.subnational_scope
+                        ? ` · ${cred.subnational_scope}`
+                        : ""}
+                    </p>
+                  </div>
+                  {cred.public_verification_label === "registry_verified" && (
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                      <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />
+                      Registry verified
+                    </span>
+                  )}
+                  {cred.public_verification_label === "document_reviewed" && (
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                      <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />
+                      Document reviewed
+                    </span>
+                  )}
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                  <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />
-                  Verified
-                </span>
+                {cred.verification_checked_at && (
+                  <p className="mt-1 text-[11px] text-muted-foreground dark:text-muted-foreground">
+                    Last checked{" "}
+                    {new Date(
+                      cred.verification_checked_at,
+                    ).toLocaleDateString()}
+                  </p>
+                )}
               </div>
             ))}
           </div>

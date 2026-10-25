@@ -65,6 +65,7 @@ import type {
   DbWorkerModerationConfig,
 } from "@/types/worker-channels";
 import { Button } from "@/components/ui/shadcn/button";
+import { CredentialReviewConsole } from "@/components/pro-connect/CredentialReviewConsole";
 
 type Tab =
   | "professionals"
@@ -312,6 +313,15 @@ function AdminProfessionalsTab() {
 // VERIFICATION CENTER TAB
 // =========================================================
 function AdminVerificationTab() {
+  return (
+    <div>
+      <CredentialReviewConsole />
+      <LegacyVerificationRequests />
+    </div>
+  );
+}
+
+function LegacyVerificationRequests() {
   const [requests, setRequests] = useState<DbProVerificationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("pending");

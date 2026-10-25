@@ -52,6 +52,44 @@ export function publicCredentialLabel(
   return "not_verified";
 }
 
+/**
+ * User-facing status labels. Precise and honest: verified_by_source
+ * and verified_by_reviewer are never both collapsed to "Verified".
+ */
+export function credentialStatusLabel(
+  status: CredentialVerificationStatus,
+): string {
+  switch (status) {
+    case "submitted":
+      return "Submitted";
+    case "pending_review":
+      return "Under review";
+    case "verified_by_source":
+      return "Verified by issuing source";
+    case "verified_by_reviewer":
+      return "Verified by FRELUX review";
+    case "expired":
+      return "Expired";
+    case "suspended":
+      return "Suspended";
+    case "revoked":
+      return "Revoked";
+    case "rejected":
+      return "Rejected";
+    case "unable_to_verify":
+      return "Unable to verify";
+    // Legacy values (preserved verbatim by the Phase 2 migration).
+    case "unverified":
+      return "Not yet verified";
+    case "pending":
+      return "Under review";
+    case "verified":
+      return "Verified (document review)";
+    default:
+      return "Unknown";
+  }
+}
+
 /** Actor roles that can perform a transition. */
 export type CredentialActorRole = "worker" | "admin";
 

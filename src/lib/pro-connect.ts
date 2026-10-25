@@ -1364,6 +1364,45 @@ export interface CredentialSubmission {
   safety_training_expiry?: string;
 }
 
+// -- Reviewer console support (Phase 2) --
+
+/**
+ * All credentials awaiting review, plus any other status for the
+ * reviewer's filter. Returns profile names for context. Admin RLS
+ * sees all rows; non-admin callers get an empty queue (fail closed).
+ */
+export async function adminListCredentialsForReview(
+  statuses?: CredentialVerificationStatus[],
+): Promise<
+  Array<
+    DbProCredential & {
+      profile_display_name: string | null;
+      profile_slug: string | null;
+    }
+  >
+> {
+  if (!isSupabaseConfigured) return [];
+  const { data: profileRows, error: profileError } = await supabase
+    .from("pro_profiles")
+    .select("id, display_name, slug");
+  if (profileError || !profileRows) return [];
+  const names = new Map(
+    (profileRows as { id: string; display_name: string; slug: string }[]).map(
+      (p) => [p.id, { display_name: p.display_name, slug: p.slug }],
+    ),
+  );
+  let query = supabase.from("pro_credentials").select("*");
+  if (statuses && statuses.length > 0)
+    query = query.in("verification_status", statuses);
+  const { data, error } = await query.order("updated_at", { ascending: true });
+  if (error || !data) return [];
+  return (data as DbProCredential[]).map((c) => ({
+    ...c,
+    profile_display_name: names.get(c.profile_id)?.display_name ?? null,
+    profile_slug: names.get(c.profile_id)?.slug ?? null,
+  }));
+}
+
 export async function addCredential(
   profileId: string,
   credential: CredentialSubmission,
