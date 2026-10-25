@@ -83,6 +83,13 @@ function statusTone(status: CredentialVerificationStatus): string {
   return "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground";
 }
 
+/** Deterministic freshness: days until expiry, or null when unknown. */
+function daysUntil(expiry: string | null): number | null {
+  if (!expiry) return null;
+  const ms = new Date(expiry + "T00:00:00").getTime() - Date.now();
+  return Math.ceil(ms / (24 * 60 * 60 * 1000));
+}
+
 export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
   const [credentials, setCredentials] = useState<DbProCredential[]>([]);
   const [loading, setLoading] = useState(true);
@@ -436,6 +443,28 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
                   <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />
                   {credentialStatusLabel(cred.verification_status)}
                 </span>
+                {(() => {
+                  const d = daysUntil(cred.expires_at);
+                  if (
+                    d === null ||
+                    cred.verification_status === "revoked" ||
+                    cred.verification_status === "suspended"
+                  )
+                    return null;
+                  if (d < 0)
+                    return (
+                      <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                        Expired
+                      </span>
+                    );
+                  if (d <= 30)
+                    return (
+                      <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+                        Expires in {d} day{d === 1 ? "" : "s"}
+                      </span>
+                    );
+                  return null;
+                })()}
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {(cred.verification_status === "rejected" ||

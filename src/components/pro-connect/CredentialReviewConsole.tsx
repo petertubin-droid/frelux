@@ -34,11 +34,18 @@ type QueueRow = Awaited<
 const FILTERS: Array<{
   label: string;
   statuses?: CredentialVerificationStatus[];
+  /** Client-side freshness window for the expiring-soon view. */
+  expiringWithinDays?: number;
 }> = [
   { label: "Awaiting review", statuses: ["submitted", "pending_review"] },
   {
     label: "Verified",
     statuses: ["verified_by_source", "verified_by_reviewer"],
+  },
+  {
+    label: "Expiring soon",
+    statuses: ["verified_by_source", "verified_by_reviewer", "verified"],
+    expiringWithinDays: 30,
   },
   { label: "Suspended / revoked", statuses: ["suspended", "revoked"] },
   { label: "All", statuses: undefined },
@@ -62,7 +69,19 @@ export function CredentialReviewConsole() {
     const data = await adminListCredentialsForReview(
       FILTERS[filterIndex]?.statuses,
     );
-    setRows(data);
+    const window = FILTERS[filterIndex].expiringWithinDays;
+    setRows(
+      window
+        ? data.filter((row) => {
+            if (!row.expires_at) return false;
+            const days = Math.ceil(
+              (new Date(row.expires_at + "T00:00:00").getTime() - Date.now()) /
+                (24 * 60 * 60 * 1000),
+            );
+            return days <= window;
+          })
+        : data,
+    );
     setLoading(false);
   }, [filterIndex]);
 
