@@ -72,7 +72,16 @@ import {
   getRoundingRule,
   getStandardHeight,
   getCeilingQuantityBuckets,
+  getOpeningDeductionMode,
+  getRevealDepthMm,
+  tradePracticeOpeningDeduction,
 } from "./paint-engine";
+export {
+  getOpeningDeductionMode,
+  getRevealDepthMm,
+  tradePracticeOpeningDeduction,
+};
+
 export {
   calculateTheoreticalLitres,
   normalizeCoverage,
@@ -139,6 +148,8 @@ export interface OpeningDeductionInfo {
   deduction_percentage: number; // 100 = full deduction, 50 = half, 0 = no deduction
   total_opening_area_m2: number;
   deducted_area_m2: number;
+  mode?: "exact" | "trade_practice";
+  reveal_addition_m2?: number; // jamb reveals added back (trade practice)
 }
 
 /** Customer-facing room summary, painter language, not m² */
@@ -611,30 +622,81 @@ export function calculateRoom(
   const deductionPct = getOpeningDeductionRule(
     config.openingDeductionRule ?? null,
   );
-  const deductedArea =
-    Math.round(((totalOpeningArea * deductionPct) / 100) * 100) / 100;
-  const netWallArea = Math.max(0, grossWallArea - deductedArea);
-
-  if (totalOpeningArea > 0) {
-    openingDeduction = {
-      deduction_percentage: deductionPct,
-      total_opening_area_m2: totalOpeningArea,
-      deducted_area_m2: deductedArea,
-    };
-    steps.push({
-      label: "Opening Deduction",
-      value: `−${deductedArea.toFixed(2)} m² (${deductionPct}% of ${totalOpeningArea.toFixed(2)} m²)`,
-      detail:
-        deductionPct === 100
-          ? "Full deduction (FRELUX default). Admin can configure a different percentage."
-          : `Admin-configured deduction: ${deductionPct}%.`,
-    });
+  const deductionMode = getOpeningDeductionMode(
+    config.openingDeductionRule ?? null,
+  );
+  let deductedArea: number;
+  let revealAddition = 0;
+  if (
+    deductionMode === "trade_practice" &&
+    !room.doors_unknown &&
+    !room.windows_unknown
+  ) {
+    const revealDepth = getRevealDepthMm(config.openingDeductionRule ?? null);
+    const doorsT = tradePracticeOpeningDeduction(
+      room.doors,
+      room.unit,
+      revealDepth,
+    );
+    const windowsT = tradePracticeOpeningDeduction(
+      room.windows,
+      room.unit,
+      revealDepth,
+    );
+    deductedArea = doorsT.deduction_m2 + windowsT.deduction_m2;
+    revealAddition = doorsT.reveal_addition_m2 + windowsT.reveal_addition_m2;
+    if (totalOpeningArea > 0) {
+      openingDeduction = {
+        deduction_percentage: deductionPct,
+        total_opening_area_m2: totalOpeningArea,
+        deducted_area_m2: deductedArea,
+        mode: "trade_practice",
+        reveal_addition_m2: revealAddition,
+      };
+      steps.push({
+        label: "Opening Deduction (trade practice)",
+        value: `−${deductedArea.toFixed(2)} m² of ${totalOpeningArea.toFixed(2)} m²`,
+        detail: `${doorsT.small_openings + windowsT.small_openings} opening(s) ≤ 0.5 m² kept, ${doorsT.partial_openings + windowsT.partial_openings} deducted at 85%, ${doorsT.full_openings + windowsT.full_openings} deducted fully + jamb reveals (${revealDepth}mm)`,
+      });
+      if (revealAddition > 0) {
+        steps.push({
+          label: "Reveal Addition",
+          value: `+${revealAddition.toFixed(2)} m²`,
+          detail: `Jamb reveals of large openings are painted: (2h + w) × ${(revealDepth / 1000).toFixed(3)} m`,
+        });
+      }
+    }
+  } else {
+    deductedArea =
+      Math.round(((totalOpeningArea * deductionPct) / 100) * 100) / 100;
+    if (totalOpeningArea > 0) {
+      openingDeduction = {
+        deduction_percentage: deductionPct,
+        total_opening_area_m2: totalOpeningArea,
+        deducted_area_m2: deductedArea,
+      };
+      steps.push({
+        label: "Opening Deduction",
+        value: `−${deductedArea.toFixed(2)} m² (${deductionPct}% of ${totalOpeningArea.toFixed(2)} m²)`,
+        detail:
+          deductionPct === 100
+            ? "Full deduction (FRELUX default). Admin can configure a different percentage."
+            : `Admin-configured deduction: ${deductionPct}%.`,
+      });
+    }
   }
+  const netWallArea = Math.max(
+    0,
+    grossWallArea - deductedArea + revealAddition,
+  );
 
   steps.push({
     label: "Net Wall Area",
     value: `${netWallArea.toFixed(2)} m²`,
-    detail: `Gross Wall Area − Deducted Opening Area = ${grossWallArea.toFixed(2)} − ${deductedArea.toFixed(2)}`,
+    detail:
+      revealAddition > 0
+        ? `Gross Wall Area − Deducted Opening Area + Reveal Area = ${grossWallArea.toFixed(2)} − ${deductedArea.toFixed(2)} + ${revealAddition.toFixed(2)}`
+        : `Gross Wall Area − Deducted Opening Area = ${grossWallArea.toFixed(2)} − ${deductedArea.toFixed(2)}`,
   });
 
   // ── STEP 5: HEIGHT RULE ──

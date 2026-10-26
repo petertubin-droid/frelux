@@ -94,6 +94,8 @@ export interface PaintEngineRoomResult {
   door_area_m2: number;
   window_area_m2: number;
   opening_deduction_m2: number;
+  opening_deduction_mode: string; // "exact" | "trade_practice"
+  reveal_area_m2?: number; // jamb reveals added back (trade_practice mode only)
   net_wall_area_m2: number;
   ceiling_area_m2: number;
   // Product info
@@ -402,6 +404,79 @@ export function getOpeningDeductionPct(
   return 100;
 }
 
+// ── Audit fix F5 (2026-10-26): standard trade-practice opening deductions.
+// CESMM/POMI/IS-1200-style thresholds instead of a flat percentage:
+//   opening ≤ 0.5 m²      → do NOT deduct (reveals offset the opening)
+//   0.5 m² < opening ≤ 3 m² → deduct 85% (one face; reveal jambs not added)
+//   opening > 3 m²        → deduct fully AND add the jamb reveal area
+//                           (2·h + w) × reveal depth
+// Exact geometric deduction (the previous behaviour) stays the default;
+// trade practice is an explicit admin-configured mode.
+
+export type OpeningDeductionMode = "exact" | "trade_practice";
+
+export function getOpeningDeductionMode(
+  rule: EstimationCalcRule | null,
+): OpeningDeductionMode {
+  const mode = rule?.rule_value
+    ? (rule.rule_value as Record<string, unknown>).mode
+    : undefined;
+  return mode === "trade_practice" ? "trade_practice" : "exact";
+}
+
+/** Jamb reveal depth in mm (admin-configurable; default 230 = 9-inch block). */
+export function getRevealDepthMm(rule: EstimationCalcRule | null): number {
+  const d = rule?.rule_value
+    ? (rule.rule_value as Record<string, unknown>).reveal_depth_mm
+    : undefined;
+  if (typeof d === "number" && d > 0 && d <= 600) return d;
+  return 230;
+}
+
+export interface TradeOpeningDeduction {
+  deduction_m2: number;
+  reveal_addition_m2: number;
+  small_openings: number; // kept (≤ 0.5 m²): no deduction
+  partial_openings: number; // 0.5–3 m²: 85% deducted
+  full_openings: number; // > 3 m²: 100% deducted + reveals added
+}
+
+export function tradePracticeOpeningDeduction(
+  openings: OpeningInput[],
+  unit: Unit,
+  revealDepthMm: number,
+): TradeOpeningDeduction {
+  const out: TradeOpeningDeduction = {
+    deduction_m2: 0,
+    reveal_addition_m2: 0,
+    small_openings: 0,
+    partial_openings: 0,
+    full_openings: 0,
+  };
+  const revealM = revealDepthMm / 1000;
+  for (const o of openings ?? []) {
+    const w = toMeters(o.width, unit);
+    const h = toMeters(o.height, unit);
+    const area = Math.max(0, w) * Math.max(0, h);
+    const qty = Math.max(0, Math.round(o.quantity));
+    for (let i = 0; i < qty; i++) {
+      if (area <= 0.5) {
+        out.small_openings += 1; // reveal offsets the opening — no deduction
+      } else if (area <= 3.0) {
+        out.partial_openings += 1;
+        out.deduction_m2 += 0.85 * area;
+      } else {
+        out.full_openings += 1;
+        out.deduction_m2 += area;
+        out.reveal_addition_m2 += (2 * h + w) * revealM;
+      }
+    }
+  }
+  out.deduction_m2 = Math.round(out.deduction_m2 * 100) / 100;
+  out.reveal_addition_m2 = Math.round(out.reveal_addition_m2 * 100) / 100;
+  return out;
+}
+
 export function getCeilingQuantityBuckets(
   ceilingRule: EstimationCalcRule | null,
 ): number {
@@ -581,20 +656,65 @@ export function calculateRoom(
 
   const totalOpeningArea = doorArea + windowArea;
   const deductionPct = getOpeningDeductionPct(config.openingDeductionRule);
-  const openingDeduction =
-    Math.round(((totalOpeningArea * deductionPct) / 100) * 100) / 100;
-  const netWallArea = Math.max(0, grossWallArea - openingDeduction);
-
-  if (totalOpeningArea > 0) {
-    steps.push({
-      label: "Opening Deduction",
-      value: `−${openingDeduction.toFixed(2)} m² (${deductionPct}% of ${totalOpeningArea.toFixed(2)} m²)`,
-    });
+  const deductionMode = getOpeningDeductionMode(config.openingDeductionRule);
+  let openingDeduction: number;
+  let revealAddition = 0;
+  if (
+    deductionMode === "trade_practice" &&
+    !room.doors_unknown &&
+    !room.windows_unknown
+  ) {
+    const revealDepth = getRevealDepthMm(config.openingDeductionRule);
+    const doorsT = tradePracticeOpeningDeduction(
+      room.doors,
+      room.unit,
+      revealDepth,
+    );
+    const windowsT = tradePracticeOpeningDeduction(
+      room.windows,
+      room.unit,
+      revealDepth,
+    );
+    openingDeduction = doorsT.deduction_m2 + windowsT.deduction_m2;
+    revealAddition = doorsT.reveal_addition_m2 + windowsT.reveal_addition_m2;
+    const kept = doorsT.small_openings + windowsT.small_openings;
+    const partial = doorsT.partial_openings + windowsT.partial_openings;
+    const full = doorsT.full_openings + windowsT.full_openings;
+    if (totalOpeningArea > 0) {
+      steps.push({
+        label: "Opening Deduction (trade practice)",
+        value: `−${openingDeduction.toFixed(2)} m² of ${totalOpeningArea.toFixed(2)} m²`,
+        detail: `${kept} opening(s) ≤ 0.5 m² kept (reveal offsets), ${partial} deducted at 85%, ${full} deducted fully + jamb reveals (${revealDepth}mm depth)`,
+      });
+      if (revealAddition > 0) {
+        steps.push({
+          label: "Reveal Addition",
+          value: `+${revealAddition.toFixed(2)} m²`,
+          detail: `Jamb reveals of large openings are painted: (2h + w) × ${(revealDepth / 1000).toFixed(3)} m per opening`,
+        });
+      }
+    }
+  } else {
+    openingDeduction =
+      Math.round(((totalOpeningArea * deductionPct) / 100) * 100) / 100;
+    if (totalOpeningArea > 0) {
+      steps.push({
+        label: "Opening Deduction",
+        value: `−${openingDeduction.toFixed(2)} m² (${deductionPct}% of ${totalOpeningArea.toFixed(2)} m²)`,
+      });
+    }
   }
+  const netWallArea = Math.max(
+    0,
+    grossWallArea - openingDeduction + revealAddition,
+  );
   steps.push({
     label: "Net Wall Area",
     value: `${netWallArea.toFixed(2)} m²`,
-    detail: `${grossWallArea.toFixed(2)} − ${openingDeduction.toFixed(2)}`,
+    detail:
+      revealAddition > 0
+        ? `${grossWallArea.toFixed(2)} − ${openingDeduction.toFixed(2)} + ${revealAddition.toFixed(2)} reveals`
+        : `${grossWallArea.toFixed(2)} − ${openingDeduction.toFixed(2)}`,
   });
 
   // ── STEP 4: Ceiling ──
@@ -1013,6 +1133,8 @@ export function calculateRoom(
     door_area_m2: doorArea,
     window_area_m2: windowArea,
     opening_deduction_m2: openingDeduction,
+    opening_deduction_mode: deductionMode,
+    reveal_area_m2: revealAddition > 0 ? revealAddition : undefined,
     net_wall_area_m2: netWallArea,
     ceiling_area_m2: ceilingArea,
     product: config.product,

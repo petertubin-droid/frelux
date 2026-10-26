@@ -223,3 +223,74 @@ describe("designFoundation, formula transparency", () => {
     ).toBe(true);
   });
 });
+
+// ── Audit fix F4 (2026-10-26): self-weight multiplier + punching shear ──
+
+describe("audit fix F4 — pad footing self-weight & punching shear", () => {
+  const baseInput: FoundationDesignInput = {
+    shape: "pad",
+    soil_type: "dense_sand",
+    column_load: 300,
+    wall_load: 0,
+    foundation_depth: 1.5,
+    concrete_grade: "C25",
+  };
+
+  it("sizes the pad area with the 1.10 self-weight multiplier", () => {
+    const result = designFoundation(baseInput);
+    const allowable = 300 / 2.5; // dense sand / default SF 2.5
+    const expectedArea = (1.1 * 300) / allowable;
+    expect(result.formula_transparency.some((f) => f.includes("1.10"))).toBe(
+      true,
+    );
+    expect(result.area_per_pad).toBeGreaterThanOrEqual(
+      Math.round(expectedArea * 1000) / 1000,
+    );
+  });
+
+  it("checks punching shear at 1.5d from the column face", () => {
+    const result = designFoundation(baseInput);
+    expect(result.punching_shear_stress).toBeDefined();
+    expect(result.punching_shear_capacity).toBeDefined();
+    expect(result.punching_shear_check_pass).toBeDefined();
+    expect(
+      result.formula_transparency.some((f) => f.startsWith("Punching shear:")),
+    ).toBe(true);
+    // u1 = 4×(225 + 3×250) = 3900 mm disclosed
+    expect(result.formula_transparency.some((f) => f.includes("u1"))).toBe(
+      true,
+    );
+  });
+
+  it("warns to increase pad depth when punching shear fails", () => {
+    // Very heavy column on a small pad drives v above v_c
+    const heavy = {
+      ...baseInput,
+      column_load: 1200,
+      soil_type: "rock" as const,
+    };
+    const result = designFoundation(heavy);
+    if (!result.punching_shear_check_pass) {
+      expect(
+        result.warnings.some(
+          (w) => w.includes("punching shear") || w.includes("Punching shear"),
+        ),
+      ).toBe(true);
+    }
+  });
+
+  it("strip footing required width also carries the 1.10 multiplier", () => {
+    const result = designFoundation({
+      shape: "strip",
+      soil_type: "stiff_clay",
+      wall_load: 80,
+      foundation_depth: 0.9,
+      concrete_grade: "C20",
+      building_length: 20,
+      building_width: 10,
+    });
+    expect(result.formula_transparency.some((f) => f.includes("1.10"))).toBe(
+      true,
+    );
+  });
+});

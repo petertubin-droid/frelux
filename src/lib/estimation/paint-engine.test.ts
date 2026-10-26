@@ -7,6 +7,9 @@ import {
   getStandardHeight,
   getStandardCoatCount,
   getOpeningDeductionPct,
+  getOpeningDeductionMode,
+  getRevealDepthMm,
+  tradePracticeOpeningDeduction,
   getCeilingQuantityBuckets,
   getCeilingCoverageRate,
   isPriceConfigured,
@@ -233,5 +236,70 @@ describe("paint-engine, per-bucket pricing regression", () => {
     expect(correctTotal).toBe(24000);
     expect(buggyTotal).toBe(480000); // demonstrates what the bug produced
     expect(correctTotal).not.toBe(buggyTotal);
+  });
+});
+
+// ── Audit fix F5 (2026-10-26): trade-practice opening deductions ──
+
+describe("audit fix F5 — trade-practice opening deductions", () => {
+  const rule = (mode?: string, revealDepth?: number) =>
+    ({
+      rule_key: "opening_deduction_rule",
+      rule_value: {
+        deduction_percentage: 100,
+        ...(mode ? { mode } : {}),
+        ...(revealDepth ? { reveal_depth_mm: revealDepth } : {}),
+      },
+      is_active: true,
+    }) as never;
+
+  it("exact mode (default) preserves the current flat 100% deduction", () => {
+    expect(getOpeningDeductionMode(null)).toBe("exact");
+    expect(getOpeningDeductionMode(rule())).toBe("exact");
+  });
+
+  it("trade_practice mode is read from the rule", () => {
+    expect(getOpeningDeductionMode(rule("trade_practice"))).toBe(
+      "trade_practice",
+    );
+  });
+
+  it("small openings (≤ 0.5 m²) are NOT deducted — reveals offset them", () => {
+    const out = tradePracticeOpeningDeduction(
+      [{ quantity: 2, width: 0.6, height: 0.6 }],
+      "meters",
+      230,
+    );
+    expect(out.deduction_m2).toBe(0);
+    expect(out.small_openings).toBe(2);
+  });
+
+  it("medium openings (0.5–3 m²) deduct 85%", () => {
+    const out = tradePracticeOpeningDeduction(
+      [{ quantity: 1, width: 1.0, height: 2.1 }],
+      "meters",
+      230,
+    );
+    expect(out.deduction_m2).toBeCloseTo(0.85 * 2.1, 1);
+    expect(out.partial_openings).toBe(1);
+  });
+
+  it("large openings (> 3 m²) deduct fully AND add jamb reveals", () => {
+    const out = tradePracticeOpeningDeduction(
+      [{ quantity: 1, width: 2.5, height: 2.4 }],
+      "meters",
+      230,
+    );
+    const area = 2.5 * 2.4; // 6.0 m² > 3
+    expect(out.deduction_m2).toBeCloseTo(area, 2);
+    // reveal = (2h + w) × depth = (4.8 + 2.5) × 0.23 = 1.679
+    expect(out.reveal_addition_m2).toBeCloseTo((2 * 2.4 + 2.5) * 0.23, 2);
+    expect(out.full_openings).toBe(1);
+  });
+
+  it("reveal depth is admin-configurable with a safe default", () => {
+    expect(getRevealDepthMm(null)).toBe(230);
+    expect(getRevealDepthMm(rule("trade_practice", 150))).toBe(150);
+    expect(getRevealDepthMm(rule("trade_practice", 0))).toBe(230); // invalid → default
   });
 });
