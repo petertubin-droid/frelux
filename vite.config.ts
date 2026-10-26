@@ -76,14 +76,18 @@ export default defineConfig({
     allowedHosts: true,
     headers: {
       "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
       "Referrer-Policy": "strict-origin-when-cross-origin",
     },
   },
   preview: {
+    // Port 4173 is the Playwright E2E webServer contract (playwright.config.ts
+    // waits on http://localhost:4173). Do not change without updating it.
     host: "0.0.0.0",
-    port: 3000,
+    port: 4173,
     headers: {
       "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
       "Referrer-Policy": "strict-origin-when-cross-origin",
     },
   },
