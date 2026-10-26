@@ -570,6 +570,64 @@ export default function AdminPdfBranding() {
           ))}
         </div>
       </AdminCard>
+
+      <AdminCard className="mb-4 p-5">
+        <h2 className="text-base font-semibold text-foreground mb-1">Document Studio Plan Quotas & Entitlements</h2>
+        <p className="mb-4 text-xs text-muted-foreground">
+          Configure server-enforced monthly export quotas and feature permissions for each subscription tier.
+          Prices remain governed by billing plans and require explicit owner confirmation before changes.
+        </p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-border text-muted-foreground">
+                <th className="pb-2 font-semibold uppercase">Plan</th>
+                <th className="pb-2 font-semibold uppercase">Monthly Export Limit</th>
+                <th className="pb-2 font-semibold uppercase">Custom Branding</th>
+                <th className="pb-2 font-semibold uppercase">Watermark Removable</th>
+                <th className="pb-2 font-semibold uppercase">Visual Builder</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              <tr>
+                <td className="py-2.5 font-medium">Free</td>
+                <td className="py-2.5">3 exports</td>
+                <td className="py-2.5 text-muted-foreground">No</td>
+                <td className="py-2.5 text-muted-foreground">No (Watermarked)</td>
+                <td className="py-2.5 text-muted-foreground">Standard preview</td>
+              </tr>
+              <tr>
+                <td className="py-2.5 font-medium">Basic</td>
+                <td className="py-2.5">3 exports</td>
+                <td className="py-2.5 text-muted-foreground">No</td>
+                <td className="py-2.5 text-muted-foreground">No (Watermarked)</td>
+                <td className="py-2.5 text-muted-foreground">Standard preview</td>
+              </tr>
+              <tr>
+                <td className="py-2.5 font-medium">Professional</td>
+                <td className="py-2.5">25 exports</td>
+                <td className="py-2.5 text-emerald-600 font-medium">Yes (Company Logo)</td>
+                <td className="py-2.5 text-emerald-600 font-medium">Yes</td>
+                <td className="py-2.5 text-emerald-600 font-medium">Yes (Save Templates)</td>
+              </tr>
+              <tr>
+                <td className="py-2.5 font-medium">Business / Premium</td>
+                <td className="py-2.5">100 exports</td>
+                <td className="py-2.5 text-emerald-600 font-medium">Yes (Company Logo)</td>
+                <td className="py-2.5 text-emerald-600 font-medium">Yes</td>
+                <td className="py-2.5 text-emerald-600 font-medium">Yes (Advanced Studio)</td>
+              </tr>
+              <tr>
+                <td className="py-2.5 font-medium">Enterprise</td>
+                <td className="py-2.5">500 exports</td>
+                <td className="py-2.5 text-emerald-600 font-medium">Yes (Full Branding)</td>
+                <td className="py-2.5 text-emerald-600 font-medium">Yes</td>
+                <td className="py-2.5 text-emerald-600 font-medium">Yes (Full Builder)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </AdminCard>
     </>
   );
 }

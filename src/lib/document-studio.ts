@@ -4,7 +4,9 @@ export type StudioBlock =
   | { id: string; type: "heading"; text: string }
   | { id: string; type: "paragraph"; text: string }
   | { id: string; type: "materials"; title: string; rows: Array<{ label: string; quantity: number; unit: string; unitPrice: number }> }
-  | { id: string; type: "terms"; text: string };
+  | { id: string; type: "terms"; text: string }
+  | { id: string; type: "signature"; title: string; clientName: string; clientRole: string; contractorName: string; contractorRole: string; date: string }
+  | { id: string; type: "payment_schedule"; title: string; milestones: Array<{ stage: string; percentage: number; amount?: number; dueDate?: string }> };
 
 export interface StudioConfig {
   pageSize: "a4" | "a3" | "letter";
@@ -13,21 +15,23 @@ export interface StudioConfig {
   locale: string;
   accentColor: string;
   watermark: boolean;
+  logoPath?: string | null;
+  logoUrl?: string | null;
   blocks: StudioBlock[];
 }
 
 export interface StudioTemplate {
   id: string;
   name: string;
-  document_type: "quotation" | "material_schedule" | "project_summary";
+  document_type: "quotation" | "material_schedule" | "project_summary" | "invoice" | "labour_schedule" | "bill_of_quantities";
   config: StudioConfig;
   version: number;
   updated_at: string;
 }
 
-const allowedTypes = new Set(["quotation", "material_schedule", "project_summary"]);
-const allowedBlocks = new Set(["heading", "paragraph", "materials", "terms"]);
-const safeText = (value: unknown, max = 1200): string =>
+const allowedTypes = new Set(["quotation", "material_schedule", "project_summary", "invoice", "labour_schedule", "bill_of_quantities"]);
+const allowedBlocks = new Set(["heading", "paragraph", "materials", "terms", "signature", "payment_schedule"]);
+export const safeText = (value: unknown, max = 1200): string =>
   typeof value === "string" ? value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").slice(0, max) : "";
 
 export function validateStudioConfig(value: unknown): StudioConfig {
@@ -50,6 +54,44 @@ export function validateStudioConfig(value: unknown): StudioConfig {
         return { label: safeText(row.label, 160), quantity, unit: safeText(row.unit, 24), unitPrice };
       }) };
     }
+    if (type === "signature") {
+      return {
+        id,
+        type: "signature",
+        title: safeText(block.title, 120) || "Approvals & Signatures",
+        clientName: safeText(block.clientName, 120),
+        clientRole: safeText(block.clientRole, 80),
+        contractorName: safeText(block.contractorName, 120),
+        contractorRole: safeText(block.contractorRole, 80),
+        date: safeText(block.date, 40),
+      };
+    }
+    if (type === "payment_schedule") {
+      const rawMilestones = Array.isArray(block.milestones) ? block.milestones.slice(0, 20) : [];
+      const milestones = rawMilestones.map((m) => {
+        const entry = m as Record<string, unknown>;
+        const percentage = Number(entry.percentage);
+        if (!Number.isFinite(percentage) || percentage < 0 || percentage > 100) {
+          throw new Error("Payment milestone percentages must be between 0 and 100.");
+        }
+        const amount = entry.amount !== undefined && entry.amount !== null ? Number(entry.amount) : undefined;
+        if (amount !== undefined && (!Number.isFinite(amount) || amount < 0)) {
+          throw new Error("Payment milestone amount must be a non-negative number.");
+        }
+        return {
+          stage: safeText(entry.stage, 120),
+          percentage,
+          ...(amount !== undefined ? { amount } : {}),
+          ...(entry.dueDate ? { dueDate: safeText(entry.dueDate, 40) } : {}),
+        };
+      });
+      return {
+        id,
+        type: "payment_schedule",
+        title: safeText(block.title, 120) || "Payment Schedule",
+        milestones,
+      };
+    }
     return { id, type: type as "heading" | "paragraph" | "terms", text: safeText(block.text, type === "heading" ? 160 : 3000) };
   });
   const color = typeof raw.accentColor === "string" && /^#[0-9a-f]{6}$/i.test(raw.accentColor) ? raw.accentColor : "#7C3AED";
@@ -60,8 +102,37 @@ export function validateStudioConfig(value: unknown): StudioConfig {
     locale: safeText(raw.locale, 20) || "en-NG",
     accentColor: color,
     watermark: raw.watermark !== false,
+    logoPath: typeof raw.logoPath === "string" ? safeText(raw.logoPath, 300) : null,
+    logoUrl: typeof raw.logoUrl === "string" ? safeText(raw.logoUrl, 600) : null,
     blocks: normalized,
   };
+}
+
+const STUDIO_IMPORT_KEY = "frelux.document-studio.import.v1";
+
+export function stageStudioImport(payload: {
+  title: string;
+  materials: Array<{ label: string; quantity: number; unit: string; unitPrice: number }>;
+  notes: string;
+  document_type: string;
+  currency: string;
+}): void {
+  try {
+    window.sessionStorage.setItem(STUDIO_IMPORT_KEY, JSON.stringify(payload));
+  } catch {
+    throw new Error("Could not prepare calculator data for Document Studio.");
+  }
+}
+
+export function consumeStudioImport(): unknown | null {
+  try {
+    const raw = window.sessionStorage.getItem(STUDIO_IMPORT_KEY);
+    window.sessionStorage.removeItem(STUDIO_IMPORT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    window.sessionStorage.removeItem(STUDIO_IMPORT_KEY);
+    throw new Error("Calculator data could not be read safely.");
+  }
 }
 
 export async function listStudioTemplates(): Promise<StudioTemplate[]> {

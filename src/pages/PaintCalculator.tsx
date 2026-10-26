@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { useMarket, useLocalTerm } from "@/lib/international/market-context";
@@ -151,10 +152,12 @@ import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
+import { stageStudioImport } from "@/lib/document-studio";
 
 export default function PaintCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const navigate = useNavigate();
   const { marketCode, market } = useMarket();
   const { t } = useLanguage();
   const roomUnit = resolveMarketRoomUnit(market, "feet");
@@ -850,12 +853,33 @@ export default function PaintCalculator({
   }
 
   function handleExport() {
-    toast({
-      type: "info",
-      title: "Exporting PDF",
-      message:
-        "Use the Advanced Calculator export for professional quotations.",
-    });
+    if (!result) return;
+    const materials = [
+      ...result.recommendedContainers.map((container) => ({
+        label: `Paint ${container.size} L container`,
+        quantity: container.count,
+        unit: "container",
+        unitPrice: 0,
+      })),
+      ...result.primerContainers.map((container) => ({
+        label: `Primer ${container.size} L container`,
+        quantity: container.count,
+        unit: "container",
+        unitPrice: 0,
+      })),
+    ];
+    const currency = market.currencyCode || "NGN";
+    const title = `Paint estimate · ${formatNumber(result.paintableArea)} m²`;
+    const notes = `Verified paintable area: ${result.paintableArea} m². Coats: ${result.coats}. Paint required: ${result.totalRecommendedLiters} L. This calculator does not supply material prices, so the quote starts with zero unit prices for explicit review.`;
+    const payload = {
+      title,
+      materials,
+      notes,
+      document_type: "quotation",
+      currency,
+    };
+    stageStudioImport(payload);
+    navigate("/document-studio?calculatorImport=1");
   }
 
   async function handleShare() {

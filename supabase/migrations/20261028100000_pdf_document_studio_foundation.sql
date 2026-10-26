@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS public.pdf_studio_templates (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name text NOT NULL CHECK (char_length(name) BETWEEN 1 AND 80),
-  document_type text NOT NULL CHECK (document_type IN ('quotation','material_schedule','project_summary')),
+  document_type text NOT NULL CHECK (document_type IN ('quotation','material_schedule','project_summary','invoice','labour_schedule','bill_of_quantities')),
   config jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (pg_column_size(config) <= 65536),
   version integer NOT NULL DEFAULT 1 CHECK (version > 0),
   archived_at timestamptz,
@@ -132,8 +132,12 @@ RETURNS public.pdf_studio_templates LANGUAGE plpgsql SECURITY DEFINER SET search
 DECLARE v_uid uuid:=auth.uid(); v_template public.pdf_studio_templates; v_next integer;
 BEGIN
   IF v_uid IS NULL THEN RAISE EXCEPTION 'authentication_required'; END IF;
-  IF char_length(trim(p_name)) NOT BETWEEN 1 AND 80 OR p_document_type NOT IN ('quotation','material_schedule','project_summary') OR pg_column_size(p_config)>65536 THEN RAISE EXCEPTION 'invalid_template'; END IF;
-  IF NOT EXISTS(SELECT 1 FROM public.user_paid_status s WHERE s.user_id=v_uid AND s.is_paid AND (s.paid_until IS NULL OR s.paid_until>now()) AND lower(coalesce(s.plan,'')) IN ('pro','premium','enterprise')) THEN RAISE EXCEPTION 'template_entitlement_required'; END IF;
+  IF char_length(trim(p_name)) NOT BETWEEN 1 AND 80 OR p_document_type NOT IN ('quotation','material_schedule','project_summary','invoice','labour_schedule','bill_of_quantities') OR pg_column_size(p_config)>65536 THEN RAISE EXCEPTION 'invalid_template'; END IF;
+  IF NOT EXISTS(
+    SELECT 1 FROM public.user_paid_status s
+    JOIN public.pdf_studio_plan_limits l ON l.plan=lower(coalesce(s.plan,'free'))
+    WHERE s.user_id=v_uid AND s.is_paid AND (s.paid_until IS NULL OR s.paid_until>now()) AND l.visual_builder
+  ) THEN RAISE EXCEPTION 'template_entitlement_required'; END IF;
   IF p_id IS NULL THEN
     INSERT INTO public.pdf_studio_templates(user_id,name,document_type,config) VALUES(v_uid,trim(p_name),p_document_type,p_config) RETURNING * INTO v_template;
   ELSE
@@ -162,9 +166,64 @@ RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE v_uid uuid:=auth.uid();
 BEGIN
   IF v_uid IS NULL THEN RAISE EXCEPTION 'authentication_required'; END IF;
-  IF NOT EXISTS(SELECT 1 FROM public.user_paid_status s WHERE s.user_id=v_uid AND s.is_paid AND (s.paid_until IS NULL OR s.paid_until>now()) AND lower(coalesce(s.plan,'')) IN ('pro','premium','enterprise')) THEN RAISE EXCEPTION 'template_entitlement_required'; END IF;
+  IF NOT EXISTS(
+    SELECT 1 FROM public.user_paid_status s
+    JOIN public.pdf_studio_plan_limits l ON l.plan=lower(coalesce(s.plan,'free'))
+    WHERE s.user_id=v_uid AND s.is_paid AND (s.paid_until IS NULL OR s.paid_until>now()) AND l.visual_builder
+  ) THEN RAISE EXCEPTION 'template_entitlement_required'; END IF;
   UPDATE public.pdf_studio_templates SET archived_at=now(),updated_at=now() WHERE id=p_id AND user_id=v_uid AND archived_at IS NULL;
   RETURN FOUND;
 END; $$;
 REVOKE ALL ON FUNCTION public.archive_pdf_studio_template(uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.archive_pdf_studio_template(uuid) TO authenticated;
+
+-- Private company logos storage bucket
+INSERT INTO storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
+VALUES ('pdf-studio-logos','pdf-studio-logos',false,2097152,ARRAY['image/png','image/jpeg','image/webp'])
+ON CONFLICT (id) DO UPDATE SET file_size_limit=2097152, allowed_mime_types=ARRAY['image/png','image/jpeg','image/webp'];
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Users manage their own studio logos') THEN
+    CREATE POLICY "Users manage their own studio logos" ON storage.objects
+      FOR ALL TO authenticated
+      USING (bucket_id = 'pdf-studio-logos' AND (storage.foldername(name))[1] = auth.uid()::text)
+      WITH CHECK (bucket_id = 'pdf-studio-logos' AND (storage.foldername(name))[1] = auth.uid()::text);
+  END IF;
+END $$;
+
+-- Admin audit trail for plan limit changes
+CREATE TABLE IF NOT EXISTS public.pdf_studio_admin_audit (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  actor_user_id uuid NOT NULL REFERENCES auth.users(id),
+  action text NOT NULL CHECK (action IN ('plan_limit_updated')),
+  plan text NOT NULL,
+  old_values jsonb NOT NULL,
+  new_values jsonb NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.pdf_studio_admin_audit ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='pdf_studio_admin_audit' AND policyname='Admins can view studio audit log') THEN
+    CREATE POLICY "Admins can view studio audit log" ON public.pdf_studio_admin_audit
+      FOR SELECT TO authenticated
+      USING (EXISTS (SELECT 1 FROM public.user_roles r WHERE r.user_id = auth.uid() AND r.role = 'admin'));
+  END IF;
+END $$;
+
+-- Allow admins to update plan limits
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='pdf_studio_plan_limits' AND policyname='Admins can update plan limits') THEN
+    CREATE POLICY "Admins can update plan limits" ON public.pdf_studio_plan_limits
+      FOR UPDATE TO authenticated
+      USING (EXISTS (SELECT 1 FROM public.user_roles r WHERE r.user_id = auth.uid() AND r.role = 'admin'))
+      WITH CHECK (EXISTS (SELECT 1 FROM public.user_roles r WHERE r.user_id = auth.uid() AND r.role = 'admin'));
+  END IF;
+END $$;
+
+GRANT SELECT, UPDATE ON public.pdf_studio_plan_limits TO authenticated;
+GRANT SELECT ON public.pdf_studio_admin_audit TO authenticated;

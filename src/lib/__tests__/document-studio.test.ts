@@ -20,4 +20,25 @@ describe("Document Studio config validation",()=>{
     const config=validateStudioConfig({...valid,blocks:[{id:"x",type:"paragraph",text:"safe\\u0000text".replace("\\u0000","\u0000")} ]});
     expect(config.blocks[0]).toMatchObject({text:"safetext"});
   });
+  it("validates signature and payment schedule blocks", () => {
+    const config = validateStudioConfig({
+      ...valid,
+      blocks: [
+        { id: "sig", type: "signature", title: "Signatures", clientName: "Alice", clientRole: "Client", contractorName: "Bob", contractorRole: "Builder", date: "2026-10-26" },
+        { id: "pay", type: "payment_schedule", title: "Milestones", milestones: [{ stage: "Mobilization", percentage: 30, amount: 150000 }, { stage: "Completion", percentage: 70 }] }
+      ]
+    });
+    expect(config.blocks[0]).toMatchObject({ type: "signature", clientName: "Alice" });
+    expect(config.blocks[1]).toMatchObject({ type: "payment_schedule", milestones: [{ percentage: 30, amount: 150000 }, { percentage: 70 }] });
+  });
+  it("rejects invalid payment milestone values", () => {
+    expect(() => validateStudioConfig({
+      ...valid,
+      blocks: [{ id: "pay", type: "payment_schedule", milestones: [{ stage: "Bad", percentage: 150 }] }]
+    })).toThrow();
+    expect(() => validateStudioConfig({
+      ...valid,
+      blocks: [{ id: "pay", type: "payment_schedule", milestones: [{ stage: "Bad", percentage: -5 }] }]
+    })).toThrow();
+  });
 });

@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+import { stageStudioImport } from "@/lib/document-studio";
 /**
  * FRELUX BOQ / Quote Generator (Future Engine 2)
  *
@@ -112,6 +114,7 @@ function defaultMarketCode(): string {
 }
 
 export default function BoqGenerator() {
+  const navigate = useNavigate();
   const { symbol: currencySymbol } = useDisplayCurrency();
   const money = (v: number) =>
     `${currencySymbol}${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
@@ -329,6 +332,25 @@ export default function BoqGenerator() {
       `Restored revision v${rev.version}. Regenerate the quote, then save to create a new revision.`,
     );
     track("boq_revision_restored");
+  };
+
+  const exportToDocumentStudio = () => {
+    if (!result?.ok) return;
+    const materials = items.map((item) => ({
+      label: String(item.description ?? "BOQ item"),
+      quantity: Number(item.quantity ?? 0),
+      unit: String(item.unit ?? ""),
+      unitPrice: Number(item.unit_cost ?? 0),
+    }));
+    const payload = {
+      title,
+      materials,
+      notes: `Client: ${clientName || "not provided"}. Project location: ${projectLocation || "not provided"}.`,
+      document_type: "bill_of_quantities",
+      currency: getActiveDisplayCurrency(),
+    };
+    stageStudioImport(payload);
+    navigate("/document-studio?calculatorImport=1");
   };
 
   const exportPdf = () => {
@@ -772,6 +794,13 @@ export default function BoqGenerator() {
                   className="rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted/50"
                 >
                   Export PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={exportToDocumentStudio}
+                  className="rounded-lg border border-primary/40 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
+                >
+                  Customize in Studio
                 </button>
                 <button
                   type="button"

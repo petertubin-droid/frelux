@@ -10,6 +10,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { stageStudioImport } from "@/lib/document-studio";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useMarket } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
@@ -197,6 +198,22 @@ export default function LabourEstimator() {
                 {result.efficiency_loss_percent}% site efficiency.
               </p>
             </div>
+                        <button
+              type="button"
+              className="inline-flex rounded-lg border border-primary/40 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/5"
+              onClick={() => {
+                stageStudioImport({
+                  title: `Labour schedule · ${result.task_label}`,
+                  document_type: "labour_schedule",
+                  currency: market.currencyCode || "NGN",
+                  notes: `Quantity: ${result.quantity} ${result.unit}. Crew size: ${result.crew_size}. Calendar duration: ${result.calendar_days} days. Worker-days: ${result.worker_days}. Rate: ${result.base_rate} ${result.unit}/worker-day (source: ${result.source_reference}). Efficiency adjustment: ${result.efficiency_loss_percent}%. Labour cost is not supplied by this estimator; no cost is fabricated.`,
+                  materials: [],
+                });
+                window.location.assign("/document-studio?calculatorImport=1");
+              }}
+            >
+              Customize labour schedule in Document Studio
+            </button>
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
                 Calculation breakdown

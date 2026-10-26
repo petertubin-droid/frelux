@@ -1,3 +1,4 @@
+import { stageStudioImport } from "@/lib/document-studio";
 import HeroTitle from "@/components/ui/HeroTitle";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { ConstructionExtractionPanel } from "@/components/estimation/ConstructionExtractionPanel";
@@ -3692,6 +3693,28 @@ function EstimateResult({
           >
             <FileDown className="h-4 w-4" />
             Export quote (PDF)
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              stageStudioImport({
+                title: result.project_name || "Roofing and construction estimate",
+                document_type: "bill_of_quantities",
+                currency: "NGN",
+                notes: `Project: ${result.project_name}. Location: ${result.location}. Floor area: ${result.total_floor_area} m². Materials subtotal: ${result.materials_total}. Labour subtotal: ${result.labour_total}. Wastage allowance: ${result.wastage_allowance}. Contingency: ${result.contingency}. Grand total: ${result.grand_total}. Price source: ${result.price_source}, dated ${result.price_date}.`,
+                materials: result.shopping_list.map((item) => ({
+                  label: item.label,
+                  quantity: item.total_quantity,
+                  unit: item.unit,
+                  unitPrice: item.unit_price,
+                })),
+              });
+              window.location.assign("/document-studio?calculatorImport=1");
+            }}
+            className="inline-flex items-center gap-2 rounded-xl border-primary/40 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/5 transition-colors active:scale-95"
+          >
+            <FileDown className="h-4 w-4" />
+            Customize in Studio
           </Button>
           <SaveToProjectButton
             calculatorType="build_to_roof"
