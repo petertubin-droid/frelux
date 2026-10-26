@@ -348,7 +348,12 @@ export function calculateTradeOpeningDeduction(
   defaultWallThicknessM = 0.15,
 ): TradeDeductionResult {
   if (!openings || openings.length === 0) {
-    return { grossOpeningArea: 0, netDeductionArea: 0, revealAreaAdded: 0, explanation: "No openings" };
+    return {
+      grossOpeningArea: 0,
+      netDeductionArea: 0,
+      revealAreaAdded: 0,
+      explanation: "No openings",
+    };
   }
   let grossArea = 0;
   let netDeduction = 0;
@@ -377,16 +382,18 @@ export function calculateTradeOpeningDeduction(
   }
 
   const roundedGross = Math.round(grossArea * 100) / 100;
-  const roundedNet = Math.round(Math.max(0, netDeduction - revealArea) * 100) / 100;
+  const roundedNet =
+    Math.round(Math.max(0, netDeduction - revealArea) * 100) / 100;
   const roundedReveal = Math.round(revealArea * 100) / 100;
 
   return {
     grossOpeningArea: roundedGross,
     netDeductionArea: roundedNet,
     revealAreaAdded: roundedReveal,
-    explanation: roundedReveal > 0
-      ? `Trade practice: ${roundedGross} m² gross openings minus ${roundedNet} m² net (includes +${roundedReveal} m² jamb reveal returns)`
-      : `Trade practice: ${roundedGross} m² gross openings with reveal offset factored in`,
+    explanation:
+      roundedReveal > 0
+        ? `Trade practice: ${roundedGross} m² gross openings minus ${roundedNet} m² net (includes +${roundedReveal} m² jamb reveal returns)`
+        : `Trade practice: ${roundedGross} m² gross openings with reveal offset factored in`,
   };
 }
 
@@ -710,11 +717,6 @@ export function calculateRoom(
   }
 
   const totalOpeningArea = doorArea + windowArea;
-  const allOpenings = [
-    ...(room.doors_unknown ? [] : room.doors),
-    ...(room.windows_unknown ? [] : room.windows),
-  ];
-  const tradeDeduction = calculateTradeOpeningDeduction(allOpenings, room.unit);
   const deductionPct = getOpeningDeductionPct(config.openingDeductionRule);
   const deductionMode = getOpeningDeductionMode(config.openingDeductionRule);
   let openingDeduction: number;

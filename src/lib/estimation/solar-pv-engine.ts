@@ -407,15 +407,30 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
         "No valid 'battery_unit_capacity_kwh' rule is configured. The estimator refuses to invent a battery size: configure the rule in the admin config.",
       ]);
     }
-    // Finding 8: Usable capacity based on 85% Depth-of-Discharge (DoD for LiFePO4 / lithium)
-    const batteryDod = 0.85;
-    const usableCapPerUnit = unitCap * batteryDod;
-    batteryCount = Math.ceil(storage / usableCapPerUnit);
-    steps.push({
-      label: "Battery bank (with 85% usable DoD)",
-      detail: `ceil(${r(storage)} kWh ÷ (${unitCap} kWh × ${batteryDod * 100}% DoD = ${r(usableCapPerUnit)} kWh usable)) = ${batteryCount} battery units.`,
-    });
-audit F8))
+    const chemistry = input.battery_chemistry ?? null;
+    if (chemistry === null) {
+      batteryCount = Math.ceil(storage / unitCap);
+      steps.push({
+        label: "Battery bank",
+        detail: `ceil(${r(storage)} kWh ÷ ${unitCap} kWh per unit) = ${batteryCount} battery units.`,
+      });
+      warnings.push(
+        "Battery chemistry not selected: usable depth of discharge was NOT applied. A lead-acid bank sized this way delivers ~50% of nameplate before recharge limits; select a chemistry for honest usable-capacity sizing.",
+      );
+    } else {
+      const dod = BATTERY_USABLE_DOD[chemistry];
+      const usablePerUnit = unitCap * dod;
+      batteryCount = Math.ceil(storage / usablePerUnit);
+      steps.push({
+        label: "Battery bank",
+        detail: `ceil(${r(storage)} kWh ÷ (${unitCap} kWh × ${dod * 100}% usable ${chemistry === "lead_acid" ? "lead-acid" : "LiFePO4"} DoD) = ${batteryCount} battery units.`,
+      });
+      if (chemistry === "lead_acid") {
+        warnings.push(
+          "Lead-acid: discharging below 50% regularly destroys the bank within months. The unit count reflects that usable limit.",
+        );
+      }
+    }
   }
 
   // ── Material takeoff (always computed) ─────────────────
