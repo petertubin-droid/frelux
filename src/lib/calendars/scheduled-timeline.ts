@@ -67,7 +67,7 @@ export function addWorkDays(
   const holidayByDate = new Map(
     calendar.non_working_dates.map((n) => [n.date, n]),
   );
-  let cursor = new Date(`${startISO}T00:00:00Z`);
+  const cursor = new Date(`${startISO}T00:00:00Z`);
   if (Number.isNaN(cursor.getTime())) {
     return { date: "", skipped: [] };
   }

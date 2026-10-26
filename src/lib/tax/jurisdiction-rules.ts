@@ -491,7 +491,7 @@ export function computeJurisdictionTax(
     }
     const gross = net;
     const netOfTax = (gross * 100) / (100 + totalPct);
-    let runningBase = netOfTax;
+    const runningBase = netOfTax;
     for (const comp of resolution.components) {
       const amount = roundBy(method, (runningBase * comp.rate_pct) / 100);
       parts.push({

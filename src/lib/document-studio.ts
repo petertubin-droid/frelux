@@ -83,6 +83,7 @@ const allowedBlocks = new Set([
 export const safeText = (value: unknown, max = 1200): string =>
   typeof value === "string"
     ? value
+        // eslint-disable-next-line no-control-regex -- stripping control characters is the purpose of this sanitizer
         .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
         .slice(0, max)
     : "";
