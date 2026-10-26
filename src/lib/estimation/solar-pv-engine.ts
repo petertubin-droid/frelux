@@ -348,10 +348,13 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
         "No valid 'battery_unit_capacity_kwh' rule is configured. The estimator refuses to invent a battery size: configure the rule in the admin config.",
       ]);
     }
-    batteryCount = Math.ceil(storage / unitCap);
+    // Finding 8: Usable capacity based on 85% Depth-of-Discharge (DoD for LiFePO4 / lithium)
+    const batteryDod = 0.85;
+    const usableCapPerUnit = unitCap * batteryDod;
+    batteryCount = Math.ceil(storage / usableCapPerUnit);
     steps.push({
-      label: "Battery bank",
-      detail: `ceil(${r(storage)} kWh ÷ ${unitCap} kWh per unit) = ${batteryCount} battery units.`,
+      label: "Battery bank (with 85% usable DoD)",
+      detail: `ceil(${r(storage)} kWh ÷ (${unitCap} kWh × ${batteryDod * 100}% DoD = ${r(usableCapPerUnit)} kWh usable)) = ${batteryCount} battery units.`,
     });
   }
 

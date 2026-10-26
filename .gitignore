@@ -31,6 +31,7 @@ coverage/
 test-results/
 playwright-report/
 .env.staging
+metadata.json
 mock_data_found.txt
 scan_colors.py
 

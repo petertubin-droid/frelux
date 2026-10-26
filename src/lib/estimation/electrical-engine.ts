@@ -482,6 +482,19 @@ export function calculateElectrical(
       label: spec.label,
       detail: `${spec.runs} ${spec.runLabel} × ${spec.avgRun} m = ${roundTo(base, 2)} m; waste ${rules.cable_waste_pct}% (+${roundTo(wasteQty, 2)} m) → ${qty} m (rounded up to whole metres).`,
     });
+
+    // Finding 7: Voltage drop verification on long runs (BS 7671 / NEC)
+    if (spec.avgRun && spec.avgRun > 0) {
+      const csa = spec.key === "cable_lighting" ? 1.5 : spec.key === "cable_socket" ? 2.5 : 4.0;
+      const currentA = spec.key === "cable_lighting" ? 6 : spec.key === "cable_socket" ? 13 : 20;
+      const vDrop = (2 * spec.avgRun * currentA * 0.0175) / csa;
+      const vDropPct = (vDrop / 230) * 100;
+      const limitPct = spec.key === "cable_lighting" ? 3 : 5;
+      if (vDropPct > limitPct) {
+        warnings.push(`Voltage drop check: ${spec.label} (${spec.avgRun}m average run) has an estimated voltage drop of ${vDropPct.toFixed(1)}% (exceeds ${limitPct}% standard limit). Consider upsizing cable.`);
+      }
+    }
+
     lines.push({
       key: spec.key,
       label: spec.label,
@@ -677,7 +690,7 @@ export function calculateElectrical(
       );
     }
   }
-  if (input.building_type.trim()) {
+  if (input.building_type?.trim()) {
     steps.push({ label: "Building type", detail: input.building_type.trim() });
   }
   if (input.feeder_check && input.avg_run_feeder_m !== null) {

@@ -335,6 +335,61 @@ function calculateOpeningArea(openings: OpeningInput[], unit: Unit): number {
   return Math.round(total * 100) / 100;
 }
 
+export interface TradeDeductionResult {
+  grossOpeningArea: number;
+  netDeductionArea: number;
+  revealAreaAdded: number;
+  explanation: string;
+}
+
+export function calculateTradeOpeningDeduction(
+  openings: OpeningInput[],
+  unit: Unit,
+  defaultWallThicknessM = 0.15,
+): TradeDeductionResult {
+  if (!openings || openings.length === 0) {
+    return { grossOpeningArea: 0, netDeductionArea: 0, revealAreaAdded: 0, explanation: "No openings" };
+  }
+  let grossArea = 0;
+  let netDeduction = 0;
+  let revealArea = 0;
+
+  for (const o of openings) {
+    const w = toMeters(o.width, unit);
+    const h = toMeters(o.height, unit);
+    const qty = Math.max(0, o.quantity);
+    const unitArea = Math.max(0, w) * Math.max(0, h);
+    grossArea += unitArea * qty;
+
+    // Standard civil / painting trade rules (Finding 5: CESMM / POMI trade rules)
+    if (unitArea <= 0.5) {
+      // Under 0.5 m2: No deduction made (wastage/cutting cancels opening)
+      netDeduction += 0;
+    } else if (unitArea <= 3.0) {
+      // 0.5 m2 to 3.0 m2: Deduct 85% (15% compensates for jamb and soffit reveals)
+      netDeduction += unitArea * 0.85 * qty;
+    } else {
+      // Over 3.0 m2: Deduct full opening area, add explicit jamb reveal area
+      netDeduction += unitArea * qty;
+      const revealPerUnit = (2 * h + w) * defaultWallThicknessM;
+      revealArea += revealPerUnit * qty;
+    }
+  }
+
+  const roundedGross = Math.round(grossArea * 100) / 100;
+  const roundedNet = Math.round(Math.max(0, netDeduction - revealArea) * 100) / 100;
+  const roundedReveal = Math.round(revealArea * 100) / 100;
+
+  return {
+    grossOpeningArea: roundedGross,
+    netDeductionArea: roundedNet,
+    revealAreaAdded: roundedReveal,
+    explanation: roundedReveal > 0
+      ? `Trade practice: ${roundedGross} m² gross openings minus ${roundedNet} m² net (includes +${roundedReveal} m² jamb reveal returns)`
+      : `Trade practice: ${roundedGross} m² gross openings with reveal offset factored in`,
+  };
+}
+
 // =========================================================
 // Rule Helpers
 // =========================================================
@@ -655,6 +710,11 @@ export function calculateRoom(
   }
 
   const totalOpeningArea = doorArea + windowArea;
+  const allOpenings = [
+    ...(room.doors_unknown ? [] : room.doors),
+    ...(room.windows_unknown ? [] : room.windows),
+  ];
+  const tradeDeduction = calculateTradeOpeningDeduction(allOpenings, room.unit);
   const deductionPct = getOpeningDeductionPct(config.openingDeductionRule);
   const deductionMode = getOpeningDeductionMode(config.openingDeductionRule);
   let openingDeduction: number;

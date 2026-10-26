@@ -196,13 +196,17 @@ export function designFoundation(
       formula_transparency: formulas,
     };
   } else if (input.shape === "pad") {
-    // ── Pad footing ──
+    // ── Pad footing (Finding 4: 10% self-weight and punching shear check) ──
     const column_load = input.column_load ?? 200; // default 200 kN
-    // Audit fix F4: 1.10 multiplier covers footing self-weight + overburden.
-    const required_area = (1.1 * column_load) / allowable_capacity; // m²
+    // 1.10 multiplier covers footing self-weight + overburden.
+    const total_footing_load = 1.10 * column_load;
+    const required_area = total_footing_load / allowable_capacity; // m²
     const side = Math.sqrt(required_area) * 1000; // mm (square pad)
     formulas.push(
-      `Required area = 1.10 × ${column_load} / ${allowable_capacity.toFixed(0)} = ${required_area.toFixed(3)} m² (1.10 covers footing self-weight + overburden)`,
+      `Total load (with 10% self-weight) = 1.10 × ${column_load} = ${total_footing_load.toFixed(1)} kN`,
+    );
+    formulas.push(
+      `Required area = ${total_footing_load.toFixed(1)} / ${allowable_capacity.toFixed(0)} = ${required_area.toFixed(3)} m² (1.10 covers footing self-weight + overburden)`,
     );
     formulas.push(
       `Square pad side = √${required_area.toFixed(3)} = ${side.toFixed(0)} mm`,
@@ -210,13 +214,14 @@ export function designFoundation(
 
     const recommended_side = Math.max(roundUpTo100(side), 600); // min 600mm
     const actual_area = (recommended_side / 1000) * (recommended_side / 1000);
-    const check_pressure = column_load / actual_area;
+    const check_pressure = total_footing_load / actual_area;
     const bearing_check_pass = check_pressure <= allowable_capacity;
     const actual_fos = allowable_capacity / check_pressure;
 
     // Volumes (single pad)
+    const pad_thickness_mm = 300;
     const excavation_volume = actual_area * input.foundation_depth;
-    const concrete_volume = actual_area * 0.3; // 300mm pad thickness
+    const concrete_volume = actual_area * (pad_thickness_mm / 1000);
     const blinding_volume = actual_area * 0.075;
     const hardcore_volume = actual_area * 0.15;
 
@@ -251,6 +256,11 @@ export function designFoundation(
     if (!punching_ok) {
       warnings.push(
         `Punching shear exceeds concrete capacity (v = ${v_punch.toFixed(3)} > v_c ≈ ${v_c_punch.toFixed(3)} N/mm²). Increase the pad depth (currently 300mm) rather than relying on flexural steel alone.`,
+      );
+    }
+    if (allowable_capacity < 100) {
+      warnings.push(
+        `Soil bearing capacity is critically low (${allowable_capacity.toFixed(0)} kN/m²). Consult geotechnical specialist for raft or bored pile foundation.`,
       );
     }
 

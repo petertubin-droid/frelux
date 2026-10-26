@@ -181,9 +181,12 @@ export function calculateGenerator(
   // ── 1. Generator units (user's chosen bracket) ──
   const slug = GENERATOR_SIZE_SLUGS[input.size];
   const price = prices[slug] ?? null;
+  const kvaNum = Number(input.size.replace(/[^0-9]/g, "")) || 10;
+  const continuousKw = kvaNum * 0.8;
+  const peakSurgeKw = continuousKw * 1.5;
   steps.push({
     label: "Generator unit",
-    detail: `${input.units} × ${input.size} unit(s): the size bracket is YOUR choice from your load assessment; this engine did not calculate a size.`,
+    detail: `${input.units} × ${input.size} unit(s): the size bracket is YOUR choice from your load assessment; provides ~${continuousKw.toFixed(0)} kW continuous (0.8 PF) with ~${peakSurgeKw.toFixed(0)} kW inductive inrush capacity.`,
   });
   lines.push({
     key: "generator",

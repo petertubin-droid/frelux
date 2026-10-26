@@ -71,16 +71,19 @@ export default defineConfig({
     },
   },
   server: {
+    host: "0.0.0.0",
+    port: 3000,
+    allowedHosts: true,
     headers: {
       "X-Content-Type-Options": "nosniff",
-      "X-Frame-Options": "DENY",
       "Referrer-Policy": "strict-origin-when-cross-origin",
     },
   },
   preview: {
+    host: "0.0.0.0",
+    port: 3000,
     headers: {
       "X-Content-Type-Options": "nosniff",
-      "X-Frame-Options": "DENY",
       "Referrer-Policy": "strict-origin-when-cross-origin",
     },
   },

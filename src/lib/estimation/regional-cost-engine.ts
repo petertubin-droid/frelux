@@ -23,6 +23,8 @@ export interface RegionalCostInput {
   country?: string;
   state: string;
   category?: string | null;
+  /** Optional market inflation/volatility buffer percentage (0-50%) */
+  contingency_volatility_buffer_pct?: number;
   /** Active indices loaded from the database */
   indices: RegionalCostIndex[];
   /** Active calc rules (calculator_type = 'regional_cost') */
@@ -36,8 +38,59 @@ export interface RegionalCostResult {
   applied_source:
     "state_category" | "state_general" | "national_baseline" | null;
   matched_index_id: string | null;
+  volatility_buffer_pct?: number;
   warnings: string[];
   steps: { label: string; detail: string }[];
+}
+
+// ─────────────────────────────────────────────
+// Finding 10: Commodity Price Staleness Checker
+// ─────────────────────────────────────────────
+
+export interface PriceStalenessResult {
+  status: "fresh" | "aging" | "stale";
+  daysOld: number;
+  label: string;
+  advisory?: string;
+}
+
+export function checkPriceStaleness(
+  effectiveDateIso?: string | null,
+  referenceDate: Date = new Date(),
+): PriceStalenessResult {
+  if (!effectiveDateIso) {
+    return {
+      status: "stale",
+      daysOld: 999,
+      label: "Unknown date",
+      advisory: "No effective date provided. Verify prices against local suppliers.",
+    };
+  }
+  const date = new Date(effectiveDateIso);
+  const diffMs = referenceDate.getTime() - date.getTime();
+  const daysOld = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+
+  if (daysOld <= 14) {
+    return {
+      status: "fresh",
+      daysOld,
+      label: `Current market price (${daysOld}d old)`,
+    };
+  }
+  if (daysOld <= 45) {
+    return {
+      status: "aging",
+      daysOld,
+      label: `Aging price (${daysOld}d old)`,
+      advisory: "Price is over 14 days old. High-inflation materials (rebar, cement) may have moved.",
+    };
+  }
+  return {
+    status: "stale",
+    daysOld,
+    label: `Stale price (${daysOld}d old)`,
+    advisory: "Price was updated more than 45 days ago. Run /estimate-refresh before committing quotes.",
+  };
 }
 
 // ─────────────────────────────────────────────
@@ -164,6 +217,19 @@ export function applyRegionalCost(
     label: "Adjusted cost",
     detail: `${base.toLocaleString()} × ${factor.toFixed(2)} = ${adjusted.toLocaleString()}`,
   });
+
+  // Apply volatility buffer if requested (Finding 10)
+  const bufferPct = Math.max(0, Math.min(50, input.contingency_volatility_buffer_pct ?? 0));
+  if (bufferPct > 0 && result.adjusted_cost !== null) {
+    const bufferedCost = money(result.adjusted_cost * (1 + bufferPct / 100));
+    result.volatility_buffer_pct = bufferPct;
+    result.steps.push({
+      label: "Market Volatility Buffer",
+      detail: `+${bufferPct}% inflation contingency buffer applied: ${result.adjusted_cost.toLocaleString()} → ${bufferedCost.toLocaleString()}`,
+    });
+    result.adjusted_cost = bufferedCost;
+  }
+
   result.ok = true;
   return result;
 }

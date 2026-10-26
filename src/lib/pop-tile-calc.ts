@@ -196,11 +196,14 @@ export function calculateTile(
   // Audit fix F6: rigorous joint-volume grout formula when tile geometry
   // is known. grout kg/m2 = ((L+W)/(L*W)) * thickness * joint * SG *
   // (1+waste) / 1000 with L,W in metres, thickness/joint in mm.
-  // A 600x600x10 tile with 3mm joints gives ~0.18 kg/m2; a 100x100x6
-  // tile with the same joint gives ~0.65 kg/m2 - a flat m2 rate
-  // cannot tell them apart.
-  const thickness = input.tileThicknessMm ?? 0;
-  const joint = input.jointWidthMm ?? 0;
+  const thickness =
+    input.tileThicknessMm && input.tileThicknessMm > 0
+      ? input.tileThicknessMm
+      : input.surfaceType === "wall"
+        ? 8
+        : 10;
+  const joint =
+    input.jointWidthMm && input.jointWidthMm > 0 ? input.jointWidthMm : 2.5;
   const sg =
     input.groutSpecificGravity && input.groutSpecificGravity > 0
       ? input.groutSpecificGravity

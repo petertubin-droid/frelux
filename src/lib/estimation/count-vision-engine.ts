@@ -140,6 +140,45 @@ export function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 // ─────────────────────────────────────────────
+// Finding 9: Resolution & Blueprint Scale Check
+// ─────────────────────────────────────────────
+
+export interface ResolutionCheckResult {
+  ok: boolean;
+  width: number;
+  height: number;
+  isBlueprintScale: boolean;
+  advisory?: string;
+}
+
+export function checkImageResolution(
+  width: number,
+  height: number,
+): ResolutionCheckResult {
+  const minDim = Math.min(width, height);
+  const maxDim = Math.max(width, height);
+  if (minDim < 480) {
+    return {
+      ok: false,
+      width,
+      height,
+      isBlueprintScale: false,
+      advisory: `Resolution (${width}×${height}) is too low to reliably count individual material units. Upload a photo of at least 800×600.`,
+    };
+  }
+  const isBlueprintScale = maxDim >= 3000;
+  return {
+    ok: true,
+    width,
+    height,
+    isBlueprintScale,
+    advisory: isBlueprintScale
+      ? `High-resolution drawing detected (${width}×${height}). Inspecting at full scale to prevent downsampling blur.`
+      : undefined,
+  };
+}
+
+// ─────────────────────────────────────────────
 // Result types - the honest verdicts
 // ─────────────────────────────────────────────
 
