@@ -186,3 +186,69 @@ export async function downloadStudioDocument(id: string): Promise<void> {
  if(error){const {getFunctionErrorMessage}=await import("@/lib/supabase");throw new Error(await getFunctionErrorMessage(error));}
  if(!data||typeof data.url!=="string")throw new Error("A secure download link was not returned."); window.location.assign(data.url);
 }
+
+
+export interface StudioPlanLimit {
+  plan: string;
+  monthly_exports: number;
+  visual_builder: boolean;
+  custom_branding: boolean;
+  watermark_removal: boolean;
+}
+
+export interface StudioAuditEntry {
+  id: string;
+  actor_user_id: string;
+  action: string;
+  plan: string;
+  old_values: Record<string, unknown>;
+  new_values: Record<string, unknown>;
+  created_at: string;
+}
+
+export async function fetchStudioPlanLimits(): Promise<StudioPlanLimit[]> {
+  const { data, error } = await supabase
+    .from("pdf_studio_plan_limits")
+    .select("plan, monthly_exports, visual_builder, custom_branding, watermark_removal")
+    .order("monthly_exports", { ascending: true });
+  if (error) throw error;
+  return (data || []) as StudioPlanLimit[];
+}
+
+export async function updateStudioPlanLimit(
+  plan: string,
+  updates: Partial<Omit<StudioPlanLimit, "plan">>,
+  previousValues: Partial<Omit<StudioPlanLimit, "plan">> = {}
+): Promise<void> {
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData?.user?.id;
+  const { error } = await supabase
+    .from("pdf_studio_plan_limits")
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq("plan", plan);
+  if (error) throw error;
+
+  if (userId) {
+    try {
+      await supabase.from("pdf_studio_admin_audit").insert({
+        actor_user_id: userId,
+        action: "plan_limit_updated",
+        plan,
+        old_values: previousValues,
+        new_values: updates,
+      });
+    } catch {
+      // Non-blocking audit failure
+    }
+  }
+}
+
+export async function fetchStudioAuditLogs(): Promise<StudioAuditEntry[]> {
+  const { data, error } = await supabase
+    .from("pdf_studio_admin_audit")
+    .select("id, actor_user_id, action, plan, old_values, new_values, created_at")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  return (data || []) as StudioAuditEntry[];
+}

@@ -16,7 +16,8 @@ import {
 import PageHeader from "@/components/ui/PageHeader";
 import { calculateScreedingSystem, dbToSystemConfig } from "@/lib/calc";
 import { calculateLabourCost } from "@/lib/labour";
-import { printQuote } from "@/lib/estimation/quote-export";
+import { printQuote, exportQuoteToDocumentStudio } from "@/lib/estimation/quote-export";
+import { useNavigate } from "react-router-dom";
 import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
@@ -120,6 +121,7 @@ async function resolveScreedPrices<T extends ScreedingSystemConfig>(
 export default function ScreedingCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const navigate = useNavigate();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Screeding Cost Estimator", path: "/screeding-cost-estimator" },
@@ -815,20 +817,49 @@ export default function ScreedingCostEstimator({
                       />
 
                       <div className="mt-3 flex justify-center">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            exportScreedingQuote({
-                              result,
-                              labourCost,
-                              currencySymbol,
-                              finishTerm,
-                            })
-                          }
-                          className="rounded-lg border px-4 py-2 text-sm font-semibold"
-                        >
-                          Export quote (PDF)
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              exportScreedingQuote({
+                                result,
+                                labourCost,
+                                currencySymbol,
+                                finishTerm,
+                              })
+                            }
+                            className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-muted"
+                          >
+                            Print Quote
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const breakdowns =
+                                result.systemType === "putty"
+                                  ? [result.putty]
+                                  : [result.paint, result.cement, ...(result.extra ? [result.extra] : [])];
+                              const materials = breakdowns.filter((b): b is ScreedingMaterialBreakdown => Boolean(b)).map((b) => ({
+                                label: b.name,
+                                quantity: b.purchaseQuantity || b.finalQuantity,
+                                unit: b.unit,
+                                unitPrice: b.pricePerUnit || 0,
+                              }));
+                              materials.push({ label: "Labour Cost", quantity: 1, unit: "lot", unitPrice: labourCost });
+                              exportQuoteToDocumentStudio({
+                                title: `${finishTerm} Cost Estimate`,
+                                subtitle: `Net Area: ${formatNumber(result.netScreedingArea, 2)} m² · System: ${result.systemType}`,
+                                metaRows: [["Net Area", `${formatNumber(result.netScreedingArea, 2)} m²`], ["System", result.systemType]],
+                                lines: materials.map(m => ({ label: m.label, quantity: String(m.quantity), unit: m.unit, unit_price: String(m.unitPrice), line_total: String(m.quantity * m.unitPrice) })),
+                                totals: [{ label: "Grand Total", value: formatCurrency((result.materialCost || 0) + labourCost, currencySymbol), strong: true }]
+                              }, currencySymbol === "₦" ? "NGN" : "USD");
+                              navigate("/document-studio?calculatorImport=1");
+                            }}
+                            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                          >
+                            Open in Document Studio
+                          </button>
+                        </div>
                         <SaveToProjectButton
                           calculatorType="screeding"
                           calculatorSlug="screeding-cost-estimator"

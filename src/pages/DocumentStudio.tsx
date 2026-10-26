@@ -5,6 +5,7 @@ import {
   ArrowUp,
   Copy,
   Download,
+  FolderOpen,
   FilePlus2,
   FileText,
   Loader2,

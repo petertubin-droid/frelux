@@ -45,7 +45,8 @@ import type {
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
-import { printQuote } from "@/lib/estimation/quote-export";
+import { printQuote, exportQuoteToDocumentStudio } from "@/lib/estimation/quote-export";
+import { useNavigate } from "react-router-dom";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 
@@ -156,6 +157,7 @@ function exportTileQuote(
 export default function TileCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const navigate = useNavigate();
   const { marketCode } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("tile_cost");
   const seoOfferCurrency = useSeoOfferCurrency();
@@ -783,13 +785,41 @@ export default function TileCostEstimator({
                         />
                       </div>
                       <div className="mt-3 flex justify-center">
-                        <button
-                          type="button"
-                          onClick={() => exportTileQuote(result, result.method)}
-                          className="rounded-lg border px-4 py-2 text-sm font-semibold"
-                        >
-                          Export quote (PDF)
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => exportTileQuote(result, result.method)}
+                            className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-muted"
+                          >
+                            Print Quote
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const opts = {
+                                title: "Tile Cost Estimate",
+                                subtitle: `Surface: ${formatNumber(result.surfaceArea)} m² · ${result.method}`,
+                                metaRows: [
+                                  ["Surface area", `${formatNumber(result.surfaceArea)} m²`],
+                                  ["Tiles needed", String(result.tilesNeeded)],
+                                  ["Boxes needed", String(result.boxesNeeded)],
+                                ] as [string, string][],
+                                lines: [
+                                  { label: "Tiles", quantity: String(result.boxesNeeded), unit: "boxes", unit_price: String(result.tileCost / (result.boxesNeeded || 1)), line_total: String(result.tileCost), detail: `${result.tilesNeeded} tiles` },
+                                  { label: "Adhesive", quantity: String(result.adhesiveNeeded), unit: "kg", unit_price: "0", line_total: String(result.adhesiveCost) },
+                                  { label: "Grout", quantity: String(result.groutNeeded), unit: "kg", unit_price: "0", line_total: String(result.groutCost) },
+                                  { label: "Labour", quantity: "1", unit: "lot", unit_price: String(result.labourCost), line_total: String(result.labourCost) },
+                                ],
+                                totals: [{ label: "Grand Total", value: formatCurrency(result.grandTotal, result.currencySymbol), strong: true }],
+                              };
+                              exportQuoteToDocumentStudio(opts, result.currencySymbol === "₦" ? "NGN" : "USD");
+                              navigate("/document-studio?calculatorImport=1");
+                            }}
+                            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                          >
+                            Open in Document Studio
+                          </button>
+                        </div>
                         <SaveToProjectButton
                           calculatorType="cost"
                           calculatorSlug="tile-cost-estimator"

@@ -1,3 +1,10 @@
+import {
+  fetchStudioPlanLimits,
+  updateStudioPlanLimit,
+  fetchStudioAuditLogs,
+  type StudioPlanLimit,
+  type StudioAuditEntry,
+} from "@/lib/document-studio";
 /**
  * Admin: PDF Branding & Templates
  *
@@ -43,6 +50,64 @@ import type {
 import { Button } from "@/components/ui/shadcn/button";
 
 export default function AdminPdfBranding() {
+
+  // Plan limits state
+  const [planLimits, setPlanLimits] = useState<StudioPlanLimit[]>([
+    { plan: "free", monthly_exports: 3, visual_builder: false, custom_branding: false, watermark_removal: false },
+    { plan: "basic", monthly_exports: 3, visual_builder: false, custom_branding: false, watermark_removal: false },
+    { plan: "pro", monthly_exports: 25, visual_builder: true, custom_branding: true, watermark_removal: true },
+    { plan: "premium", monthly_exports: 100, visual_builder: true, custom_branding: true, watermark_removal: true },
+    { plan: "enterprise", monthly_exports: 500, visual_builder: true, custom_branding: true, watermark_removal: true },
+  ]);
+  const [auditLogs, setAuditLogs] = useState<StudioAuditEntry[]>([]);
+  const [loadingLimits, setLoadingLimits] = useState(false);
+  const [savingPlan, setSavingPlan] = useState<string | null>(null);
+  const [limitMsg, setLimitMsg] = useState<string | null>(null);
+  const [limitErr, setLimitErr] = useState<string | null>(null);
+
+  const loadLimits = useCallback(async () => {
+    setLoadingLimits(true);
+    try {
+      const limits = await fetchStudioPlanLimits();
+      if (limits.length > 0) setPlanLimits(limits);
+      const logs = await fetchStudioAuditLogs();
+      setAuditLogs(logs);
+    } catch {
+      // Fallback to local defaults if database table not yet populated
+    } finally {
+      setLoadingLimits(false);
+    }
+  }, []);
+
+  const handleLimitChange = (plan: string, field: keyof StudioPlanLimit, value: unknown) => {
+    setPlanLimits((prev) =>
+      prev.map((item) => (item.plan === plan ? { ...item, [field]: value } : item))
+    );
+  };
+
+  const handleSaveLimit = async (plan: string) => {
+    const item = planLimits.find((l) => l.plan === plan);
+    if (!item) return;
+    setSavingPlan(plan);
+    setLimitMsg(null);
+    setLimitErr(null);
+    try {
+      await updateStudioPlanLimit(plan, {
+        monthly_exports: item.monthly_exports,
+        visual_builder: item.visual_builder,
+        custom_branding: item.custom_branding,
+        watermark_removal: item.watermark_removal,
+      });
+      setLimitMsg(`Updated quota limits for ${plan.toUpperCase()} plan.`);
+      setTimeout(() => setLimitMsg(null), 3000);
+      loadLimits();
+    } catch (err: unknown) {
+      setLimitErr(err instanceof Error ? err.message : "Failed to update plan limits.");
+    } finally {
+      setSavingPlan(null);
+    }
+  };
+
   const [_config, setConfig] = useState<PdfDefaultBrandingConfig | null>(null);
   const [templates, setTemplates] = useState<DbPdfBrandingTemplate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,6 +167,7 @@ export default function AdminPdfBranding() {
 
   useEffect(() => {
     loadData();
+    loadLimits();
   }, [loadData]);
 
   async function handleSaveConfig() {
@@ -175,6 +241,7 @@ export default function AdminPdfBranding() {
       setNewTplPremium(false);
       setNewTplRewarded(false);
       await loadData();
+    loadLimits();
     }
   }
 
@@ -186,6 +253,7 @@ export default function AdminPdfBranding() {
   ) {
     await updatePdfTemplate(id, { [field]: value });
     await loadData();
+    loadLimits();
   }
 
   async function handleDeleteTemplate(id: string) {
@@ -193,6 +261,7 @@ export default function AdminPdfBranding() {
     const { error } = await deletePdfTemplate(id);
     if (error) setTplError(error);
     await loadData();
+    loadLimits();
   }
 
   if (loading)
@@ -572,11 +641,36 @@ export default function AdminPdfBranding() {
       </AdminCard>
 
       <AdminCard className="mb-4 p-5">
-        <h2 className="text-base font-semibold text-foreground mb-1">Document Studio Plan Quotas & Entitlements</h2>
-        <p className="mb-4 text-xs text-muted-foreground">
-          Configure server-enforced monthly export quotas and feature permissions for each subscription tier.
-          Prices remain governed by billing plans and require explicit owner confirmation before changes.
-        </p>
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h2 className="text-base font-semibold text-foreground">Document Studio Plan Quotas & Entitlements</h2>
+            <p className="text-xs text-muted-foreground">
+              Configure server-enforced monthly export quotas and feature permissions for each subscription tier.
+              Changes are immediately enforced by database rules.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadLimits}
+            disabled={loadingLimits}
+            className="text-xs"
+          >
+            {loadingLimits ? "Refreshing..." : "Refresh Quotas"}
+          </Button>
+        </div>
+
+        {limitMsg && (
+          <div className="mb-3 rounded-lg border border-accent-green/30 bg-accent-green/10 p-2.5 text-xs text-accent-green">
+            {limitMsg}
+          </div>
+        )}
+        {limitErr && (
+          <div className="mb-3 rounded-lg border border-red-200 bg-red-50 p-2.5 text-xs text-red-700">
+            {limitErr}
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
@@ -586,47 +680,89 @@ export default function AdminPdfBranding() {
                 <th className="pb-2 font-semibold uppercase">Custom Branding</th>
                 <th className="pb-2 font-semibold uppercase">Watermark Removable</th>
                 <th className="pb-2 font-semibold uppercase">Visual Builder</th>
+                <th className="pb-2 font-semibold uppercase text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              <tr>
-                <td className="py-2.5 font-medium">Free</td>
-                <td className="py-2.5">3 exports</td>
-                <td className="py-2.5 text-muted-foreground">No</td>
-                <td className="py-2.5 text-muted-foreground">No (Watermarked)</td>
-                <td className="py-2.5 text-muted-foreground">Standard preview</td>
-              </tr>
-              <tr>
-                <td className="py-2.5 font-medium">Basic</td>
-                <td className="py-2.5">3 exports</td>
-                <td className="py-2.5 text-muted-foreground">No</td>
-                <td className="py-2.5 text-muted-foreground">No (Watermarked)</td>
-                <td className="py-2.5 text-muted-foreground">Standard preview</td>
-              </tr>
-              <tr>
-                <td className="py-2.5 font-medium">Professional</td>
-                <td className="py-2.5">25 exports</td>
-                <td className="py-2.5 text-emerald-600 font-medium">Yes (Company Logo)</td>
-                <td className="py-2.5 text-emerald-600 font-medium">Yes</td>
-                <td className="py-2.5 text-emerald-600 font-medium">Yes (Save Templates)</td>
-              </tr>
-              <tr>
-                <td className="py-2.5 font-medium">Business / Premium</td>
-                <td className="py-2.5">100 exports</td>
-                <td className="py-2.5 text-emerald-600 font-medium">Yes (Company Logo)</td>
-                <td className="py-2.5 text-emerald-600 font-medium">Yes</td>
-                <td className="py-2.5 text-emerald-600 font-medium">Yes (Advanced Studio)</td>
-              </tr>
-              <tr>
-                <td className="py-2.5 font-medium">Enterprise</td>
-                <td className="py-2.5">500 exports</td>
-                <td className="py-2.5 text-emerald-600 font-medium">Yes (Full Branding)</td>
-                <td className="py-2.5 text-emerald-600 font-medium">Yes</td>
-                <td className="py-2.5 text-emerald-600 font-medium">Yes (Full Builder)</td>
-              </tr>
+              {planLimits.map((l) => (
+                <tr key={l.plan}>
+                  <td className="py-2.5 font-medium capitalize">{l.plan}</td>
+                  <td className="py-2.5">
+                    <input
+                      type="number"
+                      min={0}
+                      max={10000}
+                      value={l.monthly_exports}
+                      onChange={(e) => handleLimitChange(l.plan, "monthly_exports", parseInt(e.target.value) || 0)}
+                      className="w-20 rounded border border-border px-2 py-1 text-xs dark:bg-background"
+                    />
+                  </td>
+                  <td className="py-2.5">
+                    <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={l.custom_branding}
+                        onChange={(e) => handleLimitChange(l.plan, "custom_branding", e.target.checked)}
+                      />
+                      <span className={l.custom_branding ? "text-emerald-600 font-medium" : "text-muted-foreground"}>
+                        {l.custom_branding ? "Allowed" : "Disabled"}
+                      </span>
+                    </label>
+                  </td>
+                  <td className="py-2.5">
+                    <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={l.watermark_removal}
+                        onChange={(e) => handleLimitChange(l.plan, "watermark_removal", e.target.checked)}
+                      />
+                      <span className={l.watermark_removal ? "text-emerald-600 font-medium" : "text-muted-foreground"}>
+                        {l.watermark_removal ? "Allowed" : "Disabled"}
+                      </span>
+                    </label>
+                  </td>
+                  <td className="py-2.5">
+                    <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={l.visual_builder}
+                        onChange={(e) => handleLimitChange(l.plan, "visual_builder", e.target.checked)}
+                      />
+                      <span className={l.visual_builder ? "text-emerald-600 font-medium" : "text-muted-foreground"}>
+                        {l.visual_builder ? "Allowed" : "Disabled"}
+                      </span>
+                    </label>
+                  </td>
+                  <td className="py-2.5 text-right">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={savingPlan === l.plan}
+                      onClick={() => handleSaveLimit(l.plan)}
+                      className="h-7 text-xs text-brand-purple hover:bg-brand-purple/10"
+                    >
+                      {savingPlan === l.plan ? "Saving..." : "Save"}
+                    </Button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
+
+        {auditLogs.length > 0 && (
+          <div className="mt-6 border-t border-border pt-4">
+            <h3 className="text-xs font-semibold uppercase text-muted-foreground mb-2">Recent Quota Audits</h3>
+            <div className="space-y-1.5 max-h-40 overflow-y-auto">
+              {auditLogs.slice(0, 10).map((log) => (
+                <div key={log.id} className="text-[11px] text-muted-foreground flex justify-between border-b border-border/40 pb-1">
+                  <span>Plan <strong>{log.plan}</strong> updated ({JSON.stringify(log.new_values)})</span>
+                  <span>{new Date(log.created_at).toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </AdminCard>
     </>
   );
