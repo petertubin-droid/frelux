@@ -47,12 +47,27 @@ export interface BoqInput {
    *  replace the DB defaults and are recorded in rates_snapshot. */
   contingency_override?: number | null;
   vat_override?: number | null;
+  /**
+   * Audit fix F10 (2026-10-26): market volatility buffer for FX-sensitive
+   * materials (cement, rebar, copper) in volatile markets. 0-25%. Kept as
+   * its OWN transparent line — never folded silently into contingency.
+   */
+  volatility_buffer_pct?: number | null;
+  /**
+   * Audit fix F10: the effective date of the price snapshot the items
+   * were priced from (e.g. the oldest imported estimate's created_at).
+   * When provided, the result carries a staleness classification
+   * (fresh ≤14d / aging 15-45d / stale >45d) with an explicit advisory.
+   */
+  price_date?: string | null;
 }
 
 export interface BoqTotals {
   subtotal: number;
   contingency_rate: number | null;
   contingency_amount: number | null;
+  volatility_buffer_pct: number | null;
+  volatility_amount: number | null;
   vat_rate: number | null;
   vat_amount: number | null;
   grand_total: number;
@@ -61,6 +76,13 @@ export interface BoqTotals {
 export interface BoqResult {
   ok: boolean;
   totals: BoqTotals | null;
+  /** F10: staleness classification of the underlying price snapshot. */
+  price_staleness: {
+    status: "fresh" | "aging" | "stale";
+    days_old: number;
+    label: string;
+    advisory: string | null;
+  } | null;
   line_totals: { item: BoqLineItem; line_total: number }[];
   warnings: string[];
   steps: { label: string; detail: string }[];
@@ -92,6 +114,7 @@ export function generateBoq(input: BoqInput): BoqResult {
   const result: BoqResult = {
     ok: false,
     totals: null,
+    price_staleness: null,
     line_totals: [],
     warnings: [],
     steps: [],
@@ -186,8 +209,33 @@ export function generateBoq(input: BoqInput): BoqResult {
     });
   }
 
+  // ── 3b. Market volatility buffer (audit fix F10) ──
+  // Optional, user-set 0-25%: a separate transparent line for FX-sensitive
+  // materials in volatile markets — never folded into contingency silently.
+  let volatilityRate: number | null = null;
+  let volatilityAmount: number | null = null;
+  const requestedVolatility = input.volatility_buffer_pct ?? null;
+  if (requestedVolatility !== null) {
+    if (requestedVolatility < 0 || requestedVolatility > 25) {
+      result.warnings.push(
+        "Market volatility buffer must be between 0% and 25%: the quote was generated without it.",
+      );
+    } else if (requestedVolatility > 0) {
+      volatilityRate = requestedVolatility;
+      volatilityAmount = money((subtotal * requestedVolatility) / 100);
+      result.steps.push({
+        label: "Market volatility buffer",
+        detail: `${requestedVolatility}% of subtotal ${fmt(input.currency, subtotal)} = ${fmt(input.currency, volatilityAmount)} (FX-sensitive materials contingency).`,
+      });
+    } else {
+      volatilityRate = 0;
+      volatilityAmount = 0;
+    }
+  }
+
   // ── 4. VAT (DB-configured default or explicit override; never guessed) ──
-  const baseForVat = subtotal + (contingencyAmount ?? 0);
+  const baseForVat =
+    subtotal + (contingencyAmount ?? 0) + (volatilityAmount ?? 0);
   const vatRate =
     input.vat_override !== null && input.vat_override !== undefined
       ? input.vat_override
@@ -228,13 +276,55 @@ export function generateBoq(input: BoqInput): BoqResult {
     subtotal,
     contingency_rate: contingencyRate,
     contingency_amount: contingencyAmount,
+    volatility_buffer_pct: volatilityRate,
+    volatility_amount: volatilityAmount,
     vat_rate: vatRate,
     vat_amount: vatAmount,
     grand_total: grandTotal,
   };
+
+  // ── Price staleness (audit fix F10) ──
+  if (input.price_date) {
+    const daysOld = Math.max(
+      0,
+      Math.floor(
+        (Date.now() - new Date(input.price_date).getTime()) /
+          (1000 * 60 * 60 * 24),
+      ),
+    );
+    let status: "fresh" | "aging" | "stale";
+    let advisory: string | null = null;
+    if (daysOld <= 14) {
+      status = "fresh";
+    } else if (daysOld <= 45) {
+      status = "aging";
+      advisory =
+        "Price snapshot is over 14 days old. High-inflation materials (cement, rebar) may have moved.";
+    } else {
+      status = "stale";
+      advisory =
+        "Price snapshot is over 45 days old. Run /estimate-refresh before committing this quote.";
+    }
+    result.price_staleness = {
+      status,
+      days_old: daysOld,
+      label: `Price snapshot ${daysOld}d old`,
+      advisory,
+    };
+    result.steps.push({
+      label: "Price staleness",
+      detail: `${status.toUpperCase()}: the price snapshot behind this quote is ${daysOld} day(s) old.${advisory ? " " + advisory : ""}`,
+    });
+    if (status !== "fresh") {
+      result.warnings.push(
+        `PRICE STALENESS (${status.toUpperCase()}): the snapshot is ${daysOld} day(s) old.${advisory ? " " + advisory : ""}`,
+      );
+    }
+  }
   result.rates_snapshot = {
     contingency_rate: contingencyRate,
     vat_rate: vatRate,
+    volatility_buffer_pct: volatilityRate,
     contingency_source:
       input.contingency_override !== null &&
       input.contingency_override !== undefined

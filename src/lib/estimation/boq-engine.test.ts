@@ -61,6 +61,8 @@ describe("generateBoq", () => {
       subtotal: 250000,
       contingency_rate: 5,
       contingency_amount: 12500,
+      volatility_buffer_pct: null,
+      volatility_amount: null,
       vat_rate: 7.5,
       vat_amount: 19687.5,
       grand_total: 282187.5,
@@ -150,5 +152,67 @@ describe("generateBoq", () => {
     expect(r.totals?.subtotal).toBe(10000);
     expect(r.totals?.vat_amount).toBe(750);
     expect(r.totals?.grand_total).toBe(10750);
+  });
+});
+
+// ── Audit fix F10 (2026-10-26): volatility buffer + price staleness ──
+
+describe("audit fix F10 — market volatility buffer & price staleness", () => {
+  it("applies the volatility buffer as its own transparent line", () => {
+    // Subtotal 250,000; buffer 10% = 25,000; contingency 5% = 12,500;
+    // VAT 7.5% of 287,500 = 21,562.5 → grand 309,062.5
+    const r = generateBoq(input({ volatility_buffer_pct: 10 }));
+    expect(r.ok).toBe(true);
+    expect(r.totals!.volatility_buffer_pct).toBe(10);
+    expect(r.totals!.volatility_amount).toBe(25000);
+    expect(r.totals!.grand_total).toBe(309062.5);
+    expect(r.steps.some((s) => s.label === "Market volatility buffer")).toBe(
+      true,
+    );
+  });
+
+  it("rejects a volatility buffer outside the 0-25% slider range", () => {
+    const r = generateBoq(input({ volatility_buffer_pct: 40 }));
+    expect(r.totals!.volatility_amount).toBeNull();
+    expect(r.warnings.some((w) => w.includes("between 0% and 25%"))).toBe(true);
+  });
+
+  it("classifies a fresh price snapshot (≤ 14 days)", () => {
+    const r = generateBoq({
+      ...input(),
+      price_date: new Date(Date.now() - 5 * 864e5).toISOString(),
+    });
+    expect(r.ok).toBe(true);
+    expect(r.price_staleness!.status).toBe("fresh");
+    expect(r.warnings.some((w) => w.includes("PRICE STALENESS"))).toBe(false);
+  });
+
+  it("classifies an aging snapshot (15-45 days) with an advisory", () => {
+    const r = generateBoq({
+      ...input(),
+      price_date: new Date(Date.now() - 30 * 864e5).toISOString(),
+    });
+    expect(r.price_staleness!.status).toBe("aging");
+    expect(r.price_staleness!.advisory).toContain("14 days");
+    expect(r.warnings.some((w) => w.includes("PRICE STALENESS (AGING)"))).toBe(
+      true,
+    );
+  });
+
+  it("classifies a stale snapshot (> 45 days) and recommends estimate-refresh", () => {
+    const r = generateBoq({
+      ...input(),
+      price_date: new Date(Date.now() - 90 * 864e5).toISOString(),
+    });
+    expect(r.price_staleness!.status).toBe("stale");
+    expect(r.price_staleness!.advisory).toContain("estimate-refresh");
+    expect(r.warnings.some((w) => w.includes("PRICE STALENESS (STALE)"))).toBe(
+      true,
+    );
+  });
+
+  it("carries no staleness classification without a price date", () => {
+    const r = generateBoq(input());
+    expect(r.price_staleness).toBeNull();
   });
 });

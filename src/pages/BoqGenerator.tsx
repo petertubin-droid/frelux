@@ -150,6 +150,8 @@ export default function BoqGenerator() {
 
   const [items, setItems] = useState<BoqLineItem[]>([]);
   const [result, setResult] = useState<BoqResult | null>(null);
+  // F10: market volatility buffer (0-25%) for FX-sensitive materials
+  const [volatilityPct, setVolatilityPct] = useState(0);
   const [quoteRef, setQuoteRef] = useState<string | null>(null);
   const [savedRef, setSavedRef] = useState<string | null>(null);
   /** Row id (uuid) of the saved quote — revisions reference this, not the ref string. */
@@ -227,6 +229,19 @@ export default function BoqGenerator() {
   };
 
   const generate = () => {
+    // F10: the price snapshot date = the OLDEST imported estimate's
+    // created_at (when its prices were captured). Manual items carry no
+    // date; if nothing is imported, no staleness claim is made.
+    const importedDates = estimates
+      .filter((e) =>
+        items.some((i) => i.source_estimate_ref === e.estimate_ref),
+      )
+      .map((e) => e.created_at)
+      .filter(Boolean);
+    const priceDate =
+      importedDates.length > 0
+        ? importedDates.reduce((a, b) => (a < b ? a : b))
+        : null;
     const r = generateBoq({
       title,
       client_name: clientName,
@@ -235,6 +250,8 @@ export default function BoqGenerator() {
       currency: getActiveDisplayCurrency(),
       items,
       rules,
+      volatility_buffer_pct: volatilityPct > 0 ? volatilityPct : null,
+      price_date: priceDate,
     });
     setResult(r);
     setQuoteRef(`BOQ-${Date.now().toString(36).toUpperCase()}`);
@@ -606,9 +623,18 @@ export default function BoqGenerator() {
             </label>
             <label className="grid gap-1 text-sm font-medium">
               Draft WBS / measurement framework
-              <select aria-label="Draft WBS / measurement framework" className="rounded-lg border border-border bg-background px-3 py-2 font-normal" value={selectedStandard} onChange={(e) => setSelectedStandard(e.target.value as BoqStandard)}>
+              <select
+                aria-label="Draft WBS / measurement framework"
+                className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                value={selectedStandard}
+                onChange={(e) =>
+                  setSelectedStandard(e.target.value as BoqStandard)
+                }
+              >
                 <option value="NRM2">NRM2 classification aid</option>
-                <option value="CSI_MASTERFORMAT">CSI MasterFormat classification aid</option>
+                <option value="CSI_MASTERFORMAT">
+                  CSI MasterFormat classification aid
+                </option>
                 <option value="CESMM4">CESMM4 classification aid</option>
                 <option value="ICMS">ICMS classification aid</option>
                 <option value="Commercial">Commercial WBS</option>
@@ -777,6 +803,34 @@ export default function BoqGenerator() {
 
           <BoqTranslationCard items={items} language={language} />
 
+          <div className="mt-4 rounded-lg border border-border p-3 text-sm">
+            <label htmlFor="volatility-buffer" className="font-medium">
+              Market volatility buffer: {volatilityPct}%
+            </label>
+            <input
+              id="volatility-buffer"
+              type="range"
+              min={0}
+              max={25}
+              step={1}
+              value={volatilityPct}
+              onChange={(e) => {
+                setVolatilityPct(Number(e.target.value));
+                setResult(null);
+              }}
+              className="mt-2 w-full"
+              aria-describedby="volatility-buffer-help"
+            />
+            <p
+              id="volatility-buffer-help"
+              className="text-xs text-muted-foreground"
+            >
+              Contingency for FX-sensitive materials (cement, rebar, copper) in
+              volatile markets. Applied as its own transparent line, never
+              hidden inside the contingency rate.
+            </p>
+          </div>
+
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -900,6 +954,30 @@ export default function BoqGenerator() {
                   {result.line_totals.length === 1 ? "" : "s"}
                 </p>
               </div>
+              {result.price_staleness && (
+                <div
+                  className={`rounded-xl border p-4 shadow-sm dark:border-white/5 ${
+                    result.price_staleness.status === "fresh"
+                      ? "border-emerald-500/40 bg-emerald-500/10"
+                      : result.price_staleness.status === "aging"
+                        ? "border-amber-500/40 bg-amber-500/10"
+                        : "border-red-500/40 bg-red-500/10"
+                  }`}
+                >
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Price snapshot
+                  </p>
+                  <p className="mt-1.5 text-xl font-semibold capitalize">
+                    {result.price_staleness.status}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {result.price_staleness.label}
+                    {result.price_staleness.advisory
+                      ? ` — ${result.price_staleness.advisory}`
+                      : ""}
+                  </p>
+                </div>
+              )}
               <div className="rounded-xl border border-border bg-card p-4 shadow-sm dark:border-white/5">
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   Contingency
@@ -990,6 +1068,17 @@ export default function BoqGenerator() {
                       </td>
                     </tr>
                   )}
+                  {result.totals!.volatility_amount !== null && (
+                    <tr className="border-t border-border dark:border-white/5">
+                      <td colSpan={4} className="p-3">
+                        Market volatility buffer (
+                        {result.totals!.volatility_buffer_pct}%)
+                      </td>
+                      <td className="p-3">
+                        {money(result.totals!.volatility_amount)}
+                      </td>
+                    </tr>
+                  )}
                   {result.totals!.vat_amount !== null && (
                     <tr className="border-t border-border dark:border-white/5">
                       <td colSpan={4} className="p-3">
@@ -1013,9 +1102,23 @@ export default function BoqGenerator() {
             </div>
 
             {/* ── Engine #5: cite-and-flag the standards behind each engine ── */}
-            <div role="note" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-950 dark:text-amber-100">
-              <p className="font-semibold">Draft quantity and cost schedule · not an official standards-compliant BOQ</p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{selectedStandard} is used here as a market-context WBS classification aid. The automatic description-to-division mapping is heuristic, not a standards measurement audit, takeoff verification, procurement order, structural design or professional certification. Have a qualified local quantity surveyor review measurements, scope, rates, tax and contract terms before issue.</p>
+            <div
+              role="note"
+              className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-950 dark:text-amber-100"
+            >
+              <p className="font-semibold">
+                Draft quantity and cost schedule · not an official
+                standards-compliant BOQ
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                {selectedStandard} is used here as a market-context WBS
+                classification aid. The automatic description-to-division
+                mapping is heuristic, not a standards measurement audit, takeoff
+                verification, procurement order, structural design or
+                professional certification. Have a qualified local quantity
+                surveyor review measurements, scope, rates, tax and contract
+                terms before issue.
+              </p>
             </div>
             <StandardsCitationsCard
               marketCode={marketCode}
