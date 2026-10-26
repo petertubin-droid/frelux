@@ -61,6 +61,9 @@ export default function CopilotWidget({
 } = {}) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  // Visitor market context: unitless dimensions ("12 by 12") are
+  // interpreted per the market's convention (NG paint rooms: feet).
+  const { market } = useMarket();
   const [open, setOpen] = useState(embedded);
   const [phase, setPhase] = useState<Phase>("input");
   const [draft, setDraft] = useState("");
@@ -117,7 +120,13 @@ export default function CopilotWidget({
       setPhase("running");
 
       // 1. Deterministic interpretation first, free, offline, no API call.
-      let interpretation = interpretRequest(q);
+      // Market hint lets a unitless "12 by 12" be read in the visitor's
+      // market convention (feet for NG paint rooms) instead of metres.
+      let interpretation = interpretRequest(q, new Date().toISOString(), {
+        marketCode: market.marketCode,
+        measurementSystem: market.measurementSystem,
+        defaultLengthUnit: market.defaultLengthUnit,
+      });
 
       // 2. AI-assisted interpretation ONLY when the deterministic parse
       //    can't understand the request. Costs ai_copilot credits, and
@@ -139,7 +148,7 @@ export default function CopilotWidget({
       setPhase("review");
       setBusy(false);
     },
-    [buildContext, busy, draft, reset, user],
+    [buildContext, busy, draft, market, reset, user],
   );
 
   const handleRunEngine = useCallback(async () => {

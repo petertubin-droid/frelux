@@ -40,6 +40,24 @@ import {
   resolveRequirements,
   TASK_REQUIREMENTS,
 } from "./requirements";
+import {
+  resolveMarketRoomUnit,
+  type RoomUnit,
+} from "@/lib/international/room-unit-defaults";
+import type { ResolvedMarketContext } from "@/types/international";
+
+/**
+ * Market hint for interpreting unitless dimensions. Passed by the
+ * Copilot UI from the visitor's resolved market context so a bare
+ * "12 by 12 room" is read in the market's established convention
+ * instead of silently assuming metres.
+ */
+export type CopilotMarketHint = Partial<
+  Pick<
+    ResolvedMarketContext,
+    "marketCode" | "measurementSystem" | "defaultLengthUnit"
+  >
+>;
 
 // =========================================================
 // DETERMINISTIC NATURAL-LANGUAGE INTERPRETATION
@@ -52,19 +70,35 @@ const DIMENSION_RE =
 export function interpretRequest(
   text: string,
   now = new Date().toISOString(),
+  market?: CopilotMarketHint,
 ): InterpretationResult {
   const facts: AiFact[] = [];
   const lower = text.toLowerCase();
 
   // ── Task classification (keyword-based, deterministic) ──
   let taskType: CopilotTaskType;
-  if (/foundation|footing|footings|substructure|ground beam|strip found|raft|hardcore/.test(lower))
+  if (
+    /foundation|footing|footings|substructure|ground beam|strip found|raft|hardcore/.test(
+      lower,
+    )
+  )
     taskType = "foundation_estimate";
-  else if (/reinforc|rebar|steel rod|rodding|12\s*mm|16\s*mm|20\s*mm|25\s*mm (bar|rod)/.test(lower))
+  else if (
+    /reinforc|rebar|steel rod|rodding|12\s*mm|16\s*mm|20\s*mm|25\s*mm (bar|rod)/.test(
+      lower,
+    )
+  )
     taskType = "reinforcement_estimate";
-  else if (/\b(doors?\s*(?:and|&|,|\+)?\s*windows?|doors? and windows?|window and door)\b/.test(lower))
+  else if (
+    /\b(doors?\s*(?:and|&|,|\+)?\s*windows?|doors? and windows?|window and door)\b/.test(
+      lower,
+    )
+  )
     taskType = "doors_windows_estimate";
-  else if (/\b(door|window)s?\b/.test(lower) && /(estimate|cost|price|how much|buy|install|budget)/.test(lower))
+  else if (
+    /\b(door|window)s?\b/.test(lower) &&
+    /(estimate|cost|price|how much|buy|install|budget)/.test(lower)
+  )
     taskType = "doors_windows_estimate";
   else if (/(tyrolene|tyro)/.test(lower)) taskType = "tyrolene_estimate";
   else if (/\bpop\b|plaster of paris|p\.o\.p/.test(lower))
@@ -197,11 +231,38 @@ export function interpretRequest(
 
   const dims = text.match(DIMENSION_RE);
   if (dims) {
-    const feet = /ft|feet|'/i.test(dims[0]);
+    // Explicit units always win. Only a dimension with NO unit token
+    // is interpreted through the visitor's market convention (the
+    // same convention the manual calculator pages open in), and the
+    // assumption is surfaced in the evidence, never silent.
+    // Before this market hint existed, a bare "12 by 12" room was
+    // silently read as 12x12 METRES - a 10x area inflation that made
+    // the painting engine recommend several 20L drums for a small
+    // feet-sized room. (Globalization audit, unit assumptions.)
+    const explicitFeet = /ft|feet|'/i.test(dims[0]);
+    const explicitMeters = /\dm\b|\dmeters?\b|\dmetres?\b/i.test(dims[0]);
+    const legacyRoomUnit: RoomUnit =
+      taskType === "painting_estimate" || taskType === "painting_materials"
+        ? // The paint pages have always opened in feet (NG practice).
+          "feet"
+        : // Tile/POP/screeding/building/roof pages open in metres.
+          "meters";
+    const assumedUnit = explicitFeet
+      ? "feet"
+      : explicitMeters
+        ? "meters"
+        : resolveMarketRoomUnit(market ?? {}, legacyRoomUnit);
+    const feet = assumedUnit === "feet";
     const toM = (v: string) => (feet ? Number(v) * 0.3048 : Number(v));
     const first = Math.round(toM(dims[1]) * 100) / 100;
     const second = Math.round(toM(dims[2]) * 100) / 100;
-    const evidence = `Stated in your request: "${dims[0]}"${feet ? " (converted from ft)" : ""}`;
+    const evidence = `Stated in your request: "${dims[0]}"${
+      feet
+        ? explicitFeet
+          ? " (converted from ft)"
+          : " (unit not stated - assumed feet per your market's convention; say metres or feet to override)"
+        : ""
+    }`;
     // Key names follow the target engine's input schema so stated
     // dimensions resolve without re-asking.
     const dimKeys: Record<string, [string, string]> = {

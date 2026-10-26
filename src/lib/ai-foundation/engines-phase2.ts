@@ -83,18 +83,32 @@ export function registerPhase2Engines(): void {
       let coverageRate = DEFAULT_COVERAGE_M2_PER_LITER;
       let containerSizes: number[] = DEFAULT_CONTAINER_SIZES_LITERS;
       let defaultCoats = 2;
+      // The admin-configured paint type the estimate is priced for when the
+      // user does not name one (mirrors the calculator page's default).
+      let defaultPaintTypeId: string | null = null;
       try {
         const { fetchPaintTypes } = await import("@/lib/queries");
         const { data: paintTypes } = await fetchPaintTypes();
+        // Parity with the manual paint page: a paint type explicitly named
+        // "standard" wins, otherwise the page's own default applies - the
+        // FIRST active type by sort_order (PaintCalculator.tsx uses data[0]).
+        // Before this, a DB without a "standard" row silently ignored every
+        // admin-configured paint type and fell back to code constants
+        // (coverage 10 m2/L, 1/4/20L containers), so the Copilot's paint
+        // answers diverged from the calculator page and from the market's
+        // actual product (e.g. NG Emulsion, coverage 4, 20L buckets only).
+        // (Globalization audit, admin-config parity.)
         const standard = paintTypes.find(
           (t) => t.id === "standard" || t.name?.toLowerCase() === "standard",
         );
-        const dbCoverage = Number(standard?.coverage_rate);
-        if (standard && dbCoverage > 0) coverageRate = dbCoverage;
-        const sizes = standard?.container_sizes;
+        const defaultType = standard ?? paintTypes[0] ?? null;
+        const dbCoverage = Number(defaultType?.coverage_rate);
+        if (defaultType && dbCoverage > 0) coverageRate = dbCoverage;
+        const sizes = defaultType?.container_sizes;
         if (Array.isArray(sizes) && sizes.some((s) => Number(s) > 0)) {
           containerSizes = sizes.filter((s) => Number(s) > 0);
         }
+        if (defaultType) defaultPaintTypeId = defaultType.id;
       } catch {
         // DB unavailable → documented code defaults (current behavior).
       }
@@ -120,7 +134,9 @@ export function registerPhase2Engines(): void {
           windows: input.windows ?? 0,
           windowDims: DEFAULT_WINDOW_DIMS,
           coats: input.coats ?? defaultCoats,
-          paintType: input.paintType ?? "standard",
+          paintType: (input.paintType ??
+            defaultPaintTypeId ??
+            "standard") as never,
           unit: (input.unit ?? "meters") as never,
           includeCeiling: input.includeCeiling ?? true,
           wasteMargin: input.wasteMargin ?? 0,

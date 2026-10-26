@@ -182,3 +182,92 @@ describe("end-to-end execution", () => {
     expect(raw?.recommendedContainers).toEqual(manual.recommendedContainers);
   });
 });
+
+describe("market-aware unitless dimension interpretation (globalization audit)", () => {
+  // A bare "12 by 12" is ambiguous: NG rooms are spoken in feet,
+  // metric markets speak metres. Before this fix the copilot
+  // silently read metres for everyone - a 10x area inflation for
+  // NG paint requests (12x12m ≈ 3-4 x 20L drums for a small room).
+  const NG_MARKET = {
+    marketCode: "NG",
+    measurementSystem: "mixed" as const,
+    defaultLengthUnit: "meters" as const,
+  };
+  const METRIC_MARKET = {
+    marketCode: "FR",
+    measurementSystem: "metric" as const,
+    defaultLengthUnit: "meters" as const,
+  };
+
+  it("assumes feet for unitless paint dims in the NG market", () => {
+    const result = interpretRequest(
+      "how much paint do I need for a 12 by 12 room",
+      new Date().toISOString(),
+      NG_MARKET,
+    );
+    expect(result.taskType).toBe("painting_materials");
+    const length = result.facts.find((f) => f.key === "length");
+    const width = result.facts.find((f) => f.key === "width");
+    expect(length?.value).toBeCloseTo(3.66, 1); // 12 ft in metres
+    expect(width?.value).toBeCloseTo(3.66, 1);
+    expect(length?.evidence).toContain("feet");
+    expect(length?.evidence).toContain("assumed");
+  });
+
+  it("assumes metres for unitless paint dims in a metric market", () => {
+    const result = interpretRequest(
+      "how much paint do I need for a 12 by 12 room",
+      new Date().toISOString(),
+      METRIC_MARKET,
+    );
+    expect(result.facts.find((f) => f.key === "length")?.value).toBe(12);
+  });
+
+  it("keeps explicit feet regardless of market", () => {
+    const result = interpretRequest(
+      "how much paint for a 12ft by 12ft room",
+      new Date().toISOString(),
+      METRIC_MARKET,
+    );
+    expect(result.facts.find((f) => f.key === "length")?.value).toBeCloseTo(
+      3.66,
+      1,
+    );
+  });
+
+  it("keeps explicit metres regardless of market", () => {
+    const result = interpretRequest(
+      "how much paint for a 12m by 12m room",
+      new Date().toISOString(),
+      NG_MARKET,
+    );
+    expect(result.facts.find((f) => f.key === "length")?.value).toBe(12);
+  });
+
+  it("without a market hint, preserves the legacy metres reading", () => {
+    const result = interpretRequest("paint estimate for a 12 by 12 room");
+    expect(result.facts.find((f) => f.key === "length")?.value).toBe(12);
+  });
+
+  it("assumes metres for unitless building dims in NG (build-to-roof page convention)", () => {
+    const result = interpretRequest(
+      "estimate a 12 by 12 bungalow",
+      new Date().toISOString(),
+      NG_MARKET,
+    );
+    expect(result.taskType).toBe("building_estimate");
+    expect(result.facts.find((f) => f.key === "building_length")?.value).toBe(
+      12,
+    );
+  });
+
+  it("assumes metres for unitless tile dims in NG (tile page convention)", () => {
+    const result = interpretRequest(
+      "how many tiles for a 12 by 12 room",
+      new Date().toISOString(),
+      NG_MARKET,
+    );
+    expect(result.taskType).toBe("tile_estimate");
+    expect(result.facts.find((f) => f.key === "length")?.value).toBe(12);
+  });
+});
