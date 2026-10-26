@@ -36,7 +36,10 @@ import {
 import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
-import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  printQuote,
+  exportQuoteToDocumentStudio,
+} from "@/lib/estimation/quote-export";
 import {
   calculateDoorsWindows,
   parseDoorsWindowsRules,
@@ -205,9 +208,13 @@ export default function DoorsWindowsEstimator() {
             l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
           unit: l.unit,
           unit_price:
-            l.unit_price === null ? "unpriced" : formatCurrency(l.unit_price, currencySymbol),
+            l.unit_price === null
+              ? "unpriced"
+              : formatCurrency(l.unit_price, currencySymbol),
           line_total:
-            l.line_total === null ? "N/A" : formatCurrency(l.line_total, currencySymbol),
+            l.line_total === null
+              ? "N/A"
+              : formatCurrency(l.line_total, currencySymbol),
           detail: l.detail,
         })),
         totals: [
@@ -244,6 +251,43 @@ export default function DoorsWindowsEstimator() {
       },
       "frelux-doors-windows-estimate.html",
     );
+  };
+
+  const exportToDocumentStudio = () => {
+    if (!result?.ok) return;
+    exportQuoteToDocumentStudio(
+      {
+        title: "FRELUX Doors & Windows Estimate",
+        subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
+        metaRows: result.steps.map(
+          (step) => [step.label, step.detail] as [string, string],
+        ),
+        lines: result.lines.map((line) => ({
+          label: line.label,
+          quantity:
+            line.quantity === null ? "unavailable" : String(line.quantity),
+          unit: line.unit,
+          unit_price:
+            line.unit_price === null ? "unavailable" : String(line.unit_price),
+          line_total:
+            line.line_total === null ? "unavailable" : String(line.line_total),
+          detail: line.detail,
+        })),
+        totals: [
+          {
+            label: "Estimate total",
+            value:
+              result.grand_total === null
+                ? "Unavailable"
+                : String(result.grand_total),
+          },
+        ],
+        warnings: result.warnings,
+      },
+      currencyCode,
+      "quotation",
+    );
+    window.location.assign("/document-studio");
   };
 
   const save = useCallback(async () => {
@@ -378,19 +422,20 @@ export default function DoorsWindowsEstimator() {
             <ul className="mt-2 space-y-1 text-muted-foreground">
               {doorsMarket.provenance.map((p) => (
                 <li key={p.engineKey}>
-                  ✓ {p.engineKey}: {p.materialName} ({formatCurrency(p.price, currencySymbol)}) - {p.explanation}
+                  ✓ {p.engineKey}: {p.materialName} (
+                  {formatCurrency(p.price, currencySymbol)}) - {p.explanation}
                 </li>
               ))}
               {doorsMarket.unresolved.length > 0 && (
                 <li>
                   ✗ {doorsMarket.unresolved.join(", ")}: no verified price in
-                  the {marketCode} book - reported unpriced, never silent substitution.
+                  the {marketCode} book - reported unpriced, never silent
+                  substitution.
                 </li>
               )}
             </ul>
           </div>
         )}
-
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
@@ -439,7 +484,9 @@ export default function DoorsWindowsEstimator() {
           </label>
           {labourMode !== "none" &&
             numberInput(
-              labourMode === "per_door" ? `Rate per unit (${currencySymbol})` : `Lump sum (${currencySymbol})`,
+              labourMode === "per_door"
+                ? `Rate per unit (${currencySymbol})`
+                : `Lump sum (${currencySymbol})`,
               labourRate,
               setLabourRate,
             )}
@@ -470,6 +517,12 @@ export default function DoorsWindowsEstimator() {
                 className="rounded-md border px-4 py-2 text-sm font-medium"
               >
                 Export quote (PDF)
+              </button>
+              <button
+                onClick={exportToDocumentStudio}
+                className="rounded-md border px-4 py-2 text-sm font-medium"
+              >
+                Customize in Document Studio
               </button>
               <SaveToProjectButton
                 calculatorType="doors_windows"

@@ -31,7 +31,10 @@ import {
 import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
-import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  printQuote,
+  exportQuoteToDocumentStudio,
+} from "@/lib/estimation/quote-export";
 import {
   calculateFlooring,
   parseFlooringRules,
@@ -173,9 +176,13 @@ export default function FlooringEstimator() {
             l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
           unit: l.unit,
           unit_price:
-            l.unit_price === null ? "unpriced" : formatCurrency(l.unit_price, currencySymbol),
+            l.unit_price === null
+              ? "unpriced"
+              : formatCurrency(l.unit_price, currencySymbol),
           line_total:
-            l.line_total === null ? "N/A" : formatCurrency(l.line_total, currencySymbol),
+            l.line_total === null
+              ? "N/A"
+              : formatCurrency(l.line_total, currencySymbol),
           detail: l.detail,
         })),
         totals: [
@@ -212,6 +219,43 @@ export default function FlooringEstimator() {
       },
       "frelux-flooring-estimate.html",
     );
+  };
+
+  const exportToDocumentStudio = () => {
+    if (!result?.ok) return;
+    exportQuoteToDocumentStudio(
+      {
+        title: "FRELUX Flooring Estimate",
+        subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
+        metaRows: result.steps.map(
+          (step) => [step.label, step.detail] as [string, string],
+        ),
+        lines: result.lines.map((line) => ({
+          label: line.label,
+          quantity:
+            line.quantity === null ? "unavailable" : String(line.quantity),
+          unit: line.unit,
+          unit_price:
+            line.unit_price === null ? "unavailable" : String(line.unit_price),
+          line_total:
+            line.line_total === null ? "unavailable" : String(line.line_total),
+          detail: line.detail,
+        })),
+        totals: [
+          {
+            label: "Estimate total",
+            value:
+              result.grand_total === null
+                ? "Unavailable"
+                : String(result.grand_total),
+          },
+        ],
+        warnings: result.warnings,
+      },
+      currencyCode,
+      "quotation",
+    );
+    window.location.assign("/document-studio");
   };
 
   const save = useCallback(async () => {
@@ -386,7 +430,9 @@ export default function FlooringEstimator() {
           </label>
           {labourMode !== "none" &&
             numberInput(
-              labourMode === "per_m2" ? `Rate per m² (${currencySymbol})` : `Lump sum (${currencySymbol})`,
+              labourMode === "per_m2"
+                ? `Rate per m² (${currencySymbol})`
+                : `Lump sum (${currencySymbol})`,
               labourRate,
               setLabourRate,
             )}
@@ -417,6 +463,12 @@ export default function FlooringEstimator() {
                 className="rounded-md border px-4 py-2 text-sm font-medium"
               >
                 Export quote (PDF)
+              </button>
+              <button
+                onClick={exportToDocumentStudio}
+                className="rounded-md border px-4 py-2 text-sm font-medium"
+              >
+                Customize in Document Studio
               </button>
               <SaveToProjectButton
                 calculatorType="flooring"

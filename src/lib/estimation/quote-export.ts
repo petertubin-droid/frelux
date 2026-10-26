@@ -3,18 +3,34 @@ import { stageStudioImport } from "@/lib/document-studio";
 export function exportQuoteToDocumentStudio(
   opts: QuoteOptions,
   currencyCode = "NGN",
-  documentType: "quotation" | "material_schedule" | "invoice" = "quotation"
+  documentType: "quotation" | "material_schedule" | "invoice" = "quotation",
 ): void {
-  const materials = opts.lines.map((l) => {
-    // Parse numeric quantity and price safely
-    const qNum = parseFloat(l.quantity.replace(/[^0-9.-]+/g, "")) || 1;
-    const pNum = parseFloat(l.unit_price.replace(/[^0-9.-]+/g, "")) || 0;
-    return {
-      label: l.detail ? `${l.label} (${l.detail})` : l.label,
-      quantity: qNum,
-      unit: l.unit || "unit",
-      unitPrice: pNum,
+  let omittedLines = 0;
+  const materials = opts.lines.flatMap((line) => {
+    const parse = (value: string): number | null => {
+      const normalized = value
+        .replace(/,/g, "")
+        .replace(/[^0-9.-]+/g, "")
+        .trim();
+      if (!normalized || !/^-?(?:\d+\.?\d*|\.\d+)$/.test(normalized))
+        return null;
+      const parsed = Number(normalized);
+      return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
     };
+    const quantity = parse(line.quantity);
+    const unitPrice = parse(line.unit_price);
+    if (quantity === null || unitPrice === null) {
+      omittedLines++;
+      return [];
+    }
+    return [
+      {
+        label: line.detail ? `${line.label} (${line.detail})` : line.label,
+        quantity,
+        unit: line.unit || "unit",
+        unitPrice,
+      },
+    ];
   });
 
   const notesParts: string[] = [];
@@ -25,6 +41,10 @@ export function exportQuoteToDocumentStudio(
   if (opts.warnings && opts.warnings.length > 0) {
     notesParts.push("Notes: " + opts.warnings.join(". "));
   }
+  if (omittedLines > 0)
+    notesParts.push(
+      `${omittedLines} quote line(s) were excluded because a verified numeric quantity or unit price was unavailable. Review the original estimate.`,
+    );
 
   stageStudioImport({
     title: opts.title,

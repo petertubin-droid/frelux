@@ -14,6 +14,16 @@ import {
   Trash2,
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/shadcn/dialog";
+import { fetchUserProjects } from "@/lib/queries";
+import type { DbUserProject } from "@/types/database";
+import { convertSavedProjectToDocument } from "@/lib/document-studio";
 import HeroTitle from "@/components/ui/HeroTitle";
 import { Button } from "@/components/ui/shadcn/button";
 import { useAuth } from "@/lib/auth";
@@ -78,6 +88,74 @@ export default function DocumentStudio() {
   const [docType, setDocType] =
     useState<StudioTemplate["document_type"]>("quotation");
   const [config, setConfig] = useState<StudioConfig>(freshConfig);
+  const [projectModalOpen, setProjectModalOpen] = useState(false);
+  const [userProjects, setUserProjects] = useState<DbUserProject[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(false);
+
+  const handleOpenProjectModal = async () => {
+    setProjectModalOpen(true);
+    setLoadingProjects(true);
+    try {
+      const res = await fetchUserProjects();
+      if (res.error) throw new Error(res.error);
+      setUserProjects(res.data || []);
+    } catch {
+      toast.error("Could not fetch your saved projects.");
+    } finally {
+      setLoadingProjects(false);
+    }
+  };
+
+  const handleSelectProjectToImport = (proj: DbUserProject) => {
+    try {
+      const imported = convertSavedProjectToDocument(proj);
+      setName(safeText(imported.title, 120));
+      if (types.includes(imported.document_type)) {
+        setDocType(imported.document_type);
+      }
+      setConfig((prev) => {
+        const blocks: StudioBlock[] = [
+          {
+            id: crypto.randomUUID(),
+            type: "heading",
+            text: safeText(imported.title, 160),
+          },
+        ];
+        if (imported.notes) {
+          blocks.push({
+            id: crypto.randomUUID(),
+            type: "paragraph",
+            text: safeText(imported.notes, 2000),
+          });
+        }
+        if (imported.materials.length > 0) {
+          blocks.push({
+            id: crypto.randomUUID(),
+            type: "materials",
+            title: "Bill of Materials / Schedule",
+            rows: imported.materials.map((m) => ({
+              id: crypto.randomUUID(),
+              label: safeText(m.label, 120),
+              quantity: Math.max(0, m.quantity),
+              unit: safeText(m.unit, 24),
+              unitPrice: Math.max(0, m.unitPrice),
+            })),
+          });
+        }
+        return {
+          ...prev,
+          currency: imported.currency,
+          blocks,
+        };
+      });
+      setActive(null);
+      setProjectModalOpen(false);
+      toast.success("Imported data from " + proj.name);
+    } catch {
+      toast.error("Failed to import saved project.");
+    }
+  };
+
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const canSave =
@@ -397,11 +475,24 @@ export default function DocumentStudio() {
   return (
     <main className="container mx-auto max-w-7xl px-4 py-8">
       <HeroTitle title="Document Studio" />
-      <div className="mb-6 rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-        PDF export uses the signed-in account's server-side monthly allowance.
-        This first studio version supports manually entered content and material
-        schedules; it does not yet import calculator results or saved project
-        records. No taxes, measurements, or market prices are inferred.
+      <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
+        <div>
+          PDF export uses the signed-in account's server-side monthly allowance.
+          Directly import line items and estimates from your saved project
+          records or calculator runs. No taxes, measurements, or market prices
+          are inferred.
+        </div>
+        {user && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleOpenProjectModal}
+            className="shrink-0 gap-2 border-primary/50 text-foreground hover:bg-primary/10"
+          >
+            <FolderOpen className="h-4 w-4 text-primary" />
+            Import from Project
+          </Button>
+        )}
       </div>
       <div className="grid gap-6 lg:grid-cols-[290px_minmax(0,1fr)]">
         <aside className="space-y-4 rounded-xl border border-border bg-card p-4">
@@ -1191,6 +1282,55 @@ export default function DocumentStudio() {
           </section>
         </section>
       </div>
+
+      <Dialog open={projectModalOpen} onOpenChange={setProjectModalOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Import from Saved Project</DialogTitle>
+            <DialogDescription>
+              Select a project from your workspace to populate Document Studio
+              line items, materials, and notes.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="max-h-[60vh] overflow-y-auto space-y-3 py-2">
+            {loadingProjects ? (
+              <div className="flex items-center justify-center p-8 text-muted-foreground">
+                <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                Loading your projects...
+              </div>
+            ) : userProjects.length === 0 ? (
+              <p className="p-6 text-center text-sm text-muted-foreground">
+                No saved projects found in your workspace.
+              </p>
+            ) : (
+              userProjects.map((proj) => (
+                <div
+                  key={proj.id}
+                  className="flex items-center justify-between rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors"
+                >
+                  <div className="min-w-0 pr-3">
+                    <h4 className="font-medium text-foreground truncate">
+                      {proj.name}
+                    </h4>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      {proj.project_type.replace(/_/g, " ")} •{" "}
+                      {new Date(proj.updated_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => handleSelectProjectToImport(proj)}
+                  >
+                    Import
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

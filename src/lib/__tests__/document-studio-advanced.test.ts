@@ -16,8 +16,18 @@ const baseConfig = {
       type: "materials",
       title: "Structural Components",
       rows: [
-        { label: "High-yield TMT Steel 16mm", quantity: 5, unit: "tonnes", unitPrice: 1250000 },
-        { label: "Dangote 42.5R Cement", quantity: 200, unit: "bags", unitPrice: 10500 },
+        {
+          label: "High-yield TMT Steel 16mm",
+          quantity: 5,
+          unit: "tonnes",
+          unitPrice: 1250000,
+        },
+        {
+          label: "Dangote 42.5R Cement",
+          quantity: 200,
+          unit: "bags",
+          unitPrice: 10500,
+        },
       ],
     },
     {
@@ -26,7 +36,11 @@ const baseConfig = {
       title: "Project Milestone Disbursement",
       milestones: [
         { stage: "Mobilization & Site Prep", percentage: 30, amount: 2500000 },
-        { stage: "Substructure / Foundation Completion", percentage: 40, amount: 3300000 },
+        {
+          stage: "Substructure / Foundation Completion",
+          percentage: 40,
+          amount: 3300000,
+        },
         { stage: "Superstructure Handover", percentage: 30, amount: 2500000 },
       ],
     },
@@ -61,15 +75,34 @@ describe("Document Studio Advanced Entitlements and Structures", () => {
     expect(() =>
       validateStudioConfig({
         ...baseConfig,
-        blocks: [{ id: "p", type: "payment_schedule", milestones: [{ stage: "Over 100", percentage: 105 }] }],
-      })
+        blocks: [
+          {
+            id: "p",
+            type: "payment_schedule",
+            milestones: [{ stage: "Over 100", percentage: 105 }],
+          },
+        ],
+      }),
     ).toThrow();
 
     expect(() =>
       validateStudioConfig({
         ...baseConfig,
-        blocks: [{ id: "m", type: "materials", rows: [{ label: "Negative Price", quantity: 1, unit: "pcs", unitPrice: -500 }] }],
-      })
+        blocks: [
+          {
+            id: "m",
+            type: "materials",
+            rows: [
+              {
+                label: "Negative Price",
+                quantity: 1,
+                unit: "pcs",
+                unitPrice: -500,
+              },
+            ],
+          },
+        ],
+      }),
     ).toThrow();
   });
 
@@ -80,14 +113,22 @@ describe("Document Studio Advanced Entitlements and Structures", () => {
         subtitle: "Reinforced Strip Footing",
         metaRows: [["Excavation Depth", "1.2m"]],
         lines: [
-          { label: "Concrete 1:2:4", quantity: "15", unit: "m³", unit_price: "45000", line_total: "675000" },
+          {
+            label: "Concrete 1:2:4",
+            quantity: "15",
+            unit: "m³",
+            unit_price: "45000",
+            line_total: "675000",
+          },
         ],
         totals: [{ label: "Total", value: "₦675,000", strong: true }],
       },
-      "NGN"
+      "NGN",
     );
 
-    const staged = JSON.parse(window.sessionStorage.getItem("frelux.document-studio.import.v1") || "{}");
+    const staged = JSON.parse(
+      window.sessionStorage.getItem("frelux.document-studio.import.v1") || "{}",
+    );
     expect(staged.title).toBe("Foundation Footing Estimate");
     expect(staged.materials[0]).toMatchObject({
       label: "Concrete 1:2:4",
@@ -95,5 +136,34 @@ describe("Document Studio Advanced Entitlements and Structures", () => {
       unitPrice: 45000,
     });
     window.sessionStorage.clear();
+  });
+});
+
+describe("saved project import fidelity", () => {
+  it("keeps verified quantities and prices and reports omitted incomplete rows", async () => {
+    const { convertSavedProjectToDocument } =
+      await import("@/lib/document-studio");
+    const result = convertSavedProjectToDocument({
+      name: "Kitchen renovation",
+      project_type: "custom",
+      project_data: {
+        currency: "USD",
+        materials: [
+          { name: "Tile", quantity: 18, unit: "m2", unitPrice: 24 },
+          { name: "Unpriced grout", quantity: 3, unit: "bags" },
+          {
+            name: "Bad quantity",
+            quantity: "unknown",
+            unit: "pcs",
+            unitPrice: 4,
+          },
+        ],
+      },
+    });
+    expect(result.currency).toBe("USD");
+    expect(result.materials).toEqual([
+      { label: "Tile", quantity: 18, unit: "m2", unitPrice: 24 },
+    ]);
+    expect(result.notes).toContain("2 saved line item(s) were omitted");
   });
 });

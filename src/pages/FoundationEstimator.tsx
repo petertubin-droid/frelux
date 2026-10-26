@@ -35,7 +35,10 @@ import {
 import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
-import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  printQuote,
+  exportQuoteToDocumentStudio,
+} from "@/lib/estimation/quote-export";
 import {
   calculateFoundation,
   parseFoundationRules,
@@ -66,7 +69,8 @@ function fmtN(v: number | null): string {
 }
 
 export default function FoundationEstimator() {
-  const { code: displayCurrencyCode, symbol: displayCurrencySymbol } = useDisplayCurrency();
+  const { code: displayCurrencyCode, symbol: displayCurrencySymbol } =
+    useDisplayCurrency();
   const { user } = useAuth();
 
   const [fields, setFields] = useState<Record<Field, string>>({
@@ -91,7 +95,8 @@ export default function FoundationEstimator() {
   });
 
   const [priceMap, setPriceMap] = useState<FoundationPriceMap>({});
-  const [marketPricing, setMarketPricing] = useState<StructuralMarketPricing | null>(null);
+  const [marketPricing, setMarketPricing] =
+    useState<StructuralMarketPricing | null>(null);
   const { marketCode, market } = useMarket();
   const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
   const currencyCode = market?.currencyCode || displayCurrencyCode || "NGN";
@@ -112,8 +117,7 @@ export default function FoundationEstimator() {
         map[m.slug] = byRef.get(m.id) ?? null;
       }
       if (marketCode !== "NG") {
-        const marketPricing =
-          await resolveStructuralMarketPricing(marketCode);
+        const marketPricing = await resolveStructuralMarketPricing(marketCode);
         if (!alive) return;
         const overlay = { ...map };
         for (const [k, v] of Object.entries(marketPricing.overrides)) {
@@ -165,7 +169,7 @@ export default function FoundationEstimator() {
       incomplete: res.incomplete,
       lines: res.lines.length,
     });
-    }, [input, rules, priceMap]);
+  }, [input, rules, priceMap]);
 
   // Printable professional quote, worldwide-currency formatted.
   const exportQuote = () => {
@@ -183,9 +187,13 @@ export default function FoundationEstimator() {
             l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
           unit: l.unit,
           unit_price:
-            l.unit_price === null ? "unpriced" : formatCurrency(l.unit_price, currencySymbol),
+            l.unit_price === null
+              ? "unpriced"
+              : formatCurrency(l.unit_price, currencySymbol),
           line_total:
-            l.line_total === null ? "N/A" : formatCurrency(l.line_total, currencySymbol),
+            l.line_total === null
+              ? "N/A"
+              : formatCurrency(l.line_total, currencySymbol),
           detail: l.detail,
         })),
         totals: [
@@ -222,6 +230,43 @@ export default function FoundationEstimator() {
       },
       "frelux-foundation-estimate.html",
     );
+  };
+
+  const exportToDocumentStudio = () => {
+    if (!result?.ok) return;
+    exportQuoteToDocumentStudio(
+      {
+        title: "FRELUX Foundation Estimate",
+        subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
+        metaRows: result.steps.map(
+          (step) => [step.label, step.detail] as [string, string],
+        ),
+        lines: result.lines.map((line) => ({
+          label: line.label,
+          quantity:
+            line.quantity === null ? "unavailable" : String(line.quantity),
+          unit: line.unit,
+          unit_price:
+            line.unit_price === null ? "unavailable" : String(line.unit_price),
+          line_total:
+            line.line_total === null ? "unavailable" : String(line.line_total),
+          detail: line.detail,
+        })),
+        totals: [
+          {
+            label: "Estimate total",
+            value:
+              result.grand_total === null
+                ? "Unavailable"
+                : String(result.grand_total),
+          },
+        ],
+        warnings: result.warnings,
+      },
+      currencyCode,
+      "quotation",
+    );
+    window.location.assign("/document-studio");
   };
 
   const save = useCallback(async () => {
@@ -346,8 +391,8 @@ export default function FoundationEstimator() {
             {marketPricing.unresolved.length > 0 && (
               <li>
                 ✗ {marketPricing.unresolved.join(", ")}: no verified price in
-                the {marketCode} book - these lines report as unpriced until
-                you supply local prices.
+                the {marketCode} book - these lines report as unpriced until you
+                supply local prices.
               </li>
             )}
           </ul>
@@ -390,7 +435,9 @@ export default function FoundationEstimator() {
           </label>
           {labourMode !== "none" &&
             numberInput(
-              labourMode === "per_m3" ? `Rate per m³ (${currencySymbol})` : `Lump sum (${currencySymbol})`,
+              labourMode === "per_m3"
+                ? `Rate per m³ (${currencySymbol})`
+                : `Lump sum (${currencySymbol})`,
               labourRate,
               setLabourRate,
             )}
@@ -421,6 +468,12 @@ export default function FoundationEstimator() {
                 className="rounded-md border px-4 py-2 text-sm font-medium"
               >
                 Export quote (PDF)
+              </button>
+              <button
+                onClick={exportToDocumentStudio}
+                className="rounded-md border px-4 py-2 text-sm font-medium"
+              >
+                Customize in Document Studio
               </button>
               <SaveToProjectButton
                 calculatorType="foundation"
