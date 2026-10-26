@@ -840,3 +840,92 @@ describe("AUDIT FIX: Tile missing-configuration warnings", () => {
     expect(result.warnings ?? []).toHaveLength(0);
   });
 });
+
+// ── Audit fix F6 (2026-10-26): rigorous grout + adhesive notch math ──
+
+describe("audit fix F6 — tile grout joint-volume formula & adhesive notch table", () => {
+  const base = {
+    surfaceType: "floor" as const,
+    method: "adhesive" as const,
+    length: 4,
+    width: 3,
+    height: 0,
+    tileWidthMm: 600,
+    tileHeightMm: 600,
+    tilesPerBox: 4,
+    tilePricePerBox: 25000,
+    adhesiveCoverageRate: 0,
+    adhesivePricePerBag: 8000,
+    cementCoverageRate: 0,
+    cementPricePerBag: 0,
+    cementPackageSize: 1,
+    sandCoverageRate: 0,
+    sandPricePerBag: 0,
+    sandPackageSize: 1,
+    groutCoverageRate: 0,
+    groutPricePerKg: 1500,
+    spacerCoverageRate: 0,
+    spacerPricePerPack: 0,
+    spacerPackageSize: 1,
+    wasteMargin: 0,
+    labourRatePerSqm: 0,
+    unit: "meters" as const,
+  };
+
+  it("large tiles use little grout: 600x600x10 @3mm ≈ 0.18 kg/m2", () => {
+    const r = calculateTile(
+      {
+        ...base,
+        tileThicknessMm: 10,
+        jointWidthMm: 3,
+      },
+      [],
+      "NGN",
+      "₦",
+    );
+    // 12 m2 * ~0.18 kg/m2 = ~2.16 kg, rounded up to whole kg = 3
+    expect(r.groutNeeded).toBe(3);
+  });
+
+  it("small tiles use far more grout: 100x100x6 @3mm ≈ 0.65 kg/m2", () => {
+    const r = calculateTile(
+      {
+        ...base,
+        tileWidthMm: 100,
+        tileHeightMm: 100,
+        tileThicknessMm: 6,
+        jointWidthMm: 3,
+      },
+      [],
+      "NGN",
+      "₦",
+    );
+    expect(r.groutNeeded).toBeGreaterThan(6.5);
+    expect(r.groutNeeded).toBeLessThan(9);
+  });
+
+  it("falls back to the flat coverage rate when geometry is absent", () => {
+    const r = calculateTile(
+      {
+        ...base,
+        groutCoverageRate: 6, // 6 m2 per kg
+      },
+      [],
+      "NGN",
+      "₦",
+    );
+    expect(r.groutNeeded).toBeCloseTo(12 / 6, 5);
+  });
+
+  it("adhesive notch table drives consumption when no coverage rate is set", () => {
+    const thin = calculateTile({ ...base, adhesiveNotchMm: 4 }, [], "NGN", "₦");
+    const standard = calculateTile(
+      { ...base, adhesiveNotchMm: 6 },
+      [],
+      "NGN",
+      "₦",
+    );
+    expect(thin.adhesiveNeeded).toBe(Math.ceil(12 * 2.75));
+    expect(standard.adhesiveNeeded).toBe(Math.ceil(12 * 4.25));
+  });
+});

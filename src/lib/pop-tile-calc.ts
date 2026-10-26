@@ -144,13 +144,26 @@ export function calculateTile(
   const tileCost = boxesNeeded * input.tilePricePerBox;
 
   // --- Adhesive (only when method === 'adhesive') ---
+  // Audit fix F6: a configured coverage rate wins; otherwise a trowel-notch
+  // bed-thickness table (deterministic mid-values of published ranges) is
+  // used when the notch size is provided.
+  const NOTCH_KG_PER_M2: Record<number, number> = {
+    4: 2.75, // thin bed (2.5-3.0 kg/m2)
+    6: 4.25, // standard bed (4.0-4.5 kg/m2)
+    10: 6.75, // large-format floor (6.0-7.5 kg/m2)
+    12: 7.25, // large-format floor (7.0-7.5 kg/m2)
+  };
   let adhesiveNeeded = 0;
   let adhesiveCost = 0;
   if (input.method === "adhesive") {
-    adhesiveNeeded =
-      input.adhesiveCoverageRate > 0
-        ? adjustedArea / input.adhesiveCoverageRate
-        : 0;
+    if (input.adhesiveCoverageRate > 0) {
+      adhesiveNeeded = adjustedArea / input.adhesiveCoverageRate;
+    } else {
+      const notch = input.adhesiveNotchMm ?? 0;
+      if (notch > 0 && NOTCH_KG_PER_M2[notch] !== undefined) {
+        adhesiveNeeded = adjustedArea * NOTCH_KG_PER_M2[notch];
+      }
+    }
     adhesiveCost = Math.ceil(adhesiveNeeded) * input.adhesivePricePerBag;
   }
 
@@ -180,8 +193,29 @@ export function calculateTile(
   }
 
   // --- Grout (always needed) ---
-  const groutNeeded =
-    input.groutCoverageRate > 0 ? adjustedArea / input.groutCoverageRate : 0;
+  // Audit fix F6: rigorous joint-volume grout formula when tile geometry
+  // is known. grout kg/m2 = ((L+W)/(L*W)) * thickness * joint * SG *
+  // (1+waste) / 1000 with L,W in metres, thickness/joint in mm.
+  // A 600x600x10 tile with 3mm joints gives ~0.18 kg/m2; a 100x100x6
+  // tile with the same joint gives ~0.65 kg/m2 - a flat m2 rate
+  // cannot tell them apart.
+  const thickness = input.tileThicknessMm ?? 0;
+  const joint = input.jointWidthMm ?? 0;
+  const sg =
+    input.groutSpecificGravity && input.groutSpecificGravity > 0
+      ? input.groutSpecificGravity
+      : 1.8;
+  let groutNeeded = 0;
+  if (thickness > 0 && joint > 0 && tileAreaM2 > 0) {
+    const Lm = input.tileWidthMm / 1000;
+    const Wm = input.tileHeightMm / 1000;
+    const groutKgPerM2 =
+      (((Lm + Wm) / (Lm * Wm)) * thickness * joint * sg * wasteMultiplier) /
+      1000;
+    groutNeeded = adjustedArea * groutKgPerM2;
+  } else if (input.groutCoverageRate > 0) {
+    groutNeeded = adjustedArea / input.groutCoverageRate;
+  }
   const groutCost = Math.ceil(groutNeeded) * input.groutPricePerKg;
 
   // --- Tile spacers (always needed) ---
@@ -214,9 +248,12 @@ export function calculateTile(
         "Sand coverage rate is not configured. Sand cost is excluded from the total until it is configured.",
       );
     }
-    if (input.groutCoverageRate <= 0) {
+    if (
+      input.groutCoverageRate <= 0 &&
+      !((input.tileThicknessMm ?? 0) > 0 && (input.jointWidthMm ?? 0) > 0)
+    ) {
       tileWarnings.push(
-        "Grout coverage rate is not configured. Grout cost is excluded from the total until it is configured.",
+        "Grout coverage rate is not configured and tile thickness/joint width were not provided. Grout cost is excluded from the total until one is configured.",
       );
     }
   }

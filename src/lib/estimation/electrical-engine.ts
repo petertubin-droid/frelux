@@ -108,6 +108,71 @@ export function parseElectricalRules(rows: CalcRuleRow[]): ElectricalRules {
 // Input
 // ─────────────────────────────────────────────
 
+// ─────────────────────────────────────────────
+// Voltage drop (audit fix F7) - pure advisory check
+// ─────────────────────────────────────────────
+
+/** IET/NEC-style voltage-drop limits as a percentage of nominal voltage. */
+export const VOLTAGE_DROP_LIMITS = { lighting: 3, power: 5 } as const;
+
+/** Resistivity of annealed copper at 20 degC, ohm·mm2/m. */
+export const COPPER_RESISTIVITY = 0.0172;
+
+export interface VoltageDropCheck {
+  /** one-way cable run length in metres */
+  run_m: number;
+  /** real connected load on the run, in watts */
+  load_watts: number;
+  /** nominal system voltage (e.g. 230 for NG single-phase, 120 US) */
+  voltage: number;
+  /** copper conductor cross-section in mm2 */
+  cross_section_mm2: number;
+  /** true when the run mainly serves lighting (3% limit instead of 5%) */
+  lighting_dominant?: boolean;
+}
+
+export interface VoltageDropVerdict {
+  drop_percent: number;
+  limit_percent: number;
+  passes: boolean;
+  detail: string;
+}
+
+/**
+ * Single-phase two-core copper voltage drop:
+ *   Vd = 2 * L * I * rho / A,  I = P / V (unity power factor, conservative)
+ * Reported as a percentage of the nominal voltage against the 3%/5% limit.
+ * This is an advisory check, NOT a cable-sizing design.
+ */
+export function voltageDropPercent(
+  check: VoltageDropCheck,
+): VoltageDropVerdict {
+  const { run_m, load_watts, voltage, cross_section_mm2 } = check;
+  const limit =
+    check.lighting_dominant === true
+      ? VOLTAGE_DROP_LIMITS.lighting
+      : VOLTAGE_DROP_LIMITS.power;
+  if (run_m <= 0 || load_watts <= 0 || voltage <= 0 || cross_section_mm2 <= 0) {
+    return {
+      drop_percent: 0,
+      limit_percent: limit,
+      passes: false,
+      detail:
+        "Voltage drop not checked: run length, load, voltage and cable cross-section must all be provided.",
+    };
+  }
+  const current = load_watts / voltage; // A, unity pf
+  const dropV = (2 * run_m * current * COPPER_RESISTIVITY) / cross_section_mm2;
+  const drop_percent = (dropV / voltage) * 100;
+  const passes = drop_percent <= limit;
+  return {
+    drop_percent: Math.round(drop_percent * 100) / 100,
+    limit_percent: limit,
+    passes,
+    detail: `Feeder voltage drop = 2 × ${run_m} m × ${Math.round(current * 100) / 100} A × 0.0172 / ${cross_section_mm2} mm2 = ${Math.round(dropV * 100) / 100} V (${Math.round(drop_percent * 100) / 100}% of ${voltage} V; limit ${limit}%).`,
+  };
+}
+
 export interface ElectricalLabourInput {
   mode: "none" | "per_point" | "lump_sum";
   /** Naira per point - required when mode is 'per_point' */
@@ -131,6 +196,20 @@ export interface ElectricalInput {
   avg_run_earth_m: number | null;
   /** Average feeder run per distribution board, metres. Null → line unsized. */
   avg_run_feeder_m: number | null;
+  /**
+   * Audit fix F7 (2026-10-26): optional feeder voltage-drop check.
+   * When the owner supplies the real feeder load, cable cross-section and
+   * system voltage, the engine reports the voltage drop over the measured
+   * feeder run against the 5% power limit (3% for lighting-dominant feeders)
+   * instead of silently ignoring long runs to outbuildings/gate houses.
+   * Null → not checked (never invented).
+   */
+  feeder_check?: {
+    load_watts: number;
+    cross_section_mm2: number;
+    voltage: number;
+    lighting_dominant?: boolean;
+  } | null;
   labour: ElectricalLabourInput;
 }
 
@@ -600,6 +679,24 @@ export function calculateElectrical(
   }
   if (input.building_type.trim()) {
     steps.push({ label: "Building type", detail: input.building_type.trim() });
+  }
+  if (input.feeder_check && input.avg_run_feeder_m !== null) {
+    const verdict = voltageDropPercent({
+      run_m: input.avg_run_feeder_m,
+      load_watts: input.feeder_check.load_watts,
+      voltage: input.feeder_check.voltage,
+      cross_section_mm2: input.feeder_check.cross_section_mm2,
+      lighting_dominant: input.feeder_check.lighting_dominant,
+    });
+    steps.push({
+      label: "Feeder voltage-drop check",
+      detail: verdict.detail,
+    });
+    if (!verdict.passes) {
+      warnings.push(
+        `FEEDER VOLTAGE DROP ${verdict.drop_percent}% exceeds the ${verdict.limit_percent}% limit over the ${input.avg_run_feeder_m} m run. Increase the cable cross-section (currently ${input.feeder_check.cross_section_mm2} mm2) or shorten the run; undersized long runs cause equipment failure and motor stalling.`,
+      );
+    }
   }
   warnings.push(
     "ESTIMATION ONLY: this is material planning, NOT professional electrical design. Circuit grouping, board ways and any cable sizes in the material notes are configuration defaults. Engage a licensed electrical engineer for design and certification.",

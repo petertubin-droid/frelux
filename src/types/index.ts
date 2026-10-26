@@ -341,6 +341,16 @@ export interface TileCalcInput {
   // Grout (always needed)
   groutCoverageRate: number;
   groutPricePerKg: number;
+  // Audit fix F6 (2026-10-26): rigorous grout/adhesive math.
+  // When tileThicknessMm + jointWidthMm are provided, grout is computed
+  // from tile geometry + joint width + specific gravity instead of a
+  // flat m2 coverage rate; when adhesiveNotchMm is provided and no
+  // coverage rate is configured, the notch-based consumption table
+  // (thin/standard/large-format beds) is used.
+  tileThicknessMm?: number;
+  jointWidthMm?: number;
+  groutSpecificGravity?: number; // g/cm3 of cured grout (default 1.8)
+  adhesiveNotchMm?: number; // 4 / 6 / 10 / 12 mm trowel notch
   // Tile spacers (always needed)
   spacerCoverageRate: number;
   spacerPricePerPack: number;
