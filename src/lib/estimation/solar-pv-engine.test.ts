@@ -57,6 +57,11 @@ const rules = [
   { rule_key: "rounding_decimals", rule_value: { value: 2 } },
 ];
 
+const rulesWithBattery = [
+  ...rules,
+  { rule_key: "battery_unit_capacity_kwh", rule_value: { value: 2 } },
+];
+
 function makeInput(over: Partial<SolarPvInput> = {}): SolarPvInput {
   return {
     mode: "roof_area",
@@ -276,5 +281,65 @@ describe("calculateSolarPv: honesty guarantees", () => {
     );
     expect(res2.ok).toBe(false);
     expect(res2.warnings[0]).toMatch(/inverter_dc_ac_ratio/);
+  });
+});
+
+// ── Audit fix F8 (2026-10-26): temperature derating + battery DoD ──
+
+describe("audit fix F8 — PV temperature derating & battery chemistry DoD", () => {
+  it("derates hot-climate array sizing and discloses the factor", () => {
+    const hot = calculateSolarPv(
+      makeInput({
+        mode: "energy_target",
+        daily_energy_target_kwh: 30,
+        avg_ambient_temp_c: 35,
+      }),
+    );
+    // cell = 65 °C; factor = 1 - 0.004×40 = 0.84; required = 30/(5×0.8×0.84) = 8.93 kWp → 17 panels
+    expect(hot.ok).toBe(true);
+    const panelLine = hot.materials.find((l) => l.key === "panel");
+    expect(panelLine?.quantity).toBe(17);
+    expect(
+      hot.steps.some((s) => s.label === "Panel temperature derating"),
+    ).toBe(true);
+  });
+
+  it("sizes lead-acid banks for 50% usable DoD", () => {
+    const lead = calculateSolarPv(
+      makeInput({
+        battery_storage_kwh: 10,
+        battery_chemistry: "lead_acid",
+        rules: rulesWithBattery,
+      }),
+    );
+    // 10 kWh ÷ (2 kWh × 0.50) = 10 units instead of 5
+    expect(lead.battery_count).toBe(10);
+    expect(lead.steps.some((s) => s.detail.includes("50% usable"))).toBe(true);
+  });
+
+  it("sizes LiFePO4 banks for 85% usable DoD", () => {
+    const lifepo4 = calculateSolarPv(
+      makeInput({
+        battery_storage_kwh: 10,
+        battery_chemistry: "lifepo4",
+        rules: rulesWithBattery,
+      }),
+    );
+    // 10 kWh ÷ (2 kWh × 0.85) = 5.88 → 6 units
+    expect(lifepo4.battery_count).toBe(6);
+  });
+
+  it("keeps nameplate sizing when chemistry is not selected, with a warning", () => {
+    const noChem = calculateSolarPv(
+      makeInput({
+        battery_storage_kwh: 10,
+        battery_chemistry: null,
+        rules: rulesWithBattery,
+      }),
+    );
+    expect(noChem.battery_count).toBe(5); // 10 ÷ 2 kWh nameplate
+    expect(noChem.warnings.some((w) => w.includes("depth of discharge"))).toBe(
+      true,
+    );
   });
 });

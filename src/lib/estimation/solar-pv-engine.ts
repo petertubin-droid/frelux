@@ -35,7 +35,6 @@ import { formatNGNForDisplay } from "@/lib/international/fx-display";
 // keeps trailing decimals (up to 2) so exact math values stay visible.
 const fmtAuto = (n: number) => formatNGNForDisplay(n, { decimals: "auto" });
 
-
 export interface PanelModelInput {
   watt_peak: number;
   length_m: number;
@@ -59,6 +58,22 @@ export interface SolarPvInput {
   daily_energy_target_kwh?: number;
   cable_run_m: number;
   battery_storage_kwh?: number | null;
+  /**
+   * Audit fix F8 (2026-10-26): hot-climate panel temperature derating.
+   * When the real average ambient temperature is provided, cell
+   * temperature is estimated as ambient + 30 degC at peak sun and the
+   * Pmax temperature coefficient (0.004/degC typical, admin-overridable
+   * via the optional 'pv_temp_coefficient_per_c' rule) is applied.
+   * Null → not applied (behaviour unchanged).
+   */
+  avg_ambient_temp_c?: number | null;
+  /**
+   * Audit fix F8: battery chemistry for depth-of-discharge sizing.
+   * lead_acid → 50% usable, lifepo4 → 85% usable (chemistry-standard
+   * values, disclosed in the steps). Null → usable-capacity sizing is
+   * skipped (behaviour unchanged) with a warning recommending chemistry.
+   */
+  battery_chemistry?: "lead_acid" | "lifepo4" | null;
   prices: Record<string, SolarPriceInput>;
   rules: SolarPvRule[];
 }
@@ -93,6 +108,46 @@ export interface SolarPvResult {
   total_cost_naira: number | null; // null = some lines unpriced
   total_of_priced_lines_naira: number;
 }
+
+/** Typical crystalline-silicon Pmax temperature coefficient, %/degC above 25. */
+const DEFAULT_PV_TEMP_COEFFICIENT = 0.004;
+
+/** Cell temperature offset above ambient at peak sun, degC. */
+const CELL_TEMP_OFFSET_C = 30;
+
+/**
+ * Audit fix F8: PV temperature derating. Returns 1 (no derate) when the
+ * ambient temperature is not supplied; otherwise 1 - coeff x (cell - 25),
+ * floored at 0.6 so an extreme input cannot invert the result.
+ */
+function pvTemperatureFactor(
+  input: SolarPvInput,
+  rules: SolarPvRule[],
+  steps: { label: string; detail: string }[] | null,
+): number {
+  const ambient = input.avg_ambient_temp_c ?? null;
+  if (ambient === null || !Number.isFinite(ambient)) return 1;
+  const coeffRule = getRuleValue(rules, "pv_temp_coefficient_per_c");
+  const coeff =
+    coeffRule !== null && coeffRule > 0 && coeffRule < 0.02
+      ? coeffRule
+      : DEFAULT_PV_TEMP_COEFFICIENT;
+  const cellTemp = ambient + CELL_TEMP_OFFSET_C;
+  const factor = Math.max(0.6, 1 - coeff * (cellTemp - 25));
+  if (steps) {
+    steps.push({
+      label: "Panel temperature derating",
+      detail: `Cell temp ≈ ${ambient} °C ambient + ${CELL_TEMP_OFFSET_C} °C = ${cellTemp} °C; Pmax coefficient ${coeff}/°C → × ${Math.round(factor * 1000) / 1000} on output. A 12-16% real loss in hot climates the nameplate rating hides.`,
+    });
+  }
+  return factor;
+}
+
+/** Chemistry-standard usable depth of discharge (disclosed, not invented). */
+const BATTERY_USABLE_DOD: Record<"lead_acid" | "lifepo4", number> = {
+  lead_acid: 0.5,
+  lifepo4: 0.85,
+};
 
 const REQUIRED_RULES = [
   "peak_sun_hours_day",
@@ -282,7 +337,8 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
     }
   } else {
     const target = input.daily_energy_target_kwh!;
-    const derate = 1 - rv.system_loss_factor;
+    const tempFactor = pvTemperatureFactor(input, rules, steps);
+    const derate = (1 - rv.system_loss_factor) * tempFactor;
     const requiredKwp = target / (rv.peak_sun_hours_day * derate);
     panelCount = Math.ceil(requiredKwp / panelKwp);
     steps.push({
@@ -312,7 +368,10 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   // ── Array, energy, inverter, strings ───────────────────
   const arrayKwp = panelCount * panelKwp;
   const dailyEnergy =
-    arrayKwp * rv.peak_sun_hours_day * (1 - rv.system_loss_factor);
+    arrayKwp *
+    rv.peak_sun_hours_day *
+    (1 - rv.system_loss_factor) *
+    pvTemperatureFactor(input, rules, null);
   const inverterKw = arrayKwp / rv.inverter_dc_ac_ratio;
   const strings = Math.ceil(panelCount / rv.string_size_max);
 
@@ -356,6 +415,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
       label: "Battery bank (with 85% usable DoD)",
       detail: `ceil(${r(storage)} kWh ÷ (${unitCap} kWh × ${batteryDod * 100}% DoD = ${r(usableCapPerUnit)} kWh usable)) = ${batteryCount} battery units.`,
     });
+audit F8))
   }
 
   // ── Material takeoff (always computed) ─────────────────
