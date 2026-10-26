@@ -45,6 +45,7 @@ export function PromptInput({
         </label>
       )}
       <textarea
+        aria-label={label ?? "Text value"}
         className="input-field font-mono text-sm"
         rows={rows}
         value={value}
@@ -123,7 +124,8 @@ export function CodeOutput({
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={download}
             className="rounded-md p-1.5 text-muted-foreground hover:text-foreground"
@@ -131,7 +133,8 @@ export function CodeOutput({
           >
             <Download aria-hidden="true" className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={copy}
             className="rounded-md p-1.5 text-muted-foreground hover:text-foreground"
@@ -303,7 +306,8 @@ export function ArtifactCard({
   };
   return (
     <div className="group flex items-center justify-between rounded-lg border border-border bg-card p-4 transition-all hover:border-primary hover:shadow-sm">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={onClick}
         className="flex min-w-0 items-center gap-3 text-left"
@@ -333,7 +337,8 @@ export function ArtifactCard({
         </div>
       </Button>
       {onDelete && (
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           type="button"
           onClick={onDelete}
           className="rounded-md p-2 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
@@ -360,7 +365,8 @@ export function CollapsibleSection({
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="rounded-lg border border-border bg-card">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between p-4"

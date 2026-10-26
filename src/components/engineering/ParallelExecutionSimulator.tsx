@@ -204,6 +204,7 @@ export function ParallelExecutionSimulator({
             <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="font-semibold text-foreground">Calendar:</span>
             <select
+              aria-label="Working calendar model"
               value={calendarModel}
               onChange={(e) =>
                 onChangeCalendarModel?.(e.target.value as WorkingCalendarModel)
@@ -229,6 +230,7 @@ export function ParallelExecutionSimulator({
               Time Risk Buffer (TRA):
             </span>
             <select
+              aria-label="Time risk buffer percentage"
               value={contingencyBufferPct}
               onChange={(e) =>
                 onChangeContingencyBuffer?.(parseInt(e.target.value, 10))

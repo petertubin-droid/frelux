@@ -128,7 +128,10 @@ export function RoofViewPanel() {
       {state !== "available" && (
         <div className="space-y-3">
           <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">
+            <label
+              htmlFor="rv-address"
+              className="text-xs font-medium text-muted-foreground mb-1 block"
+            >
               Property address
             </label>
             <div className="relative">
@@ -137,6 +140,7 @@ export function RoofViewPanel() {
                 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
               />
               <input
+                id="rv-address"
                 type="text"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
@@ -148,10 +152,14 @@ export function RoofViewPanel() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+              <label
+                htmlFor="rv-lat"
+                className="text-xs font-medium text-muted-foreground mb-1 block"
+              >
                 Latitude (optional)
               </label>
               <input
+                id="rv-lat"
                 type="number"
                 value={latitude}
                 onChange={(e) => setLatitude(e.target.value)}
@@ -161,10 +169,14 @@ export function RoofViewPanel() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+              <label
+                htmlFor="rv-lng"
+                className="text-xs font-medium text-muted-foreground mb-1 block"
+              >
                 Longitude (optional)
               </label>
               <input
+                id="rv-lng"
                 type="number"
                 value={longitude}
                 onChange={(e) => setLongitude(e.target.value)}

@@ -1,6 +1,6 @@
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { printQuote } from "@/lib/estimation/quote-export";
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useId } from "react";
 import { useSeo } from "@/lib/seo";
 import {
   designBeam,
@@ -1278,12 +1278,17 @@ function NumInput({
   onChange: (v: number) => void;
   step?: string;
 }) {
+  const fieldId = useId();
   return (
     <div>
-      <label className="text-xs font-medium text-muted-foreground mb-1 block">
+      <label
+        htmlFor={fieldId}
+        className="text-xs font-medium text-muted-foreground mb-1 block"
+      >
         {label}
       </label>
       <input
+        id={fieldId}
         type="number"
         value={value}
         step={step}
@@ -1305,12 +1310,17 @@ function SelectInput({
   onChange: (v: string) => void;
   options: { v: string; l: string }[];
 }) {
+  const fieldId = useId();
   return (
     <div>
-      <label className="text-xs font-medium text-muted-foreground mb-1 block">
+      <label
+        htmlFor={fieldId}
+        className="text-xs font-medium text-muted-foreground mb-1 block"
+      >
         {label}
       </label>
       <select
+        id={fieldId}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="input-field"
@@ -1329,7 +1339,10 @@ function ResultCard({ children }: { children: React.ReactNode }) {
   return (
     <div className="card-elevated p-6 sm:p-8">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">Preliminary member analysis only · excludes material takeoff and project-wide design coordination</p>
+        <p className="text-xs text-muted-foreground">
+          Preliminary member analysis only · excludes material takeoff and
+          project-wide design coordination
+        </p>
         <EngineerReviewBadge />
       </div>
       {children}

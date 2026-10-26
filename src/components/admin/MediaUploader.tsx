@@ -65,6 +65,7 @@ export function MediaUploader({
       </div>
       {value && (
         <input
+          aria-label="Media URL"
           type="text"
           value={value}
           readOnly

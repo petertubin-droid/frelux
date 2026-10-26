@@ -717,6 +717,7 @@ export function VisualFinishingEstimator({
                 <Video className="h-4 w-4" /> Upload Walkthrough Video
               </Button>
               <input
+                aria-label="Walkthrough video upload"
                 ref={videoInputRef}
                 type="file"
                 accept="video/mp4,video/webm,video/quicktime,video/x-m4v"
@@ -745,6 +746,7 @@ export function VisualFinishingEstimator({
               )}
 
               <input
+                aria-label="Photo upload"
                 ref={fileInputRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
@@ -755,6 +757,7 @@ export function VisualFinishingEstimator({
                 }}
               />
               <input
+                aria-label="Camera photo upload"
                 ref={cameraInputRef}
                 type="file"
                 accept="image/*"

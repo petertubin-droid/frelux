@@ -233,6 +233,7 @@ export default function Profile() {
                 )}
               </Button>
               <input
+                aria-label="Profile photo upload"
                 ref={fileRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
@@ -313,7 +314,10 @@ export default function Profile() {
 
           <div className="mt-5 space-y-4">
             <div>
-              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
+              <label
+                htmlFor="profile-full-name"
+                className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80"
+              >
                 <User
                   aria-hidden="true"
                   className="h-3.5 w-3.5 text-muted-foreground"
@@ -321,6 +325,7 @@ export default function Profile() {
                 Full Name
               </label>
               <input
+                id="profile-full-name"
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -330,11 +335,15 @@ export default function Profile() {
             </div>
 
             <div>
-              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
+              <label
+                htmlFor="profile-phone"
+                className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80"
+              >
                 <Phone className="h-3.5 w-3.5 text-muted-foreground" />
                 Phone Number
               </label>
               <input
+                id="profile-phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -344,11 +353,15 @@ export default function Profile() {
             </div>
 
             <div>
-              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
+              <label
+                htmlFor="profile-email"
+                className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80"
+              >
                 <Mail className="h-3.5 w-3.5 text-muted-foreground" />
                 Email
               </label>
               <input
+                id="profile-email"
                 type="email"
                 value={user.email ?? ""}
                 disabled

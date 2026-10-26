@@ -216,6 +216,7 @@ export default function MaterialPriceTracker() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
+              aria-label="Search materials"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -224,6 +225,7 @@ export default function MaterialPriceTracker() {
             />
           </div>
           <select
+            aria-label="Filter by category"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
             className="rounded-lg border bg-background px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none min-w-[160px]"
@@ -285,6 +287,7 @@ export default function MaterialPriceTracker() {
                               Price
                             </span>
                             <input
+                              aria-label="New price"
                               type="number"
                               value={editPrice}
                               onChange={(e) => setEditPrice(e.target.value)}
@@ -295,6 +298,7 @@ export default function MaterialPriceTracker() {
                             />
                           </div>
                           <input
+                            aria-label="Price source"
                             type="text"
                             value={editSource}
                             onChange={(e) => setEditSource(e.target.value)}

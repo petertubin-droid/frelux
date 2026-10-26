@@ -114,10 +114,14 @@ export default function ReportCalculationIssue({
           className="mt-2 space-y-3 rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
         >
           <div>
-            <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+            <label
+              htmlFor="rci-description"
+              className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground"
+            >
               What seems wrong? <span className="text-red-500">*</span>
             </label>
             <textarea
+              id="rci-description"
               required
               value={description}
               onChange={(e) => setDescription(e.target.value)}

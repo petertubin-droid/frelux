@@ -233,10 +233,14 @@ export function BrandIdentitySection({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
+              <label
+                htmlFor="brand-phone"
+                className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80"
+              >
                 Phone
               </label>
               <input
+                id="brand-phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -245,10 +249,14 @@ export function BrandIdentitySection({
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
+              <label
+                htmlFor="brand-whatsapp"
+                className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80"
+              >
                 WhatsApp
               </label>
               <input
+                id="brand-whatsapp"
                 type="tel"
                 value={whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
@@ -257,10 +265,14 @@ export function BrandIdentitySection({
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
+              <label
+                htmlFor="brand-email"
+                className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80"
+              >
                 Email
               </label>
               <input
+                id="brand-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -269,10 +281,14 @@ export function BrandIdentitySection({
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
+              <label
+                htmlFor="brand-website"
+                className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80"
+              >
                 Website
               </label>
               <input
+                id="brand-website"
                 type="url"
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
@@ -299,12 +315,14 @@ export function BrandIdentitySection({
                 <label className="text-xs text-muted-foreground">Primary</label>
                 <div className="flex items-center gap-2">
                   <input
+                    aria-label="Primary colour picker"
                     type="color"
                     value={primaryColor}
                     onChange={(e) => setPrimaryColor(e.target.value)}
                     className="h-10 w-12 cursor-pointer rounded border border-border"
                   />
                   <input
+                    aria-label="Primary colour hex"
                     type="text"
                     value={primaryColor}
                     onChange={(e) => setPrimaryColor(e.target.value)}
@@ -318,12 +336,14 @@ export function BrandIdentitySection({
                 </label>
                 <div className="flex items-center gap-2">
                   <input
+                    aria-label="Secondary colour picker"
                     type="color"
                     value={secondaryColor}
                     onChange={(e) => setSecondaryColor(e.target.value)}
                     className="h-10 w-12 cursor-pointer rounded border border-border"
                   />
                   <input
+                    aria-label="Secondary colour hex"
                     type="text"
                     value={secondaryColor}
                     onChange={(e) => setSecondaryColor(e.target.value)}
@@ -335,12 +355,14 @@ export function BrandIdentitySection({
                 <label className="text-xs text-muted-foreground">Accent</label>
                 <div className="flex items-center gap-2">
                   <input
+                    aria-label="Accent colour picker"
                     type="color"
                     value={accentColor}
                     onChange={(e) => setAccentColor(e.target.value)}
                     className="h-10 w-12 cursor-pointer rounded border border-border"
                   />
                   <input
+                    aria-label="Accent colour hex"
                     type="text"
                     value={accentColor}
                     onChange={(e) => setAccentColor(e.target.value)}
@@ -365,6 +387,7 @@ export function BrandIdentitySection({
                 />
               )}
               <input
+                aria-label="Logo image upload"
                 type="file"
                 accept="image/png,image/jpeg"
                 onChange={handleLogoUpload}
@@ -382,6 +405,7 @@ export function BrandIdentitySection({
               Logo Placement
             </label>
             <select
+              aria-label="Logo placement"
               value={logoPlacement}
               onChange={(e) => setLogoPlacement(e.target.value)}
               className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"

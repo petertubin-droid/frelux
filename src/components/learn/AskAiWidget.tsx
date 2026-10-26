@@ -1,60 +1,75 @@
-import { useState, useRef, useEffect } from 'react';
-import { MessageSquare, Send, Loader2, AlertCircle, X } from 'lucide-react';
-import { supabase, getFunctionErrorMessage } from '@/lib/supabase';
-import { getClientId } from '@/lib/ai-access';
-import { classNames } from '@/lib/utils';
+import { useState, useRef, useEffect } from "react";
+import { MessageSquare, Send, Loader2, AlertCircle, X } from "lucide-react";
+import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
+import { getClientId } from "@/lib/ai-access";
+import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface ChatMessage {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
 }
 
 const SUGGESTED_QUESTIONS = [
-  'How do I prepare a wall for painting?',
-  'What\'s the difference between POP cement and gypsum board?',
-  'How many tiles do I need for a 3×4m room?',
-  'Which paint finish is best for a bathroom?',
+  "How do I prepare a wall for painting?",
+  "What's the difference between POP cement and gypsum board?",
+  "How many tiles do I need for a 3×4m room?",
+  "Which paint finish is best for a bathroom?",
 ];
 
 export default function AskAiWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   async function handleAsk(question?: string) {
     const q = question ?? input.trim();
     if (!q || loading) return;
 
-    const userMsg: ChatMessage = { role: 'user', content: q };
+    const userMsg: ChatMessage = { role: "user", content: q };
     setMessages((prev) => [...prev, userMsg]);
-    setInput('');
+    setInput("");
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const clientId = getClientId();
-      const { data, error: fnError } = await supabase.functions.invoke<{ result?: string; error?: string; code?: string }>('ai-learn-assistant', {
-        body: { action: 'ask', question: q, clientId },
+      const { data, error: fnError } = await supabase.functions.invoke<{
+        result?: string;
+        error?: string;
+        code?: string;
+      }>("ai-learn-assistant", {
+        body: { action: "ask", question: q, clientId },
       });
 
       if (fnError) throw new Error(await getFunctionErrorMessage(fnError));
-      if (!data) throw new Error('No response from AI.');
+      if (!data) throw new Error("No response from AI.");
       if (data.error) throw new Error(data.error);
 
-      const assistantMsg: ChatMessage = { role: 'assistant', content: data.result ?? 'I couldn\'t generate a response. Please try again.' };
+      const assistantMsg: ChatMessage = {
+        role: "assistant",
+        content:
+          data.result ?? "I couldn't generate a response. Please try again.",
+      };
       setMessages((prev) => [...prev, assistantMsg]);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Failed to get a response.';
+      const msg = e instanceof Error ? e.message : "Failed to get a response.";
       setError(msg);
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'Sorry, I couldn\'t answer that right now. Please try again later.' }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "Sorry, I couldn't answer that right now. Please try again later.",
+        },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -62,7 +77,8 @@ export default function AskAiWidget() {
 
   if (!open) {
     return (
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 z-30 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 hover:shadow-xl"
@@ -81,7 +97,13 @@ export default function AskAiWidget() {
           <MessageSquare className="h-4 w-4 text-accent-green" />
           <span className="text-sm font-semibold">Ask AI Assistant</span>
         </div>
-        <Button variant="ghost" type="button" onClick={() => setOpen(false)} className="rounded-md p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground" aria-label="Close">
+        <Button
+          variant="ghost"
+          type="button"
+          onClick={() => setOpen(false)}
+          className="rounded-md p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
+          aria-label="Close"
+        >
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -91,12 +113,21 @@ export default function AskAiWidget() {
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
             <MessageSquare className="h-10 w-10 text-muted-foreground/80" />
-            <p className="mt-3 text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80">Ask me anything about painting</p>
-            <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">POP ceiling, tiles, colors, and more</p>
+            <p className="mt-3 text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80">
+              Ask me anything about painting
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
+              POP ceiling, tiles, colors, and more
+            </p>
             <div className="mt-4 w-full space-y-2">
               {SUGGESTED_QUESTIONS.map((q) => (
-                <Button variant="ghost" key={q} type="button" onClick={() => handleAsk(q)}
-                  className="w-full rounded-lg border border-border dark:border-white/5 px-3 py-2 text-left text-xs text-muted-foreground dark:text-muted-foreground/80 transition-colors hover:border-brand-purple/30 hover:text-brand-purple">
+                <Button
+                  variant="ghost"
+                  key={q}
+                  type="button"
+                  onClick={() => handleAsk(q)}
+                  className="w-full rounded-lg border border-border dark:border-white/5 px-3 py-2 text-left text-xs text-muted-foreground dark:text-muted-foreground/80 transition-colors hover:border-brand-purple/30 hover:text-brand-purple"
+                >
                   {q}
                 </Button>
               ))}
@@ -105,12 +136,24 @@ export default function AskAiWidget() {
         ) : (
           <div className="space-y-3">
             {messages.map((msg, i) => (
-              <div key={i} className={classNames('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
-                <div className={classNames(
-                  'max-w-[85%] rounded-lg px-3 py-2 text-sm',
-                  msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted text-card-foreground dark:text-muted-foreground/60'
-                )}>
-                  <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+              <div
+                key={i}
+                className={classNames(
+                  "flex",
+                  msg.role === "user" ? "justify-end" : "justify-start",
+                )}
+              >
+                <div
+                  className={classNames(
+                    "max-w-[85%] rounded-lg px-3 py-2 text-sm",
+                    msg.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-card-foreground dark:text-muted-foreground/60",
+                  )}
+                >
+                  <p className="whitespace-pre-wrap leading-relaxed">
+                    {msg.content}
+                  </p>
                 </div>
               </div>
             ))}
@@ -135,16 +178,24 @@ export default function AskAiWidget() {
         )}
         <div className="flex items-center gap-2">
           <input
+            aria-label="Ask a question"
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleAsk(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleAsk();
+            }}
             placeholder="Ask a question…"
             className="input-field flex-1 text-sm"
             disabled={loading}
           />
-          <Button variant="ghost" type="button" onClick={() => handleAsk()} disabled={loading || !input.trim()}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50">
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={() => handleAsk()}
+            disabled={loading || !input.trim()}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          >
             <Send className="h-4 w-4" />
           </Button>
         </div>

@@ -203,6 +203,7 @@ export default function GalleryUpload() {
                     ref={ref}
                     type="file"
                     accept="image/*"
+                    aria-label={`${type === "before" ? "Before" : "After"} image upload`}
                     className="hidden"
                     onChange={(e) => handleFileChange(e, type)}
                   />
@@ -212,8 +213,11 @@ export default function GalleryUpload() {
           </div>
 
           <div>
-            <label className={labelCls}>Project Title *</label>
+            <label htmlFor="gu-title" className={labelCls}>
+              Project Title *
+            </label>
             <input
+              id="gu-title"
               className={inputCls}
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -222,8 +226,11 @@ export default function GalleryUpload() {
             />
           </div>
           <div>
-            <label className={labelCls}>Description</label>
+            <label htmlFor="gu-description" className={labelCls}>
+              Description
+            </label>
             <textarea
+              id="gu-description"
               className={inputCls}
               rows={3}
               value={form.description}
@@ -235,8 +242,11 @@ export default function GalleryUpload() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className={labelCls}>Category</label>
+              <label htmlFor="gu-category" className={labelCls}>
+                Category
+              </label>
               <select
+                id="gu-category"
                 className={inputCls}
                 value={form.project_category}
                 onChange={(e) =>
@@ -251,8 +261,11 @@ export default function GalleryUpload() {
               </select>
             </div>
             <div>
-              <label className={labelCls}>Paint Type Used</label>
+              <label htmlFor="gu-paint-type" className={labelCls}>
+                Paint Type Used
+              </label>
               <input
+                id="gu-paint-type"
                 className={inputCls}
                 value={form.paint_type_used}
                 onChange={(e) =>
@@ -262,8 +275,11 @@ export default function GalleryUpload() {
               />
             </div>
             <div>
-              <label className={labelCls}>Paint Quality</label>
+              <label htmlFor="gu-paint-quality" className={labelCls}>
+                Paint Quality
+              </label>
               <input
+                id="gu-paint-quality"
                 className={inputCls}
                 value={form.paint_quality_used}
                 onChange={(e) =>
@@ -273,8 +289,11 @@ export default function GalleryUpload() {
               />
             </div>
             <div>
-              <label className={labelCls}>Colour Used</label>
+              <label htmlFor="gu-colour" className={labelCls}>
+                Colour Used
+              </label>
               <input
+                id="gu-colour"
                 className={inputCls}
                 value={form.colour_used}
                 onChange={(e) =>
@@ -284,8 +303,11 @@ export default function GalleryUpload() {
               />
             </div>
             <div>
-              <label className={labelCls}>Location (City/State)</label>
+              <label htmlFor="gu-location" className={labelCls}>
+                Location (City/State)
+              </label>
               <input
+                id="gu-location"
                 className={inputCls}
                 value={form.location}
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
@@ -293,8 +315,11 @@ export default function GalleryUpload() {
               />
             </div>
             <div>
-              <label className={labelCls}>Completion Date</label>
+              <label htmlFor="gu-completion-date" className={labelCls}>
+                Completion Date
+              </label>
               <input
+                id="gu-completion-date"
                 type="date"
                 className={inputCls}
                 value={form.completion_date}

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useId } from "react";
 import { useSeo } from "@/lib/seo";
 import {
   estimateTimeline,
@@ -464,12 +464,17 @@ function Select({
   onChange: (v: string) => void;
   options: { v: string; l: string }[];
 }) {
+  const fieldId = useId();
   return (
     <div>
-      <label className="text-xs font-medium text-muted-foreground mb-1 block">
+      <label
+        htmlFor={fieldId}
+        className="text-xs font-medium text-muted-foreground mb-1 block"
+      >
         {label}
       </label>
       <select
+        id={fieldId}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg border border-border px-2.5 py-2 text-sm text-foreground focus:border-brand-purple focus:outline-none"
@@ -495,12 +500,17 @@ function Num({
   onChange: (v: number) => void;
   step?: string;
 }) {
+  const fieldId = useId();
   return (
     <div>
-      <label className="text-xs font-medium text-muted-foreground mb-1 block">
+      <label
+        htmlFor={fieldId}
+        className="text-xs font-medium text-muted-foreground mb-1 block"
+      >
         {label}
       </label>
       <input
+        id={fieldId}
         type="number"
         value={value}
         step={step}

@@ -164,6 +164,7 @@ export function EngineAlreadyHaveInput({
         <div>
           <div className="text-xs text-muted-foreground">Already Have</div>
           <input
+            aria-label="Already have quantity"
             type="number"
             min={0}
             max={required}

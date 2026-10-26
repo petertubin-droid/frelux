@@ -74,10 +74,14 @@ export default function SaveTemplateModal({
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-3">
           <div>
-            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">
+            <label
+              htmlFor="stm-name"
+              className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80"
+            >
               Template Name <span className="text-red-500">*</span>
             </label>
             <input
+              id="stm-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -88,10 +92,14 @@ export default function SaveTemplateModal({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">
+            <label
+              htmlFor="stm-description"
+              className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80"
+            >
               Description (optional)
             </label>
             <textarea
+              id="stm-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. Living room with 2 coats, ceiling included"

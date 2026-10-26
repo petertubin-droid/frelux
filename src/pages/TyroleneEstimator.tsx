@@ -844,10 +844,14 @@ export default function TyroleneEstimator({
             Project Information
           </h3>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground dark:text-muted-foreground mb-1">
+            <label
+              htmlFor="tyrolene-project-description"
+              className="block text-xs font-medium text-muted-foreground dark:text-muted-foreground mb-1"
+            >
               Project Description
             </label>
             <input
+              id="tyrolene-project-description"
               type="text"
               value={projectDescription}
               onChange={(e) => setProjectDescription(e.target.value)}
@@ -926,7 +930,10 @@ export default function TyroleneEstimator({
           {/* Standard Partition Count Input */}
           {inputMode === "standard" && (
             <div>
-              <label className="block text-xs font-medium text-muted-foreground dark:text-muted-foreground mb-2">
+              <label
+                htmlFor="tyrolene-standard-partitions"
+                className="block text-xs font-medium text-muted-foreground dark:text-muted-foreground mb-2"
+              >
                 Number of Standard Partitions
               </label>
               <div className="flex items-center gap-3">
@@ -940,6 +947,8 @@ export default function TyroleneEstimator({
                   –
                 </Button>
                 <input
+                  id="tyrolene-standard-partitions"
+                  aria-label="Number of standard partitions"
                   type="number"
                   min="0"
                   value={standardCount}
@@ -1014,10 +1023,14 @@ export default function TyroleneEstimator({
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div>
-                      <label className="block text-xs text-muted-foreground mb-1">
+                      <label
+                        className="block text-xs text-muted-foreground mb-1"
+                        htmlFor={`partition-quantity-${pt.id}`}
+                      >
                         Qty
                       </label>
                       <input
+                        id={`partition-quantity-${pt.id}`}
                         type="number"
                         min="0"
                         value={pt.quantity}
@@ -1032,10 +1045,14 @@ export default function TyroleneEstimator({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-muted-foreground mb-1">
+                      <label
+                        className="block text-xs text-muted-foreground mb-1"
+                        htmlFor={`partition-width-${pt.id}`}
+                      >
                         Width (m)
                       </label>
                       <input
+                        id={`partition-width-${pt.id}`}
                         type="number"
                         min="0"
                         step="0.1"
@@ -1051,10 +1068,14 @@ export default function TyroleneEstimator({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-muted-foreground mb-1">
+                      <label
+                        className="block text-xs text-muted-foreground mb-1"
+                        htmlFor={`partition-height-${pt.id}`}
+                      >
                         Height (m)
                       </label>
                       <input
+                        id={`partition-height-${pt.id}`}
                         type="number"
                         min="0"
                         step="0.1"

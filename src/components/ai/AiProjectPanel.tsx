@@ -490,6 +490,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
             ))}
           </div>
           <input
+            aria-label="Optimization goal"
             type="text"
             value={optimizeTarget}
             onChange={(e) => setOptimizeTarget(e.target.value)}
@@ -506,6 +507,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           </label>
           <div className="flex gap-2">
             <input
+              aria-label="Ask about this project"
               type="text"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}

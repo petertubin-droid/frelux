@@ -478,10 +478,14 @@ export default function FinishEstimator({
                 {areaInput.method === "full_room" ? (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="section-label">
+                      <label
+                        className="section-label"
+                        htmlFor="finish-room-length"
+                      >
                         Room Length ({unitShortLabel(areaInput.unit)})
                       </label>
                       <input
+                        id="finish-room-length"
                         type="number"
                         className="input-field"
                         value={areaInput.roomLength || ""}
@@ -500,10 +504,14 @@ export default function FinishEstimator({
                       )}
                     </div>
                     <div>
-                      <label className="section-label">
+                      <label
+                        className="section-label"
+                        htmlFor="finish-room-width"
+                      >
                         Room Width ({unitShortLabel(areaInput.unit)})
                       </label>
                       <input
+                        id="finish-room-width"
                         type="number"
                         className="input-field"
                         value={areaInput.roomWidth || ""}
@@ -525,10 +533,14 @@ export default function FinishEstimator({
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="section-label">
+                      <label
+                        className="section-label"
+                        htmlFor="finish-wall-width"
+                      >
                         Wall Width ({unitShortLabel(areaInput.unit)})
                       </label>
                       <input
+                        id="finish-wall-width"
                         type="number"
                         className="input-field"
                         value={areaInput.wallWidth || ""}
@@ -547,8 +559,14 @@ export default function FinishEstimator({
                       )}
                     </div>
                     <div>
-                      <label className="section-label">Number of Walls</label>
+                      <label
+                        className="section-label"
+                        htmlFor="finish-wall-count"
+                      >
+                        Number of Walls
+                      </label>
                       <input
+                        id="finish-wall-count"
                         type="number"
                         className="input-field"
                         value={areaInput.wallCount || ""}
@@ -564,10 +582,14 @@ export default function FinishEstimator({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="section-label">
+                    <label
+                      className="section-label"
+                      htmlFor="finish-wall-height"
+                    >
                       Wall Height ({unitShortLabel(areaInput.unit)})
                     </label>
                     <input
+                      id="finish-wall-height"
                       type="number"
                       className="input-field"
                       value={areaInput.wallHeight || ""}
@@ -587,8 +609,11 @@ export default function FinishEstimator({
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="section-label">Doors</label>
+                      <label className="section-label" htmlFor="finish-doors">
+                        Doors
+                      </label>
                       <input
+                        id="finish-doors"
                         type="number"
                         className="input-field"
                         value={areaInput.doors || ""}
@@ -600,8 +625,11 @@ export default function FinishEstimator({
                       />
                     </div>
                     <div>
-                      <label className="section-label">Windows</label>
+                      <label className="section-label" htmlFor="finish-windows">
+                        Windows
+                      </label>
                       <input
+                        id="finish-windows"
                         type="number"
                         className="input-field"
                         value={areaInput.windows || ""}
@@ -619,8 +647,11 @@ export default function FinishEstimator({
               {/* Coats & Waste */}
               <div className="mt-6 grid grid-cols-2 gap-4 border-t border-border/50 pt-6">
                 <div>
-                  <label className="section-label">Number of Coats</label>
+                  <label className="section-label" htmlFor="finish-coats">
+                    Number of Coats
+                  </label>
                   <input
+                    id="finish-coats"
                     type="number"
                     className="input-field"
                     value={coats}
@@ -632,8 +663,14 @@ export default function FinishEstimator({
                   />
                 </div>
                 <div>
-                  <label className="section-label">Waste Margin (%)</label>
+                  <label
+                    className="section-label"
+                    htmlFor="finish-waste-margin"
+                  >
+                    Waste Margin (%)
+                  </label>
                   <input
+                    id="finish-waste-margin"
                     type="number"
                     className="input-field"
                     value={wasteMargin}

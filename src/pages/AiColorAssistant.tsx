@@ -1004,6 +1004,7 @@ function ImageDropzone({
       onClick={() => !disabled && inputRef.current?.click()}
     >
       <input
+        aria-label="Room photo upload"
         ref={inputRef}
         type="file"
         accept={ACCEPTED_TYPES.join(",")}

@@ -613,6 +613,7 @@ export default function MyProjects() {
               className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
             />
             <input
+              aria-label="Search projects"
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -1068,6 +1069,7 @@ export default function MyProjects() {
           <>
             <div className="mb-6 flex gap-2">
               <input
+                aria-label="New collection name"
                 value={newCollName}
                 onChange={(e) => setNewCollName(e.target.value)}
                 placeholder="New collection name (e.g., Luxury Living Room)"
@@ -1096,6 +1098,7 @@ export default function MyProjects() {
                         {renamingId === c.id ? (
                           <div className="flex items-center gap-2">
                             <input
+                              aria-label="Rename collection"
                               className="input-field flex-1 text-sm font-bold"
                               value={renameValue}
                               onChange={(e) => setRenameValue(e.target.value)}

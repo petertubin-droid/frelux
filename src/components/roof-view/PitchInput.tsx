@@ -102,7 +102,10 @@ export function PitchInput({
     return (
       <div className="rounded-lg bg-muted/50 border border-border px-3 py-2.5">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <CheckCircle2 aria-hidden="true" className="w-3.5 h-3.5 text-green-500" />
+          <CheckCircle2
+            aria-hidden="true"
+            className="w-3.5 h-3.5 text-green-500"
+          />
           <span>Flat roof, no pitch required for {sectionName}</span>
         </div>
       </div>
@@ -120,7 +123,8 @@ export function PitchInput({
         </label>
         <div className="flex items-center gap-1">
           {(["degrees", "ratio", "unknown"] as const).map((mode) => (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={mode}
               type="button"
               onClick={() => {
@@ -148,6 +152,7 @@ export function PitchInput({
       {inputMode === "degrees" && (
         <div className="flex items-center gap-2">
           <input
+            aria-label="Roof pitch in degrees"
             type="number"
             value={hasPitch ? pitchDegrees! : ""}
             onChange={(e) => {
@@ -163,7 +168,9 @@ export function PitchInput({
           />
           <span className="text-sm text-muted-foreground">degrees</span>
           {nearestRatio && (
-            <span className="text-xs text-muted-foreground">≈ {nearestRatio}</span>
+            <span className="text-xs text-muted-foreground">
+              ≈ {nearestRatio}
+            </span>
           )}
         </div>
       )}
@@ -171,6 +178,7 @@ export function PitchInput({
       {/* Ratio select */}
       {inputMode === "ratio" && (
         <select
+          aria-label="Roof pitch ratio"
           value={nearestRatio ?? ""}
           onChange={(e) => {
             const degrees = pitchRatioToDegrees(e.target.value);
@@ -194,7 +202,10 @@ export function PitchInput({
           {aiEstimated ? (
             <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5">
               <div className="flex items-start gap-2">
-                <AlertCircle aria-hidden="true" className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <AlertCircle
+                  aria-hidden="true"
+                  className="w-4 h-4 text-amber-500 shrink-0 mt-0.5"
+                />
                 <div>
                   <p className="text-xs font-semibold text-amber-700">
                     PITCH ESTIMATION: USER VERIFICATION REQUIRED
@@ -209,7 +220,10 @@ export function PitchInput({
           ) : (
             <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2.5">
               <div className="flex items-start gap-2">
-                <AlertCircle aria-hidden="true" className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                <AlertCircle
+                  aria-hidden="true"
+                  className="w-4 h-4 text-red-500 shrink-0 mt-0.5"
+                />
                 <div>
                   <p className="text-xs font-semibold text-red-700">
                     PITCH REQUIRED
@@ -223,7 +237,8 @@ export function PitchInput({
             </div>
           )}
           <div className="flex items-center gap-2">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => setInputMode("degrees")}
               disabled={disabled}
@@ -231,7 +246,8 @@ export function PitchInput({
             >
               Enter Pitch
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => setInputMode("ratio")}
               disabled={disabled}

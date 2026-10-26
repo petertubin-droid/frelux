@@ -149,6 +149,7 @@ export default function Glossary() {
           <div className="relative">
             <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <input
+              aria-label="Search glossary terms"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

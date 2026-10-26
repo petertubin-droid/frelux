@@ -204,6 +204,7 @@ export default function LearnLibrary() {
           <div className="relative w-full max-w-md">
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
+              aria-label="Search articles"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

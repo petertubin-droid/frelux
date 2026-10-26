@@ -195,10 +195,14 @@ export default function ClientManagement() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="cm-name"
+                className="text-sm font-medium text-foreground"
+              >
                 Name *
               </label>
               <input
+                id="cm-name"
                 required
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -206,20 +210,28 @@ export default function ClientManagement() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="cm-company"
+                className="text-sm font-medium text-foreground"
+              >
                 Company
               </label>
               <input
+                id="cm-company"
                 value={form.company}
                 onChange={(e) => setForm({ ...form, company: e.target.value })}
                 className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="cm-email"
+                className="text-sm font-medium text-foreground"
+              >
                 Email
               </label>
               <input
+                id="cm-email"
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -227,30 +239,42 @@ export default function ClientManagement() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="cm-phone"
+                className="text-sm font-medium text-foreground"
+              >
                 Phone
               </label>
               <input
+                id="cm-phone"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="cm-address"
+                className="text-sm font-medium text-foreground"
+              >
                 Address
               </label>
               <input
+                id="cm-address"
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
                 className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="cm-notes"
+                className="text-sm font-medium text-foreground"
+              >
                 Notes
               </label>
               <textarea
+                id="cm-notes"
                 rows={3}
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
@@ -576,6 +600,7 @@ function ClientDetailDrawer({
               className="mt-2 space-y-2 rounded-lg border p-3"
             >
               <select
+                aria-label="Communication type"
                 value={commForm.type}
                 onChange={(e) =>
                   setCommForm({
@@ -592,6 +617,7 @@ function ClientDetailDrawer({
                 <option value="meeting">Meeting</option>
               </select>
               <input
+                aria-label="Subject"
                 value={commForm.subject}
                 onChange={(e) =>
                   setCommForm({ ...commForm, subject: e.target.value })
@@ -600,6 +626,7 @@ function ClientDetailDrawer({
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
               <textarea
+                aria-label="Message"
                 rows={2}
                 value={commForm.body}
                 onChange={(e) =>

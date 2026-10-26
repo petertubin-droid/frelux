@@ -1316,6 +1316,7 @@ function RoomCard({
           </div>
           <div>
             <input
+              aria-label={`Room ${roomIndex + 1} name`}
               type="text"
               value={room.room_name}
               onChange={(e) => {
@@ -1597,6 +1598,7 @@ function RoomCard({
             title="Colour Condition"
           >
             <select
+              aria-label={`Room ${roomIndex + 1} colour condition`}
               value={room.colour_condition_key}
               onChange={(e) =>
                 onUpdate({ colour_condition_key: e.target.value })
@@ -1625,6 +1627,7 @@ function RoomCard({
             title="Surface Condition"
           >
             <select
+              aria-label={`Room ${roomIndex + 1} surface condition`}
               value={room.surface_condition_key}
               onChange={(e) =>
                 onUpdate({ surface_condition_key: e.target.value })
@@ -1700,10 +1703,14 @@ function RoomCard({
           {/* Coats */}
           <Section icon={<Layers className="h-4 w-4" />} title="Coats">
             <div className="flex items-center gap-3">
-              <label className="text-sm text-muted-foreground dark:text-muted-foreground">
+              <label
+                htmlFor={`room-coats-${room.room_id}`}
+                className="text-sm text-muted-foreground dark:text-muted-foreground"
+              >
                 Number of coats:
               </label>
               <select
+                id={`room-coats-${room.room_id}`}
                 value={room.coats}
                 onChange={(e) => onUpdate({ coats: parseInt(e.target.value) })}
                 className="rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-card dark:text-primary-foreground"

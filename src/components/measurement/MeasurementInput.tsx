@@ -15,8 +15,18 @@
  * Uses the shared measurement model, no duplicate conversion logic.
  */
 
-import { useState, type ReactNode } from 'react';
-import { Plus, Trash2, ChevronDown, ChevronUp, Home, Building2, Fence, Layers, Square } from 'lucide-react';
+import { useState, useId, type ReactNode } from "react";
+import {
+  Plus,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  Home,
+  Building2,
+  Fence,
+  Layers,
+  Square,
+} from "lucide-react";
 import {
   type MeasurementProject,
   type MeasurementEntry,
@@ -31,7 +41,7 @@ import {
   lengthUnitLabel,
   lengthUnitShort,
   getAllowedUnits,
-} from '@/lib/measurement';
+} from "@/lib/measurement";
 import { Button } from "@/components/ui/shadcn/button";
 
 // =========================================================
@@ -50,12 +60,15 @@ function UnitSelect({
   const allowed = getAllowedUnits(context);
   return (
     <select
+      aria-label="Unit"
       value={value}
       onChange={(e) => onChange(e.target.value as LengthUnit)}
       className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
     >
       {allowed.map((u) => (
-        <option key={u} value={u}>{lengthUnitLabel(u)}</option>
+        <option key={u} value={u}>
+          {lengthUnitLabel(u)}
+        </option>
       ))}
     </select>
   );
@@ -70,12 +83,19 @@ function DimensionInput({
   value: number;
   onChange: (v: number) => void;
 }) {
+  const id = useId();
   return (
     <div>
-      <label className="block text-xs font-medium text-muted-foreground mb-1">{label}</label>
+      <label
+        htmlFor={id}
+        className="block text-xs font-medium text-muted-foreground mb-1"
+      >
+        {label}
+      </label>
       <input
+        id={id}
         type="number"
-        value={value || ''}
+        value={value || ""}
         min={0}
         step="any"
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
@@ -102,26 +122,36 @@ function EntryCard({
   index: number;
 }) {
   const [expanded, setExpanded] = useState(true);
-  const isFence = entry.partitionCount !== undefined && entry.partitionCount > 0;
-  const isTiling = context === 'tiling';
-  const needsHeight = entry.surfaceType === 'wall' || entry.surfaceType === 'exterior' || entry.surfaceType === 'fence';
-  const needsWidth = entry.surfaceType === 'floor' || entry.surfaceType === 'ceiling' || entry.surfaceType === 'wall' || isTiling;
+  const isFence =
+    entry.partitionCount !== undefined && entry.partitionCount > 0;
+  const isTiling = context === "tiling";
+  const needsHeight =
+    entry.surfaceType === "wall" ||
+    entry.surfaceType === "exterior" ||
+    entry.surfaceType === "fence";
+  const needsWidth =
+    entry.surfaceType === "floor" ||
+    entry.surfaceType === "ceiling" ||
+    entry.surfaceType === "wall" ||
+    isTiling;
   const unitShort = lengthUnitShort(entry.unit);
 
   return (
     <div className="rounded-lg border border-border bg-card p-4 space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => setExpanded(!expanded)}
           className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary"
         >
           {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           Measurement {index + 1}
-          {entry.description ? `: ${entry.description}` : ''}
+          {entry.description ? `: ${entry.description}` : ""}
         </Button>
         {onRemove && (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onRemove}
             className="text-muted-foreground hover:text-destructive transition-colors"
             aria-label="Remove measurement"
@@ -136,14 +166,24 @@ function EntryCard({
           {/* Space type (house/building mode) */}
           {entry.spaceType !== undefined && (
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Space Type</label>
+              <label
+                htmlFor={`space-type-${entry.id}`}
+                className="block text-xs font-medium text-muted-foreground mb-1"
+              >
+                Space Type
+              </label>
               <select
+                id={`space-type-${entry.id}`}
                 value={entry.spaceType}
-                onChange={(e) => onUpdate({ spaceType: e.target.value as SpaceType })}
+                onChange={(e) =>
+                  onUpdate({ spaceType: e.target.value as SpaceType })
+                }
                 className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
               >
                 {DEFAULT_SPACE_TYPES.map((st) => (
-                  <option key={st} value={st}>{SPACE_TYPE_LABELS[st]}</option>
+                  <option key={st} value={st}>
+                    {SPACE_TYPE_LABELS[st]}
+                  </option>
                 ))}
               </select>
             </div>
@@ -174,7 +214,9 @@ function EntryCard({
 
           {/* Unit selector */}
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Measurement Unit</label>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
+              Measurement Unit
+            </label>
             <UnitSelect
               value={entry.unit}
               onChange={(unit) => onUpdate({ unit })}
@@ -183,14 +225,24 @@ function EntryCard({
           </div>
 
           {/* Fence: partition count */}
-          {(context === 'fence_screeding' || context === 'fence_painting' || isFence) && (
+          {(context === "fence_screeding" ||
+            context === "fence_painting" ||
+            isFence) && (
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Number of Partitions</label>
+              <label
+                htmlFor={`mi-partitions-${entry.id}`}
+                className="block text-xs font-medium text-muted-foreground mb-1"
+              >
+                Number of Partitions
+              </label>
               <input
+                id={`mi-partitions-${entry.id}`}
                 type="number"
                 value={entry.partitionCount ?? 1}
                 min={1}
-                onChange={(e) => onUpdate({ partitionCount: parseInt(e.target.value) || 1 })}
+                onChange={(e) =>
+                  onUpdate({ partitionCount: parseInt(e.target.value) || 1 })
+                }
                 className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
               />
             </div>
@@ -198,52 +250,65 @@ function EntryCard({
 
           {/* Quantity */}
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">
+            <label
+              htmlFor={`mi-quantity-${entry.id}`}
+              className="block text-xs font-medium text-muted-foreground mb-1"
+            >
               Quantity (identical units)
             </label>
             <input
+              id={`mi-quantity-${entry.id}`}
               type="number"
               value={entry.quantity}
               min={1}
-              onChange={(e) => onUpdate({ quantity: parseInt(e.target.value) || 1 })}
+              onChange={(e) =>
+                onUpdate({ quantity: parseInt(e.target.value) || 1 })
+              }
               className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
             />
           </div>
 
           {/* Tile config (tiling context only) */}
-          {isTiling && (
-            <TileConfigFields
-              entry={entry}
-              onUpdate={onUpdate}
-            />
-          )}
+          {isTiling && <TileConfigFields entry={entry} onUpdate={onUpdate} />}
 
           {/* Doors/windows (for wall surfaces) */}
-          {(entry.surfaceType === 'wall' || needsHeight) && !isFence && !isTiling && (
-            <div className="grid grid-cols-2 gap-3">
-              <DimensionInput
-                label="Doors"
-                value={entry.doors ?? 0}
-                onChange={(v) => onUpdate({ doors: Math.floor(v) })}
-              />
-              <DimensionInput
-                label="Windows"
-                value={entry.windows ?? 0}
-                onChange={(v) => onUpdate({ windows: Math.floor(v) })}
-              />
-            </div>
-          )}
+          {(entry.surfaceType === "wall" || needsHeight) &&
+            !isFence &&
+            !isTiling && (
+              <div className="grid grid-cols-2 gap-3">
+                <DimensionInput
+                  label="Doors"
+                  value={entry.doors ?? 0}
+                  onChange={(v) => onUpdate({ doors: Math.floor(v) })}
+                />
+                <DimensionInput
+                  label="Windows"
+                  value={entry.windows ?? 0}
+                  onChange={(v) => onUpdate({ windows: Math.floor(v) })}
+                />
+              </div>
+            )}
 
           {/* Waste margin */}
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Waste Allowance (%)</label>
+            <label
+              htmlFor={`mi-waste-${entry.id}`}
+              className="block text-xs font-medium text-muted-foreground mb-1"
+            >
+              Waste Allowance (%)
+            </label>
             <input
+              id={`mi-waste-${entry.id}`}
               type="number"
               value={entry.wasteMarginPercent ?? 0}
               min={0}
               max={100}
               step="0.5"
-              onChange={(e) => onUpdate({ wasteMarginPercent: parseFloat(e.target.value) || 0 })}
+              onChange={(e) =>
+                onUpdate({
+                  wasteMarginPercent: parseFloat(e.target.value) || 0,
+                })
+              }
               className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
               placeholder="0"
             />
@@ -251,10 +316,16 @@ function EntryCard({
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Description (optional)</label>
+            <label
+              htmlFor={`mi-description-${entry.id}`}
+              className="block text-xs font-medium text-muted-foreground mb-1"
+            >
+              Description (optional)
+            </label>
             <input
+              id={`mi-description-${entry.id}`}
               type="text"
-              value={entry.description ?? ''}
+              value={entry.description ?? ""}
               onChange={(e) => onUpdate({ description: e.target.value })}
               className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
               placeholder="e.g., Master bedroom, Front wall, etc."
@@ -289,16 +360,19 @@ function TileConfigFields({
   const tc = entry.tileConfig;
   if (!tc) {
     return (
-      <Button variant="ghost"
-        onClick={() => onUpdate({
-          tileConfig: {
-            tileLength: 600,
-            tileWidth: 600,
-            tileUnit: 'mm',
-            packagingMethod: 'tiles_per_carton' as const,
-            tilesPerCarton: 1,
-          },
-        })}
+      <Button
+        variant="ghost"
+        onClick={() =>
+          onUpdate({
+            tileConfig: {
+              tileLength: 600,
+              tileWidth: 600,
+              tileUnit: "mm",
+              packagingMethod: "tiles_per_carton" as const,
+              tilesPerCarton: 1,
+            },
+          })
+        }
         className="text-sm text-primary hover:underline"
       >
         + Configure tile size & packaging
@@ -308,31 +382,44 @@ function TileConfigFields({
 
   return (
     <div className="rounded-md border border-border p-3 space-y-3 bg-muted/30">
-      <p className="text-xs font-medium text-muted-foreground">Tile Configuration</p>
+      <p className="text-xs font-medium text-muted-foreground">
+        Tile Configuration
+      </p>
 
       {/* Tile size */}
       <div className="grid grid-cols-3 gap-2">
         <DimensionInput
           label="Tile Length"
           value={tc.tileLength}
-          onChange={(v) => onUpdate({
-            tileConfig: { ...tc, tileLength: v },
-          })}
+          onChange={(v) =>
+            onUpdate({
+              tileConfig: { ...tc, tileLength: v },
+            })
+          }
         />
         <DimensionInput
           label="Tile Width"
           value={tc.tileWidth}
-          onChange={(v) => onUpdate({
-            tileConfig: { ...tc, tileWidth: v },
-          })}
+          onChange={(v) =>
+            onUpdate({
+              tileConfig: { ...tc, tileWidth: v },
+            })
+          }
         />
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1">Unit</label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1">
+            Unit
+          </label>
           <select
             value={tc.tileUnit}
-            onChange={(e) => onUpdate({
-              tileConfig: { ...tc, tileUnit: e.target.value as 'mm' | 'cm' | 'm' },
-            })}
+            onChange={(e) =>
+              onUpdate({
+                tileConfig: {
+                  ...tc,
+                  tileUnit: e.target.value as "mm" | "cm" | "m",
+                },
+              })
+            }
             className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground"
           >
             <option value="mm">mm</option>
@@ -344,12 +431,24 @@ function TileConfigFields({
 
       {/* Packaging method */}
       <div>
-        <label className="block text-xs font-medium text-muted-foreground mb-1">Packaging Method</label>
+        <label
+          htmlFor={`mi-packaging-${entry.id}`}
+          className="block text-xs font-medium text-muted-foreground mb-1"
+        >
+          Packaging Method
+        </label>
         <select
+          id={`mi-packaging-${entry.id}`}
           value={tc.packagingMethod}
-          onChange={(e) => onUpdate({
-            tileConfig: { ...tc, packagingMethod: e.target.value as 'tiles_per_carton' | 'carton_coverage' },
-          })}
+          onChange={(e) =>
+            onUpdate({
+              tileConfig: {
+                ...tc,
+                packagingMethod: e.target.value as
+                  "tiles_per_carton" | "carton_coverage",
+              },
+            })
+          }
           className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground"
         >
           <option value="tiles_per_carton">Tiles per carton</option>
@@ -358,21 +457,25 @@ function TileConfigFields({
       </div>
 
       {/* Packaging value */}
-      {tc.packagingMethod === 'tiles_per_carton' ? (
+      {tc.packagingMethod === "tiles_per_carton" ? (
         <DimensionInput
           label="Tiles per carton"
           value={tc.tilesPerCarton ?? 1}
-          onChange={(v) => onUpdate({
-            tileConfig: { ...tc, tilesPerCarton: v },
-          })}
+          onChange={(v) =>
+            onUpdate({
+              tileConfig: { ...tc, tilesPerCarton: v },
+            })
+          }
         />
       ) : (
         <DimensionInput
           label="Carton coverage (m²)"
           value={tc.cartonCoverageM2 ?? 0}
-          onChange={(v) => onUpdate({
-            tileConfig: { ...tc, cartonCoverageM2: v },
-          })}
+          onChange={(v) =>
+            onUpdate({
+              tileConfig: { ...tc, cartonCoverageM2: v },
+            })
+          }
         />
       )}
     </div>
@@ -391,7 +494,13 @@ const MODE_ICONS: Record<ProjectMode, ReactNode> = {
   custom_section: <Layers size={18} />,
 };
 
-const MODE_ORDER: ProjectMode[] = ['single_room', 'house_building', 'exterior', 'fence', 'custom_section'];
+const MODE_ORDER: ProjectMode[] = [
+  "single_room",
+  "house_building",
+  "exterior",
+  "fence",
+  "custom_section",
+];
 
 export function ProjectModeSelector({
   value,
@@ -404,24 +513,27 @@ export function ProjectModeSelector({
 }) {
   // For fence contexts, only show fence mode
   const availableModes: ProjectMode[] =
-    context === 'fence_screeding' || context === 'fence_painting'
-      ? ['fence']
-      : context === 'grafitex'
-        ? ['exterior', 'custom_section']
+    context === "fence_screeding" || context === "fence_painting"
+      ? ["fence"]
+      : context === "grafitex"
+        ? ["exterior", "custom_section"]
         : MODE_ORDER;
 
   return (
     <div>
-      <label className="block text-sm font-medium text-foreground mb-2">What are you calculating?</label>
+      <label className="block text-sm font-medium text-foreground mb-2">
+        What are you calculating?
+      </label>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {availableModes.map((mode) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={mode}
             onClick={() => onChange(mode)}
             className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-colors ${
               value === mode
-                ? 'border-primary bg-primary/10 text-primary font-medium'
-                : 'border-border bg-card text-muted-foreground hover:bg-muted/50'
+                ? "border-primary bg-primary/10 text-primary font-medium"
+                : "border-border bg-card text-muted-foreground hover:bg-muted/50"
             }`}
           >
             {MODE_ICONS[mode]}
@@ -448,7 +560,8 @@ export function CalculationBreakdown({
 
   return (
     <div className="rounded-lg border border-border bg-muted/30 p-4">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         onClick={() => setExpanded(!expanded)}
         className="flex items-center gap-1 text-sm font-medium text-foreground"
       >
@@ -461,9 +574,13 @@ export function CalculationBreakdown({
             <li key={i} className="flex flex-col gap-0.5 text-sm">
               <span className="font-medium text-foreground">{step.label}</span>
               {step.formula && (
-                <span className="text-xs text-muted-foreground font-mono">{step.formula}</span>
+                <span className="text-xs text-muted-foreground font-mono">
+                  {step.formula}
+                </span>
               )}
-              <span className="text-sm text-primary font-medium">{step.value}</span>
+              <span className="text-sm text-primary font-medium">
+                {step.value}
+              </span>
             </li>
           ))}
         </ol>
@@ -476,13 +593,19 @@ export function CalculationBreakdown({
 // Validation Errors Display
 // =========================================================
 
-export function ValidationErrors({ validation }: { validation: ValidationResult }) {
+export function ValidationErrors({
+  validation,
+}: {
+  validation: ValidationResult;
+}) {
   if (validation.valid || validation.errors.length === 0) return null;
 
   return (
     <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-1">
       {validation.errors.map((err, i) => (
-        <p key={i} className="text-sm text-destructive">⚠ {err}</p>
+        <p key={i} className="text-sm text-destructive">
+          ⚠ {err}
+        </p>
       ))}
     </div>
   );
@@ -498,7 +621,10 @@ export interface MeasurementInputProps {
   validation: ValidationResult;
   onProjectModeChange: (mode: ProjectMode) => void;
   onAddMeasurement: (label: string, entry: Partial<MeasurementEntry>) => void;
-  onUpdateMeasurement: (groupId: string, updates: Partial<MeasurementEntry>) => void;
+  onUpdateMeasurement: (
+    groupId: string,
+    updates: Partial<MeasurementEntry>,
+  ) => void;
   onRemoveMeasurement: (groupId: string) => void;
   children?: ReactNode;
 }
@@ -523,29 +649,42 @@ export function MeasurementInput({
       quantity: 1,
     };
 
-    if (project.projectMode === 'fence') {
-      return { ...base, surfaceType: 'fence', partitionCount: 1, length: 0, height: 0 };
+    if (project.projectMode === "fence") {
+      return {
+        ...base,
+        surfaceType: "fence",
+        partitionCount: 1,
+        length: 0,
+        height: 0,
+      };
     }
-    if (project.projectMode === 'exterior') {
-      return { ...base, surfaceType: 'exterior', length: 0, height: 0 };
+    if (project.projectMode === "exterior") {
+      return { ...base, surfaceType: "exterior", length: 0, height: 0 };
     }
-    if (project.projectMode === 'house_building') {
-      return { ...base, surfaceType: 'wall', spaceType: 'bedroom', length: 0, width: 0, height: 0 };
+    if (project.projectMode === "house_building") {
+      return {
+        ...base,
+        surfaceType: "wall",
+        spaceType: "bedroom",
+        length: 0,
+        width: 0,
+        height: 0,
+      };
     }
-    if (context === 'tiling') {
-      return { ...base, surfaceType: 'floor', length: 0, width: 0 };
+    if (context === "tiling") {
+      return { ...base, surfaceType: "floor", length: 0, width: 0 };
     }
-    return { ...base, surfaceType: 'wall', length: 0, width: 0, height: 0 };
+    return { ...base, surfaceType: "wall", length: 0, width: 0, height: 0 };
   }
 
   const addButtonLabel =
-    project.projectMode === 'fence'
-      ? 'Add Fence Dimension'
-      : project.projectMode === 'house_building'
-        ? 'Add Space'
-        : project.projectMode === 'exterior'
-          ? 'Add Surface'
-          : 'Add Measurement';
+    project.projectMode === "fence"
+      ? "Add Fence Dimension"
+      : project.projectMode === "house_building"
+        ? "Add Space"
+        : project.projectMode === "exterior"
+          ? "Add Surface"
+          : "Add Measurement";
 
   return (
     <div className="space-y-4">
@@ -570,7 +709,11 @@ export function MeasurementInput({
               index={idx}
               onUpdate={(updates) => onUpdateMeasurement(group.id, updates)}
               onRemove={() => onRemoveMeasurement(group.id)}
-              errors={validation.valid ? undefined : validation.errors.filter((e) => e.includes(group.label))}
+              errors={
+                validation.valid
+                  ? undefined
+                  : validation.errors.filter((e) => e.includes(group.label))
+              }
             />
           ))}
 
@@ -583,13 +726,14 @@ export function MeasurementInput({
       )}
 
       {/* Add button */}
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         onClick={() => {
           const count = activeSection?.groups.length ?? 0;
           const label =
-            project.projectMode === 'fence'
+            project.projectMode === "fence"
               ? `Fence Dimension ${count + 1}`
-              : project.projectMode === 'house_building'
+              : project.projectMode === "house_building"
                 ? `Space ${count + 1}`
                 : `Measurement ${count + 1}`;
           onAddMeasurement(label, getDefaultEntry());

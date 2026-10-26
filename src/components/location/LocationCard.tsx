@@ -526,6 +526,7 @@ export default function LocationCard({
                   <div className="relative flex-1">
                     <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                     <input
+                      aria-label="Search address, city, or postcode"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search address, city, or postcode…"
@@ -689,6 +690,7 @@ function ManualEntry({
       </p>
       <div className="grid grid-cols-2 gap-2">
         <input
+          aria-label="Latitude"
           value={lat}
           onChange={(e) => setLat(e.target.value)}
           inputMode="decimal"
@@ -697,6 +699,7 @@ function ManualEntry({
           data-testid="manual-lat"
         />
         <input
+          aria-label="Longitude"
           value={lng}
           onChange={(e) => setLng(e.target.value)}
           inputMode="decimal"
@@ -705,6 +708,7 @@ function ManualEntry({
           data-testid="manual-lng"
         />
         <input
+          aria-label="Address"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           placeholder="Address (optional)"
@@ -712,6 +716,7 @@ function ManualEntry({
           data-testid="manual-address"
         />
         <input
+          aria-label="City or area"
           value={city}
           onChange={(e) => setCity(e.target.value)}
           placeholder="City / area (optional)"
@@ -719,6 +724,7 @@ function ManualEntry({
           data-testid="manual-city"
         />
         <input
+          aria-label="State or region"
           value={region}
           onChange={(e) => setRegion(e.target.value)}
           placeholder="State / region (optional)"
@@ -726,6 +732,7 @@ function ManualEntry({
           data-testid="manual-region"
         />
         <input
+          aria-label="Country code"
           value={countryCode}
           onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
           maxLength={2}
@@ -734,6 +741,7 @@ function ManualEntry({
           data-testid="manual-country"
         />
         <input
+          aria-label="Postcode"
           value={postcode}
           onChange={(e) => setPostcode(e.target.value)}
           placeholder="Postcode (optional)"

@@ -202,10 +202,14 @@ export default function SurfaceAssessment() {
                 <h3 className="font-semibold mb-4">Save This Assessment</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">
+                    <label
+                      htmlFor="surface-room-name"
+                      className="block text-sm font-medium mb-1.5"
+                    >
                       Room/Area Name
                     </label>
                     <input
+                      id="surface-room-name"
                       className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
                       placeholder="e.g. Master Bedroom"
                       value={roomName}
@@ -213,10 +217,14 @@ export default function SurfaceAssessment() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">
+                    <label
+                      htmlFor="surface-notes"
+                      className="block text-sm font-medium mb-1.5"
+                    >
                       Additional Notes
                     </label>
                     <input
+                      id="surface-notes"
                       className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
                       placeholder="Optional notes..."
                       value={notes}

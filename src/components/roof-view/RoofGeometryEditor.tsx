@@ -211,6 +211,7 @@ export function RoofGeometryEditor({
       {activeSection && (
         <div className="flex items-center gap-2">
           <input
+            aria-label="Section name"
             type="text"
             value={activeSection.name}
             onChange={(e) =>

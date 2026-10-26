@@ -112,6 +112,7 @@ export function PaintMatcher() {
               JPG, PNG, or WebP, drag & drop or tap
             </p>
             <input
+              aria-label="Wall photo upload"
               ref={fileRef}
               type="file"
               accept="image/jpeg,image/png,image/webp"

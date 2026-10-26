@@ -1570,6 +1570,7 @@ function Step3({
           ) : (
             <>
               <select
+                aria-label={`Select quality for ${matchedEstProduct.name}`}
                 value={selectedQualityId}
                 onChange={(e) => onSelectQuality(e.target.value)}
                 className="input-field mt-2"
@@ -1648,13 +1649,17 @@ function Step3({
 
       {/* Surface condition */}
       <div className="mt-4">
-        <span className="block text-sm font-semibold text-card-foreground">
+        <label
+          htmlFor="paint-surface-condition"
+          className="block text-sm font-semibold text-card-foreground"
+        >
           Surface condition
-        </span>
+        </label>
         <p className="mt-0.5 text-xs text-muted-foreground">
           Affects coverage, rough surfaces absorb more paint.
         </p>
         <select
+          id="paint-surface-condition"
           value={input.surfaceCondition ?? "smooth"}
           onChange={(e) =>
             update("surfaceCondition", e.target.value as SurfaceCondition)
@@ -1671,13 +1676,17 @@ function Step3({
 
       {/* Colour condition */}
       <div className="mt-4">
-        <span className="block text-sm font-semibold text-card-foreground">
+        <label
+          htmlFor="paint-colour-change"
+          className="block text-sm font-semibold text-card-foreground"
+        >
           Colour change
-        </span>
+        </label>
         <p className="mt-0.5 text-xs text-muted-foreground">
           Dark colours over light may need extra coats or primer.
         </p>
         <select
+          id="paint-colour-change"
           value={input.colorCondition ?? "same_or_light"}
           onChange={(e) =>
             update("colorCondition", e.target.value as ColorCondition)

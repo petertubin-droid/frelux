@@ -249,6 +249,7 @@ export default function EstimateAnalytics() {
       {/* Filter + Export */}
       <div className="mt-6 flex items-center justify-between">
         <select
+          aria-label="Filter estimates by type"
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
           className="rounded-lg border bg-background px-4 py-2 text-sm"

@@ -139,6 +139,7 @@ export const AdminEngineMatrix: React.FC = () => {
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
+            aria-label="Search engines"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search engines, formulas, or files..."
@@ -148,6 +149,7 @@ export const AdminEngineMatrix: React.FC = () => {
         <div className="flex items-center gap-2 w-full md:w-auto">
           <Filter className="w-4 h-4 text-zinc-500" />
           <select
+            aria-label="Filter by category"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2"
@@ -162,6 +164,7 @@ export const AdminEngineMatrix: React.FC = () => {
             ))}
           </select>
           <select
+            aria-label="Filter by market"
             value={selectedMarket}
             onChange={(e) => setSelectedMarket(e.target.value)}
             className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2"

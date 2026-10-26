@@ -36,7 +36,10 @@ interface LabourCostSectionProps {
  * Users can always override any suggested rate.
  */
 // eslint-disable-next-line react-refresh/only-export-components
-export function useLabourConfig(estimatorKey: LabourEstimatorKey, market?: string) {
+export function useLabourConfig(
+  estimatorKey: LabourEstimatorKey,
+  market?: string,
+) {
   const [config, setConfig] = useState<LabourConfig>(DEFAULT_LABOUR_CONFIG);
   const [loading, setLoading] = useState(true);
 
@@ -195,6 +198,7 @@ export default function LabourCostSection({
                 </span>
               </label>
               <select
+                aria-label="Suggested labour categories"
                 value={config.categoryId ?? ""}
                 onChange={(e) => applyCategory(e.target.value)}
                 className="input-field"

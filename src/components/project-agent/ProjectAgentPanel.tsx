@@ -793,6 +793,7 @@ export default function ProjectAgentPanel({
                     are offered.
                   </p>
                   <select
+                    aria-label="Which purchase did you make?"
                     className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
                     value={draft.shoppingItemId}
                     onChange={(e) =>
@@ -811,6 +812,7 @@ export default function ProjectAgentPanel({
                     ))}
                   </select>
                   <input
+                    aria-label="Actual price paid"
                     className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
                     placeholder="Actual price paid (optional)"
                     inputMode="decimal"
@@ -829,6 +831,7 @@ export default function ProjectAgentPanel({
                     offered.
                   </p>
                   <select
+                    aria-label="Which stage is complete?"
                     className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
                     value={draft.stageId}
                     onChange={(e) =>
@@ -852,6 +855,7 @@ export default function ProjectAgentPanel({
                     Record the price you actually found. Never guess a price.
                   </p>
                   <select
+                    aria-label="Material for this price"
                     className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
                     value={draft.materialId}
                     onChange={(e) =>
@@ -867,6 +871,7 @@ export default function ProjectAgentPanel({
                     ))}
                   </select>
                   <input
+                    aria-label="New price"
                     className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
                     placeholder="New price"
                     inputMode="decimal"
@@ -946,6 +951,7 @@ export default function ProjectAgentPanel({
                 {amendOpenFor === action.id ? (
                   <div className="mt-2 space-y-2">
                     <input
+                      aria-label="Assumption or note"
                       className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
                       placeholder="Add an assumption or note…"
                       value={amendText}

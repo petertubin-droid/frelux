@@ -1396,6 +1396,7 @@ function MaterialToggle({
                 onChange={(e) => onCostChange(Number(e.target.value))}
                 className="input-field pr-7 text-sm"
                 placeholder="0"
+                aria-label={`${label} cost`}
               />
               <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                 {symbol}

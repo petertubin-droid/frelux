@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useId } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -256,10 +256,14 @@ export default function ClientEstimateEditor() {
               <h3 className="font-semibold">Estimate Details</h3>
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">
+              <label
+                htmlFor="ce-title"
+                className="mb-1.5 block text-sm font-medium"
+              >
                 Title <span className="text-destructive">*</span>
               </label>
               <input
+                id="ce-title"
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -268,10 +272,14 @@ export default function ClientEstimateEditor() {
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">
+              <label
+                htmlFor="ce-description"
+                className="mb-1.5 block text-sm font-medium"
+              >
                 Description
               </label>
               <textarea
+                id="ce-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Scope of work, special requirements, etc."
@@ -312,10 +320,14 @@ export default function ClientEstimateEditor() {
 
             {/* Markup */}
             <div>
-              <label className="mb-1.5 block text-sm font-medium">
+              <label
+                htmlFor="ce-markup"
+                className="mb-1.5 block text-sm font-medium"
+              >
                 Markup Percentage (%)
               </label>
               <input
+                id="ce-markup"
                 type="number"
                 value={markupPct}
                 onChange={(e) => setMarkupPct(Number(e.target.value))}
@@ -369,6 +381,7 @@ export default function ClientEstimateEditor() {
                     className="grid grid-cols-12 gap-2 items-center"
                   >
                     <input
+                      aria-label={"Material " + (idx + 1) + " name"}
                       type="text"
                       value={m.name}
                       onChange={(e) =>
@@ -378,6 +391,7 @@ export default function ClientEstimateEditor() {
                       className="col-span-4 rounded-lg border bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                     />
                     <input
+                      aria-label={"Material quantity, row " + (idx + 1)}
                       type="number"
                       value={m.quantity}
                       onChange={(e) =>
@@ -392,6 +406,7 @@ export default function ClientEstimateEditor() {
                       className="col-span-2 rounded-lg border bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                     />
                     <input
+                      aria-label={"Material unit, row " + (idx + 1)}
                       type="text"
                       value={m.unit}
                       onChange={(e) =>
@@ -401,6 +416,7 @@ export default function ClientEstimateEditor() {
                       className="col-span-2 rounded-lg border bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                     />
                     <input
+                      aria-label={"Material unit cost, row " + (idx + 1)}
                       type="number"
                       value={m.unitCost}
                       onChange={(e) =>
@@ -435,10 +451,14 @@ export default function ClientEstimateEditor() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium">
+                <label
+                  htmlFor="ce-client-name"
+                  className="mb-1.5 block text-sm font-medium"
+                >
                   Client Name
                 </label>
                 <input
+                  id="ce-client-name"
                   type="text"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
@@ -447,10 +467,14 @@ export default function ClientEstimateEditor() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium">
+                <label
+                  htmlFor="ce-client-email"
+                  className="mb-1.5 block text-sm font-medium"
+                >
                   Client Email
                 </label>
                 <input
+                  id="ce-client-email"
                   type="email"
                   value={clientEmail}
                   onChange={(e) => setClientEmail(e.target.value)}
@@ -459,10 +483,14 @@ export default function ClientEstimateEditor() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium">
+                <label
+                  htmlFor="ce-client-phone"
+                  className="mb-1.5 block text-sm font-medium"
+                >
                   Client Phone
                 </label>
                 <input
+                  id="ce-client-phone"
                   type="tel"
                   value={clientPhone}
                   onChange={(e) => setClientPhone(e.target.value)}
@@ -471,10 +499,14 @@ export default function ClientEstimateEditor() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium">
+                <label
+                  htmlFor="ce-validity"
+                  className="mb-1.5 block text-sm font-medium"
+                >
                   Validity (days)
                 </label>
                 <input
+                  id="ce-validity"
                   type="number"
                   value={validityDays}
                   onChange={(e) => setValidityDays(Number(e.target.value))}
@@ -492,8 +524,14 @@ export default function ClientEstimateEditor() {
               <h3 className="font-semibold">Notes & Terms</h3>
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">Notes</label>
+              <label
+                htmlFor="ce-notes"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                Notes
+              </label>
               <textarea
+                id="ce-notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Additional notes for the client..."
@@ -502,10 +540,14 @@ export default function ClientEstimateEditor() {
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">
+              <label
+                htmlFor="ce-terms"
+                className="mb-1.5 block text-sm font-medium"
+              >
                 Terms & Conditions
               </label>
               <textarea
+                id="ce-terms"
                 value={terms}
                 onChange={(e) => setTerms(e.target.value)}
                 placeholder="Payment terms, warranty, etc."
@@ -559,10 +601,14 @@ function CostInput({
   value: number;
   onChange: (v: number) => void;
 }) {
+  const fieldId = useId();
   return (
     <div>
-      <label className="mb-1.5 block text-sm font-medium">{label}</label>
+      <label htmlFor={fieldId} className="mb-1.5 block text-sm font-medium">
+        {label}
+      </label>
       <input
+        id={fieldId}
         type="number"
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}

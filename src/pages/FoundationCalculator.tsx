@@ -173,10 +173,14 @@ export default function FoundationCalculator() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              <label
+                htmlFor="fnd-shape"
+                className="text-xs font-medium text-muted-foreground mb-1.5 block"
+              >
                 Foundation type
               </label>
               <select
+                id="fnd-shape"
                 value={shape}
                 onChange={(e) => setShape(e.target.value as FoundationShape)}
                 className="input-field"
@@ -187,10 +191,14 @@ export default function FoundationCalculator() {
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              <label
+                htmlFor="fnd-soil"
+                className="text-xs font-medium text-muted-foreground mb-1.5 block"
+              >
                 Soil type
               </label>
               <select
+                id="fnd-soil"
                 value={soilType}
                 onChange={(e) => setSoilType(e.target.value as SoilType)}
                 className="input-field"
@@ -204,10 +212,14 @@ export default function FoundationCalculator() {
             </div>
             {soilType === "custom" && (
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                <label
+                  htmlFor="fnd-bearing"
+                  className="text-xs font-medium text-muted-foreground mb-1.5 block"
+                >
                   Bearing capacity (kN/m²)
                 </label>
                 <input
+                  id="fnd-bearing"
                   type="number"
                   value={customBearing}
                   onChange={(e) =>
@@ -218,10 +230,14 @@ export default function FoundationCalculator() {
               </div>
             )}
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              <label
+                htmlFor="fnd-load"
+                className="text-xs font-medium text-muted-foreground mb-1.5 block"
+              >
                 {shape === "pad" ? "Column load (kN)" : "Wall load (kN/m)"}
               </label>
               <input
+                id="fnd-load"
                 type="number"
                 value={shape === "pad" ? columnLoad : wallLoad}
                 onChange={(e) =>
@@ -233,10 +249,14 @@ export default function FoundationCalculator() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              <label
+                htmlFor="fnd-depth"
+                className="text-xs font-medium text-muted-foreground mb-1.5 block"
+              >
                 Foundation depth ({measurementUnit})
               </label>
               <input
+                id="fnd-depth"
                 type="number"
                 value={depth}
                 step="0.1"
@@ -245,10 +265,14 @@ export default function FoundationCalculator() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              <label
+                htmlFor="fnd-length"
+                className="text-xs font-medium text-muted-foreground mb-1.5 block"
+              >
                 Building length ({measurementUnit})
               </label>
               <input
+                id="fnd-length"
                 type="number"
                 value={buildingLength}
                 step="0.5"
@@ -259,10 +283,14 @@ export default function FoundationCalculator() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              <label
+                htmlFor="fnd-width"
+                className="text-xs font-medium text-muted-foreground mb-1.5 block"
+              >
                 Building width ({measurementUnit})
               </label>
               <input
+                id="fnd-width"
                 type="number"
                 value={buildingWidth}
                 step="0.5"

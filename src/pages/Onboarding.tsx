@@ -122,9 +122,7 @@ export default function Onboarding() {
             key={s}
             className={classNames(
               "h-1.5 rounded-full transition-all",
-              s <= step
-                ? "w-8 bg-primary"
-                : "w-4 bg-muted dark:bg-white/10",
+              s <= step ? "w-8 bg-primary" : "w-4 bg-muted dark:bg-white/10",
             )}
           />
         ))}
@@ -143,7 +141,7 @@ export default function Onboarding() {
             <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground">
               Plan your construction project with precision. Calculate
               materials, estimate costs, and connect with verified professionals
-             , all in one place.
+              , all in one place.
             </p>
           </div>
 
@@ -153,7 +151,8 @@ export default function Onboarding() {
 
           <div className="space-y-3">
             {/* Client option */}
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => {
                 setAccountType("client");
                 setStep(2);
@@ -185,7 +184,8 @@ export default function Onboarding() {
             </Button>
 
             {/* Pro Worker option */}
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => {
                 setAccountType("pro_worker");
                 setStep(2);
@@ -249,7 +249,8 @@ export default function Onboarding() {
               const Icon = goal.icon;
               const selected = goals.includes(goal.id);
               return (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   key={goal.id}
                   onClick={() => toggleGoal(goal.id)}
                   className={classNames(
@@ -294,13 +295,15 @@ export default function Onboarding() {
           </div>
 
           <div className="mt-6 flex gap-3">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setStep(1)}
               className="rounded-xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
               Back
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setStep(3)}
               className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground"
             >
@@ -329,10 +332,14 @@ export default function Onboarding() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+            <label
+              htmlFor="onboarding-state"
+              className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60"
+            >
               State
             </label>
             <select
+              id="onboarding-state"
               value={selectedState}
               onChange={(e) => setSelectedState(e.target.value)}
               className="w-full rounded-xl border border-border px-4 py-3 text-sm dark:border-white/10 dark:bg-background"
@@ -347,14 +354,16 @@ export default function Onboarding() {
           </div>
 
           <div className="mt-8 flex gap-3">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setStep(2)}
               className="rounded-xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
               Back
             </Button>
             {accountType === "pro_worker" ? (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => setStep(4)}
                 className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground"
               >
@@ -365,7 +374,8 @@ export default function Onboarding() {
                 />
               </Button>
             ) : (
-              <Button variant="default"
+              <Button
+                variant="default"
                 onClick={finish}
                 disabled={saving}
                 className="flex-1 rounded-xl py-3 text-sm font-semibold disabled:opacity-50"
@@ -377,7 +387,8 @@ export default function Onboarding() {
           </div>
 
           {accountType !== "pro_worker" && (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={finish}
               className="mt-3 w-full text-center text-xs text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
             >
@@ -449,13 +460,15 @@ export default function Onboarding() {
           </div>
 
           <div className="mt-8 flex gap-3">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setStep(3)}
               className="rounded-xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
               Back
             </Button>
-            <Button variant="default"
+            <Button
+              variant="default"
               onClick={finish}
               disabled={saving}
               className="flex-1 rounded-xl py-3 text-sm font-semibold disabled:opacity-50"

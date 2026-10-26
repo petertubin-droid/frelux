@@ -10,6 +10,7 @@ import { useMarket } from "@/lib/international/market-context";
 import {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useState,
   type ReactNode,
@@ -193,12 +194,17 @@ function Select<T extends string>({
   options: readonly { value: T; label: string }[];
   onChange: (v: T) => void;
 }) {
+  const selectId = useId();
   return (
     <div>
-      <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+      <label
+        htmlFor={selectId}
+        className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground"
+      >
         {label}
       </label>
       <select
+        id={selectId}
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
         className="input-field"
@@ -290,10 +296,14 @@ function RoomForm({
       {/* Basic info */}
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+          <label
+            htmlFor="room-name"
+            className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground"
+          >
             Room Name
           </label>
           <input
+            id="room-name"
             type="text"
             value={form.name}
             onChange={(e) => update("name", e.target.value)}
@@ -318,10 +328,14 @@ function RoomForm({
       {/* Dimensions */}
       <div className="grid gap-3 sm:grid-cols-4">
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+          <label
+            className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground"
+            htmlFor="room-dim-length_m"
+          >
             Length ({form.unit === "meters" ? "m" : "ft"})
           </label>
           <input
+            id="room-dim-length_m"
             type="number"
             step="0.01"
             value={form.length_m}
@@ -331,10 +345,14 @@ function RoomForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+          <label
+            className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground"
+            htmlFor="room-dim-width_m"
+          >
             Width ({form.unit === "meters" ? "m" : "ft"})
           </label>
           <input
+            id="room-dim-width_m"
             type="number"
             step="0.01"
             value={form.width_m}
@@ -344,10 +362,14 @@ function RoomForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+          <label
+            className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground"
+            htmlFor="room-dim-height_m"
+          >
             Height ({form.unit === "meters" ? "m" : "ft"})
           </label>
           <input
+            id="room-dim-height_m"
             type="number"
             step="0.01"
             value={form.height_m}
@@ -550,12 +572,14 @@ function RoomCard({
             <span>Waste: {wasteFactor}%</span>
             {room.material_cost > 0 && (
               <span className="font-semibold text-foreground dark:text-primary-foreground">
-                Material: {currencySymbol}{room.material_cost.toLocaleString()}
+                Material: {currencySymbol}
+                {room.material_cost.toLocaleString()}
               </span>
             )}
             {room.labour_cost > 0 && (
               <span className="font-semibold text-foreground dark:text-primary-foreground">
-                Labour: {currencySymbol}{room.labour_cost.toLocaleString()}
+                Labour: {currencySymbol}
+                {room.labour_cost.toLocaleString()}
               </span>
             )}
           </div>
@@ -726,7 +750,8 @@ function RoomCard({
                       Material Cost
                     </p>
                     <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
-                      {currencySymbol}{room.material_cost.toLocaleString()}
+                      {currencySymbol}
+                      {room.material_cost.toLocaleString()}
                     </p>
                   </div>
                   <div className="rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card p-3">
@@ -734,7 +759,8 @@ function RoomCard({
                       Labour Cost
                     </p>
                     <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
-                      {currencySymbol}{room.labour_cost.toLocaleString()}
+                      {currencySymbol}
+                      {room.labour_cost.toLocaleString()}
                     </p>
                   </div>
                   <div className="rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card p-3">
@@ -742,7 +768,8 @@ function RoomCard({
                       Room Total
                     </p>
                     <p className="text-lg font-bold text-brand-purple">
-                      {currencySymbol}{room.room_total_cost.toLocaleString()}
+                      {currencySymbol}
+                      {room.room_total_cost.toLocaleString()}
                     </p>
                   </div>
                 </div>

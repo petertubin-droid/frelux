@@ -121,6 +121,7 @@ export default function CarbonFootprint() {
                     className="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto]"
                   >
                     <select
+                      aria-label={`Line ${i + 1} material or finish`}
                       className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
                       value={line.category}
                       onChange={(e) => setLine(i, { category: e.target.value })}
@@ -136,6 +137,7 @@ export default function CarbonFootprint() {
                       })}
                     </select>
                     <input
+                      aria-label={`Line ${i + 1} quantity`}
                       type="number"
                       min="0"
                       step="any"

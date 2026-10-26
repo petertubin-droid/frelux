@@ -147,6 +147,7 @@ export default function ColorPreview() {
                   JPG, PNG up to 4MB
                 </p>
                 <input
+                  aria-label="Room photo upload"
                   ref={fileRef}
                   type="file"
                   accept="image/jpeg,image/png"
@@ -160,10 +161,14 @@ export default function ColorPreview() {
           {/* Room Context */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="cp-room-type"
+                className="text-sm font-medium text-foreground"
+              >
                 Room Type
               </label>
               <select
+                id="cp-room-type"
                 value={roomType}
                 onChange={(e) => setRoomType(e.target.value)}
                 className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
@@ -180,10 +185,14 @@ export default function ColorPreview() {
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="cp-lighting"
+                className="text-sm font-medium text-foreground"
+              >
                 Lighting
               </label>
               <select
+                id="cp-lighting"
                 value={lighting}
                 onChange={(e) => setLighting(e.target.value)}
                 className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
@@ -198,10 +207,14 @@ export default function ColorPreview() {
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="cp-mood"
+                className="text-sm font-medium text-foreground"
+              >
                 Desired Mood
               </label>
               <select
+                id="cp-mood"
                 value={mood}
                 onChange={(e) => setMood(e.target.value)}
                 className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
@@ -217,10 +230,14 @@ export default function ColorPreview() {
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="cp-style"
+                className="text-sm font-medium text-foreground"
+              >
                 Interior Style
               </label>
               <select
+                id="cp-style"
                 value={style}
                 onChange={(e) => setStyle(e.target.value)}
                 className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
@@ -239,10 +256,14 @@ export default function ColorPreview() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-foreground">
+            <label
+              htmlFor="cp-description"
+              className="text-sm font-medium text-foreground"
+            >
               Additional Description
             </label>
             <textarea
+              id="cp-description"
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -270,12 +291,14 @@ export default function ColorPreview() {
               {colors.map((color, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <input
+                    aria-label={`Colour ${i + 1} picker`}
                     type="color"
                     value={color.hex}
                     onChange={(e) => updateColor(i, "hex", e.target.value)}
                     className="h-10 w-10 cursor-pointer rounded border"
                   />
                   <input
+                    aria-label={`Colour ${i + 1} name`}
                     value={color.name}
                     onChange={(e) => updateColor(i, "name", e.target.value)}
                     placeholder="Color name"

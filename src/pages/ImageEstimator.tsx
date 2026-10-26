@@ -1,6 +1,6 @@
 import HeroTitle from "@/components/ui/HeroTitle";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useId } from "react";
 import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { trackAiPhotoEstimatorRewards } from "@/lib/rewards-integration";
@@ -469,6 +469,7 @@ export default function ImageEstimator() {
                 </>
               )}
               <input
+                aria-label="Building photo"
                 ref={fileRef}
                 type="file"
                 accept="image/jpeg,image/png"
@@ -487,10 +488,14 @@ export default function ImageEstimator() {
                 </h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground mb-1 block">
+                    <label
+                      htmlFor="image-project-name"
+                      className="text-sm font-medium text-muted-foreground mb-1 block"
+                    >
                       Project name (optional)
                     </label>
                     <input
+                      id="image-project-name"
                       type="text"
                       value={projectName}
                       onChange={(e) => setProjectName(e.target.value)}
@@ -499,10 +504,14 @@ export default function ImageEstimator() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground mb-1 block">
+                    <label
+                      htmlFor="image-project-location"
+                      className="text-sm font-medium text-muted-foreground mb-1 block"
+                    >
                       Location
                     </label>
                     <input
+                      id="image-project-location"
                       type="text"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
@@ -1360,12 +1369,17 @@ function NumberField({
   onChange: (v: number) => void;
   step?: string;
 }) {
+  const fieldId = useId();
   return (
     <div>
-      <label className="text-xs font-medium text-muted-foreground mb-1 block">
+      <label
+        htmlFor={fieldId}
+        className="text-xs font-medium text-muted-foreground mb-1 block"
+      >
         {label}
       </label>
       <input
+        id={fieldId}
         type="number"
         value={value}
         step={step}
@@ -1387,12 +1401,17 @@ function ParamField({
   onChange: (v: string) => void;
   options: string[];
 }) {
+  const fieldId = useId();
   return (
     <div>
-      <label className="text-xs font-medium text-muted-foreground mb-1 block">
+      <label
+        htmlFor={fieldId}
+        className="text-xs font-medium text-muted-foreground mb-1 block"
+      >
         {label}
       </label>
       <select
+        id={fieldId}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg border border-border px-2.5 py-1.5 text-sm text-foreground focus:border-brand-purple focus:outline-none"

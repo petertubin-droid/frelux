@@ -233,6 +233,7 @@ export default function TemplatePicker({
                               {editingId === t.id ? (
                                 <div className="flex flex-1 items-center gap-1">
                                   <input
+                                    aria-label="Template name"
                                     value={editName}
                                     onChange={(e) =>
                                       setEditName(e.target.value)
@@ -345,6 +346,7 @@ export default function TemplatePicker({
                       <div className="mt-3 border-t border-border/50 pt-3">
                         <div className="flex gap-2">
                           <input
+                            aria-label="Save current as template name"
                             value={saveName}
                             onChange={(e) => setSaveName(e.target.value)}
                             placeholder="Save current as template…"

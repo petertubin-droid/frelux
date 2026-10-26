@@ -743,11 +743,21 @@ export default function ProjectDetail() {
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-primary/20 bg-primary/5">
               <div>
-                <p className="font-semibold text-sm">Need commercial package rounding or purchase requisitions?</p>
-                <p className="text-xs text-muted-foreground">Apply whole-pack rules and export a purchase requisition CSV.</p>
+                <p className="font-semibold text-sm">
+                  Need commercial package rounding or purchase requisitions?
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Apply whole-pack rules and export a purchase requisition CSV.
+                </p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setTab("procurement")} className="shrink-0">
-                <PackageCheck className="h-4 w-4 mr-2 text-primary" /> Open Procurement Tab
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setTab("procurement")}
+                className="shrink-0"
+              >
+                <PackageCheck className="h-4 w-4 mr-2 text-primary" /> Open
+                Procurement Tab
               </Button>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
@@ -828,6 +838,7 @@ export default function ProjectDetail() {
                         </td>
                         <td className="p-3">
                           <input
+                            aria-label={`Actual price for ${item.name}`}
                             type="number"
                             className="w-24 rounded border bg-background px-2 py-1 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
                             placeholder=""
@@ -973,6 +984,7 @@ export default function ProjectDetail() {
                         </p>
                       )}
                       <input
+                        aria-label={`Notes for stage ${stage.stage_name}`}
                         className="mt-3 w-full rounded-lg border bg-background px-3 py-2 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
                         placeholder="Add notes for this stage..."
                         defaultValue={stage.notes || ""}

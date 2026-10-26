@@ -1261,10 +1261,15 @@ export default function BuildToRoofEstimator() {
                             className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-muted/50 border border-border/50"
                           >
                             <div>
-                              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                              <label
+                                htmlFor={`opening-type-${i}`}
+                                className="text-xs font-medium text-muted-foreground mb-1 block"
+                              >
                                 Type
                               </label>
                               <select
+                                id={`opening-type-${i}`}
+                                aria-label={`Opening ${i + 1} type`}
                                 value={opening.type}
                                 onChange={(e) => {
                                   const openings = [...input.openings];
@@ -2021,10 +2026,15 @@ export default function BuildToRoofEstimator() {
                                 className="grid grid-cols-2 md:grid-cols-6 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-muted/50 border border-border/50"
                               >
                                 <div>
-                                  <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                                  <label
+                                    htmlFor={`member-type-${i}`}
+                                    className="text-xs font-medium text-muted-foreground mb-1 block"
+                                  >
                                     Type
                                   </label>
                                   <select
+                                    id={`member-type-${i}`}
+                                    aria-label={`Structural member ${i + 1} type`}
                                     value={member.type}
                                     onChange={(e) => {
                                       const members = [
@@ -2809,10 +2819,14 @@ export default function BuildToRoofEstimator() {
                             </p>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                               <div>
-                                <label className="text-sm font-medium text-muted-foreground mb-1 block">
+                                <label
+                                  htmlFor="btr-contractor-fee-type"
+                                  className="text-sm font-medium text-muted-foreground mb-1 block"
+                                >
                                   Payment type
                                 </label>
                                 <select
+                                  id="btr-contractor-fee-type"
                                   value={input.labour.contractor_fee_type}
                                   onChange={(e) =>
                                     update("labour", {

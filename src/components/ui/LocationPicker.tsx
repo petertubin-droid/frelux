@@ -193,6 +193,7 @@ export default function LocationPicker({
         <div className="rounded-lg border border-border bg-muted/50 p-3 dark:border-white/10 dark:bg-white/5">
           <div className="flex flex-wrap gap-2">
             <select
+              aria-label="State"
               value={manualState}
               onChange={(e) => {
                 setManualState(e.target.value);
@@ -208,6 +209,7 @@ export default function LocationPicker({
               ))}
             </select>
             <select
+              aria-label="City or area"
               value={manualCity}
               onChange={(e) => setManualCity(e.target.value)}
               disabled={!manualState}

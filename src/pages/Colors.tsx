@@ -349,6 +349,7 @@ export default function Colors() {
                   className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                 />
                 <input
+                  aria-label="Search colours"
                   type="search"
                   value={query}
                   onChange={(e) => {
@@ -360,6 +361,7 @@ export default function Colors() {
                 />
               </div>
               <select
+                aria-label="Sort colours"
                 value={sort}
                 onChange={(e) => setSort(e.target.value as typeof sort)}
                 className="input-field sm:w-auto"
@@ -565,6 +567,7 @@ export default function Colors() {
                 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
               />
               <input
+                aria-label="Search saved palettes"
                 type="search"
                 value={paletteQuery}
                 onChange={(e) => setPaletteQuery(e.target.value)}

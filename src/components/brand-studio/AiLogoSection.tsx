@@ -153,10 +153,14 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
+                  <label
+                    htmlFor="logo-industry"
+                    className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80"
+                  >
                     Industry / Category
                   </label>
                   <input
+                    id="logo-industry"
                     type="text"
                     value={industry}
                     onChange={(e) => setIndustry(e.target.value)}
@@ -165,10 +169,14 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
+                  <label
+                    htmlFor="logo-style"
+                    className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80"
+                  >
                     Style
                   </label>
                   <select
+                    id="logo-style"
                     value={style}
                     onChange={(e) => setStyle(e.target.value)}
                     className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
@@ -183,10 +191,14 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
+                <label
+                  htmlFor="logo-colours"
+                  className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80"
+                >
                   Colour Preferences (optional)
                 </label>
                 <input
+                  id="logo-colours"
                   type="text"
                   value={colorPrefs}
                   onChange={(e) => setColorPrefs(e.target.value)}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useId } from "react";
 import {
   Bot,
   Save,
@@ -547,6 +547,7 @@ function AiBreakdownTab({
       <div className="flex flex-wrap gap-2">
         <div className="flex flex-1 gap-2">
           <input
+            aria-label="Saved calculation title"
             type="text"
             value={saveTitle}
             onChange={(e) => setSaveTitle(e.target.value)}
@@ -815,6 +816,7 @@ function AiTab({
         </p>
         <div className="mt-3 flex gap-2">
           <input
+            aria-label="Ask a question about this result"
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
@@ -969,12 +971,17 @@ function NumField({
   onChange: (v: number) => void;
   step?: number;
 }) {
+  const fieldId = useId();
   return (
     <div>
-      <label className="text-xs font-semibold text-muted-foreground">
+      <label
+        htmlFor={fieldId}
+        className="text-xs font-semibold text-muted-foreground"
+      >
         {label}
       </label>
       <input
+        id={fieldId}
         type="number"
         value={value}
         step={step}

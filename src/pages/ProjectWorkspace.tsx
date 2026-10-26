@@ -252,6 +252,7 @@ export default function ProjectWorkspace() {
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
+              aria-label="Search projects"
               className="w-full rounded-lg border pl-10 pr-4 py-2.5 text-sm bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
               placeholder="Search projects..."
               value={search}
@@ -259,6 +260,7 @@ export default function ProjectWorkspace() {
             />
           </div>
           <select
+            aria-label="Sort projects"
             className="rounded-lg border bg-background px-3 py-2.5 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 outline-none"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -405,8 +407,11 @@ export default function ProjectWorkspace() {
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className={labelCls}>Project Name *</label>
+                  <label htmlFor="pw-name" className={labelCls}>
+                    Project Name *
+                  </label>
                   <input
+                    id="pw-name"
                     className={inputCls}
                     value={newProject.name}
                     onChange={(e) =>
@@ -417,8 +422,11 @@ export default function ProjectWorkspace() {
                   />
                 </div>
                 <div>
-                  <label className={labelCls}>Description</label>
+                  <label htmlFor="pw-description" className={labelCls}>
+                    Description
+                  </label>
                   <textarea
+                    id="pw-description"
                     className={inputCls}
                     rows={2}
                     value={newProject.description}
@@ -433,8 +441,11 @@ export default function ProjectWorkspace() {
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className={labelCls}>Project Type</label>
+                    <label htmlFor="pw-type" className={labelCls}>
+                      Project Type
+                    </label>
                     <select
+                      id="pw-type"
                       className={inputCls}
                       value={newProject.project_type}
                       onChange={(e) =>
@@ -452,8 +463,11 @@ export default function ProjectWorkspace() {
                     </select>
                   </div>
                   <div>
-                    <label className={labelCls}>Building Type</label>
+                    <label htmlFor="pw-building-type" className={labelCls}>
+                      Building Type
+                    </label>
                     <select
+                      id="pw-building-type"
                       className={inputCls}
                       value={newProject.building_type}
                       onChange={(e) =>

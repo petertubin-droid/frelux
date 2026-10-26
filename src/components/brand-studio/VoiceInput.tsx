@@ -201,6 +201,7 @@ export function VoiceInput({
       <div className="flex items-start gap-2">
         {multiline ? (
           <textarea
+            aria-label={label ?? placeholder ?? "Voice input"}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
@@ -210,6 +211,7 @@ export function VoiceInput({
         ) : (
           <input
             type="text"
+            aria-label={label ?? placeholder ?? "Voice input"}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
@@ -217,7 +219,8 @@ export function VoiceInput({
           />
         )}
         {isSupported && (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={handleButtonClick}
             className={`shrink-0 rounded-lg p-2 transition-colors ${
