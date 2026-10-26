@@ -177,7 +177,6 @@ describe("designSlab", () => {
   });
 });
 
-
 describe("Regional Concrete Standards & Presets", () => {
   it("resolves IS 456 standard for Indian market", () => {
     const std = getConcreteStandardForMarket("IN");
@@ -238,7 +237,11 @@ describe("Regional Concrete Standards & Presets", () => {
       market_code: "US",
     });
     expect(result.recommended_depth).toBeGreaterThan(0);
-    expect(result.formula_transparency.some((f) => f.includes("ACI 318") && f.includes("3,000 psi"))).toBe(true);
+    expect(
+      result.formula_transparency.some(
+        (f) => f.includes("ACI 318") && f.includes("3,000 psi"),
+      ),
+    ).toBe(true);
   });
 
   it("designs column with Indian IS 456 preset and discloses formula transparency", () => {
@@ -253,6 +256,162 @@ describe("Regional Concrete Standards & Presets", () => {
       market_code: "IN",
     });
     expect(result.recommended_width).toBeGreaterThan(0);
-    expect(result.formula_transparency.some((f) => f.includes("IS 456") && f.includes("M25"))).toBe(true);
+    expect(
+      result.formula_transparency.some(
+        (f) => f.includes("IS 456") && f.includes("M25"),
+      ),
+    ).toBe(true);
+  });
+});
+
+// ── Audit fixes 2026-10-26: standard-aware factors, exact lever arm, column moments ──
+
+describe("audit fixes — F1/F2/F3", () => {
+  const bsBeam: BeamDesignInput = {
+    span: 4.5,
+    tributary_width: 3,
+    dead_load: 8,
+    live_load: 3,
+    concrete_grade: "C25",
+    steel_grade: "Fe500",
+    support_condition: "simply_supported",
+    cover_mm: 25,
+    beam_type: "suspended_beam",
+  };
+
+  it("F1: BS 8110 markets keep 1.4D + 1.6L", () => {
+    const r = designBeam(bsBeam);
+    expect(r.factored_load).toBeCloseTo(1.4 * 24 + 1.6 * 9, 1);
+    expect(
+      r.formula_transparency.some((f) => f.includes("BS 8110: 1.4Gk + 1.6Qk")),
+    ).toBe(true);
+  });
+
+  it("F1: ACI 318 markets use 1.2D + 1.6L and Whitney-block steel design", () => {
+    const r = designBeam({
+      ...bsBeam,
+      concrete_grade: "3000_psi",
+      market_code: "US",
+      cover_mm: 38,
+    });
+    // dead = 8×3 = 24, live = 3×3 = 9 → 1.2×24 + 1.6×9 = 43.2
+    expect(r.factored_load).toBeCloseTo(1.2 * 24 + 1.6 * 9, 1);
+    expect(
+      r.formula_transparency.some((f) =>
+        f.includes("ACI 318-19 LRFD: 1.2D + 1.6L"),
+      ),
+    ).toBe(true);
+    expect(r.formula_transparency.some((f) => f.includes("Whitney"))).toBe(
+      true,
+    );
+    expect(r.formula_transparency.some((f) => f.includes("§9.6.1.2"))).toBe(
+      true,
+    );
+  });
+
+  it("F1: IS 456 markets use 1.5(D+L)", () => {
+    const r = designBeam({
+      ...bsBeam,
+      concrete_grade: "M25",
+      market_code: "IN",
+    });
+    expect(r.factored_load).toBeCloseTo(1.5 * 24 + 1.5 * 9, 1);
+    expect(
+      r.formula_transparency.some((f) => f.includes("IS 456:2000: 1.5(D + L)")),
+    ).toBe(true);
+  });
+
+  it("F2: lever arm uses the exact BS quadratic, never hard-coded 0.87d", () => {
+    const r = designBeam(bsBeam);
+    const f = r.formula_transparency.find((x) => x.startsWith("Lever arm:"));
+    expect(f).toBeTruthy();
+    // z line discloses the quadratic form and the 0.95d cap
+    const zLine = r.formula_transparency.find((x) => x.startsWith("z = d(0.5"));
+    expect(zLine).toBeTruthy();
+    expect(zLine!).toContain("(≤ 0.95d)");
+    // steel line must use the computed z, not 0.87 × d
+    const steelLine = r.formula_transparency.find((x) =>
+      x.startsWith("Steel area required"),
+    );
+    expect(steelLine).toBeTruthy();
+  });
+
+  it("F2: K > 0.156 flags doubly-reinforced with an explicit warning", () => {
+    // Very heavily loaded short beam on C20: drives K above 0.156
+    const r = designBeam({
+      ...bsBeam,
+      dead_load: 60,
+      live_load: 25,
+      concrete_grade: "C20",
+    });
+    const KLine = r.formula_transparency.find((x) =>
+      x.startsWith("Lever arm:"),
+    );
+    expect(KLine).toBeTruthy();
+    if (KLine!.includes("> 0.156")) {
+      expect(r.warnings.some((w) => w.includes("doubly reinforced"))).toBe(
+        true,
+      );
+    }
+  });
+
+  it("F3: column adds the code minimum moment e_min = max(h/300, 20mm)", () => {
+    const r = designColumn({
+      axial_load: 600,
+      height: 3.0,
+      concrete_grade: "C25",
+      steel_grade: "Fe500",
+      cover_mm: 25,
+      is_rectangular: true,
+      unbraced_height_ratio: 10,
+    });
+    expect(
+      r.formula_transparency.some((f) => f.includes("Minimum design moment")),
+    ).toBe(true);
+    expect(r.formula_transparency.some((f) => f.includes("e_min = max("))).toBe(
+      true,
+    );
+    // Bending steel is now part of the total
+    expect(
+      r.formula_transparency.some((f) => f.startsWith("Bending steel")),
+    ).toBe(true);
+    // Capacity disclosure notes the axial-only basis
+    expect(
+      r.formula_transparency.some((f) => f.startsWith("Total steel")),
+    ).toBe(true);
+  });
+
+  it("F3: slender column adds the BS 8110 additional moment M_add", () => {
+    // height/width forced slender: 5m height on a small column
+    const r = designColumn({
+      axial_load: 400,
+      height: 5.0,
+      concrete_grade: "C25",
+      steel_grade: "Fe500",
+      cover_mm: 25,
+      is_rectangular: false,
+      unbraced_height_ratio: 20,
+    });
+    expect(r.short_or_slender).toBe("slender");
+    expect(r.formula_transparency.some((f) => f.includes("M_add"))).toBe(true);
+    expect(r.warnings.some((w) => w.includes("Additional moment"))).toBe(true);
+  });
+
+  it("F1: slab factored load follows the governing standard", () => {
+    const slabUS = designSlab({
+      span_x: 3.6,
+      span_y: 5.0,
+      slab_type: "one_way",
+      support_condition: "simply_supported",
+      live_load: 2.5,
+      dead_load: 1.5,
+      concrete_grade: "3000_psi",
+      steel_grade: "Fe500",
+      cover_mm: 25,
+      market_code: "US",
+    });
+    expect(
+      slabUS.formula_transparency.some((f) => f.includes("ACI 318-19 LRFD")),
+    ).toBe(true);
   });
 });
