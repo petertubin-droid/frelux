@@ -34,6 +34,7 @@ import {
   createEstimateItem,
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
+import { BarBendingSchedulePanel } from "@/components/calculators/BarBendingSchedulePanel";
 import { useEstimatorDraft } from "@/hooks/useEstimatorDraft";
 import { CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
@@ -742,6 +743,7 @@ export default function ReinforcementEstimator() {
           </li>
         </ul>
       </section>
+      <BarBendingSchedulePanel />
     </Container>
   );
 }
