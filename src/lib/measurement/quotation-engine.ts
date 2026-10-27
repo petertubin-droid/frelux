@@ -65,6 +65,20 @@ export interface QuotationSettings {
   customerVatRegistered?: boolean;
   /** US state/local sales-tax tiers; additive, never compounded. */
   salesTaxTiers?: UsSalesTaxTier[];
+  /** US: works qualify as a capital improvement (labour exempt from sales tax). */
+  capitalImprovement?: boolean;
+  /** Canada: province code drives GST/HST/PST; unknown codes are refused. */
+  canadaProvince?: CanadaProvinceCode;
+  /** Canada: extend the provincial sales tax to labour when the province taxes the service. */
+  canadaPstAppliesTo?: "materials" | "both";
+  /** India: supplier state code (CGST/SGST vs IGST depends on it). */
+  indiaSupplierState?: string;
+  /** India: place-of-supply state code. */
+  indiaPlaceOfSupplyState?: string;
+  /** India: per-contract HSN/SAC rate overrides; unmatched codes are refused, never guessed. */
+  indiaRateOverrides?: Record<string, number>;
+  /** India: BOQ/line items with HSN/SAC codes, when the caller can supply them. */
+  indiaItems?: IndiaGstLineItem[];
 }
 
 export const DEFAULT_QUOTATION_SETTINGS: QuotationSettings = {
@@ -117,10 +131,16 @@ import type {
 import { computeQuoteTax } from "@/lib/tax/quote-tax";
 import {
   CIS_SCHEME_LABELS,
+  computeCanadaSalesTax,
   computeCisDeduction,
+  computeIndiaGst,
   computeReverseChargeVat,
   computeUsSalesTax,
+  type CanadaProvinceCode,
+  type CanadaTaxResult,
   type CisScheme,
+  type IndiaGstLineItem,
+  type IndiaGstResult,
   type ReverseChargeVat,
   type UsSalesTaxResult,
   type UsSalesTaxTier,
@@ -154,6 +174,10 @@ export interface QuotationDocument {
   taxComputation?: QuoteTaxComputation;
   /** US multi-tier sales tax breakdown, when tiers were supplied. */
   salesTax?: UsSalesTaxResult;
+  /** Canada GST/HST/PST breakdown, when a province was supplied. */
+  canadaTax?: CanadaTaxResult;
+  /** India GST HSN/SAC breakdown, when items and states were supplied. */
+  indiaGst?: IndiaGstResult;
   /** UK reverse-charge treatment, when requested. */
   reverseCharge?: ReverseChargeVat;
   /** UK CIS deduction taken from labour, 0 when not applicable. */
@@ -266,11 +290,44 @@ export function buildQuotation(params: {
       tiers: settings.salesTaxTiers,
       materials: materialsTotal,
       labour: labourTotal,
+      capitalImprovement: settings.capitalImprovement,
     });
     if (salesTax.errors.length === 0) {
       taxAmount = salesTax.totalTax;
       grandTotal = taxableBase + taxAmount;
       taxPercent = salesTax.combinedRatePct;
+    }
+  }
+
+  // Canada GST/HST/PST: the province code drives verified rates.
+  let canadaTax: CanadaTaxResult | null = null;
+  if (settings.canadaProvince) {
+    canadaTax = computeCanadaSalesTax({
+      province: settings.canadaProvince,
+      materials: materialsTotal,
+      labour: labourTotal,
+      pstAppliesTo: settings.canadaPstAppliesTo,
+    });
+    if (canadaTax.errors.length === 0) {
+      taxAmount = canadaTax.totalTax;
+      grandTotal = taxableBase + taxAmount;
+      taxPercent = canadaTax.combinedRatePct;
+    }
+  }
+
+  // India GST: HSN/SAC code matching per line, CGST/SGST or IGST by state pair.
+  let indiaGst: IndiaGstResult | null = null;
+  if (settings.indiaSupplierState && settings.indiaPlaceOfSupplyState && settings.indiaItems?.length) {
+    indiaGst = computeIndiaGst({
+      items: settings.indiaItems,
+      supplierState: settings.indiaSupplierState,
+      placeOfSupplyState: settings.indiaPlaceOfSupplyState,
+      rateOverrides: settings.indiaRateOverrides,
+    });
+    if (indiaGst.warnings.length === 0) {
+      taxAmount = indiaGst.totalTax;
+      grandTotal = taxableBase + taxAmount;
+      taxPercent = null; // per-HSN rates: no single percentage expresses it
     }
   }
 
@@ -296,6 +353,8 @@ export function buildQuotation(params: {
     : null;
   const cisDeduction = cis?.deduction ?? 0;
   const netPayable = Math.round((grandTotal - cisDeduction) * 100) / 100;
+  const canadaTaxResult = canadaTax && canadaTax.errors.length === 0 ? canadaTax : null;
+  const indiaGstResult = indiaGst ? indiaGst : null;
 
   const currency = settings.currency;
 
@@ -630,6 +689,8 @@ export function buildQuotation(params: {
     ...(taxResolution ? { taxResolution } : {}),
     ...(taxComputation ? { taxComputation } : {}),
     ...(salesTax ? { salesTax } : {}),
+    ...(canadaTaxResult ? { canadaTax: canadaTaxResult } : {}),
+    ...(indiaGstResult ? { indiaGst: indiaGstResult } : {}),
     ...(reverseCharge ? { reverseCharge } : {}),
     cisDeduction,
     netPayable,

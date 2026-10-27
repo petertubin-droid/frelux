@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  CANADA_TAX_PROVINCES,
   CIS_RATES,
   CIS_SCHEME_LABELS,
+  computeCanadaSalesTax,
   computeCisDeduction,
+  computeIndiaGst,
   computeReverseChargeVat,
   computeUsSalesTax,
   type UsSalesTaxTier,
@@ -159,5 +162,185 @@ describe("US multi-tier sales tax", () => {
     });
     expect(st.totalTax).toBe(0);
     expect(st.notes.join(" ")).toContain("no taxable base");
+  });
+});
+
+
+describe("US capital improvement labour exemption", () => {
+  const tiers: UsSalesTaxTier[] = [
+    { kind: "state", name: "New York State", ratePct: 4, appliesTo: "both" },
+    { kind: "city", name: "NYC", ratePct: 4.5, appliesTo: "both" },
+  ];
+
+  it("exempts labour from every tier on a capital improvement", () => {
+    const r = computeUsSalesTax({
+      tiers,
+      materials: 10000,
+      labour: 5000,
+      capitalImprovement: true,
+    });
+    // Without the flag, NY taxes services: base would be 15000 per tier.
+    expect(r.lines.every((l) => l.appliesTo === "materials")).toBe(true);
+    expect(r.lines.every((l) => l.base === 10000)).toBe(true);
+    expect(r.totalTax).toBe(850); // 8.5% of materials only
+    expect(r.notes.join(" ")).toContain("Capital improvement");
+  });
+
+  it("keeps taxing services when the works are NOT a capital improvement", () => {
+    const r = computeUsSalesTax({
+      tiers,
+      materials: 10000,
+      labour: 5000,
+    });
+    expect(r.lines.every((l) => l.appliesTo === "both")).toBe(true);
+    expect(r.totalTax).toBe(1275); // 8.5% of the full 15000
+  });
+});
+
+describe("Canada GST / HST / PST", () => {
+  it("charges the single Ontario HST on the full base", () => {
+    const r = computeCanadaSalesTax({
+      province: "ON",
+      materials: 10000,
+      labour: 5000,
+    });
+    expect(r.errors).toHaveLength(0);
+    expect(r.lines).toHaveLength(1);
+    expect(r.lines[0].kind).toBe("hst");
+    expect(r.lines[0].ratePct).toBe(13);
+    expect(r.lines[0].base).toBe(15000);
+    expect(r.totalTax).toBe(1950);
+    expect(r.combinedRatePct).toBe(13);
+  });
+
+  it("adds GST and BC PST, with PST on materials only by default", () => {
+    const r = computeCanadaSalesTax({
+      province: "BC",
+      materials: 10000,
+      labour: 5000,
+    });
+    expect(r.errors).toHaveLength(0);
+    expect(r.lines.map((l) => l.kind)).toEqual(["gst", "pst"]);
+    const gst = r.lines[0];
+    const pst = r.lines[1];
+    expect(gst.base).toBe(15000); // GST taxes materials + labour
+    expect(gst.amount).toBe(750);
+    expect(pst.base).toBe(10000); // PST: materials only
+    expect(pst.amount).toBe(700);
+    expect(r.totalTax).toBe(1450);
+    expect(r.notes.join(" ")).toContain("materials only");
+  });
+
+  it("extends PST to labour only when the caller says so", () => {
+    const r = computeCanadaSalesTax({
+      province: "BC",
+      materials: 10000,
+      labour: 5000,
+      pstAppliesTo: "both",
+    });
+    expect(r.lines[1].base).toBe(15000);
+    expect(r.lines[1].amount).toBe(1050);
+  });
+
+  it("charges GST only in Alberta", () => {
+    const r = computeCanadaSalesTax({
+      province: "AB",
+      materials: 10000,
+      labour: 5000,
+    });
+    expect(r.lines.map((l) => l.kind)).toEqual(["gst"]);
+    expect(r.totalTax).toBe(750);
+  });
+
+  it("carries the harmonised rates in the province table", () => {
+    expect(CANADA_TAX_PROVINCES.ON.hstPct).toBe(13);
+    expect(CANADA_TAX_PROVINCES.NS.hstPct).toBe(15);
+    expect(CANADA_TAX_PROVINCES.NB.hstPct).toBe(15);
+    expect(CANADA_TAX_PROVINCES.AB.hstPct).toBeNull();
+    expect(CANADA_TAX_PROVINCES.AB.gstPct).toBe(5);
+  });
+
+  it("refuses an unknown province instead of guessing", () => {
+    const r = computeCanadaSalesTax({
+      province: "XX" as never,
+      materials: 10000,
+      labour: 5000,
+    });
+    expect(r.errors).toHaveLength(1);
+    expect(r.errors[0]).toContain("no Canadian tax rates are guessed");
+    expect(r.totalTax).toBe(0);
+  });
+});
+
+describe("India GST — HSN/SAC matching", () => {
+  const items = [
+    { hsnCode: "2523", amount: 100000 }, // cement, 28%
+    { hsnCode: "7214", amount: 50000 },  // steel, 18%
+    { hsnCode: "995459", amount: 40000 }, // works contract, 12%
+  ];
+
+  it("splits intra-state GST into CGST and SGST at half the HSN rate", () => {
+    const r = computeIndiaGst({
+      items,
+      supplierState: "MH",
+      placeOfSupplyState: "MH",
+    });
+    expect(r.warnings).toHaveLength(0);
+    expect(r.interState).toBe(false);
+    const cement = r.lines.find((l) => l.hsnCode === "2523")!;
+    expect(cement.ratePct).toBe(28);
+    expect(cement.mode).toBe("cgst_sgst");
+    expect(cement.cgst).toBe(14000);
+    expect(cement.sgst).toBe(14000);
+    const steel = r.lines.find((l) => l.hsnCode === "7214")!;
+    expect(steel.cgst + steel.sgst).toBe(9000);
+    const works = r.lines.find((l) => l.hsnCode === "995459")!;
+    expect(works.totalTax).toBe(4800);
+    expect(r.totalTax).toBe(28000 + 9000 + 4800);
+  });
+
+  it("charges full-rate IGST on inter-state supplies", () => {
+    const r = computeIndiaGst({
+      items,
+      supplierState: "MH",
+      placeOfSupplyState: "DL",
+    });
+    expect(r.interState).toBe(true);
+    const cement = r.lines.find((l) => l.hsnCode === "2523")!;
+    expect(cement.mode).toBe("igst");
+    expect(cement.igst).toBe(28000);
+    expect(cement.cgst).toBe(0);
+    expect(cement.sgst).toBe(0);
+  });
+
+  it("refuses unmatched HSN codes with a warning, never guesses", () => {
+    const r = computeIndiaGst({
+      items: [{ hsnCode: "9999", amount: 1000 }],
+      supplierState: "MH",
+      placeOfSupplyState: "MH",
+    });
+    expect(r.lines).toHaveLength(0);
+    expect(r.warnings.join(" ")).toContain("no GST rate configured");
+    expect(r.totalTax).toBe(0);
+  });
+
+  it("honours per-contract rate overrides", () => {
+    const r = computeIndiaGst({
+      items: [{ hsnCode: "2523", amount: 100000 }],
+      supplierState: "MH",
+      placeOfSupplyState: "MH",
+      rateOverrides: { "2523": 18 },
+    });
+    expect(r.lines[0].ratePct).toBe(18);
+    expect(r.lines[0].totalTax).toBe(18000);
+  });
+
+  it("warns when state codes are missing", () => {
+    const r = computeIndiaGst({
+      items: [{ hsnCode: "2523", amount: 1000 }],
+      supplierState: "",
+      placeOfSupplyState: "",
+    });
+    expect(r.warnings.join(" ")).toContain("state codes are both required");
   });
 });

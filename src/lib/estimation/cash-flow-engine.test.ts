@@ -199,3 +199,104 @@ describe("calculateCashFlow", () => {
     expect(r.payments[0].amount).toBe(1_000_000);
   });
 });
+
+
+describe("Cash-Flow retention / DLP escalation (Commercial Pillar 4)", () => {
+  const base = input({});
+
+  it("keeps the gross schedule untouched when no retention is supplied", () => {
+    const r = calculateCashFlow(input({}));
+    expect(r.retention).toBeUndefined();
+    expect(r.payments.every((p) => p.retained === undefined)).toBe(true);
+    expect(r.scheduled_total).toBe(1_000_000);
+  });
+
+  it("withholds 5% from every milestone and schedules the releases", () => {
+    const r = calculateCashFlow({
+      ...input({}),
+      practicalCompletionDate: "2026-05-01",
+      retention: { retentionPercent: 5, releaseAtPcPercent: 50, dlpMonths: 12 },
+    });
+    expect(r.ok).toBe(true);
+    expect(r.warnings).toHaveLength(0);
+
+    // Every milestone carries gross/net/retained
+    const mob = r.payments[0];
+    expect(mob.gross_amount).toBe(400_000);
+    expect(mob.retained).toBe(20_000);
+    expect(mob.amount).toBe(380_000);
+
+    // Release events are part of the schedule
+    const releaseLabels = r.payments.map((p) => p.label);
+    expect(releaseLabels).toContain("Retention release (Practical Completion)");
+    expect(releaseLabels).toContain("Retention release (after DLP)");
+
+    const pot = 50_000; // 5% of 1,000,000
+    expect(r.retention).toMatchObject({
+      withheldTotal: pot,
+      releaseAtPc: 25_000,
+      releaseAfterDlp: 25_000,
+      pcDate: "2026-05-01",
+      dlpEndDate: "2027-05-01",
+      balances: true,
+      retentionBond: false,
+    });
+
+    // Net disbursements + releases reconcile to the estimate
+    const netSum = r.payments
+      .filter((p) => !p.label.startsWith("Retention release"))
+      .reduce((s, p) => s + p.amount, 0);
+    const releaseSum = r.payments
+      .filter((p) => p.label.startsWith("Retention release"))
+      .reduce((s, p) => s + p.amount, 0);
+    expect(Math.round((netSum + releaseSum) * 100) / 100).toBe(1_000_000);
+    expect(r.scheduled_total).toBe(1_000_000);
+  });
+
+  it("infers Practical Completion from the final milestone and narrates it", () => {
+    const r = calculateCashFlow({
+      ...input({}),
+      retention: { retentionPercent: 5 },
+    });
+    expect(r.retention?.pcDate).toBe("2026-05-15"); // start 2026-01-15 + 4 months
+    expect(r.steps.some((st) => st.label === "Retention release (PC)")).toBe(
+      true,
+    );
+    expect(
+      r.steps.some((st) => st.label === "Retention ledger"),
+    ).toBe(true);
+    const ledger = r.steps.find((st) => st.label === "Retention ledger");
+    expect(ledger?.detail).toContain("reconciles to the estimate");
+  });
+
+  it("keeps milestone payments gross under a retention bond", () => {
+    const r = calculateCashFlow({
+      ...input({}),
+      retention: { retentionPercent: 5, retentionBond: true },
+    });
+    expect(r.ok).toBe(true);
+    expect(r.payments.every((p) => p.retained === 0)).toBe(true);
+    expect(r.payments.every((p) => p.amount === p.gross_amount)).toBe(true);
+    expect(r.payments.every((p) => !p.label.startsWith("Retention release"))).toBe(
+      true,
+    );
+    expect(r.retention?.retentionBond).toBe(true);
+    expect(r.retention?.withheldTotal).toBe(0);
+    expect(r.scheduled_total).toBe(1_000_000);
+    expect(r.steps.some((st) => st.label === "Retention bond")).toBe(true);
+  });
+
+  it("refuses retention escalation gracefully on a broken gross schedule", () => {
+    const r = calculateCashFlow({
+      ...base,
+      total_amount: 1_000_000,
+      retention: { retentionPercent: 150 },
+    });
+    // Gross schedule still produced the warnings? No - broken rate refuses
+    // escalation but the gross schedule itself was valid, so the curve
+    // stands gross with the refusal narrated.
+    expect(r.ok).toBe(true);
+    expect(r.warnings.join(" ")).toContain("could not be computed");
+    expect(r.retention).toBeUndefined();
+  });
+});

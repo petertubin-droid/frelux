@@ -155,3 +155,116 @@ describe('Feature 22: Quotation & Export Engine', () => {
     expect(text).toContain('Grand total');
   });
 });
+
+
+describe('Commercial Pillar 4: jurisdictional tax on proposals', () => {
+  it('carries Ontario HST through the document', () => {
+    const quote = buildQuotation({
+      costEstimate: makeCostEstimate(),
+      labourCost: makeLabourCost(),
+      clientName: 'Maple Builds Inc.',
+      projectName: 'Toronto fit-out',
+      settings: { ...DEFAULT_QUOTATION_SETTINGS, canadaProvince: 'ON' },
+    });
+    expect(quote.canadaTax).toBeDefined();
+    expect(quote.canadaTax!.province.province).toBe('ON');
+    // Supply base = 500000 materials + 50000 labour; contingency is not a supply.
+    expect(quote.canadaTax!.totalTax).toBe(71500); // 13% HST on 550000
+    expect(quote.taxAmount).toBe(71500);
+    // Grand total = taxable base (600000 incl. contingency) + HST
+    expect(quote.grandTotal).toBe(671500);
+  });
+
+  it('carries BC GST+PST with materials-only PST', () => {
+    const quote = buildQuotation({
+      costEstimate: makeCostEstimate(),
+      labourCost: makeLabourCost(),
+      clientName: 'Coast Works Ltd.',
+      projectName: 'Vancouver renovation',
+      settings: { ...DEFAULT_QUOTATION_SETTINGS, canadaProvince: 'BC' },
+    });
+    // GST 5% on 550000 = 27500; PST 7% on materials 500000 = 35000
+    expect(quote.canadaTax!.totalTax).toBe(62500);
+    expect(quote.taxAmount).toBe(62500);
+  });
+
+  it('carries India GST with HSN items and the intra-state split', () => {
+    const quote = buildQuotation({
+      costEstimate: makeCostEstimate(),
+      labourCost: makeLabourCost(),
+      clientName: 'Mumbai Infra Pvt Ltd',
+      projectName: 'Works contract',
+      settings: {
+        ...DEFAULT_QUOTATION_SETTINGS,
+        indiaSupplierState: 'MH',
+        indiaPlaceOfSupplyState: 'MH',
+        indiaItems: [
+          { hsnCode: '2523', amount: 375000 }, // cement 28%
+          { hsnCode: '995459', amount: 50000 }, // works contract 12%
+        ],
+      },
+    });
+    expect(quote.indiaGst).toBeDefined();
+    expect(quote.indiaGst!.interState).toBe(false);
+    // 28% of 375000 = 105000 (CGST 52500 + SGST 52500); 12% of 50000 = 6000
+    expect(quote.indiaGst!.totalTax).toBe(111000);
+    expect(quote.taxAmount).toBe(111000);
+    // Per-HSN rates: no single percentage expresses the tax
+    expect(quote.taxPercent).toBeNull();
+    expect(quote.grandTotal).toBe(711000); // 600000 taxable base + 111000
+  });
+
+  it('switches to IGST when the place of supply is another state', () => {
+    const quote = buildQuotation({
+      costEstimate: makeCostEstimate(),
+      labourCost: makeLabourCost(),
+      clientName: 'Delhi Infra Pvt Ltd',
+      projectName: 'Inter-state works contract',
+      settings: {
+        ...DEFAULT_QUOTATION_SETTINGS,
+        indiaSupplierState: 'MH',
+        indiaPlaceOfSupplyState: 'DL',
+        indiaItems: [{ hsnCode: '2523', amount: 375000 }],
+      },
+    });
+    expect(quote.indiaGst!.interState).toBe(true);
+    expect(quote.indiaGst!.lines[0].mode).toBe('igst');
+    expect(quote.indiaGst!.totalTax).toBe(105000);
+  });
+
+  it('exempts labour from US sales tax on a capital improvement', () => {
+    const quote = buildQuotation({
+      costEstimate: makeCostEstimate(),
+      labourCost: makeLabourCost(),
+      clientName: 'Empire LLC',
+      projectName: 'NYC capital improvement',
+      settings: {
+        ...DEFAULT_QUOTATION_SETTINGS,
+        capitalImprovement: true,
+        salesTaxTiers: [
+          { kind: 'state', name: 'New York State', ratePct: 4, appliesTo: 'both' },
+          { kind: 'city', name: 'NYC', ratePct: 4.5, appliesTo: 'both' },
+        ],
+      },
+    });
+    expect(quote.salesTax).toBeDefined();
+    expect(quote.salesTax!.lines.every((l) => l.appliesTo === 'materials')).toBe(true);
+    // 8.5% on materials only (500000), never on labour
+    expect(quote.salesTax!.totalTax).toBe(42500);
+    expect(quote.taxAmount).toBe(42500);
+  });
+
+  it('does not apply India GST when state codes are missing', () => {
+    const quote = buildQuotation({
+      costEstimate: makeCostEstimate(),
+      labourCost: makeLabourCost(),
+      clientName: 'No State Ltd',
+      projectName: 'Unspecified supply',
+      settings: {
+        ...DEFAULT_QUOTATION_SETTINGS,
+        indiaItems: [{ hsnCode: '2523', amount: 100000 }],
+      },
+    });
+    expect(quote.indiaGst).toBeUndefined();
+  });
+});

@@ -4146,16 +4146,19 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     name: "Cash Flow & Milestone Disbursement Engine",
     category: "costing_commercial",
     classification: "independent_engine",
-    sourceFiles: ["src/lib/estimation/cash-flow-engine.ts"],
+    sourceFiles: [
+      "src/lib/estimation/cash-flow-engine.ts",
+      "src/lib/finance/retention-engine.ts",
+    ],
     consumers: [
-      "src/pages/calculator/CashFlowCalculator.tsx",
+      "src/pages/CashFlowTimeline.tsx",
       "src/pages/admin/AdminCashFlowTemplates.tsx",
     ],
     dependencies: [],
     calculationPurpose:
-      "Calculates project milestone drawdowns, contractor retention withholdings (e.g. 5%), release schedules, and monthly cash outflow curves.",
+      "Calculates project milestone drawdowns, contractor retention withholdings (e.g. 5%), retention-bond substitution, DLP release schedules, and monthly cash outflow curves.",
     keyFormulas:
-      "Disbursement = MilestoneValue * (1 - RetentionRate); S-Curve Cumulative CashFlow = sum(MonthlyDisbursements)",
+      "Disbursement = MilestoneValue * (1 - RetentionRate); ReleaseAtPC = Withheld * ReleaseShare; ReleaseAfterDLP = Withheld - ReleaseAtPC; S-Curve Cumulative CashFlow = sum(NetDisbursements + Releases)",
     marketAssumptions:
       "Standard financial accounting logic valid globally across all currencies.",
     internationalizationStatus: "verified_full",
