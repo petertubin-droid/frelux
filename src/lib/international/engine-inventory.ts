@@ -4884,7 +4884,6 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     ],
     consumers: [
       "src/lib/procurement/records.ts",
-      "src/pages/marketplace/MarketplaceLanding.tsx",
     ],
     dependencies: ["src/lib/procurement/purchase-orders.ts", "src/lib/procurement/state-machine.ts"],
     calculationPurpose:
