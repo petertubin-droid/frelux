@@ -378,7 +378,7 @@ The program's final gate is the handover itself, read in the two lights the room
 The cover photograph shows a worker plastering a wall with care, photographed by Johnnybam and made available under CC BY-SA 4.0 via Wikimedia Commons. It is a real photograph, not AI generated, and its license was verified through the Wikimedia Commons API at the time this article was drafted.
 
 $wallarticle4$, 8, 'quality', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e4/Plastering_the_Wall_with_Care.jpg/1280px-Plastering_the_Wall_with_Care.jpg')
-, ('gb-wet-plaster-maintenance-repair', 'UK Wet Plaster Walls: Maintenance and Repair', 'A British maintenance guide for two-coat wet plaster walls: reading cracks and hollows, patching in the wall's own materials, the repaint cycle, and the heritage handoffs that deserve specialists.', $wallarticle5$# UK Wet Plaster Walls: Maintenance and Repair
+, ('gb-wet-plaster-maintenance-repair', 'UK Wet Plaster Walls: Maintenance and Repair', 'A British maintenance guide for two-coat wet plaster walls: reading cracks and hollows, patching in the wall''s own materials, the repaint cycle, and the heritage handoffs that deserve specialists.', $wallarticle5$# UK Wet Plaster Walls: Maintenance and Repair
 
 A wet plastered wall is the most repairable surface in the British finish family, because its materials are universal and its craft is local: this article is the householder's and steward's guide to keeping the surface honest for the decades it was built to carry.
 

@@ -211,7 +211,7 @@ The shelf's tools deserve a roll call before the article closes: the hawk and fl
 The cover photograph shows a dry silo mortar installation on a British site, photographed by Alexander P Kapp and made available under CC BY-SA 2.0 via Wikimedia Commons. It is a real photograph, not AI generated, and its license was verified through the Wikimedia Commons API at the time this article was drafted.
 
 $wallarticle2$, 8, 'materials', 'https://upload.wikimedia.org/wikipedia/commons/6/62/Dry_Silo_Mortar_-_geograph.org.uk_-_758902.jpg')
-, ('gb-exterior-render-paint-installation', 'Rendering and Painting UK Walls: Installation', 'A British installation sequence for the exterior chain: preparing the masonry, running base and finishing coats to the system instructions, holding the weather discipline, then cleaning, filling and painting the masonry to the manufacturer's conditions.', $wallarticle3$# Rendering and Painting UK Walls: Installation
+, ('gb-exterior-render-paint-installation', 'Rendering and Painting UK Walls: Installation', 'A British installation sequence for the exterior chain: preparing the masonry, running base and finishing coats to the system instructions, holding the weather discipline, then cleaning, filling and painting the masonry to the manufacturer''s conditions.', $wallarticle3$# Rendering and Painting UK Walls: Installation
 
 Installation is where the exterior chain earns its keep, in the one weather window the British calendar offers. This article runs the sequence the way the site runs it.
 

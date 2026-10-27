@@ -237,7 +237,7 @@ The installation sequence returns once more to the beads, because they are the w
 The cover photograph shows a skim coat being applied to a wall, taken by the Oregon Department of Transportation and made available under CC BY 2.0 via Wikimedia Commons. It is a real photograph, not AI generated, and its license was verified through the Wikimedia Commons API at the time this article was drafted.
 
 $wallarticle3$, 'installation', 9, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/SkimCoatApplication_%2843376691030%29.jpg/1280px-SkimCoatApplication_%2843376691030%29.jpg')
-, ('gb-interior-block-skim-paint-quality-checks', 'UK Skim and Emulsion Quality Control', 'A British quality program for the interior chain: checking the background before it disappears, the undercoat's rule, the skim's surface honesty, the mist coat's adhesion, and the finished wall under honest light.', $wallarticle4$# UK Skim and Emulsion Quality Control
+, ('gb-interior-block-skim-paint-quality-checks', 'UK Skim and Emulsion Quality Control', 'A British quality program for the interior chain: checking the background before it disappears, the undercoat''s rule, the skim''s surface honesty, the mist coat''s adhesion, and the finished wall under honest light.', $wallarticle4$# UK Skim and Emulsion Quality Control
 
 ## The gate that matters most, before the first bag opens
 
@@ -302,7 +302,7 @@ A quality programme earns its keep on the days it stops the work, and the articl
 The cover photograph shows a plasterer at work, taken for the Rijksdienst voor het Cultureel Erfgoed by photographer G.Th. Delemarre in Velsen and made available under CC BY-SA 4.0 via Wikimedia Commons. It is a real photograph, not AI generated, and its license was verified through the Wikimedia Commons API at the time this article was drafted.
 
 $wallarticle4$, 'quality', 8, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Stucadoor_in_actie_-_Velsen_-_20240473_-_RCE.jpg/1280px-Stucadoor_in_actie_-_Velsen_-_20240473_-_RCE.jpg')
-, ('gb-interior-block-skim-paint-maintenance-repair', 'UK Skimmed Walls: Maintenance and Repair', 'A British maintenance guide for skimmed and emulsioned walls: the first year's hairlines, patch repairs that match, stain honesty, repaint cycles, and the rooms that ask more of their walls.', $wallarticle5$# UK Skimmed Walls: Maintenance and Repair
+, ('gb-interior-block-skim-paint-maintenance-repair', 'UK Skimmed Walls: Maintenance and Repair', 'A British maintenance guide for skimmed and emulsioned walls: the first year''s hairlines, patch repairs that match, stain honesty, repaint cycles, and the rooms that ask more of their walls.', $wallarticle5$# UK Skimmed Walls: Maintenance and Repair
 
 ## The first year, read as drying
 
