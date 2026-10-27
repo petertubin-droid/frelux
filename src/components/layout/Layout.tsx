@@ -5,6 +5,7 @@ import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AdSlot from "@/components/ui/AdSlot";
+import { StickyBottomAd } from "@/components/ui/StickyBottomAd";
 import AdsterraDirectLink from "@/components/ui/AdsterraDirectLink";
 import {
   hasAdvertisingConsent,
@@ -530,6 +531,10 @@ export default function Layout() {
           AdSense units are present on every route for the approval
           review. */}
       <AdSlot slotKey="adsense_footer" providerSlug="google_adsense" />
+      {/* Sticky bottom anchor slot. Dismissible per session, only shows
+          its bar when a real ad rendered (see StickyBottomAd). Toggle
+          via the "sticky_bottom" placement in Admin -> Ads. */}
+      <StickyBottomAd />
       <AdsterraDirectLink />
       {adsterraNative && hasAdvertisingConsent() && (
         <div
