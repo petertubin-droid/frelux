@@ -35,7 +35,10 @@ import { useSeo } from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
-import { formatByCode, getCurrencySymbol } from "@/lib/international/currency-format";
+import {
+  formatByCode,
+  getCurrencySymbol,
+} from "@/lib/international/currency-format";
 
 function formatBudget(
   min: number | null,
@@ -623,8 +626,6 @@ export default function ListingDetail() {
       <AdSlot slotKey="marketplace_sidebar" className="mt-8" />
       {/* Native banner slot, placement "marketplace_native" */}
       <AdSlot slotKey="marketplace_native" className="mt-8" />
-      {/* Ad slot, placement "marketplace_bottom" */}
-      <AdSlot slotKey="marketplace_bottom" className="mt-8" />
     </div>
   );
 }

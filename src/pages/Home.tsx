@@ -274,12 +274,6 @@ export default function Home() {
         <CrossPromoSlot slotIndex={0} source="home_1" />
       </div>
 
-      {/* Ad slot, placement "home_bottom" */}
-      <AdSlot
-        slotKey="home_bottom"
-        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
-      />
-
       {/* AdSense-dedicated homepage slot: locked to google_adsense only
           (owner directive 2026-10-10). Label "Google". */}
       <AdSlot

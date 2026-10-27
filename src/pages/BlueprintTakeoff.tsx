@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
-import AdSlot from "@/components/ui/AdSlot";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
@@ -1084,7 +1083,6 @@ export default function BlueprintTakeoff() {
           </aside>
         </div>
         <EstimateDisclaimer text="Plan scale, scan resolution, drawing distortion, and manual measurement points affect accuracy. Cross-check takeoff quantities against the source drawings and site conditions; this tool does not provide structural design or code-compliance approval." />
-        <AdSlot slotKey="calculator_bottom" className="mt-8" />
       </Container>
     </div>
   );

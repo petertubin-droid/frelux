@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, AlertCircle, Search, BookOpen } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
-import AdSlot from "@/components/ui/AdSlot";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
@@ -211,9 +210,7 @@ export default function Glossary() {
           </div>
         )}
 
-        <div className="mt-10">
-          <AdSlot slotKey="home_bottom" />
-        </div>
+        <div className="mt-10"></div>
       </div>
     </>
   );

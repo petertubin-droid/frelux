@@ -16,7 +16,10 @@ import {
 import PageHeader from "@/components/ui/PageHeader";
 import { calculateScreedingSystem, dbToSystemConfig } from "@/lib/calc";
 import { calculateLabourCost } from "@/lib/labour";
-import { printQuote, exportQuoteToDocumentStudio } from "@/lib/estimation/quote-export";
+import {
+  printQuote,
+  exportQuoteToDocumentStudio,
+} from "@/lib/estimation/quote-export";
 import { useNavigate } from "react-router-dom";
 import LabourCostSection, {
   useLabourConfig,
@@ -838,21 +841,61 @@ export default function ScreedingCostEstimator({
                               const breakdowns =
                                 result.systemType === "putty"
                                   ? [result.putty]
-                                  : [result.paint, result.cement, ...(result.extra ? [result.extra] : [])];
-                              const materials = breakdowns.filter((b): b is ScreedingMaterialBreakdown => Boolean(b)).map((b) => ({
-                                label: b.name,
-                                quantity: b.purchaseQuantity || b.finalQuantity,
-                                unit: b.unit,
-                                unitPrice: b.pricePerUnit || 0,
-                              }));
-                              materials.push({ label: "Labour Cost", quantity: 1, unit: "lot", unitPrice: labourCost });
-                              exportQuoteToDocumentStudio({
-                                title: `${finishTerm} Cost Estimate`,
-                                subtitle: `Net Area: ${formatNumber(result.netScreedingArea, 2)} m² · System: ${result.systemType}`,
-                                metaRows: [["Net Area", `${formatNumber(result.netScreedingArea, 2)} m²`], ["System", result.systemType]],
-                                lines: materials.map(m => ({ label: m.label, quantity: String(m.quantity), unit: m.unit, unit_price: String(m.unitPrice), line_total: String(m.quantity * m.unitPrice) })),
-                                totals: [{ label: "Grand Total", value: formatCurrency((result.materialCost || 0) + labourCost, currencySymbol), strong: true }]
-                              }, currencySymbol === "₦" ? "NGN" : "USD");
+                                  : [
+                                      result.paint,
+                                      result.cement,
+                                      ...(result.extra ? [result.extra] : []),
+                                    ];
+                              const materials = breakdowns
+                                .filter((b): b is ScreedingMaterialBreakdown =>
+                                  Boolean(b),
+                                )
+                                .map((b) => ({
+                                  label: b.name,
+                                  quantity:
+                                    b.purchaseQuantity || b.finalQuantity,
+                                  unit: b.unit,
+                                  unitPrice: b.pricePerUnit || 0,
+                                }));
+                              materials.push({
+                                label: "Labour Cost",
+                                quantity: 1,
+                                unit: "lot",
+                                unitPrice: labourCost,
+                              });
+                              exportQuoteToDocumentStudio(
+                                {
+                                  title: `${finishTerm} Cost Estimate`,
+                                  subtitle: `Net Area: ${formatNumber(result.netScreedingArea, 2)} m² · System: ${result.systemType}`,
+                                  metaRows: [
+                                    [
+                                      "Net Area",
+                                      `${formatNumber(result.netScreedingArea, 2)} m²`,
+                                    ],
+                                    ["System", result.systemType],
+                                  ],
+                                  lines: materials.map((m) => ({
+                                    label: m.label,
+                                    quantity: String(m.quantity),
+                                    unit: m.unit,
+                                    unit_price: String(m.unitPrice),
+                                    line_total: String(
+                                      m.quantity * m.unitPrice,
+                                    ),
+                                  })),
+                                  totals: [
+                                    {
+                                      label: "Grand Total",
+                                      value: formatCurrency(
+                                        (result.materialCost || 0) + labourCost,
+                                        currencySymbol,
+                                      ),
+                                      strong: true,
+                                    },
+                                  ],
+                                },
+                                currencySymbol === "₦" ? "NGN" : "USD",
+                              );
                               navigate("/document-studio?calculatorImport=1");
                             }}
                             className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
@@ -998,7 +1041,7 @@ export default function ScreedingCostEstimator({
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
+
       {/* Monetag In-Page Push, placement "calculator_push"
           (zone ID editable in Admin → Ads → Placements) */}
       <AdSlot slotKey="calculator_push" className="mt-8" />

@@ -699,8 +699,6 @@ export default function FlooringEstimator() {
           </li>
         </ul>
       </section>
-
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

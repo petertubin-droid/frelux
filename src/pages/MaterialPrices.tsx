@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import AdSlot from "@/components/ui/AdSlot";
 import {
   Loader2,
   AlertCircle,
@@ -393,9 +392,7 @@ export default function MaterialPrices() {
           </div>
         </div>
 
-        <div className="mt-10">
-          <AdSlot slotKey="home_bottom" />
-        </div>
+        <div className="mt-10"></div>
       </div>
     </>
   );

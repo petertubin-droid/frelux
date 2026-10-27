@@ -202,9 +202,13 @@ export default function WaterproofingEstimator() {
             l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
           unit: l.unit,
           unit_price:
-            l.unit_price === null ? "unpriced" : formatCurrency(l.unit_price, currencySymbol),
+            l.unit_price === null
+              ? "unpriced"
+              : formatCurrency(l.unit_price, currencySymbol),
           line_total:
-            l.line_total === null ? "N/A" : formatCurrency(l.line_total, currencySymbol),
+            l.line_total === null
+              ? "N/A"
+              : formatCurrency(l.line_total, currencySymbol),
           detail: l.detail,
         })),
         totals: [
@@ -383,7 +387,9 @@ export default function WaterproofingEstimator() {
           </label>
           {labourMode !== "none" &&
             numberInput(
-              labourMode === "per_m2" ? `Rate per m² (${currencySymbol})` : `Lump sum (${currencySymbol})`,
+              labourMode === "per_m2"
+                ? `Rate per m² (${currencySymbol})`
+                : `Lump sum (${currencySymbol})`,
               labourRate,
               setLabourRate,
             )}
@@ -643,8 +649,6 @@ export default function WaterproofingEstimator() {
           </li>
         </ul>
       </section>
-
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

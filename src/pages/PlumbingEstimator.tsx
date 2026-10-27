@@ -124,7 +124,8 @@ export default function PlumbingEstimator() {
   const isFeet = plumbingProfile.runDistanceUnit === "ft";
   const [plumbingMarket, setPlumbingMarket] =
     useState<PlumbingMarketResolution | null>(null);
-  const [counts, setCounts] = useState<Record<NumField, string>>(DEFAULT_COUNTS);
+  const [counts, setCounts] =
+    useState<Record<NumField, string>>(DEFAULT_COUNTS);
   const [runs, setRuns] = useState<Record<RunField, string>>(DEFAULT_RUNS);
   const [labourMode, setLabourMode] = useState<
     "none" | "per_fixture" | "lump_sum"
@@ -142,11 +143,13 @@ export default function PlumbingEstimator() {
         if (saved?.counts) setCounts((prev) => ({ ...prev, ...saved.counts }));
         if (saved?.runs) setRuns((prev) => ({ ...prev, ...saved.runs }));
         if (saved?.labourMode) setLabourMode(saved.labourMode);
-        if (typeof saved?.labourRate === "string") setLabourRate(saved.labourRate);
+        if (typeof saved?.labourRate === "string")
+          setLabourRate(saved.labourRate);
       },
       showToast: true,
       customToastTitle: "Plumbing draft restored",
-      customToastMessage: "Your previous plumbing inputs were restored from this device.",
+      customToastMessage:
+        "Your previous plumbing inputs were restored from this device.",
     });
   const [result, setResult] = useState<PlumbingResult | null>(null);
   const [saveState, setSaveState] = useState<string | null>(null);
@@ -270,9 +273,13 @@ export default function PlumbingEstimator() {
             l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
           unit: l.unit,
           unit_price:
-            l.unit_price === null ? "unpriced" : formatCurrency(l.unit_price, currencySymbol),
+            l.unit_price === null
+              ? "unpriced"
+              : formatCurrency(l.unit_price, currencySymbol),
           line_total:
-            l.line_total === null ? "N/A" : formatCurrency(l.line_total, currencySymbol),
+            l.line_total === null
+              ? "N/A"
+              : formatCurrency(l.line_total, currencySymbol),
           detail: l.detail,
         })),
         totals: [
@@ -420,7 +427,10 @@ export default function PlumbingEstimator() {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs sm:text-sm text-foreground shadow-xs">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span>We restored your previous plumbing calculation draft from your browser.</span>
+            <span>
+              We restored your previous plumbing calculation draft from your
+              browser.
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -835,8 +845,6 @@ export default function PlumbingEstimator() {
           </li>
         </ul>
       </section>
-
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

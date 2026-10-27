@@ -545,7 +545,9 @@ export default function SolarPvEstimator() {
                   </p>
                 ) : (
                   <>
-                    <p className="mt-1 text-3xl font-semibold">{formatCurrency(result.total_of_priced_lines_naira)}</p>
+                    <p className="mt-1 text-3xl font-semibold">
+                      {formatCurrency(result.total_of_priced_lines_naira)}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       total of priced lines only: some components are unpriced,
                       so the complete total is withheld rather than invented
@@ -656,7 +658,6 @@ export default function SolarPvEstimator() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

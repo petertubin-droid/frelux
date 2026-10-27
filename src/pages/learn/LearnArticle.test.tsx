@@ -124,8 +124,7 @@ vi.mock("@/lib/supabase", () => {
           const marketEq = calls.find(
             (c) => c.method === "eq" && c.args[0] === "market",
           );
-          if (marketEq)
-            supabase.__eqMarketArgs.push(String(marketEq.args[1]));
+          if (marketEq) supabase.__eqMarketArgs.push(String(marketEq.args[1]));
         }
         if (table === "learn_articles" && isSingle) {
           return { data: article, error: null };
@@ -166,9 +165,7 @@ import { supabase } from "@/lib/supabase";
 beforeEach(() => {
   vi.clearAllMocks();
   adSlotRenders.length = 0;
-  (
-    supabase as unknown as { __marketFilters: string[][] }
-  ).__marketFilters = [];
+  (supabase as unknown as { __marketFilters: string[][] }).__marketFilters = [];
   (supabase as unknown as { __eqMarketArgs: string[] }).__eqMarketArgs = [];
   useMarketMock.mockReturnValue({
     market: { countryName: "Nigeria" },
@@ -221,30 +218,31 @@ describe("LearnArticle", () => {
     expect(slotKeys).toContain("learn_article_mid_2");
     expect(slotKeys).toContain("article_push_1");
     expect(slotKeys).toContain("learn_in_article");
-    expect(slotKeys).toContain("learn_article_bottom");
     // No removed/jam-packed footer slots may come back.
     for (const banned of [
       "learn_article_native",
       "learn_article_native_2",
       "learn_article_native_3",
       "article_push_2",
+      // Owner directive 2026-10-27: the AdSense-locked sticky bottom
+      // anchor is the ONLY bottom-of-page slot; no page renders its own
+      // bottom/footer slot anymore.
+      "learn_article_bottom",
     ]) {
       expect(slotKeys).not.toContain(banned);
     }
-    // Hard ceiling: 5 ad slots per article page.
-    expect(slotKeys.length).toBeLessThanOrEqual(5);
-    expect(slotKeys.length).toBe(5);
+    // Hard ceiling: 4 ad slots per article page.
+    expect(slotKeys.length).toBeLessThanOrEqual(4);
+    expect(slotKeys.length).toBe(4);
     // The header area (right after the article image) has exactly one
     // ad slot, not two.
     expect(slotKeys[0]).toBe("learn_article_top");
-    // In-content slots are interleaved: they must appear between the
-    // top slot and the bottom slot, in reading order.
+    // In-content slots are interleaved in reading order.
     expect(slotKeys).toEqual([
       "learn_article_top",
       "learn_article_mid_2",
       "article_push_1",
       "learn_in_article",
-      "learn_article_bottom",
     ]);
   });
 });
@@ -260,9 +258,8 @@ describe("LearnArticle market scoping", () => {
   it("scopes related and recent listings to the visitor's market plus GLOBAL", async () => {
     await renderArticle();
     await waitFor(() => {
-      const filters = (
-        supabase as unknown as { __marketFilters: string[][] }
-      ).__marketFilters;
+      const filters = (supabase as unknown as { __marketFilters: string[][] })
+        .__marketFilters;
       expect(filters.length).toBeGreaterThan(0);
       for (const codes of filters) {
         expect(codes).toEqual(["US", "GLOBAL"]);
@@ -274,8 +271,7 @@ describe("LearnArticle market scoping", () => {
     await renderArticle();
     await waitFor(() => {
       expect(
-        (supabase as unknown as { __eqMarketArgs: string[] })
-          .__eqMarketArgs,
+        (supabase as unknown as { __eqMarketArgs: string[] }).__eqMarketArgs,
       ).toEqual(["NG", "NG"]);
     });
   });

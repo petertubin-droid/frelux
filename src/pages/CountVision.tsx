@@ -325,7 +325,6 @@ export default function CountVision() {
         </ul>
       </section>
 
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
       {gateOpen && (
         <AiFeatureGate
           featureKey="count_vision"

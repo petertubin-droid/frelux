@@ -560,8 +560,6 @@ export default function ConstructionTools() {
           </>
         )}
 
-        {/* Ad slot: bottom of the section */}
-        <AdSlot slotKey="calculator_hub_bottom" className="mt-10" />
         <AdSlot slotKey="tools-page" className="mt-10" />
         <div className="mt-10">
           <EstimateDisclaimer />

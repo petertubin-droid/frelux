@@ -303,7 +303,10 @@ export default function MarketplaceHome() {
           <div className="text-center">
             {/* Regional directory badge */}
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-primary-foreground/80 backdrop-blur">
-              <Store aria-hidden="true" className="h-3.5 w-3.5 text-brand-purple-lighter" />
+              <Store
+                aria-hidden="true"
+                className="h-3.5 w-3.5 text-brand-purple-lighter"
+              />
               Regional Trade Marketplace · Nigeria
             </div>
 
@@ -571,8 +574,6 @@ export default function MarketplaceHome() {
       <AdSlot slotKey="marketplace_sidebar" className="mt-8" />
       {/* Native banner slot, placement "marketplace_native" */}
       <AdSlot slotKey="marketplace_native" className="mt-8" />
-      {/* Ad slot, placement "marketplace_bottom" */}
-      <AdSlot slotKey="marketplace_bottom" className="mt-8" />
     </div>
   );
 }

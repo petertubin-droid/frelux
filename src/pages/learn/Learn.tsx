@@ -338,8 +338,28 @@ export default function Learn() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 pt-7 sm:px-6">
-        <Link to={`/learn/wall-finishing/${scope.marketCode.toLowerCase()}/`} className="group flex flex-col gap-4 rounded-2xl border border-brand-purple/20 bg-gradient-to-r from-brand-purple/[0.06] via-card to-accent-cyan/[0.05] p-5 shadow-sm transition hover:border-brand-purple/40 hover:shadow-md sm:flex-row sm:items-center sm:justify-between sm:p-6">
-          <span className="flex items-start gap-4"><span className="rounded-xl bg-brand-purple/10 p-3 text-brand-purple"><Globe2 className="h-5 w-5"/></span><span><span className="block font-display text-lg font-bold text-foreground">Market-aware wall finishing library</span><span className="mt-1 block text-sm text-muted-foreground">Explore reviewed local guidance for your selected market. Unverified markets won’t borrow another country’s methods.</span></span></span><span className="inline-flex items-center gap-2 text-sm font-semibold text-brand-purple">Browse {scope.marketCode} library <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1"/></span>
+        <Link
+          to={`/learn/wall-finishing/${scope.marketCode.toLowerCase()}/`}
+          className="group flex flex-col gap-4 rounded-2xl border border-brand-purple/20 bg-gradient-to-r from-brand-purple/[0.06] via-card to-accent-cyan/[0.05] p-5 shadow-sm transition hover:border-brand-purple/40 hover:shadow-md sm:flex-row sm:items-center sm:justify-between sm:p-6"
+        >
+          <span className="flex items-start gap-4">
+            <span className="rounded-xl bg-brand-purple/10 p-3 text-brand-purple">
+              <Globe2 className="h-5 w-5" />
+            </span>
+            <span>
+              <span className="block font-display text-lg font-bold text-foreground">
+                Market-aware wall finishing library
+              </span>
+              <span className="mt-1 block text-sm text-muted-foreground">
+                Explore reviewed local guidance for your selected market.
+                Unverified markets won’t borrow another country’s methods.
+              </span>
+            </span>
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-brand-purple">
+            Browse {scope.marketCode} library{" "}
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </span>
         </Link>
       </div>
 
@@ -553,7 +573,7 @@ export default function Learn() {
           <AdSlot slotKey="learn_sidebar" className="mb-8" />
           {/* Native banner slot, placement "learn_native" */}
           <AdSlot slotKey="learn_native" />
-          <AdSlot slotKey="learn_bottom" />
+
           {/* AdSense-dedicated slot: locked to google_adsense only. */}
           <AdSlot slotKey="adsense_learn" providerSlug="google_adsense" />
         </div>

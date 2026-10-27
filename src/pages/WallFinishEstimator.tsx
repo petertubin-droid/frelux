@@ -1100,8 +1100,6 @@ export default function WallFinishEstimator() {
             </ul>
           </section>
         )}
-
-        <AdSlot slotKey="wall-finish-bottom" />
       </Container>
 
       {/* transparency modal */}

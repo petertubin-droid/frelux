@@ -89,7 +89,16 @@ export default function LabourEstimator() {
         )}
 
         <div className="rounded-lg border border-border/60 bg-muted/30 px-3.5 py-2.5 text-xs text-muted-foreground">
-          <span>Active Market: <strong className="text-foreground">{market.countryName} ({market.marketCode})</strong>. Productivity rates represent benchmark output per worker-day from verifiable industry references and apply across crew sizes. Site-specific efficiency and local working conditions adjust the effective output.</span>
+          <span>
+            Active Market:{" "}
+            <strong className="text-foreground">
+              {market.countryName} ({market.marketCode})
+            </strong>
+            . Productivity rates represent benchmark output per worker-day from
+            verifiable industry references and apply across crew sizes.
+            Site-specific efficiency and local working conditions adjust the
+            effective output.
+          </span>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
@@ -198,7 +207,7 @@ export default function LabourEstimator() {
                 {result.efficiency_loss_percent}% site efficiency.
               </p>
             </div>
-                        <button
+            <button
               type="button"
               className="inline-flex rounded-lg border border-primary/40 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/5"
               onClick={() => {
@@ -232,7 +241,6 @@ export default function LabourEstimator() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

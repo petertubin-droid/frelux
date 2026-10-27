@@ -446,7 +446,6 @@ export default function MarginCalculator() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

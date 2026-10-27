@@ -29,7 +29,10 @@ import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import AdSlot from "@/components/ui/AdSlot";
 import { Button } from "@/components/ui/shadcn/button";
-import { formatByCode, getCurrencySymbol } from "@/lib/international/currency-format";
+import {
+  formatByCode,
+  getCurrencySymbol,
+} from "@/lib/international/currency-format";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -529,8 +532,6 @@ export default function ProductDetail() {
       <AdSlot slotKey="marketplace_sidebar" className="mt-8" />
       {/* Native banner slot, placement "marketplace_native" */}
       <AdSlot slotKey="marketplace_native" className="mt-8" />
-      {/* Ad slot, placement "marketplace_bottom" */}
-      <AdSlot slotKey="marketplace_bottom" className="mt-8" />
     </div>
   );
 }

@@ -35,7 +35,8 @@ import { CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
-import { ELECTRICAL_MATERIAL_SLUGS,
+import {
+  ELECTRICAL_MATERIAL_SLUGS,
   calculateElectrical,
   parseElectricalRules,
   type ElectricalInput,
@@ -131,7 +132,8 @@ export default function ElectricalEstimator() {
   );
   const isFeet = electricalProfile.runDistanceUnit === "ft";
   const [buildingType, setBuildingType] = useState(DEFAULT_BUILDING_TYPE);
-  const [counts, setCounts] = useState<Record<NumField, string>>(DEFAULT_COUNTS);
+  const [counts, setCounts] =
+    useState<Record<NumField, string>>(DEFAULT_COUNTS);
   const [runs, setRuns] = useState<Record<RunField, string>>(DEFAULT_RUNS);
   const [labourMode, setLabourMode] = useState<
     "none" | "per_point" | "lump_sum"
@@ -144,18 +146,25 @@ export default function ElectricalEstimator() {
   );
 
   const { isRestored, clearDraft, dismissRestored } =
-    useEstimatorDraft<ElectricalDraftState>("electrical_estimator", draftState, {
-      onRestore: (saved) => {
-        if (saved?.buildingType) setBuildingType(saved.buildingType);
-        if (saved?.counts) setCounts((prev) => ({ ...prev, ...saved.counts }));
-        if (saved?.runs) setRuns((prev) => ({ ...prev, ...saved.runs }));
-        if (saved?.labourMode) setLabourMode(saved.labourMode);
-        if (typeof saved?.labourRate === "string") setLabourRate(saved.labourRate);
+    useEstimatorDraft<ElectricalDraftState>(
+      "electrical_estimator",
+      draftState,
+      {
+        onRestore: (saved) => {
+          if (saved?.buildingType) setBuildingType(saved.buildingType);
+          if (saved?.counts)
+            setCounts((prev) => ({ ...prev, ...saved.counts }));
+          if (saved?.runs) setRuns((prev) => ({ ...prev, ...saved.runs }));
+          if (saved?.labourMode) setLabourMode(saved.labourMode);
+          if (typeof saved?.labourRate === "string")
+            setLabourRate(saved.labourRate);
+        },
+        showToast: true,
+        customToastTitle: "Electrical draft restored",
+        customToastMessage:
+          "Your previous electrical inputs were restored from this device.",
       },
-      showToast: true,
-      customToastTitle: "Electrical draft restored",
-      customToastMessage: "Your previous electrical inputs were restored from this device.",
-    });
+    );
   const [result, setResult] = useState<ElectricalResult | null>(null);
   const [saveState, setSaveState] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -285,9 +294,13 @@ export default function ElectricalEstimator() {
             l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
           unit: l.unit,
           unit_price:
-            l.unit_price === null ? "unpriced" : formatCurrency(l.unit_price, currencySymbol),
+            l.unit_price === null
+              ? "unpriced"
+              : formatCurrency(l.unit_price, currencySymbol),
           line_total:
-            l.line_total === null ? "N/A" : formatCurrency(l.line_total, currencySymbol),
+            l.line_total === null
+              ? "N/A"
+              : formatCurrency(l.line_total, currencySymbol),
           detail: l.detail,
         })),
         totals: [
@@ -436,7 +449,10 @@ export default function ElectricalEstimator() {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs sm:text-sm text-foreground shadow-xs">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span>We restored your previous electrical calculation draft from your browser.</span>
+            <span>
+              We restored your previous electrical calculation draft from your
+              browser.
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -474,16 +490,16 @@ export default function ElectricalEstimator() {
           {electricalCoverage === ELECTRICAL_MATERIAL_SLUGS.length ? (
             <p className="mt-1 text-muted-foreground">
               The {marketCode} price book covers every cable, conduit and
-              accessory this estimator prices, from verified supplier
-              listings in {marketCode === "US" ? "USD" : "local currency"}.
+              accessory this estimator prices, from verified supplier listings
+              in {marketCode === "US" ? "USD" : "local currency"}.
             </p>
           ) : (
             <p className="mt-1 text-muted-foreground">
               The {marketCode} price book covers {electricalCoverage} of{" "}
               {ELECTRICAL_MATERIAL_SLUGS.length} electrical material types.
               Unpriced lines are shown without a total and are never silently
-              substituted; add verified prices for your market before relying
-              on cost totals.
+              substituted; add verified prices for your market before relying on
+              cost totals.
             </p>
           )}
         </div>
@@ -868,8 +884,6 @@ export default function ElectricalEstimator() {
           </li>
         </ul>
       </section>
-
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

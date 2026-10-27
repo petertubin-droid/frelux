@@ -7,7 +7,6 @@ import {
   X,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
-import AdSlot from "@/components/ui/AdSlot";
 import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 
@@ -132,9 +131,7 @@ export default function Printables() {
           keep a digital copy. Each sheet prints on a single A4 page.
         </p>
 
-        <div className="mt-10">
-          <AdSlot slotKey="home_bottom" />
-        </div>
+        <div className="mt-10"></div>
       </div>
 
       {/* PREVIEW DIALOG (screen only) */}

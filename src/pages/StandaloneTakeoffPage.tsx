@@ -7,12 +7,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
-import {
-  BrickWall,
-  CheckCircle2,
-  Ruler,
-  RotateCcw,
-} from "lucide-react";
+import { BrickWall, CheckCircle2, Ruler, RotateCcw } from "lucide-react";
 import {
   calculateMasonryTakeoff,
   resolveMarketMasonryConfig,
@@ -443,20 +438,22 @@ export default function StandaloneTakeoffPage({
       <Container as="main" className="space-y-6 py-6 sm:py-8">
         <div className="rounded-2xl border border-border bg-card p-2 shadow-sm">
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-          {ENGINES.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => selectEngine(item.id)}
-              aria-current={engine === item.id ? "page" : undefined}
-              className={`shrink-0 rounded-xl px-3.5 py-2 text-left text-xs font-medium transition ${engine === item.id ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-            >
-              <span className="block">{item.label}</span>
-              <span className={`mt-0.5 block text-[11px] ${engine === item.id ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
-                {item.subtitle}
-              </span>
-            </button>
-          ))}
+            {ENGINES.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => selectEngine(item.id)}
+                aria-current={engine === item.id ? "page" : undefined}
+                className={`shrink-0 rounded-xl px-3.5 py-2 text-left text-xs font-medium transition ${engine === item.id ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+              >
+                <span className="block">{item.label}</span>
+                <span
+                  className={`mt-0.5 block text-[11px] ${engine === item.id ? "text-primary-foreground/80" : "text-muted-foreground"}`}
+                >
+                  {item.subtitle}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
         {bridgeProvenance && (
@@ -713,7 +710,6 @@ export default function StandaloneTakeoffPage({
           </section>
         </div>
         <AdSlot slotKey="calculator_mid" className="mt-8" />
-        <AdSlot slotKey="calculator_bottom" className="mt-8" />
       </Container>
     </div>
   );

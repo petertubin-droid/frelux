@@ -101,16 +101,22 @@ export default function ReinforcementEstimator() {
   );
 
   const { isRestored, clearDraft, dismissRestored } =
-    useEstimatorDraft<ReinforcementDraftState>("reinforcement_estimator", draftState, {
-      onRestore: (saved) => {
-        if (saved?.lens) setLens((prev) => ({ ...prev, ...saved.lens }));
-        if (saved?.labourMode) setLabourMode(saved.labourMode);
-        if (typeof saved?.labourRate === "string") setLabourRate(saved.labourRate);
+    useEstimatorDraft<ReinforcementDraftState>(
+      "reinforcement_estimator",
+      draftState,
+      {
+        onRestore: (saved) => {
+          if (saved?.lens) setLens((prev) => ({ ...prev, ...saved.lens }));
+          if (saved?.labourMode) setLabourMode(saved.labourMode);
+          if (typeof saved?.labourRate === "string")
+            setLabourRate(saved.labourRate);
+        },
+        showToast: true,
+        customToastTitle: "Reinforcement draft restored",
+        customToastMessage:
+          "Your previous reinforcement inputs were restored from this device.",
       },
-      showToast: true,
-      customToastTitle: "Reinforcement draft restored",
-      customToastMessage: "Your previous reinforcement inputs were restored from this device.",
-    });
+    );
   const [result, setResult] = useState<ReinforcementResult | null>(null);
   const [saveState, setSaveState] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -359,7 +365,10 @@ export default function ReinforcementEstimator() {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs sm:text-sm text-foreground shadow-xs">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span>We restored your previous reinforcement calculation draft from your browser.</span>
+            <span>
+              We restored your previous reinforcement calculation draft from
+              your browser.
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -733,8 +742,6 @@ export default function ReinforcementEstimator() {
           </li>
         </ul>
       </section>
-
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

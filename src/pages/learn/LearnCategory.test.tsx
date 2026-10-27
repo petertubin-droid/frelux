@@ -140,8 +140,7 @@ import { supabase } from "@/lib/supabase";
 beforeEach(() => {
   vi.clearAllMocks();
   adSlotRenders.length = 0;
-  (supabase as unknown as { __marketFilters: string[][] }).__marketFilters =
-    [];
+  (supabase as unknown as { __marketFilters: string[][] }).__marketFilters = [];
   useMarketMock.mockReturnValue({
     market: { countryName: "Nigeria" },
     marketCode: "NG",
@@ -317,7 +316,9 @@ describe("LearnCategory", () => {
     const slotKeys = adSlotRenders.map((s) => s.slotKey);
     expect(slotKeys).toContain("learn_category_mid");
     expect(slotKeys).toContain("learn_category_native");
-    expect(slotKeys).toContain("learn_category_bottom");
+    // Owner directive 2026-10-27: page-level bottom slots are banned
+    // (the AdSense-locked sticky anchor owns the bottom of every page).
+    expect(slotKeys).not.toContain("learn_category_bottom");
   });
 });
 
@@ -337,9 +338,8 @@ describe("LearnCategory market scoping", () => {
   it("scopes category listings to the visitor's market plus GLOBAL", async () => {
     await renderCategory();
     await waitFor(() => {
-      const filters = (
-        supabase as unknown as { __marketFilters: string[][] }
-      ).__marketFilters;
+      const filters = (supabase as unknown as { __marketFilters: string[][] })
+        .__marketFilters;
       expect(filters.length).toBeGreaterThan(0);
       for (const codes of filters) {
         expect(codes).toEqual(["US", "GLOBAL"]);
@@ -352,6 +352,8 @@ describe("LearnCategory market scoping", () => {
     expect(
       await screen.findByText("No United States guides here yet"),
     ).toBeInTheDocument();
-    expect(screen.queryByText("Article screed-leveling")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Article screed-leveling"),
+    ).not.toBeInTheDocument();
   });
 });

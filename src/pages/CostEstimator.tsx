@@ -1243,7 +1243,6 @@ export default function CostEstimator({
       <AdSlot slotKey="estimator_mid" className="mt-8" />
       {/* Native banner slot, placement "estimator_native" */}
       <AdSlot slotKey="estimator_native" className="mt-8" />
-      <AdSlot slotKey="estimator_bottom" className="mt-8" />
     </>
   );
 }

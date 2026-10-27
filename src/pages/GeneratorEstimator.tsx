@@ -176,9 +176,13 @@ export default function GeneratorEstimator() {
             l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
           unit: l.unit,
           unit_price:
-            l.unit_price === null ? "unpriced" : formatCurrency(l.unit_price, currencySymbol),
+            l.unit_price === null
+              ? "unpriced"
+              : formatCurrency(l.unit_price, currencySymbol),
           line_total:
-            l.line_total === null ? "N/A" : formatCurrency(l.line_total, currencySymbol),
+            l.line_total === null
+              ? "N/A"
+              : formatCurrency(l.line_total, currencySymbol),
           detail: l.detail,
         })),
         totals: [
@@ -394,7 +398,11 @@ export default function GeneratorEstimator() {
             </select>
           </label>
           {labourMode !== "none" &&
-            numberInput(`Lump sum (${currencySymbol})`, labourRate, setLabourRate)}
+            numberInput(
+              `Lump sum (${currencySymbol})`,
+              labourRate,
+              setLabourRate,
+            )}
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
           Labour is always separate from material quantities and is never added
@@ -653,8 +661,6 @@ export default function GeneratorEstimator() {
           </li>
         </ul>
       </section>
-
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

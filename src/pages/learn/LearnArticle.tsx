@@ -872,9 +872,7 @@ export default function LearnArticle() {
 
             {/* Single bottom ad slot after all content, the last of
                 the 5 slots allowed on an article page. */}
-            <div className="mt-10">
-              <AdSlot slotKey="learn_article_bottom" />
-            </div>
+            <div className="mt-10"></div>
           </div>
         </div>
       </article>

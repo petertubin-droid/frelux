@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import AdSlot from "@/components/ui/AdSlot";
 import { useSearchParams } from "react-router-dom";
 import { Loader2, AlertCircle, Search, Library } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
@@ -258,9 +257,7 @@ export default function LearnLibrary() {
           </div>
         )}
 
-        <div className="mt-10">
-          <AdSlot slotKey="learn_bottom" />
-        </div>
+        <div className="mt-10"></div>
       </div>
     </>
   );

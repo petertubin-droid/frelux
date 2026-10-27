@@ -266,17 +266,61 @@ export default function BimIfcImport() {
             </div>
 
             <section className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-              <h3 className="text-sm font-semibold">Observed IFC schema coverage</h3>
+              <h3 className="text-sm font-semibold">
+                Observed IFC schema coverage
+              </h3>
               <p className="mt-1 text-xs text-muted-foreground">
-                Declared schema: {result.schema_coverage.schema ?? "not specified"} · {result.schema_coverage.distinct_entity_types} entity types observed.
-                This reports presence only, not schema validation or geometric quantities.
+                Declared schema:{" "}
+                {result.schema_coverage.schema ?? "not specified"} ·{" "}
+                {result.schema_coverage.distinct_entity_types} entity types
+                observed. This reports presence only, not schema validation or
+                geometric quantities.
               </p>
               <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                <div><p className="text-xs font-medium">Spatial structures</p><p className="text-xs text-muted-foreground">{Object.entries(result.schema_coverage.spatial_structures).map(([type, count]) => `${type.replace("IFC", "")} ${count}`).join(" · ") || "None observed"}</p></div>
-                <div><p className="text-xs font-medium">Recognized takeoff types</p><p className="text-xs text-muted-foreground">{Object.entries(result.schema_coverage.recognized_elements).map(([type, count]) => `${type.replace("IFC", "")} ${count}`).join(" · ") || "None observed"}</p></div>
-                <div><p className="text-xs font-medium">Geometry representation entities</p><p className="text-xs text-muted-foreground">{Object.entries(result.schema_coverage.geometric_representations).map(([type, count]) => `${type.replace("IFC", "")} ${count}`).join(" · ") || "None observed"}</p></div>
+                <div>
+                  <p className="text-xs font-medium">Spatial structures</p>
+                  <p className="text-xs text-muted-foreground">
+                    {Object.entries(result.schema_coverage.spatial_structures)
+                      .map(
+                        ([type, count]) =>
+                          `${type.replace("IFC", "")} ${count}`,
+                      )
+                      .join(" · ") || "None observed"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium">
+                    Recognized takeoff types
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {Object.entries(result.schema_coverage.recognized_elements)
+                      .map(
+                        ([type, count]) =>
+                          `${type.replace("IFC", "")} ${count}`,
+                      )
+                      .join(" · ") || "None observed"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium">
+                    Geometry representation entities
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {Object.entries(
+                      result.schema_coverage.geometric_representations,
+                    )
+                      .map(
+                        ([type, count]) =>
+                          `${type.replace("IFC", "")} ${count}`,
+                      )
+                      .join(" · ") || "None observed"}
+                  </p>
+                </div>
               </div>
-              <p className="mt-2 text-[11px] text-muted-foreground">Unsupported entity types are retained in the portable JSON review record.</p>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Unsupported entity types are retained in the portable JSON
+                review record.
+              </p>
             </section>
 
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 dark:border-white/5">
@@ -394,7 +438,6 @@ export default function BimIfcImport() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

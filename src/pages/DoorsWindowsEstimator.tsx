@@ -751,8 +751,6 @@ export default function DoorsWindowsEstimator() {
           <li>This is material ESTIMATION, not a fixing specification.</li>
         </ul>
       </section>
-
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

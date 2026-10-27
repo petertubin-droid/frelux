@@ -94,10 +94,14 @@ export default function FieldSync() {
       const parsed = JSON.parse(raw) as SyncHistory;
       return {
         consecutiveFailures:
-          typeof parsed.consecutiveFailures === "number" && parsed.consecutiveFailures > 0
+          typeof parsed.consecutiveFailures === "number" &&
+          parsed.consecutiveFailures > 0
             ? parsed.consecutiveFailures
             : 0,
-        lastAttemptAt: typeof parsed.lastAttemptAt === "string" ? parsed.lastAttemptAt : null,
+        lastAttemptAt:
+          typeof parsed.lastAttemptAt === "string"
+            ? parsed.lastAttemptAt
+            : null,
       };
     } catch {
       return { consecutiveFailures: 0, lastAttemptAt: null };
@@ -197,7 +201,8 @@ export default function FieldSync() {
       const report = await syncFieldCaptures(persist, rules);
       setSyncReport(report);
       track("field_sync_run", { synced: report.synced, failed: report.failed });
-      const wasFailure = report.failed > 0 && report.synced + report.duplicates === 0;
+      const wasFailure =
+        report.failed > 0 && report.synced + report.duplicates === 0;
       setSyncHistory((prev) => {
         const next: SyncHistory = {
           consecutiveFailures: wasFailure ? prev.consecutiveFailures + 1 : 0,
@@ -302,7 +307,10 @@ export default function FieldSync() {
         )}
         {syncHistory.consecutiveFailures > 0 && queue.length > 0 && (
           <p className="mt-1 text-xs opacity-80">
-            {describeNextAttempt(syncHistory.consecutiveFailures, queue[0]?.id ?? "queue")}
+            {describeNextAttempt(
+              syncHistory.consecutiveFailures,
+              queue[0]?.id ?? "queue",
+            )}
           </p>
         )}
       </div>
@@ -550,8 +558,6 @@ export default function FieldSync() {
           </li>
         </ul>
       </section>
-
-      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

@@ -412,7 +412,6 @@ export default function LearnCategory() {
           <AdSlot slotKey="learn_category_mid" />
           {/* Native banner slot, placement "learn_category_native" */}
           <AdSlot slotKey="learn_category_native" />
-          <AdSlot slotKey="learn_category_bottom" />
         </div>
       </div>
     </>
