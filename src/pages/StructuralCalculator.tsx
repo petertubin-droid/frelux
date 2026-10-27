@@ -17,6 +17,11 @@ import {
   type BeamType,
   type SlabType,
 } from "@/lib/engineering/structural-calculator";
+import {
+  JURISDICTION_CODES,
+  defaultJurisdictionForMarket,
+  type JurisdictionCode,
+} from "@/lib/engineering/structural-calculator";
 import { useMarket } from "@/lib/international/market-context";
 import { DimensionalInput } from "@/components/measurement/DimensionalInput";
 import { parseDimensionalInput } from "@/lib/globalization/dimensional-parser";
@@ -493,6 +498,14 @@ function BeamCalculator() {
   const [tribWidth, setTribWidth] = useState(3.0);
 
   const { market } = useMarket();
+  const [jurisdiction, setJurisdiction] = useState<JurisdictionCode>(() =>
+    defaultJurisdictionForMarket(market.marketCode),
+  );
+
+  // Follow the market's code until the engineer overrides it.
+  useEffect(() => {
+    setJurisdiction(defaultJurisdictionForMarket(market.marketCode));
+  }, [market.marketCode]);
   const concreteStandard = useMemo(
     () => getConcreteStandardForMarket(market.marketCode),
     [market.marketCode],
@@ -528,6 +541,7 @@ function BeamCalculator() {
       steel_grade: steelGrade,
       cover_mm: cover,
       market_code: market.marketCode,
+      jurisdiction_code: jurisdiction,
     };
     setResult(monitoredCalc("Structural Calculator", () => designBeam(input)));
   }, [
@@ -556,6 +570,15 @@ function BeamCalculator() {
             value={span}
             onChange={setSpan}
             step="0.1"
+          />
+          <SelectInput
+            label="Design code"
+            value={jurisdiction}
+            onChange={(v) => setJurisdiction(v as JurisdictionCode)}
+            options={Object.values(JURISDICTION_CODES).map((c) => ({
+              v: c.code,
+              l: c.label,
+            }))}
           />
           <SelectInput
             label="Beam type"
@@ -1006,6 +1029,14 @@ function SlabCalculator() {
   const [deadLoad, setDeadLoad] = useState(1.5);
 
   const { market } = useMarket();
+  const [jurisdiction, setJurisdiction] = useState<JurisdictionCode>(() =>
+    defaultJurisdictionForMarket(market.marketCode),
+  );
+
+  // Follow the market's code until the engineer overrides it.
+  useEffect(() => {
+    setJurisdiction(defaultJurisdictionForMarket(market.marketCode));
+  }, [market.marketCode]);
   const concreteStandard = useMemo(
     () => getConcreteStandardForMarket(market.marketCode),
     [market.marketCode],
@@ -1041,6 +1072,7 @@ function SlabCalculator() {
       steel_grade: steelGrade,
       cover_mm: cover,
       market_code: market.marketCode,
+      jurisdiction_code: jurisdiction,
     };
     setResult(monitoredCalc("Structural Calculator", () => designSlab(input)));
   }, [
@@ -1073,6 +1105,15 @@ function SlabCalculator() {
             value={spanY}
             onChange={setSpanY}
             step="0.1"
+          />
+          <SelectInput
+            label="Design code"
+            value={jurisdiction}
+            onChange={(v) => setJurisdiction(v as JurisdictionCode)}
+            options={Object.values(JURISDICTION_CODES).map((c) => ({
+              v: c.code,
+              l: c.label,
+            }))}
           />
           <SelectInput
             label="Slab type"
