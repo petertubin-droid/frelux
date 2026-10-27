@@ -20,8 +20,15 @@ import {
 import {
   JURISDICTION_CODES,
   defaultJurisdictionForMarket,
+  resolveConcreteGrade,
+  STEEL_PROPS,
   type JurisdictionCode,
 } from "@/lib/engineering/structural-calculator";
+import {
+  designConcreteCapacity,
+  jurisdictionToDesignCode,
+  type DesignCapacityResult,
+} from "@/lib/engineering/design-code-concrete";
 import { useMarket } from "@/lib/international/market-context";
 import { DimensionalInput } from "@/components/measurement/DimensionalInput";
 import { parseDimensionalInput } from "@/lib/globalization/dimensional-parser";
@@ -93,7 +100,7 @@ function exportDesignSheet(args: {
         detail: f,
       })),
       footer:
-        "Preliminary screening and quantity-planning output only. FRELUX does not certify compliance with BS 8110, Eurocodes, ACI, IS 456, or any jurisdictional building code. Concrete-grade profiles do not mean the full design method for that code is implemented. A locally licensed structural engineer must independently verify the design using current applicable codes, project drawings, load combinations, material data, and site investigations before use or construction.",
+        "Preliminary screening and quantity-planning output, including a preliminary per-code capacity check (ACI 318-19, Eurocode 2, IS 456, BS 8110 or AS 3600 expressions on the recommended section). FRELUX does not certify compliance with any jurisdictional building code. A locally licensed structural engineer must independently verify the design using current applicable codes, project drawings, load combinations, material data, and site investigations before use or construction.",
     },
     `frelux-${args.kind.toLowerCase()}-design-sheet.html`,
   );
@@ -116,7 +123,7 @@ export default function StructuralCalculator() {
         variant="tool"
         eyebrow="Engineering Tool"
         title="Structural Engineering Calculator"
-        subtitle="Preliminary beam, column, and slab sizing estimates with formula transparency. Concrete grade profiles are available for selected standards, but this tool does not implement or certify full jurisdictional code compliance. A locally licensed structural engineer must verify designs before use or construction."
+        subtitle="Preliminary beam, column, and slab sizing estimates with formula transparency, plus a preliminary per-code capacity check on the recommended section. This tool does not certify jurisdictional code compliance. A locally licensed structural engineer must verify designs before use or construction."
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Calculators", path: "/calculators" },
@@ -489,6 +496,72 @@ export function ConcreteTakeoffCalculator() {
 
 // ── Beam Calculator ──
 
+/** Preliminary per-code capacity check on the recommended section. */
+function CapacityCheckCard({
+  capacity,
+  designMoment,
+  designShear,
+  label,
+  bLabel,
+}: {
+  capacity: DesignCapacityResult;
+  designMoment: number;
+  designShear: number | null;
+  label: string;
+  bLabel: string;
+}) {
+  const momentUtil =
+    capacity.flexuralCapacityKNm && capacity.flexuralCapacityKNm > 0
+      ? designMoment / capacity.flexuralCapacityKNm
+      : null;
+  const shearUtil =
+    designShear !== null &&
+    capacity.shearCapacityKN &&
+    capacity.shearCapacityKN > 0
+      ? designShear / capacity.shearCapacityKN
+      : null;
+  return (
+    <div className="mt-4 rounded-lg border border-input bg-muted/40 p-4">
+      <p className="text-sm font-semibold">
+        Design code capacity check (preliminary): {label}
+      </p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Authoritative {bLabel} expressions on the recommended section, using the
+        code capacity factor {capacity.capacityFactor}. Not a certification: a
+        licensed engineer must verify load combinations and detailing.
+      </p>
+      <div className="mt-2 grid md:grid-cols-2 gap-3 text-sm">
+        {momentUtil !== null && (
+          <CheckRow
+            label="Flexural utilization"
+            pass={momentUtil <= 1}
+            value={`${designMoment.toFixed(1)} / ${capacity.flexuralCapacityKNm?.toFixed(1)} kN·m = ${(momentUtil * 100).toFixed(0)}%`}
+          />
+        )}
+        {shearUtil !== null ? (
+          <CheckRow
+            label="Shear utilization"
+            pass={shearUtil <= 1}
+            value={`${designShear?.toFixed(1)} / ${capacity.shearCapacityKN?.toFixed(1)} kN = ${(shearUtil * 100).toFixed(0)}%`}
+          />
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Shear capacity not evaluated for this code in the preliminary
+            engine; the legacy shear check above still governs.
+          </p>
+        )}
+      </div>
+      {capacity.warnings.length > 0 && (
+        <ul className="mt-2 space-y-1 text-xs text-yellow-600 dark:text-yellow-500">
+          {capacity.warnings.map((w) => (
+            <li key={w}>• {w}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function BeamCalculator() {
   const [span, setSpan] = useState(4.5);
   const [beamType, setBeamType] = useState<BeamType>("suspended_beam");
@@ -523,6 +596,7 @@ function BeamCalculator() {
   const [result, setResult] = useState<ReturnType<typeof designBeam> | null>(
     null,
   );
+  const [capacity, setCapacity] = useState<DesignCapacityResult | null>(null);
   const [showFormulas, setShowFormulas] = useState(false);
 
   useEffect(() => {
@@ -543,7 +617,32 @@ function BeamCalculator() {
       market_code: market.marketCode,
       jurisdiction_code: jurisdiction,
     };
-    setResult(monitoredCalc("Structural Calculator", () => designBeam(input)));
+    const beamResult = monitoredCalc("Structural Calculator", () =>
+      designBeam(input),
+    );
+    setResult(beamResult);
+    // Authoritative per-code capacity check on the recommended section
+    const preset = resolveConcreteGrade(concreteGrade, market.marketCode);
+    const code = jurisdictionToDesignCode(jurisdiction);
+    const codeFck =
+      code === "BS_8110" || code === "IS_456"
+        ? (preset.fcu ?? preset.fck ?? 25)
+        : (preset.fck ?? preset.fcu ?? 25);
+    try {
+      setCapacity(
+        designConcreteCapacity({
+          code,
+          b: beamResult.recommended_width,
+          d: Math.max(beamResult.recommended_depth - cover - 25, 1),
+          D: beamResult.recommended_depth,
+          As: Math.max(beamResult.area_steel_required, 1),
+          fck: codeFck,
+          fy: STEEL_PROPS[steelGrade].fy,
+        }),
+      );
+    } catch {
+      setCapacity(null);
+    }
   }, [
     span,
     beamType,
@@ -555,6 +654,7 @@ function BeamCalculator() {
     steelGrade,
     cover,
     market.marketCode,
+    jurisdiction,
   ]);
 
   if (!result) {
@@ -684,6 +784,16 @@ function BeamCalculator() {
               value={`L/d = ${result.span_to_depth_ratio}`}
             />
           </div>
+
+          {capacity && (
+            <CapacityCheckCard
+              capacity={capacity}
+              designMoment={result.max_moment}
+              designShear={result.max_shear}
+              label={JURISDICTION_CODES[jurisdiction].label}
+              bLabel={JURISDICTION_CODES[jurisdiction].governingCode}
+            />
+          )}
 
           <div className="grid md:grid-cols-3 gap-3 text-sm">
             <DetailItem
@@ -1054,6 +1164,7 @@ function SlabCalculator() {
   const [result, setResult] = useState<ReturnType<typeof designSlab> | null>(
     null,
   );
+  const [capacity, setCapacity] = useState<DesignCapacityResult | null>(null);
   const [showFormulas, setShowFormulas] = useState(false);
 
   useEffect(() => {
@@ -1074,7 +1185,32 @@ function SlabCalculator() {
       market_code: market.marketCode,
       jurisdiction_code: jurisdiction,
     };
-    setResult(monitoredCalc("Structural Calculator", () => designSlab(input)));
+    const slabResult = monitoredCalc("Structural Calculator", () =>
+      designSlab(input),
+    );
+    setResult(slabResult);
+    // Authoritative per-code capacity check, 1 m strip of the slab
+    const preset = resolveConcreteGrade(concreteGrade, market.marketCode);
+    const code = jurisdictionToDesignCode(jurisdiction);
+    const codeFck =
+      code === "BS_8110" || code === "IS_456"
+        ? (preset.fcu ?? preset.fck ?? 25)
+        : (preset.fck ?? preset.fcu ?? 25);
+    try {
+      setCapacity(
+        designConcreteCapacity({
+          code,
+          b: 1000,
+          d: Math.max(slabResult.recommended_thickness - cover - 10, 1),
+          D: slabResult.recommended_thickness,
+          As: Math.max(slabResult.steel_area_required, 1),
+          fck: codeFck,
+          fy: STEEL_PROPS[steelGrade].fy,
+        }),
+      );
+    } catch {
+      setCapacity(null);
+    }
   }, [
     spanX,
     spanY,
@@ -1086,6 +1222,7 @@ function SlabCalculator() {
     steelGrade,
     cover,
     market.marketCode,
+    jurisdiction,
   ]);
 
   if (!result) calculate();
@@ -1212,6 +1349,16 @@ function SlabCalculator() {
               value={result.link_check}
             />
           </div>
+
+          {capacity && (
+            <CapacityCheckCard
+              capacity={capacity}
+              designMoment={result.max_moment}
+              designShear={result.max_shear}
+              label={JURISDICTION_CODES[jurisdiction].label}
+              bLabel={JURISDICTION_CODES[jurisdiction].governingCode}
+            />
+          )}
 
           <div className="grid md:grid-cols-3 gap-3 text-sm">
             <DetailItem

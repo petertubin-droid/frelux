@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   designConcreteCapacity,
+  jurisdictionToDesignCode,
   type DesignConcreteCode,
 } from "../design-code-concrete";
 import {
@@ -189,6 +190,51 @@ describe("design-code-concrete: AS 3600:2018", () => {
         }),
       ).toThrow();
     }
+  });
+});
+
+describe("design-code-concrete: BS 8110-1:1997", () => {
+  it("computes Mu with the 0.45fcu/0.9xu block and 0.87fy", () => {
+    // fcu=25: xu = 0.87*410*1200/(0.405*25*300) = 427440/3037.5 = 140.8 mm
+    // z = 500 - 63.4 = 436.6 mm; Mu = 427440*436.6/1e6 = 186.6 kN.m
+    const r = designConcreteCapacity({
+      code: "BS_8110",
+      b: 300,
+      d: 500,
+      As: 1200,
+      fck: 25, // BS branch treats the input as cube fcu
+      fy: 410,
+    });
+    expect(r.neutralAxisMm).toBeCloseTo(140.8, 0);
+    expect(r.flexuralCapacityKNm).toBeCloseTo(186.6, 0);
+    expect(r.capacityFactor).toBe(0.87);
+    // vc = (0.79/1.25)*(1.0)^(1/3)*(400/400)^(1/4)*(25/25)^(1/3)
+    // pct = 100*1200/(300*500) = 0.8 -> 0.632*0.928... = 0.586 MPa
+    // Vc = 0.586*300*500/1000 = 87.9 kN
+    expect(r.shearCapacityKN).toBeCloseTo(87.9, 0);
+    expect(r.formulaTransparency[2]).toContain("Table 3.8");
+  });
+
+  it("flags xu/d beyond the BS 8110 singly reinforced limit", () => {
+    const r = designConcreteCapacity({
+      code: "BS_8110",
+      b: 200,
+      d: 400,
+      As: 2600,
+      fck: 25,
+      fy: 410,
+    });
+    // xu = 0.87*410*2600/(0.405*25*200) = 926k/2025 = 457 mm > 0.5*400
+    expect(r.warnings.some((w) => w.includes("0.5"))).toBe(true);
+  });
+
+  it("maps jurisdiction selector values onto engine codes", () => {
+    expect(jurisdictionToDesignCode("ACI_318")).toBe("ACI_318");
+    expect(jurisdictionToDesignCode("EUROCODE_2")).toBe("EUROCODE_2");
+    expect(jurisdictionToDesignCode("IS_456")).toBe("IS_456");
+    expect(jurisdictionToDesignCode("AS_3600")).toBe("AS_3600");
+    expect(jurisdictionToDesignCode("BS_8110")).toBe("BS_8110");
+    expect(jurisdictionToDesignCode("anything-else")).toBe("BS_8110");
   });
 });
 

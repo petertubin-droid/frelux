@@ -481,7 +481,7 @@ const CONCRETE_PROPS: Record<string, { fcu: number; Ec: number }> = {
   M35: { fcu: 35, Ec: 29.6 },
 };
 
-const STEEL_PROPS: Record<SteelGrade, { fy: number }> = {
+export const STEEL_PROPS: Record<SteelGrade, { fy: number }> = {
   Fe410: { fy: 410 },
   Fe500: { fy: 500 },
 };

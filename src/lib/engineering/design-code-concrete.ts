@@ -12,6 +12,7 @@
  *  - EN 1992-1-1 (Eurocode 2): partial factors gamma_c=1.5, gamma_s=1.15
  *  - IS 456:2000 (India): limit state, cube fck
  *  - AS 3600:2018 (Australia/NZ): capacity reduction factors, gamma stress block
+ *  - BS 8110-1:1997 (legacy Commonwealth): 0.45fcu/0.9xu block, 0.87fy
  *
  * Nothing is blended between codes. AS 3600 shear is intentionally NOT
  * implemented (Clause 8.2.7 depends on Dv/beta1/axial-load terms this module
@@ -19,7 +20,30 @@
  */
 
 export type DesignConcreteCode =
-  "ACI_318" | "EUROCODE_2" | "IS_456" | "AS_3600";
+  "ACI_318" | "EUROCODE_2" | "IS_456" | "AS_3600" | "BS_8110";
+
+/**
+ * Map the calculator's jurisdiction selector value onto the capacity engine.
+ * The page-level JurisdictionCode and this module stay decoupled: the page
+ * imports this mapping rather than re-implementing it.
+ */
+export function jurisdictionToDesignCode(
+  jurisdiction: string,
+): DesignConcreteCode {
+  switch (jurisdiction) {
+    case "ACI_318":
+      return "ACI_318";
+    case "EUROCODE_2":
+      return "EUROCODE_2";
+    case "IS_456":
+      return "IS_456";
+    case "AS_3600":
+      return "AS_3600";
+    case "BS_8110":
+    default:
+      return "BS_8110";
+  }
+}
 
 export interface DesignBeamInput {
   code: DesignConcreteCode;
@@ -195,6 +219,46 @@ export function designConcreteCapacity(
         leverArmMm: d - 0.42 * xu,
         capacityFactor: 1,
         blockDepthMm: xu,
+        warnings,
+        formulaTransparency,
+      };
+    }
+
+    case "BS_8110": {
+      // BS 8110-1:1997 Fig 2.1 / Cl 3.4.4.3: concrete block 0.45*fcu over
+      // 0.9*xu, steel 0.87*fy. Equilibrium: 0.87*fy*As = 0.405*fcu*b*xu
+      const xu = (0.87 * fy * As) / (0.405 * fck * b);
+      const z = d - 0.45 * xu;
+      const Mu = (0.87 * fy * As * z) / 1e6;
+      // Table 3.8 design concrete shear stress:
+      // vc = (0.79/gamma_m)(100As/bd)^(1/3)(400/d)^(1/4)(fcu/25)^(1/3),
+      // gamma_m = 1.25, with the code's 2% steel cap and 400 mm depth cap
+      const gammaM = 1.25;
+      const pct = Math.min((100 * As) / (b * d), 2);
+      const dCap = Math.min(d, 400);
+      const vc =
+        (0.79 / gammaM) *
+        Math.pow(pct, 1 / 3) *
+        Math.pow(400 / dCap, 0.25) *
+        Math.pow(fck / 25, 1 / 3);
+      const Vc = (vc * b * d) / 1e3;
+      formulaTransparency.push(
+        `xu = 0.87·fy·As/(0.405·fcu·b) = ${(0.87 * fy * As).toFixed(0)}/(0.405×${fck}×${b}) = ${xu.toFixed(1)} mm (BS 8110-1 Fig 2.1, Cl 3.4.4.3)`,
+        `Mu = 0.87·fy·As·z = ${(0.87 * fy * As).toFixed(0)}×${z.toFixed(1)} = ${Mu.toFixed(1)} kN·m`,
+        `vc = (0.79/1.25)·(100As/bd)^(1/3)·(400/d)^(1/4)·(fcu/25)^(1/3) = ${vc.toFixed(3)} MPa; Vc = vc·b·d = ${Vc.toFixed(1)} kN (BS 8110-1 Table 3.8)`,
+      );
+      if (xu > 0.5 * d)
+        warnings.push(
+          `xu/d = ${(xu / d).toFixed(2)} exceeds 0.5 (BS 8110-1 Cl 3.4.4.4): singly reinforced limit exceeded, redesign the section.`,
+        );
+      return {
+        code,
+        flexuralCapacityKNm: Mu,
+        shearCapacityKN: Vc,
+        neutralAxisMm: xu,
+        leverArmMm: z,
+        capacityFactor: 0.87,
+        blockDepthMm: 0.9 * xu,
         warnings,
         formulaTransparency,
       };
