@@ -7,7 +7,7 @@
  * when the file itself declares them; nothing is invented.
  */
 
-import { useState } from "react";
+import { Suspense, lazy, useCallback, useMemo, useState } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import Container from "@/components/ui/Container";
@@ -25,6 +25,30 @@ import AdSlot from "@/components/ui/AdSlot";
 import { serializeIfcTakeoffExport } from "@/lib/estimation/ifc-takeoff-export";
 import { Button } from "@/components/ui/shadcn/button";
 import { Download } from "lucide-react";
+import {
+  parseIfcModel,
+  type IfcModelParseResult,
+} from "@/lib/bim/ifc-model-loader";
+import {
+  buildEstimateLines,
+  elementIdsForLine,
+  groupLinesByCategory,
+  linesForElement,
+  type BiLinkIndex,
+  type EstimateCategory,
+  type EstimateLine,
+} from "@/lib/bim/model-estimate-link";
+
+const IfcModelViewer = lazy(() => import("@/components/bim/IfcModelViewer"));
+
+const CATEGORY_ORDER: EstimateCategory[] = [
+  "concrete",
+  "rebar",
+  "formwork",
+  "roof",
+  "openings",
+  "other",
+];
 
 export default function BimIfcImport() {
   useBreadcrumbJsonLd([
@@ -44,6 +68,11 @@ export default function BimIfcImport() {
   const [validation, setValidation] = useState<IfcValidationReport | null>(
     null,
   );
+  const [model, setModel] = useState<IfcModelParseResult | null>(null);
+  const [linkIndex, setLinkIndex] = useState<BiLinkIndex | null>(null);
+  const [selectedGlobalId, setSelectedGlobalId] = useState<string | null>(null);
+  const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
+  const [modelNote, setModelNote] = useState<string | null>(null);
 
   const onFile = async (file: File | null) => {
     setFileError(null);
@@ -57,7 +86,13 @@ export default function BimIfcImport() {
       );
       return;
     }
+    setModel(null);
+    setLinkIndex(null);
+    setSelectedGlobalId(null);
+    setSelectedLineId(null);
+    setModelNote(null);
     setBusy(true);
+    let ifcBytes: Uint8Array | null = null;
     try {
       let ifcText: string;
       let displayName: string;
@@ -71,6 +106,7 @@ export default function BimIfcImport() {
         ifcText = zr.file_text ?? "";
         displayName = file.name;
       } else {
+        ifcBytes = new Uint8Array(await file.arrayBuffer());
         ifcText = await file.text();
         displayName = file.name;
       }
@@ -92,6 +128,24 @@ export default function BimIfcImport() {
       setResult(r);
       setFileName(displayName);
       if (r.ok) track("bim_ifc_imported");
+
+      // Pillar 3: full web-ifc model parse (client-side, no server
+      // roundtrip) for the 3D viewer and the linked Bill of Quantities.
+      if (ifcBytes) {
+        try {
+          const parsed = await parseIfcModel(ifcBytes);
+          setModel(parsed);
+          setLinkIndex(buildEstimateLines(parsed.elements));
+        } catch {
+          setModelNote(
+            "The 3D model could not be generated for this file (the deterministic text takeoff above is unaffected).",
+          );
+        }
+      } else {
+        setModelNote(
+          "The 3D viewer is available for .ifc files; .ifczip exports keep the deterministic text takeoff only.",
+        );
+      }
     } catch {
       setFileError(
         "The file could not be read. It may be corrupted: nothing is estimated on its behalf.",
@@ -410,6 +464,30 @@ export default function BimIfcImport() {
               </div>
             </div>
 
+            {modelNote && (
+              <div className="rounded-lg border border-border bg-muted/40 p-4 text-xs text-muted-foreground dark:border-white/5">
+                {modelNote}
+              </div>
+            )}
+
+            {model?.ok && model.elements.length > 0 && linkIndex && (
+              <Bim5dSection
+                model={model}
+                linkIndex={linkIndex}
+                selectedGlobalId={selectedGlobalId}
+                selectedLineId={selectedLineId}
+                onElementSelect={(id) => {
+                  setSelectedGlobalId(id);
+                  setSelectedLineId(null);
+                }}
+                onLineSelect={(lineId) => {
+                  setSelectedLineId(lineId);
+                  const [elementId] = elementIdsForLine(linkIndex, lineId);
+                  setSelectedGlobalId(elementId ?? null);
+                }}
+              />
+            )}
+
             {result.warnings.length > 0 && (
               <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
                 {result.warnings.map((w, i) => (
@@ -440,4 +518,190 @@ export default function BimIfcImport() {
       <AdSlot slotKey="calculator_native" className="mt-8" />
     </Container>
   );
+}
+function Bim5dSection({
+  model,
+  linkIndex,
+  selectedGlobalId,
+  selectedLineId,
+  onElementSelect,
+  onLineSelect,
+}: {
+  model: IfcModelParseResult;
+  linkIndex: BiLinkIndex;
+  selectedGlobalId: string | null;
+  selectedLineId: string | null;
+  onElementSelect: (id: string | null) => void;
+  onLineSelect: (lineId: string) => void;
+}) {
+  const handleViewerSelect = useCallback(onElementSelect, [onElementSelect]);
+  const highlightedLineIds = useMemo(
+    () =>
+      new Set(linesForElement(linkIndex, selectedGlobalId).map((l) => l.id)),
+    [linkIndex, selectedGlobalId],
+  );
+  const grouped = useMemo(() => groupLinesByCategory(linkIndex), [linkIndex]);
+  const selectedElement = model.elements.find(
+    (e) => e.globalId === selectedGlobalId,
+  );
+
+  return (
+    <section
+      data-testid="bim-5d-section"
+      className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
+    >
+      <h3 className="text-sm font-semibold">
+        3D model and linked Bill of Quantities (5D)
+      </h3>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Parsed in your browser with web-ifc: nothing is uploaded. Click an
+        element in the 3D model to highlight its concrete, rebar, formwork and
+        roofing lines; click a Bill of Quantities line to highlight its model
+        element. Derived lines are labelled indicative; declared lines come
+        straight from IfcQuantityArea/Volume/Length.
+      </p>
+
+      <div className="mt-3 grid gap-4 lg:grid-cols-2">
+        <div className="space-y-3">
+          <Suspense
+            fallback={
+              <div className="flex h-[420px] items-center justify-center rounded-xl border border-input bg-muted/40 text-sm text-muted-foreground">
+                Loading the 3D viewer…
+              </div>
+            }
+          >
+            <IfcModelViewer
+              elements={model.elements}
+              selectedGlobalId={selectedGlobalId}
+              onSelect={handleViewerSelect}
+            />
+          </Suspense>
+          {selectedElement ? (
+            <div
+              data-testid="bim-selected-element"
+              className="rounded-lg border border-border bg-muted/40 p-3 text-xs dark:border-white/5"
+            >
+              <p className="font-semibold">
+                {selectedElement.ifcClass}
+                {selectedElement.name ? `: ${selectedElement.name}` : ""}
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                {selectedElement.quantities.length === 0
+                  ? "No quantities declared by the model for this element."
+                  : selectedElement.quantities
+                      .map(
+                        (q) =>
+                          `${q.name}: ${q.value.toLocaleString("en-NG")} ${q.kind}`,
+                      )
+                      .join(" · ")}
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                GlobalId {selectedElement.globalId}
+              </p>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              No element selected. Click an element in the viewer or a line in
+              the Bill of Quantities.
+            </p>
+          )}
+        </div>
+
+        <div data-testid="bim-boq-table" className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead className="text-[11px] uppercase text-muted-foreground">
+              <tr>
+                <th className="py-2 text-left">Bill of Quantities</th>
+                <th className="py-2 text-right">Qty</th>
+                <th className="py-2 text-right">Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              {CATEGORY_ORDER.filter((c) => grouped.has(c)).map((category) => {
+                const lines = grouped.get(category) ?? [];
+                const total = lines.reduce((n, l) => n + l.quantity, 0);
+                const unit = lines[0]?.unit ?? "";
+                return (
+                  <FragmentWithKey key={category}>
+                    <tr className="border-t border-border dark:border-white/5">
+                      <td className="py-1.5 font-semibold capitalize">
+                        {category}
+                      </td>
+                      <td className="py-1.5 text-right font-mono">
+                        {total.toLocaleString("en-NG")}
+                      </td>
+                      <td className="py-1.5 text-right text-muted-foreground">
+                        {lines.length} line{lines.length === 1 ? "" : "s"}
+                      </td>
+                    </tr>
+                    {lines.map((line) => (
+                      <BimBoqLineRow
+                        key={line.id}
+                        line={line}
+                        highlighted={highlightedLineIds.has(line.id)}
+                        clicked={selectedLineId === line.id}
+                        onSelect={onLineSelect}
+                      />
+                    ))}
+                  </FragmentWithKey>
+                );
+              })}
+            </tbody>
+          </table>
+          {linkIndex.lines.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              The model declares no takeoff quantities: no line is invented.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {model.warnings.length > 0 && (
+        <ul className="mt-3 space-y-1 text-xs text-amber-600 dark:text-amber-400">
+          {model.warnings.map((w, i) => (
+            <li key={i}>{w}</li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function BimBoqLineRow({
+  line,
+  highlighted,
+  clicked,
+  onSelect,
+}: {
+  line: EstimateLine;
+  highlighted: boolean;
+  clicked: boolean;
+  onSelect: (lineId: string) => void;
+}) {
+  return (
+    <tr
+      data-testid="boq-line"
+      onClick={() => onSelect(line.id)}
+      className={`cursor-pointer border-t border-border transition-colors dark:border-white/5 ${
+        highlighted
+          ? "bg-blue-500/10"
+          : clicked
+            ? "bg-blue-500/20"
+            : "hover:bg-muted/40"
+      }`}
+      title={line.note}
+    >
+      <td className="py-1.5 pl-4">{line.label}</td>
+      <td className="py-1.5 text-right font-mono">
+        {line.quantity.toLocaleString("en-NG")} {line.unit}
+      </td>
+      <td className="py-1.5 text-right text-muted-foreground">
+        {line.provenance === "declared" ? "declared" : "indicative"}
+      </td>
+    </tr>
+  );
+}
+
+function FragmentWithKey({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }
