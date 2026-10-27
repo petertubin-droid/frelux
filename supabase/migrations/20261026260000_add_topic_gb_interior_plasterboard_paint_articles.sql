@@ -289,7 +289,7 @@ The fastener audit deserves its closing honesty, because it is the gate the prog
 
 The cover photograph shows a worker sanding drywall, taken by the Georgia National Guard and made available under CC BY 2.0 via Wikimedia Commons. It is a real photograph, not AI generated, and its license was verified through the Wikimedia Commons API at the time this article was drafted.
 
-$wallarticle4$, 8, 'quality-checks', 'https://upload.wikimedia.org/wikipedia/commons/0/02/Sanding_Drywall_%285891371421%29.jpg')
+$wallarticle4$, 8, 'quality', 'https://upload.wikimedia.org/wikipedia/commons/0/02/Sanding_Drywall_%285891371421%29.jpg')
 , ('gb-interior-plasterboard-paint-maintenance-repair', 'UK Plasterboard Walls: Maintenance and Repair', 'A British maintenance guide for plasterboard walls: fixings that hold, dents and holes repaired with the chain's own materials, stains read honestly, and the repaints that keep the wall young.', $wallarticle5$# UK Plasterboard Walls: Maintenance and Repair
 
 The maintenance article is the chain's longest, because the wall spends more decades in service than it spent in construction, and everything it needs it inherits from the materials it was born from. The plankwall culture of repair is generous: the same jointing compounds that built the seams can rebuild a hole, the same tapes can reinforce a crack, and the same mist coat and emulsion can make the repair invisible or nearly so. What the culture demands in return is honesty about what happened, because a repair that hides the cause is a promise the wall will break again.
@@ -359,10 +359,19 @@ The maintenance wall keeps company, and the article's last honesty is about the 
 
 The cover photograph shows universal wall plugs of the type used for fixings in plasterboard and other wall materials, taken by photographer Raimond Spekking and made available under CC BY-SA 4.0 via Wikimedia Commons. It is a real photograph, not AI generated, and its license was verified through the Wikimedia Commons API at the time this article was drafted.
 
-$wallarticle5$, 8, 'maintenance-repair', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Fischer_Universald%C3%BCbel_UX_10_aus_Biowerkstoff-8365.jpg/1280px-Fischer_Universald%C3%BCbel_UX_10_aus_Biowerkstoff-8365.jpg')
+$wallarticle5$, 8, 'maintenance', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Fischer_Universald%C3%BCbel_UX_10_aus_Biowerkstoff-8365.jpg/1280px-Fischer_Universald%C3%BCbel_UX_10_aus_Biowerkstoff-8365.jpg')
 ) AS a(slug,title,excerpt,content,read_time_minutes,theme,cover_url)
 JOIN public.learn_wall_finishing_topics t ON t.market_code='GB' AND t.candidate_key='assembly:gb-interior-plasterboard-paint'
 JOIN public.learn_wall_finishing_article_slots slot ON slot.topic_id=t.id AND slot.market_code=t.market_code AND slot.theme_key=a.theme AND slot.language_code='en'
 ON CONFLICT (slug) DO NOTHING;
+
+
+UPDATE public.learn_wall_finishing_article_slots slot
+SET article_id=a.id
+FROM public.learn_wall_finishing_topics t, public.learn_articles a
+WHERE slot.topic_id=t.id AND slot.market_code='GB' AND t.market_code='GB'
+  AND t.candidate_key='assembly:gb-interior-plasterboard-paint'
+  AND a.wall_topic_id=t.id AND a.wall_market_code='GB' AND a.wall_language_code='en'
+  AND a.wall_article_theme=slot.theme_key AND slot.language_code='en';
 
 COMMIT;

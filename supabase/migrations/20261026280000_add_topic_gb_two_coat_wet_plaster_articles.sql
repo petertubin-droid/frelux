@@ -377,7 +377,7 @@ The program's final gate is the handover itself, read in the two lights the room
 
 The cover photograph shows a worker plastering a wall with care, photographed by Johnnybam and made available under CC BY-SA 4.0 via Wikimedia Commons. It is a real photograph, not AI generated, and its license was verified through the Wikimedia Commons API at the time this article was drafted.
 
-$wallarticle4$, 8, 'quality-checks', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e4/Plastering_the_Wall_with_Care.jpg/1280px-Plastering_the_Wall_with_Care.jpg')
+$wallarticle4$, 8, 'quality', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e4/Plastering_the_Wall_with_Care.jpg/1280px-Plastering_the_Wall_with_Care.jpg')
 , ('gb-wet-plaster-maintenance-repair', 'UK Wet Plaster Walls: Maintenance and Repair', 'A British maintenance guide for two-coat wet plaster walls: reading cracks and hollows, patching in the wall's own materials, the repaint cycle, and the heritage handoffs that deserve specialists.', $wallarticle5$# UK Wet Plaster Walls: Maintenance and Repair
 
 A wet plastered wall is the most repairable surface in the British finish family, because its materials are universal and its craft is local: this article is the householder's and steward's guide to keeping the surface honest for the decades it was built to carry.
@@ -459,10 +459,19 @@ The wet plastered wall answers the everyday question better than any of its cous
 
 The cover photograph shows workers mixing plaster and continuing plaster work on church walls, photographed by the National Park Service and released into the public domain via Wikimedia Commons. It is a real photograph, not AI generated, and its status was verified through the Wikimedia Commons API at the time this article was drafted.
 
-$wallarticle5$, 8, 'maintenance-repair', 'https://upload.wikimedia.org/wikipedia/commons/3/31/Workers_mix_plaster_and_continue_plaster_work_on_church_walls._%2811167792-5535-4064-b241-45d7b3e39df8%29.jpg')
+$wallarticle5$, 8, 'maintenance', 'https://upload.wikimedia.org/wikipedia/commons/3/31/Workers_mix_plaster_and_continue_plaster_work_on_church_walls._%2811167792-5535-4064-b241-45d7b3e39df8%29.jpg')
 ) AS a(slug,title,excerpt,content,read_time_minutes,theme,cover_url)
 JOIN public.learn_wall_finishing_topics t ON t.market_code='GB' AND t.candidate_key='assembly:gb-two-coat-wet-plaster'
 JOIN public.learn_wall_finishing_article_slots slot ON slot.topic_id=t.id AND slot.market_code=t.market_code AND slot.theme_key=a.theme AND slot.language_code='en'
 ON CONFLICT (slug) DO NOTHING;
+
+
+UPDATE public.learn_wall_finishing_article_slots slot
+SET article_id=a.id
+FROM public.learn_wall_finishing_topics t, public.learn_articles a
+WHERE slot.topic_id=t.id AND slot.market_code='GB' AND t.market_code='GB'
+  AND t.candidate_key='assembly:gb-two-coat-wet-plaster'
+  AND a.wall_topic_id=t.id AND a.wall_market_code='GB' AND a.wall_language_code='en'
+  AND a.wall_article_theme=slot.theme_key AND slot.language_code='en';
 
 COMMIT;

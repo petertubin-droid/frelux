@@ -283,7 +283,7 @@ One paragraph deserves the program''s last emphasis, because it is the truth the
 4. CEN, *BS EN 845-1:2013+A1:2016, Specification for ancillary components for masonry, Part 1*.
 5. British Gypsum, *Thistle Plaster Systems, White Book specification selector PL0029*.
 6. British Gypsum, *Gyproc WallBoard 12.5 mm, product data sheet*.
-7. Scottish Government, *Building standards technical handbook 2017: domestic*.$wallarticle4$, 'quality-checks', 10)
+7. Scottish Government, *Building standards technical handbook 2017: domestic*.$wallarticle4$, 'quality', 10)
 , ('gb-brick-block-cavity-wall-maintenance-repair', 'UK Cavity Wall Maintenance and Repair', 'A British maintenance guide for cavity walls: repointing, damp diagnosis, wall tie retrofit, insulation retrofits, crack reading and the surveys that see inside the gap.', $wallarticle5$# UK Cavity Wall Maintenance and Repair
 
 ## The wall''s two long opponents
@@ -361,7 +361,7 @@ The article''s last reading is the calendar''s own. A cavity wall''s year is a c
 4. CEN, *BS EN 845-1:2013+A1:2016, Specification for ancillary components for masonry, Part 1*.
 5. British Gypsum, *Thistle Plaster Systems, White Book specification selector PL0029*.
 6. British Gypsum, *Gyproc WallBoard 12.5 mm, product data sheet*.
-7. Scottish Government, *Building standards technical handbook 2017: domestic*.$wallarticle5$, 'maintenance-repair', 10)
+7. Scottish Government, *Building standards technical handbook 2017: domestic*.$wallarticle5$, 'maintenance', 10)
 
 ) AS a(slug,title,excerpt,content,theme,read_time_minutes)
 JOIN public.learn_wall_finishing_topics t ON t.market_code='GB' AND t.candidate_key='system:gb-brick-block'

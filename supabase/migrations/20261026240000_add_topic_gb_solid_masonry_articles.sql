@@ -108,7 +108,7 @@ The articles that follow divide the solid wall''s life the way the trade divides
 
 ## Image credit
 
-The cover photograph shows a row of terraced Victorian cottages, England, photographed by Evelyn Simak via geograph.org.uk and shared on Wikimedia Commons under the CC BY-SA 2.0 licence. Real photograph, not AI generated.$wallarticle1$, 'overview', 'https://upload.wikimedia.org/wikipedia/commons/e/e3/A_row_of_terraced_Victorian_cottages_-_geograph.org.uk_-_1208692.jpg')
+The cover photograph shows a row of terraced Victorian cottages, England, photographed by Evelyn Simak via geograph.org.uk and shared on Wikimedia Commons under the CC BY-SA 2.0 licence. Real photograph, not AI generated.$$wallarticle1$, 9, 'overview', 'https://upload.wikimedia.org/wikipedia/commons/e/e3/A_row_of_terraced_Victorian_cottages_-_geograph.org.uk_-_1208692.jpg')
 , ('gb-solid-masonry-materials', 'Materials for UK Solid Masonry Walls', 'A British materials guide to the solid wall: local bricks and stone, lime mortars in their grades, undercoat and finishing plasters, breathable decorations, and the rule that keeps every choice honest: the wall must still breathe.', $wallarticle2$# Materials for UK Solid Masonry Walls
 
 The materials story of a solid wall is a story about moisture before it is a story about strength. Every material that goes into or onto a solid wall either helps it absorb and release water or interferes with that exchange, and because the wall has no cavity to forgive a mistake, the wrong mortar or the wrong paint can start a decay that runs for decades before anyone sees it. This guide walks the shelf in the order the wall itself would ask for its parts: the masonry units, the mortars that join them, the plasters that face them inside, and the decorations that seal or breathe at the very end.
@@ -170,7 +170,7 @@ The shelf''s last line item is not a material but the guidance the whole aisle l
 
 ## Image credit
 
-The cover photograph shows the construction of a brick and flint gable end with tumbled brickwork at Northrepps, Norfolk, photographed by Kolforn and shared on Wikimedia Commons under the CC BY-SA 4.0 licence. Real photograph, not AI generated.$wallarticle2$, 'materials', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/-2022-06-21_Construction_of_a_brick_and_flint_gable_end_with_tumbled_brickwork%2C_Northrepps%2C_Norfolk_%281%29.JPG/1280px--2022-06-21_Construction_of_a_brick_and_flint_gable_end_with_tumbled_brickwork%2C_Northrepps%2C_Norfolk_%281%29.JPG')
+The cover photograph shows the construction of a brick and flint gable end with tumbled brickwork at Northrepps, Norfolk, photographed by Kolforn and shared on Wikimedia Commons under the CC BY-SA 4.0 licence. Real photograph, not AI generated.$$wallarticle2$, 9, 'materials', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/-2022-06-21_Construction_of_a_brick_and_flint_gable_end_with_tumbled_brickwork%2C_Northrepps%2C_Norfolk_%281%29.JPG/1280px--2022-06-21_Construction_of_a_brick_and_flint_gable_end_with_tumbled_brickwork%2C_Northrepps%2C_Norfolk_%281%29.JPG')
 , ('gb-solid-masonry-installation', 'Working on UK Solid Walls: Installation Guide', 'A British installation guide for solid masonry: building new solid and single-leaf work to the line and gauge, and running the plaster chain onto existing masonry from suction control to mist coat.', $wallarticle3$# Working on UK Solid Walls: Installation Guide
 
 Installation on a solid wall runs in two quite different registers. New solid work, a boundary wall, a chimney rebuild, a single-leaf outbuilding, is bricklaying in the classical sense, built line by line to gauge and level. Work on an existing solid wall is mostly the finishing chain: preparing the masonry inside, controlling its suction, and running the plaster coats that turn a brick or stone face into a room surface. This guide walks both, because the two registers share one discipline: the wall has no cavity behind it, so every operation must respect the single continuous thickness that the weather and the room share.
@@ -232,7 +232,7 @@ The installation article ends by admitting its own size: solid wall work is a cr
 
 ## Image credit
 
-The cover photograph shows a plasterer at work on a wall, photographed by Adrian Pingstone (Arpingstone) and shared on Wikimedia Commons under a public domain licence. Real photograph, not AI generated.$wallarticle3$, 'installation', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Plasterer_at_work_on_a_wall_arp.jpg/1280px-Plasterer_at_work_on_a_wall_arp.jpg')
+The cover photograph shows a plasterer at work on a wall, photographed by Adrian Pingstone (Arpingstone) and shared on Wikimedia Commons under a public domain licence. Real photograph, not AI generated.$$wallarticle3$, 9, 'installation', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Plasterer_at_work_on_a_wall_arp.jpg/1280px-Plasterer_at_work_on_a_wall_arp.jpg')
 , ('gb-solid-masonry-quality-checks', 'UK Solid Wall Quality Control and Inspection', 'A British quality program for solid masonry: the line, gauge, and joint disciplines, mortar match panels, suction and coat checks, the honest reading of damp instruments, and the evidence photographs that settle disputes years later.', $wallarticle4$# UK Solid Wall Quality Control and Inspection
 
 Quality control on a solid wall has a sharp edge that the cavity wall never sharpens: everything is one thickness, so a defect on one face is a condition of the whole wall, and an error hidden at handover can surface decades later as damp, spalling, or cracked plaster on the other side. The program below keeps the honest habits that catch those errors early: the workmanship gauges for new work, the match panels and suction checks for repairs and plastering, and the honest treatment of the instruments that claim to read a wall''s moisture.
@@ -297,7 +297,7 @@ The quality file''s photographs have a second life the program should plan for d
 
 ## Image credit
 
-The cover photograph shows brickwork of notably poor quality, photographed by Bob Harvey via geograph.org.uk and shared on Wikimedia Commons under the CC BY-SA 2.0 licence. Real photograph, not AI generated.$wallarticle4$, 'quality-checks', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Terrible_brickwork_-_geograph.org.uk_-_6200823.jpg/1280px-Terrible_brickwork_-_geograph.org.uk_-_6200823.jpg')
+The cover photograph shows brickwork of notably poor quality, photographed by Bob Harvey via geograph.org.uk and shared on Wikimedia Commons under the CC BY-SA 2.0 licence. Real photograph, not AI generated.$$wallarticle4$, 9, 'quality', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Terrible_brickwork_-_geograph.org.uk_-_6200823.jpg/1280px-Terrible_brickwork_-_geograph.org.uk_-_6200823.jpg')
 , ('gb-solid-masonry-maintenance-repair', 'UK Solid Wall Maintenance and Repair', 'A British maintenance guide for solid walls: the repointing discipline, honest damp diagnosis, breathable repair and decoration, insulation retrofit caution, and the annual checks that keep a one-thickness wall managing its own weather.', $wallarticle5$# UK Solid Wall Maintenance and Repair
 
 Maintenance of a solid wall is stewardship of a balance rather than a fight against a defect. The wall spent its first century managing rain, sun, and frost by absorbing and evaporating water through materials chosen for exactly that exchange, and the maintenance programme''s whole purpose is to protect the exchange: keep the joints sacrificial, keep the coatings breathing, keep the water running off the roof and away from the base, and the wall will do the rest. This guide sets out the crafts in the order a wall usually needs them, from the most frequent to the most consequential.
@@ -360,17 +360,19 @@ Most readers meet this topic on their own house, and the last honest note is for
 
 ## Image credit
 
-The cover photograph shows tuck pointing on Baker Street, London, photographed by Jonathanriley and shared on Wikimedia Commons under the CC BY-SA 4.0 licence. Real photograph, not AI generated.$wallarticle5$, 'maintenance-repair', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Tuck_pointing%2C_Baker_Street%2C_London%2C_UK._%28pic33%29.jpg/1280px-Tuck_pointing%2C_Baker_Street%2C_London%2C_UK._%28pic33%29.jpg')
+The cover photograph shows tuck pointing on Baker Street, London, photographed by Jonathanriley and shared on Wikimedia Commons under the CC BY-SA 4.0 licence. Real photograph, not AI generated.$$wallarticle5$, 9, 'maintenance', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Tuck_pointing%2C_Baker_Street%2C_London%2C_UK._%28pic33%29.jpg/1280px-Tuck_pointing%2C_Baker_Street%2C_London%2C_UK._%28pic33%29.jpg')
 ) AS a(slug,title,excerpt,content,read_time_minutes,theme,cover_url)
 JOIN public.learn_wall_finishing_topics t ON t.market_code='GB' AND t.candidate_key='system:gb-solid-masonry'
 JOIN public.market_profiles mp ON mp.country_code=t.market_code
 JOIN public.learn_wall_finishing_article_slots slot ON slot.topic_id=t.id AND slot.market_code=t.market_code AND slot.theme_key=a.theme AND slot.language_code=mp.default_language
 WHERE NOT EXISTS (SELECT 1 FROM public.learn_articles la WHERE la.slug=a.slug);
 
-UPDATE public.learn_wall_finishing_article_slots s
-SET drafted_at = now(), draft_article_id = a.id
-FROM public.learn_articles a
-WHERE a.wall_topic_id = s.topic_id AND a.wall_article_theme = s.theme_key
-  AND s.market_code='GB' AND s.topic_id IN (SELECT id FROM public.learn_wall_finishing_topics WHERE market_code='GB' AND candidate_key='system:gb-solid-masonry');
+UPDATE public.learn_wall_finishing_article_slots slot
+SET article_id=a.id
+FROM public.learn_wall_finishing_topics t, public.learn_articles a
+WHERE slot.topic_id=t.id AND slot.market_code='GB' AND t.market_code='GB'
+  AND t.candidate_key='system:gb-solid-masonry'
+  AND a.wall_topic_id=t.id AND a.wall_market_code='GB' AND a.wall_language_code='en'
+  AND a.wall_article_theme=slot.theme_key AND slot.language_code='en';
 
 COMMIT;

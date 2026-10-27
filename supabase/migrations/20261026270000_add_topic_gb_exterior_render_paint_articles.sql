@@ -386,7 +386,7 @@ The program photographs the wall twice on purpose: once at the mock up, when the
 
 The cover photograph shows rendered walls, photographed by Bob Harvey and made available under CC BY-SA 2.0 via Wikimedia Commons. It is a real photograph, not AI generated, and its license was verified through the Wikimedia Commons API at the time this article was drafted.
 
-$wallarticle4$, 8, 'quality-checks', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Rendered_walls_-_geograph.org.uk_-_3234605.jpg/1280px-Rendered_walls_-_geograph.org.uk_-_3234605.jpg')
+$wallarticle4$, 8, 'quality', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Rendered_walls_-_geograph.org.uk_-_3234605.jpg/1280px-Rendered_walls_-_geograph.org.uk_-_3234605.jpg')
 , ('gb-exterior-render-paint-maintenance-repair', 'UK Rendered Walls: Maintenance and Repair', 'A British maintenance guide for the exterior chain: washing and algae, the crack and filler cycle, repaint intervals and sheen honesty, when to re render rather than repaint, and the survey that reads a weathered wall fairly.', $wallarticle5$# UK Rendered Walls: Maintenance and Repair
 
 Maintenance on the weather side of a building is a long conversation with rain, and this article is the maintenance steward's side of it.
@@ -478,10 +478,19 @@ The maintenance calendar always includes the rainwear, because the coating that 
 
 The cover photograph shows a weathered rendered wall in the walled garden at Easton Lodge Gardens, photographed by Acabashi and made available under CC BY-SA 4.0 via Wikimedia Commons. It is a real photograph, not AI generated, and its license was verified through the Wikimedia Commons API at the time this article was drafted.
 
-$wallarticle5$, 8, 'maintenance-repair', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/Easton_Lodge_Gardens_walled_garden_Rendered_north-west_wall_01.jpg/1280px-Easton_Lodge_Gardens_walled_garden_Rendered_north-west_wall_01.jpg')
+$wallarticle5$, 8, 'maintenance', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/Easton_Lodge_Gardens_walled_garden_Rendered_north-west_wall_01.jpg/1280px-Easton_Lodge_Gardens_walled_garden_Rendered_north-west_wall_01.jpg')
 ) AS a(slug,title,excerpt,content,read_time_minutes,theme,cover_url)
 JOIN public.learn_wall_finishing_topics t ON t.market_code='GB' AND t.candidate_key='assembly:gb-exterior-render-paint'
 JOIN public.learn_wall_finishing_article_slots slot ON slot.topic_id=t.id AND slot.market_code=t.market_code AND slot.theme_key=a.theme AND slot.language_code='en'
 ON CONFLICT (slug) DO NOTHING;
+
+
+UPDATE public.learn_wall_finishing_article_slots slot
+SET article_id=a.id
+FROM public.learn_wall_finishing_topics t, public.learn_articles a
+WHERE slot.topic_id=t.id AND slot.market_code='GB' AND t.market_code='GB'
+  AND t.candidate_key='assembly:gb-exterior-render-paint'
+  AND a.wall_topic_id=t.id AND a.wall_market_code='GB' AND a.wall_language_code='en'
+  AND a.wall_article_theme=slot.theme_key AND slot.language_code='en';
 
 COMMIT;

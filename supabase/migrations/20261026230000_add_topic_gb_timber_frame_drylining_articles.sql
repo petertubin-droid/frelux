@@ -237,7 +237,7 @@ A quality program earns its calm in its first hour, when the first panel of each
 
 ## Image credit
 
-The cover photograph shows gypsum board seams being taped ahead of painting and final finishes. Photograph by MTA Capital Construction Mega Projects, CC BY 2.0, via Wikimedia Commons. A real photograph, not AI generated.$wallarticle4$, 10, 'quality-checks', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Taping_gypsum_board_seams_in_back_of_house_rooms_in_the_new_LIRR_passenger_concourse_in_preparation_for_painting_and_final_finishes._4-17-19_%2847645209441%29.jpg/1280px-Taping_gypsum_board_seams_in_back_of_house_rooms_in_the_new_LIRR_passenger_concourse_in_preparation_for_painting_and_final_finishes._4-17-19_%2847645209441%29.jpg')
+The cover photograph shows gypsum board seams being taped ahead of painting and final finishes. Photograph by MTA Capital Construction Mega Projects, CC BY 2.0, via Wikimedia Commons. A real photograph, not AI generated.$wallarticle4$, 10, 'quality', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Taping_gypsum_board_seams_in_back_of_house_rooms_in_the_new_LIRR_passenger_concourse_in_preparation_for_painting_and_final_finishes._4-17-19_%2847645209441%29.jpg/1280px-Taping_gypsum_board_seams_in_back_of_house_rooms_in_the_new_LIRR_passenger_concourse_in_preparation_for_painting_and_final_finishes._4-17-19_%2847645209441%29.jpg')
 , ('gb-timber-frame-drylining-maintenance-repair', 'UK Timber Frame Maintenance and Repair', 'A British maintenance guide for timber frame homes: living with seasonal movement, reading cracks and screw pops, repairing board linings honestly, protecting the vapour control layer, and the upgrades a finished frame tolerates.', $wallarticle5$# UK Timber Frame Maintenance and Repair
 
 A finished timber frame house is a living thing in the small sense that matters to its owner: it moves. Timber takes up and gives off moisture with the seasons, shrinking across the grain as the heating season dries it and settling in the first years after construction. The finisher''s craft anticipated this. The joints were designed to move a little, the boards were fixed to flex at their edges, and the decorator''s fillers were chosen to forgive hairline movement. The maintenance story of a timber frame home is mostly the story of respecting that design: reading the wall''s small movements correctly, repairing its surfaces honestly, and never confusing cosmetic cracks with structural ones.
@@ -284,10 +284,19 @@ The skimmed surface deserves its own repair paragraph, because a polished plaste
 
 ## Image credit
 
-The cover photograph shows ornamental ceiling plasterwork in a British interior. Photograph by xlibber, CC BY 2.0, via Wikimedia Commons. A real photograph, not AI generated.$wallarticle5$, 10, 'maintenance-repair', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3d/Ceiling_Plasterwork_%287003013140%29.jpg/1280px-Ceiling_Plasterwork_%287003013140%29.jpg')
+The cover photograph shows ornamental ceiling plasterwork in a British interior. Photograph by xlibber, CC BY 2.0, via Wikimedia Commons. A real photograph, not AI generated.$wallarticle5$, 10, 'maintenance', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3d/Ceiling_Plasterwork_%287003013140%29.jpg/1280px-Ceiling_Plasterwork_%287003013140%29.jpg')
 ) AS a(slug,title,excerpt,content,read_time_minutes,theme,cover_url)
 JOIN public.learn_wall_finishing_topics t ON t.market_code='GB' AND t.candidate_key='system:gb-timber-frame-dryline'
 JOIN public.learn_wall_finishing_article_slots slot ON slot.topic_id=t.id AND slot.market_code=t.market_code AND slot.theme_key=a.theme AND slot.language_code='en'
 ON CONFLICT (slug) DO NOTHING;
+
+
+UPDATE public.learn_wall_finishing_article_slots slot
+SET article_id=a.id
+FROM public.learn_wall_finishing_topics t, public.learn_articles a
+WHERE slot.topic_id=t.id AND slot.market_code='GB' AND t.market_code='GB'
+  AND t.candidate_key='system:gb-timber-frame-dryline'
+  AND a.wall_topic_id=t.id AND a.wall_market_code='GB' AND a.wall_language_code='en'
+  AND a.wall_article_theme=slot.theme_key AND slot.language_code='en';
 
 COMMIT;

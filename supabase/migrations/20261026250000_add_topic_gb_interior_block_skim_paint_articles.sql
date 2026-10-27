@@ -301,7 +301,7 @@ A quality programme earns its keep on the days it stops the work, and the articl
 
 The cover photograph shows a plasterer at work, taken for the Rijksdienst voor het Cultureel Erfgoed by photographer G.Th. Delemarre in Velsen and made available under CC BY-SA 4.0 via Wikimedia Commons. It is a real photograph, not AI generated, and its license was verified through the Wikimedia Commons API at the time this article was drafted.
 
-$wallarticle4$, 'quality-checks', 8, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Stucadoor_in_actie_-_Velsen_-_20240473_-_RCE.jpg/1280px-Stucadoor_in_actie_-_Velsen_-_20240473_-_RCE.jpg')
+$wallarticle4$, 'quality', 8, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Stucadoor_in_actie_-_Velsen_-_20240473_-_RCE.jpg/1280px-Stucadoor_in_actie_-_Velsen_-_20240473_-_RCE.jpg')
 , ('gb-interior-block-skim-paint-maintenance-repair', 'UK Skimmed Walls: Maintenance and Repair', 'A British maintenance guide for skimmed and emulsioned walls: the first year's hairlines, patch repairs that match, stain honesty, repaint cycles, and the rooms that ask more of their walls.', $wallarticle5$# UK Skimmed Walls: Maintenance and Repair
 
 ## The first year, read as drying
@@ -370,8 +370,8 @@ The maintenance article ends with a composite example, because a decade of walls
 
 The cover photograph shows a painter rolling a coat of paint, taken by Michael Coghlan and made available under CC BY-SA 2.0 via Wikimedia Commons. It is a real photograph, not AI generated, and its license was verified through the Wikimedia Commons API at the time this article was drafted.
 
-$wallarticle5$, 'maintenance-repair', 8, 'https://upload.wikimedia.org/wikipedia/commons/9/9f/Rolling_in_the_Middle_%2834571931105%29_%28cropped%29.jpg')
-) AS a(slug,title,excerpt,content,read_time_minutes,theme,cover_url)
+$wallarticle5$, 'maintenance', 8, 'https://upload.wikimedia.org/wikipedia/commons/9/9f/Rolling_in_the_Middle_%2834571931105%29_%28cropped%29.jpg')
+) AS a(slug,title,excerpt,content,theme,read_time_minutes,cover_url)
 JOIN public.learn_wall_finishing_topics t ON t.market_code='GB' AND t.candidate_key='assembly:gb-interior-block-skim-paint'
 JOIN public.learn_wall_finishing_article_slots slot ON slot.topic_id=t.id AND slot.market_code=t.market_code AND slot.theme_key=a.theme AND slot.language_code='en'
 ON CONFLICT (slug) DO UPDATE SET
@@ -381,5 +381,14 @@ ON CONFLICT (slug) DO UPDATE SET
   wall_language_code=EXCLUDED.wall_language_code,
   market=EXCLUDED.market,
   cover_image_url=COALESCE(EXCLUDED.cover_image_url, public.learn_articles.cover_image_url);
+
+
+UPDATE public.learn_wall_finishing_article_slots slot
+SET article_id=a.id
+FROM public.learn_wall_finishing_topics t, public.learn_articles a
+WHERE slot.topic_id=t.id AND slot.market_code='GB' AND t.market_code='GB'
+  AND t.candidate_key='assembly:gb-interior-block-skim-paint'
+  AND a.wall_topic_id=t.id AND a.wall_market_code='GB' AND a.wall_language_code='en'
+  AND a.wall_article_theme=slot.theme_key AND slot.language_code='en';
 
 COMMIT;
