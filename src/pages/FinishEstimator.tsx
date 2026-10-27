@@ -56,7 +56,9 @@ import { useLabourConfig } from "@/components/labour/LabourCostSection";
 import { useMarket } from "@/lib/international/market-context";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import { calculateLabourCost } from "@/lib/labour";
-import { printQuote } from "@/lib/estimation/quote-export";
+import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
+import { quoteToShareable } from "@/lib/estimate-sharing";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import type { DbFinishType, DbSiteSettings } from "@/types/database";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
@@ -84,16 +86,15 @@ interface PassedState {
 }
 
 // Printable professional quote, market-currency formatted.
-function exportFinishQuote(args: {
+function finishQuoteOptions(args: {
   finishLabel: string;
   result: FinishCalcResult;
   labourCost: number;
   currencySymbol: string;
-}) {
+}) : QuoteOptions {
   const { result, labourCost, currencySymbol } = args;
   const fmt = (v: number) => formatCurrency(v, currencySymbol);
-  printQuote(
-    {
+  return {
       title: `FRELUX ${args.finishLabel} Estimate`,
       subtitle: `Generated ${new Date().toLocaleDateString()} · ${formatNumber(result.area)} m² · ${result.coats} coat(s)`,
       metaRows: [
@@ -124,9 +125,11 @@ function exportFinishQuote(args: {
       warnings: result.warnings ?? [],
       footer:
         "Estimates are indicative and not a formal quote. Quantities include the configured waste margin; prices come from the configured material database.",
-    },
-    "frelux-finish-estimate.html",
-  );
+    };
+}
+
+function exportFinishQuote(args: Parameters<typeof finishQuoteOptions>[0]) {
+  printQuote(finishQuoteOptions(args), "frelux-finish-estimate.html");
 }
 
 export default function FinishEstimator({
@@ -762,6 +765,13 @@ export default function FinishEstimator({
                 >
                   Export quote (PDF)
                 </button>
+                <ShareEstimateButton
+                  estimate={quoteToShareable(
+                    finishQuoteOptions({ finishLabel: getFinishTypeLabel(selectedFinish), result, labourCost, currencySymbol }),
+                    "/finish-estimator",
+                  )}
+                  compact
+                />
                 <SaveToProjectButton
                   calculatorType="finish"
                   calculatorSlug="finish-estimator"

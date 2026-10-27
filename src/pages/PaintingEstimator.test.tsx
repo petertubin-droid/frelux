@@ -209,7 +209,7 @@ describe("PaintingEstimator", () => {
     await waitFor(
       () => {
         expect(
-          screen.getByRole("button", { name: /Save Estimate|Save/i }),
+          screen.getByRole("button", { name: /^Save Estimate$/i }),
         ).toBeDefined();
       },
       { timeout: 4000 },
@@ -260,7 +260,7 @@ describe("PaintingEstimator", () => {
       await waitFor(
         () => {
           expect(
-            screen.getByRole("button", { name: /Save Estimate|Save/i }),
+            screen.getByRole("button", { name: /^Save Estimate$/i }),
           ).toBeDefined();
         },
         { timeout: 4000 },

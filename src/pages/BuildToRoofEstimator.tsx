@@ -76,7 +76,9 @@ import type {
   StructuralMemberInput,
 } from "@/types/build-to-roof";
 import { formatCurrency, formatNumber } from "@/lib/utils";
-import { printQuote } from "@/lib/estimation/quote-export";
+import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
+import { quoteToShareable } from "@/lib/estimate-sharing";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 import { RoofViewPanel } from "@/components/roof-view/RoofViewPanel";
 import { RoofGeometryEditor } from "@/components/roof-view/RoofGeometryEditor";
@@ -3065,7 +3067,7 @@ function EstimateResult({
   };
 
   // Printable professional quote, worldwide-currency formatted.
-  const exportQuote = () => {
+  const quoteOptions = (): QuoteOptions => {
     const materialLines = result.stages.flatMap((stage) =>
       stage.materials.map((m) => ({
         label: m.label,
@@ -3086,8 +3088,7 @@ function EstimateResult({
         detail: stage.stage_label,
       })),
     );
-    printQuote(
-      {
+    return {
         title: `FRELUX Build-to-Roof Estimate: ${result.project_name}`,
         subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.total_floor_area} m² · ${result.stages.length} construction stages`,
         metaRows: [
@@ -3117,9 +3118,11 @@ function EstimateResult({
         ],
         footer:
           "Estimates are indicative and not a formal quote. Quantities include wastage where the takeoff specifies it; costs use the market prices you entered or loaded at estimate time.",
-      },
-      "frelux-build-to-roof-estimate.html",
-    );
+    };
+  };
+
+  const exportQuote = () => {
+    printQuote(quoteOptions(), "frelux-build-to-roof-estimate.html");
   };
 
   return (
@@ -3708,6 +3711,10 @@ function EstimateResult({
             <FileDown className="h-4 w-4" />
             Export quote (PDF)
           </Button>
+          <ShareEstimateButton
+            estimate={quoteToShareable(quoteOptions(), "/build-to-roof-estimator")}
+            compact
+          />
           <Button
             variant="outline"
             onClick={() => {

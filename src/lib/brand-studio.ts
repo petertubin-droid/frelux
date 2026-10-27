@@ -92,6 +92,27 @@ const DEFAULT_TEMPLATE_CONFIG: PdfTemplateConfig = {
   accentBarColor: "#7C3AED",
 };
 
+/**
+ * Legacy pre-rebrand names (FRELUXTOOLS, plain FRELUX, FRELUX PAINT
+ * CALC, ...) that must never reach a customer-facing document.
+ * Anything matching them resolves to the current public brand.
+ */
+const LEGACY_DOCUMENT_BRAND_NAME = /^\s*frelux\b(?!\s*smart)/i;
+const LEGACY_DOCUMENT_BRAND_TOOLS = /frelux\s*tools?\b/i;
+
+export function normalizeDocumentBrandName(
+  name: string | null | undefined,
+): string | null {
+  if (!name?.trim()) return null;
+  if (
+    LEGACY_DOCUMENT_BRAND_NAME.test(name) ||
+    LEGACY_DOCUMENT_BRAND_TOOLS.test(name)
+  ) {
+    return SAFE_FALLBACK_BRANDING.brandName;
+  }
+  return name;
+}
+
 export const SAFE_FALLBACK_BRANDING: ResolvedBranding = {
   source: "safe_fallback",
   brandName: "FRELUX SMART CALC",

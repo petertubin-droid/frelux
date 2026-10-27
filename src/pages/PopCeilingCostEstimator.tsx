@@ -47,7 +47,9 @@ import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import { calculateLabourCost } from "@/lib/labour";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
-import { printQuote } from "@/lib/estimation/quote-export";
+import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
+import { quoteToShareable } from "@/lib/estimate-sharing";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import UnitToggle from "@/components/measurement/UnitToggle";
@@ -60,7 +62,7 @@ interface PassedState {
 }
 
 // Printable professional quote, market-currency formatted.
-function exportPopQuote(result: {
+function popQuoteOptions(result: {
   ceilingArea: number;
   wasteAmount: number;
   materialCost: number;
@@ -75,9 +77,8 @@ function exportPopQuote(result: {
     quantity: number;
   }[];
   warnings?: string[];
-}) {
-  printQuote(
-    {
+}) : QuoteOptions {
+  return {
       title: "FRELUX POP Ceiling Estimate",
       subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.materials.length} material line(s)`,
       metaRows: [
@@ -111,9 +112,11 @@ function exportPopQuote(result: {
       warnings: result.warnings ?? [],
       footer:
         "Estimates are indicative and not a formal quote. Package quantities include the configured waste margin; prices come from the configured material database.",
-    },
-    "frelux-pop-ceiling-estimate.html",
-  );
+    };
+}
+
+function exportPopQuote(args: Parameters<typeof popQuoteOptions>[0]) {
+  printQuote(popQuoteOptions(args), "frelux-pop-ceiling-estimate.html");
 }
 
 export default function PopCeilingCostEstimator({
@@ -618,6 +621,13 @@ export default function PopCeilingCostEstimator({
                         >
                           Export quote (PDF)
                         </button>
+                        <ShareEstimateButton
+                          estimate={quoteToShareable(
+                            popQuoteOptions(result),
+                            "/pop-ceiling-cost-estimator",
+                          )}
+                          compact
+                        />
                         <SaveToProjectButton
                           calculatorType="cost"
                           calculatorSlug="pop-ceiling-cost-estimator"

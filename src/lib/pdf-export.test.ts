@@ -90,6 +90,33 @@ describe("exportPdfQuote", () => {
     expect(mockWrite).toHaveBeenCalled();
   });
 
+  it("never shows legacy FRELUXTOOLS brand; resolves to FRELUX SMART CALC", () => {
+    exportPdfQuote({
+      result: makeResult(),
+      input: makeInput(),
+      paintTypeName: "Premium Paint",
+      company: {
+        name: "FRELUXTOOLS",
+        phone: "2349063612439",
+        email: "frenzyanthony39@gmail.com",
+      },
+    });
+    const html = mockWrite.mock.calls[0][0] as string;
+    expect(html).not.toContain("FRELUXTOOLS");
+    expect(html).toContain("FRELUX SMART CALC");
+  });
+
+  it("keeps a non-legacy company name untouched", () => {
+    exportPdfQuote({
+      result: makeResult(),
+      input: makeInput(),
+      paintTypeName: "Premium Paint",
+      company: { name: "Tubin Construction Ltd" },
+    });
+    const html = mockWrite.mock.calls[0][0] as string;
+    expect(html).toContain("Tubin Construction Ltd");
+  });
+
   it("generates HTML containing QUOTATION heading", () => {
     exportPdfQuote({
       result: makeResult(),

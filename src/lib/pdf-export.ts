@@ -10,6 +10,7 @@
 import { formatNumber, formatCurrency } from "@/lib/utils";
 import type { CostEstimateResult, CostEstimateInput } from "@/types";
 import type { ResolvedBranding } from "@/lib/brand-studio";
+import { normalizeDocumentBrandName } from "@/lib/brand-studio";
 import { SITE_URL } from "./seo";
 import {
   getHtmlBrandedHeader,
@@ -45,7 +46,12 @@ export function exportPdfQuote(data: QuoteExportData): void {
 
   // Resolve branding, if branding is provided, it takes priority over company fields
   const useBranding = !!branding;
-  const brandName = branding?.brandName ?? company?.name ?? "FRELUX SMART CALC";
+  // Legacy admin names (e.g. "FRELUXTOOLS") must never appear on the
+  // document: resolve to the current FRELUX SMART CALC brand.
+  const brandName =
+    normalizeDocumentBrandName(branding?.brandName) ??
+    normalizeDocumentBrandName(company?.name) ??
+    "FRELUX SMART CALC";
   const brandAddress = branding?.address ?? company?.address;
   const brandPhone = branding?.phone ?? company?.phone;
   const brandEmail = branding?.email ?? company?.email;

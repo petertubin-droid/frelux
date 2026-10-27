@@ -88,7 +88,9 @@ import {
 } from "@/lib/estimation/queries";
 import { saveUserProject } from "@/lib/queries";
 import { SaveToProjectButton } from "@/components/calculators";
-import { printQuote } from "@/lib/estimation/quote-export";
+import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
+import { quoteToShareable } from "@/lib/estimate-sharing";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { trackCalculation } from "@/lib/achievements";
 import { trackCalculationWithRewards } from "@/lib/rewards-integration";
 import { trackRecentTool } from "@/lib/smart-defaults";
@@ -144,7 +146,7 @@ const PAINT_CATEGORIES = ["emulsion", "matt", "satin"];
 // =========================================================
 
 // Printable professional quote, market-currency formatted.
-function exportPaintingQuote(args: {
+function paintingQuoteOptions(args: {
   rooms: number;
   area: number;
   lineItems: {
@@ -157,10 +159,9 @@ function exportPaintingQuote(args: {
   labourCost: number;
   grandTotal: number;
   currency: string;
-}) {
+}) : QuoteOptions {
   const fmt = (v: number) => formatCurrency(v, args.currency);
-  printQuote(
-    {
+  return {
       title: "FRELUX Painting Cost Estimate",
       subtitle: `Generated ${new Date().toLocaleDateString()} · ${args.rooms} room(s) · ${args.area.toFixed(1)} m²`,
       metaRows: [
@@ -185,9 +186,11 @@ function exportPaintingQuote(args: {
       ],
       footer:
         "Estimates are indicative and not a formal quote. Paint volumes include the configured practical purchase margin; prices come from the configured material database.",
-    },
-    "frelux-painting-estimate.html",
-  );
+    };
+}
+
+function exportPaintingQuote(args: Parameters<typeof paintingQuoteOptions>[0]) {
+  printQuote(paintingQuoteOptions(args), "frelux-painting-estimate.html");
 }
 
 export default function PaintingEstimator({
@@ -2332,6 +2335,13 @@ function EstimateResult({
             >
               <FileDown className="h-4 w-4" /> Export Quote (PDF)
             </Button>
+            <ShareEstimateButton
+              estimate={quoteToShareable(
+                paintingQuoteOptions({ rooms: result.rooms.length, area: paintAreaM2, lineItems: result.line_items, materialCost: result.total_material_cost, labourCost, grandTotal, currency: result.currency }),
+                "/painting-estimator",
+              )}
+              compact
+            />
             <SaveToProjectButton
               calculatorType="cost"
               calculatorSlug="painting-estimator"

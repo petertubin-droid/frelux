@@ -19,7 +19,10 @@ import { calculateLabourCost } from "@/lib/labour";
 import {
   printQuote,
   exportQuoteToDocumentStudio,
+  type QuoteOptions,
 } from "@/lib/estimation/quote-export";
+import { quoteToShareable } from "@/lib/estimate-sharing";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useNavigate } from "react-router-dom";
 import LabourCostSection, {
   useLabourConfig,
@@ -835,6 +838,13 @@ export default function ScreedingCostEstimator({
                           >
                             Print Quote
                           </button>
+                          <ShareEstimateButton
+                            estimate={quoteToShareable(
+                              screedingQuoteOptions({ result, labourCost, currencySymbol, finishTerm }),
+                              "/screeding-cost-estimator",
+                            )}
+                            compact
+                          />
                           <button
                             type="button"
                             onClick={() => {
@@ -1141,20 +1151,19 @@ function buildExplanationSteps(result: ScreedingSystemResult) {
 }
 
 // Printable professional quote, market-currency formatted.
-function exportScreedingQuote(args: {
+function screedingQuoteOptions(args: {
   result: ScreedingSystemResult;
   labourCost: number;
   currencySymbol: string;
   finishTerm: string;
-}) {
+}) : QuoteOptions {
   const { result, labourCost, currencySymbol, finishTerm } = args;
   const fmt = (v: number) => formatCurrency(v, currencySymbol);
   const breakdowns =
     result.systemType === "putty"
       ? [result.putty]
       : [result.paint, result.cement, ...(result.extra ? [result.extra] : [])];
-  printQuote(
-    {
+  return {
       title: `FRELUX ${finishTerm} Estimate (${result.systemType === "putty" ? "Putty" : "White Cement + Paint"})`,
       subtitle: `Generated ${new Date().toLocaleDateString()} · ${formatNumber(result.netScreedingArea, 2)} m² · ${result.coats} coats`,
       metaRows: [
@@ -1193,9 +1202,11 @@ function exportScreedingQuote(args: {
       warnings: result.warnings,
       footer:
         "Estimates are indicative and not a formal quote. Quantities include the configured waste margin; unpriced items are reported, never invented.",
-    },
-    "frelux-screeding-estimate.html",
-  );
+    };
+}
+
+function exportScreedingQuote(args: Parameters<typeof screedingQuoteOptions>[0]) {
+  printQuote(screedingQuoteOptions(args), "frelux-screeding-estimate.html");
 }
 
 function MaterialBreakdownCard({

@@ -45,7 +45,9 @@ import type {
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
-import { printQuote, exportQuoteToDocumentStudio } from "@/lib/estimation/quote-export";
+import { printQuote, exportQuoteToDocumentStudio, type QuoteOptions } from "@/lib/estimation/quote-export";
+import { quoteToShareable } from "@/lib/estimate-sharing";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useNavigate } from "react-router-dom";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
@@ -60,7 +62,7 @@ interface PassedState {
 }
 
 // Printable professional quote, market-currency formatted.
-function exportTileQuote(
+function tileQuoteOptions(
   result: {
     surfaceArea: number;
     tilesNeeded: number;
@@ -84,10 +86,9 @@ function exportTileQuote(
     warnings?: string[];
   },
   method: string,
-) {
+): QuoteOptions {
   const fmt = (v: number) => formatCurrency(v, result.currencySymbol);
-  printQuote(
-    {
+  return {
       title: "FRELUX Tile Cost Estimate",
       subtitle: `Generated ${new Date().toLocaleDateString()} · ${method} installation`,
       metaRows: [
@@ -149,9 +150,11 @@ function exportTileQuote(
       warnings: result.warnings ?? [],
       footer:
         "Estimates are indicative and not a formal quote. Tile quantities include the configured waste margin; prices use the configured material database for your market.",
-    },
-    "frelux-tile-cost-estimate.html",
-  );
+  };
+}
+
+function exportTileQuote(result: Parameters<typeof tileQuoteOptions>[0], method: string) {
+  printQuote(tileQuoteOptions(result, method), "frelux-tile-cost-estimate.html");
 }
 
 export default function TileCostEstimator({
@@ -793,6 +796,14 @@ export default function TileCostEstimator({
                           >
                             Print Quote
                           </button>
+                          <ShareEstimateButton
+                            estimate={quoteToShareable(
+                              tileQuoteOptions(result, result.method),
+                              "/tile-cost-estimator",
+                            )}
+                            compact
+                            className="flex-1"
+                          />
                           <button
                             type="button"
                             onClick={() => {
