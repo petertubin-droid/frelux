@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Cookie, Mail } from "lucide-react";
+import { ChevronDown, Cookie, Mail } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
 import { siteConfig } from "@/config/site";
@@ -9,6 +10,13 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useMarket } from "@/lib/international/market-context";
 import { getMarketNavigationLabel } from "@/lib/globalization/construction-terminology";
 
+// Colors, services and showcase merged into one column; duplicate links
+// (Pricing, Project Gallery) removed so each destination appears once.
+//
+// The six legacy columns (Calculate / Estimate / Explore / Resources /
+// Company / Legal) are consolidated into FOUR groups so the footer stays
+// compact on every breakpoint. On mobile (<md) each group is a collapsed
+// accordion row; on md+ the groups lay out as static columns.
 const calculateLinks = [
   { label: "Painting Calculator", path: "/paint-calculator" },
   { label: "Screeding Calculator", path: "/screeding-calculator" },
@@ -25,8 +33,6 @@ const estimateLinks = [
   { label: "Foundation Calculator", path: "/foundation-calculator" },
 ];
 
-// Colors, services and showcase merged into one column; duplicate links
-// (Pricing, Project Gallery) removed so each destination appears once.
 const exploreLinks = [
   { label: "Color Library", path: "/colors" },
   { label: "Compare Colors", path: "/colors/compare" },
@@ -69,6 +75,15 @@ export default function Footer() {
     ...link,
     label: getMarketNavigationLabel(link.path, marketCode, link.label),
   }));
+  // Consolidated footer columns: the six legacy groups merged into four
+  // so the mobile footer collapses to four short accordion rows.
+  const groupedColumns = [
+    { title: "Calculators", links: [...marketCalculateLinks, ...estimateLinks] },
+    { title: "Explore", links: [...exploreLinks, ...companyLinks] },
+    { title: "Resources", links: resourcesLinks },
+    { title: "Legal", links: legalLinks },
+  ];
+
   return (
     <footer
       role="contentinfo"
@@ -82,9 +97,12 @@ export default function Footer() {
       {/* Brand architectural backdrop (same layers as the entry screen) */}
       <BrandBackdrop variant="footer" />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-3 lg:grid-cols-6 lg:gap-x-8">
-          <div className="col-span-2 lg:col-span-2">
+      {/* relative: stack the content ABOVE the absolutely-positioned
+          BrandBackdrop. Without it the light-mode scrim (85% opaque
+          background) paints over the text and hides it. */}
+      <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-1 md:grid-cols-3 md:gap-y-6 lg:grid-cols-6 lg:gap-x-8">
+          <div className="md:col-span-3 lg:col-span-2">
             <Logo />
             <p className="mt-3 max-w-xs text-xs leading-relaxed text-muted-foreground sm:text-sm">
               Plan materials, estimate costs and manage construction projects
@@ -112,12 +130,9 @@ export default function Footer() {
             </p>
           </div>
 
-          <FooterColumn title="Calculate" links={marketCalculateLinks} />
-          <FooterColumn title="Estimate" links={estimateLinks} />
-          <FooterColumn title="Explore" links={exploreLinks} />
-          <FooterColumn title="Resources" links={resourcesLinks} />
-          <FooterColumn title="Company" links={companyLinks} />
-          <FooterColumn title="Legal" links={legalLinks} />
+          {groupedColumns.map((column) => (
+            <FooterColumn key={column.title} {...column} />
+          ))}
         </div>
 
         <div className="mt-6 flex flex-col gap-2 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-white/5">
@@ -154,12 +169,37 @@ function FooterColumn({
   title: string;
   links: { label: string; path: string }[];
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
     <nav aria-label={title}>
-      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
+      {/* Mobile: the title is a disclosure button so the group collapses
+          and the footer stays short. Desktop: a plain static heading and
+          the list is always shown. */}
+      <div className="md:hidden">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-controls={`footer-${title.toLowerCase()}`}
+          className="flex w-full items-center justify-between border-b border-border/40 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:border-white/5"
+        >
+          {title}
+          <ChevronDown
+            className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
+              open ? "rotate-180" : ""
+            }`}
+            aria-hidden="true"
+          />
+        </button>
+      </div>
+      <h3 className="hidden text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground md:block dark:text-muted-foreground">
         {title}
       </h3>
-      <ul className="mt-2.5 space-y-1.5">
+      <ul
+        id={`footer-${title.toLowerCase()}`}
+        className={`${open ? "block" : "hidden"} mt-2.5 space-y-1.5 pb-3 md:mt-2.5 md:block md:pb-0`}
+      >
         {links.map((link) => (
           <li key={link.path}>
             <Link
