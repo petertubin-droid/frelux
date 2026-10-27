@@ -3,17 +3,15 @@
  *
  * Netlify function served at /sitemap.xml (netlify.toml redirects it here
  * with force=true, shadowing the stale static public/sitemap.xml). It is
- * generated per-request from the live database, so articles, categories
- * and paginated listing URLs published in the future appear automatically
- * with no rebuild or manual sync.
+ * generated per-request from the live database, so published articles and
+ * categories appear without a rebuild or manual sync.
  *
  * Includes:
  *  - all static site routes (feature pages, calculators, templates, ...)
- *  - every published learn article (/learn/<slug>/)
+ *  - every published learn article, using its market-specific canonical path when set
  *  - every active learn category (/learn/category/<slug>/)
- *  - paginated listing URLs (/learn/library?page=N and per-category
- *    ?page=N, 20 articles per page) so crawlers can reach every article
- *    through the listing pages
+ * Only canonical indexable URLs are included. Query pagination and
+ * machine-translated locale clones are intentionally omitted.
  *
  * Uses the public anon key: published articles and active categories are
  * readable by RLS policy (the site itself queries them the same way).
@@ -21,10 +19,6 @@
  * sitemap with the static routes.
  */
 const SITE_URL = "https://freluxtools.netlify.app";
-
-/** Must mirror ARTICLES_PER_PAGE in src/pages/learn/LearnLibrary.tsx
- *  and src/pages/learn/LearnCategory.tsx. */
-const ARTICLES_PER_PAGE = 20;
 
 /** Static site routes kept in parity with the previous static sitemap. */
 // NOTE: legacy calculator slugs (cost-estimator, painting-estimator, screeding-cost-estimator,
@@ -114,10 +108,13 @@ export const handler = async () => {
   const today = new Date().toISOString().slice(0, 10);
   const urls = [];
 
-  // Entries store the PATH (no locale prefix); the body builder emits
-  // the English URL plus every locale-prefixed URL with hreflang sets.
-  const add = (path, lastmod, changefreq, priority) =>
+  // Include each canonical public path once; query variants are not indexable.
+  const seen = new Set();
+  const add = (path, lastmod, changefreq, priority) => {
+    if (path.includes('?') || seen.has(path)) return;
+    seen.add(path);
     urls.push({ path, lastmod, changefreq, priority });
+  };
 
   for (const p of STATIC_PATHS) {
     add(p, today, "weekly", p === "/" ? "1.0" : "0.8");
@@ -138,7 +135,7 @@ export const handler = async () => {
       const [artRes, catRes] = await Promise.all([
         fetch(
           `${supabaseUrl}/rest/v1/learn_articles` +
-            "?select=slug,published_at,category_slug" +
+            "?select=slug,published_at,category_slug,wall_market_code" +
             "&status=eq.published&order=published_at.desc&limit=1000",
           { headers },
         ),
@@ -155,40 +152,15 @@ export const handler = async () => {
     console.error("[sitemap] DB fetch failed, serving static routes:", err);
   }
 
-  // Full library listing page + its paginated URLs. Page 1 is the
-  // canonical /learn/library/ entry itself; deeper pages via ?page=N.
+  // Canonical library listing and active category pages only.
   add(`/learn/library/`, today, "daily", "0.7");
-  if (articles.length > ARTICLES_PER_PAGE) {
-    const totalPages = Math.ceil(articles.length / ARTICLES_PER_PAGE);
-    for (let p = 2; p <= totalPages; p++) {
-      add(`/learn/library/?page=${p}`, today, "daily", "0.7");
-    }
-  }
-
-  // Category pages + their paginated listings.
-  const perCategory = {};
-  for (const a of articles) {
-    if (a.category_slug) perCategory[a.category_slug] = (perCategory[a.category_slug] || 0) + 1;
-  }
   for (const cat of categories) {
     add(`/learn/category/${cat.slug}/`, today, "weekly", "0.7");
-    const n = perCategory[cat.slug] || 0;
-    if (n > ARTICLES_PER_PAGE) {
-      const tp = Math.ceil(n / ARTICLES_PER_PAGE);
-      for (let p = 2; p <= tp; p++) {
-        add(
-          `/learn/category/${cat.slug}/?page=${p}`,
-          today,
-          "weekly",
-          "0.6",
-        );
-      }
-    }
-    delete perCategory[cat.slug];
   }
-  // Categories referenced by articles but missing from the category table.
-  for (const slug of Object.keys(perCategory)) {
-    add(`/learn/category/${slug}/`, today, "weekly", "0.6");
+  const referencedCategories = new Set(articles.map((a) => a.category_slug).filter(Boolean));
+  const activeCategories = new Set(categories.map((c) => c.slug));
+  for (const slug of referencedCategories) {
+    if (!activeCategories.has(slug)) add(`/learn/category/${slug}/`, today, "weekly", "0.6");
   }
 
   // Every published article.
@@ -197,41 +169,24 @@ export const handler = async () => {
       a.published_at && !Number.isNaN(Date.parse(a.published_at))
         ? new Date(a.published_at).toISOString().slice(0, 10)
         : today;
-    add(`/learn/${a.slug}/`, lastmod, "monthly", "0.7");
+    const path = a.wall_market_code
+      ? `/learn/wall-finishing/${String(a.wall_market_code).toLowerCase()}/${a.slug}/`
+      : `/learn/${a.slug}/`;
+    add(path, lastmod, "monthly", "0.7");
   }
 
-  // ── Locale-aware URLs ────────────────────────────────────────────────
-  // LocaleAwareRoutes serves every public page under /<locale>/... for
-  // the 11 registered languages. Each URL is emitted with the full
-  // hreflang alternate set + x-default (the English path), matching the
-  // <link rel="alternate"> tags useSeo injects on each page.
-  const LOCALES = ["en", "es", "fr", "de", "pt", "ru", "id", "sw", "ar", "hi", "zh"];
-  const urlFor = (locale, path) =>
-    locale === "en" ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`;
-  const alternates = (path) =>
-    LOCALES.map(
-      (loc) =>
-        `    <xhtml:link rel="alternate" hreflang="${loc}" href="${escapeXml(urlFor(loc, path))}" />`,
-    )
-      .join("\n") +
-    `\n    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(urlFor("en", path))}" />`;
-
+  // Emit English canonical URLs only until localized pages contain genuinely
+  // translated content with reciprocal hreflang declarations.
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/sitemap/0.9"
-  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+>
 ${urls
-  .flatMap((u) =>
-    LOCALES.map(
-      (loc) =>
-        `  <url>
-    <loc>${escapeXml(urlFor(loc, u.path))}</loc>
-${alternates(u.path)}
+  .map((u) => `  <url>
+    <loc>${escapeXml(`${SITE_URL}${u.path}`)}</loc>
     <lastmod>${u.lastmod}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
-  </url>`,
-    ),
-  )
+  </url>`)
   .join("\n")}
 </urlset>`;
 

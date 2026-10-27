@@ -21,12 +21,12 @@ const distDir = 'dist';
 // redirects back to the page itself is a redirect loop for Googlebot and
 // lands the page in GSC as "Page with redirect" instead of indexed.
 const LEGACY_REDIRECT_TARGETS = {
-  '/cost-estimator': '/paint-calculator/?mode=cost',
-  '/painting-estimator': '/paint-calculator/?mode=room-estimate',
-  '/screeding-cost-estimator': '/screeding-calculator/?mode=cost',
-  '/pop-ceiling-cost-estimator': '/pop-ceiling-calculator/?mode=cost',
-  '/tile-cost-estimator': '/tile-calculator/?mode=cost',
-  '/tyrolene-estimator': '/finish-estimator/?mode=tyrolene',
+  '/cost-estimator': '/paint-calculator',
+  '/painting-estimator': '/paint-calculator',
+  '/screeding-cost-estimator': '/screeding-calculator',
+  '/pop-ceiling-cost-estimator': '/pop-ceiling-calculator',
+  '/tile-cost-estimator': '/tile-calculator',
+  '/tyrolene-estimator': '/finish-estimator',
 };
 const normalizeSdUrls = (json) => {
   const siteUrlRe = new RegExp(`"${SITE_URL.replace(/\./g, '\\.')}(\/[^"]*)?"`, 'g');
@@ -1013,9 +1013,7 @@ const routes = [
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Minimal markdown -> HTML for noscript content (headings, lists, bold,
-// italic, links, code blocks, paragraphs). Full fidelity is not needed —
-// this is the no-JS crawler fallback; JS users get the React renderer.
+// Convert article markdown into safe static HTML for prerendered routes.
 function escapeHtml(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
@@ -1212,7 +1210,7 @@ if (!existsSync(templatePath)) {
 }
 
 let templateHtml = readFileSync(templatePath, 'utf-8');
-// Remove the old generic "JavaScript Required" noscript — we inject per-route content instead
+// Remove the old generic no-JavaScript fallback; route content is injected into #root.
 templateHtml = templateHtml.replace(/<noscript>[\s\S]*?<\/noscript>/, '');
 // Normalize URLs inside the template's own static JSON-LD blocks (index.html
 // carries a hand-written structured-data block whose URLs must follow the
@@ -1292,14 +1290,11 @@ for (const route of routes) {
     html = html.replace('</head>', `${sdScripts}\n</head>`);
   }
 
-  // Inject SEO content into <noscript> — visible to crawlers and no-JS users.
-  // Googlebot reads <noscript> content. When JS loads, React replaces #root
-  // entirely, so the noscript content is never visible to JS-enabled users.
-  // The loading spinner remains visible only to JS users until hydration.
+  // Put useful route content directly in the initial DOM so crawlers and users
+  // without JavaScript receive the same page content as the prerendered metadata.
   const pageContent = contentMap[route.path];
   if (pageContent) {
-    const noscriptContent = `<noscript><div style="font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:1rem 1.5rem;line-height:1.6;color:#1e293b;">${pageContent}</div></noscript>`;
-    html = html.replace('<div id="root">', `${noscriptContent}\n    <div id="root">`);
+    html = html.replace(/(<div id="root">)[\s\S]*(\n\s*<\/div>\s*<\/body>)/, (_match, opening, closing) => `${opening}\n      ${pageContent}${closing}`);
   }
 
   // Write file
@@ -1316,12 +1311,10 @@ for (const route of routes) {
   let html404 = templateHtml;
   html404 = html404.replace(/<title>.*?<\/title>/, '<title>Page Not Found | FRELUX SMART CALC</title>');
   html404 = html404.replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/, '<meta name="robots" content="noindex, nofollow" />');
-  if (html404.includes('rel="canonical"')) {
-    html404 = html404.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, '<link rel="canonical" href="https://freluxtools.netlify.app/404" />');
-  }
-  const notFoundContent = '<h1>Page Not Found</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> <h1>Page Not Found</h1>rsaquo; 404</nav><p>The page you are looking for does not exist. Browse our calculators and tools:</p><ul><li><a href="/paint-calculator/">Paint Calculator</a></li><li><a href="/tile-calculator/">Tile Calculator</a></li><li><a href="/screeding-calculator/">Screeding Calculator</a></li><li><a href="/pop-ceiling-calculator/">POP Ceiling Calculator</a></li><li><a href="/calculators/">All Calculators</a></li></ul><p><a href="/">Back to home</a></p>';
-  const noscript404 = `<noscript><div style="font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:1rem 1.5rem;line-height:1.6;color:#1e293b;">${notFoundContent}</div></noscript>`;
-  html404 = html404.replace('<div id="root">', `${noscript404}\n    <div id="root">`);
+  html404 = html404.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, '');
+  const notFoundContent = '<main><h1>Page Not Found</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; 404</nav><p>The page you are looking for does not exist. Browse our calculators and tools:</p><ul><li><a href="/paint-calculator/">Paint Calculator</a></li><li><a href="/tile-calculator/">Tile Calculator</a></li><li><a href="/screeding-calculator/">Screeding Calculator</a></li><li><a href="/pop-ceiling-calculator/">POP Ceiling Calculator</a></li><li><a href="/calculators/">All Calculators</a></li></ul><p><a href="/">Back to home</a></p></main>';
+  html404 = html404.replace(/(<div id="root">)[\s\S]*(\n\s*<\/div>\s*<\/body>)/, (_match, opening, closing) => `${opening}\n      ${notFoundContent}${closing}`);
+  html404 = html404.replace(/\s*<script type="module"[^>]*src="[^"]+"><\/script>/, '');
   writeFileSync(join(distDir, '404.html'), html404);
   console.log('  ✅ /404.html');
 }

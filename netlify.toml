@@ -411,17 +411,7 @@
   status = 404
   force = true
 
-# SPA fallback — all routes serve index.html so React Router can handle
-# client-side routing (including the 404 NotFound component for unknown routes).
-# This must come AFTER specific redirects but BEFORE any catch-all 404 rule.
-# Removed the old "/* -> /404.html status=404" redirect because:
-#   1. No prerendered 404.html exists in the build output
-#   2. It fired before the SPA fallback, showing a Netlify error screen
-#   3. React Router already renders a proper <NotFound /> component for unknown routes
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+
 
 # Security headers
 [[headers]]
@@ -521,3 +511,1439 @@
   to = "/learn/library?page=:p"
   status = 301
   force = true
+
+# Explicit React Router route patterns; unmatched paths receive the real 404 document.
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/about"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/achievements"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/ai-color-assistant"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/ai-disclaimer"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/analytics"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/bim-ifc-import"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/blueprint-takeoff"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/boq-generator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/brand-studio"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/build-to-roof-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/calculators"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/carbon-footprint"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/case-studies"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/case-studies/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/cash-flow-timeline"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/circular-reuse"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/clients"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/color-preview"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/colors"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/colors/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/colors/compare"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/colors/paint/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/compliance/data-residency"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/concrete-takeoff-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/construction-sequence"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/construction-tools"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contact"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor-credit"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor/compliance"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor/iot"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor/logistics"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor/predictive"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor/projects/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor/wizard"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/conversational-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/cookie-policy"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/cost-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/count-vision"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/credits"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/data-request"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/defect-diagnosis"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/demolition-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/developers"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/developers/merchant-webhooks"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/disclaimer"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/document-studio"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/doors-windows"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/drainage-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/drywall-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/earthworks-cut-fill"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/electrical"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/escrow"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/estimate-refresh"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/estimate/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/feedback"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/field-sync"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/finish-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/flooring"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/foundation"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/foundation-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/gallery"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/gallery/new"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/generator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/global-markets"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/glossary"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/heat-comfort"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/image-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/increte-flooring-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/insulation-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/invite/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/labour-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn/category/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn/glossary"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn/library"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn/wall-finishing/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn/wall-finishing/*/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/maintenance-planner"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/margin-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/*/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/category/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/merchant-api"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/my-listings"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/orders/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/post"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/products"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/products/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/products/my"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/products/post"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/seller-dashboard"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/sellers/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/supplier-portal"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/masonry-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/material-prices"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/messages"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/messages/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/metrics"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/my-projects"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/my-templates"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/network"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/network/marketplace"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/network/pros"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/onboarding"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/paint-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/paint-comparison"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/painting-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/partners"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/paving-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/plastering-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/plumbing"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pop-ceiling-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pop-ceiling-cost-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/prices"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/prices/regional-indices"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/prices/trends"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pricing"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/printables"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy-policy"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pro-connect"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pro-connect/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pro-connect/dashboard"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pro-connect/escrow"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pro-connect/liquidity"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pro-connect/register"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pro/*/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/profile"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/project-timeline"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/project-workspace"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/project-workspace/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/project-workspace/*/client-estimate/new"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/projects"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/projects/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/projects/templates"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/properties"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/regional-cost-index"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/reinforcement"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/rewards"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/roof-framing-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/screeding-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/screeding-cost-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/septic-sizing-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/shared/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/smart-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/solar-pv-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/start-building"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/structural-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/surface-assessment"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/templates"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/templates/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/temporary-works-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/terms"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tile-calculator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tile-cost-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/ai/color-assistant"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/ai/defects"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/ai/photo-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/components/doors-windows"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/finishes/flooring"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/finishes/paint"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/finishes/pop"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/finishes/screeding"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/finishes/tiles"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/finishes/waterproofing"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/offline-sync"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/project/boq"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/project/cash-flow"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/project/labour"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/project/margin"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/project/timeline"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/services/comfort"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/services/electrical"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/services/plumbing"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/services/solar"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/structure/build-to-roof"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/structure/concrete"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/structure/foundation"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/structure/rebar"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/visual-finishing-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tyrolene-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/user-guide"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/visual-finishing-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/wall-finish-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/warranty-certificate"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/waterproofing"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/worker-channels"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/worker-channels/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/workspace-settings"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "ads"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "ai-assistant"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "ai-learning"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "ai-monetization"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "ai-settings"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "analytics"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "api-keys"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "branding"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "carbon-factors"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "case-studies"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "cash-flow-templates"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "colors"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "contact"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "conversational-packs"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "count-vision"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "credit-profiles"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "credits-ads"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "currency"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "defects"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "dictionary"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "engine-config"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "errors"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "estimation-audit"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "estimation-config"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "estimation-estimates"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "estimation-materials"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "estimation-pricing"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "estimation-production"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "estimation-products"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "feedback"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "field-sync"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "gallery-moderation"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "header-images"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "image-estimation"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "integrations"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "intelligence-dashboard"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "intelligence-sources"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "labour-rates"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "labour-settings"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "learn"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "learn/wall-finishing"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "learning-review"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "legal"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "macro-tracker"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "maintenance-profiles"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "margin-presets"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "market-intelligence"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "marketplace"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "markets"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "material-catalog"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "material-prices"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "media"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "paint-comparison"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "paint-engine-test"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "paint-types"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "partnership-inquiries"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "pdf-branding"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "pop-materials"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "price-pipeline"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "price-scan"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "price-submissions"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "price-updater"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "pricing"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "pro-connect"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "project-stages"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "quotation-settings"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "regional-cost-indices"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "reuse-factors"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "rewarded-access"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "rewards"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "roof-view"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "screeding"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "seo"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "seo-location"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "settings"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "social-brand-center"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "solar-panels"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "solar-prices"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "studio"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "studio/error_analysis"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "surface-conditions"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "system-health"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "templates"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "testimonials"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "thermal-factors"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "tile-materials"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "timeline-templates"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "typography"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "tyrolene-config"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "users"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
