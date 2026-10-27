@@ -133,3 +133,70 @@ describe("globalization completeness — per-market bundle files", () => {
     expect(getMarketBundle("")).toBeNull();
   });
 });
+
+// ── Phase 3 (2026-10-27): market landing pages ──────────────────────────
+import { readFileSync, existsSync } from "fs";
+import { join } from "path";
+import { marketLandingRoutes } from "../../../../scripts/market-landing-data.mjs";
+
+describe("globalization completeness — market landing pages (Phase 3)", () => {
+  it("there is exactly one landing-page entry per market (32, unique)", () => {
+    expect(marketLandingRoutes).toHaveLength(32);
+    const codes = marketLandingRoutes.map((m) => m.code);
+    expect(new Set(codes).size).toBe(32);
+    for (const code of ALL_MARKET_CODES) {
+      expect(codes).toContain(code);
+    }
+  });
+
+  it("landing data matches the TS bundles exactly - no drift, no invention", () => {
+    for (const m of marketLandingRoutes) {
+      const b = MARKET_BUNDLES[m.code];
+      expect(b, `bundle for ${m.code}`).toBeDefined();
+      expect(m.countryName).toBe(b.masonry.countryName);
+      expect(m.currency).toBe(b.wallFinishing.currency);
+      expect(m.currencySymbol).toBe(b.wallFinishing.currencySymbol);
+      expect(m.blockName).toBe(b.masonry.defaultUnit.name);
+      expect(m.blockLengthMm).toBe(b.masonry.defaultUnit.lengthMm);
+      expect(m.blockHeightMm).toBe(b.masonry.defaultUnit.heightMm);
+      expect(m.blockWidthMm).toBe(b.masonry.defaultUnit.widthMm);
+      expect(m.cementBagKg).toBe(b.cementBagWeightKg);
+      expect(m.electricalStandard).toBe(b.electrical.standardsRef);
+      expect(m.electricalVoltage).toBe(b.electrical.nominalVoltage);
+      expect(m.plumbingStandard).toBe(b.plumbing.standardsRef);
+    }
+  });
+
+  it("the prerender, sitemap and SEO map all include the 32 market routes", () => {
+    const root = process.cwd();
+    const prerenderSrc = readFileSync(
+      join(root, "scripts/prerender.mjs"),
+      "utf8",
+    );
+    const sitemapSrc = readFileSync(
+      join(root, "scripts/generate-sitemap.mjs"),
+      "utf8",
+    );
+    const seoMapSrc = readFileSync(
+      join(root, "scripts/seo-content-map.mjs"),
+      "utf8",
+    );
+    expect(prerenderSrc).toContain("market-landing-data.mjs");
+    expect(sitemapSrc).toContain("marketLandingRoutes");
+    expect(seoMapSrc).toContain("marketLandingSeo");
+    // app route exists
+    const appSrc = readFileSync(join(root, "src/App.tsx"), "utf8");
+    expect(appSrc).toContain('path="/market/:code"');
+  });
+
+  it("generated sitemap contains all 32 market URLs (after a build)", () => {
+    const sitemapPath = join(process.cwd(), "dist/sitemap.xml");
+    if (!existsSync(sitemapPath)) return; // skips in CI before Build step
+    const xml = readFileSync(sitemapPath, "utf8");
+    for (const m of marketLandingRoutes) {
+      expect(xml).toContain(
+        `https://freluxtools.netlify.app/market/${m.code.toLowerCase()}`,
+      );
+    }
+  });
+});

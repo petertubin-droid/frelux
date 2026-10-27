@@ -60,6 +60,7 @@ import EntryExperience, {
   markEntered,
 } from "@/components/entry/EntryExperience";
 const Home = lazy(() => import("@/pages/Home"));
+const MarketLanding = lazy(() => import("@/pages/MarketLanding"));
 const Colors = lazy(() => import("@/pages/Colors"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Login = lazy(() => import("@/pages/Login"));
@@ -609,6 +610,14 @@ export default function App() {
                         element={
                           <Suspense fallback={<PageLoader />}>
                             <ConstructionTools />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/market/:code"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <MarketLanding />
                           </Suspense>
                         }
                       />

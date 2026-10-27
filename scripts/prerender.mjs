@@ -9,6 +9,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { seoContentMap } from './seo-content-map.mjs';
+import { marketLandingRoutes } from './market-landing-data.mjs';
 
 const SITE_URL = 'https://freluxtools.netlify.app';
 const distDir = 'dist';
@@ -1220,6 +1221,33 @@ templateHtml = templateHtml.replace(
   (m, open, body, close) => open + normalizeSdUrls(body) + close
 );
 let count = 0;
+
+// ── Market landing pages (Phase 3 globalization, 2026-10-27) ────────
+// One data-addressable SEO lander per market, built from the same
+// bundle data the calculators use. Canonical English URLs; locale
+// variants serve translated UI through the /<lang>/ prefix routing.
+for (const m of marketLandingRoutes) {
+  const path = `/market/${m.code.toLowerCase()}`;
+  routes.push({
+    path,
+    title: `Construction Calculator for ${m.countryName} | FRELUX SMART CALC`,
+    description: `Free construction calculators preconfigured for ${m.countryName}: ${m.blockName} (${m.blockLengthMm}x${m.blockHeightMm}x${m.blockWidthMm}mm), ${m.cementBagKg}kg cement bags, electrical practice per ${m.electricalStandard}, plumbing per ${m.plumbingStandard}. Prices in ${m.currency} (${m.currencySymbol}).`,
+    priority: '0.8',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: `FRELUX Construction Calculator (${m.countryName})`, applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: m.currency } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+        { '@type': 'ListItem', position: 2, name: m.countryName, item: `${SITE_URL}${path}` },
+      ]},
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
+        { '@type': 'Question', name: `What is the standard wall block size in ${m.countryName}?`, acceptedAnswer: { '@type': 'Answer', text: `The default wall unit in the FRELUX ${m.countryName} market profile is the ${m.blockName}, ${m.blockLengthMm} x ${m.blockHeightMm} x ${m.blockWidthMm} mm. The calculators use this size for block and mortar quantities; always confirm the actual unit with your supplier.` } },
+        { '@type': 'Question', name: `What electrical standards does FRELUX use for ${m.countryName}?`, acceptedAnswer: { '@type': 'Answer', text: `Electrical quantity takeoffs for ${m.countryName} follow ${m.electricalStandard} at ${m.electricalVoltage}. FRELUX produces material takeoffs, not certified electrical designs - consult a licensed local electrician.` } },
+      ]},
+    ],
+  });
+}
+
 
 for (const route of routes) {
   let html = templateHtml;

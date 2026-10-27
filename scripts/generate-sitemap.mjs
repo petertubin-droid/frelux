@@ -10,6 +10,7 @@
  * never breaks.
  */
 import { writeFileSync, mkdirSync } from 'fs';
+import { marketLandingRoutes } from './market-landing-data.mjs';
 
 const SITE_URL = 'https://freluxtools.netlify.app';
 const today = new Date().toISOString().split('T')[0];
@@ -155,6 +156,7 @@ const routes = [
   { path: '/credits', priority: '0.6', changefreq: 'monthly' },
   { path: '/developers', priority: '0.6', changefreq: 'monthly' },
   { path: '/rewards', priority: '0.6', changefreq: 'monthly' },
+  ...marketLandingRoutes.map((m) => ({ path: `/market/${m.code.toLowerCase()}`, priority: '0.8', changefreq: 'monthly' })),
 ];
 
 
