@@ -93,3 +93,43 @@ describe("globalization completeness — every market registry covers all 32 mar
     }
   });
 });
+
+// ── Phase 2 (2026-10-27): one-file market bundles ──────────────────────
+import { MARKET_BUNDLES, getMarketBundle } from "@/lib/international/markets";
+import type { MarketBundle } from "@/lib/international/markets";
+
+describe("globalization completeness — per-market bundle files", () => {
+  it("every one of the 32 markets has a complete bundle (no null slots)", () => {
+    for (const code of ALL_MARKET_CODES) {
+      const b = MARKET_BUNDLES[code];
+      expect(b, `market bundle for ${code}`).toBeDefined();
+      expect(b.code).toBe(code);
+      expect(b.electrical.marketCode).toBe(code);
+      expect(b.plumbing.marketCode).toBe(code);
+      expect(b.masonry.marketCode).toBe(code);
+      // DrywallMarketProfile carries board geometry, not a marketCode
+      expect(b.drywall.boardWidthMm).toBeGreaterThan(0);
+      expect(b.drywall.boardLengthMm).toBeGreaterThan(0);
+      expect(b.cementBagWeightKg).toBeGreaterThan(0);
+      expect(b.wallFinishing.code).toBe(code);
+    }
+  });
+
+  it("bundle keys exactly match their declared market codes (no drift)", () => {
+    for (const [key, bundle] of Object.entries(MARKET_BUNDLES)) {
+      expect(bundle.code, `bundle ${key}`).toBe(key);
+    }
+  });
+
+  it("the composed registries are built from the bundles (single source)", () => {
+    for (const code of ALL_MARKET_CODES) {
+      expect(ELECTRICAL_PROFILES[code]).toBe(MARKET_BUNDLES[code].electrical);
+      expect(PLUMBING_PROFILES[code]).toBe(MARKET_BUNDLES[code].plumbing);
+    }
+  });
+
+  it("getMarketBundle returns null for unknown markets - no invented bundles", () => {
+    expect(getMarketBundle("XX")).toBeNull();
+    expect(getMarketBundle("")).toBeNull();
+  });
+});
