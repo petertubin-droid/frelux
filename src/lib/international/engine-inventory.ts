@@ -4873,6 +4873,130 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     },
   },
   {
+    id: "governance_audit",
+    name: "Enterprise Governance, Security & Auditability Engine",
+    category: "costing_commercial",
+    classification: "independent_engine",
+    sourceFiles: [
+      "src/lib/governance/audit-chain.ts",
+      "src/lib/governance/approval-hierarchy.ts",
+      "src/lib/governance/compliance-readiness.ts",
+    ],
+    consumers: [
+      "supabase/migrations/20261027210000_governance_audit_approvals.sql",
+    ],
+    dependencies: [],
+    calculationPurpose:
+      "Append-only hash-chained audit log over every estimation rule modification (dimensions, formula variables, waste factors, labor rates) with actor, mandatory rationale and field diff; multi-stage approval hierarchy (Draft -> Lead Estimator -> Commercial Director -> dual executive sign-off over threshold -> Tender Issued); SOC 2 / ISO 27001 readiness with CMEK enforcement and strict tenancy boundary validation.",
+    keyFormulas:
+      "entry_hash = sha256(prev_entry_hash || payload) with payload = v1<US>prev<US>actor<US>action<US>entityType<US>entityRef<US>rationale<US>diffCanonical<US>recordedAtUtc; dual sign-off required when effective total >= policy threshold (default USD 500,000); CMEK coverage = active scopes / declared scopes",
+    marketAssumptions:
+      "Audit trail append-only by DB trigger for every role including service role; rationale mandatory on every rule modification; approval stage graph forward-only and database-enforced; Type II operating-period evidence accrues in production and is never fabricated.",
+    internationalizationStatus: "verified_full",
+    marketMatrix: {
+      NG: {
+        status: "verified",
+        notes:
+          "Verified for NG: governance applies to all markets; NG tenant scope under strict tenancy policy.",
+      },
+      US: {
+        status: "verified",
+        notes:
+          "Verified for US: SOC 2 Type II control map seeded; USD 500,000 dual-signoff threshold default.",
+      },
+      GB: {
+        status: "verified",
+        notes:
+          "Verified for GB: ISO 27001 Annex A control map; UK tenancy residency declarations supported.",
+      },
+      CA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
+      },
+      AU: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
+      },
+      DE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
+      },
+      IN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
+      },
+      GH: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
+      },
+      KE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
+      },
+      ZA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
+      },
+      JP: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
+      },
+      FR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
+      },
+      BR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
+      },
+      SA: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
+      },
+      AE: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
+      },
+      CN: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
+      },
+      ID: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
+      },
+      MX: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
+      },
+      KR: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
+      },
+      IT: {
+        status: "verified",
+        notes:
+          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
+      },
+    },
+  },
+  {
     id: "rfq_punchout",
     name: "Merchant Punchout & Automated RFQ Engine",
     category: "costing_commercial",

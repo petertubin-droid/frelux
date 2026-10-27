@@ -20,10 +20,10 @@ import {
 } from "../../estimation/plumbing-profiles";
 
 describe("Comprehensive Engine Inventory & 20-Market Matrix", () => {
-  it("inventories all 55 discovered engines across FRELUX", () => {
-    expect(FULL_ENGINE_INVENTORY.length).toBe(55);
+  it("inventories all 56 discovered engines across FRELUX", () => {
+    expect(FULL_ENGINE_INVENTORY.length).toBe(56);
     const ids = FULL_ENGINE_INVENTORY.map((e) => e.id);
-    expect(new Set(ids).size).toBe(55);
+    expect(new Set(ids).size).toBe(56);
   });
 
   it("every engine item has non-empty metadata, source files, and formulas", () => {
@@ -117,7 +117,7 @@ describe("Comprehensive Engine Inventory & 20-Market Matrix", () => {
 
   it("reconciles discovered engines against legacy registry and reports discrepancies", () => {
     const report = getDiscrepancyReport();
-    expect(report.discoveredCount).toBe(55);
+    expect(report.discoveredCount).toBe(56);
     expect(report.canonicalCapabilityCount).toBe(34);
     expect(report.unregisteredEngines.length).toBe(20);
     expect(report.reconciliationNotes.length).toBeGreaterThan(0);
@@ -138,7 +138,7 @@ describe("Comprehensive Engine Inventory & 20-Market Matrix", () => {
 
   it("generates an engine-by-market status matrix mapping every engine to 20 markets", () => {
     const matrix = getEngineByMarketMatrix();
-    expect(Object.keys(matrix).length).toBe(55);
+    expect(Object.keys(matrix).length).toBe(56);
     for (const engineId of Object.keys(matrix)) {
       expect(Object.keys(matrix[engineId]).length).toBe(20);
       expect(matrix[engineId].NG).toBeDefined();
