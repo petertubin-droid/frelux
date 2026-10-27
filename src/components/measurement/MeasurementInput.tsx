@@ -122,6 +122,11 @@ function EntryCard({
   index: number;
 }) {
   const [expanded, setExpanded] = useState(true);
+  // Quantity field is clearable while editing: an empty or partial value
+  // stays in a local draft instead of snapping back to a sticky "1".
+  // The engine only receives committed values (integers >= 1); on blur
+  // an unfinished draft falls back to the last valid quantity.
+  const [quantityDraft, setQuantityDraft] = useState<string | null>(null);
   const isFence =
     entry.partitionCount !== undefined && entry.partitionCount > 0;
   const isTiling = context === "tiling";
@@ -259,11 +264,27 @@ function EntryCard({
             <input
               id={`mi-quantity-${entry.id}`}
               type="number"
-              value={entry.quantity}
+              value={quantityDraft ?? entry.quantity}
               min={1}
-              onChange={(e) =>
-                onUpdate({ quantity: parseInt(e.target.value) || 1 })
-              }
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (raw.trim() === "") {
+                  // Allow a cleared field; keep the last committed
+                  // quantity until a new valid number is entered.
+                  setQuantityDraft("");
+                  return;
+                }
+                const parsed = parseInt(raw, 10);
+                if (Number.isNaN(parsed) || parsed < 1) {
+                  // Partial input ("-" or "0"): hold it locally so the
+                  // user can keep typing; never force a sticky "1".
+                  setQuantityDraft(raw);
+                  return;
+                }
+                setQuantityDraft(null);
+                if (parsed !== entry.quantity) onUpdate({ quantity: parsed });
+              }}
+              onBlur={() => setQuantityDraft(null)}
               className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
             />
           </div>
