@@ -42,6 +42,10 @@ import {
   lengthUnitShort,
   getAllowedUnits,
 } from "@/lib/measurement";
+import {
+  getBuildingPresets,
+  type BuildingPreset,
+} from "@/lib/measurement/building-presets";
 import { Button } from "@/components/ui/shadcn/button";
 
 // =========================================================
@@ -113,6 +117,7 @@ function EntryCard({
   onUpdate,
   onRemove,
   index,
+  entryTitleLabel = `Measurement ${index + 1}`,
 }: {
   entry: MeasurementEntry;
   context: CalculatorContext;
@@ -120,6 +125,7 @@ function EntryCard({
   onUpdate: (updates: Partial<MeasurementEntry>) => void;
   onRemove?: () => void;
   index: number;
+  entryTitleLabel?: string;
 }) {
   const [expanded, setExpanded] = useState(true);
   // Quantity field is clearable while editing: an empty or partial value
@@ -151,7 +157,7 @@ function EntryCard({
           className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary"
         >
           {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          Measurement {index + 1}
+          {entryTitleLabel}
           {entry.description ? `: ${entry.description}` : ""}
         </Button>
         {onRemove && (
@@ -636,6 +642,54 @@ export function ValidationErrors({
 // Main Export: MeasurementInput
 // =========================================================
 
+/**
+ * House / Building mode: market-aware house type presets
+ * (2 Bedroom Bungalow, 5 Bedroom Apartment, Semi-Detached, BHK flat...)
+ * that seed an editable room breakdown in one click.
+ */
+function BuildingPresetSelect({
+  presets,
+  onApplyPreset,
+}: {
+  presets: BuildingPreset[];
+  onApplyPreset: (presetId: string) => void;
+}) {
+  const selectId = useId();
+  if (presets.length === 0) return null;
+  return (
+    <div className="rounded-lg border border-border bg-card p-4">
+      <label
+        htmlFor={selectId}
+        className="mb-1 block text-sm font-semibold text-foreground"
+      >
+        House type
+      </label>
+      <select
+        id={selectId}
+        className="input-field"
+        defaultValue=""
+        onChange={(e) => {
+          const v = e.target.value;
+          if (v) onApplyPreset(v);
+          e.currentTarget.value = v; // keep selection visible
+        }}
+      >
+        <option value="">Select a house type to load its rooms...</option>
+        {presets.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.label}
+          </option>
+        ))}
+      </select>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Loads a full room breakdown (bedrooms, living room, kitchen, toilets &
+        baths...) that you can edit. Common in your market:{" "}
+        {presets.slice(0, 3).map((p) => p.label).join(", ")}.
+      </p>
+    </div>
+  );
+}
+
 export interface MeasurementInputProps {
   project: MeasurementProject;
   context: CalculatorContext;
@@ -647,6 +701,10 @@ export interface MeasurementInputProps {
     updates: Partial<MeasurementEntry>,
   ) => void;
   onRemoveMeasurement: (groupId: string) => void;
+  /** Market code (e.g. "NG", "US") driving the house-type presets. */
+  marketCode?: string;
+  /** House / Building mode: seed the room list from a preset. */
+  onApplyPreset?: (presetId: string) => void;
   children?: ReactNode;
 }
 
@@ -658,6 +716,8 @@ export function MeasurementInput({
   onAddMeasurement,
   onUpdateMeasurement,
   onRemoveMeasurement,
+  marketCode = "NG",
+  onApplyPreset,
   children,
 }: MeasurementInputProps) {
   // Use the first section (auto-created by the hook)
@@ -702,10 +762,10 @@ export function MeasurementInput({
     project.projectMode === "fence"
       ? "Add Fence Dimension"
       : project.projectMode === "house_building"
-        ? "Add Space"
+        ? "Add Room / Space"
         : project.projectMode === "exterior"
           ? "Add Surface"
-          : "Add Measurement";
+          : "Add Another Room";
 
   return (
     <div className="space-y-4">
@@ -716,6 +776,13 @@ export function MeasurementInput({
       />
 
       <ValidationErrors validation={validation} />
+
+      {project.projectMode === "house_building" && onApplyPreset && (
+        <BuildingPresetSelect
+          presets={getBuildingPresets(marketCode)}
+          onApplyPreset={onApplyPreset}
+        />
+      )}
 
       {children}
 
@@ -728,6 +795,15 @@ export function MeasurementInput({
               entry={group.entry}
               context={context}
               index={idx}
+              entryTitleLabel={
+                project.projectMode === "fence"
+                  ? `Fence Dimension ${idx + 1}`
+                  : project.projectMode === "house_building"
+                    ? `Space ${idx + 1}`
+                    : project.projectMode === "exterior"
+                      ? `Surface ${idx + 1}`
+                      : `Room ${idx + 1}`
+              }
               onUpdate={(updates) => onUpdateMeasurement(group.id, updates)}
               onRemove={() => onRemoveMeasurement(group.id)}
               errors={
@@ -756,7 +832,9 @@ export function MeasurementInput({
               ? `Fence Dimension ${count + 1}`
               : project.projectMode === "house_building"
                 ? `Space ${count + 1}`
-                : `Measurement ${count + 1}`;
+                : project.projectMode === "exterior"
+                  ? `Surface ${count + 1}`
+                  : `Room ${count + 1}`;
           onAddMeasurement(label, getDefaultEntry());
         }}
         className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"

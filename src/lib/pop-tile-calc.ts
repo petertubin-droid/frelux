@@ -118,16 +118,19 @@ export function calculateTile(
   currency: string,
   currencySymbol: string,
 ): TileCalcResult {
+  // Identical surfaces (e.g. 3 bedrooms with the same floor size) are
+  // bought as one project: the area scales, boxes round once on the total.
+  const surfaceCount = Math.max(1, Math.round(input.quantity ?? 1));
   let surfaceArea: number;
 
   if (input.surfaceType === "wall") {
     const lengthM = toSqm(input.length, input.unit);
     const heightM = toSqm(input.height, input.unit);
-    surfaceArea = lengthM * heightM;
+    surfaceArea = lengthM * heightM * surfaceCount;
   } else {
     const lengthM = toSqm(input.length, input.unit);
     const widthM = toSqm(input.width, input.unit);
-    surfaceArea = lengthM * widthM;
+    surfaceArea = lengthM * widthM * surfaceCount;
   }
 
   const wastePct = Math.min(100, Math.max(0, input.wasteMargin));

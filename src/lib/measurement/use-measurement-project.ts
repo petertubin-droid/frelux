@@ -32,6 +32,7 @@ import {
   calculateMeasurementProject,
   validateMeasurementProject,
 } from './index';
+import { seedProjectWithPreset } from './building-presets';
 
 export interface UseMeasurementProjectOptions {
   calculatorContext: CalculatorContext;
@@ -67,6 +68,8 @@ export interface UseMeasurementProjectReturn {
   reset: () => void;
   // Reset with a new mode
   resetWithMode: (mode: MeasurementProject['projectMode']) => void;
+  // Seed the house/building section from a market building preset
+  applyBuildingPreset: (marketCode: string, presetId: string) => void;
   // Allowed units for this context
   allowedUnits: LengthUnit[];
   // The active section (first section, auto-created)
@@ -270,6 +273,19 @@ export function useMeasurementProject(
     [calculatorContext, preferredUnit, defaultSectionLabel],
   );
 
+  /**
+   * House / Building mode: load a market-aware building preset
+   * (2 Bedroom Bungalow, 5 Bedroom Apartment, Semi-Detached, BHK flat...)
+   * into the project as an editable room breakdown.
+   */
+  const applyBuildingPreset = useCallback(
+    (marketCode: string, presetId: string) => {
+      setProject((prev) => seedProjectWithPreset(prev, marketCode, presetId));
+      setResult(null);
+    },
+    [],
+  );
+
   return {
     project,
     result,
@@ -287,6 +303,7 @@ export function useMeasurementProject(
     calculate,
     reset,
     resetWithMode,
+    applyBuildingPreset,
     allowedUnits,
     activeSection,
   };

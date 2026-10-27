@@ -60,7 +60,7 @@ import {
   EngineMaterialSummaryCard,
 } from "@/components/engine";
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
-import type { TileCalcInput, TileCalcResult, Unit } from "@/types";
+import type { TileCalcInput, TileCalcResult } from "@/types";
 import type {
   DbTileSize,
   DbTileMaterial,
@@ -196,6 +196,7 @@ export default function TileCalculator({
     surfaceType: "floor",
     method: "adhesive",
     length: 0,
+    quantity: 1,
     width: 0,
     height: 0,
     tileWidthMm: 300,
@@ -551,6 +552,28 @@ export default function TileCalculator({
                   />
                 </Field>
               )}
+            </div>
+
+            {/* Identical surfaces */}
+            <div className="mt-4 max-w-xs">
+              <Field
+                label="Number of identical surfaces"
+                hint="Tiling 3 identical bedroom floors? Set 3 and buy for all at once."
+              >
+                <input
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={input.quantity ?? 1}
+                  onChange={(e) =>
+                    update(
+                      "quantity" as keyof typeof input,
+                      Math.max(1, Math.round(Number(e.target.value) || 1)),
+                    )
+                  }
+                  className="input-field"
+                />
+              </Field>
             </div>
 
             {/* Tile size */}

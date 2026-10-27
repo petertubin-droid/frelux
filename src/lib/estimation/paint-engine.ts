@@ -563,7 +563,7 @@ export function getCeilingCoverageRate(
 // Practical Purchase Rounding
 // =========================================================
 
-function roundUpToBuckets(
+export function roundUpToBuckets(
   litres: number,
   packSizeLitres: number,
   roundingRule: string,

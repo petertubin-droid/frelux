@@ -112,6 +112,7 @@ export default function ScreedingCalculator({
     updateMeasurement,
     removeMeasurement,
     resetWithMode,
+    applyBuildingPreset,
     setPreferredUnit,
     calculate,
   } = useMeasurementProject({
@@ -262,6 +263,10 @@ export default function ScreedingCalculator({
               onAddMeasurement={addMeasurement}
               onUpdateMeasurement={updateMeasurement}
               onRemoveMeasurement={removeMeasurement}
+              marketCode={marketCode}
+              onApplyPreset={(presetId) =>
+                applyBuildingPreset(marketCode, presetId)
+              }
             >
               {project.projectMode === "fence" && (
                 <div className="rounded-xl border border-border/80 bg-muted/50 p-4 text-xs text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground">
@@ -278,9 +283,10 @@ export default function ScreedingCalculator({
                   <p className="font-medium text-foreground dark:text-primary-foreground mb-1.5">
                     House / Building
                   </p>
-                  Add each space type separately. Use quantity for identical
-                  rooms (e.g., 12×12 ft bedroom × 2). Different dimensions stay
-                  as separate measurements.
+                  Pick a house type above to load a full editable room breakdown
+                  (bedrooms, living room, kitchen, toilets & baths...), or add
+                  spaces manually. Use quantity for identical rooms (e.g.,
+                  12×12 ft bedroom × 2).
                 </div>
               )}
             </MeasurementInput>

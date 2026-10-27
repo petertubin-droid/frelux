@@ -25,6 +25,8 @@ import {
   CheckCircle2,
   AlertCircle,
   ChevronDown,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
@@ -41,9 +43,24 @@ import {
 } from "@/lib/calc";
 import {
   calculateRoom,
-  type PaintEngineRoomInput,
   type PaintEngineConfig,
 } from "@/lib/estimation/paint-engine";
+import {
+  expandEngineRooms,
+  expandLegacyInputs,
+  aggregateEngineRooms,
+  aggregateCalculatorResults,
+  houseRowsFromPreset,
+  newSurfaceRunRow,
+} from "@/lib/estimation/multi-unit";
+import {
+  getBuildingPresets,
+  type BuildingPreset,
+} from "@/lib/measurement/building-presets";
+import type {
+  HouseRoomRow,
+  SurfaceRunRow,
+} from "@/types";
 import type {
   EstimationProduct,
   EstimationProductQuality,
@@ -83,7 +100,6 @@ import type {
   CalculatorInput,
   CalculatorResult,
   ProjectType,
-  Unit,
   OpeningDimensions,
   SurfaceCondition,
   ColorCondition,
@@ -546,16 +562,137 @@ export default function PaintCalculator({
     key: K,
     value: CalculatorInput[K],
   ) {
+    if (key === "projectType") {
+      const mode = value as CalculatorInput["projectType"];
+      setInput((prev) => {
+        const next = { ...prev, projectType: mode };
+        if (mode === "house" && !prev.houseRooms) next.houseRooms = [];
+        if (
+          (mode === "exterior" || mode === "fence") &&
+          !prev.surfaceRuns
+        ) {
+          next.surfaceRuns = [newSurfaceRunRow(1, mode === "fence")];
+        }
+        return next;
+      });
+      setErrors((e) => ({ ...e, [key]: "" }));
+      return;
+    }
     setInput((prev) => ({ ...prev, [key]: value }));
     setErrors((e) => ({ ...e, [key]: "" }));
+  }
+
+  // ── House mode: market-aware building presets + editable room rows ──
+  const marketPresets: BuildingPreset[] = getBuildingPresets(marketCode);
+
+  function applyPreset(presetId: string) {
+    const seeded = houseRowsFromPreset(marketCode, presetId, input.unit);
+    if (!seeded) return;
+    setInput((prev) => ({
+      ...prev,
+      buildingPresetId: presetId,
+      houseRooms: seeded.rows,
+      wallHeight: seeded.wallHeight,
+    }));
+    setErrors((e) => ({ ...e, houseRooms: "" }));
+  }
+
+  function updateHouseRoom(id: string, patch: Partial<HouseRoomRow>) {
+    setInput((prev) => ({
+      ...prev,
+      houseRooms: (prev.houseRooms ?? []).map((r) =>
+        r.id === id ? { ...r, ...patch } : r,
+      ),
+    }));
+  }
+
+  function addHouseRoom() {
+    setInput((prev) => ({
+      ...prev,
+      houseRooms: [
+        ...(prev.houseRooms ?? []),
+        {
+          id: `room-${Date.now()}`,
+          label: `Room ${(prev.houseRooms?.length ?? 0) + 1}`,
+          length: 0,
+          width: 0,
+          quantity: 1,
+          doors: 1,
+          windows: 1,
+        },
+      ],
+    }));
+  }
+
+  function removeHouseRoom(id: string) {
+    setInput((prev) => ({
+      ...prev,
+      houseRooms: (prev.houseRooms ?? []).filter((r) => r.id !== id),
+    }));
+  }
+
+  // ── Exterior / Fence mode: editable surface runs ──
+  function updateRun(id: string, patch: Partial<SurfaceRunRow>) {
+    setInput((prev) => ({
+      ...prev,
+      surfaceRuns: (prev.surfaceRuns ?? []).map((r) =>
+        r.id === id ? { ...r, ...patch } : r,
+      ),
+    }));
+  }
+
+  function addRun() {
+    const isFence = input.projectType === "fence";
+    setInput((prev) => ({
+      ...prev,
+      surfaceRuns: [
+        ...(prev.surfaceRuns ?? []),
+        newSurfaceRunRow((prev.surfaceRuns?.length ?? 0) + 1, isFence),
+      ],
+    }));
+  }
+
+  function removeRun(id: string) {
+    setInput((prev) => ({
+      ...prev,
+      surfaceRuns: (prev.surfaceRuns ?? []).filter((r) => r.id !== id),
+    }));
   }
 
   function validateStep(s: number): boolean {
     const e: Record<string, string> = {};
     if (s === 2) {
-      if (input.length <= 0) e.length = "Enter a valid length";
-      // Width is optional for all project types, no validation needed when blank.
-      if (input.wallHeight <= 0) e.wallHeight = "Enter a valid wall height";
+      if (input.projectType === "house") {
+        const rows = input.houseRooms ?? [];
+        if (rows.length === 0) {
+          e.houseRooms =
+            "Pick a house type above or add rooms manually";
+        } else if (rows.some((r) => r.length <= 0 || r.width <= 0)) {
+          e.houseRooms = "Every room needs a length and a width";
+        }
+        if (input.wallHeight <= 0)
+          e.wallHeight = "Enter a valid wall height";
+      } else if (
+        input.projectType === "exterior" ||
+        input.projectType === "fence"
+      ) {
+        const runs = input.surfaceRuns ?? [];
+        if (runs.length === 0) {
+          e.surfaceRuns =
+            input.projectType === "fence"
+              ? "Add at least one fence section"
+              : "Add at least one wall run";
+        } else if (runs.some((r) => r.length <= 0 || r.height <= 0)) {
+          e.surfaceRuns = "Every run needs a length and a height";
+        }
+      } else {
+        if (input.length <= 0) e.length = "Enter a valid length";
+        // Width is optional, no validation needed when blank.
+        if (input.wallHeight <= 0)
+          e.wallHeight = "Enter a valid wall height";
+        if ((input.roomCount ?? 1) < 1)
+          e.roomCount = "Enter at least 1 room";
+      }
     }
     if (s === 3) {
       if (input.doors < 0) e.doors = "Doors cannot be negative";
@@ -632,48 +769,24 @@ export default function PaintCalculator({
       const calibrationReferencesRule =
         estCalcRules.get("frelux_calibration_references") ?? null;
 
-      const doorOpenings =
-        input.doors > 0
-          ? [
-              {
-                quantity: input.doors,
-                width: input.doorDims.width,
-                height: input.doorDims.height,
-              },
-            ]
-          : [];
-      const windowOpenings =
-        input.windows > 0
-          ? [
-              {
-                quantity: input.windows,
-                width: input.windowDims.width,
-                height: input.windowDims.height,
-              },
-            ]
-          : [];
-
-      const engineInput: PaintEngineRoomInput = {
-        room_id: "room-1",
-        room_name: "Room",
-        length: input.length,
-        width: input.width,
-        height: input.wallHeight,
-        unit: input.unit,
-        doors: doorOpenings,
-        windows: windowOpenings,
-        doors_unknown: false,
-        windows_unknown: false,
-        product_id: matchedProduct.id,
-        quality_id: matchedQuality?.id ?? "",
-        coats: input.coats,
-        include_ceiling: input.includeCeiling,
-        ceiling_colour: "white",
-        surface_condition_key: (input.surfaceCondition ?? "smooth") as string,
-        colour_condition_key: (input.colorCondition ??
-          "same_or_light") as string,
-        include_primer: input.includePrimer ?? false,
-      };
+      // ── Multi-unit project expansion (Room count / House preset /
+      // Exterior runs / Fence partitions — all 32 markets) ──
+      const engineRooms = expandEngineRooms({
+        ...input,
+        paintType: matchedProduct.id,
+        qualityId: matchedQuality?.id ?? "",
+      });
+      if (engineRooms.length === 0) {
+        toast({
+          type: "warning",
+          title: "Nothing to calculate",
+          message:
+            input.projectType === "house"
+              ? "Pick a house type or add at least one room."
+              : "Add at least one wall run or fence section.",
+        });
+        return;
+      }
 
       const engineConfig: PaintEngineConfig = {
         product: matchedProduct,
@@ -694,24 +807,30 @@ export default function PaintCalculator({
         calcVersionId: null,
       };
 
-      const engineResult = calculateRoom(engineInput, engineConfig);
+      // Run the engine per physical unit, then aggregate the purchase
+      // at project level (buckets round once on the whole project).
+      const roomResults = engineRooms.map((room) =>
+        calculateRoom(room, engineConfig),
+      );
+      const totals = aggregateEngineRooms(roomResults, roundingRule);
 
-      // Convert engine result to old CalculatorResult format
+      // Convert project totals to the CalculatorResult format
+      const first = roomResults[0];
       const containers =
-        engineResult.practical_total_buckets > 0
+        totals.practical_total_buckets > 0
           ? [
               {
-                size: engineResult.pack_size_litres,
-                count: engineResult.practical_total_buckets,
+                size: totals.pack_size_litres,
+                count: totals.practical_total_buckets,
               },
             ]
           : [];
       const primerContainers =
-        engineResult.primer_buckets > 0
+        totals.primer_buckets > 0
           ? [
               {
-                size: engineResult.pack_size_litres,
-                count: engineResult.primer_buckets,
+                size: totals.pack_size_litres,
+                count: totals.primer_buckets,
               },
             ]
           : [];
@@ -719,33 +838,32 @@ export default function PaintCalculator({
       const r: CalculatorResult = {
         projectType: input.projectType,
         unit: input.unit,
-        wallArea: engineResult.gross_wall_area_m2,
-        ceilingArea: engineResult.ceiling_area_m2,
-        doorArea: engineResult.door_area_m2,
-        windowArea: engineResult.window_area_m2,
-        paintableArea: engineResult.net_wall_area_m2,
-        coats: engineResult.effective_coats,
+        wallArea: totals.gross_wall_area_m2,
+        ceilingArea: totals.ceiling_area_m2,
+        doorArea: totals.door_area_m2,
+        windowArea: totals.window_area_m2,
+        paintableArea: totals.net_wall_area_m2,
+        coats: first?.effective_coats ?? input.coats,
         paintType: input.paintType,
-        coverageRate: engineResult.coverage_rate ?? 0,
-        baseCoverageRate: engineResult.coverage_rate ?? 0,
-        surfaceCondition: (engineResult.surface_condition?.condition_key ??
+        coverageRate: first?.coverage_rate ?? 0,
+        baseCoverageRate: first?.coverage_rate ?? 0,
+        surfaceCondition: (first?.surface_condition?.condition_key ??
           "smooth") as SurfaceCondition,
-        surfaceConditionFactor: engineResult.surface_factor,
-        paintRequiredLiters: engineResult.theoretical_total_litres,
+        surfaceConditionFactor: first?.surface_factor ?? 1,
+        paintRequiredLiters: totals.theoretical_total_litres,
         wasteMargin: input.wasteMargin,
-        adjustedLiters: engineResult.theoretical_total_litres,
+        adjustedLiters: totals.theoretical_total_litres,
         recommendedContainers: containers,
-        totalRecommendedLiters: engineResult.practical_total_litres,
-        leftoverLiters: engineResult.leftover_litres,
-        primerLiters: engineResult.primer_litres,
+        totalRecommendedLiters: totals.practical_total_litres,
+        leftoverLiters: totals.leftover_litres,
+        primerLiters: totals.primer_litres,
         primerContainers,
-        primerTotalLiters:
-          engineResult.primer_buckets * engineResult.pack_size_litres,
-        heightWarning: engineResult.height_warning,
-        colorWarning: engineResult.colour_condition?.requires_warning
-          ? engineResult.colour_condition.name
-          : null,
-        primerRecommended: engineResult.primer_recommended,
+        primerTotalLiters: totals.primer_buckets * totals.pack_size_litres,
+        heightWarning: totals.height_warning,
+        colorWarning:
+          roomResults.find((x) => x.colour_condition?.requires_warning)
+            ?.colour_condition.name ?? null,
+        primerRecommended: roomResults.some((x) => x.primer_recommended),
       };
 
       setResult(r);
@@ -762,11 +880,21 @@ export default function PaintCalculator({
       return;
     }
 
-    // Fall back to legacy calculation
+    // Fall back to legacy calculation (aggregated across all units)
     if (paintTypes.length === 0) return;
-    const r = monitoredCalc("Painting Calculator", () =>
-      calculatePaint(input, calcConfig),
-    );
+    const r = monitoredCalc("Painting Calculator", () => {
+      const units = expandLegacyInputs(input);
+      const results = units.map((u) => calculatePaint(u, calcConfig));
+      return aggregateCalculatorResults(results);
+    });
+    if (!r) {
+      toast({
+        type: "warning",
+        title: "Nothing to calculate",
+        message: "Add at least one room, wall run, or fence section.",
+      });
+      return;
+    }
     setResult(r);
     track("calculator_completed", {
       projectType: input.projectType,
@@ -801,6 +929,11 @@ export default function PaintCalculator({
       surfaceCondition: "smooth",
       colorCondition: "same_or_light",
       includePrimer: false,
+      // Multi-unit state resets with the calculator.
+      roomCount: 1,
+      buildingPresetId: "",
+      houseRooms: [],
+      surfaceRuns: undefined,
     });
   }
 
@@ -974,7 +1107,19 @@ export default function PaintCalculator({
             </div>
             {step === 1 && <Step1 input={input} update={update} />}
             {step === 2 && (
-              <Step2 input={input} update={update} errors={errors} />
+              <Step2
+                input={input}
+                update={update}
+                errors={errors}
+                presets={marketPresets}
+                onApplyPreset={applyPreset}
+                onAddHouseRoom={addHouseRoom}
+                onUpdateHouseRoom={updateHouseRoom}
+                onRemoveHouseRoom={removeHouseRoom}
+                onAddRun={addRun}
+                onUpdateRun={updateRun}
+                onRemoveRun={removeRun}
+              />
             )}
             {step === 3 && (
               <Step3
@@ -1213,6 +1358,14 @@ function Step2({
   input,
   update,
   errors,
+  presets,
+  onApplyPreset,
+  onAddHouseRoom,
+  onUpdateHouseRoom,
+  onRemoveHouseRoom,
+  onAddRun,
+  onUpdateRun,
+  onRemoveRun,
 }: {
   input: CalculatorInput;
   update: <K extends keyof CalculatorInput>(
@@ -1220,11 +1373,23 @@ function Step2({
     value: CalculatorInput[K],
   ) => void;
   errors: Record<string, string>;
+  presets: BuildingPreset[];
+  onApplyPreset: (presetId: string) => void;
+  onAddHouseRoom: () => void;
+  onUpdateHouseRoom: (id: string, patch: Partial<HouseRoomRow>) => void;
+  onRemoveHouseRoom: (id: string) => void;
+  onAddRun: () => void;
+  onUpdateRun: (id: string, patch: Partial<SurfaceRunRow>) => void;
+  onRemoveRun: (id: string) => void;
 }) {
   const { t } = useLanguage();
   const unitLabel = unitShortLabel(input.unit);
-  const isFence = input.projectType === "fence";
-  const isExterior = input.projectType === "exterior";
+  const mode = input.projectType;
+  const isFence = mode === "fence";
+  const isExterior = mode === "exterior";
+  const isHouse = mode === "house";
+  const houseRows = input.houseRooms ?? [];
+  const runRows = input.surfaceRuns ?? [];
 
   return (
     <div>
@@ -1232,7 +1397,13 @@ function Step2({
         Enter measurements
       </h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        {t("Provide the dimensions of the area you're painting.")}
+        {isHouse
+          ? "Pick a house type to load a room breakdown you can edit, or build your own room list."
+          : isExterior
+            ? "Add each outside wall run. Length × height is one painted face."
+            : isFence
+              ? "Add each fence section. Length × height is one painted face per partition."
+              : t("Provide the dimensions of the area you're painting.")}
       </p>
 
       <div className="mt-5">
@@ -1246,76 +1417,421 @@ function Step2({
         .
       </p>
 
-      <div
-        className={
-          "mt-6 grid gap-4 " + (isFence ? "sm:grid-cols-2" : "sm:grid-cols-3")
-        }
-      >
-        <Field
-          label={isFence ? t("Fence length") : t("Length")}
-          suffix={unitLabel}
-          error={errors.length}
-        >
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            value={input.length || ""}
-            onChange={(e) => update("length", Number(e.target.value))}
-            className="input-field"
-            placeholder="0.00"
-          />
-        </Field>
-        {!isFence && (
-          <Field
-            label={t("Width (Optional if not applicable)")}
-            suffix={unitLabel}
-            hint="Leave blank if only one pair of walls needs painting"
-          >
-            <input
-              type="number"
-              min={0}
-              step="0.01"
-              value={input.width || ""}
-              onChange={(e) => update("width", Number(e.target.value))}
-              className="input-field"
-              placeholder="0.00"
-            />
-          </Field>
-        )}
-        <Field
-          label={isFence ? t("Fence height") : t("Wall height")}
-          suffix={unitLabel}
-          error={errors.wallHeight}
-        >
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            value={input.wallHeight || ""}
-            onChange={(e) => update("wallHeight", Number(e.target.value))}
-            className="input-field"
-            placeholder="0.00"
-          />
-        </Field>
-      </div>
+      {/* ── Single Room: one room, N identical rooms ── */}
+      {mode === "room" && (
+        <>
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            <Field label={t("Length")} suffix={unitLabel} error={errors.length}>
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                value={input.length || ""}
+                onChange={(e) => update("length", Number(e.target.value))}
+                className="input-field"
+                placeholder="0.00"
+              />
+            </Field>
+            <Field
+              label={t("Width (Optional if not applicable)")}
+              suffix={unitLabel}
+              hint="Leave blank if only one pair of walls needs painting"
+            >
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                value={input.width || ""}
+                onChange={(e) => update("width", Number(e.target.value))}
+                className="input-field"
+                placeholder="0.00"
+              />
+            </Field>
+            <Field
+              label={t("Wall height")}
+              suffix={unitLabel}
+              error={errors.wallHeight}
+            >
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                value={input.wallHeight || ""}
+                onChange={(e) => update("wallHeight", Number(e.target.value))}
+                className="input-field"
+                placeholder="0.00"
+              />
+            </Field>
+          </div>
 
-      {!isFence && !isExterior && (
-        <div className="mt-6 flex items-center gap-3 rounded-lg border border-border p-4">
-          <Toggle
-            checked={input.includeCeiling}
-            onChange={(v) => update("includeCeiling", v)}
-          />
-          <div>
-            <p className="text-sm font-semibold text-card-foreground">
-              Include ceiling
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Adds the ceiling area (length × width) to the paintable surface.
-              Requires width to be entered.
+          <div className="mt-4 max-w-xs">
+            <Field
+              label="Number of identical rooms"
+              hint="Painting 5 identical bedrooms? Set 5 and buy for all at once."
+              error={errors.roomCount}
+            >
+              <input
+                type="number"
+                min={1}
+                step={1}
+                value={input.roomCount ?? 1}
+                onChange={(e) =>
+                  update("roomCount", Math.max(1, Number(e.target.value) || 1))
+                }
+                className="input-field"
+              />
+            </Field>
+          </div>
+
+          <div className="mt-4 flex items-center gap-3 rounded-lg border border-border p-4">
+            <Toggle
+              checked={input.includeCeiling}
+              onChange={(v) => update("includeCeiling", v)}
+            />
+            <div>
+              <p className="text-sm font-semibold text-card-foreground">
+                Include ceiling
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Adds the ceiling area (length × width) to the paintable
+                surface. Requires width to be entered.
+              </p>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── House / Building: market preset + editable rooms ── */}
+      {isHouse && (
+        <>
+          <div className="mt-6 max-w-xl">
+            <label
+              htmlFor="building-preset"
+              className="mb-1 block text-sm font-semibold text-foreground dark:text-primary-foreground"
+            >
+              House type
+            </label>
+            <select
+              id="building-preset"
+              value={input.buildingPresetId ?? ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "custom") {
+                  update("buildingPresetId", "");
+                } else {
+                  onApplyPreset(v);
+                }
+              }}
+              className="input-field"
+            >
+              <option value="">
+                Select a house type...
+              </option>
+              {presets.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+              <option value="custom">
+                Custom — build my own room list
+              </option>
+            </select>
+            {errors.houseRooms && (
+              <p className="mt-1 text-xs text-destructive">
+                {errors.houseRooms}
+              </p>
+            )}
+            <p className="mt-1 text-xs text-muted-foreground">
+              {presets.length > 0
+                ? `Common in your market: ${presets
+                    .slice(0, 3)
+                    .map((p) => p.label)
+                    .join(", ")}.`
+                : ""}
             </p>
           </div>
-        </div>
+
+          <div className="mt-4 max-w-xs">
+            <Field
+              label="Wall height (all rooms)"
+              suffix={unitLabel}
+              error={errors.wallHeight}
+            >
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                value={input.wallHeight || ""}
+                onChange={(e) =>
+                  update("wallHeight", Number(e.target.value))
+                }
+                className="input-field"
+                placeholder="0.00"
+              />
+            </Field>
+          </div>
+
+          <div className="mt-4 flex items-center gap-3 rounded-lg border border-border p-4">
+            <Toggle
+              checked={input.includeCeiling}
+              onChange={(v) => update("includeCeiling", v)}
+            />
+            <div>
+              <p className="text-sm font-semibold text-card-foreground">
+                Include ceilings
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Adds each room's ceiling area to the paintable surface.
+              </p>
+            </div>
+          </div>
+
+          {houseRows.length > 0 && (
+            <div className="mt-5 space-y-3">
+              {houseRows.map((row) => (
+                <div
+                  key={row.id}
+                  className="rounded-xl border border-border p-4"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <input
+                      type="text"
+                      value={row.label}
+                      onChange={(e) =>
+                        onUpdateHouseRoom(row.id, { label: e.target.value })
+                      }
+                      className="input-field max-w-xs font-semibold"
+                      aria-label="Room name"
+                    />
+                    <Button
+                      variant="ghost"
+                      type="button"
+                      onClick={() => onRemoveHouseRoom(row.id)}
+                      aria-label={`Remove ${row.label}`}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+                    <Field label="Length" suffix={unitLabel}>
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.1"
+                        value={row.length || ""}
+                        onChange={(e) =>
+                          onUpdateHouseRoom(row.id, {
+                            length: Number(e.target.value),
+                          })
+                        }
+                        className="input-field"
+                        placeholder="0"
+                      />
+                    </Field>
+                    <Field label="Width" suffix={unitLabel}>
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.1"
+                        value={row.width || ""}
+                        onChange={(e) =>
+                          onUpdateHouseRoom(row.id, {
+                            width: Number(e.target.value),
+                          })
+                        }
+                        className="input-field"
+                        placeholder="0"
+                      />
+                    </Field>
+                    <Field
+                      label="Identical"
+                      hint="e.g. ×3 bedrooms this size"
+                    >
+                      <input
+                        type="number"
+                        min={1}
+                        step={1}
+                        value={row.quantity}
+                        onChange={(e) =>
+                          onUpdateHouseRoom(row.id, {
+                            quantity: Math.max(
+                              1,
+                              Number(e.target.value) || 1,
+                            ),
+                          })
+                        }
+                        className="input-field"
+                      />
+                    </Field>
+                    <Field label="Doors">
+                      <input
+                        type="number"
+                        min={0}
+                        step={1}
+                        value={row.doors}
+                        onChange={(e) =>
+                          onUpdateHouseRoom(row.id, {
+                            doors: Math.max(0, Number(e.target.value) || 0),
+                          })
+                        }
+                        className="input-field"
+                      />
+                    </Field>
+                    <Field label="Windows">
+                      <input
+                        type="number"
+                        min={0}
+                        step={1}
+                        value={row.windows}
+                        onChange={(e) =>
+                          onUpdateHouseRoom(row.id, {
+                            windows: Math.max(0, Number(e.target.value) || 0),
+                          })
+                        }
+                        className="input-field"
+                      />
+                    </Field>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={onAddHouseRoom}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+          >
+            <Plus size={18} />
+            Add Room
+          </Button>
+        </>
+      )}
+
+      {/* ── Exterior / Fence: wall & partition runs ── */}
+      {(isExterior || isFence) && (
+        <>
+          {errors.surfaceRuns && (
+            <p className="mt-4 text-xs text-destructive">
+              {errors.surfaceRuns}
+            </p>
+          )}
+          <div className="mt-5 space-y-3">
+            {runRows.map((run) => (
+              <div key={run.id} className="rounded-xl border border-border p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <input
+                    type="text"
+                    value={run.label}
+                    onChange={(e) =>
+                      onUpdateRun(run.id, { label: e.target.value })
+                    }
+                    className="input-field max-w-xs font-semibold"
+                    aria-label="Run name"
+                  />
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={() => onRemoveRun(run.id)}
+                    aria-label={`Remove ${run.label}`}
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+                  <Field label="Length" suffix={unitLabel}>
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.1"
+                      value={run.length || ""}
+                      onChange={(e) =>
+                        onUpdateRun(run.id, {
+                          length: Number(e.target.value),
+                        })
+                      }
+                      className="input-field"
+                      placeholder="0"
+                    />
+                  </Field>
+                  <Field label="Height" suffix={unitLabel}>
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.1"
+                      value={run.height || ""}
+                      onChange={(e) =>
+                        onUpdateRun(run.id, {
+                          height: Number(e.target.value),
+                        })
+                      }
+                      className="input-field"
+                      placeholder="0"
+                    />
+                  </Field>
+                  <Field
+                    label={isFence ? "Partitions" : "Identical"}
+                    hint={isFence ? "same-size fence panels" : "same-size runs"}
+                  >
+                    <input
+                      type="number"
+                      min={1}
+                      step={1}
+                      value={run.quantity}
+                      onChange={(e) =>
+                        onUpdateRun(run.id, {
+                          quantity: Math.max(1, Number(e.target.value) || 1),
+                        })
+                      }
+                      className="input-field"
+                    />
+                  </Field>
+                  <Field label="Doors / Gates">
+                    <input
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={run.doors}
+                      onChange={(e) =>
+                        onUpdateRun(run.id, {
+                          doors: Math.max(0, Number(e.target.value) || 0),
+                        })
+                      }
+                      className="input-field"
+                    />
+                  </Field>
+                  <Field label="Windows">
+                    <input
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={run.windows}
+                      onChange={(e) =>
+                        onUpdateRun(run.id, {
+                          windows: Math.max(0, Number(e.target.value) || 0),
+                        })
+                      }
+                      className="input-field"
+                    />
+                  </Field>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={onAddRun}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+          >
+            <Plus size={18} />
+            {isFence ? "Add Fence Section" : "Add Wall Run"}
+          </Button>
+        </>
       )}
 
       <p className="mt-4 text-xs text-muted-foreground">
@@ -1373,15 +1889,16 @@ function Step3({
 }) {
   const [showDoorDims, setShowDoorDims] = useState(false);
   const [showWindowDims, setShowWindowDims] = useState(false);
-  const isFence = input.projectType === "fence";
-  const isExterior = input.projectType === "exterior";
+
 
   // Resolve the selected quality object from availableQualities + selectedQualityId
   const selectedQuality =
     availableQualities.find((q) => q.id === selectedQualityId) ?? null;
 
   // Fence and exterior projects typically have no doors/windows to subtract.
-  const showOpenings = !isFence && !isExterior;
+  // Openings live on the room/house/run rows in multi-unit modes;
+  // only single-room mode uses the global door/window inputs.
+  const showOpenings = input.projectType === "room";
   // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
   // established "bucket" phrasing, markets without a curated term keep
   // the neutral fallback below.

@@ -23,6 +23,37 @@ export interface OpeningDimensions {
   height: number; // meters
 }
 
+/**
+ * One editable room row in "House / Building" whole-house mode.
+ * Dimensions are in the calculator's selected unit; identical rooms
+ * stay grouped via quantity so they are edited once.
+ */
+export interface HouseRoomRow {
+  id: string;
+  label: string;
+  length: number;
+  width: number;
+  quantity: number; // identical rooms of this size
+  doors: number;
+  windows: number;
+}
+
+/**
+ * One editable surface run in "Exterior" (an outside wall face) or
+ * "Fence" (a fence section of partition runs) mode.
+ * length x height is ONE painted face; quantity is the number of
+ * identical faces/sections.
+ */
+export interface SurfaceRunRow {
+  id: string;
+  label: string;
+  length: number;
+  height: number;
+  quantity: number; // identical runs / partitions
+  doors: number;
+  windows: number;
+}
+
 export interface CalculatorInput {
   projectType: ProjectType;
   length: number;
@@ -41,6 +72,16 @@ export interface CalculatorInput {
   colorCondition?: ColorCondition;
   includePrimer?: boolean;
   qualityId?: string; // selected estimation_product_quality id
+  // ── Multi-unit project extensions (all optional; single-room
+  // behaviour is unchanged when absent) ──
+  /** Room mode: number of identical rooms of the entered size. */
+  roomCount?: number;
+  /** House mode: the selected market building preset id. */
+  buildingPresetId?: string;
+  /** House mode: editable room breakdown rows. */
+  houseRooms?: HouseRoomRow[];
+  /** Exterior / Fence mode: editable surface run rows. */
+  surfaceRuns?: SurfaceRunRow[];
 }
 
 export interface ContainerRecommendation {
@@ -321,6 +362,8 @@ export interface TileCalcInput {
   surfaceType: "floor" | "wall";
   method: "traditional" | "adhesive";
   length: number;
+  /** Number of identical surfaces (e.g. 3 identical bedroom floors). */
+  quantity?: number;
   width: number;
   height: number;
   tileWidthMm: number;

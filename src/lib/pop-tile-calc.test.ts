@@ -408,6 +408,65 @@ describe("calculatePopEstimate", () => {
 // calculateTile
 // =========================================================
 
+describe("calculateTile — identical surfaces (multi-unit)", () => {
+  it("scales area and materials by the surface count", () => {
+    const single = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    const triple = calculateTile(
+      { ...baseTileInput, quantity: 3 },
+      tileMaterials,
+      "NGN",
+      "₦",
+    );
+    expect(triple.surfaceArea).toBeCloseTo(single.surfaceArea * 3, 5);
+    // Identical surfaces are bought as one project: the tile count is
+    // rounded ONCE on the combined area, not per surface.
+    const wasteMult = 1 + (baseTileInput.wasteMargin ?? 0) / 100;
+    const tileAreaM2 = 0.6 * 0.6;
+    expect(triple.tilesNeeded).toBe(
+      Math.ceil((single.surfaceArea * 3 * wasteMult) / tileAreaM2),
+    );
+    expect(triple.tilesNeeded).toBeLessThanOrEqual(single.tilesNeeded * 3);
+    // Consumables round ONCE on the combined project area (14 bags for
+    // 3 surfaces beats 3 × 5 = 15 per-surface rounding).
+    expect(triple.adhesiveNeeded).toBe(
+      Math.ceil(
+        (single.surfaceArea * 3 * wasteMult) / baseTileInput.adhesiveCoverageRate,
+      ),
+    );
+    expect(triple.adhesiveNeeded).toBeLessThanOrEqual(
+      single.adhesiveNeeded * 3,
+    );
+    expect(triple.groutNeeded).toBe(
+      Math.ceil(
+        (single.surfaceArea * 3 * wasteMult) / baseTileInput.groutCoverageRate,
+      ),
+    );
+  });
+
+  it("defaults to one surface and floors bad values safely", () => {
+    const one = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    expect(
+      calculateTile({ ...baseTileInput }, tileMaterials, "NGN", "₦").surfaceArea,
+    ).toBe(one.surfaceArea);
+    expect(
+      calculateTile(
+        { ...baseTileInput, quantity: 0 },
+        tileMaterials,
+        "NGN",
+        "₦",
+      ).surfaceArea,
+    ).toBe(one.surfaceArea);
+    expect(
+      calculateTile(
+        { ...baseTileInput, quantity: 2.7 },
+        tileMaterials,
+        "NGN",
+        "₦",
+      ).surfaceArea,
+    ).toBeCloseTo(one.surfaceArea * 3, 5); // rounds 2.7 → 3
+  });
+});
+
 describe("calculateTile", () => {
   it("calculates floor surface area as length * width", () => {
     const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
