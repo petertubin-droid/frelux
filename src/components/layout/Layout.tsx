@@ -4,7 +4,6 @@ import { LocalePrompt } from "@/components/ui/LocalePrompt";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import AdSlot from "@/components/ui/AdSlot";
 import { StickyBottomAd } from "@/components/ui/StickyBottomAd";
 import AdsterraDirectLink from "@/components/ui/AdsterraDirectLink";
 import {
@@ -521,19 +520,11 @@ export default function Layout() {
         <Outlet />
         <LocalePrompt />
       </main>
-      {/* Global footer ad slot, placement "global_footer", toggled in
-          Admin → Ads → Placements like every other slot. Rendered
-          statically: a stable in-flow unit that never collapses while the
-          user scrolls (collapsing it resized the document mid-scroll). */}
-      <AdSlot slotKey="global_footer" />
-      {/* AdSense-dedicated slot, bottom of every page. Locked to
-          google_adsense (never falls back to Monetag/Adsterra) so real
-          AdSense units are present on every route for the approval
+      {/* Owner directive 2026-10-27: the ONLY bottom-of-page slot is the
+          sticky bottom anchor (AdSense-locked, see StickyBottomAd). The
+          former global_footer / adsense_footer slots were removed to
+          keep one clean bottom unit per page for the AdSense approval
           review. */}
-      <AdSlot slotKey="adsense_footer" providerSlug="google_adsense" />
-      {/* Sticky bottom anchor slot. Dismissible per session, only shows
-          its bar when a real ad rendered (see StickyBottomAd). Toggle
-          via the "sticky_bottom" placement in Admin -> Ads. */}
       <StickyBottomAd />
       <AdsterraDirectLink />
       {adsterraNative && hasAdvertisingConsent() && (

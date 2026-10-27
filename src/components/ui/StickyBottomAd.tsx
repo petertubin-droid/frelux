@@ -18,6 +18,10 @@ import AdSlot from "@/components/ui/AdSlot";
  *   has answered the cookie banner, and paid subscribers never see it.
  * - Controlled from Admin -> Ads like every other placement
  *   (placement key "sticky_bottom"); deactivate the row to remove it.
+ * - Locked to Google AdSense (owner directive 2026-10-27: the sticky bar
+ *   is the ONLY bottom-of-page slot and it exists to support the
+ *   AdSense approval review - a clean single bottom anchor, real
+ *   AdSense units on every route, no other network can claim it).
  */
 const DISMISS_KEY = "frelux_sticky_ad_dismissed";
 
@@ -101,7 +105,7 @@ export function StickyBottomAd() {
         >
           <X className="h-4 w-4" aria-hidden="true" />
         </button>
-        <AdSlot slotKey="sticky_bottom" />
+        <AdSlot slotKey="sticky_bottom" providerSlug="google_adsense" />
       </div>
     </aside>
   );

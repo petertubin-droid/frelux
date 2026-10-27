@@ -7,8 +7,11 @@ vi.mock("@/lib/auth", () => ({
   useAuth: vi.fn(() => ({ user: null, loading: false, isPaid: false })),
 }));
 
+const adSlotProps: Record<string, unknown>[] = [];
+
 vi.mock("@/components/ui/AdSlot", () => ({
-  default: () => {
+  default: (props: Record<string, unknown>) => {
+    adSlotProps.push(props);
     // Simulate the three render states AdSlot can produce: the
     // resolved wrapper (real unit), the hidden placeholder (nothing
     // can fill) and nothing at all. Controlled per-test below.
@@ -30,6 +33,7 @@ vi.mock("@/components/ui/AdSlot", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  adSlotProps.length = 0;
   (window as unknown as Record<string, unknown>).__stickyTestAdSlotState =
     "resolved";
   try {
@@ -83,6 +87,19 @@ describe("StickyBottomAd", () => {
     );
     expect(bar).not.toBeNull();
     expect(bar!.className).toContain("hidden");
+  });
+
+  it("locks the sticky slot to Google AdSense only", async () => {
+    // Owner directive 2026-10-27: the sticky bar is the single
+    // bottom-of-page slot and is AdSense-only (approval support).
+    (window as unknown as Record<string, unknown>).__stickyTestAdSlotState =
+      "resolved";
+    await renderSticky();
+    expect(adSlotProps.length).toBeGreaterThan(0);
+    expect(adSlotProps[0]).toMatchObject({
+      slotKey: "sticky_bottom",
+      providerSlug: "google_adsense",
+    });
   });
 
   it("dismiss hides the bar for the rest of the session", async () => {
