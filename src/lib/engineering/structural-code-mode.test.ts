@@ -18,6 +18,7 @@ describe("jurisdictional code mode", () => {
       "EUROCODE_2",
       "BS_8110",
       "IS_456",
+      "AS_3600",
     ]);
     expect(JURISDICTION_CODES.EUROCODE_2.governingCode).toBe("BS EN 1992-1-1");
     expect(JURISDICTION_CODES.BS_8110.standard).toBe("eurocode_bs");

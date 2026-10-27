@@ -514,7 +514,8 @@ function roundUpTo25(n: number): number {
 // single "eurocode_bs" bucket, because their minimum steel rules genuinely
 // differ (ACI is strength-driven, EC2 is tensile-strength-driven).
 
-export type JurisdictionCode = "ACI_318" | "EUROCODE_2" | "BS_8110" | "IS_456";
+export type JurisdictionCode =
+  "ACI_318" | "EUROCODE_2" | "BS_8110" | "IS_456" | "AS_3600";
 
 export interface JurisdictionProfile {
   code: JurisdictionCode;
@@ -562,6 +563,14 @@ export const JURISDICTION_CODES: Record<JurisdictionCode, JurisdictionProfile> =
       minSteelClause: "§26.5.1.1",
       note: "Ast = 0.85 b d / fy, independent of concrete grade.",
     },
+    AS_3600: {
+      code: "AS_3600",
+      label: "AS 3600:2018 (Australia / NZ)",
+      standard: "aci_astm",
+      governingCode: "AS 3600:2018",
+      minSteelClause: "Cl 9.1.1(b)",
+      note: "phi.Muo >= 1.2.Mcr with Mcr = 0.6.sqrt(fc).b.D^2/6; capacity reduction phi = 0.8 flexure, 0.7 shear (Table 2.2.2).",
+    },
   };
 
 /** Markets whose default design code differs from their concrete family. */
@@ -600,6 +609,7 @@ export function defaultJurisdictionForMarket(
   marketCode?: string,
 ): JurisdictionCode {
   const code = (marketCode ?? "NG").trim().toUpperCase();
+  if (code === "AU" || code === "NZ") return "AS_3600";
   if (code === "IN") return "IS_456";
   if (ACI_MARKETS.has(code)) return "ACI_318";
   if (EUROCODE_MARKETS.has(code)) return "EUROCODE_2";
@@ -692,6 +702,22 @@ export function minReinforcementRatio(params: {
         percent: ratio * 100,
         clause: `BS 8110-1 ${profile.minSteelClause}`,
         formula: `As,min/bd = ${(ratio * 100).toFixed(2)}% (BS 8110 Table 3.25: 0.24% for fy 250, 0.13% for fy ≥ 460; fy = ${fy})`,
+      };
+    }
+    case "AS_3600": {
+      // AS 3600:2018 Cl 9.1.1(b): As,min such that phi.Muo >= 1.2.Mcr with
+      // Mcr = fct.f.Z, fct.f = 0.6.sqrt(fc), Z = b.D^2/6. The ratio form
+      // assumes D = 1.1d (typical rectangular beam cover) and z = 0.9d,
+      // both stated in the formula string; the exact section check with
+      // the real D runs in design-code-concrete.ts.
+      const ratio =
+        (1.2 * 0.6 * Math.pow(1.1, 2) * Math.sqrt(fck)) / (6 * 0.9 * fy);
+      return {
+        code,
+        ratio,
+        percent: ratio * 100,
+        clause: `AS 3600:2018 ${profile.minSteelClause}`,
+        formula: `As,min from phi.Muo >= 1.2.Mcr = 1.2 x (0.6.sqrt(fc).b.D^2/6)/(fsy.0.9d) with D = 1.1d assumed: ${(ratio * 100).toFixed(3)}% (fc = ${fck} MPa, fsy = ${fy} MPa). Verify the exact section against Cl 9.1.1(b).`,
       };
     }
     case "IS_456":
