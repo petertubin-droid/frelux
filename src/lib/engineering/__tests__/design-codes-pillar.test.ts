@@ -293,6 +293,16 @@ describe("wind-load: EN 1991-1-4", () => {
       expect(m.label.toLowerCase()).toContain("indicative");
     }
   });
+
+  it("covers every one of the 32 approved markets with an indicative wind default", async () => {
+    const { APPROVED_MARKET_CODES } =
+      await import("../../international/countries");
+    expect(APPROVED_MARKET_CODES.length).toBe(32);
+    for (const mkt of APPROVED_MARKET_CODES) {
+      expect(WIND_ZONE_DEFAULTS[mkt]).toBeDefined();
+      expect(WIND_ZONE_DEFAULTS[mkt].v_ms).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe("seismic-detailing: ACI 318-19 Ch 18", () => {

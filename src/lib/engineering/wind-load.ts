@@ -263,4 +263,106 @@ export const WIND_ZONE_DEFAULTS: Record<
     label: "Indicative Dubai/Abu Dhabi; ASCE 7 or local code governs",
     v_ms: 35,
   },
+  CN: {
+    code: "EN_1991_1_4",
+    label:
+      "Indicative GB 50009-2012 10-min basic speed; regional pressure maps govern",
+    v_ms: 28,
+  },
+  MX: {
+    code: "ASCE_7_22",
+    label: "Indicative CFE 3-s gust coastal value; regional isovels govern",
+    v_ms: 34,
+  },
+  SA: {
+    code: "ASCE_7_22",
+    label: "Indicative SBC 301-18 3-s gust; regional maps govern",
+    v_ms: 33,
+  },
+  JP: {
+    code: "EN_1991_1_4",
+    label:
+      "Indicative AIJ Recommendations 10-min mean; typhoon-exposed coasts are higher",
+    v_ms: 30,
+  },
+  GH: {
+    code: "EN_1991_1_4",
+    label: "Indicative coastal Ghana value; confirm with local maps",
+    v_ms: 27,
+  },
+  KE: {
+    code: "EN_1991_1_4",
+    label: "Indicative uplands Kenya value; regional values vary",
+    v_ms: 24,
+  },
+  ZA: {
+    code: "EN_1991_1_4",
+    label: "Indicative SANS 10160-3 value; coastal interiors differ",
+    v_ms: 28,
+  },
+  ET: {
+    code: "EN_1991_1_4",
+    label: "Indicative highlands Ethiopia value; confirm locally",
+    v_ms: 24,
+  },
+  EG: {
+    code: "EN_1991_1_4",
+    label: "Indicative ECP 201 value; coastal sites are higher",
+    v_ms: 26,
+  },
+  TZ: {
+    code: "EN_1991_1_4",
+    label: "Indicative coastal Tanzania value; confirm locally",
+    v_ms: 26,
+  },
+  CI: {
+    code: "EN_1991_1_4",
+    label: "Indicative coastal Cote d'Ivoire value; confirm locally",
+    v_ms: 25,
+  },
+  BR: {
+    code: "ASCE_7_22",
+    label: "Indicative NBR 6123 3-s gust; regional isovels govern",
+    v_ms: 33,
+  },
+  IT: {
+    code: "EN_1991_1_4",
+    label: "Indicative NTC 2018 zone value (22-30 m/s across zones)",
+    v_ms: 25,
+  },
+  PL: {
+    code: "EN_1991_1_4",
+    label: "Indicative PN-EN 1991-1-4 zone value (24-26 m/s)",
+    v_ms: 24,
+  },
+  SE: {
+    code: "EN_1991_1_4",
+    label: "Indicative EKS zone value (22-26 m/s)",
+    v_ms: 24,
+  },
+  CH: {
+    code: "EN_1991_1_4",
+    label: "Indicative SIA 261 zone value; valley winds are higher",
+    v_ms: 26,
+  },
+  ID: {
+    code: "ASCE_7_22",
+    label: "Indicative SNI 1727 3-s gust; cyclone-prone regions are higher",
+    v_ms: 28,
+  },
+  KR: {
+    code: "ASCE_7_22",
+    label: "Indicative KBC 2016 3-s gust; typhoon coasts are higher",
+    v_ms: 30,
+  },
+  SG: {
+    code: "EN_1991_1_4",
+    label: "Indicative SS EN 1991-1-4 Singapore annex value",
+    v_ms: 25,
+  },
+  TR: {
+    code: "EN_1991_1_4",
+    label: "Indicative TS EN 1991-1-4 zone value; regional winds vary",
+    v_ms: 28,
+  },
 };

@@ -29,6 +29,23 @@ import {
   jurisdictionToDesignCode,
   type DesignCapacityResult,
 } from "@/lib/engineering/design-code-concrete";
+import {
+  asceVelocityPressure,
+  enPeakVelocityPressure,
+  roofUplift,
+  windwardWallPressure,
+  WIND_ZONE_DEFAULTS,
+  type ExposureCategory,
+  type RoofCcZone,
+  type WindCode,
+} from "@/lib/engineering/wind-load";
+import {
+  ec8CriticalRegions,
+  seismicDetailingAci,
+  sdcFromInputs,
+  type Ec8DuctilityClass,
+  type SeismicDesignCategory,
+} from "@/lib/engineering/seismic-detailing";
 import { useMarket } from "@/lib/international/market-context";
 import { DimensionalInput } from "@/components/measurement/DimensionalInput";
 import { parseDimensionalInput } from "@/lib/globalization/dimensional-parser";
@@ -45,6 +62,8 @@ import {
   ShieldCheck,
   Ruler,
   Layers,
+  Wind,
+  Activity,
   TrendingUp,
   ChevronRight,
   ChevronDown,
@@ -57,12 +76,12 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 import EngineerReviewBadge from "@/components/EngineerReviewBadge";
 
-type Tab = "beam" | "column" | "slab" | "concrete";
+type Tab = "beam" | "column" | "slab" | "wind" | "seismic" | "concrete";
 
 // Printable engineering design sheet: full results, checks,
 // formula transparency and warnings for a beam/column/slab run.
 function exportDesignSheet(args: {
-  kind: "Beam" | "Column" | "Slab";
+  kind: "Beam" | "Column" | "Slab" | "Wind" | "Seismic";
   title: string;
   metaRows: Array<[string, string]>;
   checks: Array<{ label: string; pass: boolean }>;
@@ -139,6 +158,8 @@ export default function StructuralCalculator() {
               { id: "beam", label: "Beam Design", icon: Ruler },
               { id: "column", label: "Column Design", icon: Layers },
               { id: "slab", label: "Slab Design", icon: TrendingUp },
+              { id: "wind", label: "Wind Load", icon: Wind },
+              { id: "seismic", label: "Seismic Detailing", icon: Activity },
               { id: "concrete", label: "Concrete Takeoff", icon: Calculator },
             ] as const
           ).map((t) => (
@@ -161,6 +182,8 @@ export default function StructuralCalculator() {
         {tab === "beam" && <BeamCalculator />}
         {tab === "column" && <ColumnCalculator />}
         {tab === "slab" && <SlabCalculator />}
+        {tab === "wind" && <WindLoadCalculator />}
+        {tab === "seismic" && <SeismicDetailingCalculator />}
         {tab === "concrete" && <ConcreteTakeoffCalculator />}
 
         {/* Disclaimer */}
@@ -557,6 +580,520 @@ function CapacityCheckCard({
             <li key={w}>• {w}</li>
           ))}
         </ul>
+      )}
+    </div>
+  );
+}
+
+// ── Wind Load ──
+
+function WindLoadCalculator() {
+  const { market } = useMarket();
+  const zone = WIND_ZONE_DEFAULTS[market.marketCode];
+  const defaultCode: WindCode = zone ? zone.code : ("EN_1991_1_4" as WindCode);
+  const [code, setCode] = useState<WindCode>(defaultCode);
+  const [vMs, setVMs] = useState(() => (zone ? zone.v_ms : 25));
+  const [z, setZ] = useState(10);
+  const [exposure, setExposure] = useState<ExposureCategory>("C");
+  const [roofZone, setRoofZone] = useState<RoofCcZone>("corner");
+  const [areaM2, setAreaM2] = useState(2);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [showFormulas, setShowFormulas] = useState(false);
+
+  useEffect(() => {
+    const zn = WIND_ZONE_DEFAULTS[market.marketCode];
+    setCode(zn ? zn.code : "EN_1991_1_4");
+    setVMs(zn ? zn.v_ms : 25);
+  }, [market.marketCode]);
+
+  const calculate = useCallback(() => {
+    try {
+      if (!(vMs > 0)) throw new Error("Wind speed must be positive (m/s).");
+      if (!(z > 0)) throw new Error("Reference height must be positive (m).");
+      const formulas: string[] = [];
+      if (code === "ASCE_7_22") {
+        const asce = asceVelocityPressure({ v_ms: vMs, exposure, z });
+        const uplift = roofUplift({
+          qh_Nm2: asce.qz_Nm2,
+          zone: roofZone,
+          area_m2: areaM2,
+        });
+        const wall = windwardWallPressure(asce.qz_Nm2);
+        formulas.push(
+          asce.formula,
+          uplift.formula,
+          `Windward wall racking pressure p = qz·(0.8 + 0.18) = ${wall.toFixed(1)} N/m² (ASCE 7-22 Table 27.2-1)`,
+        );
+        setWindResult({
+          formulas,
+          rows: [
+            {
+              label: "Velocity pressure qz",
+              value: `${(asce.qz_Nm2 / 1000).toFixed(2)} kPa`,
+            },
+            { label: "Exposure coefficient Kz", value: asce.kz.toFixed(3) },
+            {
+              label: `Roof uplift (${roofZone})`,
+              value: `${(uplift.netPressure_Nm2 / 1000).toFixed(2)} kPa`,
+            },
+            {
+              label: "Uplift force on panel",
+              value: `${(uplift.force_N / 1000).toFixed(2)} kN`,
+            },
+            {
+              label: "Windward wall pressure",
+              value: `${(wall / 1000).toFixed(2)} kPa`,
+            },
+          ],
+        });
+      } else {
+        const en = enPeakVelocityPressure({ vb_ms: vMs, z });
+        formulas.push(en.formula);
+        setWindResult({
+          formulas,
+          rows: [
+            {
+              label: "Basic pressure qb",
+              value: `${(en.qb_Nm2 / 1000).toFixed(2)} kPa`,
+            },
+            { label: "Turbulence intensity Iv(z)", value: en.iv.toFixed(3) },
+            { label: "Exposure factor ce(z)", value: en.ce.toFixed(3) },
+            {
+              label: "Peak velocity pressure qp(z)",
+              value: `${(en.qp_Nm2 / 1000).toFixed(2)} kPa`,
+            },
+          ],
+        });
+      }
+      setErrors([]);
+    } catch (e) {
+      setErrors([e instanceof Error ? e.message : String(e)]);
+      setWindResult(null);
+    }
+  }, [code, vMs, z, exposure, roofZone, areaM2]);
+
+  const [windResult, setWindResult] = useState<{
+    rows: Array<{ label: string; value: string }>;
+    formulas: string[];
+  } | null>(null);
+
+  if (!windResult) calculate();
+
+  return (
+    <div className="space-y-6">
+      <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+        <InputGrid>
+          <SelectInput
+            label="Standard"
+            value={code}
+            onChange={(v) => setCode(v as WindCode)}
+            options={[
+              { v: "ASCE_7_22", l: "ASCE 7-22 (US/CA/MX/SA)" },
+              { v: "EN_1991_1_4", l: "EN 1991-1-4 (UK/EU/AU/IN/NG/JP)" },
+            ]}
+          />
+          <NumInput
+            label="Basic wind speed V (m/s)"
+            value={vMs}
+            onChange={(n) => setVMs(n)}
+            step="{1}"
+          />
+          <NumInput
+            label="Reference height z (m)"
+            value={z}
+            onChange={(n) => setZ(n)}
+            step="{1}"
+          />
+          {code === "ASCE_7_22" && (
+            <>
+              <SelectInput
+                label="Exposure category"
+                value={exposure}
+                onChange={(v) => setExposure(v as ExposureCategory)}
+                options={[
+                  { v: "B", l: "B (urban/suburban)" },
+                  { v: "C", l: "C (open terrain)" },
+                  { v: "D", l: "D (flat, unobstructed coast)" },
+                ]}
+              />
+              <SelectInput
+                label="Roof uplift zone"
+                value={roofZone}
+                onChange={(v) => setRoofZone(v as RoofCcZone)}
+                options={[
+                  { v: "interior", l: "Interior (Zone 1)" },
+                  { v: "edge", l: "Edge (Zone 2)" },
+                  { v: "corner", l: "Corner (Zone 3)" },
+                ]}
+              />
+              <NumInput
+                label="Panel tributary area (m²)"
+                value={areaM2}
+                onChange={(n) => setAreaM2(n)}
+                step="{0.5}"
+              />
+            </>
+          )}
+        </InputGrid>
+        {zone && (
+          <p className="mt-3 text-xs text-amber-600 dark:text-amber-400">
+            {zone.label}. This market default is indicative only: confirm the
+            site value with current local wind maps and a licensed engineer.
+          </p>
+        )}
+        {errors.length > 0 && <WarningList warnings={errors} />}
+        <div className="mt-4">
+          <Button onClick={calculate} className="w-full sm:w-auto">
+            <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Wind
+          </Button>
+        </div>
+      </div>
+
+      {windResult && (
+        <ResultCard>
+          <div className="grid md:grid-cols-3 gap-3 text-sm">
+            {windResult.rows.map((r) => (
+              <DetailItem key={r.label} label={r.label} value={r.value} />
+            ))}
+          </div>
+          <FormulaToggle
+            show={showFormulas}
+            setShow={setShowFormulas}
+            formulas={windResult.formulas}
+          />
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                exportDesignSheet({
+                  kind: "Wind",
+                  title: `${code === "ASCE_7_22" ? "ASCE 7-22" : "EN 1991-1-4"} · V = ${vMs} m/s · z = ${z} m`,
+                  metaRows: windResult.rows.map(
+                    (r) => [r.label, r.value] as [string, string],
+                  ),
+                  checks: [],
+                  formulas: windResult.formulas,
+                  warnings: zone ? [zone.label] : [],
+                })
+              }
+              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+            >
+              Export design sheet (PDF)
+            </button>
+          </div>
+          <EngineerReviewBadge />
+        </ResultCard>
+      )}
+    </div>
+  );
+}
+
+// ── Seismic Detailing ──
+
+function SeismicDetailingCalculator() {
+  const { market } = useMarket();
+  const [standard, setStandard] = useState<"ACI" | "EC8">(() =>
+    market.marketCode === "US" ||
+    market.marketCode === "CA" ||
+    market.marketCode === "MX" ||
+    market.marketCode === "SA"
+      ? "ACI"
+      : "EC8",
+  );
+  const [sds, setSds] = useState(0.4);
+  const [riskCategory, setRiskCategory] = useState(2);
+  const [beamDbLong, setBeamDbLong] = useState(20);
+  const [beamDbHoop, setBeamDbHoop] = useState(10);
+  const [beamH, setBeamH] = useState(500);
+  const [beamSpan, setBeamSpan] = useState(5000);
+  const [colDbLong, setColDbLong] = useState(25);
+  const [colDbHoop, setColDbHoop] = useState(10);
+  const [colHc, setColHc] = useState(400);
+  const [colHeight, setColHeight] = useState(3000);
+  const [dcClass, setDcClass] = useState<Ec8DuctilityClass>("DCM");
+  const [ec8BeamH, setEc8BeamH] = useState(500);
+  const [ec8ColH, setEc8ColH] = useState(400);
+  const [ec8Span, setEc8Span] = useState(6000);
+  const [result, setResult] = useState<{
+    title: string;
+    rows: Array<{ label: string; value: string }>;
+    notes: string[];
+    formulas: string[];
+  } | null>(null);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [showFormulas, setShowFormulas] = useState(false);
+
+  const calculate = useCallback(() => {
+    try {
+      if (standard === "ACI") {
+        const sdc: SeismicDesignCategory = sdcFromInputs({
+          sds,
+          riskCategory,
+        });
+        const r = seismicDetailingAci(
+          sdc,
+          {
+            dbLong: beamDbLong,
+            dbHoop: beamDbHoop,
+            h: beamH,
+            clearSpan: beamSpan,
+          },
+          {
+            dbLong: colDbLong,
+            dbHoop: colDbHoop,
+            hc: colHc,
+            clearHeight: colHeight,
+          },
+        );
+        setResult({
+          title: `SDC ${sdc} · ${r.aciLevel} detailing`,
+          rows: [
+            { label: "Seismic Design Category", value: sdc },
+            { label: "Detailing level", value: r.aciLevel },
+            {
+              label: "Beam hoop spacing (max)",
+              value: r.beamCriticalRegionMm
+                ? `${r.beamCriticalRegionMm} mm`
+                : "n/a",
+            },
+            {
+              label: "Beam critical region",
+              value: r.beamCriticalLengthMm
+                ? `${r.beamCriticalLengthMm} mm`
+                : "n/a",
+            },
+            {
+              label: "Column hoop spacing (max)",
+              value: r.columnCriticalRegionMm
+                ? `${r.columnCriticalRegionMm} mm`
+                : "n/a",
+            },
+            {
+              label: "Column critical region",
+              value: r.columnCriticalLengthMm
+                ? `${r.columnCriticalLengthMm} mm`
+                : "n/a",
+            },
+            {
+              label: "Foundation ties",
+              value: r.foundationTies.required ? "Required" : "Not mandatory",
+            },
+          ],
+          notes: [
+            r.beamClause,
+            r.columnClause,
+            r.foundationTies.clause + ": " + r.foundationTies.requirement,
+            ...r.notes,
+          ],
+          formulas: [],
+        });
+      } else {
+        const r = ec8CriticalRegions(dcClass, ec8BeamH, ec8ColH, ec8Span);
+        setResult({
+          title: `EN 1998-1 · ${dcClass}`,
+          rows: [
+            { label: "Ductility class", value: dcClass },
+            {
+              label: "Beam critical region",
+              value: r.beamCriticalRegionLengthMm
+                ? `${r.beamCriticalRegionLengthMm} mm`
+                : "Not applicable (DCL)",
+            },
+            {
+              label: "Column critical region",
+              value: r.columnCriticalRegionLengthMm
+                ? `${r.columnCriticalRegionLengthMm} mm`
+                : "Not applicable (DCL)",
+            },
+          ],
+          notes: [...r.notes, r.clause],
+          formulas: [],
+        });
+      }
+      setErrors([]);
+    } catch (e) {
+      setErrors([e instanceof Error ? e.message : String(e)]);
+      setResult(null);
+    }
+  }, [
+    standard,
+    sds,
+    riskCategory,
+    beamDbLong,
+    beamDbHoop,
+    beamH,
+    beamSpan,
+    colDbLong,
+    colDbHoop,
+    colHc,
+    colHeight,
+    dcClass,
+    ec8BeamH,
+    ec8ColH,
+    ec8Span,
+  ]);
+
+  if (!result) calculate();
+
+  return (
+    <div className="space-y-6">
+      <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+        <InputGrid>
+          <SelectInput
+            label="Standard"
+            value={standard}
+            onChange={(v) => setStandard(v as "ACI" | "EC8")}
+            options={[
+              { v: "ACI", l: "ASCE 7-22 + ACI 318-19 (US/CA/MX/SA)" },
+              { v: "EC8", l: "EN 1998-1 (UK/EU/IN/AU)" },
+            ]}
+          />
+          {standard === "ACI" ? (
+            <>
+              <NumInput
+                label="Mapped S_DS (g)"
+                value={sds}
+                onChange={(n) => setSds(n)}
+                step="{0.05}"
+              />
+              <SelectInput
+                label="Risk category"
+                value={String(riskCategory)}
+                onChange={(v) => setRiskCategory(Number(v))}
+                options={[
+                  { v: "1", l: "I (low hazard)" },
+                  { v: "2", l: "II (typical)" },
+                  { v: "3", l: "III (high occupancy)" },
+                  { v: "4", l: "IV (essential)" },
+                ]}
+              />
+              <NumInput
+                label="Beam long. bar dia (mm)"
+                value={beamDbLong}
+                onChange={(n) => setBeamDbLong(n)}
+                step="{2}"
+              />
+              <NumInput
+                label="Beam hoop dia (mm)"
+                value={beamDbHoop}
+                onChange={(n) => setBeamDbHoop(n)}
+                step="{2}"
+              />
+              <NumInput
+                label="Beam depth h (mm)"
+                value={beamH}
+                onChange={(n) => setBeamH(n)}
+                step="{50}"
+              />
+              <NumInput
+                label="Beam clear span (mm)"
+                value={beamSpan}
+                onChange={(n) => setBeamSpan(n)}
+                step="{100}"
+              />
+              <NumInput
+                label="Column long. bar dia (mm)"
+                value={colDbLong}
+                onChange={(n) => setColDbLong(n)}
+                step="{2}"
+              />
+              <NumInput
+                label="Column hoop dia (mm)"
+                value={colDbHoop}
+                onChange={(n) => setColDbHoop(n)}
+                step="{2}"
+              />
+              <NumInput
+                label="Column depth hc (mm)"
+                value={colHc}
+                onChange={(n) => setColHc(n)}
+                step="{50}"
+              />
+              <NumInput
+                label="Column clear height (mm)"
+                value={colHeight}
+                onChange={(n) => setColHeight(n)}
+                step="{100}"
+              />
+            </>
+          ) : (
+            <>
+              <SelectInput
+                label="Ductility class"
+                value={dcClass}
+                onChange={(v) => setDcClass(v as Ec8DuctilityClass)}
+                options={[
+                  { v: "DCL", l: "DCL (low)" },
+                  { v: "DCM", l: "DCM (medium)" },
+                  { v: "DCH", l: "DCH (high)" },
+                ]}
+              />
+              <NumInput
+                label="Beam depth hb (mm)"
+                value={ec8BeamH}
+                onChange={(n) => setEc8BeamH(n)}
+                step="{50}"
+              />
+              <NumInput
+                label="Column depth hc (mm)"
+                value={ec8ColH}
+                onChange={(n) => setEc8ColH(n)}
+                step="{50}"
+              />
+              <NumInput
+                label="Clear span lcl (mm)"
+                value={ec8Span}
+                onChange={(n) => setEc8Span(n)}
+                step="{100}"
+              />
+            </>
+          )}
+        </InputGrid>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Seismic inputs (S_DS, risk category, ductility class, site class) come
+          from a site-specific seismic hazard study. FRELUX derives the
+          detailing rules; it does not perform a seismic response analysis.
+        </p>
+        {errors.length > 0 && <WarningList warnings={errors} />}
+        <div className="mt-4">
+          <Button onClick={calculate} className="w-full sm:w-auto">
+            <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate
+            Detailing
+          </Button>
+        </div>
+      </div>
+
+      {result && (
+        <ResultCard>
+          <h3 className="text-base font-semibold">{result.title}</h3>
+          <div className="mt-2 grid md:grid-cols-3 gap-3 text-sm">
+            {result.rows.map((r) => (
+              <DetailItem key={r.label} label={r.label} value={r.value} />
+            ))}
+          </div>
+          {result.notes.length > 0 && <WarningList warnings={result.notes} />}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                exportDesignSheet({
+                  kind: "Seismic",
+                  title: result.title,
+                  metaRows: result.rows.map(
+                    (r) => [r.label, r.value] as [string, string],
+                  ),
+                  checks: [],
+                  formulas: result.formulas,
+                  warnings: result.notes,
+                })
+              }
+              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+            >
+              Export design sheet (PDF)
+            </button>
+          </div>
+          <EngineerReviewBadge />
+        </ResultCard>
       )}
     </div>
   );

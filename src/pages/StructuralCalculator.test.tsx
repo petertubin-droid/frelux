@@ -65,4 +65,40 @@ describe("StructuralCalculator", () => {
       await screen.findByText(/Flexural utilization/i),
     ).toBeInTheDocument();
   });
+
+  it("runs the wind load tab: peak velocity pressure with indicative-market honesty", async () => {
+    await renderPage();
+    const windButton = (await screen.findAllByRole("button")).find((b) =>
+      b.textContent?.includes("Wind Load"),
+    );
+    expect(windButton).toBeTruthy();
+    fireEvent.click(windButton!);
+    // EN path default for NG: peak velocity pressure row must render
+    expect(
+      await screen.findByText(/Peak velocity pressure/i),
+    ).toBeInTheDocument();
+    // Indicative default must be labelled, never silent
+    expect(await screen.findByText(/indicative only/i)).toBeInTheDocument();
+  });
+
+  it("runs the seismic detailing tab: SDC-derived detailing and notes", async () => {
+    await renderPage();
+    const seismicButton = (await screen.findAllByRole("button")).find((b) =>
+      b.textContent?.includes("Seismic Detailing"),
+    );
+    expect(seismicButton).toBeTruthy();
+    fireEvent.click(seismicButton!);
+    // NG default is the EC8 path; switch to ASCE to exercise the SDC engine
+    const stdSelect = (await screen.findAllByRole("combobox"))[0];
+    fireEvent.change(stdSelect, { target: { value: "ACI" } });
+    fireEvent.click(
+      (await screen.findAllByRole("button")).find((b) =>
+        b.textContent?.includes("Calculate Detailing"),
+      )!,
+    );
+    expect(
+      await screen.findByText(/Seismic Design Category/i),
+    ).toBeInTheDocument();
+    expect(await screen.findByText(/Foundation ties/i)).toBeInTheDocument();
+  });
 });
