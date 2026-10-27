@@ -115,6 +115,10 @@ export default function AdSlot({
   const loggedRef = useRef(false);
   const pushRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Wraps the whole rendered ad unit. The no-fill watcher queries the
+  // AdSense <ins> through this ref: the ins has no ref of its own and
+  // containerRef is only attached to SDK-style provider containers.
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Dedup impressions within the same page session to avoid
   // re-mount double-counting when navigating between pages
@@ -132,6 +136,11 @@ export default function AdSlot({
   // Consent gate (Heartsyncx pattern): nothing serves until the visitor
   // has made an explicit consent choice; re-resolve when it changes.
   const [consentTick, setConsentTick] = useState(0);
+  // No-fill backfill: when a publisher-only AdSense unit renders and
+  // Google marks it unfilled, the slot re-resolves without AdSense so a
+  // configured fallback network can fill it. Only used for OPEN chains:
+  // providerSlug/providerId-locked slots never cascade (owner directive).
+  const [excludeAdsense, setExcludeAdsense] = useState(false);
   useEffect(() => {
     return onConsentChange(() => setConsentTick((t) => t + 1));
   }, []);
@@ -168,6 +177,7 @@ export default function AdSlot({
       const providerChain = chain.filter((p) => {
         if (providerId && p.id !== providerId) return false;
         if (providerSlug && p.slug !== providerSlug) return false;
+        if (excludeAdsense && p.slug === "google_adsense") return false;
         return true;
       });
       // Display-disabled providers never claim a slot. Filtering here
@@ -186,7 +196,12 @@ export default function AdSlot({
       // (Google AdSense, Adsterra, Monetag) at the same time simultaneously.
       const isTestSlot = slotKey === "test-slot" || slotKey.startsWith("slot-");
       let chainToUse = targetChain;
-      if (!isTestSlot && !providerId && !providerSlug && targetChain.length > 1) {
+      if (
+        !isTestSlot &&
+        !providerId &&
+        !providerSlug &&
+        targetChain.length > 1
+      ) {
         const isNative =
           format === "native" ||
           placement.placement_type === "native" ||
@@ -195,23 +210,34 @@ export default function AdSlot({
           const nativeCapable = targetChain.filter((p) => {
             const creds = (p.credentials ?? {}) as Record<string, unknown>;
             if (p.slug === "adsterra") return Boolean(creds.native_banner_key);
-            if (p.slug === "monetag") return Boolean(creds.native_banner_zone_id || creds.zone_id);
+            if (p.slug === "monetag")
+              return Boolean(creds.native_banner_zone_id || creds.zone_id);
             if (p.slug === "google_adsense") return Boolean(creds.publisher_id);
             return false;
           });
           if (nativeCapable.length > 1) {
             let hash = 0;
-            for (let i = 0; i < slotKey.length; i++) hash = ((hash << 5) - hash) + slotKey.charCodeAt(i);
+            for (let i = 0; i < slotKey.length; i++)
+              hash = (hash << 5) - hash + slotKey.charCodeAt(i);
             const offset = Math.abs(hash) % nativeCapable.length;
-            const rotated = [...nativeCapable.slice(offset), ...nativeCapable.slice(0, offset)];
-            const others = targetChain.filter((p) => !nativeCapable.includes(p));
+            const rotated = [
+              ...nativeCapable.slice(offset),
+              ...nativeCapable.slice(0, offset),
+            ];
+            const others = targetChain.filter(
+              (p) => !nativeCapable.includes(p),
+            );
             chainToUse = [...rotated, ...others];
           }
         } else {
           let hash = 0;
-          for (let i = 0; i < slotKey.length; i++) hash = ((hash << 5) - hash) + slotKey.charCodeAt(i);
+          for (let i = 0; i < slotKey.length; i++)
+            hash = (hash << 5) - hash + slotKey.charCodeAt(i);
           const offset = Math.abs(hash) % targetChain.length;
-          chainToUse = [...targetChain.slice(offset), ...targetChain.slice(0, offset)];
+          chainToUse = [
+            ...targetChain.slice(offset),
+            ...targetChain.slice(0, offset),
+          ];
         }
       }
 
@@ -254,7 +280,9 @@ export default function AdSlot({
           setResolved({ provider, adUnitId, placement });
           if (
             !loggedRef.current &&
-            !hasLoggedImpressionThisSession(slotKey + (providerId ?? "") + (providerSlug ?? ""))
+            !hasLoggedImpressionThisSession(
+              slotKey + (providerId ?? "") + (providerSlug ?? ""),
+            )
           ) {
             loggedRef.current = true;
             logAdEvent({
@@ -265,33 +293,6 @@ export default function AdSlot({
             });
           }
           return;
-        }
-
-        // AdSense display without per-slot unit ID: if publisher_id is configured,
-        // AdSense serves responsive auto ads in display placements.
-        if (
-          provider.slug === "google_adsense" &&
-          !isRewardedOrInterstitial
-        ) {
-          const creds = (provider.credentials ?? {}) as Record<string, unknown>;
-          const pubId =
-            typeof creds.publisher_id === "string" ? creds.publisher_id.trim() : "";
-          if (pubId.length > 0) {
-            setResolved({ provider, adUnitId: "", placement });
-            if (
-              !loggedRef.current &&
-              !hasLoggedImpressionThisSession(slotKey + (providerId ?? "") + (providerSlug ?? ""))
-            ) {
-              loggedRef.current = true;
-              logAdEvent({
-                event_type: "impression",
-                provider_id: provider.id,
-                placement_key: slotKey,
-                revenue_estimated: 0,
-              });
-            }
-            return;
-          }
         }
       }
 
@@ -359,7 +360,9 @@ export default function AdSlot({
           setResolved({ provider, adUnitId: perPlacementUnitId, placement });
           if (
             !loggedRef.current &&
-            !hasLoggedImpressionThisSession(slotKey + (providerId ?? "") + (providerSlug ?? ""))
+            !hasLoggedImpressionThisSession(
+              slotKey + (providerId ?? "") + (providerSlug ?? ""),
+            )
           ) {
             loggedRef.current = true;
             logAdEvent({
@@ -400,7 +403,9 @@ export default function AdSlot({
               setResolved({ provider, adUnitId: nativeZone, placement });
               if (
                 !loggedRef.current &&
-                !hasLoggedImpressionThisSession(slotKey + (providerId ?? "") + (providerSlug ?? ""))
+                !hasLoggedImpressionThisSession(
+                  slotKey + (providerId ?? "") + (providerSlug ?? ""),
+                )
               ) {
                 loggedRef.current = true;
                 logAdEvent({
@@ -480,7 +485,9 @@ export default function AdSlot({
           setResolved({ provider, adUnitId: resolvedUnitId, placement });
           if (
             !loggedRef.current &&
-            !hasLoggedImpressionThisSession(slotKey + (providerId ?? "") + (providerSlug ?? ""))
+            !hasLoggedImpressionThisSession(
+              slotKey + (providerId ?? "") + (providerSlug ?? ""),
+            )
           ) {
             loggedRef.current = true;
             logAdEvent({
@@ -526,7 +533,9 @@ export default function AdSlot({
           setResolved({ provider, adUnitId, placement });
           if (
             !loggedRef.current &&
-            !hasLoggedImpressionThisSession(slotKey + (providerId ?? "") + (providerSlug ?? ""))
+            !hasLoggedImpressionThisSession(
+              slotKey + (providerId ?? "") + (providerSlug ?? ""),
+            )
           ) {
             loggedRef.current = true;
             logAdEvent({
@@ -538,6 +547,38 @@ export default function AdSlot({
           }
           return;
         }
+      }
+
+      // ── Pass 4: AdSense publisher-only fallback (LAST resort) ──
+      // A publisher_id alone (no per-slot unit) lets AdSense serve
+      // responsive auto ads, but it must never claim a slot ahead of a
+      // provider that has a REAL configured unit/zone for it. While the
+      // AdSense account is pending approval Google no-fills every
+      // request: resolving pub-only first starved Adsterra/Monetag of
+      // every mixed slot and displayed nothing (owner-reported 2026-10-27).
+      // Slots locked with providerSlug/providerId keep their chain and
+      // still resolve here; open chains only reach this pass when no
+      // configured unit/zone anywhere in the chain could fill the slot.
+      for (const provider of chainToUse) {
+        if (provider.slug !== "google_adsense") continue;
+        if (excludeAdsense) continue;
+        if (
+          placement.placement_type === "rewarded" ||
+          placement.placement_type === "interstitial"
+        )
+          continue;
+        const creds = (provider.credentials ?? {}) as Record<string, unknown>;
+        const pubId =
+          typeof creds.publisher_id === "string"
+            ? creds.publisher_id.trim()
+            : "";
+        if (!pubId) continue;
+        setResolved({ provider, adUnitId: "", placement });
+        // Honest impressions: a pub-only unit has no ad unit ID, the
+        // fill is NOT guaranteed. The impression is logged by the
+        // unfilled-watcher effect once Google actually fills the unit,
+        // never on a no-fill.
+        return;
       }
 
       // Fallback: check legacy site_settings config for AdSense
@@ -562,7 +603,7 @@ export default function AdSlot({
     return () => {
       cancelled = true;
     };
-  }, [slotKey, providerId, providerSlug, isPaid, consentTick]);
+  }, [slotKey, providerId, providerSlug, isPaid, consentTick, excludeAdsense]);
 
   // Push to adsbygoogle after the <ins> element is in the DOM
   useEffect(() => {
@@ -608,6 +649,109 @@ export default function AdSlot({
       }
     }
   }, [resolved]);
+
+  // AdSense no-fill watcher (pub-only units): Google marks the <ins>
+  // with data-ad-status="unfilled" when it cannot serve. On unfilled
+  // (or a 6s zero-height stalemate), an open chain re-resolves without
+  // AdSense so a configured fallback network can fill the slot, and the
+  // deferred impression is logged only on an actual fill. Locked slots
+  // (providerSlug/providerId) never cascade per the owner directive.
+  useEffect(() => {
+    if (!resolved || resolved === "none") return;
+    const { provider, adUnitId, placement } = resolved;
+    if (provider.slug !== "google_adsense" || adUnitId) return;
+    if (providerSlug || providerId) return;
+    if (
+      placement.placement_type === "rewarded" ||
+      placement.placement_type === "interstitial"
+    )
+      return;
+    if (excludeAdsense) return;
+
+    let cancelled = false;
+    const logImpression = () => {
+      if (cancelled || loggedRef.current) return;
+      if (
+        hasLoggedImpressionThisSession(
+          slotKey + (providerId ?? "") + (providerSlug ?? ""),
+        )
+      )
+        return;
+      loggedRef.current = true;
+      logAdEvent({
+        event_type: "impression",
+        provider_id: provider.id,
+        placement_key: slotKey,
+        revenue_estimated: 0,
+      });
+    };
+    const cascade = () => {
+      if (cancelled) return;
+      setExcludeAdsense(true);
+    };
+
+    const startObserving = (ins: Element) => {
+      const status = ins.getAttribute("data-ad-status");
+      if (status === "unfilled") {
+        cascade();
+        return;
+      }
+      if (status && status !== "unfilled") {
+        logImpression();
+        return;
+      }
+      const observer = new MutationObserver(() => {
+        const s = ins.getAttribute("data-ad-status");
+        if (s === "unfilled") {
+          observer.disconnect();
+          cascade();
+        } else if (s && s !== "unfilled") {
+          observer.disconnect();
+          logImpression();
+        }
+      });
+      observer.observe(ins, {
+        attributes: true,
+        attributeFilter: ["data-ad-status"],
+      });
+      // Zero-height stalemate: no status and nothing rendered after 6s
+      // means the network never answered, cascade honestly.
+      window.setTimeout(() => {
+        observer.disconnect();
+        if (cancelled) return;
+        const el = ins as HTMLElement;
+        if (el.getAttribute("data-ad-status") === "unfilled") {
+          cascade();
+        } else if (el.getAttribute("data-ad-status")) {
+          logImpression();
+        } else if (el.clientHeight === 0) {
+          cascade();
+        } else {
+          logImpression();
+        }
+      }, 6000);
+    };
+
+    const findIns = () =>
+      wrapperRef.current?.querySelector("ins.adsbygoogle") ?? null;
+
+    // The ins mounts with the render; poll briefly for it to appear.
+    let tries = 0;
+    const poll = window.setInterval(() => {
+      const ins = findIns();
+      if (ins) {
+        window.clearInterval(poll);
+        startObserving(ins);
+      } else if (++tries > 20) {
+        window.clearInterval(poll);
+      }
+    }, 100);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(poll);
+    };
+  }, [resolved, excludeAdsense, providerSlug, providerId, slotKey]);
 
   // Inject provider-specific scripts when provider is resolved.
   // Skipped entirely when the admin has turned the provider's visual
@@ -1144,8 +1288,7 @@ export default function AdSlot({
   else if (provider.slug === "ayet_studios") {
     const placementId =
       typeof creds.placement_id === "string" ? creds.placement_id.trim() : "";
-    const appId =
-      typeof creds.app_id === "string" ? creds.app_id.trim() : "";
+    const appId = typeof creds.app_id === "string" ? creds.app_id.trim() : "";
     const offerwallUrl = placementId
       ? `https://www.ayetstudios.com/offers/web_offerwall/${encodeURIComponent(placementId)}`
       : appId
@@ -1191,11 +1334,16 @@ export default function AdSlot({
   // (ads must be clearly distinguishable from content)
   // ============================================================
   if (hideLabel) {
-    return <div className={className}>{adInner}</div>;
+    return (
+      <div className={className} ref={wrapperRef}>
+        {adInner}
+      </div>
+    );
   }
 
   return (
     <div
+      ref={wrapperRef}
       className={`frelux-ad-unit ${className ?? ""}`}
       style={{
         /* Clear visual separation from content */

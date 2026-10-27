@@ -149,13 +149,11 @@ describe("AdSlot", () => {
       );
       expect(ins!.getAttribute("data-ad-format")).toBe("auto");
     });
-    expect(logAdEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        event_type: "impression",
-        provider_id: "prov-adsense",
-        placement_key: "test-slot",
-      }),
-    );
+    // Honest impressions: a publisher-only unit has no fill guarantee,
+    // so the impression is deferred to the no-fill watcher and logged
+    // only when Google actually fills the unit. Resolve alone is not an
+    // impression (the old eager log counted ads that never displayed).
+    expect(logAdEvent).not.toHaveBeenCalled();
   });
 
   it("auto-fills an unmapped slot from the provider's default display unit (AdSense primary)", async () => {
@@ -461,6 +459,173 @@ describe("AdSlot", () => {
       container.querySelector('[data-ad-reserved="test-slot"]'),
     ).toBeNull();
     expect(container.querySelector('[data-ad-provider="adsterra"]')).toBeNull();
+  });
+
+  it("prefers a real Adsterra per-placement zone over AdSense publisher-only fill", async () => {
+    // Regression (owner-reported 2026-10-27, ads stopped displaying):
+    // the pub-only AdSense fallback used to claim EVERY mixed slot
+    // first, and while AdSense was pending approval Google no-filled
+    // everything, so configured Adsterra zones never rendered.
+    const adsense = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: { publisher_id: "ca-pub-1234567890123456" },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adsterra = makeAdsterraProvider(
+      { key: "2fc239403361cb893fa79b52b1d98332" },
+      { display_ads_enabled: true },
+    );
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsense, adsterra],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsense", "prov-adsterra"],
+          ad_unit_ids: { "prov-adsterra": "2fc239403361cb893fa79b52b1d98332" },
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([
+      adsense,
+      adsterra,
+    ]);
+
+    const { container } = await renderAdSlot();
+
+    // The Adsterra banner zone must claim the slot (real configured unit),
+    // NOT the empty-unit AdSense publisher-only fallback.
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-ad-provider="adsterra"]'),
+      ).not.toBeNull();
+    });
+    expect(container.querySelector("ins.adsbygoogle")).toBeNull();
+  });
+
+  it("collapses a pub-only unit to the hidden placeholder when Google reports unfilled", async () => {
+    // Post-reorder, a pub-only AdSense unit only resolves when nothing
+    // else in the chain can fill the slot. When Google then marks the
+    // ins data-ad-status="unfilled" the open chain re-resolves without
+    // AdSense: with no fallback left the slot collapses to the hidden
+    // "Ad placement zone" placeholder instead of leaving an empty
+    // labeled box on the page (the old behavior visitors saw as
+    // broken ads).
+    const adsense = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: { publisher_id: "ca-pub-1234567890123456" },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    // Adsterra is in the chain but has no usable credentials, so passes
+    // 1-3 skip it and the pub-only AdSense fallback claims the slot.
+    const adsterra = makeAdsterraProvider({}, {});
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsense, adsterra],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsense", "prov-adsterra"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([
+      adsense,
+      adsterra,
+    ]);
+
+    const { container } = await renderAdSlot();
+
+    let ins: Element | null = null;
+    await waitFor(() => {
+      ins = container.querySelector("ins.adsbygoogle");
+      expect(ins).not.toBeNull();
+    });
+    // ...then Google reports the no-fill.
+    ins!.setAttribute("data-ad-status", "unfilled");
+
+    // Open chain: re-resolve without AdSense. Adsterra still cannot
+    // fill (no credentials) so the slot collapses to the hidden
+    // placeholder - no ins, no empty labeled box.
+    await waitFor(() => {
+      expect(container.querySelector("ins.adsbygoogle")).toBeNull();
+      expect(
+        container.querySelector("[data-ad-reserved='test-slot']"),
+      ).not.toBeNull();
+    });
+  });
+
+  it("never cascades a providerSlug-locked AdSense slot away from AdSense", async () => {
+    // Owner directive 2026-10-10: AdSense-dedicated slots stay AdSense
+    // even on a no-fill, they must never fall back to other networks.
+    const adsense = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: { publisher_id: "ca-pub-1234567890123456" },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsense],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: [],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([adsense]);
+
+    const { container } = await renderAdSlot({
+      providerSlug: "google_adsense",
+    });
+
+    let ins: Element | null = null;
+    await waitFor(() => {
+      ins = container.querySelector("ins.adsbygoogle");
+      expect(ins).not.toBeNull();
+    });
+    ins!.setAttribute("data-ad-status", "unfilled");
+    // Give the (disabled) watcher a beat: the ins must stay put.
+    await new Promise((r) => setTimeout(r, 250));
+    expect(container.querySelector("ins.adsbygoogle")).not.toBeNull();
   });
 });
 
