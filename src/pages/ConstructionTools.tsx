@@ -560,7 +560,6 @@ export default function ConstructionTools() {
           </>
         )}
 
-        <AdSlot slotKey="tools-page" className="mt-10" />
         <div className="mt-10">
           <EstimateDisclaimer />
         </div>
