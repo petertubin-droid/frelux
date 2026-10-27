@@ -32,7 +32,7 @@ describe("Plumbing Market Profiles", () => {
     expect(sg.drainageDwvMaterial).toContain("uPVC");
   });
 
-  it("resolves all 20 markets to valid non-null plumbing profiles", () => {
+  it("resolves all 32 markets to valid non-null plumbing profiles", () => {
     const markets = [
       "NG",
       "US",
@@ -55,6 +55,17 @@ describe("Plumbing Market Profiles", () => {
       "KR",
       "IT",
       "SG",
+      "ET",
+      "EG",
+      "TZ",
+      "CI",
+      "ES",
+      "NL",
+      "PL",
+      "SE",
+      "CH",
+      "TR",
+      "NZ",
     ];
     for (const code of markets) {
       const p = getPlumbingProfile(code);

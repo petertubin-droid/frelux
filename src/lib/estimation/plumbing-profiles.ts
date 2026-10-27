@@ -1,7 +1,7 @@
 /**
  * FRELUX International Plumbing Engineering Profiles
  *
- * Distinct regional plumbing system profiles for all 20 markets.
+ * Distinct regional plumbing system profiles for all 32 markets.
  * Replaces universal assumptions with modular market-specific rules.
  *
  * Non-negotiable honesty rules:
@@ -533,6 +533,247 @@ export const PLUMBING_PROFILES: Record<string, PlumbingMarketProfile> = {
       "6 m lengths for copper/stainless steel or 5.8 m for uPVC drainage pipes",
     notes:
       "Strict PUB water efficiency labelling scheme (WELS) mandatory for all sanitary fitting discharge rates. HDB flats require specific approved coring locations and floor trap connections.",
+  },
+
+  // ── 2026-10-27 globalization wave: the final 11 markets get real,
+  // standard-referenced plumbing profiles (previously generic fallback).
+  // Same honesty contract as above: quantity takeoff, not hydraulic design.
+  ET: {
+    marketCode: "ET",
+    name: "Ethiopia (EBCS plumbing services)",
+    standardsRef:
+      "Ethiopian Building Code of Standards (EBCS) - plumbing services; ES EN ISO 15874 (PPR), EN 1329 (uPVC)",
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    nominalSizingFormat: "metric_dn_od",
+    waterSupplyMaterial:
+      "PPR PN20 heat-fusion pipes (EN ISO 15874) or HDPE PN16 mains",
+    drainageDwvMaterial:
+      "uPVC soil and waste pipes (EN 1329) with rubber-seal sockets",
+    typicalColdSupplyPipeSize: "25 mm OD (PN16/20) PPR trunk, 20 mm branches",
+    typicalHotSupplyPipeSize: "25 mm OD PN20 insulated PPR",
+    typicalBranchWastePipeSize:
+      "40 mm (1.5 inch) and 50 mm (2 inch) uPVC waste",
+    typicalSoilDrainPipeSize: "110 mm OD uPVC soil pipe",
+    drainageSlopeRule: "1:50 (2%) minimum fall; 1:40 (2.5%) for branch waste",
+    standardPipePurchasingLength: "4 m PPR lengths; 3 m or 6 m uPVC",
+    notes:
+      "Preliminary takeoff only. Rooftop break tanks plus booster pumps are standard due to intermittent mains supply; verify tank and pump requirements with a local plumber.",
+  },
+  EG: {
+    marketCode: "EG",
+    name: "Egypt (Egyptian Code of Building practice)",
+    standardsRef:
+      "Egyptian Code of Building Requirements - sanitary chapters; EN ISO 15874 / EN 1329 pipe practice",
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    nominalSizingFormat: "metric_dn_od",
+    waterSupplyMaterial:
+      "PPR PN20 heat-fusion pipes (EN ISO 15874); CPVC alternative in retrofit",
+    drainageDwvMaterial:
+      "uPVC soil and waste pipes (EN 1329/1401) with seal sockets",
+    typicalColdSupplyPipeSize: "25 mm OD PPR trunk, 20 mm fixture branches",
+    typicalHotSupplyPipeSize: "25 mm OD PN20 insulated PPR",
+    typicalBranchWastePipeSize: "40 mm and 50 mm uPVC waste",
+    typicalSoilDrainPipeSize: "110 mm OD uPVC soil pipe",
+    drainageSlopeRule: "1:50 (2%) minimum fall",
+    standardPipePurchasingLength: "4 m PPR lengths; 3 m uPVC",
+    notes:
+      "Preliminary takeoff only. Rooftop storage tanks are standard Egyptian practice for intermittent supply; confirm tank sizing and booster requirements with a local plumber.",
+  },
+  TZ: {
+    marketCode: "TZ",
+    name: "Tanzania (TBS / TZS pipe standards)",
+    standardsRef:
+      "TBS TZS plastics piping standards; BS EN 1329 / BS EN 12056 drainage practice",
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    nominalSizingFormat: "metric_dn_od",
+    waterSupplyMaterial:
+      "PPR (EN ISO 15874) heat-fusion or HDPE PN16 supply mains",
+    drainageDwvMaterial:
+      "uPVC soil and waste pipes (BS EN 1329 heritage sizing)",
+    typicalColdSupplyPipeSize: "25 mm OD PPR trunk, 20 mm branches",
+    typicalHotSupplyPipeSize: "25 mm OD insulated PPR (PN20)",
+    typicalBranchWastePipeSize: "40 mm and 50 mm uPVC waste",
+    typicalSoilDrainPipeSize: "110 mm OD uPVC soil pipe",
+    drainageSlopeRule: "1:50 (2%) typical fall per BS EN 12056 influence",
+    standardPipePurchasingLength: "4 m PPR; 3 m or 6 m uPVC",
+    notes:
+      "Preliminary takeoff only. Overhead tanks plus pressure pumps are standard practice; verify with a licensed local plumber.",
+  },
+  CI: {
+    marketCode: "CI",
+    name: "Côte d'Ivoire (NF heritage practice)",
+    standardsRef:
+      "National plumbing practice per Ministère de la Construction; NF EN 15874 / NF EN 12056 heritage",
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    nominalSizingFormat: "metric_dn_od",
+    waterSupplyMaterial:
+      "PPR (NF EN ISO 15874) heat-fusion or multilayer PEX-Al-PEX (NF EN ISO 21003)",
+    drainageDwvMaterial: "uPVC soil and waste pipes (NF EN 1329)",
+    typicalColdSupplyPipeSize: "25 mm OD risers, 20 mm OD branches",
+    typicalHotSupplyPipeSize: "20 mm / 25 mm OD insulated PPR",
+    typicalBranchWastePipeSize: "40 mm and 50 mm uPVC waste",
+    typicalSoilDrainPipeSize: "110 mm OD uPVC soil (NF EN 12056-2 practice)",
+    drainageSlopeRule: "1:50 (2%) minimum, 1 cm per m typical",
+    standardPipePurchasingLength: "4 m PPR bars; 3 m uPVC (barres de 3 m)",
+    notes:
+      "Preliminary takeoff only. Rooftop château d'eau storage tanks are standard for intermittent mains; verify with a local plumber (plombier).",
+  },
+  ES: {
+    marketCode: "ES",
+    name: "Spain (CTE DB-HS5)",
+    standardsRef:
+      "Código Técnico de la Edificación - DB HS-5 (CTE); UNE-EN 806, UNE-EN 12056",
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    nominalSizingFormat: "metric_dn_od",
+    waterSupplyMaterial:
+      "Multilayer PEX-Al-PEX (UNE-EN ISO 21003) or PEX-b (UNE-EN ISO 15875) with press/compression fittings",
+    drainageDwvMaterial:
+      "PVC-U evacuación (UNE-EN 1329) or silent-core PP (UNE-EN 1451)",
+    typicalColdSupplyPipeSize: "20 mm multilayer branches, 25 mm risers",
+    typicalHotSupplyPipeSize:
+      "20 mm / 25 mm insulated (recirculation loops common)",
+    typicalBranchWastePipeSize: "40 mm and 50 mm waste",
+    typicalSoilDrainPipeSize: "110 mm OD soil pipe (bajante general)",
+    drainageSlopeRule:
+      "Minimum 2% (1:50) horizontal branches per CTE / UNE-EN 12056",
+    standardPipePurchasingLength:
+      "3 m or 5 m straight bars; 50 m / 100 m PEX coils",
+    notes:
+      "Preliminary takeoff only (cálculo orientativo). Isolating valves at each derivation (llaves de corte) are standard CTE practice; verify with a local installer.",
+  },
+  NL: {
+    marketCode: "NL",
+    name: "Netherlands (NEN 1006 / Waterwerkbladen)",
+    standardsRef: "NEN 1006 + Kiwa Waterwerkbladen; NEN-EN 806, NEN-EN 12056",
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    nominalSizingFormat: "metric_dn_od",
+    waterSupplyMaterial:
+      "PEX (NEN-EN ISO 15875) or multilayer (ISO 21003), sleeved in walls/floors",
+    drainageDwvMaterial:
+      "PVC-U waste (NEN-EN 1329); PP silent soil (NEN-EN 1451)",
+    typicalColdSupplyPipeSize: "16 mm PEX branches, 20 mm risers",
+    typicalHotSupplyPipeSize: "16 mm / 20 mm insulated PEX",
+    typicalBranchWastePipeSize: "40 mm and 50 mm PVC-U waste",
+    typicalSoilDrainPipeSize: "110 mm OD soil stack",
+    drainageSlopeRule:
+      "Minimum 1:50 (2%) or self-cleaning velocity per NEN-EN 12056",
+    standardPipePurchasingLength: "50 m / 100 m PEX coils; 3 m PVC bars",
+    notes:
+      "Preliminary takeoff only. Dutch practice sleeves supply piping in walls and floors for replaceability; verify with a licensed installer (installateur).",
+  },
+  PL: {
+    marketCode: "PL",
+    name: "Poland (PN-EN 806 / Warunki Techniczne)",
+    standardsRef:
+      "PN-EN 806 (drinking-water installations); PN-EN 12056 drainage; WT technical conditions",
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    nominalSizingFormat: "metric_dn_od",
+    waterSupplyMaterial:
+      "PPR (PN-EN ISO 15874) heat-fusion or PVC-Al-PEX multilayer (PN-EN ISO 21003)",
+    drainageDwvMaterial: "PVC-U (PN-EN 1401 / PN-EN 1329) or PP (PN-EN 1451)",
+    typicalColdSupplyPipeSize: "20 mm / 25 mm OD PPR",
+    typicalHotSupplyPipeSize:
+      "20 mm / 25 mm OD insulated PPR (circulation per WT)",
+    typicalBranchWastePipeSize: "40 mm and 50 mm waste",
+    typicalSoilDrainPipeSize: "110 mm OD PVC-U soil",
+    drainageSlopeRule: "Minimum 2% (1:50) per PN-EN 12056",
+    standardPipePurchasingLength: "4 m PPR bars; 3 m / 6 m PVC",
+    notes:
+      "Preliminary takeoff only. Verify with a licensed local plumber (hydraulik).",
+  },
+  SE: {
+    marketCode: "SE",
+    name: "Sweden (SS-EN 806 / BBR)",
+    standardsRef: "SS-EN 806 / SS-EN 12056; Boverets byggregler (BBR)",
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    nominalSizingFormat: "metric_dn_od",
+    waterSupplyMaterial:
+      "PEX (SS-EN ISO 15875) dominant; PPR risers; Cu legacy",
+    drainageDwvMaterial:
+      "PP (SS-EN 1451) or PVC-U (SS-EN 1329); noise-rated soil stacks common",
+    typicalColdSupplyPipeSize: "16 mm PEX branches, 25 mm risers",
+    typicalHotSupplyPipeSize:
+      "16 mm / 20 mm insulated PEX (BBR energy requirements)",
+    typicalBranchWastePipeSize: "32 mm, 40 mm and 50 mm waste",
+    typicalSoilDrainPipeSize: "110 mm OD soil stack",
+    drainageSlopeRule:
+      "Minimum 1:100 (1%) for 110 mm soil; 1:50 (2%) for smaller branches per SS-EN 12056",
+    standardPipePurchasingLength: "50 m / 100 m PEX coils; 3 m PP/PVC bars",
+    notes:
+      "Preliminary takeoff only. Verify with a licensed plumber (VVS-installatör).",
+  },
+  CH: {
+    marketCode: "CH",
+    name: "Switzerland (SVGW W3 / SIA 385)",
+    standardsRef:
+      "SVGW W3 (Leitfaden Wasser); SIA 385; SN EN 806 / SN EN 12056",
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    nominalSizingFormat: "metric_dn_od",
+    waterSupplyMaterial:
+      "PEX (SN EN ISO 15875) or multilayer (ISO 21003); Cu legacy",
+    drainageDwvMaterial: "PP silent-core (SN EN 1451) or PVC-U (SN EN 1329)",
+    typicalColdSupplyPipeSize: "16 mm / 20 mm branches, 25 mm risers",
+    typicalHotSupplyPipeSize:
+      "16 mm / 20 mm insulated (legionella-safe circulation per SIA 385)",
+    typicalBranchWastePipeSize: "40 mm and 50 mm waste",
+    typicalSoilDrainPipeSize: "110 mm OD soil stack",
+    drainageSlopeRule: "Minimum 1:50 (2%) per SN EN 12056",
+    standardPipePurchasingLength: "PEX coils; 3 m PP/PVC bars",
+    notes:
+      "Preliminary takeoff only. Verify with a licensed plumber (Sanitärinstallateur).",
+  },
+  TR: {
+    marketCode: "TR",
+    name: "Türkiye (TS EN standards)",
+    standardsRef:
+      "TS EN 806 / TS 9956 sanitary installation standards; TS EN 12056 drainage",
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    nominalSizingFormat: "metric_dn_od",
+    waterSupplyMaterial:
+      "PPR (TS EN ISO 15874) heat-fusion - dominant; PEX alternative",
+    drainageDwvMaterial: "PVC-U (TS EN 1329 / TS EN 1401) or PP silent",
+    typicalColdSupplyPipeSize: "25 mm OD PPR trunk, 20 mm branches",
+    typicalHotSupplyPipeSize: "25 mm OD PN20 insulated PPR",
+    typicalBranchWastePipeSize: "40 mm and 50 mm waste",
+    typicalSoilDrainPipeSize: "110 mm OD soil pipe",
+    drainageSlopeRule: "Minimum 1:50 (2%)",
+    standardPipePurchasingLength: "4 m PPR bars; 3 m PVC",
+    notes:
+      "Preliminary takeoff only. Rooftop tanks plus pressure systems are common; verify with a licensed local plumber (tesisatçı).",
+  },
+  NZ: {
+    marketCode: "NZ",
+    name: "New Zealand (AS/NZS 3500)",
+    standardsRef:
+      "AS/NZS 3500.1 (water services) & AS/NZS 3500.2 (sanitary plumbing and drainage)",
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    nominalSizingFormat: "metric_dn_od",
+    waterSupplyMaterial:
+      "PEX-A (AS/NZS 2492) or copper tube (AS 1432) with crimp/compression fittings",
+    drainageDwvMaterial: "PVC-U DWV pipes and fittings (AS/NZS 1260)",
+    typicalColdSupplyPipeSize:
+      "DN20 (20 mm) risers, DN15 (15 mm) fixture branches",
+    typicalHotSupplyPipeSize:
+      "DN15 / DN20 with mandated cylinder-pipe insulation per AS/NZS 3500.4",
+    typicalBranchWastePipeSize: "32 mm and 40 mm DWV",
+    typicalSoilDrainPipeSize: "100 mm DWV soil stack",
+    drainageSlopeRule:
+      "1:100 (1%) minimum for 100 mm DWV; 1:60 (1.7%) for 80 mm per AS/NZS 3500.2",
+    standardPipePurchasingLength:
+      "3 m copper lengths; 50 m PEX coils; PVC DWV in cut lengths",
+    notes:
+      "Preliminary takeoff only. Mains-pressure systems are standard; sanitary plumbing must be done by a licensed certifying plumber under NZ rules.",
   },
 };
 

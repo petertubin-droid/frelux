@@ -1,7 +1,7 @@
 /**
  * FRELUX International Electrical Engineering Profiles
  *
- * Distinct regional electrical system profiles for all 20 markets.
+ * Distinct regional electrical system profiles for all 32 markets.
  * Replaces the universal conduit / metric assumption with modular market-specific rules.
  *
  * Non-negotiable honesty rules:
@@ -512,14 +512,266 @@ export const ELECTRICAL_PROFILES: Record<string, ElectricalMarketProfile> = {
     primaryWiringMethod:
       "PVC insulated Cu cables (SS 358-3 / BS 6004) enclosed in surface or concealed high-impact uPVC/steel conduit",
     lightingConductorSize: "1.5 mm² single-core Cu in conduit (SS 358-3)",
-    socketConductorSize: "2.5 mm² single-core Cu in conduit (typically 32A ring final or 20A radial)",
-    dedicatedConductorSize: "4.0 mm² to 10.0 mm² Cu (air-con compressor, induction hob, storage water heater)",
-    boxType: "Galvanized steel flush boxes or surface uPVC patress boxes (SS 246)",
-    protectionDevices: "Consumer unit with 30mA Type A/AC RCCB and miniature circuit breakers (MCBs)",
+    socketConductorSize:
+      "2.5 mm² single-core Cu in conduit (typically 32A ring final or 20A radial)",
+    dedicatedConductorSize:
+      "4.0 mm² to 10.0 mm² Cu (air-con compressor, induction hob, storage water heater)",
+    boxType:
+      "Galvanized steel flush boxes or surface uPVC patress boxes (SS 246)",
+    protectionDevices:
+      "Consumer unit with 30mA Type A/AC RCCB and miniature circuit breakers (MCBs)",
     cableReelSize: "100 m coil",
     conduitRequired: true,
     notes:
       "Singapore EMA regulations mandate all concealed and surface residential wiring be drawn through conduit or trunking. HDB renovations strictly prohibit hacking of structural precast walls.",
+  },
+
+  // ── 2026-10-27 globalization wave: the final 11 markets get real,
+  // standard-referenced electrical profiles (previously IEC fallback).
+  // Same honesty contract as above: quantity takeoff, not design.
+  ET: {
+    marketCode: "ET",
+    name: "Ethiopia (EEU practice / IEC 60364-aligned)",
+    standardsRef:
+      "EEU (Ethiopian Electric Utility) supply rules; IEC 60364-aligned national code of practice",
+    nominalVoltage: "220V single-phase / 380V 3-phase",
+    frequencyHz: 50,
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    primaryWiringMethod:
+      "PVC-insulated Cu singles in embedded or surface PVC conduit (masonry construction)",
+    lightingConductorSize: "1.5 mm² Cu in conduit",
+    socketConductorSize: "2.5 mm² Cu radial circuits",
+    dedicatedConductorSize: "4.0 mm² to 6.0 mm² Cu",
+    boxType: "Flush galvanized steel or PVC boxes in blockwork",
+    protectionDevices:
+      "30mA RCD on socket circuits plus MCB distribution board",
+    cableReelSize: "100 m coils",
+    conduitRequired: true,
+    notes:
+      "Preliminary takeoff only. Type C/F (European) plugs are common. Mains voltage dips and load shedding are frequent: confirm actual supply with a licensed local electrician before final circuit design.",
+  },
+  EG: {
+    marketCode: "EG",
+    name: "Egypt (Ministry of Electricity code / IEC 60364-aligned)",
+    standardsRef:
+      "Egyptian Electrical Installation Code; IEC 60364-aligned practice",
+    nominalVoltage: "220V single-phase / 380V 3-phase",
+    frequencyHz: 50,
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    primaryWiringMethod:
+      "Cu singles in embedded PVC conduit within reinforced concrete and blockwork",
+    lightingConductorSize: "1.5 mm² Cu in conduit",
+    socketConductorSize: "2.5 mm² Cu radial circuits",
+    dedicatedConductorSize: "4.0 mm² to 6.0 mm² Cu (water heater, AC)",
+    boxType: "Flush PVC or steel boxes cast into walls",
+    protectionDevices: "30mA RCD (mandatory for bathrooms) plus MCB panel",
+    cableReelSize: "100 m coils",
+    conduitRequired: true,
+    notes:
+      "Preliminary takeoff only. Embedded conduit in RC construction is standard Egyptian practice; Type C/E/F plugs are common. Consult a licensed local electrician for design.",
+  },
+  TZ: {
+    marketCode: "TZ",
+    name: "Tanzania (TANESCO supply / BS-influenced practice)",
+    standardsRef:
+      "TANESCO supply rules; IEC 60364 / BS 7671-influenced wiring practice",
+    nominalVoltage: "230V single-phase / 400V 3-phase",
+    frequencyHz: 50,
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    primaryWiringMethod:
+      "Cu singles or flat twin-and-earth in embedded conduit / capped chase (masonry)",
+    lightingConductorSize: "1.0 mm² or 1.5 mm² Cu radial",
+    socketConductorSize:
+      "2.5 mm² Cu radial circuits (BS 1363 13A socket outlets common)",
+    dedicatedConductorSize: "4.0 mm² to 6.0 mm² Cu",
+    boxType:
+      "Flush steel/PVC boxes in blockwork; surface boxes on painted walls",
+    protectionDevices: "30mA RCD on socket circuits plus MCB consumer unit",
+    cableReelSize: "100 m coils",
+    conduitRequired: true,
+    notes:
+      "Preliminary takeoff only. British-legacy BS 1363 sockets and radial (not ring) circuits are typical. Verify with a licensed local electrician.",
+  },
+  CI: {
+    marketCode: "CI",
+    name: "Côte d'Ivoire (NF C 15-100 heritage / IEC 60364)",
+    standardsRef:
+      "National electrical practice per Ministère de la Construction; NF C 15-100 heritage, IEC 60364-aligned",
+    nominalVoltage: "230V single-phase / 400V 3-phase",
+    frequencyHz: 50,
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    primaryWiringMethod:
+      "Cu singles (U-1000 R2V or H07V-K) in embedded corrugated PVC conduit (gaine ICTA)",
+    lightingConductorSize: "1.5 mm² Cu in conduit",
+    socketConductorSize: "2.5 mm² Cu radial circuits",
+    dedicatedConductorSize: "4.0 mm² to 6.0 mm² Cu",
+    boxType:
+      "Flush junction boxes (boîtes d'encastrement) with type E socket frames",
+    protectionDevices:
+      "30mA interrupteur différentiel + disjoncteurs (MCB) per NF C 15-100 heritage",
+    cableReelSize: "100 m coils",
+    conduitRequired: true,
+    notes:
+      "Preliminary takeoff only. French-practice radial circuits with 30mA differential protection are standard. Consult a licensed local electrician.",
+  },
+  ES: {
+    marketCode: "ES",
+    name: "Spain (REBT / IEC 60364-aligned)",
+    standardsRef:
+      "REBT - Real Decreto 842/2002 (Reglamento Electrotécnico para Baja Tensión) + ITC-BT notes",
+    nominalVoltage: "230V single-phase / 400V 3-phase",
+    frequencyHz: 50,
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    primaryWiringMethod:
+      "Cu singles (H07V-K / RZ1-K) in embedded corrugated PVC conduit (tubo empotrado) or surface conduit",
+    lightingConductorSize: "1.5 mm² Cu in conduit",
+    socketConductorSize: "2.5 mm² Cu radial circuits",
+    dedicatedConductorSize: "4.0 mm² to 6.0 mm² Cu (hob, oven, AC)",
+    boxType: "Flush PVC junction and socket boxes (cajas de derivación)",
+    protectionDevices:
+      "Interruptor diferencial 30mA + PIA magnetotérmicos (per REBT ITC-BT 24/28)",
+    cableReelSize: "100 m coils",
+    conduitRequired: true,
+    notes:
+      "Preliminary takeoff only. REBT mandates 30mA differential protection and radial (not ring) circuits; Boletín B1 certification by an instalador autorizado is required to energise.",
+  },
+  NL: {
+    marketCode: "NL",
+    name: "Netherlands (NEN 1010)",
+    standardsRef:
+      "NEN 1010 (Dutch national electrical safety standard, IEC 60364-based)",
+    nominalVoltage: "230V single-phase / 400V 3-phase",
+    frequencyHz: 50,
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    primaryWiringMethod:
+      "Cu wiring pulled through floor conduit systems (broedplaatsen) and embedded wall conduit to central ceiling boxes",
+    lightingConductorSize: "1.5 mm² Cu in conduit",
+    socketConductorSize: "2.5 mm² Cu radial circuits",
+    dedicatedConductorSize: "4.0 mm² to 6.0 mm² Cu",
+    boxType: "Flush mounting boxes (inbouwdozen) with shuttered socket frames",
+    protectionDevices:
+      "30mA aardlekschakelaar (RCD) plus MCB consumer unit per NEN 1010",
+    cableReelSize: "100 m coils",
+    conduitRequired: true,
+    notes:
+      "Preliminary takeoff only. Dutch practice routes wiring through accessible floor conduit to central connection points; RCD protection is mandatory. Consult a licensed installer (installateur).",
+  },
+  PL: {
+    marketCode: "PL",
+    name: "Poland (PN-HD 60364 national adoption)",
+    standardsRef:
+      "PN-HD 60364 series (Polish national adoption of IEC 60364); Warunki Techniczne",
+    nominalVoltage: "230V single-phase / 400V 3-phase",
+    frequencyHz: 50,
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    primaryWiringMethod:
+      "Cu singles in embedded PVC conduit in concrete/blockwork, or flat sheathed cable (YDY) in stud walls",
+    lightingConductorSize: "1.5 mm² Cu in conduit",
+    socketConductorSize: "2.5 mm² Cu radial circuits",
+    dedicatedConductorSize: "4.0 mm² to 6.0 mm² Cu",
+    boxType: "Flush plastic boxes (puszki) with type E socket frames",
+    protectionDevices:
+      "30mA RCD (wyłącznik różnicowoprądowy) plus MCB panel per PN-HD 60364-4-41",
+    cableReelSize: "100 m coils",
+    conduitRequired: true,
+    notes:
+      "Preliminary takeoff only. Embedded conduit in monolithic RC construction is standard Polish practice; type E (French) sockets dominate. Consult a licensed SEP-certified electrician.",
+  },
+  SE: {
+    marketCode: "SE",
+    name: "Sweden (SS 436 04 00 / ESS)",
+    standardsRef:
+      "SS 436 04 00 (Elinstallationsreglerna / ESS), IEC 60364-based",
+    nominalVoltage: "230V single-phase / 400V 3-phase",
+    frequencyHz: 50,
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    primaryWiringMethod:
+      "Cu conductors in embedded PVC conduit (elläror) or screened YY cable in stud walls",
+    lightingConductorSize: "1.5 mm² Cu in conduit",
+    socketConductorSize: "2.5 mm² Cu radial circuits",
+    dedicatedConductorSize: "4.0 mm² to 6.0 mm² Cu",
+    boxType:
+      "Flush boxes (inbyggnadsdosor) with shuttered type C/F socket frames",
+    protectionDevices:
+      "30mA jordfelsbrytare (RCD) - mandatory per ESS - plus MCBs",
+    cableReelSize: "100 m coils",
+    conduitRequired: true,
+    notes:
+      "Preliminary takeoff only. 30mA RCD protection is mandatory on final circuits under ESS. Consult a licensed electrician (elinstallatör).",
+  },
+  CH: {
+    marketCode: "CH",
+    name: "Switzerland (NIN 4638 / SN 4638)",
+    standardsRef:
+      "NIN 4638 (SN 4638) Niederspannungsinstallationen; IEC 60364-based",
+    nominalVoltage: "230V single-phase / 400V 3-phase",
+    frequencyHz: 50,
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    primaryWiringMethod:
+      "Cu conductors in embedded conduit/tubes or planning cable within stud and blockwork",
+    lightingConductorSize: "1.5 mm² Cu in conduit",
+    socketConductorSize: "2.5 mm² Cu radial circuits (10A Swiss circuits)",
+    dedicatedConductorSize: "4.0 mm² to 6.0 mm² Cu",
+    boxType:
+      "Flush junction boxes (Abzweigdosen) with SEV 1011 type J 3-pin socket frames",
+    protectionDevices: "FI-Schutzschalter (RCD) 30mA plus MCB panel per NIN",
+    cableReelSize: "100 m coils",
+    conduitRequired: true,
+    notes:
+      "Preliminary takeoff only. Swiss installations use the SEV 1011 3-pin socket format and 10A circuits; consult a licensed installer (Elektroinstallateur).",
+  },
+  TR: {
+    marketCode: "TR",
+    name: "Türkiye (IEC 60364-based national regulation)",
+    standardsRef:
+      "Elektrik İç Tesisleri Yönetmeliği (Electrical Internal Installations Regulation), IEC 60364-aligned",
+    nominalVoltage: "230V single-phase / 400V 3-phase",
+    frequencyHz: 50,
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    primaryWiringMethod:
+      "Cu singles in embedded PVC conduit within RC construction and blockwork",
+    lightingConductorSize: "1.5 mm² Cu in conduit",
+    socketConductorSize: "2.5 mm² Cu radial circuits (type F Schuko outlets)",
+    dedicatedConductorSize: "4.0 mm² to 6.0 mm² Cu",
+    boxType: "Flush plastic boxes (gömme kutu) cast into walls",
+    protectionDevices:
+      "30mA artık akım rölesi (RCD) - mandatory for bathrooms - plus MCB panel",
+    cableReelSize: "100 m coils",
+    conduitRequired: true,
+    notes:
+      "Preliminary takeoff only. Embedded conduit in reinforced concrete is standard Turkish practice. Consult a licensed local electrician (elektrik teknisyeni).",
+  },
+  NZ: {
+    marketCode: "NZ",
+    name: "New Zealand (AS/NZS 3000 Wiring Rules)",
+    standardsRef:
+      "AS/NZS 3000:2018 (Australian/New Zealand Wiring Rules) + Electrical (Safety) Regulations",
+    nominalVoltage: "230V single-phase / 400V 3-phase",
+    frequencyHz: 50,
+    measurementSystem: "metric",
+    runDistanceUnit: "m",
+    primaryWiringMethod:
+      "TPS (PVC-sheathed flat cable) through timber framing; conduit where exposed or underground",
+    lightingConductorSize: "1.5 mm² Cu TPS",
+    socketConductorSize: "2.5 mm² Cu TPS radial circuits",
+    dedicatedConductorSize: "4.0 mm² to 6.0 mm² Cu TPS (oven, hob, heat pump)",
+    boxType: "Flush or surface PVC boxes in framing; ceiling rose junctions",
+    protectionDevices:
+      "RCDs (30mA) on final subcircuits plus MCBs per AS/NZS 3000",
+    cableReelSize: "100 m coils",
+    conduitRequired: false,
+    notes:
+      "Preliminary takeoff only. TPS in framing cavities is standard; RCDs are required on final subcircuits. Type I (flat-pin) plugs. Work must be certified by a licensed electrician under NZ regulations.",
   },
 };
 

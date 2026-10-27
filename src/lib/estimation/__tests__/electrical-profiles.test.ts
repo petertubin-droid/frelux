@@ -236,7 +236,7 @@ describe("Electrical Market Profiles", () => {
     expect(sg.socketConductorSize).toContain("2.5 mm²");
   });
 
-  it("resolves all 20 markets to valid non-null electrical profiles", () => {
+  it("resolves all 32 markets to valid non-null electrical profiles", () => {
     const markets = [
       "NG",
       "US",
@@ -259,6 +259,17 @@ describe("Electrical Market Profiles", () => {
       "KR",
       "IT",
       "SG",
+      "ET",
+      "EG",
+      "TZ",
+      "CI",
+      "ES",
+      "NL",
+      "PL",
+      "SE",
+      "CH",
+      "TR",
+      "NZ",
     ];
     for (const code of markets) {
       const p = getElectricalProfile(code);
