@@ -623,9 +623,66 @@ describe("AdSlot", () => {
       expect(ins).not.toBeNull();
     });
     ins!.setAttribute("data-ad-status", "unfilled");
-    // Give the (disabled) watcher a beat: the ins must stay put.
-    await new Promise((r) => setTimeout(r, 250));
+    // Give the watcher a beat: the ins must stay put (never cascades
+    // away from AdSense) but the wrapper must collapse - no empty
+    // "Advertisement" strip while the account is pending approval
+    // (owner-reported 2026-10-27: the sticky bottom bar showed with
+    // no ad inside).
+    await waitFor(() => {
+      const wrapper = container.querySelector(".frelux-ad-unit");
+      expect(wrapper).not.toBeNull();
+      expect((wrapper as HTMLElement).style.display).toBe("none");
+    });
     expect(container.querySelector("ins.adsbygoogle")).not.toBeNull();
+    // The collapse is also what hides the StickyBottomAd bar: it
+    // measures the wrapper's computed display.
+  });
+
+  it("keeps a locked AdSense slot expanded when Google actually fills", async () => {
+    const adsense = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: { publisher_id: "ca-pub-1234567890123456" },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsense],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: [],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([adsense]);
+
+    const { container } = await renderAdSlot({
+      providerSlug: "google_adsense",
+    });
+
+    let ins: Element | null = null;
+    await waitFor(() => {
+      ins = container.querySelector("ins.adsbygoogle");
+      expect(ins).not.toBeNull();
+    });
+    // Google serves a real ad: the slot must stay visible.
+    ins!.setAttribute("data-ad-status", "filled");
+    await new Promise((r) => setTimeout(r, 250));
+    const wrapper = container.querySelector(".frelux-ad-unit") as HTMLElement;
+    expect(wrapper.style.display).not.toBe("none");
   });
 });
 

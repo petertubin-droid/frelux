@@ -141,6 +141,12 @@ export default function AdSlot({
   // configured fallback network can fill it. Only used for OPEN chains:
   // providerSlug/providerId-locked slots never cascade (owner directive).
   const [excludeAdsense, setExcludeAdsense] = useState(false);
+  // Pub-only AdSense unit that Google marked unfilled on a LOCKED slot:
+  // the chain never cascades away (owner directive 2026-10-10), but an
+  // empty labeled box must not sit on the page either (owner-reported
+  // 2026-10-27: the sticky bottom bar appeared with no ad inside). The
+  // wrapper collapses to display:none until Google actually serves.
+  const [adsenseUnfilled, setAdsenseUnfilled] = useState(false);
   useEffect(() => {
     return onConsentChange(() => setConsentTick((t) => t + 1));
   }, []);
@@ -660,7 +666,8 @@ export default function AdSlot({
     if (!resolved || resolved === "none") return;
     const { provider, adUnitId, placement } = resolved;
     if (provider.slug !== "google_adsense" || adUnitId) return;
-    if (providerSlug || providerId) return;
+    // A fresh resolution resets any earlier unfilled collapse.
+    setAdsenseUnfilled(false);
     if (
       placement.placement_type === "rewarded" ||
       placement.placement_type === "interstitial"
@@ -687,6 +694,15 @@ export default function AdSlot({
     };
     const cascade = () => {
       if (cancelled) return;
+      if (providerSlug || providerId) {
+        // Locked slot: never cascade away from AdSense (owner
+        // directive 2026-10-10). Collapse the wrapper instead so the
+        // slot (and the sticky bottom bar) hides honestly until Google
+        // serves - no empty "Advertisement" strip (owner-reported
+        // 2026-10-27).
+        setAdsenseUnfilled(true);
+        return;
+      }
       setExcludeAdsense(true);
     };
 
@@ -1335,7 +1351,11 @@ export default function AdSlot({
   // ============================================================
   if (hideLabel) {
     return (
-      <div className={className} ref={wrapperRef}>
+      <div
+        className={className}
+        ref={wrapperRef}
+        style={adsenseUnfilled ? { display: "none" } : undefined}
+      >
         {adInner}
       </div>
     );
@@ -1351,6 +1371,7 @@ export default function AdSlot({
         borderBottom: "1px solid rgba(0,0,0,0.04)",
         padding: "8px 0",
         margin: "0 auto",
+        ...(adsenseUnfilled ? { display: "none" } : null),
       }}
       data-ad-slot-key={slotKey}
     >
