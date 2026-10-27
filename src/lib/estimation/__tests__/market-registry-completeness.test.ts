@@ -200,3 +200,19 @@ describe("globalization completeness — market landing pages (Phase 3)", () => 
     }
   });
 });
+
+describe("globalization completeness — scaffold discipline (Phase 4)", () => {
+  it("no approved market's profiles contain TODO placeholders", () => {
+    for (const code of ALL_MARKET_CODES) {
+      const b = MARKET_BUNDLES[code];
+      expect(b.electrical.standardsRef, `${code} electrical`).not.toContain(
+        "TODO",
+      );
+      expect(b.plumbing.standardsRef, `${code} plumbing`).not.toContain("TODO");
+      expect(b.electrical.notes, `${code} electrical notes`).not.toContain(
+        "TODO",
+      );
+      expect(b.plumbing.notes, `${code} plumbing notes`).not.toContain("TODO");
+    }
+  });
+});
