@@ -81,6 +81,20 @@ describe("StructuralCalculator", () => {
     expect(await screen.findByText(/indicative only/i)).toBeInTheDocument();
   });
 
+  it("runs the BBS tab: BS 8666 cutting length, mass and BVBS export", async () => {
+    await renderPage();
+    const bbsButton = (await screen.findAllByRole("button")).find((b) =>
+      b.textContent?.includes("Bar Schedule"),
+    );
+    expect(bbsButton).toBeTruthy();
+    fireEvent.click(bbsButton!);
+    // Default shape 21, d12, A=1000, B=400, C=200: L = 1000+400+200-24-24 = 1552
+    expect(await screen.findByText(/1552\s*mm/)).toBeInTheDocument();
+    expect(screen.getAllByText(/BVBS/i).length).toBeGreaterThan(0);
+    // Lap card renders ACI tension development for the default inputs
+    expect(await screen.findByText(/Tension development/i)).toBeInTheDocument();
+  });
+
   it("runs the seismic detailing tab: SDC-derived detailing and notes", async () => {
     await renderPage();
     const seismicButton = (await screen.findAllByRole("button")).find((b) =>

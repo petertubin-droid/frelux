@@ -46,6 +46,23 @@ import {
   type Ec8DuctilityClass,
   type SeismicDesignCategory,
 } from "@/lib/engineering/seismic-detailing";
+import {
+  BS8666_TABLE2,
+  BAR_MASS_KG_M,
+  bsShapeLength,
+  bsMinimizedLinkLength,
+  aciHookGeometry,
+  aciTensionDevelopment,
+  aciCompressionDevelopment,
+  aciTensionLap,
+  aciCompressionLap,
+  ec2AnchorageLength,
+  ec2LapLength,
+  generateBvbsFile,
+  bbsItemMassKg,
+  type BsShapeCode,
+  type BbsItem,
+} from "@/lib/engineering/bbs-schedule";
 import { useMarket } from "@/lib/international/market-context";
 import { DimensionalInput } from "@/components/measurement/DimensionalInput";
 import { parseDimensionalInput } from "@/lib/globalization/dimensional-parser";
@@ -64,6 +81,7 @@ import {
   Layers,
   Wind,
   Activity,
+  ListTree,
   TrendingUp,
   ChevronRight,
   ChevronDown,
@@ -76,12 +94,12 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 import EngineerReviewBadge from "@/components/EngineerReviewBadge";
 
-type Tab = "beam" | "column" | "slab" | "wind" | "seismic" | "concrete";
+type Tab = "beam" | "column" | "slab" | "wind" | "seismic" | "bbs" | "concrete";
 
 // Printable engineering design sheet: full results, checks,
 // formula transparency and warnings for a beam/column/slab run.
 function exportDesignSheet(args: {
-  kind: "Beam" | "Column" | "Slab" | "Wind" | "Seismic";
+  kind: "Beam" | "Column" | "Slab" | "Wind" | "Seismic" | "BBS";
   title: string;
   metaRows: Array<[string, string]>;
   checks: Array<{ label: string; pass: boolean }>;
@@ -160,6 +178,7 @@ export default function StructuralCalculator() {
               { id: "slab", label: "Slab Design", icon: TrendingUp },
               { id: "wind", label: "Wind Load", icon: Wind },
               { id: "seismic", label: "Seismic Detailing", icon: Activity },
+              { id: "bbs", label: "Bar Schedule (BBS)", icon: ListTree },
               { id: "concrete", label: "Concrete Takeoff", icon: Calculator },
             ] as const
           ).map((t) => (
@@ -184,6 +203,7 @@ export default function StructuralCalculator() {
         {tab === "slab" && <SlabCalculator />}
         {tab === "wind" && <WindLoadCalculator />}
         {tab === "seismic" && <SeismicDetailingCalculator />}
+        {tab === "bbs" && <BarScheduleCalculator />}
         {tab === "concrete" && <ConcreteTakeoffCalculator />}
 
         {/* Disclaimer */}
@@ -1095,6 +1115,458 @@ function SeismicDetailingCalculator() {
           <EngineerReviewBadge />
         </ResultCard>
       )}
+    </div>
+  );
+}
+
+// ── Bar Bending Schedule (BBS): BS 8666:2020 + ACI SP-66 + BVBS export ──
+
+const BBS_SHAPES: Array<{ code: BsShapeCode; label: string; dims: string }> = [
+  { code: "00", label: "00 - Straight bar", dims: "A" },
+  { code: "11", label: "11 - Single bend (L)", dims: "A, B" },
+  { code: "21", label: "21 - L-bar (2 bends)", dims: "A, B, C" },
+  { code: "33", label: "33 - U-bar", dims: "A, B, C" },
+  { code: "41", label: "41 - Link / stirrup", dims: "A, B, C, D, (E)" },
+  { code: "51", label: "51 - Double link", dims: "A, B, C" },
+  { code: "63", label: "63 - Closed link, 135 deg hooks", dims: "A, B, C" },
+  { code: "67", label: "67 - Special (Clause 10)", dims: "A" },
+  { code: "77", label: "77 - Helix (turns = C, lap = B)", dims: "A, C" },
+];
+
+function BarScheduleCalculator() {
+  const [shape, setShape] = useState<BsShapeCode>("21");
+  const [d, setD] = useState(12);
+  const [qty, setQty] = useState(10);
+  const [dimA, setDimA] = useState(1000);
+  const [dimB, setDimB] = useState(400);
+  const [dimC, setDimC] = useState(200);
+  const [dimD, setDimD] = useState(300);
+  const [dimE, setDimE] = useState(0);
+  const [minimizeHooks, setMinimizeHooks] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [showFormulas, setShowFormulas] = useState(false);
+
+  // Lap / development inputs
+  const [lapStd, setLapStd] = useState<"ACI" | "EC2">("ACI");
+  const [lapDia, setLapDia] = useState(22.2);
+  const [fy, setFy] = useState(420);
+  const [fc, setFc] = useState(28);
+  const [bond, setBond] = useState<"good" | "poor">("good");
+  const [topBar, setTopBar] = useState<"top" | "other">("other");
+
+  const calculate = useCallback(() => {
+    try {
+      const res =
+        minimizeHooks && (shape === "51" || shape === "63")
+          ? bsMinimizedLinkLength(shape, { A: dimA, B: dimB, d })
+          : bsShapeLength(shape, {
+              A: dimA,
+              B: shape === "77" ? dimB : dimB,
+              C: shape === "77" ? dimC : dimC,
+              D: dimD,
+              E: dimE,
+              d,
+            });
+      setBbsResult(res);
+      setErrors([]);
+    } catch (e) {
+      setErrors([e instanceof Error ? e.message : String(e)]);
+      setBbsResult(null);
+    }
+  }, [shape, d, dimA, dimB, dimC, dimD, dimE, minimizeHooks]);
+
+  const [bbsResult, setBbsResult] = useState<{
+    L: number;
+    formula: string;
+  } | null>(null);
+  if (!bbsResult) calculate();
+
+  const table2 = BS8666_TABLE2[d];
+  const massPerM = BAR_MASS_KG_M[d] ?? 0;
+  const totalLengthM = bbsResult ? (bbsResult.L / 1000) * qty : 0;
+  const totalMass = totalLengthM * massPerM;
+
+  const item: BbsItem = {
+    pos: "1",
+    count: qty,
+    dia: d,
+    steelGrade: "B500B",
+    lengthMm: bbsResult ? bbsResult.L : 0,
+    shapeCode: shape,
+    dims: { A: dimA, B: dimB, C: dimC, D: dimD, E: dimE },
+  };
+
+  const downloadBvbs = () => {
+    if (!bbsResult) return;
+    const file = generateBvbsFile([item], {
+      projectName: "FRELUX BBS",
+      sender: "FRELUX",
+    });
+    const blob = new Blob([file], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "frelux-bbs-stabliste.bfx";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Lap / development results
+  const lapResult = (() => {
+    try {
+      if (lapStd === "ACI") {
+        const dev = aciTensionDevelopment({
+          db: lapDia,
+          fy,
+          fc,
+          castingPosition: topBar,
+          spacingCase: "good",
+        });
+        const ldc = aciCompressionDevelopment({ db: lapDia, fy, fc });
+        const lapT = aciTensionLap({
+          db: lapDia,
+          fy,
+          fc,
+          castingPosition: topBar,
+          spacingCase: "good",
+          spliceClass: "B",
+        });
+        const lapC = aciCompressionLap({ db: lapDia, fy, fc });
+        return {
+          rows: [
+            {
+              label: "Tension development ld",
+              value: `${dev.ld.toFixed(0)} mm`,
+            },
+            {
+              label: "Compression development ldc",
+              value: `${ldc.ld.toFixed(0)} mm`,
+            },
+            {
+              label: "Tension lap (Class B)",
+              value: `${lapT.ls.toFixed(0)} mm`,
+            },
+            { label: "Compression lap", value: `${lapC.ls.toFixed(0)} mm` },
+          ],
+          formulas: [dev.formula, ldc.formula, lapT.formula, lapC.formula],
+          notes: [...lapC.notes],
+        };
+      }
+      const anch = ec2AnchorageLength({
+        db: lapDia,
+        fyk: 500,
+        fck: fc,
+        bondCondition: bond,
+      });
+      const anchC = ec2AnchorageLength({
+        db: lapDia,
+        fyk: 500,
+        fck: fc,
+        bondCondition: bond,
+        member: "compression",
+      });
+      const lap = ec2LapLength({
+        db: lapDia,
+        fyk: 500,
+        fck: fc,
+        bondCondition: bond,
+        percentLapped: 50,
+      });
+      return {
+        rows: [
+          {
+            label: "Tension anchorage lbd",
+            value: `${anch.lbd.toFixed(0)} mm`,
+          },
+          {
+            label: "Compression anchorage lbd",
+            value: `${anchC.lbd.toFixed(0)} mm`,
+          },
+          {
+            label: "Lap length l0 (50% lapped)",
+            value: `${lap.l0.toFixed(0)} mm`,
+          },
+          {
+            label: "Design bond stress fbd",
+            value: `${anch.fbd.toFixed(2)} MPa`,
+          },
+        ],
+        formulas: [anch.formula, lap.formula],
+        notes: [
+          "EC2 path assumes straight ribbed bars, fyk = 500 MPa, alpha factors 1.0 and As,required/As,provided = 1.0 (full yield).",
+        ],
+      };
+    } catch (e) {
+      return {
+        rows: [],
+        formulas: [],
+        notes: [e instanceof Error ? e.message : String(e)],
+      };
+    }
+  })();
+
+  const hook = aciHookGeometry(
+    d <= 20 ? d : 20,
+    shape === "41" || shape === "63" ? "seismic135" : "primary90",
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+        <h3 className="text-base font-semibold">
+          Bar shape (BS 8666:2020 Table 3)
+        </h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Cutting lengths per BS 8666:2020 Table 3 formulas with the Table 2
+          minimum scheduling radius. Mandrel diameters and end projections are
+          shown so the schedule is fabrication-ready.
+        </p>
+        <div className="mt-4">
+          <InputGrid>
+            <SelectInput
+              label="Shape code"
+              value={shape}
+              onChange={(v) => setShape(v as BsShapeCode)}
+              options={BBS_SHAPES.map((sh) => ({ v: sh.code, l: sh.label }))}
+            />
+            <SelectInput
+              label="Bar size d (mm)"
+              value={String(d)}
+              onChange={(v) => setD(Number(v))}
+              options={Object.keys(BS8666_TABLE2).map((k) => ({
+                v: k,
+                l: `${k} mm`,
+              }))}
+            />
+            <NumInput
+              label="Quantity"
+              value={qty}
+              onChange={(n) => setQty(n)}
+              step={"1"}
+            />
+            <NumInput
+              label="A (mm)"
+              value={dimA}
+              onChange={(n) => setDimA(n)}
+              step={"10"}
+            />
+            <NumInput
+              label="B (mm)"
+              value={dimB}
+              onChange={(n) => setDimB(n)}
+              step={"10"}
+            />
+            <NumInput
+              label="C (mm)"
+              value={dimC}
+              onChange={(n) => setDimC(n)}
+              step={"10"}
+            />
+            {shape === "41" && (
+              <>
+                <NumInput
+                  label="D (mm)"
+                  value={dimD}
+                  onChange={(n) => setDimD(n)}
+                  step={"10"}
+                />
+                <NumInput
+                  label="E (mm, optional)"
+                  value={dimE}
+                  onChange={(n) => setDimE(n)}
+                  step={"10"}
+                />
+              </>
+            )}
+            {(shape === "51" || shape === "63") && (
+              <SelectInput
+                label="Hook legs (C)/(D)"
+                value={minimizeHooks ? "min" : "sched"}
+                onChange={(v) => setMinimizeHooks(v === "min")}
+                options={[
+                  { v: "sched", l: "Scheduled dimensions" },
+                  { v: "min", l: "Minimized hooks (Table 3 variant)" },
+                ]}
+              />
+            )}
+          </InputGrid>
+        </div>
+        {errors.length > 0 && <WarningList warnings={errors} />}
+        <div className="mt-4">
+          <Button onClick={calculate} className="w-full sm:w-auto">
+            <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate
+            Cutting Length
+          </Button>
+        </div>
+      </div>
+
+      {bbsResult && (
+        <ResultCard>
+          <div className="grid md:grid-cols-3 gap-3 text-sm">
+            <DetailItem
+              label="Cutting length per bar"
+              value={`${bbsResult.L.toFixed(0)} mm`}
+            />
+            <DetailItem
+              label="Total length"
+              value={`${totalLengthM.toFixed(2)} m`}
+            />
+            <DetailItem
+              label="Total mass"
+              value={`${totalMass.toFixed(1)} kg`}
+            />
+            <DetailItem
+              label="Min scheduling radius r"
+              value={table2 ? `${table2.r} mm` : "n/a"}
+            />
+            <DetailItem
+              label="Min mandrel diameter M"
+              value={table2 ? `${table2.M} mm` : "n/a"}
+            />
+            <DetailItem label="Bar mass" value={`${massPerM} kg/m`} />
+            {shape === "41" || shape === "63" ? (
+              <>
+                <DetailItem
+                  label="ACI 135 deg seismic hook bend dia"
+                  value={`${hook.insideBendDiameter.toFixed(1)} mm`}
+                />
+                <DetailItem
+                  label="Hook straight extension"
+                  value={`${hook.straightExtension.toFixed(1)} mm`}
+                />
+              </>
+            ) : null}
+          </div>
+          <FormulaToggle
+            show={showFormulas}
+            setShow={setShowFormulas}
+            formulas={[
+              bbsResult.formula,
+              ...(shape === "41" || shape === "63" ? [hook.clause] : []),
+            ]}
+          />
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={downloadBvbs}
+              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+            >
+              Export BVBS / .bfx (CNC machines)
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                exportDesignSheet({
+                  kind: "BBS",
+                  title: `BS 8666 shape ${shape} - d${d} - ${qty} no.`,
+                  metaRows: [
+                    ["Shape code", shape],
+                    ["Bar size", `${d} mm`],
+                    ["Quantity", `${qty}`],
+                    ["Cutting length per bar", `${bbsResult.L.toFixed(0)} mm`],
+                    ["Total mass", `${totalMass.toFixed(1)} kg`],
+                  ],
+                  checks: [],
+                  formulas: [bbsResult.formula],
+                  warnings: [
+                    "BVBS export is a compatible Stabliste subset: verify import on the target CNC controller before production use.",
+                  ],
+                })
+              }
+              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+            >
+              Export schedule sheet (PDF)
+            </button>
+          </div>
+          <p className="mt-3 text-center text-xs text-muted-foreground">
+            BVBS export is a compatible Stabliste subset. Verify import into the
+            target shear/bend line controller on a sample position before
+            production use.
+          </p>
+          <EngineerReviewBadge />
+        </ResultCard>
+      )}
+
+      <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+        <h3 className="text-base font-semibold">Lap and development lengths</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Tension and compression development and lap lengths by bond
+          conditions: ACI 318-19 Chapter 25 (simplified) or EN 1992-1-1 Sections
+          8.4/8.7.
+        </p>
+        <div className="mt-4">
+          <InputGrid>
+            <SelectInput
+              label="Standard"
+              value={lapStd}
+              onChange={(v) => setLapStd(v as "ACI" | "EC2")}
+              options={[
+                { v: "ACI", l: "ACI 318-19 (Ch. 25)" },
+                { v: "EC2", l: "EN 1992-1-1 (EC2 8.4/8.7)" },
+              ]}
+            />
+            <NumInput
+              label="Bar diameter (mm)"
+              value={lapDia}
+              onChange={(n) => setLapDia(n)}
+              step={"1.6"}
+            />
+            {lapStd === "ACI" ? (
+              <>
+                <NumInput
+                  label="fy (MPa)"
+                  value={fy}
+                  onChange={(n) => setFy(n)}
+                  step={"10"}
+                />
+                <NumInput
+                  label="fc' (MPa)"
+                  value={fc}
+                  onChange={(n) => setFc(n)}
+                  step={"1"}
+                />
+                <SelectInput
+                  label="Casting position (psi_t)"
+                  value={topBar}
+                  onChange={(v) => setTopBar(v as "top" | "other")}
+                  options={[
+                    { v: "other", l: "Bottom/other (1.0)" },
+                    { v: "top", l: "Top bar > 300 mm below (1.3)" },
+                  ]}
+                />
+              </>
+            ) : (
+              <>
+                <NumInput
+                  label="fck (MPa)"
+                  value={fc}
+                  onChange={(n) => setFc(n)}
+                  step={"1"}
+                />
+                <SelectInput
+                  label="Bond condition (eta1)"
+                  value={bond}
+                  onChange={(v) => setBond(v as "good" | "poor")}
+                  options={[
+                    { v: "good", l: "Good bond (eta1 = 1.0)" },
+                    { v: "poor", l: "Poor bond (eta1 = 0.7)" },
+                  ]}
+                />
+              </>
+            )}
+          </InputGrid>
+        </div>
+        {lapResult.rows.length > 0 && (
+          <div className="mt-4 grid md:grid-cols-3 gap-3 text-sm">
+            {lapResult.rows.map((r) => (
+              <DetailItem key={r.label} label={r.label} value={r.value} />
+            ))}
+          </div>
+        )}
+        {lapResult.notes.length > 0 && (
+          <WarningList warnings={lapResult.notes} />
+        )}
+      </div>
     </div>
   );
 }
