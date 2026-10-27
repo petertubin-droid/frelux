@@ -106,6 +106,10 @@ type TranslationKey = string;
 export const translations: Record<Language, Record<TranslationKey, string>> = {
   en: {},
   es: {
+    "Every Trade. Every Market. One Construction Platform.":
+      "Todos los oficios. Todos los mercados. Una plataforma de construcción.",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.":
+      "Calcule materiales de construcción, estime costos de proyecto, explore sistemas de acabado y planifique obras con métodos de cálculo transparentes y datos de construcción específicos de cada mercado.",
     "Every trade. Every cost. One platform.":
       "Todos los oficios. Todos los costes. Una sola plataforma.",
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
@@ -164,6 +168,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     Projects: "Proyectos",
   },
   fr: {
+    "Every Trade. Every Market. One Construction Platform.":
+      "Tous les métiers. Tous les marchés. Une plateforme de construction.",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.":
+      "Calculez vos matériaux de construction, estimez les coûts de vos projets, explorez les systèmes de finition et planifiez vos chantiers avec des méthodes de calcul transparentes et des données de construction propres à chaque marché.",
     "Every trade. Every cost. One platform.":
       "Tous les corps de métier. Tous les coûts. Une seule plateforme.",
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
@@ -223,6 +231,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     Projects: "Projets",
   },
   de: {
+    "Every Trade. Every Market. One Construction Platform.":
+      "Jedes Gewerk. Jeder Markt. Eine Bauplattform.",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.":
+      "Berechnen Sie Baumaterialien, schätzen Sie Projektkosten, erkunden Sie Ausbausysteme und planen Sie Bauprojekte mit transparenten Rechenmethoden und marktspezifischen Baudaten.",
     "Every trade. Every cost. One platform.":
       "Jedes Gewerk. Jede Kostenposition. Eine Plattform.",
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
@@ -282,6 +294,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     Projects: "Projekte",
   },
   pt: {
+    "Every Trade. Every Market. One Construction Platform.":
+      "Todas as especialidades. Todos os mercados. Uma plataforma de construção.",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.":
+      "Calcule materiais de construção, estime custos de projeto, explore sistemas de acabamento e planeje obras com métodos de cálculo transparentes e dados de construção específicos de cada mercado.",
     "Every trade. Every cost. One platform.":
       "Todos os ofícios. Todos os custos. Uma só plataforma.",
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
@@ -341,6 +357,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     Projects: "Projetos",
   },
   ru: {
+    "Every Trade. Every Market. One Construction Platform.":
+      "Все специальности. Все рынки. Одна строительная платформа.",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.":
+      "Рассчитывайте стройматериалы, оценивайте стоимость проектов, изучайте отделочные системы и планируйте строительство с прозрачными методами расчёта и данными, учитывающими ваш рынок.",
     "Every trade. Every cost. One platform.":
       "Все отрасли. Все затраты. Одна платформа.",
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
@@ -400,6 +420,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     Projects: "Проекты",
   },
   id: {
+    "Every Trade. Every Market. One Construction Platform.":
+      "Semua pekerjaan. Semua pasar. Satu platform konstruksi.",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.":
+      "Hitung material konstruksi, estimasi biaya proyek, telusuri sistem finishing, dan rencanakan proyek bangunan dengan metode perhitungan transparan dan data konstruksi spesifik pasar.",
     "Every trade. Every cost. One platform.":
       "Semua bidang. Semua biaya. Satu platform.",
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
@@ -458,6 +482,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     Projects: "Proyek",
   },
   sw: {
+    "Every Trade. Every Market. One Construction Platform.":
+      "Kila ufundi. Kila soko. Jukwaa moja la ujenzi.",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.":
+      "Kokoa vifaa vya ujenzi, kadiria gharama za mradi, chunguza mifumo ya kumaliza, na panga miradi ya ujenzi kwa njia za wazi za kukokoa na data ya ujenzi maalum kwa soko lako.",
     "Every trade. Every cost. One platform.":
       "Kila ufani. Gharama zote. Jukwaa moja.",
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
@@ -516,6 +544,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     Projects: "Miradi",
   },
   ar: {
+    "Every Trade. Every Market. One Construction Platform.":
+      "كل المهن. كل الأسواق. منصة إنشاءات واحدة.",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.":
+      "احسب مواد البناء وقدّر تكاليف المشاريع واستكشف أنظمة التشطيب وخطّط مشاريع البناء بأساليب حساب شفافة وبيانات إنشاءات خاصة بكل سوق.",
     "Every trade. Every cost. One platform.":
       "كل الحرف. كل التكاليف. منصة واحدة.",
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
@@ -574,6 +606,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     Projects: "المشاريع",
   },
   hi: {
+    "Every Trade. Every Market. One Construction Platform.":
+      "हर व्यवसाय। हर बाज़ार। एक निर्माण प्लेटफ़ॉर्म।",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.":
+      "निर्माण सामग्री की गणना करें, परियोजना लागत का अनुमान लगाएं, फिनिशिंग सिस्टम देखें और पारदर्शी गणना विधियों तथा बाज़ार-विशिष्ट निर्माण डेटा के साथ बिल्डिंग परियोजनाएँ योजनाबद्ध करें।",
     "Every trade. Every cost. One platform.":
       "हर कारीगरी। हर लागत। एक ही प्लेटफ़ॉर्म।",
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
@@ -632,6 +668,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     Projects: "प्रोजेक्ट",
   },
   zh: {
+    "Every Trade. Every Market. One Construction Platform.":
+      "所有工种。所有市场。一个建筑平台。",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.":
+      "计算建材用量、估算项目成本、探索饰面系统并规划建筑项目，全程采用透明的计算方法和特定市场的建筑数据。",
     "Every trade. Every cost. One platform.": "所有工种，所有成本，一个平台。",
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
       "Frelux 将您的测量数据转化为精确的材料数量和经市场核实的真实成本，无论是单个房间还是整栋建筑，从地基到屋顶。拍张照片即可获得 AI 估价，生成专业工程量清单（BOQ），并在需要时聘请经过验证的专业人士。免费，支持多种语言。",
@@ -689,6 +729,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     Projects: "项目",
   },
   ja: {
+    "Every Trade. Every Market. One Construction Platform.":
+      "すべての職種。すべての市場。ひとつの建設プラットフォーム。",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.":
+      "建築資材を計算し、プロジェクトコストを見積もり、仕上げシステムを調べ、透明な計算方法と市場別の建築データで建設プロジェクトを計画できます。",
     "Every trade. Every cost. One platform.":
       "すべての職種、すべてのコスト、ひとつのプラットフォーム。",
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
@@ -744,6 +788,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     Projects: "プロジェクト",
   },
   nl: {
+    "Every Trade. Every Market. One Construction Platform.":
+      "Elk vak. Elke markt. Eén bouwplatform.",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.":
+      "Bereken bouwmaterialen, raming kosten van projecten, verken afwerkingssystemen en plan bouwprojecten met transparante rekenmethoden en marketspecifieke bouwdata.",
     "Every trade. Every cost. One platform.":
       "Elk vak. Elke kostenpost. Eén platform.",
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":

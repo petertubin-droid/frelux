@@ -7,8 +7,10 @@ import {
 
 describe("useHeroContent", () => {
   it("exports DEFAULT_HERO_CONTENT with correct fields", () => {
-    expect(DEFAULT_HERO_CONTENT.headline).toContain("Every trade");
-    expect(DEFAULT_HERO_CONTENT.subheadline).toContain("market-verified");
+    expect(DEFAULT_HERO_CONTENT.headline).toContain("Every Trade");
+    expect(DEFAULT_HERO_CONTENT.subheadline).toContain(
+      "market-specific construction data",
+    );
     expect(DEFAULT_HERO_CONTENT.ctaPrimaryLabel).toBe("Start Estimating Free");
     expect(DEFAULT_HERO_CONTENT.ctaPrimaryHref).toBe("/construction-tools");
     expect(DEFAULT_HERO_CONTENT.ctaSecondaryLabel).toBe(

@@ -25,9 +25,9 @@ export interface HeroContent {
 /** Hardcoded fallback. Updated 2026-10-06 with the client-approved
  * worldwide-platform hero copy (matches the live site_settings row). */
 export const DEFAULT_HERO_CONTENT: HeroContent = {
-  headline: "Every trade. Every cost. One platform.",
+  headline: "Every Trade. Every Market. One Construction Platform.",
   subheadline:
-    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you\u2019re ready. Free, available in multiple languages.",
+    "Calculate construction materials, estimate project costs, explore finishing systems, and plan building projects using transparent calculation methods and market-specific construction data.",
   ctaPrimaryLabel: "Start Estimating Free",
   ctaPrimaryHref: "/construction-tools",
   ctaSecondaryLabel: "Try the AI Photo Estimator",

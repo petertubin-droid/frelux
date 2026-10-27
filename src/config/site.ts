@@ -7,7 +7,7 @@ export const siteConfig = {
   shortName: "FRELUX",
   // Final worldwide positioning (matches the client-approved hero copy,
   // 2026-10-06): premium, platform-level, trade-agnostic.
-  tagline: "Every trade. Every cost. One platform.",
+  tagline: "Every trade. Every market. One construction platform.",
   description:
     "Frelux turns your measurements into exact material quantities and real, market-verified costs, from a single room to an entire building, foundation to roof. Free, professional-grade estimation in multiple languages, for builders worldwide.",
   email: "frenzyanthony39@gmail.com",
@@ -18,7 +18,8 @@ export const siteConfig = {
     whatsappDisplay: "+234 906 361 2439",
     whatsappUrl: "https://wa.me/2349063612439",
     operatingHours: "Monday – Friday: 8:00 AM – 6:00 PM (WAT / UTC+1)",
-    responseExpectation: "WhatsApp: typically within hours during business days. Email: within 1 business day.",
+    responseExpectation:
+      "WhatsApp: typically within hours during business days. Email: within 1 business day.",
   },
   // AdSense, leave empty until approved; ads component renders nothing when unset.
   adsense: {
