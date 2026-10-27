@@ -385,3 +385,427 @@ export function calculateReinforcement(
     missing,
   };
 }
+
+// ─────────────────────────────────────────────
+// BS 8666 bar bending schedule (BBS)
+// ─────────────────────────────────────────────
+//
+// Cutting lengths are derived from neutral-axis geometry, not from a
+// memorised table: every straight leg loses (r + d) at a bend because the
+// schedule dimension is measured to the outside face, and every bend adds
+// an arc of θ·(r + d/2) along the bar centreline. The bend radius r is the
+// BS 8666:2019 mandrel radius (4d for d ≤ 16 mm, 7d above), so a cut length
+// is always explainable from the dimensions a steel fixer sees on site.
+//
+// Shapes implemented (the four the schedule needs): 00 straight, 11 L-bar
+// (one 90° bend), 21 U-bar (two 90° bends), 51 closed link/stirrup
+// (four 90° bends plus BS 8666 135° hooks). Anything else is refused rather
+// than approximated.
+
+export type Bs8666ShapeCode = "00" | "11" | "21" | "51";
+
+export interface Bs8666DimensionSet {
+  /** Primary leg, mm */
+  a: number;
+  /** Second leg / width, mm */
+  b?: number;
+  /** Third leg (U-bar), mm */
+  c?: number;
+  /** Reserved for shapes that need a fourth dimension, mm */
+  d?: number;
+}
+
+export interface Bs8666ShapeSpec {
+  code: Bs8666ShapeCode;
+  name: string;
+  /** Dimension letters the shape needs, in schedule order. */
+  requiredDims: ("a" | "b" | "c")[];
+  /** Human-readable cut length rule. */
+  rule: string;
+  bends: number;
+  hasHooks: boolean;
+}
+
+export const BS8666_SHAPES: Record<Bs8666ShapeCode, Bs8666ShapeSpec> = {
+  "00": {
+    code: "00",
+    name: "Straight",
+    requiredDims: ["a"],
+    rule: "A",
+    bends: 0,
+    hasHooks: false,
+  },
+  "11": {
+    code: "11",
+    name: "L-bar (single 90° bend)",
+    requiredDims: ["a", "b"],
+    rule: "A + B − 2(r + d) + (π/2)(r + d/2)",
+    bends: 1,
+    hasHooks: false,
+  },
+  "21": {
+    code: "21",
+    name: "U-bar (two 90° bends)",
+    requiredDims: ["a", "b", "c"],
+    rule: "A + B + C − 4(r + d) + 2(π/2)(r + d/2)",
+    bends: 2,
+    hasHooks: false,
+  },
+  "51": {
+    code: "51",
+    name: "Closed link / stirrup (four 90° bends + 135° hooks)",
+    requiredDims: ["a", "b"],
+    rule: "2(A + B) − 8(r + d) + 4(π/2)(r + d/2) + 2·hook, hook = max(10d, 75 mm)",
+    bends: 4,
+    hasHooks: true,
+  },
+};
+
+/** BS 8666:2019 minimum mandrel diameter for a bar diameter, mm. */
+export function bs8666MandrelDiameterMm(diameterMm: number): number {
+  return diameterMm <= 16 ? 4 * diameterMm : 7 * diameterMm;
+}
+
+/** Link hook tail length: EC2 §8.5 / BS 8666 135° link hook, mm. */
+export function bs8666LinkHookMm(diameterMm: number): number {
+  return Math.max(10 * diameterMm, 75);
+}
+
+export interface Bs8666CutLength {
+  ok: boolean;
+  errors: string[];
+  warnings: string[];
+  /** Straight-line cut length along the bar centreline, mm */
+  cutLengthMm: number | null;
+  mandrelDiameterMm: number;
+  bendRadiusMm: number;
+  /** Total material consumed by bends and hooks, mm */
+  bendAllowanceMm: number;
+  hookAllowanceMm: number;
+  /** Substituted formula with the caller's values, for the schedule notes. */
+  formula: string;
+}
+
+/**
+ * Cutting length for a BS 8666 shape. Refuses (ok: false) when a required
+ * dimension is missing or smaller than the bend geometry allows — a silently
+ * short cut length is a scrap bar on site.
+ */
+export function bs8666CutLength(params: {
+  shapeCode: Bs8666ShapeCode;
+  diameterMm: number;
+  dims: Bs8666DimensionSet;
+}): Bs8666CutLength {
+  const { shapeCode, diameterMm, dims } = params;
+  const spec = BS8666_SHAPES[shapeCode];
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const mandrel = bs8666MandrelDiameterMm(diameterMm);
+  const r = mandrel / 2;
+  const d = diameterMm;
+
+  const base: Bs8666CutLength = {
+    ok: false,
+    errors,
+    warnings,
+    cutLengthMm: null,
+    mandrelDiameterMm: mandrel,
+    bendRadiusMm: r,
+    bendAllowanceMm: 0,
+    hookAllowanceMm: 0,
+    formula: "",
+  };
+
+  if (!Number.isFinite(diameterMm) || diameterMm <= 0) {
+    errors.push("Bar diameter must be a positive number.");
+    return base;
+  }
+  if (!spec) {
+    errors.push(
+      `Shape code ${String(shapeCode)} is not supported by this schedule.`,
+    );
+    return base;
+  }
+  for (const key of spec.requiredDims) {
+    const v = dims[key];
+    if (v === null || v === undefined || !Number.isFinite(v)) {
+      errors.push(`Shape ${spec.code} needs dimension ${key.toUpperCase()}.`);
+    }
+  }
+  if (errors.length > 0) return base;
+
+  const quarterArc = (Math.PI / 2) * (r + d / 2);
+  const hook = spec.hasHooks ? bs8666LinkHookMm(d) : 0;
+  let cut = 0;
+  let formula = "";
+  let bends = 0;
+
+  switch (shapeCode) {
+    case "00": {
+      cut = dims.a;
+      formula = `L = A = ${roundTo(dims.a, 1)} mm`;
+      break;
+    }
+    case "11": {
+      const legs = dims.a + (dims.b ?? 0);
+      cut = legs - 2 * (r + d) + quarterArc;
+      bends = 1;
+      formula =
+        `L = ${roundTo(dims.a, 1)} + ${roundTo(dims.b ?? 0, 1)} − 2(${roundTo(r, 1)} + ${d}) ` +
+        `+ (π/2)(${roundTo(r, 1)} + ${d / 2}) = ${roundTo(cut, 1)} mm`;
+      break;
+    }
+    case "21": {
+      const legs = dims.a + (dims.b ?? 0) + (dims.c ?? 0);
+      cut = legs - 4 * (r + d) + 2 * quarterArc;
+      bends = 2;
+      formula =
+        `L = ${roundTo(dims.a, 1)} + ${roundTo(dims.b ?? 0, 1)} + ${roundTo(dims.c ?? 0, 1)} ` +
+        `− 4(${roundTo(r, 1)} + ${d}) + 2(π/2)(${roundTo(r, 1)} + ${d / 2}) = ${roundTo(cut, 1)} mm`;
+      break;
+    }
+    case "51": {
+      const perimeter = 2 * (dims.a + (dims.b ?? 0));
+      cut = perimeter - 8 * (r + d) + 4 * quarterArc + 2 * hook;
+      bends = 4;
+      formula =
+        `L = 2(${roundTo(dims.a, 1)} + ${roundTo(dims.b ?? 0, 1)}) − 8(${roundTo(r, 1)} + ${d}) ` +
+        `+ 4(π/2)(${roundTo(r, 1)} + ${d / 2}) + 2 × ${roundTo(hook, 1)} = ${roundTo(cut, 1)} mm`;
+      break;
+    }
+  }
+
+  // A leg shorter than the bend radius plus the bar diameter cannot be formed.
+  const minLeg = r + d;
+  for (const key of spec.requiredDims) {
+    const v = dims[key] as number;
+    if (key !== "b" && v < minLeg) {
+      warnings.push(
+        `Dimension ${key.toUpperCase()} (${roundTo(v, 1)} mm) is below the minimum formable leg ${roundTo(minLeg, 1)} mm for a ${d} mm bar.`,
+      );
+    }
+  }
+  if (cut <= 0) {
+    errors.push("Computed cut length is not positive; check the dimensions.");
+    return {
+      ...base,
+      bendAllowanceMm: roundTo(bends * quarterArc, 2),
+      hookAllowanceMm: roundTo(2 * hook, 2),
+      formula,
+    };
+  }
+
+  return {
+    ok: true,
+    errors,
+    warnings,
+    cutLengthMm: roundTo(cut, 1),
+    mandrelDiameterMm: mandrel,
+    bendRadiusMm: r,
+    bendAllowanceMm: roundTo(bends * quarterArc, 2),
+    hookAllowanceMm: roundTo(2 * hook, 2),
+    formula,
+  };
+}
+
+/** BS 4449 nominal mass per metre, kg/m (0.006165 d²). */
+export function rebarKgPerMetre(diameterMm: number): number {
+  return roundTo(0.006165 * diameterMm * diameterMm, 4);
+}
+
+export interface BbsBarInput {
+  /** Bar mark as it appears on the schedule, e.g. "B1" */
+  barMark: string;
+  /** Steel designation, e.g. "B500B (T)" */
+  typeGrade: string;
+  diameterMm: number;
+  /** How many identical members carry this bar */
+  members: number;
+  /** How many of this bar are in each member */
+  barsPerMember: number;
+  shapeCode: Bs8666ShapeCode;
+  dims: Bs8666DimensionSet;
+}
+
+export interface BbsRow {
+  barMark: string;
+  typeGrade: string;
+  sizeMm: number;
+  members: number;
+  barsPerMember: number;
+  totalBars: number;
+  /** Cut length of one bar, mm */
+  lengthEachMm: number | null;
+  /** Total length of all bars for this mark, m */
+  totalLengthM: number | null;
+  shapeCode: Bs8666ShapeCode;
+  shapeName: string;
+  dims: Bs8666DimensionSet;
+  /** Total mass for this mark, kg */
+  weightKg: number | null;
+  formula: string;
+  mandrelDiameterMm: number;
+  warnings: string[];
+}
+
+export interface BarBendingSchedule {
+  rows: BbsRow[];
+  totals: {
+    barMarks: number;
+    totalBars: number;
+    totalLengthM: number;
+    totalWeightKg: number;
+  };
+  errors: string[];
+  warnings: string[];
+  /** Shapes and allowances this schedule assumed, for the drawing notes. */
+  notes: string[];
+}
+
+/**
+ * Builds the bar bending schedule. Every row is either fully computed or
+ * flagged: a row whose shape or dimensions are incomplete keeps its inputs
+ * but carries no length or weight, and reports why.
+ */
+export function buildBarBendingSchedule(
+  bars: readonly BbsBarInput[],
+): BarBendingSchedule {
+  const rows: BbsRow[] = [];
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const seenMarks = new Set<string>();
+
+  for (const bar of bars) {
+    const mark = (bar.barMark ?? "").trim();
+    if (!mark) {
+      errors.push("A schedule row has no bar mark.");
+      continue;
+    }
+    if (seenMarks.has(mark)) {
+      errors.push(`Duplicate bar mark "${mark}" — marks must be unique.`);
+      continue;
+    }
+    seenMarks.add(mark);
+
+    const members = Number.isFinite(bar.members)
+      ? Math.max(0, Math.floor(bar.members))
+      : 0;
+    const perMember = Number.isFinite(bar.barsPerMember)
+      ? Math.max(0, Math.floor(bar.barsPerMember))
+      : 0;
+    if (members <= 0 || perMember <= 0) {
+      errors.push(
+        `Bar mark "${mark}": members and bars per member must both be at least 1.`,
+      );
+    }
+
+    const cut = bs8666CutLength({
+      shapeCode: bar.shapeCode,
+      diameterMm: bar.diameterMm,
+      dims: bar.dims,
+    });
+    const totalBars = members * perMember;
+    const totalLengthM =
+      cut.ok && cut.cutLengthMm !== null
+        ? roundTo((cut.cutLengthMm * totalBars) / 1000, 3)
+        : null;
+    const weightKg =
+      totalLengthM !== null
+        ? roundTo(totalLengthM * rebarKgPerMetre(bar.diameterMm), 2)
+        : null;
+
+    for (const w of cut.warnings) warnings.push(`Bar ${mark}: ${w}`);
+    for (const e of cut.errors) errors.push(`Bar ${mark}: ${e}`);
+
+    rows.push({
+      barMark: mark,
+      typeGrade: bar.typeGrade,
+      sizeMm: bar.diameterMm,
+      members,
+      barsPerMember: perMember,
+      totalBars,
+      lengthEachMm: cut.ok ? cut.cutLengthMm : null,
+      totalLengthM,
+      shapeCode: bar.shapeCode,
+      shapeName: BS8666_SHAPES[bar.shapeCode]?.name ?? "Unsupported shape",
+      dims: bar.dims,
+      weightKg,
+      formula: cut.formula,
+      mandrelDiameterMm: cut.mandrelDiameterMm,
+      warnings: cut.warnings,
+    });
+  }
+
+  const totalBars = rows.reduce((s, r) => s + r.totalBars, 0);
+  const totalLengthM = roundTo(
+    rows.reduce((s, r) => s + (r.totalLengthM ?? 0), 0),
+    3,
+  );
+  const totalWeightKg = roundTo(
+    rows.reduce((s, r) => s + (r.weightKg ?? 0), 0),
+    2,
+  );
+
+  const notes = [
+    "Cutting lengths are neutral-axis lengths: BS 8666:2019 shape codes with mandrel diameters 4d (d ≤ 16 mm) and 7d (d > 16 mm).",
+    "Schedule dimensions are measured to the outside face of the bar; each bend deducts (r + d) per leg end.",
+    "Link hooks are 135° with a tail of max(10d, 75 mm) per EC2 §8.5.",
+    "Masses use the BS 4449 nominal mass 0.006165 d² kg/m.",
+    "Laps are not included: add lap lengths to the total length before ordering.",
+  ];
+
+  return {
+    rows,
+    totals: { barMarks: rows.length, totalBars, totalLengthM, totalWeightKg },
+    errors,
+    warnings,
+    notes,
+  };
+}
+
+/** CSV export of the schedule, one row per bar mark. */
+export function bbsToCsv(schedule: BarBendingSchedule): string {
+  const header = [
+    "Bar mark",
+    "Type/grade",
+    "Size (mm)",
+    "No. of members",
+    "No. of bars in each",
+    "Total no. of bars",
+    "Length of each bar (mm)",
+    "Total length (m)",
+    "Shape code",
+    "A (mm)",
+    "B (mm)",
+    "C (mm)",
+    "D (mm)",
+    "Weight (kg)",
+  ];
+  const esc = (v: string | number | null | undefined): string => {
+    if (v === null || v === undefined || v === "") return "";
+    const s = String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [header.join(",")];
+  for (const r of schedule.rows) {
+    lines.push(
+      [
+        esc(r.barMark),
+        esc(r.typeGrade),
+        esc(r.sizeMm),
+        esc(r.members),
+        esc(r.barsPerMember),
+        esc(r.totalBars),
+        esc(r.lengthEachMm),
+        esc(r.totalLengthM),
+        esc(r.shapeCode),
+        esc(r.dims.a),
+        esc(r.dims.b ?? null),
+        esc(r.dims.c ?? null),
+        esc(r.dims.d ?? null),
+        esc(r.weightKg),
+      ].join(","),
+    );
+  }
+  return lines.join("\n");
+}
