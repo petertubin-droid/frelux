@@ -28,7 +28,28 @@ const DISMISS_KEY = "frelux_sticky_ad_dismissed";
 export function StickyBottomAd() {
   const [dismissed, setDismissed] = useState(false);
   const [hasVisibleAd, setHasVisibleAd] = useState(false);
+  const [bottomOffset, setBottomOffset] = useState(0);
   const innerRef = useRef<HTMLDivElement>(null);
+
+  // Never cover the mobile bottom navigation bar (owner directive
+  // 2026-10-27): the bar sits directly above it with the nav's real
+  // measured height. On desktop the nav is display:none (offsetHeight
+  // 0) so the bar stays flush with the viewport bottom.
+  useEffect(() => {
+    const nav = document.querySelector<HTMLElement>(
+      "nav[aria-label='Bottom navigation']",
+    );
+    if (!nav) return;
+    const update = () => setBottomOffset(nav.offsetHeight);
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(nav, { childList: true, subtree: true });
+    window.addEventListener("resize", update);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -87,9 +108,10 @@ export function StickyBottomAd() {
       role="complementary"
       aria-label="Advertisement"
       aria-hidden={!hasVisibleAd}
+      style={hasVisibleAd ? { bottom: bottomOffset } : undefined}
       className={
         hasVisibleAd
-          ? "fixed inset-x-0 bottom-0 z-[60] border-t border-border/60 bg-background/95 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] backdrop-blur supports-[backdrop-filter]:bg-background/85"
+          ? "fixed inset-x-0 z-[60] border-t border-border/60 bg-background/95 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] backdrop-blur supports-[backdrop-filter]:bg-background/85"
           : "hidden"
       }
     >

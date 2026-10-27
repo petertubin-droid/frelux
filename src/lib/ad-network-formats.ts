@@ -48,6 +48,11 @@ export function displayAdsEnabled(provider: DbAdProvider): boolean {
 export const ADSTERRA_SERVE_HOSTS = [
   "highperformanceformat.com",
   "highrevenueformat.com",
+  // Zone-snippet hosts from the Adsterra dashboard (owner-verified
+  // 2026-10-27: the native zone 60c8524034bf047ff03e21ffec6aa01b is
+  // served from openairtowhardworking.com/invoke.js - the generic
+  // fallback hosts do NOT serve this zone family).
+  "openairtowhardworking.com",
   "profitabledisplaynetwork.com",
   "profitablecpmrate.com",
   "profitableratecpmnetwork.com",

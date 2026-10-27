@@ -349,6 +349,21 @@ describe("ad-network-formats, native banner serve domain", () => {
     );
   });
 
+  it("uses openairtowhardworking.com from the live dashboard snippet (owner-verified 2026-10-27)", () => {
+    // The native zone 60c8524034bf047ff03e21ffec6aa01b is served from
+    // openairtowhardworking.com (browsed and verified 2026-10-27: the
+    // host returns Adsterra's real native widget script; the generic
+    // fallback hosts do not serve this zone family).
+    const p = prov({
+      serve_domain: "www.highrevenueformat.com",
+      native_banner_key:
+        '<script async="async" data-cfasync="false" src="https://openairtowhardworking.com/60c8524034bf047ff03e21ffec6aa01b/invoke.js"></script> <div id="container-60c8524034bf047ff03e21ffec6aa01b"></div>',
+    });
+    expect(getAdsterraNativeBannerServeDomain(p)).toBe(
+      "openairtowhardworking.com",
+    );
+  });
+
   it("falls back to the validated serve_domain when the snippet host is not an Adsterra host", () => {
     const p = prov({
       serve_domain: "www.highrevenueformat.com",
