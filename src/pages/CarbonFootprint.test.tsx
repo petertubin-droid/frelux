@@ -67,6 +67,18 @@ vi.mock("@/lib/estimation/queries", () => ({
 }));
 
 vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
+// Sustainability Pillar 5: the page attempts an EC3 EPD lookup on load.
+// In tests the edge function is unavailable — the refusal path is exactly
+// what the page is expected to handle (falls back to admin factors).
+vi.mock("@/lib/supabase-lazy", () => ({
+  getSupabase: vi.fn().mockResolvedValue({
+    functions: {
+      invoke: vi.fn().mockRejectedValue(
+        new Error("ec3-epd-lookup is not available in tests"),
+      ),
+    },
+  }),
+}));
 vi.mock("@/lib/seo", () => ({
   useSeo: vi.fn(),
   useBreadcrumbJsonLd: vi.fn(() => null),
@@ -117,10 +129,15 @@ describe("CarbonFootprint page", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /Calculate Carbon/i }));
 
-    // 20 × 2.5 = 50 + 3 × 90 = 270 → 320 kgCO2e
+    // 20 × 2.5 = 50 + 3 × 90 = 270 → 320 kgCO2e. The RICS module card also
+    // renders the same number (product-stage factors bucket at A1, so the
+    // upfront/whole-life totals equal the total), so query all matches.
     await waitFor(() => {
-      expect(screen.getByText(/320 kgCO₂e/)).toBeInTheDocument();
+      expect(screen.getAllByText(/320 kgCO₂e/).length).toBeGreaterThan(0);
     });
+    // The RICS/EN 15978 module breakdown is part of the result (Pillar 5).
+    expect(screen.getByText(/RICS whole life carbon modules/)).toBeInTheDocument();
+    expect(screen.getByText(/Module A1/)).toBeInTheDocument();
   });
 
   it("shows the factor source next to a selected material", async () => {

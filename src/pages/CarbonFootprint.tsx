@@ -17,6 +17,11 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { fetchCarbonFactors, fetchCalcRules } from "@/lib/estimation/queries";
 import {
+  lookupEc3Epds,
+  type EpdFactor,
+} from "@/lib/estimation/ec3-epd";
+import { getSupabase } from "@/lib/supabase-lazy";
+import {
   calculateEmbodiedCarbon,
   categoriesWithFactors,
   type EmbodiedCarbonResult,
@@ -58,6 +63,48 @@ export default function CarbonFootprint() {
     fetchCalcRules("embodied_carbon").then(({ data }) => setRules(data));
   }, []);
 
+  const [epdFactors, setEpdFactors] = useState<EpdFactor[]>([]);
+  const [epdNotice, setEpdNotice] = useState<string | null>(null);
+
+  // EC3 lookup: plant-specific verified EPDs for the categories on screen.
+  // Refusal is expected and honest (no key configured yet) — the assessment
+  // then runs on admin factors and says exactly that.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (categoriesWithFactors(factors).length === 0) return;
+      const supabase = await getSupabase().catch(() => null);
+      if (!supabase) return;
+      const outcome = await lookupEc3Epds(
+        {
+          materialQuery: categoriesWithFactors(factors).slice(0, 5).join(" "),
+          limit: 10,
+        },
+        async (req) => {
+          const { data, error } = await supabase.functions.invoke(
+            "ec3-epd-lookup",
+            { body: req },
+          );
+          if (error) throw new Error(error.message);
+          return data;
+        },
+      );
+      if (cancelled) return;
+      if (outcome.ok) {
+        setEpdFactors(outcome.factors);
+        setEpdNotice(
+          `Plant-specific verified EPDs loaded from Building Transparency EC3: ${outcome.factors.length} declaration(s) adopted.`,
+        );
+      } else if (outcome.reason) {
+        setEpdNotice(outcome.reason);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+     
+  }, [factors]);
+
   const categories = categoriesWithFactors(factors);
   const factorByCategory = (cat: string) =>
     factors.find(
@@ -76,8 +123,12 @@ export default function CarbonFootprint() {
         .filter((l) => l.category && l.quantity !== "")
         .map((l) => ({ category: l.category, quantity: Number(l.quantity) })),
       factors,
+      epdFactors,
       rules,
     });
+    if (epdFactors.length === 0 && epdNotice) {
+      r.epd_unavailable_reason = epdNotice;
+    }
     setResult(r);
     if (r.ok) track("carbon_estimated");
   };
@@ -98,6 +149,18 @@ export default function CarbonFootprint() {
         {loadError && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
             {loadError}
+          </div>
+        )}
+
+        {epdNotice && (
+          <div
+            className={
+              epdFactors.length > 0
+                ? "rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm text-muted-foreground"
+                : "rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-muted-foreground"
+            }
+          >
+            {epdNotice}
           </div>
         )}
 
@@ -219,6 +282,46 @@ export default function CarbonFootprint() {
                 {result.total_kg_co2e.toLocaleString()} kgCO₂e
               </p>
             </div>
+            {result.whole_life && result.whole_life.ok && (
+              <div className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
+                <p className="mb-2 font-medium">
+                  RICS whole life carbon modules (EN 15978)
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {result.whole_life.modules.map((m) => (
+                    <div
+                      key={m.module}
+                      className="flex items-center justify-between rounded border border-border px-3 py-2 dark:border-white/5"
+                    >
+                      <span className="text-muted-foreground">
+                        Module {m.module}
+                      </span>
+                      <span className="font-medium">
+                        {m.kg_co2e.toLocaleString()} kgCO₂e
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-muted-foreground">
+                  Upfront (A1–A5) {result.whole_life.upfrontCarbon.toLocaleString()}
+                  {" · "}use stage embodied {result.whole_life.useStageEmbodied.toLocaleString()}
+                  {" · "}operational {result.whole_life.operationalInUse.toLocaleString()}
+                  {" · "}end of life {result.whole_life.endOfLife.toLocaleString()}
+                  {" · "}total excl. D {result.whole_life.totalExcludingD.toLocaleString()}
+                  {" · "}whole life incl. D {result.whole_life.wholeLifeTotal.toLocaleString()} kgCO₂e
+                </p>
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-muted-foreground">
+                    Tender reportability disclosures
+                  </summary>
+                  <ul className="mt-1 space-y-1 text-muted-foreground">
+                    {result.whole_life.disclosures.map((d, i) => (
+                      <li key={i}>{d}</li>
+                    ))}
+                  </ul>
+                </details>
+              </div>
+            )}
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
                 Per-line breakdown

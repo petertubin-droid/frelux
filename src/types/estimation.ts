@@ -612,6 +612,12 @@ export interface CarbonFactor {
   kg_co2e_per_unit: number;
   description: string | null;
   source_reference: string;
+  /** RICS/EN 15978 lifecycle module (A1–A3, A4, B1…C4, D); null = product stage assumed. */
+  module_stage?: string | null;
+  /** EC3/OpenEPD declaration id when this factor was sourced from an EPD. */
+  epd_id?: string | null;
+  /** Plant name for plant-specific EPD factors. */
+  epd_plant?: string | null;
   effective_date: string;
   is_active: boolean;
   sort_order: number;

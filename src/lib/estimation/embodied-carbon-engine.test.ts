@@ -11,6 +11,7 @@ import {
   type EmbodiedCarbonInput,
 } from "./embodied-carbon-engine";
 import type { CarbonFactor, EstimationCalcRule } from "@/types/estimation";
+import type { EpdFactor } from "./ec3-epd";
 
 const factor = (over: Partial<CarbonFactor> = {}): CarbonFactor =>
   ({
@@ -209,5 +210,115 @@ describe("categoriesWithFactors", () => {
         factor({ id: "f-3", category: "inactive_thing", is_active: false }),
       ]),
     ).toEqual(["cement_bag", "emulsion_paint"]);
+  });
+});
+
+
+describe("calculateEmbodiedCarbon — EPD integration (Sustainability Pillar 5)", () => {
+  const adminFactors = [
+    factor({
+      id: "f-concrete",
+      category: "concrete",
+      unit: "m3",
+      kg_co2e_per_unit: 350, // static estimate, replaced by the EPD below
+      source_reference: "ICE v3 batch estimate",
+    }),
+    factor({
+      id: "f-paint",
+      category: "emulsion_paint",
+      unit: "litre",
+      kg_co2e_per_unit: 2.5,
+      source_reference: "EPD 2025 average",
+    }),
+  ];
+
+  const epdFactor: EpdFactor = {
+    category: "concrete",
+    label: "Ready-Mix Concrete C30/37",
+    epd_id: "frelux-epd-1",
+    unit: "m3",
+    kg_co2e_per_unit: 320.5, // plant-specific verified value
+    plant: "Lafarge Mississauga Plant",
+    publisher: "NSF International",
+    valid_until: "2028-06-30",
+    verified: true,
+    modules: ["A1", "A2", "A3"],
+    source_reference: "EC3 EPD frelux-epd-1 (plant: Lafarge Mississauga Plant)",
+  };
+
+  it("lets a verified EPD replace the static admin factor per category", () => {
+    const r = calculateEmbodiedCarbon({
+      lines: [
+        { category: "Concrete", quantity: 10 },
+        { category: "emulsion_paint", quantity: 4 },
+      ],
+      factors: adminFactors,
+      epdFactors: [epdFactor],
+      rules,
+    });
+    expect(r.ok).toBe(true);
+    expect(r.epd_replaced_categories).toEqual(["concrete"]);
+    const concrete = r.line_results.find((l) => l.matched_category === "concrete")!;
+    expect(concrete.factor_source).toBe("epd");
+    expect(concrete.kg_co2e).toBe(3205); // 10 × 320.5 (EPD), not 10 × 350 (admin)
+    const paint = r.line_results.find((l) => l.matched_category === "emulsion_paint")!;
+    expect(paint.factor_source).toBe("admin");
+    expect(paint.kg_co2e).toBe(10); // 4 × 2.5, admin fallback
+    expect(r.total_kg_co2e).toBe(3215);
+    expect(r.warnings.join(" ")).toContain("replaced the static admin factor");
+    expect(r.steps.map((st) => st.detail).join(" ")).toContain("verified EPD");
+  });
+
+  it("runs identically on admin factors when no EPD data is supplied", () => {
+    const r = calculateEmbodiedCarbon({
+      lines: [{ category: "Concrete", quantity: 10 }],
+      factors: adminFactors,
+      rules,
+    });
+    const concrete = r.line_results[0];
+    expect(concrete.factor_source).toBe("admin");
+    expect(concrete.kg_co2e).toBe(3500); // 10 × 350, the static estimate
+  });
+
+  it("produces the RICS whole-life breakdown on every run", () => {
+    const r = calculateEmbodiedCarbon({
+      lines: [
+        { category: "Concrete", quantity: 10 },
+        { category: "emulsion_paint", quantity: 4 },
+      ],
+      factors: adminFactors,
+      epdFactors: [epdFactor],
+      rules,
+    });
+    expect(r.whole_life).toBeDefined();
+    expect(r.whole_life!.ok).toBe(true);
+    // Both factors are product-stage (A1): upfront = total
+    expect(r.whole_life!.upfrontCarbon).toBe(3215);
+    expect(r.whole_life!.modules.map((m) => m.module)).toEqual(["A1"]);
+    expect(r.whole_life!.disclosures.join(" ")).toContain("PAS 2080");
+    // Module-less admin factor: the A1–A3 assumption is stated INSIDE the
+    // breakdown, not the top-level engine warnings (legacy runs stay quiet).
+    expect(r.whole_life!.warnings.join(" ")).toContain("assumed into the A1–A3 product stage");
+    expect(r.warnings.join(" ")).not.toContain("assumed into the A1–A3");
+  });
+
+  it("buckets a factor with an explicit A4 module into the construction group", () => {
+    const r = calculateEmbodiedCarbon({
+      lines: [{ category: "concrete", quantity: 10 }],
+      factors: [
+        factor({
+          id: "f-a4",
+          category: "concrete",
+          unit: "m3",
+          kg_co2e_per_unit: 12,
+          module_stage: "A4",
+          source_reference: "freight factor",
+        }),
+      ],
+      rules,
+    });
+    expect(r.whole_life!.upfrontCarbon).toBe(120);
+    expect(r.whole_life!.groupTotals.construction).toBe(120);
+    expect(r.warnings.join(" ")).not.toContain("assumed into the A1–A3");
   });
 });

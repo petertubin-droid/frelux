@@ -4512,16 +4512,21 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     name: "Embodied Carbon & LCA Engine",
     category: "costing_commercial",
     classification: "independent_engine",
-    sourceFiles: ["src/lib/estimation/embodied-carbon-engine.ts"],
+    sourceFiles: [
+      "src/lib/estimation/embodied-carbon-engine.ts",
+      "src/lib/estimation/whole-life-carbon.ts",
+      "src/lib/estimation/ec3-epd.ts",
+      "supabase/functions/ec3-epd-lookup/index.ts",
+    ],
     consumers: [
-      "src/pages/calculator/EmbodiedCarbonCalculator.tsx",
+      "src/pages/CarbonFootprint.tsx",
       "src/pages/admin/AdminCarbonFactors.tsx",
     ],
     dependencies: [],
     calculationPurpose:
-      "Calculates cradle-to-gate upfront embodied carbon (A1-A3) and transport carbon (A4) in kg CO2e per material line item.",
+      "Calculates embodied carbon per material line with RICS/EN 15978 whole life module breakdown (A1-A3, A4-A5, B1-B7, C1-C4, D) and plant-specific verified EPD factors from the Building Transparency EC3 API, replacing static admin estimates wherever a declaration covers the material.",
     keyFormulas:
-      "EmbodiedCarbonKgCO2e = sum(MaterialMassKg * CarbonEmissionFactorKgCO2ePerKg); TransportCarbon = MassTonnes * DistanceKm * FreightEmissionFactor",
+      "EmbodiedCarbonKgCO2e = sum(MaterialMassKg * CarbonEmissionFactorKgCO2ePerKg); WholeLifeBreakdown = per-module aggregation with UpfrontCarbon = A1-A5, UseStageEmbodied = B1-B5, Operational = B6-B7, EndOfLife = C1-C4, ModuleD disclosed separately; EpdFactor supersedes AdminFactor per category when a verified declaration is available",
     marketAssumptions:
       "Regional grid electricity emission factors and local cement clinker ratios (e.g. higher clinker substitution in EU than US).",
     internationalizationStatus: "verified_full",
