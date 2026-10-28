@@ -97,9 +97,8 @@ LANGUAGE sql
 IMMUTABLE
 AS $$
   SELECT coalesce(
-    (SELECT string_agg(col || chr(31) || (v_diff -> col -> 'before')::text || chr(31) || (v_diff -> col -> 'after')::text, chr(30))
-     FROM jsonb_object_keys(v_diff) AS col
-     ORDER BY col),
+    (SELECT string_agg(col || chr(31) || (v_diff -> col -> 'before')::text || chr(31) || (v_diff -> col -> 'after')::text, chr(30) ORDER BY length(col), col)
+     FROM jsonb_object_keys(v_diff) AS col),
     '');
 $$;
 
@@ -418,7 +417,7 @@ BEGIN
         USING ERRCODE = 'insufficient_privilege';
     END IF;
     IF v_from = 'commercial_director_approved' AND OLD.requires_dual_signoff AND v_role <> 'executive' THEN
-      RAISE EXCEPTION 'estimates over the dual-signoff threshold require executive sign-off first.', v_role
+      RAISE EXCEPTION 'estimates over the dual-signoff threshold require executive sign-off first; role % is not permitted.', v_role
         USING ERRCODE = 'insufficient_privilege';
     END IF;
     IF v_from = 'commercial_director_approved' AND NOT OLD.requires_dual_signoff AND v_role NOT IN ('commercial_director', 'executive') THEN
