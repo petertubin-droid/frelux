@@ -64,7 +64,7 @@ export function usePaintingWeather(
 
     async function fetchWeather() {
       try {
-        // Env key first (unchanged behavior); then the admin-pasted
+        // Env key first (unchanged behavior); then FRELUX-pasted
         // key from Integration Center (client-safe public view).
         const apiKey =
           import.meta.env.VITE_OPENWEATHER_API_KEY ||

@@ -137,7 +137,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           to="/admin/"
           className="mt-1 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to Admin
+          <ArrowLeft className="h-4 w-4" /> Back to studio
         </Link>
       </div>
     </div>

@@ -52,7 +52,7 @@ export function ruleNumber<T extends NumericRuleLike>(
 }
 
 /**
- * Display precision from the admin "rounding_decimals" rule.
+ * Display precision from FRELUX "rounding_decimals" rule.
  * Strict: only integers in 0..6 count; anything else falls back to 2.
  */
 export function ruleDecimals<T extends NumericRuleLike>(rules: readonly T[]): number {

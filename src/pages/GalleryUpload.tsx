@@ -127,7 +127,7 @@ export default function GalleryUpload() {
       if (beforeImage) await addGalleryImage(entry.id, beforeImage, "before");
       if (afterImage) await addGalleryImage(entry.id, afterImage, "after");
       toast({
-        title: "Project shared! It will appear after admin review.",
+        title: "Project shared! It will appear after review.",
         variant: "success",
       });
       navigate("/gallery");

@@ -190,7 +190,7 @@ export function generateBoq(input: BoqInput): BoqResult {
   }
   if (contingencyRate === null) {
     result.warnings.push(
-      "No contingency rate is configured (Admin → Estimation Config & Rules → contingency_rate for BOQ). " +
+      "No contingency rate is configured (FRELUX → Estimation Config & Rules → contingency_rate for BOQ). " +
         "The quote is produced without a contingency line rather than guessing one.",
     );
   }
@@ -246,7 +246,7 @@ export function generateBoq(input: BoqInput): BoqResult {
   }
   if (vatRate === null) {
     result.warnings.push(
-      "No VAT rate is configured (Admin → Estimation Config & Rules → vat_rate for BOQ). " +
+      "No VAT rate is configured (FRELUX → Estimation Config & Rules → vat_rate for BOQ). " +
         "The quote is produced without a VAT line rather than guessing one.",
     );
   }

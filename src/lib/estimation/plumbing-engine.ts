@@ -17,7 +17,7 @@
  *  - Hot water is a separate category, included only when the
  *    user provides a hot water run length.
  *  - Fitting counts are labelled PLANNING ALLOWANCES derived from
- *    admin rules - not invented measurements.
+ *    configured rules - not invented measurements.
  *  - Prices come from the shared material database. Unpriced
  *    materials show PRICE NOT CONFIGURED; totals stay null.
  *  - This is material estimation, not professional plumbing design.
@@ -359,7 +359,7 @@ export function calculatePlumbing(
       quantity: qty,
       quantity_source: "rule_derived",
       unit: "pieces",
-      detail: `${totalFixtures} fixture connections × ${f.perFixture} per fixture = ${qty} (admin's visible planning allowance)`,
+      detail: `${totalFixtures} fixture connections × ${f.perFixture} per fixture = ${qty} (visible planning allowance)`,
       unit_price: price,
       line_total: price !== null ? money(qty * price) : null,
     });

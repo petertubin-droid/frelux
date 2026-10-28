@@ -649,8 +649,8 @@ export function calculateRoom(
         value: `−${deductedArea.toFixed(2)} m² (${deductionPct}% of ${totalOpeningArea.toFixed(2)} m²)`,
         detail:
           deductionPct === 100
-            ? "Full deduction (FRELUX default). Admin can configure a different percentage."
-            : `Admin-configured deduction: ${deductionPct}%.`,
+            ? "Full deduction (FRELUX default). FRELUX can configure a different percentage."
+            : `verified deduction: ${deductionPct}%.`,
       });
     }
   }
@@ -773,7 +773,7 @@ export function calculateRoom(
       : `${config.quality?.name ?? "N/A"}, NOT CONFIGURED`,
     detail: coverage
       ? `Coverage rate configured for ${config.quality?.name ?? "this quality"} level. This feeds the FRELUX room-based engine.`
-      : "Admin must configure coverage before accurate calculation.",
+      : "FRELUX has not finished configuring coverage before accurate calculation.",
   });
 
   // ── STEP 10: COATS ──
@@ -795,7 +795,7 @@ export function calculateRoom(
 
   // AUDIT FIX (unit bug): coverage must be normalized from its configured unit
   // to m²/L before use. Previously the raw configured value was treated as
-  // m²/L, so an admin coverage configured as "m² per bucket" or "ft² per
+  // m²/L, so FRELUX coverage configured as "m² per bucket" or "ft² per
   // litre" produced silently wrong estimates here (while the central
   // paint-engine handled the same configuration correctly).
   const normalizedCoverageM2PerL = coverage

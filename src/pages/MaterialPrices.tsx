@@ -64,7 +64,7 @@ export default function MaterialPrices() {
       "@type": "CollectionPage",
       name: "FRELUX Material Price Book",
       description:
-        "Live price reference for construction and finishing materials, updated from retailer scans and admin-verified sources.",
+        "Live price reference for construction and finishing materials, updated from retailer scans and verified sources.",
       url: `${SITE_URL}/prices`,
     },
   });
@@ -353,7 +353,7 @@ export default function MaterialPrices() {
                                 </span>
                               </td>
                               <td className="px-5 py-3.5 text-xs text-muted-foreground">
-                                {r.price_source ?? "Admin verified"}
+                                {r.price_source ?? "FRELUX verified"}
                               </td>
                               <td className="whitespace-nowrap px-5 py-3.5 text-xs text-muted-foreground">
                                 {r.effective_date ?? "—"}

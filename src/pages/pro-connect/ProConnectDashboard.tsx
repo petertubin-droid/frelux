@@ -474,7 +474,7 @@ export default function ProConnectDashboard() {
                 {profile.pro_level
                   ? "Top professional"
                   : proLevelEligible
-                    ? "Eligible, contact admin"
+                    ? "Eligible, contact support"
                     : "Build your reputation"}
               </p>
             </div>

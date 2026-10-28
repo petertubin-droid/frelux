@@ -27,6 +27,7 @@ import { ArticleInsertBlock } from "@/components/learn/ArticleInserts";
 import { ArticleMarkdown } from "@/components/learn/ArticleMarkdown";
 import { slugifyHeading } from "@/lib/learn/heading-slug";
 import { Button } from "@/components/ui/shadcn/button";
+import { SITE_URL } from "@/lib/site-config";
 
 type Status = "loading" | "ready" | "error" | "notfound";
 
@@ -50,7 +51,7 @@ export default function LearnArticle() {
 
   // Build structured data, Article schema + BreadcrumbList + FAQPage for rich results.
   const SITE_URL_ =
-    import.meta.env.VITE_SITE_URL ?? "https://freluxtools.netlify.app";
+    SITE_URL;
 
   const articleStructuredData = useMemo(() => {
     if (!article) return undefined;

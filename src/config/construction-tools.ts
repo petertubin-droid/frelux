@@ -48,7 +48,7 @@ import {
  * FRELUX Construction Tools registry.
  *
  * The single authoritative catalogue of user-facing tools. The public
- * Construction Tools page, the navbar dropdown and the admin search all
+ * Construction Tools page, the navbar dropdown and FRELUX search all
  * read from this registry so there is exactly one place where a tool is
  * named, described and categorised.
  *

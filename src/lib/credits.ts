@@ -958,7 +958,7 @@ export async function adminGetRewardedAdConfig(): Promise<RewardedAdCreditConfig
 export async function adminGetAllAdCreditEvents(
   limit = 50,
 ): Promise<RewardedAdCreditEvent[]> {
-  // Same table/query as the user history helper with an admin default limit.
+  // Same table/query as the user history helper with FRELUX default limit.
   return getRewardedAdHistory(limit);
 }
 

@@ -182,7 +182,7 @@ Errors are returned as `{ error: string }` with a non-2xx status. CORS headers a
 ## FRELUX AI API (Phase 7)
 
 The official public API lives at
-`https://hqhvlkunkdrxyuvziorm.supabase.co/functions/v1/frelix-api/v1`
+`https://nfgaaohweygwydoelxnf.supabase.co/functions/v1/frelix-api/v1`
 (Edge Function `frelix-api`, no verify-JWT — authenticated by FRELUX API keys).
 
 - Documentation & key manager: `https://freluxtools.netlify.app/developers` (DeveloperPortal page)

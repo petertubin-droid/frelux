@@ -338,7 +338,7 @@ export default function TyroleneEstimator({
 
         if (!tyroleneProduct) {
           warnings.push(
-            "Tyrolene product is not configured. Admin must configure the Tyrolene product before estimates can be calculated.",
+            "Tyrolene product is not configured. FRELUX has not finished configuring the Tyrolene product before estimates can be calculated.",
           );
         }
 
@@ -358,7 +358,7 @@ export default function TyroleneEstimator({
 
         if (tyroleneMaterials.length < 5) {
           warnings.push(
-            `Only ${tyroleneMaterials.length}/5 Tyrolene materials configured. Admin must configure: cement, sand, acrylic-bond, water-seal, anti-fungal.`,
+            `Only ${tyroleneMaterials.length}/5 Tyrolene materials configured. FRELUX has not finished configuring: cement, sand, acrylic-bond, water-seal, anti-fungal.`,
           );
         }
 
@@ -389,7 +389,7 @@ export default function TyroleneEstimator({
           const role = tyroleneRoles[mat.slug];
           if (!role) {
             warnings.push(
-              `Material '${mat.name}' does not have a configured price. Material cost will be incomplete until FRELUX admin configures the price.`,
+              `Material '${mat.name}' does not have a configured price. Material cost will be incomplete until the price is configured.`,
             );
             continue;
           }
@@ -402,7 +402,7 @@ export default function TyroleneEstimator({
             );
           } else {
             warnings.push(
-              `Material '${mat.name}' has no verified price for this market yet. Material cost will be incomplete until the market price book is filled via the Admin Scan system.`,
+              `Material '${mat.name}' has no verified price for this market yet. Material cost will be incomplete until the market price book is filled via the FRELUX Scan system.`,
             );
           }
         }
@@ -438,7 +438,7 @@ export default function TyroleneEstimator({
         const sp = parseStandardPartition(spRule ?? null);
         if (sp.width === null || sp.height === null) {
           warnings.push(
-            "Standard partition dimensions are not configured. Admin must configure the standard partition width and height before actual-dimension calculations can be used.",
+            "Standard partition dimensions are not configured. FRELUX has not finished configuring the standard partition width and height before actual-dimension calculations can be used.",
           );
         }
 

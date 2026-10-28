@@ -7,7 +7,7 @@
 //   * OpenAI: Live Chat signal capture
 //   * USER:   corrections and actual outcomes
 // All writes go through Supabase RLS: users only touch their
-// own events; records/knowledge/audit are admin-only; AI
+// own events; records/knowledge/audit are restricted; AI
 // reference ingestion goes through the authenticated
 // ai-ingestion edge function (Gemini advisory, human review).
 // No API keys exist in this code.

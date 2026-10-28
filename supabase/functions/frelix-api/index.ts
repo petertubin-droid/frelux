@@ -38,6 +38,7 @@
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getSiteUrl } from "../_shared/site.ts";
 import {
   listEngines,
   executeEngine,
@@ -605,7 +606,7 @@ function handleIdentity(requestId: string) {
       authentication: "Authorization: Bearer FLX-… (FRELUX API key)",
       capabilities: "/v1/capabilities",
       plans: "/v1/plans",
-      documentation: "https://freluxtools.netlify.app/developers",
+      documentation: `${getSiteUrl()}/developers`,
       requestId,
     },
     requestId,

@@ -1799,7 +1799,7 @@ export interface FieldCaptureLogRow {
   queue_last_attempt: string | null;
 }
 
-/** Fetch the admin-configured sync rules (calculator_type 'offline_field'). */
+/** Fetch FRELUX-configured sync rules (calculator_type 'offline_field'). */
 export async function fetchOfflineFieldRules() {
   const result = await fetchCalcRules("offline_field");
   return result;
@@ -1876,7 +1876,7 @@ export interface CountVisionLogRow {
   requested_at: string;
 }
 
-/** Fetch the admin-configured counting rules (calculator_type 'count_vision'). */
+/** Fetch FRELUX-configured counting rules (calculator_type 'count_vision'). */
 export async function fetchCountVisionRules() {
   const result = await fetchCalcRules("count_vision");
   return result;

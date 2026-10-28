@@ -156,7 +156,7 @@ export async function fetchAccountPauses(
 }
 
 /** OWNER REVIEW, applied by the owner/admin session (RLS
- *  enforces admin-only writes). ARCHIE never calls this for
+ *  enforces restricted writes). ARCHIE never calls this for
  *  its own adjudication. */
 export async function applyOwnerReview(
   pauseId: string,

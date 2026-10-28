@@ -214,7 +214,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   // ── Validation: panel model configured (never guessed) ──
   if (!panel) {
     return refuse([
-      "No solar panel model is configured. The estimator refuses to guess panel wattage or dimensions: an admin must configure a model from a manufacturer datasheet.",
+      "No solar panel model is configured. The estimator refuses to guess panel wattage or dimensions: FRELUX must configure a model from a manufacturer datasheet.",
     ]);
   }
   const { watt_peak, length_m, width_m, unit_price_naira } = panel;
@@ -227,7 +227,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
     width_m <= 0
   ) {
     return refuse([
-      "The configured panel model has invalid specs (wattage and dimensions must be positive). The estimator refuses to compute from an invalid model: fix it in the admin config.",
+      "The configured panel model has invalid specs (wattage and dimensions must be positive). The estimator refuses to compute from an invalid model: fix it in the FRELUX configuration.",
     ]);
   }
 
@@ -279,29 +279,29 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
     }
     if (v === null) {
       return refuse([
-        `No '${key}' rule is configured for this calculator. The estimator refuses to invent it: configure the rule in the admin config.`,
+        `No '${key}' rule is configured for this calculator. The estimator refuses to invent it: configure the rule in the FRELUX configuration.`,
       ]);
     }
     if (v < 0) {
       return refuse([
-        `The configured '${key}' rule (${v}) is negative. The estimator refuses to compute from an invalid rule: fix it in the admin config.`,
+        `The configured '${key}' rule (${v}) is negative. The estimator refuses to compute from an invalid rule: fix it in the FRELUX configuration.`,
       ]);
     }
     rv[key] = v;
   }
   if (rv.peak_sun_hours_day === 0) {
     return refuse([
-      "The configured 'peak_sun_hours_day' rule is zero: no energy can be estimated. Fix the rule in the admin config.",
+      "The configured 'peak_sun_hours_day' rule is zero: no energy can be estimated. Fix the rule in the FRELUX configuration.",
     ]);
   }
   if (rv.system_loss_factor >= 1) {
     return refuse([
-      "The configured 'system_loss_factor' rule must be below 1: a 100% loss system produces nothing. Fix the rule in the admin config.",
+      "The configured 'system_loss_factor' rule must be below 1: a 100% loss system produces nothing. Fix the rule in the FRELUX configuration.",
     ]);
   }
   if (rv.inverter_dc_ac_ratio === 0) {
     return refuse([
-      "The configured 'inverter_dc_ac_ratio' rule is zero: division by zero. Fix the rule in the admin config.",
+      "The configured 'inverter_dc_ac_ratio' rule is zero: division by zero. Fix the rule in the FRELUX configuration.",
     ]);
   }
   if (!Number.isInteger(rv.string_size_max) || rv.string_size_max < 1) {
@@ -330,7 +330,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
       (!Number.isFinite(p.price_naira) || p.price_naira < 0)
     ) {
       return refuse([
-        `The configured price for '${key}' (${p.price_naira}) is invalid. The estimator refuses to compute from an invalid price: fix it in the admin config.`,
+        `The configured price for '${key}' (${p.price_naira}) is invalid. The estimator refuses to compute from an invalid price: fix it in the FRELUX configuration.`,
       ]);
     }
   }
@@ -420,7 +420,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
     const unitCap = getRuleValue(rules, "battery_unit_capacity_kwh");
     if (unitCap === null || unitCap <= 0) {
       return refuse([
-        "No valid 'battery_unit_capacity_kwh' rule is configured. The estimator refuses to invent a battery size: configure the rule in the admin config.",
+        "No valid 'battery_unit_capacity_kwh' rule is configured. The estimator refuses to invent a battery size: configure the rule in the FRELUX configuration.",
       ]);
     }
     const chemistry = input.battery_chemistry ?? null;
@@ -517,7 +517,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
 
   if (unpriced.length > 0) {
     warnings.push(
-      `No price is configured for: ${unpriced.join(", ")}. Their quantities are reported, but the total cannot be complete: the estimator does not invent prices. Configure prices in the admin config.`,
+      `No price is configured for: ${unpriced.join(", ")}. Their quantities are reported, but the total cannot be complete: the estimator does not invent prices. Configure prices in the FRELUX configuration.`,
     );
   }
 

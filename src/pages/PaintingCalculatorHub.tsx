@@ -49,7 +49,7 @@ const FAQS = [
   {
     question: "How are ceilings handled?",
     answer:
-      "Ceilings use a separate configurable coverage rate from walls. When you include a ceiling, FRELUX calculates ceiling paint buckets independently so wall and ceiling paint are not mixed. The ceiling coverage is product-specific and set by the admin.",
+      "Ceilings use a separate configurable coverage rate from walls. When you include a ceiling, FRELUX calculates ceiling paint buckets independently so wall and ceiling paint are not mixed. The ceiling coverage is product-specific and set by FRELUX.",
   },
   {
     question: "What can affect the number of buckets required?",
@@ -111,7 +111,7 @@ export default function PaintingCalculatorHub() {
   useSeo({
     title: "Painting Calculator, Paint Quantity, Cost & Room Estimate",
     description:
-      "Free FRELUX painting calculator. Calculate paint buckets required, estimate painting costs, and get room-by-room painting estimates with admin-configured material prices.",
+      "Free FRELUX painting calculator. Calculate paint buckets required, estimate painting costs, and get room-by-room painting estimates with verified material prices.",
     canonicalPath: "/paint-calculator",
     ogType: "website",
     keywords:
@@ -122,7 +122,7 @@ export default function PaintingCalculatorHub() {
         "@type": "WebApplication",
         name: "FRELUX Painting Calculator",
         description:
-          "Calculate paint buckets required, estimate painting costs, and get room-by-room painting estimates with admin-configured material prices.",
+          "Calculate paint buckets required, estimate painting costs, and get room-by-room painting estimates with verified material prices.",
         url: `${SITE_URL}/paint-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",

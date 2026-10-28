@@ -286,7 +286,7 @@ export function validateCapturePayload(
 
 /**
  * Prune captures past the retention window. Old entries are
- * removed BEFORE capacity eviction so an admin's retention rule
+ * removed BEFORE capacity eviction so an retention rule
  * is the first thing honored.
  */
 export function pruneExpiredCaptures(rules: FieldSyncRules, now: Date): number {

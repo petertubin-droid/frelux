@@ -11,7 +11,7 @@
  * This module is the deterministic protocol layer:
  *   - buildPunchOutSetupRequest: valid cXML 1.2 PunchOutSetupRequest
  *     with credentials from the merchant config — secrets are NEVER
- *     hardcoded and always come from the admin-configured store.
+ *     hardcoded and always come from FRELUX-configured store.
  *   - parsePunchOutSetupResponse: extracts the StartPage URL or an
  *     honest refusal with the cXML status code and description.
  *   - parsePunchOutOrderMessage: converts the returned cart into

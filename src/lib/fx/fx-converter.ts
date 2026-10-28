@@ -135,7 +135,7 @@ function verdict(
       oldestLegAgeMs: oldest,
       message:
         `The recorded ${from}->${to} rate is too old to convert honestly ` +
-        "(older than 7 days). An admin must refresh fx_rates; no rate is estimated.",
+        "(older than 7 days). The FX rates need refreshing; no rate is estimated.",
     };
   }
   const freshnessNote =
@@ -239,7 +239,7 @@ export function convertWithRows(
   }
   return refusal(
     `No recorded ${f}->${t} rate and no complete recorded bridge exist. ` +
-      "An admin can add fx_rates rows; no rate is estimated.",
+      "Configured fx_rates rows are required; no rate is estimated.",
   );
 }
 

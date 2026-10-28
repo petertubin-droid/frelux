@@ -157,7 +157,7 @@ export function getCreditRewardCandidates(
 
 /**
  * Ordered unlock chain for a specific tool: the configured primary and
- * fallback providers first (admin's explicit choice), then every other
+ * fallback providers first (explicit choice), then every other
  * active bridged provider by priority. Deduped by id.
  */
 export function getUnlockProviderChain(

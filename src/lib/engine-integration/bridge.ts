@@ -4,11 +4,11 @@
  * Bridges between the measurement engine's in-memory types
  * and the database-stored configurations (em_* tables).
  *
- * The admin panel writes configs to the DB via queries.ts.
+ * The FRELUX settingsl writes configs to the DB via queries.ts.
  * This bridge reads those configs and builds engine objects
  * (MaterialSpec, WasteConfig, MarketProfile, etc.) from them.
  *
- * This is the "control layer", the admin manages configs in the DB,
+ * This is the "control layer", FRELUX manages configs in the DB,
  * and the engine reads them through this bridge.
  */
 

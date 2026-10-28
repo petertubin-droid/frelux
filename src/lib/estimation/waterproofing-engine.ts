@@ -2,7 +2,7 @@
  * Waterproofing Engine (Tier 2, Engine 3)
  *
  * Deterministic waterproofing MATERIAL estimation. Two quantity
- * sources only - user-measured areas/runs and admin rules:
+ * sources only - user-measured areas/runs and configured rules:
  *
  *   USER: DPC run (m), DPM area (m²), wet-area floor area (m²),
  *         wet-area wall area (m²), wet-area perimeter (m),

@@ -9,7 +9,7 @@
 // are reliable standard terminology; everything else is
 // flagged translation_status = needs_review or left
 // untranslated with keep_in_english = true. Nothing here is
-// invented. The dictionary grows through the admin
+// invented. The dictionary grows through FRELUX
 // verification pipeline (spec §13) and the DB, not through
 // bulk fabrication.
 // =========================================================
@@ -706,7 +706,7 @@ export const SEED_CONSTRUCTION_TERMS: ConstructionTermDraft[] = [
 /**
  * Seed translation records derived from the curated set.
  * Only reliable translations are included (standard formal
- * terminology). They are marked provisional until an admin
+ * terminology). They are marked provisional until FRELUX
  * verifies them; nothing is invented.
  */
 export const SEED_TRANSLATIONS: Array<{
@@ -924,7 +924,7 @@ export const SEED_TRANSLATIONS: Array<{
   // SA / AE priority dictionaries. Standard formal terms,
   // web-verified against supplier listings, official
   // terminology lessons (OTIT), and market glossaries.
-  // All provisional until an admin verifies; nothing invented.
+  // All provisional until FRELUX verifies; nothing invented.
   // =====================================================
 
   // ---------- Japanese (JP) ----------

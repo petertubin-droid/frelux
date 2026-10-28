@@ -209,7 +209,7 @@ export async function resolveMarketRebar(
       explanation:
         p.scan_confidence === "manual"
           ? `Priced per 12 m stock length from the ${marketCode} book (verified per-tonne anchor, kg/m conversion).`
-          : `Indicative per-12 m price from the ${marketCode} book (band midpoint, admin-adjustable) - verify with a local supplier.`,
+          : `Indicative per-12 m price from the ${marketCode} book (band midpoint, adjustable) - verify with a local supplier.`,
     });
   }
   return result;
@@ -325,7 +325,7 @@ async function resolvePlumbingSlugGroup(
       explanation:
         p.scan_confidence === "manual"
           ? `Per-${slugInfix === "-pipe-" ? "metre" : "piece"} price from the ${marketCode} book (verified supplier listing; material substitutes the NG default and is named honestly).`
-          : `Indicative per-${slugInfix === "-pipe-" ? "metre" : "piece"} price from the ${marketCode} book (admin-adjustable) - verify with a local supplier.`,
+          : `Indicative per-${slugInfix === "-pipe-" ? "metre" : "piece"} price from the ${marketCode} book (adjustable) - verify with a local supplier.`,
     });
   }
 }
@@ -568,7 +568,7 @@ export async function resolveMarketDoorsWindows(
       explanation:
         p.scan_confidence === "manual"
           ? `Unit price from the ${marketCode} book (${p.price_source || "verified supplier listing"}).`
-          : `Indicative price from the ${marketCode} book (admin-adjustable) - verify with a local supplier.`,
+          : `Indicative price from the ${marketCode} book (adjustable) - verify with a local supplier.`,
     });
   }
 

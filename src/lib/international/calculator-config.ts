@@ -174,7 +174,7 @@ export async function getAvailableCalculators(
 // ============================================================
 
 /**
- * Clear the calculator config cache (e.g. after an admin change).
+ * Clear the calculator config cache (e.g. after FRELUX change).
  */
 export function clearCalculatorConfigCache(): void {
   configCache.clear();

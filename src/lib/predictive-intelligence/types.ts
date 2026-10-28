@@ -48,7 +48,7 @@ export type EvidenceVerification =
   | "user_recorded" // entered by the project owner in FRELUX
   | "user_confirmed" // explicitly confirmed by the user in review
   | "system_verified" // validated by a deterministic check
-  | "admin_verified" // market data verified by an admin
+  | "admin_verified" // market data verified by FRELUX
   | "unverified"; // presented but must not be treated as fact
 
 export interface Evidence {

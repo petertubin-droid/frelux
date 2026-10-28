@@ -252,7 +252,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
         } else if (outcome.reason === "not configured") {
           setPushConfigured(false);
           setPushNote(
-            "Push is not configured yet — see Admin Integration Center",
+            "Push is not configured yet — see FRELUX settings",
           );
         } else if (outcome.reason === "denied") {
           setPushNote(
@@ -547,7 +547,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
           title={
             emailNotify
               ? "Status transitions send a confirmation email to the project owner"
-              : "Paste a Resend key in Admin → Integration Center to enable email notifications"
+              : "Paste a Resend key in FRELUX settings to enable email notifications"
           }
         >
           <Mail className="h-3.5 w-3.5" aria-hidden />
@@ -572,7 +572,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                   ? "This browser cannot receive Web Push notifications"
                   : pushConfigured
                     ? "Enable push below to receive workflow alerts on this browser"
-                    : "Paste VAPID keys in Admin Integration Center to enable push notifications"
+                    : "Paste VAPID keys in FRELUX settings to enable push notifications"
             }
           >
             <Bell className="h-3.5 w-3.5" aria-hidden />

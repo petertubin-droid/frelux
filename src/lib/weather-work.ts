@@ -153,7 +153,7 @@ export function useWorkWeather(
         await new Promise((resolve) => setTimeout(resolve, 0));
         // usePaintingWeather is a hook, we can't call it inside a callback.
         // Instead, replicate the fetch logic minimally.
-        // Env key first; then the admin-pasted Integration Center key.
+        // Env key first; then FRELUX-pasted Integration Center key.
         const apiKey =
           import.meta.env.VITE_OPENWEATHER_API_KEY ||
           (await resolveClientProviderKey("openweather"));

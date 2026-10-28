@@ -1,8 +1,7 @@
+import { SITE_URL } from "@/lib/site-config";
 // Structured data schemas for SEO, generates JSON-LD for various page types
 // Used by the useSeo hook and injected into <head> as <script type="application/ld+json">
 
-const SITE_URL =
-  import.meta.env.VITE_SITE_URL ?? "https://freluxtools.netlify.app";
 const SITE_NAME = "FRELUX SMART CALC";
 
 export interface BreadcrumbItem {

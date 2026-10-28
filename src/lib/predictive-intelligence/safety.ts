@@ -8,7 +8,7 @@
  *  - They may only be presented as "validated" when an
  *    INDEPENDENT validation record exists for the safety_risk
  *    scope in predictive_model_validations — a table the app
- *    cannot write to as a normal user (admin-only RLS).
+ *    cannot write to as a normal user (restricted RLS).
  *  - The app never self-certifies. Absence of a record keeps
  *    every safety output in pending-validation mode.
  *

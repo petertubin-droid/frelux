@@ -869,7 +869,7 @@ export function resolveCapability(
   if (configRow && !configRow.is_available) {
     return {
       state: "disabled",
-      reason: `${engine.name} has been disabled for ${marketCode} by an administrator.`,
+      reason: `${engine.name} has been disabled for ${marketCode} by FRELUX.`,
       engine,
     };
   }

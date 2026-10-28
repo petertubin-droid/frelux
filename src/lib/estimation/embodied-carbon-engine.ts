@@ -39,7 +39,7 @@ export interface EmbodiedCarbonInput {
   /**
    * Plant-specific verified EPD factors from the EC3 lookup
    * (Sustainability Pillar 5). When supplied, an EPD declaration WINS
-   * over the admin factor for its category and the line result is
+   * over FRELUX factor for its category and the line result is
    * labeled factor_source: "epd". Admin factors cover the rest.
    */
   epdFactors?: readonly EpdFactor[];
@@ -56,7 +56,7 @@ export interface CarbonLineResult {
   matched_category: string | null;
   excluded: boolean;
   source_reference: string | null;
-  /** Where the factor came from: a verified EPD or the admin-configured table. */
+  /** Where the factor came from: a verified EPD or FRELUX-configured table. */
   factor_source?: "epd" | "admin";
   /** RICS/EN 15978 lifecycle module the emission was bucketed into. */
   module_stage?: string | null;
@@ -72,7 +72,7 @@ export interface EmbodiedCarbonResult {
   steps: { label: string; detail: string }[];
   /** RICS/EN 15978 module breakdown (PAS 2080 / LEED / BREEAM reporting). */
   whole_life?: WholeLifeResult;
-  /** Categories where a verified EPD replaced the static admin factor. */
+  /** Categories where a verified EPD replaced the static planning factor. */
   epd_replaced_categories?: string[];
   /** Why EPD data was unavailable, when the caller attempted a lookup. */
   epd_unavailable_reason?: string | null;
@@ -197,7 +197,7 @@ export function calculateEmbodiedCarbon(
         source_reference: null,
       });
       result.warnings.push(
-        `No carbon factor is configured for '${category}': the line was excluded from the total. Add a factor under Admin → Carbon Factors for full coverage.`,
+        `No carbon factor is configured for '${category}': the line was excluded from the total. Add a factor under FRELUX → Carbon Factors for full coverage.`,
       );
       continue;
     }
@@ -239,7 +239,7 @@ export function calculateEmbodiedCarbon(
     });
     result.steps.push({
       label: category,
-      detail: `${qty} ${factor.unit} × ${perUnit} kgCO2e/${factor.unit} = ${kg} kgCO2e (${factorSource === "epd" ? "verified EPD" : "admin factor"}; source: ${factor.source_reference}).`,
+      detail: `${qty} ${factor.unit} × ${perUnit} kgCO2e/${factor.unit} = ${kg} kgCO2e (${factorSource === "epd" ? "verified EPD" : "planning factor"}; source: ${factor.source_reference}).`,
     });
   }
 

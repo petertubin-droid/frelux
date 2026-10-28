@@ -265,7 +265,7 @@ describe("calculateEmbodiedCarbon — EPD integration (Sustainability Pillar 5)"
     expect(paint.factor_source).toBe("admin");
     expect(paint.kg_co2e).toBe(10); // 4 × 2.5, admin fallback
     expect(r.total_kg_co2e).toBe(3215);
-    expect(r.warnings.join(" ")).toContain("replaced the static admin factor");
+    expect(r.warnings.join(" ")).toContain("replaced the static planning factor");
     expect(r.steps.map((st) => st.detail).join(" ")).toContain("verified EPD");
   });
 

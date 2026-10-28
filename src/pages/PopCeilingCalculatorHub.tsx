@@ -36,12 +36,12 @@ const FAQS = [
     question:
       "What is the difference between Material Quantity and Cost Estimate?",
     answer:
-      "Material Quantity calculates POP cement, mesh, and material quantities for your ceiling. Cost Estimate adds admin-configured material prices for a complete cost breakdown including materials and waste.",
+      "Material Quantity calculates POP cement, mesh, and material quantities for your ceiling. Cost Estimate adds verified material prices for a complete cost breakdown including materials and waste.",
   },
   {
     question: "Does the calculator support different POP ceiling types?",
     answer:
-      "Yes. The calculator supports multiple POP ceiling workflows including standard Nigerian POP, international workflows, and different design patterns with admin-configured material requirements.",
+      "Yes. The calculator supports multiple POP ceiling workflows including standard Nigerian POP, international workflows, and different design patterns with verified material requirements.",
   },
   {
     question: "Can I save my POP ceiling calculations?",
@@ -70,7 +70,7 @@ export default function PopCeilingCalculatorHub() {
   useSeo({
     title: "POP Ceiling Calculator, Material Quantity & Cost Estimate",
     description:
-      "Free FRELUX POP ceiling calculator. Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with admin-configured material prices.",
+      "Free FRELUX POP ceiling calculator. Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with verified material prices.",
     canonicalPath: "/pop-ceiling-calculator",
     ogType: "website",
     keywords:
@@ -81,7 +81,7 @@ export default function PopCeilingCalculatorHub() {
         "@type": "WebApplication",
         name: "FRELUX POP Ceiling Calculator",
         description:
-          "Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with admin-configured material prices.",
+          "Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with verified material prices.",
         url: `${SITE_URL}/pop-ceiling-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",

@@ -3,12 +3,12 @@
  *
  * Problem this solves: the painting estimator requires a quality level
  * before it can calculate, but a product with no configured quality rows
- * (the live state until an admin adds tiers) left the form permanently
+ * (the live state until FRELUX adds tiers) left the form permanently
  * blocked with "Quality level is required."
  *
  * Rule: when a paint product has NO active quality rows, the estimator
  * offers one built-in "Standard" level so the calculator works out of the
- * box. As soon as an admin adds real quality levels for that product, the
+ * box. As soon as FRELUX adds real quality levels for that product, the
  * built-in one disappears and users pick from the real tiers. Nothing is
  * written to the database and the engine is not loosened: the default is
  * an ordinary quality object that carries a real coverage figure, the same

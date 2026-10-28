@@ -21,6 +21,7 @@ import { ArticleMarkdown } from "@/components/learn/ArticleMarkdown";
 import { slugifyHeading } from "@/lib/learn/heading-slug";
 import { Button } from "@/components/ui/shadcn/button";
 import { WALL_FINISHING_LIBRARY_MARKETS } from "@/lib/wallfinishing/knowledge-library";
+import { SITE_URL } from "@/lib/site-config";
 
 type Status = "loading" | "ready" | "missing" | "error";
 
@@ -101,7 +102,7 @@ export default function WallFinishingArticle() {
   const articleRef = useRef<HTMLElement>(null);
 
   const SITE_URL_ =
-    import.meta.env.VITE_SITE_URL ?? "https://freluxtools.netlify.app";
+    SITE_URL;
   const canonicalPath = `/learn/wall-finishing/${marketCode.toLowerCase()}/${articleSlug}`;
 
   // Structured data: Article + BreadcrumbList (+ FAQPage when FAQs exist)

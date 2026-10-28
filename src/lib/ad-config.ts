@@ -50,8 +50,8 @@ export async function fetchAdConfig(force = false): Promise<AdConfigResult> {
   providersCache = (provRes.data as DbAdProvider[]) ?? [];
   const dbPlacements = (placeRes.data as DbAdPlacement[]) ?? [];
   // Code-defined AdSense-only placements fill gaps only: any DB row with
-  // the same key (e.g. inserted by the admin or the migration) wins, so
-  // the admin can toggle/configure them like any other placement.
+  // the same key (e.g. inserted by FRELUX or the migration) wins, so
+  // FRELUX can toggle/configure them like any other placement.
   const dbKeys = new Set(dbPlacements.map((pl) => pl.placement_key));
   placementsCache = [
     ...dbPlacements,

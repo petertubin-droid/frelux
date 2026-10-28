@@ -264,7 +264,7 @@ export default function AdSlot({
 
       // ── Pass 1: Per-unit providers (AdSense, Media.net, ...) ──
       // Per-placement mapping wins, but mapping is OPTIONAL (owner
-      // directive 2026-10-08): when the admin pastes a default display
+      // directive 2026-10-08): when FRELUX pastes a default display
       // unit into the provider (e.g. one AdSense unit ID), every
       // unmapped display-capable slot fills from it automatically.
       // Rewarded/interstitial placements never take a display unit.
@@ -388,7 +388,7 @@ export default function AdSlot({
           if (provider.slug === "monetag") {
             // Monetag site-wide tags are NOT injected (they hijack the
             // tab). In-page display works through a Monetag Native Banner
-            // zone: when the admin configures one (Admin → Ads → Monetag
+            // zone: when FRELUX configures one (Admin → Ads → Monetag
             // → "Native Banner Zone ID"), the slot renders an SDK
             // container the tag fills in-page. Without a native zone
             // there is nothing to render in-slot, resolve "none" and do
@@ -430,7 +430,7 @@ export default function AdSlot({
             continue;
           }
           // Adsterra native placements: when the placement is typed
-          // "native" and the admin configured a Native Banner zone key,
+          // "native" and the configured a Native Banner zone key,
           // resolve with that key so the slot renders Adsterra's native.js
           // unit instead of a fixed-size banner iframe.
           let resolvedUnitId = "";
@@ -770,7 +770,7 @@ export default function AdSlot({
   }, [resolved, excludeAdsense, providerSlug, providerId, slotKey]);
 
   // Inject provider-specific scripts when provider is resolved.
-  // Skipped entirely when the admin has turned the provider's visual
+  // Skipped entirely when FRELUX has turned the provider's visual
   // display ads off, no third-party ad scripts load in that case.
   useEffect(() => {
     if (!resolved || resolved === "none") return;

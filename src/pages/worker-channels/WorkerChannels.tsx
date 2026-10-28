@@ -131,7 +131,7 @@ export default function WorkerChannels() {
     if (error) {
       setReportResult(getSafeError(error));
     } else {
-      setReportResult("Report submitted. An admin will review it shortly.");
+      setReportResult("Report submitted. Our team will review it shortly.");
       setTimeout(() => {
         setShowReportModal(false);
         setViewingProfile(null);

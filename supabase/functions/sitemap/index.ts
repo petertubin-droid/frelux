@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { getSiteUrl } from "../_shared/site.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 
 const corsHeaders = {
@@ -7,7 +8,7 @@ const corsHeaders = {
     "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const SITE_URL = "https://freluxtools.netlify.app";
+const SITE_URL = getSiteUrl();
 
 function escapeXml(str: string): string {
   return str

@@ -1,7 +1,7 @@
 // =========================================================
 // FRELUX PHASE 7, DEVELOPER PORTAL CLIENT (in-app)
 //
-// Key management for the Developer Portal and the admin API
+// Key management for the Developer Portal and FRELUX API
 // keys page. Uses the SAME §3 key contract as the gateway:
 // crypto-random 32-char FLX- keys, SHA-256 hash stored, raw key
 // returned to the caller exactly once.

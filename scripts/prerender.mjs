@@ -10,8 +10,8 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { seoContentMap } from './seo-content-map.mjs';
 import { marketLandingRoutes } from './market-landing-data.mjs';
+import { SITE_URL } from './lib/site-url.mjs';
 
-const SITE_URL = 'https://freluxtools.netlify.app';
 const distDir = 'dist';
 
 // Google indexing fix (2026-09-25): prerendered pages are served at their
@@ -77,19 +77,19 @@ const routes = [
     priority: '0.9',
     changefreq: 'weekly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Start Building | FRELUX SMART CALC', description: 'Choose what you are building and FRELUX will help you calculate materials, quantities and estimated project costs.', url: 'https://freluxtools.netlify.app/start-building' },
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Start Building | FRELUX SMART CALC', description: 'Choose what you are building and FRELUX will help you calculate materials, quantities and estimated project costs.', url: `${SITE_URL}/start-building` },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-        { '@type': 'ListItem', position: 2, name: 'Start Building', item: 'https://freluxtools.netlify.app/start-building' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Start Building', item: `${SITE_URL}/start-building` },
       ]},
       { '@context': 'https://schema.org', '@type': 'ItemList', name: 'FRELUX Building Categories', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Build to Roof', url: 'https://freluxtools.netlify.app/build-to-roof-estimator' },
-        { '@type': 'ListItem', position: 2, name: 'Painting', url: 'https://freluxtools.netlify.app/paint-calculator' },
-        { '@type': 'ListItem', position: 3, name: 'Screeding', url: 'https://freluxtools.netlify.app/screeding-calculator' },
-        { '@type': 'ListItem', position: 4, name: 'POP Ceiling', url: 'https://freluxtools.netlify.app/pop-ceiling-calculator' },
-        { '@type': 'ListItem', position: 5, name: 'Tiles & Flooring', url: 'https://freluxtools.netlify.app/tile-calculator' },
-        { '@type': 'ListItem', position: 6, name: 'Exterior Finishing', url: 'https://freluxtools.netlify.app/tyrolene-estimator' },
-        { '@type': 'ListItem', position: 7, name: 'Colour & Design', url: 'https://freluxtools.netlify.app/colors' },
+        { '@type': 'ListItem', position: 1, name: 'Build to Roof', url: `${SITE_URL}/build-to-roof-estimator` },
+        { '@type': 'ListItem', position: 2, name: 'Painting', url: `${SITE_URL}/paint-calculator` },
+        { '@type': 'ListItem', position: 3, name: 'Screeding', url: `${SITE_URL}/screeding-calculator` },
+        { '@type': 'ListItem', position: 4, name: 'POP Ceiling', url: `${SITE_URL}/pop-ceiling-calculator` },
+        { '@type': 'ListItem', position: 5, name: 'Tiles & Flooring', url: `${SITE_URL}/tile-calculator` },
+        { '@type': 'ListItem', position: 6, name: 'Exterior Finishing', url: `${SITE_URL}/tyrolene-estimator` },
+        { '@type': 'ListItem', position: 7, name: 'Colour & Design', url: `${SITE_URL}/colors` },
       ]},
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
         { '@type': 'Question', name: 'What is the Build-to-Roof Estimator?', acceptedAnswer: { '@type': 'Answer', text: 'The Build-to-Roof Estimator calculates materials and costs for a complete building project from foundation through roofing, including blocks, cement, sand, granite, roofing sheets, structural members, and labour based on practical construction standards.' } },
@@ -101,7 +101,7 @@ const routes = [
   {
     path: '/paint-calculator',
     title: 'Paint Calculator: How Much Paint Do I Need? | FRELUX SMART CALC',
-    description: 'Room-based paint calculator for any project. Enter room dimensions, wall height, doors, and windows to estimate paint quantity in 20-litre buckets using admin-configured coverage rates.',
+    description: 'Room-based paint calculator for any project. Enter room dimensions, wall height, doors, and windows to estimate paint quantity in 20-litre buckets using verified coverage rates.',
     priority: '0.9',
     changefreq: 'monthly',
     structuredData: [
@@ -111,7 +111,7 @@ const routes = [
         { '@type': 'ListItem', position: 2, name: 'Paint Calculator', item: `${SITE_URL}/paint-calculator` },
       ]},
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
-        { '@type': 'Question', name: 'How does the FRELUX paint calculator differ from a generic area-based calculator?', acceptedAnswer: { '@type': 'Answer', text: 'FRELUX uses a room-based approach: you enter room dimensions (not raw m²), and the calculator handles all area math internally. Coverage rates are admin-configured from the database. Surface condition, colour condition, and wall height all affect the final quantity.' } },
+        { '@type': 'Question', name: 'How does the FRELUX paint calculator differ from a generic area-based calculator?', acceptedAnswer: { '@type': 'Answer', text: 'FRELUX uses a room-based approach: you enter room dimensions (not raw m²), and the calculator handles all area math internally. Coverage rates are verified from the database. Surface condition, colour condition, and wall height all affect the final quantity.' } },
         { '@type': 'Question', name: 'Why does the calculator recommend 20-litre buckets?', acceptedAnswer: { '@type': 'Answer', text: '20-litre buckets are a standard purchase unit in many paint markets. The calculator shows both theoretical litres needed and the practical number of buckets to buy.' } },
         { '@type': 'Question', name: 'Do I need primer?', acceptedAnswer: { '@type': 'Answer', text: 'FRELUX recommends primer for new/unpainted surfaces and when painting light colours over dark surfaces. The calculator flags these conditions automatically based on your colour condition selection.' } },
       ]},
@@ -130,7 +130,7 @@ const routes = [
         { '@type': 'ListItem', position: 2, name: 'Screeding Calculator', item: `${SITE_URL}/screeding-calculator` },
       ]},
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
-        { '@type': 'Question', name: 'Does FRELUX use a cement:sand mix ratio for screeding?', acceptedAnswer: { '@type': 'Answer', text: 'No. The FRELUX screeding methodology calculates screeding paint (litres) and white cement (kg) based on the surface area in m² and admin-configured coverage and consumption rates.' } },
+        { '@type': 'Question', name: 'Does FRELUX use a cement:sand mix ratio for screeding?', acceptedAnswer: { '@type': 'Answer', text: 'No. The FRELUX screeding methodology calculates screeding paint (litres) and white cement (kg) based on the surface area in m² and verified coverage and consumption rates.' } },
         { '@type': 'Question', name: 'Can I calculate screeding for fences?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Enter fence dimensions in feet or metres. The calculator converts the surface area to m² and calculates materials using the same methodology.' } },
         { '@type': 'Question', name: 'Is the screeding area shown in m²?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. All screeding calculations use square metres (m²) as the unit of measurement, even when input dimensions are in feet.' } },
       ]},
@@ -158,7 +158,7 @@ const routes = [
     changefreq: 'monthly',
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX POP Ceiling Calculator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
-    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'POP Ceiling Calculator', item: 'https://freluxtools.netlify.app/pop-ceiling-calculator' }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How do I calculate POP ceiling materials?', acceptedAnswer: { '@type': 'Answer', text: 'Enter your room length and width into the FRELUX POP Ceiling Calculator. It estimates POP cement, fibreglass mesh, bonding agent, and other materials based on your ceiling area.' } }, { '@type': 'Question', name: 'What is a POP ceiling?', acceptedAnswer: { '@type': 'Answer', text: 'Plaster of Paris (POP) ceilings are smooth, elegant ceiling finishes popular in many homes. POP is mixed with water and applied to ceilings, often with decorative mouldings and cornices.' } }] }],
+    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: `${SITE_URL}/calculators` }, { '@type': 'ListItem', position: 3, name: 'POP Ceiling Calculator', item: `${SITE_URL}/pop-ceiling-calculator` }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How do I calculate POP ceiling materials?', acceptedAnswer: { '@type': 'Answer', text: 'Enter your room length and width into the FRELUX POP Ceiling Calculator. It estimates POP cement, fibreglass mesh, bonding agent, and other materials based on your ceiling area.' } }, { '@type': 'Question', name: 'What is a POP ceiling?', acceptedAnswer: { '@type': 'Answer', text: 'Plaster of Paris (POP) ceilings are smooth, elegant ceiling finishes popular in many homes. POP is mixed with water and applied to ceilings, often with decorative mouldings and cornices.' } }] }],
   },
   {
     path: '/tile-calculator',
@@ -168,7 +168,7 @@ const routes = [
     changefreq: 'monthly',
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Tile Calculator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
-    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'Tile Calculator', item: 'https://freluxtools.netlify.app/tile-calculator' }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How many tiles do I need?', acceptedAnswer: { '@type': 'Answer', text: 'Enter your floor or wall dimensions and tile size into the FRELUX Tile Calculator. It calculates the number of tiles, boxes, adhesive, and grout including a waste factor for cuts and breakages.' } }, { '@type': 'Question', name: 'How much extra tile should I buy?', acceptedAnswer: { '@type': 'Answer', text: 'Always add 10-15% extra tiles for cuts, breakages, and future repairs. The calculator includes this waste factor automatically.' } }] }],
+    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: `${SITE_URL}/calculators` }, { '@type': 'ListItem', position: 3, name: 'Tile Calculator', item: `${SITE_URL}/tile-calculator` }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How many tiles do I need?', acceptedAnswer: { '@type': 'Answer', text: 'Enter your floor or wall dimensions and tile size into the FRELUX Tile Calculator. It calculates the number of tiles, boxes, adhesive, and grout including a waste factor for cuts and breakages.' } }, { '@type': 'Question', name: 'How much extra tile should I buy?', acceptedAnswer: { '@type': 'Answer', text: 'Always add 10-15% extra tiles for cuts, breakages, and future repairs. The calculator includes this waste factor automatically.' } }] }],
   },
   {
     path: '/painting-estimator',
@@ -178,7 +178,7 @@ const routes = [
     changefreq: 'monthly',
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Painting Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
-    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'Painting Estimator', item: 'https://freluxtools.netlify.app/painting-estimator' }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How does the Painting Estimator work?', acceptedAnswer: { '@type': 'Answer', text: 'Enter each room with its dimensions. The estimator calculates paint quantity and project cost for all rooms combined using the FRELUX methodology with real market product prices.' } }] }],
+    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: `${SITE_URL}/calculators` }, { '@type': 'ListItem', position: 3, name: 'Painting Estimator', item: `${SITE_URL}/painting-estimator` }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How does the Painting Estimator work?', acceptedAnswer: { '@type': 'Answer', text: 'Enter each room with its dimensions. The estimator calculates paint quantity and project cost for all rooms combined using the FRELUX methodology with real market product prices.' } }] }],
   },
   {
     path: '/screeding-cost-estimator',
@@ -233,7 +233,7 @@ const routes = [
     changefreq: 'monthly',
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Finish Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'Finish Estimator', item: 'https://freluxtools.netlify.app/finish-estimator' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: `${SITE_URL}/calculators` }, { '@type': 'ListItem', position: 3, name: 'Finish Estimator', item: `${SITE_URL}/finish-estimator` }] },
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What finishes does the Finish Estimator support?', acceptedAnswer: { '@type': 'Answer', text: 'The Finish Estimator calculates materials and costs for painting, Tyrolene, and Grafitex wall finishes using real coverage rates and standard package sizes.' } }] },
     ],
   },
@@ -245,7 +245,7 @@ const routes = [
     changefreq: 'monthly',
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Tyrolene Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'Tyrolene Estimator', item: 'https://freluxtools.netlify.app/tyrolene-estimator' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: `${SITE_URL}/calculators` }, { '@type': 'ListItem', position: 3, name: 'Tyrolene Estimator', item: `${SITE_URL}/tyrolene-estimator` }] },
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What is a standard partition in FRELUX?', acceptedAnswer: { '@type': 'Answer', text: 'A standard partition is 3m × 3m (9m²). You can enter the number of standard partitions directly, or provide actual wall dimensions and the calculator converts them to equivalent standard partitions.' } }, { '@type': 'Question', name: 'Can I use the Tyrolene estimator for interior walls?', acceptedAnswer: { '@type': 'Answer', text: 'No. Tyrolene is an exterior-only finish. The FRELUX Tyrolene Estimator is designed for exterior wall applications only.' } }, { '@type': 'Question', name: 'Does the calculator include labour costs?', acceptedAnswer: { '@type': 'Answer', text: 'No. Labour is negotiated separately and is not part of the Tyrolene material estimation.' } }] },
     ],
   },
@@ -256,7 +256,7 @@ const routes = [
     priority: '0.8',
     changefreq: 'weekly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Color Library', item: 'https://freluxtools.netlify.app/colors' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Color Library', item: `${SITE_URL}/colors` }] },
     ],
   },
   {
@@ -266,7 +266,7 @@ const routes = [
     priority: '0.7',
     changefreq: 'monthly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Color Library', item: 'https://freluxtools.netlify.app/colors' }, { '@type': 'ListItem', position: 3, name: 'Compare Colors', item: 'https://freluxtools.netlify.app/colors/compare' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Color Library', item: `${SITE_URL}/colors` }, { '@type': 'ListItem', position: 3, name: 'Compare Colors', item: `${SITE_URL}/colors/compare` }] },
     ],
   },
   {
@@ -276,7 +276,7 @@ const routes = [
     priority: '0.7',
     changefreq: 'monthly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Smart Color Assistant', item: 'https://freluxtools.netlify.app/ai-color-assistant' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Smart Color Assistant', item: `${SITE_URL}/ai-color-assistant` }] },
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How does the AI Color Assistant work?', acceptedAnswer: { '@type': 'Answer', text: 'Describe your room, lighting, and mood. The AI recommends paint colors that suit your space, with direct links to purchase from the color library.' } }] },
     ],
   },
@@ -287,7 +287,7 @@ const routes = [
     priority: '0.7',
     changefreq: 'monthly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Paint Comparison', item: 'https://freluxtools.netlify.app/paint-comparison' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Paint Comparison', item: `${SITE_URL}/paint-comparison` }] },
     ],
   },
   {
@@ -297,7 +297,7 @@ const routes = [
     priority: '0.7',
     changefreq: 'daily',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Gallery', item: 'https://freluxtools.netlify.app/gallery' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Gallery', item: `${SITE_URL}/gallery` }] },
     ],
   },
   {
@@ -307,7 +307,7 @@ const routes = [
     priority: '0.7',
     changefreq: 'weekly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Case Studies', item: 'https://freluxtools.netlify.app/case-studies' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Case Studies', item: `${SITE_URL}/case-studies` }] },
     ],
   },
   {
@@ -317,7 +317,7 @@ const routes = [
     priority: '0.7',
     changefreq: 'daily',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Material Prices', item: 'https://freluxtools.netlify.app/material-prices' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Material Prices', item: `${SITE_URL}/material-prices` }] },
     ],
   },
   {
@@ -327,7 +327,7 @@ const routes = [
     priority: '0.7',
     changefreq: 'monthly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Surface Assessment', item: 'https://freluxtools.netlify.app/surface-assessment' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Surface Assessment', item: `${SITE_URL}/surface-assessment` }] },
     ],
   },
   {
@@ -337,7 +337,7 @@ const routes = [
     priority: '0.8',
     changefreq: 'weekly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Learn', item: 'https://freluxtools.netlify.app/learn' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Learn', item: `${SITE_URL}/learn` }] },
     ],
   },
   {
@@ -347,7 +347,7 @@ const routes = [
     priority: '0.8',
     changefreq: 'monthly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Free Templates', item: 'https://freluxtools.netlify.app/printables' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Free Templates', item: `${SITE_URL}/printables` }] },
     ],
   },
   {
@@ -357,8 +357,8 @@ const routes = [
     priority: '0.8',
     changefreq: 'monthly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'DefinedTermSet', name: 'FRELUX Construction Glossary', url: 'https://freluxtools.netlify.app/glossary' },
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Glossary', item: 'https://freluxtools.netlify.app/glossary' }] },
+      { '@context': 'https://schema.org', '@type': 'DefinedTermSet', name: 'FRELUX Construction Glossary', url: `${SITE_URL}/glossary` },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Glossary', item: `${SITE_URL}/glossary` }] },
     ],
   },
   {
@@ -368,7 +368,7 @@ const routes = [
     priority: '0.8',
     changefreq: 'daily',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Material Prices', item: 'https://freluxtools.netlify.app/prices' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Material Prices', item: `${SITE_URL}/prices` }] },
     ],
   },
   {
@@ -378,7 +378,7 @@ const routes = [
     priority: '0.7',
     changefreq: 'daily',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Learn', item: 'https://freluxtools.netlify.app/learn' }, { '@type': 'ListItem', position: 3, name: 'All Guides', item: 'https://freluxtools.netlify.app/learn/library' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Learn', item: `${SITE_URL}/learn` }, { '@type': 'ListItem', position: 3, name: 'All Guides', item: `${SITE_URL}/learn/library` }] },
     ],
   },
   {
@@ -389,7 +389,7 @@ const routes = [
     priority: '0.7',
     changefreq: 'monthly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Learn', item: 'https://freluxtools.netlify.app/learn' }, { '@type': 'ListItem', position: 3, name: 'User Guide', item: 'https://freluxtools.netlify.app/user-guide' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Learn', item: `${SITE_URL}/learn` }, { '@type': 'ListItem', position: 3, name: 'User Guide', item: `${SITE_URL}/user-guide` }] },
       {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
@@ -410,7 +410,7 @@ const routes = [
     priority: '0.6',
     changefreq: 'weekly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Templates', item: 'https://freluxtools.netlify.app/templates' }] },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` }, { '@type': 'ListItem', position: 2, name: 'Templates', item: `${SITE_URL}/templates` }] },
     ],
   },
   { path: '/templates/standard-living-room-painting', title: 'Paint Calculator Template: Standard Living Room | FRELUX SMART CALC', description: 'Calculate paint needed for a standard living room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
@@ -464,9 +464,9 @@ const routes = [
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Build-to-Roof Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
-        { '@type': 'ListItem', position: 3, name: 'Build-to-Roof Estimator', item: 'https://freluxtools.netlify.app/build-to-roof-estimator' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: `${SITE_URL}/calculators` },
+        { '@type': 'ListItem', position: 3, name: 'Build-to-Roof Estimator', item: `${SITE_URL}/build-to-roof-estimator` },
       ]},
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
         { '@type': 'Question', name: 'What does the Build-to-Roof Estimator calculate?', acceptedAnswer: { '@type': 'Answer', text: 'It estimates materials and costs for a full building project from foundation through roof, including blocks, cement, sand, granite, roofing sheets, structural members, and labour based on practical construction standards.' } },
@@ -483,9 +483,9 @@ const routes = [
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX AI Photo Estimator', applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
-        { '@type': 'ListItem', position: 3, name: 'AI Photo Estimator', item: 'https://freluxtools.netlify.app/image-estimator' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: `${SITE_URL}/calculators` },
+        { '@type': 'ListItem', position: 3, name: 'AI Photo Estimator', item: `${SITE_URL}/image-estimator` },
       ]},
     ],
   },
@@ -498,9 +498,9 @@ const routes = [
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Smart Calculator', applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
-        { '@type': 'ListItem', position: 3, name: 'Smart Calculator', item: 'https://freluxtools.netlify.app/smart-calculator' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: `${SITE_URL}/calculators` },
+        { '@type': 'ListItem', position: 3, name: 'Smart Calculator', item: `${SITE_URL}/smart-calculator` },
       ]},
     ],
   },
@@ -513,9 +513,9 @@ const routes = [
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Structural Calculator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
-        { '@type': 'ListItem', position: 3, name: 'Structural Calculator', item: 'https://freluxtools.netlify.app/structural-calculator' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: `${SITE_URL}/calculators` },
+        { '@type': 'ListItem', position: 3, name: 'Structural Calculator', item: `${SITE_URL}/structural-calculator` },
       ]},
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
         { '@type': 'Question', name: 'What does the Structural Calculator compute?', acceptedAnswer: { '@type': 'Answer', text: 'It calculates beam depths and widths, column cross-sections, slab thickness, and reinforcement quantities based on span, loading, and standard concrete mix practice.' } },
@@ -531,9 +531,9 @@ const routes = [
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Foundation Calculator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
-        { '@type': 'ListItem', position: 3, name: 'Foundation Calculator', item: 'https://freluxtools.netlify.app/foundation-calculator' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: `${SITE_URL}/calculators` },
+        { '@type': 'ListItem', position: 3, name: 'Foundation Calculator', item: `${SITE_URL}/foundation-calculator` },
       ]},
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
         { '@type': 'Question', name: 'What foundation types does the calculator support?', acceptedAnswer: { '@type': 'Answer', text: 'The Foundation Calculator supports strip footings, pad foundations, and raft foundations with typical soil bearing capacities for preliminary sizing and budgeting.' } },
@@ -550,9 +550,9 @@ const routes = [
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Construction Sequence Planner', applicationCategory: 'ProjectManagementApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
-        { '@type': 'ListItem', position: 3, name: 'Construction Sequence', item: 'https://freluxtools.netlify.app/construction-sequence' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: `${SITE_URL}/calculators` },
+        { '@type': 'ListItem', position: 3, name: 'Construction Sequence', item: `${SITE_URL}/construction-sequence` },
       ]},
     ],
   },
@@ -565,9 +565,9 @@ const routes = [
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Project Timeline', applicationCategory: 'ProjectManagementApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
-        { '@type': 'ListItem', position: 3, name: 'Project Timeline', item: 'https://freluxtools.netlify.app/project-timeline' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: `${SITE_URL}/calculators` },
+        { '@type': 'ListItem', position: 3, name: 'Project Timeline', item: `${SITE_URL}/project-timeline` },
       ]},
     ],
   },
@@ -579,8 +579,8 @@ const routes = [
     changefreq: 'monthly',
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-        { '@type': 'ListItem', position: 2, name: 'Pricing', item: 'https://freluxtools.netlify.app/pricing' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Pricing', item: `${SITE_URL}/pricing` },
       ]},
     ],
   },
@@ -593,8 +593,8 @@ const routes = [
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'WebPage', name: 'FRELUX Construction Marketplace', description: 'Buy and sell construction materials, tools, and services across supported markets.' },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-        { '@type': 'ListItem', position: 2, name: 'Marketplace', item: 'https://freluxtools.netlify.app/marketplace' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Marketplace', item: `${SITE_URL}/marketplace` },
       ]},
     ],
   },
@@ -607,8 +607,8 @@ const routes = [
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'WebPage', name: 'FRELUX Pro Connect Directory', description: 'Find verified construction professionals near you.' },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-        { '@type': 'ListItem', position: 2, name: 'Pro Connect', item: 'https://freluxtools.netlify.app/pro-connect' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Pro Connect', item: `${SITE_URL}/pro-connect` },
       ]},
     ],
   },
@@ -624,21 +624,21 @@ const routes = [
         '@type': 'ItemList',
         name: 'FRELUX Calculators & Estimators',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Build-to-Roof Estimator', url: 'https://freluxtools.netlify.app/build-to-roof-estimator' },
-          { '@type': 'ListItem', position: 2, name: 'Paint Calculator', url: 'https://freluxtools.netlify.app/paint-calculator' },
-          { '@type': 'ListItem', position: 3, name: 'Painting Estimator', url: 'https://freluxtools.netlify.app/painting-estimator' },
-          { '@type': 'ListItem', position: 4, name: 'Screeding Calculator', url: 'https://freluxtools.netlify.app/screeding-calculator' },
-          { '@type': 'ListItem', position: 5, name: 'POP Ceiling Calculator', url: 'https://freluxtools.netlify.app/pop-ceiling-calculator' },
-          { '@type': 'ListItem', position: 6, name: 'Tile Calculator', url: 'https://freluxtools.netlify.app/tile-calculator' },
-          { '@type': 'ListItem', position: 7, name: 'Structural Calculator', url: 'https://freluxtools.netlify.app/structural-calculator' },
-          { '@type': 'ListItem', position: 8, name: 'Foundation Calculator', url: 'https://freluxtools.netlify.app/foundation-calculator' },
-          { '@type': 'ListItem', position: 9, name: 'AI Photo Estimator', url: 'https://freluxtools.netlify.app/image-estimator' },
-          { '@type': 'ListItem', position: 10, name: 'Finish Estimator', url: 'https://freluxtools.netlify.app/finish-estimator' },
-          { '@type': 'ListItem', position: 11, name: 'Tyrolene Estimator', url: 'https://freluxtools.netlify.app/tyrolene-estimator' },
-          { '@type': 'ListItem', position: 12, name: 'Cost Estimator', url: 'https://freluxtools.netlify.app/cost-estimator' },
-          { '@type': 'ListItem', position: 13, name: 'Screeding Cost Estimator', url: 'https://freluxtools.netlify.app/screeding-cost-estimator' },
-          { '@type': 'ListItem', position: 14, name: 'POP Ceiling Cost Estimator', url: 'https://freluxtools.netlify.app/pop-ceiling-cost-estimator' },
-          { '@type': 'ListItem', position: 15, name: 'Tile Cost Estimator', url: 'https://freluxtools.netlify.app/tile-cost-estimator' },
+          { '@type': 'ListItem', position: 1, name: 'Build-to-Roof Estimator', url: `${SITE_URL}/build-to-roof-estimator` },
+          { '@type': 'ListItem', position: 2, name: 'Paint Calculator', url: `${SITE_URL}/paint-calculator` },
+          { '@type': 'ListItem', position: 3, name: 'Painting Estimator', url: `${SITE_URL}/painting-estimator` },
+          { '@type': 'ListItem', position: 4, name: 'Screeding Calculator', url: `${SITE_URL}/screeding-calculator` },
+          { '@type': 'ListItem', position: 5, name: 'POP Ceiling Calculator', url: `${SITE_URL}/pop-ceiling-calculator` },
+          { '@type': 'ListItem', position: 6, name: 'Tile Calculator', url: `${SITE_URL}/tile-calculator` },
+          { '@type': 'ListItem', position: 7, name: 'Structural Calculator', url: `${SITE_URL}/structural-calculator` },
+          { '@type': 'ListItem', position: 8, name: 'Foundation Calculator', url: `${SITE_URL}/foundation-calculator` },
+          { '@type': 'ListItem', position: 9, name: 'AI Photo Estimator', url: `${SITE_URL}/image-estimator` },
+          { '@type': 'ListItem', position: 10, name: 'Finish Estimator', url: `${SITE_URL}/finish-estimator` },
+          { '@type': 'ListItem', position: 11, name: 'Tyrolene Estimator', url: `${SITE_URL}/tyrolene-estimator` },
+          { '@type': 'ListItem', position: 12, name: 'Cost Estimator', url: `${SITE_URL}/cost-estimator` },
+          { '@type': 'ListItem', position: 13, name: 'Screeding Cost Estimator', url: `${SITE_URL}/screeding-cost-estimator` },
+          { '@type': 'ListItem', position: 14, name: 'POP Ceiling Cost Estimator', url: `${SITE_URL}/pop-ceiling-cost-estimator` },
+          { '@type': 'ListItem', position: 15, name: 'Tile Cost Estimator', url: `${SITE_URL}/tile-cost-estimator` },
         ],
       },
     ],

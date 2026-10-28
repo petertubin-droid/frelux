@@ -5,7 +5,7 @@
  *
  * Philosophy (unchanged from the estimation engines): the engine never
  * guesses. Every service life, maintenance interval, inspection cadence
- * and cost factor comes from an admin-configured maintenance_profiles
+ * and cost factor comes from FRELUX-configured maintenance_profiles
  * row with a source reference. A category without an active matching
  * profile produces a data-requirement warning and a REFUSED schedule -
  * never an assumed value.
@@ -186,8 +186,8 @@ export function calculateMaintenanceSchedule(
   if (!profile) {
     result.warnings.push(
       `No active maintenance profile is configured for '${input.category}' on '${input.surface_type}' surfaces. ` +
-        `The schedule cannot be produced until an administrator adds verified maintenance data ` +
-        `(service life, maintenance interval, cost factors) under Admin → Maintenance Profiles.`,
+        `The schedule cannot be produced until an FRELUX adds verified maintenance data ` +
+        `(service life, maintenance interval, cost factors) under the FRELUX maintenance catalogue.`,
     );
     return result;
   }
@@ -206,7 +206,7 @@ export function calculateMaintenanceSchedule(
   const lifeMax = num(profile.service_life_max_years);
   if (lifeMin === null || lifeMax === null) {
     result.warnings.push(
-      "Configured service life is incomplete on the profile. Fix the profile in Admin.",
+      "Configured service life is incomplete on the profile. Fix the profile in FRELUX.",
     );
     return result;
   }
@@ -222,7 +222,7 @@ export function calculateMaintenanceSchedule(
   const replFactor = num(profile.replacement_cost_factor);
   if (maintFactor === null || replFactor === null) {
     result.warnings.push(
-      "Configured cost factors are incomplete on the profile. Fix the profile in Admin.",
+      "Configured cost factors are incomplete on the profile. Fix the profile in FRELUX.",
     );
     return result;
   }

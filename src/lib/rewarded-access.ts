@@ -228,7 +228,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     }
 
     // Fetch provider details, use the public view (ad_providers_public) not the raw table.
-    // The raw ad_providers table is admin-only after Phase 2b RLS hardening.
+    // The raw ad_providers table is restricted after Phase 2b RLS hardening.
     const cfg = cfgRes.data;
     const feat = featRes.data as DbRewardedFeatureConfig | null;
     const primaryId = feat?.primary_provider_id ?? cfg?.primary_provider_id;
@@ -237,7 +237,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     // Multi-provider support (owner directive 2026-09-15): the rewarded
     // flow never depends on a single provider. Fetch every active
     // provider once here; watchAd() builds the candidate chain below.
-    // Fix for issue #3: use ad_providers_public (admin-only raw table).
+    // Fix for issue #3: use ad_providers_public (restricted raw table).
     const { data: allProvData } = await supabase
       .from("ad_providers_public")
       .select("*")

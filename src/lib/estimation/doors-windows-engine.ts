@@ -14,9 +14,9 @@
  *    inventing doors.
  *  - Frames follow door counts (one set per door) and are
  *    labelled; hinges and locksets are labelled PLANNING
- *    ALLOWANCES from the admin's visible rule - not
+ *    ALLOWANCES from the visible rule - not
  *    measurements.
- *  - Window sizes vary: the admin's unit price must reflect the
+ *  - Window sizes vary: the unit price must reflect the
  *    typical sized unit; the result warns users to confirm
  *    sizes on site.
  *  - Prices come from the shared material database. Unpriced
@@ -234,7 +234,7 @@ export function calculateDoorsWindows(
       const price = prices["door-hinge"] ?? null;
       steps.push({
         label: "Hinges",
-        detail: `${totalDoors} doors × ${rules.hinges_per_door} per door = ${qty} (admin's visible planning allowance).`,
+        detail: `${totalDoors} doors × ${rules.hinges_per_door} per door = ${qty} (visible planning allowance).`,
       });
       lines.push({
         key: "hinges",
@@ -369,7 +369,7 @@ export function calculateDoorsWindows(
     }
   }
   warnings.push(
-    "Window and door prices must match the size and finish the admin configured: confirm actual unit sizes on site. This is material ESTIMATION, not a fixing specification.",
+    "Window and door prices must match the size and finish the configured: confirm actual unit sizes on site. This is material ESTIMATION, not a fixing specification.",
   );
 
   const incomplete =

@@ -138,7 +138,7 @@ export default function SolarPvEstimator() {
           price_snapshot: {
             price_type: "solar_component",
             component_key: m.key,
-            source: "FRELUX admin-configured price",
+            source: "FRELUX verified price",
             effective_date: new Date().toISOString().slice(0, 10),
           },
         });
@@ -161,7 +161,7 @@ export default function SolarPvEstimator() {
           price_snapshot: {
             price_type: "rule",
             rule_key: "labor_cost_per_panel_naira",
-            source: "FRELUX admin-configured rule",
+            source: "FRELUX verified rule",
             effective_date: new Date().toISOString().slice(0, 10),
           },
         });
@@ -241,7 +241,7 @@ export default function SolarPvEstimator() {
         ],
         warnings,
         footer:
-          "Estimates are indicative and not a formal quote. Prices come from FRELUX admin-configured component prices; unpriced components are reported, never invented.",
+          "Estimates are indicative and not a formal quote. Prices come from FRELUX verified component prices; unpriced components are reported, never invented.",
       },
       "frelux-solar-pv-estimate.html",
     );

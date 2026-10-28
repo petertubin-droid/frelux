@@ -339,7 +339,7 @@ export function calculateReinforcement(
         quantity: kg,
         quantity_source: "rule_derived",
         unit: "kg",
-        detail: `${roundTo(totalMassKg / 1000, 3)} t × ${rules.binding_wire_kg_per_tonne} kg/t → ${kg} kg (admin's visible planning allowance)`,
+        detail: `${roundTo(totalMassKg / 1000, 3)} t × ${rules.binding_wire_kg_per_tonne} kg/t → ${kg} kg (visible planning allowance)`,
         unit_price: price,
         line_total: price !== null ? money(kg * price) : null,
       });

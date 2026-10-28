@@ -51,7 +51,7 @@ export function getAdsterraServeDomain(provider: DbAdProvider): string {
  * Serve host for the BANNER zone specifically. Adsterra emits different
  * serve domains per zone snippet (e.g. the banner zone on
  * www.highrevenueformat.com while the native zone lives on
- * plNNNN.profitableratecpmnetwork.com). When the admin pasted a full
+ * plNNNN.profitableratecpmnetwork.com). When FRELUX pasted a full
  * banner snippet into the key credential, honor that snippet's host;
  * otherwise fall back to the global serve_domain credential. The host
  * must be in ADSTERRA_SERVE_HOSTS, a pasted value can never smuggle an
@@ -99,7 +99,7 @@ export function resolveAdsterraSize(
 ): { width: number; height: number } {
   const settings = (provider.settings ?? {}) as Record<string, unknown>;
   const custom = (settings.banner_sizes ?? {}) as Record<string, unknown>;
-  // Per-slot override wins; otherwise the admin's "default" size applies
+  // Per-slot override wins; otherwise the "default" size applies
   // (Adsterra zones are size-locked, a request at the wrong size
   // no-fills, so the configured default MUST reach the request).
   const raw =
@@ -395,7 +395,7 @@ export function renderAdsterraNativeBanner(
 
   // Adsterra ships two in-place native products. The classic Native Banner
   // snippet is invoke.js + <div id="container-<key>">; the newer one is a
-  // native.js tag. Which one this zone is comes from the admin's pasted
+  // native.js tag. Which one this zone is comes from the pasted
   // snippet (see getAdsterraNativeBannerScript), render the matching tag
   // or the zone silently no-fills.
   if (getAdsterraNativeBannerScript(provider) === "invoke") {

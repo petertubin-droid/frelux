@@ -953,7 +953,7 @@ export default function FinishEstimator({
             <p className="mt-1 text-xs">
               No finish type data found in the database. Calculations will use
               built-in defaults. An administrator can add finish types in the
-              admin panel.
+              FRELUX settingsl.
             </p>
           </div>
         )}

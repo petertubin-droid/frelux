@@ -13,7 +13,7 @@
 //     quote keeps its own currency (unavailable), no rate is
 //     invented, never a silent cross-rate;
 //   * a rate older than the converter's MAX_AGE_MS -> stale,
-//     an admin must refresh fx_rates.
+//     FRELUX must refresh fx_rates.
 //
 // The only arithmetic here is deterministic: converted amount
 // = quote amount x recorded composite rate; provider fee =

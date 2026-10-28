@@ -30,7 +30,7 @@ export interface SourceDraft {
 }
 
 // ---------------------------------------------------------
-// Source registry CRUD (RLS: admin-only on the server)
+// Source registry CRUD (RLS: restricted on the server)
 // ---------------------------------------------------------
 export async function listSources(): Promise<IntelligenceSource[]> {
   const { data, error } = await supabase

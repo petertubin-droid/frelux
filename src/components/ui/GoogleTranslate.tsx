@@ -114,7 +114,7 @@ function TranslatingIndicator() {
  * Single mount point: re-translates the visible page whenever the
  * visitor's language changes (switcher, drawer, restored preference) and
  * after SPA route transitions / asynchronously loaded content.
- * Skips the admin console so admin-authored content is never
+ * Skips FRELUX console so admin-authored content is never
  * machine-translated.
  */
 export function GoogleTranslateSync({ language }: { language: Language }) {

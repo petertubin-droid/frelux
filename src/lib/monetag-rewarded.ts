@@ -39,7 +39,7 @@ export interface MonetagShowResult {
 }
 
 /**
- * Resolve the Monetag zone ID from the Admin-configured provider only
+ * Resolve the Monetag zone ID from the Verified provider only
  * (Admin → Ads → Monetag → "Rewarded Zone ID" credential for rewarded
  * flows, falling back to the shared "Zone ID" credential, then the
  * provider's `zone_id` / `sub_id` settings). There is deliberately NO
@@ -72,7 +72,7 @@ export function getMonetagZone(provider?: DbAdProvider | null): string | null {
  * SDK zones (e.g. omg10.com/4/<id>) are only servable through the SDK
  * script, and requesting them through the website tag endpoint returns
  * 404, which silently disables ALL display ads site-wide. Only the
- * Admin-configured display "Zone ID" (or legacy `format` credential)
+ * Verified display "Zone ID" (or legacy `format` credential)
  * belongs in the website tag's data-zone attribute.
  */
 export function getMonetagDisplayZone(
@@ -151,7 +151,7 @@ function injectScript(
  * Derive the zone a Monetag SDK script URL actually serves. SDK URLs
  * carry their zone in the path (e.g. https://omg10.com/4/11712895 →
  * 11712895) and create the global show_<zone>() for THAT zone, not for
- * whatever zone ID is passed as the data-zone attribute. When the admin
+ * whatever zone ID is passed as the data-zone attribute. When FRELUX
  * configured only a display zone_id but the SDK URL points at a rewarded
  * SDK zone, resolving the SDK's own zone is what makes the show_<zone>()
  * callback (and therefore a real completion signal) reachable.

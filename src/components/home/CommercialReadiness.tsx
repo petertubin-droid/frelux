@@ -26,7 +26,7 @@ const capabilities = [
     icon: DollarSign,
     title: "Estimate Project Costs",
     description:
-      "Convert material quantities into real cost estimates using admin-configured material prices. Adjust prices to match your local supplier.",
+      "Convert material quantities into real cost estimates using verified material prices. Adjust prices to match your local supplier.",
     to: "/paint-calculator?mode=cost",
     linkText: "Estimate costs",
   },
@@ -50,7 +50,7 @@ const capabilities = [
     icon: MapPin,
     title: "Market-Localized Pricing",
     description:
-      "Coverage rates, local product sizes, and verified retailer prices for your market: selected by admins with provenance, not generic formulas copied from abroad.",
+      "Coverage rates, local product sizes, and verified retailer prices for your market: selected by FRELUX with provenance, not generic formulas copied from abroad.",
     to: "/paint-calculator?mode=cost",
     linkText: "See how it works",
   },

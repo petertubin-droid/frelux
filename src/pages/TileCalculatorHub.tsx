@@ -33,7 +33,7 @@ const FAQS = [
   {
     question: "What is the difference between Tile Quantity and Cost Estimate?",
     answer:
-      "Tile Quantity calculates how many tiles, boxes, and bags of adhesive/grout you need. Cost Estimate adds admin-configured material prices for tiles, adhesive, grout, and accessories for a complete cost analysis.",
+      "Tile Quantity calculates how many tiles, boxes, and bags of adhesive/grout you need. Cost Estimate adds verified material prices for tiles, adhesive, grout, and accessories for a complete cost analysis.",
   },
   {
     question: "Can I calculate tiles for both floors and walls?",
@@ -67,7 +67,7 @@ export default function TileCalculatorHub() {
   useSeo({
     title: "Tile Calculator, Tile Quantity, Boxes & Cost Estimate",
     description:
-      "Free FRELUX tile calculator. Calculate tile quantity, boxes, adhesive, grout, and full installation cost with admin-configured material prices.",
+      "Free FRELUX tile calculator. Calculate tile quantity, boxes, adhesive, grout, and full installation cost with verified material prices.",
     canonicalPath: "/tile-calculator",
     ogType: "website",
     keywords:
@@ -78,7 +78,7 @@ export default function TileCalculatorHub() {
         "@type": "WebApplication",
         name: "FRELUX Tile Calculator",
         description:
-          "Calculate tile quantity, boxes, adhesive, grout, and full installation cost with admin-configured material prices.",
+          "Calculate tile quantity, boxes, adhesive, grout, and full installation cost with verified material prices.",
         url: `${SITE_URL}/tile-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",

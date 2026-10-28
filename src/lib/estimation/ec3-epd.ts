@@ -289,7 +289,7 @@ export interface MergedCarbonFactor extends AdminCarbonFactorLike {
 }
 
 /**
- * Merge EPD factors with the admin-configured table. EPDs win per category
+ * Merge EPD factors with FRELUX-configured table. EPDs win per category
  * (plant-specific verified declarations replace static estimates); admin
  * factors cover every category the lookup did not. The result is a complete
  * factor set with an explicit source on each entry — never a silent mixup.
@@ -341,12 +341,12 @@ export function mergeEpdWithAdminFactors(
 
   if (replaced.length > 0) {
     warnings.push(
-      `Plant-specific verified EPDs replaced the static admin factor for: ${replaced.join(", ")}.`,
+      `Plant-specific verified EPDs replaced the static planning factor for: ${replaced.join(", ")}.`,
     );
   }
   if (epdFactors.length > 0 && replaced.length === 0) {
     warnings.push(
-      "EPD declarations were returned but none matched a category in this estimate: every line still uses admin-configured factors.",
+      "EPD declarations were returned but none matched a category in this estimate: every line still uses verified factors.",
     );
   }
 

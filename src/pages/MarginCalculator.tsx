@@ -38,7 +38,7 @@ export default function MarginCalculator() {
   useSeo({
     title: "Profit Margin Calculator: FRELUX",
     description:
-      "Price any base cost deterministically from admin-configured margin presets, with the markup-on-cost vs margin-on-price distinction made explicit.",
+      "Price any base cost deterministically from verified margin presets, with the markup-on-cost vs margin-on-price distinction made explicit.",
   });
 
   const [presets, setPresets] = useState<MarginPreset[]>([]);
@@ -191,7 +191,7 @@ export default function MarginCalculator() {
           {presets.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No margin presets configured yet. Pricing structures are entered
-              by the admin team (e.g. Standard finishing, 25% markup on cost).
+              by FRELUX team (e.g. Standard finishing, 25% markup on cost).
               FRELUX never publishes guessed pricing.
             </p>
           ) : (

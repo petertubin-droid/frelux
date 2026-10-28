@@ -30,7 +30,7 @@ export interface HeatComfortInput {
   area_sqft?: number;
   current_category: string;
   proposed_category: string;
-  /** Admin-configured albedo factors, keyed `${surface_type}:${category}` */
+  /** Verified albedo factors, keyed `${surface_type}:${category}` */
   factors: Record<string, { solar_reflectance: number }>;
   /** Active calc rules (calculator_type = 'heat_comfort') */
   rules: EstimationCalcRule[];
@@ -153,13 +153,13 @@ export function calculateHeatComfort(
 
   if (!curFactor || !Number.isFinite(Number(curFactor.solar_reflectance))) {
     result.warnings.push(
-      `No albedo is configured for the current finish '${curCat}' on a ${st}: the engine never assumes a reflectance. Configure the factor in the admin pane first.`,
+      `No albedo is configured for the current finish '${curCat}' on a ${st}: the engine never assumes a reflectance. Configure the factor in the FRELUX settings first.`,
     );
     return result;
   }
   if (!propFactor || !Number.isFinite(Number(propFactor.solar_reflectance))) {
     result.warnings.push(
-      `No albedo is configured for the proposed finish '${propCat}' on a ${st}: the engine never assumes a reflectance. Configure the factor in the admin pane first.`,
+      `No albedo is configured for the proposed finish '${propCat}' on a ${st}: the engine never assumes a reflectance. Configure the factor in the FRELUX settings first.`,
     );
     return result;
   }
@@ -169,7 +169,7 @@ export function calculateHeatComfort(
 
   if (curAlbedo < 0 || curAlbedo > 1 || propAlbedo < 0 || propAlbedo > 1) {
     result.warnings.push(
-      "A configured albedo lies outside the physical range 0–1. Fix the factor in the admin pane: the engine never clamps data to force an answer.",
+      "A configured albedo lies outside the physical range 0–1. Fix the factor in the FRELUX settings: the engine never clamps data to force an answer.",
     );
     return result;
   }
@@ -215,7 +215,7 @@ export function calculateHeatComfort(
     );
   }
 
-  // ── 5. Direction and the admin's meaningfulness threshold ──
+  // ── 5. Direction and the meaningfulness threshold ──
   if (Math.abs(propAlbedo - curAlbedo) < 0.005) {
     result.direction = "no_change";
   } else {
@@ -238,11 +238,11 @@ export function calculateHeatComfort(
     result.meaningful_benefit = frac >= threshold;
     result.steps.push({
       label: "Meaningful benefit",
-      detail: `Absorbed-energy reduction ${result.reduction_percent}% vs the admin threshold of ${threshold * 100}%: ${
+      detail: `Absorbed-energy reduction ${result.reduction_percent}% vs FRELUX threshold of ${threshold * 100}%: ${
         result.meaningful_benefit
           ? "a meaningful cooling benefit."
           : "below the configured threshold for a meaningful benefit."
-      } The threshold is the admin's reporting call, not the engine's.`,
+      } The threshold is the reporting call, not the engine's.`,
     });
   }
 

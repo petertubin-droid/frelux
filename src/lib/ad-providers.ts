@@ -1,4 +1,5 @@
 import type { AdProviderSchema, DbAdProvider } from "@/types/database";
+import { SITE_URL } from "@/lib/site-config";
 
 /**
  * True when a provider can serve REWARDED ads, regardless of its DB
@@ -19,7 +20,7 @@ export function supportsRewardedAds(provider: DbAdProvider): boolean {
 /**
  * Provider Registry, defines the configuration schema for each built-in ad provider.
  * New providers can be added by admin users from the panel; those will use a generic
- * schema. Built-in providers have custom credential fields shown in the admin UI.
+ * schema. Built-in providers have custom credential fields shown in FRELUX settings UI.
  */
 export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
   {
@@ -27,7 +28,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
     name: "Google AdSense",
     // "mixed": serves display ads AND rewarded ads (H5 Games adBreak
     // bridge). Was "display", which hid it from every rewarded-provider
-    // dropdown in the admin (owner directive 2026-10-10).
+    // dropdown in FRELUX settings (owner directive 2026-10-10).
     provider_type: "mixed",
     icon: "adsense",
     credential_fields: [
@@ -489,7 +490,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         label: "Postback URL",
         type: "text",
         required: false,
-        placeholder: "https://freluxtools.netlify.app/api/adgate-postback",
+        placeholder: `${SITE_URL}/api/adgate-postback`,
       },
     ],
   },
@@ -527,7 +528,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         label: "Postback URL",
         type: "text",
         required: false,
-        placeholder: "https://freluxtools.netlify.app/api/offertoro-postback",
+        placeholder: `${SITE_URL}/api/offertoro-postback`,
       },
     ],
   },
@@ -558,7 +559,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         label: "Postback URL",
         type: "text",
         required: false,
-        placeholder: "https://freluxtools.netlify.app/api/adgem-postback",
+        placeholder: `${SITE_URL}/api/adgem-postback`,
       },
     ],
   },
@@ -673,7 +674,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         label: "Postback URL",
         type: "text",
         required: false,
-        placeholder: "https://freluxtools.netlify.app/api/revu-postback",
+        placeholder: `${SITE_URL}/api/revu-postback`,
       },
     ],
   },
@@ -908,7 +909,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         label: "Postback URL",
         type: "text",
         required: false,
-        placeholder: "https://freluxtools.netlify.app/api/wannads-postback",
+        placeholder: `${SITE_URL}/api/wannads-postback`,
       },
     ],
   },
@@ -939,7 +940,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         label: "Postback URL",
         type: "text",
         required: false,
-        placeholder: "https://freluxtools.netlify.app/api/mylead-postback",
+        placeholder: `${SITE_URL}/api/mylead-postback`,
       },
     ],
   },
@@ -970,7 +971,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         label: "Postback URL",
         type: "text",
         required: false,
-        placeholder: "https://freluxtools.netlify.app/api/adwork-postback",
+        placeholder: `${SITE_URL}/api/adwork-postback`,
       },
     ],
   },
@@ -1001,7 +1002,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         label: "Postback URL",
         type: "text",
         required: false,
-        placeholder: "https://freluxtools.netlify.app/api/revenuehits-postback",
+        placeholder: `${SITE_URL}/api/revenuehits-postback`,
       },
     ],
   },
@@ -1032,7 +1033,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         label: "Postback URL",
         type: "text",
         required: false,
-        placeholder: "https://freluxtools.netlify.app/api/notik-postback",
+        placeholder: `${SITE_URL}/api/notik-postback`,
       },
     ],
   },
@@ -1063,7 +1064,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         label: "Postback URL",
         type: "text",
         required: false,
-        placeholder: "https://freluxtools.netlify.app/api/bitcot-postback",
+        placeholder: `${SITE_URL}/api/bitcot-postback`,
       },
     ],
   },
@@ -1176,7 +1177,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         label: "Postback URL",
         type: "text",
         required: false,
-        placeholder: "https://freluxtools.netlify.app/api/offerwall-postback",
+        placeholder: `${SITE_URL}/api/offerwall-postback`,
       },
       {
         key: "reward_conversion",

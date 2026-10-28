@@ -4,7 +4,7 @@
  * Deterministic doors/windows MATERIAL estimation: your door
  * and window counts per type → leaves, frames, hinges,
  * locksets and window units, with every derived count labelled
- * (frames one set per door, hinges from the admin's visible
+ * (frames one set per door, hinges from the visible
  * planning rule), prices from the shared material database
  * (never invented), labour separate.
  *
@@ -444,7 +444,7 @@ export default function DoorsWindowsEstimator() {
           The engine never invents openings. Enter the counts from your drawing
           or site survey; leave a type at 0 if you have none. Frames, hinges and
           locksets are derived and labelled in the breakdown; unit prices must
-          match the sizes the admin configured: confirm actual sizes on site.
+          match the sizes the configured: confirm actual sizes on site.
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {(Object.keys(NUM_LABELS) as NumField[]).map((k) =>
@@ -733,7 +733,7 @@ export default function DoorsWindowsEstimator() {
           <li>
             Door leaves and window units take your counts directly. Frames
             follow at one set per door, locksets at one per door when you
-            include them, and hinges follow the admin's visible planning rule:
+            include them, and hinges follow the visible planning rule:
             every derived count is labelled in the breakdown, not presented as a
             measurement.
           </li>
@@ -743,8 +743,8 @@ export default function DoorsWindowsEstimator() {
           </li>
           <li>
             Prices come from the shared FRELUX material database, configured by
-            the site admin (Price Tracker). Door and window prices must match
-            the size and finish the admin configured: confirm actual unit sizes
+            FRELUX price tracking. Door and window prices must match
+            the size and finish the configured: confirm actual unit sizes
             on site. Unpriced materials show PRICE NOT CONFIGURED, never
             invented.
           </li>

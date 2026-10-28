@@ -4,7 +4,7 @@
 // Loads the authoritative Tyrolene calculation config from the
 // DB - the SAME sources the manual Tyrolene Estimator page
 // reads (product, materials, prices, pack sizes, calc rules,
-// production rules, calc version) - so an admin change
+// production rules, calc version) - so FRELUX change
 // propagates identically to the page, AI copilot and agents.
 //
 // Prices are market-aware: the visitor's market price first,
@@ -82,7 +82,7 @@ export async function loadTyroleneCalcConfig(
   ) as TyroleneCalcConfig["product"];
   if (!product) {
     warnings.push(
-      "Tyrolene product is not configured. Admin must configure the Tyrolene product before estimates can be calculated.",
+      "Tyrolene product is not configured. FRELUX has not finished configuring the Tyrolene product before estimates can be calculated.",
     );
   }
 
@@ -93,7 +93,7 @@ export async function loadTyroleneCalcConfig(
   ) as TyroleneCalcConfig["materials"];
   if (materials.length < TYROLENE_MATERIAL_SLUGS.length) {
     warnings.push(
-      `Only ${materials.length}/${TYROLENE_MATERIAL_SLUGS.length} Tyrolene materials configured. Admin must configure: ${TYROLENE_MATERIAL_SLUGS.join(", ")}.`,
+      `Only ${materials.length}/${TYROLENE_MATERIAL_SLUGS.length} Tyrolene materials configured. FRELUX has not finished configuring: ${TYROLENE_MATERIAL_SLUGS.join(", ")}.`,
     );
   }
 
@@ -112,7 +112,7 @@ export async function loadTyroleneCalcConfig(
     const role = TYROLENE_ROLES[mat.slug];
     if (!role) {
       warnings.push(
-        `Material '${mat.name}' does not have a configured price. Material cost will be incomplete until FRELUX admin configures the price.`,
+        `Material '${mat.name}' does not have a configured price. Material cost will be incomplete until the price is configured.`,
       );
       continue;
     }
@@ -123,7 +123,7 @@ export async function loadTyroleneCalcConfig(
     } else {
       unpricedSlugs.push(mat.slug);
       warnings.push(
-        `Material '${mat.name}' has no verified price for this market yet. Material cost will be incomplete until the market price book is filled via the Admin Scan system.`,
+        `Material '${mat.name}' has no verified price for this market yet. Material cost will be incomplete until the market price book is filled via the FRELUX Scan system.`,
       );
     }
   }

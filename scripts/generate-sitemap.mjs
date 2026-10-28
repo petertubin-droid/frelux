@@ -11,8 +11,8 @@
  */
 import { writeFileSync, mkdirSync } from 'fs';
 import { marketLandingRoutes } from './market-landing-data.mjs';
+import { SITE_URL } from './lib/site-url.mjs';
 
-const SITE_URL = 'https://freluxtools.netlify.app';
 const today = new Date().toISOString().split('T')[0];
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';

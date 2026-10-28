@@ -70,7 +70,7 @@ export async function resolveConsumptionTax(
       status: "unknown",
       message:
         `No verified tax rate is on file for ${marketCode.toUpperCase()}. ` +
-        "No rate is applied rather than guessing; an admin can add a verified catalog entry.",
+        "No rate is applied rather than guessing; FRELUX can add a verified catalog entry.",
     };
   }
   if (row.rate_pct === null || row.rate_pct === undefined) {

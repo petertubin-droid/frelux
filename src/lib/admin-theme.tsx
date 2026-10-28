@@ -5,10 +5,10 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
  *
  * The public site's theme lives in `src/lib/theme.tsx` under the `'theme'`
  * localStorage key and represents the *visitor's* preference. This provider
- * exists so that the admin dashboard's dark-mode toggle NEVER modifies the
+ * exists so that FRELUX dashboard's dark-mode toggle NEVER modifies the
  * public/visitor preference. It persists to its own key
  * (`frelux_admin_theme`) and only owns the `dark` class on
- * `document.documentElement` while the admin surface is mounted; on unmount
+ * `document.documentElement` while FRELUX surface is mounted; on unmount
  * it restores the public theme so navigating back to the public site keeps
  * the visitor's own preference intact.
  */
@@ -67,8 +67,8 @@ export function AdminThemeProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    // Own the <html> dark class while the admin surface is mounted, and
-    // persist ONLY to the admin key, the public 'theme' key is untouched.
+    // Own the <html> dark class while FRELUX surface is mounted, and
+    // persist ONLY to FRELUX key, the public 'theme' key is untouched.
     applyThemeClass(theme);
     window.localStorage.setItem(ADMIN_THEME_KEY, theme);
     // On unmount, hand the dark class back to the public theme so the

@@ -96,7 +96,7 @@ export default function RegionalCostIndex() {
             { label: "Regional Cost Index" },
           ]}
           title="Regional Cost Index"
-          subtitle="State-by-state labour and material cost factors, admin-configured from verifiable sources. Apply them to any base cost to see location-accurate totals. When a state has no configured index the engine falls back to the national baseline and tells you: it never guesses a multiplier."
+          subtitle="State-by-state labour and material cost factors, verified from verifiable sources. Apply them to any base cost to see location-accurate totals. When a state has no configured index the engine falls back to the national baseline and tells you: it never guesses a multiplier."
         />
 
         {loadError && (
@@ -241,7 +241,7 @@ export default function RegionalCostIndex() {
           {indices.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No regional cost indices configured yet. Indices are entered by
-              the admin team from verifiable sources (market surveys, supplier
+              FRELUX team from verifiable sources (market surveys, supplier
               price lists): FRELUX never publishes guessed factors.
             </p>
           ) : (

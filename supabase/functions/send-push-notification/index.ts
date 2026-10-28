@@ -8,6 +8,7 @@
 // Invoke with: { "userId": "uuid", "title": "string", "body": "string", "url": "string" }
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getSiteHost } from "../_shared/site.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
   checkRateLimit,
@@ -79,7 +80,7 @@ async function createVapidJWT(
   const payload = {
     aud: origin,
     exp: now + 12 * 3600,
-    sub: "mailto:admin@freluxtools.netlify.app",
+    sub: `mailto:admin@${getSiteHost()}`,
   };
   const payloadB64 = base64UrlEncode(JSON.stringify(payload));
 

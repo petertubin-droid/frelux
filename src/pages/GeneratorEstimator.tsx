@@ -643,7 +643,7 @@ export default function GeneratorEstimator() {
             size, and every result says so.
           </li>
           <li>
-            The cable quantity comes from your measured run with the admin's
+            The cable quantity comes from your measured run with FRELUX's
             visible waste/route allowance. A blank run is reported missing
             rather than assumed; 0 is confirmed in the breakdown, not passed
             silently.

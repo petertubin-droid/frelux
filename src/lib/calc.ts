@@ -641,7 +641,7 @@ export function calculateEstimatedTotal(
 // ─────────────────────────────────────────────────────────
 // Screeding Material System, Coverage-Area Model
 // Supports: Putty and White Cement + Screeding Paint
-// All parameters come from ScreedingSystemConfig (Admin-configured).
+// All parameters come from ScreedingSystemConfig (Verified).
 // No hardcoded business values.
 // ─────────────────────────────────────────────────────────
 
@@ -665,17 +665,17 @@ export function getScreedingSystemWarnings(
     Number.isFinite(config.coverageAreaM2) && config.coverageAreaM2 > 0;
   if (!coverageOk) {
     warnings.push(
-      "Coverage area is not configured. Material quantities will be 0 until it is set in Admin → Screeding Material Systems.",
+      "Coverage area is not configured. Material quantities will be 0 until it is set in the FRELUX screeding materials page.",
     );
   }
 
   const qtyWarning = (name: string, label: string) =>
     warnings.push(
-      `${label} quantity per coverage area is not configured. ${name} will show 0 units until it is set in Admin → Screeding Material Systems.`,
+      `${label} quantity per coverage area is not configured. ${name} will show 0 units until it is set in the FRELUX screeding materials page.`,
     );
   const priceWarning = (name: string, label: string) =>
     warnings.push(
-      `${label} price per unit is not configured. Total cost cannot be shown for ${name.toLowerCase()} until a price is set in Admin → Screeding Material Systems.`,
+      `${label} price per unit is not configured. Total cost cannot be shown for ${name.toLowerCase()} until a price is set in the FRELUX screeding materials page.`,
     );
 
   if (config.systemType === "putty") {
@@ -748,7 +748,7 @@ function buildMaterialBreakdown(params: {
 /**
  * Calculate Putty screeding requirements.
  *
- * Model: the admin-configured ratio (e.g. 2 buckets per 12 m²) describes the
+ * Model: FRELUX-configured ratio (e.g. 2 buckets per 12 m²) describes the
  * COMPLETE standard job at the default coat count, it already includes the
  * standard number of coats. The quantity therefore scales linearly with area
  * only, at the default coats. Selecting a number of coats DIFFERENT from the
@@ -756,7 +756,7 @@ function buildMaterialBreakdown(params: {
  * default (e.g. 3 coats vs a 2-coat default = ×1.5). Waste is applied after.
  *
  * @param areaM2 - Total screeding surface area in m²
- * @param config - Admin-configured Putty system configuration
+ * @param config - Verified Putty system configuration
  * @param coats - Number of coats (defaults to config.defaultCoats)
  * @returns ScreedingPuttyResult with full breakdown
  */
@@ -773,7 +773,7 @@ export function calculateScreedingPutty(
   const wastePct = config.wastePercentage;
 
   // Base units = (area / coverage) × puttyQuantity × (coats / defaultCoats).
-  // At the admin default coats the factor is exactly 1, the configured
+  // At FRELUX default coats the factor is exactly 1, the configured
   // ratio (e.g. 2 buckets per 12 m²) is taken verbatim.
   const coatFactor = effectiveCoats / defaultCoats;
   const baseUnits = (area / coverage) * puttyQty * coatFactor;
@@ -805,15 +805,15 @@ export function calculateScreedingPutty(
 /**
  * Calculate White Cement + Screeding Paint requirements.
  *
- * Model: the admin-configured ratio (e.g. 2 paint buckets + 1 cement bag per
+ * Model: FRELUX-configured ratio (e.g. 2 paint buckets + 1 cement bag per
  * 20 m²) describes the COMPLETE standard job at the default coat count, it
  * already includes the standard number of coats. Quantities scale linearly
  * with area at the default coats. Selecting a number of coats DIFFERENT from
- * the admin default scales requirements proportionally relative to that
+ * FRELUX default scales requirements proportionally relative to that
  * default. Waste is applied to each material independently.
  *
  * @param areaM2 - Total screeding surface area in m²
- * @param config - Admin-configured White Cement + Paint system configuration
+ * @param config - Verified White Cement + Paint system configuration
  * @param coats - Number of coats (defaults to config.defaultCoats)
  * @returns ScreedingMixSystemResult with separate paint and cement breakdowns
  */
@@ -828,7 +828,7 @@ export function calculateScreedingMixSystem(
   const coverage = Math.max(0.01, config.coverageAreaM2);
   const paintQty = config.paintQuantity ?? 0;
   const cementQty = config.cementQuantity ?? 0;
-  // Optional third material (e.g. Bond), only participates when the admin
+  // Optional third material (e.g. Bond), only participates when FRELUX
   // has enabled it AND given it a name+quantity; dormant otherwise.
   const extraActive =
     config.extraEnabled === true &&
@@ -838,7 +838,7 @@ export function calculateScreedingMixSystem(
   const wastePct = config.wastePercentage;
 
   // Base units = (area / coverage) × materialQuantity × (coats / defaultCoats).
-  // At the admin default coats the factor is exactly 1, the configured ratio
+  // At FRELUX default coats the factor is exactly 1, the configured ratio
   // is taken verbatim.
   const coatFactor = effectiveCoats / defaultCoats;
   const baseUnits = area / coverage;

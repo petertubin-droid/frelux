@@ -78,7 +78,7 @@ export async function triggerCrawl(
 
 /**
  * Enable the FRELUX Crawler provider in the database.
- * This is called when the admin is ready to activate the crawler.
+ * This is called when FRELUX is ready to activate the crawler.
  */
 export async function enableFreluxCrawler(): Promise<boolean> {
   try {

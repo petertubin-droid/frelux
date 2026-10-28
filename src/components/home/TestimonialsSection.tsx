@@ -8,7 +8,7 @@ import type { DbTestimonial } from "@/types/database";
  *
  * Renders nothing at all while there are no active testimonials, so the
  * section never ships fake quotes or an empty placeholder. The table is
- * populated by the admin team with REAL user quotes only; there is no
+ * populated by FRELUX team with REAL user quotes only; there is no
  * generated or seeded content.
  */
 export default function TestimonialsSection() {

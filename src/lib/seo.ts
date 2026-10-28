@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site-config";
 import { useEffect } from "react";
 import { localeFromPathname } from "@/lib/i18n";
 
@@ -13,8 +14,6 @@ export interface SeoMeta {
   structuredDataArray?: object[];
 }
 
-const SITE_URL =
-  import.meta.env.VITE_SITE_URL ?? "https://freluxtools.netlify.app";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 function setMeta(attr: "name" | "property", key: string, content: string) {

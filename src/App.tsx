@@ -483,7 +483,7 @@ function ScrollToTop() {
   return null;
 }
 
-/** Suspense fallback: the admin-configurable branded loader
+/** Suspense fallback: FRELUX-configurable branded loader
  *  (Admin Settings -> Loading Experience). Falls back to a plain spinner
  *  when the loader is disabled in settings. */
 function PageLoader() {

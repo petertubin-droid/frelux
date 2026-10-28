@@ -20,7 +20,8 @@ import { join } from "node:path";
 
 const TOKEN = process.env.SUPABASE_ACCESS_TOKEN ?? "";
 const OLD_REF = "pjvtqkshewerpvggtgqx"; // Frelukx mirror (source)
-const CUR_REF = "hqhvlkunkdrxyuvziorm"; // Freluxtools (target)
+const CUR_REF = "nfgaaohweygwydoelxnf"; // freluxproject (live production)
+
 const MIGRATIONS_DIR = join(process.cwd(), "supabase", "migrations");
 const ARCHIE_RE = /archie/i;
 

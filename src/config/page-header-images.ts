@@ -496,7 +496,7 @@ export const PAGE_CATALOG: CatalogEntry[] = [
 ];
 
 // =========================================================
-// RESOLUTION — admin overrides win, then the rule registry
+// RESOLUTION — manual overrides win, then the rule registry
 // =========================================================
 
 /**

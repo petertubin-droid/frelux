@@ -202,7 +202,7 @@ export default function GlobalMarkets() {
         <p className="mt-8 text-xs text-muted-foreground">
           Coverage counts are computed from FRELUX's bundled production price
           book ({BUNDLED_BOOK_VERSION}). Prices carry their recorded retailer
-          and confidence — rows marked indicative remain admin-adjustable, and
+          and confidence — rows marked indicative remain adjustable, and
           nothing is presented as verified that is not.
         </p>
       </Container>

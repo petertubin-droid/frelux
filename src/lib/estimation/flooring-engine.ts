@@ -8,7 +8,7 @@
  *   USER: floor area (m²), skirting perimeter (m), the flooring
  *         type, and whether underlay and adhesive are needed.
  *   RULES: waste %, pack/roll/bag coverage rates (must match the
- *         products the admin prices), skirting waste.
+ *         products supplier prices), skirting waste.
  *
  * Honesty contract:
  *  - Area and perimeter are NEVER assumed. A missing value leaves
@@ -222,7 +222,7 @@ export function calculateFlooring(
     if (input.flooring_type === "laminate") {
       if (rules.laminate_pack_coverage_m2 === null) {
         missing.push(
-          "Laminate packs: no pack coverage configured (laminate_pack_coverage_m2). Set it from the pack the admin prices: quantities will not be guessed.",
+          "Laminate packs: no pack coverage configured (laminate_pack_coverage_m2). Set it from the pack supplier prices: quantities will not be guessed.",
         );
       } else {
         const packs = ceilU(withWaste / rules.laminate_pack_coverage_m2);
@@ -289,7 +289,7 @@ export function calculateFlooring(
     } else if (input.floor_area_m2 > 0) {
       if (rules.underlay_roll_coverage_m2 === null) {
         missing.push(
-          "Underlay: no roll coverage configured (underlay_roll_coverage_m2). Set it from the roll the admin prices.",
+          "Underlay: no roll coverage configured (underlay_roll_coverage_m2). Set it from the roll supplier prices.",
         );
       } else {
         const rolls = ceilU(

@@ -51,7 +51,7 @@ const defaultBranding: DbSiteBranding = {
  * every reload painted the FRELUX fallback first and then swapped to the
  * FRELUXTOOLS row once Supabase answered (two different-looking sites). The
  * public name, tagline and title are normalised back to the FRELUX defaults
- * here; colours, logos and hero content still come from the admin row.
+ * here; colours, logos and hero content still come from FRELUX row.
  */
 // Every FRELUX-prefixed identity EXCEPT "FRELUX SMART CALC" is legacy:
 // FRELUXTOOLS, plain FRELUX, FRELUX PAINT CALC, FRELUX PROJECT CALC.

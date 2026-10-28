@@ -6,14 +6,14 @@
 //
 // Two exposure classes, mirroring the DB security model:
 //   * "server"  — the key lives in integration_secrets with
-//                 admin-only RLS and is read exclusively by
+//                 restricted RLS and is read exclusively by
 //                 service-role edge functions at call time
 //                 (Resend). The client NEVER sees it.
 //   * "client"  — keys that are public by design (OpenWeather's
 //                 appid already ships inside the JS bundle via
 //                 VITE_OPENWEATHER_API_KEY). These are exposed
 //                 through the integration_keys_public view, and
-//                 only when the admin explicitly saved one.
+//                 only when FRELUX explicitly saved one.
 //
 // Resolution order (additive, env-first so existing deploys keep
 // working untouched): build-time env var → admin-pasted DB key.
@@ -37,7 +37,7 @@ export interface ProviderMeta {
   envVar?: string;
   /** Where the operator gets a key. */
   docsUrl: string;
-  /** Icon name rendered by the admin cards. */
+  /** Icon name rendered by FRELUX cards. */
   icon: "mail" | "cloud" | "exchange" | "bell";
 }
 
@@ -101,7 +101,7 @@ export const PROVIDER_REGISTRY: readonly ProviderMeta[] = [
     exposure: "server",
     consumption: "slot-ready",
     consumptionNote:
-      "Slot ready: the FX layer still uses the keyless display-rate feed with admin overrides. This key activates payable-grade endpoints when they are wired; it is stored now so no migration is needed later.",
+      "Slot ready: the FX layer still uses the keyless display-rate feed with manual overrides. This key activates payable-grade endpoints when they are wired; it is stored now so no migration is needed later.",
     docsUrl: "https://openexchangerates.org/signup",
     icon: "exchange",
   },
@@ -121,7 +121,7 @@ const CLIENT_KEY_TTL_MS = 5 * 60 * 1000;
 /**
  * Resolves a CLIENT-SAFE provider key at runtime:
  * build-time env var first (existing deploys unchanged), then
- * the admin-pasted key from integration_keys_public.
+ * FRELUX-pasted key from integration_keys_public.
  * Returns undefined when neither exists — callers keep their
  * honest no-key fallback (e.g. seasonal weather estimates).
  */

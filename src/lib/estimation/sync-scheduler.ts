@@ -10,7 +10,7 @@
  *  - Exponential backoff with jitter: 1 min, 2, 4, 8 … capped at
  *    30 min. Jitter is seeded deterministically from the capture
  *    id so tests (and repeated runs) are reproducible.
- *  - A sync runs when: auto_sync is enabled by the admin rules,
+ *  - A sync runs when: auto_sync is enabled by the configured rules,
  *    the browser is online, the queue is non-empty, and either
  *    there is no previous attempt or the backoff window has
  *    elapsed. Manual Sync-now is never gated (the page decides).
@@ -103,7 +103,7 @@ export function shouldAutoSync(
   input: AutoSyncDecisionInput,
 ): AutoSyncDecision {
   if (!input.autoSync) {
-    return { shouldSync: false, reason: "Auto-sync is disabled by your admin configuration" };
+    return { shouldSync: false, reason: "Auto-sync is disabled by FRELUX settings" };
   }
   if (!input.online) {
     return { shouldSync: false, reason: "You are offline; queued captures stay on this device" };

@@ -98,7 +98,7 @@ export default function Layout() {
   // are configured in Admin → Ads). Monetag monetizes through the
   // site-wide SDK zone tag (credentials.sdk_url), per-format auto
   // zones (Vignette / Interstitial / Popunder) and the rewarded flow.
-  // All of it is gated by the admin's display_ads_enabled toggle.
+  // All of it is gated by the display_ads_enabled toggle.
   // Admin pages don't use Layout at all (separate AdminLayout), so the
   // admin guard is belt-and-suspenders.
   useEffect(() => {
@@ -133,7 +133,7 @@ export default function Layout() {
         // NOTE: Monetag's site-wide SDK zone tag (credentials.sdk_url)
         // is the primary Monetag revenue path (popunder / on-click
         // formats). It is restored here, injected once per session and
-        // gated by the admin's display_ads_enabled toggle.
+        // gated by the display_ads_enabled toggle.
         // AdSense page-level ads (Auto / Anchor / Vignette / Interstitial):
         // the script + page-level push runs only when the publisher toggled
         // at least one page-level format on here. The exact format mix is
@@ -166,7 +166,7 @@ export default function Layout() {
             adsterra,
             adsterraServeDomain,
           );
-          // Site-wide Native Banner: the admin's Native Banner zone
+          // Site-wide Native Banner: the Native Banner zone
           // (native_banner_key credential) renders ONE unit on every
           // public page via the container div in the JSX below.
           if (
@@ -192,7 +192,7 @@ export default function Layout() {
         }
 
         // Monetag admin-configured auto zones (Vignette / Interstitial /
-        // Popunder). These are true website zones the admin explicitly
+        // Popunder). These are true website zones FRELUX explicitly
         // created per format in the Monetag dashboard, injected per zone
         // with data-sdk-ignore so they never create global show_ fns.
         // Rewarded/Social-Bar SDK zones are NOT auto zones and must never
@@ -203,7 +203,7 @@ export default function Layout() {
         if (monetag) {
           monetagAutoZones = formats.getMonetagAutoZoneScripts(monetag);
           // Site-wide SDK zone tag (popunder formats). Injected only
-          // when the admin enabled display ads for Monetag.
+          // when FRELUX enabled display ads for Monetag.
           if (formats.displayAdsEnabled(monetag)) {
             const mc = (monetag.credentials ?? {}) as Record<string, unknown>;
             const sdkUrl =

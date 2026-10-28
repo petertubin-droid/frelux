@@ -360,7 +360,7 @@ export default function FlooringEstimator() {
           { label: "Flooring Estimator" },
         ]}
         title="Flooring Estimator"
-        subtitle="Enter your measured floor area and skirting run. The engine sizes laminate packs, vinyl or parquet m², underlay, adhesive and skirting with the admin's visible coverage, pack-size and waste rules. Estimation only: not a flooring specification."
+        subtitle="Enter your measured floor area and skirting run. The engine sizes laminate packs, vinyl or parquet m², underlay, adhesive and skirting with the visible coverage, pack-size and waste rules. Estimation only: not a flooring specification."
       />
 
       {/* Inputs */}
@@ -678,8 +678,8 @@ export default function FlooringEstimator() {
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
             Quantities come from your measured area and skirting run, with the
-            admin's visible waste, pack, roll and bag coverage rules. A coverage
-            rule must match the product the admin prices: a pack covers what it
+            visible waste, pack, roll and bag coverage rules. A coverage
+            rule must match the product supplier prices: a pack covers what it
             says, no more.
           </li>
           <li>
@@ -689,7 +689,7 @@ export default function FlooringEstimator() {
           </li>
           <li>
             Prices come from the shared FRELUX material database, configured by
-            the site admin (Price Tracker). Unpriced materials show PRICE NOT
+            FRELUX price tracking. Unpriced materials show PRICE NOT
             CONFIGURED, never invented.
           </li>
           <li>

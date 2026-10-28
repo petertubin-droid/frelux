@@ -44,7 +44,7 @@ export default function CarbonFootprint() {
   useSeo({
     title: "Embodied Carbon Estimator: FRELUX",
     description:
-      "Estimate the embodied carbon (kgCO2e) of your construction and finishing works from verified, admin-configured emission factors.",
+      "Estimate the embodied carbon (kgCO2e) of your construction and finishing works from verified, verified emission factors.",
   });
 
   const [factors, setFactors] = useState<CarbonFactor[]>([]);
@@ -143,7 +143,7 @@ export default function CarbonFootprint() {
             { label: "Embodied Carbon Estimator" },
           ]}
           title="Embodied Carbon Estimator"
-          subtitle="kgCO2e per line from admin-configured, verifiable emission factors (EPDs, ICE database). Lines without a configured factor are excluded with a warning: FRELUX never guesses an emission."
+          subtitle="kgCO2e per line from verified, verifiable emission factors (EPDs, ICE database). Lines without a configured factor are excluded with a warning: FRELUX never guesses an emission."
         />
 
         {loadError && (
@@ -168,7 +168,7 @@ export default function CarbonFootprint() {
           <h2 className="mb-3 text-base font-semibold">Estimate lines</h2>
           {categories.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No carbon factors configured yet. Factors are entered by the admin
+              No carbon factors configured yet. Factors are entered by FRELUX
               team from verifiable sources: FRELUX never publishes guessed
               emission values.
             </p>

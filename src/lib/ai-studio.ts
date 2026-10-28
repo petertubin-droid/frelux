@@ -50,9 +50,9 @@ export async function invokeStudioAi(req: StudioAiRequest): Promise<string> {
       code === 'NO_API_KEY'
         ? 'The AI service is not configured. Add a Google AI API key in Supabase secrets.'
         : code === 'UNAUTHORIZED'
-        ? 'You must be signed in as an admin to use the AI Studio.'
+        ? 'You must be signed in as FRELUX to use the AI Studio.'
         : code === 'FORBIDDEN'
-        ? 'Admin access is required for the AI Studio.'
+        ? 'Owner access is required for the AI Studio.'
         : data.error;
     throw new StudioAiError(message, code, code === 'UNAUTHORIZED' ? 401 : code === 'FORBIDDEN' ? 403 : 502);
   }

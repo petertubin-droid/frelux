@@ -18,10 +18,10 @@
 import { readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { SITE_URL, SITE_HOST } from "./lib/site-url.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DRY_RUN = process.argv.includes("--dry-run");
-const SITE_URL = "https://freluxtools.netlify.app";
 const SITEMAP = resolve(__dirname, "../dist/sitemap.xml");
 const KEY_FILE = resolve(__dirname, "../public/indexnow-key.txt");
 
@@ -42,7 +42,7 @@ const sitemap = readFileSync(SITEMAP, "utf8");
 const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 if (urls.length === 0) fail("No URLs found in sitemap.");
 
-const payload = { host: "freluxtools.netlify.app", key, keyLocation: `${SITE_URL}/indexnow-key.txt`, urlList: urls };
+const payload = { host: SITE_HOST, key, keyLocation: `${SITE_URL}/indexnow-key.txt`, urlList: urls };
 
 console.log(`IndexNow: ${urls.length} URLs, key ${key.slice(0, 6)}…`);
 

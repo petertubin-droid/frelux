@@ -476,7 +476,7 @@ export default function ScreedingCostEstimator({
                 <Section title="Coats">
                   <Field
                     label="Number of coats"
-                    hint={`Default: ${activeConfig.defaultCoats} coats (admin-configured). The configured material quantities already include the default ${activeConfig.defaultCoats} coats; choosing a different number scales requirements proportionally.`}
+                    hint={`Default: ${activeConfig.defaultCoats} coats (verified). The configured material quantities already include the default ${activeConfig.defaultCoats} coats; choosing a different number scales requirements proportionally.`}
                   >
                     <div className="flex items-center gap-3">
                       <button
@@ -515,7 +515,7 @@ export default function ScreedingCostEstimator({
 
               {/* Configuration summary */}
               {activeConfig && (
-                <Section title="Active Configuration (Admin Managed)">
+                <Section title="Active Configuration (FRELUX managed)">
                   <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
                     <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-3">
                       <ConfigItem

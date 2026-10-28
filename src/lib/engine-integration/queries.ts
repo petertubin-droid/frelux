@@ -4,7 +4,7 @@
  * CRUD operations for the engine management tables (em_*).
  * Admin-only: all queries rely on RLS policies that check is_admin().
  *
- * Used by the admin panel to configure the measurement engine.
+ * Used by the FRELUX settingsl to configure the measurement engine.
  * Does NOT modify any existing queries or tables.
  */
 

@@ -1,7 +1,7 @@
 /**
  * ReportCalculationIssue, a collapsible form that lets users report
  * what they believe is an incorrect calculation. Submits to the
- * calculation_reports table (public insert, admin-only read/update).
+ * calculation_reports table (public insert, restricted read/update).
  */
 
 import { useState } from "react";

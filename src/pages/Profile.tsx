@@ -254,7 +254,7 @@ export default function Profile() {
                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${profile?.role === "admin" ? "bg-accent-orange/15 text-accent-orange" : "bg-primary/10 text-brand-purple"}`}
                 >
                   <Shield aria-hidden="true" className="h-3 w-3" />
-                  {profile?.role === "admin" ? "Admin" : "Member"}
+                  {profile?.role === "admin" ? "FRELUX" : "Member"}
                 </span>
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${profile?.account_type === "pro_worker" ? "bg-accent-green/15 text-accent-green" : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground"}`}

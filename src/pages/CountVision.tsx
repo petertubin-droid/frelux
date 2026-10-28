@@ -7,7 +7,7 @@
  *
  * - The counting happens ONLY in the count-vision edge function;
  *   this page renders and never invents a number.
- * - A count below the admin-configured confidence floor, or one
+ * - A count below FRELUX-configured confidence floor, or one
  *   the server could not stand behind, is shown as "cannot count
  *   honestly" with the reason - never as a guess.
  * - The photo is never stored: it goes to the counter and is
@@ -129,7 +129,7 @@ export default function CountVision() {
 
   /**
    * Gated entry point: signed-in users spend credits server-side
-   * (cost + daily limit live in ai_feature_costs, Admin-configurable)
+   * (cost + daily limit live in ai_feature_costs, configurable)
    * before the edge function is called. Guests stay on the edge
    * function's own rate limits, same contract as the Copilot.
    */

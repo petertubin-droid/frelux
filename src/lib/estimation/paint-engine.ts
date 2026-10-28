@@ -883,7 +883,7 @@ export function calculateRoom(
     steps.push({
       label: "Paint Quality & Coverage",
       value: `${config.quality?.name ?? "N/A"}, NOT CONFIGURED`,
-      detail: "Admin must configure coverage before accurate calculation.",
+      detail: "FRELUX has not finished configuring coverage before accurate calculation.",
     });
   } else {
     steps.push({

@@ -13,7 +13,7 @@
  *    is REFUSED. Never clamped, never guessed.
  *  - A missing reuse value (unit_value_naira null) is reported
  *    honestly as "value not configured", never invented.
- *  - The diversion target is the admin-configured rule; if it is
+ *  - The diversion target is FRELUX-configured rule; if it is
  *    missing the verdict is omitted, not defaulted.
  */
 
@@ -100,7 +100,7 @@ export function calculateCircularReuse(
   const factor = factors[category];
   if (!factor) {
     return refuse([
-      `No recovery factor is configured for '${category}'. The engine refuses to guess recovery rates: an admin must configure one from a verifiable source (demolition audit, WRAP protocol, salvage dealer rate).`,
+      `No recovery factor is configured for '${category}'. The engine refuses to guess recovery rates: FRELUX must configure one from a verifiable source (demolition audit, WRAP protocol, salvage dealer rate).`,
     ]);
   }
 
@@ -114,7 +114,7 @@ export function calculateCircularReuse(
     recovery_rate > 1
   ) {
     return refuse([
-      `The configured recovery rate for '${category}' (${recovery_rate}) is outside 0–1. The engine refuses to compute from an invalid factor: fix the factor in the admin config.`,
+      `The configured recovery rate for '${category}' (${recovery_rate}) is outside 0–1. The engine refuses to compute from an invalid factor: fix the factor in the FRELUX configuration.`,
     ]);
   }
   if (
@@ -123,7 +123,7 @@ export function calculateCircularReuse(
     reuse_fraction > 1
   ) {
     return refuse([
-      `The configured reuse fraction for '${category}' (${reuse_fraction}) is outside 0–1. The engine refuses to compute from an invalid factor: fix the factor in the admin config.`,
+      `The configured reuse fraction for '${category}' (${reuse_fraction}) is outside 0–1. The engine refuses to compute from an invalid factor: fix the factor in the FRELUX configuration.`,
     ]);
   }
   if (
@@ -132,12 +132,12 @@ export function calculateCircularReuse(
     recycle_fraction > 1
   ) {
     return refuse([
-      `The configured recycle fraction for '${category}' (${recycle_fraction}) is outside 0–1. The engine refuses to compute from an invalid factor: fix the factor in the admin config.`,
+      `The configured recycle fraction for '${category}' (${recycle_fraction}) is outside 0–1. The engine refuses to compute from an invalid factor: fix the factor in the FRELUX configuration.`,
     ]);
   }
   if (reuse_fraction + recycle_fraction > 1) {
     return refuse([
-      `The configured reuse (${reuse_fraction}) and recycle (${recycle_fraction}) fractions for '${category}' sum to more than 1. The engine refuses to compute from an invalid factor: fix the factor in the admin config.`,
+      `The configured reuse (${reuse_fraction}) and recycle (${recycle_fraction}) fractions for '${category}' sum to more than 1. The engine refuses to compute from an invalid factor: fix the factor in the FRELUX configuration.`,
     ]);
   }
 
@@ -185,7 +185,7 @@ export function calculateCircularReuse(
   let meetsTarget: boolean | null = null;
   if (target === null || target < 0 || target > 1) {
     warnings.push(
-      "No valid 'diversion_target_fraction' rule is configured, so the plan is not measured against a circular-economy target. Configure the rule in the admin config.",
+      "No valid 'diversion_target_fraction' rule is configured, so the plan is not measured against a circular-economy target. Configure the rule in the FRELUX configuration.",
     );
   } else {
     meetsTarget = diverted / quantity >= target;

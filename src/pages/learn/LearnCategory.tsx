@@ -17,6 +17,7 @@ import { useSeo } from "@/lib/seo";
 import type { DbLearnCategory, DbLearnArticle } from "@/types/database";
 import Pagination from "@/components/ui/Pagination";
 import { useLearnMarketScope } from "@/lib/learn-scope";
+import { SITE_URL } from "@/lib/site-config";
 
 type Status = "loading" | "ready" | "error" | "notfound";
 
@@ -55,7 +56,7 @@ export default function LearnCategory() {
   };
 
   const SITE_URL_ =
-    import.meta.env.VITE_SITE_URL ?? "https://freluxtools.netlify.app";
+    SITE_URL;
   useSeo({
     title: category ? `${category.name}: Learn` : "Learn Category",
     description:

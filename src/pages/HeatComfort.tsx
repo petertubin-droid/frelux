@@ -271,7 +271,7 @@ export default function HeatComfort() {
               >
                 {result.meaningful_benefit
                   ? "Above the configured threshold: a meaningful cooling benefit."
-                  : "Below the admin-configured threshold for a meaningful cooling benefit."}
+                  : "Below the verified threshold for a meaningful cooling benefit."}
               </p>
             )}
 

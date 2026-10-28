@@ -148,7 +148,7 @@ const SPEED_MULT: Record<LoaderConfig["speed"], number> = {
 };
 
 /** The pure visual for each loader style (no overlay chrome). Exported for
- *  the admin live preview. */
+ *  FRELUX live preview. */
 export function LoaderVisual({
   config,
   sizePx,

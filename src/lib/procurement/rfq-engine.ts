@@ -237,7 +237,7 @@ export function distributeRfqToSuppliers(
   }
   if (unique.length < standard) {
     warnings.push(
-      `RFQ distributed to ${unique.length} supplier(s) instead of the standard ${standard} competing suppliers: competition is reduced and quotes may be less sharp. Add suppliers in the marketplace admin to restore the standard.`,
+      `RFQ distributed to ${unique.length} supplier(s) instead of the standard ${standard} competing suppliers: competition is reduced and quotes may be less sharp. Add suppliers in the marketplace to restore the standard.`,
     );
   }
 

@@ -7,7 +7,7 @@
 // generated from the production catalog sync: real prices with
 // their recorded retailers and confidences — some rows are
 // web-verified retail prices, others are honestly marked
-// "indicative, admin-adjustable". Provenance always travels.
+// "indicative, adjustable". Provenance always travels.
 //
 // This module adds NO prices of its own and changes no math:
 // it only serves the same data the DB would serve, statically,

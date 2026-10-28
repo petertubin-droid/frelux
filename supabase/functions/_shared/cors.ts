@@ -28,8 +28,17 @@
 //     of the apikey/auth checks — never a replacement.
 // =========================================================
 
-/** The production webapp origin (Supabase config: Netlify deployment). */
-export const PRODUCTION_ORIGINS = ["https://freluxtools.netlify.app"] as const;
+/**
+ * The production webapp origin. Resolves from the SITE_URL secret so a
+ * custom-domain switch needs no code edit; the previous Netlify origin
+ * stays allowed so shared links keep working through the transition.
+ */
+import { getSiteUrl } from "./site.ts";
+
+export const PRODUCTION_ORIGINS: readonly string[] = [
+  getSiteUrl(),
+  "https://freluxtools.netlify.app",
+];
 
 /** Local development origins (vite dev server common ports). */
 export const DEV_ORIGINS = [

@@ -145,7 +145,7 @@ describe("mergeEpdWithAdminFactors", () => {
     expect(concrete.module_stage).toBe("A1");
     const paint = factors.find((f) => f.category === "paint")!;
     expect(paint.source).toBe("admin");
-    expect(warnings.join(" ")).toContain("replaced the static admin factor");
+    expect(warnings.join(" ")).toContain("replaced the static planning factor");
   });
 
   it("keeps admin factors untouched when no EPD covers a category", () => {

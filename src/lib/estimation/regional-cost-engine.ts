@@ -3,7 +3,7 @@
  *
  * Location-adjusted costing. Given a base cost (e.g. from any
  * FRELUX estimate) and a target state + category, the engine
- * applies the admin-configured regional factor.
+ * applies FRELUX-configured regional factor.
  *
  * Philosophy (unchanged): the engine never invents a factor.
  * Fallback order is fixed and documented: exact state+category →
@@ -185,7 +185,7 @@ export function applyRegionalCost(
     });
     result.warnings.push(
       `No regional cost index is configured for ${country}/${state}${category !== "general" ? ` (${category})` : ""}. ` +
-        `The national baseline (${factor.toFixed(2)}) was used. Add an index under Admin → Regional Cost Indices for state-accurate costing.`,
+        `The national baseline (${factor.toFixed(2)}) was used. Add an index under FRELUX → Regional Cost Indices for state-accurate costing.`,
     );
     result.ok = true;
     return result;

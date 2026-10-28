@@ -11,7 +11,7 @@
  * - Every capture states its honest status: queued (with its
  *   captured time), or failed with the reason. Nothing is ever
  *   claimed synced that the server has not confirmed.
- * - Capacity and retention follow the admin-configured rules;
+ * - Capacity and retention follow FRELUX-configured rules;
  *   eviction is reported, never silent.
  */
 
@@ -223,7 +223,7 @@ export default function FieldSync() {
     }
   }, [refreshQueue, rules, syncing, user]);
 
-  // Auto-sync (engine #11): scheduler decides — admin rules, connectivity,
+  // Auto-sync (engine #11): scheduler decides — configured rules, connectivity,
   // queue state and honest retry backoff. Every decision states its reason.
   const runSyncRef = useRef(runSync);
   useEffect(() => {
@@ -299,7 +299,7 @@ export default function FieldSync() {
       >
         <p>
           {online
-            ? "You are online. Captures sync when you tap Sync now, or automatically per the admin settings."
+            ? "You are online. Captures sync when you tap Sync now, or automatically per the FRELUX settings."
             : "You are offline. Captures are saved on this device and will sync when you are back online. Nothing is lost by closing the page."}
         </p>
         {autoReason && (

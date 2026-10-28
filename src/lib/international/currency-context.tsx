@@ -91,8 +91,8 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Worldwide live FX feed: keyless open.er-api.com rates, cached
-  // 12h. Admin-configured rates override live rates per currency;
-  // a fetch failure just means admin-only rates (never a guess).
+  // 12h. Verified rates override live rates per currency;
+  // a fetch failure just means restricted rates (never a guess).
   const [liveRates, setLiveRates] = useState<Record<string, number> | null>(
     null,
   );
@@ -134,7 +134,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       // Owner explicitly disabled conversions: their config wins as-is.
       effective = cfg;
     } else if (liveRates) {
-      // Live worldwide rates, with admin overrides per currency.
+      // Live worldwide rates, with manual overrides per currency.
       effective = {
         ...effective,
         enabled: true,

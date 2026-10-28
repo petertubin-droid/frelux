@@ -13,7 +13,7 @@
  *    declares none, only counts are reported with an honest
  *    warning - never an estimated area.
  *  - A file that is not valid IFC/STEP is refused, not guessed at.
- *  - A file larger than the admin-configured entity cap is refused
+ *  - A file larger than FRELUX-configured entity cap is refused
  *    with an honest error instead of freezing the tab.
  *  - IFC quantities use the project's assigned units unless the
  *    quantity supplies a local unit. Supported SI and conversion-based
@@ -471,7 +471,7 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
       has_quantities: false,
       unparsed_lines: unparsed,
       warnings: [
-        `The file contains ${entities.size.toLocaleString("en-NG")} entities, above the configured cap of ${maxEntities.toLocaleString("en-NG")} (admin rule max_entities_per_file). It is refused with an honest error instead of freezing your browser.`,
+        `The file contains ${entities.size.toLocaleString("en-NG")} entities, above the configured cap of ${maxEntities.toLocaleString("en-NG")} (configured limit max_entities_per_file). It is refused with an honest error instead of freezing your browser.`,
       ],
       steps,
       schema_coverage: buildIfcSchemaCoverage(entities, fileText),

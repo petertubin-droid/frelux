@@ -119,7 +119,7 @@ export function calculateLabour(input: LabourInput): LabourResult {
   );
   if (!rate) {
     result.warnings.push(
-      `No labour rate is configured for '${taskKey}': the engine refuses to guess a productivity figure. Add a rate under Admin → Labour Rates.`,
+      `No labour rate is configured for '${taskKey}': the engine refuses to guess a productivity figure. Add a rate under FRELUX → Labour Rates.`,
     );
     return result;
   }

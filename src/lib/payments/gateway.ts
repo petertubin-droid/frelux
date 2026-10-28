@@ -49,13 +49,13 @@ export function isFlutterwaveConfigured(_cfg: GatewayRuntimeConfig): boolean {
 
 export interface ResolvedGateway {
   gateway: PaymentGateway;
-  /** Set when the admin-selected gateway was unavailable and we fell back. */
+  /** Set when FRELUX-selected gateway was unavailable and we fell back. */
   fallbackFrom?: PaymentGateway;
   reason?: string;
 }
 
 /**
- * Pure resolution: which gateway runs hosted checkout given the admin
+ * Pure resolution: which gateway runs hosted checkout given FRELUX
  * setting and what is available to the browser. Server-side secret validity
  * is reported by checkout, never guessed from client environment variables.
  */
@@ -101,7 +101,7 @@ export function currentGatewayRuntimeConfig(): GatewayRuntimeConfig {
   };
 }
 
-/** Read the admin-configured gateway from site_settings (anon-readable). */
+/** Read FRELUX-configured gateway from site_settings (anon-readable). */
 export async function fetchConfiguredGateway(): Promise<PaymentGateway> {
   if (!isSupabaseConfigured) return "paystack";
   const { data } = await supabase
@@ -155,9 +155,9 @@ export async function startSubscriptionCheckout(
   userId: string,
   /**
    * Explicit user choice from the checkout selector. When set and
-   * configured, it wins over the admin default; otherwise the admin
+   * configured, it wins over FRELUX default; otherwise FRELUX
    * default (with Paystack fallback) runs. Both gateways stay live:
-   * the admin setting is the default, never a kill switch.
+   * FRELUX setting is the default, never a kill switch.
    */
   preferred?: PaymentGateway,
 ): Promise<CheckoutStartResult> {

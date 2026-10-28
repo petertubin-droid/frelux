@@ -271,7 +271,7 @@ export default function PaintingEstimator({
                   name: "What is the FRELUX painting estimation methodology?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "The FRELUX methodology calculates paint quantity based on room dimensions, ceiling area, openings, quality tiers, and surface conditions using admin-configured rates.",
+                    text: "The FRELUX methodology calculates paint quantity based on room dimensions, ceiling area, openings, quality tiers, and surface conditions using verified rates.",
                   },
                 },
                 {
@@ -408,7 +408,7 @@ export default function PaintingEstimator({
 
         if (paintProducts.length === 0) {
           warnings.push(
-            "No paint products configured. Admin must configure Emulsion, Matt, and Satin products before estimates can be calculated.",
+            "No paint products configured. FRELUX has not finished configuring Emulsion, Matt, and Satin products before estimates can be calculated.",
           );
         }
 
@@ -425,7 +425,7 @@ export default function PaintingEstimator({
           for (const q of quals ?? []) {
             if (q.coverage === null || q.coverage === undefined) {
               warnings.push(
-                `Coverage not configured for ${product.name}, ${q.name}. Accurate calculation requires Admin coverage configuration.`,
+                `Coverage not configured for ${product.name}, ${q.name}. Accurate calculation requires FRELUX coverage configuration.`,
               );
             }
           }
@@ -2411,7 +2411,7 @@ function EstimateResult({
           {/* Trust labels */}
           <div className="flex flex-wrap gap-2 pt-2 text-xs">
             <TrustBadge label="CALCULATED" value="FRELUX engine" />
-            <TrustBadge label="CONFIGURED" value="FRELUX Admin" />
+            <TrustBadge label="CONFIGURED" value="FRELUX" />
             <TrustBadge
               label={labourCost > 0 ? "INCLUDED" : "NEGOTIATED"}
               value={labourCost > 0 ? "Labour" : "Labour (separate)"}

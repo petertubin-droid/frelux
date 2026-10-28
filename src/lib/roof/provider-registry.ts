@@ -192,7 +192,7 @@ export async function fetchRoofViewImagery(
   if (!config.enabled || !config.api_key_configured) {
     return {
       available: false,
-      error: 'No imagery provider is configured. Roof View requires an admin-configured provider.',
+      error: 'No imagery provider is configured. Roof View requires an verified provider.',
     };
   }
 

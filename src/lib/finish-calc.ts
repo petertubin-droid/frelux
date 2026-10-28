@@ -133,7 +133,7 @@ export function getFinishTypeDescription(finishType: FinishType): string {
     case "tyrolene":
       return "Textured exterior cementitious finish, partition-based estimation. Use the dedicated Tyrolene Estimator for accurate calculations.";
     case "grafitex":
-      return "Rough exterior finish. 1 × 20-L bucket covers 2 standard partitions. Price is admin-configurable.";
+      return "Rough exterior finish. 1 × 20-L bucket covers 2 standard partitions. Price is configurable.";
     default:
       return "";
   }
@@ -200,7 +200,7 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
     const grafitexWarnings: string[] = [];
     if (bucketPrice <= 0) {
       grafitexWarnings.push(
-        "Grafitex bucket price is not configured. Total cost cannot be calculated until an admin configures the price.",
+        "Grafitex bucket price is not configured. Total cost cannot be calculated until FRELUX configures the price.",
       );
     }
 
@@ -247,7 +247,7 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
   const configWarnings: string[] = [];
   if (area > 0 && coats > 0 && materialConfigs.length === 0) {
     configWarnings.push(
-      "No materials are configured for this finish type. Configure materials in Admin before an accurate estimate is possible.",
+      "No materials are configured for this finish type. Configure materials in FRELUX before an accurate estimate is possible.",
     );
   }
 
@@ -259,15 +259,15 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
     if (area > 0 && coats > 0) {
       if (coverageRate <= 0) {
         configWarnings.push(
-          `Coverage rate is not configured for '${mat.name}'. Its quantity and cost are excluded until an admin configures it.`,
+          `Coverage rate is not configured for '${mat.name}'. Its quantity and cost are excluded until FRELUX configures it.`,
         );
       } else if (packageSize <= 0) {
         configWarnings.push(
-          `Package size is not configured for '${mat.name}'. Purchase quantity and cost are excluded until an admin configures it.`,
+          `Package size is not configured for '${mat.name}'. Purchase quantity and cost are excluded until FRELUX configures it.`,
         );
       } else if (unitPrice <= 0) {
         configWarnings.push(
-          `Unit price is not configured for '${mat.name}'. Its cost is excluded from the total until an admin configures it.`,
+          `Unit price is not configured for '${mat.name}'. Its cost is excluded from the total until FRELUX configures it.`,
         );
       }
     }

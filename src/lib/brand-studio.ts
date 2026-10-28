@@ -292,7 +292,7 @@ export async function resolveBranding(
     return unlockedDefaultBranding(access.activeUnlock);
   }
 
-  // 3. FRELUX admin default
+  // 3. FRELUX default
   const config = await fetchPdfBrandingConfig();
   if (config) {
     return configToBranding(config);

@@ -4030,7 +4030,7 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     ],
     dependencies: ["src/types/estimation.ts"],
     calculationPurpose:
-      "Location-adjusted costing: applies verified admin-configured state/province/territory cost multipliers with documented fallback warnings.",
+      "Location-adjusted costing: applies verified state/province/territory cost multipliers with documented fallback warnings.",
     keyFormulas:
       "AdjustedCost = BaseCost * MatchedRegionalFactor; Fallback = NationalBaselineFactor",
     marketAssumptions:
@@ -5005,7 +5005,7 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     keyFormulas:
       "PunchOutSetupRequest/OrderMessage per cXML 1.2 (BuyerCookie session-tamper check, total-vs-line-sum reconciliation); OCI hook params + NEW_ITEM-* cart blocks (PRICEUNIT honoured); RfqTotal = sum(OrderQuantity x QuotedUnitPrice); ranking restricted to full-coverage quotes so partial quotes never win on price",
     marketAssumptions:
-      "Punchout credentials are admin-configured per merchant (merchant_punchout_configs, admin-only RLS); competition standard is 3 suppliers with honest warnings on shortfall.",
+      "Punchout credentials are configured per merchant (merchant_punchout_configs, restricted RLS); competition standard is 3 suppliers with honest warnings on shortfall.",
     internationalizationStatus: "verified_full",
     marketMatrix: {
       NG: {
@@ -6546,7 +6546,7 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     keyFormulas:
       "ParseProductSpec(rawHtml) -> { unitPrice, packSize, materialRole, effectiveDate }",
     marketAssumptions:
-      "Strictly gates unverified scraped candidate prices from production estimates until approved by admin.",
+      "Strictly gates unverified scraped candidate prices from production estimates until approved by FRELUX.",
     internationalizationStatus: "verified_full",
     marketMatrix: {
       NG: {

@@ -39,7 +39,7 @@ export default function CashFlowTimeline() {
   useSeo({
     title: "Cash-Flow Timeline: FRELUX",
     description:
-      "Generate a deterministic phased payment schedule for any estimate total from admin-configured milestone templates.",
+      "Generate a deterministic phased payment schedule for any estimate total from verified milestone templates.",
   });
 
   const [templates, setTemplates] = useState<CashFlowTemplate[]>([]);
@@ -92,7 +92,7 @@ export default function CashFlowTimeline() {
             { label: "Cash-Flow Timeline" },
           ]}
           title="Cash-Flow Timeline"
-          subtitle="Phased payment schedule for an estimate total, from admin-configured milestone templates. Milestone percentages must sum to exactly 100%: FRELUX refuses anything else rather than silently adjusting your payment plan."
+          subtitle="Phased payment schedule for an estimate total, from verified milestone templates. Milestone percentages must sum to exactly 100%: FRELUX refuses anything else rather than silently adjusting your payment plan."
         />
 
         {loadError && (

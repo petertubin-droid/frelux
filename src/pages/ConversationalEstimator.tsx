@@ -53,7 +53,7 @@ export default function ConversationalEstimator() {
   const [result, setResult] = useState<ConversationalEstimate | null>(null);
   const [busy, setBusy] = useState(false);
   // P3.15: market-routed paint configuration (coverage + container sizes)
-  // resolved from the admin-configured paint types and the visitor's
+  // resolved from FRELUX-configured paint types and the visitor's
   // market role price book. No config = engine defaults, disclosed.
   const [marketCalcConfig, setMarketCalcConfig] = useState<CalcConfig | null>(
     null,

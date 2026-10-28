@@ -863,7 +863,7 @@ export default function ElectricalEstimator() {
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
             Quantities come from your explicit point counts, your estimated
-            average run lengths, and the admin's visible planning rules (circuit
+            average run lengths, and the visible planning rules (circuit
             grouping, conduit allowance, junction boxes, waste). Nothing else is
             assumed.
           </li>

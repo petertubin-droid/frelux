@@ -539,7 +539,7 @@ export function registerPhase2Engines(): void {
 
       // MARKET-AWARE PRICING: the same role-based fallback the manual
       // Screeding Cost Estimator uses. Config prices stay authoritative
-      // when the admin set them; a missing price resolves through the
+      // when FRELUX set them; a missing price resolves through the
       // market's verified price book (joint-filler / interior-paint /
       // concrete-mix roles) with provenance. Unpriced roles stay null -
       // the result reports the gap, never guesses.

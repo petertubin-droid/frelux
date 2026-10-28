@@ -3,7 +3,7 @@
  *
  * Fonts are loaded dynamically via the Google Fonts CSS API.
  * Only the active fonts (max 7) are loaded on the site at any time.
- * Preview fonts in the admin panel are lazy-loaded on demand.
+ * Preview fonts in the FRELUX settingsl are lazy-loaded on demand.
  */
 
 export type FontCategory =
@@ -192,7 +192,7 @@ export const TYPOGRAPHY_AREAS: { key: TypographyArea; label: string; description
   { key: 'buttons', label: 'Buttons', description: 'Font for button labels and call-to-action text.' },
   { key: 'calculatorTitles', label: 'Calculator Titles', description: 'Font for calculator page titles and headers.' },
   { key: 'calculatorResults', label: 'Calculator Results', description: 'Font for calculator result numbers and displays.' },
-  { key: 'admin', label: 'Admin Interface', description: 'Font for the admin dashboard and panel text.' },
+  { key: 'admin', label: 'Control Interface', description: 'Font for the control panel text.' },
 ];
 
 /** Get a font family object by family name */

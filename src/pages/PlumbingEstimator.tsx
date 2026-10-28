@@ -420,7 +420,7 @@ export default function PlumbingEstimator() {
           { label: "Plumbing Estimator" },
         ]}
         title="Plumbing Estimator"
-        subtitle="Enter your fixture counts and the total pipe run you measured for each category. The engine sizes each pipe category separately, applies the admin's visible waste and fitting allowances, and shows every step. Estimation only: not professional plumbing design."
+        subtitle="Enter your fixture counts and the total pipe run you measured for each category. The engine sizes each pipe category separately, applies the visible waste and fitting allowances, and shows every step. Estimation only: not professional plumbing design."
       />
 
       {isRestored && (
@@ -824,18 +824,18 @@ export default function PlumbingEstimator() {
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
             Pipe quantities come from your measured total runs, one category at
-            a time (cold, hot, waste, drainage), with the admin's waste
+            a time (cold, hot, waste, drainage), with the waste
             allowance shown in the breakdown. Nothing is assumed about hidden
             pipe lengths.
           </li>
           <li>
-            Fittings (elbows, tees, reducers, unions, valves) follow the admin's
+            Fittings (elbows, tees, reducers, unions, valves) follow FRELUX's
             visible planning allowances per fixture connection: a labelled
             estimate, not a measurement.
           </li>
           <li>
             Prices come from the shared FRELUX material database, configured by
-            the site admin (Price Tracker). Unpriced materials show PRICE NOT
+            FRELUX price tracking. Unpriced materials show PRICE NOT
             CONFIGURED, never invented.
           </li>
           <li>

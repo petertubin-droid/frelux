@@ -4,7 +4,7 @@
 // Browser-side Web Push (RFC 8291/8292, VAPID):
 //   * subscribeWorkflowPush() registers /sw-push.js, asks the
 //     browser for a push subscription with the CLIENT-VISIBLE
-//     VAPID public key (env-first, then the admin-pasted key
+//     VAPID public key (env-first, then FRELUX-pasted key
 //     in integration_keys_public), and saves it in
 //     workflow_push_subscriptions (RLS: own rows only).
 //   * unsubscribeWorkflowPush() removes the row and unsubscribes.

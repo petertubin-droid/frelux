@@ -57,14 +57,14 @@ export function calculatePopCeiling(
         // ok, configurable coverage present
       } else if (adjustedArea > 0) {
         calcWarnings.push(
-          `Coverage rate is not configured for '${mat.name}'. Its quantity and cost are excluded from the total until an admin configures it.`,
+          `Coverage rate is not configured for '${mat.name}'. Its quantity and cost are excluded from the total until it is configured.`,
         );
       }
       if (unitPrice > 0) {
         // ok, price configured
       } else {
         calcWarnings.push(
-          `Unit price is not configured for '${mat.name}'. Its cost is excluded from the total until an admin configures it.`,
+          `Unit price is not configured for '${mat.name}'. Its cost is excluded from the total until it is configured.`,
         );
       }
       const quantity = coverage > 0 ? adjustedArea / coverage : 0;

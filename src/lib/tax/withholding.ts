@@ -8,7 +8,7 @@
  *  - 'pending'  -> returned as INFORMATIONAL ONLY with the pending
  *    disclosure; computeWithholding never uses it.
  *  - 'rejected' -> hidden from resolution entirely.
- * The application can never approve a rule (admin-only writes via RLS,
+ * The application can never approve a rule (restricted writes via RLS,
  * mirroring predictive_model_validations): settlement advice cannot be
  * self-certified.
  */

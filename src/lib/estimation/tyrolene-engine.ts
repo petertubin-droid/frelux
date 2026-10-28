@@ -379,7 +379,7 @@ export function validateTyroleneInput(
 
   // Check product
   if (!config.product) {
-    errors.push('Tyrolene product is not configured. Contact FRELUX admin.');
+    errors.push('Tyrolene product is not configured. Contact FRELUX support.');
   } else if (!config.product.is_active) {
     errors.push('Tyrolene product is currently inactive.');
   }
@@ -390,7 +390,7 @@ export function validateTyroleneInput(
   );
   if (hasPartitionTypes) {
     if (standardPartition.width === null || standardPartition.height === null) {
-      errors.push('Standard partition dimensions are not configured. Accurate Tyrolene calculation with actual dimensions requires FRELUX admin to configure the standard partition width and height.');
+      errors.push('Standard partition dimensions are not configured. Accurate Tyrolene calculation with actual dimensions requires FRELUX to configure the standard partition width and height.');
     }
   }
 
@@ -399,14 +399,14 @@ export function validateTyroleneInput(
     config.calcRules.get('material_ratio') ?? null
   );
   if (materialRatio.materials.length === 0) {
-    errors.push('Tyrolene material ratio is not configured. Contact FRELUX admin.');
+    errors.push('Tyrolene material ratio is not configured. Contact FRELUX support.');
   }
 
   // Check each material has a price
   for (const mat of materialRatio.materials) {
     const price = config.prices.get(mat.slug);
     if (!price || !isPriceConfigured(price.price)) {
-      warnings.push(`Material '${mat.slug}' does not have a configured price. Material cost will be incomplete until FRELUX admin configures the price.`);
+      warnings.push(`Material '${mat.slug}' does not have a configured price. Material cost will be incomplete until the price is configured.`);
     }
   }
 
@@ -590,7 +590,7 @@ export function calculateTyroleneProject(
     });
   } else if (hasActualDimensions && standardArea === null) {
     // Actual dimensions provided but standard partition not configured
-    errors.push('Accurate Tyrolene calculation unavailable until the required FRELUX configuration is completed. Standard partition dimensions must be configured by FRELUX admin to use actual partition dimensions.');
+    errors.push('Accurate Tyrolene calculation unavailable until the required FRELUX configuration is completed. Standard partition dimensions must be configured by FRELUX to use actual partition dimensions.');
   }
 
   // ── Calculate material quantities ──
@@ -754,7 +754,7 @@ export function calculateTyroleneProject(
 
   // ── Recommendations ──
   if (!validation.valid) {
-    recommendations.push('Contact FRELUX admin to complete the required configuration for accurate Tyrolene estimation.');
+    recommendations.push('Contact FRELUX to complete the required configuration for accurate Tyrolene estimation.');
   }
 
   return {

@@ -3,12 +3,12 @@
 //
 // The price tracker's job: compare the reference catalog against
 // the prices actually CONFIGURED in the shared material database,
-// and let the admin apply verified prices. It is a reference
+// and let FRELUX apply verified prices. It is a reference
 // catalog review - NOT a live market feed, and it never invents
 // price movement:
 //   - no random variance, no simulated "market changes"
 //   - a catalog entry with price null = NO reference available:
-//     the admin must enter the price themselves
+//     FRELUX must enter the price themselves
 //   - every applied price is written to estimation_prices with
 //     its source recorded (admin-verified reference)
 // Every FRELUX engine prices from that shared table, so the
@@ -27,7 +27,7 @@ export interface FallbackPrice {
 
 /**
  * Reference catalog. Values are FRELUX reference data for the
- * Nigerian market - the admin verifies each price before applying
+ * Nigerian market - FRELUX verifies each price before applying
  * it to the shared material database. The Tier 2 foundation and
  * reinforcement engines price these same slugs.
  */
@@ -181,7 +181,7 @@ export const FALLBACK_PRICES: Record<string, FallbackPrice> = {
   },
 
   // ── Tier 2 engine materials: listed for tracking, NO reference
-  //    price - the admin enters the verified price from their
+  //    price - FRELUX enters the verified price from their
   //    supplier. The electrical engine prices these slugs.
   elec_cable_lighting: {
     price: null,
@@ -501,7 +501,7 @@ export const FALLBACK_PRICES: Record<string, FallbackPrice> = {
  * US reference catalog. Values are real retail prices for real US
  * products, verified 2026-10-05 from Home Depot, Walmart, True
  * Value and list-price sources. null = no verified price yet -
- * the admin must enter it; a price is never invented.
+ * FRELUX must enter it; a price is never invented.
  */
 export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   us_concrete_mix_bag: {

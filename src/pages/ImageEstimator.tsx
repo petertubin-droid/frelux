@@ -283,7 +283,7 @@ export default function ImageEstimator() {
           );
         } else if (code === "AI_DISABLED") {
           setError(
-            "Image estimation is currently disabled by the administrator.",
+            "Image estimation is currently disabled by FRELUX.",
           );
         } else {
           setError(data.error);
@@ -410,7 +410,7 @@ export default function ImageEstimator() {
             <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-accent-green/20 px-3 py-1 text-xs text-accent-green">
               <PremiumBadge size="xs" />
               {accessDecision.reason === "admin_override"
-                ? "Admin Access"
+                ? "Restricted access"
                 : accessDecision.reason === "free"
                   ? `${usage?.remaining ?? 0} free uses remaining today`
                   : "Active"}

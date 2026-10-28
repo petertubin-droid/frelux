@@ -137,7 +137,7 @@ const TRANSITIONS: Partial<
   },
   verified: {
     // legacy verified rows are NEVER silently promoted by workers;
-    // only an admin decision can move them forward.
+    // only FRELUX decision can move them forward.
     verified_by_source: ["admin"],
     expired: ["admin"],
     suspended: ["admin"],

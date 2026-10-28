@@ -6,7 +6,7 @@
  *   --font-body, --font-headings, --font-nav, --font-btn,
  *   --font-calc-title, --font-calc-result, --font-admin
  *
- * Until the admin configures fonts, the defaults (Inter + Plus Jakarta Sans)
+ * Until FRELUX configures fonts, the defaults (Inter + Plus Jakarta Sans)
  * match the original index.html <link> tags, so nothing changes visually.
  */
 
@@ -70,7 +70,7 @@ export function useTypography() {
 }
 
 /**
- * Apply a temporary typography config for preview (admin panel).
+ * Apply a temporary typography config for preview (FRELUX settingsl).
  * Does not persist to the database.
  */
 export function previewTypography(config: TypographyConfig) {

@@ -29,7 +29,7 @@ export type RoofViewProviderType =
 /**
  * Configuration for a roof view imagery provider.
  * Stored in Supabase (site_settings or dedicated table).
- * Admin-configured. Never hardcoded in frontend.
+ * Verified. Never hardcoded in frontend.
  */
 export interface RoofViewProviderConfig {
   provider_type: RoofViewProviderType;

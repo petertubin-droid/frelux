@@ -7,6 +7,8 @@
 // from the key record, never from request headers or payloads.
 // =========================================================
 
+import { SITE_URL } from "@/lib/site-config";
+
 export type ApiKeyStatus = "active" | "revoked" | "disabled" | "expired";
 
 export interface ApiKeyRecord {
@@ -126,7 +128,7 @@ export interface ApiErrorBody {
 }
 
 export const API_ERROR_DOCUMENTATION =
-  "https://freluxtools.netlify.app/developers#errors";
+  `${SITE_URL}/developers#errors`;
 
 export function apiError(
   code: string,

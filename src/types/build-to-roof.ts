@@ -195,7 +195,7 @@ export interface PriceConfig {
   dpm_per_m2: number; // ₦ per m² (DPM membrane, different from DPC roll)
   formwork_per_m2: number; // ₦ per m² of formwork (plywood + nails)
   price_date: string; // ISO date
-  price_source: string; // e.g. "User-supplied" or "Admin-configured"
+  price_source: string; // e.g. "User-supplied" or "Verified"
 }
 
 export interface LabourConfig {

@@ -1,6 +1,6 @@
 // Tracking abstraction. Real providers (Meta Pixel, GA) are loaded only when
 // configured IDs are present in siteConfig. Events are also logged to the
-// Supabase analytics_events table for the admin dashboard.
+// Supabase analytics_events table for FRELUX dashboard.
 
 import { siteConfig } from "@/config/site";
 import { isSupabaseConfigured, getSupabase } from "@/lib/supabase-lazy";
@@ -122,7 +122,7 @@ export function track(
     }
   }
 
-  // Log to Supabase for the admin analytics dashboard (fire-and-forget).
+  // Log to Supabase for FRELUX analytics dashboard (fire-and-forget).
   if (isSupabaseConfigured) {
     getSupabase()
       .then((supabase) =>

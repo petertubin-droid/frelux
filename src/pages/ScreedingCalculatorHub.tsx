@@ -81,7 +81,7 @@ export default function ScreedingCalculatorHub() {
   useSeo({
     title: "Screeding Calculator, Wall Screeding Quantity & Cost",
     description:
-      "Free FRELUX screeding calculator. Calculate wall screeding surface area in m², material requirements, and cost estimates with admin-configured material prices.",
+      "Free FRELUX screeding calculator. Calculate wall screeding surface area in m², material requirements, and cost estimates with verified material prices.",
     canonicalPath: "/screeding-calculator",
     ogType: "website",
     keywords:
@@ -92,7 +92,7 @@ export default function ScreedingCalculatorHub() {
         "@type": "WebApplication",
         name: "FRELUX Screeding Calculator",
         description:
-          "Calculate wall screeding surface area in m², material requirements, and cost estimates with admin-configured material prices.",
+          "Calculate wall screeding surface area in m², material requirements, and cost estimates with verified material prices.",
         url: `${SITE_URL}/screeding-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",

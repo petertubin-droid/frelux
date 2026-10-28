@@ -5,7 +5,7 @@
  * from two places only:
  *   1. Explicit user inputs - point counts, switch/DB counts,
  *      and the user's own average cable run lengths per category.
- *   2. Admin-configured planning rules (circuit grouping,
+ *   2. Verified planning rules (circuit grouping,
  *      conduit allowance, junction boxes, waste).
  *
  * The honesty contract:
@@ -522,7 +522,7 @@ export function calculateElectrical(
       const price = prices["elec-conduit"] ?? null;
       steps.push({
         label: "Conduit (planning allowance)",
-        detail: `${input.lighting_points} lighting × ${rules.conduit_m_per_lighting_point ?? 0} m + ${input.socket_points} sockets × ${rules.conduit_m_per_socket_point ?? 0} m = ${roundTo(base, 2)} m; waste ${rules.conduit_waste_pct}% → ${qty} m. This is the admin's planning allowance, not a site measurement.`,
+        detail: `${input.lighting_points} lighting × ${rules.conduit_m_per_lighting_point ?? 0} m + ${input.socket_points} sockets × ${rules.conduit_m_per_socket_point ?? 0} m = ${roundTo(base, 2)} m; waste ${rules.conduit_waste_pct}% → ${qty} m. This is the planning allowance, not a site measurement.`,
       });
       lines.push({
         key: "conduit",
@@ -531,7 +531,7 @@ export function calculateElectrical(
         quantity: qty,
         quantity_source: "rule_derived",
         unit: "m",
-        detail: `Planning allowance from admin rules (${roundTo(base, 2)} m base + waste)`,
+        detail: `Planning allowance from configured rules (${roundTo(base, 2)} m base + waste)`,
         unit_price: price,
         line_total: price !== null ? money(qty * price) : null,
       });

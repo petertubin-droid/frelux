@@ -5,7 +5,7 @@
  * user's bar schedule: cutting lengths per diameter → whole 12 m
  * stock lengths with a visible lap/waste allowance, honest BS
  * 4449 tonnage for delivery planning, binding wire from the
- * admin's visible rule, prices from the shared material database
+ * visible rule, prices from the shared material database
  * (never invented), labour separate.
  *
  * This is ESTIMATION and does NOT design reinforcement.
@@ -722,7 +722,7 @@ export default function ReinforcementEstimator() {
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
             Your bar schedule's cutting lengths per diameter are converted to
-            whole 12 m stock lengths, rounded up, with the admin's visible
+            whole 12 m stock lengths, rounded up, with the visible
             lap/cut/waste allowance shown separately.
           </li>
           <li>
@@ -731,7 +731,7 @@ export default function ReinforcementEstimator() {
             kg/m): for delivery planning, not for pricing.
           </li>
           <li>
-            Binding wire follows the admin's visible planning rule (kg per
+            Binding wire follows the visible planning rule (kg per
             tonne). Rebar and binding wire use the same shared material records
             the Price Tracker manages, so one price configuration feeds every
             engine.

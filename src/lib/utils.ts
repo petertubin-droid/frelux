@@ -40,7 +40,7 @@ export function formatCurrency(value: number, currency = "₦"): string {
 // previously let conflicting utilities (e.g. `items-center` + `items-start`,
 // `bg-primary` + `bg-primary/5`) both reach the DOM, where CSS SOURCE ORDER
 // (not JSX arg order) silently decided which one applied - the cause of the
-// "button overlay" rendering bugs across the admin (see AdminButton).
+// "button overlay" rendering bugs across FRELUX (see AdminButton).
 export function classNames(
   ...classes: (string | false | null | undefined)[]
 ): string {

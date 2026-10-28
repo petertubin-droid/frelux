@@ -10,7 +10,7 @@
  *    checked BEFORE upload - a refused photo says the limit, never
  *    a silent downscale.
  *  - A response is only "counted" if the server stood behind it.
- *    Below the admin-configured confidence floor, or above the
+ *    Below FRELUX-configured confidence floor, or above the
  *    reliable count bound, the engine reports "unclear" with the
  *    reason - never a guess.
  *  - The photo never leaves the request: nothing about the image
@@ -240,7 +240,7 @@ export function validateCountResult(
   }
 
   // Anything that claims a count but cannot show a valid one, or
-  // sits below the admin-configured confidence floor, is honestly
+  // sits below FRELUX-configured confidence floor, is honestly
   // "unclear" - with the reason preserved.
   if (count === null || confidence < rules.min_confidence) {
     return {

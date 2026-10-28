@@ -4,7 +4,7 @@
 // Aggregates the per-request metering in frelux_api_usage so
 // admins can monitor: request volume, errors, latency, quota
 // exhaustion, authentication failures, provider failures and
-// suspicious activity. Reads are admin-only (RLS
+// suspicious activity. Reads are restricted (RLS
 // frelux_api_usage_admin_read); nothing here can mutate data.
 // =========================================================
 
@@ -253,7 +253,7 @@ export function isSuspicious(
   return window.quotaExhausted > 200;
 }
 
-/** One-shot overview for the admin monitor. */
+/** One-shot overview for FRELUX monitor. */
 export async function getApiUsageOverview(
   days: number = 1,
 ): Promise<ApiUsageOverview> {

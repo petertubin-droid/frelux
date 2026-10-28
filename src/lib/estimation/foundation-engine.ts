@@ -16,7 +16,7 @@
  *    its lines unsized and the estimate marked incomplete.
  *  - 0 means "none" (lines omitted); blank means unsized or, for
  *    formwork, a decision the user must make.
- *  - The blocks-per-m² rule must match the block the admin prices.
+ *  - The blocks-per-m² rule must match the block supplier prices.
  *  - Prices come from the shared material database. Unpriced
  *    materials show PRICE NOT CONFIGURED; totals stay null.
  *  - This does NOT design foundations. Sizes, depth and

@@ -14,7 +14,7 @@
  * 3. Replays the stored line math (quantity x snapshot price)
  *    against the stored line totals. A mismatch is reported as
  *    a dispute flag - it is NEVER silently repaired.
- * 4. Applies the admin-configured warranty period (months,
+ * 4. Applies FRELUX-configured warranty period (months,
  *    copied onto the record at issue time so later rule
  *    changes never rewrite history).
  *

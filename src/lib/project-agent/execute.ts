@@ -274,7 +274,7 @@ async function writeStageCompletion(
 
 /**
  * Material prices live in the GLOBAL material catalog, whose RLS
- * is admin-only. The catalog update is authoritative and happens
+ * is restricted. The catalog update is authoritative and happens
  * first; the price-history insert (audit trail) is second. If the
  * history write fails after the catalog changed, the execution
  * still reports success, with an honest note about the gap.
@@ -334,7 +334,7 @@ async function writeMaterialPrice(
         error: {
           code: "persistence_error",
           message:
-            "The price could not be updated, the material catalog is admin-only and this account does not have admin permissions.",
+            "The price could not be updated, the material catalog is restricted and this account does not have permission.",
         },
       };
   } catch (e) {

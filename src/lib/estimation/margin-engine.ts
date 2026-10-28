@@ -2,7 +2,7 @@
  * FRELUX Profit Margin & Markup Engine (Future Engine 8)
  *
  * Deterministic client price and profit from a base cost and
- * an admin-configured margin preset, with the markup-vs-
+ * FRELUX-configured margin preset, with the markup-vs-
  * margin distinction made explicit.
  *
  * Philosophy (unchanged): the basis is explicit on every preset
@@ -160,7 +160,7 @@ export function calculateMargin(input: MarginInput): MarginResult {
   }
   if (vatRate === null) {
     result.warnings.push(
-      "No VAT rate is configured (Admin → Estimation Config & Rules → vat_rate for margin). The quote is produced without a VAT line rather than guessing one.",
+      "No VAT rate is configured (FRELUX → Estimation Config & Rules → vat_rate for margin). The quote is produced without a VAT line rather than guessing one.",
     );
   } else {
     vatAmount = roundTo((subtotal * vatRate) / 100, decimals);

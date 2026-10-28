@@ -1264,7 +1264,7 @@ export const WALLFIN_ASSEMBLIES: WallAssemblyTemplate[] = [
   // 2026-10-13 expansion markets. Coverage figures cite the
   // 2026-10 web verification where documented; layers whose
   // coverage is a planning default carry an explicit note so
-  // the admin verification can close the gap later.
+  // FRELUX verification can close the gap later.
   // ═══════════════════════════════════════════════════════════
 
   // ── Japan ──────────────────────────────────

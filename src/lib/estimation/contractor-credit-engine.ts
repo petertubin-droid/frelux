@@ -137,7 +137,7 @@ export function calculateCreditScore(
   const weightSum = weightKeys.reduce((a, k) => a + weights[k], 0);
   if (weightSum > 1) {
     return refuse([
-      `The configured scoring weights sum to ${weightSum}, which exceeds 1. The engine refuses to score with weights that can produce over 100: fix the rules in the admin config.`,
+      `The configured scoring weights sum to ${weightSum}, which exceeds 1. The engine refuses to score with weights that can produce over 100: fix the rules in the FRELUX configuration.`,
     ]);
   }
 

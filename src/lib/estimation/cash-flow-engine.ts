@@ -2,7 +2,7 @@
  * FRELUX Project Cash-Flow Timeline Engine (Future Engine 6)
  *
  * Deterministic phased payment schedules from an estimate total:
- * an admin-configured milestone template (label, percent, offset
+ * FRELUX-configured milestone template (label, percent, offset
  * months) is applied to the project value.
  *
  * Philosophy (unchanged): the engine refuses a template whose

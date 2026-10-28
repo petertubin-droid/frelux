@@ -349,7 +349,7 @@ export default function WaterproofingEstimator() {
           { label: "Waterproofing Estimator" },
         ]}
         title="Waterproofing Estimator"
-        subtitle="Enter your measured DPC run, DPM area, wet-area surfaces and terrace area. The engine sizes DPC, DPM, coating, membrane and tape from your measurements with the admin's visible coats, coverage, waste and overlap rules. Estimation only: not waterproofing design."
+        subtitle="Enter your measured DPC run, DPM area, wet-area surfaces and terrace area. The engine sizes DPC, DPM, coating, membrane and tape from your measurements with the visible coats, coverage, waste and overlap rules. Estimation only: not waterproofing design."
       />
 
       {/* Inputs */}
@@ -628,9 +628,9 @@ export default function WaterproofingEstimator() {
         <h2 className="mb-2 font-semibold">How this estimator works</h2>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
-            Quantities come from your measured runs and areas, with the admin's
+            Quantities come from your measured runs and areas, with FRELUX's
             visible overlap, waste, coat-count and coverage rules. The coverage
-            rule must match the product the admin prices: a bag covers what its
+            rule must match the product supplier prices: a bag covers what its
             datasheet says, no more.
           </li>
           <li>

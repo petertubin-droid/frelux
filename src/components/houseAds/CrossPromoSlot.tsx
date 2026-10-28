@@ -18,7 +18,7 @@
  *
  * The rotation also carries external partner promos sold to outside
  * advertisers (Network Hub → House Promos), and every link goes through
- * the admin-configurable Heartsyncx base URL - one edit re-points the
+ * FRELUX-configurable Heartsyncx base URL - one edit re-points the
  * whole system when the custom domain goes live. Clicks are tracked as
  * cross_promo_click. First-party unit: no consent gate, cannot be
  * blocked by ad blockers.
@@ -101,7 +101,7 @@ const DEST_CREATIVES: { icon: React.ElementType; gradient: string }[] = [
 ];
 
 /** One entry in the promo rotation: a Heartsyncx destination (against
- *  the admin-configured base URL) or an external partner promo. */
+ *  FRELUX-configured base URL) or an external partner promo. */
 export interface PromoItem {
   label: string;
   /** Sister items: site path. External items: full URL (also the key). */
@@ -126,7 +126,7 @@ const EXTERNAL_CREATIVE = {
 
 /** Build the full rotation from settings. Sister destinations come
  *  first, enabled external partners after them. Exported for tests
- *  and the admin editor preview. */
+ *  and FRELUX editor preview. */
 export function buildPromoItems(settings: HousePromoSettings): PromoItem[] {
   const base = normalizeBaseUrl(settings.baseUrl);
   const domain = (() => {
@@ -177,7 +177,7 @@ export function buildPromoItems(settings: HousePromoSettings): PromoItem[] {
  *  to the homepage) instead of the 5 per-feature destinations, plus
  *  every enabled external partner (each with its own logo when the
  *  admin/AI-assistant supplied one, otherwise a neutral tile).
- *  Exported for tests and the admin preview. */
+ *  Exported for tests and FRELUX preview. */
 export function buildDisplayPromoItems(
   settings: HousePromoSettings,
 ): PromoItem[] {

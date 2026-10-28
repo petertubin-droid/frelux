@@ -2,9 +2,9 @@
  * FRELUX Defect Diagnosis Engine (Future Engine 9)
  *
  * Deterministic symptom-to-root-cause mapping with fix
- * quantities, from an admin-configured knowledge base.
+ * quantities, from FRELUX-configured knowledge base.
  *
- * Philosophy (unchanged): causes are ranked by the admin's
+ * Philosophy (unchanged): causes are ranked by FRELUX's
  * sort_order (likelihood is an editorial call, never an
  * algorithm's). A cause only gets a fix quantity when the
  * admin configured a consumption rate - otherwise the engine
@@ -119,7 +119,7 @@ export function diagnoseDefect(input: DiagnosisInput): DiagnosisResult {
 
   if (causes.length === 0) {
     result.warnings.push(
-      `No root causes are configured for '${symptomKey}': the engine refuses to guess a diagnosis. Add causes under Admin → Defects.`,
+      `No root causes are configured for '${symptomKey}': the engine refuses to guess a diagnosis. Add causes under FRELUX → Defects.`,
     );
     return result;
   }
@@ -173,7 +173,7 @@ export function diagnoseDefect(input: DiagnosisInput): DiagnosisResult {
   result.causes = diagnosed;
   result.steps.push({
     label: "Ranking",
-    detail: `${diagnosed.length} cause${diagnosed.length === 1 ? "" : "s"} listed in the admin's configured likelihood order: the engine does not re-rank them algorithmically.`,
+    detail: `${diagnosed.length} cause${diagnosed.length === 1 ? "" : "s"} listed in the configured likelihood order: the engine does not re-rank them algorithmically.`,
   });
 
   return result;

@@ -163,7 +163,7 @@ export async function getDictionaryTerm(
   return data ? rowToTerm(data as DictionaryRow) : null;
 }
 
-/** POST /api/terms: admin-only create. Records always start
+/** POST /api/terms: restricted create. Records always start
  *  unverified; verification is a separate explicit action. */
 export async function createDictionaryTerm(
   draft: ConstructionTermDraft,
@@ -259,7 +259,7 @@ export async function verifyDictionaryTerm(input: {
         confidence_score: Math.max(current.confidence_score, 0.9),
       },
       changed_by: input.verified_by,
-      change_note: input.note ?? "Admin approved terminology.",
+      change_note: input.note ?? "Approved terminology.",
     });
   }
   return updateDictionaryTerm({
@@ -271,7 +271,7 @@ export async function verifyDictionaryTerm(input: {
     },
     changed_by: input.verified_by,
     change_note:
-      input.note ?? "Admin rejected terminology; flagged for review.",
+      input.note ?? "Rejected terminology; flagged for review.",
   });
 }
 

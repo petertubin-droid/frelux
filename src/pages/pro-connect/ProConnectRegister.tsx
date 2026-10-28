@@ -298,7 +298,7 @@ export default function ProConnectRegister() {
     try {
       const result = await submitNIN(ninNumber.trim(), user!.id);
       if (!result.success) throw new Error(result.message);
-      setNinSuccess("NIN submitted for admin review. It is not verified yet.");
+      setNinSuccess("NIN submitted for review. It is not verified yet.");
       setNinSubmitted(true);
     } catch (err: unknown) {
       setNinError(getSafeError(err, "NIN verification failed"));
@@ -849,7 +849,7 @@ export default function ProConnectRegister() {
                   className="mt-0.5 h-4 w-4 shrink-0"
                 />
                 <p>
-                  After submitting, an admin will verify your NIN. Once
+                  After submitting, FRELUX will verify your NIN. Once
                   approved, you'll reach{" "}
                   <strong>Tier 2 (FRELUX Verified)</strong> and can join Worker
                   Channels.

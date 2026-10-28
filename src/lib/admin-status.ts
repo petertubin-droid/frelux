@@ -1,7 +1,7 @@
 /**
- * Canonical FRELUX admin status vocabulary.
+ * Canonical FRELUX status vocabulary.
  *
- * Exactly one word per meaning (Part 13 of the admin restructure):
+ * Exactly one word per meaning (Part 13 of FRELUX restructure):
  *   ACTIVE          working and in use
  *   INACTIVE        switched off on purpose (data/rows)
  *   IN DEVELOPMENT  being built, not ready
@@ -9,7 +9,7 @@
  *   ERROR           failing right now
  *   PLACEHOLDER     looks functional but is not (must never be concealed)
  *
- * Every status readout in the admin renders through StatusBadge so the
+ * Every status readout in FRELUX settings renders through StatusBadge so the
  * owner sees one consistent vocabulary everywhere.
  */
 

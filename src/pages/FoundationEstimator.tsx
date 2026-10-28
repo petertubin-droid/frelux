@@ -3,7 +3,7 @@
  *
  * Deterministic foundation MATERIAL estimation: measured volumes
  * and areas → concrete mix materials with every constant visible
- * (dry factor 1.54, 0.0347 m³ per 50 kg bag, the admin's mix
+ * (dry factor 1.54, 0.0347 m³ per 50 kg bag, the mix
  * ratio), blocks from the visible blocks-per-m² rule, hardcore
  * and formwork from your measurements, prices from the shared
  * material database (never invented), labour separate.
@@ -370,7 +370,7 @@ export default function FoundationEstimator() {
           { label: "Foundation Estimator" },
         ]}
         title="Foundation Estimator"
-        subtitle="Enter your measured concrete volume, wall area, hardcore and formwork. The engine splits concrete into cement, sand and granite with the admin's visible mix ratio and every constant shown, sizes blocks from the blocks-per-m² rule, and prices from the shared material database. Estimation only: not foundation design."
+        subtitle="Enter your measured concrete volume, wall area, hardcore and formwork. The engine splits concrete into cement, sand and granite with the visible mix ratio and every constant shown, sizes blocks from the blocks-per-m² rule, and prices from the shared material database. Estimation only: not foundation design."
       />
 
       <MarketScopeNotice />
@@ -684,12 +684,12 @@ export default function FoundationEstimator() {
           <li>
             Concrete follows the standard dry-volume mix math with every
             constant shown: wet volume × waste × 1.54 dry factor, split by the
-            admin's mix ratio (default 1:2:4), cement at 0.0347 m³ per 50 kg
-            bag. Change the ratio in the admin and the split changes visibly.
+            mix ratio (default 1:2:4), cement at 0.0347 m³ per 50 kg
+            bag. Change the ratio in FRELUX settings and the split changes visibly.
           </li>
           <li>
-            Blocks follow the admin's visible blocks-per-m² rule, which must
-            match the block the admin prices. Hardcore and formwork take your
+            Blocks follow the visible blocks-per-m² rule, which must
+            match the block supplier prices. Hardcore and formwork take your
             measured volumes and areas directly.
           </li>
           <li>

@@ -9,7 +9,7 @@
  *              (src/lib/monetag-rewarded.ts), plus Interstitial / Popunder /
  *              Vignette auto zones.
  *
- * Every field is dormant until the admin fills it, empty credentials never
+ * Every field is dormant until FRELUX fills it, empty credentials never
  * inject anything. Keys are strictly validated (32-char hex for Adsterra,
  * numeric zone IDs for Monetag) and script URLs must sit on an allowlisted
  * Adsterra serve domain, so a pasted value can never smuggle arbitrary
