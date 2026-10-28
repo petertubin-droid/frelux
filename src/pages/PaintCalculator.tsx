@@ -631,6 +631,37 @@ export default function PaintCalculator({
     }));
   }
 
+  /** Custom house input: add any number of identical single rooms in one step. */
+  const [houseQuickAdd, setHouseQuickAdd] = useState({
+    length: 0,
+    width: 0,
+    count: 1,
+    label: "",
+  });
+
+  function addIdenticalHouseRooms() {
+    const { length, width, count, label } = houseQuickAdd;
+    if (length <= 0 || width <= 0 || count < 1) return;
+    setInput((prev) => ({
+      ...prev,
+      houseRooms: [
+        ...(prev.houseRooms ?? []),
+        {
+          id: `room-${Date.now()}`,
+          label:
+            label.trim() ||
+            (count > 1 ? `${count} identical rooms` : "Room"),
+          length,
+          width,
+          quantity: count,
+          doors: 1,
+          windows: 1,
+        },
+      ],
+    }));
+    setHouseQuickAdd({ length: 0, width: 0, count: 1, label: "" });
+  }
+
   // ── Exterior / Fence mode: editable surface runs ──
   function updateRun(id: string, patch: Partial<SurfaceRunRow>) {
     setInput((prev) => ({
@@ -1119,6 +1150,9 @@ export default function PaintCalculator({
                 onAddRun={addRun}
                 onUpdateRun={updateRun}
                 onRemoveRun={removeRun}
+                houseQuickAdd={houseQuickAdd}
+                onSetHouseQuickAdd={setHouseQuickAdd}
+                onAddIdenticalHouseRooms={addIdenticalHouseRooms}
               />
             )}
             {step === 3 && (
@@ -1366,6 +1400,9 @@ function Step2({
   onAddRun,
   onUpdateRun,
   onRemoveRun,
+  houseQuickAdd,
+  onSetHouseQuickAdd,
+  onAddIdenticalHouseRooms,
 }: {
   input: CalculatorInput;
   update: <K extends keyof CalculatorInput>(
@@ -1381,6 +1418,11 @@ function Step2({
   onAddRun: () => void;
   onUpdateRun: (id: string, patch: Partial<SurfaceRunRow>) => void;
   onRemoveRun: (id: string) => void;
+  houseQuickAdd: { length: number; width: number; count: number; label: string };
+  onSetHouseQuickAdd: (
+    q: { length: number; width: number; count: number; label: string },
+  ) => void;
+  onAddIdenticalHouseRooms: () => void;
 }) {
   const { t } = useLanguage();
   const unitLabel = unitShortLabel(input.unit);
@@ -1707,6 +1749,94 @@ function Step2({
             <Plus size={18} />
             Add Room
           </Button>
+
+          {/* Quick add: any number of identical single rooms in one step */}
+          <div className="mt-5 rounded-xl border border-border/70 bg-muted/30 p-4">
+            <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+              Quick add identical rooms
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Painting 5 identical bedrooms? Enter one room's size and the
+              number of rooms.
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+              <Field label="Length" suffix={unitLabel}>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.1"
+                  value={houseQuickAdd.length || ""}
+                  onChange={(e) =>
+                    onSetHouseQuickAdd({
+                      ...houseQuickAdd,
+                      length: Number(e.target.value),
+                    })
+                  }
+                  className="input-field"
+                  placeholder="0"
+                />
+              </Field>
+              <Field label="Width" suffix={unitLabel}>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.1"
+                  value={houseQuickAdd.width || ""}
+                  onChange={(e) =>
+                    onSetHouseQuickAdd({
+                      ...houseQuickAdd,
+                      width: Number(e.target.value),
+                    })
+                  }
+                  className="input-field"
+                  placeholder="0"
+                />
+              </Field>
+              <Field label="Number of rooms">
+                <input
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={houseQuickAdd.count}
+                  onChange={(e) =>
+                    onSetHouseQuickAdd({
+                      ...houseQuickAdd,
+                      count: Math.max(1, Number(e.target.value) || 1),
+                    })
+                  }
+                  className="input-field"
+                />
+              </Field>
+              <Field label="Name (optional)">
+                <input
+                  type="text"
+                  value={houseQuickAdd.label}
+                  onChange={(e) =>
+                    onSetHouseQuickAdd({
+                      ...houseQuickAdd,
+                      label: e.target.value,
+                    })
+                  }
+                  className="input-field"
+                  placeholder="Bedrooms"
+                />
+              </Field>
+              <div className="flex items-end">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={onAddIdenticalHouseRooms}
+                  disabled={
+                    houseQuickAdd.length <= 0 || houseQuickAdd.width <= 0
+                  }
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Rooms
+                </Button>
+              </div>
+            </div>
+          </div>
         </>
       )}
 

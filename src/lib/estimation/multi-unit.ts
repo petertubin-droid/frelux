@@ -493,3 +493,42 @@ export function newSurfaceRunRow(index: number, isFence: boolean): SurfaceRunRow
     windows: 0,
   };
 }
+
+/**
+ * Whole-house floor area (m²) for tiling: every room's length x width
+ * converted from the entry unit, times the number of identical rooms.
+ * Used by the tile calculator's Whole House mode so materials are
+ * bought once for the combined area.
+ */
+export function houseFloorAreaM2(
+  rooms: { length: number; width: number; quantity: number }[],
+  unit: Unit,
+): number {
+  const toM = (v: number) => metersToUnitInverse(v, unit);
+  return (
+    Math.round(
+      rooms.reduce(
+        (sum, r) =>
+          sum + toM(r.length) * toM(r.width) * Math.max(1, r.quantity),
+        0,
+      ) * 10000,
+    ) / 10000
+  );
+}
+
+/** Inverse of metersToUnit: a value in `unit` back to metres. */
+function metersToUnitInverse(value: number, unit: Unit): number {
+  switch (unit) {
+    case "feet":
+      return value * 0.3048;
+    case "inches":
+      return value * 0.0254;
+    case "centimeters":
+      return value / 100;
+    case "millimeters":
+      return value / 1000;
+    case "meters":
+    default:
+      return value;
+  }
+}

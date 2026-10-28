@@ -48,6 +48,21 @@ describe("building presets — market coverage", () => {
     }
   });
 
+
+  it("offers at least 5 house types in every market (owner directive)", () => {
+    for (const code of ALL_32_MARKETS) {
+      const presets = getBuildingPresets(code);
+      expect(presets.length, `${code} has only ${presets.length} presets`).toBeGreaterThanOrEqual(5);
+    }
+  });
+
+  it("has unique preset ids within each market", () => {
+    for (const code of ALL_32_MARKETS) {
+      const ids = getBuildingPresets(code).map((p) => p.id);
+      expect(new Set(ids).size, `${code} has duplicate preset ids`).toBe(ids.length);
+    }
+  });
+
   it("falls back to the West Africa profile for unknown markets", () => {
     const presets = getBuildingPresets("XX");
     const ng = getBuildingPresets("NG");

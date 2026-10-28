@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useId,
   useRef,
   useState,
   isValidElement,
@@ -17,10 +18,19 @@ import {
   AlertCircle,
   Loader2,
   Grid3x3,
+  Plus,
+  Trash2,
+  Home,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { calculateTile } from "@/lib/pop-tile-calc";
+import {
+  getBuildingPresets,
+  type BuildingPreset,
+} from "@/lib/measurement/building-presets";
+import { houseFloorAreaM2, houseRowsFromPreset } from "@/lib/estimation/multi-unit";
+import type { HouseRoomRow } from "@/types";
 import { track } from "@/lib/analytics";
 import {
   logAnalyticsEvent,
@@ -191,7 +201,12 @@ export default function TileCalculator({
   const currencySymbol = settings?.default_currency_symbol ?? "₦";
   const currency = settings?.default_currency ?? "NGN";
 
-  const { market } = useMarket();
+  const { market, marketCode } = useMarket();
+  const [tileMode, setTileMode] = useState<"single" | "house">("single");
+  const [houseRooms, setHouseRooms] = useState<HouseRoomRow[]>([]);
+  const [presetId, setPresetId] = useState("");
+  const [quickAdd, setQuickAdd] = useState({ length: 0, width: 0, count: 1 });
+  const marketPresets: BuildingPreset[] = getBuildingPresets(marketCode);
   const [input, setInput] = useState<TileCalcInput>({
     surfaceType: "floor",
     method: "adhesive",
@@ -326,8 +341,88 @@ export default function TileCalculator({
     }
   }
 
+  // ── Whole House mode: market presets + editable room floors ──
+  function applyTilePreset(id: string) {
+    const seeded = houseRowsFromPreset(marketCode, id, input.unit);
+    if (!seeded) return;
+    setPresetId(id);
+    setHouseRooms(seeded.rows);
+  }
+
+  function updateHouseRoom(id: string, patch: Partial<HouseRoomRow>) {
+    setHouseRooms((rows) =>
+      rows.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+    );
+  }
+
+  function removeHouseRoom(id: string) {
+    setHouseRooms((rows) => rows.filter((r) => r.id !== id));
+  }
+
+  function addHouseRoom() {
+    setHouseRooms((rows) => [
+      ...rows,
+      {
+        id: `tile-room-${Date.now()}`,
+        label: `Room ${rows.length + 1}`,
+        length: 0,
+        width: 0,
+        quantity: 1,
+        doors: 0,
+        windows: 0,
+      },
+    ]);
+  }
+
+  /** Quick-add: N identical single rooms in one step (custom input). */
+  function addIdenticalRooms() {
+    const { length, width, count } = quickAdd;
+    if (length <= 0 || width <= 0 || count < 1) return;
+    setHouseRooms((rows) => [
+      ...rows,
+      {
+        id: `tile-room-${Date.now()}`,
+        label: `${count > 1 ? `${count} identical rooms` : "Room"}`,
+        length,
+        width,
+        quantity: count,
+        doors: 0,
+        windows: 0,
+      },
+    ]);
+    setQuickAdd({ length: 0, width: 0, count: 1 });
+  }
+
   function compute() {
     const e: Record<string, string> = {};
+    if (tileMode === "house") {
+      if (houseRooms.length === 0)
+        e.houseRooms = "Pick a house type above or add rooms manually";
+      else if (houseRooms.some((r) => r.length <= 0 || r.width <= 0))
+        e.houseRooms = "Every room needs a length and a width";
+      setErrors(e);
+      if (Object.keys(e).length > 0) return;
+
+      // Whole-house floors: sum every room's floor area (converted to
+      // m²), then buy tiles ONCE for the whole project so boxes and
+      // consumables round on the combined area, not per room.
+      const totalAreaM2 = houseFloorAreaM2(houseRooms, input.unit);
+      const houseInput: TileCalcInput = {
+        ...input,
+        surfaceType: "floor",
+        unit: "meters",
+        length: Math.round(totalAreaM2 * 10000) / 10000,
+        width: 1,
+        height: 0,
+        quantity: 1,
+      };
+      const r = monitoredCalc("Tile Calculator", () =>
+        calculateTile(houseInput, tileMaterials, currency, currencySymbol),
+      );
+      finishCompute(r, "house");
+      return;
+    }
+
     if (input.length <= 0) e.length = "Enter a valid length";
     if (input.surfaceType === "floor" && input.width <= 0)
       e.width = "Enter a valid width";
@@ -339,22 +434,30 @@ export default function TileCalculator({
     const r = monitoredCalc("Tile Calculator", () =>
       calculateTile(input, tileMaterials, currency, currencySymbol),
     );
+    finishCompute(r, input.surfaceType);
+    return;
+  }
+
+  function finishCompute(r: TileCalcResult, mode: string) {
     trackCalculation("tile");
     trackCalculationWithRewards("tile", "Tile Calculator");
     setResult(r);
     track("tile_calculated", {
-      surfaceType: input.surfaceType,
+      surfaceType: mode,
       area: r.surfaceArea,
       tiles: r.tilesNeeded,
     });
     void saveEstimateHistory(user?.id ?? null, {
       calculator_type: "tile",
-      project_name: `Tile: ${input.surfaceType}`,
-      input_data: input as unknown as Record<string, unknown>,
+      project_name: `Tile: ${mode}`,
+      input_data: {
+        tileMode: mode,
+        ...(mode === "house" ? { houseRooms } : input),
+      } as unknown as Record<string, unknown>,
       result_data: r as unknown as Record<string, unknown>,
     }).catch(() => {});
     logAnalyticsEvent("tile_calculated", {
-      surfaceType: input.surfaceType,
+      surfaceType: mode,
       area: r.surfaceArea,
       tiles: r.tilesNeeded,
     });
@@ -435,6 +538,91 @@ export default function TileCalculator({
       >
         {!result && (
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+            {/* Project mode: single surface or whole house */}
+            <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
+              What are you tiling?
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              One surface, or the floors of a whole house?
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {(
+                [
+                  {
+                    value: "single",
+                    label: "Single Surface",
+                    desc: "One floor or wall (or several identical ones)",
+                    icon: <Grid3x3 aria-hidden="true" className="h-5 w-5" />,
+                  },
+                  {
+                    value: "house",
+                    label: "Whole House Floors",
+                    desc: "Pick a house type and tile every room floor",
+                    icon: <Home aria-hidden="true" className="h-5 w-5" />,
+                  },
+                ] as const
+              ).map((m) => {
+                const selected = tileMode === m.value;
+                return (
+                  <Button
+                    variant="ghost"
+                    key={m.value}
+                    type="button"
+                    onClick={() => setTileMode(m.value)}
+                    className={
+                      "select-card flex h-auto items-start gap-3 rounded-xl border p-4 text-left " +
+                      (selected
+                        ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
+                        : "border-border")
+                    }
+                  >
+                    <span
+                      className={
+                        "inline-flex h-10 w-10 items-center justify-center rounded-lg " +
+                        (selected
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground")
+                      }
+                    >
+                      {m.icon}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-foreground dark:text-primary-foreground">
+                        {m.label}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {m.desc}
+                      </span>
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
+
+            {tileMode === "house" ? (
+              <TileHouseEditor
+                marketPresets={marketPresets}
+                presetId={presetId}
+                onApplyPreset={applyTilePreset}
+                rooms={houseRooms}
+                onUpdateRoom={updateHouseRoom}
+                onRemoveRoom={removeHouseRoom}
+                onAddRoom={addHouseRoom}
+                quickAdd={quickAdd}
+                setQuickAdd={setQuickAdd}
+                onAddIdenticalRooms={addIdenticalRooms}
+                unitShort={unitShortLabel(input.unit)}
+                error={errors.houseRooms}
+                unit={input.unit}
+                onUnitChange={(u) => {
+                  update("unit", u);
+                  // Reseed the preset in the new unit so numbers stay
+                  // consistent; manual rooms are left untouched.
+                  if (presetId) applyTilePreset(presetId);
+                }}
+              />
+            ) : (
+              <>
             {/* Surface type */}
             <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
               Surface type
@@ -575,6 +763,9 @@ export default function TileCalculator({
                 />
               </Field>
             </div>
+
+              </>
+            )}
 
             {/* Tile size */}
             <div className="mt-6">
@@ -1479,6 +1670,243 @@ function Row({
       >
         {value}
       </span>
+    </div>
+  );
+}
+
+/**
+ * Whole-house floors editor: market-aware house-type preset plus an
+ * editable room list. Identical rooms stay grouped via quantity, and
+ * the quick-add builder seeds N identical single rooms in one step.
+ */
+function TileHouseEditor({
+  marketPresets,
+  presetId,
+  onApplyPreset,
+  rooms,
+  onUpdateRoom,
+  onRemoveRoom,
+  onAddRoom,
+  quickAdd,
+  setQuickAdd,
+  onAddIdenticalRooms,
+  unitShort,
+  error,
+  unit,
+  onUnitChange,
+}: {
+  marketPresets: BuildingPreset[];
+  presetId: string;
+  onApplyPreset: (presetId: string) => void;
+  rooms: HouseRoomRow[];
+  onUpdateRoom: (id: string, patch: Partial<HouseRoomRow>) => void;
+  onRemoveRoom: (id: string) => void;
+  onAddRoom: () => void;
+  quickAdd: { length: number; width: number; count: number };
+  setQuickAdd: (q: { length: number; width: number; count: number }) => void;
+  onAddIdenticalRooms: () => void;
+  unitShort: string;
+  error?: string;
+  unit: Unit;
+  onUnitChange: (unit: Unit) => void;
+}) {
+  const selectId = useId();
+  return (
+    <div>
+      <div className="mt-6">
+        <div className="inline-flex rounded-lg border border-border p-1">
+          <UnitToggle value={unit} onChange={onUnitChange} />
+        </div>
+      </div>
+
+      <div className="mt-5 max-w-xl">
+        <label
+          htmlFor={selectId}
+          className="mb-1 block text-sm font-semibold text-foreground dark:text-primary-foreground"
+        >
+          House type
+        </label>
+        <select
+          id={selectId}
+          value={presetId}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (v === "custom") {
+              onApplyPreset("");
+              e.currentTarget.value = "";
+              return;
+            }
+            onApplyPreset(v);
+          }}
+          className="input-field"
+        >
+          <option value="">Select a house type...</option>
+          {marketPresets.map((preset) => (
+            <option key={preset.id} value={preset.id}>
+              {preset.label} — {preset.description}
+            </option>
+          ))}
+          <option value="custom">Custom — build my own room list</option>
+        </select>
+        {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+        <p className="mt-1 text-xs text-muted-foreground">
+          Loads every room's floor from a typical {marketPresets[0]?.label ? "local" : ""} layout.
+          Common in your market:{" "}
+          {marketPresets.slice(0, 3).map((p) => p.label).join(", ")}.
+        </p>
+      </div>
+
+      {rooms.length > 0 && (
+        <div className="mt-5 space-y-3">
+          {rooms.map((row) => (
+            <div key={row.id} className="rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between gap-2">
+                <input
+                  type="text"
+                  value={row.label}
+                  onChange={(e) => onUpdateRoom(row.id, { label: e.target.value })}
+                  className="input-field max-w-xs font-semibold"
+                  aria-label="Room name"
+                />
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={() => onRemoveRoom(row.id)}
+                  aria-label={`Remove ${row.label}`}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <Field label="Floor length" suffix={unitShort}>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.1"
+                    value={row.length || ""}
+                    onChange={(e) =>
+                      onUpdateRoom(row.id, { length: Number(e.target.value) })
+                    }
+                    className="input-field"
+                    placeholder="0"
+                  />
+                </Field>
+                <Field label="Floor width" suffix={unitShort}>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.1"
+                    value={row.width || ""}
+                    onChange={(e) =>
+                      onUpdateRoom(row.id, { width: Number(e.target.value) })
+                    }
+                    className="input-field"
+                    placeholder="0"
+                  />
+                </Field>
+                <Field label="Identical" hint="e.g. ×3 bedrooms this size">
+                  <input
+                    type="number"
+                    min={1}
+                    step={1}
+                    value={row.quantity}
+                    onChange={(e) =>
+                      onUpdateRoom(row.id, {
+                        quantity: Math.max(1, Number(e.target.value) || 1),
+                      })
+                    }
+                    className="input-field"
+                  />
+                </Field>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Button
+        variant="ghost"
+        type="button"
+        onClick={onAddRoom}
+        className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+      >
+        <Plus size={18} />
+        Add Room
+      </Button>
+
+      {/* Quick-add: any number of identical single rooms in one step */}
+      <div className="mt-5 rounded-xl border border-border/70 bg-muted/30 p-4">
+        <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+          Quick add identical rooms
+        </p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Tiling 5 identical bedrooms? Enter one room's floor size and the
+          number of rooms.
+        </p>
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Field label="Length" suffix={unitShort}>
+            <input
+              type="number"
+              min={0}
+              step="0.1"
+              value={quickAdd.length || ""}
+              onChange={(e) =>
+                setQuickAdd({ ...quickAdd, length: Number(e.target.value) })
+              }
+              className="input-field"
+              placeholder="0"
+            />
+          </Field>
+          <Field label="Width" suffix={unitShort}>
+            <input
+              type="number"
+              min={0}
+              step="0.1"
+              value={quickAdd.width || ""}
+              onChange={(e) =>
+                setQuickAdd({ ...quickAdd, width: Number(e.target.value) })
+              }
+              className="input-field"
+              placeholder="0"
+            />
+          </Field>
+          <Field label="Number of rooms">
+            <input
+              type="number"
+              min={1}
+              step={1}
+              value={quickAdd.count}
+              onChange={(e) =>
+                setQuickAdd({
+                  ...quickAdd,
+                  count: Math.max(1, Number(e.target.value) || 1),
+                })
+              }
+              className="input-field"
+            />
+          </Field>
+          <div className="flex items-end">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={onAddIdenticalRooms}
+              disabled={quickAdd.length <= 0 || quickAdd.width <= 0}
+              className="w-full"
+            >
+              <Plus className="h-4 w-4" />
+              Add Rooms
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <p className="mt-4 text-xs text-muted-foreground">
+        Whole-house mode tiles every room's floor. For bathroom or kitchen
+        wall tiles, switch to Single Surface and use Wall with the identical
+        surfaces count. Boxes and materials are bought once for the whole
+        project, so quantities round on the combined area.
+      </p>
     </div>
   );
 }

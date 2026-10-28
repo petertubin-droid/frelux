@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  houseFloorAreaM2,
   expandEngineRooms,
   expandLegacyInputs,
   aggregateEngineRooms,
@@ -358,5 +359,36 @@ describe("houseRowsFromPreset", () => {
 
   it("returns null for an unknown preset id", () => {
     expect(houseRowsFromPreset("NG", "nope", "feet")).toBeNull();
+  });
+});
+
+describe("houseFloorAreaM2 — whole-house tiling", () => {
+  const rows = [
+    { id: "r1", label: "Bedroom", length: 4, width: 3.5, quantity: 2, doors: 0, windows: 0 },
+    { id: "r2", label: "Living", length: 5, width: 4, quantity: 1, doors: 0, windows: 0 },
+    { id: "r3", label: "Kitchen", length: 3, width: 2.5, quantity: 1, doors: 0, windows: 0 },
+  ];
+
+  it("sums every room floor × identical quantity in metres", () => {
+    // 2×(4×3.5)=28 + 5×4=20 + 3×2.5=7.5 → 55.5 m²
+    expect(houseFloorAreaM2(rows, "meters")).toBe(55.5);
+  });
+
+  it("converts feet entries to m² before summing", () => {
+    const ftRows = [
+      { length: 10, width: 10, quantity: 3 }, // 3 × 100 ft² = 300 ft² ≈ 27.87 m²
+    ];
+    const area = houseFloorAreaM2(ftRows, "feet");
+    expect(area).toBeCloseTo(27.8709, 3);
+  });
+
+  it("returns 0 for an empty house", () => {
+    expect(houseFloorAreaM2([], "meters")).toBe(0);
+  });
+
+  it("treats a missing quantity as one room", () => {
+    expect(
+      houseFloorAreaM2([{ length: 2, width: 2, quantity: 0 }], "meters"),
+    ).toBe(4);
   });
 });
