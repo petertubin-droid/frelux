@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useSeo, type SeoMeta } from "@/lib/seo";
+import { SITE_URL } from "@/lib/site-config";
 
 // Helper to render the hook with a given meta object
 function renderSeoHook(meta: SeoMeta | null) {
@@ -169,7 +170,7 @@ describe("useSeo", () => {
       document.head
         .querySelector('link[rel="canonical"]')
         ?.getAttribute("href"),
-    ).toBe("https://freluxtools.netlify.app/paint-calculator/");
+    ).toBe(`${SITE_URL}/paint-calculator/`);
     window.history.pushState({}, "", "/");
   });
 

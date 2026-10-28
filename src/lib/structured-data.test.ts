@@ -9,9 +9,9 @@ import {
   webPageSchema,
 } from "./structured-data";
 
-// VITE_SITE_URL is set to https://freluxtools.netlify.app in .env.local;
-// The code falls back to https://freluxtools.netlify.app when the env var is absent.
-const SITE_URL = "https://freluxtools.netlify.app";
+// The canonical origin lives in site-config so a domain switch never
+// needs a test edit. Never hardcode the host here.
+import { SITE_URL } from "@/lib/site-config";
 const SITE_NAME = "FRELUX SMART CALC";
 
 describe("organizationSchema", () => {
