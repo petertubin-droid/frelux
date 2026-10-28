@@ -70,7 +70,7 @@ import {
   EngineMaterialSummaryCard,
 } from "@/components/engine";
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
-import type { TileCalcInput, TileCalcResult } from "@/types";
+import type { TileCalcInput, TileCalcResult, Unit } from "@/types";
 import type {
   DbTileSize,
   DbTileMaterial,

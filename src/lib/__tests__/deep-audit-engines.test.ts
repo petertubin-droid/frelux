@@ -120,7 +120,11 @@ describe("Deep Audit Engine Fixes & Verification", () => {
             calculator_type: "heat_comfort",
             rule_key: "solar_irradiance_kwh_per_sqm_day",
             rule_value: { value: 5.5 },
+            rule_status: "calculated",
+            description: null,
             is_active: true,
+            created_at: "2026-01-01T00:00:00Z",
+            updated_at: "2026-01-01T00:00:00Z",
           },
         ],
       };
@@ -147,7 +151,11 @@ describe("Deep Audit Engine Fixes & Verification", () => {
             calculator_type: "heat_comfort",
             rule_key: "solar_irradiance_kwh_per_sqm_day",
             rule_value: { value: 5.0 },
+            rule_status: "calculated",
+            description: null,
             is_active: true,
+            created_at: "2026-01-01T00:00:00Z",
+            updated_at: "2026-01-01T00:00:00Z",
           },
         ],
       };

@@ -893,7 +893,7 @@ export default function PaintCalculator({
         heightWarning: totals.height_warning,
         colorWarning:
           roomResults.find((x) => x.colour_condition?.requires_warning)
-            ?.colour_condition.name ?? null,
+            ?.colour_condition?.name ?? null,
         primerRecommended: roomResults.some((x) => x.primer_recommended),
       };
 

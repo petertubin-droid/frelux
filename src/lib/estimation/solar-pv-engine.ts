@@ -239,11 +239,12 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   }
 
   // ── Validation: cable run ─────────────────────────────
+  const runFt = input.cable_run_ft ?? NaN;
   const run =
     Number.isFinite(input.cable_run_m) && input.cable_run_m > 0
       ? input.cable_run_m
-      : Number.isFinite(input.cable_run_ft) && input.cable_run_ft > 0
-        ? input.cable_run_ft * 0.3048
+      : Number.isFinite(runFt) && runFt > 0
+        ? runFt * 0.3048
         : 0;
   if (!Number.isFinite(run) || run <= 0) {
     return refuse([
@@ -253,13 +254,14 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
 
   // ── Validation: mode inputs ────────────────────────────
   if (mode === "roof_area") {
-    let area = input.usable_roof_area_m2;
+    let area = input.usable_roof_area_m2 ?? NaN;
+    const roofAreaSqft = input.usable_roof_area_sqft ?? NaN;
     if (
       (!area || !Number.isFinite(area) || area <= 0) &&
-      Number.isFinite(input.usable_roof_area_sqft) &&
-      input.usable_roof_area_sqft > 0
+      Number.isFinite(roofAreaSqft) &&
+      roofAreaSqft > 0
     ) {
-      area = input.usable_roof_area_sqft * 0.092903;
+      area = roofAreaSqft * 0.092903;
     }
     if (!Number.isFinite(area) || area <= 0) {
       return refuse([

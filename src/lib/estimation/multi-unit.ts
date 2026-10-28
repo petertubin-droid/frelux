@@ -29,7 +29,7 @@ import type {
   OpeningDimensions,
   Unit,
 } from "@/types";
-import type { EstimationCalcRule } from "@/types/database";
+import type { EstimationCalcRule } from "@/types/estimation";
 import {
   findBuildingPreset,
   presetToRoomDrafts,

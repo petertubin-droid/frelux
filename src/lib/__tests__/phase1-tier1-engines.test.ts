@@ -111,18 +111,23 @@ describe("Phase 1 Tier-1 Upgrades Verification", () => {
   describe("3. Commercial CIS & Retainage Engine in Quotation Document", () => {
     it("calculates UK CIS subcontractor deduction and contract retainage", () => {
       const mockEstimate: CostEstimate = {
+        lineItems: [],
+        categories: [],
         materialsTotal: 50000,
         labourTotal: 30000,
-        subtotal: 80000,
         contingencyPercent: 5,
         contingencyAmount: 4000,
-        contractorMarginPercent: 10,
-        contractorMarginAmount: 8400,
-        grandTotal: 92400,
-        breakdownByTrade: {},
-        categoryBreakdown: {},
-        lineItems: [],
-        items: [],
+        grandTotal: 84000,
+        currency: "GBP",
+        confidence: "high",
+        pricedItemCount: 0,
+        unpricedItemCount: 0,
+        stalePriceCount: 0,
+        overriddenPriceCount: 0,
+        priceSourceBreakdown: {} as CostEstimate["priceSourceBreakdown"],
+        allPriced: false,
+        explanation: [],
+        issues: [],
       };
 
       const settings: Partial<QuotationSettings> = {
