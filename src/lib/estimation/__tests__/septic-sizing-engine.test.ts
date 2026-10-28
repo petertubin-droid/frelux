@@ -17,7 +17,9 @@ describe("Septic sizing worksheet", () => {
     expect(result.tankWorkingVolumeM3).toBe(2.16);
     expect(result.tankTotalVolumeM3).toBe(2.592);
     expect(result.soakawayRequiredAbsorptionAreaM2).toBe(24);
-    expect(result.indicativeSoakawayDiameterM).toBeCloseTo(5.53, 2);
+    // EPA/BS 6297 bottom + sidewall area: D = 2(√(h² + A/π) − h) with
+    // h = 2 m, A = 24 m² → 2.82 m (plan-area-only approximation gave 5.53).
+    expect(result.indicativeSoakawayDiameterM).toBeCloseTo(2.82, 2);
     expect(result.safetyNotice).toContain("not a septic system design");
   });
   it("does not infer soakaway size when soil loading rate is missing", () => {

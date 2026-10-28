@@ -328,9 +328,12 @@ describe("PaintingEstimator", () => {
     );
 
     // Inline error alert appears instead of failing silently
-    const alert = await screen.findByRole("alert", undefined, {
+    // (the validation alert AND its toast both carry role="alert")
+    const alerts = await screen.findAllByRole("alert", undefined, {
       timeout: 4000,
     });
-    expect(alert.textContent).toMatch(/Quality level is required/i);
+    expect(
+      alerts.some((a) => a.textContent?.match(/Quality level is required/i)),
+    ).toBe(true);
   });
 });

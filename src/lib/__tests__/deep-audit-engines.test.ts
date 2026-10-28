@@ -198,8 +198,8 @@ describe("Deep Audit Engine Fixes & Verification", () => {
   });
 
   describe("Engine Inventory Verification", () => {
-    it("verifies all 54 engines have existing source files", () => {
-      expect(FULL_ENGINE_INVENTORY.length).toBe(54);
+    it("verifies all 56 engines have existing source files", () => {
+      expect(FULL_ENGINE_INVENTORY.length).toBe(56);
 
       for (const engine of FULL_ENGINE_INVENTORY) {
         // At least one valid source file must exist
