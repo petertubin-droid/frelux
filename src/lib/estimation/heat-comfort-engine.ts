@@ -10,13 +10,9 @@
  *     = area × irradiance_rule × (albedo_old − albedo_new)
  *   reduction % = (albedo_new − albedo_old) / (1 − albedo_old) × 100
  *
- * Philosophy (unchanged): the engine never guesses.
- * - A finish without a configured factor is flagged, never
- *   scored with an assumed albedo.
- * - A darker proposed finish (lower albedo) absorbs MORE heat;
- *   the engine reports that honestly as a negative benefit.
- * - Zero-area, invalid albedo, or missing inputs are refused
- *   with warnings, never smoothed over.
+ * Global Standards:
+ * - Supports both SI metric (m²) and Imperial US customary (sq ft) surface area.
+ * - Guardrails against extreme albedo values (prevents false division by zero).
  */
 
 import type { EstimationCalcRule } from "@/types/estimation";
@@ -28,7 +24,9 @@ import type { EstimationCalcRule } from "@/types/estimation";
 export interface HeatComfortInput {
   surface_type: "roof" | "wall";
   /** Surface area in square metres */
-  area_sqm: number;
+  area_sqm?: number;
+  /** Optional surface area in square feet */
+  area_sqft?: number;
   current_category: string;
   proposed_category: string;
   /** Admin-configured albedo factors, keyed `${surface_type}:${category}` */
@@ -76,6 +74,7 @@ function ruleNumber(rules: EstimationCalcRule[], key: string): number | null {
 }
 
 const MAX_DP = 4;
+const SQFT_TO_M2 = 0.092903;
 
 // ─────────────────────────────────────────────
 // Engine
@@ -111,14 +110,18 @@ export function calculateHeatComfort(
   }
   result.surface_type = st;
 
-  const area = Number(input.area_sqm);
+  let area = Number(input.area_sqm);
+  if ((!Number.isFinite(area) || area <= 0) && Number.isFinite(Number(input.area_sqft)) && Number(input.area_sqft) > 0) {
+    area = Number(input.area_sqft) * SQFT_TO_M2;
+  }
+
   if (!Number.isFinite(area) || area <= 0) {
     result.warnings.push(
-      "Surface area must be a positive number of square metres.",
+      "Surface area must be a positive number of square metres or square feet.",
     );
     return result;
   }
-  result.area_sqm = area;
+  result.area_sqm = roundTo(area, 2);
 
   const curCat = input.current_category?.trim();
   const propCat = input.proposed_category?.trim();
@@ -169,12 +172,14 @@ export function calculateHeatComfort(
 
   const curAlbedo = Number(curFactor.solar_reflectance);
   const propAlbedo = Number(propFactor.solar_reflectance);
+
   if (curAlbedo < 0 || curAlbedo > 1 || propAlbedo < 0 || propAlbedo > 1) {
     result.warnings.push(
       "A configured albedo lies outside the physical range 0–1. Fix the factor in the admin pane: the engine never clamps data to force an answer.",
     );
     return result;
   }
+
   result.current_albedo = curAlbedo;
   result.proposed_albedo = propAlbedo;
 
@@ -183,6 +188,7 @@ export function calculateHeatComfort(
   const propAbsorbed = roundTo(1 - propAlbedo, decimals);
   result.current_absorbed_fraction = curAbsorbed;
   result.proposed_absorbed_fraction = propAbsorbed;
+
   result.steps.push({
     label: "Absorbed fraction",
     detail: `Current '${curCat}' absorbs ${curAbsorbed} of incident solar energy (albedo ${curAlbedo}); proposed '${propCat}' absorbs ${propAbsorbed} (albedo ${propAlbedo}). Both from configured factors, never assumed.`,
@@ -194,15 +200,18 @@ export function calculateHeatComfort(
     decimals,
   );
   result.daily_energy_delta_kwh = deltaKwh;
+
   result.steps.push({
     label: "Daily energy delta",
-    detail: `${area} m² × ${irradiance} kWh/m²/day (configured rule) × (${propAlbedo} − ${curAlbedo}) = ${deltaKwh} kWh/day. Positive means less solar energy absorbed: a cooling benefit.`,
+    detail: `${result.area_sqm} m² × ${irradiance} kWh/m²/day (configured rule) × (${propAlbedo} − ${curAlbedo}) = ${deltaKwh} kWh/day. Positive means less solar energy absorbed: a cooling benefit.`,
   });
 
-  // ── 4. Reduction percentage - null on a zero base, never a fake number ──
-  if (curAbsorbed > 0) {
+  // ── 4. Reduction percentage - use unrounded base to prevent premature division by zero ──
+  const rawCurAbsorbed = 1 - curAlbedo;
+  const rawPropAbsorbed = 1 - propAlbedo;
+  if (rawCurAbsorbed > 1e-6) {
     const pct = roundTo(
-      ((propAbsorbed - curAbsorbed) / curAbsorbed) * -100,
+      ((rawPropAbsorbed - rawCurAbsorbed) / rawCurAbsorbed) * -100,
       decimals,
     );
     result.reduction_percent = pct;
@@ -228,7 +237,7 @@ export function calculateHeatComfort(
   if (
     threshold !== null &&
     threshold >= 0 &&
-    curAbsorbed > 0 &&
+    rawCurAbsorbed > 1e-6 &&
     result.reduction_percent !== null
   ) {
     const frac = result.reduction_percent / 100;

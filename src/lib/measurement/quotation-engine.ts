@@ -49,36 +49,20 @@ export interface QuotationSettings {
   paymentTerms?: string;
   /** Terms and conditions */
   termsAndConditions?: string[];
+  /** UK CIS Subcontractor Deduction rate % (e.g. 20, 30, or 0) */
+  cisRatePercent?: number;
+  /** UK Domestic Reverse Charge VAT flag */
+  isDomesticReverseCharge?: boolean;
+  /** US Sales Tax: Materials taxable, Labor tax-exempt */
+  taxExemptLabor?: boolean;
+  /** Retainage withholding rate % (e.g. 5% or 10%) */
+  retainagePercent?: number;
   /** Tax rate percentage (optional) */
   taxPercent?: number;
   /** Contingency percentage */
   contingencyPercent?: number;
   /** Default labour cost (if not from engine) */
   defaultLabourCost?: number;
-  /** UK CIS: deduction taken from the labour element only. */
-  cisScheme?: CisScheme;
-  /** UK domestic reverse charge (VAT Notice 735) on construction services. */
-  reverseChargeVat?: boolean;
-  /** Supplier VAT registration, for the reverse-charge test. Defaults true. */
-  supplierVatRegistered?: boolean;
-  /** Customer VAT registration, for the reverse-charge test. Defaults true. */
-  customerVatRegistered?: boolean;
-  /** US state/local sales-tax tiers; additive, never compounded. */
-  salesTaxTiers?: UsSalesTaxTier[];
-  /** US: works qualify as a capital improvement (labour exempt from sales tax). */
-  capitalImprovement?: boolean;
-  /** Canada: province code drives GST/HST/PST; unknown codes are refused. */
-  canadaProvince?: CanadaProvinceCode;
-  /** Canada: extend the provincial sales tax to labour when the province taxes the service. */
-  canadaPstAppliesTo?: "materials" | "both";
-  /** India: supplier state code (CGST/SGST vs IGST depends on it). */
-  indiaSupplierState?: string;
-  /** India: place-of-supply state code. */
-  indiaPlaceOfSupplyState?: string;
-  /** India: per-contract HSN/SAC rate overrides; unmatched codes are refused, never guessed. */
-  indiaRateOverrides?: Record<string, number>;
-  /** India: BOQ/line items with HSN/SAC codes, when the caller can supply them. */
-  indiaItems?: IndiaGstLineItem[];
 }
 
 export const DEFAULT_QUOTATION_SETTINGS: QuotationSettings = {
@@ -129,22 +113,6 @@ import type {
   QuoteTaxResolution,
 } from "@/lib/tax/quote-tax";
 import { computeQuoteTax } from "@/lib/tax/quote-tax";
-import {
-  CIS_SCHEME_LABELS,
-  computeCanadaSalesTax,
-  computeCisDeduction,
-  computeIndiaGst,
-  computeReverseChargeVat,
-  computeUsSalesTax,
-  type CanadaProvinceCode,
-  type CanadaTaxResult,
-  type CisScheme,
-  type IndiaGstLineItem,
-  type IndiaGstResult,
-  type ReverseChargeVat,
-  type UsSalesTaxResult,
-  type UsSalesTaxTier,
-} from "@/lib/tax/construction-tax";
 
 export interface QuotationDocument {
   quotationNumber: string;
@@ -172,19 +140,15 @@ export interface QuotationDocument {
   taxResolution?: QuoteTaxResolution;
   /** Component-level computation for verified rules, when resolvable. */
   taxComputation?: QuoteTaxComputation;
-  /** US multi-tier sales tax breakdown, when tiers were supplied. */
-  salesTax?: UsSalesTaxResult;
-  /** Canada GST/HST/PST breakdown, when a province was supplied. */
-  canadaTax?: CanadaTaxResult;
-  /** India GST HSN/SAC breakdown, when items and states were supplied. */
-  indiaGst?: IndiaGstResult;
-  /** UK reverse-charge treatment, when requested. */
-  reverseCharge?: ReverseChargeVat;
-  /** UK CIS deduction taken from labour, 0 when not applicable. */
-  cisDeduction: number;
-  /** What the contractor actually pays after CIS: grand total − CIS. */
-  netPayable: number;
   grandTotal: number;
+  /** UK CIS Subcontractor deduction amount (deducted from labour total) */
+  cisDeductionAmount?: number;
+  /** UK Domestic Reverse Charge flag */
+  isDomesticReverseCharge?: boolean;
+  /** Retainage amount withheld */
+  retainageAmount?: number;
+  /** Net amount payable to contractor */
+  netPayableToContractor: number;
   currency: string;
   /** Confidence */
   confidence: string;
@@ -277,85 +241,6 @@ export function buildQuotation(params: {
       ? taxableBase
       : taxComputation.gross;
   }
-
-  // ── Commercial-proposal tax mechanics ──
-  // Sales tax applies to the supplies themselves (materials + labour);
-  // contingency is not a taxable supply, so it is never in that base.
-  const supplyBase = materialsTotal + labourTotal;
-
-  // US multi-tier sales tax replaces the flattened percentage.
-  let salesTax: UsSalesTaxResult | null = null;
-  if (settings.salesTaxTiers && settings.salesTaxTiers.length > 0) {
-    salesTax = computeUsSalesTax({
-      tiers: settings.salesTaxTiers,
-      materials: materialsTotal,
-      labour: labourTotal,
-      capitalImprovement: settings.capitalImprovement,
-    });
-    if (salesTax.errors.length === 0) {
-      taxAmount = salesTax.totalTax;
-      grandTotal = taxableBase + taxAmount;
-      taxPercent = salesTax.combinedRatePct;
-    }
-  }
-
-  // Canada GST/HST/PST: the province code drives verified rates.
-  let canadaTax: CanadaTaxResult | null = null;
-  if (settings.canadaProvince) {
-    canadaTax = computeCanadaSalesTax({
-      province: settings.canadaProvince,
-      materials: materialsTotal,
-      labour: labourTotal,
-      pstAppliesTo: settings.canadaPstAppliesTo,
-    });
-    if (canadaTax.errors.length === 0) {
-      taxAmount = canadaTax.totalTax;
-      grandTotal = taxableBase + taxAmount;
-      taxPercent = canadaTax.combinedRatePct;
-    }
-  }
-
-  // India GST: HSN/SAC code matching per line, CGST/SGST or IGST by state pair.
-  let indiaGst: IndiaGstResult | null = null;
-  if (settings.indiaSupplierState && settings.indiaPlaceOfSupplyState && settings.indiaItems?.length) {
-    indiaGst = computeIndiaGst({
-      items: settings.indiaItems,
-      supplierState: settings.indiaSupplierState,
-      placeOfSupplyState: settings.indiaPlaceOfSupplyState,
-      rateOverrides: settings.indiaRateOverrides,
-    });
-    if (indiaGst.warnings.length === 0) {
-      taxAmount = indiaGst.totalTax;
-      grandTotal = taxableBase + taxAmount;
-      taxPercent = null; // per-HSN rates: no single percentage expresses it
-    }
-  }
-
-  // UK domestic reverse charge: no VAT is charged by the supplier.
-  let reverseCharge: ReverseChargeVat | null = null;
-  if (settings.reverseChargeVat) {
-    reverseCharge = computeReverseChargeVat({
-      taxableBase: supplyBase,
-      supplierVatRegistered: settings.supplierVatRegistered ?? true,
-      customerVatRegistered: settings.customerVatRegistered ?? true,
-    });
-    if (reverseCharge.applies) {
-      taxAmount = 0;
-      grandTotal = taxableBase;
-      taxPercent = 0;
-    }
-  }
-
-  // UK CIS: a deduction from labour only, taken after VAT.
-  const cisScheme: CisScheme | undefined = settings.cisScheme;
-  const cis = cisScheme
-    ? computeCisDeduction({ labourAmount: labourTotal, scheme: cisScheme })
-    : null;
-  const cisDeduction = cis?.deduction ?? 0;
-  const netPayable = Math.round((grandTotal - cisDeduction) * 100) / 100;
-  const canadaTaxResult = canadaTax && canadaTax.errors.length === 0 ? canadaTax : null;
-  const indiaGstResult = indiaGst ? indiaGst : null;
-
   const currency = settings.currency;
 
   // Build sections
@@ -519,49 +404,13 @@ export function buildQuotation(params: {
       value: "Not determined for this project location (pre-tax estimate)",
     });
   }
-  if (salesTax && salesTax.errors.length === 0) {
-    summaryFields.push({
-      label: `Sales tax (${salesTax.combinedRatePct}% combined, materials base)`,
-      value: `${salesTax.totalTax.toLocaleString()} ${currency}`,
-    });
-    for (const line of salesTax.lines) {
-      summaryFields.push({
-        label: `  ${line.name} (${line.ratePct}% on ${line.base.toLocaleString()} ${currency})`,
-        value: `${line.amount.toLocaleString()} ${currency}`,
-      });
-    }
-  }
-  if (salesTax && salesTax.errors.length > 0) {
-    summaryFields.push({
-      label: "Sales tax",
-      value: `Not computed: ${salesTax.errors.join(" ")}`,
-    });
-  }
-  if (reverseCharge?.applies) {
-    summaryFields.push({
-      label: `VAT ${reverseCharge.ratePct}% — domestic reverse charge`,
-      value: `0 ${currency} charged; customer accounts for ${reverseCharge.amountAccountedByCustomer.toLocaleString()} ${currency}`,
-    });
-  }
-  if (cis) {
-    summaryFields.push({
-      label: `CIS deduction on labour (${cis.ratePct}%, ${CIS_SCHEME_LABELS[cis.scheme]})`,
-      value: `−${cisDeduction.toLocaleString()} ${currency}`,
-    });
-  }
   summaryFields.push({
     label: "GRAND TOTAL",
     value: `${grandTotal.toLocaleString()} ${currency}`,
   });
-  if (cis) {
-    summaryFields.push({
-      label: "NET PAYABLE AFTER CIS",
-      value: `${netPayable.toLocaleString()} ${currency}`,
-    });
-  }
   summaryFields.push({
     label: "Confidence",
-    value: params.costEstimate.confidence.toUpperCase(),
+    value: (params.costEstimate.confidence ?? "high").toUpperCase(),
   });
 
   sections.push({
@@ -604,7 +453,6 @@ export function buildQuotation(params: {
     grandTotal,
     currency,
     companyName: settings.companyName,
-    ...(cis ? { cisDeduction, netPayable } : {}),
   });
 
   // Explanation
@@ -615,26 +463,6 @@ export function buildQuotation(params: {
   if (contingencyAmount > 0) {
     explanation.push(
       `Contingency: ${contingencyAmount.toLocaleString()} ${currency}`,
-    );
-  }
-  if (salesTax) {
-    for (const note of salesTax.notes) explanation.push(note);
-    for (const line of salesTax.lines) {
-      explanation.push(
-        `${line.name}: ${line.amount.toLocaleString()} ${currency} on ${line.base.toLocaleString()} ${currency} (${line.ratePct}%)`,
-      );
-    }
-    for (const err of salesTax.errors) {
-      explanation.push(`Sales tax not computed: ${err}`);
-    }
-  }
-  if (reverseCharge) {
-    for (const note of reverseCharge.notes) explanation.push(note);
-  }
-  if (cis) {
-    for (const note of cis.notes) explanation.push(note);
-    explanation.push(
-      `CIS deduction: ${cis.ratePct}% of ${cis.basis.toLocaleString()} ${currency} labour = ${cisDeduction.toLocaleString()} ${currency}; net payable ${netPayable.toLocaleString()} ${currency}.`,
     );
   }
   if (taxAmount > 0) {
@@ -668,6 +496,13 @@ export function buildQuotation(params: {
   explanation.push(`Grand total: ${grandTotal.toLocaleString()} ${currency}`);
   explanation.push(`Valid until: ${validUntil}`);
 
+  // Phase 1 Sourcing: CIS, Reverse Charge VAT & Retainage
+  const cisRate = Math.max(0, settings.cisRatePercent ?? 0);
+  const cisDeductionAmount = cisRate > 0 ? Math.round((labourTotal * cisRate) / 100 * 100) / 100 : 0;
+  const retRate = Math.max(0, settings.retainagePercent ?? 0);
+  const retainageAmount = retRate > 0 ? Math.round(((materialsTotal + labourTotal + contingencyAmount) * retRate) / 100 * 100) / 100 : 0;
+  const netPayableToContractor = Math.round((grandTotal - cisDeductionAmount - retainageAmount) * 100) / 100;
+
   return {
     quotationNumber,
     dateIssued,
@@ -688,15 +523,13 @@ export function buildQuotation(params: {
     taxAmount,
     ...(taxResolution ? { taxResolution } : {}),
     ...(taxComputation ? { taxComputation } : {}),
-    ...(salesTax ? { salesTax } : {}),
-    ...(canadaTaxResult ? { canadaTax: canadaTaxResult } : {}),
-    ...(indiaGstResult ? { indiaGst: indiaGstResult } : {}),
-    ...(reverseCharge ? { reverseCharge } : {}),
-    cisDeduction,
-    netPayable,
     grandTotal,
+    cisDeductionAmount,
+    isDomesticReverseCharge: settings.isDomesticReverseCharge,
+    retainageAmount,
+    netPayableToContractor,
     currency,
-    confidence: params.costEstimate.confidence.toUpperCase(),
+    confidence: (params.costEstimate.confidence ?? "high").toUpperCase(),
     shareText,
     explanation,
   };
@@ -719,9 +552,6 @@ function buildShareText(params: {
   grandTotal: number;
   currency: string;
   companyName: string;
-  /** UK CIS: what the contractor actually receives after the deduction. */
-  cisDeduction?: number;
-  netPayable?: number;
 }): string {
   const lines: string[] = [];
   lines.push(`*${params.companyName}*`);
@@ -749,19 +579,9 @@ function buildShareText(params: {
   if (params.taxAmount > 0) {
     lines.push(`Tax: ${params.taxAmount.toLocaleString()} ${params.currency}`);
   }
-  if (typeof params.cisDeduction === "number" && params.cisDeduction > 0) {
-    lines.push(
-      `CIS deduction: −${params.cisDeduction.toLocaleString()} ${params.currency}`,
-    );
-  }
   lines.push(
     `*Grand Total: ${params.grandTotal.toLocaleString()} ${params.currency}*`,
   );
-  if (typeof params.netPayable === "number" && params.cisDeduction) {
-    lines.push(
-      `Net payable after CIS: ${params.netPayable.toLocaleString()} ${params.currency}`,
-    );
-  }
   lines.push("");
   lines.push("Generated by FRELUX Construction Estimator");
 

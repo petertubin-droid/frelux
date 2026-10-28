@@ -81,8 +81,6 @@ export interface BeamDesignInput {
   existing_width?: number; // optional: if width is predetermined
   existing_depth?: number; // optional: if depth is predetermined
   market_code?: string; // market-scoped member sizing defaults (NG default)
-  /** Explicit design code. When absent the market default applies. */
-  jurisdiction_code?: JurisdictionCode;
 }
 
 export interface BeamDesignResult {
@@ -107,10 +105,6 @@ export interface BeamDesignResult {
   shear_check_pass: boolean;
   deflection_check_pass: boolean;
   span_to_depth_ratio: number;
-  /** Design code the minimum-steel check used. */
-  jurisdiction_code?: JurisdictionCode;
-  /** Minimum tension reinforcement ratio actually applied, percent. */
-  min_steel_ratio_percent?: number;
   warnings: string[];
   formula_transparency: string[];
 }
@@ -161,8 +155,6 @@ export interface SlabDesignInput {
   cover_mm: number;
   existing_thickness?: number; // mm
   market_code?: string; // market-scoped engineering defaults
-  /** Explicit design code. When absent the market default applies. */
-  jurisdiction_code?: JurisdictionCode;
 }
 
 export interface SlabDesignResult {
@@ -181,10 +173,6 @@ export interface SlabDesignResult {
   link_check: string;
   span_to_depth_ratio: number;
   deflection_check_pass: boolean;
-  /** Design code the minimum-steel check used. */
-  jurisdiction_code?: JurisdictionCode;
-  /** Minimum slab reinforcement ratio actually applied, percent. */
-  min_steel_ratio_percent?: number;
   warnings: string[];
   formula_transparency: string[];
 }
@@ -481,7 +469,7 @@ const CONCRETE_PROPS: Record<string, { fcu: number; Ec: number }> = {
   M35: { fcu: 35, Ec: 29.6 },
 };
 
-export const STEEL_PROPS: Record<SteelGrade, { fy: number }> = {
+const STEEL_PROPS: Record<SteelGrade, { fy: number }> = {
   Fe410: { fy: 410 },
   Fe500: { fy: 500 },
 };
@@ -502,263 +490,6 @@ function roundUpTo25(n: number): number {
 }
 
 // ── Beam design ──
-
-// ─────────────────────────────────────────────
-// Jurisdictional design-code mode
-// ─────────────────────────────────────────────
-//
-// One selector, four codes, no blending. A member is designed under exactly
-// one jurisdiction: the minimum reinforcement it reports is the one that code
-// demands, with the substituted formula shown so a checking engineer can
-// reproduce it. ACI and Eurocode are kept distinct rather than folded into a
-// single "eurocode_bs" bucket, because their minimum steel rules genuinely
-// differ (ACI is strength-driven, EC2 is tensile-strength-driven).
-
-export type JurisdictionCode =
-  "ACI_318" | "EUROCODE_2" | "BS_8110" | "IS_456" | "AS_3600";
-
-export interface JurisdictionProfile {
-  code: JurisdictionCode;
-  /** Short display label for the selector. */
-  label: string;
-  /** Legacy concrete family whose grades/load factors this code uses. */
-  standard: ConcreteStandardCode;
-  governingCode: string;
-  /** Minimum tension reinforcement clause. */
-  minSteelClause: string;
-  note: string;
-}
-
-export const JURISDICTION_CODES: Record<JurisdictionCode, JurisdictionProfile> =
-  {
-    ACI_318: {
-      code: "ACI_318",
-      label: "ACI 318-19 (US)",
-      standard: "aci_astm",
-      governingCode: "ACI 318-19",
-      minSteelClause: "§9.6.1.2",
-      note: "SI form of 3√f'c/fy with the 200/fy (psi) floor carried as 1.4/fy in MPa.",
-    },
-    EUROCODE_2: {
-      code: "EUROCODE_2",
-      label: "Eurocode 2 / BS EN 1992-1-1",
-      standard: "eurocode_bs",
-      governingCode: "BS EN 1992-1-1",
-      minSteelClause: "§9.2.1.1(1)",
-      note: "Tensile-strength driven: 0.26 fctm/fyk with a 0.0013 floor.",
-    },
-    BS_8110: {
-      code: "BS_8110",
-      label: "BS 8110 (legacy Commonwealth)",
-      standard: "eurocode_bs",
-      governingCode: "BS 8110-1:1997",
-      minSteelClause: "Table 3.25 / §3.12.5.1",
-      note: "Tabulated minimum percentages (0.24% for fy 250, 0.13% for high yield).",
-    },
-    IS_456: {
-      code: "IS_456",
-      label: "IS 456:2000 (India)",
-      standard: "is_456",
-      governingCode: "IS 456:2000",
-      minSteelClause: "§26.5.1.1",
-      note: "Ast = 0.85 b d / fy, independent of concrete grade.",
-    },
-    AS_3600: {
-      code: "AS_3600",
-      label: "AS 3600:2018 (Australia / NZ)",
-      standard: "aci_astm",
-      governingCode: "AS 3600:2018",
-      minSteelClause: "Cl 9.1.1(b)",
-      note: "phi.Muo >= 1.2.Mcr with Mcr = 0.6.sqrt(fc).b.D^2/6; capacity reduction phi = 0.8 flexure, 0.7 shear (Table 2.2.2).",
-    },
-  };
-
-/** Markets whose default design code differs from their concrete family. */
-const EUROCODE_MARKETS = new Set([
-  "GB",
-  "IE",
-  "ES",
-  "PT",
-  "FR",
-  "DE",
-  "IT",
-  "NL",
-  "BE",
-  "PL",
-  "SE",
-  "DK",
-  "NO",
-  "FI",
-  "CH",
-  "AT",
-  "CZ",
-  "RO",
-  "GR",
-  "TR",
-  "AE",
-  "SA",
-]);
-const ACI_MARKETS = new Set(["US", "CA", "PR", "MX", "BR", "PH"]);
-
-/**
- * Default jurisdiction for a market. Where the current market data has no
- * explicit distinction the concrete family decides, with the well-known
- * Eurocode and ACI markets overridden explicitly.
- */
-export function defaultJurisdictionForMarket(
-  marketCode?: string,
-): JurisdictionCode {
-  const code = (marketCode ?? "NG").trim().toUpperCase();
-  if (code === "AU" || code === "NZ") return "AS_3600";
-  if (code === "IN") return "IS_456";
-  if (ACI_MARKETS.has(code)) return "ACI_318";
-  if (EUROCODE_MARKETS.has(code)) return "EUROCODE_2";
-  return "BS_8110";
-}
-
-/** Concrete family a jurisdiction designs with (grades, load factors). */
-export function jurisdictionStandard(
-  code: JurisdictionCode,
-): ConcreteStandardCode {
-  return JURISDICTION_CODES[code]?.standard ?? "eurocode_bs";
-}
-
-/** Mean tensile strength per EC2 Table 3.1, MPa. */
-export function ec2MeanTensileStrength(fck: number): number {
-  if (fck <= 50) return 0.3 * Math.pow(fck, 2 / 3);
-  const fcm = fck + 8;
-  return 2.12 * Math.log(1 + fcm / 10);
-}
-
-export interface MinReinforcementRatio {
-  code: JurisdictionCode;
-  /** Minimum ratio as a decimal (0.0013 = 0.13%). */
-  ratio: number;
-  percent: number;
-  clause: string;
-  /** Substituted rule, for the design report. */
-  formula: string;
-  /** EC2 only: the fctm used, MPa. */
-  fctm?: number;
-}
-
-/**
- * Minimum tension reinforcement ratio for the selected code.
- * fck / fy in MPa. Nothing is blended between codes.
- */
-export function minReinforcementRatio(params: {
-  code: JurisdictionCode;
-  /** Characteristic concrete strength, MPa (cylinder for ACI/EC2/IS, cube for BS). */
-  fck: number;
-  /** Characteristic steel yield strength, MPa. */
-  fy: number;
-}): MinReinforcementRatio {
-  const { code, fy } = params;
-  const fck = params.fck > 0 ? params.fck : 25;
-  if (!(fy > 0)) {
-    throw new Error(
-      "Steel yield strength fy must be positive to size minimum reinforcement.",
-    );
-  }
-  const profile = JURISDICTION_CODES[code];
-
-  switch (code) {
-    case "ACI_318": {
-      const sqrtTerm = (0.25 * Math.sqrt(fck)) / fy;
-      const floorTerm = 1.4 / fy;
-      const ratio = Math.max(sqrtTerm, floorTerm);
-      return {
-        code,
-        ratio,
-        percent: ratio * 100,
-        clause: `ACI 318-19 ${profile.minSteelClause}`,
-        formula:
-          floorTerm >= sqrtTerm
-            ? `As,min/bd = 1.4/fy = 1.4/${fy} = ${(ratio * 100).toFixed(3)}% (floor governs; 0.25√f'c/fy = ${(sqrtTerm * 100).toFixed(3)}%)`
-            : `As,min/bd = 0.25√f'c/fy = 0.25√${fck}/${fy} = ${(ratio * 100).toFixed(3)}% (strength term governs; 1.4/fy = ${(floorTerm * 100).toFixed(3)}%)`,
-      };
-    }
-    case "EUROCODE_2": {
-      const fctm = ec2MeanTensileStrength(fck);
-      const tensile = (0.26 * fctm) / fy;
-      const ratio = Math.max(tensile, 0.0013);
-      return {
-        code,
-        ratio,
-        percent: ratio * 100,
-        clause: `BS EN 1992-1-1 ${profile.minSteelClause}`,
-        formula:
-          ratio === 0.0013
-            ? `As,min/bd = max(0.26 fctm/fyk, 0.0013) = max(${(tensile * 100).toFixed(3)}%, 0.13%) = 0.13% (floor governs, fctm = ${fctm.toFixed(2)} MPa)`
-            : `As,min/bd = 0.26 fctm/fyk = 0.26 × ${fctm.toFixed(2)}/${fy} = ${(ratio * 100).toFixed(3)}% (fctm = 0.30 fck^(2/3) = ${fctm.toFixed(2)} MPa)`,
-        fctm,
-      };
-    }
-    case "BS_8110": {
-      const ratio = fy <= 300 ? 0.0024 : 0.0013;
-      return {
-        code,
-        ratio,
-        percent: ratio * 100,
-        clause: `BS 8110-1 ${profile.minSteelClause}`,
-        formula: `As,min/bd = ${(ratio * 100).toFixed(2)}% (BS 8110 Table 3.25: 0.24% for fy 250, 0.13% for fy ≥ 460; fy = ${fy})`,
-      };
-    }
-    case "AS_3600": {
-      // AS 3600:2018 Cl 9.1.1(b): As,min such that phi.Muo >= 1.2.Mcr with
-      // Mcr = fct.f.Z, fct.f = 0.6.sqrt(fc), Z = b.D^2/6. The ratio form
-      // assumes D = 1.1d (typical rectangular beam cover) and z = 0.9d,
-      // both stated in the formula string; the exact section check with
-      // the real D runs in design-code-concrete.ts.
-      const ratio =
-        (1.2 * 0.6 * Math.pow(1.1, 2) * Math.sqrt(fck)) / (6 * 0.9 * fy);
-      return {
-        code,
-        ratio,
-        percent: ratio * 100,
-        clause: `AS 3600:2018 ${profile.minSteelClause}`,
-        formula: `As,min from phi.Muo >= 1.2.Mcr = 1.2 x (0.6.sqrt(fc).b.D^2/6)/(fsy.0.9d) with D = 1.1d assumed: ${(ratio * 100).toFixed(3)}% (fc = ${fck} MPa, fsy = ${fy} MPa). Verify the exact section against Cl 9.1.1(b).`,
-      };
-    }
-    case "IS_456":
-    default: {
-      const ratio = 0.85 / fy;
-      return {
-        code: "IS_456",
-        ratio,
-        percent: ratio * 100,
-        clause: "IS 456:2000 §26.5.1.1",
-        formula: `As,min = 0.85 b d / fy = 0.85/${fy} = ${(ratio * 100).toFixed(3)}% b d`,
-      };
-    }
-  }
-}
-
-export interface MinReinforcementArea extends MinReinforcementRatio {
-  /** Section width, mm */
-  b: number;
-  /** Effective depth, mm */
-  d: number;
-  /** Minimum steel area, mm² */
-  areaMm2: number;
-}
-
-/** Minimum steel area for a section under the selected code. */
-export function minReinforcementArea(params: {
-  code: JurisdictionCode;
-  fck: number;
-  fy: number;
-  b: number;
-  d: number;
-}): MinReinforcementArea {
-  const ratio = minReinforcementRatio(params);
-  return {
-    ...ratio,
-    b: params.b,
-    d: params.d,
-    areaMm2: ratio.ratio * params.b * params.d,
-  };
-}
 
 // ── Standard-aware load factors (audit fix F1, 2026-10-26) ──
 // BS 8110: 1.4Gk + 1.6Qk · ACI 318-19 LRFD: 1.2D + 1.6L · IS 456:2000: 1.5(D+L)
@@ -853,11 +584,7 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   const design_load = total_dead + total_live;
   // Audit fix F1: load factors follow the governing standard of the
   // selected concrete grade's jurisdiction, not BS 8110 blindly.
-  const lf = loadFactors(
-    input.jurisdiction_code
-      ? jurisdictionStandard(input.jurisdiction_code)
-      : concretePreset.standard,
-  );
+  const lf = loadFactors(concretePreset.standard);
   const factored_load = lf.dead * total_dead + lf.live * total_live;
   formulas.push(
     `Factored load (${lf.label}) = ${lf.dead} × ${total_dead.toFixed(2)} + ${lf.live} × ${total_live.toFixed(2)} = ${factored_load.toFixed(2)} kN/m`,
@@ -1000,22 +727,6 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
       );
     }
   }
-  // Jurisdictional code mode: one code governs, nothing blended.
-  let beamJurisdiction: JurisdictionCode | undefined;
-  if (input.jurisdiction_code) {
-    beamJurisdiction = input.jurisdiction_code;
-    const minSteel = minReinforcementArea({
-      code: beamJurisdiction,
-      fck: concretePreset.fck ?? fcu,
-      fy,
-      b: assumed_width,
-      d: required_depth_eff,
-    });
-    min_As = minSteel.areaMm2;
-    formulas.push(
-      `Min steel (${JURISDICTION_CODES[beamJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} × ${assumed_width} × ${required_depth_eff.toFixed(0)} = ${min_As.toFixed(0)} mm²`,
-    );
-  }
   if (doubly_reinforced) {
     warnings.push(
       "Section flagged as singly-reinforced-infeasible: increase depth or design compression reinforcement. Treat output as preliminary.",
@@ -1109,17 +820,6 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     shear_check_pass,
     deflection_check_pass,
     span_to_depth_ratio: Math.round(span_to_depth * 10) / 10,
-    ...(beamJurisdiction
-      ? {
-          jurisdiction_code: beamJurisdiction,
-          min_steel_ratio_percent:
-            Math.round(
-              ((min_As / (assumed_width * required_depth_eff)) * 100 +
-                Number.EPSILON) *
-                1000,
-            ) / 1000,
-        }
-      : {}),
     warnings,
     formula_transparency: formulas,
   };
@@ -1411,31 +1111,14 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
   // Steel area
   const z = 0.87 * eff_depth;
   const As = (max_moment * 1e6) / (0.87 * fy * z);
-  let min_As = (0.13 * 1000 * eff_depth) / 100;
-  let slabJurisdiction: JurisdictionCode | undefined;
-  if (input.jurisdiction_code) {
-    slabJurisdiction = input.jurisdiction_code;
-    const minSteel = minReinforcementArea({
-      code: slabJurisdiction,
-      fck: concretePreset.fck ?? fcu,
-      fy,
-      b: 1000,
-      d: eff_depth,
-    });
-    min_As = minSteel.areaMm2;
-    formulas.push(
-      `Min steel (${JURISDICTION_CODES[slabJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} × 1000 × ${eff_depth.toFixed(0)} = ${min_As.toFixed(0)} mm²/m`,
-    );
-  }
+  const min_As = (0.13 * 1000 * eff_depth) / 100;
   const final_As = Math.max(As, min_As);
   formulas.push(
     `Steel area = ${(max_moment * 1e6).toFixed(0)} / (0.87 × ${fy} × ${z}) = ${As.toFixed(0)} mm²/m`,
   );
-  if (!slabJurisdiction) {
-    formulas.push(
-      `Min steel = 0.13% × 1000 × ${eff_depth} = ${min_As.toFixed(0)} mm²/m`,
-    );
-  }
+  formulas.push(
+    `Min steel = 0.13% × 1000 × ${eff_depth} = ${min_As.toFixed(0)} mm²/m`,
+  );
 
   // Bar selection
   let bestDiameter = 10;
@@ -1504,15 +1187,6 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
     max_moment: Math.round(max_moment * 100) / 100,
     max_shear: Math.round(max_shear * 100) / 100,
     steel_area_required: Math.ceil(final_As),
-    ...(slabJurisdiction
-      ? {
-          jurisdiction_code: slabJurisdiction,
-          min_steel_ratio_percent:
-            Math.round(
-              ((min_As / (1000 * eff_depth)) * 100 + Number.EPSILON) * 1000,
-            ) / 1000,
-        }
-      : {}),
     recommended_bar_diameter: bestDiameter,
     recommended_bar_spacing: bestSpacing,
     link_check: shear_link_note,
@@ -1520,5 +1194,81 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
     deflection_check_pass,
     warnings,
     formula_transparency: formulas,
+  };
+}
+
+
+// ============================================================
+// PHASE 1: MULTI-CODE SHEAR CAPACITY & STRENGTH ENGINE
+// Supports: Eurocode 2 (EN 1992-1-1), ACI 318-19, BS 8110, IS 456
+// ============================================================
+
+export interface DesignShearCapacityInput {
+  standard: ConcreteStandardCode;
+  bwMm: number; // beam width mm
+  dMm: number; // effective depth mm
+  fckOrFcuMpa: number; // concrete characteristic strength MPa
+  asMm2: number; // tensile reinforcement area mm2
+  fyMpa?: number; // rebar yield strength MPa
+  axialForceKn?: number; // axial force in kN (positive = compression)
+}
+
+export interface DesignShearCapacityResult {
+  standard: ConcreteStandardCode;
+  vcMpa: number; // concrete design shear stress in MPa (N/mm2)
+  vcCapacityKn: number; // concrete design shear force in kN
+  minimumShearLinksRequired: boolean;
+  minLinkSpacingMm: number;
+  explanation: string;
+}
+
+export function computeDesignShearCapacity(
+  input: DesignShearCapacityInput,
+): DesignShearCapacityResult {
+  const { standard, bwMm, dMm, fckOrFcuMpa, asMm2 } = input;
+  const bw = Math.max(100, bwMm);
+  const d = Math.max(100, dMm);
+  const rho_l = Math.min(0.02, asMm2 / (bw * d)); // tension reinforcement ratio capped at 2%
+  const axialKn = input.axialForceKn ?? 0;
+  const sigma_cp = axialKn > 0 ? (axialKn * 1000) / (bw * d * 1.5) : 0; // axial stress in MPa
+
+  let vcMpa = 0.45;
+  let explanation = "";
+
+  if (standard === "aci_astm") {
+    // ACI 318-19: Simplified Vc = (0.17 * lambda * sqrt(f_c) + Nu / (6 * Ag)) * bw * d
+    // With f_c in MPa: 0.17 * sqrt(fck)
+    const lambda = 1.0; // normal weight concrete
+    const fc = fckOrFcuMpa;
+    vcMpa = 0.17 * lambda * Math.sqrt(fc) + (sigma_cp / 6);
+    explanation = `ACI 318-19: V_c = (0.17 * sqrt(${fc.toFixed(1)} MPa) + ${(sigma_cp/6).toFixed(2)}) * ${bw} * ${d} = ${(vcMpa * bw * d / 1000).toFixed(1)} kN`;
+  } else if (standard === "is_456") {
+    // IS 456:2000 Table 19 approximation for tau_c
+    const pt = rho_l * 100;
+    vcMpa = 0.85 * Math.sqrt(0.8 * fckOrFcuMpa) * (Math.sqrt(1 + 5 * pt) - 1) / (6 * pt || 1);
+    vcMpa = Math.max(0.28, Math.min(1.2, vcMpa));
+    explanation = `IS 456:2000 Table 19: tau_c = ${vcMpa.toFixed(2)} N/mm² (Pt = ${pt.toFixed(2)}%)`;
+  } else {
+    // Eurocode 2 / BS 8110:
+    // EC2: VRd,c = [CRd,c * k * (100 * rho_l * fck)^(1/3) + k1 * sigma_cp] * bw * d
+    const k = Math.min(2.0, 1 + Math.sqrt(200 / d));
+    const CRd_c = 0.18 / 1.5; // 0.12
+    const v_min = 0.035 * Math.pow(k, 1.5) * Math.sqrt(fckOrFcuMpa);
+    const basicVc = CRd_c * k * Math.cbrt(100 * rho_l * fckOrFcuMpa);
+    vcMpa = Math.max(v_min, basicVc) + 0.15 * sigma_cp;
+    explanation = `Eurocode 2 (EN 1992-1-1): v_Rd,c = max(${v_min.toFixed(2)}, ${basicVc.toFixed(2)}) = ${vcMpa.toFixed(2)} MPa`;
+  }
+
+  const vcCapacityKn = Math.round(((vcMpa * bw * d) / 1000) * 10) / 10;
+  // Maximum link spacing per code: 0.75d (BS/ACI/EC2) up to 300mm
+  const minLinkSpacingMm = Math.min(300, Math.round(0.75 * d / 25) * 25);
+
+  return {
+    standard,
+    vcMpa: Math.round(vcMpa * 100) / 100,
+    vcCapacityKn,
+    minimumShearLinksRequired: true,
+    minLinkSpacingMm,
+    explanation,
   };
 }

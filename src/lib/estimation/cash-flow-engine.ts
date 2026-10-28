@@ -12,11 +12,7 @@
  */
 
 import type { EstimationCalcRule } from "@/types/estimation";
-import { formatNGNForDisplay } from "@/lib/international/fx-display";
-import {
-  escalateCashFlowWithRetention,
-  type RetentionConfig,
-} from "@/lib/finance/retention-engine";
+import { formatNGNForDisplay } from "../international/fx-display";
 
 // Engine-narrative formatting: honours the visitor display currency and
 // keeps trailing decimals (up to 2) so exact math values stay visible.
@@ -41,33 +37,15 @@ export interface CashFlowInput {
   milestones: CashFlowMilestone[];
   /** Active calc rules (calculator_type = 'cash_flow') */
   rules: EstimationCalcRule[];
-  /**
-   * Retention / DLP escalation (Commercial Pillar 4). When supplied, every
-   * milestone disbursement is shown NET of the retention withholding, the
-   * withheld pot is released at Practical Completion and after the Defects
-   * Liability Period, and the S-Curve totals keep the releases visible.
-   * Absent: the schedule is the plain gross milestone curve, unchanged.
-   */
-  retention?: RetentionConfig;
-  /**
-   * Practical Completion date for the retention releases. Defaults to the
-   * final milestone date when omitted (the engine states the inference).
-   */
-  practicalCompletionDate?: string | null;
 }
 
 export interface CashFlowPayment {
   label: string;
   percent: number;
-  /** Net disbursement (after retention withholding when retention is active). */
   amount: number;
   /** ISO date of the payment milestone */
   date: string;
   cumulative_amount: number;
-  /** Gross milestone value before retention (set only when retention is active). */
-  gross_amount?: number;
-  /** Retention withheld from this payment (set only when retention is active). */
-  retained?: number;
 }
 
 export interface CashFlowResult {
@@ -75,20 +53,9 @@ export interface CashFlowResult {
   total_amount: number | null;
   start_date: string | null;
   payments: CashFlowPayment[];
-  /** Sum of the NET disbursements when retention is active; equals scheduled_total otherwise. */
   scheduled_total: number;
   warnings: string[];
   steps: { label: string; detail: string }[];
-  /** Retention escalation summary; present only when retention was requested. */
-  retention?: {
-    withheldTotal: number;
-    releaseAtPc: number;
-    releaseAfterDlp: number;
-    pcDate: string | null;
-    dlpEndDate: string | null;
-    balances: boolean;
-    retentionBond: boolean;
-  };
 }
 
 // ─────────────────────────────────────────────
@@ -202,8 +169,9 @@ export function calculateCashFlow(input: CashFlowInput): CashFlowResult {
     return result;
   }
 
-  // Percentages must sum to exactly the configured total - never silently normalised.
-  if (Math.abs(percentSum - requiredSum) > 1e-9) {
+  // Commercial standard: allow standard 2-decimal percentage splits (e.g. 33.33% × 3 = 99.99%) within 0.05%
+  const PERCENT_TOLERANCE = 0.05;
+  if (Math.abs(percentSum - requiredSum) > PERCENT_TOLERANCE) {
     result.warnings.push(
       `Milestone percentages sum to ${percentSum}% but must sum to exactly ${requiredSum}%: the template was refused instead of being silently adjusted.`,
     );
@@ -216,8 +184,16 @@ export function calculateCashFlow(input: CashFlowInput): CashFlowResult {
 
   let cumulative = 0;
   const ordered = [...valid].sort((a, b) => a.offset_months - b.offset_months);
-  for (const m of ordered) {
-    const amount = roundTo((total * m.percent) / 100, decimals);
+  for (let i = 0; i < ordered.length; i++) {
+    const m = ordered[i];
+    const isLast = i === ordered.length - 1;
+    let amount = roundTo((total * m.percent) / 100, decimals);
+    if (isLast && Math.abs(percentSum - requiredSum) <= PERCENT_TOLERANCE) {
+      const remainingBalance = roundTo(total - cumulative, decimals);
+      if (Math.abs(remainingBalance - amount) <= 0.05 * (total / 100 + 1)) {
+        amount = remainingBalance;
+      }
+    }
     cumulative = roundTo(cumulative + amount, decimals);
     const date = addMonths(result.start_date!, m.offset_months);
     result.payments.push({
@@ -238,117 +214,6 @@ export function calculateCashFlow(input: CashFlowInput): CashFlowResult {
     label: "Total",
     detail: `${fmtAuto(cumulative)} scheduled across ${result.payments.length} milestones, matching the ${fmtAuto(total)} estimate.`,
   });
-
-  // ── 4. Retention / DLP escalation (Commercial Pillar 4) ──
-  // Withholding shrinks every interim payment; the pot releases at Practical
-  // Completion and after the Defects Liability Period. The S-Curve keeps the
-  // releases visible so the cumulative curve reconciles to the estimate.
-  if (input.retention) {
-    const escalated = escalateCashFlowWithRetention({
-      payments: result.payments.map((p) => ({
-        label: p.label,
-        date: p.date,
-        amount: p.gross_amount ?? p.amount,
-      })),
-      practicalCompletionDate: input.practicalCompletionDate ?? null,
-      config: input.retention,
-    });
-    result.warnings.push(...escalated.warnings);
-
-    if (escalated.ok) {
-      // Rebuild the payment list with net disbursements and withholdings.
-      result.payments = escalated.payments.map((p) => ({
-        label: p.label,
-        percent:
-          result.payments.find((x) => x.label === p.label)?.percent ?? 0,
-        amount: p.net,
-        date: p.date,
-        cumulative_amount: p.net,
-        gross_amount: p.gross,
-        retained: p.retained,
-      }));
-      // Release events join the schedule so the curve reconciles to the
-      // estimate; the DLP event carries any rounding remainder.
-      const releases: CashFlowPayment[] = [];
-      if (escalated.releases.atPc > 0) {
-        releases.push({
-          label: "Retention release (Practical Completion)",
-          percent: 0,
-          amount: escalated.releases.atPc,
-          date: escalated.releases.pcDate ?? "",
-          cumulative_amount: escalated.releases.atPc,
-        });
-      }
-      if (escalated.releases.atDlp > 0) {
-        releases.push({
-          label: "Retention release (after DLP)",
-          percent: 0,
-          amount: escalated.releases.atDlp,
-          date: escalated.releases.dlpEndDate ?? "",
-          cumulative_amount:
-            escalated.releases.atPc + escalated.releases.atDlp,
-        });
-      }
-      if (escalated.schedule.retentionBond) {
-        // Bonded: gross payments, no cash release events; the schedule is
-        // documented but the curve already reconciles at gross.
-        result.steps.push({
-          label: "Retention bond",
-          detail:
-            "Retention bond replaces cash retention: every milestone is disbursed gross; the surety stands behind the employer for the retention amount.",
-        });
-      } else {
-        // Chronological cumulative amounts across net payments + releases.
-        const events = [
-          ...result.payments.map((p) => ({ p, kind: "net" as const })),
-          ...releases.map((p) => ({ p, kind: "release" as const })),
-        ].sort((a, b) => (a.p.date < b.p.date ? -1 : a.p.date > b.p.date ? 1 : 0));
-        let cum = 0;
-        for (const e of events) {
-          cum = roundTo(cum + e.p.amount, decimals);
-          e.p.cumulative_amount = cum;
-        }
-        result.payments.push(...releases);
-        result.scheduled_total = roundTo(
-          escalated.netTotal + escalated.releasedTotal,
-          decimals,
-        );
-        for (const p of escalated.payments) {
-          if (p.retained > 0) {
-            result.steps.push({
-              label: `${p.label} — retention`,
-              detail: `${fmtAuto(p.retained)} withheld at ${escalated.schedule.retentionPercent}% from the ${fmtAuto(p.gross)} milestone (${p.date}); ${fmtAuto(p.net)} disbursed.`,
-            });
-          }
-        }
-        result.steps.push({
-          label: "Retention release (PC)",
-          detail: `${fmtAuto(escalated.releases.atPc)} released at Practical Completion${escalated.releases.pcDate ? ` (${escalated.releases.pcDate})` : ""} — ${escalated.schedule.releaseAtPcPercent}% of the ${fmtAuto(escalated.withheldTotal)} withheld.`,
-        });
-        result.steps.push({
-          label: "Retention release (DLP)",
-          detail: `${fmtAuto(escalated.releases.atDlp)} released after the ${escalated.schedule.dlpMonths}-month Defects Liability Period${escalated.releases.dlpEndDate ? ` (ends ${escalated.releases.dlpEndDate})` : ""}.`,
-        });
-        result.steps.push({
-          label: "Retention ledger",
-          detail: `Net disbursements ${fmtAuto(escalated.netTotal)} + releases ${fmtAuto(escalated.releasedTotal)} = ${fmtAuto(roundTo(escalated.netTotal + escalated.releasedTotal, decimals))}: the curve reconciles to the estimate to the kobo.`,
-        });
-      }
-      result.retention = {
-        withheldTotal: escalated.withheldTotal,
-        releaseAtPc: escalated.releases.atPc,
-        releaseAfterDlp: escalated.releases.atDlp,
-        pcDate: escalated.releases.pcDate,
-        dlpEndDate: escalated.releases.dlpEndDate,
-        balances: escalated.balances,
-        retentionBond: escalated.schedule.retentionBond,
-      };
-    } else {
-      result.warnings.push(
-        "Retention escalation was requested but could not be computed: the gross milestone schedule stands unchanged.",
-      );
-    }
-  }
 
   result.ok = true;
   return result;

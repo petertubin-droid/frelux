@@ -1678,7 +1678,7 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     classification: "independent_engine",
     sourceFiles: [
       "src/lib/estimation/foundation-engine.ts",
-      "src/lib/engineering/foundation-design.ts",
+      "src/lib/engineering/foundation-calculator.ts",
     ],
     consumers: ["src/pages/calculator/FoundationCalculator.tsx"],
     dependencies: ["src/lib/estimation/construction-typologies.ts"],
@@ -1790,7 +1790,7 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     name: "Structural Concrete Elements Engine",
     category: "structural",
     classification: "independent_engine",
-    sourceFiles: ["src/lib/engineering/structural-design.ts"],
+    sourceFiles: ["src/lib/engineering/structural-calculator.ts"],
     consumers: ["src/pages/calculator/StructuralCalculator.tsx"],
     dependencies: ["src/lib/estimation/construction-typologies.ts"],
     calculationPurpose:
@@ -3182,8 +3182,8 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     category: "costing_commercial",
     classification: "workflow_orchestration",
     sourceFiles: [
-      "src/lib/engineering/sequence-engine.ts",
-      "src/lib/engineering/timeline-engine.ts",
+      "src/lib/engineering/sequence-planner.ts",
+      "src/lib/measurement/timeline-engine.ts",
     ],
     consumers: ["src/pages/calculator/SequenceCalculator.tsx"],
     dependencies: [],
@@ -4146,19 +4146,16 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     name: "Cash Flow & Milestone Disbursement Engine",
     category: "costing_commercial",
     classification: "independent_engine",
-    sourceFiles: [
-      "src/lib/estimation/cash-flow-engine.ts",
-      "src/lib/finance/retention-engine.ts",
-    ],
+    sourceFiles: ["src/lib/estimation/cash-flow-engine.ts"],
     consumers: [
-      "src/pages/CashFlowTimeline.tsx",
+      "src/pages/calculator/CashFlowCalculator.tsx",
       "src/pages/admin/AdminCashFlowTemplates.tsx",
     ],
     dependencies: [],
     calculationPurpose:
-      "Calculates project milestone drawdowns, contractor retention withholdings (e.g. 5%), retention-bond substitution, DLP release schedules, and monthly cash outflow curves.",
+      "Calculates project milestone drawdowns, contractor retention withholdings (e.g. 5%), release schedules, and monthly cash outflow curves.",
     keyFormulas:
-      "Disbursement = MilestoneValue * (1 - RetentionRate); ReleaseAtPC = Withheld * ReleaseShare; ReleaseAfterDLP = Withheld - ReleaseAtPC; S-Curve Cumulative CashFlow = sum(NetDisbursements + Releases)",
+      "Disbursement = MilestoneValue * (1 - RetentionRate); S-Curve Cumulative CashFlow = sum(MonthlyDisbursements)",
     marketAssumptions:
       "Standard financial accounting logic valid globally across all currencies.",
     internationalizationStatus: "verified_full",
@@ -4512,21 +4509,16 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
     name: "Embodied Carbon & LCA Engine",
     category: "costing_commercial",
     classification: "independent_engine",
-    sourceFiles: [
-      "src/lib/estimation/embodied-carbon-engine.ts",
-      "src/lib/estimation/whole-life-carbon.ts",
-      "src/lib/estimation/ec3-epd.ts",
-      "supabase/functions/ec3-epd-lookup/index.ts",
-    ],
+    sourceFiles: ["src/lib/estimation/embodied-carbon-engine.ts"],
     consumers: [
-      "src/pages/CarbonFootprint.tsx",
+      "src/pages/calculator/EmbodiedCarbonCalculator.tsx",
       "src/pages/admin/AdminCarbonFactors.tsx",
     ],
     dependencies: [],
     calculationPurpose:
-      "Calculates embodied carbon per material line with RICS/EN 15978 whole life module breakdown (A1-A3, A4-A5, B1-B7, C1-C4, D) and plant-specific verified EPD factors from the Building Transparency EC3 API, replacing static admin estimates wherever a declaration covers the material.",
+      "Calculates cradle-to-gate upfront embodied carbon (A1-A3) and transport carbon (A4) in kg CO2e per material line item.",
     keyFormulas:
-      "EmbodiedCarbonKgCO2e = sum(MaterialMassKg * CarbonEmissionFactorKgCO2ePerKg); WholeLifeBreakdown = per-module aggregation with UpfrontCarbon = A1-A5, UseStageEmbodied = B1-B5, Operational = B6-B7, EndOfLife = C1-C4, ModuleD disclosed separately; EpdFactor supersedes AdminFactor per category when a verified declaration is available",
+      "EmbodiedCarbonKgCO2e = sum(MaterialMassKg * CarbonEmissionFactorKgCO2ePerKg); TransportCarbon = MassTonnes * DistanceKm * FreightEmissionFactor",
     marketAssumptions:
       "Regional grid electricity emission factors and local cement clinker ratios (e.g. higher clinker substitution in EU than US).",
     internationalizationStatus: "verified_full",
@@ -4819,254 +4811,6 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
         status: "verified",
         notes:
           "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
-      },
-      JP: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
-      },
-      FR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
-      },
-      BR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
-      },
-      SA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
-      },
-      AE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
-      },
-      CN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
-      },
-      ID: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
-      },
-      MX: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
-      },
-      KR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
-      },
-      IT: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
-      },
-    },
-  },
-  {
-    id: "governance_audit",
-    name: "Enterprise Governance, Security & Auditability Engine",
-    category: "costing_commercial",
-    classification: "independent_engine",
-    sourceFiles: [
-      "src/lib/governance/audit-chain.ts",
-      "src/lib/governance/approval-hierarchy.ts",
-      "src/lib/governance/compliance-readiness.ts",
-    ],
-    consumers: [
-      "supabase/migrations/20261027210000_governance_audit_approvals.sql",
-    ],
-    dependencies: [],
-    calculationPurpose:
-      "Append-only hash-chained audit log over every estimation rule modification (dimensions, formula variables, waste factors, labor rates) with actor, mandatory rationale and field diff; multi-stage approval hierarchy (Draft -> Lead Estimator -> Commercial Director -> dual executive sign-off over threshold -> Tender Issued); SOC 2 / ISO 27001 readiness with CMEK enforcement and strict tenancy boundary validation.",
-    keyFormulas:
-      "entry_hash = sha256(prev_entry_hash || payload) with payload = v1<US>prev<US>actor<US>action<US>entityType<US>entityRef<US>rationale<US>diffCanonical<US>recordedAtUtc; dual sign-off required when effective total >= policy threshold (default USD 500,000); CMEK coverage = active scopes / declared scopes",
-    marketAssumptions:
-      "Audit trail append-only by DB trigger for every role including service role; rationale mandatory on every rule modification; approval stage graph forward-only and database-enforced; Type II operating-period evidence accrues in production and is never fabricated.",
-    internationalizationStatus: "verified_full",
-    marketMatrix: {
-      NG: {
-        status: "verified",
-        notes:
-          "Verified for NG: governance applies to all markets; NG tenant scope under strict tenancy policy.",
-      },
-      US: {
-        status: "verified",
-        notes:
-          "Verified for US: SOC 2 Type II control map seeded; USD 500,000 dual-signoff threshold default.",
-      },
-      GB: {
-        status: "verified",
-        notes:
-          "Verified for GB: ISO 27001 Annex A control map; UK tenancy residency declarations supported.",
-      },
-      CA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
-      },
-      AU: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AU with validated currency and jurisdiction rules.",
-      },
-      DE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
-      },
-      IN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
-      },
-      GH: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
-      },
-      KE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
-      },
-      ZA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ZA with validated currency and jurisdiction rules.",
-      },
-      JP: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for JP with validated currency and jurisdiction rules.",
-      },
-      FR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for FR with validated currency and jurisdiction rules.",
-      },
-      BR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for BR with validated currency and jurisdiction rules.",
-      },
-      SA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for SA with validated currency and jurisdiction rules.",
-      },
-      AE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for AE with validated currency and jurisdiction rules.",
-      },
-      CN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CN with validated currency and jurisdiction rules.",
-      },
-      ID: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for ID with validated currency and jurisdiction rules.",
-      },
-      MX: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for MX with validated currency and jurisdiction rules.",
-      },
-      KR: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KR with validated currency and jurisdiction rules.",
-      },
-      IT: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IT with validated currency and jurisdiction rules.",
-      },
-    },
-  },
-  {
-    id: "rfq_punchout",
-    name: "Merchant Punchout & Automated RFQ Engine",
-    category: "costing_commercial",
-    classification: "independent_engine",
-    sourceFiles: [
-      "src/lib/procurement/punchout-cxml.ts",
-      "src/lib/procurement/punchout-oci.ts",
-      "src/lib/procurement/rfq-engine.ts",
-    ],
-    consumers: [
-      "src/lib/procurement/records.ts",
-    ],
-    dependencies: ["src/lib/procurement/purchase-orders.ts", "src/lib/procurement/state-machine.ts"],
-    calculationPurpose:
-      "Integrates merchant trade portals via cXML 1.2 and SAP OCI punchout protocols (Home Depot Pro, Buildbase UK, Bunnings Trade AU, Builders Warehouse ZA style portals) and transforms approved estimates into itemized RFQs distributed to 3 competing local suppliers in one click, with validated quote comparison and award into purchase orders.",
-    keyFormulas:
-      "PunchOutSetupRequest/OrderMessage per cXML 1.2 (BuyerCookie session-tamper check, total-vs-line-sum reconciliation); OCI hook params + NEW_ITEM-* cart blocks (PRICEUNIT honoured); RfqTotal = sum(OrderQuantity x QuotedUnitPrice); ranking restricted to full-coverage quotes so partial quotes never win on price",
-    marketAssumptions:
-      "Punchout credentials are admin-configured per merchant (merchant_punchout_configs, admin-only RLS); competition standard is 3 suppliers with honest warnings on shortfall.",
-    internationalizationStatus: "verified_full",
-    marketMatrix: {
-      NG: {
-        status: "verified",
-        notes:
-          "Verified for NG: RFQ distribution to local Nigerian suppliers with packaging-aware line items.",
-      },
-      US: {
-        status: "verified",
-        notes:
-          "Verified for US: cXML 1.2 punchout per Home Depot Pro style trade portals.",
-      },
-      GB: {
-        status: "verified",
-        notes:
-          "Verified for GB: cXML punchout and 3-supplier RFQ competition per UK merchant norms.",
-      },
-      CA: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for CA with validated currency and jurisdiction rules.",
-      },
-      AU: {
-        status: "verified",
-        notes:
-          "Verified for AU: SAP OCI punchout per Bunnings Trade style portals.",
-      },
-      DE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for DE with validated currency and jurisdiction rules.",
-      },
-      IN: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for IN with validated currency and jurisdiction rules.",
-      },
-      GH: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for GH with validated currency and jurisdiction rules.",
-      },
-      KE: {
-        status: "verified",
-        notes:
-          "Fully internationalized and verified for KE with validated currency and jurisdiction rules.",
-      },
-      ZA: {
-        status: "verified",
-        notes:
-          "Verified for ZA: OCI/cXML punchout per Builders Warehouse style trade portals.",
       },
       JP: {
         status: "verified",
