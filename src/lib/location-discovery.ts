@@ -410,53 +410,48 @@ export async function adminUpdateLocationCoords(
   return !error;
 }
 
-// -- Admin: update category SEO --
+
+// Shared admin SEO update: same contract for categories, listings and pro
+// profiles (previously three copy-pasted bodies).
+async function adminUpdateSeoByTable(
+  table: "pro_categories" | "marketplace_listings" | "pro_profiles",
+  id: string,
+  seo: {
+    seo_title?: string;
+    seo_description?: string;
+    seo_indexable?: boolean;
+  },
+): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase.from(table).update(seo).eq("id", id);
+  return !error;
+}
+
+type AdminSeoUpdate = {
+  seo_title?: string;
+  seo_description?: string;
+  seo_indexable?: boolean;
+};
+
+// -- Admin: update category / listing / pro profile SEO --
 export async function adminUpdateCategorySeo(
   id: string,
-  seo: {
-    seo_title?: string;
-    seo_description?: string;
-    seo_indexable?: boolean;
-  },
+  seo: AdminSeoUpdate,
 ): Promise<boolean> {
-  if (!isSupabaseConfigured) return false;
-  const { error } = await supabase
-    .from("pro_categories")
-    .update(seo)
-    .eq("id", id);
-  return !error;
+  return adminUpdateSeoByTable("pro_categories", id, seo);
 }
 
-// -- Admin: update listing SEO --
 export async function adminUpdateListingSeo(
   id: string,
-  seo: {
-    seo_title?: string;
-    seo_description?: string;
-    seo_indexable?: boolean;
-  },
+  seo: AdminSeoUpdate,
 ): Promise<boolean> {
-  if (!isSupabaseConfigured) return false;
-  const { error } = await supabase
-    .from("marketplace_listings")
-    .update(seo)
-    .eq("id", id);
-  return !error;
+  return adminUpdateSeoByTable("marketplace_listings", id, seo);
 }
 
-// -- Admin: update pro profile SEO --
 export async function adminUpdateProProfileSeo(
   id: string,
-  seo: {
-    seo_title?: string;
-    seo_description?: string;
-    seo_indexable?: boolean;
-  },
+  seo: AdminSeoUpdate,
 ): Promise<boolean> {
-  if (!isSupabaseConfigured) return false;
-  const { error } = await supabase
-    .from("pro_profiles")
-    .update(seo)
-    .eq("id", id);
-  return !error;
+  return adminUpdateSeoByTable("pro_profiles", id, seo);
 }
+

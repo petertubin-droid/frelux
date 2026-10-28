@@ -10,6 +10,10 @@
  * Labour: Not included, negotiated separately.
  */
 
+import { roundForDisplay as round } from "./measurement/geometry";
+
+export { round };
+
 export type FinishType = "painting" | "tyrolene" | "grafitex";
 
 export interface FinishMaterialConfig {
@@ -85,11 +89,7 @@ export interface FinishCalcResult {
 /**
  * Round a number to a specified number of decimal places (default 2).
  */
-export function round(value: number, decimals: number = 2): number {
-  if (!isFinite(value) || isNaN(value)) return 0;
-  const factor = Math.pow(10, decimals);
-  return Math.round((value + Number.EPSILON) * factor) / factor;
-}
+
 
 /**
  * Returns default coats for a given finish type.

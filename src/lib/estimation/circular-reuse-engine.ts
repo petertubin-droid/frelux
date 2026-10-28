@@ -20,6 +20,7 @@
 // Display formatting only (no engine logic): honours the visitor
 // display currency; NGN renders exactly as before.
 import { formatNGNForDisplay } from "@/lib/international/fx-display";
+import { ruleNumber as getRuleValue } from "./shared/rule-value";
 
 // Engine-narrative formatting: honours the visitor display currency and
 // keeps trailing decimals (up to 2) so exact math values stay visible.
@@ -64,15 +65,7 @@ export interface CircularReuseResult {
   reuse_value_naira: number | null;
 }
 
-function getRuleValue(rules: CircularReuseRule[], key: string): number | null {
-  for (const r of rules) {
-    if (r.rule_key !== key) continue;
-    const v = r.rule_value?.value;
-    const n = typeof v === "number" ? v : Number(v);
-    if (Number.isFinite(n)) return n;
-  }
-  return null;
-}
+
 
 export function calculateCircularReuse(
   input: CircularReuseInput,

@@ -6,7 +6,6 @@
  * execute physical formulas and calculations deterministically without hallucination.
  */
 
-import type { EngineResult } from "./types";
 import { getCountryCurrency } from "@/lib/international/countries";
 import { registerEngine, quantityLine } from "./engines-registry";
 import {
@@ -18,35 +17,12 @@ import type {
   EstimationCalcRule,
   EstimationMaterial,
 } from "@/types/estimation";
+import { engineOk, engineFail } from "./engine-result";
 
 /** Shared result scaffolding so every adapter returns a valid EngineResult. */
-function engineOk(
-  id: string,
-  quantities: EngineResult["quantities"],
-  costs: EngineResult["costs"],
-  raw: unknown,
-): EngineResult {
-  return {
-    ok: true,
-    engine: id,
-    calculatedAt: new Date().toISOString(),
-    quantities,
-    costs,
-    raw,
-  };
-}
 
-function engineFail(id: string, error: string): EngineResult {
-  return {
-    ok: false,
-    engine: id,
-    calculatedAt: new Date().toISOString(),
-    quantities: [],
-    costs: null,
-    raw: null,
-    error,
-  };
-}
+
+
 
 /**
  * Build the slug -> price map the electrical/plumbing engines expect, from

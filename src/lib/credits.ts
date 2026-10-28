@@ -951,29 +951,15 @@ export async function adminUpdateAdConfig(
 }
 
 export async function adminGetRewardedAdConfig(): Promise<RewardedAdCreditConfig | null> {
-  if (!isSupabaseConfigured) return null;
-  const supabase = await getSupabase();
-  const { data, error } = await supabase
-    .from("rewarded_ad_credit_config")
-    .select("*")
-    .eq("id", 1)
-    .maybeSingle();
-  if (error || !data) return null;
-  return data as RewardedAdCreditConfig;
+  // Same row the user-side helper reads; admin callers are still gated by
+  // RLS policies on rewarded_ad_credit_config.
+  return getRewardedAdConfig();
 }
-
 export async function adminGetAllAdCreditEvents(
   limit = 50,
 ): Promise<RewardedAdCreditEvent[]> {
-  if (!isSupabaseConfigured) return [];
-  const supabase = await getSupabase();
-  const { data, error } = await supabase
-    .from("rewarded_ad_credit_events")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  if (error) return [];
-  return (data ?? []) as RewardedAdCreditEvent[];
+  // Same table/query as the user history helper with an admin default limit.
+  return getRewardedAdHistory(limit);
 }
 
 export async function adminGetAllAiFeatureUsage(limit = 50): Promise<

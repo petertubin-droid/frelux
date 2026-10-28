@@ -161,7 +161,7 @@ export function usePaintingWeather(
   return data;
 }
 
-function ratePaintingConditions(
+export function ratePaintingConditions(
   humidity: number,
   precip: number,
   wind: number,
@@ -183,7 +183,7 @@ function getPaintNote(humidity: number, precip: number, wind: number): string {
   return "Good conditions for painting";
 }
 
-function mapWeatherIcon(condition: string): string {
+export function mapWeatherIcon(condition: string): string {
   const map: Record<string, string> = {
     Clear: "☀️",
     Clouds: "☁️",

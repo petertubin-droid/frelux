@@ -22,6 +22,10 @@
  *    any rounding remainder carried on the DLP release (the final event).
  */
 
+import { addMonthsIso } from "../shared/dates";
+
+export { addMonthsIso };
+
 export interface RetentionConfig {
   /** Retention withheld from each payment, in percent. Default 5. */
   retentionPercent?: number;
@@ -72,19 +76,7 @@ export interface RetentionSchedule {
 const round2 = (v: number) => Math.round(v * 100) / 100;
 
 /** Add whole months to an ISO date, clamping month-overflow. */
-export function addMonthsIso(iso: string, months: number): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  const target = new Date(d.getTime());
-  const day = target.getUTCDate();
-  target.setUTCDate(1);
-  target.setUTCMonth(target.getUTCMonth() + months);
-  const last = new Date(
-    Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0),
-  ).getUTCDate();
-  target.setUTCDate(Math.min(day, last));
-  return target.toISOString().slice(0, 10);
-}
+
 
 /**
  * Compute a retention schedule for a contract. `withheldTotal` is supplied

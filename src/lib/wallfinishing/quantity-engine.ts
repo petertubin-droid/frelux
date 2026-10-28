@@ -30,7 +30,9 @@ import type {
   WallSpec,
   WallSpecOverrides,
 } from "@/types/wallfinishing";
-import { calculateOpeningAreas } from "./openings";
+import { calculateOpeningAreas, round } from "./openings";
+
+export { round };
 import { resolveAssemblyLayers } from "./assembly-overrides";
 
 /** Dry-volume factor for wet mortar (standard shrinkage allowance). */
@@ -455,7 +457,4 @@ function emptyLayerResult(
   };
 }
 
-export function round(v: number, d: number): number {
-  const f = Math.pow(10, d);
-  return Math.round(v * f) / f;
-}
+

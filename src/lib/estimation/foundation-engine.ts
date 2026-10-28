@@ -28,6 +28,7 @@
 
 import type { CalcRuleRow } from "./count-vision-engine";
 import { CEMENT_BAG_WEIGHT_BY_MARKET } from "./plastering-standalone-engine";
+import { ceilU } from "./shared/purchase-rounding";
 
 
 // ─────────────────────────────────────────────
@@ -183,9 +184,7 @@ function money(v: number): number {
   return Math.round(v * 100) / 100;
 }
 
-function ceilU(v: number): number {
-  return Math.ceil(v - Math.max(1e-9, Math.abs(v) * 1e-12));
-}
+
 
 function roundTo(v: number, dp: number): number {
   const f = 10 ** dp;

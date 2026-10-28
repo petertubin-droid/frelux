@@ -13,6 +13,7 @@
  */
 
 import type { EstimationCalcRule } from "@/types/estimation";
+import { roundTo, ruleNumber } from "./shared/rule-value";
 
 // ─────────────────────────────────────────────
 // Contracts
@@ -62,20 +63,9 @@ export interface LabourResult {
 // Helpers
 // ─────────────────────────────────────────────
 
-function roundTo(v: number, decimals: number): number {
-  const f = Math.pow(10, decimals);
-  return Math.round(v * f) / f;
-}
 
-function ruleNumber(
-  rules: EstimationCalcRule[],
-  key: string,
-  fallback: number,
-): number {
-  const r = rules.find((x) => x.rule_key === key && x.is_active !== false);
-  const v = Number((r?.rule_value as Record<string, unknown> | null)?.value);
-  return Number.isFinite(v) ? v : fallback;
-}
+
+
 
 // ─────────────────────────────────────────────
 // Engine

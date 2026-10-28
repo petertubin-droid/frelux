@@ -71,7 +71,7 @@ export function validateOpening(o: OpeningInput): string | null {
   return null;
 }
 
-function round(v: number, d: number): number {
+export function round(v: number, d: number): number {
   const f = Math.pow(10, d);
   return Math.round(v * f) / f;
 }

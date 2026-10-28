@@ -13,6 +13,7 @@
 
 import type { EstimationCalcRule } from "@/types/estimation";
 import { formatNGNForDisplay } from "@/lib/international/fx-display";
+import { roundTo, ruleNumber } from "./shared/rule-value";
 
 // Engine-narrative formatting: honours the visitor display currency and
 // keeps trailing decimals (up to 2) so exact math values stay visible.
@@ -56,16 +57,9 @@ export interface MarginResult {
 // Helpers
 // ─────────────────────────────────────────────
 
-function roundTo(v: number, decimals: number): number {
-  const f = Math.pow(10, decimals);
-  return Math.round(v * f) / f;
-}
 
-function ruleNumber(rules: EstimationCalcRule[], key: string): number | null {
-  const r = rules.find((x) => x.rule_key === key && x.is_active !== false);
-  const v = Number((r?.rule_value as Record<string, unknown> | null)?.value);
-  return r && Number.isFinite(v) ? v : null;
-}
+
+
 
 // ─────────────────────────────────────────────
 // Engine

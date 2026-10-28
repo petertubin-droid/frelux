@@ -30,6 +30,7 @@
 // Display formatting only (no engine logic): honours the visitor
 // display currency; NGN renders exactly as before.
 import { formatNGNForDisplay } from "@/lib/international/fx-display";
+import { ruleNumber as getRuleValue } from "./shared/rule-value";
 
 // Engine-narrative formatting: honours the visitor display currency and
 // keeps trailing decimals (up to 2) so exact math values stay visible.
@@ -185,15 +186,7 @@ const COMPONENT_LABELS: Record<string, { label: string; unit: string }> = {
   battery_unit: { label: "Battery units", unit: "unit" },
 };
 
-function getRuleValue(rules: SolarPvRule[], key: string): number | null {
-  for (const r of rules) {
-    if (r.rule_key !== key) continue;
-    const v = r.rule_value?.value;
-    const n = typeof v === "number" ? v : Number(v);
-    if (Number.isFinite(n)) return n;
-  }
-  return null;
-}
+
 
 export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   const warnings: string[] = [];

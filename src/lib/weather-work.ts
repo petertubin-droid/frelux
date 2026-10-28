@@ -6,7 +6,11 @@
 
 import { useState, useEffect } from "react";
 import type { WeatherDay } from "./weather";
-import { generateEstimatedWeather } from "./weather";
+import {
+  generateEstimatedWeather,
+  ratePaintingConditions,
+  mapWeatherIcon,
+} from "./weather";
 import {
   DEFAULT_WEATHER_LOCATION,
   type WeatherLocation,
@@ -243,33 +247,6 @@ export function useWorkWeather(
   return data;
 }
 
-// --- Helpers (mirrored from weather.ts to avoid circular dependency) ---
-// (estimated-day generation now lives in weather.ts, location-aware)
-
-function ratePaintingConditions(
-  humidity: number,
-  precip: number,
-  wind: number,
-): "good" | "fair" | "poor" {
-  if (precip > 2) return "poor";
-  if (humidity > 85) return "poor";
-  if (humidity > 70 || precip > 0.5 || wind > 8) return "fair";
-  return "good";
-}
-
-function mapWeatherIcon(condition: string): string {
-  const map: Record<string, string> = {
-    Clear: "☀️",
-    Clouds: "☁️",
-    Rain: "🌧️",
-    Drizzle: "🌦️",
-    Thunderstorm: "⛈️",
-    Mist: "🌫️",
-    Fog: "🌫️",
-    Haze: "🌫️",
-  };
-  return map[condition] ?? "🌤️";
-}
 
 interface ForecastEntry {
   main: { temp: number; humidity: number };

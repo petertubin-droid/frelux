@@ -27,6 +27,7 @@
  */
 
 import type { CalcRuleRow } from "./count-vision-engine";
+import { ceilM } from "./shared/purchase-rounding";
 
 // ─────────────────────────────────────────────
 // Rules
@@ -161,9 +162,7 @@ function money(v: number): number {
   return Math.round(v * 100) / 100;
 }
 
-function ceilM(v: number): number {
-  return Math.ceil(v - Math.max(1e-9, Math.abs(v) * 1e-12));
-}
+
 
 function roundTo(v: number, dp: number): number {
   const f = 10 ** dp;

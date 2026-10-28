@@ -16,6 +16,7 @@
  */
 
 import type { EstimationCalcRule } from "@/types/estimation";
+import { roundTo, ruleNumber } from "./shared/rule-value";
 
 // ─────────────────────────────────────────────
 // Contracts
@@ -62,16 +63,9 @@ export interface HeatComfortResult {
 // Helpers
 // ─────────────────────────────────────────────
 
-function roundTo(v: number, dp: number): number {
-  const m = Math.pow(10, dp);
-  return Math.round(v * m) / m;
-}
 
-function ruleNumber(rules: EstimationCalcRule[], key: string): number | null {
-  const r = rules.find((x) => x.rule_key === key && x.is_active !== false);
-  const v = Number((r?.rule_value as Record<string, unknown> | null)?.value);
-  return Number.isFinite(v) ? v : null;
-}
+
+
 
 const MAX_DP = 4;
 const SQFT_TO_M2 = 0.092903;

@@ -14,6 +14,7 @@
 
 import { supabase } from '@/lib/supabase';
 import type { DbUserPaidStatus } from '@/types/database';
+import { isSubscriptionActive } from '@/lib/subscription';
 import type {
   EstimationAccessConfig,
   EstimationUsageStatus,
@@ -132,12 +133,8 @@ export async function getEstimationUsageStatus(
  * server-side check using the service role key.
  */
 export function checkUserPaidStatus(paidStatus: DbUserPaidStatus | null): boolean {
-  if (!paidStatus || !paidStatus.is_paid) return false;
-  if (paidStatus.paid_until) {
-    const expiry = new Date(paidStatus.paid_until).getTime();
-    if (Date.now() > expiry) return false;
-  }
-  return true;
+  // Single source of truth lives in subscription.ts.
+  return isSubscriptionActive(paidStatus);
 }
 
 // ── Check whether user can use the feature right now ──

@@ -75,8 +75,14 @@ import {
   getOpeningDeductionMode,
   getRevealDepthMm,
   tradePracticeOpeningDeduction,
+  calculateWallArea,
+  calculateOpeningArea,
+  calculateCeilingArea,
 } from "./paint-engine";
 export {
+  calculateWallArea,
+  calculateOpeningArea,
+  calculateCeilingArea,
   getOpeningDeductionMode,
   getRevealDepthMm,
   tradePracticeOpeningDeduction,
@@ -285,43 +291,6 @@ const CALCULATOR_TYPE = "painting";
 
 function toMeters(value: number, unit: Unit): number {
   return unitToMeters(value, unit);
-}
-
-export function calculateWallArea(
-  lengthM: number,
-  breadthM: number,
-  heightM: number,
-): number {
-  const safeL = Math.max(0, lengthM);
-  const safeB = Math.max(0, breadthM);
-  const safeH = Math.max(0, heightM);
-  if (safeL === 0 || safeH === 0) return 0;
-  if (safeB === 0) return 2 * safeL * safeH;
-  const perimeter = 2 * (safeL + safeB);
-  return Math.round(perimeter * safeH * 100) / 100;
-}
-
-export function calculateOpeningArea(
-  openings: OpeningInput[],
-  unit: Unit = "feet",
-): number {
-  if (!openings || openings.length === 0) return 0;
-  let total = 0;
-  for (const opening of openings) {
-    const w = toMeters(opening.width, unit);
-    const h = toMeters(opening.height, unit);
-    const area =
-      Math.max(0, w) * Math.max(0, h) * Math.max(0, opening.quantity);
-    total += area;
-  }
-  return Math.round(total * 100) / 100;
-}
-
-export function calculateCeilingArea(
-  lengthM: number,
-  breadthM: number,
-): number {
-  return Math.round(Math.max(0, lengthM) * Math.max(0, breadthM) * 100) / 100;
 }
 
 export function litresToBuckets(

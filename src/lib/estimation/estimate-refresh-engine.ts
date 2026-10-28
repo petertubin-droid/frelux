@@ -23,6 +23,7 @@
  */
 
 import type { EstimationCalcRule } from "@/types/estimation";
+import { ruleDecimals } from "./shared/rule-value";
 
 // ─────────────────────────────────────────────
 // Contracts
@@ -105,13 +106,7 @@ function roundMoney(v: number): number {
   return Math.round(v * 100) / 100;
 }
 
-function ruleDecimals(rules: EstimationCalcRule[]): number {
-  const r = rules.find(
-    (x) => x.rule_key === "rounding_decimals" && x.is_active !== false,
-  );
-  const v = Number((r?.rule_value as Record<string, unknown> | null)?.value);
-  return Number.isFinite(v) ? Math.max(0, Math.min(6, Math.trunc(v))) : 2;
-}
+
 
 function priceKey(priceType: string, refId: string): string {
   return `${priceType}:${refId}`;

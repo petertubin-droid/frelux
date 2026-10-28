@@ -12,7 +12,6 @@
  * country/market instead of guessing.
  */
 
-import type { EngineResult } from "./types";
 import { registerEngine, quantityLine } from "./engines-registry";
 import {
   fetchCalcRules,
@@ -37,34 +36,11 @@ import type {
   WorkforceSize,
   Season,
 } from "@/lib/engineering/timeline-estimator";
+import { engineOk, engineFail } from "./engine-result";
 
-function engineOk(
-  id: string,
-  quantities: EngineResult["quantities"],
-  costs: EngineResult["costs"],
-  raw: unknown,
-): EngineResult {
-  return {
-    ok: true,
-    engine: id,
-    calculatedAt: new Date().toISOString(),
-    quantities,
-    costs,
-    raw,
-  };
-}
 
-function engineFail(id: string, error: string): EngineResult {
-  return {
-    ok: false,
-    engine: id,
-    calculatedAt: new Date().toISOString(),
-    quantities: [],
-    costs: null,
-    raw: null,
-    error,
-  };
-}
+
+
 
 /** Shared structural line shape used by all three engines. */
 interface StructuralLine {

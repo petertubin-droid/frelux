@@ -29,6 +29,7 @@
  */
 
 import type { CalcRuleRow } from "./count-vision-engine";
+import { ceilM } from "./shared/purchase-rounding";
 
 // ─────────────────────────────────────────────
 // Rules - admin-configured planning behaviour
@@ -309,10 +310,7 @@ function money(v: number): number {
   return Math.round(v * 100) / 100;
 }
 
-function ceilM(v: number): number {
-  // whole metres; scale-aware epsilon guards float dust at any magnitude
-  return Math.ceil(v - Math.max(1e-9, Math.abs(v) * 1e-12));
-}
+
 
 // ─────────────────────────────────────────────
 // Engine

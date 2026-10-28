@@ -17,6 +17,10 @@ import {
   escalateCashFlowWithRetention,
   type RetentionConfig,
 } from "../finance/retention-engine";
+import { roundTo } from "./shared/rule-value";
+import { addMonthsIso as addMonths } from "../shared/dates";
+
+export { addMonths };
 
 // Engine-narrative formatting: honours the visitor display currency and
 // keeps trailing decimals (up to 2) so exact math values stay visible.
@@ -95,10 +99,7 @@ export interface CashFlowResult {
 // Helpers
 // ─────────────────────────────────────────────
 
-function roundTo(v: number, decimals: number): number {
-  const f = Math.pow(10, decimals);
-  return Math.round(v * f) / f;
-}
+
 
 function ruleValue(
   rules: EstimationCalcRule[],
@@ -111,20 +112,7 @@ function ruleValue(
 }
 
 /** Add whole months to an ISO date, clamping month-overflow (Jan 31 + 1m → Feb 28). */
-export function addMonths(iso: string, months: number): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  const target = new Date(d.getTime());
-  const day = target.getUTCDate();
-  target.setUTCDate(1);
-  target.setUTCMonth(target.getUTCMonth() + months);
-  // Clamp to the last day of the target month
-  const last = new Date(
-    Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0),
-  ).getUTCDate();
-  target.setUTCDate(Math.min(day, last));
-  return target.toISOString().slice(0, 10);
-}
+
 
 // ─────────────────────────────────────────────
 // Engine

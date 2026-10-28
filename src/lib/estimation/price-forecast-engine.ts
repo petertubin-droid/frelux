@@ -14,6 +14,7 @@
  */
 
 import type { EstimationCalcRule } from "@/types/estimation";
+import { ruleNumber } from "./shared/rule-value";
 
 // ─────────────────────────────────────────────
 // Contracts
@@ -56,15 +57,7 @@ export interface PriceForecastResult {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-function ruleNumber(
-  rules: EstimationCalcRule[],
-  key: string,
-  fallback: number,
-): number {
-  const r = rules.find((x) => x.rule_key === key && x.is_active !== false);
-  const v = Number((r?.rule_value as Record<string, unknown> | null)?.value);
-  return Number.isFinite(v) && v > 0 ? v : fallback;
-}
+
 
 function money(v: number): number {
   return Math.round(v * 100) / 100;

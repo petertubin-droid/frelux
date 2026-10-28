@@ -18,6 +18,8 @@
  *    breakdown, not hidden.
  */
 
+import { ruleNumber as getRuleValue } from "./shared/rule-value";
+
 export interface ContractorStatsInput {
   verified_jobs: number;
   on_time_jobs: number;
@@ -54,15 +56,7 @@ export interface CreditScoreResult {
   penalty: number | null;
 }
 
-function getRuleValue(rules: CreditScoreRule[], key: string): number | null {
-  for (const r of rules) {
-    if (r.rule_key !== key) continue;
-    const v = r.rule_value?.value;
-    const n = typeof v === "number" ? v : Number(v);
-    if (Number.isFinite(n)) return n;
-  }
-  return null;
-}
+
 
 export function calculateCreditScore(
   input: CreditScoreInput,

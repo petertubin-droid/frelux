@@ -25,6 +25,8 @@
  */
 
 import type { EstimationCalcRule } from "@/types/estimation";
+import { ruleNumber } from "./shared/rule-value";
+import { addMonthsIso as addMonths } from "../shared/dates";
 
 // ─────────────────────────────────────────────
 // Contracts
@@ -92,11 +94,7 @@ function roundMoney(v: number): number {
   return Math.round(v * 100) / 100;
 }
 
-function ruleNumber(rules: EstimationCalcRule[], key: string): number | null {
-  const r = rules.find((x) => x.rule_key === key && x.is_active !== false);
-  const v = Number((r?.rule_value as Record<string, unknown> | null)?.value);
-  return Number.isFinite(v) ? v : null;
-}
+
 
 /** Deterministic canonical JSON: object keys sorted recursively. */
 function canonicalJson(value: unknown): string {
@@ -118,15 +116,7 @@ function fnv1a(s: string): string {
   return h.toString(16).padStart(8, "0");
 }
 
-function addMonths(iso: string, months: number): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  const day = d.getDate();
-  d.setMonth(d.getMonth() + months);
-  // Clamp month-overflow (Jan 31 + 1 month → Feb 28/29, not Mar 3)
-  if (d.getDate() < day) d.setDate(0);
-  return d.toISOString();
-}
+
 
 // ─────────────────────────────────────────────
 // Engine
@@ -260,7 +250,15 @@ export function issueWarrantyCertificate(input: WarrantyInput): WarrantyResult {
     Number.isInteger(months)
   ) {
     result.warranty_months = months;
-    const expires = addMonths(input.quoted_at || issued, months);
+    // The shared helper returns a calendar day (YYYY-MM-DD). Certificates
+    // record a full ISO instant, so re-expand the day to midnight UTC while
+    // keeping the shared clamping arithmetic.
+    const expiresDay = addMonths(input.quoted_at || issued, months).slice(0, 10);
+    const expires =
+      /^\d{4}-\d{2}-\d{2}$/.test(expiresDay) &&
+      !Number.isNaN(new Date(expiresDay).getTime())
+        ? `${expiresDay}T00:00:00.000Z`
+        : "";
     result.expires_at = expires || null;
     if (result.expires_at) {
       result.within_warranty =

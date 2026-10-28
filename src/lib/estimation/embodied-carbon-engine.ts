@@ -19,6 +19,7 @@ import {
   calculateWholeLifeCarbon,
   type WholeLifeResult,
 } from "./whole-life-carbon";
+import { roundTo, ruleDecimals } from "./shared/rule-value";
 
 // ─────────────────────────────────────────────
 // Contracts
@@ -81,18 +82,9 @@ export interface EmbodiedCarbonResult {
 // Helpers
 // ─────────────────────────────────────────────
 
-function roundTo(v: number, decimals: number): number {
-  const f = Math.pow(10, decimals);
-  return Math.round(v * f) / f;
-}
 
-function ruleDecimals(rules: EstimationCalcRule[]): number {
-  const r = rules.find(
-    (x) => x.rule_key === "rounding_decimals" && x.is_active !== false,
-  );
-  const v = Number((r?.rule_value as Record<string, unknown> | null)?.value);
-  return Number.isInteger(v) && v >= 0 && v <= 6 ? v : 2;
-}
+
+
 
 // ─────────────────────────────────────────────
 // Engine

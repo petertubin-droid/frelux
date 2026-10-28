@@ -307,7 +307,7 @@ function toLengthFt(value: number, unit: Unit): number {
   return Math.round(ft * 1e6) / 1e6;
 }
 
-function calculateWallArea(
+export function calculateWallArea(
   lengthM: number,
   widthM: number,
   heightM: number,
@@ -320,11 +320,14 @@ function calculateWallArea(
   return Math.round(2 * (safeL + safeW) * safeH * 100) / 100;
 }
 
-function calculateCeilingArea(lengthM: number, widthM: number): number {
+export function calculateCeilingArea(lengthM: number, widthM: number): number {
   return Math.round(Math.max(0, lengthM) * Math.max(0, widthM) * 100) / 100;
 }
 
-function calculateOpeningArea(openings: OpeningInput[], unit: Unit): number {
+export function calculateOpeningArea(
+  openings: OpeningInput[],
+  unit: Unit = "feet",
+): number {
   if (!openings || openings.length === 0) return 0;
   let total = 0;
   for (const o of openings) {
