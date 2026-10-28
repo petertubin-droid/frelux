@@ -12,7 +12,7 @@
  */
 
 /** Canonical public origin. Updated by `npm run set-domain`. */
-export const DEFAULT_SITE_URL = "https://freluxtools.netlify.app";
+export const DEFAULT_SITE_URL = "https://freluxtools.com";
 
 /** Trailing slashes are stripped so callers can append paths safely. */
 export function normalizeOrigin(origin: string): string {

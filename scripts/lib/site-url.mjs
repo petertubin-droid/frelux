@@ -6,7 +6,7 @@
  * fallback the client bundle uses. Update both together via
  * `npm run set-domain <domain>` — never edit one by hand.
  */
-export const DEFAULT_SITE_URL = 'https://freluxtools.netlify.app';
+export const DEFAULT_SITE_URL = 'https://freluxtools.com';
 
 export function normalizeOrigin(origin) {
   return String(origin || '').trim().replace(/\/+$/, '');

@@ -1,5 +1,5 @@
 /**
- * Dynamic sitemap for https://freluxtools.netlify.app
+ * Dynamic sitemap for https://freluxtools.com
  *
  * Netlify function served at /sitemap.xml (netlify.toml redirects it here
  * with force=true, shadowing the stale static public/sitemap.xml). It is
@@ -19,7 +19,7 @@
  * sitemap with the static routes.
  */
 const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL ||
-  "https://freluxtools.netlify.app").replace(/\/+$/, "");
+  "https://freluxtools.com").replace(/\/+$/, "");
 
 /** Static site routes kept in parity with the previous static sitemap. */
 // NOTE: legacy calculator slugs (cost-estimator, painting-estimator, screeding-cost-estimator,

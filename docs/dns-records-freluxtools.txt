@@ -1,0 +1,13 @@
+freluxtools.com — records to add at hosting.com (zone: NS1-4.MYSECURECLOUDHOST.COM)
+Source of truth: Resend API, domain freluxtools.com (region us-east-1), pulled 2026-10-28.
+
+TYPE   HOST                 VALUE                                                        PRIORITY
+A      @                    75.2.60.5                                                    -
+CNAME  www                  freluxtools.netlify.app                                      -
+TXT    resend._domainkey    p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXZbnBwPOmbCRB40S1gh1uz9IfJ8pJjyU+R9gCR/m2wbGoMqeBZ2kX/cxHjDqkfCKN8NZf5eP4ZBQz5lfPcSDicgg852ldtSY3Rb8e34LAv2ON/GpPnWgnOKZ84e6RWCRDpnAX2RcjFVA0EmHHinoSZabRg+xsuxYvXSH1tZf/fQIDAQAB   -
+MX     send                 feedback-smtp.us-east-1.amazonses.com                        10
+TXT    send                 v=spf1 include:amazonses.com ~all                            -
+CNAME  rsend                send.forge.rmta.net                                          -
+
+Then: npm run set-domain -- freluxtools.com ; Netlify > Domain management > add custom domain ;
+Resend > Domains > freluxtools.com > Verify DNS records.

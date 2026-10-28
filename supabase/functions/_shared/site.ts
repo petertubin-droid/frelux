@@ -5,7 +5,7 @@
  * (sitemap, API docs links, web-push contact). Resolves from the SITE_URL
  * secret with the same fallback the client bundle uses.
  */
-export const DEFAULT_SITE_URL = "https://freluxtools.netlify.app";
+export const DEFAULT_SITE_URL = "https://freluxtools.com";
 
 export function normalizeOrigin(origin: string): string {
   return String(origin || "").trim().replace(/\/+$/, "");

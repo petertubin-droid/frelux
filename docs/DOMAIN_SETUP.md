@@ -2,7 +2,7 @@
 
 FRELUX resolves its public origin from one place per runtime, so switching
 domains is a single command plus four dashboard settings. Current canonical
-origin: **https://freluxtools.netlify.app**.
+origin: **https://freluxtools.com**.
 
 ## The three mirrors
 
@@ -140,3 +140,20 @@ The alternative is Netlify DNS: in Netlify, add the domain and choose "Use
 Netlify DNS", then set the five Namecheap nameservers (dns1-4.p07.nsone.net
 plus the assigned one) and manage every record in Netlify instead. That
 removes the manual A/CNAME entries but means all records live in Netlify.
+
+## hosting.com specifics (current registrar)
+
+Registered 2026-10-28 through OpusDNS GmbH (hosting.com's registrar backend),
+expires 2027-10-28. Nameservers: NS1..NS4.MYSECURECLOUDHOST.COM, so the DNS
+zone lives in the hosting.com control panel (not Netlify, not Namecheap).
+
+Path: hosting.com dashboard -> Domains -> freluxtools.com -> DNS / DNS Zone
+Editor. Add the six records from the table above, then:
+
+1. `dig +short NS freluxtools.com` should answer instead of SERVFAIL
+   (the zone takes a few minutes to provision after registration).
+2. `npm run set-domain -- freluxtools.com` in the repo, then deploy.
+3. Resend -> Domains -> freluxtools.com -> Verify DNS records.
+
+Netlify still needs the custom domain added under Site settings -> Domain
+management (or the A/CNAME above will resolve to nothing useful).

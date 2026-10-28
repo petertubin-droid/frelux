@@ -1,5 +1,5 @@
 # robots.txt for FRELUX
-# https://freluxtools.netlify.app
+# https://freluxtools.com
 # Public pages are crawlable. Admin, auth, and API routes are excluded.
 
 User-agent: *
@@ -97,4 +97,4 @@ Disallow: /onboarding
 Disallow: /analytics
 
 # Sitemap
-Sitemap: https://freluxtools.netlify.app/sitemap.xml
+Sitemap: https://freluxtools.com/sitemap.xml
