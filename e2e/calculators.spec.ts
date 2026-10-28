@@ -24,7 +24,7 @@ test.describe("Calculators legacy route", () => {
       "Paint Calculator",
       "Wall Screeding",
       "Tile Calculator",
-      "Build-to-Roof Estimator",
+      "Wall Finish Estimator",
     ];
 
     for (const tool of expectedTools) {

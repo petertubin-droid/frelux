@@ -12,6 +12,14 @@ test("navigation to paint calculator", async ({ page }) => {
   await page.goto("/");
   // The home page has desktop-only and carousel links; the footer link
   // is in normal document flow and reliably clickable in every viewport.
+  // On mobile viewports (<md) the footer groups collapse to accordions;
+  // expand Calculators if collapsed so the link is visible and clickable.
+  const calcAccordion = page.locator(
+    'footer button[aria-controls="footer-calculators"]',
+  );
+  if (await calcAccordion.isVisible()) {
+    await calcAccordion.click();
+  }
   await page.locator('footer a[href*="paint-calculator"]').first().click();
   await expect(page).toHaveURL(/paint-calculator/);
 });

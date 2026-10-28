@@ -23,7 +23,7 @@ test.describe("Legal pages", () => {
       expect(bodyText?.trim().length).toBeGreaterThan(50);
       // Should contain the expected heading text
       await expect(
-        page.getByText(new RegExp(heading), { exact: false }).first(),
+        page.getByRole("heading", { name: new RegExp(heading, "i") }).first(),
       ).toBeVisible();
     });
   }

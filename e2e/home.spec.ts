@@ -16,6 +16,12 @@ test.describe("Home page", () => {
   test("navigates to the calculators page", async ({ page }) => {
     await dismissCookieBanner(page);
     await page.goto("/");
+    const calcAccordion = page.locator(
+      'footer button[aria-controls="footer-calculators"]',
+    );
+    if (await calcAccordion.isVisible()) {
+      await calcAccordion.click();
+    }
     const calcLink = page.locator('footer a[href*="paint-calculator"]').first();
     await calcLink.click();
     await page.waitForLoadState("networkidle");

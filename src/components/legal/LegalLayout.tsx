@@ -85,7 +85,7 @@ export default function LegalLayout({
             </span>
           </div>
           <h1 className="mt-4 font-display text-3xl font-bold leading-tight sm:text-4xl">
-            {loading ? "Loading…" : published ? page!.title : title}
+            {published ? page!.title : title}
           </h1>
           {(updated || published) && (
             <p className="mt-3 text-sm text-primary-foreground/50">
