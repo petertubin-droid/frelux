@@ -4,6 +4,9 @@
 [functions.count-vision]
 verify_jwt = false
 
+[functions.flutterwave-checkout]
+verify_jwt = false
+
 [functions.paystack-checkout]
 verify_jwt = false
 
