@@ -128,3 +128,13 @@
   X-Robots-Tag: noindex, nofollow
 /data-request/resolve*
   X-Robots-Tag: noindex, nofollow
+
+/ja
+  X-Robots-Tag: noindex, nofollow
+/ja/*
+  X-Robots-Tag: noindex, nofollow
+
+/nl
+  X-Robots-Tag: noindex, nofollow
+/nl/*
+  X-Robots-Tag: noindex, nofollow

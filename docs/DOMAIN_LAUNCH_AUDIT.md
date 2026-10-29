@@ -41,8 +41,10 @@ suite during this audit; nothing here is assumed.
 - **32 markets** in `src/lib/international/countries.ts`; every market has a
   `/market/<code>` landing page and the sitemap test asserts all 32 are
   emitted.
-- **13 UI locales** (`en`, `ar`, `de`, `es`, `fr`, `hi`, `id`, `it`, `ja`,
-  `ko`, `nl`, `pl`, `pt`, `ru`, `sw`, `tr`, `vi`, `zh` — dictionary chrome).
+- **13 UI locales**, the exact union in `src/lib/i18n.tsx`: `en`, `es`,
+  `fr`, `de`, `pt`, `ru`, `id`, `sw`, `ar`, `hi`, `zh`, `ja`, `nl`.
+  Each has a locale URL prefix that is noindex via `public/_headers`;
+  `/ja` and `/nl` were missing that rule and were added in this pass.
 - Currency formatting, per-market price books and unit conversion are covered
   by `__market-currency-sanity.test.ts`, `bundled-book.test.ts` and
   `calculator-config.test.ts`: **396 tests passing** across the international
