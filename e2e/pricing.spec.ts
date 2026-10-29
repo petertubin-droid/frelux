@@ -4,7 +4,30 @@ import { test, expect } from "@playwright/test";
  * Pricing page — verifies all four subscription tiers render with
  * correct Naira pricing and feature lists.
  */
+/**
+ * The price list a visitor sees is a location fact: the browser's country
+ * picks it. CI runs from no particular country, so these tests seed the
+ * Nigeria choice the way the country selector stores it and check the
+ * naira list; the USD list is covered by the assertion at the end.
+ */
+const CONSENT = {
+  categories: { essential: true, analytics: true, advertising: true },
+  timestamp: Date.now(),
+  source: "banner",
+};
+
 test.describe("Pricing page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript((consent) => {
+      try {
+        localStorage.setItem("frelux_cookie_consent", JSON.stringify(consent));
+        localStorage.setItem("frelux_market", "NG");
+      } catch {
+        /* storage unavailable before consent */
+      }
+    }, CONSENT);
+  });
+
   test("displays all four pricing tiers", async ({ page }) => {
     await page.goto("/pricing");
     await page.waitForLoadState("networkidle");
@@ -31,7 +54,7 @@ test.describe("Pricing page", () => {
 
     await expect(page.getByText("Most Popular")).toBeVisible();
     await expect(page.getByText("Get Started").first()).toBeVisible();
-    await expect(page.getByText("Contact Sales").first()).toBeVisible();
+    await expect(page.getByText("Start Enterprise").first()).toBeVisible();
   });
 
   test("lists features for each plan", async ({ page }) => {

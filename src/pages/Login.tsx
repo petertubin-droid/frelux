@@ -12,6 +12,9 @@ import {
   User,
   HardHat,
   Loader2,
+  Eye,
+  EyeOff,
+  Check,
 } from "lucide-react";
 import { useAuth, type AccountType } from "@/lib/auth";
 import { getSafeAuthRedirect } from "@/lib/auth-redirect";
@@ -74,6 +77,21 @@ export default function Login() {
   );
   const [info, setInfo] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(false);
+
+  // Returning visitors who asked to be remembered get the address prefilled.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("frelux_remember_email");
+      if (saved) {
+        setEmail(saved);
+        setRemember(true);
+      }
+    } catch {
+      /* storage unavailable */
+    }
+  }, []);
 
   useSeo({
     title: "Sign In or Create Account",
@@ -221,6 +239,12 @@ export default function Login() {
       setError(error);
       return;
     }
+    try {
+      if (remember) localStorage.setItem("frelux_remember_email", email.trim());
+      else localStorage.removeItem("frelux_remember_email");
+    } catch {
+      /* storage unavailable */
+    }
     navigate(redirectTo);
   }
 
@@ -293,19 +317,23 @@ export default function Login() {
         className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-primary/8 blur-[120px]"
         aria-hidden="true"
       />
-      <div className="relative w-full max-w-sm animate-fade-in-up">
-        <div className="mb-6 flex justify-center">
+      <div className="relative w-full max-w-[420px] animate-fade-in-up">
+        <div className="mb-7 flex justify-center">
           <Logo />
         </div>
-        <div className="card p-6 shadow-premium sm:p-8 dark:border-white/5 dark:bg-card transition-all duration-300">
-          <h1 className="font-display text-xl font-bold text-foreground dark:text-primary-foreground">
+        <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-6 shadow-premium backdrop-blur-xl transition-all duration-300 sm:p-8 dark:border-white/10 dark:bg-card/70">
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/50 to-transparent"
+            aria-hidden="true"
+          />
+          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground dark:text-primary-foreground">
             {mode === "signin"
               ? "Sign in"
               : mode === "signup"
                 ? "Create account"
                 : "Reset password"}
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
             {mode === "signin"
               ? "Sign in to access your projects, saved estimates, and AI features."
               : mode === "signup"
@@ -454,10 +482,10 @@ export default function Login() {
                 <div className="relative mt-1.5">
                   <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input-field pl-9"
+                    className="input-field pl-9 pr-11"
                     placeholder="Enter your password"
                     autoComplete={
                       mode === "signin" ? "current-password" : "new-password"
@@ -465,8 +493,57 @@ export default function Login() {
                     minLength={6}
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    aria-pressed={showPassword}
+                    className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-foreground"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </label>
+            )}
+            {mode === "signin" && (
+              <div className="flex items-center justify-between gap-3 pt-1">
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={remember}
+                  onClick={() => setRemember((v) => !v)}
+                  className="group flex items-center gap-2.5 text-sm font-medium text-card-foreground transition-colors dark:text-foreground"
+                >
+                  <span
+                    className={classNames(
+                      "flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border transition-all duration-200",
+                      remember
+                        ? "border-brand-purple bg-brand-purple text-white shadow-[0_0_0_3px_rgba(139,92,246,0.15)]"
+                        : "border-border bg-card group-hover:border-brand-purple/60 dark:border-white/20 dark:bg-background",
+                    )}
+                  >
+                    {remember && <Check className="h-3 w-3" strokeWidth={3} />}
+                  </span>
+                  {t("Remember me")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("reset");
+                    setError(null);
+                    setInfo(null);
+                  }}
+                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+                >
+                  {t("Forgot password?")}
+                </button>
+              </div>
             )}
             {error && (
               <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
@@ -509,18 +586,6 @@ export default function Login() {
                     className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
                   >
                     Need an account? Sign up
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    type="button"
-                    onClick={() => {
-                      setMode("reset");
-                      setError(null);
-                      setInfo(null);
-                    }}
-                    className="text-muted-foreground hover:text-brand-purple hover:underline dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
-                  >
-                    Forgot your password?
                   </Button>
                 </div>
               )}
