@@ -1,0 +1,140 @@
+[
+ {
+  "market": "AE",
+  "currency": "AED",
+  "retailer": "Amazon.ae",
+  "url_pattern": "https://www.amazon.ae/s?k=%s"
+ },
+ {
+  "market": "AU",
+  "currency": "AUD",
+  "retailer": "Bunnings",
+  "url_pattern": "https://www.bunnings.com.au/search/products?query=%s"
+ },
+ {
+  "market": "BR",
+  "currency": "BRL",
+  "retailer": "Amazon.com.br",
+  "url_pattern": "https://www.amazon.com.br/s?k=%s"
+ },
+ {
+  "market": "CA",
+  "currency": "CAD",
+  "retailer": "Home Depot CA",
+  "url_pattern": "https://www.homedepot.ca/en/search?q=%s"
+ },
+ {
+  "market": "CN",
+  "currency": "CNY",
+  "retailer": "JD.com",
+  "url_pattern": "https://search.jd.com/Search?keyword=%s"
+ },
+ {
+  "market": "DE",
+  "currency": "EUR",
+  "retailer": "Amazon.de",
+  "url_pattern": "https://www.amazon.de/s?k=%s"
+ },
+ {
+  "market": "DE",
+  "currency": "EUR",
+  "retailer": "OBI",
+  "url_pattern": "https://www.obi.de/search/%s/"
+ },
+ {
+  "market": "FR",
+  "currency": "EUR",
+  "retailer": "Leroy Merlin",
+  "url_pattern": "https://www.leroymerlin.fr/recherche?text=%s"
+ },
+ {
+  "market": "GB",
+  "currency": "GBP",
+  "retailer": "B&Q",
+  "url_pattern": "https://www.diy.com/search?term=%s"
+ },
+ {
+  "market": "GB",
+  "currency": "GBP",
+  "retailer": "Wickes",
+  "url_pattern": "https://www.wickes.co.uk/search?text=%s"
+ },
+ {
+  "market": "GH",
+  "currency": "GHS",
+  "retailer": "Jumia",
+  "url_pattern": "https://www.jumia.com.gh/catalog/?q=%s"
+ },
+ {
+  "market": "ID",
+  "currency": "IDR",
+  "retailer": "Tokopedia",
+  "url_pattern": "https://www.tokopedia.com/search?st=product&q=%s"
+ },
+ {
+  "market": "IN",
+  "currency": "INR",
+  "retailer": "Amazon.in",
+  "url_pattern": "https://www.amazon.in/s?k=%s"
+ },
+ {
+  "market": "IT",
+  "currency": "EUR",
+  "retailer": "Amazon.it",
+  "url_pattern": "https://www.amazon.it/s?k=%s"
+ },
+ {
+  "market": "JP",
+  "currency": "JPY",
+  "retailer": "Amazon.co.jp",
+  "url_pattern": "https://www.amazon.co.jp/s?k=%s"
+ },
+ {
+  "market": "KE",
+  "currency": "KES",
+  "retailer": "Jumia",
+  "url_pattern": "https://www.jumia.co.ke/catalog/?q=%s"
+ },
+ {
+  "market": "KR",
+  "currency": "KRW",
+  "retailer": "Coupang",
+  "url_pattern": "https://www.coupang.com/np/search?q=%s"
+ },
+ {
+  "market": "MX",
+  "currency": "MXN",
+  "retailer": "Home Depot MX",
+  "url_pattern": "https://www.homedepot.com.mx/search?q=%s"
+ },
+ {
+  "market": "NG",
+  "currency": "NGN",
+  "retailer": "Jumia",
+  "url_pattern": "https://www.jumia.com.ng/catalog/?q=%s"
+ },
+ {
+  "market": "NG",
+  "currency": "NGN",
+  "retailer": "Konga",
+  "url_pattern": "https://www.konga.com/search?q=%s"
+ },
+ {
+  "market": "SA",
+  "currency": "SAR",
+  "retailer": "Amazon.sa",
+  "url_pattern": "https://www.amazon.sa/s?k=%s"
+ },
+ {
+  "market": "US",
+  "currency": "USD",
+  "retailer": "Home Depot",
+  "url_pattern": "https://www.homedepot.com/s/%s"
+ },
+ {
+  "market": "ZA",
+  "currency": "ZAR",
+  "retailer": "Takealot",
+  "url_pattern": "https://www.takealot.com/search?q=%s"
+ }
+]

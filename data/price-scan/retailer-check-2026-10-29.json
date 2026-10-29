@@ -1,0 +1,455 @@
+{
+  "checked_at": "2026-10-29T09:13:19.682Z",
+  "query": "cement 50kg",
+  "results": [
+    {
+      "market": "AE",
+      "currency": "AED",
+      "retailer": "Amazon.ae",
+      "url_pattern": "https://www.amazon.ae/s?k=%s",
+      "url": "https://www.amazon.ae/s?k=cement+50kg",
+      "status": 503,
+      "bytes": 3361,
+      "price_tokens": 0,
+      "signal": "jsonld",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 0,
+        "symbol_after": 0
+      },
+      "outcome": "http_503",
+      "sample": [],
+      "ms": 228
+    },
+    {
+      "market": "AU",
+      "currency": "AUD",
+      "retailer": "Bunnings",
+      "url_pattern": "https://www.bunnings.com.au/search/products?query=%s",
+      "url": "https://www.bunnings.com.au/search/products?query=cement+50kg",
+      "status": 403,
+      "bytes": 5918,
+      "price_tokens": 0,
+      "signal": "jsonld",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 0,
+        "symbol_after": 0
+      },
+      "outcome": "http_403",
+      "sample": [],
+      "ms": 41
+    },
+    {
+      "market": "BR",
+      "currency": "BRL",
+      "retailer": "Amazon.com.br",
+      "url_pattern": "https://www.amazon.com.br/s?k=%s",
+      "url": "https://www.amazon.com.br/s?k=cement+50kg",
+      "status": 200,
+      "bytes": 450574,
+      "price_tokens": 71,
+      "signal": "symbol_before",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 71,
+        "symbol_after": 1
+      },
+      "outcome": "parsed",
+      "sample": [
+        "$ 367,64",
+        "$ 378,83",
+        "$378,83"
+      ],
+      "ms": 449
+    },
+    {
+      "market": "CA",
+      "currency": "CAD",
+      "retailer": "Home Depot CA",
+      "url_pattern": "https://www.homedepot.ca/en/search?q=%s",
+      "url": "https://www.homedepot.ca/en/search?q=cement+50kg",
+      "status": null,
+      "bytes": 0,
+      "price_tokens": 0,
+      "outcome": "fetch_error",
+      "error": "AbortError: This operation was aborted",
+      "ms": 20001
+    },
+    {
+      "market": "CN",
+      "currency": "CNY",
+      "retailer": "JD.com",
+      "url_pattern": "https://search.jd.com/Search?keyword=%s",
+      "url": "https://search.jd.com/Search?keyword=cement+50kg",
+      "status": 200,
+      "bytes": 2696,
+      "price_tokens": 0,
+      "signal": "jsonld",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 0,
+        "symbol_after": 0
+      },
+      "outcome": "no_price_found",
+      "sample": [],
+      "ms": 1870
+    },
+    {
+      "market": "DE",
+      "currency": "EUR",
+      "retailer": "Amazon.de",
+      "url_pattern": "https://www.amazon.de/s?k=%s",
+      "url": "https://www.amazon.de/s?k=cement+50kg",
+      "status": 503,
+      "bytes": 2292,
+      "price_tokens": 0,
+      "signal": "jsonld",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 0,
+        "symbol_after": 0
+      },
+      "outcome": "http_503",
+      "sample": [],
+      "ms": 121
+    },
+    {
+      "market": "DE",
+      "currency": "EUR",
+      "retailer": "OBI",
+      "url_pattern": "https://www.obi.de/search/text/%s",
+      "url": "https://www.obi.de/search/text/cement+50kg",
+      "status": 200,
+      "bytes": 189118,
+      "price_tokens": 0,
+      "signal": "jsonld",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 0,
+        "symbol_after": 0
+      },
+      "outcome": "no_price_found",
+      "sample": [],
+      "ms": 257
+    },
+    {
+      "market": "FR",
+      "currency": "EUR",
+      "retailer": "Leroy Merlin",
+      "url_pattern": "https://www.leroymerlin.fr/recherche?text=%s",
+      "url": "https://www.leroymerlin.fr/recherche?text=cement+50kg",
+      "status": 403,
+      "bytes": 774,
+      "price_tokens": 0,
+      "signal": "jsonld",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 0,
+        "symbol_after": 0
+      },
+      "outcome": "http_403",
+      "sample": [],
+      "ms": 27
+    },
+    {
+      "market": "GB",
+      "currency": "GBP",
+      "retailer": "B&Q",
+      "url_pattern": "https://www.diy.com/search?query=%s",
+      "url": "https://www.diy.com/search?query=cement+50kg",
+      "status": 400,
+      "bytes": 569249,
+      "price_tokens": 1,
+      "signal": "symbol_before",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 1,
+        "symbol_after": 0
+      },
+      "outcome": "http_400",
+      "sample": [
+        "£50"
+      ],
+      "ms": 603
+    },
+    {
+      "market": "GB",
+      "currency": "GBP",
+      "retailer": "Wickes",
+      "url_pattern": "https://www.wickes.co.uk/search?text=%s",
+      "url": "https://www.wickes.co.uk/search?text=cement+50kg",
+      "status": 200,
+      "bytes": 608709,
+      "price_tokens": 123,
+      "signal": "symbol_before",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 123,
+        "symbol_after": 0
+      },
+      "outcome": "parsed",
+      "sample": [
+        "$2",
+        "$10",
+        "£15"
+      ],
+      "ms": 714
+    },
+    {
+      "market": "GH",
+      "currency": "GHS",
+      "retailer": "Jumia",
+      "url_pattern": "https://www.jumia.com.gh/catalog/?q=%s",
+      "url": "https://www.jumia.com.gh/catalog/?q=cement+50kg",
+      "status": 200,
+      "bytes": 123599,
+      "price_tokens": 8,
+      "signal": "symbol_before",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 8,
+        "symbol_after": 0
+      },
+      "outcome": "parsed",
+      "sample": [
+        "$8",
+        "$1",
+        "$2"
+      ],
+      "ms": 420
+    },
+    {
+      "market": "ID",
+      "currency": "IDR",
+      "retailer": "Tokopedia",
+      "url_pattern": "https://www.tokopedia.com/search?st=product&q=%s",
+      "url": "https://www.tokopedia.com/search?st=product&q=cement+50kg",
+      "status": null,
+      "bytes": 0,
+      "price_tokens": 0,
+      "outcome": "fetch_error",
+      "error": "AbortError: This operation was aborted",
+      "ms": 20002
+    },
+    {
+      "market": "IN",
+      "currency": "INR",
+      "retailer": "Amazon.in",
+      "url_pattern": "https://www.amazon.in/s?k=%s",
+      "url": "https://www.amazon.in/s?k=cement+50kg",
+      "status": 503,
+      "bytes": 1283,
+      "price_tokens": 0,
+      "signal": "jsonld",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 0,
+        "symbol_after": 0
+      },
+      "outcome": "http_503",
+      "sample": [],
+      "ms": 126
+    },
+    {
+      "market": "IT",
+      "currency": "EUR",
+      "retailer": "Amazon.it",
+      "url_pattern": "https://www.amazon.it/s?k=%s",
+      "url": "https://www.amazon.it/s?k=cement+50kg",
+      "status": 503,
+      "bytes": 2013,
+      "price_tokens": 0,
+      "signal": "jsonld",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 0,
+        "symbol_after": 0
+      },
+      "outcome": "http_503",
+      "sample": [],
+      "ms": 170
+    },
+    {
+      "market": "JP",
+      "currency": "JPY",
+      "retailer": "Amazon.co.jp",
+      "url_pattern": "https://www.amazon.co.jp/s?k=%s",
+      "url": "https://www.amazon.co.jp/s?k=cement+50kg",
+      "status": 503,
+      "bytes": 2112,
+      "price_tokens": 0,
+      "signal": "jsonld",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 0,
+        "symbol_after": 0
+      },
+      "outcome": "http_503",
+      "sample": [],
+      "ms": 87
+    },
+    {
+      "market": "KE",
+      "currency": "KES",
+      "retailer": "Jumia",
+      "url_pattern": "https://www.jumia.co.ke/catalog/?q=%s",
+      "url": "https://www.jumia.co.ke/catalog/?q=cement+50kg",
+      "status": null,
+      "bytes": 0,
+      "price_tokens": 0,
+      "outcome": "fetch_error",
+      "error": "AbortError: This operation was aborted",
+      "ms": 20001
+    },
+    {
+      "market": "KR",
+      "currency": "KRW",
+      "retailer": "Coupang",
+      "url_pattern": "https://www.coupang.com/np/search?q=%s",
+      "url": "https://www.coupang.com/np/search?q=cement+50kg",
+      "status": 403,
+      "bytes": 383,
+      "price_tokens": 0,
+      "signal": "jsonld",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 0,
+        "symbol_after": 0
+      },
+      "outcome": "http_403",
+      "sample": [],
+      "ms": 148
+    },
+    {
+      "market": "MX",
+      "currency": "MXN",
+      "retailer": "Home Depot MX",
+      "url_pattern": "https://www.homedepot.com.mx/search?q=%s",
+      "url": "https://www.homedepot.com.mx/search?q=cement+50kg",
+      "status": 404,
+      "bytes": 6042,
+      "price_tokens": 4,
+      "signal": "symbol_before",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 4,
+        "symbol_after": 0
+      },
+      "outcome": "http_404",
+      "sample": [
+        "$5",
+        "$6",
+        "$7"
+      ],
+      "ms": 975
+    },
+    {
+      "market": "NG",
+      "currency": "NGN",
+      "retailer": "Jumia",
+      "url_pattern": "https://www.jumia.com.ng/catalog/?q=%s",
+      "url": "https://www.jumia.com.ng/catalog/?q=cement+50kg",
+      "status": 200,
+      "bytes": 120947,
+      "price_tokens": 8,
+      "signal": "symbol_before",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 8,
+        "symbol_after": 0
+      },
+      "outcome": "parsed",
+      "sample": [
+        "$8",
+        "$1",
+        "$2"
+      ],
+      "ms": 454
+    },
+    {
+      "market": "NG",
+      "currency": "NGN",
+      "retailer": "Konga",
+      "url_pattern": "https://www.konga.com/search?q=%s",
+      "url": "https://www.konga.com/search?q=cement+50kg",
+      "status": 200,
+      "bytes": 258684,
+      "price_tokens": 11,
+      "signal": "symbol_before",
+      "signals": {
+        "jsonld": 10,
+        "symbol_before": 11,
+        "symbol_after": 0
+      },
+      "outcome": "parsed",
+      "sample": [
+        "$1",
+        "$2",
+        "$9"
+      ],
+      "ms": 1275
+    },
+    {
+      "market": "SA",
+      "currency": "SAR",
+      "retailer": "Amazon.sa",
+      "url_pattern": "https://www.amazon.sa/s?k=%s",
+      "url": "https://www.amazon.sa/s?k=cement+50kg",
+      "status": 200,
+      "bytes": 1046700,
+      "price_tokens": 102,
+      "signal": "symbol_before",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 102,
+        "symbol_after": 1
+      },
+      "outcome": "parsed",
+      "sample": [
+        "SAR 129.00",
+        "SAR 40.50",
+        "SAR 0.01"
+      ],
+      "ms": 985
+    },
+    {
+      "market": "US",
+      "currency": "USD",
+      "retailer": "Home Depot",
+      "url_pattern": "https://www.homedepot.com/s/%s",
+      "url": "https://www.homedepot.com/s/cement+50kg",
+      "status": 403,
+      "bytes": 2413,
+      "price_tokens": 0,
+      "signal": "jsonld",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 0,
+        "symbol_after": 0
+      },
+      "outcome": "http_403",
+      "sample": [],
+      "ms": 341
+    },
+    {
+      "market": "ZA",
+      "currency": "ZAR",
+      "retailer": "Takealot",
+      "url_pattern": "https://www.takealot.com/search?q=%s",
+      "url": "https://www.takealot.com/search?q=cement+50kg",
+      "status": 403,
+      "bytes": 5706,
+      "price_tokens": 0,
+      "signal": "jsonld",
+      "signals": {
+        "jsonld": 0,
+        "symbol_before": 0,
+        "symbol_after": 0
+      },
+      "outcome": "http_403",
+      "sample": [],
+      "ms": 30
+    }
+  ]
+}
