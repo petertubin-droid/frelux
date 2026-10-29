@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getMarketBundle } from "@/lib/international/markets";
 import { useMarket } from "@/lib/international/market-context";
+import AdSlot from "@/components/ui/AdSlot";
 
 function Row({
   label,
@@ -112,6 +113,8 @@ export default function MarketLanding() {
         ))}
       </div>
 
+      <AdSlot slotKey="market_top" className="mt-8" />
+
       <section className="mt-8 rounded-xl border border-border bg-card p-6 dark:border-white/10">
         <h2 className="text-lg font-semibold">
           {m.countryName} building-practice defaults
@@ -149,6 +152,8 @@ export default function MarketLanding() {
           {bundle.electrical.notes}
         </p>
       </section>
+
+      <AdSlot slotKey="market_mid" className="mt-4" />
 
       <section className="mt-4 rounded-xl border border-border bg-card p-6 dark:border-white/10">
         <h2 className="text-lg font-semibold">Plumbing practice</h2>

@@ -206,6 +206,26 @@ serveWithCors(async (req: Request) => {
   </url>`);
     }
 
+      // Reviewed translations: each published locale page is its own URL in
+      // its own language, so it belongs in the sitemap alongside the English
+      // original (they are linked by hreflang in the prerendered HTML).
+      try {
+        const trRes = await fetch(
+          `${supabaseUrl}/rest/v1/content_translations?select=content_key,locale&status=eq.published`,
+          { headers },
+        );
+        if (trRes.ok) {
+          const trans = await trRes.json();
+          for (const t of trans) {
+            urls.push(`  <url>
+    <loc>${siteUrl}/${t.locale}/learn/${t.content_key}/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>`);
+          }
+        }
+      } catch { /* translations are additive; never break the sitemap */ }
+
     // Add published public templates — /templates/{slug}
     const templates = (await templatesRes.json()) as {
       slug: string;

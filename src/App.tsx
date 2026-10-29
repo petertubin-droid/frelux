@@ -304,6 +304,9 @@ const AdminScreedingMaterials = lazy(
   () => import("@/pages/admin/AdminScreedingMaterials"),
 );
 const AdminLearn = lazy(() => import("@/pages/admin/AdminLearn"));
+const AdminTranslations = lazy(
+  () => import("@/pages/admin/AdminTranslations"),
+);
 const AdminWallFinishingLibrary = lazy(
   () => import("@/pages/admin/AdminWallFinishingLibrary"),
 );
@@ -1799,6 +1802,7 @@ export default function App() {
 
                       {/* Content */}
                       <Route path="learn" element={<AdminLearn />} />
+                      <Route path="translations" element={<AdminTranslations />} />
                       <Route
                         path="learn/wall-finishing"
                         element={<AdminWallFinishingLibrary />}

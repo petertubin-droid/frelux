@@ -1010,6 +1010,12 @@ const routes = [
   },
 ];
 
+// Locales whose reviewed translations are live. A locale page is only
+// indexable when a published content_translations row exists for it; every
+// other locale page is emitted as a noindex stub pointing at the English
+// canonical. Keep in sync with src/lib/translation-index.ts.
+const INDEXABLE_LOCALES = ['es'];
+
 // ── Learn section: dynamic article + category pages from Supabase ───
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
@@ -1126,6 +1132,23 @@ async function fetchLearnPages() {
     if (catRes.ok && artRes.ok) {
       const cats = await catRes.json();
       const arts = await artRes.json();
+
+      // Reviewed translations: the ONLY source of indexable locale pages.
+      let translations = [];
+      try {
+        const trRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/content_translations?select=content_type,content_key,locale,title,description,body_md&status=eq.published&content_type=eq.article`,
+          { headers },
+        );
+        if (trRes.ok) translations = await trRes.json();
+      } catch {
+        // Never fail a build over translations: English pages still ship, and
+        // unpreviewed locales simply stay noindex.
+        translations = [];
+      }
+      const trByLocaleKey = new Map(
+        translations.map((t) => [`${t.locale}:${t.content_key}`, t]),
+      );
       const catBySlug = Object.fromEntries(cats.map((c) => [c.slug, c]));
 
       // Category pages — /learn/category/{slug}
@@ -1185,6 +1208,73 @@ async function fetchLearnPages() {
             ] },
           ],
         });
+        const altLocales = INDEXABLE_LOCALES.filter((l) =>
+          trByLocaleKey.has(`${l}:${a.slug}`),
+        );
+        if (altLocales.length) {
+          learnRoutes[learnRoutes.length - 1].alternates = [
+            { hreflang: 'x-default', href: `${SITE_URL}/learn/${a.slug}/` },
+            { hreflang: 'en', href: `${SITE_URL}/learn/${a.slug}/` },
+            ...altLocales.map((l) => ({
+              hreflang: l,
+              href: `${SITE_URL}/${l}/learn/${a.slug}/`,
+            })),
+          ];
+        }
+
+        // One localized page per launched locale. A published translation is
+        // indexable in its own language; without one the page still works for
+        // readers (same English body) but stays noindex and canonical to the
+        // English URL, so it can never compete with it.
+        for (const locale of INDEXABLE_LOCALES) {
+          const t = trByLocaleKey.get(`${locale}:${a.slug}`);
+          const altSet = t
+            ? [
+                { hreflang: 'x-default', href: `${SITE_URL}/learn/${a.slug}/` },
+                { hreflang: 'en', href: `${SITE_URL}/learn/${a.slug}/` },
+                ...INDEXABLE_LOCALES.filter((l) =>
+                  trByLocaleKey.has(`${l}:${a.slug}`),
+                ).map((l) => ({
+                  hreflang: l,
+                  href: `${SITE_URL}/${l}/learn/${a.slug}/`,
+                })),
+              ]
+            : undefined;
+          learnRoutes.push({
+            path: `/${locale}/learn/${a.slug}`,
+            title: ((t && t.title) || a.meta_title || a.title).slice(0, 100),
+            description: ((t && t.description) || desc).slice(0, 160),
+            priority: '0.5',
+            changefreq: 'monthly',
+            lang: locale,
+            robots: t
+              ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
+              : 'noindex, follow',
+            alternates: altSet,
+            canonical: t ? undefined : `${SITE_URL}/learn/${a.slug}/`,
+            structuredData: t
+              ? [
+                  {
+                    '@context': 'https://schema.org',
+                    '@type': 'Article',
+                    headline: t.title.slice(0, 110),
+                    description: ((t.description || desc) || '').slice(0, 300),
+                    image: a.cover_image_url || ogImage,
+                    inLanguage: locale,
+                    author: { '@type': 'Organization', name: 'FRELUX' },
+                    publisher: { '@type': 'Organization', name: 'FRELUX' },
+                    datePublished: (t.published_at || a.published_at || '').split('T')[0],
+                    dateModified: (a.updated_at || a.published_at || '').split('T')[0],
+                    mainEntityOfPage: `${SITE_URL}/${locale}/learn/${a.slug}`,
+                  },
+                ]
+              : undefined,
+          });
+          const localizedBody = t && t.body_md ? t.body_md : a.content || '';
+          learnContent[`/${locale}/learn/${a.slug}`] =
+            `<div lang="${locale}"><h1>${escapeHtml((t && t.title) || a.title)}</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a> &rsaquo; ${escapeHtml((t && t.title) || a.title)}</nav>${markdownToHtml(localizedBody)}</div>`;
+        }
+
         const bodyHtml = markdownToHtml(a.content || '');
         learnContent[`/learn/${a.slug}`] = `<h1>${escapeHtml(a.title)}</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a>${cat ? ` &rsaquo; <a href="/learn/category/${cat.slug}">${escapeHtml(cat.name)}</a>` : ''} &rsaquo; ${escapeHtml(a.title)}</nav>${bodyHtml}`;
       }
@@ -1266,7 +1356,7 @@ for (const route of routes) {
   // files land at dist/<path>/index.html, so the served URL carries a
   // trailing slash; the extensionless form 301s back to it. A non-slash
   // canonical is a redirect loop for Googlebot (GSC: "Page with redirect").
-  const canonicalUrl = `${SITE_URL}${route.path}${route.path === '/' ? '' : '/'}`;
+  const canonicalUrl = route.canonical || `${SITE_URL}${route.path}${route.path === '/' ? '' : '/'}`;
   if (html.includes('rel="canonical"')) {
     html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${canonicalUrl}" />`);
   } else {
@@ -1303,11 +1393,28 @@ for (const route of routes) {
   }
 
   // Robots
-  const robotsContent = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+  const robotsContent = route.robots || 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
   if (html.includes('name="robots"')) {
     html = html.replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/, `<meta name="robots" content="${robotsContent}" />`);
   } else {
     html = html.replace('</head>', `  <meta name="robots" content="${robotsContent}" />\n</head>`);
+  }
+
+  // html lang for localized pages (default template ships lang="en")
+  if (route.lang) {
+    html = html.replace(/<html([^>]*)\slang="[^"]*"/, `<html$1 lang="${route.lang}"`);
+    if (!/<html[^>]*\slang="/.test(html)) {
+      html = html.replace(/<html([^>]*)>/, `<html$1 lang="${route.lang}">`);
+    }
+  }
+
+  // Reciprocal hreflang. Only emitted where published translations exist, so
+  // the alternate set never points at machine-translated duplicates.
+  if (route.alternates && route.alternates.length) {
+    const altLinks = route.alternates
+      .map((a) => `  <link rel="alternate" hreflang="${a.hreflang}" href="${a.href}" />`)
+      .join('\n');
+    html = html.replace('</head>', `${altLinks}\n</head>`);
   }
 
   // Structured data

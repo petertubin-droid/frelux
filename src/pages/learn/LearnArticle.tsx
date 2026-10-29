@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
+import { useContentTranslation } from "@/lib/content-translations";
 import { useLearnMarketScope } from "@/lib/learn-scope";
 import type {
   DbLearnArticle,
@@ -49,6 +51,18 @@ export default function LearnArticle() {
   const [copied, setCopied] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
 
+  // Reviewed translations only. When none is published for this article in
+  // the active locale, the English content renders and the page stays noindex.
+  const { language } = useLanguage();
+  const { translation } = useContentTranslation(
+    language ?? "en",
+    "article",
+    article?.slug,
+  );
+  const displayTitle = translation?.title || article?.title || "";
+  const displayContent = translation?.body_md || article?.content || "";
+
+
   // Build structured data, Article schema + BreadcrumbList + FAQPage for rich results.
   const SITE_URL_ =
     SITE_URL;
@@ -59,7 +73,7 @@ export default function LearnArticle() {
       {
         "@context": "https://schema.org",
         "@type": "Article",
-        headline: article.title,
+        headline: displayTitle,
         description: article.meta_description ?? article.excerpt ?? "",
         author: article.author
           ? { "@type": "Person", name: article.author }
@@ -72,8 +86,8 @@ export default function LearnArticle() {
         datePublished: article.published_at ?? article.created_at,
         dateModified: article.updated_at,
         image: article.cover_image_url ? [article.cover_image_url] : undefined,
-        articleBody: article.content.slice(0, 5000),
-        wordCount: article.content.split(/\s+/).length,
+        articleBody: displayContent.slice(0, 5000),
+        wordCount: displayContent.split(/\s+/).length,
         keywords: article.meta_keywords ?? undefined,
         mainEntityOfPage: {
           "@type": "WebPage",
@@ -121,7 +135,9 @@ export default function LearnArticle() {
   }, [article, faqs, articleSlug, SITE_URL_]);
 
   useSeo({
-    title: article ? (article.meta_title ?? article.title) : "Article",
+    title: article
+      ? (translation?.title ?? article.meta_title ?? article.title)
+      : "Article",
     description:
       article?.meta_description ??
       article?.excerpt ??
@@ -290,7 +306,7 @@ export default function LearnArticle() {
     // While the article is still loading (null), render no chunks - the
     // component's loading UI never consumes them.
     if (!article) return [];
-    const lines = article.content.split("\n");
+    const lines = displayContent.split("\n");
     const h2Starts: number[] = [];
     let inFence = false;
     lines.forEach((l, i) => {
@@ -321,7 +337,7 @@ export default function LearnArticle() {
     }
 
     // Few H2s: split on paragraph boundaries into ~4 groups instead.
-    const paras = article.content.split(/\n\s*\n/);
+    const paras = displayContent.split(/\n\s*\n/);
     if (paras.length >= 4) {
       const per = Math.ceil(paras.length / 4);
       const chunks: string[] = [];
@@ -331,13 +347,13 @@ export default function LearnArticle() {
       return chunks.filter((ch) => ch.trim().length > 0);
     }
 
-    return [article.content];
+    return [displayContent];
   }, [article?.content, article]);
 
   // Extract table of contents from article content
   const tableOfContents = useMemo(() => {
     if (!article) return [];
-    const lines = article.content.split("\n");
+    const lines = displayContent.split("\n");
     const headings: { id: string; text: string; level: number }[] = [];
     for (const line of lines) {
       if (line.startsWith("## ")) {
@@ -400,7 +416,7 @@ export default function LearnArticle() {
 
   const readingTime =
     article.read_time_minutes ??
-    Math.ceil(article.content.split(/\s+/).length / 200);
+    Math.ceil(displayContent.split(/\s+/).length / 200);
 
   return (
     <>
@@ -580,26 +596,35 @@ export default function LearnArticle() {
                     content={chunk}
                     insertsByHeading={insertsByHeading}
                   />
-                  {/* In-content ad slots, distributed between sections
-                      (idx 0..2 of the chunk split) instead of stacked
-                      at the article footer. */}
-                  {idx === 0 && contentChunks.length > 1 && (
-                    <div className="my-10">
-                      <AdSlot slotKey="learn_article_mid_2" />
-                    </div>
-                  )}
+                  {/* In-content ad slots. Five per article page, spaced
+                      after the 2nd, 3rd and 4th sections (never two units
+                      back to back, never one directly under the title), with
+                      the fifth closing the body below. Placement policy:
+                      every unit sits inside real prose, is labelled, and
+                      reserves min-height so it cannot shift the layout. */}
                   {idx === 1 && contentChunks.length > 2 && (
                     <div className="my-10">
-                      <AdSlot slotKey="article_push_1" />
+                      <AdSlot slotKey="learn_article_mid_1" />
                     </div>
                   )}
                   {idx === 2 && contentChunks.length > 3 && (
                     <div className="my-10">
-                      <AdSlot slotKey="learn_in_article" />
+                      <AdSlot slotKey="learn_article_mid_2" />
+                    </div>
+                  )}
+                  {idx === 3 && contentChunks.length > 4 && (
+                    <div className="my-10">
+                      <AdSlot slotKey="article_push_1" />
                     </div>
                   )}
                 </React.Fragment>
               ))}
+            </div>
+
+            {/* Fifth slot: closes the article body, in flow (never fixed to
+                the viewport). */}
+            <div className="my-10">
+              <AdSlot slotKey="learn_article_end" />
             </div>
 
             {/* Bottom in-article inserts */}

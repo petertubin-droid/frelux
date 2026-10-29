@@ -4,7 +4,6 @@ import { LocalePrompt } from "@/components/ui/LocalePrompt";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { StickyBottomAd } from "@/components/ui/StickyBottomAd";
 import AdsterraDirectLink from "@/components/ui/AdsterraDirectLink";
 import {
   hasAdvertisingConsent,
@@ -520,12 +519,10 @@ export default function Layout() {
         <Outlet />
         <LocalePrompt />
       </main>
-      {/* Owner directive 2026-10-27: the ONLY bottom-of-page slot is the
-          sticky bottom anchor (AdSense-locked, see StickyBottomAd). The
-          former global_footer / adsense_footer slots were removed to
-          keep one clean bottom unit per page for the AdSense approval
-          review. */}
-      <StickyBottomAd />
+      {/* Owner directive 2026-10-29: the sticky bottom anchor was removed
+          because it covered the mobile bottom navigation. No ad may be
+          fixed to the viewport bottom; bottom-of-content units live inside
+          the page flow (e.g. learn_article_end). */}
       <AdsterraDirectLink />
       {adsterraNative && hasAdvertisingConsent() && (
         <div

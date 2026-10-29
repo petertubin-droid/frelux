@@ -634,8 +634,8 @@ describe("AdSlot", () => {
       expect((wrapper as HTMLElement).style.display).toBe("none");
     });
     expect(container.querySelector("ins.adsbygoogle")).not.toBeNull();
-    // The collapse is also what hides the StickyBottomAd bar: it
-    // measures the wrapper's computed display.
+    // The wrapper collapse is what keeps an empty slot from reserving
+    // visual space in the page flow.
   });
 
   it("keeps a locked AdSense slot expanded when Google actually fills", async () => {

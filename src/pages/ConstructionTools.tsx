@@ -434,6 +434,7 @@ export default function ConstructionTools() {
 
         {/* Ad slot: top of the section */}
         <AdSlot slotKey="calculator_hub_native" className="mt-8" />
+        <AdSlot slotKey="tools_mid" className="mt-6" />
 
         {/* Results: one section of up to 10 tools at a time */}
         {ordered.length === 0 ? (

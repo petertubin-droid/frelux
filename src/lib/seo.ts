@@ -1,3 +1,4 @@
+import { isLocalePathIndexable } from "@/lib/translation-index";
 import { SITE_URL } from "@/lib/site-config";
 import { useEffect } from "react";
 import { localeFromPathname } from "@/lib/i18n";
@@ -125,12 +126,12 @@ export function useSeo(meta: SeoMeta | null) {
     // Canonical URL, always set
     setLink("canonical", canonicalUrl);
 
-    // Locale URLs (/es/, /fr/, ...) are client-side language switching
-    // over the same underlying English content: prerender emits exactly
-    // one content-bearing page per route. The canonical above stays the
-    // English page and no hreflang alternate set is declared while
-    // locale URLs serve machine-translated duplicate content (an
-    // alternate set requires genuinely translated content per locale).
+    // A locale URL is a real page only when a reviewed translation for this
+    // exact content has been published (content_translations). Then it keeps
+    // its own canonical and is indexable. Otherwise it stays a machine-
+    // translated view of the English page: canonical stays English and the
+    // page is noindex, because an alternate set without real translated
+    // content produces the near-duplicate cluster Search Console reports.
 
     // Robots. Since the 2026-10-23 i18n batch, locale-prefixed URLs serve
     // 200 (URL-durable language switching, netlify.toml) and carry a
@@ -140,7 +141,11 @@ export function useSeo(meta: SeoMeta | null) {
     // itself as indexable — indexable duplicates are exactly what
     // produced Search Console's "Alternate page with proper canonical" /
     // "Google chose different canonical" reports.
-    if (meta.noIndex || seoLocale) {
+    const localeIsIndexable =
+      !seoLocale ||
+      isLocalePathIndexable(seoLocale, window.location.pathname);
+
+    if (meta.noIndex || !localeIsIndexable) {
       setMeta("name", "robots", "noindex, nofollow");
     } else {
       setMeta(
