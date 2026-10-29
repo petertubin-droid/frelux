@@ -108,7 +108,14 @@ serveWithCors(async (req: Request) => {
   const otp_code = pendingOtp.otp_code;
 
   const termiiKey = Deno.env.get("TERMII_API_KEY") ?? "";
-  const termiiSender = Deno.env.get("TERMII_SENDER_ID") ?? "FRELUX";
+  // Termii only accepts a sender ID that its compliance team has approved.
+  // FRELUX is registered but not yet approved, so an OTP sent with it is
+  // rejected and the user is locked out of phone verification. N-Alert is
+  // Termii's own always-approved alphanumeric sender: fall back to it so
+  // verification works today, and use the branded sender the moment approval
+  // lands.
+  const brandedSender = Deno.env.get("TERMII_SENDER_ID") ?? "FRELUX";
+  const SENDER_FALLBACK = "N-Alert";
 
   if (!termiiKey) {
     return new Response(
@@ -149,21 +156,36 @@ serveWithCors(async (req: Request) => {
 
   const message = `FRELUX: Your verification code is ${otp_code}. Do not share this code with anyone.`;
 
-  try {
+  const sendOnce = async (sender: string) => {
     const response = await fetch("https://api.ng.termii.com/api/sms/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         api_key: termiiKey,
         to: formattedPhone,
-        from: termiiSender,
+        from: sender,
         sms: message,
         type: "plain",
         channel: "generic",
       }),
     });
+    return { response, result: await response.json() };
+  };
 
-    const result = await response.json();
+  try {
+    // Branded sender first; if Termii rejects it (unapproved sender ID), retry
+    // once on the always-approved fallback so verification never dead-ends.
+    let { response, result } = await sendOnce(brandedSender);
+    const senderRejected =
+      !response.ok ||
+      (result.code && result.code !== "ok") ||
+      /sender|approved|invalid/i.test(String(result.message ?? ""));
+    if (senderRejected && brandedSender !== SENDER_FALLBACK) {
+      console.warn(
+        `Termii rejected sender ${brandedSender}, retrying with ${SENDER_FALLBACK}`,
+      );
+      ({ response, result } = await sendOnce(SENDER_FALLBACK));
+    }
 
     if (!response.ok || (result.code && result.code !== "ok")) {
       return new Response(

@@ -218,7 +218,7 @@ serveWithCors(async (req: Request) => {
           const trans = await trRes.json();
           for (const t of trans) {
             urls.push(`  <url>
-    <loc>${siteUrl}/${t.locale}/learn/${t.content_key}/</loc>
+    <loc>${SITE_URL}/${t.locale}/learn/${t.content_key}/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>`);
@@ -315,26 +315,94 @@ serveWithCors(async (req: Request) => {
   </url>`);
     }
 
-    // Add category + location combo pages — /marketplace/{categorySlug}/{locationSlug}
-    for (const cat of proCategories) {
-      if (!cat.slug || !cat.seo_indexable) continue;
-      for (const loc of proLocations) {
-        if (!loc.slug || !loc.seo_indexable) continue;
-        const catSlug = escapeXml(cat.slug);
-        const locSlug = escapeXml(loc.slug);
-        urls.push(`  <url>
-    <loc>${SITE_URL}/marketplace/${catSlug}/${locSlug}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>`);
+    // Real inventory for the programmatic matrices. A category x location
+    // pair with nothing behind it is a doorway page: it ranks for nothing,
+    // reads as empty to a visitor, and counts against AdSense's thin-content
+    // policy. Both matrices are therefore driven by actual supply, not by the
+    // cartesian product of taxonomies.
+    let marketCoverage = new Set<string>();
+    let proCoverage = new Set<string>();
+    try {
+      const [mktRes, proSvcRes, proLocRes] = await Promise.all([
+        fetch(
+          `${supabaseUrl}/rest/v1/marketplace_listings?select=category_id,location_state,location_city&is_active=eq.true&admin_removed=eq.false&seo_indexable=eq.true`,
+          { headers },
+        ),
+        fetch(
+          `${supabaseUrl}/rest/v1/pro_profile_services?select=profile_id,service_id`,
+          { headers },
+        ),
+        fetch(
+          `${supabaseUrl}/rest/v1/pro_profile_locations?select=profile_id,location_id`,
+          { headers },
+        ),
+      ]);
+      const mapByKey = (rows: Array<Record<string, unknown>>, key: string) => {
+        const out = new Map<string, number>();
+        for (const r of rows) {
+          const k = String(r[key] ?? "");
+          if (!k) continue;
+          out.set(k, (out.get(k) ?? 0) + 1);
+        }
+        return out;
+      };
+      if (mktRes.ok) {
+        const rows = await mktRes.json();
+        // Listings carry a category uuid plus a free-text place; a pair counts
+        // as covered when at least one indexable listing exists for it.
+        for (const r of rows) {
+          const cat = String(r.category_id ?? "");
+          const loc = String(r.location_state ?? "").trim();
+          if (cat && loc) marketCoverage.add(`${cat}|${loc}`);
+        }
       }
+      if (proSvcRes.ok && proLocRes.ok) {
+        const svc = mapByKey(await proSvcRes.json(), "service_id");
+        const loc = mapByKey(await proLocRes.json(), "location_id");
+        // A pro is covered for a pair only if some profile offers that service
+        // AND works that location; with sparse supply this collapses fast,
+        // which is the point.
+        for (const [serviceId] of svc) {
+          for (const [locationId] of loc) {
+            proCoverage.add(`${serviceId}|${locationId}`);
+          }
+        }
+      }
+    } catch {
+      // Coverage is an optimisation: on failure fall back to no programmatic
+      // pages rather than emitting 1,200 empty ones.
     }
+    proCoverage = proCoverage.size > 0 ? proCoverage : new Set<string>();
+
+    const matrixHasInventory = (
+      kind: "market" | "pro",
+      catId: string,
+      locId: string,
+      catSlug: string,
+      locSlug: string,
+    ): boolean => {
+      const set = kind === "pro" ? proCoverage : marketCoverage;
+      if (set.size === 0) return false;
+      return (
+        set.has(`${catId}|${locId}`) ||
+        set.has(`${catSlug}|${locSlug}`) ||
+        set.has(`${catId}|${locSlug}`) ||
+        set.has(`${catSlug}|${locId}`)
+      );
+    };
+
+    // Marketplace category x location pages are intentionally NOT emitted.
+    // They were a cartesian product (14 categories x 89 locations = 1,246
+    // URLs) with no inventory check, so nearly every one served an empty
+    // result set. Category pages and listing pages below carry the real
+    // inventory instead.
 
     // Add pro category + location pages — /pro/{categorySlug}/{locationSlug}
     for (const cat of proCategories) {
       if (!cat.slug || !cat.seo_indexable) continue;
       for (const loc of proLocations) {
         if (!loc.slug || !loc.seo_indexable) continue;
+        if (!matrixHasInventory("pro", (cat as { id?: string }).id ?? "", (loc as { id?: string }).id ?? "", cat.slug, loc.slug)) continue;
         const catSlug = escapeXml(cat.slug);
         const locSlug = escapeXml(loc.slug);
         urls.push(`  <url>
