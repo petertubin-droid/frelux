@@ -26,7 +26,12 @@
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { resolveSubscriptionPriceKobo } from "../_shared/subscription-pricing.ts";
+import {
+  FLUTTERWAVE_CURRENCIES,
+  resolveMarketCharge,
+  resolveSubscriptionPrice,
+  toMajorUnits,
+} from "../_shared/subscription-pricing.ts";
 import {
   configAsPack,
   pickPack,
@@ -72,6 +77,7 @@ serveWithCors(async (req: Request) => {
       billing_cycle,
       email,
       user_id,
+      market_code,
       currency,
       allow_ngn_fallback,
       pack_id,
@@ -222,18 +228,16 @@ serveWithCors(async (req: Request) => {
     // row means the plan is not self-serve purchasable.
     const { data: priceRows, error: priceError } = await admin
       .from("subscription_plan_prices")
-      .select("plan, billing_cycle, price_kobo, active")
+      .select("plan, billing_cycle, price_minor, price_kobo, currency, active")
       .eq("plan", plan)
       .eq("billing_cycle", cycle);
     if (priceError) {
       return json({ error: "Plan pricing unavailable" }, 500);
     }
-    const { priceKobo } = resolveSubscriptionPriceKobo(
-      priceRows ?? [],
-      plan,
-      cycle,
-    );
-    if (priceKobo === null) {
+    // Subscriptions are priced in US dollars; Flutterwave settles the
+    // dollar amount directly for international cards.
+    const usd = resolveSubscriptionPrice(priceRows ?? [], plan, cycle, "USD");
+    if (!usd) {
       return json(
         {
           error:
@@ -243,8 +247,29 @@ serveWithCors(async (req: Request) => {
       );
     }
 
-    // Flutterwave expects the currency's major unit (naira).
-    const amount = priceKobo / 100;
+    // Charge the market's own price when Flutterwave settles that
+    // currency; otherwise the canonical dollar price.
+    const market = String(market_code ?? "").toUpperCase();
+    let localPrice: { currency: string; price_minor: number } | null = null;
+    if (market) {
+      const { data: localRows } = await admin
+        .from("subscription_local_prices")
+        .select("currency, price_minor")
+        .eq("market_code", market)
+        .eq("plan", plan)
+        .eq("billing_cycle", cycle)
+        .eq("active", true)
+        .limit(1);
+      localPrice = (localRows ?? [])[0] ?? null;
+    }
+    const charge = resolveMarketCharge({
+      localPrice,
+      usdPriceMinor: usd.priceMinor,
+      supported: FLUTTERWAVE_CURRENCIES,
+    });
+
+    // Flutterwave expects the currency's major unit.
+    const amount = toMajorUnits(charge.priceMinor, charge.currency);
     if (!Number.isFinite(amount) || amount <= 0) {
       return json({ error: "Invalid plan price configuration" }, 500);
     }
@@ -270,7 +295,7 @@ serveWithCors(async (req: Request) => {
       body: JSON.stringify({
         tx_ref: txRef,
         amount,
-        currency: "NGN",
+        currency: charge.currency,
         redirect_url: redirectUrl,
         payment_options: "card,banktransfer,ussd",
         customer: {
@@ -284,6 +309,11 @@ serveWithCors(async (req: Request) => {
           plan,
           billing_cycle: cycle,
           user_id,
+          base_currency: usd.currency,
+          base_minor: usd.priceMinor,
+          charge_currency: charge.currency,
+          charge_minor: charge.priceMinor,
+          market_code: market,
         },
       }),
     });

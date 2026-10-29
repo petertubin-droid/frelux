@@ -23,7 +23,13 @@
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { resolveSubscriptionPriceKobo } from "../_shared/subscription-pricing.ts";
+import {
+  PAYSTACK_CURRENCIES,
+  resolveMarketCharge,
+  resolveSubscriptionPrice,
+  toMajorUnits,
+  usdCentsToNairaKobo,
+} from "../_shared/subscription-pricing.ts";
 import {
   configAsPack,
   pickPack,
@@ -62,6 +68,7 @@ serveWithCors(async (req: Request) => {
       plan,
       billing_cycle,
       user_id,
+      market_code,
       callback_url,
       metadata,
       purpose,
@@ -76,6 +83,7 @@ serveWithCors(async (req: Request) => {
     let checkoutMetadata = metadata;
     let checkoutCallback = callback_url;
     let apiPlanCurrency: string | null = null;
+    let chargeCurrency: string | null = null;
 
     if (isApiPlanPurchase) {
       // FRELUX API plan purchase (Phase 7 §17). Server-priced ONLY —
@@ -340,13 +348,18 @@ serveWithCors(async (req: Request) => {
         });
       }
 
-      // Resolve the canonical price for (plan, billing_cycle) — no
-      // configured row means the plan is not self-serve purchasable.
+      // Resolve the canonical USD price for (plan, billing_cycle). Paystack
+      // settles in naira, so the dollar price is converted at a rate taken
+      // from fx_rates and recorded as a quote. Verification compares the
+      // charge to that quote, so a rate move cannot fail a paying customer.
+      const cycle = billing_cycle ?? "monthly";
       const { data: priceRows, error: priceError } = await admin
         .from("subscription_plan_prices")
-        .select("plan, billing_cycle, price_kobo, active")
+        .select(
+          "plan, billing_cycle, price_minor, price_kobo, currency, active",
+        )
         .eq("plan", plan)
-        .eq("billing_cycle", billing_cycle ?? "monthly");
+        .eq("billing_cycle", cycle);
       if (priceError) {
         return new Response(
           JSON.stringify({ error: "Plan pricing unavailable" }),
@@ -356,12 +369,8 @@ serveWithCors(async (req: Request) => {
           },
         );
       }
-      const { priceKobo } = resolveSubscriptionPriceKobo(
-        priceRows ?? [],
-        plan,
-        billing_cycle ?? "monthly",
-      );
-      if (priceKobo === null) {
+      const usd = resolveSubscriptionPrice(priceRows ?? [], plan, cycle, "USD");
+      if (!usd) {
         return new Response(
           JSON.stringify({
             error:
@@ -373,7 +382,97 @@ serveWithCors(async (req: Request) => {
           },
         );
       }
-      checkoutAmount = priceKobo;
+
+      // Prefer the market's own price row: it is exactly what the pricing
+      // page showed. Paystack settles NGN/GHS/ZAR/KES/USD directly.
+      const market = String(market_code ?? "").toUpperCase();
+      let localPrice: { currency: string; price_minor: number } | null = null;
+      if (market) {
+        const { data: localRows } = await admin
+          .from("subscription_local_prices")
+          .select("currency, price_minor")
+          .eq("market_code", market)
+          .eq("plan", plan)
+          .eq("billing_cycle", cycle)
+          .eq("active", true)
+          .limit(1);
+        localPrice = (localRows ?? [])[0] ?? null;
+      }
+      let charge = resolveMarketCharge({
+        localPrice,
+        usdPriceMinor: usd.priceMinor,
+        supported: PAYSTACK_CURRENCIES,
+      });
+      let rateRow: {
+        rate: number;
+        source?: string | null;
+        fetched_at?: string | null;
+      } | null = null;
+
+      // A currency the market has no row for, or one Paystack cannot
+      // settle, is charged as naira quoted from the dollar price.
+      if (charge.currency === "USD" && !localPrice) {
+        const { data: rateRows } = await admin
+          .from("fx_rates")
+          .select("rate, source, fetched_at")
+          .eq("base_currency", "USD")
+          .eq("quote_currency", "NGN")
+          .order("fetched_at", { ascending: false })
+          .limit(1);
+        rateRow = (rateRows ?? [])[0] ?? null;
+        const quotedKobo = rateRow
+          ? usdCentsToNairaKobo(usd.priceMinor, Number(rateRow.rate))
+          : null;
+        if (quotedKobo !== null) {
+          charge = { currency: "NGN", priceMinor: quotedKobo };
+        }
+      }
+
+      // Reference is generated server-side so the quote cannot be
+      // pre-empted by a client-chosen reference.
+      reference = `FRELUX_SUB_${plan}_${user_id.slice(0, 8)}_${Date.now()}`;
+      // The redirect must carry the server-generated reference, otherwise
+      // verification would look up a quote that does not exist.
+      checkoutCallback = `${req.headers.get("origin")}/pricing?status=verify&gw=paystack&ref=${reference}`;
+
+      const { error: quoteError } = await admin
+        .from("subscription_checkout_quotes")
+        .insert({
+          reference,
+          user_id,
+          plan,
+          billing_cycle: cycle,
+          base_currency: "USD",
+          base_minor: usd.priceMinor,
+          charge_currency: charge.currency,
+          charge_minor: charge.priceMinor,
+          fx_rate: rateRow ? Number(rateRow.rate) : null,
+          fx_source: rateRow?.source ?? null,
+          fx_fetched_at: rateRow?.fetched_at ?? null,
+        });
+      if (quoteError) {
+        return new Response(
+          JSON.stringify({ error: "Could not start checkout" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Paystack expects minor units in the charge currency.
+      checkoutAmount = charge.priceMinor;
+      chargeCurrency = charge.currency;
+      checkoutMetadata = {
+        ...(metadata ?? {}),
+        plan,
+        billing_cycle: cycle,
+        user_id,
+        market_code: market,
+        base_currency: "USD",
+        base_minor: usd.priceMinor,
+        charge_currency: charge.currency,
+      };
     }
 
     // Token purchases generate the reference server-side; the client
@@ -410,7 +509,11 @@ serveWithCors(async (req: Request) => {
         body: JSON.stringify({
           email,
           amount: checkoutAmount, // minor units
-          ...(apiPlanCurrency ? { currency: apiPlanCurrency } : {}),
+          ...(apiPlanCurrency
+            ? { currency: apiPlanCurrency }
+            : chargeCurrency
+              ? { currency: chargeCurrency }
+              : {}),
           reference: reference_,
           callback_url: isTokenPurchase
             ? checkoutCallback

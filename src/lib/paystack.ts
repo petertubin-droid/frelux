@@ -14,8 +14,12 @@
 // - PAYSTACK_SECRET_KEY, secret key (edge function / server only)
 // =========================================================
 
-import { supabase, isSupabaseConfigured, getFunctionErrorMessage } from '@/lib/supabase';
-import type { SubscriptionPlan } from '@/lib/subscription';
+import {
+  supabase,
+  isSupabaseConfigured,
+  getFunctionErrorMessage,
+} from "@/lib/supabase";
+import type { SubscriptionPlan } from "@/lib/subscription";
 
 export interface PaystackInitializeResponse {
   status: boolean;
@@ -35,7 +39,7 @@ export interface PaystackVerifyResponse {
     reference: string;
     amount: number; // in kobo
     currency: string;
-    status: 'success' | 'failed' | 'abandoned';
+    status: "success" | "failed" | "abandoned";
     customer: {
       email: string;
       first_name?: string;
@@ -43,9 +47,13 @@ export interface PaystackVerifyResponse {
     };
     metadata: {
       plan: SubscriptionPlan;
-      billing_cycle: 'monthly' | 'yearly';
+      billing_cycle: "monthly" | "yearly";
       user_id?: string;
-      custom_fields?: { display_name: string; variable_name: string; value: string }[];
+      custom_fields?: {
+        display_name: string;
+        variable_name: string;
+        value: string;
+      }[];
     };
   };
 }
@@ -56,19 +64,24 @@ export interface PaystackVerifyResponse {
  */
 export async function initializeSubscriptionCheckout(
   plan: SubscriptionPlan,
-  billingCycle: 'monthly' | 'yearly',
+  billingCycle: "monthly" | "yearly",
   amountInKobo: number,
   email: string,
   userId: string,
-): Promise<{ authorization_url: string; reference: string } | { error: string }> {
+  marketCode?: string | null,
+): Promise<
+  { authorization_url: string; reference: string } | { error: string }
+> {
   if (!isSupabaseConfigured) {
-    return { error: 'Payment system is not configured. Please try again later.' };
+    return {
+      error: "Payment system is not configured. Please try again later.",
+    };
   }
 
   const reference = `FRELUX_${plan}_${billingCycle}_${userId.slice(0, 8)}_${Date.now()}`;
 
   // Call the edge function
-  const { data, error } = await supabase.functions.invoke('paystack-checkout', {
+  const { data, error } = await supabase.functions.invoke("paystack-checkout", {
     body: {
       email,
       amount: amountInKobo, // Paystack expects kobo (1 NGN = 100 kobo)
@@ -76,26 +89,39 @@ export async function initializeSubscriptionCheckout(
       plan,
       billing_cycle: billingCycle,
       user_id: userId,
+      market_code: marketCode ?? null,
       callback_url: `${window.location.origin}/pricing?status=verify&ref=${reference}`,
       metadata: {
         plan,
         billing_cycle: billingCycle,
         user_id: userId,
         custom_fields: [
-          { display_name: 'Plan', variable_name: 'plan', value: plan },
-          { display_name: 'Billing Cycle', variable_name: 'billing_cycle', value: billingCycle },
-          { display_name: 'Platform', variable_name: 'platform', value: 'FRELUX' },
+          { display_name: "Plan", variable_name: "plan", value: plan },
+          {
+            display_name: "Billing Cycle",
+            variable_name: "billing_cycle",
+            value: billingCycle,
+          },
+          {
+            display_name: "Platform",
+            variable_name: "platform",
+            value: "FRELUX",
+          },
         ],
       },
     },
   });
 
   if (error) {
-    return { error: await getFunctionErrorMessage(error) || 'Failed to initialize payment. Please try again.' };
+    return {
+      error:
+        (await getFunctionErrorMessage(error)) ||
+        "Failed to initialize payment. Please try again.",
+    };
   }
 
   if (!data?.data?.authorization_url) {
-    return { error: 'Invalid response from payment server.' };
+    return { error: "Invalid response from payment server." };
   }
 
   return {
@@ -108,12 +134,14 @@ export async function initializeSubscriptionCheckout(
  * Verify a Paystack transaction after the user returns from checkout.
  * Calls the edge function `paystack-verify`.
  */
-export async function verifyPayment(reference: string): Promise<{ verified: boolean; plan?: SubscriptionPlan; error?: string }> {
+export async function verifyPayment(
+  reference: string,
+): Promise<{ verified: boolean; plan?: SubscriptionPlan; error?: string }> {
   if (!isSupabaseConfigured) {
-    return { verified: false, error: 'Payment system is not configured.' };
+    return { verified: false, error: "Payment system is not configured." };
   }
 
-  const { data, error } = await supabase.functions.invoke('paystack-verify', {
+  const { data, error } = await supabase.functions.invoke("paystack-verify", {
     body: { reference },
   });
 
@@ -122,11 +150,14 @@ export async function verifyPayment(reference: string): Promise<{ verified: bool
   }
 
   if (!data?.status) {
-    return { verified: false, error: data?.message || 'Payment verification failed.' };
+    return {
+      verified: false,
+      error: data?.message || "Payment verification failed.",
+    };
   }
 
   return {
-    verified: data.data.status === 'success',
+    verified: data.data.status === "success",
     plan: data.data.metadata?.plan,
   };
 }
@@ -145,5 +176,5 @@ export function isPaystackConfigured(): boolean {
  * Get the Paystack public key.
  */
 export function getPaystackPublicKey(): string {
-  return import.meta.env.VITE_PAYSTACK_PUBLIC_KEY ?? '';
+  return import.meta.env.VITE_PAYSTACK_PUBLIC_KEY ?? "";
 }

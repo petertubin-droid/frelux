@@ -156,6 +156,7 @@ async function initializeFlutterwaveSubscription(
   amountMinor: number,
   email: string,
   userId: string,
+  marketCode?: string | null,
 ): Promise<CheckoutStartResult> {
   const { data, error } = await supabase.functions.invoke(
     "flutterwave-checkout",
@@ -166,6 +167,9 @@ async function initializeFlutterwaveSubscription(
         amount_minor: amountMinor,
         email,
         user_id: userId,
+        // The market's own price row is what the page showed; the server
+        // resolves and quotes it, never trusting an amount here.
+        market_code: marketCode ?? null,
       },
     },
   );
@@ -233,6 +237,7 @@ export async function startSubscriptionCheckout(
       amountMinor,
       email,
       userId,
+      marketCode,
     );
     if (!("error" in result)) {
       return { authorization_url: result.authorization_url };

@@ -19,7 +19,11 @@
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { validateSubscriptionPayment } from "../_shared/subscription-pricing.ts";
+import {
+  validateQuotedCharge,
+  validateSubscriptionCharge,
+  validateSubscriptionPayment,
+} from "../_shared/subscription-pricing.ts";
 import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
 import {
   configAsPack,
@@ -204,20 +208,57 @@ serveWithCors(async (req: Request) => {
 
     const { data: priceRows, error: priceError } = await supabase
       .from("subscription_plan_prices")
-      .select("plan, billing_cycle, price_kobo, active");
+      .select("plan, billing_cycle, price_minor, price_kobo, currency, active");
     if (priceError) {
       return json({ error: "Plan pricing unavailable" }, 500);
     }
 
-    // Flutterwave reports amounts in major units; the canonical rows
-    // are in kobo.
-    const amountKobo = Math.round(Number(tx.amount) * 100);
-    const validation = validateSubscriptionPayment({
+    // Flutterwave reports amounts in major units (dollars or naira); the
+    // canonical rows are in minor units of their own currency.
+    const txCurrency = (tx as { currency?: string }).currency ?? "USD";
+    const amountMinor = Math.round(Number(tx.amount) * 100);
+    const amountKobo = amountMinor;
+    // Flutterwave reports the charged currency; a dollar subscription must
+    // match the dollar price exactly. Legacy naira checkouts fall back to
+    // the naira row so in-flight payments still settle.
+    const chargedCurrency = String(txCurrency ?? "USD").toUpperCase();
+    // A local-currency charge is validated against the quote recorded at
+    // checkout, which holds the exact currency and amount the visitor saw.
+    const { data: quoteRows } = await supabase
+      .from("subscription_checkout_quotes")
+      .select(
+        "reference, plan, billing_cycle, base_currency, base_minor, charge_currency, charge_minor, expires_at",
+      )
+      .eq("reference", txRef)
+      .limit(1);
+    const quote = (quoteRows ?? [])[0] ?? null;
+
+    const usdValidation = validateSubscriptionCharge({
       rows: priceRows ?? [],
       plan,
       billingCycle,
-      transactionAmountKobo: amountKobo,
+      currency: "USD",
+      chargedMinor: amountMinor,
     });
+    const legacyValidation =
+      chargedCurrency === "NGN"
+        ? validateSubscriptionPayment({
+            rows: priceRows ?? [],
+            plan,
+            billingCycle,
+            transactionAmountKobo: amountKobo,
+          })
+        : ({ ok: false, reason: "AMOUNT_MISMATCH" } as const);
+    const validation = quote
+      ? validateQuotedCharge(quote, {
+          plan,
+          billingCycle,
+          chargedMinor: amountMinor,
+          chargedCurrency,
+        })
+      : usdValidation.ok
+        ? usdValidation
+        : legacyValidation;
     if (!validation.ok) {
       return json({ verified: false, error: validation.reason }, 200);
     }
@@ -233,7 +274,8 @@ serveWithCors(async (req: Request) => {
       reference: txRef,
       plan,
       billingCycle,
-      amountKobo,
+      amountKobo: amountMinor,
+      currency: chargedCurrency,
       days,
       providerCustomerId: tx.customer?.email || null,
     });

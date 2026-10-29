@@ -12,7 +12,11 @@
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { validateSubscriptionPayment } from "../_shared/subscription-pricing.ts";
+import {
+  validateQuotedCharge,
+  validateSubscriptionCharge,
+  validateSubscriptionPayment,
+} from "../_shared/subscription-pricing.ts";
 import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
@@ -285,7 +289,7 @@ serveWithCors(async (req: Request) => {
 
     const { data: priceRows, error: priceError } = await supabase
       .from("subscription_plan_prices")
-      .select("plan, billing_cycle, price_kobo, active");
+      .select("plan, billing_cycle, price_minor, price_kobo, currency, active");
     if (priceError) {
       return new Response(
         JSON.stringify({ error: "Plan pricing unavailable" }),
@@ -295,12 +299,51 @@ serveWithCors(async (req: Request) => {
         },
       );
     }
-    const validation = validateSubscriptionPayment({
-      rows: priceRows ?? [],
-      plan,
-      billingCycle,
-      transactionAmountKobo: transaction.amount as number,
-    });
+
+    const paidMinor = Math.round(Number(transaction.amount));
+    const paidCurrency = String(
+      (transaction as { currency?: string }).currency ?? "NGN",
+    ).toUpperCase();
+
+    // Order of proof, strongest first:
+    //  1. a quote recorded at checkout (dollar price, naira charge),
+    //  2. the dollar price charged as dollars,
+    //  3. a legacy naira row for a checkout started before USD pricing.
+    const { data: quoteRows, error: quoteError } = await supabase
+      .from("subscription_checkout_quotes")
+      .select(
+        "reference, plan, billing_cycle, base_currency, base_minor, charge_currency, charge_minor, expires_at",
+      )
+      .eq("reference", reference)
+      .limit(1);
+
+    let validation: { ok: boolean; reason?: string } = { ok: false };
+    if (!quoteError && (quoteRows ?? []).length > 0) {
+      validation = validateQuotedCharge(quoteRows![0], {
+        plan,
+        billingCycle,
+        chargedMinor: paidMinor,
+        chargedCurrency: paidCurrency,
+      });
+    } else {
+      const usd = validateSubscriptionCharge({
+        rows: priceRows ?? [],
+        plan,
+        billingCycle,
+        currency: "USD",
+        chargedMinor: paidMinor,
+      });
+      const legacy =
+        paidCurrency === "NGN"
+          ? validateSubscriptionPayment({
+              rows: priceRows ?? [],
+              plan,
+              billingCycle,
+              transactionAmountKobo: paidMinor,
+            })
+          : ({ ok: false, reason: "AMOUNT_MISMATCH" } as const);
+      validation = usd.ok ? usd : legacy;
+    }
     if (!validation.ok) {
       return new Response(
         JSON.stringify({
@@ -327,7 +370,8 @@ serveWithCors(async (req: Request) => {
       reference,
       plan,
       billingCycle,
-      amountKobo: transaction.amount as number,
+      amountKobo: paidMinor,
+      currency: paidCurrency,
       days,
       providerCustomerId: transaction.customer?.customer_code || null,
     });

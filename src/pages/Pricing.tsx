@@ -11,16 +11,25 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import PageHeader from "@/components/ui/PageHeader";
 import { useAuth } from "@/lib/auth";
-import {
-  useMarket,
-  useSeoOfferCurrency,
-} from "@/lib/international/market-context";
-import { formatCurrency } from "@/lib/utils";
-import { isConverting } from "@/lib/international/fx-display";
+import { useMarket } from "@/lib/international/market-context";
 import { useSeo } from "@/lib/seo";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { useToast } from "@/components/ui/Toast";
-import { PRICING_PLANS, type PricingPlan } from "@/lib/pricing-plans";
+import {
+  loadLocalSubscriptionPrices,
+  displayedPrice,
+  formatLocalPrice,
+  marketCurrencyCode,
+  type LocalPriceRow,
+} from "@/lib/subscription-pricing";
+import {
+  PRICING_PLANS,
+  SUBSCRIPTION_CURRENCY,
+  formatUsdPrice,
+  planPriceCents,
+  yearlySavingPercent,
+  type PricingPlan,
+} from "@/lib/pricing-plans";
 import { verifyPayment } from "@/lib/paystack";
 import { verifyFlutterwavePayment } from "@/lib/flutterwave";
 import {
@@ -39,9 +48,13 @@ import { useLanguage } from "@/lib/i18n";
 
 type BillingCycle = "monthly" | "yearly";
 
+/** Largest annual saving across paid plans, for the toggle badge. */
+const MAX_YEARLY_SAVING = Math.max(
+  ...PRICING_PLANS.map((p) => yearlySavingPercent(p)),
+);
+
 export default function Pricing() {
   const { t } = useLanguage();
-  const seoOfferCurrency = useSeoOfferCurrency();
   useSeo({
     title: "Pricing, FRELUX Premium",
     description:
@@ -62,24 +75,33 @@ export default function Pricing() {
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
         publisher: { "@type": "Organization", name: "FRELUX" },
-        offers: [
-          {
-            "@type": "Offer",
-            name: "Pro Monthly",
-            price: "5000",
-            priceCurrency: seoOfferCurrency,
+        // One Offer per purchasable plan and cycle, priced exactly as
+        // advertised. The old pair of offers carried naira amounts and a
+        // Premium price that did not match the card on the page.
+        offers: PRICING_PLANS.filter((p) => p.monthlyPrice > 0).flatMap((p) =>
+          (["monthly", "yearly"] as const).map((cycle) => ({
+            "@type": "Offer" as const,
+            name: `${p.name} ${cycle === "monthly" ? "Monthly" : "Annual"}`,
+            price: (cycle === "monthly"
+              ? p.monthlyPrice
+              : p.yearlyPrice
+            ).toFixed(2),
+            priceCurrency: SUBSCRIPTION_CURRENCY,
             url: `${SITE_URL}/pricing`,
-            availability: "https://schema.org/PreOrder",
-          },
-          {
-            "@type": "Offer",
-            name: "Premium Monthly",
-            price: "10000",
-            priceCurrency: seoOfferCurrency,
-            url: `${SITE_URL}/pricing`,
-            availability: "https://schema.org/PreOrder",
-          },
-        ],
+            availability: "https://schema.org/InStock",
+            priceSpecification: {
+              "@type": "UnitPriceSpecification",
+              price: (cycle === "monthly"
+                ? p.monthlyPrice
+                : p.yearlyPrice
+              ).toFixed(2),
+              priceCurrency: SUBSCRIPTION_CURRENCY,
+              billingDuration: cycle === "monthly" ? 1 : 12,
+              billingIncrement: 1,
+              unitCode: "MON",
+            },
+          })),
+        ),
       },
       {
         "@context": "https://schema.org",
@@ -98,7 +120,7 @@ export default function Pricing() {
             name: "What payment methods does FRELUX accept?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "We use Paystack to accept all major Nigerian debit cards (Verve, Visa, Mastercard), bank transfers, and USSD. International cards are also supported.",
+              text: "Subscription prices are in US dollars. Paystack handles naira cards, bank transfer and USSD in Nigeria, Ghana, South Africa and Kenya; Flutterwave handles international cards. A naira-paying card is charged the naira equivalent quoted at checkout.",
             },
           },
           {
@@ -140,6 +162,8 @@ export default function Pricing() {
   const [chosenGateway, setChosenGateway] = useState<PaymentGateway | null>(
     null,
   );
+  // Local price rows for all markets; empty means USD prices throughout.
+  const [localPrices, setLocalPrices] = useState<LocalPriceRow[]>([]);
   // Paystack only settles NGN/GHS/ZAR/KES, so a non-African market is given
   // Flutterwave (which accepts international cards) instead of a gateway that
   // cannot complete the charge.
@@ -159,6 +183,16 @@ export default function Pricing() {
       alive = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    loadLocalSubscriptionPrices().then((rows) => {
+      if (alive) setLocalPrices(rows);
+    });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   // Check if premium subscriptions are enabled
@@ -206,11 +240,6 @@ export default function Pricing() {
       return;
     }
 
-    if (plan.id === "enterprise") {
-      navigate("/contact?subject=Enterprise%20Inquiry");
-      return;
-    }
-
     if (!user) {
       navigate(`/login/?redirect=/pricing`);
       return;
@@ -238,14 +267,14 @@ export default function Pricing() {
 
     setLoadingPlan(plan.id);
 
-    const amount =
-      billingCycle === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;
-    const amountInKobo = amount * 100; // Legacy compatibility; hosted edge checkout resolves canonical prices.
+    // Amount in USD cents. The hosted checkout re-resolves the canonical
+    // price server-side, so this is a hint for logging, never trusted.
+    const amountMinor = planPriceCents(plan, billingCycle);
 
     const result = await startSubscriptionCheckout(
       plan.id,
       billingCycle,
-      amountInKobo,
+      amountMinor,
       user.email!,
       user.id,
       (chosenGateway ?? undefined) as PaymentGateway | undefined,
@@ -272,7 +301,7 @@ export default function Pricing() {
         <PageHeader
           eyebrow="Checkout"
           title={t("Verifying Payment")}
-          subtitle={t("Confirming your subscription with Paystack…")}
+          subtitle={t("Confirming your payment with the provider…")}
         />
         <div className="mx-auto max-w-md px-4 py-20 text-center">
           <Loader2
@@ -396,7 +425,7 @@ export default function Pricing() {
             >
               {t("Yearly")}
               <span className="ml-1.5 rounded-full bg-accent-green/15 px-2 py-0.5 text-[10px] font-bold text-accent-green">
-                2 months free
+                {t("Save up to")} {MAX_YEARLY_SAVING}%
               </span>
             </Button>
           </div>
@@ -442,8 +471,12 @@ export default function Pricing() {
         {/* Plan cards */}
         <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {PRICING_PLANS.map((plan) => {
-            const price =
-              billingCycle === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;
+            const shown = displayedPrice(
+              plan,
+              billingCycle,
+              market.marketCode,
+              localPrices,
+            );
             const isCurrentPlan = isPaid && paidStatus?.plan === plan.id;
             const isLoading = loadingPlan === plan.id;
 
@@ -488,22 +521,39 @@ export default function Pricing() {
                   {plan.tagline}
                 </p>
 
-                <div className="mt-4">
-                  <span className="text-3xl font-extrabold text-foreground dark:text-primary-foreground">
-                    {formatCurrency(price)}
+                <div className="mt-4" aria-live="polite">
+                  <span
+                    className="text-3xl font-extrabold text-foreground dark:text-primary-foreground"
+                    data-testid={`plan-price-${plan.id}`}
+                    data-currency={shown.currency}
+                  >
+                    {shown.formatted}
                   </span>
                   <span className="text-sm text-muted-foreground">
                     /{billingCycle === "monthly" ? "mo" : "yr"}
                   </span>
-                  {isConverting() && plan.id !== "free" && (
+                  {!shown.isUsd && (
+                    <p
+                      className="mt-1 block text-xs text-muted-foreground"
+                      data-testid={`plan-usd-${plan.id}`}
+                    >
+                      {shown.usdFormatted} USD
+                    </p>
+                  )}
+                  {billingCycle === "yearly" && plan.monthlyPrice > 0 && (
                     <p className="mt-1 block text-xs text-muted-foreground">
-                      Charged as {formatCurrency(price, "₦")} (Nigerian naira)
+                      {formatLocalPrice(
+                        Math.round(shown.amountMinor / 12),
+                        shown.currency,
+                      )}
+                      /mo, {t("save")} {yearlySavingPercent(plan)}%
                     </p>
                   )}
                 </div>
 
                 <Button
                   variant="ghost"
+                  aria-label={`${plan.cta}, ${plan.name} plan, billed ${billingCycle}, ${shown.formatted}`}
                   onClick={() => handleSubscribe(plan)}
                   disabled={
                     isLoading ||
@@ -570,11 +620,25 @@ export default function Pricing() {
           })}
         </div>
 
+        {localPrices.some(
+          (r) =>
+            r.market_code.toUpperCase() === market.marketCode.toUpperCase(),
+        ) &&
+          marketCurrencyCode(market.marketCode) !== SUBSCRIPTION_CURRENCY && (
+            <p
+              className="mx-auto mt-6 max-w-xl text-center text-xs text-muted-foreground"
+              data-testid="market-currency-note"
+            >
+              {t("Prices shown in")} {marketCurrencyCode(market.marketCode)}.{" "}
+              {t("Your card is charged that amount at checkout.")}
+            </p>
+          )}
+
         {/* Trust badges */}
         <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
           <span className="flex items-center gap-2">
-            <ShieldCheck aria-hidden="true" className="h-4 w-4" /> Secure
-            payment via Paystack
+            <ShieldCheck aria-hidden="true" className="h-4 w-4" />{" "}
+            {t("Secure payment via Paystack or Flutterwave")}
           </span>
           <span className="flex items-center gap-2">
             <Zap aria-hidden="true" className="h-4 w-4" />{" "}
@@ -598,7 +662,7 @@ export default function Pricing() {
             />
             <FaqItem
               q="What payment methods do you accept?"
-              a="We use Paystack to accept all major Nigerian debit cards (Verve, Visa, Mastercard), bank transfers, and USSD. International cards are also supported."
+              a="Prices are in US dollars. Paystack takes naira debit cards (Verve, Visa, Mastercard), bank transfer and USSD in Nigeria, Ghana, South Africa and Kenya; Flutterwave takes international cards. A naira card is charged the naira equivalent quoted at checkout."
             />
             <FaqItem
               q="Do I need to be logged in to subscribe?"
