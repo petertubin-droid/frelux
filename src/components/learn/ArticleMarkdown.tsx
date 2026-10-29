@@ -73,7 +73,7 @@ function renderTable(lines: string[], key: number): React.ReactNode {
               {row.map((cell, ci) => (
                 <td
                   key={ci}
-                  className="px-5 py-3 text-card-foreground dark:text-muted-foreground/80"
+                  className="px-5 py-3 text-card-foreground dark:text-foreground"
                 >
                   {renderInline(cell)}
                 </td>
@@ -130,7 +130,7 @@ export function ArticleMarkdown({
       elements.push(
         <pre
           key={key++}
-          className="overflow-auto rounded-xl bg-background p-5 text-sm text-muted-foreground/40"
+          className="overflow-auto rounded-xl bg-background p-5 text-sm text-foreground/90"
         >
           <code>{codeLines.join("\n")}</code>
         </pre>,
@@ -214,7 +214,7 @@ export function ArticleMarkdown({
       elements.push(
         <p
           key={key++}
-          className="mt-5 text-base leading-[1.75] text-card-foreground dark:text-muted-foreground/80"
+          className="mt-5 text-base leading-[1.75] text-card-foreground dark:text-foreground"
         >
           {renderInline(line)}
         </p>,

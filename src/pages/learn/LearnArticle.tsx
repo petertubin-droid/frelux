@@ -62,10 +62,8 @@ export default function LearnArticle() {
   const displayTitle = translation?.title || article?.title || "";
   const displayContent = translation?.body_md || article?.content || "";
 
-
   // Build structured data, Article schema + BreadcrumbList + FAQPage for rich results.
-  const SITE_URL_ =
-    SITE_URL;
+  const SITE_URL_ = SITE_URL;
 
   const articleStructuredData = useMemo(() => {
     if (!article) return undefined;
@@ -500,7 +498,7 @@ export default function LearnArticle() {
                 {article.title}
               </h1>
               {article.excerpt && (
-                <p className="mt-5 text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground">
+                <p className="mt-5 text-lg leading-relaxed text-muted-foreground dark:text-foreground">
                   {article.excerpt}
                 </p>
               )}
@@ -578,8 +576,8 @@ export default function LearnArticle() {
               prose-headings:scroll-mt-20 prose-headings:font-display
               prose-h2:mt-12 prose-h2:mb-5 prose-h2:text-2xl prose-h2:font-bold prose-h2:text-foreground dark:prose-h2:text-primary-foreground
               prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-lg prose-h3:font-semibold prose-h3:text-foreground dark:prose-h3:text-primary-foreground
-              prose-p:mt-5 prose-p:text-base prose-p:leading-[1.75] prose-p:text-card-foreground dark:prose-p:text-muted-foreground/80
-              prose-li:text-card-foreground dark:prose-li:text-muted-foreground/80 prose-li:leading-relaxed
+              prose-p:mt-5 prose-p:text-base prose-p:leading-[1.75] prose-p:text-card-foreground dark:prose-p:text-foreground
+              prose-li:text-card-foreground dark:prose-li:text-foreground prose-li:leading-relaxed
               prose-strong:font-semibold prose-strong:text-foreground dark:prose-strong:text-primary-foreground
               prose-a:font-medium prose-a:text-brand-purple prose-a:no-underline hover:prose-a:underline
               prose-code:rounded-md prose-code:bg-muted dark:prose-code:bg-white/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-medium
@@ -609,8 +607,7 @@ export default function LearnArticle() {
                     </div>
                   )}
                   {idx === 3 && contentChunks.length > 3 && (
-                    <div className="my-10">
-                    </div>
+                    <div className="my-10"></div>
                   )}
                 </React.Fragment>
               ))}
@@ -677,7 +674,7 @@ export default function LearnArticle() {
                             openFaq === idx ? "max-h-96" : "max-h-0"
                           }`}
                         >
-                          <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground/80">
+                          <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground dark:text-foreground/80">
                             {faq.answer}
                           </p>
                         </div>
@@ -698,7 +695,7 @@ export default function LearnArticle() {
                 <h3 className="font-display text-xl font-bold text-foreground dark:text-primary-foreground">
                   Ready to start your project?
                 </h3>
-                <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
+                <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground dark:text-foreground">
                   Use FRELUX calculators to estimate materials, plan your
                   budget, and get professional results.
                 </p>

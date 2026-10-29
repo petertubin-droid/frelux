@@ -59,7 +59,7 @@
   --secondary: 240 28% 23%; /* #2A2A4A navy-soft */
   --secondary-foreground: 0 0% 100%;
   --muted: 240 28% 23%; /* navy-soft */
-  --muted-foreground: 240 6% 61%; /* neutral-400 */
+  --muted-foreground: 0 0% 90%; /* near-white: secondary copy stays readable */
   --accent: 240 28% 23%;
   --accent-foreground: 0 0% 100%;
   --destructive: 0 63% 40%; /* darker red for dark */
@@ -1674,7 +1674,6 @@ thead th {
   }
 }
 
-
 /* Prerendered crawlable markup sits in #root until React mounts. It carries no
    utility classes, so cover it with a branded shield during boot instead of
    letting a wall of raw text flash on reload. Plain CSS only: this must paint
@@ -1725,8 +1724,12 @@ thead th {
 }
 
 @keyframes frelux-shield-sweep {
-  0% { transform: translateX(-110%); }
-  100% { transform: translateX(240%); }
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(240%);
+  }
 }
 
 @keyframes frelux-shield-lift {
@@ -1741,4 +1744,142 @@ thead th {
     animation: none;
     width: 100%;
   }
+}
+
+/* ==========================================================================
+   Reading typography: every text on the site is white on dark surfaces.
+
+   Hierarchy is carried by family, size, weight and tracking, never by
+   dropping opacity low enough to look grey. These rules sit outside
+   @layer so they win over Tailwind utilities without !important.
+   ========================================================================== */
+
+body {
+  color: hsl(var(--foreground));
+  font-feature-settings:
+    "cv02" 1,
+    "cv03" 1,
+    "cv04" 1,
+    "cv11" 1;
+}
+
+/* Any dimmed text utility is lifted back to a readable white. This catches
+   muted-foreground/40 style variants used across older components. */
+.dark [class*="text-muted-foreground/"],
+.dark [class*="text-foreground/"],
+.dark [class*="text-white/"],
+.dark [class*="text-card-foreground/"],
+.dark [class*="text-popover-foreground/"],
+.dark [class*="text-neutral-3"],
+.dark [class*="text-neutral-4"],
+.dark [class*="text-neutral-5"],
+.dark [class*="text-gray-3"],
+.dark [class*="text-gray-4"],
+.dark [class*="text-gray-5"],
+.dark [class*="text-slate-3"],
+.dark [class*="text-slate-4"],
+.dark [class*="text-zinc-3"],
+.dark [class*="text-zinc-4"] {
+  color: hsl(0 0% 92%);
+}
+
+/* Long-form reading surface */
+.dark .prose :where(p, li, dd, dt, td, th, figcaption, blockquote, strong, em) {
+  color: hsl(0 0% 100%);
+}
+
+.dark .prose :where(p) {
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  letter-spacing: -0.002em;
+}
+
+.dark .prose :where(li) {
+  line-height: 1.8;
+}
+
+.dark .prose :where(h2, h3, h4) {
+  font-family: var(--font-headings, "Plus Jakarta Sans"), system-ui, sans-serif;
+  color: hsl(0 0% 100%);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.dark .prose :where(a) {
+  color: hsl(var(--primary-lighter));
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.dark .prose :where(strong) {
+  font-weight: 600;
+}
+
+.dark .prose :where(blockquote) {
+  border-left: 2px solid hsl(var(--primary) / 0.65);
+  background: hsl(0 0% 100% / 0.05);
+  border-radius: 0.625rem;
+  padding: 0.85rem 1.25rem;
+  font-style: normal;
+}
+
+.dark .prose :where(code):not(pre code) {
+  background: hsl(0 0% 100% / 0.12);
+  color: hsl(0 0% 100%);
+  border-radius: 0.375rem;
+  padding: 0.12em 0.4em;
+  font-size: 0.9em;
+}
+
+.dark .prose :where(pre) {
+  background: hsl(0 0% 100% / 0.07);
+  border: 1px solid hsl(0 0% 100% / 0.14);
+  color: hsl(0 0% 100%);
+}
+
+.dark .prose :where(pre code) {
+  color: hsl(0 0% 100%);
+}
+
+.dark .prose :where(hr) {
+  border-color: hsl(0 0% 100% / 0.16);
+}
+
+.dark .prose :where(thead th) {
+  color: hsl(0 0% 100%);
+  border-bottom: 1px solid hsl(0 0% 100% / 0.22);
+}
+
+.dark .prose :where(tbody td) {
+  color: hsl(0 0% 100%);
+  border-bottom: 1px solid hsl(0 0% 100% / 0.1);
+}
+
+.dark .prose :where(ul > li)::marker,
+.dark .prose :where(ol > li)::marker {
+  color: hsl(var(--primary-lighter));
+}
+
+/* Premium type details, both themes */
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+.font-display,
+h1,
+h2 {
+  font-variant-ligatures: common-ligatures;
+}
+
+[data-price],
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
