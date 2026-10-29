@@ -55,7 +55,17 @@ import { serveWithCors } from "../_shared/serve.ts";
 
 const CONCURRENCY = 6;
 const STAGGER_MS = 700;
-const FETCH_TIMEOUT_MS = 10_000;
+const FETCH_TIMEOUT_MS = 12_000;
+/** A retailer that throttles by source address (Amazon answers 503 to most
+ *  requests and serves the page on a later one) must not be recorded as a
+ *  failure on the first refusal. */
+const FETCH_RETRY_DELAYS_MS = [1_200, 2_500];
+const RETRY_STATUSES = new Set([403, 429, 500, 502, 503, 504]);
+const BROWSER_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36";
+/** Stop starting new batches past this point so the invocation always gets to
+ *  write its run row instead of being killed mid-flight. */
+const RUN_BUDGET_MS = 110_000;
 /** Search sources rotate across this many weekly groups so the
  *  bounded 200-source run covers every material at least once
  *  per cycle. Product sources always run. */
@@ -283,6 +293,41 @@ function collectJsonLdPrices(
 /** Median-of-listings extraction for search result pages: robust
  *  against single-listing outliers, requires agreement, and
  *  reports how many listings agree (the observation count). */
+
+/** Listing pages (Amazon and friends) carry no JSON-LD offers, so their prices
+ *  have to come from the markup itself. Collecting many and taking the median is
+ *  the only honest reading of a search page: one stray "$10" badge must not
+ *  become a material price. */
+function collectHtmlListingPrices(
+  html: string,
+  out: Array<{ price: number; currency: string | null }>,
+): void {
+  const toNumber = (raw: string): number => {
+    const cleaned = raw.replace(/[^0-9.,]/g, "");
+    const normalised =
+      cleaned.includes(",") && cleaned.includes(".")
+        ? cleaned.replace(/,/g, "")
+        : cleaned.replace(/,/g, ".");
+    return Number(normalised);
+  };
+  const plausible = (value: number) =>
+    Number.isFinite(value) && value >= 0.5 && value <= 10_000_000;
+
+  // Amazon-style offscreen price labels ("$12.98").
+  for (const m of html.matchAll(
+    /class="[^"]*(?:a-offscreen|price)[^"]*"[^>]*>\s*([^<]{1,24})\s*</gi,
+  )) {
+    if (!/[0-9]/.test(m[1])) continue;
+    const value = toNumber(m[1]);
+    if (plausible(value)) out.push({ price: value, currency: null });
+  }
+  // Explicit data attributes.
+  for (const m of html.matchAll(/data-(?:price|product-price)="([0-9]+(?:[.,][0-9]+)?)"/gi)) {
+    const value = toNumber(m[1]);
+    if (plausible(value)) out.push({ price: value, currency: null });
+  }
+}
+
 function extractSearchMedian(html: string): {
   price: number | null;
   currency: string | null;
@@ -301,6 +346,9 @@ function extractSearchMedian(html: string): {
     } catch {
       // malformed JSON-LD — fall through
     }
+  }
+  if (found.length < 2) {
+    collectHtmlListingPrices(html, found);
   }
   if (found.length < 2) {
     return { price: null, currency: null, agreeing: 0, confidence: null };
@@ -369,23 +417,36 @@ async function scanOneSource(
   // Fetch the page.
   let html = "";
   let fetchError: string | null = null;
-  try {
-    const fetchRes = await fetch(parsed.toString(), {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; FreluxPriceIntel/1.0)",
-        Accept: "text/html,application/xhtml+xml",
-      },
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      redirect: "follow",
-    });
-    if (!fetchRes.ok) {
+  let attempts = 0;
+  for (let attempt = 0; attempt <= FETCH_RETRY_DELAYS_MS.length; attempt += 1) {
+    attempts = attempt + 1;
+    try {
+      const fetchRes = await fetch(parsed.toString(), {
+        headers: {
+          "User-Agent": BROWSER_UA,
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.9",
+        },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        redirect: "follow",
+      });
+      if (fetchRes.ok) {
+        html = (await fetchRes.text()).slice(0, 2_000_000);
+        fetchError = null;
+        break;
+      }
       fetchError = `site responded with ${fetchRes.status}`;
-    } else {
-      html = (await fetchRes.text()).slice(0, 2_000_000);
+      if (!RETRY_STATUSES.has(fetchRes.status)) break;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "network error";
+      fetchError = `unreachable: ${msg}`;
     }
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "network error";
-    fetchError = `unreachable: ${msg}`;
+    if (attempt < FETCH_RETRY_DELAYS_MS.length) {
+      await new Promise((r) => setTimeout(r, FETCH_RETRY_DELAYS_MS[attempt]));
+    }
+  }
+  if (fetchError && attempts > 1) {
+    fetchError = `${fetchError} after ${attempts} attempts`;
   }
 
   const result = fetchError
@@ -417,7 +478,15 @@ async function scanOneSource(
       observations = searchMedian.agreeing;
       notes.push(`search median of ${searchMedian.agreeing} agreeing listings`);
     } else {
-      // No agreeing JSON-LD listings on the search page.
+      // No agreeing listings on the search page: a single stray amount from a
+      // banner is not a price for this material, so drop it rather than file a
+      // misleading candidate.
+      result.price = null;
+      result.currency = null;
+      result.extraction = null;
+      result.confidence = null;
+      confidence = "low";
+      observations = 0;
       notes.push("search page yielded no agreeing product listings");
     }
   }
@@ -635,6 +704,9 @@ serveWithCors(async (req: Request) => {
     // product sources scan every week; search sources only on
     // their rotation week, keeping the run inside its budget.
     .or(`rotation_group.eq.${weekMod},source_type.eq.product`)
+    // Stalest first: with a bounded run, ordering by market alone means the
+    // alphabetical tail is never reached once the source book outgrows the cap.
+    .order("last_scanned_at", { ascending: true, nullsFirst: true })
     .order("market")
     .limit(200);
   if (marketFilter) query = query.eq("market", marketFilter);
@@ -666,7 +738,13 @@ serveWithCors(async (req: Request) => {
   const failures: Array<{ market: string; slug: string; reason: string }> = [];
 
   const outcomes: ScanOutcome[] = [];
+  const runStartedAt = Date.now();
+  let skippedForBudget = 0;
   for (let i = 0; i < list.length; i += CONCURRENCY) {
+    if (Date.now() - runStartedAt > RUN_BUDGET_MS) {
+      skippedForBudget = list.length - i;
+      break;
+    }
     const batch = list.slice(i, i + CONCURRENCY);
     const results = await Promise.allSettled(
       batch.map(async (source, j) => {
@@ -940,7 +1018,7 @@ serveWithCors(async (req: Request) => {
     .from("price_scan_runs")
     .update({
       status: "completed",
-      sources_total: list.length,
+      sources_total: list.length + skippedForBudget,
       sources_scanned: scanned,
       candidates_created: candidatesCreated,
       candidates_failed: candidatesFailed,
@@ -952,6 +1030,9 @@ serveWithCors(async (req: Request) => {
           : "") +
           (autoApplySkipped.length > 0
             ? `${failures.length > 0 ? "; " : ""}${autoApplySkipped.length} group(s) not auto-applied; first: ${autoApplySkipped[0].market}/${autoApplySkipped[0].slug} (${autoApplySkipped[0].reason})`
+            : "") +
+          (skippedForBudget > 0
+            ? `${failures.length > 0 || autoApplySkipped.length > 0 ? "; " : ""}${skippedForBudget} source(s) left for the next run (time budget)`
             : "") || null,
     })
     .eq("id", runId);
