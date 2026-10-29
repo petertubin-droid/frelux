@@ -19,6 +19,27 @@ function escapeXml(str: string): string {
     .replace(/'/g, "&apos;");
 }
 
+
+/**
+ * Canonical URL form. Pages on the site are served with a trailing slash
+ * (`/paint-calculator` 301s to `/paint-calculator/`), so a sitemap must list
+ * the URL Google actually serves. Listing the redirect wastes crawl budget and
+ * makes this file disagree with the /sitemap.xml Google is pointed at.
+ */
+function canonicalizeLocs(xml: string): string {
+  return xml.replace(/<loc>([^<]+)<\/loc>/g, (_m, raw: string) => {
+    const url = raw.trim();
+    const [pathAndQuery, ...hashParts] = url.split("#");
+    const [path, query] = pathAndQuery.split("?");
+    // Real files (sitemap.xml, robots.txt, images) keep their exact form.
+    if (/\/[^/]+\.[a-z0-9]{2,5}$/i.test(path)) return `<loc>${url}</loc>`;
+    const canonical = path.endsWith("/") ? path : `${path}/`;
+    const q = query ? `?${query}` : "";
+    const h = hashParts.length ? `#${hashParts.join("#")}` : "";
+    return `<loc>${canonical}${q}${h}</loc>`;
+  });
+}
+
 serveWithCors(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -418,7 +439,7 @@ serveWithCors(async (req: Request) => {
 ${urls.join("\n")}
 </urlset>`;
 
-    return new Response(sitemap, {
+    return new Response(canonicalizeLocs(sitemap), {
       headers: {
         ...corsHeaders,
         "Content-Type": "application/xml",
