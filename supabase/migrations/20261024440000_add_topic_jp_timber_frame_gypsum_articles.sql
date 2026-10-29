@@ -102,6 +102,74 @@ This is the single most important practical point for anyone owning or renovatin
 
 Materials deals with sheathing, battens, gypsum board types, joint compound and wallcovering. Installation follows the sequence from frame to finished sheet. Quality covers joint treatment, flatness, fire compliance and the moisture checks that matter. Maintenance covers repairing holes, replacing wallcovering and dealing with mould.
 
+## Why the frame is post and beam
+
+The Japanese frame carries loads on posts and beams rather than on closely spaced studs, and that choice has consequences that reach all the way to the wallcovering.
+
+Posts at wide centres mean big openings and rooms that can be joined or divided without touching the structure. Beams span between posts and carry the floors above. The resulting frame is a visible grid that a carpenter can explain to an owner, and it is also a frame with fewer, larger members to get right.
+
+Because the frame does not brace itself, panels take that job. That is why the sheathing is a structural element with a specified fixing pattern rather than a convenient backing for boards, and why removing a panel during a renovation is a structural act rather than a decorative one.
+
+## The interior that is boarded, not plastered
+
+Japanese interiors went from plaster on lath to gypsum board quickly, and the reasons were speed, cost and flatness.
+
+A boarded wall is dry, fast and dimensionally predictable. It accepts a wallcovering without the curing time a plaster needs, and it can be opened for services and closed again by a competent carpenter rather than by a plasterer. In a country where houses are frequently rebuilt and services are frequently renewed, that matters.
+
+The trade is that a boarded wall is lighter and less massive than plaster, so it contributes less to sound insulation. Japanese practice compensates with the frame and with added insulation rather than with the wall's surface mass.
+
+## The wallcovering economy
+
+The dominance of sheet wallcovering is not a stylistic accident; it is an economic system.
+
+A covering can be installed by a small crew in a day, changed in a decade without plaster work, and repaired at a seam by a competent householder. It also hides the joint treatment beneath it, which lowers the standard demanded of the board stage compared with a painted wall in critical light.
+
+The cost of that system is that a wallcovering cannot be spot-repaired invisibly, and that a room's finish is renewed wholesale rather than touched up. Japanese households accept that, and it explains why re-covering is treated as routine rather than as a failure.
+
+## Lateral load and the panels
+
+Japan's seismic design puts the lateral resistance of a timber house substantially into its wall panels.
+
+That has three practical consequences for anyone specifying or altering this wall. The panel material and thickness are specified, the fixing pattern is specified, and the panels are placed where the structural plan requires rather than wherever a wall exists. A wall that has been opened for a renovation and had its sheathing cut away has lost performance that no amount of board restores.
+
+The same panels that brace the house also carry the plasterboard, which is why their flatness matters to the finish as well as to the structure.
+
+## Climate and assembly
+
+Japan spans a cold north and a hot, humid south, and the wall assembly changes with the climate even where the visible materials do not.
+
+In the colder regions the insulation is thicker and the vapour control more critical, because condensation inside the wall is driven by the temperature difference. In the humid south the priority shifts toward drying and ventilation, with less heating-driven vapour movement and more summer moisture.
+
+A specification that ignores that difference is a specification copied from another region, and the wall will show it in the first few seasons.
+
+## The room and its proportions
+
+Japanese rooms are proportioned in units derived from the tatami, and the wall treatment follows.
+
+A wall in a traditional room is a composed surface: a tokonoma alcove, a shoji or fusuma screen, a plastered panel above the timber rail, and a defined skirting line. Those elements are not applied to the wall; they are part of how it is built.
+
+In modern housing that composition simplifies, but the habit remains: a room is designed as a set of surfaces with frames, and a wallcovering is stretched across the broad fields between them. That is why the quality of a Japanese wall is judged at the edges as much as at the field.
+
+## What an owner should take from this
+
+Two things. First, the visible finish is the last of six stages, and the five behind it decide how the wall behaves.
+
+Second, the specification is short and nameable: panel type, batten spacing, board type, joint treatment, covering and adhesive. A householder who asks for those six in writing has a wall that can later be repaired to match.
+
+## The wall as a system, not a surface
+
+Read as a system, this wall is a chain: frame, sheathing, cavity, board, joint treatment, covering. Each link has a job and each job is verified before the next link covers it.
+
+That is why the specification is written as a sequence rather than as a shopping list, and why a change at any link is a change to the whole. A householder who understands the chain can ask the right question at every stage, and that is most of what an owner needs.
+
+## Where Japanese practice differs
+
+Three differences separate this wall from its Western equivalents, and each is worth stating plainly.
+
+The frame is post and beam with panels for bracing rather than a closely studded platform frame. The interior is boarded and then covered rather than plastered or painted. And moisture control is treated as the dominant design problem, because the climate makes it one.
+
+None of those differences is exotic. Together they explain why the trades, the materials and the maintenance cycle all look the way they do.
+
 ## References
 
 1. Japan Institute of Architects.
@@ -203,6 +271,68 @@ Two gypsum boards of the same type from different manufacturers are more alike t
 
 That is the practical use of the classification: it lets a buyer choose on suitability and price, and it explains why a supplier's first question is about the room rather than about the brand.
 
+## Sheathing grades
+
+Structural sheathing in Japan is graded and marked, and the marking is the thing to read before buying.
+
+The grade states the panel's structural performance, its thickness tolerance and its durability class, and those are what the bracing calculation assumed. A panel from a different grade may look identical and behave differently, and a substitution made on site quietly changes the wall's performance.
+
+The panel also carries a moisture performance, which matters because sheathing is installed in weather and can get wet before the wall is closed. A panel that has swollen at the edges will not sit flat, and the battens will follow it.
+
+## Board sizes and thicknesses
+
+Japanese gypsum board comes in standard sheet sizes matched to the frame module, and in thicknesses that determine stiffness and fire performance.
+
+A thicker board is stiffer, better in fire and heavier to handle, and it is chosen where the wall's performance requires it rather than where handling is easier. The board thickness also determines the screw length, since the screw must reach the batten through the board without standing proud.
+
+Sheet size drives the layout and the waste. A layout that uses whole sheets and puts the cut edges at the floor and ceiling produces less waste and fewer joints than one that starts from a corner.
+
+## Tapes, meshes and compounds
+
+Joint tape in Japan is usually paper, with mesh used for repairs and awkward junctions.
+
+Paper tape is stronger in tension and produces a flatter joint, which matters because the wallcovering is thin. Mesh is quicker and more forgiving for a small repair but its texture can telegraph under a smooth covering.
+
+The compound must be matched to the board type, since a compound formulated for standard board behaves differently over a moisture-resistant surface. Mixing product families is the quiet cause of joints that crack in the first season.
+
+## Covering widths and pattern
+
+Wallcoverings come in standard roll widths and in patterns with a repeat, and both affect the quantity.
+
+A pattern with a large repeat requires more material, because each length must be aligned to the previous one and the waste can be substantial. A plain covering can be cut with a small allowance and produces little waste.
+
+Ordering from one batch is essential, since a second batch of the same product can differ in shade in a way that is obvious across a wall. Keeping a spare length costs a little and makes every future repair possible.
+
+## Fixings that suit the substrate
+
+Fixings on this wall are chosen for the board and the batten rather than for the load alone.
+
+A light item hangs on a board fixing that spreads its load behind the board. A heavy item is fixed into the batten or into the frame, which means finding the batten with a detector or from the layout drawing. An item fixed into the board alone will eventually pull out and take a piece of the covering with it.
+
+Knowing where the battens are is therefore part of maintaining the wall, and it is worth recording at installation rather than rediscovering with a detector every time something is hung.
+
+## Waste and the second order
+
+The material that is wasted on this wall is mostly cut-offs at openings and at the top and bottom of sheets.
+
+A layout that is planned before the first sheet is cut reduces that waste to a small percentage. An unplanned job produces a skip full of narrow offcuts and a second order in the middle of the work, which is worse than the waste because of the delay.
+
+Keeping the offcuts that are large enough to patch a hole is worth doing, since they are the only material guaranteed to match.
+
+## A short list for a room
+
+For a single room: structural sheathing already fixed, battens, gypsum board of the specified type, screws, paper tape, joint compound, primer, wallcovering from one batch, and adhesive matched to the covering weight.
+
+Every item answers a requirement. None of them is a preference, and the covering batch is the one that cannot be fixed later.
+
+## Why gypsum rather than a cement board
+
+Gypsum board is the default interior substrate for reasons that are about workability as much as performance.
+
+It cuts and fixes quickly, it takes compound and tape cleanly, and its surface is smooth enough that a thin wallcovering sits flat over it. A cement board would resist moisture better but would be slower to finish and would demand different joint treatment.
+
+Where moisture is a real risk, the answer in Japanese practice is to use the moisture-resistant gypsum type and to correct the ventilation, rather than to substitute a board that solves the symptom.
+
 ## References
 
 1. Japan Institute of Architects.
@@ -300,6 +430,74 @@ The record names the board type, the joint treatment, the wallcovering product a
 
 It also notes the fire classification of the materials where the wall has a requirement, because that is the item a later renovation will most easily destroy and the one an inspection will most easily check.
 
+## Planning the layout before the first sheet
+
+Board layout is decided on paper, and the decision governs everything that follows.
+
+The rule is that every joint lands on a batten or on a framing member, and that joints between courses are staggered so that four corners never meet. Openings are placed in the layout so that their edges fall on solid backing, and cut edges are kept where they will be least visible, at the floor and the ceiling.
+
+A layout done on site as the work proceeds produces joints that miss their backing and a wall whose covering shows a line exactly where a joint was not supported. That is the most common structural cause of a failed wallcovering on this assembly.
+
+## Board orientation
+
+Boards are fixed with their long edge horizontal or vertical depending on the module and the height of the wall.
+
+Horizontal fixing uses the board's length across the wall and puts fewer joints in the field, which suits a wall that is wider than it is tall. Vertical fixing puts the joints at the studs and is easier around openings and high walls. Both are legitimate; the layout drawing picks one and stays with it.
+
+What is not legitimate is mixing the two directions within a room, because the joints then fail to align with the battens and the covering shows the result along every change.
+
+## Cutting openings
+
+Openings are cut after the board is fixed, using the board's own fixing as a guide, and cut cleanly enough that the covering will not have to bridge a ragged edge.
+
+A cut with a straight blade against a straightedge produces an edge that a wallcovering can be trimmed to. A cut made with several passes in slightly different places produces a frayed edge that shows as a dark line under a light covering.
+
+Around sockets and switches the cut is measured rather than guessed, and the plate is checked against the wall before the compound goes on, since the plate is what will eventually hide the cut.
+
+## Corners and reveals
+
+Internal corners between boards are taped and filled like any joint, and external corners at reveals are formed against a bead or a folded tape.
+
+The reveal at a window or a door is where a wall's workmanship is most visible, because it is a narrow surface with two edges that the eye follows. A reveal that is square, flat and correctly finished to the covering reads as part of the architecture; one that is slightly out reads as a mistake.
+
+In a traditional room the reveal meets the frame and the shoji track, and those junctions are formed by the carpenter rather than by the boarder, which is why the trade sequence matters.
+
+## Seam cutting
+
+The overlap-and-cut method is the standard way to produce a seamless butt joint on a wallcovering.
+
+The first length is hung to a plumb line and smoothed. The second is hung overlapping it by a small margin, aligned on the pattern or on the edge, and then both layers are cut through with a sharp blade against a straightedge, the waste is removed and the two edges are pressed together.
+
+The method depends on a sharp blade and a single confident cut. A blade that drags tears the face, and a cut that is repeated leaves a stepped seam that will open as the adhesive cures.
+
+## Sequencing with other trades
+
+The wall is finished after the trades that open it and before the trades that would damage it.
+
+Electrical, plumbing and air conditioning rough-in happens before the boards go on, so that the services are inside the cavity rather than chased afterwards. Painting and flooring follow the wallcovering, or precede it where the wallcovering is the last surface to be touched.
+
+Getting that sequence wrong is how a finished wall ends up with a chased channel through its covering and a patch that cannot be made invisible.
+
+## Signing off the stage
+
+Each stage is signed off before the next covers it, because the next stage hides it.
+
+The frame is signed off before sheathing, the sheathing and vapour layer before battens, the battens before boards, the joints before priming, and the primer before the covering. That chain of sign-offs is the whole quality system of a wall that will be invisible.
+
+## The order cannot be reversed
+
+Every stage in this sequence exists because the next one hides it, and hiding is irreversible.
+
+The vapour layer cannot be inspected after the boards go on. The batten plane cannot be corrected after the covering. The joint treatment cannot be sanded after the sheet is hung. A tradesman who understands that works in the order given, and a client who understands it inspects at the right moments rather than at the end.
+
+## Materials arriving in order
+
+On a Japanese site the materials arrive in the sequence they are used, which is a schedule discipline rather than a storage convenience.
+
+Sheathing and battens come first, then board, then compound and tape, then primer, then the covering. Each is stored briefly and used, which suits a climate where a board left standing will absorb moisture and a covering left rolled in a damp room will take the smell of it.
+
+A delivery plan built around the trades rather than around a discount is what keeps the wall dry and the programme predictable.
+
 ## References
 
 1. Japan Institute of Architects.
@@ -390,6 +588,88 @@ Add photographs of the frame, the sheathing, the vapour layer and the finished w
 A well-finished Japanese wall is flat under the hand, silent under a knuckle where it should be, even in raking light, and free of any pattern across the field.
 
 Those impressions correspond to the batten plane, the cavity, the joint treatment and the fixing, which are the four items in this article. A client who is dissatisfied is usually noticing one of them.
+
+## Inspecting in the light the room will have
+
+A Japanese wall is inspected under the light it will live with, which usually means daylight from one side.
+
+A raking light across the surface shows joints and screw patterns that a flat light conceals. The same wall seen at noon and at dusk can look like two different jobs. That is why the inspection happens in the room as it will be used, with the curtains or screens in their intended positions.
+
+Where the room has not been decorated yet, a work light placed low and to one side reproduces the worst condition available.
+
+## Measuring flatness
+
+Flatness is measured against a tolerance, and the tolerance belongs to the specification rather than to the eye.
+
+A straightedge of two metres is applied in the four directions that matter: vertically, horizontally and both diagonals. Deviations are recorded in millimetres against the agreed figure. Where the figure was never agreed, the conversation becomes about preference, and preference is not a standard.
+
+On a boarded wall the deviations usually trace back to the battens, which is why a record of batten spacing and packing is part of the quality evidence.
+
+## Fire compliance as evidence
+
+Fire performance on this wall is demonstrated by materials and records rather than by appearance.
+
+The board type must match the specification, the covering must carry its classification, and the fixing pattern must match the assembly that was tested. The evidence is the product labels, photographed before the wall closes, plus the drawing that states the required class.
+
+A substitution on site removes that evidence as well as the performance, and a later inspection cannot recover it from a finished wall. That is why the labels are photographed rather than noted.
+
+## Verifying the vapour layer
+
+The vapour control layer is checked before the boards go on, because afterwards it is inaccessible.
+
+The check is continuity: no unsealed joints, no gaps at the floor and ceiling, no penetrations left open, and no damage from other trades. Those are the points where condensation begins, and they are the points a photograph can record.
+
+A wall that grew mould in its first season almost always had a discontinuity somewhere in that layer, and the photograph from installation is what makes the diagnosis possible rather than speculative.
+
+## Seams and bubbles
+
+Wallcovering defects are inspected at two distances: close for correctness and from across the room for appearance.
+
+Close up, a seam should be tight and even, with no overlap and no gap. From across the room, the seams should not form visible lines. Bubbles are found by sighting along the wall with a light at a shallow angle, which reveals the shadow under a lifted area.
+
+Every defect found at that stage is correctable, because the adhesive is still workable. The same defect found after curing means replacing a length.
+
+## Humidity readings and drying
+
+Moisture readings at handover are the quality record that has the longest useful life.
+
+Readings are taken on the wall surface and, where possible, in the cavity, and they are compared with the ambient conditions. A wall that reads high at handover is a wall that will grow mould when the season changes, and knowing that in advance is the difference between a routine check and a claim.
+
+With a covering in place the readings are indirect, which is why the installation-stage photographs and the ventilation record carry so much of the weight.
+
+## Where the risk concentrates
+
+Three places carry most of the risk on this wall: the vapour layer, which is invisible after closure; the batten plane, which decides flatness; and the seams, which are the first thing to lift.
+
+A wall sound at those three places will look the same in a decade. A wall that failed at one of them will have been re-covered early.
+
+## Judging the wall fairly
+
+A wall is judged against its specification, not against perfection.
+
+The specification names the board type, the batten spacing, the joint standard, the covering and the fire class. A wall that meets those is a sound wall, even if a critical eye finds something to comment on. Knowing where the standard sits, and stopping there, is what a professional assessment looks like.
+
+## The covering hides and reveals
+
+A wallcovering is often described as forgiving, and it is forgiving in one direction only.
+
+It hides the joint treatment and the screw pattern at a glance, which is why it is popular. It also reveals, under raking light and on a smooth face, every ridge, dish and proud head that the board stage left behind. A wall covered without a flatness check is a wall whose defects have been preserved rather than corrected.
+
+That is the argument for inspecting at the joint stage, before priming, when correction is still a matter of a sanding block.
+
+## Records that survive a renovation
+
+A renovation is where the evidence of a wall's performance is most easily lost, and it is the moment the record earns its keep.
+
+Photographs of the sheathing, the vapour layer and the batten layout are what allow a later alteration to avoid cutting a brace or a vapour seal. The fire classification of the board and covering is what prevents a compliant wall from becoming a non-compliant one during a cosmetic upgrade.
+
+Keeping those items together, with the drawings, is the smallest useful archive for a house.
+
+## A wall judged twice
+
+A Japanese wall is judged twice: once with the covering off, where the board, the joints and the vapour layer are visible, and once with it on, where only the finished surface remains.
+
+The first judgement is the one that determines the second. A boarder who knows that the second will expose everything the first concealed works differently, and a client who asks for the first judgement gets a wall that passes the second.
 
 ## References
 
@@ -491,6 +771,72 @@ On a Japanese wall that file has a specific value: it identifies whether a wall 
 A wallcovering in a Japanese home has a service life of roughly ten years in living areas and less in kitchens and bathrooms, and re-covering is routine rather than remedial.
 
 A wall that is re-covered on that cycle, kept dry and ventilated, needs nothing else. The failures that make walls feel fragile are almost always moisture, and moisture is the one thing the routine can control.
+
+## Cleaning products that suit the face
+
+A wallcovering's face decides what can be used on it, and using the wrong product is how a clean wall becomes a marked one.
+
+Vinyl-faced coverings tolerate a mild detergent and water. Fabric and non-woven faces tolerate barely any moisture and are best vacuumed. Abrasive pads and solvents damage most faces, and bleach will strip colour from a printed pattern even where it removes the mould.
+
+The practical approach is to test any product on an inconspicuous piece, usually behind a piece of furniture or inside a cupboard, before it touches a wall anyone looks at.
+
+## The rainy-season routine
+
+The weeks before and after the rainy season are the maintenance opportunity of the Japanese year.
+
+Before it, the building's ventilation is checked, filters are cleaned and any sign of previous damp is treated. After it, the wall is inspected at the places where moisture concentrates: behind furniture, at external corners, inside cupboards on external walls, and around window reveals.
+
+Furniture moved a few centimetres away from an external wall for those weeks is a cheap intervention, and it is the difference between a wall that dries and a wall that grows a patch of mould behind a wardrobe nobody can see.
+
+## Sizes of hole and their repairs
+
+Holes divide into three practical sizes, and each has its own repair.
+
+A pinhole or a small fixing hole is filled with compound and touched with a patch of covering if one is available. A hole up to a hand's width is patched with board, taped and finished, then re-covered from a spare length cut in at a seam. A larger hole, or one that has damaged the board behind, means replacing the affected sheet entirely.
+
+Deciding which of the three applies before starting is what prevents a small hole from becoming a wall-wide repair.
+
+## The re-covering cycle
+
+Re-covering is the planned maintenance event, and its timing is set by the room rather than by the calendar.
+
+Living areas last roughly a decade. Kitchens, bathrooms and entrance areas, with their moisture and traffic, last less. A covering that has begun to lift at the seams, has faded unevenly, or has been patched more than once is due.
+
+The decision is economic rather than technical: a wall of patched patches reads as tired even when every patch is sound, and the cost of re-covering a room is modest compared with the effect.
+
+## Fixing heavy items safely
+
+Heavy items need the frame, and finding it is part of the job.
+
+Battens and posts are located with a detector or from the installation record, and the fixing is chosen to reach them. A television bracket, a shelf carrying books or an air-conditioning unit fixed into board alone will come down, and it will take the covering and part of the board with it.
+
+Where the frame is not where it needs to be, a plywood pattress fixed behind the board before the wall is closed is the proper solution, which is why heavy items are worth deciding before the wall is built.
+
+## Ventilation maintenance
+
+The ventilation system is part of the wall's moisture control, and maintaining it is part of maintaining the wall.
+
+Filters are cleaned on the schedule the unit specifies, ducts are checked for disconnection, and the system is left running rather than switched off in spring. A house with a modern wall assembly and a switched-off fan is a house with a wall that will eventually show it.
+
+The check takes minutes twice a year and it does more for the wall than any cleaning product.
+
+## What to keep and what to record
+
+Keep a spare length of the covering, the product name and batch, the board type, and the date each room was finished.
+
+Record the locations of the battens and any fixing that carries a heavy load. Those notes are what make a future repair a small job, and their absence is what turns a pinhole into a wall.
+
+## Small tools for small repairs
+
+A householder can do most of the routine work with a short list: a sharp blade with a straightedge, a filling knife, a sanding block, a sponge, a mild detergent, a spare length of covering and a small tin of the correct compound.
+
+With those, a fixing hole is filled and covered in twenty minutes. Without them, the same hole waits until the next re-covering, which is how walls accumulate a history of small damages that nobody then wants to repair individually.
+
+## What maintenance is really for
+
+Maintenance on this wall is not about keeping it looking new. It is about keeping the wall dry.
+
+Every task in this article either removes moisture, restores a surface that moisture has damaged, or improves the building's ability to dry. The appearance follows from that, which is why a wall kept dry looks well maintained even when nothing has been redecorated for years.
 
 ## References
 
