@@ -7,7 +7,9 @@ import AdSlot from "@/components/ui/AdSlot";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
-import { BrickWall, CheckCircle2, Ruler, RotateCcw } from "lucide-react";
+import { BrickWall, CheckCircle2, Download, Ruler, RotateCcw } from "lucide-react";
+import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import {
   calculateMasonryTakeoff,
   resolveMarketMasonryConfig,
@@ -420,6 +422,52 @@ export default function StandaloneTakeoffPage({
             typeof value === "object" ? JSON.stringify(value) : String(value),
         }))
     : [];
+  const buildTakeoffQuote = (): QuoteOptions | null => {
+    if (!result) return null;
+    const record = result as unknown as Record<string, unknown>;
+    const skip = /packagingEvidence|warnings|assumptions|safetyNotice|steps/i;
+    const prettify = (key: string) =>
+      key
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (c) => c.toUpperCase());
+    const lines = Object.entries(record)
+      .filter(([key, value]) => {
+        if (key === "marketCode" || skip.test(key)) return false;
+        const type = typeof value;
+        if (type !== "string" && type !== "number" && type !== "boolean")
+          return false;
+        return value !== "" && value !== null;
+      })
+      .slice(0, 24)
+      .map(([key, value]) => ({
+        label: prettify(key),
+        quantity: String(value),
+      }));
+    const warnings = [
+      ...(Array.isArray(record.warnings) ? (record.warnings as string[]) : []),
+      ...(Array.isArray(record.assumptions)
+        ? (record.assumptions as string[])
+        : []),
+    ].slice(0, 6);
+    return {
+      title: `${title} takeoff`,
+      subtitle: `Market ${marketCode} · ${lines.length} measured quantities`,
+      metaRows: [
+        ["Tool", title],
+        ["Market", marketCode],
+      ],
+      lines,
+      totals: [],
+      warnings,
+      footer:
+        "Quantity takeoff only. Confirm product datasheets, site measurements, local requirements and waste assumptions with the responsible professional.",
+    };
+  };
+  const exportTakeoffPdf = () => {
+    const quote = buildTakeoffQuote();
+    if (!quote) return;
+    printQuote(quote, `frelux-${engine}-takeoff.html`);
+  };
   return (
     <div className="min-h-screen bg-background pb-16">
       <PageHeader
@@ -691,6 +739,22 @@ export default function StandaloneTakeoffPage({
                   </div>
                 )}
                 <EstimateDisclaimer text="Confirm product datasheets, site measurements, local requirements, soil conditions, and waste assumptions with the responsible professional. Drainage, sanitation, and temporary-works quantities are planning takeoffs, not engineered designs." />
+                <div className="mt-5 flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-xl"
+                    onClick={exportTakeoffPdf}
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Export PDF
+                  </Button>
+                  <QuoteShareButton
+                    build={buildTakeoffQuote}
+                    kind={`FRELUX ${title} Takeoff`}
+                    link={currentPath}
+                  />
+                </div>
                 <p className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
                   <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
                   Calculation assumptions and output are shown for review;
