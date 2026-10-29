@@ -259,6 +259,10 @@ export default function Hero() {
                 alt={heroImageAlt}
                 className="aspect-[4/5] w-full object-cover"
                 loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                width={960}
+                height={1200}
                 onLoad={(e) => {
                   const img = e.currentTarget;
                   const caption = document.getElementById("hero-image-caption");

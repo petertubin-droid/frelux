@@ -51,7 +51,7 @@ export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   // Sub-category (section) expansion inside an open workspace.
-  // Keys are `${workspace.label}/${section}` so each category's
+  // Keys are `${t(workspace.label)}/${section}` so each category's
   // dropdown expands independently.
   const [mobileSubExpanded, setMobileSubExpanded] = useState<string | null>(
     null,
@@ -215,7 +215,7 @@ export default function Navbar() {
           {/* Desktop nav with premium grouped dropdowns */}
           <div className="hidden items-center gap-1 lg:flex">
             {navWorkspaces.map((workspace) => (
-              <div key={workspace.label} className="relative">
+              <div key={t(workspace.label)} className="relative">
                 {workspace.children ? (
                   <>
                     <Button
@@ -238,7 +238,7 @@ export default function Navbar() {
                           : "text-muted-foreground hover:text-brand-purple hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5",
                       )}
                     >
-                      {workspace.label}
+                      {t(workspace.label)}
                       <ChevronDown
                         className={classNames(
                           "h-3 w-3 transition-transform duration-300",
@@ -262,7 +262,7 @@ export default function Navbar() {
                               to={workspace.path}
                               className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
                             >
-                              {workspace.label}
+                              {t(workspace.label)}
                               <ChevronRight className="h-3 w-3" />
                             </NavLink>
                           </div>
@@ -357,7 +357,7 @@ export default function Navbar() {
                     rel="noopener noreferrer"
                     className="rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-brand-purple hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5"
                   >
-                    {workspace.label}
+                    {t(workspace.label)}
                   </a>
                 ) : (
                   <NavLink
@@ -371,7 +371,7 @@ export default function Navbar() {
                       )
                     }
                   >
-                    {workspace.label}
+                    {t(workspace.label)}
                   </NavLink>
                 )}
               </div>
@@ -721,7 +721,7 @@ export default function Navbar() {
           {/* Drawer nav, collapsible sections */}
           <div className="px-3 py-4">
             {navWorkspaces.map((workspace) => (
-              <div key={workspace.label} className="mb-1">
+              <div key={t(workspace.label)} className="mb-1">
                 {workspace.children ? (
                   <>
                     <Button
@@ -740,7 +740,7 @@ export default function Navbar() {
                           : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
                       )}
                     >
-                      {workspace.label}
+                      {t(workspace.label)}
                       <ChevronDown
                         className={classNames(
                           "h-4 w-4 transition-transform duration-200",
@@ -751,7 +751,7 @@ export default function Navbar() {
                     {mobileExpanded === workspace.label && (
                       <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
                         {groupBySection(workspace.children).map((group, gi) => {
-                          const groupKey = `${workspace.label}/${group.section ?? "general"}`;
+                          const groupKey = `${t(workspace.label)}/${group.section ?? "general"}`;
                           const renderLinks = (indent: string) =>
                             group.items.map((child) => (
                               <NavLink
@@ -828,7 +828,7 @@ export default function Navbar() {
                     rel="noopener noreferrer"
                     className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
                   >
-                    {workspace.label}
+                    {t(workspace.label)}
                   </a>
                 ) : (
                   <NavLink
@@ -842,7 +842,7 @@ export default function Navbar() {
                       )
                     }
                   >
-                    {workspace.label}
+                    {t(workspace.label)}
                   </NavLink>
                 )}
               </div>

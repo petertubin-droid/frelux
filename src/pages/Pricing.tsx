@@ -11,7 +11,10 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import PageHeader from "@/components/ui/PageHeader";
 import { useAuth } from "@/lib/auth";
-import { useSeoOfferCurrency } from "@/lib/international/market-context";
+import {
+  useMarket,
+  useSeoOfferCurrency,
+} from "@/lib/international/market-context";
 import { formatCurrency } from "@/lib/utils";
 import { isConverting } from "@/lib/international/fx-display";
 import { useSeo } from "@/lib/seo";
@@ -23,7 +26,8 @@ import { verifyFlutterwavePayment } from "@/lib/flutterwave";
 import {
   startSubscriptionCheckout,
   fetchConfiguredGateway,
-  availableGateways,
+  gatewaysForMarket,
+  gatewayForMarket,
   currentGatewayRuntimeConfig,
   type PaymentGateway,
 } from "@/lib/payments/gateway";
@@ -118,6 +122,7 @@ export default function Pricing() {
 
   const { user, isPaid, paidStatus, refreshProfile } = useAuth();
   const { toast } = useToast();
+  const { market } = useMarket();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
@@ -133,7 +138,11 @@ export default function Pricing() {
   const [chosenGateway, setChosenGateway] = useState<PaymentGateway | null>(
     null,
   );
-  const gateways: PaymentGateway[] = availableGateways(
+  // Paystack only settles NGN/GHS/ZAR/KES, so a non-African market is given
+  // Flutterwave (which accepts international cards) instead of a gateway that
+  // cannot complete the charge.
+  const gateways: PaymentGateway[] = gatewaysForMarket(
+    market.marketCode,
     currentGatewayRuntimeConfig(),
   ).filter((g) => g === "paystack" || g === "flutterwave");
 
@@ -142,9 +151,7 @@ export default function Pricing() {
     fetchConfiguredGateway().then((gw) => {
       if (!alive) return;
       setDefaultGateway(gw);
-      setChosenGateway(
-        (prev) => prev ?? (gateways.includes(gw) ? gw : gateways[0]),
-      );
+      setChosenGateway((prev) => prev ?? gateways[0]);
     });
     return () => {
       alive = false;
@@ -240,6 +247,7 @@ export default function Pricing() {
       user.email!,
       user.id,
       (chosenGateway ?? undefined) as PaymentGateway | undefined,
+      market.marketCode,
     );
 
     setLoadingPlan(null);

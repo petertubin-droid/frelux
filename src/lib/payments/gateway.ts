@@ -11,7 +11,11 @@
 // key. The server reports missing/invalid provider credentials at checkout.
 // =========================================================
 
-import { supabase, isSupabaseConfigured, getFunctionErrorMessage } from "@/lib/supabase";
+import {
+  supabase,
+  isSupabaseConfigured,
+  getFunctionErrorMessage,
+} from "@/lib/supabase";
 import {
   initializeSubscriptionCheckout,
   isPaystackConfigured,
@@ -94,6 +98,35 @@ export function availableGateways(cfg: GatewayRuntimeConfig): PaymentGateway[] {
   return list;
 }
 
+/**
+ * Markets where Paystack can settle charges in the local currency
+ * (NGN, GHS, ZAR, KES). Everywhere else the local currency is outside
+ * Paystack's settlement rails, so Flutterwave is the only gateway that
+ * can actually complete the payment.
+ */
+export const PAYSTACK_MARKETS: readonly string[] = ["NG", "GH", "ZA", "KE"];
+
+/** The gateway that can charge this market at all. */
+export function gatewayForMarket(marketCode?: string | null): PaymentGateway {
+  const code = String(marketCode || "").toUpperCase();
+  return PAYSTACK_MARKETS.includes(code) ? "paystack" : "flutterwave";
+}
+
+/**
+ * Checkout gateways for a market, primary first. Paystack is only offered
+ * where it settles locally; Flutterwave stays available everywhere so an
+ * African buyer can still pay by international card.
+ */
+export function gatewaysForMarket(
+  marketCode: string | null | undefined,
+  cfg: GatewayRuntimeConfig,
+): PaymentGateway[] {
+  const primary = gatewayForMarket(marketCode);
+  const available = availableGateways(cfg);
+  const ordered = [primary, ...available.filter((g) => g !== primary)];
+  return ordered.filter((g) => g !== "paystack" || primary === "paystack");
+}
+
 export function currentGatewayRuntimeConfig(): GatewayRuntimeConfig {
   return {
     stripePublishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
@@ -124,22 +157,30 @@ async function initializeFlutterwaveSubscription(
   email: string,
   userId: string,
 ): Promise<CheckoutStartResult> {
-  const { data, error } = await supabase.functions.invoke("flutterwave-checkout", {
-    body: {
-      plan_id: planId,
-      billing_cycle: billingCycle,
-      amount_minor: amountMinor,
-      email,
-      user_id: userId,
+  const { data, error } = await supabase.functions.invoke(
+    "flutterwave-checkout",
+    {
+      body: {
+        plan_id: planId,
+        billing_cycle: billingCycle,
+        amount_minor: amountMinor,
+        email,
+        user_id: userId,
+      },
     },
-  });
+  );
   if (error) {
     return { error: await getFunctionErrorMessage(error) };
   }
-  const url = (data as { authorization_url?: string } | null)?.authorization_url;
+  const url = (data as { authorization_url?: string } | null)
+    ?.authorization_url;
   return url
     ? { authorization_url: url }
-    : { error: (data as { error?: string } | null)?.error ?? "Flutterwave did not return a payment URL." };
+    : {
+        error:
+          (data as { error?: string } | null)?.error ??
+          "Flutterwave did not return a payment URL.",
+      };
 }
 
 /**
@@ -160,8 +201,16 @@ export async function startSubscriptionCheckout(
    * FRELUX setting is the default, never a kill switch.
    */
   preferred?: PaymentGateway,
+  /**
+   * Visitor market. Paystack cannot settle currencies outside NGN/GHS/ZAR/KES,
+   * so a non-African market switches the default to Flutterwave even when the
+   * admin default is Paystack. An explicit user choice still wins.
+   */
+  marketCode?: string | null,
 ): Promise<CheckoutStartResult> {
-  const wanted = await fetchConfiguredGateway();
+  const wanted = marketCode
+    ? gatewayForMarket(marketCode)
+    : await fetchConfiguredGateway();
   const cfg = currentGatewayRuntimeConfig();
   let resolved = resolveCheckoutGateway(wanted, cfg);
   if (preferred) {
@@ -192,9 +241,17 @@ export async function startSubscriptionCheckout(
     // A rejected Paystack API key is a server configuration failure, not a
     // failed transaction. Retry via Flutterwave's hosted checkout before any
     // charge exists. Never retry after a redirect or verification attempt.
-    if (/(?:invalid|incorrect|unauthori[sz]ed).{0,30}(?:api[\s_-]*)?key|(?:api[\s_-]*)?key.{0,30}(?:invalid|incorrect)/i.test(result.error)) {
+    if (
+      /(?:invalid|incorrect|unauthori[sz]ed).{0,30}(?:api[\s_-]*)?key|(?:api[\s_-]*)?key.{0,30}(?:invalid|incorrect)/i.test(
+        result.error,
+      )
+    ) {
       const fallback = await initializeFlutterwaveSubscription(
-        planId, billingCycle, amountMinor, email, userId,
+        planId,
+        billingCycle,
+        amountMinor,
+        email,
+        userId,
       );
       if ("authorization_url" in fallback) return fallback;
       return {
@@ -206,7 +263,11 @@ export async function startSubscriptionCheckout(
 
   if (resolved.gateway === "flutterwave") {
     return initializeFlutterwaveSubscription(
-      planId, billingCycle, amountMinor, email, userId,
+      planId,
+      billingCycle,
+      amountMinor,
+      email,
+      userId,
     );
   }
 

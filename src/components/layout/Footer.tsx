@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Cookie, Mail} from "lucide-react";
+import { Cookie, Mail } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
 import { siteConfig } from "@/config/site";
@@ -7,6 +7,7 @@ import { withdrawConsent } from "@/lib/cookie-consent";
 import BrandBackdrop from "@/components/ui/BrandBackdrop";
 import { Button } from "@/components/ui/shadcn/button";
 import { useMarket } from "@/lib/international/market-context";
+import { useLanguage } from "@/lib/i18n";
 import { getMarketNavigationLabel } from "@/lib/globalization/construction-terminology";
 
 // Colors, services and showcase merged into one column; duplicate links
@@ -77,7 +78,10 @@ export default function Footer() {
   // Consolidated footer columns: the six legacy groups merged into four
   // so the mobile footer collapses to four short accordion rows.
   const groupedColumns = [
-    { title: "Calculators", links: [...marketCalculateLinks, ...estimateLinks] },
+    {
+      title: "Calculators",
+      links: [...marketCalculateLinks, ...estimateLinks],
+    },
     { title: "Explore", links: [...exploreLinks, ...companyLinks] },
     { title: "Resources", links: resourcesLinks },
     { title: "Legal", links: legalLinks },
@@ -172,10 +176,11 @@ function FooterColumn({
   // collapse-to-dropdown footer read as unprofessional). Length is controlled
   // by density instead of hiding links: two CSS columns on phones for the long
   // groups, tighter type, and no per-row padding.
+  const { t } = useLanguage();
   return (
-    <nav aria-label={title}>
+    <nav aria-label={t(title)}>
       <h3 className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs dark:text-muted-foreground">
-        {title}
+        {t(title)}
       </h3>
       <ul
         id={`footer-${title.toLowerCase()}`}
@@ -184,12 +189,15 @@ function FooterColumn({
         }`}
       >
         {links.map((link) => (
-          <li key={link.path} className="break-inside-avoid leading-[1.15] md:mb-1.5">
+          <li
+            key={link.path}
+            className="break-inside-avoid leading-[1.15] md:mb-1.5"
+          >
             <Link
               to={link.path}
               className="text-[12px] leading-[1.35] text-muted-foreground transition-colors hover:text-brand-purple sm:text-sm dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
             >
-              {link.label}
+              {t(link.label)}
             </Link>
           </li>
         ))}

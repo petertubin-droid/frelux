@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { availableGateways } from "./gateway";
+import {
+  availableGateways,
+  gatewayForMarket,
+  gatewaysForMarket,
+} from "./gateway";
 
 // availableGateways consults the Paystack env check; pin it so the
 // test is deterministic regardless of the test-runner env.
@@ -95,5 +99,32 @@ describe("availableGateways", () => {
 
   it("keeps hosted gateways available without browser keys", () => {
     expect(availableGateways(EMPTY)).toEqual(["paystack", "flutterwave"]);
+  });
+});
+
+describe("gatewaysForMarket", () => {
+  it("routes African settlement markets to paystack first", () => {
+    for (const code of ["NG", "GH", "ZA", "KE", "ng"]) {
+      expect(gatewayForMarket(code)).toBe("paystack");
+      expect(gatewaysForMarket(code, EMPTY)[0]).toBe("paystack");
+    }
+  });
+
+  it("routes every other market to flutterwave, because paystack cannot settle there", () => {
+    for (const code of ["US", "GB", "DE", "FR", "BR", "JP", "IN", "AE", "AU"]) {
+      expect(gatewayForMarket(code)).toBe("flutterwave");
+      const gateways = gatewaysForMarket(code, FULL);
+      expect(gateways[0]).toBe("flutterwave");
+      expect(gateways).not.toContain("paystack");
+    }
+  });
+
+  it("keeps flutterwave reachable for African buyers paying by international card", () => {
+    expect(gatewaysForMarket("NG", EMPTY)).toContain("flutterwave");
+  });
+
+  it("defaults to flutterwave when the market is unknown", () => {
+    expect(gatewayForMarket(null)).toBe("flutterwave");
+    expect(gatewayForMarket(undefined)).toBe("flutterwave");
   });
 });
