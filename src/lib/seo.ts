@@ -13,6 +13,12 @@ export interface SeoMeta {
   keywords?: string;
   structuredData?: object;
   structuredDataArray?: object[];
+  /**
+   * Market/locale alternates for the same content (hreflang). Each entry
+   * becomes a <link rel="alternate" hreflang="..." href="..."> tag; the set
+   * is replaced on every page render so stale tags never accumulate.
+   */
+  alternates?: { hreflang: string; href: string }[];
 }
 
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
@@ -126,6 +132,22 @@ export function useSeo(meta: SeoMeta | null) {
     // Canonical URL, always set
     setLink("canonical", canonicalUrl);
 
+    // Market/locale alternates (hreflang). Replace the whole generated set on
+    // every render: a stale alternate left over from the previous page would
+    // contradict the new canonical.
+    document
+      .querySelectorAll('link[rel="alternate"][data-seo-alternate]')
+      .forEach((el) => el.remove());
+    for (const alt of meta.alternates ?? []) {
+      if (!alt?.hreflang || !alt?.href) continue;
+      const link = document.createElement("link");
+      link.setAttribute("rel", "alternate");
+      link.setAttribute("hreflang", alt.hreflang);
+      link.setAttribute("href", alt.href);
+      link.setAttribute("data-seo-alternate", "true");
+      document.head.appendChild(link);
+    }
+
     // A locale URL is a real page only when a reviewed translation for this
     // exact content has been published (content_translations). Then it keeps
     // its own canonical and is indexable. Otherwise it stays a machine-
@@ -142,8 +164,7 @@ export function useSeo(meta: SeoMeta | null) {
     // produced Search Console's "Alternate page with proper canonical" /
     // "Google chose different canonical" reports.
     const localeIsIndexable =
-      !seoLocale ||
-      isLocalePathIndexable(seoLocale, window.location.pathname);
+      !seoLocale || isLocalePathIndexable(seoLocale, window.location.pathname);
 
     if (meta.noIndex || !localeIsIndexable) {
       setMeta("name", "robots", "noindex, nofollow");
@@ -186,6 +207,9 @@ export function useSeo(meta: SeoMeta | null) {
     return () => {
       removeStructuredData("page-structured-data");
       sdIds.forEach((id) => removeStructuredData(id));
+      document
+        .querySelectorAll('link[rel="alternate"][data-seo-alternate]')
+        .forEach((el) => el.remove());
     };
   }, [meta]);
 }

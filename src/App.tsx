@@ -304,9 +304,7 @@ const AdminScreedingMaterials = lazy(
   () => import("@/pages/admin/AdminScreedingMaterials"),
 );
 const AdminLearn = lazy(() => import("@/pages/admin/AdminLearn"));
-const AdminTranslations = lazy(
-  () => import("@/pages/admin/AdminTranslations"),
-);
+const AdminTranslations = lazy(() => import("@/pages/admin/AdminTranslations"));
 const AdminWallFinishingLibrary = lazy(
   () => import("@/pages/admin/AdminWallFinishingLibrary"),
 );
@@ -351,6 +349,7 @@ const AdminTemplates = lazy(() => import("@/pages/admin/AdminTemplates"));
 const AdminIntegrations = lazy(() => import("@/pages/admin/AdminIntegrations"));
 const Templates = lazy(() => import("@/pages/Templates"));
 const TemplateDetail = lazy(() => import("@/pages/TemplateDetail"));
+const MarketTemplates = lazy(() => import("@/pages/MarketTemplates"));
 const MyTemplates = lazy(() => import("@/pages/MyTemplates"));
 const StudioLayout = lazy(() => import("@/components/studio/StudioLayout"));
 const StudioOverview = lazy(() => import("@/pages/studio/StudioOverview"));
@@ -621,6 +620,22 @@ export default function App() {
                         element={
                           <Suspense fallback={<PageLoader />}>
                             <MarketLanding />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/market/:code/templates"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <MarketTemplates />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/market/:code/templates/:slug"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <TemplateDetail />
                           </Suspense>
                         }
                       />
@@ -1802,7 +1817,10 @@ export default function App() {
 
                       {/* Content */}
                       <Route path="learn" element={<AdminLearn />} />
-                      <Route path="translations" element={<AdminTranslations />} />
+                      <Route
+                        path="translations"
+                        element={<AdminTranslations />}
+                      />
                       <Route
                         path="learn/wall-finishing"
                         element={<AdminWallFinishingLibrary />}

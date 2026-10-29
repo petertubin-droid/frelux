@@ -24,11 +24,31 @@ import {
   describeTemplateForMarket,
   templateSummaryForMarket,
 } from "@/lib/templates-global";
+import {
+  buildMarketTemplateSeo,
+  getTemplateMarketProfile,
+  listTemplateMarkets,
+  marketTemplatePath,
+  marketTemplatesPath,
+  resolveTemplateMarketContext,
+} from "@/lib/templates-market";
 import { Button } from "@/components/ui/shadcn/button";
 
 export default function TemplateDetail() {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug, code } = useParams<{ slug: string; code?: string }>();
   const { market } = useMarket();
+  // Market-scoped route (/market/:code/templates/:slug) vs the generic
+  // /templates/:slug page, which stays the x-default member of the family.
+  const routeMarketProfile = code ? getTemplateMarketProfile(code) : null;
+  const inMarketRoute = Boolean(code);
+  const marketUnsupported = inMarketRoute && !routeMarketProfile;
+  const displayMarket = useMemo(
+    () =>
+      routeMarketProfile
+        ? resolveTemplateMarketContext(routeMarketProfile)
+        : market,
+    [routeMarketProfile, market],
+  );
   const navigate = useNavigate();
   const [template, setTemplate] = useState<DbCalculatorTemplate | null>(null);
   const [related, setRelated] = useState<DbCalculatorTemplate[]>([]);
@@ -58,24 +78,55 @@ export default function TemplateDetail() {
   }, [slug]);
 
   const seoMeta = useMemo(() => {
+    if (marketUnsupported) {
+      return {
+        title: "Market Not Covered Yet | FRELUX",
+        description:
+          "This market is not part of the FRELUX coverage yet. Browse the supported markets to see templates and calculators for your country.",
+        canonicalPath: "/templates",
+        noIndex: true,
+      };
+    }
     if (!template) return null;
     const calcLabel = calculatorLabel(template.calculator_type);
+    const marketSeo = routeMarketProfile
+      ? buildMarketTemplateSeo(
+          {
+            name: template.name,
+            slug: template.slug ?? slug ?? "",
+            type: template.calculator_type,
+            description: template.description,
+            seoDescription: template.seo_description,
+          },
+          routeMarketProfile,
+        )
+      : null;
+    const canonicalPath =
+      marketSeo?.canonicalPath ?? `/templates/${template.slug}`;
+    const countryName = routeMarketProfile?.country_name;
     return {
-      title: template.seo_title ?? `${template.name}: ${calcLabel} Template`,
+      title:
+        marketSeo?.title ??
+        template.seo_title ??
+        `${template.name}: ${calcLabel} Template`,
       description:
+        marketSeo?.description ??
         template.seo_description ??
         `Use the ${template.name} template with the FRELUX ${calcLabel} calculator. Pre-configured for real construction projects with market prices.`,
-      canonicalPath: `/templates/${template.slug}`,
+      canonicalPath,
+      alternates: marketSeo?.alternates,
       ogType: "article",
       structuredDataArray: [
         {
           "@context": "https://schema.org",
           "@type": "TechArticle",
-          headline: template.name,
+          headline: countryName
+            ? `${template.name} (${countryName})`
+            : template.name,
           description: template.seo_description ?? template.description ?? "",
           author: { "@type": "Organization", name: "FRELUX" },
           publisher: { "@type": "Organization", name: "FRELUX" },
-          url: `${SITE_URL}/templates/${template.slug}`,
+          url: `${SITE_URL}${canonicalPath}`,
         },
         {
           "@context": "https://schema.org",
@@ -88,11 +139,21 @@ export default function TemplateDetail() {
               name: "Templates",
               item: `${SITE_URL}/templates`,
             },
+            ...(routeMarketProfile
+              ? [
+                  {
+                    "@type": "ListItem",
+                    position: 3,
+                    name: routeMarketProfile.country_name,
+                    item: `${SITE_URL}${marketTemplatesPath(routeMarketProfile.country_code)}`,
+                  },
+                ]
+              : []),
             {
               "@type": "ListItem",
-              position: 3,
+              position: routeMarketProfile ? 4 : 3,
               name: template.name,
-              item: `${SITE_URL}/templates/${template.slug}`,
+              item: `${SITE_URL}${canonicalPath}`,
             },
           ],
         },
@@ -128,7 +189,7 @@ export default function TemplateDetail() {
         },
       ],
     };
-  }, [template]);
+  }, [template, routeMarketProfile, marketUnsupported, code]);
 
   useSeo(
     seoMeta ?? {
@@ -145,6 +206,38 @@ export default function TemplateDetail() {
           aria-hidden="true"
           className="h-6 w-6 animate-spin text-brand-purple"
         />
+      </div>
+    );
+  }
+
+  if (marketUnsupported) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-20 text-center">
+        <AlertCircle
+          aria-hidden="true"
+          className="mx-auto h-10 w-10 text-muted-foreground/80 dark:text-muted-foreground"
+        />
+        <h1 className="mt-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
+          Market Not Covered Yet
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
+          FRELUX does not publish templates for this market. Browse the 32
+          supported markets or use the global template library.
+        </p>
+        <div className="mt-5 flex flex-wrap justify-center gap-3">
+          <Link
+            to="/templates/"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
+          >
+            All templates <ChevronRight className="h-4 w-4" />
+          </Link>
+          <Link
+            to="/global-markets"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
+          >
+            Supported markets <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
     );
   }
@@ -174,16 +267,31 @@ export default function TemplateDetail() {
 
   const calcPath = CALCULATOR_META[template.calculator_type].path;
   const calcLabel = calculatorLabel(template.calculator_type);
-  const inputSummary = templateSummaryForMarket(template, market);
+  const inputSummary = templateSummaryForMarket(template, displayMarket);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
       {/* Breadcrumb */}
       <Breadcrumbs
-        items={[
-          { label: "Templates", path: "/templates" },
-          { label: template.name },
-        ]}
+        items={
+          routeMarketProfile
+            ? [
+                { label: "Markets", path: "/global-markets" },
+                {
+                  label: routeMarketProfile.country_name,
+                  path: marketTemplatesPath(routeMarketProfile.country_code),
+                },
+                {
+                  label: "Templates",
+                  path: marketTemplatesPath(routeMarketProfile.country_code),
+                },
+                { label: template.name },
+              ]
+            : [
+                { label: "Templates", path: "/templates" },
+                { label: template.name },
+              ]
+        }
       />
 
       {/* Header */}
@@ -196,9 +304,35 @@ export default function TemplateDetail() {
           {template.name}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-          {describeTemplateForMarket(template, market)}
+          {describeTemplateForMarket(template, displayMarket)}
         </p>
       </div>
+
+      {routeMarketProfile && (
+        <div className="mt-5 rounded-xl border border-brand-purple/25 bg-primary/5 p-4 dark:border-brand-purple/30 dark:bg-primary/10">
+          <p className="text-sm text-foreground dark:text-primary-foreground">
+            <span className="font-semibold">
+              {routeMarketProfile.country_name} configuration.
+            </span>{" "}
+            Dimensions are shown in{" "}
+            {routeMarketProfile.default_measurement_system === "imperial"
+              ? "feet and inches"
+              : "metres"}
+            , material costs in {routeMarketProfile.currency_code}, and
+            quantities follow {routeMarketProfile.country_name} purchase units
+            such as{" "}
+            {routeMarketProfile.local_terminology.cement_bag || "standard bags"}
+            .
+          </p>
+          <Link
+            to={marketTemplatesPath(routeMarketProfile.country_code)}
+            className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
+          >
+            All {routeMarketProfile.country_name} templates
+            <ChevronRight aria-hidden="true" className="h-4 w-4" />
+          </Link>
+        </div>
+      )}
 
       {/* Explanatory content */}
       <div className="prose prose-sm mt-6 max-w-none dark:prose-invert">
@@ -262,6 +396,45 @@ export default function TemplateDetail() {
           Open {calcLabel} Calculator
         </Link>
       </div>
+
+      {/* Same template in other markets: crawlable internal links for the
+          hreflang family, so every market page is reachable without the sitemap. */}
+      <nav
+        aria-label="This template in other markets"
+        className="mt-10 rounded-xl border border-border bg-card p-5 dark:border-white/10 dark:bg-card"
+      >
+        <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+          This template in other markets
+        </h2>
+        <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
+          <li>
+            <Link
+              to={`/templates/${template.slug}`}
+              className={
+                !routeMarketProfile
+                  ? "text-xs font-semibold text-brand-purple dark:text-brand-purple-lighter"
+                  : "text-xs text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80"
+              }
+            >
+              Global
+            </Link>
+          </li>
+          {listTemplateMarkets().map((p) => (
+            <li key={p.country_code}>
+              <Link
+                to={marketTemplatePath(p.country_code, template.slug as string)}
+                className={
+                  routeMarketProfile?.country_code === p.country_code
+                    ? "text-xs font-semibold text-brand-purple dark:text-brand-purple-lighter"
+                    : "text-xs text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80"
+                }
+              >
+                {p.country_name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       {/* FAQ */}
       <div className="mt-10">

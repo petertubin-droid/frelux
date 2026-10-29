@@ -10,6 +10,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { seoContentMap } from './seo-content-map.mjs';
 import { marketLandingRoutes } from './market-landing-data.mjs';
+import { TEMPLATE_CATALOG } from './lib/template-catalog.mjs';
 import { SITE_URL } from './lib/site-url.mjs';
 
 const distDir = 'dist';
@@ -1162,7 +1163,7 @@ async function fetchLearnPages() {
   try {
     const [catRes, artRes] = await Promise.all([
       fetch(`${SUPABASE_URL}/rest/v1/learn_categories?select=slug,name,description,is_active&is_active=eq.true&order=sort_order.asc`, { headers }),
-      fetch(`${SUPABASE_URL}/rest/v1/learn_articles?select=slug,title,excerpt,content,meta_title,meta_description,category_slug,author,read_time_minutes,cover_image_url,published_at,updated_at&status=eq.published&order=published_at.desc&limit=200`, { headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/learn_articles?select=slug,title,excerpt,content,meta_title,meta_description,category_slug,author,read_time_minutes,cover_image_url,published_at,updated_at,wall_market_code&status=eq.published&order=published_at.desc&limit=200`, { headers }),
     ]);
 
     if (catRes.ok && artRes.ok) {
@@ -1217,8 +1218,14 @@ async function fetchLearnPages() {
         const desc = (a.meta_description || a.excerpt || a.title).slice(0, 160);
         const datePublished = (a.published_at || a.updated_at || '').split('T')[0];
         const dateModified = (a.updated_at || a.published_at || '').split('T')[0];
+        // Wall-finishing articles are canonical on their market path
+        // (src/pages/learn/WallFinishingArticle.tsx). Writing them at
+        // /learn/<slug> would leave the sitemap URL serving an SPA shell.
+        const articlePath = a.wall_market_code
+          ? `/learn/wall-finishing/${String(a.wall_market_code).toLowerCase()}/${a.slug}`
+          : `/learn/${a.slug}`;
         learnRoutes.push({
-          path: `/learn/${a.slug}`,
+          path: articlePath,
           title: (a.meta_title || `${a.title} | FRELUX Learn`).slice(0, 100),
           description: desc,
           priority: '0.7',
@@ -1234,13 +1241,13 @@ async function fetchLearnPages() {
               publisher: { '@type': 'Organization', name: 'FRELUX', logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon-32.png` } },
               datePublished,
               dateModified,
-              mainEntityOfPage: `${SITE_URL}/learn/${a.slug}`,
+              mainEntityOfPage: `${SITE_URL}${articlePath}`,
             },
             { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
               { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
               { '@type': 'ListItem', position: 2, name: 'Learn', item: `${SITE_URL}/learn` },
               ...(cat ? [{ '@type': 'ListItem', position: 3, name: cat.name, item: `${SITE_URL}/learn/category/${cat.slug}` }] : []),
-              { '@type': 'ListItem', position: cat ? 4 : 3, name: a.title, item: `${SITE_URL}/learn/${a.slug}` },
+              { '@type': 'ListItem', position: cat ? 4 : 3, name: a.title, item: `${SITE_URL}${articlePath}` },
             ] },
           ],
         });
@@ -1249,11 +1256,11 @@ async function fetchLearnPages() {
         );
         if (altLocales.length) {
           learnRoutes[learnRoutes.length - 1].alternates = [
-            { hreflang: 'x-default', href: `${SITE_URL}/learn/${a.slug}/` },
-            { hreflang: 'en', href: `${SITE_URL}/learn/${a.slug}/` },
+            { hreflang: 'x-default', href: `${SITE_URL}${articlePath}/` },
+            { hreflang: 'en', href: `${SITE_URL}${articlePath}/` },
             ...altLocales.map((l) => ({
               hreflang: l,
-              href: `${SITE_URL}/${l}/learn/${a.slug}/`,
+              href: `${SITE_URL}/${l}${articlePath}/`,
             })),
           ];
         }
@@ -1266,18 +1273,18 @@ async function fetchLearnPages() {
           const t = trByLocaleKey.get(`${locale}:${a.slug}`);
           const altSet = t
             ? [
-                { hreflang: 'x-default', href: `${SITE_URL}/learn/${a.slug}/` },
-                { hreflang: 'en', href: `${SITE_URL}/learn/${a.slug}/` },
+                { hreflang: 'x-default', href: `${SITE_URL}${articlePath}/` },
+                { hreflang: 'en', href: `${SITE_URL}${articlePath}/` },
                 ...INDEXABLE_LOCALES.filter((l) =>
                   trByLocaleKey.has(`${l}:${a.slug}`),
                 ).map((l) => ({
                   hreflang: l,
-                  href: `${SITE_URL}/${l}/learn/${a.slug}/`,
+                  href: `${SITE_URL}/${l}${articlePath}/`,
                 })),
               ]
             : undefined;
           learnRoutes.push({
-            path: `/${locale}/learn/${a.slug}`,
+            path: `/${locale}${articlePath}`,
             title: ((t && t.title) || a.meta_title || a.title).slice(0, 100),
             description: ((t && t.description) || desc).slice(0, 160),
             priority: '0.5',
@@ -1287,7 +1294,7 @@ async function fetchLearnPages() {
               ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
               : 'noindex, follow',
             alternates: altSet,
-            canonical: t ? undefined : `${SITE_URL}/learn/${a.slug}/`,
+            canonical: t ? undefined : `${SITE_URL}${articlePath}/`,
             structuredData: t
               ? [
                   {
@@ -1321,6 +1328,34 @@ async function fetchLearnPages() {
   } catch (err) {
     failBuildIfNetlify(`Learn fetch failed (${err.message})`);
   }
+  // Wall-finishing market hubs: the library page each market's articles
+  // belong to (/learn/wall-finishing/<market>).
+  const wallMarketCodes = [...new Set(arts.filter((a) => a.wall_market_code).map((a) => String(a.wall_market_code).toLowerCase()))];
+  for (const code of wallMarketCodes) {
+    const country = marketLandingRoutes.find((mm) => mm.code.toLowerCase() === code)?.countryName || code.toUpperCase();
+    const path = `/learn/wall-finishing/${code}`;
+    const marketArts = arts.filter((a) => String(a.wall_market_code || '').toLowerCase() === code);
+    learnRoutes.push({
+      path,
+      title: `Wall Finishing Guides for ${country} | FRELUX Learn`,
+      description: `Wall finishing library for ${country}: paint, screeding, POP ceiling and tiling guides written against ${country} materials, units and standards.`,
+      priority: '0.6',
+      changefreq: 'weekly',
+      structuredData: [
+        { '@context': 'https://schema.org', '@type': 'CollectionPage', name: `Wall Finishing Guides for ${country}`, url: `${SITE_URL}${path}` },
+        { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: 'Learn', item: `${SITE_URL}/learn` },
+          { '@type': 'ListItem', position: 3, name: country, item: `${SITE_URL}${path}` },
+        ]},
+      ],
+    });
+    const listing = marketArts
+      .map((a) => `<li><a href="${path}/${a.slug}">${escapeHtml(a.title)}</a>${a.excerpt ? `: ${escapeHtml(a.excerpt.slice(0, 140))}` : ''}</li>`)
+      .join('');
+    learnContent[path] = `<h1>Wall Finishing Guides for ${escapeHtml(country)}</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a> &rsaquo; ${escapeHtml(country)}</nav><ul>${listing}</ul>`;
+  }
+
   return { routes: learnRoutes, content: learnContent };
 }
 
@@ -1358,6 +1393,62 @@ templateHtml = templateHtml.replace(
 );
 let count = 0;
 
+// ── Market × template pages (32 markets × curated templates) ────────
+// Mirrors src/lib/templates-market.ts: every market gets a template hub and
+// one page per curated template, each with its own canonical and hreflang
+// family. These are prerendered so Google receives real HTML, not an SPA shell.
+for (const m of marketLandingRoutes) {
+  const hubPath = `/market/${m.code.toLowerCase()}/templates`;
+  routes.push({
+    path: hubPath,
+    alternates: [
+      { hreflang: 'x-default', href: `${SITE_URL}/templates/` },
+      ...marketLandingRoutes.map((mm) => ({
+        hreflang: mm.code.toLowerCase(),
+        href: `${SITE_URL}/market/${mm.code.toLowerCase()}/templates/`,
+      })),
+    ],
+    title: `Construction Estimate Templates for ${m.countryName} | FRELUX SMART CALC`,
+    description: `Pre-configured paint, screeding, POP ceiling and tile estimate templates for ${m.countryName}. Dimensions in market units and costs in ${m.currency} (${m.currencySymbol}) from live local material prices.`,
+    priority: '0.7',
+    changefreq: 'weekly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'CollectionPage', name: `Estimate templates for ${m.countryName}`, url: `${SITE_URL}${hubPath}` },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+        { '@type': 'ListItem', position: 2, name: m.countryName, item: `${SITE_URL}/market/${m.code.toLowerCase()}` },
+        { '@type': 'ListItem', position: 3, name: 'Templates', item: `${SITE_URL}${hubPath}` },
+      ]},
+    ],
+  });
+  for (const t of TEMPLATE_CATALOG) {
+    const path = `${hubPath}/${t.slug}`;
+    routes.push({
+      path,
+      alternates: [
+        { hreflang: 'x-default', href: `${SITE_URL}/templates/${t.slug}/` },
+        ...marketLandingRoutes.map((mm) => ({
+          hreflang: mm.code.toLowerCase(),
+          href: `${SITE_URL}/market/${mm.code.toLowerCase()}/templates/${t.slug}/`,
+        })),
+      ],
+      title: `${t.name} Template for ${m.countryName} (${m.currency}) | FRELUX SMART CALC`,
+      description: `Run the ${t.name} template in ${m.countryName}: quantities in market units and costs in ${m.currency} (${m.currencySymbol}), priced from live ${m.countryName} material prices. ${t.seoDescription || t.description || ''}`.trim(),
+      priority: '0.6',
+      changefreq: 'monthly',
+      structuredData: [
+        { '@context': 'https://schema.org', '@type': 'TechArticle', headline: `${t.name} (${m.countryName})`, author: { '@type': 'Organization', name: 'FRELUX' }, publisher: { '@type': 'Organization', name: 'FRELUX' }, url: `${SITE_URL}${path}` },
+        { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: m.countryName, item: `${SITE_URL}/market/${m.code.toLowerCase()}` },
+          { '@type': 'ListItem', position: 3, name: 'Templates', item: `${SITE_URL}${hubPath}` },
+          { '@type': 'ListItem', position: 4, name: t.name, item: `${SITE_URL}${path}` },
+        ]},
+      ],
+    });
+  }
+}
+
 // ── Market landing pages (Phase 3 globalization, 2026-10-27) ────────
 // One data-addressable SEO lander per market, built from the same
 // bundle data the calculators use. Canonical English URLs; locale
@@ -1384,6 +1475,20 @@ for (const m of marketLandingRoutes) {
   });
 }
 
+
+// Reciprocal hreflang: the global template page declares its 32 market
+// variants so the family is discoverable from either direction.
+for (const route of routes) {
+  const m = /^\/templates\/([^/]+)$/.exec(route.path);
+  if (!m || route.alternates) continue;
+  route.alternates = [
+    { hreflang: 'x-default', href: `${SITE_URL}${route.path}/` },
+    ...marketLandingRoutes.map((mm) => ({
+      hreflang: mm.code.toLowerCase(),
+      href: `${SITE_URL}/market/${mm.code.toLowerCase()}/templates/${m[1]}/`,
+    })),
+  ];
+}
 
 for (const route of routes) {
   let html = templateHtml;

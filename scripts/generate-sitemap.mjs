@@ -11,6 +11,7 @@
  */
 import { writeFileSync, mkdirSync } from 'fs';
 import { marketLandingRoutes } from './market-landing-data.mjs';
+import { TEMPLATE_CATALOG } from './lib/template-catalog.mjs';
 import { SITE_URL } from './lib/site-url.mjs';
 
 const today = new Date().toISOString().split('T')[0];
@@ -202,8 +203,17 @@ async function fetchLearnRoutes() {
     }
     if (artRes.ok) {
       const arts = await artRes.json();
+      const wallCodes = new Set();
       for (const a of arts) {
-        learnRoutes.push({ path: hasMarketField && a.wall_market_code ? `/learn/wall-finishing/${a.wall_market_code.toLowerCase()}/${a.slug}` : `/learn/${a.slug}`, priority: '0.7', changefreq: 'monthly' });
+        if (hasMarketField && a.wall_market_code) {
+          wallCodes.add(a.wall_market_code.toLowerCase());
+          learnRoutes.push({ path: `/learn/wall-finishing/${a.wall_market_code.toLowerCase()}/${a.slug}`, priority: '0.7', changefreq: 'monthly' });
+        } else {
+          learnRoutes.push({ path: `/learn/${a.slug}`, priority: '0.7', changefreq: 'monthly' });
+        }
+      }
+      for (const code of wallCodes) {
+        learnRoutes.push({ path: `/learn/wall-finishing/${code}`, priority: '0.6', changefreq: 'weekly' });
       }
     }
     console.log(`  ✅ Learn: ${learnRoutes.length} dynamic URLs`);
@@ -232,7 +242,21 @@ const failBuildIfNetlify = (reason) => {
 };
 
 const learnRoutes = await fetchLearnRoutes();
-const allRoutes = [...routes, ...learnRoutes];
+
+// Market × template family: 32 market hubs + every curated template in every
+// market. The app serves these at /market/<code>/templates[/<slug>] with
+// distinct titles, canonicals and hreflang alternates (see
+// src/lib/templates-market.ts), so they are first-class sitemap URLs.
+const marketTemplateRoutes = [];
+for (const m of marketLandingRoutes) {
+  const hub = `/market/${m.code.toLowerCase()}/templates`;
+  marketTemplateRoutes.push({ path: hub, priority: '0.7', changefreq: 'weekly' });
+  for (const t of TEMPLATE_CATALOG) {
+    marketTemplateRoutes.push({ path: `${hub}/${t.slug}`, priority: '0.6', changefreq: 'monthly' });
+  }
+}
+
+const allRoutes = [...routes, ...learnRoutes, ...marketTemplateRoutes];
 
 // Netlify's "pretty URLs" force-redirect every path to its trailing-slash
 // form (301 /calculators -> /calculators/). The sitemap must list the final

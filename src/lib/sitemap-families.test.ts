@@ -29,6 +29,12 @@ const ROWS: Record<string, unknown[]> = {
       published_at: "2026-10-01",
       category_slug: "communication",
     },
+    {
+      slug: "external-render-germany",
+      published_at: "2026-10-02",
+      category_slug: "finishing",
+      wall_market_code: "DE",
+    },
   ],
   learn_categories: [{ slug: "communication" }],
   content_translations: [],
@@ -125,6 +131,33 @@ describe("sitemap coverage", () => {
 
   it("lists pro profiles (regression: non-existent is_active column emptied this family)", () => {
     expect(has("/pro-connect/acme-plumbing/")).toBe(true);
+  });
+
+  it("lists every curated template in all 32 markets", () => {
+    const marketTemplates = urls.filter((u) =>
+      /\/market\/[a-z]{2}\/templates\/[^/]+\/$/.test(new URL(u).pathname),
+    );
+    expect(marketTemplates.length).toBe(32 * 40);
+    expect(has("/market/de/templates/standard-living-room-painting/")).toBe(
+      true,
+    );
+    expect(has("/market/ng/templates/standard-living-room-painting/")).toBe(
+      true,
+    );
+  });
+
+  it("lists all 32 market template hubs", () => {
+    const hubs = urls.filter((u) =>
+      /\/market\/[a-z]{2}\/templates\/$/.test(new URL(u).pathname),
+    );
+    expect(hubs.length).toBe(32);
+  });
+
+  it("lists wall-finishing hubs and market-canonical article URLs", () => {
+    expect(has("/learn/wall-finishing/de/")).toBe(true);
+    expect(has("/learn/wall-finishing/de/external-render-germany/")).toBe(true);
+    // A market article must NOT also be listed at its generic /learn/<slug> path.
+    expect(has("/learn/external-render-germany/")).toBe(false);
   });
 
   it("lists learn articles and paint colors", () => {

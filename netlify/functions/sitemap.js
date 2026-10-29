@@ -290,6 +290,19 @@ export const handler = async () => {
     add(path, lastmod, "monthly", "0.7");
   }
 
+  // Wall-finishing market hubs (/learn/wall-finishing/<market>): every market
+  // that owns at least one published wall-finishing article gets a library page.
+  const wallMarketCodes = [
+    ...new Set(
+      articles
+        .filter((a) => a.wall_market_code)
+        .map((a) => String(a.wall_market_code).toLowerCase()),
+    ),
+  ];
+  for (const code of wallMarketCodes) {
+    add(`/learn/wall-finishing/${code}/`, today, "weekly", "0.6");
+  }
+
   // Reviewed translations.
   if (headers && supabaseUrl && articles.length > 0) {
     try {
@@ -388,6 +401,42 @@ export const handler = async () => {
       }
     } catch {
       // Templates are additive
+    }
+  }
+
+  // Public template slugs: live DB when reachable, static catalog as fallback,
+  // so the 32-market template family is never empty because a query failed.
+  const templateSlugs = new Set(
+    STATIC_PATHS.filter((p) => /^\/templates\/[^/]+\/$/.test(p)).map(
+      (p) => p.split("/")[2],
+    ),
+  );
+  if (headers && supabaseUrl) {
+    try {
+      const res = await fetch(
+        `${supabaseUrl}/rest/v1/calculator_templates?select=slug&is_published=eq.true&limit=500`,
+        { headers },
+      );
+      if (res.ok) {
+        for (const t of await res.json()) {
+          if (t.slug) templateSlugs.add(t.slug);
+        }
+      }
+    } catch {
+      // Static fallback already covers the curated catalog.
+    }
+  }
+
+  // Market × template pages: every market hub plus every template localized to
+  // that market. These are real 200 pages with distinct titles, canonicals and
+  // hreflang alternates, so they belong in the sitemap next to the global pages.
+  const marketCodes = STATIC_PATHS.filter((p) => /^\/market\/[a-z]{2}\/$/.test(p)).map(
+    (p) => p.split("/")[2],
+  );
+  for (const code of marketCodes) {
+    add(`/market/${code}/templates/`, today, "weekly", "0.7");
+    for (const slug of templateSlugs) {
+      add(`/market/${code}/templates/${slug}/`, today, "monthly", "0.6");
     }
   }
 
