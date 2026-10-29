@@ -176,6 +176,39 @@ export const handler = async () => {
     add(path, lastmod, "monthly", "0.7");
   }
 
+  // Reviewed translations. A published content_translations row is a real
+  // page in its own language (prerender emits it with reciprocal hreflang),
+  // so it belongs in the sitemap next to the English original. Untranslated
+  // locales are noindex stubs and stay out.
+  try {
+    const trRes = await fetch(
+      `${supabaseUrl}/rest/v1/content_translations?select=content_key,locale,published_at&status=eq.published`,
+      { headers },
+    );
+    if (trRes.ok) {
+      const translations = await trRes.json();
+      const englishPathBySlug = new Map(
+        articles.map((a) => [
+          a.slug,
+          a.wall_market_code
+            ? `/learn/wall-finishing/${String(a.wall_market_code).toLowerCase()}/${a.slug}/`
+            : `/learn/${a.slug}/`,
+        ]),
+      );
+      for (const t of translations) {
+        const base = englishPathBySlug.get(t.content_key);
+        if (!base) continue;
+        const lastmod =
+          t.published_at && !Number.isNaN(Date.parse(t.published_at))
+            ? new Date(t.published_at).toISOString().slice(0, 10)
+            : today;
+        add(`/${t.locale}${base}`, lastmod, "monthly", "0.5");
+      }
+    }
+  } catch {
+    // Translations are additive: never break the sitemap over them.
+  }
+
   // Emit English canonical URLs only until localized pages contain genuinely
   // translated content with reciprocal hreflang declarations.
   const body = `<?xml version="1.0" encoding="UTF-8"?>
