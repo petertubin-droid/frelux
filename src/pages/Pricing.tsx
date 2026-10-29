@@ -532,7 +532,9 @@ export default function Pricing() {
                   <span className="text-sm text-muted-foreground">
                     /{billingCycle === "monthly" ? "mo" : "yr"}
                   </span>
-                  {!shown.isUsd && (
+                  {/* The naira list is the Nigerian price, not a conversion
+                      of the dollar price, so it carries no dollar anchor. */}
+                  {!shown.isUsd && shown.currency !== "NGN" && (
                     <p
                       className="mt-1 block text-xs text-muted-foreground"
                       data-testid={`plan-usd-${plan.id}`}
