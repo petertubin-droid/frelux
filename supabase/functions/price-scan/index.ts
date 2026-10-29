@@ -267,25 +267,46 @@ serveWithCors(async (req: Request) => {
     );
 
     // ── Fetch the page ──
+    // Retailers throttle by source address: Amazon answers 503 to most requests
+    // and serves the page on a later one, so a single attempt reports a false
+    // failure. Retry the statuses that mean "not now" (never a 404) with a
+    // browser-like identity and spaced backoff.
+    const BROWSER_UA =
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36";
+    const RETRY_STATUSES = new Set([403, 429, 500, 502, 503, 504]);
+    const RETRY_DELAYS_MS = [1500, 2500, 4000, 5000];
     let html = "";
     let fetchError: string | null = null;
-    try {
-      const fetchRes = await fetch(parsed.toString(), {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; FreluxPriceScan/1.0)",
-          Accept: "text/html,application/xhtml+xml",
-        },
-        signal: AbortSignal.timeout(10000),
-        redirect: "follow",
-      });
-      if (!fetchRes.ok) {
+    let attempts = 1;
+    for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt += 1) {
+      attempts = attempt + 1;
+      try {
+        const fetchRes = await fetch(parsed.toString(), {
+          headers: {
+            "User-Agent": BROWSER_UA,
+            Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+          },
+          signal: AbortSignal.timeout(12000),
+          redirect: "follow",
+        });
+        if (fetchRes.ok) {
+          html = (await fetchRes.text()).slice(0, 2_000_000);
+          fetchError = null;
+          break;
+        }
         fetchError = `That site responded with ${fetchRes.status}`;
-      } else {
-        html = (await fetchRes.text()).slice(0, 2_000_000);
+        if (!RETRY_STATUSES.has(fetchRes.status)) break;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "network error";
+        fetchError = `Could not reach that URL: ${msg}`;
       }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "network error";
-      fetchError = `Could not reach that URL: ${msg}`;
+      if (attempt < RETRY_DELAYS_MS.length) {
+        await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[attempt]));
+      }
+    }
+    if (fetchError && attempts > 1) {
+      fetchError = `${fetchError} (after ${attempts} attempts)`;
     }
 
     const result = fetchError

@@ -87,3 +87,47 @@ network, so their sources are deactivated instead of quietly failing every week.
 CN caveat: DHgate quotes wholesale export prices in USD. It keeps the Chinese
 book moving but it is not a local retail price; a local CNY source (1688, JD or
 Suning, all JS-rendered) needs a rendered fetch.
+
+## Full market coverage, 29 Oct 2026
+
+Every FRELUX market was swept for a retailer that answers a real search with real
+prices. Result: 26 of the 32 markets have a working source; six do not.
+
+| Market | Working source | Notes |
+| --- | --- | --- |
+| NG | Jumia, Konga | local, reliable |
+| GH | Jumia | local, reliable |
+| KE | Jumia | local, reliable |
+| ZA | Amazon.co.za | few offers per page |
+| US | Amazon.com | needs retries |
+| CA | Amazon.ca | needs retries |
+| MX | Amazon.com.mx | 435 offers |
+| BR | Amazon.com.br | needs retries |
+| GB | Wickes, B&Q, Homebase | reliable |
+| FR | Amazon.fr | serves on retry |
+| IT | Amazon.it | serves on retry |
+| ES | Amazon.es | serves on retry |
+| NL | Amazon.nl | serves on retry |
+| DE | OBI | reliable |
+| PL | OBI PL | reliable |
+| SE | Amazon.se | serves on retry |
+| CH | OBI CH | reliable |
+| AE | Amazon.ae | serves on retry |
+| SA | Amazon.sa | needs retries |
+| JP | MonotaRO, Amazon.co.jp | MonotaRO is the strongest source found (900+ offers) |
+| IN | Flipkart, IndiaMART | few parsed prices per page |
+| KR | Danawa | price comparison, few parsed |
+| SG | Lazada SG (JSON endpoint) | reliable |
+| ID | Lazada ID (JSON endpoint) | reliable |
+| CN | DHgate | wholesale export prices in USD |
+| AU | Reece | trade supplier |
+| EG, TZ, CI, ET, TR, NZ | none | every candidate refused automated requests |
+
+Two technical findings worth keeping:
+
+1. Amazon throttles by source address, not by country. A single 503 means
+   nothing; the same store serves a full page on the third or fourth attempt.
+   The scan function now retries 403/429/5xx five times with backoff and reports
+   how many attempts it took.
+2. Lazada's `?ajax=true` variant returns server-rendered JSON with prices, which
+   is why Singapore and Indonesia work while their normal search pages do not.

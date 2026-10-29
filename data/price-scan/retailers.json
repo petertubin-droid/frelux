@@ -48,6 +48,22 @@
   "health_checked_at": "2026-10-29"
  },
  {
+  "market": "CH",
+  "currency": "CHF",
+  "retailer": "OBI CH",
+  "url_pattern": "https://www.obi.ch/search/%s/",
+  "health": "ok",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "CI",
+  "currency": "",
+  "retailer": "",
+  "url_pattern": "",
+  "health": "no_source",
+  "health_checked_at": "2026-10-29"
+ },
+ {
   "market": "CN",
   "currency": "CNY",
   "retailer": "DHgate",
@@ -77,6 +93,46 @@
   "retailer": "OBI",
   "url_pattern": "https://www.obi.de/search/%s/",
   "health": "ok",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "EG",
+  "currency": "EGP",
+  "retailer": "Amazon.eg",
+  "url_pattern": "https://www.amazon.eg/s?k=%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "EG",
+  "currency": "",
+  "retailer": "",
+  "url_pattern": "",
+  "health": "no_source",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "ES",
+  "currency": "EUR",
+  "retailer": "Amazon.es",
+  "url_pattern": "https://www.amazon.es/s?k=%s",
+  "health": "flaky_ok",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "ET",
+  "currency": "",
+  "retailer": "",
+  "url_pattern": "",
+  "health": "no_source",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "FR",
+  "currency": "EUR",
+  "retailer": "Amazon.fr",
+  "url_pattern": "https://www.amazon.fr/s?k=%s",
+  "health": "flaky_ok",
   "health_checked_at": "2026-10-29"
  },
  {
@@ -122,6 +178,14 @@
  {
   "market": "ID",
   "currency": "IDR",
+  "retailer": "Lazada ID",
+  "url_pattern": "https://www.lazada.co.id/catalog/?ajax=true&q=%s",
+  "health": "ok",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "ID",
+  "currency": "IDR",
   "retailer": "Tokopedia",
   "url_pattern": "https://www.tokopedia.com/search?st=product&q=%s",
   "health": "blocked",
@@ -136,11 +200,27 @@
   "health_checked_at": "2026-10-29"
  },
  {
+  "market": "IN",
+  "currency": "INR",
+  "retailer": "Flipkart",
+  "url_pattern": "https://www.flipkart.com/search?q=%s",
+  "health": "thin",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "IN",
+  "currency": "INR",
+  "retailer": "IndiaMART",
+  "url_pattern": "https://dir.indiamart.com/search.mp?ss=%s",
+  "health": "thin",
+  "health_checked_at": "2026-10-29"
+ },
+ {
   "market": "IT",
   "currency": "EUR",
   "retailer": "Amazon.it",
   "url_pattern": "https://www.amazon.it/s?k=%s",
-  "health": "blocked",
+  "health": "flaky_ok",
   "health_checked_at": "2026-10-29"
  },
  {
@@ -148,7 +228,15 @@
   "currency": "JPY",
   "retailer": "Amazon.co.jp",
   "url_pattern": "https://www.amazon.co.jp/s?k=%s",
-  "health": "blocked",
+  "health": "flaky_ok",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "JP",
+  "currency": "JPY",
+  "retailer": "MonotaRO",
+  "url_pattern": "https://www.monotaro.com/s/?q=%s",
+  "health": "ok",
   "health_checked_at": "2026-10-29"
  },
  {
@@ -165,6 +253,22 @@
   "retailer": "Coupang",
   "url_pattern": "https://www.coupang.com/np/search?q=%s",
   "health": "blocked",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "KR",
+  "currency": "KRW",
+  "retailer": "Danawa",
+  "url_pattern": "https://search.danawa.com/dsearch.php?query=%s",
+  "health": "thin",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "MX",
+  "currency": "MXN",
+  "retailer": "Amazon.com.mx",
+  "url_pattern": "https://www.amazon.com.mx/s?k=%s",
+  "health": "flaky_ok",
   "health_checked_at": "2026-10-29"
  },
  {
@@ -192,11 +296,67 @@
   "health_checked_at": "2026-10-29"
  },
  {
+  "market": "NL",
+  "currency": "EUR",
+  "retailer": "Amazon.nl",
+  "url_pattern": "https://www.amazon.nl/s?k=%s",
+  "health": "flaky_ok",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "NZ",
+  "currency": "",
+  "retailer": "",
+  "url_pattern": "",
+  "health": "no_source",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "PL",
+  "currency": "PLN",
+  "retailer": "OBI PL",
+  "url_pattern": "https://www.obi.pl/search/%s/",
+  "health": "ok",
+  "health_checked_at": "2026-10-29"
+ },
+ {
   "market": "SA",
   "currency": "SAR",
   "retailer": "Amazon.sa",
   "url_pattern": "https://www.amazon.sa/s?k=%s",
   "health": "flaky",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "SE",
+  "currency": "SEK",
+  "retailer": "Amazon.se",
+  "url_pattern": "https://www.amazon.se/s?k=%s",
+  "health": "flaky_ok",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "SG",
+  "currency": "SGD",
+  "retailer": "Lazada SG",
+  "url_pattern": "https://www.lazada.sg/catalog/?ajax=true&q=%s",
+  "health": "ok",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "TR",
+  "currency": "",
+  "retailer": "",
+  "url_pattern": "",
+  "health": "no_source",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "TZ",
+  "currency": "",
+  "retailer": "",
+  "url_pattern": "",
+  "health": "no_source",
   "health_checked_at": "2026-10-29"
  },
  {
@@ -213,6 +373,14 @@
   "retailer": "Home Depot",
   "url_pattern": "https://www.homedepot.com/s/%s",
   "health": "blocked",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "ZA",
+  "currency": "ZAR",
+  "retailer": "Amazon.co.za",
+  "url_pattern": "https://www.amazon.co.za/s?k=%s",
+  "health": "thin",
   "health_checked_at": "2026-10-29"
  },
  {
