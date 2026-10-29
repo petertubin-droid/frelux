@@ -1163,6 +1163,10 @@ async function fetchLearnPages() {
   const headers = { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` };
   const learnRoutes = [];
   const learnContent = {};
+  // Hoisted so the wall-finishing market hubs below can read them even when
+  // the Learn tables are unreachable (local dev, rate limits).
+  let cats = [];
+  let arts = [];
   try {
     const [catRes, artRes] = await Promise.all([
       fetch(`${SUPABASE_URL}/rest/v1/learn_categories?select=slug,name,description,is_active&is_active=eq.true&order=sort_order.asc`, { headers }),
@@ -1170,8 +1174,8 @@ async function fetchLearnPages() {
     ]);
 
     if (catRes.ok && artRes.ok) {
-      const cats = await catRes.json();
-      const arts = await artRes.json();
+      cats = await catRes.json();
+      arts = await artRes.json();
 
       // Reviewed translations: the ONLY source of indexable locale pages.
       let translations = [];
