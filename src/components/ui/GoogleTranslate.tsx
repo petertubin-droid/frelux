@@ -13,6 +13,7 @@
  * The admin console is never machine-translated.
  */
 import { useEffect, useRef, useState } from "react";
+import { shouldLoadTranslator } from "@/lib/network";
 import { Languages, X } from "lucide-react";
 import { LANGUAGES, type Language } from "@/lib/i18n";
 import {
@@ -128,6 +129,7 @@ export function GoogleTranslateSync({ language }: { language: Language }) {
 
   // Translate whenever `language` state changes
   useEffect(() => {
+    if (!shouldLoadTranslator()) return;
     if (isAdminRoute) {
       appliedRef.current = null;
       setBusy(false);

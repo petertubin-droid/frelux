@@ -14,6 +14,7 @@ import { useCommandPalette } from "@/components/ui/useCommandPalette";
 import { isOnboardingComplete } from "@/lib/onboarding";
 import { MONETAG_TAG_DOMAIN } from "@/lib/ad-network-formats";
 import { trackVisit } from "@/lib/achievements";
+import { shouldLoadAdSdks, shouldAnimate } from "@/lib/network";
 import { trackReturnVisitRewards } from "@/lib/rewards-integration";
 import type { Achievement } from "@/lib/achievements";
 import { getSupabase } from "@/lib/supabase-lazy";
@@ -110,6 +111,9 @@ export default function Layout() {
     // the visitor's consent changes so accepting the banner turns the
     // tags on without a reload.
     if (!hasAnyConsentChoice()) return;
+    // Slow link or Save-Data: no ad SDKs at all. In-slot AdSense units still
+    // render (they degrade to an empty container), the page just stays light.
+    if (!shouldLoadAdSdks()) return;
     const advertisingGranted = hasAdvertisingConsent();
 
     let cancelled = false;
@@ -509,11 +513,13 @@ export default function Layout() {
           completing the header and bottom-nav edge lights. Decorative,
           pointer-events-disabled, sits under the chrome (z-25). */}
       <Suspense fallback={null}>
-        <NeonFrame />
+        {/* Purely decorative: skipped on slow links and for reduced motion,
+            so a 2G visitor downloads no animation code at all. */}
+        {shouldAnimate() && <NeonFrame />}
       </Suspense>
       <main
         id="main-content"
-        className="w-full flex-1 pt-16 pb-16 md:pb-0"
+        className="w-full flex-1 pt-16 pb-36 md:pb-0"
         role="main"
       >
         <Outlet />
