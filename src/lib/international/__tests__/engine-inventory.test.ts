@@ -60,6 +60,36 @@ describe("Comprehensive Engine Inventory & 20-Market Matrix", () => {
     }
   });
 
+  it("never claims a shipped engine is not implemented in a market it ships to", () => {
+    // These eight engines ship a live calculator page in every market, so the
+    // matrix must describe how they behave locally rather than claiming absence.
+    const shipped = [
+      "tyrolene",
+      "grafitex",
+      "mineral_stone",
+      "stucco",
+      "flooring",
+      "waterproofing",
+      "build_to_roof",
+      "doors_windows",
+    ];
+    for (const id of shipped) {
+      const engine = FULL_ENGINE_INVENTORY.find((e) => e.id === id);
+      expect(engine, `missing engine ${id}`).toBeDefined();
+      for (const mCode of ALL_20_MARKETS) {
+        const support = engine!.marketMatrix[mCode];
+        expect(
+          support.status,
+          `${id}/${mCode} still claims not_implemented`,
+        ).not.toBe("not_implemented");
+        expect(["verified", "partially_verified", "requires_verification"]).toContain(
+          support.status,
+        );
+        expect(support.notes.length).toBeGreaterThan(10);
+      }
+    }
+  });
+
   it("CONSTRUCTION_TYPOLOGIES provides verified explicit profiles for all 20 markets", () => {
     expect(Object.keys(CONSTRUCTION_TYPOLOGIES).length).toBe(20);
     for (const code of ALL_20_MARKETS) {

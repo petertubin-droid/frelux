@@ -637,34 +637,34 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
         notes: "Authoritative Nigerian specification and market method.",
       },
       US: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for US local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in US.",
       },
       GB: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for GB local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in GB.",
       },
       CA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for CA local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in CA.",
       },
       AU: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for AU local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in AU.",
       },
       DE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for DE local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in DE.",
       },
       IN: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for IN local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in IN.",
       },
       GH: {
         status: "partially_verified",
@@ -672,64 +672,64 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
           "West African compatible method; requires local Ghana packaging verification.",
       },
       KE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for KE local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in KE.",
       },
       ZA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for ZA local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in ZA.",
       },
       JP: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for JP local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in JP.",
       },
       FR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for FR local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in FR.",
       },
       BR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for BR local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in BR.",
       },
       SA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for SA local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in SA.",
       },
       AE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for AE local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in AE.",
       },
       CN: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for CN local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in CN.",
       },
       ID: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for ID local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in ID.",
       },
       MX: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for MX local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in MX.",
       },
       KR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for KR local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in KR.",
       },
       IT: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for IT local construction typology.",
+          "Textured render method is West-African/UK bound; only market labour rates are localised. Product packaging and trade practice are unverified in IT.",
       },
     },
   },
@@ -754,34 +754,34 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
         notes: "Authoritative Nigerian specification and market method.",
       },
       US: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for US local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in US.",
       },
       GB: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for GB local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in GB.",
       },
       CA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for CA local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in CA.",
       },
       AU: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for AU local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in AU.",
       },
       DE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for DE local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in DE.",
       },
       IN: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for IN local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in IN.",
       },
       GH: {
         status: "partially_verified",
@@ -789,64 +789,64 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
           "West African compatible method; requires local Ghana packaging verification.",
       },
       KE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for KE local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in KE.",
       },
       ZA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for ZA local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in ZA.",
       },
       JP: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for JP local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in JP.",
       },
       FR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for FR local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in FR.",
       },
       BR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for BR local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in BR.",
       },
       SA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for SA local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in SA.",
       },
       AE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for AE local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in AE.",
       },
       CN: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for CN local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in CN.",
       },
       ID: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for ID local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in ID.",
       },
       MX: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for MX local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in MX.",
       },
       KR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for KR local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in KR.",
       },
       IT: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for IT local construction typology.",
+          "Finish method is global; market labour rates are localised through the labour config. Product coverage and trade practice are unverified in IT.",
       },
     },
   },
@@ -871,34 +871,34 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
         notes: "Authoritative Nigerian specification and market method.",
       },
       US: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for US local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in US.",
       },
       GB: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for GB local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in GB.",
       },
       CA: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for CA local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in CA.",
       },
       AU: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for AU local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in AU.",
       },
       DE: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for DE local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in DE.",
       },
       IN: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for IN local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in IN.",
       },
       GH: {
         status: "partially_verified",
@@ -906,64 +906,64 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
           "West African compatible method; requires local Ghana packaging verification.",
       },
       KE: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for KE local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in KE.",
       },
       ZA: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for ZA local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in ZA.",
       },
       JP: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for JP local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in JP.",
       },
       FR: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for FR local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in FR.",
       },
       BR: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for BR local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in BR.",
       },
       SA: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for SA local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in SA.",
       },
       AE: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for AE local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in AE.",
       },
       CN: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for CN local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in CN.",
       },
       ID: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for ID local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in ID.",
       },
       MX: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for MX local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in MX.",
       },
       KR: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for KR local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in KR.",
       },
       IT: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for IT local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in IT.",
       },
     },
   },
@@ -988,34 +988,34 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
         notes: "Authoritative Nigerian specification and market method.",
       },
       US: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for US local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in US.",
       },
       GB: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for GB local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in GB.",
       },
       CA: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for CA local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in CA.",
       },
       AU: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for AU local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in AU.",
       },
       DE: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for DE local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in DE.",
       },
       IN: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for IN local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in IN.",
       },
       GH: {
         status: "partially_verified",
@@ -1023,64 +1023,64 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
           "West African compatible method; requires local Ghana packaging verification.",
       },
       KE: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for KE local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in KE.",
       },
       ZA: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for ZA local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in ZA.",
       },
       JP: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for JP local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in JP.",
       },
       FR: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for FR local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in FR.",
       },
       BR: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for BR local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in BR.",
       },
       SA: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for SA local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in SA.",
       },
       AE: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for AE local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in AE.",
       },
       CN: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for CN local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in CN.",
       },
       ID: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for ID local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in ID.",
       },
       MX: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for MX local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in MX.",
       },
       KR: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for KR local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in KR.",
       },
       IT: {
-        status: "not_implemented",
+        status: "requires_verification",
         notes:
-          "Method-bound calculation not appropriate for IT local construction typology.",
+          "Global method. No local prices, codes or trade practice are applied, so product coverage and rates must be verified before quoting in IT.",
       },
     },
   },
@@ -1105,34 +1105,34 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
         notes: "Authoritative Nigerian specification and market method.",
       },
       US: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for US local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in US.",
       },
       GB: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for GB local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in GB.",
       },
       CA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for CA local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in CA.",
       },
       AU: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for AU local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in AU.",
       },
       DE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for DE local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in DE.",
       },
       IN: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for IN local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in IN.",
       },
       GH: {
         status: "partially_verified",
@@ -1140,64 +1140,64 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
           "West African compatible method; requires local Ghana packaging verification.",
       },
       KE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for KE local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in KE.",
       },
       ZA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for ZA local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in ZA.",
       },
       JP: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for JP local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in JP.",
       },
       FR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for FR local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in FR.",
       },
       BR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for BR local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in BR.",
       },
       SA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for SA local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in SA.",
       },
       AE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for AE local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in AE.",
       },
       CN: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for CN local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in CN.",
       },
       ID: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for ID local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in ID.",
       },
       MX: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for MX local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in MX.",
       },
       KR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for KR local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in KR.",
       },
       IT: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for IT local construction typology.",
+          "Flooring method is global; the market price book is resolved at runtime. Local board sizes, underlay systems and waste practice are unverified in IT.",
       },
     },
   },
@@ -1222,34 +1222,34 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
         notes: "Authoritative Nigerian specification and market method.",
       },
       US: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for US local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in US.",
       },
       GB: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for GB local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in GB.",
       },
       CA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for CA local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in CA.",
       },
       AU: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for AU local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in AU.",
       },
       DE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for DE local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in DE.",
       },
       IN: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for IN local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in IN.",
       },
       GH: {
         status: "partially_verified",
@@ -1257,64 +1257,64 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
           "West African compatible method; requires local Ghana packaging verification.",
       },
       KE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for KE local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in KE.",
       },
       ZA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for ZA local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in ZA.",
       },
       JP: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for JP local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in JP.",
       },
       FR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for FR local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in FR.",
       },
       BR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for BR local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in BR.",
       },
       SA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for SA local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in SA.",
       },
       AE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for AE local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in AE.",
       },
       CN: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for CN local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in CN.",
       },
       ID: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for ID local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in ID.",
       },
       MX: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for MX local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in MX.",
       },
       KR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for KR local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in KR.",
       },
       IT: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for IT local construction typology.",
+          "Waterproofing method is global; the market price book and trade role mappings are resolved at runtime. Local membrane systems and standards are unverified in IT.",
       },
     },
   },
@@ -1573,34 +1573,34 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
         notes: "Authoritative Nigerian specification and market method.",
       },
       US: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for US local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in US.",
       },
       GB: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for GB local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in GB.",
       },
       CA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for CA local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in CA.",
       },
       AU: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for AU local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in AU.",
       },
       DE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for DE local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in DE.",
       },
       IN: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for IN local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in IN.",
       },
       GH: {
         status: "partially_verified",
@@ -1608,64 +1608,64 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
           "West African compatible method; requires local Ghana packaging verification.",
       },
       KE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for KE local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in KE.",
       },
       ZA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for ZA local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in ZA.",
       },
       JP: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for JP local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in JP.",
       },
       FR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for FR local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in FR.",
       },
       BR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for BR local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in BR.",
       },
       SA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for SA local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in SA.",
       },
       AE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for AE local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in AE.",
       },
       CN: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for CN local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in CN.",
       },
       ID: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for ID local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in ID.",
       },
       MX: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for MX local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in MX.",
       },
       KR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for KR local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in KR.",
       },
       IT: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for IT local construction typology.",
+          "Roof geometry uses the market construction typology; local covering systems, fixings and prices are unverified in IT.",
       },
     },
   },
@@ -2026,34 +2026,34 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
         notes: "Authoritative Nigerian specification and market method.",
       },
       US: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for US local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in US.",
       },
       GB: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for GB local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in GB.",
       },
       CA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for CA local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in CA.",
       },
       AU: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for AU local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in AU.",
       },
       DE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for DE local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in DE.",
       },
       IN: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for IN local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in IN.",
       },
       GH: {
         status: "partially_verified",
@@ -2061,64 +2061,64 @@ export const FULL_ENGINE_INVENTORY: readonly EngineInventoryItem[] = [
           "West African compatible method; requires local Ghana packaging verification.",
       },
       KE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for KE local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in KE.",
       },
       ZA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for ZA local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in ZA.",
       },
       JP: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for JP local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in JP.",
       },
       FR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for FR local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in FR.",
       },
       BR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for BR local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in BR.",
       },
       SA: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for SA local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in SA.",
       },
       AE: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for AE local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in AE.",
       },
       CN: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for CN local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in CN.",
       },
       ID: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for ID local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in ID.",
       },
       MX: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for MX local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in MX.",
       },
       KR: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for KR local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in KR.",
       },
       IT: {
-        status: "not_implemented",
+        status: "partially_verified",
         notes:
-          "Method-bound calculation not appropriate for IT local construction typology.",
+          "Schedules use generic sizes; the market price book is resolved at runtime. Local door and window standards are unverified in IT.",
       },
     },
   },
