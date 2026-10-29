@@ -5,6 +5,7 @@ import HeroTitle from "./HeroTitle";
 import { resolveHeaderImage } from "@/config/page-header-images";
 import { useHeaderImageOverrides } from "@/lib/header-image-overrides";
 import { stripLocaleFromPathname } from "@/lib/i18n";
+import PriceVerificationNotice from "@/components/pricing/PriceVerificationNotice";
 
 export default function PageHeader({
   eyebrow,
@@ -146,6 +147,7 @@ export default function PageHeader({
             ))}
           </nav>
         )}
+        {(isTool || isData) && <PriceVerificationNotice />}
         {eyebrow && (
           <p className="section-label mb-3 animate-fade-in-up">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />

@@ -1,0 +1,223 @@
+{
+  "scanned_at": "2026-10-29T09:04:38.565Z",
+  "max_age_days": 45,
+  "markets": {
+    "DE": {
+      "total": 224,
+      "local_verified": 126,
+      "fx_reference": 98,
+      "stale": 0,
+      "verified": false
+    },
+    "NG": {
+      "total": 40,
+      "local_verified": 35,
+      "fx_reference": 0,
+      "stale": 5,
+      "verified": true
+    },
+    "US": {
+      "total": 71,
+      "local_verified": 55,
+      "fx_reference": 16,
+      "stale": 0,
+      "verified": true
+    },
+    "GB": {
+      "total": 59,
+      "local_verified": 39,
+      "fx_reference": 20,
+      "stale": 0,
+      "verified": false
+    },
+    "IN": {
+      "total": 40,
+      "local_verified": 23,
+      "fx_reference": 17,
+      "stale": 0,
+      "verified": false
+    },
+    "CN": {
+      "total": 24,
+      "local_verified": 4,
+      "fx_reference": 20,
+      "stale": 0,
+      "verified": false
+    },
+    "DK": {
+      "total": 8,
+      "local_verified": 8,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "MX": {
+      "total": 36,
+      "local_verified": 17,
+      "fx_reference": 19,
+      "stale": 0,
+      "verified": false
+    },
+    "SA": {
+      "total": 29,
+      "local_verified": 11,
+      "fx_reference": 18,
+      "stale": 0,
+      "verified": false
+    },
+    "ZA": {
+      "total": 44,
+      "local_verified": 27,
+      "fx_reference": 17,
+      "stale": 0,
+      "verified": false
+    },
+    "PH": {
+      "total": 8,
+      "local_verified": 8,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "GH": {
+      "total": 39,
+      "local_verified": 22,
+      "fx_reference": 17,
+      "stale": 0,
+      "verified": false
+    },
+    "CA": {
+      "total": 31,
+      "local_verified": 13,
+      "fx_reference": 18,
+      "stale": 0,
+      "verified": false
+    },
+    "JP": {
+      "total": 37,
+      "local_verified": 17,
+      "fx_reference": 20,
+      "stale": 0,
+      "verified": false
+    },
+    "EG": {
+      "total": 12,
+      "local_verified": 12,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "BR": {
+      "total": 45,
+      "local_verified": 26,
+      "fx_reference": 19,
+      "stale": 0,
+      "verified": false
+    },
+    "KE": {
+      "total": 44,
+      "local_verified": 24,
+      "fx_reference": 20,
+      "stale": 0,
+      "verified": false
+    },
+    "NO": {
+      "total": 8,
+      "local_verified": 8,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "SE": {
+      "total": 8,
+      "local_verified": 8,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "AU": {
+      "total": 42,
+      "local_verified": 22,
+      "fx_reference": 20,
+      "stale": 0,
+      "verified": false
+    },
+    "CH": {
+      "total": 8,
+      "local_verified": 8,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "PL": {
+      "total": 8,
+      "local_verified": 8,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "TR": {
+      "total": 8,
+      "local_verified": 8,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "PK": {
+      "total": 8,
+      "local_verified": 8,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "ID": {
+      "total": 27,
+      "local_verified": 8,
+      "fx_reference": 19,
+      "stale": 0,
+      "verified": false
+    },
+    "MY": {
+      "total": 8,
+      "local_verified": 8,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "SG": {
+      "total": 8,
+      "local_verified": 8,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "TH": {
+      "total": 8,
+      "local_verified": 8,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "NZ": {
+      "total": 8,
+      "local_verified": 8,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": true
+    },
+    "KR": {
+      "total": 32,
+      "local_verified": 11,
+      "fx_reference": 21,
+      "stale": 0,
+      "verified": false
+    },
+    "AE": {
+      "total": 28,
+      "local_verified": 8,
+      "fx_reference": 20,
+      "stale": 0,
+      "verified": false
+    }
+  }
+}
