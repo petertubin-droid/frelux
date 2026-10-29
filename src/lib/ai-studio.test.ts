@@ -148,7 +148,7 @@ describe("invokeStudioAi", () => {
 
     await expect(
       invokeStudioAi({ tool: "chat", prompt: "hi" }),
-    ).rejects.toThrow("signed in as an admin");
+    ).rejects.toThrow("signed in as FRELUX");
   });
 
   it("throws with FORBIDDEN message for 403", async () => {
@@ -159,7 +159,7 @@ describe("invokeStudioAi", () => {
 
     await expect(
       invokeStudioAi({ tool: "chat", prompt: "hi" }),
-    ).rejects.toThrow("Admin access is required");
+    ).rejects.toThrow("Owner access is required");
   });
 
   it("throws generic error for unknown codes", async () => {

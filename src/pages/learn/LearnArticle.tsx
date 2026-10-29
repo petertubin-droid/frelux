@@ -318,13 +318,14 @@ export default function LearnArticle() {
     });
 
     if (h2Starts.length >= 3) {
-      // Pick section boundaries nearest 25% / 50% / 75% of the sections.
+      // Pick section boundaries nearest the quarter marks. Four boundaries on
+      // a four-or-more section article yields five chunks, which is what the
+      // five-slot ad policy below needs; three boundaries cap the page at four
+      // chunks and make the fifth slot unreachable.
       const n = h2Starts.length;
-      const picks = [
-        Math.max(1, Math.round(n * 0.25)),
-        Math.max(2, Math.round(n * 0.5)),
-        Math.max(3, Math.round(n * 0.75)),
-      ].map((p) => Math.min(p, n - 1));
+      const picks = [0.25, 0.5, 0.75]
+        .map((m, i) => Math.max(i + 1, Math.round(n * m)))
+        .map((p) => Math.min(p, n - 1));
       const uniq = [...new Set(picks)].sort((a, b) => a - b);
       const chunks: string[] = [];
       let prev = 0;
@@ -602,17 +603,12 @@ export default function LearnArticle() {
                       the fifth closing the body below. Placement policy:
                       every unit sits inside real prose, is labelled, and
                       reserves min-height so it cannot shift the layout. */}
-                  {idx === 1 && contentChunks.length > 2 && (
-                    <div className="my-10">
-                      <AdSlot slotKey="learn_article_mid_1" />
-                    </div>
-                  )}
                   {idx === 2 && contentChunks.length > 3 && (
                     <div className="my-10">
                       <AdSlot slotKey="learn_article_mid_2" />
                     </div>
                   )}
-                  {idx === 3 && contentChunks.length > 4 && (
+                  {idx === 3 && contentChunks.length > 3 && (
                     <div className="my-10">
                       <AdSlot slotKey="article_push_1" />
                     </div>
@@ -624,7 +620,10 @@ export default function LearnArticle() {
             {/* Fifth slot: closes the article body, in flow (never fixed to
                 the viewport). */}
             <div className="my-10">
-              <AdSlot slotKey="learn_article_end" />
+              {/* Closing in-article unit. This is not a footer/bottom slot:
+                  the AdSense-locked sticky anchor still owns the viewport
+                  bottom (owner directive 2026-10-27). */}
+              <AdSlot slotKey="learn_in_article" />
             </div>
 
             {/* Bottom in-article inserts */}

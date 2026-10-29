@@ -480,13 +480,13 @@ describe("action execution (§Stage 7)", () => {
       payload: { materialId: "mat1", newPrice: 6200 },
     });
     seedApproval(id);
-    db.rlsBlocked.material_catalog = true; // non-admin, admin-only table
+    db.rlsBlocked.material_catalog = true; // non-owner: owner-only table
 
     const r = await executeApprovedAction("proj-1", id, NOW);
     expect(r.ok).toBe(false);
     if (r.ok) return;
     expect(r.error.code).toBe("persistence_error");
-    expect(r.error.message).toContain("admin");
+    expect(r.error.message).toContain("permission");
 
     expect(seededAction()?.state).toBe("failed");
     const audit = seededAction()?.execution_result as Record<string, unknown>;

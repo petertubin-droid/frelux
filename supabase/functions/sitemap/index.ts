@@ -320,7 +320,7 @@ serveWithCors(async (req: Request) => {
     // reads as empty to a visitor, and counts against AdSense's thin-content
     // policy. Both matrices are therefore driven by actual supply, not by the
     // cartesian product of taxonomies.
-    let marketCoverage = new Set<string>();
+    const marketCoverage = new Set<string>();
     let proCoverage = new Set<string>();
     try {
       const [mktRes, proSvcRes, proLocRes] = await Promise.all([
