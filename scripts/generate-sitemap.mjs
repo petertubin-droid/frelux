@@ -156,6 +156,9 @@ const routes = [
   { path: '/credits', priority: '0.6', changefreq: 'monthly' },
   { path: '/developers', priority: '0.6', changefreq: 'monthly' },
   { path: '/rewards', priority: '0.6', changefreq: 'monthly' },
+  { path: '/increte-flooring-calculator', priority: '0.8', changefreq: 'monthly' },
+  { path: '/visual-finishing-estimator', priority: '0.8', changefreq: 'monthly' },
+  { path: '/tools/visual-finishing-estimator', priority: '0.8', changefreq: 'monthly' },
   ...marketLandingRoutes.map((m) => ({ path: `/market/${m.code.toLowerCase()}`, priority: '0.8', changefreq: 'monthly' })),
 ];
 

@@ -5,46 +5,81 @@
 User-agent: *
 Allow: /
 
-# Public feature pages
-Allow: /paint-comparison
-Allow: /gallery
-Allow: /surface-assessment
-
-# Public calculator and estimator routes
-Allow: /start-building
+# Pillar 1: Tools & Estimators
+Allow: /construction-tools
 Allow: /calculators
+Allow: /tools/
+Allow: /start-building
 Allow: /paint-calculator
 Allow: /screeding-calculator
-Allow: /screeding-cost-estimator
 Allow: /pop-ceiling-calculator
-Allow: /pop-ceiling-cost-estimator
 Allow: /tile-calculator
-Allow: /tile-cost-estimator
-Allow: /cost-estimator
 Allow: /finish-estimator
-Allow: /painting-estimator
 Allow: /build-to-roof-estimator
-Allow: /image-estimator
 Allow: /structural-calculator
+Allow: /masonry-calculator
+Allow: /plastering-calculator
+Allow: /drywall-calculator
+Allow: /paving-calculator
+Allow: /drainage-calculator
+Allow: /septic-sizing-calculator
+Allow: /temporary-works-calculator
+Allow: /insulation-calculator
+Allow: /demolition-calculator
+Allow: /blueprint-takeoff
+Allow: /concrete-takeoff-calculator
+Allow: /earthworks-cut-fill
+Allow: /roof-framing-calculator
 Allow: /foundation-calculator
-Allow: /construction-sequence
 Allow: /project-timeline
-Allow: /tyrolene-estimator
+Allow: /construction-sequence
+Allow: /image-estimator
+Allow: /smart-calculator
+Allow: /conversational-estimator
+Allow: /bim-ifc-import
+Allow: /solar-pv-estimator
+Allow: /field-sync
+Allow: /count-vision
+Allow: /electrical
+Allow: /plumbing
+Allow: /waterproofing
+Allow: /wall-finish-estimator
+Allow: /flooring
+Allow: /increte-flooring-calculator
+Allow: /reinforcement
+Allow: /foundation
+Allow: /doors-windows
+Allow: /generator
+Allow: /boq-generator
+Allow: /cash-flow-timeline
+Allow: /circular-reuse
+Allow: /contractor-credit
+Allow: /defect-diagnosis
+Allow: /estimate-refresh
+Allow: /heat-comfort
+Allow: /labour-estimator
+Allow: /maintenance-planner
+Allow: /margin-calculator
+Allow: /regional-cost-index
+Allow: /warranty-certificate
+Allow: /carbon-footprint
+Allow: /brand-studio
+Allow: /visual-finishing-estimator
 
-# Colors and design
+# Pillar 2: Prices & Market Intelligence
+Allow: /prices
+Allow: /material-prices
+Allow: /market/
+
+# Pillar 3: Colors & Design
 Allow: /colors
 Allow: /colors/compare
 Allow: /colors/paint/
 Allow: /colors/
+Allow: /ai-color-assistant
+Allow: /paint-comparison
 
-# Learn and templates
-Allow: /learn
-Allow: /learn/category/
-Allow: /learn/
-Allow: /templates
-Allow: /templates/
-
-# Marketplace and Pro Connect
+# Pillar 4: Marketplace & Pro Connect
 Allow: /marketplace
 Allow: /marketplace/category/
 Allow: /marketplace/sellers/
@@ -54,17 +89,35 @@ Allow: /pro-connect
 Allow: /pro-connect/
 Allow: /pro/
 
-# Other public pages
-Allow: /contact
+# Pillar 5: Knowledge, Templates & Resources
+Allow: /learn
+Allow: /learn/category/
+Allow: /learn/library
+Allow: /learn/
+Allow: /templates
+Allow: /templates/
+Allow: /glossary
+Allow: /printables
+Allow: /user-guide
+Allow: /case-studies
+Allow: /gallery
+Allow: /surface-assessment
+
+# Company & Legal
 Allow: /about
+Allow: /contact
 Allow: /pricing
+Allow: /partners
+Allow: /credits
+Allow: /developers
+Allow: /rewards
+Allow: /feedback
+Allow: /data-request
 Allow: /privacy-policy
 Allow: /terms
 Allow: /cookie-policy
 Allow: /disclaimer
 Allow: /ai-disclaimer
-Allow: /ai-color-assistant
-Allow: /rewards
 
 # Disallow private/auth/admin routes
 Disallow: /properties

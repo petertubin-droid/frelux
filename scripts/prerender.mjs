@@ -1008,6 +1008,36 @@ const routes = [
     priority: '0.3',
     changefreq: 'yearly',
   },
+  {
+    path: '/earthworks-cut-fill',
+    title: 'Earthworks Cut & Fill Calculator | FRELUX SMART CALC',
+    description:
+      'Calculate cut, fill and haul quantities from surveyed or designed cross-sections using the average-end-area method.',
+  },
+  {
+    path: '/roof-framing-calculator',
+    title: 'Roof Framing & Board Feet Calculator | FRELUX SMART CALC',
+    description:
+      'Calculate timber quantities, member counts, lengths, linear metres and board feet for regular gable and hip roofs.',
+  },
+  {
+    path: '/increte-flooring-calculator',
+    title: 'Increte Flooring Calculator & Estimator | FRELUX SMART CALC',
+    description:
+      'Estimate decorative concrete flooring quantities using explicit product coverage, coats, waste, local prices and installation inputs.',
+  },
+  {
+    path: '/visual-finishing-estimator',
+    title: 'Visual Finishing Estimator | FRELUX Global Visual Construction Intelligence',
+    description:
+      'Estimate painting, screeding, tiling, POP ceilings, and flooring directly from room and surface photographs with verified metric calibration.',
+  },
+  {
+    path: '/tools/visual-finishing-estimator',
+    title: 'Visual Finishing Estimator | FRELUX Global Visual Construction Intelligence',
+    description:
+      'Estimate painting, screeding, tiling, POP ceilings, and flooring directly from room and surface photographs with verified metric calibration.',
+  },
 ];
 
 // Locales whose reviewed translations are live. A locale page is only
