@@ -61,53 +61,58 @@ describe("Footer theme + mobile compaction", () => {
     expect(inner?.className).toContain("relative");
   });
 
-  it("groups the link columns into exactly four collapsible groups", () => {
+  it("shows all four link groups with no disclosure controls", () => {
     const { container } = renderComponent();
-    const columns = Array.from(
-      container.querySelectorAll("footer nav button[aria-expanded]"),
-    );
-    expect(columns.map((b) => b.textContent)).toEqual([
-      "Calculators",
-      "Explore",
-      "Resources",
-      "Legal",
-    ]);
+    // Owner report 2026-10-29: the dropdown footer looked unprofessional.
+    expect(
+      container.querySelectorAll("footer nav button[aria-expanded]").length,
+    ).toBe(0);
+    const titles = Array.from(
+      container.querySelectorAll("footer nav h3"),
+    ).map((h) => h.textContent);
+    expect(titles).toEqual(["Calculators", "Explore", "Resources", "Legal"]);
   });
 
-  it("collapses link lists on mobile until a group is opened", () => {
+  it("renders every footer link without needing a tap", () => {
     const { container } = renderComponent();
     const lists = Array.from(
       container.querySelectorAll<HTMLUListElement>("footer nav ul"),
     );
     expect(lists.length).toBe(4);
-    // All start collapsed (hidden, with md:block to force open on desktop)
     for (const list of lists) {
-      expect(list.className).toContain("hidden");
-      expect(list.className).toContain("md:block");
+      expect(list.className).not.toContain("hidden");
+      expect(within(list).getAllByRole("link").length).toBeGreaterThan(0);
     }
-
-    // Clicking the Calculators header reveals its links
-    fireEvent.click(screen.getByRole("button", { name: /calculators/i }));
-    const calculatorsList = container.querySelector(
+    const calculators = container.querySelector(
       "#footer-calculators",
     ) as HTMLUListElement;
-    expect(calculatorsList.className).toContain("block");
-    expect(calculatorsList.className).not.toContain("hidden");
-    const opened = within(calculatorsList).getAllByRole("link");
     // Calculate (5) + Estimate (5) links in the merged group
-    expect(opened.length).toBe(10);
+    expect(within(calculators).getAllByRole("link").length).toBe(10);
+  });
 
-    // The other groups stay collapsed
-    const legalList = container.querySelector(
-      "#footer-legal",
-    ) as HTMLUListElement;
-    expect(legalList.className).toContain("hidden");
+  it("keeps the ungrouped footer short on phones", () => {
+    const { container } = renderComponent();
+    const navs = Array.from(container.querySelectorAll("footer nav"));
+    expect(navs.length).toBe(4);
+    // Sections stack full width on phones so long groups can flow into two
+    // columns, then join the desktop grid from md up.
+    const grid = container.querySelector("footer nav")?.closest("div");
+    expect(grid?.className).toContain("grid-cols-1");
+    expect(grid?.className).toContain("md:grid-cols-3");
+    expect(grid?.className).not.toContain("grid-cols-2");
+    for (const nav of navs) {
+      const list = nav.querySelector("ul") as HTMLUListElement;
+      expect(list.className).not.toContain("hidden");
+      // Long groups use two columns on phones; short ones stay single.
+      const count = within(list).getAllByRole("link").length;
+      expect(list.className).toContain(count > 4 ? "columns-2" : "columns-1");
+    }
   });
 
   it("keeps compact mobile vertical padding", () => {
     const { container } = renderComponent();
     const inner = container.querySelector("footer > div:last-child");
-    expect(inner?.className).toContain("py-6");
+    expect(inner?.className).toContain("py-5");
     expect(inner?.className).not.toContain("py-16");
   });
 });

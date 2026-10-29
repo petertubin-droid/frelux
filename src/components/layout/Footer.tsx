@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, Cookie, Mail } from "lucide-react";
+import { Cookie, Mail} from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
 import { siteConfig } from "@/config/site";
@@ -89,7 +88,7 @@ export default function Footer() {
       role="contentinfo"
       aria-label="Site footer"
       className="neon-edge-soft relative overflow-hidden border-t border-border/60 bg-muted/50 dark:border-white/5 dark:bg-background"
-      style={{ contentVisibility: "auto", containIntrinsicSize: "320px" }}
+      style={{ contentVisibility: "auto", containIntrinsicSize: "520px" }}
     >
       {/* Subtle top gradient */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
@@ -100,15 +99,15 @@ export default function Footer() {
       {/* relative: stack the content ABOVE the absolutely-positioned
           BrandBackdrop. Without it the light-mode scrim (85% opaque
           background) paints over the text and hides it. */}
-      <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <div className="grid grid-cols-1 gap-x-6 gap-y-1 md:grid-cols-3 md:gap-y-6 lg:grid-cols-6 lg:gap-x-8">
-          <div className="md:col-span-3 lg:col-span-2">
+      <div className="relative mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+        <div className="grid grid-cols-1 gap-x-5 gap-y-2 md:grid-cols-3 md:gap-y-6 lg:grid-cols-6 lg:gap-x-8">
+          <div className="col-span-1 md:col-span-3 lg:col-span-2">
             <Logo />
-            <p className="mt-3 max-w-xs text-xs leading-relaxed text-muted-foreground sm:text-sm">
+            <p className="mt-2 line-clamp-2 max-w-xs text-xs leading-relaxed text-muted-foreground sm:mt-3 sm:line-clamp-none sm:text-sm">
               Plan materials, estimate costs and manage construction projects
               worldwide: from a single room to an entire building.
             </p>
-            <div className="mt-4">
+            <div className="mt-3 sm:mt-4">
               <NewsletterSignup source="footer" />
             </div>
             <a
@@ -119,7 +118,7 @@ export default function Footer() {
               <Mail className="h-4 w-4" />
               {siteConfig.email}
             </a>
-            <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground dark:text-muted-foreground">
+            <p className="mt-3 hidden flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground sm:flex dark:text-muted-foreground">
               <span className="font-medium text-foreground dark:text-primary-foreground/90">
                 32 markets
               </span>
@@ -169,42 +168,26 @@ function FooterColumn({
   title: string;
   links: { label: string; path: string }[];
 }) {
-  const [open, setOpen] = useState(false);
-
+  // Every group is open on every breakpoint (owner report 2026-10-29: the
+  // collapse-to-dropdown footer read as unprofessional). Length is controlled
+  // by density instead of hiding links: two CSS columns on phones for the long
+  // groups, tighter type, and no per-row padding.
   return (
     <nav aria-label={title}>
-      {/* Mobile: the title is a disclosure button so the group collapses
-          and the footer stays short. Desktop: a plain static heading and
-          the list is always shown. */}
-      <div className="md:hidden">
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls={`footer-${title.toLowerCase()}`}
-          className="flex w-full items-center justify-between border-b border-border/40 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:border-white/5"
-        >
-          {title}
-          <ChevronDown
-            className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
-              open ? "rotate-180" : ""
-            }`}
-            aria-hidden="true"
-          />
-        </button>
-      </div>
-      <h3 className="hidden text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground md:block dark:text-muted-foreground">
+      <h3 className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs dark:text-muted-foreground">
         {title}
       </h3>
       <ul
         id={`footer-${title.toLowerCase()}`}
-        className={`${open ? "block" : "hidden"} mt-2.5 space-y-1.5 pb-3 md:mt-2.5 md:block md:pb-0`}
+        className={`mt-1 gap-x-4 ${
+          links.length > 4 ? "columns-2 md:columns-1" : "columns-1"
+        }`}
       >
         {links.map((link) => (
-          <li key={link.path}>
+          <li key={link.path} className="break-inside-avoid leading-[1.15] md:mb-1.5">
             <Link
               to={link.path}
-              className="text-[13px] sm:text-sm text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+              className="text-[12px] leading-[1.35] text-muted-foreground transition-colors hover:text-brand-purple sm:text-sm dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
             >
               {link.label}
             </Link>
