@@ -201,7 +201,8 @@ const STATIC_PATHS = [
   "/market/ch/",
   "/market/sg/",
   "/market/tr/",
-  "/market/nz/"
+  "/market/nz/",
+  "/global-markets/"
 ];
 
 function escapeXml(str) {
@@ -394,7 +395,7 @@ export const handler = async () => {
   if (headers && supabaseUrl) {
     try {
       const proRes = await fetch(
-        `${supabaseUrl}/rest/v1/pro_profiles?select=slug,updated_at&is_active=eq.true&order=slug.asc&limit=500`,
+        `${supabaseUrl}/rest/v1/pro_profiles?select=slug,updated_at,is_listed,verification_status&is_listed=eq.true&verification_status=neq.suspended&order=slug.asc&limit=500`,
         { headers },
       );
       if (proRes.ok) {
@@ -410,6 +411,94 @@ export const handler = async () => {
       }
     } catch {
       // Pro profiles are additive
+    }
+  }
+
+  // ── SEO landing families (public, robots-allowed pages the static list misses) ──
+  if (headers && supabaseUrl) {
+    const getJson = async (query) => {
+      try {
+        const res = await fetch(`${supabaseUrl}/rest/v1/${query}`, { headers });
+        return res.ok ? await res.json() : [];
+      } catch {
+        return [];
+      }
+    };
+    const slugify = (value) =>
+      String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    const lastmodOf = (row) => {
+      const ts = row?.updated_at || row?.published_at || row?.created_at;
+      return ts && !Number.isNaN(Date.parse(ts))
+        ? new Date(ts).toISOString().slice(0, 10)
+        : today;
+    };
+
+    // Pro directory: /pro/:categorySlug/:locationSlug pages that have a listed pro.
+    const [proCats, proLocs, proRows, proLocRows] = await Promise.all([
+      getJson("pro_categories?select=id,slug&is_active=eq.true&limit=500"),
+      getJson("pro_locations?select=id,city&is_active=eq.true&limit=500"),
+      getJson(
+        "pro_profiles?select=id,category_id,updated_at&is_listed=eq.true&verification_status=neq.suspended&limit=1000",
+      ),
+      getJson("pro_profile_locations?select=profile_id,location_id&limit=2000"),
+    ]);
+    const catSlugById = new Map(proCats.map((c) => [c.id, c.slug]));
+    const cityById = new Map(proLocs.map((l) => [l.id, l.city]));
+    const profileCat = new Map(proRows.map((p) => [p.id, catSlugById.get(p.category_id)]));
+    const profileLastmod = new Map(proRows.map((p) => [p.id, lastmodOf(p)]));
+    const proCombos = new Map();
+    for (const link of proLocRows) {
+      const cat = profileCat.get(link.profile_id);
+      const city = slugify(cityById.get(link.location_id));
+      if (!cat || !city) continue;
+      const key = `${cat}/${city}`;
+      const lm = profileLastmod.get(link.profile_id) || today;
+      if (!proCombos.has(key) || proCombos.get(key) < lm) proCombos.set(key, lm);
+    }
+    for (const [key, lastmod] of proCombos) {
+      add(`/pro/${key}/`, lastmod, "weekly", "0.6");
+    }
+
+    // Published case studies whose gallery entry is public + approved/featured.
+    const [caseRows, galleryRows] = await Promise.all([
+      getJson("case_studies?select=id,published_at,gallery_entry_id&is_published=eq.true&limit=500"),
+      getJson("gallery_entries?select=id,status,is_public&status=in.(approved,featured)&is_public=eq.true&limit=1000"),
+    ]);
+    const publicEntryIds = new Set(galleryRows.map((g) => g.id));
+    for (const cs of caseRows) {
+      if (!cs.id) continue;
+      if (cs.gallery_entry_id && !publicEntryIds.has(cs.gallery_entry_id)) continue;
+      add(`/case-studies/${cs.id}/`, lastmodOf(cs), "monthly", "0.6");
+    }
+
+    // Marketplace: categories, seller cities, category×city pages, listing details.
+    const listings = await getJson(
+      "marketplace_listings?select=id,category_id,location_city,updated_at&is_active=eq.true&admin_removed=eq.false&status=in.(open,awarded,in_progress)&order=updated_at.desc&limit=1000",
+    );
+    const mkCats = new Set();
+    const mkCities = new Set();
+    const mkPairs = new Set();
+    for (const listing of listings) {
+      const cat = catSlugById.get(listing.category_id);
+      const city = slugify(listing.location_city);
+      if (cat) mkCats.add(cat);
+      if (city) mkCities.add(city);
+      if (cat && city) mkPairs.add(`${cat}/${city}`);
+      if (listing.id) add(`/marketplace/${listing.id}/`, lastmodOf(listing), "weekly", "0.5");
+    }
+    for (const cat of mkCats) add(`/marketplace/category/${cat}/`, today, "weekly", "0.6");
+    for (const city of mkCities) add(`/marketplace/sellers/${city}/`, today, "weekly", "0.5");
+    for (const pair of mkPairs) add(`/marketplace/${pair}/`, today, "weekly", "0.5");
+
+    // Active marketplace products.
+    const products = await getJson(
+      "marketplace_products?select=id,updated_at&status=eq.active&admin_removed=eq.false&order=updated_at.desc&limit=1000",
+    );
+    for (const product of products) {
+      if (product.id) add(`/marketplace/products/${product.id}/`, lastmodOf(product), "weekly", "0.5");
     }
   }
 

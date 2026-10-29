@@ -821,6 +821,12 @@ const routes = [
       'FRELUX APIs, integration guides, and developer documentation.',
   },
   {
+    path: '/global-markets',
+    title: 'Construction Markets and Regional Standards | FRELUX SMART CALC',
+    description:
+      'Browse every market FRELUX supports: local block and cement standards, electrical and plumbing practice, currencies, and the calculators preconfigured for each country.',
+  },
+  {
     path: '/doors-windows',
     title: 'Doors and Windows Estimator | FRELUX SMART CALC',
     description:
