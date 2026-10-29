@@ -167,7 +167,7 @@ describe("roof geometry", () => {
 
   it("takes fascia along the eaves line", () => {
     // perimeter of 11 x 9 = 40 m
-    expect(calculateFasciaLength(10, 8, 0.5, "gable" as never)).toBeCloseTo(40, 1);
+    expect(calculateFasciaLength(10, 8, 0.5)).toBeCloseTo(40, 1);
   });
 });
 
@@ -238,9 +238,7 @@ describe("plumbing material takeoff", () => {
   it("applies pipe waste and rounds purchases up to whole metres", () => {
     const r = calculatePlumbing(input, rules, prices);
     const qty = (slug: string) =>
-      r.lines.find((l: never) => (l as { material_slug?: string }).material_slug === slug) as
-        | { quantity: number }
-        | undefined;
+      r.lines.find((l) => l.material_slug === slug);
     expect(qty("plumb-pipe-cold")?.quantity).toBe(42);
     expect(qty("plumb-pipe-hot")?.quantity).toBe(21);
     expect(qty("plumb-pipe-waste")?.quantity).toBe(16);
@@ -251,9 +249,7 @@ describe("plumbing material takeoff", () => {
   it("counts fittings from the configured rules", () => {
     const r = calculatePlumbing(input, rules, prices);
     const qty = (slug: string) =>
-      r.lines.find((l: never) => (l as { material_slug?: string }).material_slug === slug) as
-        | { quantity: number }
-        | undefined;
+      r.lines.find((l) => l.material_slug === slug);
     expect(qty("plumb-elbow")?.quantity).toBe(16);
     expect(qty("plumb-valve")?.quantity).toBe(3);
   });

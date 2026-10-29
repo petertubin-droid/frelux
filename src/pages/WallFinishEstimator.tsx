@@ -48,6 +48,10 @@ import type {
 } from "@/types/wallfinishing";
 import { QC_STATUS_LABELS } from "@/lib/wallfinishing/checklists";
 import {
+  buildWallFinSummaryRows,
+  buildWallFinLayerRows,
+} from "@/lib/wallfinishing/report-export";
+import {
   exportWallFinExcel,
   exportWallFinPdf,
 } from "@/lib/wallfinishing/report-export";

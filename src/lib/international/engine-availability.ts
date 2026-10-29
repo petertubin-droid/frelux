@@ -10,13 +10,13 @@
  */
 import {
   FULL_ENGINE_INVENTORY,
-  type FullEngineInventoryEntry,
+  type EngineInventoryItem,
 } from "./engine-inventory";
 import type { MarketCode, MarketSupportStatus } from "./engine-inventory-types";
 
 export const SHIPPED_STATUSES: readonly MarketSupportStatus[] = ["verified"];
 
-export function findEngine(engineId: string): FullEngineInventoryEntry | undefined {
+export function findEngine(engineId: string): EngineInventoryItem | undefined {
   return FULL_ENGINE_INVENTORY.find((engine) => engine.id === engineId);
 }
 

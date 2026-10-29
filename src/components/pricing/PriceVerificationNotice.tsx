@@ -14,7 +14,7 @@ export default function PriceVerificationNotice() {
   const verification = getMarketPriceVerification(marketCode);
   if (!verification || verification.verified) return null;
 
-  const label = market?.name || marketCode;
+  const label = market?.countryName || marketCode;
   const parts: string[] = [];
   if (verification.fx_reference > 0) {
     parts.push(

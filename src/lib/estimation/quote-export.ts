@@ -18,7 +18,7 @@ export function exportQuoteToDocumentStudio(
       return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
     };
     const quantity = parse(line.quantity);
-    const unitPrice = parse(line.unit_price);
+    const unitPrice = parse(line.unit_price ?? "");
     if (quantity === null || unitPrice === null) {
       omittedLines++;
       return [];
@@ -73,9 +73,10 @@ import type { ResolvedBranding } from "@/lib/brand-studio";
 export interface QuoteLine {
   label: string;
   quantity: string;
-  unit: string;
-  unit_price: string;
-  line_total: string;
+  /** Optional: quantity-only takeoffs leave the pricing columns out. */
+  unit?: string;
+  unit_price?: string;
+  line_total?: string;
   detail?: string;
 }
 
@@ -327,22 +328,31 @@ export function buildQuoteHtml(opts: QuoteOptions): string {
     ? `<h2>Summary</h2><table class="meta meta-table">${metaRows}</table>`
     : "";
 
+  // Quantity-only takeoffs have no prices: omit the money columns entirely
+  // rather than printing empty cells under "Unit price" and "Line total".
+  const hasPrices = opts.lines.some((l) => l.unit_price || l.line_total);
   const lineRows = opts.lines
-    .map(
-      (l) =>
-        `<tr><td>${escapeHtml(l.label)}${
-          l.detail ? `<div class="muted">${escapeHtml(l.detail)}</div>` : ""
-        }</td><td class="n">${escapeHtml(l.quantity)} ${escapeHtml(
-          l.unit,
-        )}</td><td class="n">${escapeHtml(l.unit_price)}</td><td class="n">${escapeHtml(
-          l.line_total,
-        )}</td></tr>`,
-    )
+    .map((l) => {
+      const label = `<td>${escapeHtml(l.label)}${
+        l.detail ? `<div class="muted">${escapeHtml(l.detail)}</div>` : ""
+      }</td>`;
+      const qty = `<td class="n">${escapeHtml(
+        `${l.quantity}${l.unit ? ` ${l.unit}` : ""}`,
+      )}</td>`;
+      if (!hasPrices) return `<tr>${label}${qty}</tr>`;
+      return `<tr>${label}${qty}<td class="n">${escapeHtml(
+        l.unit_price ?? "",
+      )}</td><td class="n">${escapeHtml(l.line_total ?? "")}</td></tr>`;
+    })
     .join("");
   const linesHtml = lineRows
-    ? `<h2>Bill of materials</h2>
+    ? `<h2>${hasPrices ? "Bill of materials" : "Measured quantities"}</h2>
       <table>
-        <thead><tr><th>Item</th><th class="n">Quantity</th><th class="n">Unit price</th><th class="n">Line total</th></tr></thead>
+        <thead><tr><th>Item</th><th class="n">Quantity</th>${
+          hasPrices
+            ? '<th class="n">Unit price</th><th class="n">Line total</th>'
+            : ""
+        }</tr></thead>
         <tbody>${lineRows}</tbody>
       </table>`
     : "";
