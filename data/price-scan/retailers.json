@@ -3,138 +3,224 @@
   "market": "AE",
   "currency": "AED",
   "retailer": "Amazon.ae",
-  "url_pattern": "https://www.amazon.ae/s?k=%s"
+  "url_pattern": "https://www.amazon.ae/s?k=%s",
+  "health": "flaky",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "AU",
   "currency": "AUD",
   "retailer": "Bunnings",
-  "url_pattern": "https://www.bunnings.com.au/search/products?query=%s"
+  "url_pattern": "https://www.bunnings.com.au/search/products?query=%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "AU",
+  "currency": "AUD",
+  "retailer": "Reece",
+  "url_pattern": "https://www.reece.com.au/search?q=%s",
+  "health": "ok",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "BR",
   "currency": "BRL",
   "retailer": "Amazon.com.br",
-  "url_pattern": "https://www.amazon.com.br/s?k=%s"
+  "url_pattern": "https://www.amazon.com.br/s?k=%s",
+  "health": "flaky",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "CA",
+  "currency": "CAD",
+  "retailer": "Amazon.ca",
+  "url_pattern": "https://www.amazon.ca/s?k=%s",
+  "health": "flaky",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "CA",
   "currency": "CAD",
   "retailer": "Home Depot CA",
-  "url_pattern": "https://www.homedepot.ca/en/search?q=%s"
+  "url_pattern": "https://www.homedepot.ca/en/search?q=%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "CN",
+  "currency": "CNY",
+  "retailer": "DHgate",
+  "url_pattern": "https://www.dhgate.com/wholesale/search.do?act=search&searchkey=%s",
+  "health": "ok_caveat",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "CN",
   "currency": "CNY",
   "retailer": "JD.com",
-  "url_pattern": "https://search.jd.com/Search?keyword=%s"
+  "url_pattern": "https://search.jd.com/Search?keyword=%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "DE",
   "currency": "EUR",
   "retailer": "Amazon.de",
-  "url_pattern": "https://www.amazon.de/s?k=%s"
+  "url_pattern": "https://www.amazon.de/s?k=%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "DE",
   "currency": "EUR",
   "retailer": "OBI",
-  "url_pattern": "https://www.obi.de/search/%s/"
+  "url_pattern": "https://www.obi.de/search/%s/",
+  "health": "ok",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "FR",
   "currency": "EUR",
   "retailer": "Leroy Merlin",
-  "url_pattern": "https://www.leroymerlin.fr/recherche?text=%s"
+  "url_pattern": "https://www.leroymerlin.fr/recherche?text=%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "GB",
   "currency": "GBP",
   "retailer": "B&Q",
-  "url_pattern": "https://www.diy.com/search?term=%s"
+  "url_pattern": "https://www.diy.com/search?term=%s",
+  "health": "ok",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "GB",
+  "currency": "GBP",
+  "retailer": "Homebase",
+  "url_pattern": "https://www.homebase.co.uk/search?q=%s",
+  "health": "thin",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "GB",
   "currency": "GBP",
   "retailer": "Wickes",
-  "url_pattern": "https://www.wickes.co.uk/search?text=%s"
+  "url_pattern": "https://www.wickes.co.uk/search?text=%s",
+  "health": "ok",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "GH",
   "currency": "GHS",
   "retailer": "Jumia",
-  "url_pattern": "https://www.jumia.com.gh/catalog/?q=%s"
+  "url_pattern": "https://www.jumia.com.gh/catalog/?q=%s",
+  "health": "ok",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "ID",
   "currency": "IDR",
   "retailer": "Tokopedia",
-  "url_pattern": "https://www.tokopedia.com/search?st=product&q=%s"
+  "url_pattern": "https://www.tokopedia.com/search?st=product&q=%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "IN",
   "currency": "INR",
   "retailer": "Amazon.in",
-  "url_pattern": "https://www.amazon.in/s?k=%s"
+  "url_pattern": "https://www.amazon.in/s?k=%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "IT",
   "currency": "EUR",
   "retailer": "Amazon.it",
-  "url_pattern": "https://www.amazon.it/s?k=%s"
+  "url_pattern": "https://www.amazon.it/s?k=%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "JP",
   "currency": "JPY",
   "retailer": "Amazon.co.jp",
-  "url_pattern": "https://www.amazon.co.jp/s?k=%s"
+  "url_pattern": "https://www.amazon.co.jp/s?k=%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "KE",
   "currency": "KES",
   "retailer": "Jumia",
-  "url_pattern": "https://www.jumia.co.ke/catalog/?q=%s"
+  "url_pattern": "https://www.jumia.co.ke/catalog/?q=%s",
+  "health": "ok",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "KR",
   "currency": "KRW",
   "retailer": "Coupang",
-  "url_pattern": "https://www.coupang.com/np/search?q=%s"
+  "url_pattern": "https://www.coupang.com/np/search?q=%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "MX",
   "currency": "MXN",
   "retailer": "Home Depot MX",
-  "url_pattern": "https://www.homedepot.com.mx/search?q=%s"
+  "url_pattern": "https://www.homedepot.com.mx/search?q=%s",
+  "health": "broken_url",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "NG",
   "currency": "NGN",
   "retailer": "Jumia",
-  "url_pattern": "https://www.jumia.com.ng/catalog/?q=%s"
+  "url_pattern": "https://www.jumia.com.ng/catalog/?q=%s",
+  "health": "ok",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "NG",
   "currency": "NGN",
   "retailer": "Konga",
-  "url_pattern": "https://www.konga.com/search?q=%s"
+  "url_pattern": "https://www.konga.com/search?q=%s",
+  "health": "ok",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "SA",
   "currency": "SAR",
   "retailer": "Amazon.sa",
-  "url_pattern": "https://www.amazon.sa/s?k=%s"
+  "url_pattern": "https://www.amazon.sa/s?k=%s",
+  "health": "flaky",
+  "health_checked_at": "2026-10-29"
+ },
+ {
+  "market": "US",
+  "currency": "USD",
+  "retailer": "Amazon.com",
+  "url_pattern": "https://www.amazon.com/s?k=%s",
+  "health": "flaky",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "US",
   "currency": "USD",
   "retailer": "Home Depot",
-  "url_pattern": "https://www.homedepot.com/s/%s"
+  "url_pattern": "https://www.homedepot.com/s/%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
  },
  {
   "market": "ZA",
   "currency": "ZAR",
   "retailer": "Takealot",
-  "url_pattern": "https://www.takealot.com/search?q=%s"
+  "url_pattern": "https://www.takealot.com/search?q=%s",
+  "health": "blocked",
+  "health_checked_at": "2026-10-29"
  }
 ]

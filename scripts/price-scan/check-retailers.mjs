@@ -33,8 +33,9 @@ const SIGNALS = {
   symbol_after: /([0-9]+(?:[.,][0-9]+)?)\s?(?:€|EUR|zł|kr|₦|₵|R\$)/g,
 };
 
-const check = async (retailer) => {
-  const url = retailer.url_pattern.replace("%s", encodeURIComponent(query).replace(/%20/g, "+"));
+// Amazon and friends throttle by IP: a 503 on the first attempt says nothing
+// about the retailer, so every check gets bounded retries before a verdict.
+const attemptOnce = async (retailer, url, attempt) => {
   const started = Date.now();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -64,6 +65,7 @@ const check = async (retailer) => {
       price_tokens: prices.length,
       signal,
       signals: counts,
+      attempts: attempt,
       outcome: !res.ok
         ? `http_${res.status}`
         : blocked
@@ -79,6 +81,17 @@ const check = async (retailer) => {
   } finally {
     clearTimeout(timer);
   }
+};
+
+const check = async (retailer) => {
+  const url = retailer.url_pattern.replace("%s", encodeURIComponent(query).replace(/%20/g, "+"));
+  let last;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    last = await attemptOnce(retailer, url, attempt);
+    if (last.outcome === "parsed" || last.outcome === "blocked") break;
+    if (attempt < 3) await new Promise((r) => setTimeout(r, 1500 * attempt));
+  }
+  return last;
 };
 
 const run = async () => {

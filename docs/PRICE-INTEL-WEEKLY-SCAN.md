@@ -61,3 +61,29 @@ What this means: nine retailers can be scanned unattended today, covering NG, GH
 KE, GB, BR, SA and DE. The blocked group needs either real product-page URLs with
 the admin's manual approval, or a browser-based fetch, because their bot
 protection rejects server-side requests regardless of headers.
+
+## Priority markets, 29 Oct 2026
+
+The owner named US, UK, CN, CA, AU and UAE as the markets that matter. Each now
+has at least one retailer that answers a real search with real prices, found by
+testing candidates until one worked rather than registering a hopeful URL:
+
+| Market | Working source | Price offers in the test page |
+| --- | --- | --- |
+| US | Amazon.com | 92 |
+| UK | Wickes, B&Q, Homebase | 123 / 67 / 1 |
+| CN | DHgate (wholesale, USD) | 332 |
+| CA | Amazon.ca | 149 |
+| AU | Reece (trade) | 90 |
+| AE | Amazon.ae | 113 |
+
+Amazon throttles by source address: eu, jp and in stores answer 503 on every
+attempt while .com, .ca, .sa, .ae and .com.br serve normally, so every check now
+retries three times with backoff before calling a retailer blocked. Home Depot
+(US, CA, MX), Lowe's, Bunnings, Leroy Merlin, Coupang, Takealot, JD.com and
+Tokopedia refuse both a server fetch and a real headless browser from this
+network, so their sources are deactivated instead of quietly failing every week.
+
+CN caveat: DHgate quotes wholesale export prices in USD. It keeps the Chinese
+book moving but it is not a local retail price; a local CNY source (1688, JD or
+Suning, all JS-rendered) needs a rendered fetch.
