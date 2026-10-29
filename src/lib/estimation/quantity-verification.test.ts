@@ -14,6 +14,13 @@ import {
   calculateOpeningArea,
 } from "./paint-engine";
 import {
+  calculateRoofArea,
+  calculateRidgeLength,
+  calculateHipLength,
+  calculateFasciaLength,
+} from "./build-to-roof-engine";
+import { voltageDropPercent } from "./electrical-engine";
+import {
   tilesRequired,
   cartonsFromTileCount,
   cartonsFromCoverage,
@@ -119,5 +126,71 @@ describe("tiling quantities", () => {
     expect(tilesRequired(0, 0.36)).toBe(0);
     expect(tilesRequired(30, 0)).toBe(0);
     expect(cartonsFromTileCount(0, 10)).toBe(0);
+  });
+});
+
+describe("roof geometry", () => {
+  // Footprint 10 x 8 m, 30 deg pitch, 0.5 m overhang on every edge:
+  // plan 11 x 9 = 99 m2, sloped = 99 / cos 30 = 114.32 m2. Every plane of a
+  // gable, hip and mono-pitch roof shares the same pitch, so all three give the
+  // same sloped area over the same footprint.
+  it("slopes the plan area by the pitch", () => {
+    expect(calculateRoofArea(10, 8, 30, 0.5, "gable")).toBeCloseTo(114.32, 1);
+    expect(calculateRoofArea(10, 8, 30, 0.5, "hip")).toBeCloseTo(114.32, 1);
+    expect(calculateRoofArea(10, 8, 30, 0.5, "mono_pitch")).toBeCloseTo(
+      114.32,
+      1,
+    );
+  });
+
+  it("runs a gable ridge the full length plus both overhangs", () => {
+    // 10 + 2 x 0.5 = 11 m
+    expect(calculateRidgeLength(10, 8, "gable", 0.5)).toBe(11);
+  });
+
+  it("runs a hip ridge between the two short hip ends", () => {
+    // |10 - 8| = 2 m
+    expect(calculateRidgeLength(10, 8, "hip", 0.5)).toBe(2);
+  });
+
+  it("takes hip rafters on the true 3D diagonal, not the slope length", () => {
+    // run = 8 / 2 + 0.5 = 4.5 m, rise = 4.5 tan 30
+    // hip = 4.5 x sqrt(2 + tan^2 30) = 6.874 m, four hips = 27.5 m
+    expect(calculateHipLength(10, 8, 30, 0.5)).toBeCloseTo(27.5, 1);
+  });
+
+  it("takes fascia along the eaves line", () => {
+    // perimeter of 11 x 9 = 40 m
+    expect(calculateFasciaLength(10, 8, 0.5, "gable" as never)).toBeCloseTo(40, 1);
+  });
+});
+
+describe("electrical voltage drop", () => {
+  // Vd = 2 L I rho / A. 30 m, 5,000 W at 230 V -> I = 21.74 A.
+  // 2 x 30 x 21.74 x 0.0172 / 4 = 5.61 V = 2.44% of 230 V.
+  it("computes drop on the out-and-back conductor length", () => {
+    const v = voltageDropPercent({
+      run_m: 30,
+      load_watts: 5000,
+      voltage: 230,
+      cross_section_mm2: 4,
+      lighting_dominant: false,
+    });
+    expect(v.drop_percent).toBeCloseTo(2.44, 1);
+    expect(v.passes).toBe(true);
+  });
+
+  it("fails a lighting circuit over 3% on the same load", () => {
+    const v = voltageDropPercent({
+      run_m: 30,
+      load_watts: 5000,
+      voltage: 230,
+      cross_section_mm2: 2.5,
+      lighting_dominant: true,
+    });
+    // 22.43 / 2.5 = 8.97 V = 3.90%
+    expect(v.drop_percent).toBeCloseTo(3.9, 1);
+    expect(v.limit_percent).toBe(3);
+    expect(v.passes).toBe(false);
   });
 });
