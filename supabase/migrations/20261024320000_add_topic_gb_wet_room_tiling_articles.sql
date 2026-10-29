@@ -3,27 +3,36 @@
 -- editorial_review_status='draft', market/wall_market_code='GB', wall_language_code='en'.
 BEGIN;
 
-INSERT INTO public.learn_wall_finishing_topics(market_code, candidate_key, title, summary, verification_status, derived_from)
-SELECT 'GB','assembly:gb-wet-room-tiling','Tiling wet rooms: tanking and tiling',
-  'A British walk-through of wet room finishes: substrate assessment, proprietary tanking membranes, tile and adhesive selection, tiling and grouting sequence, and the maintenance regime that keeps a wet room watertight.',
-  'candidate','researched'
-WHERE NOT EXISTS (SELECT 1 FROM public.learn_wall_finishing_topics WHERE market_code='GB' AND candidate_key='assembly:gb-wet-room-tiling');
+INSERT INTO public.learn_wall_finishing_topics(market_code,candidate_key,title,topic_type,verification_status)
+VALUES ('GB','assembly:gb-wet-room-tiling','Tiling wet rooms: tanking and tiling','finish_assembly','candidate')
+ON CONFLICT DO NOTHING;
 
-INSERT INTO public.learn_wall_finishing_sources(topic_id,market_code,title,url,source_type)
-SELECT t.id,'GB',s.title,s.url,s.source_type
-FROM public.learn_wall_finishing_topics t
-JOIN (VALUES
- ('BAL, A technical guide to tiling wet rooms and tanking','https://www.bal-adhesives.com/a-technical-guide-to-tiling-wet-rooms-and-tanking/','guidance'),
- ('The Tile Association, Technical Publications','https://www.tiles.org.uk/technical-support/technical-publications/','standard'),
- ('The Tile Association, Recent Changes to BS 5385 Part 1:2018','https://www.tiles.org.uk/wp-content/uploads/2019/04/TTA-Presentation-on-Recent-Changes-to-BS-5385-Part-1-2018-Reduced-File-Size.pdf','standard'),
- ('Tile and Stone Journal, TTA offers support to NHBC to bring new tiling guidance in line with British standards','https://www.tileandstonejournal.com/tta/tta-offers-support-to-nhbc-to-bring-new-tiling-guidance-in-line-with-british-standards/','guidance'),
- ('HBD, Avoid failures in bathrooms and wetrooms with BAL Waterproof 1C','https://www.hbdonline.co.uk/news/avoid-failures-in-bathrooms-and-wetrooms-with-bal-waterproof-1c/','manufacturer'),
- ('Libnor catalogue, BS EN 14891 liquid-applied water impermeable products','https://libnor.gov.lb/CatalogDetails.aspx?id=6039&language=en','standard'),
- ('NHBC, Good craftsmanship guide: brickwork and blockwork','https://www.nhbc.co.uk/builders/products-and-services/standards-and-technical-guidance','guidance'),
- ('Scottish Government, Building standards technical handbook 2017: domestic','https://www.gov.scot/publications/building-standards-technical-handbook-2017-domestic/','regulation')
-) AS s(title,url,source_type) ON true
+INSERT INTO public.learn_wall_finishing_sources(topic_id,title,url,publisher,claim_scope)
+SELECT t.id,v.title,v.url,v.publisher,v.claim_scope FROM public.learn_wall_finishing_topics t
+CROSS JOIN (VALUES
+  ('BAL, A technical guide to tiling wet rooms and tanking','https://www.bal-adhesives.com/a-technical-guide-to-tiling-wet-rooms-and-tanking/','BAL','Surface preparation requirement for tanking: clean, dry, free of barriers to adhesion'),
+  ('The Tile Association, Technical Publications','https://www.tiles.org.uk/technical-support/technical-publications/','The Tile Association','TTA publishes Tiling In Wet Rooms & Showers guidance'),
+  ('The Tile Association, Recent Changes to BS 5385 Part 1:2018','https://www.tiles.org.uk/wp-content/uploads/2019/04/TTA-Presentation-on-Recent-Changes-to-BS-5385-Part-1-2018-Reduced-File-Size.pdf','The Tile Association','BS 5385-1:2018 requires proprietary tanking membrane systems in wet areas, showers, wet rooms and steam rooms'),
+  ('Tile and Stone Journal, TTA offers support to NHBC to bring new tiling guidance in line with British standards','https://www.tileandstonejournal.com/tta/tta-offers-support-to-nhbc-to-bring-new-tiling-guidance-in-line-with-british-standards/','Tile and Stone Journal','NHBC Technical Guidance 2023 clause 9.2-06 wet area tanking requirements'),
+  ('HBD, Avoid failures in bathrooms and wetrooms with BAL Waterproof 1C','https://www.hbdonline.co.uk/news/avoid-failures-in-bathrooms-and-wetrooms-with-bal-waterproof-1c/','HBD','Ready-mixed tanking system, no priming on most substrates, short tiling window'),
+  ('Libnor catalogue, BS EN 14891 liquid-applied water impermeable products','https://libnor.gov.lb/CatalogDetails.aspx?id=6039&language=en','Libnor','BS EN 14891 scope: liquid-applied products based on polymer modified cementitious mortars, dispersions and reaction resins for use beneath tiling'),
+  ('NHBC, Standards and technical guidance','https://www.nhbc.co.uk/builders/products-and-services/standards-and-technical-guidance','NHBC','Warranty provider technical guidance for new build wet areas'),
+  ('Scottish Government, Building standards technical handbook 2017: domestic','https://www.gov.scot/publications/building-standards-technical-handbook-2017-domestic/','Scottish Government','Fitness and water safety frame for domestic wet areas in Scotland')
+) AS v(title,url,publisher,claim_scope)
 WHERE t.market_code='GB' AND t.candidate_key='assembly:gb-wet-room-tiling'
-  AND NOT EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources x WHERE x.topic_id=t.id AND x.url=s.url);
+  AND NOT EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=t.id AND s.url=v.url);
+
+INSERT INTO public.learn_wall_finishing_sources(topic_id,title,url,publisher,claim_scope)
+SELECT t.id,v.title,v.url,v.publisher,v.claim_scope FROM public.learn_wall_finishing_topics t
+CROSS JOIN (VALUES
+  ('Image credit: Old bathroom with subway tiles, Mulhouse (Alf van Beem, CC0)','https://commons.wikimedia.org/wiki/File:Old_bathroom_with_subway_tiles.JPG','Wikimedia Commons','Cover photograph overview article, CC0'),
+  ('Image credit: Porcelain wall tiles, Klimex Ultrastrong (Asurnipal, CC BY-SA 4.0)','https://commons.wikimedia.org/wiki/File:Dornbirn-Porcelain_wall_tiles_Klimex_ultrastrong_brown-red-bricks-02ASD.jpg','Wikimedia Commons','Cover photograph materials article, CC BY-SA 4.0'),
+  ('Image credit: Wall tile (The Carlisle Kid, CC BY-SA 2.0)','https://commons.wikimedia.org/wiki/File:Wall_tile_-_geograph.org.uk_-_3437207.jpg','Wikimedia Commons','Cover photograph installation article, CC BY-SA 2.0'),
+  ('Image credit: 2019 broken tile in bathroom (Gerardolagunes, CC BY-SA 4.0)','https://commons.wikimedia.org/wiki/File:2019_broken_tile_in_bathroom.jpg','Wikimedia Commons','Cover photograph quality article, CC BY-SA 4.0'),
+  ('Image credit: Landguard Fort shower room (Michael Garlick, CC BY-SA 2.0)','https://commons.wikimedia.org/wiki/File:Landguard_Fort,_Shower_Room_-_geograph.org.uk_-_6903528.jpg','Wikimedia Commons','Cover photograph maintenance article, CC BY-SA 2.0')
+) AS v(title,url,publisher,claim_scope)
+WHERE t.market_code='GB' AND t.candidate_key='assembly:gb-wet-room-tiling'
+  AND NOT EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=t.id AND s.url=v.url);
 
 INSERT INTO public.learn_wall_finishing_article_slots(topic_id,market_code,theme_key,language_code)
 SELECT t.id,'GB',th.theme_key,'en'
@@ -31,19 +40,6 @@ FROM public.learn_wall_finishing_topics t
 JOIN public.learn_wall_finishing_article_themes th ON th.theme_key IN ('overview','materials','installation','quality','maintenance')
 WHERE t.market_code='GB' AND t.candidate_key='assembly:gb-wet-room-tiling'
   AND NOT EXISTS (SELECT 1 FROM public.learn_wall_finishing_article_slots sl WHERE sl.topic_id=t.id AND sl.theme_key=th.theme_key AND sl.language_code='en');
-
-INSERT INTO public.learn_wall_finishing_sources(topic_id,market_code,title,url,source_type)
-SELECT t.id,'GB',s.title,s.url,'image'
-FROM public.learn_wall_finishing_topics t
-JOIN (VALUES
- ('Wikimedia Commons: Old bathroom with subway tiles, Mulhouse (Alf van Beem, CC0)','https://commons.wikimedia.org/wiki/File:Old_bathroom_with_subway_tiles.JPG'),
- ('Wikimedia Commons: Porcelain wall tiles, Klimex Ultrastrong (Asurnipal, CC BY-SA 4.0)','https://commons.wikimedia.org/wiki/File:Dornbirn-Porcelain_wall_tiles_Klimex_ultrastrong_brown-red-bricks-02ASD.jpg'),
- ('Wikimedia Commons: Wall tile (The Carlisle Kid, CC BY-SA 2.0)','https://commons.wikimedia.org/wiki/File:Wall_tile_-_geograph.org.uk_-_3437207.jpg'),
- ('Wikimedia Commons: 2019 broken tile in bathroom (Gerardolagunes, CC BY-SA 4.0)','https://commons.wikimedia.org/wiki/File:2019_broken_tile_in_bathroom.jpg'),
- ('Wikimedia Commons: Landguard Fort shower room (Michael Garlick, CC BY-SA 2.0)','https://commons.wikimedia.org/wiki/File:Landguard_Fort,_Shower_Room_-_geograph.org.uk_-_6903528.jpg')
-) AS s(title,url) ON true
-WHERE t.market_code='GB' AND t.candidate_key='assembly:gb-wet-room-tiling'
-  AND NOT EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources x WHERE x.topic_id=t.id AND x.url=s.url);
 
 INSERT INTO public.learn_articles(slug,title,excerpt,content,category_slug,author,read_time_minutes,status,is_featured,meta_title,meta_description,market,wall_market_code,wall_topic_id,wall_article_theme,wall_language_code,editorial_review_status,cover_image_url)
 SELECT a.slug,a.title,a.excerpt,a.content,'surface-preparation','FRELUX Editorial',a.read_time_minutes,'draft',false,a.title,a.excerpt,'GB','GB',t.id,a.theme,'en','draft',a.cover_url
