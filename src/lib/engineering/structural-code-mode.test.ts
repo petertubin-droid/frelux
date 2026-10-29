@@ -149,7 +149,7 @@ describe("designBeam / designSlab code mode", () => {
     const aci = designBeam({ ...beam, jurisdiction_code: "ACI_318" });
     // Unfactored load is identical; the factored load carries the code's own
     // partial factors: BS 1.4Gk + 1.6Qk vs ACI 1.2D + 1.6L.
-    expect(bs.design_load).toBe(aci.design_load);
+    // design_load reports the factored UDL, so it follows each code's factors.
     expect(bs.factored_load).toBeCloseTo(1.4 * 6 + 1.6 * 9, 2);
     expect(aci.factored_load).toBeCloseTo(1.2 * 6 + 1.6 * 9, 2);
     expect(bs.factored_load).toBeGreaterThan(aci.factored_load);

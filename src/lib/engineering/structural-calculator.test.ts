@@ -24,9 +24,11 @@ describe("designBeam", () => {
     beam_type: "suspended_beam",
   };
 
-  it("calculates effective span as span + 0.1m", () => {
+  it("takes the effective span as clear span + effective depth", () => {
     const result = designBeam(baseInput);
-    expect(result.effective_span).toBeCloseTo(4.6, 1);
+    // BS 8110 cl. 3.4.1.1. Without a supplied depth the preliminary depth is
+    // span/12 = 375 mm, so d = 375 - 25 cover = 350 mm.
+    expect(result.effective_span).toBeCloseTo(4.5 + 0.35, 3);
   });
 
   it("applies correct factored load (1.4 dead + 1.6 live)", () => {

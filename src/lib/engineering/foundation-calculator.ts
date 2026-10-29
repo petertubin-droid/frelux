@@ -39,7 +39,12 @@ export interface FoundationDesignInput {
   concrete_grade: string;
   building_length?: number; // meters (for strip total length)
   building_width?: number; // meters
+  /** Only applied when the bearing value supplied is an ULTIMATE (gross)
+   *  capacity. The built-in soil values are already allowable. */
   safety_factor?: number; // typically 2.5-3.0
+  /** Set when custom_bearing_capacity is an ultimate/gross capacity that still
+   *  needs dividing by the safety factor. Default false: the value is allowable. */
+  custom_capacity_is_ultimate?: boolean;
   column_width_mm?: number; // supported column face for punching shear check (default 225)
 }
 
@@ -66,8 +71,11 @@ export interface FoundationDesignResult {
   formula_transparency: string[];
 }
 
-// ── Soil bearing capacities (typical, kN/m²) ──
-// Based on BS 8004 Table 1 (universal assumed bearing values; use
+// ── Soil bearing capacities: ASSUMED ALLOWABLE pressures (kN/m²) ──
+// BS 8004 Table 1 style assumed allowable values, i.e. they already carry the
+// factor of safety (roughly 3 on ultimate). Dividing them by a safety factor
+// again was double-counting and produced footings 2.5x larger than the soil
+// requires. Use
 
 export const SOIL_BEARING_CAPACITY: Record<SoilType, number> = {
   stiff_clay: 300,
@@ -120,12 +128,20 @@ export function designFoundation(
       : SOIL_BEARING_CAPACITY[input.soil_type];
 
   const safety_factor = input.safety_factor ?? 2.5;
-  const allowable_capacity = gross_capacity / safety_factor;
+  // The built-in soil values are allowable pressures. A custom value is treated
+  // as allowable too unless the caller says it is an ultimate capacity.
+  const isUltimate =
+    input.soil_type === "custom" && input.custom_capacity_is_ultimate === true;
+  const allowable_capacity = isUltimate
+    ? gross_capacity / safety_factor
+    : gross_capacity;
   formulas.push(
-    `Gross bearing capacity (${input.soil_type}) = ${gross_capacity} kN/m²`,
+    `${isUltimate ? "Ultimate" : "Allowable"} bearing capacity (${input.soil_type}) = ${gross_capacity} kN/m²`,
   );
   formulas.push(
-    `Allowable = ${gross_capacity} / ${safety_factor} (safety factor) = ${allowable_capacity.toFixed(0)} kN/m²`,
+    isUltimate
+      ? `Allowable = ${gross_capacity} / ${safety_factor} (safety factor) = ${allowable_capacity.toFixed(0)} kN/m²`
+      : `Allowable = ${allowable_capacity.toFixed(0)} kN/m² (assumed allowable value already includes the safety factor)`,
   );
 
   if (input.soil_type !== "custom" && input.soil_type !== "rock") {
@@ -166,7 +182,11 @@ export function designFoundation(
 
     const check_pressure = input.wall_load / ((final_width / 1000) * 1);
     const bearing_check_pass = check_pressure <= allowable_capacity;
+    // Margin over the allowable pressure (>= 1.0 means the check passes).
     const actual_fos = allowable_capacity / check_pressure;
+    formulas.push(
+      `Margin over allowable = ${allowable_capacity.toFixed(0)} / ${check_pressure.toFixed(1)} = ${actual_fos.toFixed(2)} (>= 1.0 required)`,
+    );
 
     if (final_width > 1500) {
       warnings.push(
@@ -217,6 +237,9 @@ export function designFoundation(
     const check_pressure = total_footing_load / actual_area;
     const bearing_check_pass = check_pressure <= allowable_capacity;
     const actual_fos = allowable_capacity / check_pressure;
+    formulas.push(
+      `Margin over allowable = ${allowable_capacity.toFixed(0)} / ${check_pressure.toFixed(1)} = ${actual_fos.toFixed(2)} (>= 1.0 required)`,
+    );
 
     // Volumes (single pad)
     const pad_thickness_mm = 300;
@@ -296,6 +319,9 @@ export function designFoundation(
     const applied_pressure = total_load / building_area;
     const bearing_check_pass = applied_pressure <= allowable_capacity;
     const actual_fos = allowable_capacity / applied_pressure;
+    formulas.push(
+      `Applied pressure = ${total_load.toFixed(1)} kN / ${building_area.toFixed(1)} m² = ${applied_pressure.toFixed(1)} kN/m² vs allowable ${allowable_capacity.toFixed(0)} kN/m² → ${bearing_check_pass ? "PASS" : "FAIL"}`,
+    );
 
     const excavation_volume = building_area * input.foundation_depth;
     const concrete_volume = building_area * 0.3; // 300mm raft slab

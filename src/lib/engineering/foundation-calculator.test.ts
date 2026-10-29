@@ -163,7 +163,10 @@ describe("designFoundation, custom soil", () => {
       building_width: 8,
     };
     const result = designFoundation(input);
-    expect(result.bearing_capacity).toBe(200 / 2.5);
+    // A supplied bearing value is treated as an allowable pressure, which is
+    // what the built-in soil table holds. Dividing again by the safety factor
+    // double-counted it and produced footings 2.5x too large.
+    expect(result.bearing_capacity).toBe(200);
   });
 
   it("falls back to 150 kN/m² when custom capacity not provided", () => {
@@ -175,12 +178,12 @@ describe("designFoundation, custom soil", () => {
       concrete_grade: "C20",
     };
     const result = designFoundation(input);
-    expect(result.bearing_capacity).toBe(150 / 2.5);
+    expect(result.bearing_capacity).toBe(150);
   });
 });
 
 describe("designFoundation, safety factor", () => {
-  it("applies default safety factor of 2.5", () => {
+  it("uses the built-in soil value as an allowable pressure", () => {
     const result = designFoundation({
       shape: "strip",
       soil_type: "stiff_clay",
@@ -188,21 +191,51 @@ describe("designFoundation, safety factor", () => {
       foundation_depth: 0.9,
       concrete_grade: "C20",
     });
-    const expected = SOIL_BEARING_CAPACITY.stiff_clay / 2.5;
-    expect(result.bearing_capacity).toBeCloseTo(expected, 1);
+    expect(result.bearing_capacity).toBeCloseTo(
+      SOIL_BEARING_CAPACITY.stiff_clay,
+      1,
+    );
   });
 
-  it("applies custom safety factor", () => {
-    const result = designFoundation({
+  it("divides only when the supplied capacity is an ultimate value", () => {
+    const asAllowable = designFoundation({
       shape: "strip",
-      soil_type: "stiff_clay",
+      soil_type: "custom",
+      custom_bearing_capacity: 300,
       wall_load: 80,
       foundation_depth: 0.9,
       concrete_grade: "C20",
-      safety_factor: 3.0,
     });
-    const expected = SOIL_BEARING_CAPACITY.stiff_clay / 3.0;
-    expect(result.bearing_capacity).toBeCloseTo(expected, 1);
+    const asUltimate = designFoundation({
+      shape: "strip",
+      soil_type: "custom",
+      custom_bearing_capacity: 900,
+      custom_capacity_is_ultimate: true,
+      safety_factor: 3.0,
+      wall_load: 80,
+      foundation_depth: 0.9,
+      concrete_grade: "C20",
+    });
+    expect(asAllowable.bearing_capacity).toBeCloseTo(300, 1);
+    expect(asUltimate.bearing_capacity).toBeCloseTo(300, 1);
+  });
+
+  // A strip footing on stiff clay carrying 100 kN/m: the width follows the soil,
+  // 1.10 x 100 / 300 = 0.37 m, so the 300 mm practical minimum governs.
+  it("sizes a strip footing from the allowable pressure, not a divided one", () => {
+    const result = designFoundation({
+      shape: "strip",
+      soil_type: "stiff_clay",
+      wall_load: 100,
+      foundation_depth: 1.0,
+      concrete_grade: "C25",
+      building_length: 10,
+      building_width: 8,
+    });
+    expect(result.required_width).toBeLessThanOrEqual(400);
+    expect(result.recommended_width).toBe(400);
+    expect(result.bearing_check_pass).toBe(true);
+    expect(result.applied_pressure).toBeLessThanOrEqual(300);
   });
 });
 
@@ -238,7 +271,7 @@ describe("audit fix F4 — pad footing self-weight & punching shear", () => {
 
   it("sizes the pad area with the 1.10 self-weight multiplier", () => {
     const result = designFoundation(baseInput);
-    const allowable = 300 / 2.5; // dense sand / default SF 2.5
+    const allowable = 300; // dense sand, assumed allowable
     const expectedArea = (1.1 * 300) / allowable;
     expect(result.formula_transparency.some((f) => f.includes("1.10"))).toBe(
       true,

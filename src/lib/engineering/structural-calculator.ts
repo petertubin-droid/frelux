@@ -582,16 +582,22 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     `Concrete standard: ${CONCRETE_STANDARDS[concretePreset.standard].name} (${concretePreset.label}) — f_cu = ${concretePreset.fcu} MPa, E_c = ${concretePreset.Ec} GPa`,
   );
 
-  // Effective span (BS 8110: clear span + effective depth, or center-to-center)
-  const effective_span = input.span + 0.1; // approximate
+  // Effective span (BS 8110 cl. 3.4.1.1: clear span + effective depth, or the
+  // centre-to-centre distance if that is smaller). The depth is not known until
+  // the section is sized, so take the supplied depth when there is one and
+  // otherwise a span/12 preliminary estimate. The old fixed +0.1 m ignored the
+  // member's depth and understated moments by roughly 10% on a 6 m beam.
+  const preliminary_depth_mm = input.existing_depth ?? input.span * 83.33;
+  const preliminary_d_mm = Math.max(150, preliminary_depth_mm - input.cover_mm);
+  const effective_span = input.span + preliminary_d_mm / 1000;
   formulas.push(
-    `Effective span = clear span + 0.1 = ${input.span} + 0.1 = ${effective_span.toFixed(2)} m`,
+    `Effective span = clear span + d = ${input.span} + ${(preliminary_d_mm / 1000).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110 cl. 3.4.1.1; d from ${input.existing_depth ? "the supplied depth" : "a span/12 preliminary depth"})`,
   );
 
   // Loads
   const total_dead = input.dead_load * input.tributary_width;
   const total_live = input.live_load * input.tributary_width;
-  const design_load = total_dead + total_live;
+  const service_load = total_dead + total_live;
   // Audit fix F1: load factors follow the governing standard of the
   // selected concrete grade's jurisdiction, not BS 8110 blindly.
   const lf = loadFactors(
@@ -831,7 +837,7 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   return {
     span: input.span,
     effective_span,
-    design_load,
+    design_load: factored_load,
     factored_load,
     max_moment,
     max_shear,
