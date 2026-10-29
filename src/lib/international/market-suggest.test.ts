@@ -6,6 +6,7 @@ import {
   isDetectableMarket,
   localesToMarket,
   marketForSignals,
+  pricingMarketCode,
   timezoneToMarket,
 } from "./market-suggest";
 
@@ -130,5 +131,21 @@ describe("detection only ever returns supported markets", () => {
     if (code === null) return;
     expect(isDetectableMarket(code)).toBe(true);
     expect(BUILTIN_MARKET_CODES).toContain(code);
+  });
+
+  describe("pricingMarketCode", () => {
+    it("lets the visitor's own country decide the price list", () => {
+      expect(pricingMarketCode("US", "NG")).toBe("US");
+      expect(pricingMarketCode("NG", null)).toBe("NG");
+    });
+
+    it("honours a saved choice only when the browser gives no signal", () => {
+      expect(pricingMarketCode(null, "NG")).toBe("NG");
+      expect(pricingMarketCode(null, "GB")).toBe("GB");
+    });
+
+    it("leaves a signal-less visitor with no local list", () => {
+      expect(pricingMarketCode(null, null)).toBeNull();
+    });
   });
 });

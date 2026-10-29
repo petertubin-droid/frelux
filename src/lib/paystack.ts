@@ -69,6 +69,12 @@ export async function initializeSubscriptionCheckout(
   email: string,
   userId: string,
   marketCode?: string | null,
+  /**
+   * The country the visitor's browser reports, independent of any market
+   * choice. The edge function uses it to refuse the Nigerian naira list to a
+   * visitor who is not in Nigeria.
+   */
+  originMarketCode?: string | null,
 ): Promise<
   { authorization_url: string; reference: string } | { error: string }
 > {
@@ -90,6 +96,7 @@ export async function initializeSubscriptionCheckout(
       billing_cycle: billingCycle,
       user_id: userId,
       market_code: marketCode ?? null,
+      origin_market: originMarketCode ?? null,
       callback_url: `${window.location.origin}/pricing?status=verify&ref=${reference}`,
       metadata: {
         plan,

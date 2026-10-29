@@ -157,6 +157,8 @@ async function initializeFlutterwaveSubscription(
   email: string,
   userId: string,
   marketCode?: string | null,
+  /** Browser-reported country, used to gate the domestic naira price list. */
+  originMarketCode?: string | null,
 ): Promise<CheckoutStartResult> {
   const { data, error } = await supabase.functions.invoke(
     "flutterwave-checkout",
@@ -170,6 +172,7 @@ async function initializeFlutterwaveSubscription(
         // The market's own price row is what the page showed; the server
         // resolves and quotes it, never trusting an amount here.
         market_code: marketCode ?? null,
+        origin_market: originMarketCode ?? null,
       },
     },
   );
@@ -211,6 +214,8 @@ export async function startSubscriptionCheckout(
    * admin default is Paystack. An explicit user choice still wins.
    */
   marketCode?: string | null,
+  /** Browser-reported country, used to gate the domestic naira price list. */
+  originMarketCode?: string | null,
 ): Promise<CheckoutStartResult> {
   const wanted = marketCode
     ? gatewayForMarket(marketCode)
@@ -238,6 +243,7 @@ export async function startSubscriptionCheckout(
       email,
       userId,
       marketCode,
+      originMarketCode,
     );
     if (!("error" in result)) {
       return { authorization_url: result.authorization_url };
@@ -257,6 +263,8 @@ export async function startSubscriptionCheckout(
         amountMinor,
         email,
         userId,
+        marketCode,
+        originMarketCode,
       );
       if ("authorization_url" in fallback) return fallback;
       return {
@@ -273,6 +281,8 @@ export async function startSubscriptionCheckout(
       amountMinor,
       email,
       userId,
+      marketCode,
+      originMarketCode,
     );
   }
 

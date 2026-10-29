@@ -80,6 +80,7 @@ serveWithCors(async (req: Request) => {
       email,
       user_id,
       market_code,
+      origin_market,
       currency,
       allow_ngn_fallback,
       pack_id,
@@ -258,7 +259,19 @@ serveWithCors(async (req: Request) => {
     // currency; otherwise the canonical dollar price.
     const market = String(market_code ?? "").toUpperCase();
     let localPrice: { currency: string; price_minor: number } | null = null;
-    if (market && usd.currency === "USD") {
+    // The naira list is a domestic price list, so it is only served to a
+    // visitor whose browser reports Nigeria. A visitor who selects Nigeria
+    // from abroad sees and pays the dollar price instead, which is the same
+    // figure the pricing page showed them.
+    const visitorCountry = String(origin_market ?? "").toUpperCase();
+    const domesticMismatch =
+      market === "NG" && Boolean(visitorCountry) && visitorCountry !== "NG";
+    if (domesticMismatch) {
+      console.info(
+        `[pricing] ${market} list declined for origin ${visitorCountry}; charging USD`,
+      );
+    }
+    if (market && usd.currency === "USD" && !domesticMismatch) {
       const { data: localRows } = await admin
         .from("subscription_local_prices")
         .select("currency, price_minor")

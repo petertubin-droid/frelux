@@ -206,3 +206,20 @@ export function marketForSignals(signals: {
     localesToMarket(signals.browserLanguages ?? [])
   );
 }
+
+/**
+ * The market whose subscription price list applies to a visitor.
+ *
+ * A price list is a location fact, not a preference: the browser's own
+ * country wins, and an explicit country choice only decides for a visitor
+ * whose browser offers no usable signal at all. That keeps the Nigerian
+ * naira list (a domestic promo) in Nigeria while every other visitor,
+ * including one who switches the selector to Nigeria, sees the dollar list
+ * they will actually be charged.
+ */
+export function pricingMarketCode(
+  detectedMarket: string | null,
+  savedChoice: string | null,
+): string | null {
+  return detectedMarket ?? savedChoice ?? null;
+}

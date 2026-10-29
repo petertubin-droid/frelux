@@ -14,6 +14,11 @@ vi.mock("@/lib/international/market-context", async (importOriginal) => {
     useMarket: () => ({ market: { marketCode: marketState.code } }),
   };
 });
+vi.mock("@/lib/international/market-suggest", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/lib/international/market-suggest")>();
+  return { ...actual, detectMarketCode: () => originState.code };
+});
 vi.mock("@/lib/subscription-pricing", async (importOriginal) => {
   const actual =
     await importOriginal<typeof import("@/lib/subscription-pricing")>();
@@ -31,6 +36,7 @@ vi.mock("@/lib/credits", () => ({
 }));
 
 const marketState = { code: "US" };
+const originState = { code: null as string | null };
 const localRowsState: {
   market_code: string;
   plan: string;
@@ -87,6 +93,7 @@ const NG_ROWS = [
 beforeEach(() => {
   vi.clearAllMocks();
   marketState.code = "US";
+  originState.code = "US";
   localRowsState.length = 0;
 });
 
@@ -145,6 +152,7 @@ describe("Pricing, USD plans and billing toggle", () => {
 
   it("keeps the Nigerian naira list, with no dollar anchor on the cards", async () => {
     marketState.code = "NG";
+    originState.code = "NG";
     localRowsState.push(...NG_ROWS);
     const { getByTestId, queryByTestId, container } = await renderPage();
     await vi.waitFor(() => {
@@ -157,5 +165,23 @@ describe("Pricing, USD plans and billing toggle", () => {
     expect(container.textContent).toContain("50,000");
     // Nigeria's list is the naira price, not a dollar conversion.
     expect(queryByTestId("plan-usd-pro")).toBeNull();
+  });
+
+  it("shows dollars to a visitor abroad who selects Nigeria", async () => {
+    marketState.code = "NG";
+    originState.code = "US";
+    localRowsState.push(...NG_ROWS);
+    const { getByTestId, container } = await renderPage();
+    expect(getByTestId("plan-price-pro").textContent).toContain("$4.99");
+    expect(container.textContent).not.toContain("₦");
+  });
+
+  it("shows dollars when the browser gives no country signal", async () => {
+    marketState.code = "NG";
+    originState.code = null;
+    localRowsState.push(...NG_ROWS);
+    const { getByTestId, container } = await renderPage();
+    expect(getByTestId("plan-price-pro").textContent).toContain("$4.99");
+    expect(container.textContent).not.toContain("₦");
   });
 });

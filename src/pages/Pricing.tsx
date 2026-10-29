@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Check,
   Gem,
@@ -11,7 +11,14 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import PageHeader from "@/components/ui/PageHeader";
 import { useAuth } from "@/lib/auth";
-import { useMarket } from "@/lib/international/market-context";
+import {
+  MARKET_STORAGE_KEY,
+  useMarket,
+} from "@/lib/international/market-context";
+import {
+  detectMarketCode,
+  pricingMarketCode,
+} from "@/lib/international/market-suggest";
 import { useSeo } from "@/lib/seo";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { useToast } from "@/components/ui/Toast";
@@ -164,6 +171,27 @@ export default function Pricing() {
   );
   // Local price rows for all markets; empty means USD prices throughout.
   const [localPrices, setLocalPrices] = useState<LocalPriceRow[]>([]);
+  // A price list is a location fact: the visitor's own country decides which
+  // list applies, and a country choice only decides when the browser gives no
+  // signal. Nigeria's naira list is a domestic promo, not a selectable one.
+  const detectedMarket = useMemo(() => detectMarketCode(), []);
+  const [savedMarketChoice, setSavedMarketChoice] = useState<string | null>(
+    null,
+  );
+  useEffect(() => {
+    try {
+      setSavedMarketChoice(localStorage.getItem(MARKET_STORAGE_KEY));
+    } catch {
+      setSavedMarketChoice(null);
+    }
+  }, []);
+  const priceMarketCode = useMemo(
+    () =>
+      // No country signal and no saved choice means no local list, so the
+      // dollar price stands instead of defaulting anyone into the naira list.
+      pricingMarketCode(detectedMarket, savedMarketChoice),
+    [detectedMarket, savedMarketChoice],
+  );
   // Paystack only settles NGN/GHS/ZAR/KES, so a non-African market is given
   // Flutterwave (which accepts international cards) instead of a gateway that
   // cannot complete the charge.
@@ -279,6 +307,7 @@ export default function Pricing() {
       user.id,
       (chosenGateway ?? undefined) as PaymentGateway | undefined,
       market.marketCode,
+      detectedMarket,
     );
 
     setLoadingPlan(null);
@@ -474,7 +503,7 @@ export default function Pricing() {
             const shown = displayedPrice(
               plan,
               billingCycle,
-              market.marketCode,
+              priceMarketCode,
               localPrices,
             );
             const isCurrentPlan = isPaid && paidStatus?.plan === plan.id;
@@ -631,7 +660,7 @@ export default function Pricing() {
               className="mx-auto mt-6 max-w-xl text-center text-xs text-muted-foreground"
               data-testid="market-currency-note"
             >
-              {t("Prices shown in")} {marketCurrencyCode(market.marketCode)}.{" "}
+              {t("Prices shown in")} {marketCurrencyCode(priceMarketCode)}.{" "}
               {t("Your card is charged that amount at checkout.")}
             </p>
           )}
