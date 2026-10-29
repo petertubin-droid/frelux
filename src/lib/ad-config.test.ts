@@ -221,7 +221,10 @@ describe("automatic default display unit", () => {
 });
 
 describe("AdSense as the primary network (owner directive 2026-10-29)", () => {
-  const adsense = (settings: Record<string, unknown>, creds = { publisher_id: "pub-123" }) => ({
+  const adsense = (
+    settings: Record<string, unknown>,
+    creds: Record<string, unknown> = { publisher_id: "pub-123" },
+  ) => ({
     id: "ads-1",
     slug: "google_adsense",
     is_active: true,

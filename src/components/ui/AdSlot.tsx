@@ -85,6 +85,37 @@ function isDisplayAdsEnabled(provider: DbAdProvider): boolean {
   return provider.settings?.display_ads_enabled !== false;
 }
 
+
+// ============================================================
+// Page-level ad density ceiling (owner directive 2026-10-29)
+// Long pages (home, learn articles) may show 3 units; every other page 2.
+// Enforced here, at the single component every slot goes through, so a page
+// that composes several sections cannot exceed the ceiling by accident - the
+// failure mode that produced four stacked empty "Advertisement" labels on
+// the painting calculator. First slots in DOM order win; later ones mount
+// nothing at all.
+// ============================================================
+const SHORT_PAGE_AD_CAP = 2;
+const LONG_PAGE_AD_CAP = 3;
+const pageAdCounts = new Map<string, number>();
+
+function adPageKey(): string {
+  if (typeof window === "undefined") return "__prerender__";
+  const path = window.location.pathname.replace(/\/+$/, "");
+  return path === "" ? "/" : path;
+}
+
+function adPageCap(key: string): number {
+  return key === "/" || key.startsWith("/learn/")
+    ? LONG_PAGE_AD_CAP
+    : SHORT_PAGE_AD_CAP;
+}
+
+/** Test helper: forget per-page counts between renders. */
+export function __resetAdPageCounts(): void {
+  pageAdCounts.clear();
+}
+
 export default function AdSlot({
   slotKey,
   className,
@@ -147,9 +178,83 @@ export default function AdSlot({
   // 2026-10-27: the sticky bottom bar appeared with no ad inside). The
   // wrapper collapses to display:none until Google actually serves.
   const [adsenseUnfilled, setAdsenseUnfilled] = useState(false);
+  /**
+   * Real fill, measured on the DOM. An empty slot must never show an
+   * "Advertisement" label or a bordered box (owner report 2026-10-29: stacked
+   * empty labels looked broken). The ad container stays mounted so networks
+   * can still fill it; only the label and chrome wait for evidence of a
+   * creative with actual height.
+   */
+  const [filled, setFilled] = useState(false);
+  // Claim a slot budget for this page. Lazy init runs once per mount; the
+  // cleanup releases it so remounts (navigation, tests) are not penalised.
+  const [admitted] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    const key = adPageKey();
+    const used = pageAdCounts.get(key) ?? 0;
+    if (used >= adPageCap(key)) return false;
+    pageAdCounts.set(key, used + 1);
+    return true;
+  });
+
+  useEffect(() => {
+    if (!admitted) return;
+    const key = adPageKey();
+    return () => {
+      const used = pageAdCounts.get(key) ?? 1;
+      pageAdCounts.set(key, Math.max(0, used - 1));
+    };
+  }, [admitted]);
   useEffect(() => {
     return onConsentChange(() => setConsentTick((t) => t + 1));
   }, []);
+
+  // Watch the mounted slot for a real creative. AdSense marks fill on
+  // data-ad-status; script networks inject an iframe/img into the container.
+  useEffect(() => {
+    setFilled(false);
+    let stop = false;
+    const deadline = Date.now() + 10000;
+    const tick = () => {
+      if (stop) return;
+      const root = wrapperRef.current;
+      if (root) {
+        const ins = root.querySelector("ins.adsbygoogle");
+        const status = ins?.getAttribute("data-ad-status");
+        if (status === "filled") {
+          // AdSense can report "filled" while rendering nothing (blocked or
+          // collapsed ad). An empty label strip above blank space is exactly
+          // what the owner reported, so require real rendered height too.
+          const insBox = ins!.getBoundingClientRect();
+          const real = insBox.height > 40 && insBox.width > 100;
+          setFilled(real);
+        }
+        if (status === "unfilled") {
+          setFilled(false);
+          return;
+        }
+        {
+          // Deliberately excludes <ins.adsbygoogle>: AdSense reserves height on
+          // an unfilled ins, so its box is not evidence of a creative.
+          const media = root.querySelector(
+            "iframe, img, video, canvas",
+          ) as HTMLElement | null;
+          const box = media?.getBoundingClientRect();
+          // A creative must actually occupy space in both directions; a
+          // tracking pixel or a collapsed frame is not an ad.
+          const real = !!box && box.height > 40 && box.width > 100;
+          setFilled(real);
+        }
+      }
+      if (Date.now() > deadline) return;
+      timer = window.setTimeout(tick, 500);
+    };
+    let timer = window.setTimeout(tick, 300);
+    return () => {
+      stop = true;
+      window.clearTimeout(timer);
+    };
+  }, [slotKey, resolved]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1349,6 +1454,9 @@ export default function AdSlot({
   // Wrap with "Advertisement" label per Google AdSense policy
   // (ads must be clearly distinguishable from content)
   // ============================================================
+  // Over budget for this page: render nothing, not even a container.
+  if (!admitted) return null;
+
   if (hideLabel) {
     return (
       <div
@@ -1361,19 +1469,35 @@ export default function AdSlot({
     );
   }
 
+  // Nothing to frame yet: keep the container mounted (so networks can still
+  // fill it) but render no label, no border and no padding.
+  if (!filled || adsenseUnfilled) {
+    return (
+      <div
+        ref={wrapperRef}
+        className={`frelux-ad-unit ${className ?? ""}`}
+        data-ad-slot-key={slotKey}
+        data-ad-filled="false"
+        style={adsenseUnfilled ? { display: "none" } : { margin: "0 auto" }}
+      >
+        <div className="flex justify-center">{adInner}</div>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={wrapperRef}
       className={`frelux-ad-unit ${className ?? ""}`}
       style={{
-        /* Clear visual separation from content */
+        /* Clear visual separation from content, once a real ad is present */
         borderTop: "1px solid rgba(0,0,0,0.04)",
         borderBottom: "1px solid rgba(0,0,0,0.04)",
         padding: "8px 0",
         margin: "0 auto",
-        ...(adsenseUnfilled ? { display: "none" } : null),
       }}
       data-ad-slot-key={slotKey}
+      data-ad-filled="true"
     >
       <div
         className="ad-label-subtle mb-0.5 text-center"

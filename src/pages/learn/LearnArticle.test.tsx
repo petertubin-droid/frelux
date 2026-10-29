@@ -216,7 +216,9 @@ describe("LearnArticle", () => {
     // bottom - and never a cluster at the article footer.
     expect(slotKeys.filter((k) => k === "learn_article_top")).toHaveLength(1);
     expect(slotKeys).toContain("learn_article_mid_2");
-    expect(slotKeys).toContain("article_push_1");
+    // Monetag push is now a global overlay mounted once in Layout, not an
+    // in-content slot, so it must not consume an article slot budget.
+    expect(slotKeys).not.toContain("article_push_1");
     expect(slotKeys).toContain("learn_in_article");
     // No removed/jam-packed footer slots may come back.
     for (const banned of [
@@ -231,9 +233,10 @@ describe("LearnArticle", () => {
     ]) {
       expect(slotKeys).not.toContain(banned);
     }
-    // Hard ceiling: 4 ad slots per article page.
-    expect(slotKeys.length).toBeLessThanOrEqual(4);
-    expect(slotKeys.length).toBe(4);
+    // Hard ceiling: 3 ad slots per article page (owner directive 2026-10-29:
+    // three on long pages, two on short ones).
+    expect(slotKeys.length).toBeLessThanOrEqual(3);
+    expect(slotKeys.length).toBe(3);
     // The header area (right after the article image) has exactly one
     // ad slot, not two.
     expect(slotKeys[0]).toBe("learn_article_top");
@@ -241,7 +244,6 @@ describe("LearnArticle", () => {
     expect(slotKeys).toEqual([
       "learn_article_top",
       "learn_article_mid_2",
-      "article_push_1",
       "learn_in_article",
     ]);
   });

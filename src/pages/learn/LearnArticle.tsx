@@ -610,7 +610,6 @@ export default function LearnArticle() {
                   )}
                   {idx === 3 && contentChunks.length > 3 && (
                     <div className="my-10">
-                      <AdSlot slotKey="article_push_1" />
                     </div>
                   )}
                 </React.Fragment>

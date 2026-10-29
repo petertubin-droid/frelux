@@ -252,7 +252,19 @@ describe("AdSlot", () => {
   });
 
   it("renders null for Monetag without per-placement ad unit ID (global tag handles it)", async () => {
-    const provider = makeMonetagProvider();
+    const provider = {
+    id: "prov-adsense",
+    name: "Google AdSense",
+    slug: "google_adsense",
+    provider_type: "display",
+    is_active: true,
+    priority: 1,
+    credentials: { publisher_id: "ca-pub-1234567890123456" },
+    settings: {},
+    is_system: true,
+    created_at: "",
+    updated_at: "",
+  } as never;
     const adConfig = await import("@/lib/ad-config");
     vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
       providers: [provider],
@@ -1406,4 +1418,37 @@ describe("AdSlot, Adsterra rendering", () => {
       ).toBeNull();
     });
   });
+});
+
+describe("empty slots stay silent (owner report 2026-10-29)", () => {
+  const provider = makeMonetagProvider();
+  const placement = {
+    id: "pl-1",
+    placement_key: "test-slot",
+    placement_type: "banner",
+    is_active: true,
+    provider_ids: ["prov-adsense"],
+    ad_unit_ids: {},
+    display_rules: { mobile: true, desktop: true },
+  } as never;
+
+  async function mountWithAds() {
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [placement],
+    } as never);
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+    return renderAdSlot();
+  }
+
+  it("prints no Advertisement label while the slot is empty", async () => {
+    const { container } = await mountWithAds();
+    await waitFor(() =>
+      expect(container.querySelector(".frelux-ad-unit")).toBeTruthy(),
+    );
+    expect(container.textContent).not.toContain("Advertisement");
+    expect(container.querySelector('[data-ad-filled="true"]')).toBeNull();
+  });
+
 });

@@ -212,12 +212,6 @@ export default function Home() {
         <ToolsSection />
       </Suspense>
 
-      {/* Native banner slot, placement "home_native_2" */}
-      <AdSlot
-        slotKey="home_native_2"
-        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
-      />
-
       {/* Who it connects: hire a verified professional */}
       <ProConnectHomeSection />
 
