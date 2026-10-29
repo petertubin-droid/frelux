@@ -36,7 +36,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
 import { shareableFromQuote } from "@/lib/estimate-share-adapter";
-import { ShareEstimateButton } from "@/components/ShareEstimateButton";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import {
   ELECTRICAL_MATERIAL_SLUGS,
   calculateElectrical,
@@ -344,15 +344,6 @@ export default function ElectricalEstimator() {
     printQuote(quote, "frelux-electrical-estimate.html");
   };
 
-  const shareable = useMemo(
-    () =>
-      shareableFromQuote(buildQuote(), {
-        kind: "FRELUX Electrical Estimate",
-        link: "/electrical",
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [result, labourMode, currencySymbol],
-  );
 
   const save = useCallback(async () => {
     if (!result || !result.ok || saving) return;
@@ -651,7 +642,7 @@ export default function ElectricalEstimator() {
               >
                 Export quote (PDF)
               </button>
-              <ShareEstimateButton estimate={shareable} compact />
+              <QuoteShareButton build={buildQuote} kind="FRELUX Electrical Estimate" link="/electrical" />
               <SaveToProjectButton
                 calculatorType="electrical"
                 calculatorSlug="electrical-estimator"

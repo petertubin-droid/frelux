@@ -35,7 +35,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
 import { shareableFromQuote } from "@/lib/estimate-share-adapter";
-import { ShareEstimateButton } from "@/components/ShareEstimateButton";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import {
   calculateGenerator,
   parseGeneratorRules,
@@ -226,15 +226,6 @@ export default function GeneratorEstimator() {
     printQuote(quote, "frelux-generator-estimate.html");
   };
 
-  const shareable = useMemo(
-    () =>
-      shareableFromQuote(buildQuote(), {
-        kind: "FRELUX Backup Power Estimate",
-        link: "/generator",
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [result, currencySymbol],
-  );
 
   const save = useCallback(async () => {
     if (!result || !result.ok || saving) return;
@@ -446,7 +437,7 @@ export default function GeneratorEstimator() {
               >
                 Export quote (PDF)
               </button>
-              <ShareEstimateButton estimate={shareable} compact />
+              <QuoteShareButton build={buildQuote} kind="FRELUX Backup Power Estimate" link="/generator" />
               <SaveToProjectButton
                 calculatorType="generator"
                 calculatorSlug="generator-estimator"

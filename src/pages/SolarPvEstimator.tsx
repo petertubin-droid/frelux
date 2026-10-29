@@ -16,6 +16,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { formatCurrency } from "@/lib/utils";
 import { printQuote } from "@/lib/estimation/quote-export";
+import { shareableFromQuote } from "@/lib/estimate-share-adapter";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import type { QuoteLine } from "@/lib/estimation/quote-export";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { EstimateDisclaimer } from "@/components/calculators";
@@ -181,8 +183,8 @@ export default function SolarPvEstimator() {
 
   // Printable professional quote via the shared quote-export library
   // (popup-blocked fallback downloads the quote as a printable HTML file).
-  const handleExportQuote = () => {
-    if (!result?.ok) return;
+  const buildQuote = (): Parameters<typeof printQuote>[0] | null => {
+    if (!result?.ok) return null;
     const model = models.find((m) => m.id === modelId);
     const fmtQty = (q: number) => q.toLocaleString("en-NG");
     const lines: QuoteLine[] = result.materials.map((m) => ({
@@ -211,8 +213,7 @@ export default function SolarPvEstimator() {
         "Some components are unpriced; the total covers priced lines only.",
       );
     }
-    printQuote(
-      {
+    return {
         title: "FRELUX Solar/PV Installation Estimate",
         subtitle: `Generated ${new Date().toLocaleDateString()} · Panel model: ${model?.model_name ?? ""} (${model?.watt_peak ?? ""} Wp)`,
         metaRows: [
@@ -242,10 +243,15 @@ export default function SolarPvEstimator() {
         warnings,
         footer:
           "Estimates are indicative and not a formal quote. Prices come from FRELUX verified component prices; unpriced components are reported, never invented.",
-      },
-      "frelux-solar-pv-estimate.html",
-    );
+    };
   };
+
+  const handleExportQuote = () => {
+    const quote = buildQuote();
+    if (!quote) return;
+    printQuote(quote, "frelux-solar-pv-estimate.html");
+  };
+
 
   const load = useCallback(async () => {
     const m = await fetchSolarPanelModels(true);
@@ -604,6 +610,7 @@ export default function SolarPvEstimator() {
               >
                 Export quote (PDF)
               </button>
+              <QuoteShareButton build={buildQuote} kind="FRELUX Solar/PV Installation Estimate" link="/solar-pv-estimator" />
               <SaveToProjectButton
                 calculatorType="cost"
                 calculatorSlug="solar-pv-estimator"

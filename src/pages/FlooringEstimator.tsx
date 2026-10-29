@@ -46,6 +46,7 @@ import type {
   EstimationCalcRule,
   EstimationMaterial,
 } from "@/types/estimation";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 
 type FloorType = "laminate" | "vinyl" | "parquet";
 
@@ -161,65 +162,70 @@ export default function FlooringEstimator() {
   }, [input, rules, priceMap]);
 
   // Printable professional quote, worldwide-currency formatted.
-  const exportQuote = () => {
-    if (!result?.ok) return;
-    printQuote(
+  const buildQuote = (): Parameters<typeof printQuote>[0] | null => {
+    if (!result?.ok) return null;
+    return {
+    title: "FRELUX Flooring Estimate",
+    subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
+    metaRows: result.steps.map(
+      (st) => [st.label, st.detail] as [string, string],
+    ),
+    lines: result.lines.map((l) => ({
+      label: l.label,
+      quantity:
+        l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
+      unit: l.unit,
+      unit_price:
+        l.unit_price === null
+          ? "unpriced"
+          : formatCurrency(l.unit_price, currencySymbol),
+      line_total:
+        l.line_total === null
+          ? "N/A"
+          : formatCurrency(l.line_total, currencySymbol),
+      detail: l.detail,
+    })),
+    totals: [
       {
-        title: "FRELUX Flooring Estimate",
-        subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
-        metaRows: result.steps.map(
-          (st) => [st.label, st.detail] as [string, string],
-        ),
-        lines: result.lines.map((l) => ({
-          label: l.label,
-          quantity:
-            l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
-          unit: l.unit,
-          unit_price:
-            l.unit_price === null
-              ? "unpriced"
-              : formatCurrency(l.unit_price, currencySymbol),
-          line_total:
-            l.line_total === null
-              ? "N/A"
-              : formatCurrency(l.line_total, currencySymbol),
-          detail: l.detail,
-        })),
-        totals: [
-          {
-            label: "Material subtotal",
-            value:
-              result.material_subtotal === null
-                ? "(prices/inputs missing)"
-                : formatCurrency(result.material_subtotal, currencySymbol),
-          },
-          {
-            label: "Priced so far",
-            value: formatCurrency(result.priced_subtotal, currencySymbol),
-          },
-          {
-            label: "Labour",
-            value:
-              labourMode === "none"
-                ? "Not included"
-                : formatCurrency(result.labour_total, currencySymbol),
-          },
-          {
-            label: "Grand total",
-            value:
-              result.grand_total === null
-                ? "N/A"
-                : formatCurrency(result.grand_total, currencySymbol),
-            strong: true,
-          },
-        ],
-        warnings: result.warnings,
-        footer:
-          "Estimates are indicative and not a formal quote. Quantities are sized from your room dimensions, tiles and screed rules; unpriced items are reported, never invented.",
+        label: "Material subtotal",
+        value:
+          result.material_subtotal === null
+            ? "(prices/inputs missing)"
+            : formatCurrency(result.material_subtotal, currencySymbol),
       },
-      "frelux-flooring-estimate.html",
-    );
+      {
+        label: "Priced so far",
+        value: formatCurrency(result.priced_subtotal, currencySymbol),
+      },
+      {
+        label: "Labour",
+        value:
+          labourMode === "none"
+            ? "Not included"
+            : formatCurrency(result.labour_total, currencySymbol),
+      },
+      {
+        label: "Grand total",
+        value:
+          result.grand_total === null
+            ? "N/A"
+            : formatCurrency(result.grand_total, currencySymbol),
+        strong: true,
+      },
+    ],
+    warnings: result.warnings,
+    footer:
+      "Estimates are indicative and not a formal quote. Quantities are sized from your room dimensions, tiles and screed rules; unpriced items are reported, never invented.",
   };
+  };
+
+  const exportQuote = () => {
+    const quote = buildQuote();
+    if (!quote) return;
+    printQuote(quote, "frelux-flooring-estimate.html");
+  };
+
+
 
   const exportToDocumentStudio = () => {
     if (!result?.ok) return;
@@ -464,6 +470,7 @@ export default function FlooringEstimator() {
               >
                 Export quote (PDF)
               </button>
+              <QuoteShareButton build={buildQuote} kind="FRELUX Flooring Estimate" link="/flooring" />
               <button
                 onClick={exportToDocumentStudio}
                 className="rounded-md border px-4 py-2 text-sm font-medium"

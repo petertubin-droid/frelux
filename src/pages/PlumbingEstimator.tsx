@@ -39,7 +39,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
 import { shareableFromQuote } from "@/lib/estimate-share-adapter";
-import { ShareEstimateButton } from "@/components/ShareEstimateButton";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import {
   calculatePlumbing,
   parsePlumbingRules,
@@ -323,15 +323,6 @@ export default function PlumbingEstimator() {
     printQuote(quote, "frelux-plumbing-estimate.html");
   };
 
-  const shareable = useMemo(
-    () =>
-      shareableFromQuote(buildQuote(), {
-        kind: "FRELUX Plumbing Estimate",
-        link: "/plumbing",
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [result, currencySymbol],
-  );
 
   const save = useCallback(async () => {
     if (!result || !result.ok || saving) return;
@@ -631,7 +622,7 @@ export default function PlumbingEstimator() {
               >
                 Export quote (PDF)
               </button>
-              <ShareEstimateButton estimate={shareable} compact />
+              <QuoteShareButton build={buildQuote} kind="FRELUX Plumbing Estimate" link="/plumbing" />
               <SaveToProjectButton
                 calculatorType="plumbing"
                 calculatorSlug="plumbing-estimator"
