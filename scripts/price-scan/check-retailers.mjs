@@ -15,7 +15,11 @@ import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../..");
-const registry = JSON.parse(fs.readFileSync(path.join(ROOT, "data/price-scan/retailers.json"), "utf8"));
+const registry = JSON.parse(
+  fs.readFileSync(path.join(ROOT, "data/price-scan/retailers.json"), "utf8"),
+  // Rows with no pattern are recorded gaps (a market with no reachable retailer),
+  // not retailers to fetch.
+).filter((r) => typeof r.url_pattern === "string" && r.url_pattern.length > 0);
 
 const argValue = (flag, fallback) => {
   const i = process.argv.indexOf(flag);

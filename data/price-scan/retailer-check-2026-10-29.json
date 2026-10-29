@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-29T09:35:03.392Z",
+  "checked_at": "2026-10-29T09:37:53.935Z",
   "query": "cement 50kg",
   "results": [
     {
@@ -11,13 +11,13 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.amazon.ae/s?k=cement+50kg",
       "status": 200,
-      "bytes": 1040189,
+      "bytes": 1054800,
       "price_tokens": 111,
       "signal": "symbol_before",
       "signals": {
         "jsonld": 0,
         "symbol_before": 111,
-        "symbol_after": 3
+        "symbol_after": 1
       },
       "attempts": 2,
       "outcome": "parsed",
@@ -26,7 +26,7 @@
         "AED 31.99",
         "AED 0.03"
       ],
-      "ms": 903
+      "ms": 948
     },
     {
       "market": "AU",
@@ -48,7 +48,7 @@
       "attempts": 3,
       "outcome": "http_403",
       "sample": [],
-      "ms": 26
+      "ms": 22
     },
     {
       "market": "AU",
@@ -74,7 +74,7 @@
         "$0.00",
         "$0.00"
       ],
-      "ms": 1985
+      "ms": 2093
     },
     {
       "market": "BR",
@@ -85,7 +85,7 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.amazon.com.br/s?k=cement+50kg",
       "status": 200,
-      "bytes": 480875,
+      "bytes": 480643,
       "price_tokens": 152,
       "signal": "symbol_before",
       "signals": {
@@ -100,7 +100,7 @@
         "$ 10,00",
         "$ 367,64"
       ],
-      "ms": 838
+      "ms": 661
     },
     {
       "market": "CA",
@@ -111,22 +111,22 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.amazon.ca/s?k=cement+50kg",
       "status": 200,
-      "bytes": 684616,
-      "price_tokens": 62,
+      "bytes": 877185,
+      "price_tokens": 152,
       "signal": "symbol_before",
       "signals": {
         "jsonld": 0,
-        "symbol_before": 62,
-        "symbol_after": 1
+        "symbol_before": 152,
+        "symbol_after": 8
       },
       "attempts": 1,
       "outcome": "parsed",
       "sample": [
-        "$67.87",
-        "$83.56",
-        "$0.52"
+        "$106.16",
+        "$44.90",
+        "$17.45"
       ],
-      "ms": 823
+      "ms": 806
     },
     {
       "market": "CA",
@@ -167,22 +167,7 @@
         "\"price\":\"6.50\"",
         "\"price\":\"9.95\""
       ],
-      "ms": 389
-    },
-    {
-      "market": "CI",
-      "currency": "",
-      "retailer": "",
-      "url_pattern": "",
-      "health": "no_source",
-      "health_checked_at": "2026-10-29",
-      "url": "",
-      "status": null,
-      "bytes": 0,
-      "price_tokens": 0,
-      "outcome": "fetch_error",
-      "error": "TypeError: Failed to parse URL from ",
-      "ms": 0
+      "ms": 330
     },
     {
       "market": "CN",
@@ -193,7 +178,7 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.dhgate.com/wholesale/search.do?act=search&searchkey=cement+50kg",
       "status": 200,
-      "bytes": 649029,
+      "bytes": 651178,
       "price_tokens": 332,
       "signal": "symbol_before",
       "signals": {
@@ -208,7 +193,7 @@
         "$45.29",
         "$28.74"
       ],
-      "ms": 721
+      "ms": 915
     },
     {
       "market": "CN",
@@ -230,7 +215,7 @@
       "attempts": 3,
       "outcome": "no_price_found",
       "sample": [],
-      "ms": 811
+      "ms": 813
     },
     {
       "market": "DE",
@@ -252,7 +237,7 @@
       "attempts": 3,
       "outcome": "http_503",
       "sample": [],
-      "ms": 104
+      "ms": 106
     },
     {
       "market": "DE",
@@ -263,7 +248,7 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.obi.de/search/cement+50kg/",
       "status": 200,
-      "bytes": 281459,
+      "bytes": 281066,
       "price_tokens": 16,
       "signal": "symbol_after",
       "signals": {
@@ -278,22 +263,7 @@
         "309,90 €",
         "309,90 €"
       ],
-      "ms": 274
-    },
-    {
-      "market": "EG",
-      "currency": "",
-      "retailer": "",
-      "url_pattern": "",
-      "health": "no_source",
-      "health_checked_at": "2026-10-29",
-      "url": "",
-      "status": null,
-      "bytes": 0,
-      "price_tokens": 0,
-      "outcome": "fetch_error",
-      "error": "TypeError: Failed to parse URL from ",
-      "ms": 0
+      "ms": 240
     },
     {
       "market": "EG",
@@ -325,34 +295,23 @@
       "health": "flaky_ok",
       "health_checked_at": "2026-10-29",
       "url": "https://www.amazon.es/s?k=cement+50kg",
-      "status": 503,
-      "bytes": 1990,
-      "price_tokens": 0,
-      "signal": "jsonld",
+      "status": 200,
+      "bytes": 996011,
+      "price_tokens": 142,
+      "signal": "symbol_before",
       "signals": {
         "jsonld": 0,
-        "symbol_before": 0,
-        "symbol_after": 0
+        "symbol_before": 142,
+        "symbol_after": 6
       },
-      "attempts": 3,
-      "outcome": "http_503",
-      "sample": [],
-      "ms": 111
-    },
-    {
-      "market": "ET",
-      "currency": "",
-      "retailer": "",
-      "url_pattern": "",
-      "health": "no_source",
-      "health_checked_at": "2026-10-29",
-      "url": "",
-      "status": null,
-      "bytes": 0,
-      "price_tokens": 0,
-      "outcome": "fetch_error",
-      "error": "TypeError: Failed to parse URL from ",
-      "ms": 0
+      "attempts": 1,
+      "outcome": "parsed",
+      "sample": [
+        "$10",
+        "€10.48",
+        "€33.81"
+      ],
+      "ms": 1160
     },
     {
       "market": "FR",
@@ -374,7 +333,7 @@
       "attempts": 3,
       "outcome": "http_503",
       "sample": [],
-      "ms": 113
+      "ms": 255
     },
     {
       "market": "FR",
@@ -396,7 +355,7 @@
       "attempts": 3,
       "outcome": "http_403",
       "sample": [],
-      "ms": 9
+      "ms": 10
     },
     {
       "market": "GB",
@@ -422,7 +381,7 @@
         "£3",
         "£4"
       ],
-      "ms": 7854
+      "ms": 2101
     },
     {
       "market": "GB",
@@ -446,7 +405,7 @@
       "sample": [
         "£100"
       ],
-      "ms": 742
+      "ms": 576
     },
     {
       "market": "GB",
@@ -472,7 +431,7 @@
         "$10",
         "£15"
       ],
-      "ms": 812
+      "ms": 1028
     },
     {
       "market": "GH",
@@ -498,7 +457,7 @@
         "$1",
         "$2"
       ],
-      "ms": 530
+      "ms": 862
     },
     {
       "market": "ID",
@@ -509,7 +468,7 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.lazada.co.id/catalog/?ajax=true&q=cement+50kg",
       "status": 200,
-      "bytes": 159290,
+      "bytes": 166417,
       "price_tokens": 40,
       "signal": "jsonld",
       "signals": {
@@ -520,11 +479,11 @@
       "attempts": 1,
       "outcome": "parsed",
       "sample": [
-        "\"price\":\"80000\"",
+        "\"price\":\"700000\"",
         "\"price\":\"750000\"",
-        "\"price\":\"91000\""
+        "\"price\":\"80000\""
       ],
-      "ms": 715
+      "ms": 928
     },
     {
       "market": "ID",
@@ -561,7 +520,7 @@
       "attempts": 3,
       "outcome": "http_503",
       "sample": [],
-      "ms": 114
+      "ms": 108
     },
     {
       "market": "IN",
@@ -572,13 +531,13 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.flipkart.com/search?q=cement+50kg",
       "status": 200,
-      "bytes": 615768,
+      "bytes": 615767,
       "price_tokens": 40,
       "signal": "symbol_before",
       "signals": {
         "jsonld": 0,
         "symbol_before": 40,
-        "symbol_after": 2
+        "symbol_after": 1
       },
       "attempts": 1,
       "outcome": "parsed",
@@ -587,7 +546,7 @@
         "$5",
         "$9"
       ],
-      "ms": 1024
+      "ms": 599
     },
     {
       "market": "IN",
@@ -613,7 +572,7 @@
         "$1",
         "$1"
       ],
-      "ms": 2083
+      "ms": 2140
     },
     {
       "market": "IT",
@@ -624,22 +583,18 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.amazon.it/s?k=cement+50kg",
       "status": 200,
-      "bytes": 1023753,
-      "price_tokens": 158,
-      "signal": "symbol_before",
+      "bytes": 3972,
+      "price_tokens": 0,
+      "signal": "jsonld",
       "signals": {
         "jsonld": 0,
-        "symbol_before": 158,
-        "symbol_after": 4
+        "symbol_before": 0,
+        "symbol_after": 0
       },
       "attempts": 2,
-      "outcome": "parsed",
-      "sample": [
-        "$10",
-        "€6.34",
-        "€10.93"
-      ],
-      "ms": 1102
+      "outcome": "blocked",
+      "sample": [],
+      "ms": 110
     },
     {
       "market": "JP",
@@ -661,7 +616,7 @@
       "attempts": 3,
       "outcome": "http_503",
       "sample": [],
-      "ms": 71
+      "ms": 72
     },
     {
       "market": "JP",
@@ -672,7 +627,7 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.monotaro.com/s/?q=cement+50kg",
       "status": 403,
-      "bytes": 85175,
+      "bytes": 85176,
       "price_tokens": 0,
       "signal": "jsonld",
       "signals": {
@@ -683,7 +638,7 @@
       "attempts": 3,
       "outcome": "http_403",
       "sample": [],
-      "ms": 1279
+      "ms": 1382
     },
     {
       "market": "KE",
@@ -694,7 +649,7 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.jumia.co.ke/catalog/?q=cement+50kg",
       "status": 200,
-      "bytes": 126427,
+      "bytes": 126428,
       "price_tokens": 8,
       "signal": "symbol_before",
       "signals": {
@@ -702,14 +657,14 @@
         "symbol_before": 8,
         "symbol_after": 0
       },
-      "attempts": 1,
+      "attempts": 3,
       "outcome": "parsed",
       "sample": [
         "$8",
         "$1",
         "$2"
       ],
-      "ms": 543
+      "ms": 442
     },
     {
       "market": "KR",
@@ -720,7 +675,7 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.coupang.com/np/search?q=cement+50kg",
       "status": 403,
-      "bytes": 385,
+      "bytes": 383,
       "price_tokens": 0,
       "signal": "jsonld",
       "signals": {
@@ -731,7 +686,7 @@
       "attempts": 3,
       "outcome": "http_403",
       "sample": [],
-      "ms": 49
+      "ms": 50
     },
     {
       "market": "KR",
@@ -757,7 +712,7 @@
         "$1",
         "$13"
       ],
-      "ms": 2604
+      "ms": 1994
     },
     {
       "market": "MX",
@@ -768,13 +723,13 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.amazon.com.mx/s?k=cement+50kg",
       "status": 200,
-      "bytes": 1295695,
-      "price_tokens": 435,
+      "bytes": 1295908,
+      "price_tokens": 433,
       "signal": "symbol_before",
       "signals": {
         "jsonld": 0,
-        "symbol_before": 435,
-        "symbol_after": 8
+        "symbol_before": 433,
+        "symbol_after": 1
       },
       "attempts": 1,
       "outcome": "parsed",
@@ -783,7 +738,7 @@
         "$135.00",
         "$135.00"
       ],
-      "ms": 830
+      "ms": 788
     },
     {
       "market": "MX",
@@ -809,7 +764,7 @@
         "$6",
         "$7"
       ],
-      "ms": 858
+      "ms": 956
     },
     {
       "market": "NG",
@@ -820,7 +775,7 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.jumia.com.ng/catalog/?q=cement+50kg",
       "status": 200,
-      "bytes": 120951,
+      "bytes": 120950,
       "price_tokens": 8,
       "signal": "symbol_before",
       "signals": {
@@ -835,7 +790,7 @@
         "$1",
         "$2"
       ],
-      "ms": 495
+      "ms": 717
     },
     {
       "market": "NG",
@@ -861,7 +816,7 @@
         "$2",
         "$9"
       ],
-      "ms": 1341
+      "ms": 1357
     },
     {
       "market": "NL",
@@ -883,22 +838,7 @@
       "attempts": 3,
       "outcome": "http_503",
       "sample": [],
-      "ms": 140
-    },
-    {
-      "market": "NZ",
-      "currency": "",
-      "retailer": "",
-      "url_pattern": "",
-      "health": "no_source",
-      "health_checked_at": "2026-10-29",
-      "url": "",
-      "status": null,
-      "bytes": 0,
-      "price_tokens": 0,
-      "outcome": "fetch_error",
-      "error": "TypeError: Failed to parse URL from ",
-      "ms": 0
+      "ms": 85
     },
     {
       "market": "PL",
@@ -924,7 +864,7 @@
         "0,64 zł",
         "53,88 zł"
       ],
-      "ms": 298
+      "ms": 487
     },
     {
       "market": "SA",
@@ -935,12 +875,12 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.amazon.sa/s?k=cement+50kg",
       "status": 200,
-      "bytes": 1048227,
-      "price_tokens": 95,
+      "bytes": 1034310,
+      "price_tokens": 98,
       "signal": "symbol_before",
       "signals": {
         "jsonld": 0,
-        "symbol_before": 95,
+        "symbol_before": 98,
         "symbol_after": 1
       },
       "attempts": 3,
@@ -950,7 +890,7 @@
         "SAR 40.50",
         "SAR 0.01"
       ],
-      "ms": 1108
+      "ms": 925
     },
     {
       "market": "SE",
@@ -972,7 +912,7 @@
       "attempts": 3,
       "outcome": "http_503",
       "sample": [],
-      "ms": 80
+      "ms": 231
     },
     {
       "market": "SG",
@@ -983,12 +923,12 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.lazada.sg/catalog/?ajax=true&q=cement+50kg",
       "status": 200,
-      "bytes": 174336,
-      "price_tokens": 52,
+      "bytes": 182738,
+      "price_tokens": 59,
       "signal": "symbol_before",
       "signals": {
         "jsonld": 40,
-        "symbol_before": 52,
+        "symbol_before": 59,
         "symbol_after": 0
       },
       "attempts": 1,
@@ -998,37 +938,7 @@
         "$8.00",
         "$8.00"
       ],
-      "ms": 703
-    },
-    {
-      "market": "TR",
-      "currency": "",
-      "retailer": "",
-      "url_pattern": "",
-      "health": "no_source",
-      "health_checked_at": "2026-10-29",
-      "url": "",
-      "status": null,
-      "bytes": 0,
-      "price_tokens": 0,
-      "outcome": "fetch_error",
-      "error": "TypeError: Failed to parse URL from ",
-      "ms": 0
-    },
-    {
-      "market": "TZ",
-      "currency": "",
-      "retailer": "",
-      "url_pattern": "",
-      "health": "no_source",
-      "health_checked_at": "2026-10-29",
-      "url": "",
-      "status": null,
-      "bytes": 0,
-      "price_tokens": 0,
-      "outcome": "fetch_error",
-      "error": "TypeError: Failed to parse URL from ",
-      "ms": 1
+      "ms": 485
     },
     {
       "market": "US",
@@ -1039,12 +949,12 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.amazon.com/s?k=cement+50kg",
       "status": 200,
-      "bytes": 788992,
-      "price_tokens": 113,
+      "bytes": 763826,
+      "price_tokens": 111,
       "signal": "symbol_before",
       "signals": {
         "jsonld": 0,
-        "symbol_before": 113,
+        "symbol_before": 111,
         "symbol_after": 1
       },
       "attempts": 1,
@@ -1054,7 +964,7 @@
         "AED9",
         "AED9"
       ],
-      "ms": 1034
+      "ms": 1063
     },
     {
       "market": "US",
@@ -1076,7 +986,7 @@
       "attempts": 3,
       "outcome": "http_403",
       "sample": [],
-      "ms": 62
+      "ms": 63
     },
     {
       "market": "ZA",
@@ -1087,20 +997,21 @@
       "health_checked_at": "2026-10-29",
       "url": "https://www.amazon.co.za/s?k=cement+50kg",
       "status": 200,
-      "bytes": 455956,
-      "price_tokens": 1,
-      "signal": "symbol_before",
+      "bytes": 464476,
+      "price_tokens": 2,
+      "signal": "symbol_after",
       "signals": {
         "jsonld": 0,
         "symbol_before": 1,
-        "symbol_after": 1
+        "symbol_after": 2
       },
       "attempts": 1,
       "outcome": "parsed",
       "sample": [
-        "ZAR5"
+        "19kr",
+        "4kr"
       ],
-      "ms": 1100
+      "ms": 772
     },
     {
       "market": "ZA",
@@ -1122,7 +1033,7 @@
       "attempts": 3,
       "outcome": "http_403",
       "sample": [],
-      "ms": 29
+      "ms": 24
     }
   ]
 }
