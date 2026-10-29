@@ -58,6 +58,8 @@ import {
   type LocalProject,
 } from "@/lib/local-projects";
 import type { WallFinProjectResult } from "@/types/wallfinishing";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import type { QuotePayloadLike } from "@/lib/estimate-share-adapter";
 
 /* ── helpers ─────────────────────────────────────────────── */
 
@@ -354,6 +356,27 @@ export default function WallFinishEstimator() {
       setBusy(false);
     }
   }, [buildSpec, country, resolved, overrides]);
+  const buildShareQuote = (): QuotePayloadLike | null => {
+    if (!result) return null;
+    const rows = buildWallFinSummaryRows(buildSpec(), result);
+    const layers = buildWallFinLayerRows(result)
+      .slice(0, 24)
+      .map((r) => ({
+        label: `${r.room} / ${r.wall} / ${r.layer}`,
+        quantity: `${r.quantity} ${r.unit}`.trim(),
+        unit: r.material,
+        line_total: r.materialCost,
+      }));
+    return {
+      metaRows: rows.map((r) => [r.label, r.value] as [string, string]),
+      lines: layers,
+      totals: [
+        { label: "Total", value: result.cost.total.toLocaleString(undefined, { style: "currency", currency: result.currency }), strong: true },
+      ],
+      warnings: result.warnings,
+    };
+  };
+
   const saveEstimate = useCallback(() => {
     if (!result) return;
     const spec = buildSpec();
@@ -1045,6 +1068,11 @@ export default function WallFinishEstimator() {
                 >
                   Export PDF
                 </button>
+                <QuoteShareButton
+                  build={buildShareQuote}
+                  kind="FRELUX Wall Finishing Estimate"
+                  link="/wall-finish-estimator"
+                />
                 <button
                   type="button"
                   onClick={() => exportWallFinExcel(buildSpec(), result)}
