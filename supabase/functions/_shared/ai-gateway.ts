@@ -10,9 +10,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 export interface GatewayAuthResult {
   userId: string | null;
   clientHash: string;
-  accessTier: "admin" | "subscriber" | "registered_credits" | "guest_allowance";
+  accessTier:
+    | "admin"
+    | "subscriber"
+    | "registered_credits"
+    | "reward_grant"
+    | "guest_allowance";
   plan?: string;
   reservationId?: string;
+  /** Redeemed AI token being spent for this operation (reward_grant tier). */
+  rewardRedemptionId?: string;
   creditCost?: number;
   creditsRemaining?: number;
 }
@@ -267,6 +274,42 @@ export class AiGateway {
       .maybeSingle();
 
     const balance = wallet?.balance ?? 0;
+
+    // Redeemed "AI Estimate Token" is spent here, before any wallet charge.
+    // Fixes the reported bug where redeeming deducted credits and granted
+    // nothing: redeem_reward only ever recorded an unconsumed redemption and
+    // no AI path checked it. Atomic (FOR UPDATE SKIP LOCKED) and free.
+    const { data: grantData } = await this.supabase.rpc("consume_reward_grant", {
+      p_user_id: userId,
+      p_reward_type: "ai_token",
+    });
+    const grantRow = Array.isArray(grantData) ? grantData[0] : grantData;
+    if (grantRow?.success) {
+      const { data: grantLog } = await this.supabase
+        .from("ai_gateway_operations_log")
+        .insert({
+          user_id: userId,
+          client_hash: clientHash,
+          feature_key: options.featureKey,
+          model_name: options.modelName,
+          access_tier: "reward_grant",
+          status: "reserved",
+          prompt_chars: options.promptChars ?? 0,
+        })
+        .select("id")
+        .single();
+
+      return {
+        userId,
+        clientHash,
+        accessTier: "reward_grant",
+        reservationId: grantLog?.id,
+        rewardRedemptionId: grantRow.redemption_id,
+        creditCost: 0,
+        creditsRemaining: balance,
+      };
+    }
+
     if (balance < featureCost) {
       const needed = featureCost - balance;
       throw new Error(
@@ -400,7 +443,26 @@ export class AiGateway {
       }
     }
 
-    // 3. Handle Registered Credits Refund on System/API failure
+    // 3. Release a redeemed AI token if the operation failed, so the user
+    // keeps the token instead of losing it to a provider error.
+    if (
+      !isSuccess &&
+      auth.accessTier === "reward_grant" &&
+      auth.rewardRedemptionId
+    ) {
+      await this.supabase
+        .from("reward_redemptions")
+        .update({
+          consumed_at: null,
+          consumed_context: {
+            released_after: "ai_gateway_failure",
+            error: options.errorMessage ?? null,
+          },
+        })
+        .eq("id", auth.rewardRedemptionId);
+    }
+
+    // 4. Handle Registered Credits Refund on System/API failure
     if (
       !isSuccess &&
       auth.accessTier === "registered_credits" &&
