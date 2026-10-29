@@ -26,6 +26,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   PAYSTACK_CURRENCIES,
   resolveMarketCharge,
+  loadPlanPriceRows,
+  resolveLegacyCharge,
   resolveSubscriptionPrice,
   toMajorUnits,
   usdCentsToNairaKobo,
@@ -353,14 +355,15 @@ serveWithCors(async (req: Request) => {
       // from fx_rates and recorded as a quote. Verification compares the
       // charge to that quote, so a rate move cannot fail a paying customer.
       const cycle = billing_cycle ?? "monthly";
-      const { data: priceRows, error: priceError } = await admin
-        .from("subscription_plan_prices")
-        .select(
-          "plan, billing_cycle, price_minor, price_kobo, currency, active",
-        )
-        .eq("plan", plan)
-        .eq("billing_cycle", cycle);
-      if (priceError) {
+      const priceRows = await loadPlanPriceRows(async (columns) => {
+        const { data, error } = await admin
+          .from("subscription_plan_prices")
+          .select(columns)
+          .eq("plan", plan)
+          .eq("billing_cycle", cycle);
+        return { data, error };
+      });
+      if (!priceRows) {
         return new Response(
           JSON.stringify({ error: "Plan pricing unavailable" }),
           {
@@ -369,7 +372,9 @@ serveWithCors(async (req: Request) => {
           },
         );
       }
-      const usd = resolveSubscriptionPrice(priceRows ?? [], plan, cycle, "USD");
+      const usd =
+        resolveSubscriptionPrice(priceRows, plan, cycle, "USD") ??
+        resolveLegacyCharge(priceRows, plan, cycle);
       if (!usd) {
         return new Response(
           JSON.stringify({
@@ -387,7 +392,7 @@ serveWithCors(async (req: Request) => {
       // page showed. Paystack settles NGN/GHS/ZAR/KES/USD directly.
       const market = String(market_code ?? "").toUpperCase();
       let localPrice: { currency: string; price_minor: number } | null = null;
-      if (market) {
+      if (market && usd.currency === "USD") {
         const { data: localRows } = await admin
           .from("subscription_local_prices")
           .select("currency, price_minor")

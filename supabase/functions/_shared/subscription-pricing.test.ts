@@ -7,6 +7,8 @@ import {
   toMajorUnits,
   usdCentsToNairaKobo,
   validateQuotedCharge,
+  loadPlanPriceRows,
+  resolveLegacyCharge,
   validateSubscriptionCharge,
   type SubscriptionPlanPriceRow,
 } from "../_shared/subscription-pricing.ts";
@@ -159,5 +161,56 @@ describe("USD pricing with per-market settlement", () => {
         chargedCurrency: "USD",
       }),
     ).toEqual({ ok: false, reason: "QUOTE_MISSING" });
+  });
+});
+
+describe("rollout tolerance", () => {
+  it("retries a failed price read with the legacy column set", async () => {
+    const calls: string[] = [];
+    const rows = await loadPlanPriceRows(async (columns) => {
+      calls.push(columns);
+      if (columns.includes("currency")) {
+        return { data: null, error: { message: "column does not exist" } };
+      }
+      return {
+        data: [
+          {
+            plan: "pro",
+            billing_cycle: "monthly",
+            price_kobo: 500000,
+            active: true,
+          },
+        ],
+        error: null,
+      };
+    });
+    expect(calls).toHaveLength(2);
+    expect(rows?.[0].price_kobo).toBe(500000);
+  });
+
+  it("reports null when both reads fail", async () => {
+    const rows = await loadPlanPriceRows(async () => ({
+      data: null,
+      error: { message: "down" },
+    }));
+    expect(rows).toBeNull();
+  });
+
+  it("falls back to the legacy naira price before USD rows exist", () => {
+    const legacyRows: SubscriptionPlanPriceRow[] = [
+      {
+        plan: "pro",
+        billing_cycle: "monthly",
+        price_kobo: 500000,
+        active: true,
+      },
+    ];
+    expect(resolveLegacyCharge(legacyRows, "pro", "monthly")).toEqual({
+      priceMinor: 500000,
+      currency: "NGN",
+    });
+    expect(
+      resolveSubscriptionPrice(legacyRows, "pro", "monthly", "USD"),
+    ).toBeNull();
   });
 });

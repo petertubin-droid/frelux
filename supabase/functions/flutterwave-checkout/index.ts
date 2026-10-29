@@ -29,6 +29,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   FLUTTERWAVE_CURRENCIES,
   resolveMarketCharge,
+  loadPlanPriceRows,
+  resolveLegacyCharge,
   resolveSubscriptionPrice,
   toMajorUnits,
 } from "../_shared/subscription-pricing.ts";
@@ -226,17 +228,22 @@ serveWithCors(async (req: Request) => {
 
     // Resolve the canonical price for (plan, cycle) — no configured
     // row means the plan is not self-serve purchasable.
-    const { data: priceRows, error: priceError } = await admin
-      .from("subscription_plan_prices")
-      .select("plan, billing_cycle, price_minor, price_kobo, currency, active")
-      .eq("plan", plan)
-      .eq("billing_cycle", cycle);
-    if (priceError) {
+    const priceRows = await loadPlanPriceRows(async (columns) => {
+      const { data, error } = await admin
+        .from("subscription_plan_prices")
+        .select(columns)
+        .eq("plan", plan)
+        .eq("billing_cycle", cycle);
+      return { data, error };
+    });
+    if (!priceRows) {
       return json({ error: "Plan pricing unavailable" }, 500);
     }
     // Subscriptions are priced in US dollars; Flutterwave settles the
     // dollar amount directly for international cards.
-    const usd = resolveSubscriptionPrice(priceRows ?? [], plan, cycle, "USD");
+    const usd =
+      resolveSubscriptionPrice(priceRows, plan, cycle, "USD") ??
+      resolveLegacyCharge(priceRows, plan, cycle);
     if (!usd) {
       return json(
         {
@@ -251,7 +258,7 @@ serveWithCors(async (req: Request) => {
     // currency; otherwise the canonical dollar price.
     const market = String(market_code ?? "").toUpperCase();
     let localPrice: { currency: string; price_minor: number } | null = null;
-    if (market) {
+    if (market && usd.currency === "USD") {
       const { data: localRows } = await admin
         .from("subscription_local_prices")
         .select("currency, price_minor")

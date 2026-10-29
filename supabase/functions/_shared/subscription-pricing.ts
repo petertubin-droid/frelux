@@ -311,3 +311,44 @@ export function resolveMarketCharge(input: {
   }
   return { currency: "USD", priceMinor: Math.round(usdPriceMinor) };
 }
+
+// ── Schema tolerance during rollout ────────────────────────────────────
+// The USD columns arrive with a migration. A function deployed a step early
+// must keep selling rather than 500, so a failed price read retries with
+// the legacy column set and the caller falls back to naira rows.
+
+export interface PriceQueryBuilder {
+  select: (columns: string) => unknown;
+}
+
+/**
+ * Loads plan price rows, retrying without the USD columns when the schema
+ * predates them. Returns null when even the legacy read fails.
+ */
+export async function loadPlanPriceRows(
+  run: (columns: string) => Promise<{
+    data: unknown[] | null;
+    error: unknown;
+  }>,
+): Promise<SubscriptionPlanPriceRow[] | null> {
+  const full = await run(
+    "plan, billing_cycle, price_minor, price_kobo, currency, active",
+  );
+  if (!full.error) return (full.data ?? []) as SubscriptionPlanPriceRow[];
+  const legacy = await run("plan, billing_cycle, price_kobo, active");
+  if (!legacy.error) return (legacy.data ?? []) as SubscriptionPlanPriceRow[];
+  return null;
+}
+
+/**
+ * Price to charge when the USD rows are not in place yet: the legacy naira
+ * row, exactly as the site sold before USD pricing. Null when absent.
+ */
+export function resolveLegacyCharge(
+  rows: SubscriptionPlanPriceRow[],
+  plan: string,
+  billingCycle: string,
+): ResolvedPrice | null {
+  const ngn = resolveSubscriptionPrice(rows, plan, billingCycle, "NGN");
+  return ngn;
+}
