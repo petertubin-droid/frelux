@@ -22,6 +22,11 @@ import {
 import { voltageDropPercent } from "./electrical-engine";
 import { calculatePlumbing } from "./plumbing-engine";
 import {
+  calculateConcreteTakeoff,
+  calculateEarthwork,
+} from "./advanced-takeoff-engine";
+import { calculateDrywallTakeoff } from "./drywall-standalone-engine";
+import {
   tilesRequired,
   cartonsFromTileCount,
   cartonsFromCoverage,
@@ -258,5 +263,89 @@ describe("plumbing material takeoff", () => {
     expect(r.material_subtotal).toBeNull();
     expect(r.grand_total).toBeNull();
     expect(r.incomplete).toBe(true);
+  });
+});
+
+describe("concrete and earthwork takeoff", () => {
+  // 1.00 m3 at 5% waste = 1.05 m3 in place. Dry volume = 1.05 x 1.54 = 1.617
+  // m3. 1:2:4 -> cement 1.617 / 7 = 0.231 m3; at 0.0347 m3 per 50 kg bag that
+  // is 6.66 bags raw, 7 to buy. Sand 1.617 x 2/7 = 0.462 m3, aggregate 0.924 m3.
+  it("converts a concrete volume into bags and aggregates", () => {
+    const r = calculateConcreteTakeoff({
+      elementType: "slab",
+      lengthM: 1,
+      widthM: 1,
+      depthM: 1,
+      cementParts: 1,
+      sandParts: 2,
+      aggregateParts: 4,
+      wastePercent: 5,
+      cementBagMassKg: 50,
+    });
+    expect(r.ok).toBe(true);
+    const d = r.data!;
+    expect(d.volumeWithWasteM3).toBeCloseTo(1.05, 2);
+    expect(d.cementBagsRaw).toBeCloseTo(6.66, 1);
+    expect(d.cementBagsToBuy).toBe(7);
+    expect(d.sandM3).toBeCloseTo(0.462, 3);
+    expect(d.aggregateM3).toBeCloseTo(0.924, 3);
+  });
+
+  // 12 mm bar = 144 / 162.2 = 0.888 kg/m, so 10 bars x 5 m = 50 m = 44.4 kg.
+  it("weighs rebar from bar diameter", () => {
+    const r = calculateConcreteTakeoff({
+      elementType: "beam",
+      lengthM: 5,
+      widthM: 0.3,
+      depthM: 0.45,
+      cementParts: 1,
+      sandParts: 2,
+      aggregateParts: 4,
+      wastePercent: 5,
+      cementBagMassKg: 50,
+      rebarGroups: [{ label: "main", diameterMm: 12, count: 10, lengthM: 5 }],
+    });
+    expect(r.data!.rebarWeightKg).toBeCloseTo(44.4, 1);
+  });
+
+  // Two sections 100 m apart, cut areas 10 and 20 m2: average end area gives
+  // (10 + 20) / 2 x 100 = 1,500 m3 bank; at 25% bulking, 1,875 m3 loose.
+  it("takes earthwork by average end area and bulks the loose volume", () => {
+    const r = calculateEarthwork({
+      stations: [
+        { chainageM: 0, cutAreaM2: 10, fillAreaM2: 0 },
+        { chainageM: 100, cutAreaM2: 20, fillAreaM2: 0 },
+      ],
+      bulkingPercent: 25,
+      shrinkagePercent: 10,
+      cutSuitableForFill: true,
+    });
+    expect(r.data!.cutBankM3).toBeCloseTo(1500, 0);
+    expect(r.data!.cutLooseM3).toBeCloseTo(1875, 0);
+  });
+});
+
+describe("drywall takeoff", () => {
+  // 10 x 3 = 30 m2 of board. A 1.2 x 2.4 m sheet covers 2.88 m2, so 10.42
+  // sheets, +10% waste = 11.46 -> 12 sheets. Studs at 600 mm centres over 10 m
+  // are 16.67 bays, i.e. 18 studs including both end studs.
+  it("counts boards and studs for a 30 m2 wall", () => {
+    const r = calculateDrywallTakeoff({
+      marketCode: "NG",
+      wallLengthM: 10,
+      wallHeightM: 3,
+      boardWidthMm: 1200,
+      boardLengthMm: 2400,
+      boardLayers: 1,
+      boardSides: 1,
+      studSpacingMm: 600,
+      trackStockLengthM: 3,
+      wastePercent: 10,
+    });
+    expect(r.netWallAreaM2).toBe(30);
+    expect(r.boardSheets).toBe(12);
+    expect(r.studCount).toBe(18);
+    // 20 m of track + 10% = 22 m, bought in 3 m lengths -> 8 pieces.
+    expect(r.trackStockPieces).toBe(8);
   });
 });
