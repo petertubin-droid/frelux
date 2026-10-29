@@ -179,7 +179,7 @@ export const handler = async () => {
   // Emit English canonical URLs only until localized pages contain genuinely
   // translated content with reciprocal hreflang declarations.
   const body = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/sitemap/0.9"
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
 >
 ${urls
   .map((u) => `  <url>
