@@ -82,9 +82,7 @@ describe("Comprehensive Engine Inventory & 20-Market Matrix", () => {
           support.status,
           `${id}/${mCode} still claims not_implemented`,
         ).not.toBe("not_implemented");
-        expect(["verified", "partially_verified", "requires_verification"]).toContain(
-          support.status,
-        );
+        expect(["verified", "unavailable"]).toContain(support.status);
         expect(support.notes.length).toBeGreaterThan(10);
       }
     }
@@ -174,6 +172,28 @@ describe("Comprehensive Engine Inventory & 20-Market Matrix", () => {
       expect(matrix[engineId].NG).toBeDefined();
       expect(matrix[engineId].US).toBeDefined();
       expect(matrix[engineId].IT).toBeDefined();
+    }
+  });
+});
+
+describe("binary engine availability", () => {
+  it("never ships a partially verified engine or market", async () => {
+    const { softStatusEntries } = await import("../engine-availability");
+    expect(softStatusEntries()).toEqual([]);
+  });
+
+  it("keeps every unavailable market explainable", () => {
+    for (const engine of FULL_ENGINE_INVENTORY) {
+      for (const [market, support] of Object.entries(engine.marketMatrix)) {
+        if (support.status === "unavailable") {
+          expect(support.notes, `${engine.id}/${market}`).toMatch(
+            /Unavailable in [A-Z]{2}: /,
+          );
+        }
+        if (support.status === "verified") {
+          expect(support.notes.length, `${engine.id}/${market}`).toBeGreaterThan(10);
+        }
+      }
     }
   });
 });

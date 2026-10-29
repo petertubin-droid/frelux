@@ -44,3 +44,30 @@ Home markets keep their existing `verified` entries; GH keeps `partially_verifie
 Whether a given market's price book is complete for a specific product line is a data
 question, not a matrix question. `requires_verification` on mineral stone and stucco is the
 honest state until local product and rate data is entered.
+
+## Verdict update: no soft states
+
+The owner does not accept partially verified engines or features, so the matrix no
+longer expresses them. `scripts/verify-engine-matrix.mjs` decides every engine/market
+pair from two checkable facts:
+
+1. market wiring in the code that actually ships (price book, labour config,
+   construction typology, market code reaching the calculation)
+2. retailer-sourced price rows for that market in the bundled price book
+   (indicative band rows are excluded)
+
+`verified` when both hold and at least three sourced rows exist; `unavailable`
+otherwise, with the failing condition written into the note. Result of the first
+run: 999 verified, 121 unavailable, zero soft states.
+
+`src/lib/international/engine-availability.ts` exposes the answer to the only
+question that matters downstream (`isEngineVerifiedInMarket`), and the test suite
+fails if any engine/market pair ever returns a status that is neither verified nor
+unavailable.
+
+## What is still required
+
+The matrix is now binary, but the calculator pages do not read it yet: they still
+render for markets the matrix marks unavailable. Gating those pages on
+`isEngineVerifiedInMarket` is the remaining step before a customer in an unverified
+market can be quoted at all.
