@@ -32,6 +32,7 @@ import { useBreadcrumbJsonLd } from "@/lib/seo";
 import { formatCurrency } from "@/lib/utils";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const CALCULATOR_LABELS: Record<string, string> = {
   paint: "Painting",
@@ -41,6 +42,7 @@ const CALCULATOR_LABELS: Record<string, string> = {
 };
 
 export default function EstimateAnalytics() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Estimate Analytics", path: "/estimate-analytics" },
@@ -185,8 +187,10 @@ export default function EstimateAnalytics() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16">
         <PageHeader
-          title="Estimate Analytics"
-          subtitle="Sign in to view your estimate history and business insights."
+          title={t("Estimate Analytics")}
+          subtitle={t(
+            "Sign in to view your estimate history and business insights.",
+          )}
         />
       </div>
     );
@@ -227,8 +231,10 @@ export default function EstimateAnalytics() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
       <PageHeader
-        title="Estimate History & Analytics"
-        subtitle="Track usage patterns, cost trends, and business insights."
+        title={t("Estimate History & Analytics")}
+        subtitle={t(
+          "Track usage patterns, cost trends, and business insights.",
+        )}
       />
 
       {error && (
@@ -249,16 +255,16 @@ export default function EstimateAnalytics() {
       {/* Filter + Export */}
       <div className="mt-6 flex items-center justify-between">
         <select
-          aria-label="Filter estimates by type"
+          aria-label={t("Filter estimates by type")}
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
           className="rounded-lg border bg-background px-4 py-2 text-sm"
         >
-          <option value="all">All Calculators</option>
-          <option value="paint">Painting</option>
-          <option value="tile">Tiling</option>
-          <option value="pop">POP Ceiling</option>
-          <option value="screeding">Wall Screeding</option>
+          <option value="all">{t("All Calculators")}</option>
+          <option value="paint">{t("Painting")}</option>
+          <option value="tile">{t("Tiling")}</option>
+          <option value="pop">{t("POP Ceiling")}</option>
+          <option value="screeding">{t("Wall Screeding")}</option>
         </select>
         <Button
           variant="ghost"
@@ -266,7 +272,7 @@ export default function EstimateAnalytics() {
           disabled={filtered.length === 0}
           className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium disabled:opacity-50"
         >
-          <Download aria-hidden="true" className="h-4 w-4" /> Export CSV
+          <Download aria-hidden="true" className="h-4 w-4" /> {t("Export CSV")}
         </Button>
       </div>
 
@@ -309,10 +315,12 @@ export default function EstimateAnalytics() {
       {/* Most Used Calculators */}
       <div className="mt-6 rounded-lg border p-6">
         <h3 className="text-lg font-semibold text-foreground">
-          Most Used Calculators
+          {t("Most Used Calculators")}
         </h3>
         {stats.mostUsed.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">No data yet.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {t("No data yet.")}
+          </p>
         ) : (
           <div className="mt-3 space-y-2">
             {stats.mostUsed.map(([type, count]) => {
@@ -341,11 +349,12 @@ export default function EstimateAnalytics() {
       {/* Monthly Summaries */}
       <div className="mt-6 rounded-lg border p-6">
         <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
-          <Calendar aria-hidden="true" className="h-5 w-5" /> Monthly Summaries
+          <Calendar aria-hidden="true" className="h-5 w-5" />{" "}
+          {t("Monthly Summaries")}
         </h3>
         {stats.monthlySummary.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">
-            No monthly data yet.
+            {t("No monthly data yet.")}
           </p>
         ) : (
           <div className="mt-3 space-y-2">
@@ -386,11 +395,11 @@ export default function EstimateAnalytics() {
       {/* Recent History */}
       <div className="mt-6 rounded-lg border p-6">
         <h3 className="text-lg font-semibold text-foreground">
-          Recent Estimates
+          {t("Recent Estimates")}
         </h3>
         {filtered.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">
-            No estimates yet. Run a calculator to start tracking history.
+            {t("No estimates yet. Run a calculator to start tracking history.")}
           </p>
         ) : (
           <div className="mt-3 space-y-2">
@@ -413,7 +422,7 @@ export default function EstimateAnalytics() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => downloadShoppingList(h)}
-                    title="Download shopping list"
+                    title={t("Download shopping list")}
                     aria-label={`Download shopping list for ${h.project_name ?? "estimate"}`}
                     className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:border-brand-purple/40 hover:text-foreground dark:border-white/10"
                   >
@@ -460,6 +469,7 @@ function EstimateDiffPanel({
   pending: boolean;
   onClear: () => void;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="mt-6 rounded-lg border-2 border-primary/40 p-6">
       <div className="flex items-start justify-between gap-4">
@@ -472,7 +482,7 @@ function EstimateDiffPanel({
         </h3>
         <button
           onClick={onClear}
-          aria-label="Clear comparison"
+          aria-label={t("Clear comparison")}
           className="rounded-lg p-1 text-muted-foreground hover:bg-muted"
         >
           <X aria-hidden="true" className="h-4 w-4" />
@@ -482,8 +492,8 @@ function EstimateDiffPanel({
       {pending && (
         <p className="mt-2 text-sm text-muted-foreground">
           First estimate selected. Tap{" "}
-          <span className="font-medium">Compare</span> on a second estimate to
-          see exactly what changed between the two.
+          <span className="font-medium">{t("Compare")}</span> on a second
+          estimate to see exactly what changed between the two.
         </p>
       )}
 
@@ -536,16 +546,16 @@ function EstimateDiffPanel({
 
           <div>
             <h4 className="text-sm font-semibold text-foreground">
-              Cost Totals
+              {t("Cost Totals")}
             </h4>
             <div className="mt-2 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-xs text-muted-foreground">
-                    <th className="py-2 pr-4">Item</th>
-                    <th className="py-2 pr-4">Before</th>
-                    <th className="py-2 pr-4">After</th>
-                    <th className="py-2 pr-4">Change</th>
+                    <th className="py-2 pr-4">{t("Item")}</th>
+                    <th className="py-2 pr-4">{t("Before")}</th>
+                    <th className="py-2 pr-4">{t("After")}</th>
+                    <th className="py-2 pr-4">{t("Change")}</th>
                   </tr>
                 </thead>
                 <tbody>

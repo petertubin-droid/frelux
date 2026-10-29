@@ -20,6 +20,7 @@ import Logo from "@/components/brand/Logo";
 import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 type Mode = "signin" | "signup" | "reset";
 
@@ -53,6 +54,7 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export default function Login() {
+  const { t } = useLanguage();
   const { signIn, signUp, resetPassword, signInWithGoogle, user, configured } =
     useAuth();
   const navigate = useNavigate();
@@ -144,7 +146,7 @@ export default function Login() {
         {oauthProfileProcessing ? (
           <Loader2
             className="h-8 w-8 animate-spin text-primary"
-            aria-label="Finishing account setup"
+            aria-label={t("Finishing account setup")}
           />
         ) : (
           <AlertCircle
@@ -153,7 +155,7 @@ export default function Login() {
           />
         )}
         <h1 className="text-xl font-semibold text-foreground">
-          Finish setting up your account
+          {t("Finish setting up your account")}
         </h1>
         <p className="max-w-md text-sm text-muted-foreground">
           {oauthProfileError ?? "Applying your selected account type securely…"}
@@ -163,7 +165,7 @@ export default function Login() {
             type="button"
             onClick={() => void completePendingOAuthProfile()}
           >
-            Retry account setup
+            {t("Retry account setup")}
           </Button>
         )}
       </div>
@@ -262,7 +264,7 @@ export default function Login() {
           <div className="mt-8 flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-brand-purple dark:text-brand-purple-lighter" />
             <p className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-              Redirecting to your dashboard...
+              {t("Redirecting to your dashboard...")}
             </p>
           </div>
           <div className="mt-8">
@@ -270,7 +272,7 @@ export default function Login() {
               to={redirectTo}
               className="text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
             >
-              Click here if not redirected
+              {t("Click here if not redirected")}
             </Link>
           </div>
           <div className="mt-8 flex justify-center">
@@ -313,7 +315,11 @@ export default function Login() {
           {!configured && (
             <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-xs text-card-foreground dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-              <p>Authentication is not configured. Please check back later.</p>
+              <p>
+                {t(
+                  "Authentication is not configured. Please check back later.",
+                )}
+              </p>
             </div>
           )}
           {info && (
@@ -325,7 +331,7 @@ export default function Login() {
           {mode === "signup" && (
             <div className="mt-5">
               <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Account type
+                {t("Account type")}
               </span>
               <div className="mt-2 grid grid-cols-2 gap-3">
                 <Button
@@ -356,10 +362,10 @@ export default function Login() {
                           : "text-card-foreground dark:text-muted-foreground/60",
                       )}
                     >
-                      Client
+                      {t("Client")}
                     </p>
                     <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">
-                      Estimate and save projects
+                      {t("Estimate and save projects")}
                     </p>
                   </div>
                 </Button>
@@ -391,10 +397,10 @@ export default function Login() {
                           : "text-card-foreground dark:text-muted-foreground/60",
                       )}
                     >
-                      Worker
+                      {t("Worker")}
                     </p>
                     <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">
-                      Offer your services
+                      {t("Offer your services")}
                     </p>
                   </div>
                 </Button>
@@ -425,7 +431,7 @@ export default function Login() {
           <form onSubmit={onSubmit} className="space-y-4" noValidate>
             <label className="block">
               <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Email
+                {t("Email")}
               </span>
               <div className="relative mt-1.5">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -443,7 +449,7 @@ export default function Login() {
             {mode !== "reset" && (
               <label className="block">
                 <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                  Password
+                  {t("Password")}
                 </span>
                 <div className="relative mt-1.5">
                   <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -543,7 +549,7 @@ export default function Login() {
                   }}
                   className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
                 >
-                  Back to sign in
+                  {t("Back to sign in")}
                 </Button>
               )}
             </div>
@@ -554,7 +560,7 @@ export default function Login() {
             to="/"
             className="inline-flex items-center gap-1 hover:text-brand-purple dark:hover:text-brand-purple-lighter"
           >
-            <ArrowLeft className="h-3 w-3" /> Back to website
+            <ArrowLeft className="h-3 w-3" /> {t("Back to website")}
           </Link>
         </p>
       </div>

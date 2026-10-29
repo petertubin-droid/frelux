@@ -33,8 +33,10 @@ import type {
 } from "@/types/estimation";
 import { formatCurrency } from "@/lib/estimation/pricing";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function AdminPaintEngineTest() {
+  const { t } = useLanguage();
   const [products, setProducts] = useState<EstimationProduct[]>([]);
   const [qualities, setQualities] = useState<
     Map<string, EstimationProductQuality[]>
@@ -221,14 +223,14 @@ export default function AdminPaintEngineTest() {
   return (
     <div>
       <AdminHeader
-        title="Paint Calculation Engine, Test Calculation"
+        title={t("Paint Calculation Engine, Test Calculation")}
         subtitle="Test the central paint engine with real inputs. Verify coverage, pricing, and calculation steps."
       />
 
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading"
+          title={t("Loading")}
           message="Loading configuration..."
         />
       ) : (
@@ -277,8 +279,8 @@ export default function AdminPaintEngineTest() {
                   onChange={(e) => setUnit(e.target.value as "feet" | "meters")}
                   className="input-field"
                 >
-                  <option value="feet">Feet (FRELUX default)</option>
-                  <option value="meters">Meters</option>
+                  <option value="feet">{t("Feet (FRELUX default)")}</option>
+                  <option value="meters">{t("Meters")}</option>
                 </select>
               </AdminField>
 
@@ -365,14 +367,16 @@ export default function AdminPaintEngineTest() {
                     checked={includeCeiling}
                     onChange={(e) => setIncludeCeiling(e.target.checked)}
                   />
-                  <span className="text-sm">Calculate ceiling paint</span>
+                  <span className="text-sm">
+                    {t("Calculate ceiling paint")}
+                  </span>
                 </label>
               </AdminField>
             </div>
 
             <div className="mt-4">
               <AdminButton onClick={handleTestCalculate} variant="primary">
-                <Play className="mr-1 h-4 w-4" /> Calculate Test
+                <Play className="mr-1 h-4 w-4" /> {t("Calculate Test")}
               </AdminButton>
             </div>
           </AdminCard>
@@ -386,7 +390,9 @@ export default function AdminPaintEngineTest() {
               </h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <div>
-                  <span className="text-xs text-muted-foreground">Coverage</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("Coverage")}
+                  </span>
                   <p className="text-sm font-medium">
                     {selectedQuality.coverage ?? "NOT CONFIGURED"}{" "}
                     {selectedQuality.coverage
@@ -398,7 +404,7 @@ export default function AdminPaintEngineTest() {
                 </div>
                 <div>
                   <span className="text-xs text-muted-foreground">
-                    Ceiling Coverage
+                    {t("Ceiling Coverage")}
                   </span>
                   <p className="text-sm font-medium">
                     {selectedQuality.ceiling_coverage ?? "Same as wall"}{" "}
@@ -411,13 +417,17 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div>
-                  <span className="text-xs text-muted-foreground">Pack Size</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("Pack Size")}
+                  </span>
                   <p className="text-sm font-medium">
                     {selectedProduct?.standard_pack_size ?? 20} L
                   </p>
                 </div>
                 <div>
-                  <span className="text-xs text-muted-foreground">Price</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("Price")}
+                  </span>
                   <p className="text-sm font-medium">
                     {prices.get(qualityId)?.price
                       ? formatCurrency(
@@ -436,9 +446,10 @@ export default function AdminPaintEngineTest() {
             <AdminCard>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-card-foreground">
-                  Calculation Results
+                  {t("Calculation Results")}
                 </h3>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => setExpandedSteps(!expandedSteps)}
                   className="text-xs text-brand-purple hover:underline"
                 >
@@ -453,7 +464,11 @@ export default function AdminPaintEngineTest() {
                       key={i}
                       className="flex items-start gap-2 text-xs text-red-700"
                     >
-                      <AlertCircle aria-hidden="true" className="mt-0.5 h-3 w-3 shrink-0" /> {e}
+                      <AlertCircle
+                        aria-hidden="true"
+                        className="mt-0.5 h-3 w-3 shrink-0"
+                      />{" "}
+                      {e}
                     </p>
                   ))}
                 </div>
@@ -466,7 +481,11 @@ export default function AdminPaintEngineTest() {
                       key={i}
                       className="flex items-start gap-2 text-xs text-amber-700"
                     >
-                      <AlertCircle aria-hidden="true" className="mt-0.5 h-3 w-3 shrink-0" /> {w}
+                      <AlertCircle
+                        aria-hidden="true"
+                        className="mt-0.5 h-3 w-3 shrink-0"
+                      />{" "}
+                      {w}
                     </p>
                   ))}
                 </div>
@@ -476,7 +495,7 @@ export default function AdminPaintEngineTest() {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <div className="rounded-lg border bg-muted/50 p-3">
                   <span className="text-xs text-muted-foreground">
-                    Gross Wall Area
+                    {t("Gross Wall Area")}
                   </span>
                   <p className="text-sm font-semibold">
                     {result.gross_wall_area_m2.toFixed(2)} m²
@@ -484,7 +503,7 @@ export default function AdminPaintEngineTest() {
                 </div>
                 <div className="rounded-lg border bg-muted/50 p-3">
                   <span className="text-xs text-muted-foreground">
-                    Opening Deduction
+                    {t("Opening Deduction")}
                   </span>
                   <p className="text-sm font-semibold">
                     −{result.opening_deduction_m2.toFixed(2)} m²
@@ -492,21 +511,23 @@ export default function AdminPaintEngineTest() {
                 </div>
                 <div className="rounded-lg border bg-muted/50 p-3">
                   <span className="text-xs text-muted-foreground">
-                    Net Wall Area
+                    {t("Net Wall Area")}
                   </span>
                   <p className="text-sm font-semibold">
                     {result.net_wall_area_m2.toFixed(2)} m²
                   </p>
                 </div>
                 <div className="rounded-lg border bg-muted/50 p-3">
-                  <span className="text-xs text-muted-foreground">Ceiling Area</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("Ceiling Area")}
+                  </span>
                   <p className="text-sm font-semibold">
                     {result.ceiling_area_m2.toFixed(2)} m²
                   </p>
                 </div>
                 <div className="rounded-lg border bg-muted/50 p-3">
                   <span className="text-xs text-muted-foreground">
-                    Coverage (normalized)
+                    {t("Coverage (normalized)")}
                   </span>
                   <p className="text-sm font-semibold">
                     {result.coverage_rate ?? "N/A"} {result.coverage_unit}
@@ -514,7 +535,7 @@ export default function AdminPaintEngineTest() {
                 </div>
                 <div className="rounded-lg border bg-muted/50 p-3">
                   <span className="text-xs text-muted-foreground">
-                    Effective Coats
+                    {t("Effective Coats")}
                   </span>
                   <p className="text-sm font-semibold">
                     {result.effective_coats}
@@ -522,7 +543,7 @@ export default function AdminPaintEngineTest() {
                 </div>
                 <div className="rounded-lg border bg-blue-50 p-3">
                   <span className="text-xs text-muted-foreground">
-                    Theoretical Litres
+                    {t("Theoretical Litres")}
                   </span>
                   <p className="text-sm font-semibold text-blue-700">
                     {result.theoretical_total_litres.toFixed(2)} L
@@ -530,7 +551,7 @@ export default function AdminPaintEngineTest() {
                 </div>
                 <div className="rounded-lg border bg-blue-50 p-3">
                   <span className="text-xs text-muted-foreground">
-                    Theoretical Buckets
+                    {t("Theoretical Buckets")}
                   </span>
                   <p className="text-sm font-semibold text-blue-700">
                     {result.theoretical_total_buckets.toFixed(4)}
@@ -538,7 +559,7 @@ export default function AdminPaintEngineTest() {
                 </div>
                 <div className="rounded-lg border bg-green-50 p-3">
                   <span className="text-xs text-muted-foreground">
-                    Practical Buckets
+                    {t("Practical Buckets")}
                   </span>
                   <p className="text-sm font-semibold text-green-700">
                     {result.practical_total_buckets}
@@ -546,21 +567,23 @@ export default function AdminPaintEngineTest() {
                 </div>
                 <div className="rounded-lg border bg-green-50 p-3">
                   <span className="text-xs text-muted-foreground">
-                    Practical Litres
+                    {t("Practical Litres")}
                   </span>
                   <p className="text-sm font-semibold text-green-700">
                     {result.practical_total_litres.toFixed(2)} L
                   </p>
                 </div>
                 <div className="rounded-lg border bg-muted/50 p-3">
-                  <span className="text-xs text-muted-foreground">Leftover</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("Leftover")}
+                  </span>
                   <p className="text-sm font-semibold">
                     {result.leftover_litres.toFixed(2)} L
                   </p>
                 </div>
                 <div className="rounded-lg border bg-muted/50 p-3">
                   <span className="text-xs text-muted-foreground">
-                    Material Cost
+                    {t("Material Cost")}
                   </span>
                   <p className="text-sm font-semibold">
                     {result.price_configured
@@ -577,7 +600,7 @@ export default function AdminPaintEngineTest() {
               {expandedSteps && (
                 <div className="mt-4 border-t pt-4">
                   <h4 className="mb-2 text-xs font-semibold text-muted-foreground">
-                    Step-by-step Calculation
+                    {t("Step-by-step Calculation")}
                   </h4>
                   <div className="space-y-1">
                     {result.calculation_steps.map((step, i) => (
@@ -612,7 +635,7 @@ export default function AdminPaintEngineTest() {
               {/* Customer Summary Preview */}
               <div className="mt-4 rounded-lg border-2 border-dashed border-border p-4">
                 <h4 className="mb-2 text-xs font-semibold text-muted-foreground">
-                  Customer-Facing Summary Preview
+                  {t("Customer-Facing Summary Preview")}
                 </h4>
                 <div className="space-y-1 text-sm">
                   <p>

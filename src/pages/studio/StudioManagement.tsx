@@ -58,14 +58,16 @@ import type {
   DbStudioVersion,
 } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function StudioManagement() {
+  const { t } = useLanguage();
   const { toolSlug } = useParams<{ toolSlug: string }>();
   const tool = getTool(toolSlug ?? "");
   if (!tool)
     return (
       <div className="py-20 text-center text-sm text-muted-foreground">
-        Tool not found.
+        {t("Tool not found.")}
       </div>
     );
 
@@ -91,7 +93,7 @@ export default function StudioManagement() {
     default:
       return (
         <div className="py-20 text-center text-sm text-muted-foreground">
-          Unknown tool.
+          {t("Unknown tool.")}
         </div>
       );
   }
@@ -101,6 +103,7 @@ export default function StudioManagement() {
 // Plugin Manager
 // =========================================================
 function PluginManager() {
+  const { t } = useLanguage();
   const [plugins, setPlugins] = useState<DbStudioPlugin[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -148,17 +151,18 @@ function PluginManager() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching plugins."
       />
     );
-  if (error) return <StateMessage type="error" title="Error" message={error} />;
+  if (error)
+    return <StateMessage type="error" title={t("Error")} message={error} />;
 
   return (
     <div>
       <ToolHeader
         icon={Puzzle}
-        title="Plugin & Module Manager"
+        title={t("Plugin & Module Manager")}
         description="Install, enable, and manage platform plugins and modules."
       />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -194,7 +198,7 @@ function PluginManager() {
               </span>
               {p.is_official && (
                 <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
-                  Official
+                  {t("Official")}
                 </span>
               )}
             </div>
@@ -204,7 +208,7 @@ function PluginManager() {
                   onClick={() => handleInstall(p)}
                   className="flex-1"
                 >
-                  Install
+                  {t("Install")}
                 </AdminButton>
               ) : (
                 <div className="flex flex-1 items-center justify-between">
@@ -229,6 +233,7 @@ function PluginManager() {
 // Prompt Library
 // =========================================================
 function PromptLibrary() {
+  const { t } = useLanguage();
   const [prompts, setPrompts] = useState<DbStudioPrompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -274,7 +279,7 @@ function PromptLibrary() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching prompts."
       />
     );
@@ -285,7 +290,7 @@ function PromptLibrary() {
     <div>
       <ToolHeader
         icon={BookOpen}
-        title="Prompt Library"
+        title={t("Prompt Library")}
         description="Reusable prompt templates for all AI Studio tools."
       />
       {error && (
@@ -355,7 +360,7 @@ function PromptLibrary() {
               onClick={handleCreate}
               disabled={!formData.title || !formData.system_prompt}
             >
-              Save Prompt
+              {t("Save Prompt")}
             </AdminButton>
           </div>
         </AdminCard>
@@ -380,7 +385,7 @@ function PromptLibrary() {
                       </p>
                       {p.is_builtin && (
                         <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground dark:text-muted-foreground">
-                          Built in
+                          {t("Built in")}
                         </span>
                       )}
                     </div>
@@ -413,6 +418,7 @@ function PromptLibrary() {
 // Integration Center
 // =========================================================
 function IntegrationCenter() {
+  const { t } = useLanguage();
   const [integrations, setIntegrations] = useState<DbStudioIntegration[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -468,7 +474,7 @@ function IntegrationCenter() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching integrations."
       />
     );
@@ -477,7 +483,7 @@ function IntegrationCenter() {
     <div>
       <ToolHeader
         icon={Plug}
-        title="Integration Center"
+        title={t("Integration Center")}
         description="Manage connections to external services and APIs."
       />
       {error && (
@@ -520,7 +526,7 @@ function IntegrationCenter() {
           </div>
           <div className="mt-4">
             <AdminButton onClick={handleCreate} disabled={!formData.name}>
-              Add
+              {t("Add")}
             </AdminButton>
           </div>
         </AdminCard>
@@ -529,7 +535,7 @@ function IntegrationCenter() {
         {integrations.length === 0 ? (
           <StateMessage
             type="empty"
-            title="No integrations"
+            title={t("No integrations")}
             message="Add your first integration to get started."
           />
         ) : (
@@ -587,6 +593,7 @@ function IntegrationCenter() {
 // Feature Management
 // =========================================================
 function FeatureManagement() {
+  const { t } = useLanguage();
   const [features, setFeatures] = useState<DbStudioFeature[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -618,7 +625,7 @@ function FeatureManagement() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching features."
       />
     );
@@ -627,7 +634,7 @@ function FeatureManagement() {
     <div>
       <ToolHeader
         icon={ToggleLeft}
-        title="Feature Management"
+        title={t("Feature Management")}
         description="Control feature flags and rollout percentages."
       />
       {error && (
@@ -685,6 +692,7 @@ function FeatureManagement() {
 // Role & Permission Management
 // =========================================================
 function RoleManagement() {
+  const { t } = useLanguage();
   const [roles, setRoles] = useState<DbStudioRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -734,14 +742,18 @@ function RoleManagement() {
 
   if (loading)
     return (
-      <StateMessage type="loading" title="Loading…" message="Fetching roles." />
+      <StateMessage
+        type="loading"
+        title={t("Loading…")}
+        message="Fetching roles."
+      />
     );
 
   return (
     <div>
       <ToolHeader
         icon={ShieldCheck}
-        title="Role & Permission Management"
+        title={t("Role & Permission Management")}
         description="Define roles and manage access permissions."
       />
       {error && (
@@ -793,7 +805,7 @@ function RoleManagement() {
               />
             </AdminField>
             <AdminButton onClick={handleCreate} disabled={!formData.role_name}>
-              Create Role
+              {t("Create Role")}
             </AdminButton>
           </div>
         </AdminCard>
@@ -809,7 +821,7 @@ function RoleManagement() {
                   </p>
                   {r.is_system && (
                     <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
-                      System
+                      {t("System")}
                     </span>
                   )}
                 </div>
@@ -851,6 +863,7 @@ function RoleManagement() {
 // System Monitoring
 // =========================================================
 function SystemMonitoring() {
+  const { t } = useLanguage();
   const [metrics, setMetrics] = useState<DbStudioMetric[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -866,7 +879,7 @@ function SystemMonitoring() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching metrics."
       />
     );
@@ -877,7 +890,7 @@ function SystemMonitoring() {
     <div>
       <ToolHeader
         icon={Activity}
-        title="System Monitoring"
+        title={t("System Monitoring")}
         description="Monitor system health, performance, and usage metrics."
       />
       {error && (
@@ -888,7 +901,7 @@ function SystemMonitoring() {
       {metrics.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No metrics recorded"
+          title={t("No metrics recorded")}
           message="Metrics will appear here as the system generates them."
         />
       ) : (
@@ -931,6 +944,7 @@ function SystemMonitoring() {
 // Version History
 // =========================================================
 function VersionHistory() {
+  const { t } = useLanguage();
   const [artifacts, setArtifacts] = useState<DbStudioArtifact[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [versions, setVersions] = useState<DbStudioVersion[]>([]);
@@ -966,7 +980,7 @@ function VersionHistory() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching artifacts."
       />
     );
@@ -975,7 +989,7 @@ function VersionHistory() {
     <div>
       <ToolHeader
         icon={History}
-        title="Version History"
+        title={t("Version History")}
         description="View and restore artifact versions over time."
       />
       {error && (
@@ -1089,7 +1103,7 @@ function VersionHistory() {
           ) : (
             <StateMessage
               type="empty"
-              title="Select an artifact"
+              title={t("Select an artifact")}
               message="Choose an artifact to view its version history."
             />
           )}
@@ -1103,6 +1117,7 @@ function VersionHistory() {
 // Project Explorer (read-only project structure viewer)
 // =========================================================
 function ProjectExplorer() {
+  const { t } = useLanguage();
   const [tree, setTree] = useState<
     { name: string; path: string; type: string; children?: unknown[] }[]
   >([]);
@@ -1164,7 +1179,7 @@ function ProjectExplorer() {
     <div>
       <ToolHeader
         icon={FolderTree}
-        title="Project Explorer"
+        title={t("Project Explorer")}
         description="Browse the project structure and file organization."
       />
       <div className="rounded-xl border border-border bg-card dark:border-white/5 dark:bg-card p-4">
@@ -1233,6 +1248,7 @@ function TreeNode({
 // File Manager (artifact-based file management)
 // =========================================================
 function FileManager() {
+  const { t } = useLanguage();
   const [artifacts, setArtifacts] = useState<DbStudioArtifact[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -1259,14 +1275,18 @@ function FileManager() {
 
   if (loading)
     return (
-      <StateMessage type="loading" title="Loading…" message="Fetching files." />
+      <StateMessage
+        type="loading"
+        title={t("Loading…")}
+        message="Fetching files."
+      />
     );
 
   return (
     <div>
       <ToolHeader
         icon={FolderOpen}
-        title="File Manager"
+        title={t("File Manager")}
         description="Manage generated artifacts and project files."
       />
       {error && (
@@ -1283,14 +1303,14 @@ function FileManager() {
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search files…"
+          placeholder={t("Search files…")}
           className="input-field pl-9"
         />
       </div>
       {filtered.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No files found"
+          title={t("No files found")}
           message="Generate artifacts using the AI tools to see them here."
         />
       ) : (

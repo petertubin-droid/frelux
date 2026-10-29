@@ -12,6 +12,7 @@ import type { DbProProfile } from "@/types/pro-connect";
 import { PROJECT_TYPE_LABELS } from "@/types/marketplace";
 import LocationPicker from "@/components/ui/LocationPicker";
 import { formatByCode } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 // ============================================================
 // SEO Page: /marketplace/sellers/:locationSlug
@@ -33,6 +34,7 @@ function formatBudget(
 }
 
 export default function MarketplaceLocationPage() {
+  const { t } = useLanguage();
   const { locationSlug } = useParams<{ locationSlug: string }>();
   const [location, setLocation] = useState<DbProLocation | null>(null);
   const [listings, setListings] = useState<DbMarketplaceListing[]>([]);
@@ -123,10 +125,10 @@ export default function MarketplaceLocationPage() {
           className="mx-auto h-12 w-12 text-muted-foreground/80"
         />
         <h1 className="mt-4 text-xl font-bold text-foreground dark:text-primary-foreground">
-          Location Not Found
+          {t("Location Not Found")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          This location doesn't exist or is no longer active.
+          {t("This location doesn't exist or is no longer active.")}
         </p>
         <Link
           to="/marketplace/"
@@ -146,11 +148,11 @@ export default function MarketplaceLocationPage() {
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-muted-foreground">
             <Link to="/" className="hover:text-brand-purple">
-              Home
+              {t("Home")}
             </Link>
             <span>/</span>
             <Link to="/marketplace/" className="hover:text-brand-purple">
-              Marketplace
+              {t("Marketplace")}
             </Link>
             <span>/</span>
             <span className="text-foreground dark:text-primary-foreground">
@@ -203,13 +205,13 @@ export default function MarketplaceLocationPage() {
                     className="mx-auto h-8 w-8 text-muted-foreground/80"
                   />
                   <p className="mt-2 text-sm text-muted-foreground">
-                    No active job listings in this location yet.
+                    {t("No active job listings in this location yet.")}
                   </p>
                   <Link
                     to="/marketplace/post/"
                     className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
                   >
-                    Post the First Job
+                    {t("Post the First Job")}
                   </Link>
                 </div>
               ) : (
@@ -253,7 +255,7 @@ export default function MarketplaceLocationPage() {
               {pros.length === 0 ? (
                 <div className="rounded-xl border border-border/60 bg-card p-8 text-center dark:border-white/5 dark:bg-card">
                   <p className="text-sm text-muted-foreground">
-                    No professionals listed in this location yet.
+                    {t("No professionals listed in this location yet.")}
                   </p>
                 </div>
               ) : (

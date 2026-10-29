@@ -17,6 +17,7 @@ import { Link, useParams } from "react-router-dom";
 import { getMarketBundle } from "@/lib/international/markets";
 import { useMarket } from "@/lib/international/market-context";
 import AdSlot from "@/components/ui/AdSlot";
+import { useLanguage } from "@/lib/i18n";
 
 function Row({
   label,
@@ -36,6 +37,7 @@ function Row({
 }
 
 export default function MarketLanding() {
+  const { t } = useLanguage();
   const { code } = useParams<{ code: string }>();
   const upper = (code ?? "").toUpperCase();
   const bundle = getMarketBundle(upper);
@@ -52,7 +54,7 @@ export default function MarketLanding() {
   if (!bundle) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="text-2xl font-bold">Market not available</h1>
+        <h1 className="text-2xl font-bold">{t("Market not available")}</h1>
         <p className="mt-3 text-muted-foreground">
           FRELUX does not currently have a market profile for{" "}
           <span className="font-semibold text-foreground">
@@ -64,7 +66,7 @@ export default function MarketLanding() {
           to="/construction-tools"
           className="mt-6 inline-block rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
         >
-          Browse all construction tools
+          {t("Browse all construction tools")}
         </Link>
       </div>
     );
@@ -76,9 +78,12 @@ export default function MarketLanding() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground">
+      <nav
+        aria-label={t("Breadcrumb")}
+        className="text-xs text-muted-foreground"
+      >
         <Link to="/" className="hover:underline">
-          Home
+          {t("Home")}
         </Link>{" "}
         &rsaquo; Markets &rsaquo; <span>{m.countryName}</span>
       </nav>
@@ -138,7 +143,7 @@ export default function MarketLanding() {
       </section>
 
       <section className="mt-4 rounded-xl border border-border bg-card p-6 dark:border-white/10">
-        <h2 className="text-lg font-semibold">Electrical practice</h2>
+        <h2 className="text-lg font-semibold">{t("Electrical practice")}</h2>
         <dl className="mt-2">
           <Row label="Standards reference">
             {bundle.electrical.standardsRef}
@@ -156,7 +161,7 @@ export default function MarketLanding() {
       <AdSlot slotKey="market_mid" className="mt-4" />
 
       <section className="mt-4 rounded-xl border border-border bg-card p-6 dark:border-white/10">
-        <h2 className="text-lg font-semibold">Plumbing practice</h2>
+        <h2 className="text-lg font-semibold">{t("Plumbing practice")}</h2>
         <dl className="mt-2">
           <Row label="Standards reference">{bundle.plumbing.standardsRef}</Row>
           <Row label="Water supply piping">

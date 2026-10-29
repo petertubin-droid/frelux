@@ -53,6 +53,7 @@ type ApplyStatus = {
 
 import type { ReferenceMarket } from "@/lib/estimation/price-scanner";
 import { formatByCode } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 type Market = ReferenceMarket;
 
@@ -94,6 +95,7 @@ const MARKET_META: Record<
 };
 
 export default function AdminPriceUpdater() {
+  const { t } = useLanguage();
   const [market, setMarket] = useState<Market>("NG");
   const [scanning, setScanning] = useState(false);
   const [rows, setRows] = useState<RowState[]>([]);
@@ -253,7 +255,7 @@ export default function AdminPriceUpdater() {
   return (
     <div className="min-h-screen bg-muted/50">
       <AdminPageHeader
-        title="Price Tracker"
+        title={t("Price Tracker")}
         subtitle="Review the FRELUX reference catalog against configured prices, then apply verified prices to the shared material database every engine prices from."
       />
 
@@ -264,7 +266,7 @@ export default function AdminPriceUpdater() {
             htmlFor="price-market-select"
             className="text-sm font-medium text-muted-foreground"
           >
-            Market
+            {t("Market")}
           </label>
           <select
             id="price-market-select"
@@ -274,13 +276,13 @@ export default function AdminPriceUpdater() {
             className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
             data-testid="price-market-select"
           >
-            <option value="NG">Nigeria (NGN)</option>
-            <option value="US">United States (USD)</option>
-            <option value="GB">United Kingdom (GBP)</option>
-            <option value="DE">Germany (EUR)</option>
-            <option value="AU">Australia (AUD)</option>
-            <option value="CA">Canada (CAD)</option>
-            <option value="IN">India (INR)</option>
+            <option value="NG">{t("Nigeria (NGN)")}</option>
+            <option value="US">{t("United States (USD)")}</option>
+            <option value="GB">{t("United Kingdom (GBP)")}</option>
+            <option value="DE">{t("Germany (EUR)")}</option>
+            <option value="AU">{t("Australia (AUD)")}</option>
+            <option value="CA">{t("Canada (CAD)")}</option>
+            <option value="IN">{t("India (INR)")}</option>
           </select>
           <Button
             variant="ghost"
@@ -325,7 +327,9 @@ export default function AdminPriceUpdater() {
                 aria-hidden="true"
                 className="w-5 h-5 text-red-600"
               />
-              <span className="text-sm font-medium text-red-900">Error</span>
+              <span className="text-sm font-medium text-red-900">
+                {t("Error")}
+              </span>
             </div>
             <p className="mt-1 text-sm text-red-700">{error}</p>
           </div>
@@ -333,13 +337,13 @@ export default function AdminPriceUpdater() {
 
         {/* Honesty banner */}
         <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
-          This is a <strong>reference catalog review</strong>, not a live market
-          feed. Catalog values are FRELUX reference data: verify each price
-          against your supplier before applying. Applied prices are recorded
-          with their source and effective date in the shared material database.
-          Nothing is invented: a material without a shared record or without a
-          price stays unpriced, and every engine will show it as PRICE NOT
-          CONFIGURED.
+          {t("This is a")} <strong>reference catalog review</strong>, not a live
+          market feed. Catalog values are FRELUX reference data: verify each
+          price against your supplier before applying. Applied prices are
+          recorded with their source and effective date in the shared material
+          database. Nothing is invented: a material without a shared record or
+          without a price stays unpriced, and every engine will show it as PRICE
+          NOT CONFIGURED.
         </div>
 
         {/* Summary stats */}
@@ -347,7 +351,7 @@ export default function AdminPriceUpdater() {
           <div className="mb-6 grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="rounded-xl border border-border bg-card p-4">
               <p className="text-xs font-medium text-muted-foreground">
-                Catalog entries
+                {t("Catalog entries")}
               </p>
               <p className="mt-1 text-2xl font-bold text-foreground">
                 {rows.length}
@@ -355,7 +359,7 @@ export default function AdminPriceUpdater() {
             </div>
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
               <p className="text-xs font-medium text-amber-600">
-                Not configured
+                {t("Not configured")}
               </p>
               <p className="mt-1 text-2xl font-bold text-amber-700">
                 {unconfiguredCount}
@@ -363,7 +367,7 @@ export default function AdminPriceUpdater() {
             </div>
             <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
               <p className="text-xs font-medium text-blue-600">
-                Differs from reference
+                {t("Differs from reference")}
               </p>
               <p className="mt-1 text-2xl font-bold text-blue-700">
                 {differingCount}
@@ -371,9 +375,11 @@ export default function AdminPriceUpdater() {
             </div>
             <div className="rounded-xl border border-border bg-card p-4">
               <p className="text-xs font-medium text-muted-foreground">
-                Region
+                {t("Region")}
               </p>
-              <p className="mt-1 text-2xl font-bold text-foreground">Nigeria</p>
+              <p className="mt-1 text-2xl font-bold text-foreground">
+                {t("Nigeria")}
+              </p>
             </div>
           </div>
         )}
@@ -385,29 +391,28 @@ export default function AdminPriceUpdater() {
               <thead className="border-b border-border bg-muted/50">
                 <tr>
                   <th className="px-3 py-3 text-left font-medium text-muted-foreground">
-                    Apply
+                    {t("Apply")}
                   </th>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                    Material
+                    {t("Material")}
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-muted-foreground">
-                    Configured
+                    {t("Configured")}
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-muted-foreground">
-                    Reference
+                    {t("Reference")}
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-muted-foreground">
                     vs reference
                   </th>
                   <th className="px-4 py-3 text-center font-medium text-muted-foreground">
-                    Confidence
+                    {t("Confidence")}
                   </th>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                    Verified price (
-                    {MARKET_META[market].currency})
+                    Verified price ({MARKET_META[market].currency})
                   </th>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                    Status
+                    {t("Status")}
                   </th>
                 </tr>
               </thead>
@@ -436,7 +441,7 @@ export default function AdminPriceUpdater() {
                     <td className="px-4 py-3 text-right text-muted-foreground">
                       {r.configuredPrice === null ? (
                         <span className="font-medium text-amber-700">
-                          NOT CONFIGURED
+                          {t("NOT CONFIGURED")}
                         </span>
                       ) : (
                         formatByCode(
@@ -456,7 +461,7 @@ export default function AdminPriceUpdater() {
                     <td className="px-4 py-3 text-center">
                       {r.changePercent === null ? (
                         <span className="text-xs text-muted-foreground">
-                          N/A
+                          {t("N/A")}
                         </span>
                       ) : (
                         <span

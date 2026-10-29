@@ -36,12 +36,14 @@ import {
   type ApiKeyPlan,
 } from "@/lib/frelix-api/portal-client";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/lib/i18n";
 
 interface AdminKeyRow extends ApiKeyRow {
   created_by: string | null;
 }
 
 export default function AdminApiKeys() {
+  const { t } = useLanguage();
   const { success, error } = useToast();
   const [keys, setKeys] = useState<AdminKeyRow[]>([]);
   const [plans, setPlans] = useState<ApiKeyPlan[]>([]);
@@ -132,7 +134,7 @@ export default function AdminApiKeys() {
   return (
     <div className="p-6">
       <AdminHeader
-        title="API Keys"
+        title={t("API Keys")}
         subtitle="Manage FRELUX AI API keys, plans, quotas and revocation. Raw keys are never visible here."
       />
 
@@ -147,9 +149,9 @@ export default function AdminApiKeys() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name, prefix, plan, status or owner…"
+          placeholder={t("Search by name, prefix, plan, status or owner…")}
           className="w-full max-w-sm rounded-lg border bg-background px-3 py-2 text-sm"
-          aria-label="Search API keys"
+          aria-label={t("Search API keys")}
         />
         <button
           type="button"
@@ -157,7 +159,7 @@ export default function AdminApiKeys() {
           className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm"
         >
           <RefreshCw aria-hidden="true" className="h-4 w-4" />
-          Refresh
+          {t("Refresh")}
         </button>
       </div>
 
@@ -171,20 +173,20 @@ export default function AdminApiKeys() {
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-12 text-center text-sm text-muted-foreground">
           <KeyRound aria-hidden="true" className="h-8 w-8" />
-          No API keys match.
+          {t("No API keys match.")}
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left text-xs">
               <tr>
-                <th className="px-3 py-2">Key</th>
-                <th className="px-3 py-2">Plan</th>
-                <th className="px-3 py-2">Limits</th>
-                <th className="px-3 py-2">Owner</th>
-                <th className="px-3 py-2">Last used</th>
-                <th className="px-3 py-2">Status</th>
-                <th className="px-3 py-2">Actions</th>
+                <th className="px-3 py-2">{t("Key")}</th>
+                <th className="px-3 py-2">{t("Plan")}</th>
+                <th className="px-3 py-2">{t("Limits")}</th>
+                <th className="px-3 py-2">{t("Owner")}</th>
+                <th className="px-3 py-2">{t("Last used")}</th>
+                <th className="px-3 py-2">{t("Status")}</th>
+                <th className="px-3 py-2">{t("Actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -305,7 +307,7 @@ export default function AdminApiKeys() {
                         className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-red-600 disabled:opacity-50"
                       >
                         <Ban aria-hidden="true" className="h-3 w-3" />
-                        Revoke
+                        {t("Revoke")}
                       </button>
                     ) : (
                       <button
@@ -315,7 +317,7 @@ export default function AdminApiKeys() {
                         className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs disabled:opacity-50"
                       >
                         <CheckCircle2 aria-hidden="true" className="h-3 w-3" />
-                        Restore
+                        {t("Restore")}
                       </button>
                     )}
                   </td>
@@ -330,7 +332,7 @@ export default function AdminApiKeys() {
       <section className="rounded-lg border bg-card p-5">
         <h2 className="mb-1 flex items-center gap-2 text-base font-semibold">
           <Activity aria-hidden="true" className="h-4 w-4" />
-          API usage monitor, last 24h
+          {t("API usage monitor, last 24h")}
         </h2>
         <p className="mb-4 text-sm text-muted-foreground">
           Requests, errors, latency, quota exhaustion and authentication
@@ -350,7 +352,7 @@ export default function AdminApiKeys() {
             )}
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-lg border bg-background p-4">
-                <p className="text-xs text-muted-foreground">Requests</p>
+                <p className="text-xs text-muted-foreground">{t("Requests")}</p>
                 <p className="mt-1 text-xl font-semibold">
                   {overview.window.totalRequests}
                 </p>
@@ -359,7 +361,7 @@ export default function AdminApiKeys() {
                 </p>
               </div>
               <div className="rounded-lg border bg-background p-4">
-                <p className="text-xs text-muted-foreground">Errors</p>
+                <p className="text-xs text-muted-foreground">{t("Errors")}</p>
                 <p className="mt-1 text-xl font-semibold">
                   {overview.window.errorResponses}
                 </p>
@@ -369,7 +371,7 @@ export default function AdminApiKeys() {
               </div>
               <div className="rounded-lg border bg-background p-4">
                 <p className="text-xs text-muted-foreground">
-                  Quota exhaustion
+                  {t("Quota exhaustion")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {overview.window.quotaExhausted}
@@ -379,7 +381,9 @@ export default function AdminApiKeys() {
                 </p>
               </div>
               <div className="rounded-lg border bg-background p-4">
-                <p className="text-xs text-muted-foreground">Auth failures</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("Auth failures")}
+                </p>
                 <p className="mt-1 text-xl font-semibold">
                   {overview.window.authFailures}
                 </p>
@@ -392,7 +396,7 @@ export default function AdminApiKeys() {
             {overview.authFailures.length > 0 && (
               <div className="mt-4">
                 <p className="mb-2 text-sm font-medium">
-                  Auth failure breakdown (no key material stored)
+                  {t("Auth failure breakdown (no key material stored)")}
                 </p>
                 <ul className="flex flex-wrap gap-2 text-xs">
                   {overview.authFailures.map((f) => (
@@ -409,14 +413,14 @@ export default function AdminApiKeys() {
 
             {overview.byCapability.length > 0 && (
               <div className="mt-4 overflow-x-auto">
-                <p className="mb-2 text-sm font-medium">By capability</p>
+                <p className="mb-2 text-sm font-medium">{t("By capability")}</p>
                 <table className="w-full text-left text-xs">
                   <thead className="text-muted-foreground">
                     <tr>
-                      <th className="py-1 pr-4">Capability</th>
-                      <th className="py-1 pr-4">Requests</th>
-                      <th className="py-1 pr-4">Errors</th>
-                      <th className="py-1">Avg latency</th>
+                      <th className="py-1 pr-4">{t("Capability")}</th>
+                      <th className="py-1 pr-4">{t("Requests")}</th>
+                      <th className="py-1 pr-4">{t("Errors")}</th>
+                      <th className="py-1">{t("Avg latency")}</th>
                     </tr>
                   </thead>
                   <tbody>

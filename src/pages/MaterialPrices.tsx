@@ -15,6 +15,7 @@ import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { formatByCode } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 type Status = "loading" | "ready" | "error";
 
@@ -53,6 +54,7 @@ function prettyCategory(slug: string | null): string {
 }
 
 export default function MaterialPrices() {
+  const { t } = useLanguage();
   useSeo({
     title: "Material Prices: Live Construction & Paint Price Book",
     description:
@@ -185,7 +187,7 @@ export default function MaterialPrices() {
         <PageHeader
           variant="data"
           eyebrow="Market Intelligence"
-          title="Material Prices"
+          title={t("Material Prices")}
           subtitle="The live FRELUX price book: what materials cost right now, where the numbers come from, and how they moved."
           breadcrumbs={[{ label: "Material Prices" }]}
         />
@@ -202,7 +204,7 @@ export default function MaterialPrices() {
         <PageHeader
           variant="data"
           eyebrow="Market Intelligence"
-          title="Material Prices"
+          title={t("Material Prices")}
           subtitle="The live FRELUX price book: what materials cost right now, where the numbers come from, and how they moved."
           breadcrumbs={[{ label: "Material Prices" }]}
         />
@@ -221,7 +223,7 @@ export default function MaterialPrices() {
       <PageHeader
         variant="data"
         eyebrow="Market Intelligence"
-        title="Material Prices"
+        title={t("Material Prices")}
         subtitle="The live FRELUX price book: what materials cost right now, where the numbers come from, and how they moved."
         breadcrumbs={[{ label: "Material Prices" }]}
       />
@@ -247,11 +249,11 @@ export default function MaterialPrices() {
           <div className="relative w-full max-w-xs">
             <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
-              aria-label="Search materials"
+              aria-label={t("Search materials")}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search materials…"
+              placeholder={t("Search materials…")}
               className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-3 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus:border-brand-purple/50 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-card dark:text-primary-foreground"
             />
           </div>
@@ -268,7 +270,7 @@ export default function MaterialPrices() {
         {grouped.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-muted/50 p-16 text-center dark:border-white/10 dark:bg-white/5">
             <p className="text-sm text-muted-foreground">
-              No tracked prices yet. Check back soon.
+              {t("No tracked prices yet. Check back soon.")}
             </p>
           </div>
         ) : (
@@ -288,15 +290,17 @@ export default function MaterialPrices() {
                     <table className="w-full min-w-[44rem] text-sm">
                       <thead>
                         <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wider text-muted-foreground dark:border-white/5">
-                          <th className="px-5 py-3 font-semibold">Material</th>
+                          <th className="px-5 py-3 font-semibold">
+                            {t("Material")}
+                          </th>
                           <th className="px-5 py-3 text-right font-semibold">
-                            Price
+                            {t("Price")}
                           </th>
                           <th className="min-w-48 px-5 py-3 font-semibold">
-                            Source
+                            {t("Source")}
                           </th>
                           <th className="min-w-36 px-5 py-3 font-semibold">
-                            Effective
+                            {t("Effective")}
                           </th>
                         </tr>
                       </thead>
@@ -381,7 +385,7 @@ export default function MaterialPrices() {
         {/* Weekly digest signup */}
         <div className="mt-14 rounded-2xl border border-border/80 bg-gradient-to-br from-card via-primary/[0.03] to-primary/[0.06] p-8 text-center dark:border-white/10 dark:from-card dark:via-card/50 dark:to-background">
           <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-            Prices move. Get the weekly digest.
+            {t("Prices move. Get the weekly digest.")}
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground dark:text-muted-foreground">
             One email every Monday with the tracked prices and how they moved

@@ -28,8 +28,10 @@ import {
   type RewardSettings as RSettings,
 } from "@/lib/credits";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function AdminRewards() {
+  const { t: tr } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
   const [tab, setTab] = useState<
@@ -213,7 +215,7 @@ export default function AdminRewards() {
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold text-foreground dark:text-primary-foreground">
-        FRELUX Credits & Rewards
+        {tr("FRELUX Credits & Rewards")}
       </h1>
 
       {/* Tabs */}
@@ -252,21 +254,23 @@ export default function AdminRewards() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
               <p className="text-xs text-muted-foreground">
-                Total Credits in Circulation
+                {tr("Total Credits in Circulation")}
               </p>
               <p className="mt-1 text-2xl font-bold text-brand-purple">
                 {totalCreditsInCirculation}
               </p>
             </div>
             <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
-              <p className="text-xs text-muted-foreground">Active Wallets</p>
+              <p className="text-xs text-muted-foreground">
+                {tr("Active Wallets")}
+              </p>
               <p className="mt-1 text-2xl font-bold text-foreground dark:text-primary-foreground">
                 {wallets.length}
               </p>
             </div>
             <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
               <p className="text-xs text-muted-foreground">
-                Recent Transactions
+                {tr("Recent Transactions")}
               </p>
               <p className="mt-1 text-2xl font-bold text-foreground dark:text-primary-foreground">
                 {transactions.length}
@@ -277,24 +281,24 @@ export default function AdminRewards() {
           {/* Admin credit adjustment */}
           <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
             <h3 className="mb-4 text-sm font-bold text-foreground dark:text-primary-foreground">
-              Adjust User Credits
+              {tr("Adjust User Credits")}
             </h3>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="flex-1">
                 <label className="block text-xs text-muted-foreground mb-1">
-                  User ID
+                  {tr("User ID")}
                 </label>
                 <input
                   type="text"
                   value={adjustingUser}
                   onChange={(e) => setAdjustingUser(e.target.value)}
-                  placeholder="Paste user UUID"
+                  placeholder={tr("Paste user UUID")}
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
               <div className="w-28">
                 <label className="block text-xs text-muted-foreground mb-1">
-                  Amount
+                  {tr("Amount")}
                 </label>
                 <input
                   type="number"
@@ -307,13 +311,13 @@ export default function AdminRewards() {
               </div>
               <div className="flex-1">
                 <label className="block text-xs text-muted-foreground mb-1">
-                  Reason
+                  {tr("Reason")}
                 </label>
                 <input
                   type="text"
                   value={adjustReason}
                   onChange={(e) => setAdjustReason(e.target.value)}
-                  placeholder="Reason for adjustment"
+                  placeholder={tr("Reason for adjustment")}
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
@@ -340,12 +344,12 @@ export default function AdminRewards() {
           {/* Top wallets */}
           <div className="rounded-xl border border-border bg-card dark:border-white/5 dark:bg-card">
             <h3 className="border-b border-border/50 px-5 py-3 text-sm font-bold text-foreground dark:border-white/5 dark:text-primary-foreground">
-              User Credit Balances (Top 50)
+              {tr("User Credit Balances (Top 50)")}
             </h3>
             <div className="divide-y divide-border/50 dark:divide-white/5 max-h-96 overflow-y-auto">
               {wallets.length === 0 && (
                 <p className="px-5 py-8 text-center text-sm text-muted-foreground">
-                  No wallets yet.
+                  {tr("No wallets yet.")}
                 </p>
               )}
               {wallets.map((w) => (
@@ -378,7 +382,7 @@ export default function AdminRewards() {
           {/* Recent transactions */}
           <div className="rounded-xl border border-border bg-card dark:border-white/5 dark:bg-card">
             <h3 className="border-b border-border/50 px-5 py-3 text-sm font-bold text-foreground dark:border-white/5 dark:text-primary-foreground">
-              Recent Transactions (Top 50)
+              {tr("Recent Transactions (Top 50)")}
             </h3>
             <div className="divide-y divide-border/50 dark:divide-white/5 max-h-96 overflow-y-auto">
               {transactions.map((tx) => (
@@ -423,7 +427,7 @@ export default function AdminRewards() {
               <Database className="h-5 w-5 text-brand-purple" />
               <div>
                 <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                  Reward Catalogue
+                  {tr("Reward Catalogue")}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {rewards.length} reward{rewards.length !== 1 ? "s" : ""} in
@@ -451,7 +455,7 @@ export default function AdminRewards() {
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-500/20 dark:bg-amber-500/5">
               <AlertTriangle className="mx-auto h-8 w-8 text-amber-500" />
               <p className="mt-3 text-sm text-card-foreground dark:text-muted-foreground/80">
-                No rewards found in the database.
+                {tr("No rewards found in the database.")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Click "Seed 4 Core Rewards" above to create them.
@@ -469,7 +473,7 @@ export default function AdminRewards() {
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>
                     <label className="block text-xs text-muted-foreground mb-1">
-                      Name
+                      {tr("Name")}
                     </label>
                     <input
                       type="text"
@@ -488,7 +492,7 @@ export default function AdminRewards() {
                   </div>
                   <div>
                     <label className="block text-xs text-muted-foreground mb-1">
-                      Credit Cost
+                      {tr("Credit Cost")}
                     </label>
                     <input
                       type="number"
@@ -507,7 +511,7 @@ export default function AdminRewards() {
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-xs text-muted-foreground mb-1">
-                      Description
+                      {tr("Description")}
                     </label>
                     <textarea
                       value={draft?.description ?? ""}
@@ -541,7 +545,7 @@ export default function AdminRewards() {
                         className="rounded"
                       />
                       <span className="text-muted-foreground dark:text-muted-foreground/80">
-                        Enabled
+                        {tr("Enabled")}
                       </span>
                     </label>
                     <Button
@@ -585,10 +589,10 @@ export default function AdminRewards() {
               />
               <div>
                 <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                  Rewards Enabled
+                  {tr("Rewards Enabled")}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Master toggle for the entire rewards system
+                  {tr("Master toggle for the entire rewards system")}
                 </p>
               </div>
             </label>
@@ -596,7 +600,7 @@ export default function AdminRewards() {
             <div className="space-y-4">
               <div>
                 <label className="block text-xs text-muted-foreground mb-1">
-                  Weekly Mission Reward (credits)
+                  {tr("Weekly Mission Reward (credits)")}
                 </label>
                 <input
                   type="number"
@@ -637,7 +641,7 @@ export default function AdminRewards() {
               </div>
               <div>
                 <label className="block text-xs text-muted-foreground mb-1">
-                  Streak Grace Days
+                  {tr("Streak Grace Days")}
                 </label>
                 <input
                   type="number"
@@ -694,7 +698,7 @@ export default function AdminRewards() {
           </div>
           {suspiciousTxs.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-8">
-              No suspicious activity detected.
+              {tr("No suspicious activity detected.")}
             </p>
           ) : (
             <div className="divide-y divide-border/50 dark:divide-white/5 rounded-xl border border-border dark:border-white/5">

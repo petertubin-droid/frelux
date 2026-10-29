@@ -18,6 +18,7 @@ import {
   createSurfaceAssessment,
 } from "@/lib/project-intelligence";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const CONDITIONS = [
   {
@@ -72,6 +73,7 @@ const PRIORITY_COLORS: Record<string, string> = {
 };
 
 export default function SurfaceAssessment() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Surface Condition Assessment", path: "/surface-assessment" },
   ]);
@@ -117,13 +119,17 @@ export default function SurfaceAssessment() {
           { label: "Construction Tools", path: "/construction-tools" },
           { label: "Surface Condition Assessment" },
         ]}
-        title="Surface Condition Assessment"
-        subtitle="Identify wall conditions and get preparation recommendations before painting."
+        title={t("Surface Condition Assessment")}
+        subtitle={t(
+          "Identify wall conditions and get preparation recommendations before painting.",
+        )}
       />
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Condition selector */}
         <div className="mb-8">
-          <h3 className="font-semibold mb-4">Select the surface condition</h3>
+          <h3 className="font-semibold mb-4">
+            {t("Select the surface condition")}
+          </h3>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {CONDITIONS.map((cond) => (
               <Button
@@ -165,7 +171,7 @@ export default function SurfaceAssessment() {
               <div className="flex items-center gap-2 mb-4">
                 <Shield className="h-5 w-5 text-primary" />
                 <h3 className="font-semibold text-lg">
-                  Preparation Recommendations
+                  {t("Preparation Recommendations")}
                 </h3>
               </div>
               <div className="space-y-3">
@@ -199,14 +205,16 @@ export default function SurfaceAssessment() {
             {/* Save assessment */}
             {!saved && (
               <div className="rounded-2xl border bg-card p-6 shadow-sm">
-                <h3 className="font-semibold mb-4">Save This Assessment</h3>
+                <h3 className="font-semibold mb-4">
+                  {t("Save This Assessment")}
+                </h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label
                       htmlFor="surface-room-name"
                       className="block text-sm font-medium mb-1.5"
                     >
-                      Room/Area Name
+                      {t("Room/Area Name")}
                     </label>
                     <input
                       id="surface-room-name"
@@ -221,12 +229,12 @@ export default function SurfaceAssessment() {
                       htmlFor="surface-notes"
                       className="block text-sm font-medium mb-1.5"
                     >
-                      Additional Notes
+                      {t("Additional Notes")}
                     </label>
                     <input
                       id="surface-notes"
                       className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
-                      placeholder="Optional notes..."
+                      placeholder={t("Optional notes...")}
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                     />

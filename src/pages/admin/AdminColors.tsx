@@ -35,16 +35,20 @@ import AdminPagination from "@/components/admin/AdminPagination";
 import { MediaUploader } from "@/components/admin/MediaUploader";
 import { classNames } from "@/lib/utils";
 import { readableTextColor } from "@/lib/colors";
+import { useLanguage } from "@/lib/i18n";
 
 type Tab = "paint_colors" | "combinations" | "categories" | "families";
 
 export default function AdminColors() {
+  const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>("paint_colors");
   return (
     <>
       <AdminHeader
-        title="Color Gallery"
-        subtitle="Manage individual paint colors, palettes, categories, and color families."
+        title={t("Color Gallery")}
+        subtitle={t(
+          "Manage individual paint colors, palettes, categories, and color families.",
+        )}
       />
       <div className="mb-5 inline-flex flex-wrap rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-1">
         {(
@@ -78,6 +82,7 @@ export default function AdminColors() {
 // =========================================================
 
 function PaintColorsTab() {
+  const { t } = useLanguage();
   const [items, setItems] = useState<DbPaintColor[]>([]);
   const [families, setFamilies] = useState<DbColorFamily[]>([]);
   const [categories, setCategories] = useState<DbColorCategory[]>([]);
@@ -266,7 +271,7 @@ function PaintColorsTab() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching paint colors."
       />
     );
@@ -291,16 +296,17 @@ function PaintColorsTab() {
               setSearch(e.target.value);
               setPage(0);
             }}
-            placeholder="Search by name or hex…"
+            placeholder={t("Search by name or hex…")}
             className="pl-9"
           />
         </div>
         <div className="flex gap-2">
           <AdminButton variant="secondary" onClick={exportCsv}>
-            <Download aria-hidden="true" className="h-4 w-4" /> Export CSV
+            <Download aria-hidden="true" className="h-4 w-4" />{" "}
+            {t("Export CSV")}
           </AdminButton>
           <AdminButton variant="secondary" onClick={() => setShowImport(true)}>
-            <Upload className="h-4 w-4" /> Import
+            <Upload className="h-4 w-4" /> {t("Import")}
           </AdminButton>
           <AdminButton
             onClick={() => {
@@ -308,7 +314,7 @@ function PaintColorsTab() {
               setShowForm(true);
             }}
           >
-            <Plus aria-hidden="true" className="h-4 w-4" /> Add color
+            <Plus aria-hidden="true" className="h-4 w-4" /> {t("Add color")}
           </AdminButton>
         </div>
       </div>
@@ -327,7 +333,7 @@ function PaintColorsTab() {
       {filtered.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No colors found"
+          title={t("No colors found")}
           message="Add your first paint color or adjust your search."
         />
       ) : (
@@ -379,7 +385,7 @@ function PaintColorsTab() {
                           </h3>
                           {!item.is_active && (
                             <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
-                              Off
+                              {t("Off")}
                             </span>
                           )}
                           {item.is_featured && (
@@ -518,6 +524,7 @@ function PaintColorForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [hex, setHex] = useState(initial?.hex_code ?? "#");
@@ -639,7 +646,7 @@ function PaintColorForm({
             value={familyId}
             onChange={(e) => setFamilyId(e.target.value)}
           >
-            <option value="">None</option>
+            <option value="">{t("None")}</option>
             {families.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}
@@ -652,7 +659,7 @@ function PaintColorForm({
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
           >
-            <option value="">None</option>
+            <option value="">{t("None")}</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -666,21 +673,21 @@ function PaintColorForm({
           <AdminInput
             value={usage}
             onChange={(e) => setUsage(e.target.value)}
-            placeholder="Living Room, Bedroom"
+            placeholder={t("Living Room, Bedroom")}
           />
         </AdminField>
         <AdminField label="Finish compatibility" hint="Comma separated">
           <AdminInput
             value={finishes}
             onChange={(e) => setFinishes(e.target.value)}
-            placeholder="Emulsion, Satin"
+            placeholder={t("Emulsion, Satin")}
           />
         </AdminField>
       </div>
       <div className="flex flex-wrap gap-4">
         <div>
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Interior
+            {t("Interior")}
           </span>
           <div className="mt-2">
             <Toggle checked={isInterior} onChange={setIsInterior} />
@@ -688,7 +695,7 @@ function PaintColorForm({
         </div>
         <div>
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Exterior
+            {t("Exterior")}
           </span>
           <div className="mt-2">
             <Toggle checked={isExterior} onChange={setIsExterior} />
@@ -696,7 +703,7 @@ function PaintColorForm({
         </div>
         <div>
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Featured
+            {t("Featured")}
           </span>
           <div className="mt-2">
             <Toggle checked={isFeatured} onChange={setIsFeatured} />
@@ -704,7 +711,7 @@ function PaintColorForm({
         </div>
         <div>
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Trending
+            {t("Trending")}
           </span>
           <div className="mt-2">
             <Toggle checked={isTrending} onChange={setIsTrending} />
@@ -734,7 +741,7 @@ function PaintColorForm({
       )}
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {t("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}
@@ -755,6 +762,7 @@ function ImportModal({
   onClose: () => void;
   onDone: () => void;
 }) {
+  const { t } = useLanguage();
   const [text, setText] = useState("");
   const [format, setFormat] = useState<"csv" | "json">("csv");
   const [result, setResult] = useState<{
@@ -895,7 +903,7 @@ function ImportModal({
     <AdminModal
       open
       onClose={onClose}
-      title="Bulk import colors"
+      title={t("Bulk import colors")}
       maxWidth="max-w-2xl"
     >
       {/* Format toggle */}
@@ -910,7 +918,7 @@ function ImportModal({
               : "text-muted-foreground",
           )}
         >
-          CSV
+          {t("CSV")}
         </AdminButton>
         <AdminButton
           type="button"
@@ -922,7 +930,7 @@ function ImportModal({
               : "text-muted-foreground",
           )}
         >
-          JSON
+          {t("JSON")}
         </AdminButton>
       </div>
 
@@ -976,16 +984,16 @@ function ImportModal({
               onClick={() => setPreview(null)}
               className="text-xs text-muted-foreground"
             >
-              Hide preview
+              {t("Hide preview")}
             </AdminButton>
           </div>
           <div className="mt-2 max-h-32 overflow-y-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-left text-muted-foreground dark:text-muted-foreground">
-                  <th className="pb-1">Name</th>
-                  <th className="pb-1">HEX</th>
-                  <th className="pb-1">Status</th>
+                  <th className="pb-1">{t("Name")}</th>
+                  <th className="pb-1">{t("HEX")}</th>
+                  <th className="pb-1">{t("Status")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1027,7 +1035,7 @@ function ImportModal({
                   onClick={downloadErrorReport}
                   className="text-xs font-semibold"
                 >
-                  Download error report
+                  {t("Download error report")}
                 </AdminButton>
               </div>
               <ul className="mt-1 text-xs text-red-500">
@@ -1042,7 +1050,7 @@ function ImportModal({
 
       <div className="mt-4 flex justify-end gap-3">
         <AdminButton variant="secondary" onClick={onClose}>
-          Close
+          {t("Close")}
         </AdminButton>
         <AdminButton
           onClick={doImport}
@@ -1060,6 +1068,7 @@ function ImportModal({
 // =========================================================
 
 function FamiliesTab() {
+  const { t } = useLanguage();
   const [items, setItems] = useState<DbColorFamily[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -1113,7 +1122,7 @@ function FamiliesTab() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching color families."
       />
     );
@@ -1131,13 +1140,13 @@ function FamiliesTab() {
             setShowForm(true);
           }}
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add family
+          <Plus aria-hidden="true" className="h-4 w-4" /> {t("Add family")}
         </AdminButton>
       </div>
       {items.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No families yet"
+          title={t("No families yet")}
           message="Add your first color family."
         />
       ) : (
@@ -1200,6 +1209,7 @@ function FamilyForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
@@ -1285,7 +1295,7 @@ function FamilyForm({
         </AdminField>
         <div>
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Active
+            {t("Active")}
           </span>
           <div className="mt-2">
             <Toggle checked={isActive} onChange={setIsActive} />
@@ -1299,7 +1309,7 @@ function FamilyForm({
       )}
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {t("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}
@@ -1314,6 +1324,7 @@ function FamilyForm({
 // =========================================================
 
 function CombinationsTab() {
+  const { t } = useLanguage();
   const [items, setItems] = useState<DbColorCombination[]>([]);
   const [categories, setCategories] = useState<DbColorCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1370,7 +1381,7 @@ function CombinationsTab() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching color combinations."
       />
     );
@@ -1388,13 +1399,13 @@ function CombinationsTab() {
             setShowForm(true);
           }}
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add combination
+          <Plus aria-hidden="true" className="h-4 w-4" /> {t("Add combination")}
         </AdminButton>
       </div>
       {items.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No combinations yet"
+          title={t("No combinations yet")}
           message="Add your first color combination."
         />
       ) : (
@@ -1415,11 +1426,11 @@ function CombinationsTab() {
                   <div className="absolute right-2 top-2">
                     {!item.is_published ? (
                       <span className="rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                        Draft
+                        {t("Draft")}
                       </span>
                     ) : (
                       <span className="rounded-full bg-accent-green/90 px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                        Published
+                        {t("Published")}
                       </span>
                     )}
                   </div>
@@ -1493,6 +1504,7 @@ function CombinationForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [title, setTitle] = useState(initial?.title ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
@@ -1661,7 +1673,7 @@ function CombinationForm({
           <AdminInput
             value={rooms}
             onChange={(e) => setRooms(e.target.value)}
-            placeholder="Living Room, Hallway"
+            placeholder={t("Living Room, Hallway")}
           />
         </AdminField>
         <AdminField label="Style">
@@ -1715,7 +1727,7 @@ function CombinationForm({
         </AdminField>
         <div>
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Published
+            {t("Published")}
           </span>
           <div className="mt-2">
             <Toggle checked={isPublished} onChange={setIsPublished} />
@@ -1729,7 +1741,7 @@ function CombinationForm({
       )}
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {t("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}
@@ -1744,6 +1756,7 @@ function CombinationForm({
 // =========================================================
 
 function CategoriesTab() {
+  const { t } = useLanguage();
   const [items, setItems] = useState<DbColorCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -1797,7 +1810,7 @@ function CategoriesTab() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching categories."
       />
     );
@@ -1815,13 +1828,13 @@ function CategoriesTab() {
             setShowForm(true);
           }}
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add category
+          <Plus aria-hidden="true" className="h-4 w-4" /> {t("Add category")}
         </AdminButton>
       </div>
       {items.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No categories yet"
+          title={t("No categories yet")}
           message="Add your first category."
         />
       ) : (
@@ -1884,6 +1897,7 @@ function CategoryForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [type, setType] = useState<DbColorCategory["type"]>(
@@ -1960,11 +1974,11 @@ function CategoryForm({
           value={type}
           onChange={(e) => setType(e.target.value as DbColorCategory["type"])}
         >
-          <option value="room">Room</option>
-          <option value="style">Style</option>
-          <option value="surface">Surface</option>
-          <option value="collection">Collection</option>
-          <option value="seasonal">Seasonal</option>
+          <option value="room">{t("Room")}</option>
+          <option value="style">{t("Style")}</option>
+          <option value="surface">{t("Surface")}</option>
+          <option value="collection">{t("Collection")}</option>
+          <option value="seasonal">{t("Seasonal")}</option>
         </AdminSelect>
       </AdminField>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -1977,7 +1991,7 @@ function CategoryForm({
         </AdminField>
         <div>
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Active
+            {t("Active")}
           </span>
           <div className="mt-2">
             <Toggle checked={isActive} onChange={setIsActive} />
@@ -1991,7 +2005,7 @@ function CategoryForm({
       )}
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {t("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}

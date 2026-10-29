@@ -12,8 +12,10 @@ import { supabase } from "@/lib/supabase";
 import { fetchStageTemplates } from "@/lib/project-intelligence";
 import type { DbProjectStageTemplate } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function AdminProjectStages() {
+  const { t } = useLanguage();
   const [stages, setStages] = useState<DbProjectStageTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<DbProjectStageTemplate | null>(null);
@@ -70,12 +72,13 @@ export default function AdminProjectStages() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Project Stages</h1>
+          <h1 className="text-2xl font-bold">{t("Project Stages")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage configurable project progress stage templates.
+            {t("Manage configurable project progress stage templates.")}
           </p>
         </div>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => {
             setForm({
               stage_key: "",
@@ -101,7 +104,8 @@ export default function AdminProjectStages() {
         >
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">{editing ? "Edit" : "Add"} Stage</h3>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setShowForm(false)}
               className="rounded-lg p-1.5 hover:bg-muted"
             >
@@ -132,7 +136,7 @@ export default function AdminProjectStages() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className={labelCls}>Description</label>
+              <label className={labelCls}>{t("Description")}</label>
               <input
                 className={inputCls}
                 value={form.description}
@@ -142,7 +146,7 @@ export default function AdminProjectStages() {
               />
             </div>
             <div>
-              <label className={labelCls}>Sort Order</label>
+              <label className={labelCls}>{t("Sort Order")}</label>
               <input
                 type="number"
                 className={inputCls}
@@ -153,7 +157,8 @@ export default function AdminProjectStages() {
               />
             </div>
           </div>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={handleSave}
             className="group inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
@@ -191,7 +196,8 @@ export default function AdminProjectStages() {
                 )}
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => {
                     setEditing(stage);
                     setForm({
@@ -207,7 +213,8 @@ export default function AdminProjectStages() {
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => handleDelete(stage.id)}
                   className="rounded-lg p-2 hover:bg-destructive/10 transition-all hover:scale-110"
                 >

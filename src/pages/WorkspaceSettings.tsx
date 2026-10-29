@@ -43,6 +43,7 @@ import { useToast } from "@/components/ui/Toast";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import { Label } from "@/components/ui/shadcn/label";
+import { useLanguage } from "@/lib/i18n";
 import {
   Select,
   SelectContent,
@@ -65,6 +66,7 @@ import {
 } from "@/components/ui/shadcn/tabs";
 
 export default function WorkspaceSettings() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const {
     activeWorkspace,
@@ -226,7 +228,10 @@ export default function WorkspaceSettings() {
     }
   };
 
-  const handleSetStatus = async (memberId: string, status: "suspended" | "revoked" | "active") => {
+  const handleSetStatus = async (
+    memberId: string,
+    status: "suspended" | "revoked" | "active",
+  ) => {
     if (!activeWorkspace) return;
     const verb =
       status === "active"
@@ -237,7 +242,11 @@ export default function WorkspaceSettings() {
     if (!confirm(`Are you sure you want to ${verb} this member?`)) return;
     const res = await setMemberStatus(activeWorkspace.id, memberId, status);
     if (res.error) {
-      toast({ title: "Failed to update member status", message: res.error, variant: "error" });
+      toast({
+        title: "Failed to update member status",
+        message: res.error,
+        variant: "error",
+      });
     } else {
       toast({
         title: status === "active" ? "Member restored" : `Member ${status}`,
@@ -274,7 +283,7 @@ export default function WorkspaceSettings() {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <p className="text-muted-foreground">
-          Please sign in to manage workspaces.
+          {t("Please sign in to manage workspaces.")}
         </p>
       </div>
     );
@@ -291,7 +300,7 @@ export default function WorkspaceSettings() {
           className="mb-4 inline-flex items-center gap-1.5 text-muted-foreground"
         >
           <Link to="/project-workspace">
-            <ArrowLeft className="h-4 w-4" /> Back to Project Workspace
+            <ArrowLeft className="h-4 w-4" /> {t("Back to Project Workspace")}
           </Link>
         </Button>
 
@@ -317,7 +326,7 @@ export default function WorkspaceSettings() {
               onValueChange={(val) => switchWorkspace(val)}
             >
               <SelectTrigger className="w-[240px]">
-                <SelectValue placeholder="Select Workspace" />
+                <SelectValue placeholder={t("Select Workspace")} />
               </SelectTrigger>
               <SelectContent>
                 {workspaces.map((ws) => (
@@ -341,7 +350,7 @@ export default function WorkspaceSettings() {
             <Mail className="h-4 w-4" /> Invitations ({invitations.length})
           </TabsTrigger>
           <TabsTrigger value="audit" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" /> Audit Trail
+            <Activity className="h-4 w-4" /> {t("Audit Trail")}
           </TabsTrigger>
         </TabsList>
 
@@ -349,7 +358,7 @@ export default function WorkspaceSettings() {
         <TabsContent value="team" className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold">Workspace Members</h3>
+              <h3 className="text-lg font-bold">{t("Workspace Members")}</h3>
               <p className="text-sm text-muted-foreground">
                 Collaborators with role-based access across estimates, site
                 logs, and drawings.
@@ -360,7 +369,7 @@ export default function WorkspaceSettings() {
                 onClick={() => setInviteOpen(true)}
                 className="flex items-center gap-2"
               >
-                <UserPlus className="h-4 w-4" /> Invite Member
+                <UserPlus className="h-4 w-4" /> {t("Invite Member")}
               </Button>
             )}
           </div>
@@ -370,11 +379,13 @@ export default function WorkspaceSettings() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-muted/40 text-left text-xs text-muted-foreground font-semibold">
-                    <th className="p-3">Member</th>
-                    <th className="p-3">Role</th>
-                    <th className="p-3">Permissions</th>
-                    <th className="p-3">Joined</th>
-                    {isManager && <th className="p-3 text-right">Actions</th>}
+                    <th className="p-3">{t("Member")}</th>
+                    <th className="p-3">{t("Role")}</th>
+                    <th className="p-3">{t("Permissions")}</th>
+                    <th className="p-3">{t("Joined")}</th>
+                    {isManager && (
+                      <th className="p-3 text-right">{t("Actions")}</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -474,7 +485,7 @@ export default function WorkspaceSettings() {
                                     onClick={() =>
                                       handleSetStatus(m.id, "active")
                                     }
-                                    title="Restore member access"
+                                    title={t("Restore member access")}
                                     className="h-8 px-2"
                                   >
                                     <RotateCcw className="h-4 w-4" />
@@ -487,7 +498,9 @@ export default function WorkspaceSettings() {
                                     onClick={() =>
                                       handleSetStatus(m.id, "suspended")
                                     }
-                                    title="Suspend member access (reversible)"
+                                    title={t(
+                                      "Suspend member access (reversible)",
+                                    )}
                                     className="h-8 px-2"
                                   >
                                     <Pause className="h-4 w-4" />
@@ -520,9 +533,9 @@ export default function WorkspaceSettings() {
         <TabsContent value="invitations" className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold">Pending Invitations</h3>
+              <h3 className="text-lg font-bold">{t("Pending Invitations")}</h3>
               <p className="text-sm text-muted-foreground">
-                Sent invitations awaiting acceptance by recipients.
+                {t("Sent invitations awaiting acceptance by recipients.")}
               </p>
             </div>
             {isManager && (
@@ -530,7 +543,7 @@ export default function WorkspaceSettings() {
                 onClick={() => setInviteOpen(true)}
                 className="flex items-center gap-2"
               >
-                <UserPlus className="h-4 w-4" /> Invite Member
+                <UserPlus className="h-4 w-4" /> {t("Invite Member")}
               </Button>
             )}
           </div>
@@ -538,18 +551,18 @@ export default function WorkspaceSettings() {
           <div className="rounded-xl border bg-card overflow-hidden">
             {invitations.length === 0 ? (
               <div className="p-8 text-center text-sm text-muted-foreground">
-                No pending invitations for this workspace.
+                {t("No pending invitations for this workspace.")}
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b bg-muted/40 text-left text-xs text-muted-foreground font-semibold">
-                      <th className="p-3">Invited Email</th>
-                      <th className="p-3">Role</th>
-                      <th className="p-3">Status</th>
-                      <th className="p-3">Expires</th>
-                      <th className="p-3 text-right">Actions</th>
+                      <th className="p-3">{t("Invited Email")}</th>
+                      <th className="p-3">{t("Role")}</th>
+                      <th className="p-3">{t("Status")}</th>
+                      <th className="p-3">{t("Expires")}</th>
+                      <th className="p-3 text-right">{t("Actions")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -577,11 +590,11 @@ export default function WorkspaceSettings() {
                           <td className="p-3">
                             {isExpired ? (
                               <span className="text-xs text-destructive font-medium">
-                                Expired
+                                {t("Expired")}
                               </span>
                             ) : (
                               <span className="text-xs text-amber-600 font-medium">
-                                Pending Acceptance
+                                {t("Pending Acceptance")}
                               </span>
                             )}
                           </td>
@@ -602,7 +615,7 @@ export default function WorkspaceSettings() {
                                 </>
                               ) : (
                                 <>
-                                  <Copy className="h-3 w-3" /> Copy Link
+                                  <Copy className="h-3 w-3" /> {t("Copy Link")}
                                 </>
                               )}
                             </Button>
@@ -613,7 +626,7 @@ export default function WorkspaceSettings() {
                                 onClick={() => handleRevokeInvite(inv.id)}
                                 className="h-7 text-xs text-destructive hover:bg-destructive/10"
                               >
-                                Revoke
+                                {t("Revoke")}
                               </Button>
                             )}
                           </td>
@@ -643,7 +656,7 @@ export default function WorkspaceSettings() {
           <div className="rounded-xl border bg-card overflow-hidden">
             {activities.length === 0 ? (
               <div className="p-8 text-center text-sm text-muted-foreground">
-                No recorded activity events yet.
+                {t("No recorded activity events yet.")}
               </div>
             ) : (
               <div className="divide-y">
@@ -684,7 +697,9 @@ export default function WorkspaceSettings() {
       <div className="mt-8 rounded-lg border bg-card p-5">
         <div className="flex items-center gap-2 mb-3">
           <ShieldCheck className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold">Security review status</h3>
+          <h3 className="text-sm font-semibold">
+            {t("Security review status")}
+          </h3>
         </div>
         {posture.length === 0 ? (
           <p className="text-sm text-muted-foreground">
@@ -719,13 +734,16 @@ export default function WorkspaceSettings() {
           <form onSubmit={handleSendInvite}>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5 text-primary" /> Invite Team Member
+                <UserPlus className="h-5 w-5 text-primary" />{" "}
+                {t("Invite Team Member")}
               </DialogTitle>
             </DialogHeader>
 
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="invite-email">Recipient Email Address</Label>
+                <Label htmlFor="invite-email">
+                  {t("Recipient Email Address")}
+                </Label>
                 <Input
                   id="invite-email"
                   type="email"
@@ -737,7 +755,9 @@ export default function WorkspaceSettings() {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="invite-role">Assigned Enterprise Role</Label>
+                <Label htmlFor="invite-role">
+                  {t("Assigned Enterprise Role")}
+                </Label>
                 <Select
                   value={inviteRole}
                   onValueChange={(val: WorkspaceRole) => setInviteRole(val)}
@@ -768,7 +788,7 @@ export default function WorkspaceSettings() {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="invite-title">Optional Job Title</Label>
+                <Label htmlFor="invite-title">{t("Optional Job Title")}</Label>
                 <Input
                   id="invite-title"
                   placeholder="e.g. Lead Structural Foreman"
@@ -785,7 +805,7 @@ export default function WorkspaceSettings() {
                 onClick={() => setInviteOpen(false)}
                 disabled={sendingInvite}
               >
-                Cancel
+                {t("Cancel")}
               </Button>
               <Button
                 type="submit"

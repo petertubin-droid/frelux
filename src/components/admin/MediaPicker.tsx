@@ -17,6 +17,7 @@ import {
 import type { DbMediaFolder, DbMediaItem } from "@/types/database";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface MediaPickerProps {
   open: boolean;
@@ -31,6 +32,7 @@ export function MediaPicker({
   onSelect,
   defaultFolder = "colors",
 }: MediaPickerProps) {
+  const { t } = useLanguage();
   const [folders, setFolders] = useState<DbMediaFolder[]>([]);
   const [items, setItems] = useState<DbMediaItem[]>([]);
   const [activeFolder, setActiveFolder] = useState<string | null>(null);
@@ -106,7 +108,7 @@ export function MediaPicker({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border dark:border-white/5 px-5 py-3">
           <h2 className="text-base font-bold text-foreground dark:text-primary-foreground">
-            Media Library
+            {t("Media Library")}
           </h2>
           <Button
             variant="ghost"
@@ -128,7 +130,7 @@ export function MediaPicker({
           {/* Sidebar: folders */}
           <div className="w-48 shrink-0 border-r border-border dark:border-white/5 bg-muted/50 dark:bg-white/5 p-3">
             <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-              Folders
+              {t("Folders")}
             </p>
             <div className="space-y-1">
               <Button
@@ -142,7 +144,7 @@ export function MediaPicker({
                     : "text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted",
                 )}
               >
-                <FolderIcon aria-hidden="true" className="h-4 w-4" /> All
+                <FolderIcon aria-hidden="true" className="h-4 w-4" /> {t("All")}
               </Button>
               {folders.map((f) => (
                 <Button
@@ -172,11 +174,11 @@ export function MediaPicker({
                   className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground dark:text-muted-foreground"
                 />
                 <input
-                  aria-label="Search media"
+                  aria-label={t("Search media")}
                   type="search"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search media…"
+                  placeholder={t("Search media…")}
                   className="input-field pl-9"
                 />
               </div>
@@ -209,7 +211,7 @@ export function MediaPicker({
                     className="h-8 w-8 text-muted-foreground/80"
                   />
                   <p className="mt-2">
-                    No images yet. Upload one to get started.
+                    {t("No images yet. Upload one to get started.")}
                   </p>
                 </div>
               ) : (
@@ -274,7 +276,7 @@ export function MediaPicker({
             </p>
           ) : (
             <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-              Select an image or upload a new one.
+              {t("Select an image or upload a new one.")}
             </p>
           )}
           <div className="flex gap-3">
@@ -284,7 +286,7 @@ export function MediaPicker({
               onClick={onClose}
               className="rounded-lg border border-border dark:border-white/5 px-4 py-2 text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted/50 dark:bg-white/5"
             >
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button
               variant="default"
@@ -293,7 +295,7 @@ export function MediaPicker({
               disabled={!selected}
               className="rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50 hover:bg-primary/90"
             >
-              Select
+              {t("Select")}
             </Button>
           </div>
         </div>

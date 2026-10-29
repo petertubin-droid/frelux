@@ -20,6 +20,7 @@ import {
   type ProcurementRecord,
 } from "@/lib/procurement/records";
 import { useSeo } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 
 // =========================================================
 // FRELUX Phase 3: logistics board.
@@ -75,6 +76,7 @@ function LineItemRow({ item }: { item: ProcurementLineItem }) {
 }
 
 export function LogisticsBoard() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   useSeo({
     title: "Logistics board | FRELUX",
@@ -191,7 +193,7 @@ export function LogisticsBoard() {
             id="logistics-heading"
             className="text-xl font-semibold text-foreground"
           >
-            Logistics board
+            {t("Logistics board")}
           </h1>
           <p className="mt-1 text-xs text-muted-foreground">
             Procurement tracking with auditable transitions. Every status change
@@ -208,11 +210,11 @@ export function LogisticsBoard() {
               className="mr-1 h-4 w-4 rotate-180"
               aria-hidden="true"
             />
-            Projects
+            {t("Projects")}
           </Button>
           <Button size="sm" onClick={() => setCreating((c) => !c)}>
             <Plus className="mr-1 h-4 w-4" aria-hidden="true" />
-            New record
+            {t("New record")}
           </Button>
         </div>
       </div>
@@ -220,7 +222,7 @@ export function LogisticsBoard() {
       <div
         className="mt-4 flex flex-wrap gap-2"
         role="tablist"
-        aria-label="Status filters"
+        aria-label={t("Status filters")}
       >
         {STATUS_FILTERS.map((f, i) => (
           <Button
@@ -245,7 +247,7 @@ export function LogisticsBoard() {
       {creating && (
         <form
           className="mt-4 space-y-3 rounded-xl border border-border bg-card p-4"
-          aria-label="New procurement record"
+          aria-label={t("New procurement record")}
           onSubmit={(e) => {
             e.preventDefault();
             void submit();
@@ -253,7 +255,7 @@ export function LogisticsBoard() {
         >
           <div className="grid gap-3 sm:grid-cols-3">
             <label className="space-y-1 text-sm">
-              <span className="text-muted-foreground">Title</span>
+              <span className="text-muted-foreground">{t("Title")}</span>
               <Input
                 required
                 value={form.title}
@@ -263,7 +265,7 @@ export function LogisticsBoard() {
               />
             </label>
             <label className="space-y-1 text-sm">
-              <span className="text-muted-foreground">Supplier</span>
+              <span className="text-muted-foreground">{t("Supplier")}</span>
               <Input
                 required
                 value={form.supplier}
@@ -273,7 +275,7 @@ export function LogisticsBoard() {
               />
             </label>
             <label className="space-y-1 text-sm">
-              <span className="text-muted-foreground">Destination</span>
+              <span className="text-muted-foreground">{t("Destination")}</span>
               <Input
                 required
                 value={form.destination}
@@ -303,10 +305,10 @@ export function LogisticsBoard() {
               size="sm"
               onClick={() => setCreating(false)}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button type="submit" size="sm" disabled={busy === "create"}>
-              Create as listed
+              {t("Create as listed")}
             </Button>
           </div>
         </form>
@@ -321,7 +323,7 @@ export function LogisticsBoard() {
             aria-hidden="true"
           />
           <p className="mt-2 text-sm font-medium text-foreground">
-            No procurement records here yet
+            {t("No procurement records here yet")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             Create a record to start tracking quotes, orders and deliveries with
@@ -365,7 +367,7 @@ export function LogisticsBoard() {
                 </div>
 
                 {record.line_items.length > 0 && (
-                  <ul className="mt-2 space-y-1" aria-label="Line items">
+                  <ul className="mt-2 space-y-1" aria-label={t("Line items")}>
                     {record.line_items.map((item, i) => (
                       <LineItemRow key={i} item={item} />
                     ))}
@@ -376,7 +378,7 @@ export function LogisticsBoard() {
                   <>
                     <label className="mt-2 block text-sm">
                       <span className="text-muted-foreground">
-                        Decision note (recorded)
+                        {t("Decision note (recorded)")}
                       </span>
                       <Input
                         className="mt-1"
@@ -425,7 +427,7 @@ export function LogisticsBoard() {
                     </p>
                   ) : trail.length === 0 ? (
                     <p className="mt-2 text-xs text-muted-foreground">
-                      No recorded events yet.
+                      {t("No recorded events yet.")}
                     </p>
                   ) : (
                     <ol className="mt-2 space-y-2 border-l border-border pl-3">

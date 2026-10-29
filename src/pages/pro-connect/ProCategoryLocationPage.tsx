@@ -14,6 +14,7 @@ import type {
   DbProProfile,
 } from "@/types/pro-connect";
 import LocationPicker from "@/components/ui/LocationPicker";
+import { useLanguage } from "@/lib/i18n";
 
 // ============================================================
 // SEO Page: /pro/:categorySlug/:locationSlug
@@ -37,6 +38,7 @@ function slugifyProfessionals(categorySlug: string): string {
 }
 
 export default function ProCategoryLocationPage() {
+  const { t } = useLanguage();
   const { categorySlug, locationSlug } = useParams<{
     categorySlug: string;
     locationSlug: string;
@@ -109,10 +111,10 @@ export default function ProCategoryLocationPage() {
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <Briefcase className="mx-auto h-12 w-12 text-muted-foreground/80" />
         <h1 className="mt-4 text-xl font-bold text-foreground dark:text-primary-foreground">
-          Page Not Found
+          {t("Page Not Found")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          This category or location doesn't exist.
+          {t("This category or location doesn't exist.")}
         </p>
         <Link
           to="/pro-connect/"
@@ -132,11 +134,11 @@ export default function ProCategoryLocationPage() {
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-muted-foreground">
             <Link to="/" className="hover:text-brand-purple">
-              Home
+              {t("Home")}
             </Link>
             <span>/</span>
             <Link to="/pro-connect/" className="hover:text-brand-purple">
-              Pro Connect
+              {t("Pro Connect")}
             </Link>
             <span>/</span>
             <span className="text-foreground dark:text-primary-foreground">
@@ -181,7 +183,7 @@ export default function ProCategoryLocationPage() {
               to="/pro-connect/register/"
               className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
             >
-              Register as a Pro
+              {t("Register as a Pro")}
             </Link>
           </div>
         ) : (

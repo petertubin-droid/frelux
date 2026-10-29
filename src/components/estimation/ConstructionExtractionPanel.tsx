@@ -44,6 +44,7 @@ import {
   SOURCE_LABELS,
 } from "@/lib/construction-extraction";
 import type { BuildToRoofInput } from "@/types/build-to-roof";
+import { useLanguage } from "@/lib/i18n";
 
 interface ConstructionExtractionPanelProps {
   currentOpenings: BuildToRoofInput["openings"];
@@ -169,6 +170,7 @@ export function ConstructionExtractionPanel({
   currentOpenings,
   onApply,
 }: ConstructionExtractionPanelProps) {
+  const { t } = useLanguage();
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState("");
   const [kind, setKind] = useState<DocumentKind>("architectural_plan");
@@ -370,7 +372,7 @@ export function ConstructionExtractionPanel({
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png,.webp"
                 className="hidden"
-                aria-label="Upload construction document"
+                aria-label={t("Upload construction document")}
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) handleFile(file);
@@ -393,7 +395,7 @@ export function ConstructionExtractionPanel({
                       setFileName("");
                     }}
                     className="rounded-md p-1 text-muted-foreground hover:text-foreground"
-                    aria-label="Remove file"
+                    aria-label={t("Remove file")}
                   >
                     <X className="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -414,7 +416,7 @@ export function ConstructionExtractionPanel({
                     (PDF, JPG, PNG)
                   </p>
                   <p className="text-xs text-muted-foreground mb-3">
-                    Dimensioned plans give the most accurate results
+                    {t("Dimensioned plans give the most accurate results")}
                   </p>
                   <button
                     type="button"
@@ -422,7 +424,7 @@ export function ConstructionExtractionPanel({
                     className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                   >
                     <Upload className="w-4 h-4" aria-hidden="true" />
-                    Choose file
+                    {t("Choose file")}
                   </button>
                 </>
               )}
@@ -436,7 +438,7 @@ export function ConstructionExtractionPanel({
                 htmlFor="btr-description"
                 className="block text-sm font-medium text-foreground mb-1.5"
               >
-                Describe your building
+                {t("Describe your building")}
               </label>
               <textarea
                 id="btr-description"
@@ -471,7 +473,7 @@ export function ConstructionExtractionPanel({
             className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-light px-4 py-3 text-sm font-semibold text-primary-foreground shadow-md disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
           >
             <HeadsetGlyph className="h-4 w-4" />
-            Analyse with AI
+            {t("Analyse with AI")}
           </button>
 
           <p className="mt-3 text-xs text-muted-foreground">
@@ -487,14 +489,14 @@ export function ConstructionExtractionPanel({
         <div>
           <div className="flex items-center justify-between gap-2 mb-3">
             <p className="text-sm font-semibold text-foreground">
-              Detected information
+              {t("Detected information")}
             </p>
             <button
               type="button"
               onClick={reset}
               className="text-xs font-medium text-muted-foreground hover:text-foreground"
             >
-              Start over
+              {t("Start over")}
             </button>
           </div>
 
@@ -502,7 +504,7 @@ export function ConstructionExtractionPanel({
             <div className="mb-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 p-3">
               <p className="flex items-center gap-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 mb-1">
                 <Info className="h-3.5 w-3.5" aria-hidden="true" />
-                Notes from the analysis
+                {t("Notes from the analysis")}
               </p>
               <ul className="space-y-0.5">
                 {result.warnings.slice(0, 3).map((w, i) => (
@@ -575,7 +577,7 @@ export function ConstructionExtractionPanel({
                                 {field.verification ===
                                   "requires_confirmation" && (
                                   <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                                    Requires confirmation
+                                    {t("Requires confirmation")}
                                   </span>
                                 )}
                               </div>
@@ -693,7 +695,7 @@ export function ConstructionExtractionPanel({
             <div className="mt-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900 p-3">
               <p className="flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 mb-1">
                 <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
-                Not detected, you can enter these in the next steps
+                {t("Not detected, you can enter these in the next steps")}
               </p>
               <p className="text-xs text-amber-700 dark:text-amber-300">
                 The AI could not reliably read:{" "}
@@ -714,7 +716,7 @@ export function ConstructionExtractionPanel({
               {applied ? (
                 <>
                   <Check className="h-4 w-4" aria-hidden="true" />
-                  Applied, continue below
+                  {t("Applied, continue below")}
                 </>
               ) : (
                 <>

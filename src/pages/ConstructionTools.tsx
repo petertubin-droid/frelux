@@ -32,6 +32,7 @@ import {
 import { EstimateDisclaimer } from "@/components/calculators";
 import { useMarket } from "@/lib/international/market-context";
 import { getMarketToolCopy } from "@/lib/globalization/construction-terminology";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * Construction Tools - the single FRELUX tool library.
@@ -71,6 +72,7 @@ function rememberTool(slug: string) {
 }
 
 function ToolCard({ tool, marketCode }: { tool: Tool; marketCode: string }) {
+  const { t } = useLanguage();
   const Icon = tool.icon;
   const copy = getMarketToolCopy(tool.slug, marketCode, tool);
   return (
@@ -91,7 +93,7 @@ function ToolCard({ tool, marketCode }: { tool: Tool; marketCode: string }) {
         </span>
         {tool.featured && (
           <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-purple">
-            Popular
+            {t("Popular")}
           </span>
         )}
       </div>
@@ -116,7 +118,7 @@ function ToolCard({ tool, marketCode }: { tool: Tool; marketCode: string }) {
         </div>
       </dl>
       <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-purple">
-        Open tool
+        {t("Open tool")}
         <ArrowRight
           className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
           aria-hidden="true"
@@ -127,6 +129,7 @@ function ToolCard({ tool, marketCode }: { tool: Tool; marketCode: string }) {
 }
 
 export default function ConstructionTools() {
+  const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { category: categorySlug } = useParams();
@@ -273,7 +276,7 @@ export default function ConstructionTools() {
           <div className="mx-auto max-w-2xl text-center">
             <HeroTitle
               className="text-3xl text-foreground dark:text-primary-foreground sm:text-4xl"
-              title="Construction Tools"
+              title={t("Construction Tools")}
             />
             <p className="mt-3 text-muted-foreground dark:text-muted-foreground">
               {totalTools} tools with verified market prices. Enter what you
@@ -325,15 +328,17 @@ export default function ConstructionTools() {
                   next.delete("page"); // a new search restarts at section 1
                   setSearchParams(next, { replace: true });
                 }}
-                placeholder="Search tools: paint, tiles, solar, BOQ, labour…"
-                aria-label="Search construction tools"
+                placeholder={t(
+                  "Search tools: paint, tiles, solar, BOQ, labour…",
+                )}
+                aria-label={t("Search construction tools")}
                 className="h-14 w-full rounded-2xl border border-border/60 bg-card pl-12 pr-12 text-base text-foreground shadow-premium-lg outline-none ring-brand-purple/40 transition-all placeholder:text-muted-foreground/70 focus:ring-2 dark:border-white/10 dark:bg-card dark:text-primary-foreground"
               />
               {query && (
                 <button
                   onClick={() => setQuery("")}
                   className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                  aria-label="Clear search"
+                  aria-label={t("Clear search")}
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -348,7 +353,7 @@ export default function ConstructionTools() {
         <div
           className="flex flex-wrap gap-2"
           role="tablist"
-          aria-label="Tool categories"
+          aria-label={t("Tool categories")}
         >
           <button
             role="tab"
@@ -406,7 +411,8 @@ export default function ConstructionTools() {
               id="recent-heading"
               className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground"
             >
-              <Clock className="h-4 w-4" aria-hidden="true" /> Recently used
+              <Clock className="h-4 w-4" aria-hidden="true" />{" "}
+              {t("Recently used")}
             </h2>
             <div className="mt-3 flex flex-wrap gap-2">
               {recentTools.map((t) => {
@@ -499,7 +505,7 @@ export default function ConstructionTools() {
             {/* Section controls: previous / next through 10-tool sections */}
             <nav
               className="mt-8 flex flex-wrap items-center justify-between gap-3"
-              aria-label="Tool library sections"
+              aria-label={t("Tool library sections")}
             >
               <button
                 type="button"
@@ -508,7 +514,7 @@ export default function ConstructionTools() {
                 className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-brand-purple/40 hover:text-brand-purple disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:text-primary-foreground"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                Previous
+                {t("Previous")}
               </button>
               <p
                 className="text-sm font-medium text-muted-foreground"
@@ -526,7 +532,7 @@ export default function ConstructionTools() {
                 disabled={currentPage >= totalPages}
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Next
+                {t("Next")}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </button>
             </nav>
@@ -534,7 +540,7 @@ export default function ConstructionTools() {
               <div
                 className="mt-3 flex flex-wrap justify-center gap-1.5"
                 role="group"
-                aria-label="Jump to section"
+                aria-label={t("Jump to section")}
               >
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                   (p) => (

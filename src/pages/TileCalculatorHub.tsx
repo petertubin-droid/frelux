@@ -15,6 +15,7 @@ import {
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
 import { SITE_URL } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 
 const TileCalculator = lazy(() => import("@/pages/TileCalculator"));
 const TileCostEstimator = lazy(() => import("@/pages/TileCostEstimator"));
@@ -53,6 +54,7 @@ const FAQS = [
 ];
 
 export default function TileCalculatorHub() {
+  const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialMode = searchParams.get("mode") || "quantity";
   const [activeTab, setActiveTab] = useState(initialMode);
@@ -135,7 +137,7 @@ export default function TileCalculatorHub() {
       <PageHeader
         variant="tool"
         eyebrow="Calculator"
-        title="Tile Calculator"
+        title={t("Tile Calculator")}
         subtitle="Calculate tile quantity, boxes, waste, adhesive, grout, and cost, all in one place."
         breadcrumbs={[
           { label: "Calculators", path: "/calculators" },
@@ -171,7 +173,7 @@ export default function TileCalculatorHub() {
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
           <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
-            About the FRELUX Tile Calculator
+            {t("About the FRELUX Tile Calculator")}
           </h2>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             The FRELUX Tile Calculator is a complete tiling project tool that
@@ -180,22 +182,22 @@ export default function TileCalculatorHub() {
             the calculations you need in one place.
           </p>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            Calculation Modes
+            {t("Calculation Modes")}
           </h3>
           <ul>
             <li>
-              <strong>Tile Quantity</strong>, Enter your dimensions and tile
-              size to get exact tile counts, box recommendations, waste
+              <strong>{t("Tile Quantity")}</strong>, Enter your dimensions and
+              tile size to get exact tile counts, box recommendations, waste
               calculations, and adhesive/grout requirements.
             </li>
             <li>
-              <strong>Cost Estimate</strong>, Get a full cost analysis with
-              admin-configured material prices for tiles, adhesive, grout, and
-              accessories, including labour cost options.
+              <strong>{t("Cost Estimate")}</strong>, Get a full cost analysis
+              with admin-configured material prices for tiles, adhesive, grout,
+              and accessories, including labour cost options.
             </li>
           </ul>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            FRELUX Tiling Methodology
+            {t("FRELUX Tiling Methodology")}
           </h3>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             The calculator uses the established FRELUX tile calculation engine

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import { credentialStatusLabel } from "@/lib/credential-status";
 import type { CredentialVerificationStatus } from "@/types/pro-connect";
+import { useLanguage } from "@/lib/i18n";
 import {
   addCredential,
   fetchProSettings,
@@ -93,6 +94,7 @@ function daysUntil(expiry: string | null): number | null {
 }
 
 export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
+  const { t } = useLanguage();
   const [credentials, setCredentials] = useState<DbProCredential[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -237,7 +239,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
           id="pro-credentials-heading"
           className="text-lg font-semibold text-foreground"
         >
-          Professional Credentials
+          {t("Professional Credentials")}
         </h2>
         {!form.open && (
           <Button
@@ -246,7 +248,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
             onClick={() => setForm({ ...EMPTY_FORM, open: true })}
           >
             <Plus aria-hidden="true" className="h-4 w-4" />
-            Add credential
+            {t("Add credential")}
           </Button>
         )}
       </div>
@@ -257,7 +259,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
 
       {form.open && (
         <form
-          aria-label="Credential submission"
+          aria-label={t("Credential submission")}
           className="mt-4 space-y-3 rounded-xl border border-border bg-card p-4"
           onSubmit={(e) => {
             e.preventDefault();
@@ -267,7 +269,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-1 text-sm">
               <span className="text-muted-foreground">
-                Professional body or authority
+                {t("Professional body or authority")}
               </span>
               <Input
                 value={form.body}
@@ -277,7 +279,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
             </label>
             <label className="space-y-1 text-sm">
               <span className="text-muted-foreground">
-                Registration or license number
+                {t("Registration or license number")}
               </span>
               <Input
                 value={form.registrationNumber}
@@ -287,7 +289,9 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
               />
             </label>
             <label className="space-y-1 text-sm">
-              <span className="text-muted-foreground">Credential title</span>
+              <span className="text-muted-foreground">
+                {t("Credential title")}
+              </span>
               <Input
                 value={form.credentialType}
                 onChange={(e) => setField({ credentialType: e.target.value })}
@@ -295,7 +299,9 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
               />
             </label>
             <label className="space-y-1 text-sm">
-              <span className="text-muted-foreground">Credential class</span>
+              <span className="text-muted-foreground">
+                {t("Credential class")}
+              </span>
               <select
                 className="h-10 w-full rounded-lg border border-input bg-card px-3 text-sm"
                 value={form.credentialClass}
@@ -310,28 +316,28 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
             </label>
             <label className="space-y-1 text-sm">
               <span className="text-muted-foreground">
-                Country (two-letter code)
+                {t("Country (two-letter code)")}
               </span>
               <Input
                 value={form.countryCode}
                 onChange={(e) => setField({ countryCode: e.target.value })}
-                placeholder="NG"
+                placeholder={t("NG")}
                 maxLength={2}
               />
             </label>
             <label className="space-y-1 text-sm">
               <span className="text-muted-foreground">
-                State or region (optional)
+                {t("State or region (optional)")}
               </span>
               <Input
                 value={form.subnationalScope}
                 onChange={(e) => setField({ subnationalScope: e.target.value })}
-                placeholder="Lagos"
+                placeholder={t("Lagos")}
               />
             </label>
             <label className="space-y-1 text-sm">
               <span className="text-muted-foreground">
-                Issued date (optional)
+                {t("Issued date (optional)")}
               </span>
               <Input
                 type="date"
@@ -341,7 +347,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
             </label>
             <label className="space-y-1 text-sm">
               <span className="text-muted-foreground">
-                Expiry date (optional)
+                {t("Expiry date (optional)")}
               </span>
               <Input
                 type="date"
@@ -355,7 +361,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
             <div className="grid gap-3 sm:grid-cols-3">
               <label className="space-y-1 text-sm">
                 <span className="text-muted-foreground">
-                  Insurance provider
+                  {t("Insurance provider")}
                 </span>
                 <Input
                   value={form.insuranceProvider}
@@ -365,7 +371,9 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
                 />
               </label>
               <label className="space-y-1 text-sm">
-                <span className="text-muted-foreground">Policy number</span>
+                <span className="text-muted-foreground">
+                  {t("Policy number")}
+                </span>
                 <Input
                   value={form.insurancePolicyNumber}
                   onChange={(e) =>
@@ -374,7 +382,9 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
                 />
               </label>
               <label className="space-y-1 text-sm">
-                <span className="text-muted-foreground">Insurance expiry</span>
+                <span className="text-muted-foreground">
+                  {t("Insurance expiry")}
+                </span>
                 <Input
                   type="date"
                   value={form.insuranceExpiry}
@@ -423,7 +433,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
               variant="ghost"
               onClick={() => setForm({ ...EMPTY_FORM, open: false })}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
           </div>
         </form>
@@ -435,7 +445,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
         </p>
       ) : credentials.length === 0 ? (
         <p className="mt-4 text-sm text-muted-foreground">
-          No credentials submitted yet.
+          {t("No credentials submitted yet.")}
         </p>
       ) : (
         <ul className="mt-4 space-y-2">
@@ -476,7 +486,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
                   if (d < 0)
                     return (
                       <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-600 dark:bg-red-500/10 dark:text-red-400">
-                        Expired
+                        {t("Expired")}
                       </span>
                     );
                   if (d <= 30)
@@ -497,7 +507,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
                     onClick={() => void resubmit(cred.id)}
                   >
                     <RefreshCw aria-hidden="true" className="h-4 w-4" />
-                    Resubmit
+                    {t("Resubmit")}
                   </Button>
                 )}
                 <Button
@@ -515,7 +525,7 @@ export function ProCredentialManager({ profileId }: ProCredentialManagerProps) {
                 <div className="mt-2 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
                   {events.length === 0 ? (
                     <p className="text-xs text-muted-foreground">
-                      No recorded events.
+                      {t("No recorded events.")}
                     </p>
                   ) : (
                     <ol className="space-y-1">

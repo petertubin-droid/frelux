@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { X } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * Tiny floating banner that invites users to suggest features or
@@ -33,6 +34,7 @@ function shouldShow(pathname: string): boolean {
 }
 
 export default function FeedbackBanner() {
+  const { t } = useLanguage();
   const { pathname } = useLocation();
   const [dismissedAt, setDismissedAt] = useState<number | null>(null);
   const [ready, setReady] = useState(false);
@@ -63,7 +65,7 @@ export default function FeedbackBanner() {
 
   return (
     <aside
-      aria-label="Give feedback on FRELUX"
+      aria-label={t("Give feedback on FRELUX")}
       className="fixed bottom-20 left-4 z-40 sm:bottom-4 sm:left-4"
     >
       <div className="flex max-w-[19rem] items-start gap-3 rounded-xl border border-border bg-card p-3 pr-2 shadow-md">
@@ -83,7 +85,7 @@ export default function FeedbackBanner() {
         </div>
         <div className="min-w-0">
           <p className="text-xs font-semibold text-card-foreground">
-            Help us improve FRELUX
+            {t("Help us improve FRELUX")}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
             Suggest a feature, report an issue, or tell us what to build next.
@@ -93,13 +95,13 @@ export default function FeedbackBanner() {
             to="/feedback"
             className="mt-1.5 -mb-1 inline-block px-1 py-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter underline-offset-4 hover:underline"
           >
-            Give feedback
+            {t("Give feedback")}
           </Link>
         </div>
         <button
           type="button"
           onClick={dismiss}
-          aria-label="Dismiss feedback banner"
+          aria-label={t("Dismiss feedback banner")}
           className="ml-1 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
           <X className="h-3.5 w-3.5" />

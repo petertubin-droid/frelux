@@ -29,12 +29,14 @@ import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import AdSlot from "@/components/ui/AdSlot";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 import {
   formatByCode,
   getCurrencySymbol,
 } from "@/lib/international/currency-format";
 
 export default function ProductDetail() {
+  const { t: tr } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -165,7 +167,7 @@ export default function ProductDetail() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <p className="text-lg font-medium text-foreground dark:text-primary-foreground">
-          Product not found
+          {tr("Product not found")}
         </p>
         <Link
           to="/marketplace/"
@@ -194,14 +196,14 @@ export default function ProductDetail() {
       {/* Breadcrumb */}
       <div className="mb-4 flex items-center gap-2 text-xs text-muted-foreground">
         <Link to="/marketplace/" className="hover:text-brand-purple">
-          Marketplace
+          {tr("Marketplace")}
         </Link>
         <span>/</span>
         <Link
           to="/marketplace/?tab=products"
           className="hover:text-brand-purple"
         >
-          Products
+          {tr("Products")}
         </Link>
         {category && (
           <>
@@ -278,7 +280,7 @@ export default function ProductDetail() {
               )}
             {product.negotiable && (
               <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground dark:bg-white/5">
-                Negotiable
+                {tr("Negotiable")}
               </span>
             )}
           </div>
@@ -286,27 +288,27 @@ export default function ProductDetail() {
           {/* Quick specs */}
           <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-lg border border-border/50 p-3 dark:border-white/5">
-              <p className="text-xs text-muted-foreground">Condition</p>
+              <p className="text-xs text-muted-foreground">{tr("Condition")}</p>
               <p className="mt-0.5 font-medium text-foreground dark:text-primary-foreground">
                 {PRODUCT_CONDITION_LABELS[product.condition]}
               </p>
             </div>
             <div className="rounded-lg border border-border/50 p-3 dark:border-white/5">
-              <p className="text-xs text-muted-foreground">Quantity</p>
+              <p className="text-xs text-muted-foreground">{tr("Quantity")}</p>
               <p className="mt-0.5 font-medium text-foreground dark:text-primary-foreground">
                 {product.quantity} {product.unit || "available"}
               </p>
             </div>
             {product.brand && (
               <div className="rounded-lg border border-border/50 p-3 dark:border-white/5">
-                <p className="text-xs text-muted-foreground">Brand</p>
+                <p className="text-xs text-muted-foreground">{tr("Brand")}</p>
                 <p className="mt-0.5 font-medium text-foreground dark:text-primary-foreground">
                   {product.brand}
                 </p>
               </div>
             )}
             <div className="rounded-lg border border-border/50 p-3 dark:border-white/5">
-              <p className="text-xs text-muted-foreground">Category</p>
+              <p className="text-xs text-muted-foreground">{tr("Category")}</p>
               <p className="mt-0.5 font-medium text-foreground dark:text-primary-foreground">
                 {category?.name || "Other"}
               </p>
@@ -325,7 +327,7 @@ export default function ProductDetail() {
             )}
             {product.pickup_available && (
               <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10">
-                <Store className="h-3 w-3" /> Pickup available
+                <Store className="h-3 w-3" /> {tr("Pickup available")}
               </span>
             )}
           </div>
@@ -358,7 +360,7 @@ export default function ProductDetail() {
           {product.description && (
             <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
               <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                Description
+                {tr("Description")}
               </h3>
               <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground dark:text-muted-foreground/80">
                 {product.description}
@@ -403,7 +405,7 @@ export default function ProductDetail() {
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               <MessageCircle aria-hidden="true" className="h-4 w-4" />
-              Contact Seller
+              {tr("Contact Seller")}
             </Button>
             <Button
               variant="ghost"
@@ -419,7 +421,7 @@ export default function ProductDetail() {
               }}
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
             >
-              <Share2 className="h-4 w-4" /> Share
+              <Share2 className="h-4 w-4" /> {tr("Share")}
             </Button>
           </div>
 
@@ -427,12 +429,14 @@ export default function ProductDetail() {
           {showInquiry && !inquirySent && (
             <div className="mt-4 space-y-3 rounded-xl border border-border p-4 dark:border-white/10">
               <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                Send an inquiry
+                {tr("Send an inquiry")}
               </h3>
               <textarea
                 value={inquiryMessage}
                 onChange={(e) => setInquiryMessage(e.target.value)}
-                placeholder="I'm interested in this product. Is it still available?"
+                placeholder={tr(
+                  "I'm interested in this product. Is it still available?",
+                )}
                 rows={3}
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
@@ -448,7 +452,7 @@ export default function ProductDetail() {
                   type="tel"
                   value={inquiryPhone}
                   onChange={(e) => setInquiryPhone(e.target.value)}
-                  placeholder="Phone (optional)"
+                  placeholder={tr("Phone (optional)")}
                   className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
@@ -474,7 +478,9 @@ export default function ProductDetail() {
           {inquirySent && (
             <div className="mt-4 flex items-center gap-2 rounded-lg bg-emerald-50 p-4 text-sm text-emerald-700 dark:bg-emerald-500/10">
               <Shield aria-hidden="true" className="h-4 w-4" />
-              Your inquiry has been sent. The seller will get back to you.
+              {tr(
+                "Your inquiry has been sent. The seller will get back to you.",
+              )}
             </div>
           )}
 
@@ -496,7 +502,7 @@ export default function ProductDetail() {
       {relatedProducts.length > 0 && (
         <div className="mt-12">
           <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
-            Similar Products
+            {tr("Similar Products")}
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {relatedProducts.map((rp) => (

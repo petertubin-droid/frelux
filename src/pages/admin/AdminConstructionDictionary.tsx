@@ -47,6 +47,7 @@ import {
   CATEGORY_LABELS,
 } from "@/lib/construction-dictionary/types";
 import { DICTIONARY_LANGUAGES } from "@/lib/construction-dictionary/languages";
+import { useLanguage } from "@/lib/i18n";
 
 type VerifyBadge = { label: string; cls: string };
 const BADGES: Record<string, VerifyBadge> = {
@@ -69,6 +70,7 @@ const BADGES: Record<string, VerifyBadge> = {
 };
 
 export default function AdminConstructionDictionary() {
+  const { t: tr } = useLanguage();
   const [terms, setTerms] = useState<ConstructionTerm[]>([]);
   const [stats, setStats] = useState<DictionaryStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -173,7 +175,7 @@ export default function AdminConstructionDictionary() {
   return (
     <div className="space-y-6">
       <AdminHeader
-        title="Construction Dictionary"
+        title={tr("Construction Dictionary")}
         subtitle="Multilingual construction terminology: review, verify and version the terms FRELUX AI uses."
       />
 
@@ -213,12 +215,12 @@ export default function AdminConstructionDictionary() {
       <AdminCard>
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <p className="mb-1 text-xs font-medium">Language</p>
+            <p className="mb-1 text-xs font-medium">{tr("Language")}</p>
             <AdminSelect
               value={languageFilter}
               onChange={(e) => setLanguageFilter(e.target.value)}
             >
-              <option value="">All</option>
+              <option value="">{tr("All")}</option>
               {DICTIONARY_LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code}>
                   {l.label} ({l.code})
@@ -227,12 +229,12 @@ export default function AdminConstructionDictionary() {
             </AdminSelect>
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium">Category</p>
+            <p className="mb-1 text-xs font-medium">{tr("Category")}</p>
             <AdminSelect
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
-              <option value="">All</option>
+              <option value="">{tr("All")}</option>
               {CONSTRUCTION_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {CATEGORY_LABELS[c]}
@@ -241,24 +243,24 @@ export default function AdminConstructionDictionary() {
             </AdminSelect>
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium">Verification</p>
+            <p className="mb-1 text-xs font-medium">{tr("Verification")}</p>
             <AdminSelect
               value={verifyFilter}
               onChange={(e) => setVerifyFilter(e.target.value)}
             >
-              <option value="">All</option>
-              <option value="verified">Verified only</option>
-              <option value="unverified">Unverified</option>
-              <option value="needs_review">Needs review</option>
+              <option value="">{tr("All")}</option>
+              <option value="verified">{tr("Verified only")}</option>
+              <option value="unverified">{tr("Unverified")}</option>
+              <option value="needs_review">{tr("Needs review")}</option>
             </AdminSelect>
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium">Confidence</p>
+            <p className="mb-1 text-xs font-medium">{tr("Confidence")}</p>
             <AdminSelect
               value={confidenceFilter}
               onChange={(e) => setConfidenceFilter(e.target.value)}
             >
-              <option value="">All</option>
+              <option value="">{tr("All")}</option>
               <option value="0.75">0.75 and above</option>
               <option value="0.9">0.9 and above</option>
               <option value="0.95">0.95 and above</option>
@@ -278,7 +280,8 @@ export default function AdminConstructionDictionary() {
       <AdminCard>
         {loading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading terminology...
+            <Loader2 className="h-4 w-4 animate-spin" />{" "}
+            {tr("Loading terminology...")}
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -291,14 +294,14 @@ export default function AdminConstructionDictionary() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-xs uppercase text-muted-foreground">
-                  <th className="py-2 pr-4">Term</th>
-                  <th className="py-2 pr-4">Lang</th>
-                  <th className="py-2 pr-4">Category</th>
-                  <th className="py-2 pr-4">Translation</th>
-                  <th className="py-2 pr-4">Confidence</th>
-                  <th className="py-2 pr-4">Status</th>
-                  <th className="py-2 pr-4">Ver</th>
-                  <th className="py-2 pr-4 text-right">Actions</th>
+                  <th className="py-2 pr-4">{tr("Term")}</th>
+                  <th className="py-2 pr-4">{tr("Lang")}</th>
+                  <th className="py-2 pr-4">{tr("Category")}</th>
+                  <th className="py-2 pr-4">{tr("Translation")}</th>
+                  <th className="py-2 pr-4">{tr("Confidence")}</th>
+                  <th className="py-2 pr-4">{tr("Status")}</th>
+                  <th className="py-2 pr-4">{tr("Ver")}</th>
+                  <th className="py-2 pr-4 text-right">{tr("Actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -336,19 +339,19 @@ export default function AdminConstructionDictionary() {
                         <div className="flex justify-end gap-1">
                           <AdminButton
                             onClick={() => void onVerify(t.id, "approve")}
-                            title="Approve and verify this terminology"
+                            title={tr("Approve and verify this terminology")}
                           >
                             <Check className="h-4 w-4" />
                           </AdminButton>
                           <AdminButton
                             onClick={() => void onVerify(t.id, "reject")}
-                            title="Reject and flag for review"
+                            title={tr("Reject and flag for review")}
                           >
                             <X className="h-4 w-4" />
                           </AdminButton>
                           <AdminButton
                             onClick={() => void showHistory(t.id)}
-                            title="Version history"
+                            title={tr("Version history")}
                           >
                             <History className="h-4 w-4" />
                           </AdminButton>
@@ -378,7 +381,7 @@ export default function AdminConstructionDictionary() {
         <AdminCard>
           <div className="flex items-center justify-between">
             <p className="flex items-center gap-2 text-sm font-medium">
-              <History className="h-4 w-4" /> Version history
+              <History className="h-4 w-4" /> {tr("Version history")}
             </p>
             <AdminButton onClick={() => setHistoryFor(null)}>
               <X className="h-4 w-4" />
@@ -386,7 +389,7 @@ export default function AdminConstructionDictionary() {
           </div>
           {history.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">
-              No version changes recorded yet for this term.
+              {tr("No version changes recorded yet for this term.")}
             </p>
           ) : (
             <ul className="mt-2 space-y-2 text-sm">

@@ -6,6 +6,7 @@ import { getPublicTemplates } from "@/lib/templates";
 import type { CalculatorType, DbCalculatorTemplate } from "@/types/database";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface LoadTemplateButtonProps {
   calculatorType: CalculatorType;
@@ -16,6 +17,7 @@ export default function LoadTemplateButton({
   calculatorType,
   onLoad,
 }: LoadTemplateButtonProps) {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const { templates, loading } = useUserTemplates(calculatorType);
   const [open, setOpen] = useState(false);
@@ -61,7 +63,7 @@ export default function LoadTemplateButton({
         className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-brand-purple/30 hover:bg-primary/5 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80 dark:hover:border-brand-purple/30 dark:hover:bg-primary/10"
       >
         <FolderOpen aria-hidden="true" className="h-3.5 w-3.5" />
-        Templates
+        {t("Templates")}
         <ChevronDown
           className={classNames(
             "h-3.5 w-3.5 transition-transform",
@@ -75,7 +77,7 @@ export default function LoadTemplateButton({
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 py-6 text-xs text-muted-foreground">
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
-              Loading templates...
+              {t("Loading templates...")}
             </div>
           ) : (
             <div className="max-h-80 overflow-y-auto p-2">
@@ -83,7 +85,7 @@ export default function LoadTemplateButton({
               {publicTemplates.length > 0 && (
                 <div className="mb-2">
                   <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
-                    Built-in Templates
+                    {t("Built-in Templates")}
                   </p>
                   <div className="space-y-0.5">
                     {publicTemplates.map((t) => (
@@ -126,7 +128,7 @@ export default function LoadTemplateButton({
                     <div className="my-1 border-t border-border/50 dark:border-white/5" />
                   )}
                   <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
-                    My Templates
+                    {t("My Templates")}
                   </p>
                   {templates.length === 0 ? (
                     <p className="px-3 py-3 text-center text-xs text-muted-foreground dark:text-muted-foreground">
@@ -171,14 +173,14 @@ export default function LoadTemplateButton({
               {!user && publicTemplates.length === 0 && (
                 <div className="px-4 py-6 text-center">
                   <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                    No templates available.
+                    {t("No templates available.")}
                   </p>
                   <p className="mt-1 text-[11px] text-muted-foreground dark:text-muted-foreground">
                     <a
                       href="/login/"
                       className="font-semibold text-brand-purple hover:underline"
                     >
-                      Sign in
+                      {t("Sign in")}
                     </a>{" "}
                     to save your own.
                   </p>

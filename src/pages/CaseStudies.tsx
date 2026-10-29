@@ -17,8 +17,10 @@ import {
   type CaseStudyView,
 } from "@/lib/case-studies";
 import { CATEGORY_LABELS } from "@/lib/case-study-labels";
+import { useLanguage } from "@/lib/i18n";
 
 export default function CaseStudies() {
+  const { t } = useLanguage();
   useSeo({
     title: "Before & After Case Studies: Real Projects, Real Numbers | FRELUX",
     description:
@@ -69,7 +71,7 @@ export default function CaseStudies() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <PageHeader
-        title="Before & After Case Studies"
+        title={t("Before & After Case Studies")}
         subtitle="Real projects from the FRELUX community, documented end to end: scope, challenges, outcome and cost."
       />
 
@@ -102,7 +104,7 @@ export default function CaseStudies() {
             className="h-10 w-10 text-muted-foreground"
           />
           <p className="text-lg font-semibold text-foreground">
-            No case studies published yet
+            {t("No case studies published yet")}
           </p>
           <p className="max-w-md text-sm text-muted-foreground">
             Case studies are curated from approved gallery projects. Check back
@@ -130,6 +132,7 @@ export default function CaseStudies() {
 }
 
 export function CaseStudyCard({ view }: { view: CaseStudyView }) {
+  const { t } = useLanguage();
   const { caseStudy, entry, beforeImage, afterImage } = view;
   return (
     <Link
@@ -139,7 +142,7 @@ export function CaseStudyCard({ view }: { view: CaseStudyView }) {
       <div className="grid grid-cols-2">
         <figure className="relative aspect-[4/3] overflow-hidden bg-muted">
           <span className="absolute left-2 top-2 z-10 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-            Before
+            {t("Before")}
           </span>
           {beforeImage ? (
             <img
@@ -150,13 +153,13 @@ export function CaseStudyCard({ view }: { view: CaseStudyView }) {
             />
           ) : (
             <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-              No photo
+              {t("No photo")}
             </div>
           )}
         </figure>
         <figure className="relative aspect-[4/3] overflow-hidden bg-muted">
           <span className="absolute left-2 top-2 z-10 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-            After
+            {t("After")}
           </span>
           {afterImage ? (
             <img
@@ -167,7 +170,7 @@ export function CaseStudyCard({ view }: { view: CaseStudyView }) {
             />
           ) : (
             <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-              No photo
+              {t("No photo")}
             </div>
           )}
         </figure>

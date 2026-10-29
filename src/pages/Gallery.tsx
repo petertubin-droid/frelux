@@ -20,6 +20,7 @@ import {
 } from "@/lib/project-intelligence";
 import type { DbGalleryEntry } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const CATEGORIES = [
   { key: "", label: "All" },
@@ -32,6 +33,7 @@ const CATEGORIES = [
 ];
 
 export default function Gallery() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([{ name: "Before & After Gallery", path: "/gallery" }]);
   useSeo({
     title: "Before & After Project Gallery: Real Painting Transformations",
@@ -95,8 +97,8 @@ export default function Gallery() {
     <div className="min-h-screen bg-background">
       <PageHeader
         eyebrow="Community"
-        title="Before & After Gallery"
-        subtitle="Real project transformations from the FRELUX community."
+        title={t("Before & After Gallery")}
+        subtitle={t("Real project transformations from the FRELUX community.")}
       />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         {/* Filter bar + Share button */}
@@ -122,7 +124,7 @@ export default function Gallery() {
               className="group ml-auto inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95"
             >
               <Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
-              Share Your Project
+              {t("Share Your Project")}
             </Link>
           )}
         </div>
@@ -149,7 +151,7 @@ export default function Gallery() {
               <ImageIcon className="h-10 w-10" />
             </div>
             <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-              No gallery entries yet
+              {t("No gallery entries yet")}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Be the first to share your project transformation!
@@ -160,7 +162,7 @@ export default function Gallery() {
                 className="group mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md shadow-brand-purple/20 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
               >
                 <Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
-                Share Your Project
+                {t("Share Your Project")}
                 <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             )}
@@ -208,7 +210,7 @@ export default function Gallery() {
                     {/* Featured badge */}
                     {entry.is_featured && (
                       <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 text-xs font-semibold text-primary-foreground shadow-lg">
-                        <Crown className="h-3 w-3" /> Featured
+                        <Crown className="h-3 w-3" /> {t("Featured")}
                       </span>
                     )}
 
@@ -277,7 +279,7 @@ export default function Gallery() {
         {!loading && !error && entries.length > 0 && (
           <div className="mt-12 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 via-transparent to-transparent p-6 text-center sm:p-8">
             <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-              Showcase Your Work
+              {t("Showcase Your Work")}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
               Share your before and after photos with the FRELUX community and
@@ -289,7 +291,7 @@ export default function Gallery() {
                 className="group mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md shadow-brand-purple/20 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
               >
                 <Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
-                Upload Your Project
+                {t("Upload Your Project")}
                 <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             ) : (
@@ -297,7 +299,7 @@ export default function Gallery() {
                 to="/login/"
                 className="group mt-5 inline-flex items-center gap-2 rounded-lg border border-brand-purple/30 px-5 py-2.5 text-sm font-semibold text-brand-purple transition-all duration-300 hover:scale-105 hover:bg-primary/10"
               >
-                Sign in to Share
+                {t("Sign in to Share")}
                 <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             )}

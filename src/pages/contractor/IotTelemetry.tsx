@@ -48,12 +48,31 @@ import {
 import { useSeo } from "@/lib/seo";
 import { Loader2, Radio, Plus, ShieldCheck, X, Copy } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 type FreshKey = { deviceId: string; apiKey: string } | null;
 
 const MARKET_CODES = [
-  "NG", "US", "GB", "CA", "AU", "DE", "IN", "GH", "KE", "ZA",
-  "JP", "FR", "BR", "SA", "AE", "CN", "ID", "MX", "KR", "IT",
+  "NG",
+  "US",
+  "GB",
+  "CA",
+  "AU",
+  "DE",
+  "IN",
+  "GH",
+  "KE",
+  "ZA",
+  "JP",
+  "FR",
+  "BR",
+  "SA",
+  "AE",
+  "CN",
+  "ID",
+  "MX",
+  "KR",
+  "IT",
 ] as const;
 
 const DEVICE_TYPE_LABELS: Record<DeviceType, string> = {
@@ -68,6 +87,7 @@ const inputClass =
   "w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
 export default function IotTelemetry() {
+  const { t: tr } = useLanguage();
   useSeo({
     title: "IoT & Telematics | FRELUX Contractor Workspace",
     description:
@@ -82,7 +102,9 @@ export default function IotTelemetry() {
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [telemetry, setTelemetry] = useState<TelemetryRow[]>([]);
   const [telemetryLoading, setTelemetryLoading] = useState(false);
-  const [safetyThresholds, setSafetyThresholds] = useState<IotSafetyThresholdRow[]>([]);
+  const [safetyThresholds, setSafetyThresholds] = useState<
+    IotSafetyThresholdRow[]
+  >([]);
 
   const [form, setForm] = useState({
     name: "",
@@ -164,7 +186,9 @@ export default function IotTelemetry() {
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <h1 className="text-2xl font-bold">IoT &amp; Telematics</h1>
         <p className="mt-3 text-muted-foreground">
-          Sign in to register project devices and view validated telemetry.
+          {tr(
+            "Sign in to register project devices and view validated telemetry.",
+          )}
         </p>
       </div>
     );
@@ -175,10 +199,12 @@ export default function IotTelemetry() {
       <div className="flex items-center gap-3">
         <Radio className="size-7 text-primary" aria-hidden />
         <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">IoT &amp; Telematics</h1>
+          <h1 className="text-2xl font-bold sm:text-3xl">
+            IoT &amp; Telematics
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Consent-gated, key-authenticated device ingestion with strict
-            signal validation.
+            Consent-gated, key-authenticated device ingestion with strict signal
+            validation.
           </p>
         </div>
       </div>
@@ -206,33 +232,34 @@ export default function IotTelemetry() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => void navigator.clipboard?.writeText(freshKey.apiKey)}
-              aria-label="Copy device API key"
+              onClick={() =>
+                void navigator.clipboard?.writeText(freshKey.apiKey)
+              }
+              aria-label={tr("Copy device API key")}
             >
-              <Copy className="size-4" aria-hidden /> Copy
+              <Copy className="size-4" aria-hidden /> {tr("Copy")}
             </Button>
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => setFreshKey(null)}
-              aria-label="Dismiss key"
+              aria-label={tr("Dismiss key")}
             >
-              <X className="size-4" aria-hidden /> Done
+              <X className="size-4" aria-hidden /> {tr("Done")}
             </Button>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            POST readings to the ingest endpoint as
-            {" "}
+            POST readings to the ingest endpoint as{" "}
             <code>{`{ "device_id": "${freshKey.deviceId}", "api_key": "<key>", "readings": [{ "metric", "value", "unit", "recorded_at" }] }`}</code>
-            . The key is stored only as a SHA-256 hash; if you lose it,
-            register a replacement device.
+            . The key is stored only as a SHA-256 hash; if you lose it, register
+            a replacement device.
           </p>
         </div>
       )}
 
       <section className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-sm">
-        <h2 className="text-lg font-bold">Verified provider catalog</h2>
+        <h2 className="text-lg font-bold">{tr("Verified provider catalog")}</h2>
         <p className="mt-1 text-xs text-muted-foreground">
           {IOT_CONNECTOR_DISCLOSURE}
         </p>
@@ -245,7 +272,9 @@ export default function IotTelemetry() {
                   {p.deviceType.replace(/_/g, " ")}
                 </span>
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">{p.capabilities}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {p.capabilities}
+              </p>
               <p className="mt-1 text-[10px] text-muted-foreground">
                 Verified {p.verifiedDate} from{" "}
                 <a
@@ -265,25 +294,29 @@ export default function IotTelemetry() {
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
           <h2 className="flex items-center gap-2 text-lg font-bold">
-            <Plus className="size-5 text-primary" aria-hidden /> Register device
+            <Plus className="size-5 text-primary" aria-hidden />{" "}
+            {tr("Register device")}
           </h2>
           <form className="mt-4 space-y-3" onSubmit={submit}>
             <label className="grid gap-1 text-xs font-medium">
-              Device name
+              {tr("Device name")}
               <input
                 className={inputClass}
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Pour 12 — maturity sensor"
+                placeholder={tr("Pour 12 — maturity sensor")}
               />
             </label>
             <label className="grid gap-1 text-xs font-medium">
-              Device type
+              {tr("Device type")}
               <select
                 className={inputClass}
                 value={form.device_type}
                 onChange={(e) =>
-                  setForm({ ...form, device_type: e.target.value as DeviceType })
+                  setForm({
+                    ...form,
+                    device_type: e.target.value as DeviceType,
+                  })
                 }
               >
                 {DEVICE_TYPES.map((t) => (
@@ -294,11 +327,13 @@ export default function IotTelemetry() {
               </select>
             </label>
             <label className="grid gap-1 text-xs font-medium">
-              Market
+              {tr("Market")}
               <select
                 className={inputClass}
                 value={form.market_code}
-                onChange={(e) => setForm({ ...form, market_code: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, market_code: e.target.value })
+                }
               >
                 {MARKET_CODES.map((m) => (
                   <option key={m} value={m}>
@@ -308,21 +343,25 @@ export default function IotTelemetry() {
               </select>
             </label>
             <label className="grid gap-1 text-xs font-medium">
-              Provider (optional)
+              {tr("Provider (optional)")}
               <input
                 className={inputClass}
                 value={form.provider}
                 onChange={(e) => setForm({ ...form, provider: e.target.value })}
-                placeholder="Sensor vendor / fleet operator"
+                placeholder={tr("Sensor vendor / fleet operator")}
               />
             </label>
             <label className="grid gap-1 text-xs font-medium">
-              Consent scope
+              {tr("Consent scope")}
               <input
                 className={inputClass}
                 value={form.consent_scope}
-                onChange={(e) => setForm({ ...form, consent_scope: e.target.value })}
-                placeholder="What this device collects, e.g. in-place concrete temperature"
+                onChange={(e) =>
+                  setForm({ ...form, consent_scope: e.target.value })
+                }
+                placeholder={tr(
+                  "What this device collects, e.g. in-place concrete temperature",
+                )}
               />
             </label>
             <Button type="submit" disabled={busy} className="w-full">
@@ -341,10 +380,13 @@ export default function IotTelemetry() {
         </section>
 
         <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <h2 className="text-lg font-bold">Your devices</h2>
+          <h2 className="text-lg font-bold">{tr("Your devices")}</h2>
           {loading ? (
             <div className="flex justify-center py-8">
-              <Loader2 className="size-6 animate-spin text-muted-foreground" aria-hidden />
+              <Loader2
+                className="size-6 animate-spin text-muted-foreground"
+                aria-hidden
+              />
             </div>
           ) : devices.length === 0 ? (
             <p className="mt-4 text-sm text-muted-foreground">
@@ -362,7 +404,8 @@ export default function IotTelemetry() {
                     <div>
                       <p className="font-semibold">{d.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {DEVICE_TYPE_LABELS[d.device_type as DeviceType] ?? d.device_type}
+                        {DEVICE_TYPE_LABELS[d.device_type as DeviceType] ??
+                          d.device_type}
                         {" · "}
                         {d.market_code}
                         {d.provider ? ` · ${d.provider}` : ""}
@@ -381,7 +424,10 @@ export default function IotTelemetry() {
                   <p className="mt-2 text-xs text-muted-foreground">
                     {d.consent_granted_at ? (
                       <>
-                        <ShieldCheck className="mr-1 inline size-3.5 text-primary" aria-hidden />
+                        <ShieldCheck
+                          className="mr-1 inline size-3.5 text-primary"
+                          aria-hidden
+                        />
                         Consent recorded
                         {d.consent_scope ? `: ${d.consent_scope}` : ""}
                       </>
@@ -407,7 +453,7 @@ export default function IotTelemetry() {
                       size="sm"
                       onClick={() => void loadTelemetry(d.id)}
                     >
-                      View telemetry
+                      {tr("View telemetry")}
                     </Button>
                     <Button
                       type="button"
@@ -437,7 +483,7 @@ export default function IotTelemetry() {
                         await refresh();
                       }}
                     >
-                      Delete
+                      {tr("Delete")}
                     </Button>
                   </div>
                 </li>
@@ -460,22 +506,28 @@ export default function IotTelemetry() {
                   : [];
                 return safety.length > 0 ? (
                   <div className="mb-5 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
-                    <h3 className="text-sm font-bold">Safety alerts</h3>
+                    <h3 className="text-sm font-bold">{tr("Safety alerts")}</h3>
                     {safety.map((v) =>
-                      v.verdict === "alert" && v.alerts && v.alerts.length > 0 ? (
+                      v.verdict === "alert" &&
+                      v.alerts &&
+                      v.alerts.length > 0 ? (
                         v.alerts.map((a) => (
                           <p
                             key={a.thresholdId}
                             className="mt-2 text-sm font-semibold text-destructive"
                           >
-                            {a.metric}: latest {a.latestValue} {a.thresholdUnit} at{" "}
-                            {new Date(a.latestAt).toLocaleString()} breaches the reviewed{" "}
+                            {a.metric}: latest {a.latestValue} {a.thresholdUnit}{" "}
+                            at {new Date(a.latestAt).toLocaleString()} breaches
+                            the reviewed{" "}
                             {a.direction === "above" ? "maximum" : "minimum"}{" "}
-                            {a.thresholdValue} {a.thresholdUnit} (worst {a.worstValue},{" "}
-                            {a.breachCount} reading{a.breachCount > 1 ? "s" : ""}). Basis:{" "}
-                            {a.basis}. Reviewed by {a.reviewerName}
-                            {a.reviewedAt ? ` on ${new Date(a.reviewedAt).toLocaleDateString()}` : ""}.
-                            {a.disclosure}
+                            {a.thresholdValue} {a.thresholdUnit} (worst{" "}
+                            {a.worstValue}, {a.breachCount} reading
+                            {a.breachCount > 1 ? "s" : ""}). Basis: {a.basis}.
+                            Reviewed by {a.reviewerName}
+                            {a.reviewedAt
+                              ? ` on ${new Date(a.reviewedAt).toLocaleDateString()}`
+                              : ""}
+                            .{a.disclosure}
                           </p>
                         ))
                       ) : (
@@ -503,7 +555,9 @@ export default function IotTelemetry() {
                     : null;
                 return (
                   <div className="mb-5 rounded-xl border border-border bg-muted/40 p-4">
-                    <h3 className="text-sm font-bold">Derived project state</h3>
+                    <h3 className="text-sm font-bold">
+                      {tr("Derived project state")}
+                    </h3>
                     {maturity?.status === "computed" ? (
                       <>
                         <p className="mt-2 text-sm">
@@ -511,8 +565,8 @@ export default function IotTelemetry() {
                           <strong>
                             {maturity.totalMaturityIndex.toFixed(0)} °C·h
                           </strong>{" "}
-                          (≈ {maturity.equivalentAgeHours20C.toFixed(1)} h at 20 °C,
-                          across {maturity.segments.length} segment
+                          (≈ {maturity.equivalentAgeHours20C.toFixed(1)} h at 20
+                          °C, across {maturity.segments.length} segment
                           {maturity.segments.length > 1 ? "s" : ""} from{" "}
                           {maturity.readingCount} valid readings)
                         </p>
@@ -528,8 +582,7 @@ export default function IotTelemetry() {
                     {conditions && (
                       <>
                         <p className="mt-2 text-sm">
-                          Site conditions:{" "}
-                          <strong>{conditions.label}</strong>
+                          Site conditions: <strong>{conditions.label}</strong>
                           {conditions.asOf &&
                             ` as of ${new Date(conditions.asOf).toLocaleString()}`}
                         </p>
@@ -543,32 +596,39 @@ export default function IotTelemetry() {
                         {VIBRATION_EVIDENCE_DISCLOSURE}
                       </p>
                     )}
-                    {!maturity && !conditions && type !== "vibration_monitor" && (
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        No state mapping is derived for this device type yet.
-                      </p>
-                    )}
+                    {!maturity &&
+                      !conditions &&
+                      type !== "vibration_monitor" && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {tr(
+                            "No state mapping is derived for this device type yet.",
+                          )}
+                        </p>
+                      )}
                   </div>
                 );
               })()}
-              <h3 className="font-semibold">Telemetry</h3>
+              <h3 className="font-semibold">{tr("Telemetry")}</h3>
               {telemetryLoading ? (
                 <div className="flex justify-center py-6">
-                  <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden />
+                  <Loader2
+                    className="size-5 animate-spin text-muted-foreground"
+                    aria-hidden
+                  />
                 </div>
               ) : telemetry.length === 0 ? (
                 <p className="mt-2 text-sm text-muted-foreground">
-                  No validated readings stored for this device yet.
+                  {tr("No validated readings stored for this device yet.")}
                 </p>
               ) : (
                 <div className="mt-3 overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead className="text-muted-foreground">
                       <tr>
-                        <th className="py-1.5 pr-4">Recorded</th>
-                        <th className="py-1.5 pr-4">Metric</th>
-                        <th className="py-1.5 pr-4">Value</th>
-                        <th className="py-1.5 pr-4">Quality</th>
+                        <th className="py-1.5 pr-4">{tr("Recorded")}</th>
+                        <th className="py-1.5 pr-4">{tr("Metric")}</th>
+                        <th className="py-1.5 pr-4">{tr("Value")}</th>
+                        <th className="py-1.5 pr-4">{tr("Quality")}</th>
                       </tr>
                     </thead>
                     <tbody>

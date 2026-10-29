@@ -18,6 +18,7 @@ import {
 } from "@/lib/calc";
 import type { CalculatorInput } from "@/types";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * Interactive estimate preview section.
@@ -56,6 +57,7 @@ const presets = [
 ];
 
 export default function InteractiveEstimatePreview() {
+  const { t } = useLanguage();
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
   const [activePreset, setActivePreset] = useState(1); // default to "Standard room"
   const [animatedValues, setAnimatedValues] = useState({
@@ -139,10 +141,10 @@ export default function InteractiveEstimatePreview() {
         {/* Section header */}
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple dark:text-brand-purple-lighter">
-            See it in action
+            {t("See it in action")}
           </span>
           <h2 className="mt-3 font-display text-3xl font-bold text-foreground dark:text-primary-foreground sm:text-4xl">
-            What a FRELUX estimate looks like
+            {t("What a FRELUX estimate looks like")}
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground">
             Live output from the FRELUX calculation engine, computed using the
@@ -188,12 +190,12 @@ export default function InteractiveEstimatePreview() {
                   <FileText className="h-4 w-4" />
                 </span>
                 <span className="font-display text-sm font-bold text-foreground dark:text-primary-foreground">
-                  Painting Estimate
+                  {t("Painting Estimate")}
                 </span>
               </div>
               <span className="flex items-center gap-1.5 text-xs font-medium text-accent-green">
                 <span className="h-1.5 w-1.5 rounded-full bg-accent-green animate-pulse" />
-                Calculated
+                {t("Calculated")}
               </span>
             </div>
 
@@ -204,7 +206,7 @@ export default function InteractiveEstimatePreview() {
                 <div className="rounded-xl bg-muted/50 p-4 dark:bg-white/5">
                   <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/60">
                     <Ruler className="h-3 w-3" />
-                    Room dimensions
+                    {t("Room dimensions")}
                   </p>
                   <p className="mt-2 font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
                     {preset.length} × {preset.width} ft
@@ -220,35 +222,41 @@ export default function InteractiveEstimatePreview() {
                     <p className="mt-1.5 text-sm font-bold text-foreground dark:text-primary-foreground">
                       {preset.coats}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">Coats</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {t("Coats")}
+                    </p>
                   </div>
                   <div className="rounded-lg bg-muted/50 p-3 text-center dark:bg-white/5">
                     <Ruler className="mx-auto h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
                     <p className="mt-1.5 text-sm font-bold text-foreground dark:text-primary-foreground">
                       {preset.doors}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">Doors</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {t("Doors")}
+                    </p>
                   </div>
                   <div className="rounded-lg bg-muted/50 p-3 text-center dark:bg-white/5">
                     <Eye className="mx-auto h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
                     <p className="mt-1.5 text-sm font-bold text-foreground dark:text-primary-foreground">
                       {preset.windows}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">Windows</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {t("Windows")}
+                    </p>
                   </div>
                 </div>
 
                 <div className="rounded-xl bg-muted/50 p-4 dark:bg-white/5">
                   <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/60">
                     <Calculator className="h-3 w-3" />
-                    Coverage rate
+                    {t("Coverage rate")}
                   </p>
                   <p className="mt-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                     {DEFAULT_COVERAGE_M2_PER_LITER} m² per litre per coat
                     (internal)
                   </p>
                   <p className="text-[11px] text-muted-foreground">
-                    Configurable from admin settings
+                    {t("Configurable from admin settings")}
                   </p>
                 </div>
               </div>
@@ -258,7 +266,7 @@ export default function InteractiveEstimatePreview() {
                 {/* Paintable area */}
                 <div className="rounded-xl border border-brand-purple/10 bg-primary/5 p-4">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-purple dark:text-brand-purple-lighter">
-                    Paintable area
+                    {t("Paintable area")}
                   </p>
                   <p className="mt-2 font-display text-3xl font-bold text-foreground dark:text-primary-foreground">
                     {animatedValues.area.toFixed(1)}
@@ -277,7 +285,7 @@ export default function InteractiveEstimatePreview() {
                 <div className="rounded-xl border border-accent-cyan/10 bg-accent-cyan/5 p-4">
                   <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent-cyan">
                     <Droplets className="h-3 w-3" />
-                    Paint buckets required
+                    {t("Paint buckets required")}
                   </p>
                   <p className="mt-2 font-display text-3xl font-bold text-foreground dark:text-primary-foreground">
                     {Math.ceil(animatedValues.buckets)}
@@ -296,7 +304,7 @@ export default function InteractiveEstimatePreview() {
                 {/* Container recommendation */}
                 <div className="rounded-xl bg-muted/50 p-4 dark:bg-white/5">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/60">
-                    Recommended purchase
+                    {t("Recommended purchase")}
                   </p>
                   <div className="mt-2.5 space-y-1.5">
                     {result.recommendedContainers.map((c) => (
@@ -327,7 +335,7 @@ export default function InteractiveEstimatePreview() {
                 to="/paint-calculator/?mode=room-estimate"
                 className="group inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all hover:gap-2.5 dark:text-brand-purple-lighter"
               >
-                Try it yourself
+                {t("Try it yourself")}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

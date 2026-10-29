@@ -31,6 +31,7 @@ import {
   deleteRegionalCostIndex,
 } from "@/lib/estimation/queries";
 import type { RegionalCostIndex } from "@/types/estimation";
+import { useLanguage } from "@/lib/i18n";
 
 interface IndexForm {
   country: string;
@@ -125,6 +126,7 @@ function validate(f: IndexForm): string | null {
 }
 
 export default function AdminRegionalCostIndices() {
+  const { t } = useLanguage();
   const [indices, setIndices] = useState<RegionalCostIndex[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -232,11 +234,11 @@ export default function AdminRegionalCostIndices() {
   return (
     <div className="space-y-6">
       <AdminHeader
-        title="Regional Cost Indices"
+        title={t("Regional Cost Indices")}
         subtitle="Admin-configured cost factors per Nigerian state and category (labour, materials, general). 1.00 = national baseline. Every factor requires a verifiable source. The estimation engine applies these deterministically: state+category → state general → national baseline, warning on every fallback."
         action={
           <AdminButton onClick={openCreate} variant="primary">
-            <Plus className="h-4 w-4" /> Add Index
+            <Plus className="h-4 w-4" /> {t("Add Index")}
           </AdminButton>
         }
       />
@@ -244,16 +246,18 @@ export default function AdminRegionalCostIndices() {
       {error && (
         <StateMessage
           type="error"
-          title="Something went wrong"
+          title={t("Something went wrong")}
           message={error}
         />
       )}
-      {success && <StateMessage type="empty" title="Saved" message={success} />}
+      {success && (
+        <StateMessage type="empty" title={t("Saved")} message={success} />
+      )}
 
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading"
+          title={t("Loading")}
           message="Loading indices…"
         />
       ) : indices.length === 0 ? (
@@ -268,12 +272,12 @@ export default function AdminRegionalCostIndices() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="p-3">Country / State</th>
-                <th className="p-3">Category</th>
-                <th className="p-3">Factor</th>
-                <th className="p-3">Effective</th>
-                <th className="p-3">Source</th>
-                <th className="p-3">Active</th>
+                <th className="p-3">{t("Country / State")}</th>
+                <th className="p-3">{t("Category")}</th>
+                <th className="p-3">{t("Factor")}</th>
+                <th className="p-3">{t("Effective")}</th>
+                <th className="p-3">{t("Source")}</th>
+                <th className="p-3">{t("Active")}</th>
                 <th className="p-3"></th>
               </tr>
             </thead>
@@ -303,10 +307,16 @@ export default function AdminRegionalCostIndices() {
                   </td>
                   <td className="p-3">
                     <div className="flex gap-1">
-                      <AdminIconButton onClick={() => openEdit(i)} title="Edit">
+                      <AdminIconButton
+                        onClick={() => openEdit(i)}
+                        title={t("Edit")}
+                      >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
-                      <AdminIconButton onClick={() => remove(i)} title="Delete">
+                      <AdminIconButton
+                        onClick={() => remove(i)}
+                        title={t("Delete")}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </AdminIconButton>
                     </div>
@@ -333,10 +343,10 @@ export default function AdminRegionalCostIndices() {
               value={form.country}
               onChange={(e) => setForm({ ...form, country: e.target.value })}
             >
-              <option value="NG">Nigeria (NG)</option>
-              <option value="GH">Ghana (GH)</option>
-              <option value="KE">Kenya (KE)</option>
-              <option value="ZA">South Africa (ZA)</option>
+              <option value="NG">{t("Nigeria (NG)")}</option>
+              <option value="GH">{t("Ghana (GH)")}</option>
+              <option value="KE">{t("Kenya (KE)")}</option>
+              <option value="ZA">{t("South Africa (ZA)")}</option>
             </AdminSelect>
           </AdminField>
 
@@ -346,7 +356,7 @@ export default function AdminRegionalCostIndices() {
                 value={form.state}
                 onChange={(e) => setForm({ ...form, state: e.target.value })}
               >
-                <option value="">Select state</option>
+                <option value="">{t("Select state")}</option>
                 {NIGERIAN_STATES.map((s) => (
                   <option key={s} value={s}>
                     {s}
@@ -358,7 +368,7 @@ export default function AdminRegionalCostIndices() {
                 type="text"
                 value={form.state}
                 onChange={(e) => setForm({ ...form, state: e.target.value })}
-                placeholder="Region name, e.g. Greater Accra"
+                placeholder={t("Region name, e.g. Greater Accra")}
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground"
               />
             )}
@@ -413,7 +423,7 @@ export default function AdminRegionalCostIndices() {
               onChange={(e) =>
                 setForm({ ...form, description: e.target.value })
               }
-              placeholder="Optional context (what the factor covers)"
+              placeholder={t("Optional context (what the factor covers)")}
             />
           </AdminField>
 
@@ -425,7 +435,9 @@ export default function AdminRegionalCostIndices() {
           </AdminField>
 
           <div className="flex justify-end gap-2">
-            <AdminButton onClick={() => setShowForm(false)}>Cancel</AdminButton>
+            <AdminButton onClick={() => setShowForm(false)}>
+              {t("Cancel")}
+            </AdminButton>
             <AdminButton onClick={save} variant="primary" disabled={saving}>
               {saving ? "Saving…" : "Save"}
             </AdminButton>

@@ -38,6 +38,7 @@ import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { formatByCode } from "@/lib/international/currency-format";
+import { tx } from "@/lib/i18n";
 
 const PROJECT_TYPES = [
   { value: "painting", label: "Painting" },
@@ -312,10 +313,12 @@ export default function MarketplaceHome() {
 
             {/* Tagline words */}
             <div className="mb-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
-              <span className="text-primary-foreground">BUILD.</span>
-              <span className="text-brand-purple-lighter">BUY.</span>
-              <span className="text-primary-foreground">SELL.</span>
-              <span className="text-brand-purple-lighter">CONNECT.</span>
+              <span className="text-primary-foreground">{tx("BUILD.")}</span>
+              <span className="text-brand-purple-lighter">{tx("BUY.")}</span>
+              <span className="text-primary-foreground">{tx("SELL.")}</span>
+              <span className="text-brand-purple-lighter">
+                {tx("CONNECT.")}
+              </span>
             </div>
 
             <p className="mx-auto max-w-2xl text-sm text-muted-foreground/80 sm:text-base">
@@ -330,19 +333,20 @@ export default function MarketplaceHome() {
                 to="/marketplace/post/"
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg"
               >
-                <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
+                <Plus aria-hidden="true" className="h-4 w-4" />{" "}
+                {tx("Post a Job")}
               </Link>
               <Link
                 to="/marketplace/products/post/"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur transition-all hover:bg-white/10"
               >
-                <Store className="h-4 w-4" /> Sell a Product
+                <Store className="h-4 w-4" /> {tx("Sell a Product")}
               </Link>
               <Link
                 to="/pro-connect/register/"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur transition-all hover:bg-white/10"
               >
-                <Briefcase className="h-4 w-4" /> Become a Pro
+                <Briefcase className="h-4 w-4" /> {tx("Become a Pro")}
               </Link>
             </div>
 
@@ -352,21 +356,21 @@ export default function MarketplaceHome() {
                 <span className="text-lg font-bold text-primary-foreground">
                   {jobsTotal + productsTotal}
                 </span>
-                <span>Active Listings</span>
+                <span>{tx("Active Listings")}</span>
               </div>
               <div className="hidden h-8 w-px bg-white/10 sm:block" />
               <div className="flex items-center gap-2">
                 <span className="text-lg font-bold text-primary-foreground">
                   14
                 </span>
-                <span>Categories</span>
+                <span>{tx("Categories")}</span>
               </div>
               <div className="hidden h-8 w-px bg-white/10 sm:block" />
               <div className="flex items-center gap-2">
                 <span className="text-lg font-bold text-primary-foreground">
                   36
                 </span>
-                <span>States Covered</span>
+                <span>{tx("States Covered")}</span>
               </div>
             </div>
           </div>
@@ -378,7 +382,7 @@ export default function MarketplaceHome() {
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-              Browse by Category
+              {tx("Browse by Category")}
             </h2>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
@@ -437,7 +441,7 @@ export default function MarketplaceHome() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-                FRELUX Marketplace
+                {tx("FRELUX Marketplace")}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 Post jobs, buy & sell building materials and interior design
@@ -450,14 +454,16 @@ export default function MarketplaceHome() {
                   to="/marketplace/post/"
                   className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                 >
-                  <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
+                  <Plus aria-hidden="true" className="h-4 w-4" />{" "}
+                  {tx("Post a Job")}
                 </Link>
               ) : (
                 <Link
                   to="/marketplace/products/post/"
                   className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                 >
-                  <Plus aria-hidden="true" className="h-4 w-4" /> Sell a Product
+                  <Plus aria-hidden="true" className="h-4 w-4" />{" "}
+                  {tx("Sell a Product")}
                 </Link>
               )}
             </div>
@@ -615,7 +621,7 @@ function JobsTab(props: {
           <input
             value={props.search}
             onChange={(e) => props.setSearch(e.target.value)}
-            placeholder="Search jobs..."
+            placeholder={tx("Search jobs...")}
             className="w-full rounded-lg border border-border py-2.5 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
@@ -629,7 +635,7 @@ function JobsTab(props: {
               : "border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground",
           )}
         >
-          <SlidersHorizontal className="h-4 w-4" /> Filters
+          <SlidersHorizontal className="h-4 w-4" /> {tx("Filters")}
         </Button>
       </div>
 
@@ -641,7 +647,7 @@ function JobsTab(props: {
             onChange={(e) => props.setProjectType(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
-            <option value="">All trades</option>
+            <option value="">{tx("All trades")}</option>
             {PROJECT_TYPES.map((t) => (
               <option key={t.value} value={t.value}>
                 {t.label}
@@ -653,7 +659,7 @@ function JobsTab(props: {
             onChange={(e) => props.setCountry(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
-            <option value="">All countries</option>
+            <option value="">{tx("All countries")}</option>
             {COUNTRY_OPTIONS.map((g) => (
               <optgroup key={g.group} label={g.group}>
                 {g.countries.map((c) => (
@@ -669,7 +675,7 @@ function JobsTab(props: {
             onChange={(e) => props.setState(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
-            <option value="">All states</option>
+            <option value="">{tx("All states")}</option>
             {NIGERIAN_STATES.map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -686,7 +692,7 @@ function JobsTab(props: {
             }}
             className="text-xs text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
           >
-            <X aria-hidden="true" className="inline h-3 w-3" /> Clear
+            <X aria-hidden="true" className="inline h-3 w-3" /> {tx("Clear")}
           </Button>
         </div>
       )}
@@ -751,16 +757,16 @@ function JobsTab(props: {
         <div className="py-12 text-center">
           <Briefcase className="mx-auto h-10 w-10 text-muted-foreground/80" />
           <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
-            No jobs found
+            {tx("No jobs found")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Try adjusting your search or post a job.
+            {tx("Try adjusting your search or post a job.")}
           </p>
           <Link
             to="/marketplace/post/"
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
-            <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
+            <Plus aria-hidden="true" className="h-4 w-4" /> {tx("Post a Job")}
           </Link>
         </div>
       ) : (
@@ -823,7 +829,7 @@ function JobsTab(props: {
                 onClick={props.onLoadMore}
                 className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
-                Load More
+                {tx("Load More")}
               </Button>
             </div>
           )}
@@ -870,7 +876,7 @@ function ProductsTab(props: {
           <input
             value={props.search}
             onChange={(e) => props.setSearch(e.target.value)}
-            placeholder="Search products, brands, materials..."
+            placeholder={tx("Search products, brands, materials...")}
             className="w-full rounded-lg border border-border py-2.5 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
@@ -895,7 +901,7 @@ function ProductsTab(props: {
               : "border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground",
           )}
         >
-          <SlidersHorizontal className="h-4 w-4" /> Filters
+          <SlidersHorizontal className="h-4 w-4" /> {tx("Filters")}
         </Button>
       </div>
 
@@ -911,7 +917,7 @@ function ProductsTab(props: {
               : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
           )}
         >
-          All
+          {tx("All")}
         </Button>
         {props.categories.map((c) => (
           <Button
@@ -938,7 +944,7 @@ function ProductsTab(props: {
             onChange={(e) => props.setCondition(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
-            <option value="">Any condition</option>
+            <option value="">{tx("Any condition")}</option>
             {Object.entries(PRODUCT_CONDITION_LABELS).map(([v, l]) => (
               <option key={v} value={v}>
                 {l}
@@ -950,7 +956,7 @@ function ProductsTab(props: {
             onChange={(e) => props.setCountry(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
-            <option value="">All countries</option>
+            <option value="">{tx("All countries")}</option>
             {COUNTRY_OPTIONS.map((g) => (
               <optgroup key={g.group} label={g.group}>
                 {g.countries.map((c) => (
@@ -966,7 +972,7 @@ function ProductsTab(props: {
             onChange={(e) => props.setState(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
-            <option value="">All states</option>
+            <option value="">{tx("All states")}</option>
             {NIGERIAN_STATES.map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -983,7 +989,7 @@ function ProductsTab(props: {
             }}
             className="text-xs text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
           >
-            <X aria-hidden="true" className="inline h-3 w-3" /> Clear
+            <X aria-hidden="true" className="inline h-3 w-3" /> {tx("Clear")}
           </Button>
         </div>
       )}
@@ -1000,7 +1006,7 @@ function ProductsTab(props: {
         <div className="py-12 text-center">
           <Store className="mx-auto h-10 w-10 text-muted-foreground/80" />
           <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
-            No products found
+            {tx("No products found")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             Sellers are joining soon. Meanwhile, plan your project with our free
@@ -1011,19 +1017,20 @@ function ProductsTab(props: {
               to="/marketplace/products/post/"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
             >
-              <Plus aria-hidden="true" className="h-4 w-4" /> Sell a Product
+              <Plus aria-hidden="true" className="h-4 w-4" />{" "}
+              {tx("Sell a Product")}
             </Link>
             <Link
               to="/learn/"
               className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground dark:border-white/10 dark:text-primary-foreground"
             >
-              Read the guides
+              {tx("Read the guides")}
             </Link>
             <Link
               to="/prices/"
               className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground dark:border-white/10 dark:text-primary-foreground"
             >
-              Check material prices
+              {tx("Check material prices")}
             </Link>
           </div>
         </div>
@@ -1114,7 +1121,7 @@ function ProductsTab(props: {
                 onClick={props.onLoadMore}
                 className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
-                Load More
+                {tx("Load More")}
               </Button>
             </div>
           )}

@@ -27,11 +27,13 @@ import {
 import type { CashFlowTemplate, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { formatCurrency } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 // Market-currency aware via the site-wide FX layer.
 const money = (v: number) => formatCurrency(v);
 
 export default function CashFlowTimeline() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Cash-Flow Timeline", path: "/cash-flow-timeline" },
@@ -91,7 +93,7 @@ export default function CashFlowTimeline() {
             { label: "Construction Tools", path: "/construction-tools" },
             { label: "Cash-Flow Timeline" },
           ]}
-          title="Cash-Flow Timeline"
+          title={t("Cash-Flow Timeline")}
           subtitle="Phased payment schedule for an estimate total, from verified milestone templates. Milestone percentages must sum to exactly 100%: FRELUX refuses anything else rather than silently adjusting your payment plan."
         />
 
@@ -111,7 +113,7 @@ export default function CashFlowTimeline() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-3">
               <label className="grid gap-1 text-sm font-medium">
-                Template
+                {t("Template")}
                 <select
                   className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                   value={templateId}
@@ -128,7 +130,7 @@ export default function CashFlowTimeline() {
                 </select>
               </label>
               <label className="grid gap-1 text-sm font-medium">
-                Estimate total (your market currency)
+                {t("Estimate total (your market currency)")}
                 <input
                   type="number"
                   min="1"
@@ -139,7 +141,7 @@ export default function CashFlowTimeline() {
                 />
               </label>
               <label className="grid gap-1 text-sm font-medium">
-                Start date
+                {t("Start date")}
                 <input
                   type="date"
                   className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
@@ -154,7 +156,7 @@ export default function CashFlowTimeline() {
                   disabled={!selected || !total || !startDate}
                   className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                 >
-                  Generate Schedule
+                  {t("Generate Schedule")}
                 </button>
               </div>
             </div>
@@ -215,7 +217,7 @@ export default function CashFlowTimeline() {
             </div>
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
-                Calculation breakdown
+                {t("Calculation breakdown")}
               </summary>
               <ul className="mt-2 space-y-1">
                 {result.steps.map((s, i) => (

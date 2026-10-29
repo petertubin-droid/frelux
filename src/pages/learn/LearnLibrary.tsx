@@ -10,6 +10,7 @@ import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { useLearnMarketScope } from "@/lib/learn-scope";
 import type { DbLearnArticle } from "@/types/database";
+import { useLanguage } from "@/lib/i18n";
 
 type Status = "loading" | "ready" | "error";
 
@@ -19,6 +20,7 @@ type Status = "loading" | "ready" | "error";
 const ARTICLES_PER_PAGE = 20;
 
 export default function LearnLibrary() {
+  const { t } = useLanguage();
   useSeo({
     title: "All Guides: The Complete FRELUX Learn Library",
     description:
@@ -130,8 +132,10 @@ export default function LearnLibrary() {
       <>
         <PageHeader
           eyebrow="Learn"
-          title="All Guides"
-          subtitle="The complete FRELUX Learn library, every published guide in one place."
+          title={t("All Guides")}
+          subtitle={t(
+            "The complete FRELUX Learn library, every published guide in one place.",
+          )}
           breadcrumbs={[
             { label: "Learn Hub", path: "/learn" },
             { label: "All Guides" },
@@ -149,8 +153,10 @@ export default function LearnLibrary() {
       <>
         <PageHeader
           eyebrow="Learn"
-          title="All Guides"
-          subtitle="The complete FRELUX Learn library, every published guide in one place."
+          title={t("All Guides")}
+          subtitle={t(
+            "The complete FRELUX Learn library, every published guide in one place.",
+          )}
           breadcrumbs={[
             { label: "Learn Hub", path: "/learn" },
             { label: "All Guides" },
@@ -172,8 +178,10 @@ export default function LearnLibrary() {
     <>
       <PageHeader
         eyebrow="Learn"
-        title="All Guides"
-        subtitle="The complete FRELUX Learn library, every published guide in one place."
+        title={t("All Guides")}
+        subtitle={t(
+          "The complete FRELUX Learn library, every published guide in one place.",
+        )}
         breadcrumbs={[
           { label: "Learn Hub", path: "/learn" },
           { label: "All Guides" },
@@ -189,7 +197,7 @@ export default function LearnLibrary() {
             </div>
             <div>
               <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                The Full Library
+                {t("The Full Library")}
               </h2>
               <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 {searchQuery.trim()
@@ -203,11 +211,11 @@ export default function LearnLibrary() {
           <div className="relative w-full max-w-md">
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
-              aria-label="Search articles"
+              aria-label={t("Search articles")}
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search the library…"
+              placeholder={t("Search the library…")}
               className="w-full rounded-2xl border border-border bg-white/80 py-3 pl-12 pr-4 text-sm font-medium text-foreground shadow-sm placeholder:text-muted-foreground focus:border-brand-purple/50 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-background dark:text-primary-foreground dark:placeholder:text-muted-foreground"
             />
           </div>

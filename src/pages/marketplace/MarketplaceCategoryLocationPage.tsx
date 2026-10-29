@@ -13,6 +13,7 @@ import type {
 } from "@/types/pro-connect";
 import type { DbMarketplaceListing } from "@/types/marketplace";
 import { formatByCode } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 // ============================================================
 // SEO Page: /marketplace/:categorySlug/:locationSlug
@@ -34,6 +35,7 @@ function formatBudget(
 }
 
 export default function MarketplaceCategoryLocationPage() {
+  const { t } = useLanguage();
   const { categorySlug, locationSlug } = useParams<{
     categorySlug: string;
     locationSlug: string;
@@ -125,10 +127,10 @@ export default function MarketplaceCategoryLocationPage() {
           className="mx-auto h-12 w-12 text-muted-foreground/80"
         />
         <h1 className="mt-4 text-xl font-bold text-foreground dark:text-primary-foreground">
-          Page Not Found
+          {t("Page Not Found")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          This category or location doesn't exist.
+          {t("This category or location doesn't exist.")}
         </p>
         <Link
           to="/marketplace/"
@@ -148,11 +150,11 @@ export default function MarketplaceCategoryLocationPage() {
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-muted-foreground">
             <Link to="/" className="hover:text-brand-purple">
-              Home
+              {t("Home")}
             </Link>
             <span>/</span>
             <Link to="/marketplace/" className="hover:text-brand-purple">
-              Marketplace
+              {t("Marketplace")}
             </Link>
             <span>/</span>
             <Link
@@ -213,7 +215,7 @@ export default function MarketplaceCategoryLocationPage() {
                     to="/marketplace/post/"
                     className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
                   >
-                    Post a Job
+                    {t("Post a Job")}
                   </Link>
                 </div>
               ) : (
@@ -260,7 +262,7 @@ export default function MarketplaceCategoryLocationPage() {
                     to="/pro-connect/register/"
                     className="mt-4 inline-flex items-center gap-2 rounded-lg border border-brand-purple px-4 py-2 text-sm font-semibold text-brand-purple"
                   >
-                    Register as a Pro
+                    {t("Register as a Pro")}
                   </Link>
                 </div>
               ) : (

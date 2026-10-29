@@ -6,6 +6,7 @@ import { fetchSharedResource, fetchSharedProject } from "@/lib/queries";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import { readableTextColor } from "@/lib/colors";
+import { useLanguage } from "@/lib/i18n";
 import type {
   DbShareableLink,
   DbUserProject,
@@ -13,6 +14,7 @@ import type {
 } from "@/types/database";
 
 export default function SharedProject() {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,7 +93,7 @@ export default function SharedProject() {
           to="/"
           className="mt-4 inline-block rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
-          Go to homepage
+          {t("Go to homepage")}
         </Link>
       </div>
     );
@@ -112,7 +114,9 @@ export default function SharedProject() {
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-accent-blue/20 bg-accent-blue/5 p-3 text-sm text-muted-foreground">
           <Share2 className="h-4 w-4 text-accent-blue" />
-          This is a shared project. The owner can revoke access at any time.
+          {t(
+            "This is a shared project. The owner can revoke access at any time.",
+          )}
         </div>
 
         {project && (
@@ -132,7 +136,7 @@ export default function SharedProject() {
             {colors.length > 0 && (
               <div>
                 <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-                  Colors
+                  {t("Colors")}
                 </h2>
                 <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                   {colors.map((c) => (
@@ -167,7 +171,7 @@ export default function SharedProject() {
             {projectData && (
               <div className="rounded-xl border border-border bg-muted/50 p-5">
                 <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                  Project Estimation Summary
+                  {t("Project Estimation Summary")}
                 </h2>
                 <dl className="mt-3 grid gap-3 sm:grid-cols-2">
                   {Object.entries(projectData)
@@ -209,7 +213,7 @@ export default function SharedProject() {
             to="/"
             className="text-sm font-semibold text-brand-purple hover:underline"
           >
-            Create your own project at FRELUX
+            {t("Create your own project at FRELUX")}
           </Link>
         </div>
       </div>

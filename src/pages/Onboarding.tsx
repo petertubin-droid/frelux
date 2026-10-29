@@ -18,6 +18,7 @@ import { supabase } from "@/lib/supabase";
 import { fetchLocations } from "@/lib/pro-connect";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const PROJECT_GOALS = [
   {
@@ -47,6 +48,7 @@ const PROJECT_GOALS = [
 ];
 
 export default function Onboarding() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [step, setStep] = useState(1);
@@ -136,7 +138,7 @@ export default function Onboarding() {
               <Home className="h-10 w-10 text-brand-purple" />
             </div>
             <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-              Welcome to FRELUX
+              {t("Welcome to FRELUX")}
             </h1>
             <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground">
               Plan your construction project with precision. Calculate
@@ -174,10 +176,10 @@ export default function Onboarding() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                  I'm a Client
+                  {t("I'm a Client")}
                 </p>
                 <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5">
-                  Find professionals, estimate costs, and plan projects
+                  {t("Find professionals, estimate costs, and plan projects")}
                 </p>
               </div>
               <ArrowRight className="h-5 w-5 text-muted-foreground" />
@@ -207,10 +209,10 @@ export default function Onboarding() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                  I'm a Pro Worker
+                  {t("I'm a Pro Worker")}
                 </p>
                 <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5">
-                  Offer services, get verified, and connect with clients
+                  {t("Offer services, get verified, and connect with clients")}
                 </p>
               </div>
               <ArrowRight className="h-5 w-5 text-muted-foreground" />
@@ -300,7 +302,7 @@ export default function Onboarding() {
               onClick={() => setStep(1)}
               className="rounded-xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
-              Back
+              {t("Back")}
             </Button>
             <Button
               variant="ghost"
@@ -322,7 +324,7 @@ export default function Onboarding() {
               <MapPin className="h-8 w-8 text-brand-purple" />
             </div>
             <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-              Your Location
+              {t("Your Location")}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
               {accountType === "pro_worker"
@@ -336,7 +338,7 @@ export default function Onboarding() {
               htmlFor="onboarding-state"
               className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60"
             >
-              State
+              {t("State")}
             </label>
             <select
               id="onboarding-state"
@@ -344,7 +346,7 @@ export default function Onboarding() {
               onChange={(e) => setSelectedState(e.target.value)}
               className="w-full rounded-xl border border-border px-4 py-3 text-sm dark:border-white/10 dark:bg-background"
             >
-              <option value="">Select your state</option>
+              <option value="">{t("Select your state")}</option>
               {states.map((s) => (
                 <option key={s} value={s}>
                   {s}
@@ -359,7 +361,7 @@ export default function Onboarding() {
               onClick={() => setStep(2)}
               className="rounded-xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
-              Back
+              {t("Back")}
             </Button>
             {accountType === "pro_worker" ? (
               <Button
@@ -392,7 +394,7 @@ export default function Onboarding() {
               onClick={finish}
               className="mt-3 w-full text-center text-xs text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
             >
-              Skip for now
+              {t("Skip for now")}
             </Button>
           )}
         </div>
@@ -406,7 +408,7 @@ export default function Onboarding() {
               <ShieldCheck className="h-8 w-8 text-brand-purple" />
             </div>
             <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-              Verification Process
+              {t("Verification Process")}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
               FRELUX uses a tiered verification system to build trust. Complete
@@ -421,7 +423,7 @@ export default function Onboarding() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                  Contact Verification
+                  {t("Contact Verification")}
                 </p>
                 <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5">
                   Verify your email and mobile number via OTP. Unlocks basic
@@ -435,7 +437,7 @@ export default function Onboarding() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                  Identity Verification
+                  {t("Identity Verification")}
                 </p>
                 <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5">
                   Submit your NIN and government-issued ID. Admin reviews and
@@ -449,7 +451,7 @@ export default function Onboarding() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                  FRELUX Pro Level
+                  {t("FRELUX Pro Level")}
                 </p>
                 <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5">
                   Earn through sustained excellence: reviews, portfolio, and
@@ -465,7 +467,7 @@ export default function Onboarding() {
               onClick={() => setStep(3)}
               className="rounded-xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
-              Back
+              {t("Back")}
             </Button>
             <Button
               variant="default"

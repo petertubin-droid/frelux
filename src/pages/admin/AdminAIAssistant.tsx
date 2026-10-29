@@ -22,6 +22,7 @@ import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // =========================================================
 // Types
@@ -105,6 +106,7 @@ const AGENT_CHAT_URL =
 const BASE44_URL = "https://app.base44.com";
 
 export default function AdminAIAssistant() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("chat");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -276,7 +278,7 @@ export default function AdminAIAssistant() {
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
             <Crown className="h-7 w-7 text-brand-purple" />
-            AI Assistant
+            {t("AI Assistant")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
             Powered by the Solas Superagent (Base44). Describe any issue and get
@@ -289,7 +291,7 @@ export default function AdminAIAssistant() {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
-          <ExternalLink className="h-4 w-4" /> Open Solas Chat
+          <ExternalLink className="h-4 w-4" /> {t("Open Solas Chat")}
         </a>
       </div>
 
@@ -330,7 +332,7 @@ export default function AdminAIAssistant() {
                 <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
                 <div>
                   <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
-                    Solas API Key Required
+                    {t("Solas API Key Required")}
                   </p>
                   <p className="mt-1 text-xs text-amber-600 dark:text-amber-500">
                     To connect your admin to Solas, you need to add your
@@ -340,7 +342,7 @@ export default function AdminAIAssistant() {
                       onClick={() => setTab("settings")}
                       className="underline font-medium"
                     >
-                      Settings tab
+                      {t("Settings tab")}
                     </Button>{" "}
                     to configure it.
                   </p>
@@ -401,7 +403,7 @@ export default function AdminAIAssistant() {
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                       {msg.role === "assistant" && msg.engine && (
                         <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                          SOLAS
+                          {t("SOLAS")}
                         </span>
                       )}
                     </div>
@@ -465,7 +467,7 @@ export default function AdminAIAssistant() {
                   </>
                 ) : (
                   <>
-                    <Send className="h-4 w-4" /> Send to Solas
+                    <Send className="h-4 w-4" /> {t("Send to Solas")}
                   </>
                 )}
               </Button>
@@ -479,7 +481,7 @@ export default function AdminAIAssistant() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
-              Recent Actions
+              {t("Recent Actions")}
             </h2>
             <Button
               variant="ghost"
@@ -567,7 +569,7 @@ export default function AdminAIAssistant() {
             <div className="mb-4 flex items-center gap-2">
               <Key className="h-5 w-5 text-brand-purple" />
               <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
-                Solas API Key
+                {t("Solas API Key")}
               </h2>
             </div>
             <p className="mb-4 text-sm text-muted-foreground dark:text-muted-foreground">
@@ -579,20 +581,20 @@ export default function AdminAIAssistant() {
                 rel="noopener noreferrer"
                 className="mx-1 text-brand-purple underline"
               >
-                Solas agent page
+                {t("Solas agent page")}
               </a>
               → Developer/API Docs.
             </p>
 
             <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Superagent API Key
+              {t("Superagent API Key")}
             </label>
             <div className="flex gap-2">
               <input
                 type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your Solas API key"
+                placeholder={t("Enter your Solas API key")}
                 className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
               />
               <Button
@@ -603,14 +605,15 @@ export default function AdminAIAssistant() {
               >
                 {apiKeySaving ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" /> Saving...
+                    <Loader2 className="h-4 w-4 animate-spin" />{" "}
+                    {t("Saving...")}
                   </>
                 ) : apiKeySaved ? (
                   <>
                     <Check className="h-4 w-4" /> Saved!
                   </>
                 ) : (
-                  <>Save Key</>
+                  <>{t("Save Key")}</>
                 )}
               </Button>
             </div>
@@ -625,7 +628,7 @@ export default function AdminAIAssistant() {
             <div className="mb-4 flex items-center gap-2">
               <ExternalLink className="h-5 w-5 text-brand-purple" />
               <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
-                Base44 Quick Access
+                {t("Base44 Quick Access")}
               </h2>
             </div>
             <p className="mb-4 text-sm text-muted-foreground dark:text-muted-foreground">
@@ -644,10 +647,10 @@ export default function AdminAIAssistant() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                    Base44 Dashboard
+                    {t("Base44 Dashboard")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Main dashboard & app list
+                    {t("Main dashboard & app list")}
                   </p>
                 </div>
               </a>
@@ -663,10 +666,10 @@ export default function AdminAIAssistant() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                    Solas Chat
+                    {t("Solas Chat")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Direct chat with Solas
+                    {t("Direct chat with Solas")}
                   </p>
                 </div>
               </a>
@@ -682,10 +685,10 @@ export default function AdminAIAssistant() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                    Agent Settings
+                    {t("Agent Settings")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Configure Solas, models, memory
+                    {t("Configure Solas, models, memory")}
                   </p>
                 </div>
               </a>
@@ -701,10 +704,10 @@ export default function AdminAIAssistant() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                    Documentation
+                    {t("Documentation")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Base44 API docs & guides
+                    {t("Base44 API docs & guides")}
                   </p>
                 </div>
               </a>
@@ -716,7 +719,7 @@ export default function AdminAIAssistant() {
             <div className="mb-4 flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-brand-purple" />
               <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
-                API Configuration
+                {t("API Configuration")}
               </h2>
             </div>
             <p className="mb-4 text-sm text-muted-foreground dark:text-muted-foreground">
@@ -731,14 +734,14 @@ export default function AdminAIAssistant() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
-                      Supabase Backend
+                      {t("Supabase Backend")}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Database, Auth, Edge Functions, Storage
+                      {t("Database, Auth, Edge Functions, Storage")}
                     </p>
                   </div>
                   <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
-                    Active
+                    {t("Active")}
                   </span>
                 </div>
               </div>
@@ -747,10 +750,10 @@ export default function AdminAIAssistant() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
-                      Solas Superagent
+                      {t("Solas Superagent")}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      AI-powered admin assistant & code fixes
+                      {t("AI-powered admin assistant & code fixes")}
                     </p>
                   </div>
                   <span
@@ -770,14 +773,14 @@ export default function AdminAIAssistant() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
-                      OpenAI (AI Features)
+                      {t("OpenAI (AI Features)")}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Live chat, color consult, project assistant
+                      {t("Live chat, color consult, project assistant")}
                     </p>
                   </div>
                   <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
-                    Check Integrations
+                    {t("Check Integrations")}
                   </span>
                 </div>
               </div>

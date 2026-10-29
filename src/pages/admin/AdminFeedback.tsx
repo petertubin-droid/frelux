@@ -8,6 +8,7 @@ import {
 } from "@/components/admin/AdminUi";
 import AdminPagination from "@/components/admin/AdminPagination";
 import { classNames } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 interface FeedbackRow {
   id: string;
@@ -29,6 +30,7 @@ const KIND_LABEL: Record<string, string> = {
 const STATUS_OPTIONS = ["new", "reviewed", "planned", "shipped", "declined"];
 
 export default function AdminFeedback() {
+  const { t } = useLanguage();
   const [rows, setRows] = useState<FeedbackRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("new");
@@ -89,8 +91,10 @@ export default function AdminFeedback() {
   return (
     <div>
       <AdminHeader
-        title="Feedback & Suggestions"
-        subtitle="What users ask for and report: review, plan, and mark them done."
+        title={t("Feedback & Suggestions")}
+        subtitle={t(
+          "What users ask for and report: review, plan, and mark them done.",
+        )}
       />
 
       <div className="mb-4 flex flex-wrap gap-2">
@@ -115,21 +119,21 @@ export default function AdminFeedback() {
       {loading && (
         <StateMessage
           type="loading"
-          title="Loading"
+          title={t("Loading")}
           message="Loading feedback…"
         />
       )}
       {error && (
         <StateMessage
           type="error"
-          title="Error"
+          title={t("Error")}
           message={`Could not load: ${error}`}
         />
       )}
       {!loading && !error && rows.length === 0 && (
         <StateMessage
           type="empty"
-          title="Nothing here"
+          title={t("Nothing here")}
           message="No feedback in this view yet."
         />
       )}
@@ -176,7 +180,7 @@ export default function AdminFeedback() {
               </select>
               {r.status === "new" && (
                 <AdminButton onClick={() => void setStatus(r.id, "reviewed")}>
-                  <ListChecks className="mr-1.5 h-3.5 w-3.5" /> Reviewed
+                  <ListChecks className="mr-1.5 h-3.5 w-3.5" /> {t("Reviewed")}
                 </AdminButton>
               )}
               {r.status !== "planned" && r.status !== "shipped" && (
@@ -184,7 +188,7 @@ export default function AdminFeedback() {
                   variant="secondary"
                   onClick={() => void setStatus(r.id, "planned")}
                 >
-                  <Star className="mr-1.5 h-3.5 w-3.5" /> Plan
+                  <Star className="mr-1.5 h-3.5 w-3.5" /> {t("Plan")}
                 </AdminButton>
               )}
               {r.status !== "shipped" && (
@@ -192,7 +196,7 @@ export default function AdminFeedback() {
                   variant="secondary"
                   onClick={() => void setStatus(r.id, "shipped")}
                 >
-                  <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Done
+                  <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> {t("Done")}
                 </AdminButton>
               )}
               {r.status !== "declined" && (
@@ -200,7 +204,7 @@ export default function AdminFeedback() {
                   variant="secondary"
                   onClick={() => void setStatus(r.id, "declined")}
                 >
-                  <XCircle className="mr-1.5 h-3.5 w-3.5" /> Decline
+                  <XCircle className="mr-1.5 h-3.5 w-3.5" /> {t("Decline")}
                 </AdminButton>
               )}
             </div>

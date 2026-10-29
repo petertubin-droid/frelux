@@ -15,6 +15,7 @@ import {
   AdminTextarea,
 } from "@/components/admin/AdminUi";
 import { AdminModal } from "@/components/admin/AdminModal";
+import { useLanguage } from "@/lib/i18n";
 
 // ─────────────────────────────────────────────────────────
 // Types (inline, matches DB columns from estimation_products)
@@ -132,6 +133,7 @@ function slugify(s: string) {
 }
 
 export default function AdminEstimationProducts() {
+  const { t } = useLanguage();
   const [products, setProducts] = useState<EstProduct[]>([]);
   const [qualityMap, setQualityMap] = useState<Record<string, EstQuality[]>>(
     {},
@@ -242,7 +244,7 @@ export default function AdminEstimationProducts() {
   return (
     <>
       <AdminHeader
-        title="Estimation Products"
+        title={t("Estimation Products")}
         subtitle="Manage paint types and quality levels. Coverage settings here feed the FRELUX ROOM-BASED estimation engine, not an m² calculator."
         action={
           <AdminButton
@@ -251,7 +253,7 @@ export default function AdminEstimationProducts() {
               setShowForm(true);
             }}
           >
-            <Plus aria-hidden="true" className="h-4 w-4" /> Add product
+            <Plus aria-hidden="true" className="h-4 w-4" /> {t("Add product")}
           </AdminButton>
         }
       />
@@ -263,13 +265,13 @@ export default function AdminEstimationProducts() {
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={t("Loading…")}
           message="Fetching estimation products."
         />
       ) : products.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No products yet"
+          title={t("No products yet")}
           message="Add your first estimation product to get started."
         />
       ) : (
@@ -284,7 +286,7 @@ export default function AdminEstimationProducts() {
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by name or category…"
+                placeholder={t("Search by name or category…")}
                 className="pl-9"
               />
             </div>
@@ -332,7 +334,7 @@ export default function AdminEstimationProducts() {
               return (
                 <StateMessage
                   type="empty"
-                  title="No products found"
+                  title={t("No products found")}
                   message="Adjust your search to see results."
                 />
               );
@@ -367,12 +369,12 @@ export default function AdminEstimationProducts() {
                                   </h3>
                                   {p.has_quality_levels && (
                                     <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary dark:bg-primary/20 dark:text-primary-lighter">
-                                      Tiers
+                                      {t("Tiers")}
                                     </span>
                                   )}
                                   {!p.is_active && (
                                     <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
-                                      Off
+                                      {t("Off")}
                                     </span>
                                   )}
                                 </div>
@@ -460,7 +462,7 @@ export default function AdminEstimationProducts() {
                                       )}
                                       {!q.is_active && (
                                         <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                                          Inactive
+                                          {t("Inactive")}
                                         </span>
                                       )}
                                     </div>
@@ -555,6 +557,7 @@ function ProductForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [category, setCategory] = useState(initial?.category ?? "emulsion");
@@ -813,7 +816,7 @@ function ProductForm({
       <div className="flex items-center gap-6">
         <div>
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Has quality levels
+            {t("Has quality levels")}
           </span>
           <div className="mt-2">
             <Toggle checked={hasQuality} onChange={setHasQuality} />
@@ -821,7 +824,7 @@ function ProductForm({
         </div>
         <div>
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Active
+            {t("Active")}
           </span>
           <div className="mt-2">
             <Toggle checked={isActive} onChange={setIsActive} />
@@ -835,7 +838,7 @@ function ProductForm({
       )}
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {t("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}
@@ -859,6 +862,7 @@ function QualityForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
@@ -1027,7 +1031,7 @@ function QualityForm({
           <AdminInput
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Standard, Premium, High Quality"
+            placeholder={t("Standard, Premium, High Quality")}
           />
         </AdminField>
         <AdminField label="Slug" hint="Auto-generated if left blank">
@@ -1095,7 +1099,7 @@ function QualityForm({
       </div>
       <div className="rounded-lg border border-border bg-muted/40 p-3">
         <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Mineral Stone / Stucco material model
+          {t("Mineral Stone / Stucco material model")}
         </p>
         <p className="mb-3 text-xs text-muted-foreground">
           These fields drive the deterministic Mineral Stone and Stucco engines.
@@ -1239,7 +1243,7 @@ function QualityForm({
       <div className="flex items-center gap-6">
         <div>
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Active
+            {t("Active")}
           </span>
           <div className="mt-2">
             <Toggle checked={isActive} onChange={setIsActive} />
@@ -1260,7 +1264,7 @@ function QualityForm({
       )}
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {t("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}

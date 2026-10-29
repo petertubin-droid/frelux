@@ -113,6 +113,7 @@ import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
 import { calculateLabourCost } from "@/lib/labour";
+import { useLanguage } from "@/lib/i18n";
 // =========================================================
 // Constants
 // =========================================================
@@ -183,6 +184,7 @@ function exportTyroleneQuote(args: {
 export default function TyroleneEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { t } = useLanguage();
   const { marketCode } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("tyrolene");
   // Regional data flow: project location -> market profile -> currency.
@@ -729,8 +731,10 @@ export default function TyroleneEstimator({
       {!embedded && (
         <>
           <PageHeader
-            title="Tyrolene Estimator"
-            subtitle="Partition-based exterior finishing calculator: FRELUX production methodology"
+            title={t("Tyrolene Estimator")}
+            subtitle={t(
+              "Partition-based exterior finishing calculator: FRELUX production methodology",
+            )}
             breadcrumbs={[
               { label: "Calculators", path: "/paint-calculator" },
               { label: "Tyrolene Estimator" },
@@ -767,7 +771,7 @@ export default function TyroleneEstimator({
             />
             <div className="flex-1">
               <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                FRELUX Tyrolene Material Ratio
+                {t("FRELUX Tyrolene Material Ratio")}
               </p>
               <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-1 mb-2">
                 Based on {materialRatio.partitions_per_ratio} standard
@@ -802,7 +806,7 @@ export default function TyroleneEstimator({
               />
               <div className="flex-1">
                 <p className="text-sm font-semibold text-red-900 dark:text-red-200">
-                  Configuration Required
+                  {t("Configuration Required")}
                 </p>
                 <ul className="mt-2 space-y-1">
                   {configWarnings.map((w, i) => (
@@ -841,14 +845,14 @@ export default function TyroleneEstimator({
               aria-hidden="true"
               className="h-4 w-4 text-brand-purple"
             />
-            Project Information
+            {t("Project Information")}
           </h3>
           <div>
             <label
               htmlFor="tyrolene-project-description"
               className="block text-xs font-medium text-muted-foreground dark:text-muted-foreground mb-1"
             >
-              Project Description
+              {t("Project Description")}
             </label>
             <input
               id="tyrolene-project-description"
@@ -861,7 +865,7 @@ export default function TyroleneEstimator({
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground dark:text-muted-foreground mb-1">
-              Customer Location
+              {t("Customer Location")}
             </label>
             <div className="flex gap-2">
               {[
@@ -897,7 +901,7 @@ export default function TyroleneEstimator({
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display text-base font-bold text-foreground dark:text-primary-foreground flex items-center gap-2">
               <Layers className="h-4 w-4 text-brand-purple" />
-              Partition Input
+              {t("Partition Input")}
             </h3>
             <div className="flex gap-2">
               <Button
@@ -910,7 +914,7 @@ export default function TyroleneEstimator({
                     : "border-border dark:border-border text-muted-foreground dark:text-muted-foreground",
                 )}
               >
-                Standard Count
+                {t("Standard Count")}
               </Button>
               <Button
                 variant="ghost"
@@ -922,7 +926,7 @@ export default function TyroleneEstimator({
                     : "border-border dark:border-border text-muted-foreground dark:text-muted-foreground",
                 )}
               >
-                Actual Dimensions
+                {t("Actual Dimensions")}
               </Button>
             </div>
           </div>
@@ -934,7 +938,7 @@ export default function TyroleneEstimator({
                 htmlFor="tyrolene-standard-partitions"
                 className="block text-xs font-medium text-muted-foreground dark:text-muted-foreground mb-2"
               >
-                Number of Standard Partitions
+                {t("Number of Standard Partitions")}
               </label>
               <div className="flex items-center gap-3">
                 <Button
@@ -948,7 +952,7 @@ export default function TyroleneEstimator({
                 </Button>
                 <input
                   id="tyrolene-standard-partitions"
-                  aria-label="Number of standard partitions"
+                  aria-label={t("Number of standard partitions")}
                   type="number"
                   min="0"
                   value={standardCount}
@@ -1027,7 +1031,7 @@ export default function TyroleneEstimator({
                         className="block text-xs text-muted-foreground mb-1"
                         htmlFor={`partition-quantity-${pt.id}`}
                       >
-                        Qty
+                        {t("Qty")}
                       </label>
                       <input
                         id={`partition-quantity-${pt.id}`}
@@ -1049,7 +1053,7 @@ export default function TyroleneEstimator({
                         className="block text-xs text-muted-foreground mb-1"
                         htmlFor={`partition-width-${pt.id}`}
                       >
-                        Width (m)
+                        {t("Width (m)")}
                       </label>
                       <input
                         id={`partition-width-${pt.id}`}
@@ -1072,7 +1076,7 @@ export default function TyroleneEstimator({
                         className="block text-xs text-muted-foreground mb-1"
                         htmlFor={`partition-height-${pt.id}`}
                       >
-                        Height (m)
+                        {t("Height (m)")}
                       </label>
                       <input
                         id={`partition-height-${pt.id}`}
@@ -1103,7 +1107,7 @@ export default function TyroleneEstimator({
                 className="flex items-center gap-1.5 text-xs font-medium text-brand-purple hover:text-brand-purple-dark"
               >
                 <Plus className="h-4 w-4" />
-                Add Partition Type
+                {t("Add Partition Type")}
               </Button>
             </div>
           )}
@@ -1139,7 +1143,7 @@ export default function TyroleneEstimator({
               onClick={handleReset}
               className="flex items-center justify-center gap-2 rounded-lg border border-border dark:border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:border-border"
             >
-              <RotateCcw aria-hidden="true" className="h-4 w-4" /> Reset
+              <RotateCcw aria-hidden="true" className="h-4 w-4" /> {t("Reset")}
             </Button>
           )}
         </div>
@@ -1205,7 +1209,7 @@ export default function TyroleneEstimator({
                   <div className="bg-primary px-5 py-4">
                     <h3 className="font-display text-lg font-bold text-primary-foreground flex items-center gap-2">
                       <Box className="h-5 w-5" />
-                      Tyrolene Estimate
+                      {t("Tyrolene Estimate")}
                     </h3>
                     <p className="text-xs text-brand-purple-lighter mt-1">
                       Exterior Only · {projectDescription || "Tyrolene Project"}
@@ -1217,7 +1221,7 @@ export default function TyroleneEstimator({
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       <div className="rounded-lg bg-muted/50 dark:bg-black/50 p-3">
                         <p className="text-xs text-muted-foreground">
-                          Partitions
+                          {t("Partitions")}
                         </p>
                         <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
                           {result.equivalent_standard_partitions}
@@ -1225,7 +1229,7 @@ export default function TyroleneEstimator({
                       </div>
                       <div className="rounded-lg bg-muted/50 dark:bg-black/50 p-3">
                         <p className="text-xs text-muted-foreground">
-                          Standard Partition
+                          {t("Standard Partition")}
                         </p>
                         <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                           {result.standard_partition_width}m ×{" "}
@@ -1234,7 +1238,7 @@ export default function TyroleneEstimator({
                       </div>
                       <div className="rounded-lg bg-muted/50 dark:bg-black/50 p-3">
                         <p className="text-xs text-muted-foreground">
-                          Adjusted
+                          {t("Adjusted")}
                         </p>
                         <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                           {result.has_dimensional_adjustment
@@ -1249,7 +1253,7 @@ export default function TyroleneEstimator({
                       result.partition_breakdown.length > 0 && (
                         <div className="rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-900/50 dark:bg-blue-950/30 p-3">
                           <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2">
-                            Dimensional Adjustment Applied
+                            {t("Dimensional Adjustment Applied")}
                           </p>
                           <div className="space-y-1">
                             {result.partition_breakdown.map((b, i) => (
@@ -1274,7 +1278,7 @@ export default function TyroleneEstimator({
                     <div>
                       <h4 className="text-sm font-semibold text-foreground dark:text-primary-foreground mb-3 flex items-center gap-2">
                         <Package className="h-4 w-4 text-brand-purple" />
-                        Material Requirement
+                        {t("Material Requirement")}
                       </h4>
                       <div className="space-y-2">
                         {result.materials.map((m) => (
@@ -1346,7 +1350,7 @@ export default function TyroleneEstimator({
                     <div className="rounded-lg bg-muted/50 dark:bg-black/50 p-4 space-y-2">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground dark:text-muted-foreground">
-                          Theoretical Material Cost
+                          {t("Theoretical Material Cost")}
                         </span>
                         <span className="font-medium text-foreground dark:text-primary-foreground">
                           {formatCurrency(
@@ -1357,7 +1361,7 @@ export default function TyroleneEstimator({
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground dark:text-muted-foreground">
-                          Practical Purchase Cost
+                          {t("Practical Purchase Cost")}
                         </span>
                         <span className="font-bold text-brand-purple dark:text-brand-purple-lighter text-lg">
                           {formatCurrency(
@@ -1385,7 +1389,9 @@ export default function TyroleneEstimator({
                       last
                     />
                     <div className="mt-3 flex justify-between text-sm">
-                      <span className="text-muted-foreground">Labour cost</span>
+                      <span className="text-muted-foreground">
+                        {t("Labour cost")}
+                      </span>
                       <span className="font-bold text-brand-purple dark:text-brand-purple-lighter">
                         {formatCurrency(
                           calculateLabourCost(
@@ -1401,7 +1407,7 @@ export default function TyroleneEstimator({
                     </div>
                     <div className="mt-1 flex justify-between text-sm">
                       <span className="font-semibold text-foreground dark:text-primary-foreground">
-                        Grand total (materials + labour)
+                        {t("Grand total (materials + labour)")}
                       </span>
                       <span className="font-bold text-brand-purple dark:text-brand-purple-lighter text-lg">
                         {formatCurrency(
@@ -1451,7 +1457,7 @@ export default function TyroleneEstimator({
                           CALCULATED:
                         </span>{" "}
                         <span className="text-foreground dark:text-primary-foreground">
-                          FRELUX Engine
+                          {t("FRELUX Engine")}
                         </span>
                       </div>
                       <div className="rounded-md bg-muted/50 dark:bg-black/50 px-3 py-2">
@@ -1656,11 +1662,11 @@ export default function TyroleneEstimator({
                       >
                         {saved ? (
                           <>
-                            <CheckCircle2 className="h-4 w-4" /> Saved
+                            <CheckCircle2 className="h-4 w-4" /> {t("Saved")}
                           </>
                         ) : (
                           <>
-                            <Save className="h-4 w-4" /> Save Estimate
+                            <Save className="h-4 w-4" /> {t("Save Estimate")}
                           </>
                         )}
                       </Button>
@@ -1691,7 +1697,7 @@ export default function TyroleneEstimator({
                         }
                         className="gap-2"
                       >
-                        Export Quote (PDF)
+                        {t("Export Quote (PDF)")}
                       </Button>
                       <SaveToProjectButton
                         calculatorType="tyrolene"

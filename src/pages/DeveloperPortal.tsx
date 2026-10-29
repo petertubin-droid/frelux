@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/components/ui/Toast";
+import { useLanguage } from "@/lib/i18n";
 import {
   listApiKeys,
   createApiKey,
@@ -155,6 +156,7 @@ function CodeBlock({ children }: { children: string }) {
 }
 
 export default function DeveloperPortal() {
+  const { t } = useLanguage();
   const { user, loading } = useAuth();
   const { success, error } = useToast();
   const [keys, setKeys] = useState<ApiKeyRow[]>([]);
@@ -268,7 +270,7 @@ export default function DeveloperPortal() {
           <Terminal aria-hidden="true" className="h-8 w-8 text-brand-purple" />
           <div>
             <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-              FRELUX AI API
+              {t("FRELUX AI API")}
             </h1>
             <p className="text-sm text-muted-foreground">
               The official API of FRELUX construction &amp; property
@@ -284,14 +286,14 @@ export default function DeveloperPortal() {
         aria-labelledby="quickstart-heading"
       >
         <h2 id="quickstart-heading" className="mb-3 text-lg font-semibold">
-          Quick start
+          {t("Quick start")}
         </h2>
         <CodeBlock>{`curl -X POST "https://nfgaaohweygwydoelxnf.supabase.co/functions/v1/frelix-api/v1/calculators/tyrolene_partition_area" \\
   -H "Authorization: Bearer FLX-YOUR-KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"input":{"length":4,"width":3,"height":3}}'`}</CodeBlock>
         <p className="mt-3 text-sm text-muted-foreground">
-          Authentication is a Bearer FRELUX API key (
+          {t("Authentication is a Bearer FRELUX API key (")}
           <code className="rounded bg-muted px-1">FLX-…</code>, exactly 32
           characters). Keys are hashed, store your key when you create it.
         </p>
@@ -300,15 +302,15 @@ export default function DeveloperPortal() {
       {/* Endpoints */}
       <section className="mb-8" aria-labelledby="endpoints-heading">
         <h2 id="endpoints-heading" className="mb-3 text-lg font-semibold">
-          Endpoints
+          {t("Endpoints")}
         </h2>
         <div className="overflow-x-auto rounded-xl border">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="px-3 py-2">Method</th>
-                <th className="px-3 py-2">Path</th>
-                <th className="px-3 py-2">Description</th>
+                <th className="px-3 py-2">{t("Method")}</th>
+                <th className="px-3 py-2">{t("Path")}</th>
+                <th className="px-3 py-2">{t("Description")}</th>
               </tr>
             </thead>
             <tbody>
@@ -327,7 +329,7 @@ export default function DeveloperPortal() {
       {/* Honest contracts */}
       <section
         className="mb-8 grid gap-4 md:grid-cols-2"
-        aria-label="API contracts"
+        aria-label={t("API contracts")}
       >
         <div className="rounded-xl border p-4">
           <div className="mb-2 flex items-center gap-2">
@@ -335,7 +337,7 @@ export default function DeveloperPortal() {
               aria-hidden="true"
               className="h-5 w-5 text-emerald-600"
             />
-            <h3 className="font-semibold">Deterministic calculators</h3>
+            <h3 className="font-semibold">{t("Deterministic calculators")}</h3>
           </div>
           <p className="text-sm text-muted-foreground">
             Calculation results are produced only by the canonical FRELUX
@@ -352,7 +354,9 @@ export default function DeveloperPortal() {
               aria-hidden="true"
               className="h-5 w-5 text-amber-600"
             />
-            <h3 className="font-semibold">Honest knowledge boundaries</h3>
+            <h3 className="font-semibold">
+              {t("Honest knowledge boundaries")}
+            </h3>
           </div>
           <p className="text-sm text-muted-foreground">
             Market prices are labeled OBSERVED vs CONFIGURED and are never
@@ -366,7 +370,7 @@ export default function DeveloperPortal() {
       {/* Error codes */}
       <section className="mb-8" aria-labelledby="errors-heading">
         <h2 id="errors-heading" className="mb-3 text-lg font-semibold">
-          Error codes
+          {t("Error codes")}
         </h2>
         <div className="grid gap-2 sm:grid-cols-2">
           {ERROR_CODES.map((e) => (
@@ -383,7 +387,7 @@ export default function DeveloperPortal() {
         <div className="mb-4 flex items-center gap-2">
           <KeyRound aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           <h2 id="keys-heading" className="text-lg font-semibold">
-            Your API keys
+            {t("Your API keys")}
           </h2>
         </div>
 
@@ -396,7 +400,7 @@ export default function DeveloperPortal() {
           </div>
         ) : !user ? (
           <p className="py-6 text-center text-sm text-muted-foreground">
-            Sign in to create and manage your FRELUX API keys.
+            {t("Sign in to create and manage your FRELUX API keys.")}
           </p>
         ) : (
           <>
@@ -405,16 +409,16 @@ export default function DeveloperPortal() {
               <input
                 value={newKeyName}
                 onChange={(e) => setNewKeyName(e.target.value)}
-                placeholder="Key name (e.g. Production integration)"
+                placeholder={t("Key name (e.g. Production integration)")}
                 className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm"
                 maxLength={100}
-                aria-label="New API key name"
+                aria-label={t("New API key name")}
               />
               <select
                 value={newKeyPlan}
                 onChange={(e) => setNewKeyPlan(e.target.value)}
                 className="rounded-lg border bg-background px-3 py-2 text-sm"
-                aria-label="API plan"
+                aria-label={t("API plan")}
               >
                 {plans.map((p) => (
                   <option key={p.key} value={p.key}>
@@ -477,7 +481,7 @@ export default function DeveloperPortal() {
               </div>
             ) : keys.length === 0 ? (
               <p className="py-6 text-center text-sm text-muted-foreground">
-                No API keys yet. Create your first key above.
+                {t("No API keys yet. Create your first key above.")}
               </p>
             ) : (
               <ul className="space-y-3">
@@ -594,7 +598,7 @@ export default function DeveloperPortal() {
                   <div className="flex items-center gap-1.5">
                     <p className="font-medium">{p.name}</p>
                     {purchasable && (
-                      <span title="Premium plan">
+                      <span title={t("Premium plan")}>
                         <Crown
                           aria-hidden="true"
                           className="h-3.5 w-3.5 text-amber-500 dark:text-amber-300"

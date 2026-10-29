@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { useMarket } from "@/lib/international/market-context";
 import { getCurrencySymbol } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 const NIGERIAN_STATES = [
   "Lagos",
@@ -31,6 +32,7 @@ const NIGERIAN_STATES = [
 ];
 
 export default function PostListing() {
+  const { t: tr } = useLanguage();
   // Budgets are entered in the visitor's market currency (NG visitors
   // still see ₦ — zero behavior change for the reference market).
   const { market } = useMarket();
@@ -151,17 +153,19 @@ export default function PostListing() {
         </Button>
 
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Post a Job
+          {tr("Post a Job")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-          Describe your project and get bids from verified professionals.
+          {tr(
+            "Describe your project and get bids from verified professionals.",
+          )}
         </p>
 
         {estimateRef && (
           <div className="mt-4 flex items-center gap-2 rounded-lg bg-primary/5 border border-brand-purple/20 p-3 text-sm text-brand-purple">
             <Info aria-hidden="true" className="h-4 w-4 shrink-0" />
             <span>
-              Pre-filled from your estimate. Adjust details as needed.
+              {tr("Pre-filled from your estimate. Adjust details as needed.")}
             </span>
           </div>
         )}
@@ -185,7 +189,7 @@ export default function PostListing() {
           {/* Description */}
           <div>
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Description
+              {tr("Description")}
             </label>
             <textarea
               value={description}
@@ -200,7 +204,7 @@ export default function PostListing() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                Project Type
+                {tr("Project Type")}
               </label>
               <select
                 value={projectType}
@@ -216,16 +220,16 @@ export default function PostListing() {
             </div>
             <div>
               <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                Urgency
+                {tr("Urgency")}
               </label>
               <select
                 value={urgency}
                 onChange={(e) => setUrgency(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               >
-                <option value="standard">Standard</option>
-                <option value="urgent">Urgent</option>
-                <option value="flexible">Flexible</option>
+                <option value="standard">{tr("Standard")}</option>
+                <option value="urgent">{tr("Urgent")}</option>
+                <option value="flexible">{tr("Flexible")}</option>
               </select>
             </div>
           </div>
@@ -271,7 +275,7 @@ export default function PostListing() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                Country
+                {tr("Country")}
               </label>
               <select
                 value={country}
@@ -290,12 +294,14 @@ export default function PostListing() {
                     ))}
                   </optgroup>
                 ))}
-                <option value="OTHER">Other (specify in city/area)</option>
+                <option value="OTHER">
+                  {tr("Other (specify in city/area)")}
+                </option>
               </select>
             </div>
             <div>
               <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                State / Region
+                {tr("State / Region")}
               </label>
               {country === "NG" ? (
                 <select
@@ -303,7 +309,7 @@ export default function PostListing() {
                   onChange={(e) => setState(e.target.value)}
                   className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 >
-                  <option value="">Select state</option>
+                  <option value="">{tr("Select state")}</option>
                   {(dbLocations.length > 0
                     ? [...new Set(dbLocations.map((l) => l.state))].sort()
                     : NIGERIAN_STATES
@@ -319,7 +325,7 @@ export default function PostListing() {
                   onChange={(e) => setState(e.target.value)}
                   className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 >
-                  <option value="">Select region</option>
+                  <option value="">{tr("Select region")}</option>
                   {getRegions(country)!.map((r) => (
                     <option key={r} value={r}>
                       {r}
@@ -331,14 +337,14 @@ export default function PostListing() {
                   type="text"
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                  placeholder="Region, e.g. Greater Accra"
+                  placeholder={tr("Region, e.g. Greater Accra")}
                   className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               )}
             </div>
             <div>
               <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                City
+                {tr("City")}
               </label>
               <input
                 type="text"
@@ -350,7 +356,7 @@ export default function PostListing() {
             </div>
             <div>
               <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                Area
+                {tr("Area")}
               </label>
               <input
                 type="text"
@@ -383,7 +389,7 @@ export default function PostListing() {
               onClick={() => navigate("/marketplace")}
               className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
             >
-              Cancel
+              {tr("Cancel")}
             </Button>
           </div>
         </div>

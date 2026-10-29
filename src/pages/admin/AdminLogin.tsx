@@ -7,6 +7,7 @@ import Logo from "@/components/brand/Logo";
 import { useSeo } from "@/lib/seo";
 import { AdminButton, AdminInput } from "@/components/admin/AdminUi";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -38,6 +39,7 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export default function AdminLogin() {
+  const { t } = useLanguage();
   const { signIn, signInWithGoogle, user, isAdmin, configured } = useAuth();
   useSeo({ title: "FRELUX", description: "FRELUX", noIndex: true });
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -121,7 +123,7 @@ export default function AdminLogin() {
             <div className="mt-6 space-y-4">
               <div className="rounded-lg border border-accent-green/30 bg-accent-green/10 p-4 text-sm text-card-foreground dark:text-muted-foreground/60">
                 <p className="font-semibold text-accent-green">
-                  Account created
+                  {t("Account created")}
                 </p>
                 <p className="mt-1">
                   Your account{" "}
@@ -140,7 +142,7 @@ export default function AdminLogin() {
                 }}
                 className="w-full px-5 py-2.5"
               >
-                Sign in
+                {t("Sign in")}
               </AdminButton>
             </div>
           ) : (
@@ -169,7 +171,7 @@ export default function AdminLogin() {
               <form onSubmit={onSubmit} className="space-y-4" noValidate>
                 <label className="block">
                   <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                    Email
+                    {t("Email")}
                   </span>
                   <div className="relative mt-1.5">
                     <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -186,7 +188,7 @@ export default function AdminLogin() {
                 </label>
                 <label className="block">
                   <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                    Password
+                    {t("Password")}
                   </span>
                   <div className="relative mt-1.5">
                     <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -247,7 +249,7 @@ export default function AdminLogin() {
         </div>
         <p className="mt-6 text-center text-xs text-muted-foreground dark:text-muted-foreground">
           <Link to="/" className="hover:text-brand-purple">
-            Back to website
+            {t("Back to website")}
           </Link>
         </p>
       </div>

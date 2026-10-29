@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/lib/i18n";
 import {
   AdminHeader,
   AdminButton,
@@ -34,6 +35,7 @@ const EMPTY_FORM = {
 };
 
 export default function AdminTestimonials() {
+  const { t } = useLanguage();
   const [rows, setRows] = useState<TestimonialRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,18 +122,18 @@ export default function AdminTestimonials() {
   return (
     <div>
       <AdminHeader
-        title="Testimonials"
+        title={t("Testimonials")}
         subtitle="Homepage social proof. Publish real user quotes only, with the user's permission. Inactive quotes stay here but never render on the site."
       />
 
       <div className="mb-6 rounded-xl border border-border bg-card p-5">
         <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold">
-          <Plus className="h-4 w-4" /> Add a testimonial
+          <Plus className="h-4 w-4" /> {t("Add a testimonial")}
         </h3>
         <textarea
           value={form.quote}
           onChange={(e) => setForm({ ...form, quote: e.target.value })}
-          placeholder="The exact quote, as the user wrote it..."
+          placeholder={t("The exact quote, as the user wrote it...")}
           rows={3}
           className="mb-3 w-full rounded-lg border border-border bg-background p-3 text-sm"
         />
@@ -139,13 +141,13 @@ export default function AdminTestimonials() {
           <input
             value={form.author_name}
             onChange={(e) => setForm({ ...form, author_name: e.target.value })}
-            placeholder="Author name"
+            placeholder={t("Author name")}
             className="rounded-lg border border-border bg-background p-2 text-sm"
           />
           <input
             value={form.author_role}
             onChange={(e) => setForm({ ...form, author_role: e.target.value })}
-            placeholder="Role (e.g. Homeowner)"
+            placeholder={t("Role (e.g. Homeowner)")}
             className="rounded-lg border border-border bg-background p-2 text-sm"
           />
           <input
@@ -153,7 +155,7 @@ export default function AdminTestimonials() {
             onChange={(e) =>
               setForm({ ...form, author_location: e.target.value })
             }
-            placeholder="Location (optional)"
+            placeholder={t("Location (optional)")}
             className="rounded-lg border border-border bg-background p-2 text-sm"
           />
           <input
@@ -162,7 +164,7 @@ export default function AdminTestimonials() {
             onChange={(e) =>
               setForm({ ...form, sort_order: parseInt(e.target.value || "0") })
             }
-            placeholder="Sort order"
+            placeholder={t("Sort order")}
             className="rounded-lg border border-border bg-background p-2 text-sm"
           />
         </div>
@@ -176,14 +178,14 @@ export default function AdminTestimonials() {
       {loading && (
         <StateMessage
           type="loading"
-          title="Loading testimonials"
+          title={t("Loading testimonials")}
           message="Fetching the current homepage quotes."
         />
       )}
       {error && (
         <StateMessage
           type="error"
-          title="Something went wrong"
+          title={t("Something went wrong")}
           message={error}
         />
       )}
@@ -196,7 +198,7 @@ export default function AdminTestimonials() {
       {!loading && rows.length === 0 && !error && (
         <StateMessage
           type="empty"
-          title="No testimonials yet"
+          title={t("No testimonials yet")}
           message="Add real quotes from users above."
         />
       )}

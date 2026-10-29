@@ -3,7 +3,13 @@ const CommercialReadiness = lazy(
   () => import("@/components/home/CommercialReadiness"),
 );
 import { useParams, useSearchParams, Link } from "react-router-dom";
-import { Search, SlidersHorizontal, X, ShieldCheck, Compass } from "lucide-react";
+import {
+  Search,
+  SlidersHorizontal,
+  X,
+  ShieldCheck,
+  Compass,
+} from "lucide-react";
 import {
   fetchCategories,
   fetchServices,
@@ -29,8 +35,10 @@ import {
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ProConnectDirectory() {
+  const { t } = useLanguage();
   useSeo({
     title: "FRELUX Pro Connect: Find Construction Professionals in Nigeria",
     description:
@@ -243,7 +251,7 @@ export default function ProConnectDirectory() {
       {/* Header */}
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold text-foreground dark:text-primary-foreground">
-          Find Construction Professionals
+          {t("Find Construction Professionals")}
         </h1>
         <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
           Connect with verified painters, tilers, screeders, POP installers, and
@@ -268,7 +276,7 @@ export default function ProConnectDirectory() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name, business, or keyword..."
+            placeholder={t("Search by name, business, or keyword...")}
             className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
           />
         </div>
@@ -283,7 +291,7 @@ export default function ProConnectDirectory() {
           )}
         >
           <SlidersHorizontal className="h-4 w-4" />
-          <span className="hidden sm:inline">Filters</span>
+          <span className="hidden sm:inline">{t("Filters")}</span>
           {hasActiveFilters && (
             <span className="ml-1 rounded-full bg-white/20 px-1.5 text-xs">
               {
@@ -307,14 +315,14 @@ export default function ProConnectDirectory() {
             {/* Category */}
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Category
+                {t("Category")}
               </label>
               <select
                 value={selectedCategory || ""}
                 onChange={(e) => setSelectedCategory(e.target.value || null)}
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
-                <option value="">All categories</option>
+                <option value="">{t("All categories")}</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -326,14 +334,14 @@ export default function ProConnectDirectory() {
             {/* Service */}
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Service
+                {t("Service")}
               </label>
               <select
                 value={selectedService || ""}
                 onChange={(e) => setSelectedService(e.target.value || null)}
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
-                <option value="">All services</option>
+                <option value="">{t("All services")}</option>
                 {filteredServices.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
@@ -345,7 +353,7 @@ export default function ProConnectDirectory() {
             {/* State */}
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                State
+                {t("State")}
               </label>
               <select
                 value={selectedCountry || ""}
@@ -356,7 +364,7 @@ export default function ProConnectDirectory() {
                 }}
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
-                <option value="">All countries</option>
+                <option value="">{t("All countries")}</option>
                 {COUNTRY_OPTIONS.map((g) => (
                   <optgroup key={g.group} label={g.group}>
                     {g.countries.map((c) => (
@@ -375,7 +383,7 @@ export default function ProConnectDirectory() {
                 }}
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
-                <option value="">All states</option>
+                <option value="">{t("All states")}</option>
                 {states.map((s) => (
                   <option key={s} value={s}>
                     {s}
@@ -387,7 +395,7 @@ export default function ProConnectDirectory() {
             {/* City */}
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                City
+                {t("City")}
               </label>
               <select
                 value={selectedCity || ""}
@@ -395,7 +403,7 @@ export default function ProConnectDirectory() {
                 disabled={!selectedState}
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm disabled:opacity-50 dark:border-white/10 dark:bg-background"
               >
-                <option value="">All cities</option>
+                <option value="">{t("All cities")}</option>
                 {cities.map((c) => (
                   <option key={c} value={c}>
                     {c}
@@ -409,21 +417,21 @@ export default function ProConnectDirectory() {
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Availability
+                {t("Availability")}
               </label>
               <select
                 value={availabilityFilter || ""}
                 onChange={(e) => setAvailabilityFilter(e.target.value || null)}
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
-                <option value="">Any availability</option>
-                <option value="available">Available now</option>
-                <option value="busy">Currently busy</option>
+                <option value="">{t("Any availability")}</option>
+                <option value="available">{t("Available now")}</option>
+                <option value="busy">{t("Currently busy")}</option>
               </select>
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Minimum Rating
+                {t("Minimum Rating")}
               </label>
               <select
                 value={minRating?.toString() || ""}
@@ -434,7 +442,7 @@ export default function ProConnectDirectory() {
                 }
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
-                <option value="">Any rating</option>
+                <option value="">{t("Any rating")}</option>
                 <option value="3">3.0+</option>
                 <option value="4">4.0+</option>
                 <option value="4.5">4.5+</option>
@@ -451,7 +459,7 @@ export default function ProConnectDirectory() {
                 onChange={(e) => setVerifiedOnly(e.target.checked)}
                 className="rounded border-border text-brand-purple focus:ring-brand-purple"
               />
-              Verified professionals only
+              {t("Verified professionals only")}
             </label>
             {hasActiveFilters && (
               <Button
@@ -460,7 +468,7 @@ export default function ProConnectDirectory() {
                 className="flex items-center gap-1 text-sm text-brand-purple dark:text-brand-purple-lighter"
               >
                 <X aria-hidden="true" className="h-4 w-4" />
-                Clear all filters
+                {t("Clear all filters")}
               </Button>
             )}
           </div>
@@ -501,7 +509,7 @@ export default function ProConnectDirectory() {
             onClick={clearFilters}
             className="text-sm text-brand-purple dark:text-brand-purple-lighter"
           >
-            Clear filters
+            {t("Clear filters")}
           </Button>
         )}
       </div>
@@ -523,22 +531,32 @@ export default function ProConnectDirectory() {
           </div>
           <div>
             <h3 className="text-lg font-bold text-foreground">
-              No Direct Profiles in This Territory Filter
+              {t("No Direct Profiles in This Territory Filter")}
             </h3>
             <p className="mt-1.5 text-sm text-muted-foreground max-w-lg mx-auto">
-              Under our <strong>Marketplace Liquidity & Seeding Protocol</strong>, we don't leave you stranded in emerging territories. Under our strategic seeding protocol, you can request assisted artisan matching via accredited regional trade associations or nominate and onboard your trusted local contractor for verified escrow milestones.
+              {t("Under our")}{" "}
+              <strong>{t("Marketplace Liquidity & Seeding Protocol")}</strong>,
+              we don't leave you stranded in emerging territories. Under our
+              strategic seeding protocol, you can request assisted artisan
+              matching via accredited regional trade associations or nominate
+              and onboard your trusted local contractor for verified escrow
+              milestones.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <Link to="/pro-connect/liquidity">
               <Button size="sm" className="gap-2 text-xs font-semibold">
-                <Compass className="w-4 h-4" /> View Seeding Options
+                <Compass className="w-4 h-4" /> {t("View Seeding Options")}
               </Button>
             </Link>
             <Link to="/pro-connect/liquidity">
-              <Button variant="outline" size="sm" className="gap-2 text-xs font-semibold">
-                Nominate Contractor
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 text-xs font-semibold"
+              >
+                {t("Nominate Contractor")}
               </Button>
             </Link>
             {hasActiveFilters && (
@@ -548,7 +566,7 @@ export default function ProConnectDirectory() {
                 onClick={clearFilters}
                 className="text-xs text-muted-foreground hover:text-foreground"
               >
-                Clear all filters
+                {t("Clear all filters")}
               </Button>
             )}
           </div>
@@ -573,7 +591,7 @@ export default function ProConnectDirectory() {
                 onClick={() => setPage((p) => p + 1)}
                 className="rounded-lg border border-border px-6 py-3 text-sm font-medium text-card-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/60"
               >
-                Load more professionals
+                {t("Load more professionals")}
               </Button>
             </div>
           )}

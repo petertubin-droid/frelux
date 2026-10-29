@@ -3,6 +3,7 @@ import { Loader2, Mail, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { supabase } from "@/lib/supabase";
 import { getFunctionErrorMessage } from "@/lib/supabase";
+import { useLanguage } from "@/lib/i18n";
 
 type SignupState = "idle" | "submitting" | "done" | "error";
 
@@ -18,6 +19,7 @@ export default function NewsletterSignup({
   source?: string;
   className?: string;
 }) {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [state, setState] = useState<SignupState>("idle");
   const [message, setMessage] = useState("");
@@ -70,7 +72,7 @@ export default function NewsletterSignup({
           htmlFor={`newsletter-email-${source}`}
           className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground"
         >
-          Weekly price updates
+          {t("Weekly price updates")}
         </label>
         <div className="flex gap-2">
           <input
@@ -81,7 +83,7 @@ export default function NewsletterSignup({
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             autoComplete="email"
-            aria-label="Email address for weekly price updates"
+            aria-label={t("Email address for weekly price updates")}
             disabled={state === "submitting"}
             className="h-9 min-w-0 flex-1 rounded-lg border border-border/60 bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 dark:border-white/10"
           />

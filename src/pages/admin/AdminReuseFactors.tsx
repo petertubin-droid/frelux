@@ -33,6 +33,7 @@ import {
 } from "@/lib/estimation/queries";
 import { getSafeError } from "@/lib/safeError";
 import type { MaterialReuseFactor } from "@/types/estimation";
+import { useLanguage } from "@/lib/i18n";
 
 interface FactorForm {
   unit: string;
@@ -112,6 +113,7 @@ function validate(f: FactorForm): string | null {
 }
 
 export default function AdminReuseFactors() {
+  const { t } = useLanguage();
   const [factors, setFactors] = useState<MaterialReuseFactor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -206,35 +208,37 @@ export default function AdminReuseFactors() {
   return (
     <div>
       <AdminHeader
-        title="Material Reuse Factors"
+        title={t("Material Reuse Factors")}
         subtitle="Recovery, reuse and recycle fractions per material category: the data behind the Circular/Reuse Engine. Every factor needs a verifiable source (demolition audit, WRAP protocol, salvage dealer rate); the engine refuses to estimate a material without one."
         action={
           <AdminButton onClick={openCreate}>
-            <Plus className="mr-1 inline h-4 w-4" /> Add factor
+            <Plus className="mr-1 inline h-4 w-4" /> {t("Add factor")}
           </AdminButton>
         }
       />
 
-      {error && <StateMessage type="error" title="Error" message={error} />}
+      {error && (
+        <StateMessage type="error" title={t("Error")} message={error} />
+      )}
       {message && !error && (
-        <StateMessage type="empty" title="Saved" message={message} />
+        <StateMessage type="empty" title={t("Saved")} message={message} />
       )}
 
       <div className="overflow-x-auto rounded-lg border border-border bg-card dark:border-white/5">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">
             <tr>
-              <th className="p-3">Category</th>
-              <th className="p-3">Label</th>
-              <th className="p-3">Unit</th>
-              <th className="p-3 text-right">Recovery</th>
-              <th className="p-3 text-right">Reuse</th>
-              <th className="p-3 text-right">Recycle</th>
+              <th className="p-3">{t("Category")}</th>
+              <th className="p-3">{t("Label")}</th>
+              <th className="p-3">{t("Unit")}</th>
+              <th className="p-3 text-right">{t("Recovery")}</th>
+              <th className="p-3 text-right">{t("Reuse")}</th>
+              <th className="p-3 text-right">{t("Recycle")}</th>
               <th className="p-3 text-right">₦/unit</th>
-              <th className="p-3">Source reference</th>
-              <th className="p-3">Effective</th>
-              <th className="p-3">Active</th>
-              <th className="p-3 text-right">Actions</th>
+              <th className="p-3">{t("Source reference")}</th>
+              <th className="p-3">{t("Effective")}</th>
+              <th className="p-3">{t("Active")}</th>
+              <th className="p-3 text-right">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -302,12 +306,15 @@ export default function AdminReuseFactors() {
                   </td>
                   <td className="p-3 text-right">
                     <div className="flex justify-end gap-1">
-                      <AdminIconButton onClick={() => openEdit(f)} title="Edit">
+                      <AdminIconButton
+                        onClick={() => openEdit(f)}
+                        title={t("Edit")}
+                      >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
                         onClick={() => remove(f)}
-                        title="Delete"
+                        title={t("Delete")}
                         variant="danger"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -420,7 +427,7 @@ export default function AdminReuseFactors() {
               variant="secondary"
               onClick={() => setModalOpen(false)}
             >
-              Cancel
+              {t("Cancel")}
             </AdminButton>
             <AdminButton onClick={save} disabled={saving}>
               {saving ? "Saving…" : editing ? "Save changes" : "Create factor"}

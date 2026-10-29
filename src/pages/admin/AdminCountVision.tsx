@@ -29,6 +29,7 @@ import {
 } from "@/lib/estimation/count-vision-engine";
 import { getSafeError } from "@/lib/safeError";
 import { AdminHeader, StateMessage } from "@/components/admin/AdminUi";
+import { useLanguage } from "@/lib/i18n";
 
 const VERDICT_LABEL: Record<CountVisionLogRow["verdict"], string> = {
   counted: "Counted",
@@ -49,6 +50,7 @@ function fmt(iso: string): string {
 }
 
 export default function AdminCountVision() {
+  const { t } = useLanguage();
   const [rules, setRules] = useState<CountVisionRules>(
     DEFAULT_COUNT_VISION_RULES,
   );
@@ -97,36 +99,42 @@ export default function AdminCountVision() {
   return (
     <div className="space-y-4">
       <AdminHeader
-        title="Counter-Vision"
+        title={t("Counter-Vision")}
         subtitle="Photo counting via Google Gemini (count-vision edge function). The admin switches the feature and holds the Gemini key in AI Settings; behaviour rules live in Calc Rules."
       />
 
       {loading && (
         <StateMessage
           type="loading"
-          title="Loading"
+          title={t("Loading")}
           message="Loading count vision data…"
         />
       )}
-      {error && <StateMessage type="error" title="Error" message={error} />}
+      {error && (
+        <StateMessage type="error" title={t("Error")} message={error} />
+      )}
       {!loading && !error && (
         <>
           {/* Current behaviour rules: editable in Calc Rules */}
           <div className="rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">Current counting rules</h3>
+            <h3 className="mb-2 font-semibold">
+              {t("Current counting rules")}
+            </h3>
             <div className="grid gap-3 text-sm sm:grid-cols-3">
               <div>
-                <p className="text-muted-foreground">Max photo size</p>
+                <p className="text-muted-foreground">{t("Max photo size")}</p>
                 <p className="font-medium">{rules.max_image_mb} MB</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Reliable count bound</p>
+                <p className="text-muted-foreground">
+                  {t("Reliable count bound")}
+                </p>
                 <p className="font-medium">
                   {rules.max_count.toLocaleString()} units
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Confidence floor</p>
+                <p className="text-muted-foreground">{t("Confidence floor")}</p>
                 <p className="font-medium">
                   {(rules.min_confidence * 100).toFixed(0)}%
                 </p>
@@ -145,17 +153,21 @@ export default function AdminCountVision() {
           {/* Summary */}
           <div className="grid gap-3 sm:grid-cols-4">
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Recent requests</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Recent requests")}
+              </p>
               <p className="text-2xl font-semibold">{logs.length}</p>
             </div>
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Counted</p>
+              <p className="text-sm text-muted-foreground">{t("Counted")}</p>
               <p className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
                 {counted}
               </p>
             </div>
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Honest refusals</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Honest refusals")}
+              </p>
               <p className="text-2xl font-semibold text-amber-600 dark:text-amber-400">
                 {refused}
               </p>
@@ -166,7 +178,9 @@ export default function AdminCountVision() {
               )}
             </div>
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Service errors</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Service errors")}
+              </p>
               <p className="text-2xl font-semibold text-destructive">
                 {errors}
               </p>
@@ -182,24 +196,24 @@ export default function AdminCountVision() {
           {logs.length === 0 ? (
             <StateMessage
               type="empty"
-              title="No count requests yet"
+              title={t("No count requests yet")}
               message="They appear here the moment someone photographs materials for counting. Photos are never stored: only these request records."
             />
           ) : (
             <div className="overflow-x-auto rounded-lg border bg-card">
               <table
                 className="w-full text-sm"
-                aria-label="Recent count requests"
+                aria-label={t("Recent count requests")}
               >
                 <thead className="border-b bg-muted/50 text-left">
                   <tr>
-                    <th className="p-3">Requested</th>
-                    <th className="p-3">Item hint</th>
-                    <th className="p-3">Verdict</th>
-                    <th className="p-3">Count</th>
-                    <th className="p-3">Confidence</th>
-                    <th className="p-3">Latency</th>
-                    <th className="p-3">What the engine said</th>
+                    <th className="p-3">{t("Requested")}</th>
+                    <th className="p-3">{t("Item hint")}</th>
+                    <th className="p-3">{t("Verdict")}</th>
+                    <th className="p-3">{t("Count")}</th>
+                    <th className="p-3">{t("Confidence")}</th>
+                    <th className="p-3">{t("Latency")}</th>
+                    <th className="p-3">{t("What the engine said")}</th>
                   </tr>
                 </thead>
                 <tbody>

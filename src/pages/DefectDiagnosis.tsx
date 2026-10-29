@@ -30,6 +30,7 @@ import type {
   EstimationCalcRule,
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import { useLanguage } from "@/lib/i18n";
 
 const severityColor: Record<string, string> = {
   low: "text-emerald-600 dark:text-emerald-400",
@@ -38,6 +39,7 @@ const severityColor: Record<string, string> = {
 };
 
 export default function DefectDiagnosis() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Defect Diagnosis", path: "/defect-diagnosis" },
@@ -96,7 +98,7 @@ export default function DefectDiagnosis() {
             { label: "Construction Tools", path: "/construction-tools" },
             { label: "Defect Diagnosis" },
           ]}
-          title="Defect Diagnosis"
+          title={t("Defect Diagnosis")}
           subtitle="Pick the symptom you're seeing and get its root causes with fixes: ranked by our configured likelihood order, never an algorithm's guess. Causes with a configured consumption rate also show the exact fix quantity for your affected area."
         />
 
@@ -115,7 +117,7 @@ export default function DefectDiagnosis() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-3">
               <label className="grid gap-1 text-sm font-medium sm:col-span-2">
-                Symptom
+                {t("Symptom")}
                 <select
                   className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                   value={symptomKey}
@@ -124,7 +126,7 @@ export default function DefectDiagnosis() {
                     setResult(null);
                   }}
                 >
-                  <option value="">Select what you're seeing</option>
+                  <option value="">{t("Select what you're seeing")}</option>
                   {defects.map((d) => (
                     <option key={d.id} value={d.symptom_key}>
                       {d.symptom_label}
@@ -133,7 +135,7 @@ export default function DefectDiagnosis() {
                 </select>
               </label>
               <label className="grid gap-1 text-sm font-medium">
-                Affected area (sqm, optional)
+                {t("Affected area (sqm, optional)")}
                 <input
                   type="number"
                   min="1"
@@ -151,7 +153,7 @@ export default function DefectDiagnosis() {
                   disabled={!symptomKey}
                   className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                 >
-                  Diagnose
+                  {t("Diagnose")}
                 </button>
               </div>
             </div>
@@ -234,7 +236,7 @@ export default function DefectDiagnosis() {
             </div>
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
-                How this was determined
+                {t("How this was determined")}
               </summary>
               <ul className="mt-2 space-y-1">
                 {result.steps.map((s, i) => (

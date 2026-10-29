@@ -48,6 +48,7 @@ import type {
 import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // NOTE: lucide-react@0.344.0 does not export `Trowel`, so `Paintbrush2` is used
 // as the icon for the screeding project type instead.
@@ -310,6 +311,7 @@ function OptionButton<T extends string>({
 // ============================================================
 
 export default function ProjectWizard() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   useSeo({ title: "FRELUX", description: "FRELUX", noIndex: true });
   const [step, setStep] = useState(0);
@@ -423,8 +425,8 @@ export default function ProjectWizard() {
   const renderProjectTypeStep = () => (
     <WizardStep
       step={0}
-      title="Select Project Type"
-      subtitle="What kind of project are you estimating?"
+      title={t("Select Project Type")}
+      subtitle={t("What kind of project are you estimating?")}
     >
       <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
         {PROJECT_TYPES.map((opt) => (
@@ -445,13 +447,13 @@ export default function ProjectWizard() {
   const renderDetailsStep = () => (
     <WizardStep
       step={1}
-      title="Project Details"
-      subtitle="Tell us about the building and surface"
+      title={t("Project Details")}
+      subtitle={t("Tell us about the building and surface")}
     >
       <div className="space-y-6">
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-card-foreground">
-            Building Type
+            {t("Building Type")}
           </legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {BUILDING_TYPES.map((opt) => (
@@ -468,7 +470,7 @@ export default function ProjectWizard() {
 
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-card-foreground">
-            Surface Location
+            {t("Surface Location")}
           </legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-3">
             {SURFACE_LOCATIONS.map((opt) => (
@@ -485,7 +487,7 @@ export default function ProjectWizard() {
 
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-card-foreground">
-            Construction Type
+            {t("Construction Type")}
           </legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-3">
             {CONSTRUCTION_TYPES.map((opt) => (
@@ -502,7 +504,7 @@ export default function ProjectWizard() {
 
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-card-foreground">
-            Finish Quality
+            {t("Finish Quality")}
           </legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {QUALITY_OPTIONS.map((opt) => (
@@ -523,7 +525,7 @@ export default function ProjectWizard() {
             <div className="flex items-center gap-2 text-purple-700">
               <Award className="h-4 w-4" />
               <span className="text-sm font-semibold">
-                Smart Recommendation
+                {t("Smart Recommendation")}
               </span>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -548,13 +550,13 @@ export default function ProjectWizard() {
   const renderBudgetStep = () => (
     <WizardStep
       step={2}
-      title="Budget & Materials"
-      subtitle="Choose your budget and material quality levels"
+      title={t("Budget & Materials")}
+      subtitle={t("Choose your budget and material quality levels")}
     >
       <div className="space-y-6">
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-card-foreground">
-            Budget Level
+            {t("Budget Level")}
           </legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {QUALITY_OPTIONS.map((opt) => (
@@ -572,7 +574,7 @@ export default function ProjectWizard() {
 
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-card-foreground">
-            Material Quality
+            {t("Material Quality")}
           </legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {QUALITY_OPTIONS.map((opt) => (
@@ -594,8 +596,8 @@ export default function ProjectWizard() {
   const renderClientInfoStep = () => (
     <WizardStep
       step={3}
-      title="Project Name & Client Info"
-      subtitle="Final details to create your project"
+      title={t("Project Name & Client Info")}
+      subtitle={t("Final details to create your project")}
     >
       <div className="space-y-4">
         {/* Project name */}
@@ -604,7 +606,7 @@ export default function ProjectWizard() {
             htmlFor="pw-name"
             className="mb-1.5 block text-sm font-semibold text-card-foreground"
           >
-            Project Name <span className="text-red-500">*</span>
+            {t("Project Name")} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <FileText className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -625,14 +627,14 @@ export default function ProjectWizard() {
             htmlFor="pw-desc"
             className="mb-1.5 block text-sm font-semibold text-card-foreground"
           >
-            Description
+            {t("Description")}
           </label>
           <textarea
             id="pw-desc"
             value={state.description}
             onChange={(e) => update("description", e.target.value)}
             rows={2}
-            placeholder="Short project description (optional)"
+            placeholder={t("Short project description (optional)")}
             className="w-full resize-none rounded-lg border border-border px-3 py-2.5 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
           />
         </div>
@@ -644,7 +646,7 @@ export default function ProjectWizard() {
               htmlFor="pw-client-name"
               className="mb-1.5 block text-sm font-semibold text-card-foreground"
             >
-              Client Name
+              {t("Client Name")}
             </label>
             <div className="relative">
               <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -653,7 +655,7 @@ export default function ProjectWizard() {
                 type="text"
                 value={state.client_name}
                 onChange={(e) => update("client_name", e.target.value)}
-                placeholder="Client full name"
+                placeholder={t("Client full name")}
                 className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
               />
             </div>
@@ -665,7 +667,7 @@ export default function ProjectWizard() {
               htmlFor="pw-phone"
               className="mb-1.5 block text-sm font-semibold text-card-foreground"
             >
-              Client Phone
+              {t("Client Phone")}
             </label>
             <div className="relative">
               <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -686,7 +688,7 @@ export default function ProjectWizard() {
               htmlFor="pw-email"
               className="mb-1.5 block text-sm font-semibold text-card-foreground"
             >
-              Client Email
+              {t("Client Email")}
             </label>
             <div className="relative">
               <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -707,7 +709,7 @@ export default function ProjectWizard() {
               htmlFor="pw-address"
               className="mb-1.5 block text-sm font-semibold text-card-foreground"
             >
-              Client Address
+              {t("Client Address")}
             </label>
             <div className="relative">
               <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -716,7 +718,7 @@ export default function ProjectWizard() {
                 type="text"
                 value={state.client_address}
                 onChange={(e) => update("client_address", e.target.value)}
-                placeholder="Project site address"
+                placeholder={t("Project site address")}
                 className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
               />
             </div>
@@ -729,14 +731,16 @@ export default function ProjectWizard() {
             htmlFor="pw-notes"
             className="mb-1.5 block text-sm font-semibold text-card-foreground"
           >
-            Notes
+            {t("Notes")}
           </label>
           <textarea
             id="pw-notes"
             value={state.notes}
             onChange={(e) => update("notes", e.target.value)}
             rows={3}
-            placeholder="Any additional notes or special instructions (optional)"
+            placeholder={t(
+              "Any additional notes or special instructions (optional)",
+            )}
             className="w-full resize-none rounded-lg border border-border px-3 py-2.5 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
           />
         </div>
@@ -781,7 +785,7 @@ export default function ProjectWizard() {
             )}
           >
             <ArrowLeft className="h-4 w-4" />
-            Back
+            {t("Back")}
           </Button>
 
           {step < TOTAL_STEPS - 1 ? (
@@ -797,7 +801,7 @@ export default function ProjectWizard() {
                   : "cursor-not-allowed bg-purple-300 text-primary-foreground",
               )}
             >
-              Next
+              {t("Next")}
               <ArrowRight className="h-4 w-4" />
             </Button>
           ) : (
@@ -839,7 +843,7 @@ export default function ProjectWizard() {
               ) : (
                 <>
                   <Check className="h-4 w-4" />
-                  Create Project
+                  {t("Create Project")}
                 </>
               )}
             </Button>

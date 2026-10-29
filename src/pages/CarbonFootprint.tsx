@@ -16,10 +16,7 @@ import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { fetchCarbonFactors, fetchCalcRules } from "@/lib/estimation/queries";
-import {
-  lookupEc3Epds,
-  type EpdFactor,
-} from "@/lib/estimation/ec3-epd";
+import { lookupEc3Epds, type EpdFactor } from "@/lib/estimation/ec3-epd";
 import { getSupabase } from "@/lib/supabase-lazy";
 import {
   calculateEmbodiedCarbon,
@@ -28,6 +25,7 @@ import {
 } from "@/lib/estimation/embodied-carbon-engine";
 import type { CarbonFactor, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import { useLanguage } from "@/lib/i18n";
 
 interface LineForm {
   category: string;
@@ -37,6 +35,7 @@ interface LineForm {
 const emptyLine: LineForm = { category: "", quantity: "" };
 
 export default function CarbonFootprint() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Embodied Carbon Estimator", path: "/carbon-footprint" },
@@ -102,7 +101,6 @@ export default function CarbonFootprint() {
     return () => {
       cancelled = true;
     };
-     
   }, [factors]);
 
   const categories = categoriesWithFactors(factors);
@@ -142,7 +140,7 @@ export default function CarbonFootprint() {
             { label: "Construction Tools", path: "/construction-tools" },
             { label: "Embodied Carbon Estimator" },
           ]}
-          title="Embodied Carbon Estimator"
+          title={t("Embodied Carbon Estimator")}
           subtitle="kgCO2e per line from verified, verifiable emission factors (EPDs, ICE database). Lines without a configured factor are excluded with a warning: FRELUX never guesses an emission."
         />
 
@@ -165,7 +163,9 @@ export default function CarbonFootprint() {
         )}
 
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-          <h2 className="mb-3 text-base font-semibold">Estimate lines</h2>
+          <h2 className="mb-3 text-base font-semibold">
+            {t("Estimate lines")}
+          </h2>
           {categories.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No carbon factors configured yet. Factors are entered by FRELUX
@@ -189,7 +189,7 @@ export default function CarbonFootprint() {
                       value={line.category}
                       onChange={(e) => setLine(i, { category: e.target.value })}
                     >
-                      <option value="">Select material/finish</option>
+                      <option value="">{t("Select material/finish")}</option>
                       {categories.map((c) => {
                         const f = factorByCategory(c)!;
                         return (
@@ -222,7 +222,7 @@ export default function CarbonFootprint() {
                         setLines((prev) => prev.filter((_, idx) => idx !== i))
                       }
                     >
-                      Remove
+                      {t("Remove")}
                     </button>
                   </div>
                 );
@@ -243,7 +243,7 @@ export default function CarbonFootprint() {
                   disabled={!lines.some((l) => l.category && l.quantity !== "")}
                   className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                 >
-                  Calculate Carbon
+                  {t("Calculate Carbon")}
                 </button>
               </div>
             </div>
@@ -285,7 +285,7 @@ export default function CarbonFootprint() {
             {result.whole_life && result.whole_life.ok && (
               <div className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
                 <p className="mb-2 font-medium">
-                  RICS whole life carbon modules (EN 15978)
+                  {t("RICS whole life carbon modules (EN 15978)")}
                 </p>
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {result.whole_life.modules.map((m) => (
@@ -303,16 +303,22 @@ export default function CarbonFootprint() {
                   ))}
                 </div>
                 <p className="mt-3 text-muted-foreground">
-                  Upfront (A1–A5) {result.whole_life.upfrontCarbon.toLocaleString()}
-                  {" · "}use stage embodied {result.whole_life.useStageEmbodied.toLocaleString()}
-                  {" · "}operational {result.whole_life.operationalInUse.toLocaleString()}
-                  {" · "}end of life {result.whole_life.endOfLife.toLocaleString()}
-                  {" · "}total excl. D {result.whole_life.totalExcludingD.toLocaleString()}
-                  {" · "}whole life incl. D {result.whole_life.wholeLifeTotal.toLocaleString()} kgCO₂e
+                  Upfront (A1–A5){" "}
+                  {result.whole_life.upfrontCarbon.toLocaleString()}
+                  {" · "}use stage embodied{" "}
+                  {result.whole_life.useStageEmbodied.toLocaleString()}
+                  {" · "}operational{" "}
+                  {result.whole_life.operationalInUse.toLocaleString()}
+                  {" · "}end of life{" "}
+                  {result.whole_life.endOfLife.toLocaleString()}
+                  {" · "}total excl. D{" "}
+                  {result.whole_life.totalExcludingD.toLocaleString()}
+                  {" · "}whole life incl. D{" "}
+                  {result.whole_life.wholeLifeTotal.toLocaleString()} kgCO₂e
                 </p>
                 <details className="mt-2">
                   <summary className="cursor-pointer text-muted-foreground">
-                    Tender reportability disclosures
+                    {t("Tender reportability disclosures")}
                   </summary>
                   <ul className="mt-1 space-y-1 text-muted-foreground">
                     {result.whole_life.disclosures.map((d, i) => (
@@ -324,7 +330,7 @@ export default function CarbonFootprint() {
             )}
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
-                Per-line breakdown
+                {t("Per-line breakdown")}
               </summary>
               <ul className="mt-2 space-y-1">
                 {result.steps.map((s, i) => (

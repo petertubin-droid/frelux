@@ -23,6 +23,7 @@ import {
 } from "@/lib/estimation/queries";
 import type { SolarComponentPrice } from "@/types/estimation";
 import { getSafeError } from "@/lib/safeError";
+import { useLanguage } from "@/lib/i18n";
 import {
   AdminHeader,
   AdminButton,
@@ -103,6 +104,7 @@ function validate(f: PriceForm): string | null {
 }
 
 export default function AdminSolarPrices() {
+  const { t } = useLanguage();
   const [prices, setPrices] = useState<SolarComponentPrice[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -188,32 +190,34 @@ export default function AdminSolarPrices() {
   return (
     <div className="space-y-4">
       <AdminHeader
-        title="Solar Component Prices"
+        title={t("Solar Component Prices")}
         subtitle="Component prices for the Solar/PV Estimator: rails, clamps, connectors, cables, breakers, surge protection, earthing, inverter per kW, battery units. Every price needs a supplier-quote reference; a component without a configured price is reported as unpriced by the estimator, never invented."
         action={
           <AdminButton onClick={openCreate}>
-            <Plus className="mr-1 inline h-4 w-4" /> Add price
+            <Plus className="mr-1 inline h-4 w-4" /> {t("Add price")}
           </AdminButton>
         }
       />
 
-      {error && <StateMessage type="error" title="Error" message={error} />}
+      {error && (
+        <StateMessage type="error" title={t("Error")} message={error} />
+      )}
       {message && !error && (
-        <StateMessage type="empty" title="Saved" message={message} />
+        <StateMessage type="empty" title={t("Saved")} message={message} />
       )}
 
       <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
-              <th className="p-3">Component</th>
-              <th className="p-3">Label</th>
-              <th className="p-3">Unit</th>
+              <th className="p-3">{t("Component")}</th>
+              <th className="p-3">{t("Label")}</th>
+              <th className="p-3">{t("Unit")}</th>
               <th className="p-3 text-right">₦ price</th>
-              <th className="p-3">Supplier reference</th>
-              <th className="p-3">Effective</th>
-              <th className="p-3">Active</th>
-              <th className="p-3 text-right">Actions</th>
+              <th className="p-3">{t("Supplier reference")}</th>
+              <th className="p-3">{t("Effective")}</th>
+              <th className="p-3">{t("Active")}</th>
+              <th className="p-3 text-right">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -250,12 +254,15 @@ export default function AdminSolarPrices() {
                   <td className="p-3 text-xs">{p.is_active ? "Yes" : "No"}</td>
                   <td className="p-3">
                     <div className="flex justify-end gap-1">
-                      <AdminIconButton onClick={() => openEdit(p)} title="Edit">
+                      <AdminIconButton
+                        onClick={() => openEdit(p)}
+                        title={t("Edit")}
+                      >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
                         onClick={() => remove(p)}
-                        title="Delete"
+                        title={t("Delete")}
                         variant="danger"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -344,7 +351,7 @@ export default function AdminSolarPrices() {
                   checked={form.is_active}
                   onChange={(e) => set("is_active", e.target.checked)}
                 />
-                Active
+                {t("Active")}
               </label>
             </div>
             <div className="mt-4 flex justify-end gap-2">
@@ -352,7 +359,7 @@ export default function AdminSolarPrices() {
                 variant="secondary"
                 onClick={() => setModalOpen(false)}
               >
-                Cancel
+                {t("Cancel")}
               </AdminButton>
               <AdminButton onClick={save}>
                 {editing ? "Save changes" : "Create price"}

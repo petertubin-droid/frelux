@@ -6,6 +6,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import { BUILTIN_MARKET_PROFILES } from "@/lib/international/market-context";
 import type { MarketProfile } from "@/types/international";
+import { useLanguage } from "@/lib/i18n";
 import {
   BUNDLED_MARKET_PRESENTATION,
   BUNDLED_BOOK_VERSION,
@@ -48,6 +49,7 @@ const COVERAGE_LABELS: Record<number, string> = {
 };
 
 export default function GlobalMarkets() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Global Markets", path: "/global-markets" },
@@ -84,7 +86,7 @@ export default function GlobalMarkets() {
         <Container className="relative">
           <PageHeader
             variant="data"
-            title="Global Markets"
+            title={t("Global Markets")}
             subtitle={`${BUILTIN_MARKET_PROFILES.length} markets, market-aware calculators, and a bundled offline price book. Coverage counts come from FRELUX's own production catalog — external market-size figures are only published when they can be cited.`}
           />
         </Container>
@@ -134,7 +136,7 @@ export default function GlobalMarkets() {
                   <dl className="mt-4 space-y-1.5 text-sm">
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">
-                        Priced materials (bundled book)
+                        {t("Priced materials (bundled book)")}
                       </dt>
                       <dd className="font-medium">
                         {coverage.pricedMaterials.toLocaleString()}
@@ -142,13 +144,13 @@ export default function GlobalMarkets() {
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">
-                        Material roles mapped
+                        {t("Material roles mapped")}
                       </dt>
                       <dd className="font-medium">{coverage.roleMappings}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">
-                        POP / tile material rows
+                        {t("POP / tile material rows")}
                       </dt>
                       <dd className="font-medium">
                         {(
@@ -158,7 +160,7 @@ export default function GlobalMarkets() {
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">
-                        Measurement system
+                        {t("Measurement system")}
                       </dt>
                       <dd className="font-medium">
                         {m.default_measurement_system === "mixed"
@@ -167,7 +169,9 @@ export default function GlobalMarkets() {
                       </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Default units</dt>
+                      <dt className="text-muted-foreground">
+                        {t("Default units")}
+                      </dt>
                       <dd className="font-medium">
                         {m.default_length_unit} · {m.default_area_unit}
                       </dd>
@@ -202,8 +206,8 @@ export default function GlobalMarkets() {
         <p className="mt-8 text-xs text-muted-foreground">
           Coverage counts are computed from FRELUX's bundled production price
           book ({BUNDLED_BOOK_VERSION}). Prices carry their recorded retailer
-          and confidence — rows marked indicative remain adjustable, and
-          nothing is presented as verified that is not.
+          and confidence — rows marked indicative remain adjustable, and nothing
+          is presented as verified that is not.
         </p>
       </Container>
     </div>

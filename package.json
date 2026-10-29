@@ -23,7 +23,8 @@
     "submit:indexnow": "node scripts/submit-indexnow.mjs",
     "set-domain": "node scripts/set-domain.mjs",
     "check:bundle": "node scripts/check-bundle-budget.mjs",
-    "i18n:coverage": "node scripts/i18n-coverage-report.mjs"
+    "i18n:coverage": "node scripts/i18n-coverage-report.mjs",
+    "i18n:report": "node scripts/i18n-coverage-report.mjs"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.11",

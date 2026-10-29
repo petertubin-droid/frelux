@@ -35,6 +35,7 @@ import { useCurrencySymbol } from "@/lib/international";
 import { calculateLabourCost } from "@/lib/labour";
 import PageHeader from "@/components/ui/PageHeader";
 import { EstimateDisclaimer } from "@/components/calculators";
+import { useLanguage } from "@/lib/i18n";
 import {
   fetchConfigurableFinishProducts,
   createEstimate,
@@ -85,6 +86,7 @@ export default function ConfigurableFinishCalculator({
   calculatorType,
   embedded = false,
 }: ConfigurableFinishCalculatorProps) {
+  const { t } = useLanguage();
   const market = useMarket();
   const { marketCode } = market;
   useBreadcrumbJsonLd([
@@ -460,7 +462,7 @@ export default function ConfigurableFinishCalculator({
         ) : products.length === 0 ? (
           <div className="rounded-lg border border-border bg-card p-6">
             <h2 className="text-lg font-semibold">
-              No products configured yet
+              {t("No products configured yet")}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               The calculator uses only verified product data from the database:
@@ -475,10 +477,10 @@ export default function ConfigurableFinishCalculator({
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
             {/* ── Inputs ── */}
             <div className="rounded-lg border border-border bg-card p-6">
-              <h2 className="mb-4 text-base font-semibold">Inputs</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("Inputs")}</h2>
               <div className="grid gap-4">
                 <label className="grid gap-1 text-sm font-medium">
-                  Product
+                  {t("Product")}
                   <select
                     className="rounded-lg border border-border bg-background px-3 py-2"
                     value={productId}
@@ -494,7 +496,7 @@ export default function ConfigurableFinishCalculator({
                 </label>
 
                 <label className="grid gap-1 text-sm font-medium">
-                  Application profile
+                  {t("Application profile")}
                   <select
                     className="rounded-lg border border-border bg-background px-3 py-2"
                     value={profileId}
@@ -522,7 +524,7 @@ export default function ConfigurableFinishCalculator({
                       ))
                     ) : (
                       <option value="">
-                        No application profile configured
+                        {t("No application profile configured")}
                       </option>
                     )}
                   </select>
@@ -530,7 +532,7 @@ export default function ConfigurableFinishCalculator({
 
                 <div className="grid grid-cols-[1fr_auto] gap-3">
                   <label className="grid gap-1 text-sm font-medium">
-                    Surface area
+                    {t("Surface area")}
                     <input
                       type="number"
                       min={0}
@@ -542,7 +544,7 @@ export default function ConfigurableFinishCalculator({
                     />
                   </label>
                   <label className="grid gap-1 text-sm font-medium">
-                    Unit
+                    {t("Unit")}
                     <select
                       className="rounded-lg border border-border bg-background px-3 py-2"
                       value={areaUnit}
@@ -557,7 +559,7 @@ export default function ConfigurableFinishCalculator({
                 </div>
 
                 <label className="grid gap-1 text-sm font-medium">
-                  Coats / layers
+                  {t("Coats / layers")}
                   <input
                     type="number"
                     min={1}
@@ -584,23 +586,23 @@ export default function ConfigurableFinishCalculator({
                   disabled={calculating || !selectedProduct}
                   className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                 >
-                  Calculate
+                  {t("Calculate")}
                 </button>
               </div>
             </div>
 
             {/* ── Result ── */}
             <div className="rounded-lg border border-border bg-card p-6">
-              <h2 className="mb-4 text-base font-semibold">Result</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("Result")}</h2>
               {!result ? (
                 <p className="text-sm text-muted-foreground">
-                  Enter the surface area and press Calculate.
+                  {t("Enter the surface area and press Calculate.")}
                 </p>
               ) : (
                 <div className="grid gap-4">
                   {result.warnings.length > 0 && (
                     <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
-                      <p className="font-semibold">Data requirements</p>
+                      <p className="font-semibold">{t("Data requirements")}</p>
                       <ul className="mt-2 list-disc pl-5">
                         {result.warnings.map((w, i) => (
                           <li key={i}>{w}</li>
@@ -613,7 +615,7 @@ export default function ConfigurableFinishCalculator({
                     <>
                       <div className="rounded-lg border border-border p-4">
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                          Material requirement (with waste)
+                          {t("Material requirement (with waste)")}
                         </p>
                         <p className="mt-1 text-xl font-bold">
                           {rangeLabel(
@@ -636,7 +638,7 @@ export default function ConfigurableFinishCalculator({
 
                       <div className="rounded-lg border border-border p-4">
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                          Purchase quantity
+                          {t("Purchase quantity")}
                         </p>
                         <p className="mt-1 text-xl font-bold">
                           {result.purchase_min === result.purchase_max
@@ -647,7 +649,7 @@ export default function ConfigurableFinishCalculator({
 
                       <div className="rounded-lg border border-border p-4">
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                          Total cost
+                          {t("Total cost")}
                         </p>
                         <p className="mt-1 text-xl font-bold">
                           {result.cost_min === null
@@ -675,7 +677,7 @@ export default function ConfigurableFinishCalculator({
                       />
                       <div className="rounded-lg border border-border p-4">
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                          Grand total (materials + labour)
+                          {t("Grand total (materials + labour)")}
                         </p>
                         <p className="mt-1 text-xl font-bold">
                           {formatCurrency((result.cost_min ?? 0) + labourCost)}
@@ -700,7 +702,7 @@ export default function ConfigurableFinishCalculator({
                           onClick={handleExportPdf}
                           className="rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground"
                         >
-                          Export PDF
+                          {t("Export PDF")}
                         </button>
                         {saveMessage && (
                           <span
@@ -716,7 +718,7 @@ export default function ConfigurableFinishCalculator({
                   {/* Configuration echo */}
                   <div className="rounded-lg border border-border p-4 text-xs text-muted-foreground">
                     <p className="mb-2 font-semibold text-foreground">
-                      Configuration used
+                      {t("Configuration used")}
                     </p>
                     <p>Model: {result.calculation_model ?? "not configured"}</p>
                     {result.calculation_model === "coverage_based" && (
@@ -762,7 +764,7 @@ export default function ConfigurableFinishCalculator({
                   {/* Calculation breakdown */}
                   <div className="rounded-lg border border-border p-4">
                     <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      Calculation breakdown
+                      {t("Calculation breakdown")}
                     </p>
                     <ol className="grid gap-2 text-sm">
                       {result.steps.map((s, i) => (

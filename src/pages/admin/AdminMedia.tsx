@@ -26,8 +26,10 @@ import {
 import AdminPagination from "@/components/admin/AdminPagination";
 import type { DbMediaFolder, DbMediaItem } from "@/types/database";
 import { classNames } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 export default function AdminMedia() {
+  const { t } = useLanguage();
   const [folders, setFolders] = useState<DbMediaFolder[]>([]);
   const [items, setItems] = useState<DbMediaItem[]>([]);
   const [activeFolder, setActiveFolder] = useState<string | null>(null);
@@ -105,8 +107,8 @@ export default function AdminMedia() {
   return (
     <>
       <AdminHeader
-        title="Media Library"
-        subtitle="Upload, organize, and manage all images across the site."
+        title={t("Media Library")}
+        subtitle={t("Upload, organize, and manage all images across the site.")}
       />
 
       {error && (
@@ -120,7 +122,7 @@ export default function AdminMedia() {
         <div className="w-full shrink-0 lg:w-52">
           <div className="rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-3">
             <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-              Folders
+              {t("Folders")}
             </p>
             <div className="space-y-1">
               <AdminButton
@@ -133,7 +135,7 @@ export default function AdminMedia() {
                     : "text-muted-foreground hover:bg-muted",
                 )}
               >
-                <FolderIcon className="h-4 w-4" /> All Media
+                <FolderIcon className="h-4 w-4" /> {t("All Media")}
               </AdminButton>
               {folders.map((f) => (
                 <AdminButton
@@ -167,7 +169,7 @@ export default function AdminMedia() {
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by file name…"
+                placeholder={t("Search by file name…")}
                 className="pl-9"
               />
             </div>
@@ -191,13 +193,13 @@ export default function AdminMedia() {
           {loading ? (
             <StateMessage
               type="loading"
-              title="Loading…"
+              title={t("Loading…")}
               message="Fetching media items."
             />
           ) : items.length === 0 ? (
             <StateMessage
               type="empty"
-              title="No images found"
+              title={t("No images found")}
               message="Upload your first image to get started."
             />
           ) : (
@@ -228,7 +230,7 @@ export default function AdminMedia() {
                           className="flex-1 text-xs"
                           value={altText}
                           onChange={(e) => setAltText(e.target.value)}
-                          placeholder="Alt text…"
+                          placeholder={t("Alt text…")}
                           autoFocus
                         />
                         <AdminButton

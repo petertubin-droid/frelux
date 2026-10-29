@@ -12,6 +12,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Mic, Square } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface VoiceInputProps {
   value: string;
@@ -79,6 +80,7 @@ export function VoiceInput({
   multiline = false,
   className = "",
 }: VoiceInputProps) {
+  const { t } = useLanguage();
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -244,7 +246,7 @@ export function VoiceInput({
       )}
       {!isSupported && (
         <p className="mt-1 text-xs text-muted-foreground">
-          Voice input not supported in this browser. Type normally.
+          {t("Voice input not supported in this browser. Type normally.")}
         </p>
       )}
       {isListening && (

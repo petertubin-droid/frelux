@@ -1,8 +1,10 @@
 import LegalLayout from "@/components/legal/LegalLayout";
 import { useSeo } from "@/lib/seo";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/lib/i18n";
 
 export default function PrivacyPolicy() {
+  const { t } = useLanguage();
   useSeo({
     title: "Privacy Policy: FRELUX",
     description:
@@ -15,7 +17,7 @@ export default function PrivacyPolicy() {
   return (
     <LegalLayout
       slug="privacy-policy"
-      title="Privacy Policy"
+      title={t("Privacy Policy")}
       updated="2026-09-07"
       intro={
         <p>
@@ -81,24 +83,24 @@ export default function PrivacyPolicy() {
               Our website uses cookies and browser storage for several purposes:
               <br />
               <br />
-              <strong>Essential cookies</strong>, These are necessary for the
-              website to function. They include storing your theme preference
-              (light/dark mode) and a random anonymous identifier in your
-              browser's localStorage to enforce the shared daily AI usage limit.
-              This identifier is a random token, it is not linked to your name,
-              email, or identity.
+              <strong>{t("Essential cookies")}</strong>, These are necessary for
+              the website to function. They include storing your theme
+              preference (light/dark mode) and a random anonymous identifier in
+              your browser's localStorage to enforce the shared daily AI usage
+              limit. This identifier is a random token, it is not linked to your
+              name, email, or identity.
               <br />
               <br />
-              <strong>Analytics cookies</strong>, When Google Analytics or Meta
-              Pixel is configured, these tools may set cookies to collect
-              aggregate usage data such as page views, time on site, and event
-              counts. These are third-party cookies controlled by their
+              <strong>{t("Analytics cookies")}</strong>, When Google Analytics
+              or Meta Pixel is configured, these tools may set cookies to
+              collect aggregate usage data such as page views, time on site, and
+              event counts. These are third-party cookies controlled by their
               respective providers. We use this data only to understand how the
               tools are used and to improve them.
               <br />
               <br />
-              <strong>Advertising cookies</strong>, See the Advertising section
-              below for details.
+              <strong>{t("Advertising cookies")}</strong>, See the Advertising
+              section below for details.
               <br />
               <br />
               You can control and delete cookies through your browser settings.
@@ -107,7 +109,7 @@ export default function PrivacyPolicy() {
                 to="/cookie-policy/"
                 className="font-semibold text-brand-purple underline"
               >
-                Cookie Policy
+                {t("Cookie Policy")}
               </Link>{" "}
               for more information.
             </p>
@@ -135,7 +137,7 @@ export default function PrivacyPolicy() {
                 rel="noopener noreferrer"
                 className="font-semibold text-brand-purple underline"
               >
-                Google Ads Settings
+                {t("Google Ads Settings")}
               </a>
               .
               <br />
@@ -162,7 +164,7 @@ export default function PrivacyPolicy() {
                 rel="noopener noreferrer"
                 className="font-semibold text-brand-purple underline"
               >
-                Google Ads Settings
+                {t("Google Ads Settings")}
               </a>
               <br />•{" "}
               <a
@@ -171,7 +173,7 @@ export default function PrivacyPolicy() {
                 rel="noopener noreferrer"
                 className="font-semibold text-brand-purple underline"
               >
-                Digital Advertising Alliance opt-out
+                {t("Digital Advertising Alliance opt-out")}
               </a>
               <br />•{" "}
               <a
@@ -180,7 +182,7 @@ export default function PrivacyPolicy() {
                 rel="noopener noreferrer"
                 className="font-semibold text-brand-purple underline"
               >
-                European Interactive Digital Advertising Alliance
+                {t("European Interactive Digital Advertising Alliance")}
               </a>
               <br />
               <br />
@@ -190,7 +192,7 @@ export default function PrivacyPolicy() {
                 to="/cookie-policy/"
                 className="font-semibold text-brand-purple underline"
               >
-                Cookie Policy
+                {t("Cookie Policy")}
               </Link>{" "}
               for how to manage advertising cookies.
             </p>
@@ -228,7 +230,9 @@ export default function PrivacyPolicy() {
             <p>
               Subscriptions and token purchases are processed securely by
               Paystack, our third-party payment provider.{" "}
-              <strong>We never see or store your card or bank details.</strong>{" "}
+              <strong>
+                {t("We never see or store your card or bank details.")}
+              </strong>{" "}
               When you make a purchase, your email address and order details
               (product, amount, and transaction reference) are shared with
               Paystack to process the payment and issue receipts. Paystack's
@@ -239,7 +243,7 @@ export default function PrivacyPolicy() {
                 rel="noopener noreferrer"
                 className="font-semibold text-brand-purple underline"
               >
-                Paystack's privacy policy
+                {t("Paystack's privacy policy")}
               </a>
               .
               <br />

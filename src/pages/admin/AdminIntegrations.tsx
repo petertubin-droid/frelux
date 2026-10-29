@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { AdminButton, StatusBadge } from "@/components/admin/AdminUi";
 import { SITE_URL } from "@/lib/seo";
 import { ProviderKeyCards } from "@/components/admin/ProviderKeyCards";
+import { useLanguage } from "@/lib/i18n";
 
 const SUPABASE_FUNCTIONS_URL = import.meta.env.VITE_SUPABASE_URL
   ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
@@ -209,6 +210,7 @@ const INTEGRATION_LINKS: Record<string, Record<string, string>> = {
 };
 
 export default function AdminIntegrations() {
+  const { t } = useLanguage();
   const [integrations, setIntegrations] = useState<DbIntegrationSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -327,7 +329,7 @@ export default function AdminIntegrations() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">
-          Integration Center
+          {t("Integration Center")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Configure and manage third-party integrations. Toggle each integration
@@ -341,7 +343,7 @@ export default function AdminIntegrations() {
 
       <div>
         <h2 className="text-lg font-semibold text-foreground">
-          Client integrations
+          {t("Client integrations")}
         </h2>
       </div>
 
@@ -376,21 +378,21 @@ export default function AdminIntegrations() {
                     <>
                       <Check className="h-3.5 w-3.5 text-emerald-600" />
                       <span className="text-xs text-emerald-600">
-                        Configured & active
+                        {t("Configured & active")}
                       </span>
                     </>
                   ) : (integ as DbIntegrationSetting).is_enabled ? (
                     <>
                       <Loader2 className="h-3.5 w-3.5 text-amber-500" />
                       <span className="text-xs text-amber-500">
-                        Enabled, needs credentials
+                        {t("Enabled, needs credentials")}
                       </span>
                     </>
                   ) : (
                     <>
                       <X className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">
-                        Not configured
+                        {t("Not configured")}
                       </span>
                     </>
                   )}
@@ -409,7 +411,7 @@ export default function AdminIntegrations() {
             onClick={() => setError(null)}
             className="mt-2 text-xs"
           >
-            Dismiss
+            {t("Dismiss")}
           </AdminButton>
         </div>
       )}
@@ -463,7 +465,7 @@ export default function AdminIntegrations() {
                         checked={integration.is_enabled}
                         onCheckedChange={() => handleToggle(integration)}
                         disabled={saving === integration.integration_key}
-                        aria-label="Toggle integration"
+                        aria-label={t("Toggle integration")}
                       />
                     </div>
 
@@ -483,7 +485,7 @@ export default function AdminIntegrations() {
                     {integration.integration_key === "ayet_studios" && (
                       <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
                         <p className="font-semibold text-foreground">
-                          Secure rewarded-video setup
+                          {t("Secure rewarded-video setup")}
                         </p>
                         <p className="mt-1">
                           Configure the publisher API key, website placement ID,
@@ -556,7 +558,7 @@ export default function AdminIntegrations() {
                           </Button>
                           {justSaved && (
                             <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
-                              <Check className="h-3 w-3" /> Saved
+                              <Check className="h-3 w-3" /> {t("Saved")}
                             </span>
                           )}
                         </div>
@@ -574,7 +576,7 @@ export default function AdminIntegrations() {
       <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
         <h3 className="flex items-center gap-2 text-sm font-semibold text-blue-900 dark:text-blue-200">
           <Search className="h-4 w-4" />
-          Google Search Console Setup Guide
+          {t("Google Search Console Setup Guide")}
         </h3>
         <ol className="mt-2 space-y-1 text-xs text-blue-800 dark:text-blue-300/80">
           <li>

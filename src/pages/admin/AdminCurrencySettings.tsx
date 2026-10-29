@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Save, CheckCircle2, AlertCircle, Info } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/lib/i18n";
 import {
   AdminHeader,
   AdminCard,
@@ -27,6 +28,7 @@ import {
  * Saved to site_settings.display_currencies (jsonb).
  */
 export default function AdminCurrencySettings() {
+  const { t } = useLanguage();
   const [enabled, setEnabled] = useState(false);
   const [rates, setRates] = useState<Record<string, string>>({});
   const [note, setNote] = useState("");
@@ -109,8 +111,8 @@ export default function AdminCurrencySettings() {
     return (
       <div className="p-6">
         <AdminHeader
-          title="Currency & FX Rates"
-          subtitle="Loading display-currency configuration…"
+          title={t("Currency & FX Rates")}
+          subtitle={t("Loading display-currency configuration…")}
         />
       </div>
     );
@@ -119,15 +121,19 @@ export default function AdminCurrencySettings() {
   return (
     <div className="p-6 space-y-6">
       <AdminHeader
-        title="Currency & FX Rates"
+        title={t("Currency & FX Rates")}
         subtitle="Let visitors view Naira estimates in their own currency. Display-only: calculations always stay in Naira."
       />
 
-      {error && <StateMessage type="error" title="Error" message={error} />}
+      {error && (
+        <StateMessage type="error" title={t("Error")} message={error} />
+      )}
 
       <AdminCard>
         <div className="mb-3">
-          <h3 className="text-sm font-semibold">Display currency switcher</h3>
+          <h3 className="text-sm font-semibold">
+            {t("Display currency switcher")}
+          </h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
             When enabled, a currency picker appears in the navbar next to the
             language switcher. Disabled hides it completely.
@@ -150,7 +156,7 @@ export default function AdminCurrencySettings() {
 
       <AdminCard>
         <div className="mb-3">
-          <h3 className="text-sm font-semibold">FX rates</h3>
+          <h3 className="text-sm font-semibold">{t("FX rates")}</h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
             How many units of the currency ONE NAIRA buys. Example: if 1 USD =
             1,540 NGN, enter 0.000649. Leave blank to offer the currency with
@@ -175,7 +181,7 @@ export default function AdminCurrencySettings() {
 
       <AdminCard>
         <div className="mb-3">
-          <h3 className="text-sm font-semibold">Review note</h3>
+          <h3 className="text-sm font-semibold">{t("Review note")}</h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
             Optional note shown only here, e.g. "Rates reviewed 2026-10-04".
           </p>
@@ -184,7 +190,7 @@ export default function AdminCurrencySettings() {
           <AdminInput
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Rates reviewed 2026-10-04"
+            placeholder={t("Rates reviewed 2026-10-04")}
           />
         </AdminField>
       </AdminCard>
@@ -196,7 +202,7 @@ export default function AdminCurrencySettings() {
         </AdminButton>
         {savedAt && (
           <span className="flex items-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 className="h-4 w-4" /> Saved
+            <CheckCircle2 className="h-4 w-4" /> {t("Saved")}
           </span>
         )}
       </div>

@@ -10,12 +10,14 @@ import {
 import type { DbCaseStudy } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { CATEGORY_LABELS } from "@/lib/case-study-labels";
+import { useLanguage } from "@/lib/i18n";
 
 // Admin: curate before/after case studies from approved gallery
 // entries (workspace item 9). One case study per gallery entry;
 // the form edits or creates it with an upsert on gallery_entry_id.
 
 export default function AdminCaseStudies() {
+  const { t } = useLanguage();
   const [rows, setRows] = useState<CaseStudyAdminRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -93,7 +95,9 @@ export default function AdminCaseStudies() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground">Case Studies</h1>
+      <h1 className="text-2xl font-bold text-foreground">
+        {t("Case Studies")}
+      </h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Build editorial before/after case studies on top of approved gallery
         entries. Publishing requires the entry to stay approved and public.
@@ -113,7 +117,7 @@ export default function AdminCaseStudies() {
               href="/admin/gallery-moderation"
               className="font-medium text-brand-purple hover:underline"
             >
-              Gallery Moderation
+              {t("Gallery Moderation")}
             </a>{" "}
             first, then create case studies here.
           </p>
@@ -159,6 +163,7 @@ function CaseStudyRow({
   onTogglePublish: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useLanguage();
   const { caseStudy, entry, images } = row;
   const before = images.find((i) => i.image_type === "before");
   const after = images.find((i) => i.image_type === "after");
@@ -218,7 +223,8 @@ function CaseStudyRow({
                 onClick={onDelete}
                 className="inline-flex items-center gap-1 rounded-lg border border-destructive/30 px-3 py-1 text-xs font-medium text-destructive"
               >
-                <Trash2 aria-hidden="true" className="h-3.5 w-3.5" /> Delete
+                <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+                {t("Delete")}
               </Button>
             </>
           )}
@@ -283,6 +289,7 @@ function CaseStudyForm({
   onCancel: () => void;
   onSave: (input: Parameters<typeof upsertCaseStudy>[0]) => void;
 }) {
+  const { t } = useLanguage();
   const cs = row.caseStudy;
   const [headline, setHeadline] = useState(
     cs?.headline ?? `${row.entry.title}: Before & After`,
@@ -326,7 +333,9 @@ function CaseStudyForm({
             value={headline}
             onChange={(e) => setHeadline(e.target.value)}
             className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-            placeholder="How a 3-bedroom flat went from cracked walls to a showroom finish"
+            placeholder={t(
+              "How a 3-bedroom flat went from cracked walls to a showroom finish",
+            )}
           />
         </Field>
         <Field label="Summary (shown on cards and search results)">
@@ -335,7 +344,9 @@ function CaseStudyForm({
             onChange={(e) => setSummary(e.target.value)}
             rows={2}
             className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-            placeholder="One or two sentences on what this project delivered."
+            placeholder={t(
+              "One or two sentences on what this project delivered.",
+            )}
           />
         </Field>
         <div className="grid gap-4 md:grid-cols-2">
@@ -345,7 +356,7 @@ function CaseStudyForm({
               onChange={(e) => setScope(e.target.value)}
               rows={3}
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              placeholder="Rooms, square metres, surfaces, coats..."
+              placeholder={t("Rooms, square metres, surfaces, coats...")}
             />
           </Field>
           <Field label="Challenges">
@@ -354,7 +365,7 @@ function CaseStudyForm({
               onChange={(e) => setChallenges(e.target.value)}
               rows={3}
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              placeholder="Damp walls, tight timeline, ceiling repairs..."
+              placeholder={t("Damp walls, tight timeline, ceiling repairs...")}
             />
           </Field>
         </div>
@@ -364,7 +375,9 @@ function CaseStudyForm({
             onChange={(e) => setOutcome(e.target.value)}
             rows={3}
             className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-            placeholder="The finished result, client reaction, anything measured."
+            placeholder={t(
+              "The finished result, client reaction, anything measured.",
+            )}
           />
         </Field>
         <div className="grid gap-4 md:grid-cols-3">
@@ -373,7 +386,7 @@ function CaseStudyForm({
               value={materials}
               onChange={(e) => setMaterials(e.target.value)}
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              placeholder="Premium emulsion, sealer, POP cement"
+              placeholder={t("Premium emulsion, sealer, POP cement")}
             />
           </Field>
           <Field label="Project Duration">
@@ -423,7 +436,7 @@ function CaseStudyForm({
             onClick={onCancel}
             className="rounded-lg px-4 py-2 text-sm"
           >
-            Cancel
+            {t("Cancel")}
           </Button>
         </div>
       </div>

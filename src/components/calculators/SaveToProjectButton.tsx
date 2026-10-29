@@ -26,6 +26,7 @@ import type {
   DbProjectCalculation,
 } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export interface SaveToProjectButtonProps {
   /** Calculator type slug (paint, screeding, pop_ceiling, tile, finish, tyrolene, cost, etc.) */
@@ -115,6 +116,7 @@ export default function SaveToProjectButton({
   compact = false,
   label = "Save to Project",
 }: SaveToProjectButtonProps) {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
   const [showModal, setShowModal] = useState(false);
@@ -343,7 +345,7 @@ export default function SaveToProjectButton({
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Save className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-bold">Save to Project</h2>
+                <h2 className="text-lg font-bold">{t("Save to Project")}</h2>
               </div>
               <Button
                 variant="ghost"
@@ -358,7 +360,7 @@ export default function SaveToProjectButton({
               <div className="space-y-4 py-2">
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
                   <Smartphone className="mx-auto h-8 w-8 text-primary mb-2" />
-                  <h3 className="font-semibold text-sm">Guest Mode</h3>
+                  <h3 className="font-semibold text-sm">{t("Guest Mode")}</h3>
                   <p className="text-xs text-muted-foreground mt-1">
                     You can save this calculation directly to your device
                     storage right now, or sign in to sync with cloud projects.
@@ -370,14 +372,15 @@ export default function SaveToProjectButton({
                     onClick={handleSaveLocalOnly}
                     className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/90 transition-all"
                   >
-                    <Save className="h-4 w-4" /> Save to This Device
+                    <Save className="h-4 w-4" /> {t("Save to This Device")}
                   </Button>
                   <button
                     type="button"
                     onClick={handleSaveIntentAndSignIn}
                     className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold hover:bg-muted transition-all text-center"
                   >
-                    <LogIn className="h-4 w-4" /> Sign In to Sync with Cloud
+                    <LogIn className="h-4 w-4" />{" "}
+                    {t("Sign In to Sync with Cloud")}
                   </button>
                 </div>
               </div>
@@ -388,19 +391,19 @@ export default function SaveToProjectButton({
             ) : showNewProject ? (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Create a new project to save this calculation to.
+                  {t("Create a new project to save this calculation to.")}
                 </p>
                 <label
                   htmlFor="save-to-project-new-name"
                   className="block text-xs font-medium text-muted-foreground"
                 >
-                  Project name
+                  {t("Project name")}
                 </label>
                 <input
                   id="save-to-project-new-name"
                   aria-describedby="save-to-project-new-name-hint"
                   className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
-                  placeholder="Project name (e.g. 3-Bedroom House)"
+                  placeholder={t("Project name (e.g. 3-Bedroom House)")}
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
                   autoFocus
@@ -417,7 +420,7 @@ export default function SaveToProjectButton({
                     onClick={() => setShowNewProject(false)}
                     className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -441,7 +444,7 @@ export default function SaveToProjectButton({
                 <div className="text-center py-8">
                   <Folder className="mx-auto h-12 w-12 text-muted-foreground mb-3" />
                   <p className="text-muted-foreground mb-4">
-                    You don't have any projects yet.
+                    {t("You don't have any projects yet.")}
                   </p>
                   <Button
                     variant="ghost"
@@ -498,7 +501,7 @@ export default function SaveToProjectButton({
                     onClick={() => setShowModal(false)}
                     className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </Button>
                   <Button
                     variant="ghost"

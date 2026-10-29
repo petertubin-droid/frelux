@@ -47,6 +47,7 @@ import type {
   EstimationMaterial,
 } from "@/types/estimation";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import { useLanguage } from "@/lib/i18n";
 
 type FloorType = "laminate" | "vinyl" | "parquet";
 
@@ -61,6 +62,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function FlooringEstimator() {
+  const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
@@ -165,58 +167,58 @@ export default function FlooringEstimator() {
   const buildQuote = (): Parameters<typeof printQuote>[0] | null => {
     if (!result?.ok) return null;
     return {
-    title: "FRELUX Flooring Estimate",
-    subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
-    metaRows: result.steps.map(
-      (st) => [st.label, st.detail] as [string, string],
-    ),
-    lines: result.lines.map((l) => ({
-      label: l.label,
-      quantity:
-        l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
-      unit: l.unit,
-      unit_price:
-        l.unit_price === null
-          ? "unpriced"
-          : formatCurrency(l.unit_price, currencySymbol),
-      line_total:
-        l.line_total === null
-          ? "N/A"
-          : formatCurrency(l.line_total, currencySymbol),
-      detail: l.detail,
-    })),
-    totals: [
-      {
-        label: "Material subtotal",
-        value:
-          result.material_subtotal === null
-            ? "(prices/inputs missing)"
-            : formatCurrency(result.material_subtotal, currencySymbol),
-      },
-      {
-        label: "Priced so far",
-        value: formatCurrency(result.priced_subtotal, currencySymbol),
-      },
-      {
-        label: "Labour",
-        value:
-          labourMode === "none"
-            ? "Not included"
-            : formatCurrency(result.labour_total, currencySymbol),
-      },
-      {
-        label: "Grand total",
-        value:
-          result.grand_total === null
+      title: "FRELUX Flooring Estimate",
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
+      metaRows: result.steps.map(
+        (st) => [st.label, st.detail] as [string, string],
+      ),
+      lines: result.lines.map((l) => ({
+        label: l.label,
+        quantity:
+          l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
+        unit: l.unit,
+        unit_price:
+          l.unit_price === null
+            ? "unpriced"
+            : formatCurrency(l.unit_price, currencySymbol),
+        line_total:
+          l.line_total === null
             ? "N/A"
-            : formatCurrency(result.grand_total, currencySymbol),
-        strong: true,
-      },
-    ],
-    warnings: result.warnings,
-    footer:
-      "Estimates are indicative and not a formal quote. Quantities are sized from your room dimensions, tiles and screed rules; unpriced items are reported, never invented.",
-  };
+            : formatCurrency(l.line_total, currencySymbol),
+        detail: l.detail,
+      })),
+      totals: [
+        {
+          label: "Material subtotal",
+          value:
+            result.material_subtotal === null
+              ? "(prices/inputs missing)"
+              : formatCurrency(result.material_subtotal, currencySymbol),
+        },
+        {
+          label: "Priced so far",
+          value: formatCurrency(result.priced_subtotal, currencySymbol),
+        },
+        {
+          label: "Labour",
+          value:
+            labourMode === "none"
+              ? "Not included"
+              : formatCurrency(result.labour_total, currencySymbol),
+        },
+        {
+          label: "Grand total",
+          value:
+            result.grand_total === null
+              ? "N/A"
+              : formatCurrency(result.grand_total, currencySymbol),
+          strong: true,
+        },
+      ],
+      warnings: result.warnings,
+      footer:
+        "Estimates are indicative and not a formal quote. Quantities are sized from your room dimensions, tiles and screed rules; unpriced items are reported, never invented.",
+    };
   };
 
   const exportQuote = () => {
@@ -224,8 +226,6 @@ export default function FlooringEstimator() {
     if (!quote) return;
     printQuote(quote, "frelux-flooring-estimate.html");
   };
-
-
 
   const exportToDocumentStudio = () => {
     if (!result?.ok) return;
@@ -365,20 +365,22 @@ export default function FlooringEstimator() {
           { label: "Construction Tools", path: "/construction-tools" },
           { label: "Flooring Estimator" },
         ]}
-        title="Flooring Estimator"
+        title={t("Flooring Estimator")}
         subtitle="Enter your measured floor area and skirting run. The engine sizes laminate packs, vinyl or parquet m², underlay, adhesive and skirting with the visible coverage, pack-size and waste rules. Estimation only: not a flooring specification."
       />
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
-        <h3 className="mb-1 font-semibold">Flooring type and measurements</h3>
+        <h3 className="mb-1 font-semibold">
+          {t("Flooring type and measurements")}
+        </h3>
         <p className="mb-2 text-xs text-muted-foreground">
           The engine never assumes areas. Enter your measured floor area and
           skirting run. Leave a field blank when it needs a decision (the
           estimate is marked incomplete); enter 0 only when there is truly none.
         </p>
         <label className="mb-3 block text-sm sm:max-w-xs">
-          <span className="mb-1 block font-medium">Flooring type</span>
+          <span className="mb-1 block font-medium">{t("Flooring type")}</span>
           <select
             value={floorType}
             onChange={(e) => setFloorType(e.target.value as FloorType)}
@@ -406,7 +408,7 @@ export default function FlooringEstimator() {
               checked={includeUnderlay}
               onChange={(e) => setIncludeUnderlay(e.target.checked)}
             />
-            Include underlay
+            {t("Include underlay")}
           </label>
           <label className="inline-flex items-center gap-2">
             <input
@@ -414,14 +416,14 @@ export default function FlooringEstimator() {
               checked={includeAdhesive}
               onChange={(e) => setIncludeAdhesive(e.target.checked)}
             />
-            Include adhesive (glue-down installations)
+            {t("Include adhesive (glue-down installations)")}
           </label>
         </div>
 
-        <h3 className="mt-5 mb-2 font-semibold">Labour</h3>
+        <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
         <div className="flex flex-wrap items-end gap-3">
           <label className="text-sm">
-            <span className="mb-1 block font-medium">Labour mode</span>
+            <span className="mb-1 block font-medium">{t("Labour mode")}</span>
             <select
               value={labourMode}
               onChange={(e) =>
@@ -429,9 +431,9 @@ export default function FlooringEstimator() {
               }
               className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
             >
-              <option value="none">Not included</option>
+              <option value="none">{t("Not included")}</option>
               <option value="per_m2">Per m² treated (rate)</option>
-              <option value="lump_sum">Lump sum</option>
+              <option value="lump_sum">{t("Lump sum")}</option>
             </select>
           </label>
           {labourMode !== "none" &&
@@ -453,7 +455,7 @@ export default function FlooringEstimator() {
             onClick={run}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
-            Calculate estimate
+            {t("Calculate estimate")}
           </button>
           {result?.ok && (
             <>
@@ -468,14 +470,18 @@ export default function FlooringEstimator() {
                 onClick={exportQuote}
                 className="rounded-md border px-4 py-2 text-sm font-medium"
               >
-                Export quote (PDF)
+                {t("Export quote (PDF)")}
               </button>
-              <QuoteShareButton build={buildQuote} kind="Flooring Estimate" link="/flooring" />
+              <QuoteShareButton
+                build={buildQuote}
+                kind="Flooring Estimate"
+                link="/flooring"
+              />
               <button
                 onClick={exportToDocumentStudio}
                 className="rounded-md border px-4 py-2 text-sm font-medium"
               >
-                Customize in Document Studio
+                {t("Customize in Document Studio")}
               </button>
               <SaveToProjectButton
                 calculatorType="flooring"
@@ -520,7 +526,7 @@ export default function FlooringEstimator() {
           role="alert"
         >
           <h3 className="mb-1 font-semibold text-destructive">
-            Fix these inputs first
+            {t("Fix these inputs first")}
           </h3>
           <ul className="list-disc pl-5 text-sm text-destructive">
             {result.errors.map((e) => (
@@ -544,7 +550,9 @@ export default function FlooringEstimator() {
           >
             {result.incomplete ? (
               <>
-                <strong className="block">This estimate is INCOMPLETE.</strong>
+                <strong className="block">
+                  {t("This estimate is INCOMPLETE.")}
+                </strong>
                 <ul className="mt-1 list-disc pl-5">
                   {result.missing.map((m) => (
                     <li key={m}>{m}</li>
@@ -571,16 +579,16 @@ export default function FlooringEstimator() {
           <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
             <table
               className="w-full text-sm"
-              aria-label="Flooring material takeoff"
+              aria-label={t("Flooring material takeoff")}
             >
               <thead className="border-b bg-muted/50 text-left">
                 <tr>
-                  <th className="p-3">Material</th>
-                  <th className="p-3">Quantity</th>
-                  <th className="p-3">Unit</th>
-                  <th className="p-3">How it was sized</th>
-                  <th className="p-3">Unit price</th>
-                  <th className="p-3">Line total</th>
+                  <th className="p-3">{t("Material")}</th>
+                  <th className="p-3">{t("Quantity")}</th>
+                  <th className="p-3">{t("Unit")}</th>
+                  <th className="p-3">{t("How it was sized")}</th>
+                  <th className="p-3">{t("Unit price")}</th>
+                  <th className="p-3">{t("Line total")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -599,7 +607,7 @@ export default function FlooringEstimator() {
                     <td className="p-3">
                       {l.unit_price === null ? (
                         <span className="font-medium text-amber-700 dark:text-amber-400">
-                          PRICE NOT CONFIGURED
+                          {t("PRICE NOT CONFIGURED")}
                         </span>
                       ) : (
                         formatCurrency(l.unit_price, currencySymbol)
@@ -618,7 +626,7 @@ export default function FlooringEstimator() {
 
           {/* Breakdown */}
           <div className="mb-6 rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">Calculation breakdown</h3>
+            <h3 className="mb-2 font-semibold">{t("Calculation breakdown")}</h3>
             <ol className="space-y-2 text-sm">
               {result.steps.map((s, i) => (
                 <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
@@ -632,7 +640,9 @@ export default function FlooringEstimator() {
           {/* Cost summary */}
           <div className="mb-6 grid gap-3 sm:grid-cols-4">
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Material subtotal</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Material subtotal")}
+              </p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
                   ? "(prices/inputs missing)"
@@ -641,14 +651,14 @@ export default function FlooringEstimator() {
             </div>
             <div className="rounded-lg border bg-card p-4">
               <p className="text-sm text-muted-foreground">
-                Of which priced so far
+                {t("Of which priced so far")}
               </p>
               <p className="text-xl font-semibold">
                 {formatCurrency(result.priced_subtotal, currencySymbol)}
               </p>
             </div>
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Labour</p>
+              <p className="text-sm text-muted-foreground">{t("Labour")}</p>
               <p className="text-xl font-semibold">
                 {labourMode === "none"
                   ? "Not included"
@@ -656,7 +666,9 @@ export default function FlooringEstimator() {
               </p>
             </div>
             <div className="rounded-lg border bg-primary/10 p-4">
-              <p className="text-sm text-muted-foreground">Grand total</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Grand total")}
+              </p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
                   ? "N/A"
@@ -667,7 +679,7 @@ export default function FlooringEstimator() {
 
           {/* Warnings */}
           <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
-            <h3 className="mb-1 font-semibold">Important</h3>
+            <h3 className="mb-1 font-semibold">{t("Important")}</h3>
             <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
               {result.warnings.map((w) => (
                 <li key={w}>{w}</li>
@@ -681,13 +693,13 @@ export default function FlooringEstimator() {
 
       {/* How it works */}
       <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">How this estimator works</h2>
+        <h2 className="mb-2 font-semibold">{t("How this estimator works")}</h2>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
             Quantities come from your measured area and skirting run, with the
-            visible waste, pack, roll and bag coverage rules. A coverage
-            rule must match the product supplier prices: a pack covers what it
-            says, no more.
+            visible waste, pack, roll and bag coverage rules. A coverage rule
+            must match the product supplier prices: a pack covers what it says,
+            no more.
           </li>
           <li>
             Laminate is sized in whole packs; vinyl and parquet in whole m². A
@@ -696,8 +708,8 @@ export default function FlooringEstimator() {
           </li>
           <li>
             Prices come from the shared FRELUX material database, configured by
-            FRELUX price tracking. Unpriced materials show PRICE NOT
-            CONFIGURED, never invented.
+            FRELUX price tracking. Unpriced materials show PRICE NOT CONFIGURED,
+            never invented.
           </li>
           <li>
             This is material ESTIMATION, not a flooring specification. Substrate

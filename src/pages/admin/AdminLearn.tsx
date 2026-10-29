@@ -42,10 +42,12 @@ import {
   type GoogleComplianceReport,
 } from "@/lib/google-compliance";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 type Status = "loading" | "ready" | "error";
 
 export default function AdminLearn() {
+  const { t } = useLanguage();
   const [tab, setTab] = useState<
     "articles" | "categories" | "faqs" | "inserts"
   >("articles");
@@ -487,12 +489,12 @@ export default function AdminLearn() {
     return (
       <>
         <AdminHeader
-          title="Learn"
-          subtitle="Manage educational articles and categories."
+          title={t("Learn")}
+          subtitle={t("Manage educational articles and categories.")}
         />
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={t("Loading…")}
           message="Fetching content."
         />
       </>
@@ -501,18 +503,18 @@ export default function AdminLearn() {
     return (
       <>
         <AdminHeader
-          title="Learn"
-          subtitle="Manage educational articles and categories."
+          title={t("Learn")}
+          subtitle={t("Manage educational articles and categories.")}
         />
-        <StateMessage type="error" title="Error" message={error} />
+        <StateMessage type="error" title={t("Error")} message={error} />
       </>
     );
 
   return (
     <>
       <AdminHeader
-        title="Learn"
-        subtitle="Manage educational articles and categories."
+        title={t("Learn")}
+        subtitle={t("Manage educational articles and categories.")}
         action={
           tab === "articles" ? (
             <AdminButton
@@ -521,7 +523,7 @@ export default function AdminLearn() {
                 setShowEditor(true);
               }}
             >
-              <Plus aria-hidden="true" className="h-4 w-4" /> New Article
+              <Plus aria-hidden="true" className="h-4 w-4" /> {t("New Article")}
             </AdminButton>
           ) : undefined
         }
@@ -559,11 +561,12 @@ export default function AdminLearn() {
           {articles.length === 0 ? (
             <StateMessage
               type="empty"
-              title="No articles yet"
+              title={t("No articles yet")}
               message="Create your first article to publish in the Learn section."
               action={
                 <AdminButton onClick={() => setShowEditor(true)}>
-                  <Plus aria-hidden="true" className="h-4 w-4" /> New Article
+                  <Plus aria-hidden="true" className="h-4 w-4" />{" "}
+                  {t("New Article")}
                 </AdminButton>
               }
             />
@@ -591,7 +594,7 @@ export default function AdminLearn() {
                     </span>
                     {article.is_featured && (
                       <span className="rounded-full bg-accent-orange/15 px-2 py-0.5 text-[10px] font-semibold text-accent-orange">
-                        Featured
+                        {t("Featured")}
                       </span>
                     )}
                   </div>
@@ -697,8 +700,8 @@ export default function AdminLearn() {
               className="max-w-xs"
             >
               <option value="all">All articles ({articles.length})</option>
-              <option value="with-faqs">With FAQs only</option>
-              <option value="without-faqs">Without FAQs only</option>
+              <option value="with-faqs">{t("With FAQs only")}</option>
+              <option value="without-faqs">{t("Without FAQs only")}</option>
             </AdminSelect>
           </div>
           {articles
@@ -813,10 +816,10 @@ export default function AdminLearn() {
                                 )
                               }
                             >
-                              <Check className="h-4 w-4" /> Save FAQ
+                              <Check className="h-4 w-4" /> {t("Save FAQ")}
                             </AdminButton>
                             <AdminButton onClick={() => setEditingFaq(null)}>
-                              Cancel
+                              {t("Cancel")}
                             </AdminButton>
                           </div>
                         </div>
@@ -873,7 +876,7 @@ export default function AdminLearn() {
                         </div>
                       ) : (
                         <p className="text-xs text-muted-foreground py-2">
-                          No FAQs yet for this article.
+                          {t("No FAQs yet for this article.")}
                         </p>
                       )}
                       {editingFaq?.articleId !== article.id && (
@@ -883,7 +886,7 @@ export default function AdminLearn() {
                           }
                           className="mt-2"
                         >
-                          <Plus className="h-4 w-4" /> Add FAQ
+                          <Plus className="h-4 w-4" /> {t("Add FAQ")}
                         </AdminButton>
                       )}
                     </div>
@@ -1013,7 +1016,7 @@ export default function AdminLearn() {
                       </div>
                     ) : (
                       <p className="text-xs text-muted-foreground py-2">
-                        No inserts yet for this article.
+                        {t("No inserts yet for this article.")}
                       </p>
                     )}
                     {editingInsert?.articleId !== article.id && (
@@ -1026,7 +1029,7 @@ export default function AdminLearn() {
                         }
                         className="mt-2"
                       >
-                        <Plus className="h-4 w-4" /> Add Insert
+                        <Plus className="h-4 w-4" /> {t("Add Insert")}
                       </AdminButton>
                     )}
                   </div>
@@ -1081,6 +1084,7 @@ function InsertEditor({
   onCancel: () => void;
   onAiDraft: (insertType: string) => void;
 }) {
+  const { t } = useLanguage();
   const [insertType, setInsertType] = useState<
     DbLearnArticleInsert["insert_type"]
   >(draft?.insert_type ?? "summary");
@@ -1200,10 +1204,10 @@ function InsertEditor({
             })
           }
         >
-          <Check className="h-4 w-4" /> Save Insert
+          <Check className="h-4 w-4" /> {t("Save Insert")}
         </AdminButton>
         <AdminButton type="button" onClick={onCancel}>
-          Cancel
+          {t("Cancel")}
         </AdminButton>
       </div>
       <p className="text-[10px] text-muted-foreground">
@@ -1234,6 +1238,7 @@ function ArticleEditor({
   ) => void;
   onCancel: () => void;
 }) {
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     slug: article?.slug ?? "",
     title: article?.title ?? "",
@@ -1428,16 +1433,16 @@ function ArticleEditor({
               setForm({ ...form, status: e.target.value as LearnArticleStatus })
             }
           >
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-            <option value="archived">Archived</option>
+            <option value="draft">{t("Draft")}</option>
+            <option value="published">{t("Published")}</option>
+            <option value="archived">{t("Archived")}</option>
           </AdminSelect>
         </AdminField>
       </div>
 
       <AdminCard className="bg-muted/50 dark:bg-white/5">
         <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-          SEO Settings
+          {t("SEO Settings")}
         </h3>
         <div className="space-y-4">
           <AdminField
@@ -1474,7 +1479,7 @@ function ArticleEditor({
             }
             className="h-4 w-4 rounded border-border text-brand-purple focus:ring-brand-purple"
           />
-          Featured article
+          {t("Featured article")}
         </label>
       </div>
 
@@ -1503,7 +1508,7 @@ function ArticleEditor({
         >
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-              Google Compliance Report
+              {t("Google Compliance Report")}
             </h3>
             <AdminIconButton
               variant="ghost"
@@ -1566,7 +1571,7 @@ function ArticleEditor({
           {complianceReport.blockingIssues.length > 0 && (
             <div className="space-y-1">
               <p className="text-xs font-bold uppercase tracking-widest text-red-600">
-                Blocking Issues
+                {t("Blocking Issues")}
               </p>
               {complianceReport.blockingIssues.map((issue, i) => (
                 <p key={i} className="text-xs text-red-600">
@@ -1578,7 +1583,7 @@ function ArticleEditor({
           {complianceReport.advisoryIssues.length > 0 && (
             <div className="space-y-1">
               <p className="text-xs font-bold uppercase tracking-widest text-amber-600">
-                Advisory Issues
+                {t("Advisory Issues")}
               </p>
               {complianceReport.advisoryIssues.map((issue, i) => (
                 <p key={i} className="text-xs text-amber-600">
@@ -1591,7 +1596,7 @@ function ArticleEditor({
       )}
 
       <div className="flex justify-end gap-3">
-        <AdminButton onClick={onCancel}>Cancel</AdminButton>
+        <AdminButton onClick={onCancel}>{t("Cancel")}</AdminButton>
         <AdminButton onClick={handleSubmit} disabled={saving}>
           {saving ? (
             <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />

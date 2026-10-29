@@ -31,6 +31,7 @@ import { createOrUpdatePrice } from "@/lib/estimation/queries";
 import { AdminHeader as AdminPageHeader } from "@/components/admin/AdminUi";
 import AdminPagination from "@/components/admin/AdminPagination";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface ScanSource {
   id: string;
@@ -65,6 +66,7 @@ interface ScanCandidate {
 }
 
 export default function AdminPriceScan() {
+  const { t } = useLanguage();
   const [sources, setSources] = useState<ScanSource[]>([]);
   const [candidates, setCandidates] = useState<ScanCandidate[]>([]);
   // Server-side pagination - scan candidates accumulate with every scan.
@@ -351,7 +353,7 @@ export default function AdminPriceScan() {
   return (
     <div className="min-h-screen bg-muted/50">
       <AdminPageHeader
-        title="Price Scan"
+        title={t("Price Scan")}
         subtitle="Scan retailer product pages, review the extracted prices, and promote approved scans into the price book every calculator prices from."
       />
 
@@ -387,14 +389,14 @@ export default function AdminPriceScan() {
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <Globe aria-hidden="true" className="w-5 h-5" />
-              Scan sources
+              {t("Scan sources")}
             </h2>
             <Button
               onClick={() => setShowAdd((v) => !v)}
               className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-blue-700"
             >
               <Plus aria-hidden="true" className="w-4 h-4" />
-              Add source
+              {t("Add source")}
             </Button>
           </div>
 
@@ -404,8 +406,8 @@ export default function AdminPriceScan() {
               data-testid="add-source-form"
             >
               <input
-                aria-label="Market"
-                placeholder="Market (US)"
+                aria-label={t("Market")}
+                placeholder={t("Market (US)")}
                 value={newSource.market}
                 onChange={(e) =>
                   setNewSource((s) => ({ ...s, market: e.target.value }))
@@ -413,8 +415,8 @@ export default function AdminPriceScan() {
                 className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
               />
               <input
-                aria-label="Material slug"
-                placeholder="Material slug (us-quikrete-concrete-80lb)"
+                aria-label={t("Material slug")}
+                placeholder={t("Material slug (us-quikrete-concrete-80lb)")}
                 value={newSource.material_slug}
                 onChange={(e) =>
                   setNewSource((s) => ({ ...s, material_slug: e.target.value }))
@@ -422,8 +424,8 @@ export default function AdminPriceScan() {
                 className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
               />
               <input
-                aria-label="Retailer"
-                placeholder="Retailer (Home Depot)"
+                aria-label={t("Retailer")}
+                placeholder={t("Retailer (Home Depot)")}
                 value={newSource.retailer}
                 onChange={(e) =>
                   setNewSource((s) => ({ ...s, retailer: e.target.value }))
@@ -431,8 +433,8 @@ export default function AdminPriceScan() {
                 className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
               />
               <input
-                aria-label="Product URL"
-                placeholder="Product page URL"
+                aria-label={t("Product URL")}
+                placeholder={t("Product page URL")}
                 value={newSource.product_url}
                 onChange={(e) =>
                   setNewSource((s) => ({ ...s, product_url: e.target.value }))
@@ -440,8 +442,8 @@ export default function AdminPriceScan() {
                 className="rounded-lg border border-input bg-background px-3 py-2 text-sm lg:col-span-2"
               />
               <input
-                aria-label="Label"
-                placeholder="Label (optional)"
+                aria-label={t("Label")}
+                placeholder={t("Label (optional)")}
                 value={newSource.label}
                 onChange={(e) =>
                   setNewSource((s) => ({ ...s, label: e.target.value }))
@@ -449,8 +451,8 @@ export default function AdminPriceScan() {
                 className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
               />
               <input
-                aria-label="Unit"
-                placeholder="Unit (gallon, bag...)"
+                aria-label={t("Unit")}
+                placeholder={t("Unit (gallon, bag...)")}
                 value={newSource.expected_unit}
                 onChange={(e) =>
                   setNewSource((s) => ({ ...s, expected_unit: e.target.value }))
@@ -458,8 +460,8 @@ export default function AdminPriceScan() {
                 className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
               />
               <input
-                aria-label="Currency"
-                placeholder="Currency (USD)"
+                aria-label={t("Currency")}
+                placeholder={t("Currency (USD)")}
                 value={newSource.currency}
                 onChange={(e) =>
                   setNewSource((s) => ({ ...s, currency: e.target.value }))
@@ -470,7 +472,7 @@ export default function AdminPriceScan() {
                 onClick={addSource}
                 className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-green-700"
               >
-                Save source
+                {t("Save source")}
               </Button>
             </div>
           )}
@@ -508,7 +510,7 @@ export default function AdminPriceScan() {
                     className="text-xs text-blue-600 underline inline-flex items-center gap-1"
                   >
                     <ExternalLink aria-hidden="true" className="w-3 h-3" />
-                    Open
+                    {t("Open")}
                   </a>
                   <Button
                     onClick={() => scanSource(s)}
@@ -538,7 +540,7 @@ export default function AdminPriceScan() {
         >
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              Pending review
+              {t("Pending review")}
               <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                 {pending.length}
               </span>
@@ -562,7 +564,7 @@ export default function AdminPriceScan() {
                   data-testid="reject-failed-candidates-btn"
                 >
                   <XCircle className="w-3.5 h-3.5" />
-                  Reject Invalids
+                  {t("Reject Invalids")}
                 </Button>
               </div>
             )}
@@ -602,14 +604,14 @@ export default function AdminPriceScan() {
                     className="inline-flex items-center gap-1 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-green-700"
                   >
                     <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
-                    Approve & apply
+                    {t("Approve & apply")}
                   </Button>
                   <Button
                     onClick={() => reviewCandidate(c, false)}
                     className="inline-flex items-center gap-1 rounded-lg border border-input px-3 py-1.5 text-xs font-medium hover:bg-muted"
                   >
                     <XCircle aria-hidden="true" className="w-4 h-4" />
-                    Reject
+                    {t("Reject")}
                   </Button>
                 </li>
               ))}
@@ -623,7 +625,9 @@ export default function AdminPriceScan() {
             className="rounded-lg border bg-card p-6"
             data-testid="reviewed-candidates"
           >
-            <h2 className="mb-4 text-lg font-semibold">Recent history</h2>
+            <h2 className="mb-4 text-lg font-semibold">
+              {t("Recent history")}
+            </h2>
             <ul className="divide-y text-sm">
               {reviewed.map((c) => (
                 <li

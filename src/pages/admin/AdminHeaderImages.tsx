@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ImageIcon, RotateCcw, Search, Upload } from "lucide-react";
 import { MediaPicker } from "@/components/admin/MediaPicker";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { useLanguage } from "@/lib/i18n";
 import {
   fetchHeaderImageOverrides,
   resetHeaderImageOverridesCache,
@@ -37,6 +38,7 @@ const PAGE_SIZE = 12;
 type OverrideMap = Record<string, string>;
 
 export default function AdminHeaderImages() {
+  const { t } = useLanguage();
   const [overrides, setOverrides] = useState<OverrideMap>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -156,18 +158,18 @@ export default function AdminHeaderImages() {
   return (
     <div>
       <AdminHeader
-        title="Header Images"
+        title={t("Header Images")}
         subtitle="Choose the background photo shown behind each page's header. Unlisted pages fall back to the niche default; changes go live instantly."
       />
 
       {error && (
         <StateMessage
           type="error"
-          title="Couldn't save"
+          title={t("Couldn't save")}
           message={error}
           action={
             <AdminButton variant="link" onClick={() => setError("")}>
-              Dismiss
+              {t("Dismiss")}
             </AdminButton>
           }
         />
@@ -193,8 +195,8 @@ export default function AdminHeaderImages() {
                 setQuery(e.target.value);
                 setPage(0);
               }}
-              placeholder="Search pages (e.g. paint, learn, /colors)…"
-              aria-label="Search pages"
+              placeholder={t("Search pages (e.g. paint, learn, /colors)…")}
+              aria-label={t("Search pages")}
               className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -236,7 +238,7 @@ export default function AdminHeaderImages() {
 
             {/* Pagination */}
             <nav
-              aria-label="Pages"
+              aria-label={t("Pages")}
               className="mt-6 flex flex-col items-center justify-between gap-3 sm:flex-row"
             >
               <p className="text-xs text-muted-foreground">
@@ -250,7 +252,7 @@ export default function AdminHeaderImages() {
                   onClick={() => setPage(safePage - 1)}
                   disabled={safePage === 0}
                 >
-                  Previous
+                  {t("Previous")}
                 </AdminButton>
                 {pageNumbers[0] > 0 && (
                   <span className="px-1 text-xs text-muted-foreground">…</span>
@@ -278,7 +280,7 @@ export default function AdminHeaderImages() {
                   onClick={() => setPage(safePage + 1)}
                   disabled={safePage >= pageCount - 1}
                 >
-                  Next
+                  {t("Next")}
                 </AdminButton>
               </div>
             </nav>
@@ -324,6 +326,7 @@ function HeaderImageCard({
   onUpload: () => void;
   onReset: () => void;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-background">
       {/* Thumbnail with the same fade feel as the live header */}
@@ -342,7 +345,7 @@ function HeaderImageCard({
         </span>
         {overridden && (
           <span className="absolute right-2 top-2 rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
-            Custom
+            {t("Custom")}
           </span>
         )}
       </div>
@@ -358,12 +361,12 @@ function HeaderImageCard({
         <div className="mt-auto flex items-center gap-2">
           <AdminButton onClick={onEdit} disabled={saving}>
             <ImageIcon className="h-3.5 w-3.5" aria-hidden="true" />
-            Change
+            {t("Change")}
           </AdminButton>
           {overridden && (
             <AdminButton variant="danger" onClick={onReset} disabled={saving}>
               <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-              Reset
+              {t("Reset")}
             </AdminButton>
           )}
         </div>
@@ -403,7 +406,7 @@ function HeaderImageCard({
                 className="w-full"
               >
                 <Upload className="h-3.5 w-3.5" aria-hidden="true" />
-                Upload your own image
+                {t("Upload your own image")}
               </AdminButton>
             </div>
           </div>

@@ -29,8 +29,10 @@ import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function FoundationCalculator() {
+  const { t } = useLanguage();
   const { preferredLengthUnit } = useMarket();
   useSeo({
     title: "Foundation Design Calculator | FRELUX",
@@ -94,7 +96,7 @@ export default function FoundationCalculator() {
       <PageHeader
         variant="tool"
         eyebrow="Engineering Tool"
-        title="Foundation Design Calculator"
+        title={t("Foundation Design Calculator")}
         subtitle="Preliminary strip, pad, and raft sizing estimates using assumed or user-entered soil bearing capacity. Not a certified geotechnical or structural design or code-compliance check."
         breadcrumbs={[
           { label: "Home", path: "/" },
@@ -114,14 +116,14 @@ export default function FoundationCalculator() {
               For live localized material quantities (cement, sand, granite,
               blocks, formwork, hardcore) and market pricing across all 20
               international markets, use the canonical{" "}
-              <strong>Foundation Estimator</strong>.
+              <strong>{t("Foundation Estimator")}</strong>.
             </p>
           </div>
           <a
             href="/foundation"
             className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
           >
-            Open Foundation Estimator
+            {t("Open Foundation Estimator")}
             <ChevronRight className="w-3.5 h-3.5" />
           </a>
         </div>
@@ -177,7 +179,7 @@ export default function FoundationCalculator() {
                 htmlFor="fnd-shape"
                 className="text-xs font-medium text-muted-foreground mb-1.5 block"
               >
-                Foundation type
+                {t("Foundation type")}
               </label>
               <select
                 id="fnd-shape"
@@ -185,9 +187,9 @@ export default function FoundationCalculator() {
                 onChange={(e) => setShape(e.target.value as FoundationShape)}
                 className="input-field"
               >
-                <option value="strip">Strip Footing (walls)</option>
-                <option value="pad">Pad Footing (columns)</option>
-                <option value="raft">Raft Foundation</option>
+                <option value="strip">{t("Strip Footing (walls)")}</option>
+                <option value="pad">{t("Pad Footing (columns)")}</option>
+                <option value="raft">{t("Raft Foundation")}</option>
               </select>
             </div>
             <div>
@@ -195,7 +197,7 @@ export default function FoundationCalculator() {
                 htmlFor="fnd-soil"
                 className="text-xs font-medium text-muted-foreground mb-1.5 block"
               >
-                Soil type
+                {t("Soil type")}
               </label>
               <select
                 id="fnd-soil"
@@ -330,7 +332,7 @@ export default function FoundationCalculator() {
               <div className="flex items-center gap-2">
                 <Layers className="h-5 w-5 text-brand-purple" />
                 <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                  Foundation Design Results
+                  {t("Foundation Design Results")}
                 </h2>
               </div>
               <EngineerReviewBadge discipline="foundation" />
@@ -356,7 +358,7 @@ export default function FoundationCalculator() {
               )}
               <div className="rounded-2xl border border-border/80 bg-muted/50 p-5 dark:border-white/10 dark:bg-white/5">
                 <p className="text-xs font-medium text-muted-foreground mb-1.5">
-                  Allowable Bearing
+                  {t("Allowable Bearing")}
                 </p>
                 <p className="text-2xl font-bold text-foreground dark:text-primary-foreground">
                   {result.bearing_capacity}
@@ -367,7 +369,7 @@ export default function FoundationCalculator() {
               </div>
               <div className="rounded-2xl border border-border/80 bg-muted/50 p-5 dark:border-white/10 dark:bg-white/5">
                 <p className="text-xs font-medium text-muted-foreground mb-1.5">
-                  Factor of Safety
+                  {t("Factor of Safety")}
                 </p>
                 <p className="text-2xl font-bold text-foreground dark:text-primary-foreground">
                   {result.factor_of_safety}
@@ -389,7 +391,7 @@ export default function FoundationCalculator() {
               )}
               <div>
                 <p className="text-xs font-medium text-muted-foreground">
-                  Bearing Capacity Check
+                  {t("Bearing Capacity Check")}
                 </p>
                 <p className="text-sm text-foreground dark:text-primary-foreground">
                   Applied: {result.applied_pressure} kN/m² ≤ Allowable:{" "}
@@ -477,7 +479,7 @@ export default function FoundationCalculator() {
                 className="btn-secondary inline-flex items-center gap-2"
               >
                 <RotateCcw aria-hidden="true" className="h-4 w-4" />
-                Reset
+                {t("Reset")}
               </Button>
             </div>
           </div>
@@ -489,7 +491,7 @@ export default function FoundationCalculator() {
             <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-amber-900 dark:text-amber-300">
-                Geotechnical Disclaimer
+                {t("Geotechnical Disclaimer")}
               </p>
               <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400 mt-1.5">
                 Soil capacities shown are generic assumptions, not site test

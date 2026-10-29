@@ -4,6 +4,7 @@ import { ArrowLeft, Brain } from "lucide-react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { RewardedFeatureGate } from "@/components/rewarded/RewardedFeatureGate";
 import { AdvancedCalculator } from "@/components/rewarded/AdvancedCalculator";
+import { useLanguage } from "@/lib/i18n";
 
 const ADVANCED_FEATURES = [
   "AI-powered estimation for any project type",
@@ -17,6 +18,7 @@ const ADVANCED_FEATURES = [
 ];
 
 export default function SmartCalculator() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     {
@@ -39,7 +41,8 @@ export default function SmartCalculator() {
           to="/"
           className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to home
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" />{" "}
+          {t("Back to home")}
         </Link>
 
         {/* Header */}
@@ -49,11 +52,11 @@ export default function SmartCalculator() {
           </div>
           <HeroTitle
             className="text-3xl text-foreground dark:text-primary-foreground"
-            title="Smart Calculator"
+            title={t("Smart Calculator")}
           />
           <p className="mt-2 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
             <Brain className="h-4 w-4 text-brand-purple" aria-hidden="true" />
-            Powered by AI, describe any project, get an instant estimate
+            {t("Powered by AI, describe any project, get an instant estimate")}
           </p>
         </div>
 
@@ -64,7 +67,7 @@ export default function SmartCalculator() {
           </div>
           <div>
             <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              AI-Powered Estimation
+              {t("AI-Powered Estimation")}
             </p>
             <p className="text-xs text-muted-foreground">
               Describe your project in plain English, the AI calculates material

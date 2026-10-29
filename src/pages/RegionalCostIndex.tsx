@@ -31,12 +31,14 @@ import type { RegionalCostIndex, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { formatCurrency } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 const money = (v: number) => formatCurrency(v);
 
 const CATEGORIES = ["general", "labour", "materials"];
 
 export default function RegionalCostIndex() {
+  const { t } = useLanguage();
   const { symbol: currencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
@@ -95,7 +97,7 @@ export default function RegionalCostIndex() {
             { label: "Construction Tools", path: "/construction-tools" },
             { label: "Regional Cost Index" },
           ]}
-          title="Regional Cost Index"
+          title={t("Regional Cost Index")}
           subtitle="State-by-state labour and material cost factors, verified from verifiable sources. Apply them to any base cost to see location-accurate totals. When a state has no configured index the engine falls back to the national baseline and tells you: it never guesses a multiplier."
         />
 
@@ -108,12 +110,12 @@ export default function RegionalCostIndex() {
         {/* ── Adjuster ── */}
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
           <h2 className="mb-3 text-base font-semibold">
-            Adjust a base cost by state
+            {t("Adjust a base cost by state")}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {showCountrySelect && (
               <label className="grid gap-1 text-sm font-medium">
-                Country
+                {t("Country")}
                 <select
                   className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                   value={country}
@@ -143,13 +145,13 @@ export default function RegionalCostIndex() {
               />
             </label>
             <label className="grid gap-1 text-sm font-medium">
-              State / Region
+              {t("State / Region")}
               <select
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={state}
                 onChange={(e) => setState(e.target.value)}
               >
-                <option value="">Select state / region</option>
+                <option value="">{t("Select state / region")}</option>
                 {states.map((sv) => (
                   <option key={sv} value={sv}>
                     {sv}
@@ -158,7 +160,7 @@ export default function RegionalCostIndex() {
               </select>
             </label>
             <label className="grid gap-1 text-sm font-medium">
-              Category
+              {t("Category")}
               <select
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={category}
@@ -178,7 +180,7 @@ export default function RegionalCostIndex() {
                 disabled={!baseCost || !state}
                 className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
               >
-                Apply Regional Factor
+                {t("Apply Regional Factor")}
               </button>
             </div>
           </div>
@@ -220,7 +222,7 @@ export default function RegionalCostIndex() {
               </div>
               <details className="text-sm">
                 <summary className="cursor-pointer font-medium">
-                  Applied-factor breakdown
+                  {t("Applied-factor breakdown")}
                 </summary>
                 <ul className="mt-2 space-y-1">
                   {result.steps.map((s, i) => (
@@ -237,7 +239,9 @@ export default function RegionalCostIndex() {
 
         {/* ── Configured indices table ── */}
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-          <h2 className="mb-3 text-base font-semibold">Configured indices</h2>
+          <h2 className="mb-3 text-base font-semibold">
+            {t("Configured indices")}
+          </h2>
           {indices.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No regional cost indices configured yet. Indices are entered by
@@ -249,11 +253,11 @@ export default function RegionalCostIndex() {
               <table className="w-full text-sm">
                 <thead className="bg-muted/50 text-left">
                   <tr>
-                    <th className="p-3">State</th>
-                    <th className="p-3">Category</th>
-                    <th className="p-3">Factor</th>
-                    <th className="p-3">Effective from</th>
-                    <th className="p-3">Source</th>
+                    <th className="p-3">{t("State")}</th>
+                    <th className="p-3">{t("Category")}</th>
+                    <th className="p-3">{t("Factor")}</th>
+                    <th className="p-3">{t("Effective from")}</th>
+                    <th className="p-3">{t("Source")}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import { Card } from "@/components/ui/shadcn/card";
 import { useToast } from "@/components/ui/Toast";
+import { useLanguage } from "@/lib/i18n";
 import {
   PROVIDER_REGISTRY,
   listIntegrationSecrets,
@@ -53,6 +54,7 @@ const ICONS = {
 type SecretMap = Record<string, IntegrationSecretMeta>;
 
 export function ProviderKeyCards() {
+  const { t } = useLanguage();
   const { success, error: toastError } = useToast();
   const [secrets, setSecrets] = useState<SecretMap>({});
   const [loading, setLoading] = useState(true);
@@ -123,12 +125,12 @@ export function ProviderKeyCards() {
   }
 
   return (
-    <section aria-label="External provider API keys" className="space-y-4">
+    <section aria-label={t("External provider API keys")} className="space-y-4">
       <div className="flex items-end justify-between gap-3">
         <div>
           <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
             <KeyRound className="h-5 w-5 text-brand-purple" aria-hidden />
-            Provider API Keys
+            {t("Provider API Keys")}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Paste a key to activate a provider — no redeploy needed. Keys are
@@ -138,7 +140,7 @@ export function ProviderKeyCards() {
         </div>
         <Button variant="outline" size="sm" onClick={load} disabled={loading}>
           <RefreshCw className="mr-2 h-4 w-4" aria-hidden />
-          Refresh
+          {t("Refresh")}
         </Button>
       </div>
 
@@ -205,12 +207,12 @@ export function ProviderKeyCards() {
                           {provider.exposure === "server" ? (
                             <>
                               <EyeOff className="h-3 w-3" aria-hidden />
-                              Server-side only
+                              {t("Server-side only")}
                             </>
                           ) : (
                             <>
                               <Cloud className="h-3 w-3" aria-hidden />
-                              Client-safe key
+                              {t("Client-safe key")}
                             </>
                           )}
                         </span>
@@ -223,7 +225,7 @@ export function ProviderKeyCards() {
                     rel="noreferrer"
                     className="text-xs font-medium text-brand-purple hover:underline"
                   >
-                    Get a key
+                    {t("Get a key")}
                     <ExternalLink className="ml-1 inline h-3 w-3" aria-hidden />
                   </a>
                 </div>

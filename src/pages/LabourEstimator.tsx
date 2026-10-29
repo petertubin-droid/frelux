@@ -24,8 +24,10 @@ import {
 } from "@/lib/estimation/labour-crew-engine";
 import type { LabourRate, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import { useLanguage } from "@/lib/i18n";
 
 export default function LabourEstimator() {
+  const { t } = useLanguage();
   const { market } = useMarket();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
@@ -78,7 +80,7 @@ export default function LabourEstimator() {
             { label: "Construction Tools", path: "/construction-tools" },
             { label: "Labour & Crew Estimator" },
           ]}
-          title="Labour & Crew Estimator"
+          title={t("Labour & Crew Estimator")}
           subtitle="Worker-days and crew duration for a quantity of work, from verified productivity rates with verifiable sources. The site-efficiency loss is shown as a separate line: never folded into the base rate: and calendar days are always whole days."
         />
 
@@ -104,14 +106,14 @@ export default function LabourEstimator() {
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
           {rates.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No labour rates configured yet. Rates are entered by FRELUX
-              team from verifiable sources (contractor data, benchmark studies)
-              : FRELUX never publishes guessed productivity figures.
+              No labour rates configured yet. Rates are entered by FRELUX team
+              from verifiable sources (contractor data, benchmark studies) :
+              FRELUX never publishes guessed productivity figures.
             </p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-3">
               <label className="grid gap-1 text-sm font-medium">
-                Task
+                {t("Task")}
                 <select
                   className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                   value={taskKey}
@@ -120,7 +122,7 @@ export default function LabourEstimator() {
                     setResult(null);
                   }}
                 >
-                  <option value="">Select a task</option>
+                  <option value="">{t("Select a task")}</option>
                   {rates.map((r) => (
                     <option key={r.id} value={r.task_key}>
                       {r.task_label ?? r.task_key} ({r.output_per_worker_day}{" "}
@@ -142,7 +144,7 @@ export default function LabourEstimator() {
                 />
               </label>
               <label className="grid gap-1 text-sm font-medium">
-                Crew size (workers)
+                {t("Crew size (workers)")}
                 <input
                   type="number"
                   min="1"
@@ -159,7 +161,7 @@ export default function LabourEstimator() {
                   disabled={!taskKey || !quantity}
                   className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                 >
-                  Estimate Labour
+                  {t("Estimate Labour")}
                 </button>
               </div>
             </div>
@@ -221,11 +223,11 @@ export default function LabourEstimator() {
                 window.location.assign("/document-studio?calculatorImport=1");
               }}
             >
-              Customize labour schedule in Document Studio
+              {t("Customize labour schedule in Document Studio")}
             </button>
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
-                Calculation breakdown
+                {t("Calculation breakdown")}
               </summary>
               <ul className="mt-2 space-y-1">
                 {result.steps.map((s, i) => (

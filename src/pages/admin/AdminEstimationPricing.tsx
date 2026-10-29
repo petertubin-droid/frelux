@@ -23,6 +23,7 @@ import {
   AdminTextarea,
 } from "@/components/admin/AdminUi";
 import { AdminModal } from "@/components/admin/AdminModal";
+import { useLanguage } from "@/lib/i18n";
 
 interface PriceItem {
   id: string;
@@ -81,6 +82,7 @@ function getPriceTypeBadge(type: "product" | "quality" | "material") {
 }
 
 export default function AdminEstimationPricing() {
+  const { t } = useLanguage();
   const [items, setItems] = useState<PriceItem[]>([]);
   const [refOptions, setRefOptions] = useState<RefOption[]>([]);
   const [packSizes, setPackSizes] = useState<PackSizeOption[]>([]);
@@ -252,7 +254,7 @@ export default function AdminEstimationPricing() {
   return (
     <>
       <AdminHeader
-        title="Estimation Pricing"
+        title={t("Estimation Pricing")}
         subtitle="Manage base prices and active currency rates for products, quality levels, and materials."
         action={
           <AdminButton
@@ -261,7 +263,7 @@ export default function AdminEstimationPricing() {
               setShowForm(true);
             }}
           >
-            <Plus aria-hidden="true" className="h-4 w-4" /> Add Price
+            <Plus aria-hidden="true" className="h-4 w-4" /> {t("Add Price")}
           </AdminButton>
         }
       />
@@ -306,7 +308,7 @@ export default function AdminEstimationPricing() {
           />
           <AdminInput
             type="text"
-            placeholder="Search price items..."
+            placeholder={t("Search price items...")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 text-xs"
@@ -317,13 +319,13 @@ export default function AdminEstimationPricing() {
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading pricing..."
+          title={t("Loading pricing...")}
           message="Fetching price configuration records."
         />
       ) : filteredItems.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No price records found"
+          title={t("No price records found")}
           message={
             searchQuery || typeFilter !== "all"
               ? "Try adjusting your search or filters."
@@ -355,7 +357,7 @@ export default function AdminEstimationPricing() {
                       </h3>
                       {!item.is_active && (
                         <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
-                          Off
+                          {t("Off")}
                         </span>
                       )}
                     </div>
@@ -391,7 +393,7 @@ export default function AdminEstimationPricing() {
                       variant="ghost"
                       type="button"
                       onClick={() => setHistoryItem(item)}
-                      title="History"
+                      title={t("History")}
                     >
                       <History className="h-3 w-3" />
                     </AdminIconButton>
@@ -462,6 +464,7 @@ function PricingForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [priceType, setPriceType] = useState<
     "product" | "quality" | "material"
   >(initial?.price_type ?? "product");
@@ -564,9 +567,9 @@ function PricingForm({
             setPriceType(e.target.value as "product" | "quality" | "material")
           }
         >
-          <option value="product">Product Price</option>
-          <option value="quality">Quality Level Price</option>
-          <option value="material">Material Price</option>
+          <option value="product">{t("Product Price")}</option>
+          <option value="quality">{t("Quality Level Price")}</option>
+          <option value="material">{t("Material Price")}</option>
         </AdminSelect>
       </AdminField>
 
@@ -589,14 +592,14 @@ function PricingForm({
               onClick={() => setUseCustomRef(true)}
               className="text-xs"
             >
-              Enter manual UUID
+              {t("Enter manual UUID")}
             </AdminButton>
           </div>
         ) : (
           <div className="space-y-1.5">
             <AdminInput
               type="text"
-              placeholder="Paste UUID ref_id"
+              placeholder={t("Paste UUID ref_id")}
               className="font-mono text-xs"
               value={useCustomRef ? customRefId : refId}
               onChange={(e) =>
@@ -612,7 +615,7 @@ function PricingForm({
                 onClick={() => setUseCustomRef(false)}
                 className="text-xs"
               >
-                Select from catalog list
+                {t("Select from catalog list")}
               </AdminButton>
             )}
           </div>
@@ -680,7 +683,7 @@ function PricingForm({
 
       <div className="flex items-center justify-between pt-1">
         <span className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-          Is Active
+          {t("Is Active")}
         </span>
         <Toggle checked={isActive} onChange={setIsActive} />
       </div>
@@ -693,7 +696,7 @@ function PricingForm({
 
       <div className="flex justify-end gap-3 pt-3">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {t("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save Price"}
@@ -715,6 +718,7 @@ function PriceHistoryModal({
   refName: string;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const [history, setHistory] = useState<PriceHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -746,7 +750,7 @@ function PriceHistoryModal({
     <AdminModal
       open
       onClose={onClose}
-      title="Price History"
+      title={t("Price History")}
       maxWidth="max-w-xl"
     >
       <p className="text-xs text-muted-foreground dark:text-muted-foreground">
@@ -763,13 +767,13 @@ function PriceHistoryModal({
         {loading ? (
           <StateMessage
             type="loading"
-            title="Loading history..."
+            title={t("Loading history...")}
             message="Fetching price logs."
           />
         ) : history.length === 0 ? (
           <StateMessage
             type="empty"
-            title="No history recorded yet"
+            title={t("No history recorded yet")}
             message="Price history logs are created automatically whenever price changes occur."
           />
         ) : (
@@ -825,7 +829,7 @@ function PriceHistoryModal({
 
       <div className="mt-4 pt-3 border-t flex justify-end">
         <AdminButton variant="secondary" onClick={onClose}>
-          Close
+          {t("Close")}
         </AdminButton>
       </div>
     </AdminModal>

@@ -6,6 +6,7 @@ import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import type { DbGlossaryTerm } from "@/types/database";
+import { useLanguage } from "@/lib/i18n";
 
 type Status = "loading" | "ready" | "error";
 
@@ -25,6 +26,7 @@ function label(cat: string): string {
 }
 
 export default function Glossary() {
+  const { t } = useLanguage();
   useSeo({
     title: "Construction Glossary: Plain-Language Building Terms Explained",
     description:
@@ -103,8 +105,10 @@ export default function Glossary() {
       <>
         <PageHeader
           eyebrow="Learn"
-          title="Construction Glossary"
-          subtitle="Building and painting terms explained in plain language."
+          title={t("Construction Glossary")}
+          subtitle={t(
+            "Building and painting terms explained in plain language.",
+          )}
           breadcrumbs={[{ label: "Glossary" }]}
         />
         <div className="flex items-center justify-center gap-2 py-32 text-sm text-muted-foreground">
@@ -119,8 +123,10 @@ export default function Glossary() {
       <>
         <PageHeader
           eyebrow="Learn"
-          title="Construction Glossary"
-          subtitle="Building and painting terms explained in plain language."
+          title={t("Construction Glossary")}
+          subtitle={t(
+            "Building and painting terms explained in plain language.",
+          )}
           breadcrumbs={[{ label: "Glossary" }]}
         />
         <div className="mx-auto max-w-md py-20 text-center">
@@ -137,7 +143,7 @@ export default function Glossary() {
     <>
       <PageHeader
         eyebrow="Learn"
-        title="Construction Glossary"
+        title={t("Construction Glossary")}
         subtitle="Every building and finishing term you will meet on a paint or construction project, explained without jargon."
         breadcrumbs={[{ label: "Glossary" }]}
       />
@@ -148,11 +154,11 @@ export default function Glossary() {
           <div className="relative">
             <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <input
-              aria-label="Search glossary terms"
+              aria-label={t("Search glossary terms")}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search a term, for example screed or coverage…"
+              placeholder={t("Search a term, for example screed or coverage…")}
               className="w-full rounded-2xl border border-border bg-card py-3.5 pl-12 pr-4 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus:border-brand-purple/50 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-card dark:text-primary-foreground"
             />
           </div>
@@ -177,7 +183,7 @@ export default function Glossary() {
           <div className="rounded-2xl border border-dashed border-border bg-muted/50 p-16 text-center dark:border-white/10 dark:bg-white/5">
             <BookOpen className="mx-auto h-8 w-8 text-muted-foreground" />
             <p className="mt-3 text-sm text-muted-foreground">
-              No terms match that search. Try a different word.
+              {t("No terms match that search. Try a different word.")}
             </p>
           </div>
         ) : (

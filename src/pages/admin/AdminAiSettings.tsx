@@ -36,6 +36,7 @@ import {
 } from "@/components/admin/AdminUi";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // Derive Supabase project ref from the env URL for dashboard links
 const SUPABASE_PROJECT_REF =
@@ -164,6 +165,7 @@ const RESET_PERIODS = [
 ];
 
 export default function AdminAiSettings() {
+  const { t } = useLanguage();
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -260,12 +262,14 @@ export default function AdminAiSettings() {
     return (
       <>
         <AdminHeader
-          title="AI Control Center"
-          subtitle="Centralized control for all AI features on the website."
+          title={t("AI Control Center")}
+          subtitle={t(
+            "Centralized control for all AI features on the website.",
+          )}
         />
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={t("Loading…")}
           message="Fetching AI configuration."
         />
       </>
@@ -274,12 +278,14 @@ export default function AdminAiSettings() {
     return (
       <>
         <AdminHeader
-          title="AI Control Center"
-          subtitle="Centralized control for all AI features on the website."
+          title={t("AI Control Center")}
+          subtitle={t(
+            "Centralized control for all AI features on the website.",
+          )}
         />
         <StateMessage
           type="error"
-          title="Couldn't load settings"
+          title={t("Couldn't load settings")}
           message={error ?? "No settings row found."}
         />
       </>
@@ -290,7 +296,7 @@ export default function AdminAiSettings() {
   return (
     <>
       <AdminHeader
-        title="AI Control Center"
+        title={t("AI Control Center")}
         subtitle="Centralized control for all AI features, toggle, configure, and monitor from one place."
         action={
           <AdminButton onClick={onSave} disabled={saving}>
@@ -321,7 +327,7 @@ export default function AdminAiSettings() {
             </div>
             <div>
               <h2 className="text-base font-bold text-foreground dark:text-primary-foreground">
-                Global AI Master Switch
+                {t("Global AI Master Switch")}
               </h2>
               <p className="mt-0.5 text-sm text-muted-foreground dark:text-muted-foreground">
                 When off, all AI features across the entire site are disabled.
@@ -576,7 +582,7 @@ export default function AdminAiSettings() {
                     {feature.key === "building-estimation" && (
                       <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4 dark:border-brand-purple/30 dark:bg-primary/10">
                         <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-brand-purple dark:text-brand-purple-lighter">
-                          Image Estimation Settings
+                          {t("Image Estimation Settings")}
                         </h4>
                         <div className="grid gap-3 sm:grid-cols-2">
                           <Toggle
@@ -656,7 +662,7 @@ export default function AdminAiSettings() {
                     {feature.key === "livechat" && (
                       <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4 dark:border-brand-purple/30 dark:bg-primary/10">
                         <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-brand-purple dark:text-brand-purple-lighter">
-                          Live Chat Settings
+                          {t("Live Chat Settings")}
                         </h4>
                         <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                           Powered by Google Gemini (gemini-3.6-flash). System
@@ -672,7 +678,7 @@ export default function AdminAiSettings() {
                     {feature.key === "color-consult" && (
                       <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4 dark:border-brand-purple/30 dark:bg-primary/10">
                         <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-brand-purple dark:text-brand-purple-lighter">
-                          Color Consultant Settings
+                          {t("Color Consultant Settings")}
                         </h4>
                         <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-2 text-xs dark:bg-white/5">
                           <Clock
@@ -804,6 +810,7 @@ function SecretRow({
   usedBy: string;
   provider: string;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-3 dark:border-white/5">
       <div className="min-w-0">
@@ -820,7 +827,7 @@ function SecretRow({
         </span>
         <span
           className="h-2 w-2 rounded-full bg-green-500"
-          title="Configured"
+          title={t("Configured")}
         />
       </div>
     </div>

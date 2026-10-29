@@ -66,6 +66,7 @@ import type {
 } from "@/types/worker-channels";
 import { Button } from "@/components/ui/shadcn/button";
 import { CredentialReviewConsole } from "@/components/pro-connect/CredentialReviewConsole";
+import { useLanguage } from "@/lib/i18n";
 
 type Tab =
   | "professionals"
@@ -78,12 +79,13 @@ type Tab =
   | "settings";
 
 export default function AdminProConnect() {
+  const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>("professionals");
 
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold text-foreground dark:text-primary-foreground">
-        Pro Connect Management
+        {t("Pro Connect Management")}
       </h1>
 
       {/* Tabs */}
@@ -126,6 +128,7 @@ export default function AdminProConnect() {
 // PROFESSIONALS TAB
 // =========================================================
 function AdminProfessionalsTab() {
+  const { t } = useLanguage();
   const [profiles, setProfiles] = useState<DbProProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -194,7 +197,7 @@ function AdminProfessionalsTab() {
   if (filtered.length === 0) {
     return (
       <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
-        No professionals found.
+        {t("No professionals found.")}
       </p>
     );
   }
@@ -211,7 +214,7 @@ function AdminProfessionalsTab() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search professionals..."
+            placeholder={t("Search professionals...")}
             className="w-full rounded-lg border border-border py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background"
           />
         </div>
@@ -269,16 +272,16 @@ function AdminProfessionalsTab() {
                 }
                 className="rounded-lg border border-border px-2 py-1 text-xs dark:border-white/10 dark:bg-background"
               >
-                <option value="unverified">Unverified</option>
-                <option value="pending">Pending</option>
-                <option value="verified">Verify</option>
-                <option value="suspended">Suspend</option>
+                <option value="unverified">{t("Unverified")}</option>
+                <option value="pending">{t("Pending")}</option>
+                <option value="verified">{t("Verify")}</option>
+                <option value="suspended">{t("Suspend")}</option>
               </AdminSelect>
               {!p.pro_level ? (
                 <AdminIconButton
                   variant="ghost"
                   onClick={() => handleAwardProLevel(p.id)}
-                  title="Award FRELUX Pro"
+                  title={t("Award FRELUX Pro")}
                   className="rounded-lg p-1.5 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10"
                 >
                   <Award aria-hidden="true" className="h-4 w-4" />
@@ -287,7 +290,7 @@ function AdminProfessionalsTab() {
                 <AdminIconButton
                   variant="danger"
                   onClick={() => handleRevokeProLevel(p.id)}
-                  title="Revoke FRELUX Pro"
+                  title={t("Revoke FRELUX Pro")}
                   className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
                 >
                   <Ban aria-hidden="true" className="h-4 w-4" />
@@ -322,6 +325,7 @@ function AdminVerificationTab() {
 }
 
 function LegacyVerificationRequests() {
+  const { t } = useLanguage();
   const [requests, setRequests] = useState<DbProVerificationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("pending");
@@ -447,7 +451,7 @@ function LegacyVerificationRequests() {
         </div>
       ) : requests.length === 0 ? (
         <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
-          No verification requests found.
+          {t("No verification requests found.")}
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -541,7 +545,7 @@ function LegacyVerificationRequests() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
-                        title="View profile"
+                        title={t("View profile")}
                       >
                         <Eye aria-hidden="true" className="h-4 w-4" />
                       </a>
@@ -550,7 +554,7 @@ function LegacyVerificationRequests() {
                       variant="ghost"
                       onClick={() => handleViewDocs(req)}
                       className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
-                      title="View verification documents"
+                      title={t("View verification documents")}
                     >
                       <FileText aria-hidden="true" className="h-4 w-4" />
                     </Button>
@@ -566,21 +570,23 @@ function LegacyVerificationRequests() {
                           type="text"
                           value={actionNotes}
                           onChange={(e) => setActionNotes(e.target.value)}
-                          placeholder="Admin notes (optional)"
+                          placeholder={t("Admin notes (optional)")}
                           className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
                         />
                         <AdminInput
                           type="text"
                           value={rejectionReason}
                           onChange={(e) => setRejectionReason(e.target.value)}
-                          placeholder="Rejection reason (if rejecting)"
+                          placeholder={t("Rejection reason (if rejecting)")}
                           className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
                         />
                         <AdminInput
                           type="text"
                           value={moreInfoText}
                           onChange={(e) => setMoreInfoText(e.target.value)}
-                          placeholder="What additional info is needed? (if requesting more info)"
+                          placeholder={t(
+                            "What additional info is needed? (if requesting more info)",
+                          )}
                           className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
                         />
                         <div className="flex flex-wrap gap-2">
@@ -595,7 +601,7 @@ function LegacyVerificationRequests() {
                               aria-hidden="true"
                               className="mr-1 inline h-3.5 w-3.5"
                             />
-                            Approve
+                            {t("Approve")}
                           </AdminButton>
                           <AdminButton
                             variant="danger"
@@ -603,7 +609,7 @@ function LegacyVerificationRequests() {
                             className="text-xs bg-red-500 border-red-500 text-primary-foreground hover:bg-red-600"
                           >
                             <X className="mr-1 inline h-3.5 w-3.5" />
-                            Reject
+                            {t("Reject")}
                           </AdminButton>
                           <AdminButton
                             variant="secondary"
@@ -616,14 +622,14 @@ function LegacyVerificationRequests() {
                               aria-hidden="true"
                               className="mr-1 inline h-3.5 w-3.5"
                             />
-                            Request Info
+                            {t("Request Info")}
                           </AdminButton>
                           <AdminButton
                             variant="secondary"
                             onClick={() => setSelectedRequest(null)}
                             className="text-xs"
                           >
-                            Cancel
+                            {t("Cancel")}
                           </AdminButton>
                         </div>
                       </div>
@@ -652,7 +658,7 @@ function LegacyVerificationRequests() {
                       onClick={() => handleSuspend(req.profile_id)}
                       className="text-xs"
                     >
-                      Suspend Verification
+                      {t("Suspend Verification")}
                     </AdminButton>
                   </div>
                 )}
@@ -663,7 +669,7 @@ function LegacyVerificationRequests() {
                       onClick={() => handleReinstate(req.profile_id)}
                       className="text-xs bg-emerald-50 border-emerald-200 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400 hover:bg-emerald-100"
                     >
-                      Reinstate
+                      {t("Reinstate")}
                     </AdminButton>
                   </div>
                 )}
@@ -680,6 +686,7 @@ function LegacyVerificationRequests() {
 // KYC / NIN TAB
 // =========================================================
 function AdminKycTab() {
+  const { t } = useLanguage();
   const [submissions, setSubmissions] = useState<NinSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("pending");
@@ -739,7 +746,7 @@ function AdminKycTab() {
         />
         <div>
           <p className="font-medium text-foreground dark:text-primary-foreground">
-            NIN Verification Review
+            {t("NIN Verification Review")}
           </p>
           <p className="mt-1 text-muted-foreground dark:text-muted-foreground/80">
             Review NIN submissions from workers. Approving auto-verifies them to
@@ -786,7 +793,7 @@ function AdminKycTab() {
         </div>
       ) : submissions.length === 0 ? (
         <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
-          No NIN submissions found.
+          {t("No NIN submissions found.")}
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -877,7 +884,7 @@ function AdminKycTab() {
                     </span>
                     {sub.mobile_otp_verified && (
                       <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
-                        Mobile Verified
+                        {t("Mobile Verified")}
                       </span>
                     )}
                   </div>
@@ -902,7 +909,7 @@ function AdminKycTab() {
                         type="text"
                         value={rejectReason}
                         onChange={(e) => setRejectReason(e.target.value)}
-                        placeholder="Rejection reason (if rejecting)"
+                        placeholder={t("Rejection reason (if rejecting)")}
                         className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
                       />
                       <div className="flex flex-wrap gap-2">
@@ -927,7 +934,7 @@ function AdminKycTab() {
                           className="text-xs bg-red-500 border-red-500 text-primary-foreground hover:bg-red-600"
                         >
                           <X className="mr-1 inline h-3.5 w-3.5" />
-                          Reject NIN
+                          {t("Reject NIN")}
                         </AdminButton>
                         <AdminButton
                           variant="secondary"
@@ -937,7 +944,7 @@ function AdminKycTab() {
                           }}
                           className="text-xs"
                         >
-                          Cancel
+                          {t("Cancel")}
                         </AdminButton>
                       </div>
                       <div className="flex items-start gap-2 rounded-lg bg-amber-50 p-2 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
@@ -988,6 +995,7 @@ function AdminKycTab() {
 // REPORTS TAB
 // =========================================================
 function AdminReportsTab() {
+  const { t } = useLanguage();
   const [reports, setReports] = useState<DbProReport[]>([]);
   const [workerReports, setWorkerReports] = useState<
     {
@@ -1117,7 +1125,7 @@ function AdminReportsTab() {
 
       {reportSubTab === "pro" && reports.length === 0 && (
         <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
-          No Pro Connect reports filed.
+          {t("No Pro Connect reports filed.")}
         </p>
       )}
 
@@ -1165,14 +1173,14 @@ function AdminReportsTab() {
                         onClick={() => resolveProReport(r.id, "resolved")}
                         className="text-xs py-1"
                       >
-                        Resolve
+                        {t("Resolve")}
                       </AdminButton>
                       <AdminButton
                         variant="secondary"
                         onClick={() => resolveProReport(r.id, "dismissed")}
                         className="text-xs py-1"
                       >
-                        Dismiss
+                        {t("Dismiss")}
                       </AdminButton>
                     </>
                   )}
@@ -1185,7 +1193,7 @@ function AdminReportsTab() {
 
       {reportSubTab === "worker" && workerReports.length === 0 && (
         <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
-          No worker channel reports filed.
+          {t("No worker channel reports filed.")}
         </p>
       )}
 
@@ -1230,7 +1238,7 @@ function AdminReportsTab() {
                     onClick={() => viewNinDetails(wr.id)}
                     className="rounded-lg border-brand-purple/30 text-brand-purple text-xs hover:bg-primary/5"
                   >
-                    View NIN Details
+                    {t("View NIN Details")}
                   </AdminButton>
                   {wr.status === "pending" && (
                     <>
@@ -1239,14 +1247,14 @@ function AdminReportsTab() {
                         onClick={() => resolveWorkerReport(wr.id, "resolved")}
                         className="text-xs py-1"
                       >
-                        Resolve
+                        {t("Resolve")}
                       </AdminButton>
                       <AdminButton
                         variant="secondary"
                         onClick={() => resolveWorkerReport(wr.id, "dismissed")}
                         className="text-xs py-1"
                       >
-                        Dismiss
+                        {t("Dismiss")}
                       </AdminButton>
                     </>
                   )}
@@ -1259,17 +1267,17 @@ function AdminReportsTab() {
                   <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4">
                     {ninDetailLoading ? (
                       <p className="text-sm text-muted-foreground">
-                        Loading...
+                        {t("Loading...")}
                       </p>
                     ) : (
                       <>
                         <p className="mb-2 text-sm font-semibold text-brand-purple">
-                          NIN Verification Reference
+                          {t("NIN Verification Reference")}
                         </p>
                         <div className="grid grid-cols-2 gap-3 text-sm">
                           <div>
                             <p className="text-xs text-muted-foreground">
-                              Reported User
+                              {t("Reported User")}
                             </p>
                             <p className="font-medium text-foreground dark:text-primary-foreground">
                               {String(
@@ -1279,7 +1287,9 @@ function AdminReportsTab() {
                             </p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">NIN</p>
+                            <p className="text-xs text-muted-foreground">
+                              {t("NIN")}
+                            </p>
                             <p className="font-mono font-bold text-foreground dark:text-primary-foreground">
                               {String(
                                 (ninDetail as Record<string, unknown>)
@@ -1289,7 +1299,7 @@ function AdminReportsTab() {
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">
-                              NIN Verified
+                              {t("NIN Verified")}
                             </p>
                             <p className="font-medium">
                               {(ninDetail as Record<string, unknown>)
@@ -1300,7 +1310,7 @@ function AdminReportsTab() {
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">
-                              Verified At
+                              {t("Verified At")}
                             </p>
                             <p className="font-medium text-card-foreground dark:text-muted-foreground/80">
                               {(ninDetail as Record<string, unknown>)
@@ -1346,6 +1356,7 @@ function AdminReportsTab() {
 // REVIEWS TAB
 // =========================================================
 function AdminReviewsTab() {
+  const { t } = useLanguage();
   const [reviews, setReviews] = useState<
     {
       id: string;
@@ -1397,7 +1408,7 @@ function AdminReviewsTab() {
   if (reviews.length === 0)
     return (
       <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
-        No reviews to moderate.
+        {t("No reviews to moderate.")}
       </p>
     );
 
@@ -1426,12 +1437,12 @@ function AdminReviewsTab() {
                 </span>
                 {r.is_hidden && (
                   <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs text-red-600 dark:bg-red-500/10 dark:text-red-400">
-                    Hidden
+                    {t("Hidden")}
                   </span>
                 )}
                 {r.is_verified_review && (
                   <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
-                    Verified Review
+                    {t("Verified Review")}
                   </span>
                 )}
               </div>
@@ -1459,6 +1470,7 @@ function AdminReviewsTab() {
 // SETTINGS TAB
 // =========================================================
 function AdminSettingsTab() {
+  const { t } = useLanguage();
   const [settings, setSettings] = useState<DbProSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -1491,12 +1503,12 @@ function AdminSettingsTab() {
       {/* Badge descriptions */}
       <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
         <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
-          Verification Badge Descriptions
+          {t("Verification Badge Descriptions")}
         </h3>
         <div className="space-y-3">
           <label className="block">
             <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              Contact Verified description
+              {t("Contact Verified description")}
             </span>
             <AdminTextarea
               value={settings.contact_verified_description}
@@ -1512,7 +1524,7 @@ function AdminSettingsTab() {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              FRELUX Verified description
+              {t("FRELUX Verified description")}
             </span>
             <AdminTextarea
               value={settings.frelux_verified_description}
@@ -1528,7 +1540,7 @@ function AdminSettingsTab() {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              FRELUX Pro description
+              {t("FRELUX Pro description")}
             </span>
             <AdminTextarea
               value={settings.pro_level_description}
@@ -1544,7 +1556,7 @@ function AdminSettingsTab() {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              Verification disclaimer
+              {t("Verification disclaimer")}
             </span>
             <AdminTextarea
               value={settings.verification_disclaimer}
@@ -1564,12 +1576,12 @@ function AdminSettingsTab() {
       {/* Pro Level requirements */}
       <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
         <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
-          FRELUX Pro Eligibility Requirements
+          {t("FRELUX Pro Eligibility Requirements")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label className="block">
             <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              Minimum reviews
+              {t("Minimum reviews")}
             </span>
             <AdminInput
               type="number"
@@ -1585,7 +1597,7 @@ function AdminSettingsTab() {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              Minimum rating
+              {t("Minimum rating")}
             </span>
             <AdminInput
               type="number"
@@ -1602,7 +1614,7 @@ function AdminSettingsTab() {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              Min portfolio items
+              {t("Min portfolio items")}
             </span>
             <AdminInput
               type="number"
@@ -1618,7 +1630,7 @@ function AdminSettingsTab() {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              Min profile age (days)
+              {t("Min profile age (days)")}
             </span>
             <AdminInput
               type="number"
@@ -1651,6 +1663,7 @@ function AdminSettingsTab() {
 // CHANNELS TAB, Manage worker channels & categories
 // =========================================================
 function AdminChannelsTab() {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState<DbWorkerChannelCategory[]>([]);
   const [channels, setChannels] = useState<DbWorkerChannel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1881,10 +1894,11 @@ function AdminChannelsTab() {
       <div>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-            Channel Categories
+            {t("Channel Categories")}
           </h3>
           <AdminButton onClick={startNewCategory} className="text-xs py-1">
-            <Plus aria-hidden="true" className="h-3.5 w-3.5" /> New Category
+            <Plus aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+            {t("New Category")}
           </AdminButton>
         </div>
         <div className="space-y-2">
@@ -1919,7 +1933,9 @@ function AdminChannelsTab() {
             </div>
           ))}
           {categories.length === 0 && (
-            <p className="text-sm text-muted-foreground">No categories yet.</p>
+            <p className="text-sm text-muted-foreground">
+              {t("No categories yet.")}
+            </p>
           )}
         </div>
       </div>
@@ -1928,10 +1944,11 @@ function AdminChannelsTab() {
       <div>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-            Worker Channels
+            {t("Worker Channels")}
           </h3>
           <AdminButton onClick={startNewChannel} className="text-xs py-1">
-            <Plus aria-hidden="true" className="h-3.5 w-3.5" /> New Channel
+            <Plus aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+            {t("New Channel")}
           </AdminButton>
         </div>
         <div className="space-y-2">
@@ -1951,12 +1968,12 @@ function AdminChannelsTab() {
                   </p>
                   {ch.is_official && (
                     <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-brand-purple">
-                      Official
+                      {t("Official")}
                     </span>
                   )}
                   {!ch.is_active && (
                     <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-500">
-                      Inactive
+                      {t("Inactive")}
                     </span>
                   )}
                 </div>
@@ -1984,7 +2001,9 @@ function AdminChannelsTab() {
             </div>
           ))}
           {channels.length === 0 && (
-            <p className="text-sm text-muted-foreground">No channels yet.</p>
+            <p className="text-sm text-muted-foreground">
+              {t("No channels yet.")}
+            </p>
           )}
         </div>
       </div>
@@ -2000,7 +2019,7 @@ function AdminChannelsTab() {
           <div className="space-y-3">
             <label className="block">
               <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Name
+                {t("Name")}
               </span>
               <AdminInput
                 type="text"
@@ -2013,7 +2032,7 @@ function AdminChannelsTab() {
             </label>
             <label className="block">
               <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Slug (auto-generated if empty)
+                {t("Slug (auto-generated if empty)")}
               </span>
               <AdminInput
                 type="text"
@@ -2027,7 +2046,7 @@ function AdminChannelsTab() {
             </label>
             <label className="block">
               <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Description
+                {t("Description")}
               </span>
               <AdminTextarea
                 value={channelForm.description}
@@ -2044,7 +2063,7 @@ function AdminChannelsTab() {
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
                 <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                  Region
+                  {t("Region")}
                 </span>
                 <AdminInput
                   type="text"
@@ -2057,7 +2076,7 @@ function AdminChannelsTab() {
               </label>
               <label className="block">
                 <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                  Icon (lucide name)
+                  {t("Icon (lucide name)")}
                 </span>
                 <AdminInput
                   type="text"
@@ -2071,7 +2090,7 @@ function AdminChannelsTab() {
             </div>
             <label className="block">
               <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Category
+                {t("Category")}
               </span>
               <AdminSelect
                 value={channelForm.category_id}
@@ -2083,7 +2102,7 @@ function AdminChannelsTab() {
                 }
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
-                <option value="">Uncategorized</option>
+                <option value="">{t("Uncategorized")}</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -2093,7 +2112,7 @@ function AdminChannelsTab() {
             </label>
             <label className="block">
               <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Sort order
+                {t("Sort order")}
               </span>
               <AdminInput
                 type="number"
@@ -2119,7 +2138,7 @@ function AdminChannelsTab() {
                     })
                   }
                 />
-                Official FRELUX channel
+                {t("Official FRELUX channel")}
               </label>
               <label className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                 <AdminInput
@@ -2132,19 +2151,19 @@ function AdminChannelsTab() {
                     })
                   }
                 />
-                Active
+                {t("Active")}
               </label>
             </div>
           </div>
           <div className="mt-5 flex gap-2">
             <AdminButton onClick={saveChannel}>
-              <Save aria-hidden="true" className="h-4 w-4" /> Save
+              <Save aria-hidden="true" className="h-4 w-4" /> {t("Save")}
             </AdminButton>
             <AdminButton
               variant="secondary"
               onClick={() => setShowChannelForm(false)}
             >
-              Cancel
+              {t("Cancel")}
             </AdminButton>
           </div>
         </AdminModal>
@@ -2161,7 +2180,7 @@ function AdminChannelsTab() {
           <div className="space-y-3">
             <label className="block">
               <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Name
+                {t("Name")}
               </span>
               <AdminInput
                 type="text"
@@ -2174,7 +2193,7 @@ function AdminChannelsTab() {
             </label>
             <label className="block">
               <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Slug (auto-generated if empty)
+                {t("Slug (auto-generated if empty)")}
               </span>
               <AdminInput
                 type="text"
@@ -2187,7 +2206,7 @@ function AdminChannelsTab() {
             </label>
             <label className="block">
               <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Description
+                {t("Description")}
               </span>
               <AdminInput
                 type="text"
@@ -2204,7 +2223,7 @@ function AdminChannelsTab() {
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
                 <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                  Icon (lucide name)
+                  {t("Icon (lucide name)")}
                 </span>
                 <AdminInput
                   type="text"
@@ -2217,7 +2236,7 @@ function AdminChannelsTab() {
               </label>
               <label className="block">
                 <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                  Sort order
+                  {t("Sort order")}
                 </span>
                 <AdminInput
                   type="number"
@@ -2243,18 +2262,18 @@ function AdminChannelsTab() {
                   })
                 }
               />
-              Active
+              {t("Active")}
             </label>
           </div>
           <div className="mt-5 flex gap-2">
             <AdminButton onClick={saveCategory}>
-              <Save aria-hidden="true" className="h-4 w-4" /> Save
+              <Save aria-hidden="true" className="h-4 w-4" /> {t("Save")}
             </AdminButton>
             <AdminButton
               variant="secondary"
               onClick={() => setShowCategoryForm(false)}
             >
-              Cancel
+              {t("Cancel")}
             </AdminButton>
           </div>
         </AdminModal>
@@ -2267,6 +2286,7 @@ function AdminChannelsTab() {
 // MODERATION TAB, AI bot configuration
 // =========================================================
 function AdminModerationTab() {
+  const { t } = useLanguage();
   const [config, setConfig] = useState<DbWorkerModerationConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -2351,10 +2371,10 @@ function AdminModerationTab() {
           className="mx-auto mb-3 h-8 w-8 text-amber-500"
         />
         <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
-          No moderation config found.
+          {t("No moderation config found.")}
         </p>
         <p className="mt-1 text-xs text-amber-600 dark:text-amber-500">
-          Run the Phase 30 migration to seed the default config.
+          {t("Run the Phase 30 migration to seed the default config.")}
         </p>
       </div>
     );
@@ -2403,7 +2423,7 @@ function AdminModerationTab() {
       {/* Thresholds */}
       <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
         <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
-          Auto-Action Thresholds
+          {t("Auto-Action Thresholds")}
         </h3>
         <p className="mb-4 text-xs text-muted-foreground">
           AI scores messages 0.0 (safe) to 1.0 (harmful). Set thresholds for
@@ -2460,12 +2480,12 @@ function AdminModerationTab() {
       {/* Banned words & patterns */}
       <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
         <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
-          Banned Words & Patterns
+          {t("Banned Words & Patterns")}
         </h3>
         <div className="space-y-4">
           <label className="block">
             <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              Banned words (comma-separated)
+              {t("Banned words (comma-separated)")}
             </span>
             <AdminTextarea
               value={bannedWordsText}
@@ -2480,7 +2500,7 @@ function AdminModerationTab() {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              Banned regex patterns (one per line)
+              {t("Banned regex patterns (one per line)")}
             </span>
             <AdminTextarea
               value={bannedPatternsText}
@@ -2500,12 +2520,12 @@ function AdminModerationTab() {
       {/* AI Provider settings */}
       <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
         <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
-          AI Provider Settings
+          {t("AI Provider Settings")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
             <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              Provider
+              {t("Provider")}
             </span>
             <AdminSelect
               value={config.ai_provider}
@@ -2514,9 +2534,9 @@ function AdminModerationTab() {
               }
               className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             >
-              <option value="openai">OpenAI</option>
-              <option value="anthropic">Anthropic</option>
-              <option value="local">Local / Heuristic only</option>
+              <option value="openai">{t("OpenAI")}</option>
+              <option value="anthropic">{t("Anthropic")}</option>
+              <option value="local">{t("Local / Heuristic only")}</option>
             </AdminSelect>
             <span className="mt-1 block text-[11px] text-muted-foreground">
               If set to "Local", only heuristic rules apply (no API calls).
@@ -2524,7 +2544,7 @@ function AdminModerationTab() {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              Model
+              {t("Model")}
             </span>
             <AdminInput
               type="text"
@@ -2544,7 +2564,7 @@ function AdminModerationTab() {
       {/* Warning message */}
       <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
         <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
-          Warning Message (shown to users)
+          {t("Warning Message (shown to users)")}
         </h3>
         <AdminTextarea
           value={config.warning_message}
@@ -2555,7 +2575,9 @@ function AdminModerationTab() {
           className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
         />
         <span className="mt-1 block text-[11px] text-muted-foreground">
-          Posted as a system message in the channel when content is removed.
+          {t(
+            "Posted as a system message in the channel when content is removed.",
+          )}
         </span>
       </div>
 

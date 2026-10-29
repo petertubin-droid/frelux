@@ -13,12 +13,14 @@ import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { WORKSPACE_ROLES } from "@/types/workspace";
 import type { DbContractorProject } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface Props {
   project: DbContractorProject;
 }
 
 export const ProjectTeamTab: React.FC<Props> = ({ project }) => {
+  const { t } = useLanguage();
   const { members, activeWorkspace, can } = useWorkspace();
 
   return (
@@ -38,7 +40,7 @@ export const ProjectTeamTab: React.FC<Props> = ({ project }) => {
           <Button asChild className="flex items-center gap-1.5">
             <Link to="/workspace-settings">
               <UserPlus className="h-4 w-4" />
-              Manage Team & Invite
+              {t("Manage Team & Invite")}
             </Link>
           </Button>
         )}
@@ -93,7 +95,7 @@ export const ProjectTeamTab: React.FC<Props> = ({ project }) => {
                   ) : (
                     <X className="h-3 w-3 text-muted-foreground/40" />
                   )}
-                  <span>Financial Management</span>
+                  <span>{t("Financial Management")}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   {roleConfig.canSubmitSiteLogs ? (
@@ -101,7 +103,7 @@ export const ProjectTeamTab: React.FC<Props> = ({ project }) => {
                   ) : (
                     <X className="h-3 w-3 text-muted-foreground/40" />
                   )}
-                  <span>Site Shift Logs</span>
+                  <span>{t("Site Shift Logs")}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   {roleConfig.canCreateEstimates ? (
@@ -109,7 +111,7 @@ export const ProjectTeamTab: React.FC<Props> = ({ project }) => {
                   ) : (
                     <X className="h-3 w-3 text-muted-foreground/40" />
                   )}
-                  <span>Estimate / BOQ Creation</span>
+                  <span>{t("Estimate / BOQ Creation")}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   {roleConfig.canUploadDrawings ? (
@@ -117,7 +119,7 @@ export const ProjectTeamTab: React.FC<Props> = ({ project }) => {
                   ) : (
                     <X className="h-3 w-3 text-muted-foreground/40" />
                   )}
-                  <span>Architectural Blueprints</span>
+                  <span>{t("Architectural Blueprints")}</span>
                 </div>
               </div>
             </div>

@@ -8,6 +8,7 @@ import {
 import Container from "@/components/ui/Container";
 import { Link } from "react-router-dom";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * AI tools showcase on the homepage.
@@ -54,11 +55,12 @@ const aiTools = [
 ];
 
 export default function AiToolsSection() {
+  const { t } = useLanguage();
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
 
   return (
     <section
-      aria-label="AI powered tools"
+      aria-label={t("AI powered tools")}
       className="relative overflow-hidden bg-background py-20 sm:py-24 dark:bg-card bg-noise"
     >
       <Container className="relative">
@@ -71,10 +73,10 @@ export default function AiToolsSection() {
           {/* Section heading */}
           <div className="mx-auto max-w-2xl text-center">
             <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple dark:text-brand-purple-lighter">
-              AI powered tools
+              {t("AI powered tools")}
             </span>
             <h2 className="mt-3 font-display text-3xl font-bold text-foreground dark:text-primary-foreground sm:text-4xl">
-              Snap it. Describe it. Get numbers.
+              {t("Snap it. Describe it. Get numbers.")}
             </h2>
             <p className="mt-4 text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground">
               The calculators do the arithmetic. These tools remove the typing:
@@ -104,7 +106,7 @@ export default function AiToolsSection() {
                     {tool.description}
                   </p>
                   <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-purple transition-colors group-hover:text-brand-purple dark:text-brand-purple-lighter">
-                    Try it
+                    {t("Try it")}
                     <ArrowRight
                       aria-hidden="true"
                       className="h-4 w-4 transition-transform group-hover:translate-x-0.5"

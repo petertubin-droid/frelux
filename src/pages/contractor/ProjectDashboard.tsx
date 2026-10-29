@@ -104,6 +104,7 @@ import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { WorkflowTab } from "./WorkflowTab";
 import { OperationsTab } from "./OperationsTab";
+import { useLanguage } from "@/lib/i18n";
 
 // ============================================================
 // CONSTANTS & HELPERS
@@ -331,6 +332,7 @@ const emptyLabourForm: LabourFormData = {
 // ============================================================
 
 export default function ProjectDashboard() {
+  const { t: tr } = useLanguage();
   const { isPaid } = useAuth();
   const [pdfGateOpen, setPdfGateOpen] = useState(false);
   const [pdfUnlocked, setPdfUnlocked] = useState(false);
@@ -1037,7 +1039,7 @@ export default function ProjectDashboard() {
             onClick={() => navigate(-1)}
             className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700"
           >
-            <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Go Back
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" /> {tr("Go Back")}
           </Button>
         </div>
       </div>
@@ -1090,7 +1092,8 @@ export default function ProjectDashboard() {
                   disabled={actionLoading}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
                 >
-                  <Save aria-hidden="true" className="h-4 w-4" /> Snapshot
+                  <Save aria-hidden="true" className="h-4 w-4" />{" "}
+                  {tr("Snapshot")}
                 </Button>
               </div>
             </div>
@@ -1400,6 +1403,7 @@ interface OverviewTabProps {
 }
 
 function OverviewTab(props: OverviewTabProps) {
+  const { t: tr } = useLanguage();
   const stats = [
     {
       label: "Material Cost",
@@ -1467,7 +1471,7 @@ function OverviewTab(props: OverviewTabProps) {
       <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold text-foreground">
-            Project Progress
+            {tr("Project Progress")}
           </h3>
           <span className="text-lg font-bold text-violet-600">
             {props.progress}%
@@ -1525,12 +1529,12 @@ function OverviewTab(props: OverviewTabProps) {
       {/* Client info */}
       <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <h3 className="text-base font-semibold text-foreground">
-          Client Information
+          {tr("Client Information")}
         </h3>
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <p className="text-xs font-medium uppercase text-muted-foreground">
-              Client Name
+              {tr("Client Name")}
             </p>
             <p className="mt-1 text-sm font-medium text-foreground">
               {props.project.client_name ?? "N/A"}
@@ -1538,7 +1542,7 @@ function OverviewTab(props: OverviewTabProps) {
           </div>
           <div>
             <p className="text-xs font-medium uppercase text-muted-foreground">
-              Phone
+              {tr("Phone")}
             </p>
             <p className="mt-1 text-sm font-medium text-foreground">
               {props.project.client_phone ?? "N/A"}
@@ -1546,7 +1550,7 @@ function OverviewTab(props: OverviewTabProps) {
           </div>
           <div>
             <p className="text-xs font-medium uppercase text-muted-foreground">
-              Email
+              {tr("Email")}
             </p>
             <p className="mt-1 text-sm font-medium text-foreground">
               {props.project.client_email ?? "N/A"}
@@ -1554,7 +1558,7 @@ function OverviewTab(props: OverviewTabProps) {
           </div>
           <div>
             <p className="text-xs font-medium uppercase text-muted-foreground">
-              Address
+              {tr("Address")}
             </p>
             <p className="mt-1 text-sm font-medium text-foreground">
               {props.project.client_address ?? "N/A"}
@@ -1589,6 +1593,7 @@ interface RoomsTabProps {
 }
 
 function RoomsTab(props: RoomsTabProps) {
+  const { t: tr } = useLanguage();
   const {
     currency,
     rooms,
@@ -1616,7 +1621,7 @@ function RoomsTab(props: RoomsTabProps) {
           onClick={onShowForm}
           className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700"
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add Room
+          <Plus aria-hidden="true" className="h-4 w-4" /> {tr("Add Room")}
         </Button>
       </div>
 
@@ -1640,7 +1645,7 @@ function RoomsTab(props: RoomsTabProps) {
             {/* Name */}
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Room Name
+                {tr("Room Name")}
               </label>
               <input
                 type="text"
@@ -1656,7 +1661,7 @@ function RoomsTab(props: RoomsTabProps) {
             {/* Room type */}
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Room Type
+                {tr("Room Type")}
               </label>
               <select
                 value={roomForm.room_type}
@@ -1679,7 +1684,7 @@ function RoomsTab(props: RoomsTabProps) {
             {/* Calculation type */}
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Calculation Type
+                {tr("Calculation Type")}
               </label>
               <select
                 value={roomForm.calculation_type}
@@ -1702,7 +1707,7 @@ function RoomsTab(props: RoomsTabProps) {
             {/* Dimensions */}
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Length
+                {tr("Length")}
               </label>
               <input
                 type="number"
@@ -1717,7 +1722,7 @@ function RoomsTab(props: RoomsTabProps) {
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Width
+                {tr("Width")}
               </label>
               <input
                 type="number"
@@ -1732,7 +1737,7 @@ function RoomsTab(props: RoomsTabProps) {
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Height
+                {tr("Height")}
               </label>
               <input
                 type="number"
@@ -1749,7 +1754,7 @@ function RoomsTab(props: RoomsTabProps) {
             {/* Unit */}
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Unit
+                {tr("Unit")}
               </label>
               <select
                 value={roomForm.unit}
@@ -1761,15 +1766,15 @@ function RoomsTab(props: RoomsTabProps) {
                 }
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               >
-                <option value="meters">Meters</option>
-                <option value="feet">Feet</option>
+                <option value="meters">{tr("Meters")}</option>
+                <option value="feet">{tr("Feet")}</option>
               </select>
             </div>
 
             {/* Surface assessment dropdowns */}
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Surface Condition
+                {tr("Surface Condition")}
               </label>
               <select
                 value={roomForm.surface_condition}
@@ -1790,7 +1795,7 @@ function RoomsTab(props: RoomsTabProps) {
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Surface Type
+                {tr("Surface Type")}
               </label>
               <select
                 value={roomForm.surface_type}
@@ -1811,7 +1816,7 @@ function RoomsTab(props: RoomsTabProps) {
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Wall Smoothness
+                {tr("Wall Smoothness")}
               </label>
               <select
                 value={roomForm.wall_smoothness}
@@ -1832,7 +1837,7 @@ function RoomsTab(props: RoomsTabProps) {
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Porosity
+                {tr("Porosity")}
               </label>
               <select
                 value={roomForm.porosity}
@@ -1872,7 +1877,7 @@ function RoomsTab(props: RoomsTabProps) {
               onClick={onCancelForm}
               className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
             >
-              Cancel
+              {tr("Cancel")}
             </Button>
           </div>
         </div>
@@ -1886,7 +1891,7 @@ function RoomsTab(props: RoomsTabProps) {
             className="h-10 w-10 text-muted-foreground/80"
           />
           <p className="text-sm text-muted-foreground">
-            No rooms yet. Add your first room to get started.
+            {tr("No rooms yet. Add your first room to get started.")}
           </p>
         </div>
       ) : (
@@ -1954,19 +1959,25 @@ function RoomsTab(props: RoomsTabProps) {
 
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2 border-t border-border/50 pt-3">
                   <div>
-                    <p className="text-xs text-muted-foreground">Material</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tr("Material")}
+                    </p>
                     <p className="text-sm font-semibold text-foreground">
                       {formatCurrency(room.material_cost, currency)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Labour</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tr("Labour")}
+                    </p>
                     <p className="text-sm font-semibold text-foreground">
                       {formatCurrency(room.labour_cost, currency)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Total</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tr("Total")}
+                    </p>
                     <p className="text-sm font-semibold text-violet-600">
                       {formatCurrency(room.room_total_cost, currency)}
                     </p>
@@ -2004,6 +2015,7 @@ interface LabourTabProps {
 }
 
 function LabourTab(props: LabourTabProps) {
+  const { t: tr } = useLanguage();
   const {
     currency,
     labourPlan,
@@ -2033,7 +2045,7 @@ function LabourTab(props: LabourTabProps) {
           onClick={onShowForm}
           className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700"
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add Role
+          <Plus aria-hidden="true" className="h-4 w-4" /> {tr("Add Role")}
         </Button>
       </div>
 
@@ -2056,7 +2068,7 @@ function LabourTab(props: LabourTabProps) {
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Role
+                {tr("Role")}
               </label>
               <select
                 value={labourForm.role}
@@ -2077,7 +2089,7 @@ function LabourTab(props: LabourTabProps) {
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Worker Count
+                {tr("Worker Count")}
               </label>
               <input
                 type="number"
@@ -2091,7 +2103,7 @@ function LabourTab(props: LabourTabProps) {
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground">
-                Days Required
+                {tr("Days Required")}
               </label>
               <input
                 type="number"
@@ -2125,7 +2137,7 @@ function LabourTab(props: LabourTabProps) {
 
           <div className="mt-4">
             <label className="block text-xs font-medium text-muted-foreground">
-              Notes
+              {tr("Notes")}
             </label>
             <input
               type="text"
@@ -2133,7 +2145,7 @@ function LabourTab(props: LabourTabProps) {
               onChange={(e) =>
                 setLabourForm((p) => ({ ...p, notes: e.target.value }))
               }
-              placeholder="Optional notes…"
+              placeholder={tr("Optional notes…")}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
             />
           </div>
@@ -2172,7 +2184,7 @@ function LabourTab(props: LabourTabProps) {
               onClick={onCancelForm}
               className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
             >
-              Cancel
+              {tr("Cancel")}
             </Button>
           </div>
         </div>
@@ -2186,7 +2198,7 @@ function LabourTab(props: LabourTabProps) {
             className="h-10 w-10 text-muted-foreground/80"
           />
           <p className="text-sm text-muted-foreground">
-            No labour roles yet. Add workers to plan your project.
+            {tr("No labour roles yet. Add workers to plan your project.")}
           </p>
         </div>
       ) : (
@@ -2197,22 +2209,22 @@ function LabourTab(props: LabourTabProps) {
               <thead className="border-b border-border bg-muted/50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">
-                    Role
+                    {tr("Role")}
                   </th>
                   <th className="px-4 py-3 text-center text-xs font-medium uppercase text-muted-foreground">
-                    Workers
+                    {tr("Workers")}
                   </th>
                   <th className="px-4 py-3 text-center text-xs font-medium uppercase text-muted-foreground">
-                    Days
+                    {tr("Days")}
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-medium uppercase text-muted-foreground">
-                    Daily Wage
+                    {tr("Daily Wage")}
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-medium uppercase text-muted-foreground">
-                    Total Cost
+                    {tr("Total Cost")}
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-medium uppercase text-muted-foreground">
-                    Actions
+                    {tr("Actions")}
                   </th>
                 </tr>
               </thead>
@@ -2314,25 +2326,33 @@ function LabourTab(props: LabourTabProps) {
                 )}
                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-4 gap-2 text-center">
                   <div>
-                    <p className="text-xs text-muted-foreground">Workers</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tr("Workers")}
+                    </p>
                     <p className="text-sm font-semibold text-foreground">
                       {item.worker_count}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Days</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tr("Days")}
+                    </p>
                     <p className="text-sm font-semibold text-foreground">
                       {item.days_required}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Wage</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tr("Wage")}
+                    </p>
                     <p className="text-sm font-semibold text-foreground">
                       {formatCurrency(item.daily_wage, currency)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Total</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tr("Total")}
+                    </p>
                     <p className="text-sm font-semibold text-violet-600">
                       {formatCurrency(item.total_cost, currency)}
                     </p>
@@ -2376,6 +2396,7 @@ interface ShoppingTabProps {
 }
 
 function ShoppingTab(props: ShoppingTabProps) {
+  const { t: tr } = useLanguage();
   const {
     currency,
     shoppingList,
@@ -2425,7 +2446,7 @@ function ShoppingTab(props: ShoppingTabProps) {
             disabled={shoppingList.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
           >
-            <Printer aria-hidden="true" className="h-4 w-4" /> Print
+            <Printer aria-hidden="true" className="h-4 w-4" /> {tr("Print")}
           </Button>
           <Button
             variant="ghost"
@@ -2433,7 +2454,7 @@ function ShoppingTab(props: ShoppingTabProps) {
             disabled={shoppingList.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
           >
-            <Download aria-hidden="true" className="h-4 w-4" /> PDF
+            <Download aria-hidden="true" className="h-4 w-4" /> {tr("PDF")}
           </Button>
           <Button
             variant="ghost"
@@ -2441,7 +2462,7 @@ function ShoppingTab(props: ShoppingTabProps) {
             disabled={shoppingList.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-green-300 bg-green-50 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100 disabled:opacity-50"
           >
-            <Share2 aria-hidden="true" className="h-4 w-4" /> WhatsApp
+            <Share2 aria-hidden="true" className="h-4 w-4" /> {tr("WhatsApp")}
           </Button>
         </div>
       </div>
@@ -2451,21 +2472,23 @@ function ShoppingTab(props: ShoppingTabProps) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="rounded-lg border border-border bg-card p-4">
             <p className="text-xs uppercase text-muted-foreground">
-              Total Items
+              {tr("Total Items")}
             </p>
             <p className="mt-1 text-lg font-bold text-foreground">
               {shoppingList.length}
             </p>
           </div>
           <div className="rounded-lg border border-border bg-card p-4">
-            <p className="text-xs uppercase text-muted-foreground">Purchased</p>
+            <p className="text-xs uppercase text-muted-foreground">
+              {tr("Purchased")}
+            </p>
             <p className="mt-1 text-lg font-bold text-green-600">
               {shoppingPurchased}/{shoppingList.length}
             </p>
           </div>
           <div className="rounded-lg border border-border bg-card p-4">
             <p className="text-xs uppercase text-muted-foreground">
-              Est. Total
+              {tr("Est. Total")}
             </p>
             <p className="mt-1 text-lg font-bold text-violet-600">
               {formatCurrency(shoppingTotal, currency)}
@@ -2590,6 +2613,7 @@ const QUOTATION_STATUS_COLORS: Record<string, string> = {
 };
 
 function QuotationTab(props: QuotationTabProps) {
+  const { t: tr } = useLanguage();
   const {
     currency,
     quotations,
@@ -2619,7 +2643,7 @@ function QuotationTab(props: QuotationTabProps) {
       {/* Quotation generator inputs */}
       <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <h3 className="text-base font-semibold text-foreground">
-          Generate New Quotation
+          {tr("Generate New Quotation")}
         </h3>
         <p className="mt-1 text-sm text-muted-foreground">
           Adjust markup, profit, tax, and additional costs to generate a
@@ -2659,7 +2683,7 @@ function QuotationTab(props: QuotationTabProps) {
               type="number"
               step="0.5"
               min="0"
-              placeholder="Not determined"
+              placeholder={tr("Not determined")}
               value={quotTax}
               onChange={(e) => setQuotTax(e.target.value)}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
@@ -2671,7 +2695,7 @@ function QuotationTab(props: QuotationTabProps) {
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">
-              Transport Cost
+              {tr("Transport Cost")}
             </label>
             <input
               type="number"
@@ -2683,7 +2707,7 @@ function QuotationTab(props: QuotationTabProps) {
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">
-              Misc Cost
+              {tr("Misc Cost")}
             </label>
             <input
               type="number"
@@ -2718,7 +2742,9 @@ function QuotationTab(props: QuotationTabProps) {
             className="h-10 w-10 text-muted-foreground/80"
           />
           <p className="text-sm text-muted-foreground">
-            No quotations yet. Set your parameters above and generate one.
+            {tr(
+              "No quotations yet. Set your parameters above and generate one.",
+            )}
           </p>
         </div>
       ) : (
@@ -2755,7 +2781,8 @@ function QuotationTab(props: QuotationTabProps) {
                     onClick={() => onDownloadPDF(quot)}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-card-foreground hover:bg-muted/50"
                   >
-                    <Download aria-hidden="true" className="h-4 w-4" /> PDF
+                    <Download aria-hidden="true" className="h-4 w-4" />{" "}
+                    {tr("PDF")}
                   </Button>
                   {quot.status === "draft" && (
                     <Button
@@ -2774,13 +2801,17 @@ function QuotationTab(props: QuotationTabProps) {
               {/* Cost breakdown */}
               <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">
                 <div className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-xs text-muted-foreground">Materials</p>
+                  <p className="text-xs text-muted-foreground">
+                    {tr("Materials")}
+                  </p>
                   <p className="text-sm font-semibold text-foreground">
                     {formatCurrency(quot.material_cost, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-xs text-muted-foreground">Labour</p>
+                  <p className="text-xs text-muted-foreground">
+                    {tr("Labour")}
+                  </p>
                   <p className="text-sm font-semibold text-foreground">
                     {formatCurrency(quot.labour_cost, currency)}
                   </p>
@@ -2812,19 +2843,21 @@ function QuotationTab(props: QuotationTabProps) {
                   </p>
                 </div>
                 <div className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-xs text-muted-foreground">Transport</p>
+                  <p className="text-xs text-muted-foreground">
+                    {tr("Transport")}
+                  </p>
                   <p className="text-sm font-semibold text-foreground">
                     {formatCurrency(quot.transport_cost, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-xs text-muted-foreground">Misc</p>
+                  <p className="text-xs text-muted-foreground">{tr("Misc")}</p>
                   <p className="text-sm font-semibold text-foreground">
                     {formatCurrency(quot.misc_cost, currency)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-violet-50 p-3">
-                  <p className="text-xs text-violet-500">Grand Total</p>
+                  <p className="text-xs text-violet-500">{tr("Grand Total")}</p>
                   <p className="text-sm font-bold text-violet-700">
                     {formatCurrency(quot.grand_total, currency)}
                   </p>
@@ -2863,6 +2896,7 @@ interface TimelineTabProps {
 }
 
 function TimelineTab(props: TimelineTabProps) {
+  const { t: tr } = useLanguage();
   const {
     timeline,
     maxTimelineDay,
@@ -2930,12 +2964,12 @@ function TimelineTab(props: TimelineTabProps) {
           {/* Gantt-like visual timeline */}
           <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <h3 className="mb-4 text-base font-semibold text-foreground">
-              Timeline Schedule
+              {tr("Timeline Schedule")}
             </h3>
 
             {/* Day axis */}
             <div className="mb-2 flex justify-between text-xs text-muted-foreground">
-              <span>Day 0</span>
+              <span>{tr("Day 0")}</span>
               <span>Day {Math.ceil(maxTimelineDay / 2)}</span>
               <span>Day {maxTimelineDay}</span>
             </div>
@@ -3019,7 +3053,7 @@ function TimelineTab(props: TimelineTabProps) {
             {/* Total duration */}
             <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3">
               <span className="text-sm font-medium text-muted-foreground">
-                Total Estimated Duration
+                {tr("Total Estimated Duration")}
               </span>
               <span className="text-sm font-bold text-violet-600">
                 {maxTimelineDay} days
@@ -3030,7 +3064,7 @@ function TimelineTab(props: TimelineTabProps) {
           {/* Phase legend */}
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
             <h4 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">
-              Phase Legend
+              {tr("Phase Legend")}
             </h4>
             <div className="flex flex-wrap gap-3">
               {(Object.keys(PHASE_COLORS) as TimelinePhase[]).map((phase) => (
@@ -3066,6 +3100,7 @@ interface NotesTabProps {
 }
 
 function NotesTab(props: NotesTabProps) {
+  const { t: tr } = useLanguage();
   const {
     notes,
     setNotes,
@@ -3109,7 +3144,9 @@ function NotesTab(props: NotesTabProps) {
             setNotes(e.target.value);
             setNotesDirty(true);
           }}
-          placeholder="Add project notes, observations, instructions, or reminders…"
+          placeholder={tr(
+            "Add project notes, observations, instructions, or reminders…",
+          )}
           rows={10}
           className="mt-3 w-full resize-y rounded-lg border border-border px-4 py-3 text-sm text-foreground focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
         />
@@ -3134,10 +3171,10 @@ function NotesTab(props: NotesTabProps) {
             className="h-8 w-8 text-muted-foreground"
           />
           <p className="text-sm font-medium text-muted-foreground">
-            Click to upload files
+            {tr("Click to upload files")}
           </p>
           <p className="text-xs text-muted-foreground">
-            Photos, documents, blueprints, or any project file
+            {tr("Photos, documents, blueprints, or any project file")}
           </p>
           <input
             type="file"
@@ -3223,6 +3260,7 @@ interface ExpensesTabProps {
 }
 
 export function ExpensesTab(props: ExpensesTabProps) {
+  const { t: tr } = useLanguage();
   const { variance } = props;
 
   return (
@@ -3231,10 +3269,12 @@ export function ExpensesTab(props: ExpensesTabProps) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-semibold text-foreground">
-            Actual Expenses
+            {tr("Actual Expenses")}
           </h3>
           <p className="text-sm text-muted-foreground">
-            Record what you actually spent and track it against your estimate.
+            {tr(
+              "Record what you actually spent and track it against your estimate.",
+            )}
           </p>
         </div>
         <Button
@@ -3256,7 +3296,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-foreground">
-                Category
+                {tr("Category")}
               </label>
               <select
                 value={props.form.category}
@@ -3277,7 +3317,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-foreground">
-                Description
+                {tr("Description")}
               </label>
               <input
                 type="text"
@@ -3291,7 +3331,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-foreground">
-                Amount
+                {tr("Amount")}
               </label>
               <input
                 type="number"
@@ -3310,7 +3350,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-foreground">
-                Date spent
+                {tr("Date spent")}
               </label>
               <input
                 type="date"
@@ -3327,7 +3367,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
           </div>
           <div className="mt-4">
             <label className="mb-1 block text-sm font-medium text-foreground">
-              Notes (optional)
+              {tr("Notes (optional)")}
             </label>
             <textarea
               value={props.form.notes}
@@ -3371,7 +3411,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
         <div className="rounded-xl border bg-card p-4 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h4 className="font-semibold text-foreground">
-              Estimated vs Actual
+              {tr("Estimated vs Actual")}
             </h4>
             <span
               className={`rounded-full px-3 py-1 text-xs font-medium ${
@@ -3402,7 +3442,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
                 )}
                 aria-valuemin={0}
                 aria-valuemax={100}
-                aria-label="Budget used"
+                aria-label={tr("Budget used")}
               />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
@@ -3417,12 +3457,12 @@ export function ExpensesTab(props: ExpensesTabProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-                  <th className="pb-2 pr-4 font-medium">Category</th>
-                  <th className="pb-2 pr-4 font-medium">Estimated</th>
-                  <th className="pb-2 pr-4 font-medium">Actual</th>
-                  <th className="pb-2 pr-4 font-medium">Difference</th>
-                  <th className="pb-2 pr-4 font-medium">Used</th>
-                  <th className="pb-2 font-medium">Status</th>
+                  <th className="pb-2 pr-4 font-medium">{tr("Category")}</th>
+                  <th className="pb-2 pr-4 font-medium">{tr("Estimated")}</th>
+                  <th className="pb-2 pr-4 font-medium">{tr("Actual")}</th>
+                  <th className="pb-2 pr-4 font-medium">{tr("Difference")}</th>
+                  <th className="pb-2 pr-4 font-medium">{tr("Used")}</th>
+                  <th className="pb-2 font-medium">{tr("Status")}</th>
                 </tr>
               </thead>
               <tbody>

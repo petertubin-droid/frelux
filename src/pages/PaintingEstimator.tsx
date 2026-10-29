@@ -121,6 +121,7 @@ import {
 } from "@/components/engine";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 // =========================================================
 // Types
 // =========================================================
@@ -159,34 +160,34 @@ function paintingQuoteOptions(args: {
   labourCost: number;
   grandTotal: number;
   currency: string;
-}) : QuoteOptions {
+}): QuoteOptions {
   const fmt = (v: number) => formatCurrency(v, args.currency);
   return {
-      title: "FRELUX Painting Cost Estimate",
-      subtitle: `Generated ${new Date().toLocaleDateString()} · ${args.rooms} room(s) · ${args.area.toFixed(1)} m²`,
-      metaRows: [
-        ["Rooms", String(args.rooms)],
-        ["Paintable area", `${args.area.toFixed(1)} m²`],
-        ["Material lines", String(args.lineItems.length)],
-      ],
-      lines: args.lineItems.map((li) => ({
-        label: li.item_name,
-        quantity: String(li.practical_purchase_qty),
-        unit: "L",
-        unit_price: fmt(li.unit_price),
-        line_total: fmt(li.total_price),
-      })),
-      totals: [
-        { label: "Material cost", value: fmt(args.materialCost) },
-        {
-          label: "Labour",
-          value: args.labourCost > 0 ? fmt(args.labourCost) : "(not included)",
-        },
-        { label: "Grand total", value: fmt(args.grandTotal), strong: true },
-      ],
-      footer:
-        "Estimates are indicative and not a formal quote. Paint volumes include the configured practical purchase margin; prices come from the configured material database.",
-    };
+    title: "FRELUX Painting Cost Estimate",
+    subtitle: `Generated ${new Date().toLocaleDateString()} · ${args.rooms} room(s) · ${args.area.toFixed(1)} m²`,
+    metaRows: [
+      ["Rooms", String(args.rooms)],
+      ["Paintable area", `${args.area.toFixed(1)} m²`],
+      ["Material lines", String(args.lineItems.length)],
+    ],
+    lines: args.lineItems.map((li) => ({
+      label: li.item_name,
+      quantity: String(li.practical_purchase_qty),
+      unit: "L",
+      unit_price: fmt(li.unit_price),
+      line_total: fmt(li.total_price),
+    })),
+    totals: [
+      { label: "Material cost", value: fmt(args.materialCost) },
+      {
+        label: "Labour",
+        value: args.labourCost > 0 ? fmt(args.labourCost) : "(not included)",
+      },
+      { label: "Grand total", value: fmt(args.grandTotal), strong: true },
+    ],
+    footer:
+      "Estimates are indicative and not a formal quote. Paint volumes include the configured practical purchase margin; prices come from the configured material database.",
+  };
 }
 
 function exportPaintingQuote(args: Parameters<typeof paintingQuoteOptions>[0]) {
@@ -196,6 +197,7 @@ function exportPaintingQuote(args: Parameters<typeof paintingQuoteOptions>[0]) {
 export default function PaintingEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { t } = useLanguage();
   const { marketCode, market } = useMarket();
   // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
   // established "buckets" phrasing.
@@ -930,7 +932,7 @@ export default function PaintingEstimator({
           <>
             <PageHeader
               eyebrow="FRELUX Estimator"
-              title="Painting Estimator"
+              title={t("Painting Estimator")}
               subtitle={`Complete painting project overview: paint ${bucketUnit}, material costs, finishes, and assumptions.`}
               breadcrumbs={[
                 { label: "Calculators", path: "/paint-calculator" },
@@ -956,7 +958,7 @@ export default function PaintingEstimator({
         {!embedded && (
           <PageHeader
             eyebrow="FRELUX Estimator"
-            title="Painting Estimator"
+            title={t("Painting Estimator")}
             subtitle={`Complete painting project overview: paint ${bucketUnit}, material costs, finishes, and assumptions.`}
             breadcrumbs={[
               { label: "Calculators", path: "/paint-calculator" },
@@ -974,7 +976,7 @@ export default function PaintingEstimator({
               className="mx-auto h-8 w-8 text-red-500"
             />
             <p className="mt-3 text-sm font-semibold text-red-700 dark:text-red-400">
-              Failed to load
+              {t("Failed to load")}
             </p>
             <p className="mt-1 text-xs text-red-500">{loadError}</p>
           </div>
@@ -988,7 +990,7 @@ export default function PaintingEstimator({
       {!embedded && (
         <PageHeader
           eyebrow="FRELUX Estimator"
-          title="Painting Estimator"
+          title={t("Painting Estimator")}
           subtitle="Professional room-based paint quantity and cost estimation using FRELUX methodology."
           breadcrumbs={[
             { label: "Calculators", path: "/paint-calculator" },
@@ -998,7 +1000,7 @@ export default function PaintingEstimator({
       )}
       <div
         role="region"
-        aria-label="Room painting estimator"
+        aria-label={t("Room painting estimator")}
         className="mx-auto max-w-5xl px-4 py-8 sm:px-6"
       >
         {/* Configuration warnings */}
@@ -1011,7 +1013,7 @@ export default function PaintingEstimator({
               />
               <div>
                 <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
-                  Configuration Required
+                  {t("Configuration Required")}
                 </p>
                 <ul className="mt-1 space-y-1">
                   {configWarnings.map((w, i) => (
@@ -1032,12 +1034,12 @@ export default function PaintingEstimator({
         <div className="card mb-6 p-5 sm:p-6 dark:border-white/5">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground dark:text-primary-foreground">
             <Building2 className="h-5 w-5 text-brand-purple" />
-            Project Details
+            {t("Project Details")}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
               <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Project Description
+                {t("Project Description")}
               </span>
               <input
                 type="text"
@@ -1049,7 +1051,7 @@ export default function PaintingEstimator({
             </label>
             <label className="block">
               <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Customer Location
+                {t("Customer Location")}
               </span>
               <select
                 value={locationCountry}
@@ -1069,11 +1071,11 @@ export default function PaintingEstimator({
                     ))}
                   </optgroup>
                 ))}
-                <option value="OTHER">Other country</option>
+                <option value="OTHER">{t("Other country")}</option>
               </select>
               {locationCountry === "NG" && (
                 <select
-                  aria-label="Area within Nigeria"
+                  aria-label={t("Area within Nigeria")}
                   value={
                     nigeriaInOwerri === null
                       ? ""
@@ -1091,8 +1093,8 @@ export default function PaintingEstimator({
                   className="mt-2 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm transition-colors focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
                 >
                   <option value="">Select area…</option>
-                  <option value="owerri">Owerri, Imo State</option>
-                  <option value="elsewhere">Elsewhere in Nigeria</option>
+                  <option value="owerri">{t("Owerri, Imo State")}</option>
+                  <option value="elsewhere">{t("Elsewhere in Nigeria")}</option>
                 </select>
               )}
             </label>
@@ -1133,7 +1135,7 @@ export default function PaintingEstimator({
           className="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border py-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
         >
           <Plus aria-hidden="true" className="h-4 w-4" />
-          Add Another Room
+          {t("Add Another Room")}
         </Button>
 
         {/* Calculate button */}
@@ -1163,7 +1165,7 @@ export default function PaintingEstimator({
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted/50 dark:border-white/10 dark:bg-card dark:text-muted-foreground/60"
             >
               <RotateCcw aria-hidden="true" className="h-4 w-4" />
-              Reset
+              {t("Reset")}
             </Button>
           )}
         </div>
@@ -1287,6 +1289,7 @@ function RoomCard({
   onAddWindow: () => void;
   onRemoveWindow: (winIndex: number) => void;
 }) {
+  const { t } = useLanguage();
   const roomQualities = qualities.get(room.product_id) ?? [];
   // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
   // established "bucket(s)" phrasing.
@@ -1328,7 +1331,7 @@ function RoomCard({
               }}
               onClick={(e) => e.stopPropagation()}
               className="rounded border-transparent bg-transparent text-base font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-brand-purple dark:text-primary-foreground"
-              placeholder="Room name"
+              placeholder={t("Room name")}
             />
             <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               {room.length} × {room.breadth} × {room.height} {room.unit}
@@ -1385,7 +1388,7 @@ function RoomCard({
           {/* Dimensions */}
           <Section
             icon={<Square className="h-4 w-4" />}
-            title="Room Dimensions"
+            title={t("Room Dimensions")}
           >
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               <NumberField
@@ -1408,7 +1411,7 @@ function RoomCard({
               />
               <label className="block">
                 <span className="block text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
-                  Unit
+                  {t("Unit")}
                 </span>
                 <select
                   value={room.unit}
@@ -1417,15 +1420,15 @@ function RoomCard({
                   }
                   className="mt-1.5 w-full rounded-lg border border-border bg-card px-2 py-2 text-sm dark:border-white/10 dark:bg-card dark:text-primary-foreground"
                 >
-                  <option value="feet">Feet (ft)</option>
-                  <option value="meters">Metres (m)</option>
+                  <option value="feet">{t("Feet (ft)")}</option>
+                  <option value="meters">{t("Metres (m)")}</option>
                 </select>
               </label>
             </div>
           </Section>
 
           {/* Doors */}
-          <Section icon={<DoorOpen className="h-4 w-4" />} title="Doors">
+          <Section icon={<DoorOpen className="h-4 w-4" />} title={t("Doors")}>
             <label className="mb-2 flex items-center gap-2 text-xs">
               <input
                 type="checkbox"
@@ -1434,7 +1437,7 @@ function RoomCard({
                 className="rounded"
               />
               <span className="text-muted-foreground dark:text-muted-foreground">
-                I don't know the door dimensions
+                {t("I don't know the door dimensions")}
               </span>
             </label>
             {!room.doors_unknown &&
@@ -1476,7 +1479,7 @@ function RoomCard({
           </Section>
 
           {/* Windows */}
-          <Section icon={<Square className="h-4 w-4" />} title="Windows">
+          <Section icon={<Square className="h-4 w-4" />} title={t("Windows")}>
             <label className="mb-2 flex items-center gap-2 text-xs">
               <input
                 type="checkbox"
@@ -1487,7 +1490,7 @@ function RoomCard({
                 className="rounded"
               />
               <span className="text-muted-foreground dark:text-muted-foreground">
-                I don't know the window dimensions
+                {t("I don't know the window dimensions")}
               </span>
             </label>
             {!room.windows_unknown &&
@@ -1531,12 +1534,12 @@ function RoomCard({
           {/* Paint selection */}
           <Section
             icon={<Paintbrush className="h-4 w-4" />}
-            title="Paint Type & Quality"
+            title={t("Paint Type & Quality")}
           >
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block">
                 <span className="block text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
-                  Paint Type
+                  {t("Paint Type")}
                 </span>
                 <select
                   value={room.product_id}
@@ -1562,7 +1565,7 @@ function RoomCard({
               </label>
               <label className="block">
                 <span className="block text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
-                  Quality Level
+                  {t("Quality Level")}
                 </span>
                 <select
                   value={room.quality_id}
@@ -1598,7 +1601,7 @@ function RoomCard({
           {/* Colour condition */}
           <Section
             icon={<Palette className="h-4 w-4" />}
-            title="Colour Condition"
+            title={t("Colour Condition")}
           >
             <select
               aria-label={`Room ${roomIndex + 1} colour condition`}
@@ -1627,7 +1630,7 @@ function RoomCard({
           {/* Surface condition */}
           <Section
             icon={<Shield className="h-4 w-4" />}
-            title="Surface Condition"
+            title={t("Surface Condition")}
           >
             <select
               aria-label={`Room ${roomIndex + 1} surface condition`}
@@ -1661,7 +1664,7 @@ function RoomCard({
           </Section>
 
           {/* Ceiling */}
-          <Section icon={<Layers className="h-4 w-4" />} title="Ceiling">
+          <Section icon={<Layers className="h-4 w-4" />} title={t("Ceiling")}>
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 text-sm">
                 <input
@@ -1673,7 +1676,7 @@ function RoomCard({
                   className="rounded"
                 />
                 <span className="text-card-foreground dark:text-muted-foreground/60">
-                  Include ceiling
+                  {t("Include ceiling")}
                 </span>
               </label>
               {room.include_ceiling && (
@@ -1688,9 +1691,9 @@ function RoomCard({
                     }
                     className="rounded-lg border border-border bg-card px-2 py-1 text-sm dark:border-white/10 dark:bg-card dark:text-primary-foreground"
                   >
-                    <option value="white">White (FRELUX default)</option>
+                    <option value="white">{t("White (FRELUX default)")}</option>
                     <option value="custom">
-                      Custom (requires configuration)
+                      {t("Custom (requires configuration)")}
                     </option>
                   </select>
                 </label>
@@ -1704,7 +1707,7 @@ function RoomCard({
           </Section>
 
           {/* Coats */}
-          <Section icon={<Layers className="h-4 w-4" />} title="Coats">
+          <Section icon={<Layers className="h-4 w-4" />} title={t("Coats")}>
             <div className="flex items-center gap-3">
               <label
                 htmlFor={`room-coats-${room.room_id}`}
@@ -1767,6 +1770,7 @@ function EstimateResult({
   labourConfig: LabourConfig;
   setLabourConfig: (config: LabourConfig) => void;
 }) {
+  const { t } = useLanguage();
   // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
   // established "bucket(s)" phrasing.
   const localTerm = useLocalTerm();
@@ -1802,7 +1806,7 @@ function EstimateResult({
             />
             <div>
               <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
-                Warnings & Recommendations
+                {t("Warnings & Recommendations")}
               </p>
               <ul className="mt-1 space-y-1">
                 {result.warnings.map((w, i) => (
@@ -2034,7 +2038,7 @@ function EstimateResult({
       {/* Combined summary */}
       <div className="calc-card card overflow-hidden dark:border-white/5">
         <div className="bg-gradient-to-br from-primary to-primary-deep px-5 py-4 text-primary-foreground">
-          <h3 className="text-lg font-bold">Project Summary</h3>
+          <h3 className="text-lg font-bold">{t("Project Summary")}</h3>
         </div>
         <div className="p-5 space-y-4">
           {/* Combined quantities */}
@@ -2072,7 +2076,7 @@ function EstimateResult({
               <MapPin className="h-4 w-4" />
               {result.production_eligible ? (
                 <span className="text-green-700 dark:text-green-400">
-                  FRELUX Production Available
+                  {t("FRELUX Production Available")}
                 </span>
               ) : (
                 <span className="text-orange-700 dark:text-orange-400">
@@ -2089,7 +2093,7 @@ function EstimateResult({
           {result.breakdown.length > 0 && (
             <div>
               <h4 className="mb-2 text-sm font-bold text-foreground dark:text-primary-foreground">
-                Breakdown by Paint Type & Quality
+                {t("Breakdown by Paint Type & Quality")}
               </h4>
               <div className="space-y-2">
                 {result.breakdown.map((entry, i) => (
@@ -2131,7 +2135,7 @@ function EstimateResult({
           {result.line_items.length > 0 && (
             <div>
               <h4 className="mb-2 text-sm font-bold text-foreground dark:text-primary-foreground">
-                Material Cost Breakdown
+                {t("Material Cost Breakdown")}
               </h4>
               <div className="space-y-2">
                 {result.line_items.map((item, i) => (
@@ -2173,7 +2177,7 @@ function EstimateResult({
           <div className="border-t border-border pt-4 dark:border-white/10">
             <div className="flex justify-between text-sm">
               <span className="font-semibold text-muted-foreground dark:text-muted-foreground/80">
-                Estimated Material Cost
+                {t("Estimated Material Cost")}
               </span>
               <span className="text-lg font-bold text-brand-purple">
                 {formatCurrency(result.total_material_cost, result.currency)}
@@ -2181,7 +2185,7 @@ function EstimateResult({
             </div>
             <div className="mt-2 flex justify-between text-sm">
               <span className="text-muted-foreground dark:text-muted-foreground">
-                Labour
+                {t("Labour")}
               </span>
               <span className="text-muted-foreground dark:text-muted-foreground">
                 {labourCost > 0
@@ -2333,11 +2337,19 @@ function EstimateResult({
               }
               className="gap-2"
             >
-              <FileDown className="h-4 w-4" /> Export Quote (PDF)
+              <FileDown className="h-4 w-4" /> {t("Export Quote (PDF)")}
             </Button>
             <ShareEstimateButton
               estimate={quoteToShareable(
-                paintingQuoteOptions({ rooms: result.rooms.length, area: paintAreaM2, lineItems: result.line_items, materialCost: result.total_material_cost, labourCost, grandTotal, currency: result.currency }),
+                paintingQuoteOptions({
+                  rooms: result.rooms.length,
+                  area: paintAreaM2,
+                  lineItems: result.line_items,
+                  materialCost: result.total_material_cost,
+                  labourCost,
+                  grandTotal,
+                  currency: result.currency,
+                }),
                 "/painting-estimator",
               )}
               compact
@@ -2403,7 +2415,7 @@ function EstimateResult({
                 className="btn-primary btn-glow inline-flex items-center justify-center gap-2 px-4 py-2 whitespace-nowrap"
               >
                 <Briefcase className="h-4 w-4" />
-                Post as Job
+                {t("Post as Job")}
               </a>
             </div>
           </div>

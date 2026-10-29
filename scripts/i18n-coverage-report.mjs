@@ -2,32 +2,26 @@
 /**
  * Translation coverage report.
  *
- * Language work is only trustworthy if it is measured. This reads the
- * dictionary in src/lib/i18n.tsx and reports, per locale, how much of the
- * navigation and footer catalog is actually translated. A locale at 100%
- * is safe to render everywhere and eligible for indexing; anything below
- * that keeps falling back to English and stays out of the sitemap.
+ * Two layers are measured, because the site has two:
+ *  1. the curated catalog in src/lib/i18n.tsx (navigation, footer, legal) which
+ *     gates indexing, and
+ *  2. the generated dictionaries in src/lib/i18n/locales/*.json which carry the
+ *     long tail of interface strings and fall back to English per key.
  *
  * Usage: npm run i18n:coverage
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 
-const SOURCE = "src/lib/i18n.tsx";
-const source = readFileSync(SOURCE, "utf8");
+const LANGS = ["en", "es", "fr", "de", "pt", "ar", "hi", "zh", "ja", "ru", "id", "sw", "nl"];
 
-const LANGS = ["en", "es", "fr", "de", "pt", "ru", "id", "sw", "ar", "hi", "zh", "ja", "nl"];
-
+const source = readFileSync("src/lib/i18n.tsx", "utf8");
 function blockFor(lang) {
   const start = source.indexOf(`\n  ${lang}: {`);
-  if (start === -1) return "";
-  return source.slice(start, source.indexOf("\n  },", start));
+  return start === -1 ? "" : source.slice(start, source.indexOf("\n  },", start));
 }
-
-const keysOf = (block) =>
+const dictionaryKeys = (block) =>
   new Set(
-    [...block.matchAll(/\n\s{4}(?:"([^"]+)"|([A-Za-z_$][\w$]*))\s*:/g)].map(
-      (m) => m[1] || m[2],
-    ),
+    [...block.matchAll(/\n\s{4}(?:"([^"]+)"|([A-Za-z_$][\w$]*))\s*:/g)].map((m) => m[1] || m[2]),
   );
 
 const catalogSource = readFileSync("src/lib/i18n-coverage.ts", "utf8");
@@ -35,23 +29,54 @@ const catalogBlock = catalogSource.slice(
   catalogSource.indexOf("CORE_CATALOG"),
   catalogSource.indexOf("] as const;"),
 );
-const CATALOG = [...catalogBlock.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+const CORE = [...catalogBlock.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
 
-const rows = LANGS.map((lang) => {
-  if (lang === "en") return { lang, done: CATALOG.length, percent: 100 };
-  const keys = keysOf(blockFor(lang));
-  const done = CATALOG.filter((k) => keys.has(k)).length;
-  return { lang, done, percent: Math.floor((done / CATALOG.length) * 100) };
-}).sort((a, b) => b.percent - a.percent);
+// The generated inventory is whatever the locale files actually cover.
+const localeDir = "src/lib/i18n/locales";
+const generated = {};
+if (existsSync(localeDir)) {
+  for (const file of readdirSync(localeDir).filter((f) => f.endsWith(".json"))) {
+    generated[file.replace(".json", "")] = JSON.parse(readFileSync(`${localeDir}/${file}`, "utf8"));
+  }
+}
+const INVENTORY = new Set(Object.values(generated).flatMap((d) => Object.keys(d)));
 
-console.log(`\nChrome catalog: ${CATALOG.length} strings\n`);
-for (const row of rows) {
-  const bar = "█".repeat(Math.round(row.percent / 5)).padEnd(20, "·");
-  const mark = row.percent === 100 ? "indexable" : "UI only, English fallback";
+const bar = (pct) => "█".repeat(Math.round(pct / 5)).padEnd(20, "·");
+
+console.log(`\nCurated catalog (gates indexing): ${CORE.length} strings`);
+console.log(`Generated inventory (interface):  ${INVENTORY.size} strings\n`);
+console.log("  lang   curated        generated");
+console.log("  " + "-".repeat(52));
+
+for (const lang of LANGS) {
+  const isEnglish = lang === "en";
+  const curatedKeys = isEnglish ? new Set(CORE) : dictionaryKeys(blockFor(lang));
+  const curatedDone = CORE.filter((k) => curatedKeys.has(k)).length;
+  const curatedPct = Math.floor((curatedDone / CORE.length) * 100);
+
+  const gen = generated[lang] ?? {};
+  const genKeys = Object.keys(gen);
+  const nonEmpty = genKeys.filter((k) => String(gen[k] ?? "").trim().length > 0).length;
+  const genPct = INVENTORY.size ? Math.floor((nonEmpty / INVENTORY.size) * 100) : 0;
+  const genShown = isEnglish ? 100 : genPct;
+
   console.log(
-    `  ${row.lang}  ${bar} ${String(row.percent).padStart(3)}%  ${row.done}/${CATALOG.length}  ${mark}`,
+    `  ${lang.padEnd(4)} ${bar(curatedPct)} ${String(curatedPct).padStart(3)}%  ` +
+      `${bar(genShown)} ${String(genShown).padStart(3)}%`,
   );
 }
 
-const complete = rows.filter((r) => r.percent === 100).length;
-console.log(`\n${complete}/${LANGS.length} locales complete.\n`);
+const complete = LANGS.filter((lang) => {
+  if (lang === "en") return true;
+  const curatedKeys = dictionaryKeys(blockFor(lang));
+  const curatedOk = CORE.every((k) => curatedKeys.has(k));
+  const gen = generated[lang] ?? {};
+  const genOk = [...INVENTORY].every((k) => String(gen[k] ?? "").trim().length > 0);
+  return curatedOk && genOk;
+});
+console.log(`\n${complete.length}/${LANGS.length} locales complete in both layers.`);
+if (complete.length < LANGS.length) {
+  const missing = LANGS.filter((l) => !complete.includes(l));
+  console.log(`Incomplete: ${missing.join(", ")}`);
+}
+console.log();

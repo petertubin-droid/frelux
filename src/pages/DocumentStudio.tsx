@@ -45,6 +45,7 @@ import {
   type StudioTemplate,
 } from "@/lib/document-studio";
 import { toast } from "sonner";
+import { useLanguage } from "@/lib/i18n";
 
 const freshConfig = (): StudioConfig => ({
   pageSize: "a4",
@@ -78,6 +79,7 @@ const types: StudioTemplate["document_type"][] = [
 ];
 
 export default function DocumentStudio() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const subscription = useSubscription();
   const [searchParams] = useSearchParams();
@@ -474,7 +476,7 @@ export default function DocumentStudio() {
 
   return (
     <main className="container mx-auto max-w-7xl px-4 py-8">
-      <HeroTitle title="Document Studio" />
+      <HeroTitle title={t("Document Studio")} />
       <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
         <div>
           PDF export uses the signed-in account's server-side monthly allowance.
@@ -490,29 +492,29 @@ export default function DocumentStudio() {
             className="shrink-0 gap-2 border-primary/50 text-foreground hover:bg-primary/10"
           >
             <FolderOpen className="h-4 w-4 text-primary" />
-            Import from Project
+            {t("Import from Project")}
           </Button>
         )}
       </div>
       <div className="grid gap-6 lg:grid-cols-[290px_minmax(0,1fr)]">
         <aside className="space-y-4 rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold">My templates</h2>
+            <h2 className="font-semibold">{t("My templates")}</h2>
             <Button variant="outline" size="sm" onClick={reset}>
               <FilePlus2 className="mr-2 h-4 w-4" />
-              New
+              {t("New")}
             </Button>
           </div>
           {!user && (
             <p className="text-sm text-muted-foreground">
-              Sign in to save and reuse templates.
+              {t("Sign in to save and reuse templates.")}
             </p>
           )}
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading templates…</p>
           ) : templates.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No saved templates yet.
+              {t("No saved templates yet.")}
             </p>
           ) : (
             <ul className="space-y-2">
@@ -554,10 +556,10 @@ export default function DocumentStudio() {
             </ul>
           )}
           <div className="border-t pt-4">
-            <h3 className="mb-2 font-semibold">My Documents</h3>
+            <h3 className="mb-2 font-semibold">{t("My Documents")}</h3>
             {documents.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No generated PDFs yet.
+                {t("No generated PDFs yet.")}
               </p>
             ) : (
               <ul className="space-y-2">
@@ -591,13 +593,13 @@ export default function DocumentStudio() {
             · ask server for current usage when exporting.
           </p>
           <Link className="text-sm text-primary underline" to="/pricing">
-            View plans and billing
+            {t("View plans and billing")}
           </Link>
         </aside>
         <section className="space-y-6">
           <div className="grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-2">
             <label className="text-sm">
-              Template name
+              {t("Template name")}
               <input
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
                 maxLength={80}
@@ -606,7 +608,7 @@ export default function DocumentStudio() {
               />
             </label>
             <label className="text-sm">
-              Document type
+              {t("Document type")}
               <select
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
                 value={docType}
@@ -622,7 +624,7 @@ export default function DocumentStudio() {
               </select>
             </label>
             <label className="text-sm">
-              Page size
+              {t("Page size")}
               <select
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
                 value={config.pageSize}
@@ -633,13 +635,13 @@ export default function DocumentStudio() {
                   }))
                 }
               >
-                <option value="a4">A4</option>
-                <option value="a3">A3</option>
-                <option value="letter">US Letter</option>
+                <option value="a4">{t("A4")}</option>
+                <option value="a3">{t("A3")}</option>
+                <option value="letter">{t("US Letter")}</option>
               </select>
             </label>
             <label className="text-sm">
-              Orientation
+              {t("Orientation")}
               <select
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
                 value={config.orientation}
@@ -650,12 +652,12 @@ export default function DocumentStudio() {
                   }))
                 }
               >
-                <option value="portrait">Portrait</option>
-                <option value="landscape">Landscape</option>
+                <option value="portrait">{t("Portrait")}</option>
+                <option value="landscape">{t("Landscape")}</option>
               </select>
             </label>
             <label className="text-sm">
-              Currency (ISO 4217)
+              {t("Currency (ISO 4217)")}
               <input
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
                 maxLength={3}
@@ -669,7 +671,7 @@ export default function DocumentStudio() {
               />
             </label>
             <label className="text-sm">
-              Locale
+              {t("Locale")}
               <input
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
                 maxLength={20}
@@ -680,7 +682,7 @@ export default function DocumentStudio() {
               />
             </label>
             <label className="text-sm">
-              Accent color
+              {t("Accent color")}
               <input
                 className="mt-1 h-10 w-full rounded-md border border-input bg-background px-2"
                 type="color"
@@ -703,7 +705,7 @@ export default function DocumentStudio() {
             <div className="sm:col-span-2 rounded border border-border p-3 text-sm">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium">
-                  Company Logo (Professional+)
+                  {t("Company Logo (Professional+)")}
                 </span>
                 {config.logoPath && (
                   <Button
@@ -712,7 +714,7 @@ export default function DocumentStudio() {
                     onClick={removeLogo}
                     className="h-7 text-xs text-destructive"
                   >
-                    Remove
+                    {t("Remove")}
                   </Button>
                 )}
               </div>
@@ -720,7 +722,7 @@ export default function DocumentStudio() {
                 <div className="flex items-center gap-3">
                   <img
                     src={config.logoUrl}
-                    alt="Company logo preview"
+                    alt={t("Company logo preview")}
                     className="h-10 w-auto max-w-32 object-contain rounded border border-border bg-white p-1"
                   />
                   <span className="text-xs text-muted-foreground truncate">
@@ -730,7 +732,7 @@ export default function DocumentStudio() {
               ) : (
                 <input
                   type="file"
-                  aria-label="Company logo upload"
+                  aria-label={t("Company logo upload")}
                   accept="image/png,image/jpeg,image/webp"
                   onChange={handleLogoUpload}
                   disabled={uploadingLogo || !canSave}
@@ -778,7 +780,7 @@ export default function DocumentStudio() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      aria-label="Move section up"
+                      aria-label={t("Move section up")}
                       onClick={() => move(index, -1)}
                     >
                       <ArrowUp className="h-4 w-4" />
@@ -786,7 +788,7 @@ export default function DocumentStudio() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      aria-label="Move section down"
+                      aria-label={t("Move section down")}
                       onClick={() => move(index, 1)}
                     >
                       <ArrowDown className="h-4 w-4" />
@@ -794,7 +796,7 @@ export default function DocumentStudio() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      aria-label="Remove section"
+                      aria-label={t("Remove section")}
                       onClick={() =>
                         setConfig((c) => ({
                           ...c,
@@ -809,7 +811,7 @@ export default function DocumentStudio() {
                 {block.type === "materials" ? (
                   <>
                     <input
-                      aria-label="Materials section title"
+                      aria-label={t("Materials section title")}
                       className="mb-3 w-full rounded border border-input bg-background px-3 py-2"
                       value={block.title}
                       onChange={(e) =>
@@ -823,9 +825,9 @@ export default function DocumentStudio() {
                           className="grid gap-2 sm:grid-cols-4"
                         >
                           <input
-                            aria-label="Material name"
+                            aria-label={t("Material name")}
                             className="rounded border border-input bg-background px-2 py-2"
-                            placeholder="Item"
+                            placeholder={t("Item")}
                             value={row.label}
                             onChange={(e) =>
                               updateBlock(block.id, {
@@ -836,12 +838,12 @@ export default function DocumentStudio() {
                             }
                           />
                           <input
-                            aria-label="Quantity"
+                            aria-label={t("Quantity")}
                             className="rounded border border-input bg-background px-2 py-2"
                             type="number"
                             min="0"
                             step="any"
-                            placeholder="Quantity"
+                            placeholder={t("Quantity")}
                             value={row.quantity || ""}
                             onChange={(e) =>
                               updateBlock(block.id, {
@@ -854,9 +856,9 @@ export default function DocumentStudio() {
                             }
                           />
                           <input
-                            aria-label="Unit"
+                            aria-label={t("Unit")}
                             className="rounded border border-input bg-background px-2 py-2"
-                            placeholder="Unit"
+                            placeholder={t("Unit")}
                             value={row.unit}
                             onChange={(e) =>
                               updateBlock(block.id, {
@@ -868,12 +870,12 @@ export default function DocumentStudio() {
                           />
                           <div className="flex gap-1">
                             <input
-                              aria-label="Unit price"
+                              aria-label={t("Unit price")}
                               className="min-w-0 flex-1 rounded border border-input bg-background px-2 py-2"
                               type="number"
                               min="0"
                               step="any"
-                              placeholder="Unit price"
+                              placeholder={t("Unit price")}
                               value={row.unitPrice || ""}
                               onChange={(e) =>
                                 updateBlock(block.id, {
@@ -891,7 +893,7 @@ export default function DocumentStudio() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              aria-label="Remove material row"
+                              aria-label={t("Remove material row")}
                               onClick={() =>
                                 updateBlock(block.id, {
                                   rows: block.rows.filter((_, j) => j !== i),
@@ -918,29 +920,29 @@ export default function DocumentStudio() {
                       }
                     >
                       <Plus className="mr-2 h-4 w-4" />
-                      Add material
+                      {t("Add material")}
                     </Button>
                   </>
                 ) : block.type === "signature" ? (
                   <div className="space-y-3">
                     <input
-                      aria-label="Signature section title"
+                      aria-label={t("Signature section title")}
                       className="w-full rounded border border-input bg-background px-3 py-2 text-sm font-medium"
                       value={block.title}
                       onChange={(e) =>
                         updateBlock(block.id, { title: e.target.value })
                       }
-                      placeholder="Signatures Title"
+                      placeholder={t("Signatures Title")}
                     />
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="space-y-2 rounded border border-border p-3">
                         <span className="text-xs font-semibold uppercase text-muted-foreground">
-                          Client Representative
+                          {t("Client Representative")}
                         </span>
                         <input
-                          aria-label="Client name"
+                          aria-label={t("Client name")}
                           className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
-                          placeholder="Client Name"
+                          placeholder={t("Client Name")}
                           value={block.clientName}
                           onChange={(e) =>
                             updateBlock(block.id, {
@@ -949,9 +951,9 @@ export default function DocumentStudio() {
                           }
                         />
                         <input
-                          aria-label="Client role"
+                          aria-label={t("Client role")}
                           className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
-                          placeholder="Title/Role (e.g. Owner)"
+                          placeholder={t("Title/Role (e.g. Owner)")}
                           value={block.clientRole}
                           onChange={(e) =>
                             updateBlock(block.id, {
@@ -962,12 +964,12 @@ export default function DocumentStudio() {
                       </div>
                       <div className="space-y-2 rounded border border-border p-3">
                         <span className="text-xs font-semibold uppercase text-muted-foreground">
-                          Contractor / Firm
+                          {t("Contractor / Firm")}
                         </span>
                         <input
-                          aria-label="Contractor name"
+                          aria-label={t("Contractor name")}
                           className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
-                          placeholder="Contractor Name"
+                          placeholder={t("Contractor Name")}
                           value={block.contractorName}
                           onChange={(e) =>
                             updateBlock(block.id, {
@@ -976,9 +978,9 @@ export default function DocumentStudio() {
                           }
                         />
                         <input
-                          aria-label="Contractor role"
+                          aria-label={t("Contractor role")}
                           className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
-                          placeholder="Title/Role (e.g. Lead Engineer)"
+                          placeholder={t("Title/Role (e.g. Lead Engineer)")}
                           value={block.contractorRole}
                           onChange={(e) =>
                             updateBlock(block.id, {
@@ -989,7 +991,7 @@ export default function DocumentStudio() {
                       </div>
                     </div>
                     <input
-                      aria-label="Signature date"
+                      aria-label={t("Signature date")}
                       className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
                       type="date"
                       value={block.date}
@@ -1001,21 +1003,21 @@ export default function DocumentStudio() {
                 ) : block.type === "payment_schedule" ? (
                   <div className="space-y-3">
                     <input
-                      aria-label="Payment schedule title"
+                      aria-label={t("Payment schedule title")}
                       className="w-full rounded border border-input bg-background px-3 py-2 text-sm font-medium"
                       value={block.title}
                       onChange={(e) =>
                         updateBlock(block.id, { title: e.target.value })
                       }
-                      placeholder="Payment Schedule Title"
+                      placeholder={t("Payment Schedule Title")}
                     />
                     <div className="space-y-2">
                       {block.milestones.map((m, i) => (
                         <div key={i} className="grid gap-2 sm:grid-cols-3">
                           <input
-                            aria-label="Milestone stage"
+                            aria-label={t("Milestone stage")}
                             className="rounded border border-input bg-background px-2 py-1.5 text-sm"
-                            placeholder="Stage/Milestone"
+                            placeholder={t("Stage/Milestone")}
                             value={m.stage}
                             onChange={(e) =>
                               updateBlock(block.id, {
@@ -1028,12 +1030,12 @@ export default function DocumentStudio() {
                             }
                           />
                           <input
-                            aria-label="Milestone percentage"
+                            aria-label={t("Milestone percentage")}
                             className="rounded border border-input bg-background px-2 py-1.5 text-sm"
                             type="number"
                             min="0"
                             max="100"
-                            placeholder="Percentage (%)"
+                            placeholder={t("Percentage (%)")}
                             value={m.percentage || ""}
                             onChange={(e) =>
                               updateBlock(block.id, {
@@ -1050,11 +1052,11 @@ export default function DocumentStudio() {
                           />
                           <div className="flex gap-1">
                             <input
-                              aria-label="Milestone amount"
+                              aria-label={t("Milestone amount")}
                               className="min-w-0 flex-1 rounded border border-input bg-background px-2 py-1.5 text-sm"
                               type="number"
                               min="0"
-                              placeholder="Amount (optional)"
+                              placeholder={t("Amount (optional)")}
                               value={m.amount || ""}
                               onChange={(e) =>
                                 updateBlock(block.id, {
@@ -1074,7 +1076,7 @@ export default function DocumentStudio() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              aria-label="Remove milestone"
+                              aria-label={t("Remove milestone")}
                               onClick={() =>
                                 updateBlock(block.id, {
                                   milestones: block.milestones.filter(
@@ -1102,7 +1104,7 @@ export default function DocumentStudio() {
                       }
                     >
                       <Plus className="mr-2 h-4 w-4" />
-                      Add milestone
+                      {t("Add milestone")}
                     </Button>
                   </div>
                 ) : (
@@ -1129,10 +1131,10 @@ export default function DocumentStudio() {
             </Button>
             <Button variant="outline" onClick={download} disabled={busy}>
               <Download className="mr-2 h-4 w-4" />
-              Export PDF
+              {t("Export PDF")}
             </Button>
             <Button variant="ghost" onClick={reset}>
-              Reset editor
+              {t("Reset editor")}
             </Button>
           </div>
           {!canSave && (
@@ -1140,14 +1142,14 @@ export default function DocumentStudio() {
               Saving templates is available on paid plans. Basic editing and
               export usage are governed by your account's server-side allowance.{" "}
               <Link className="text-primary underline" to="/pricing">
-                Compare plans
+                {t("Compare plans")}
               </Link>
               .
             </p>
           )}
           <section
             className="rounded-xl border border-border bg-white p-6 text-slate-900 shadow-sm"
-            aria-label="Document preview"
+            aria-label={t("Document preview")}
           >
             <div
               className="mb-4 h-1 rounded"
@@ -1160,7 +1162,7 @@ export default function DocumentStudio() {
               {config.logoUrl && (
                 <img
                   src={config.logoUrl}
-                  alt="Company logo"
+                  alt={t("Company logo")}
                   className="h-8 w-auto max-w-28 object-contain"
                 />
               )}
@@ -1286,7 +1288,7 @@ export default function DocumentStudio() {
       <Dialog open={projectModalOpen} onOpenChange={setProjectModalOpen}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>Import from Saved Project</DialogTitle>
+            <DialogTitle>{t("Import from Saved Project")}</DialogTitle>
             <DialogDescription>
               Select a project from your workspace to populate Document Studio
               line items, materials, and notes.
@@ -1297,11 +1299,11 @@ export default function DocumentStudio() {
             {loadingProjects ? (
               <div className="flex items-center justify-center p-8 text-muted-foreground">
                 <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                Loading your projects...
+                {t("Loading your projects...")}
               </div>
             ) : userProjects.length === 0 ? (
               <p className="p-6 text-center text-sm text-muted-foreground">
-                No saved projects found in your workspace.
+                {t("No saved projects found in your workspace.")}
               </p>
             ) : (
               userProjects.map((proj) => (
@@ -1323,7 +1325,7 @@ export default function DocumentStudio() {
                     variant="secondary"
                     onClick={() => handleSelectProjectToImport(proj)}
                   >
-                    Import
+                    {t("Import")}
                   </Button>
                 </div>
               ))

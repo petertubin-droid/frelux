@@ -64,6 +64,7 @@ import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 import UnitToggle from "@/components/measurement/UnitToggle";
+import { useLanguage } from "@/lib/i18n";
 import {
   useProjectLocationCurrency,
   type FreluxLocation,
@@ -91,41 +92,41 @@ function finishQuoteOptions(args: {
   result: FinishCalcResult;
   labourCost: number;
   currencySymbol: string;
-}) : QuoteOptions {
+}): QuoteOptions {
   const { result, labourCost, currencySymbol } = args;
   const fmt = (v: number) => formatCurrency(v, currencySymbol);
   return {
-      title: `FRELUX ${args.finishLabel} Estimate`,
-      subtitle: `Generated ${new Date().toLocaleDateString()} · ${formatNumber(result.area)} m² · ${result.coats} coat(s)`,
-      metaRows: [
-        ["Finish", args.finishLabel],
-        ["Area", `${formatNumber(result.area)} m²`],
-        ["Coats", String(result.coats)],
-        ["Waste margin", `${result.wasteMargin}%`],
-      ],
-      lines: result.materials.map((m) => ({
-        label: m.name,
-        quantity: String(m.packagesNeeded),
-        unit: m.packageUnit,
-        unit_price: "included",
-        line_total: fmt(m.cost),
-      })),
-      totals: [
-        { label: "Material cost", value: fmt(result.materialCost) },
-        {
-          label: "Labour",
-          value: labourCost > 0 ? fmt(labourCost) : "(not included)",
-        },
-        {
-          label: "Grand total",
-          value: fmt(result.totalCost + labourCost),
-          strong: true,
-        },
-      ],
-      warnings: result.warnings ?? [],
-      footer:
-        "Estimates are indicative and not a formal quote. Quantities include the configured waste margin; prices come from the configured material database.",
-    };
+    title: `FRELUX ${args.finishLabel} Estimate`,
+    subtitle: `Generated ${new Date().toLocaleDateString()} · ${formatNumber(result.area)} m² · ${result.coats} coat(s)`,
+    metaRows: [
+      ["Finish", args.finishLabel],
+      ["Area", `${formatNumber(result.area)} m²`],
+      ["Coats", String(result.coats)],
+      ["Waste margin", `${result.wasteMargin}%`],
+    ],
+    lines: result.materials.map((m) => ({
+      label: m.name,
+      quantity: String(m.packagesNeeded),
+      unit: m.packageUnit,
+      unit_price: "included",
+      line_total: fmt(m.cost),
+    })),
+    totals: [
+      { label: "Material cost", value: fmt(result.materialCost) },
+      {
+        label: "Labour",
+        value: labourCost > 0 ? fmt(labourCost) : "(not included)",
+      },
+      {
+        label: "Grand total",
+        value: fmt(result.totalCost + labourCost),
+        strong: true,
+      },
+    ],
+    warnings: result.warnings ?? [],
+    footer:
+      "Estimates are indicative and not a formal quote. Quantities include the configured waste margin; prices come from the configured material database.",
+  };
 }
 
 function exportFinishQuote(args: Parameters<typeof finishQuoteOptions>[0]) {
@@ -135,6 +136,7 @@ function exportFinishQuote(args: Parameters<typeof finishQuoteOptions>[0]) {
 export default function FinishEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { t } = useLanguage();
   const { marketCode, market } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("finish");
   const passed = (useLocation().state as PassedState | null) ?? {};
@@ -339,7 +341,7 @@ export default function FinishEstimator({
         <>
           <PageHeader
             eyebrow="Estimate"
-            title="Finish Estimator"
+            title={t("Finish Estimator")}
             subtitle="Calculate material quantities and costs for Painting, Tyrolene, and Grafitex wall finishes."
             breadcrumbs={[
               { label: "Home", path: "/" },
@@ -359,7 +361,7 @@ export default function FinishEstimator({
               className="h-8 w-8 animate-spin text-brand-purple"
             />
             <span className="ml-3 text-sm text-muted-foreground">
-              Loading finish types...
+              {t("Loading finish types...")}
             </span>
           </div>
         )}
@@ -382,10 +384,10 @@ export default function FinishEstimator({
             {/* Step 1: Finish Type Selection */}
             <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
               <h2 className="font-display text-lg font-bold text-foreground">
-                Choose finish type
+                {t("Choose finish type")}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Select the wall finish you want to estimate.
+                {t("Select the wall finish you want to estimate.")}
               </p>
               <div className="mt-6 grid gap-3 sm:grid-cols-3">
                 {finishTypesList.map((ft) => {
@@ -432,10 +434,12 @@ export default function FinishEstimator({
             {/* Step 2: Area Input */}
             <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
               <h2 className="font-display text-lg font-bold text-foreground">
-                Surface area
+                {t("Surface area")}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Enter your wall dimensions to calculate the paintable area.
+                {t(
+                  "Enter your wall dimensions to calculate the paintable area.",
+                )}
               </p>
 
               <div className="mt-6 space-y-5">
@@ -452,7 +456,7 @@ export default function FinishEstimator({
                         : "border-border text-muted-foreground hover:border-border")
                     }
                   >
-                    Full Room
+                    {t("Full Room")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -465,7 +469,7 @@ export default function FinishEstimator({
                         : "border-border text-muted-foreground hover:border-border")
                     }
                   >
-                    Individual Wall
+                    {t("Individual Wall")}
                   </Button>
                 </div>
 
@@ -566,7 +570,7 @@ export default function FinishEstimator({
                         className="section-label"
                         htmlFor="finish-wall-count"
                       >
-                        Number of Walls
+                        {t("Number of Walls")}
                       </label>
                       <input
                         id="finish-wall-count"
@@ -613,7 +617,7 @@ export default function FinishEstimator({
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="section-label" htmlFor="finish-doors">
-                        Doors
+                        {t("Doors")}
                       </label>
                       <input
                         id="finish-doors"
@@ -629,7 +633,7 @@ export default function FinishEstimator({
                     </div>
                     <div>
                       <label className="section-label" htmlFor="finish-windows">
-                        Windows
+                        {t("Windows")}
                       </label>
                       <input
                         id="finish-windows"
@@ -651,7 +655,7 @@ export default function FinishEstimator({
               <div className="mt-6 grid grid-cols-2 gap-4 border-t border-border/50 pt-6">
                 <div>
                   <label className="section-label" htmlFor="finish-coats">
-                    Number of Coats
+                    {t("Number of Coats")}
                   </label>
                   <input
                     id="finish-coats"
@@ -699,7 +703,7 @@ export default function FinishEstimator({
                 className="btn-glow mt-6 w-full"
                 disabled={loading}
               >
-                Calculate Estimate
+                {t("Calculate Estimate")}
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Button>
               {errors.area && (
@@ -763,11 +767,16 @@ export default function FinishEstimator({
                   }
                   className="rounded-lg border px-4 py-2 text-sm font-semibold"
                 >
-                  Export quote (PDF)
+                  {t("Export quote (PDF)")}
                 </button>
                 <ShareEstimateButton
                   estimate={quoteToShareable(
-                    finishQuoteOptions({ finishLabel: getFinishTypeLabel(selectedFinish), result, labourCost, currencySymbol }),
+                    finishQuoteOptions({
+                      finishLabel: getFinishTypeLabel(selectedFinish),
+                      result,
+                      labourCost,
+                      currencySymbol,
+                    }),
                     "/finish-estimator",
                   )}
                   compact
@@ -800,20 +809,22 @@ export default function FinishEstimator({
               {/* Material Breakdown */}
               <div className="mt-6 space-y-4">
                 <h4 className="text-sm font-bold text-foreground">
-                  Material Breakdown
+                  {t("Material Breakdown")}
                 </h4>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border text-left text-xs text-muted-foreground">
-                        <th className="pb-2 font-medium">Material</th>
+                        <th className="pb-2 font-medium">{t("Material")}</th>
                         <th className="pb-2 text-right font-medium">
-                          Qty Needed
+                          {t("Qty Needed")}
                         </th>
                         <th className="pb-2 text-right font-medium">
-                          Packages
+                          {t("Packages")}
                         </th>
-                        <th className="pb-2 text-right font-medium">Cost</th>
+                        <th className="pb-2 text-right font-medium">
+                          {t("Cost")}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -828,12 +839,12 @@ export default function FinishEstimator({
                             </span>
                             {mat.isBase && (
                               <span className="ml-2 text-xs text-muted-foreground">
-                                Base
+                                {t("Base")}
                               </span>
                             )}
                             {mat.isFinishing && (
                               <span className="ml-2 text-xs text-muted-foreground">
-                                Finishing
+                                {t("Finishing")}
                               </span>
                             )}
                           </td>
@@ -868,14 +879,16 @@ export default function FinishEstimator({
                 <div className="rounded-xl bg-muted/50 p-4">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">
-                      Total Materials
+                      {t("Total Materials")}
                     </span>
                     <span className="font-semibold text-foreground">
                       {formatCurrency(result.materialCost, currencySymbol)}
                     </span>
                   </div>
                   <div className="mt-2 flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Total Labour</span>
+                    <span className="text-muted-foreground">
+                      {t("Total Labour")}
+                    </span>
                     <span className="font-semibold text-foreground">
                       {labourCost > 0
                         ? formatCurrency(labourCost, currencySymbol)
@@ -884,7 +897,7 @@ export default function FinishEstimator({
                   </div>
                   <div className="mt-2 flex items-center justify-between border-t border-border pt-2 text-sm">
                     <span className="font-bold text-foreground">
-                      Grand Total (materials + labour)
+                      {t("Grand Total (materials + labour)")}
                     </span>
                     <span className="font-bold text-brand-purple">
                       {formatCurrency(
@@ -900,7 +913,11 @@ export default function FinishEstimator({
             {saved && (
               <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
                 <CheckCircle2 aria-hidden="true" className="h-4 w-4 shrink-0" />
-                <p>Estimate saved to your projects. Find it in My Projects.</p>
+                <p>
+                  {t(
+                    "Estimate saved to your projects. Find it in My Projects.",
+                  )}
+                </p>
               </div>
             )}
 
@@ -949,7 +966,9 @@ export default function FinishEstimator({
         {/* Empty state when no finish types from DB */}
         {!loading && !result && finishTypes.length === 0 && !loadError && (
           <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
-            <p className="font-medium">Using default finish parameters</p>
+            <p className="font-medium">
+              {t("Using default finish parameters")}
+            </p>
             <p className="mt-1 text-xs">
               No finish type data found in the database. Calculations will use
               built-in defaults. An administrator can add finish types in the

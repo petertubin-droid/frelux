@@ -22,6 +22,7 @@ import {
   type TranslationPoolSource,
 } from "@/lib/construction-dictionary/translation-pool";
 import type { ConstructionTerm } from "@/lib/construction-dictionary/types";
+import { useLanguage } from "@/lib/i18n";
 
 const RTL_LANGUAGES = new Set(["ar"]);
 
@@ -63,6 +64,7 @@ export default function BoqTranslationCard({
   items,
   language,
 }: BoqTranslationCardProps) {
+  const { t } = useLanguage();
   const [terms, setTerms] = useState<ConstructionTerm[]>([]);
   const [source, setSource] = useState<TranslationPoolSource | null>(null);
 
@@ -80,7 +82,10 @@ export default function BoqTranslationCard({
   }, [language, items.length]);
 
   const lineResults = useMemo<LineResult[]>(
-    () => items.map((it) => translateTechnicalLabel(it.description, language, terms)),
+    () =>
+      items.map((it) =>
+        translateTechnicalLabel(it.description, language, terms),
+      ),
     [items, language, terms],
   );
 
@@ -91,10 +96,10 @@ export default function BoqTranslationCard({
   return (
     <section
       className="mt-4 rounded-lg border border-border bg-card p-4"
-      aria-label="Dictionary translation preview"
+      aria-label={t("Dictionary translation preview")}
     >
       <h3 className="text-sm font-semibold">
-        Schedule preview in your language
+        {t("Schedule preview in your language")}
       </h3>
       <p className="mt-1 text-xs text-muted-foreground">
         Machine-assisted dictionary translation, shown for review only. Terms
@@ -113,10 +118,7 @@ export default function BoqTranslationCard({
             key={i}
             className="grid gap-1 rounded border border-border/60 bg-background/40 p-2"
           >
-            <p
-              className="text-xs font-medium text-muted-foreground"
-              dir="ltr"
-            >
+            <p className="text-xs font-medium text-muted-foreground" dir="ltr">
               {items[i].description}
             </p>
             <LineResultView result={result} />

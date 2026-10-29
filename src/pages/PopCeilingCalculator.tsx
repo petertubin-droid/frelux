@@ -84,6 +84,7 @@ import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
 import UnitToggle from "@/components/measurement/UnitToggle";
+import { tx } from "@/lib/i18n";
 const ADVANCED_FEATURES = [
   "AI-powered project analysis & breakdown",
   "Smart cost optimization recommendations",
@@ -302,8 +303,8 @@ export default function PopCeilingCalculator({
         {!embedded && (
           <PageHeader
             eyebrow="Calculate"
-            title="POP Ceiling Calculator"
-            subtitle="Calculate POP ceiling materials and quantities."
+            title={tx("POP Ceiling Calculator")}
+            subtitle={tx("Calculate POP ceiling materials and quantities.")}
             breadcrumbs={[
               { label: "Home", path: "/" },
               { label: "Calculators", path: "/calculators" },
@@ -324,7 +325,7 @@ export default function PopCeilingCalculator({
       {!embedded && (
         <PageHeader
           eyebrow="Calculate"
-          title="POP Ceiling Calculator"
+          title={tx("POP Ceiling Calculator")}
           subtitle="Calculate ceiling area, material quantities, and labour for your POP ceiling project."
           breadcrumbs={[
             { label: "Home", path: "/" },
@@ -349,10 +350,10 @@ export default function PopCeilingCalculator({
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
             {/* Workflow selection */}
             <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-              Choose workflow
+              {tx("Choose workflow")}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Select the POP ceiling method that matches your region.
+              {tx("Select the POP ceiling method that matches your region.")}
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {workflows.map((wf) => {
@@ -457,7 +458,7 @@ export default function PopCeilingCalculator({
             {/* Waste margin */}
             <div className="mt-6">
               <span className="block text-sm font-semibold text-card-foreground">
-                Waste / safety margin
+                {tx("Waste / safety margin")}
               </span>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 Extra material added to account for spillage and uneven
@@ -476,7 +477,7 @@ export default function PopCeilingCalculator({
                   aria-hidden="true"
                   className="mt-0.5 h-4 w-4 shrink-0"
                 />
-                <p>Please fix the errors above before calculating.</p>
+                <p>{tx("Please fix the errors above before calculating.")}</p>
               </div>
             )}
 
@@ -486,7 +487,7 @@ export default function PopCeilingCalculator({
               onClick={compute}
               className="btn-glow mt-6 w-full sm:w-auto"
             >
-              Calculate POP Ceiling
+              {tx("Calculate POP Ceiling")}
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Button>
           </div>
@@ -651,7 +652,7 @@ function PopResultCard({
         <div className="flex items-center gap-2 text-accent-green">
           <CheckCircle2 className="h-5 w-5" />
           <span className="text-sm font-semibold uppercase tracking-widest">
-            Your POP Ceiling Estimate
+            {tx("Your POP Ceiling Estimate")}
           </span>
         </div>
         <p className="mt-3 text-sm text-primary-foreground/60">
@@ -854,7 +855,7 @@ function PopResultCard({
               href={`/marketplace/post/?project_type=pop_ceiling&budget_min=${Math.round(result.grandTotal * 0.9)}&budget_max=${Math.round(result.grandTotal * 1.2)}&title=POP Ceiling Installation, ${result.ceilingArea.toFixed(1)} m²`}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 whitespace-nowrap"
             >
-              Post as Job
+              {tx("Post as Job")}
             </a>
           </div>
         </div>
@@ -875,7 +876,8 @@ function PopResultCard({
             onClick={onAgain}
             className="btn-secondary"
           >
-            <RotateCcw aria-hidden="true" className="h-4 w-4" /> Calculate Again
+            <RotateCcw aria-hidden="true" className="h-4 w-4" />{" "}
+            {tx("Calculate Again")}
           </Button>
           <div className="flex flex-col gap-3 sm:flex-row">
             {user && (
@@ -908,7 +910,7 @@ function PopResultCard({
               onClick={onStartOver}
               className="btn-secondary"
             >
-              Start Over
+              {tx("Start Over")}
             </Button>
             <Link
               to="/pop-ceiling-calculator/?mode=cost"

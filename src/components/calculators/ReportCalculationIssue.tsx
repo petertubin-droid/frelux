@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Flag, ChevronDown, Loader2, CheckCircle2, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface ReportCalculationIssueProps {
   calculatorType: string;
@@ -20,6 +21,7 @@ export default function ReportCalculationIssue({
   userInput,
   actualResult,
 }: ReportCalculationIssueProps) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState("");
   const [expectedResult, setExpectedResult] = useState("");
@@ -84,7 +86,7 @@ export default function ReportCalculationIssue({
             setOpen(false);
           }}
           className="ml-auto text-emerald-600 dark:text-emerald-400"
-          aria-label="Dismiss"
+          aria-label={t("Dismiss")}
         >
           <X className="h-3.5 w-3.5" />
         </Button>
@@ -102,7 +104,7 @@ export default function ReportCalculationIssue({
         aria-expanded={open}
       >
         <Flag className="h-3.5 w-3.5" />
-        Report incorrect calculation
+        {t("Report incorrect calculation")}
         <ChevronDown
           className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`}
         />
@@ -126,7 +128,9 @@ export default function ReportCalculationIssue({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              placeholder="Describe what you expected vs what the calculator showed..."
+              placeholder={t(
+                "Describe what you expected vs what the calculator showed...",
+              )}
               className="w-full rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground/60"
               disabled={submitting}
             />
@@ -155,7 +159,7 @@ export default function ReportCalculationIssue({
               htmlFor="report-issue-contact-email"
               className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground"
             >
-              Your email (optional, for follow-up)
+              {t("Your email (optional, for follow-up)")}
             </label>
             <input
               id="report-issue-contact-email"

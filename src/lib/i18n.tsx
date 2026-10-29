@@ -1061,6 +1061,77 @@ const LanguageContext = createContext<LanguageContextValue>({
   t: (key: string) => key,
 });
 
+/**
+ * Bulk translations live in per-language JSON files next to this module.
+ * They cover the long tail of UI strings; the hand-authored dictionary above
+ * always wins, so a curated string is never overwritten by the generated file.
+ * A missing key falls back to English by returning the key itself.
+ */
+import generatedEs from "@/lib/i18n/locales/es.json";
+import generatedFr from "@/lib/i18n/locales/fr.json";
+import generatedDe from "@/lib/i18n/locales/de.json";
+import generatedPt from "@/lib/i18n/locales/pt.json";
+import generatedAr from "@/lib/i18n/locales/ar.json";
+import generatedHi from "@/lib/i18n/locales/hi.json";
+import generatedZh from "@/lib/i18n/locales/zh.json";
+import generatedJa from "@/lib/i18n/locales/ja.json";
+import generatedRu from "@/lib/i18n/locales/ru.json";
+import generatedId from "@/lib/i18n/locales/id.json";
+import generatedSw from "@/lib/i18n/locales/sw.json";
+import generatedNl from "@/lib/i18n/locales/nl.json";
+import approvedOverrides from "@/lib/i18n/overrides.json";
+
+const GENERATED: Partial<Record<Language, Record<string, string>>> = {
+  es: generatedEs,
+  fr: generatedFr,
+  de: generatedDe,
+  pt: generatedPt,
+  ar: generatedAr,
+  hi: generatedHi,
+  zh: generatedZh,
+  ja: generatedJa,
+  ru: generatedRu,
+  id: generatedId,
+  sw: generatedSw,
+  nl: generatedNl,
+};
+
+const OVERRIDES = approvedOverrides as unknown as Record<
+  string,
+  Record<string, string>
+>;
+
+for (const language of Object.keys(GENERATED) as Language[]) {
+  const curated = translations[language] as Record<string, string>;
+  translations[language] = {
+    ...(GENERATED[language] ?? {}),
+    ...curated,
+    // Human-approved fixes for ambiguous words win over every machine string.
+    ...(OVERRIDES[language] ?? {}),
+  } as Record<TranslationKey, string>;
+}
+
+/**
+ * Module-level translation for text that lives outside a component that can
+ * hold the hook (deeply nested render helpers, large single-file pages).
+ *
+ * It reads the language the provider last activated, so it stays in sync
+ * without threading t() through every layer. Use the hook in ordinary
+ * components; reach for tx() only where a hook cannot be added safely.
+ */
+let activeLanguage: Language = "en";
+
+export function setActiveLanguage(language: Language) {
+  activeLanguage = language;
+}
+
+export function tx(key: string, language: Language = activeLanguage): string {
+  const dictionary = translations[language] as
+    Record<string, string> | undefined;
+  if (!dictionary) return translations.en[key as TranslationKey] ?? key;
+  return dictionary[key] ?? translations.en[key as TranslationKey] ?? key;
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
     if (typeof window === "undefined") return "en";
@@ -1077,6 +1148,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
+    setActiveLanguage(language);
     localStorage.setItem("frelux_lang", language);
     document.documentElement.setAttribute("lang", language);
     document.documentElement.setAttribute(
@@ -1089,6 +1161,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     // locale option (i18n batch 2026-10-23).
     setActiveCurrencyLocale(language === "en" ? null : language);
   }, [language]);
+
+  setActiveLanguage(language);
 
   function setLanguage(lang: Language) {
     setLanguageState(lang);

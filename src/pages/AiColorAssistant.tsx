@@ -53,12 +53,14 @@ import { AiColorAssistantSeo } from "@/components/seo/SeoContent";
 import { SITE_URL } from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 type View = "choose" | "text" | "image";
 
 export default function AiColorAssistant() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Smart Color Assistant", path: "/ai-color-assistant" },
   ]);
@@ -116,7 +118,7 @@ export default function AiColorAssistant() {
     <>
       <PageHeader
         eyebrow="Smart Tool"
-        title="Smart Color Assistant"
+        title={t("Smart Color Assistant")}
         subtitle="Describe your space or share a photo and get personalized color ideas tailored to your room."
         breadcrumbs={[
           { label: "Color Library", path: "/colors" },
@@ -215,6 +217,7 @@ export default function AiColorAssistant() {
 }
 
 function DisclaimerBanner() {
+  const { t } = useLanguage();
   return (
     <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 p-4 text-sm text-card-foreground">
       <Info
@@ -230,7 +233,7 @@ function DisclaimerBanner() {
           to="/ai-disclaimer/"
           className="font-semibold text-brand-purple underline"
         >
-          AI Disclaimer
+          {t("AI Disclaimer")}
         </Link>
         .
       </p>
@@ -245,11 +248,12 @@ function UsageBanner({
   config: AiAccessConfig;
   usage: AiUsageStatus;
 }) {
+  const { t } = useLanguage();
   if (!config.aiEnabled || config.accessMode === "disabled") {
     return (
       <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
         <Lock aria-hidden="true" className="h-4 w-4 shrink-0" />
-        <p>AI features are currently disabled.</p>
+        <p>{t("AI features are currently disabled.")}</p>
       </div>
     );
   }
@@ -285,6 +289,7 @@ function ChooseView({
   onSelect: (v: View) => void;
   config: AiAccessConfig | null;
 }) {
+  const { t } = useLanguage();
   const disabled =
     config && (!config.aiEnabled || config.accessMode === "disabled");
   return (
@@ -301,7 +306,7 @@ function ChooseView({
         </span>
         <div>
           <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-            Describe my space
+            {t("Describe my space")}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Tell us about your room, furniture, lighting, and the mood you want.
@@ -309,7 +314,8 @@ function ChooseView({
           </p>
         </div>
         <span className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-brand-purple">
-          Start describing <ArrowRight aria-hidden="true" className="h-4 w-4" />
+          {t("Start describing")}{" "}
+          <ArrowRight aria-hidden="true" className="h-4 w-4" />
         </span>
       </Button>
 
@@ -325,7 +331,7 @@ function ChooseView({
         </span>
         <div>
           <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-            Upload a room image
+            {t("Upload a room image")}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Share a photo of your room. The AI analyzes wall color, furniture,
@@ -333,7 +339,8 @@ function ChooseView({
           </p>
         </div>
         <span className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-accent-orange">
-          Upload a photo <ArrowRight aria-hidden="true" className="h-4 w-4" />
+          {t("Upload a photo")}{" "}
+          <ArrowRight aria-hidden="true" className="h-4 w-4" />
         </span>
       </Button>
     </div>
@@ -385,13 +392,14 @@ function AccessGate({
   onRewarded: () => void;
   isAuthenticated: boolean;
 }) {
+  const { t } = useLanguage();
   if (decision.allowed) return null;
 
   if (decision.reason === "disabled") {
     return (
       <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
         <Lock aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
-        <p>AI features are currently disabled.</p>
+        <p>{t("AI features are currently disabled.")}</p>
       </div>
     );
   }
@@ -403,10 +411,10 @@ function AccessGate({
           <Clock className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow" />
           <div>
             <p className="font-semibold text-foreground dark:text-primary-foreground">
-              You've used all your free AI recommendations for today.
+              {t("You've used all your free AI recommendations for today.")}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Your daily allowance resets tomorrow.
+              {t("Your daily allowance resets tomorrow.")}
             </p>
             {decision.nextAction === "rewarded" && config?.rewardedEnabled && (
               <Button
@@ -416,7 +424,7 @@ function AccessGate({
                 className="mt-3 inline-flex items-center gap-2 rounded-lg border border-accent-orange/30 bg-card px-4 py-2 dark:border-accent-orange/30 dark:bg-card text-sm font-semibold text-accent-orange hover:bg-accent-orange/5"
               >
                 <Gift className="h-4 w-4" />
-                Unlock with rewarded access
+                {t("Unlock with rewarded access")}
               </Button>
             )}
             {decision.nextAction === "rewarded" && !config?.rewardedEnabled && (
@@ -427,7 +435,7 @@ function AccessGate({
             )}
             {decision.nextAction === "paid" && (
               <p className="mt-2 text-xs text-muted-foreground">
-                Paid AI access will be available in the future.
+                {t("Paid AI access will be available in the future.")}
               </p>
             )}
             {!isAuthenticated && (
@@ -436,7 +444,7 @@ function AccessGate({
                   to="/login/?redirect=/ai-color-assistant"
                   className="font-semibold text-brand-purple hover:underline"
                 >
-                  Sign in or create an account
+                  {t("Sign in or create an account")}
                 </Link>{" "}
                 to track your usage across devices.
               </p>
@@ -463,6 +471,7 @@ function TextConsultation({
   usage: AiUsageStatus | null;
   onUsageConsumed: () => void;
 }) {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<AiRequestStatus>("idle");
@@ -594,7 +603,7 @@ function TextConsultation({
         )}
 
         <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-          Describe your space
+          {t("Describe your space")}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           The more detail you give, the better the recommendation. Mention room
@@ -605,7 +614,7 @@ function TextConsultation({
         <form onSubmit={handleSubmit} className="mt-6">
           <label className="block">
             <span className="block text-sm font-semibold text-card-foreground">
-              Your description
+              {t("Your description")}
             </span>
             <textarea
               value={description}
@@ -641,7 +650,7 @@ function TextConsultation({
               ) : (
                 <>
                   <Palette className="h-4 w-4" />
-                  Get color ideas
+                  {t("Get color ideas")}
                 </>
               )}
             </Button>
@@ -653,7 +662,7 @@ function TextConsultation({
                 className="btn-secondary"
               >
                 <RefreshCw className="h-4 w-4" />
-                Start over
+                {t("Start over")}
               </Button>
             )}
           </div>
@@ -687,6 +696,7 @@ function ImageConsultation({
   usage: AiUsageStatus | null;
   onUsageConsumed: () => void;
 }) {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -857,7 +867,7 @@ function ImageConsultation({
         )}
 
         <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-          Upload a room image
+          {t("Upload a room image")}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Share a clear photo of your room. JPG, PNG, or WebP up to 5 MB. You
@@ -871,7 +881,7 @@ function ImageConsultation({
             <div className="relative overflow-hidden rounded-xl border border-border">
               <img
                 src={preview}
-                alt="Room preview"
+                alt={t("Room preview")}
                 className="max-h-72 w-full object-contain bg-muted/50 dark:bg-background"
               />
               <Button
@@ -879,7 +889,7 @@ function ImageConsultation({
                 type="button"
                 onClick={clearFile}
                 className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-muted-foreground shadow hover:bg-card dark:bg-background/90 dark:text-muted-foreground/80 dark:hover:bg-card"
-                aria-label="Remove image"
+                aria-label={t("Remove image")}
               >
                 <X aria-hidden="true" className="h-4 w-4" />
               </Button>
@@ -901,7 +911,7 @@ function ImageConsultation({
 
           <label className="mt-4 block">
             <span className="block text-sm font-semibold text-card-foreground">
-              Add a description (optional)
+              {t("Add a description (optional)")}
             </span>
             <textarea
               value={description}
@@ -934,7 +944,7 @@ function ImageConsultation({
               ) : (
                 <>
                   <Palette className="h-4 w-4" />
-                  Analyze image
+                  {t("Analyze image")}
                 </>
               )}
             </Button>
@@ -946,7 +956,7 @@ function ImageConsultation({
                 className="btn-secondary"
               >
                 <RefreshCw className="h-4 w-4" />
-                Start over
+                {t("Start over")}
               </Button>
             )}
           </div>
@@ -978,6 +988,7 @@ function ImageDropzone({
   onFile: (f: File | undefined) => void;
   disabled?: boolean;
 }) {
+  const { t } = useLanguage();
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -1003,7 +1014,7 @@ function ImageDropzone({
       onClick={() => !disabled && inputRef.current?.click()}
     >
       <input
-        aria-label="Room photo upload"
+        aria-label={t("Room photo upload")}
         ref={inputRef}
         type="file"
         accept={ACCEPTED_TYPES.join(",")}
@@ -1015,7 +1026,7 @@ function ImageDropzone({
         <Upload className="h-5 w-5" />
       </span>
       <p className="mt-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
-        Tap to upload or take a photo
+        {t("Tap to upload or take a photo")}
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
         JPG, PNG, or WebP · up to 5 MB
@@ -1043,6 +1054,7 @@ function ResultPanel({
   matchedPaintColors: DbPaintColor[];
   mode: AiConsultMode;
 }) {
+  const { t } = useLanguage();
   if (
     status === "idle" ||
     (status !== "error" &&
@@ -1055,7 +1067,9 @@ function ResultPanel({
     return (
       <div className="card sticky top-20 p-6 text-center text-sm text-muted-foreground">
         <Palette className="mx-auto h-8 w-8 text-muted-foreground/80" />
-        <p className="mt-3">Your color recommendations will appear here.</p>
+        <p className="mt-3">
+          {t("Your color recommendations will appear here.")}
+        </p>
       </div>
     );
   }
@@ -1084,7 +1098,7 @@ function ResultPanel({
           {label}
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
-          This usually takes a few seconds.
+          {t("This usually takes a few seconds.")}
         </p>
       </div>
     );
@@ -1100,7 +1114,7 @@ function ResultPanel({
           />
           <div>
             <p className="text-sm font-semibold text-red-700">
-              Couldn't generate recommendations
+              {t("Couldn't generate recommendations")}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               {error ?? "An unexpected error occurred."}
@@ -1122,7 +1136,7 @@ function ResultPanel({
         <div className="flex items-center gap-2 text-accent-green">
           <CheckCircle2 className="h-5 w-5" />
           <span className="text-xs font-semibold uppercase tracking-widest">
-            Your palette
+            {t("Your palette")}
           </span>
         </div>
         <p className="mt-2 text-sm text-primary-foreground/80">
@@ -1139,7 +1153,7 @@ function ResultPanel({
       {recommendation?.finishSuggestion && (
         <div className="border-t border-border/50 px-5 py-4">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Suggested finish
+            {t("Suggested finish")}
           </p>
           <p className="mt-1 text-sm text-card-foreground">
             {recommendation.finishSuggestion}
@@ -1150,7 +1164,7 @@ function ResultPanel({
       {recommendation?.whyItWorks && (
         <div className="border-t border-border/50 px-5 py-4">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Why these colors work
+            {t("Why these colors work")}
           </p>
           <p className="mt-1 text-sm leading-relaxed text-card-foreground">
             {recommendation.whyItWorks}
@@ -1161,7 +1175,7 @@ function ResultPanel({
       {recommendation?.additionalSuggestions && (
         <div className="border-t border-border/50 px-5 py-4">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Additional suggestions
+            {t("Additional suggestions")}
           </p>
           <p className="mt-1 text-sm leading-relaxed text-card-foreground">
             {recommendation.additionalSuggestions}
@@ -1172,7 +1186,7 @@ function ResultPanel({
       {matchedColor && (
         <div className="border-t border-border/50 bg-primary/5 px-5 py-4">
           <p className="text-xs font-semibold uppercase tracking-widest text-brand-purple">
-            Similar FRELUX color
+            {t("Similar FRELUX color")}
           </p>
           <Link
             to={`/colors/${matchedColor.slug}/`}
@@ -1206,7 +1220,7 @@ function ResultPanel({
                 {matchedColor.title}
               </p>
               <p className="text-xs text-muted-foreground">
-                View this color combination
+                {t("View this color combination")}
               </p>
             </div>
             <ArrowRight
@@ -1220,10 +1234,12 @@ function ResultPanel({
       {matchedPaintColors.length > 0 && (
         <div className="border-t border-border/50 bg-accent-green/5 px-5 py-4">
           <p className="text-xs font-semibold uppercase tracking-widest text-accent-green">
-            Matching FRELUX paint colors
+            {t("Matching FRELUX paint colors")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Closest matches from our color library, tap to view full details.
+            {t(
+              "Closest matches from our color library, tap to view full details.",
+            )}
           </p>
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
             {matchedPaintColors.map((pc) => (

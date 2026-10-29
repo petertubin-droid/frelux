@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Quote } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import type { DbTestimonial } from "@/types/database";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * Social proof for the homepage trust layer (Phase 11).
@@ -12,6 +13,7 @@ import type { DbTestimonial } from "@/types/database";
  * generated or seeded content.
  */
 export default function TestimonialsSection() {
+  const { t } = useLanguage();
   const [testimonials, setTestimonials] = useState<DbTestimonial[] | null>(
     null,
   );
@@ -43,10 +45,12 @@ export default function TestimonialsSection() {
           <Quote className="h-4 w-4 text-brand-purple" />
         </div>
         <h2 className="font-display text-2xl font-bold tracking-tight text-foreground dark:text-primary-foreground sm:text-3xl">
-          What our users say
+          {t("What our users say")}
         </h2>
         <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground dark:text-muted-foreground">
-          Real feedback from homeowners and professionals who plan with FRELUX
+          {t(
+            "Real feedback from homeowners and professionals who plan with FRELUX",
+          )}
         </p>
       </div>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

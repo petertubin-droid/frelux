@@ -79,6 +79,7 @@ import {
   toggleMarketActivation,
 } from "@/lib/engine-integration";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 type Tab =
   | "materials"
@@ -104,6 +105,7 @@ const TABS: { key: Tab; label: string; icon: typeof Package }[] = [
 ];
 
 export default function AdminEngineConfig() {
+  const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>("materials");
 
   return (
@@ -111,10 +113,10 @@ export default function AdminEngineConfig() {
       <div className="mb-6 flex items-center gap-3">
         <Cpu className="h-6 w-6 text-brand-purple" />
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Engine Configuration
+          {t("Engine Configuration")}
         </h1>
         <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">
-          CONTROL LAYER
+          {t("CONTROL LAYER")}
         </span>
       </div>
 
@@ -161,6 +163,7 @@ export default function AdminEngineConfig() {
 // ============================================================
 
 function MaterialsTab() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [items, setItems] = useState<EmMaterialProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -223,7 +226,7 @@ function MaterialsTab() {
           }}
           className="flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add Profile
+          <Plus aria-hidden="true" className="h-4 w-4" /> {t("Add Profile")}
         </Button>
       </div>
 
@@ -246,14 +249,14 @@ function MaterialsTab() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border dark:border-white/10 text-left">
-              <th className="px-3 py-2">Product</th>
-              <th className="px-3 py-2">Brand</th>
-              <th className="px-3 py-2">Category</th>
-              <th className="px-3 py-2">Coverage</th>
-              <th className="px-3 py-2">Package</th>
+              <th className="px-3 py-2">{t("Product")}</th>
+              <th className="px-3 py-2">{t("Brand")}</th>
+              <th className="px-3 py-2">{t("Category")}</th>
+              <th className="px-3 py-2">{t("Coverage")}</th>
+              <th className="px-3 py-2">{t("Package")}</th>
               <th className="px-3 py-2">Waste %</th>
-              <th className="px-3 py-2">Approved</th>
-              <th className="px-3 py-2">Actions</th>
+              <th className="px-3 py-2">{t("Approved")}</th>
+              <th className="px-3 py-2">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -289,7 +292,7 @@ function MaterialsTab() {
                       <Button
                         variant="ghost"
                         onClick={() => handleApprove(item.id)}
-                        title="Approve"
+                        title={t("Approve")}
                         className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                       >
                         <Check aria-hidden="true" className="h-4 w-4" />
@@ -309,7 +312,7 @@ function MaterialsTab() {
                         setEditing(item);
                         setShowForm(true);
                       }}
-                      title="Edit"
+                      title={t("Edit")}
                       className="rounded p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                     >
                       <Edit2 className="h-4 w-4" />
@@ -317,7 +320,7 @@ function MaterialsTab() {
                     <Button
                       variant="ghost"
                       onClick={() => handleDelete(item.id)}
-                      title="Delete"
+                      title={t("Delete")}
                       className="rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
@@ -332,7 +335,7 @@ function MaterialsTab() {
                   colSpan={8}
                   className="px-3 py-8 text-center text-muted-foreground"
                 >
-                  No material profiles yet
+                  {t("No material profiles yet")}
                 </td>
               </tr>
             )}
@@ -352,6 +355,7 @@ function MaterialProfileForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     material_key: existing?.material_key ?? "",
     product_name: existing?.product_name ?? "",
@@ -486,7 +490,7 @@ function MaterialProfileForm({
           onClick={onClose}
           className="rounded-md px-3 py-1.5 text-sm text-muted-foreground"
         >
-          Cancel
+          {t("Cancel")}
         </Button>
         <Button
           variant="default"
@@ -511,6 +515,7 @@ function MaterialProfileForm({
 // ============================================================
 
 function RoofTab() {
+  const { t } = useLanguage();
   const [materials, setMaterials] = useState<EmRoofMaterial[]>([]);
   const [sections, setSections] = useState<EmRoofSection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -551,7 +556,7 @@ function RoofTab() {
               : "text-muted-foreground",
           )}
         >
-          Materials
+          {t("Materials")}
         </Button>
         <Button
           variant="ghost"
@@ -563,7 +568,7 @@ function RoofTab() {
               : "text-muted-foreground",
           )}
         >
-          Sections & Pitch
+          {t("Sections & Pitch")}
         </Button>
       </div>
 
@@ -572,13 +577,13 @@ function RoofTab() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border dark:border-white/10 text-left">
-                <th className="px-3 py-2">Material</th>
-                <th className="px-3 py-2">Brand</th>
-                <th className="px-3 py-2">Category</th>
-                <th className="px-3 py-2">Coverage</th>
-                <th className="px-3 py-2">Package</th>
+                <th className="px-3 py-2">{t("Material")}</th>
+                <th className="px-3 py-2">{t("Brand")}</th>
+                <th className="px-3 py-2">{t("Category")}</th>
+                <th className="px-3 py-2">{t("Coverage")}</th>
+                <th className="px-3 py-2">{t("Package")}</th>
                 <th className="px-3 py-2">Waste %</th>
-                <th className="px-3 py-2">Approved</th>
+                <th className="px-3 py-2">{t("Approved")}</th>
               </tr>
             </thead>
             <tbody>
@@ -615,7 +620,7 @@ function RoofTab() {
                     colSpan={7}
                     className="px-3 py-8 text-center text-muted-foreground"
                   >
-                    No roof materials configured
+                    {t("No roof materials configured")}
                   </td>
                 </tr>
               )}
@@ -629,13 +634,13 @@ function RoofTab() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border dark:border-white/10 text-left">
-                <th className="px-3 py-2">Section</th>
-                <th className="px-3 py-2">Type</th>
-                <th className="px-3 py-2">Pitch</th>
+                <th className="px-3 py-2">{t("Section")}</th>
+                <th className="px-3 py-2">{t("Type")}</th>
+                <th className="px-3 py-2">{t("Pitch")}</th>
                 <th className="px-3 py-2">Flat?</th>
                 <th className="px-3 py-2">Default L×W</th>
-                <th className="px-3 py-2">Overhang</th>
-                <th className="px-3 py-2">Area Factor</th>
+                <th className="px-3 py-2">{t("Overhang")}</th>
+                <th className="px-3 py-2">{t("Area Factor")}</th>
               </tr>
             </thead>
             <tbody>
@@ -665,7 +670,7 @@ function RoofTab() {
                     colSpan={7}
                     className="px-3 py-8 text-center text-muted-foreground"
                   >
-                    No roof sections configured
+                    {t("No roof sections configured")}
                   </td>
                 </tr>
               )}
@@ -682,6 +687,7 @@ function RoofTab() {
 // ============================================================
 
 function WasteTab() {
+  const { t } = useLanguage();
   const [configs, setConfigs] = useState<EmWasteConfig[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -712,14 +718,14 @@ function WasteTab() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border dark:border-white/10 text-left">
-              <th className="px-3 py-2">Scope</th>
-              <th className="px-3 py-2">Country</th>
-              <th className="px-3 py-2">Market</th>
-              <th className="px-3 py-2">Category</th>
+              <th className="px-3 py-2">{t("Scope")}</th>
+              <th className="px-3 py-2">{t("Country")}</th>
+              <th className="px-3 py-2">{t("Market")}</th>
+              <th className="px-3 py-2">{t("Category")}</th>
               <th className="px-3 py-2">Waste %</th>
-              <th className="px-3 py-2">Override</th>
-              <th className="px-3 py-2">Source</th>
-              <th className="px-3 py-2">Description</th>
+              <th className="px-3 py-2">{t("Override")}</th>
+              <th className="px-3 py-2">{t("Source")}</th>
+              <th className="px-3 py-2">{t("Description")}</th>
             </tr>
           </thead>
           <tbody>
@@ -755,7 +761,7 @@ function WasteTab() {
                   colSpan={8}
                   className="px-3 py-8 text-center text-muted-foreground"
                 >
-                  No waste configurations
+                  {t("No waste configurations")}
                 </td>
               </tr>
             )}
@@ -771,6 +777,7 @@ function WasteTab() {
 // ============================================================
 
 function AiTab() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [items, setItems] = useState<EmAiVerificationState[]>([]);
   const [loading, setLoading] = useState(true);
@@ -812,7 +819,7 @@ function AiTab() {
           }
           className="rounded-md border border-border px-3 py-1.5 text-sm dark:border-white/10 dark:bg-background"
         >
-          <option value="">All States</option>
+          <option value="">{t("All States")}</option>
           {Object.entries(AI_VERIFICATION_STATE_LABELS).map(([k, v]) => (
             <option key={k} value={k}>
               {v}
@@ -825,13 +832,13 @@ function AiTab() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border dark:border-white/10 text-left">
-              <th className="px-3 py-2">Type</th>
-              <th className="px-3 py-2">State</th>
-              <th className="px-3 py-2">AI Confidence</th>
-              <th className="px-3 py-2">Flags</th>
-              <th className="px-3 py-2">Reviewed</th>
-              <th className="px-3 py-2">Created</th>
-              <th className="px-3 py-2">Actions</th>
+              <th className="px-3 py-2">{t("Type")}</th>
+              <th className="px-3 py-2">{t("State")}</th>
+              <th className="px-3 py-2">{t("AI Confidence")}</th>
+              <th className="px-3 py-2">{t("Flags")}</th>
+              <th className="px-3 py-2">{t("Reviewed")}</th>
+              <th className="px-3 py-2">{t("Created")}</th>
+              <th className="px-3 py-2">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -875,7 +882,7 @@ function AiTab() {
                     <Button
                       variant="ghost"
                       onClick={() => handleStateChange(item.id, "verified")}
-                      title="Verify"
+                      title={t("Verify")}
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                     >
                       <Check aria-hidden="true" className="h-4 w-4" />
@@ -883,7 +890,7 @@ function AiTab() {
                     <Button
                       variant="ghost"
                       onClick={() => handleStateChange(item.id, "flagged")}
-                      title="Flag"
+                      title={t("Flag")}
                       className="rounded p-1 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20"
                     >
                       <AlertTriangle className="h-4 w-4" />
@@ -891,7 +898,7 @@ function AiTab() {
                     <Button
                       variant="ghost"
                       onClick={() => handleStateChange(item.id, "rejected")}
-                      title="Reject"
+                      title={t("Reject")}
                       className="rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
                       <Ban className="h-4 w-4" />
@@ -906,7 +913,7 @@ function AiTab() {
                   colSpan={7}
                   className="px-3 py-8 text-center text-muted-foreground"
                 >
-                  No AI verifications
+                  {t("No AI verifications")}
                 </td>
               </tr>
             )}
@@ -922,6 +929,7 @@ function AiTab() {
 // ============================================================
 
 function RulesTab() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [items, setItems] = useState<EmRuleMetadata[]>([]);
   const [loading, setLoading] = useState(true);
@@ -967,13 +975,13 @@ function RulesTab() {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border dark:border-white/10 text-left">
-            <th className="px-3 py-2">Rule ID</th>
-            <th className="px-3 py-2">Name</th>
-            <th className="px-3 py-2">Version</th>
-            <th className="px-3 py-2">Source</th>
-            <th className="px-3 py-2">Reference</th>
-            <th className="px-3 py-2">Verified</th>
-            <th className="px-3 py-2">Actions</th>
+            <th className="px-3 py-2">{t("Rule ID")}</th>
+            <th className="px-3 py-2">{t("Name")}</th>
+            <th className="px-3 py-2">{t("Version")}</th>
+            <th className="px-3 py-2">{t("Source")}</th>
+            <th className="px-3 py-2">{t("Reference")}</th>
+            <th className="px-3 py-2">{t("Verified")}</th>
+            <th className="px-3 py-2">{t("Actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -1010,7 +1018,7 @@ function RulesTab() {
                     <Button
                       variant="ghost"
                       onClick={() => handleVerify(item.id)}
-                      title="Verify"
+                      title={t("Verify")}
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                     >
                       <Check aria-hidden="true" className="h-4 w-4" />
@@ -1019,7 +1027,7 @@ function RulesTab() {
                   <Button
                     variant="ghost"
                     onClick={() => handleDelete(item.id)}
-                    title="Delete"
+                    title={t("Delete")}
                     className="rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
                     <Trash2 aria-hidden="true" className="h-4 w-4" />
@@ -1034,7 +1042,7 @@ function RulesTab() {
                 colSpan={7}
                 className="px-3 py-8 text-center text-muted-foreground"
               >
-                No rule metadata
+                {t("No rule metadata")}
               </td>
             </tr>
           )}
@@ -1049,6 +1057,7 @@ function RulesTab() {
 // ============================================================
 
 function SettingsTab() {
+  const { t } = useLanguage();
   const [items, setItems] = useState<EmEngineSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Record<string, string>>({});
@@ -1093,12 +1102,12 @@ function SettingsTab() {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border dark:border-white/10 text-left">
-            <th className="px-3 py-2">Key</th>
-            <th className="px-3 py-2">Category</th>
-            <th className="px-3 py-2">Value</th>
-            <th className="px-3 py-2">Type</th>
-            <th className="px-3 py-2">Editable</th>
-            <th className="px-3 py-2">Actions</th>
+            <th className="px-3 py-2">{t("Key")}</th>
+            <th className="px-3 py-2">{t("Category")}</th>
+            <th className="px-3 py-2">{t("Value")}</th>
+            <th className="px-3 py-2">{t("Type")}</th>
+            <th className="px-3 py-2">{t("Editable")}</th>
+            <th className="px-3 py-2">{t("Actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -1181,6 +1190,7 @@ function SettingsTab() {
 // ============================================================
 
 function MarketsTab() {
+  const { t } = useLanguage();
   const [markets, setMarkets] = useState<
     { country_code: string; country_name: string; status: string }[]
   >([]);
@@ -1235,10 +1245,10 @@ function MarketsTab() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border dark:border-white/10 text-left">
-              <th className="px-3 py-2">Code</th>
-              <th className="px-3 py-2">Country</th>
-              <th className="px-3 py-2">Status</th>
-              <th className="px-3 py-2">Actions</th>
+              <th className="px-3 py-2">{t("Code")}</th>
+              <th className="px-3 py-2">{t("Country")}</th>
+              <th className="px-3 py-2">{t("Status")}</th>
+              <th className="px-3 py-2">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -1266,7 +1276,7 @@ function MarketsTab() {
                 <td className="px-3 py-2">
                   {m.country_code === "NG" ? (
                     <span className="text-xs text-muted-foreground">
-                      Default market
+                      {t("Default market")}
                     </span>
                   ) : (
                     <Button
@@ -1287,7 +1297,7 @@ function MarketsTab() {
                   colSpan={4}
                   className="px-3 py-8 text-center text-muted-foreground"
                 >
-                  No market profiles
+                  {t("No market profiles")}
                 </td>
               </tr>
             )}

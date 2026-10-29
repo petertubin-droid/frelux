@@ -14,6 +14,7 @@
 import { useState } from "react";
 import { AlertCircle, HelpCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // =========================================================
 // Pitch Ratio ↔ Degrees Conversion
@@ -93,6 +94,7 @@ export function PitchInput({
   aiEstimated,
   disabled,
 }: PitchInputProps) {
+  const { t } = useLanguage();
   const [inputMode, setInputMode] = useState<"degrees" | "ratio" | "unknown">(
     pitchDegrees === null ? "unknown" : "degrees",
   );
@@ -152,7 +154,7 @@ export function PitchInput({
       {inputMode === "degrees" && (
         <div className="flex items-center gap-2">
           <input
-            aria-label="Roof pitch in degrees"
+            aria-label={t("Roof pitch in degrees")}
             type="number"
             value={hasPitch ? pitchDegrees! : ""}
             onChange={(e) => {
@@ -178,7 +180,7 @@ export function PitchInput({
       {/* Ratio select */}
       {inputMode === "ratio" && (
         <select
-          aria-label="Roof pitch ratio"
+          aria-label={t("Roof pitch ratio")}
           value={nearestRatio ?? ""}
           onChange={(e) => {
             const degrees = pitchRatioToDegrees(e.target.value);
@@ -187,7 +189,7 @@ export function PitchInput({
           disabled={disabled}
           className="w-full rounded-lg border border-border px-3 py-1.5 text-sm"
         >
-          <option value="">Select a pitch ratio...</option>
+          <option value="">{t("Select a pitch ratio...")}</option>
           {PITCH_RATIOS.map((r) => (
             <option key={r.ratio} value={r.ratio}>
               {r.label} ({r.degrees.toFixed(1)}°)
@@ -226,7 +228,7 @@ export function PitchInput({
                 />
                 <div>
                   <p className="text-xs font-semibold text-red-700">
-                    PITCH REQUIRED
+                    {t("PITCH REQUIRED")}
                   </p>
                   <p className="text-xs text-red-600 mt-0.5">
                     Accurate roof surface area calculation requires pitch. Enter
@@ -244,7 +246,7 @@ export function PitchInput({
               disabled={disabled}
               className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
             >
-              Enter Pitch
+              {t("Enter Pitch")}
             </Button>
             <Button
               variant="ghost"
@@ -253,7 +255,7 @@ export function PitchInput({
               disabled={disabled}
               className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50"
             >
-              Select Ratio
+              {t("Select Ratio")}
             </Button>
           </div>
         </div>

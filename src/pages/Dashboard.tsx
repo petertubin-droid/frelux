@@ -22,6 +22,7 @@ import {
 import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/lib/i18n";
 import type {
   DbUserProject,
   DbPaintColor,
@@ -98,6 +99,7 @@ const QUICK_ACTIONS = [
 ];
 
 export default function Dashboard() {
+  const { t } = useLanguage();
   useSeo({
     title: "Dashboard, FRELUX",
     description:
@@ -159,13 +161,13 @@ export default function Dashboard() {
       <>
         <PageHeader
           eyebrow="Personal workspace"
-          title="Dashboard"
+          title={t("Dashboard")}
           subtitle="Sign in to access your personal dashboard with recent projects, saved estimates, and favorite colors."
         />
         <div className="mx-auto max-w-2xl px-4 py-12">
           <EmptyState
             illustration="projects"
-            title="Sign in to view your dashboard"
+            title={t("Sign in to view your dashboard")}
             description="Track your projects, save calculations, and get personalized AI color recommendations."
             actionLabel="Sign in"
             actionTo="/login?redirect=/dashboard"
@@ -183,8 +185,8 @@ export default function Dashboard() {
     <>
       <PageHeader
         eyebrow="Personal workspace"
-        title="Dashboard"
-        subtitle="Pick up where you left off and explore your saved work."
+        title={t("Dashboard")}
+        subtitle={t("Pick up where you left off and explore your saved work.")}
       />
 
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -224,7 +226,8 @@ export default function Dashboard() {
                   aria-hidden="true"
                 />
                 <div className="relative flex items-center gap-2 text-sm font-semibold text-brand-purple">
-                  <Clock className="h-4 w-4" /> Continue where you left off
+                  <Clock className="h-4 w-4" />{" "}
+                  {t("Continue where you left off")}
                 </div>
                 <div className="relative mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
@@ -274,7 +277,7 @@ export default function Dashboard() {
                   to="/project-workspace"
                   className="group text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
                 >
-                  View all
+                  {t("View all")}
                   <ArrowRight
                     aria-hidden="true"
                     className="ml-0.5 inline h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
@@ -285,7 +288,7 @@ export default function Dashboard() {
               {contractorProjects.length === 0 ? (
                 <EmptyState
                   illustration="projects"
-                  title="No construction projects yet"
+                  title={t("No construction projects yet")}
                   description="Create a project to plan stages, materials, shopping and timelines in one connected workspace."
                   actionLabel="Open Project Workspace"
                   actionTo="/project-workspace"
@@ -372,7 +375,7 @@ export default function Dashboard() {
                   to="/my-projects/"
                   className="group text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
                 >
-                  View all
+                  {t("View all")}
                   <ArrowRight
                     aria-hidden="true"
                     className="ml-0.5 inline h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
@@ -415,7 +418,7 @@ export default function Dashboard() {
               ) : (
                 <EmptyState
                   illustration="projects"
-                  title="No saved calculations yet"
+                  title={t("No saved calculations yet")}
                   description="Use any calculator and save your results to see them here."
                   actionLabel="Start calculating"
                   actionTo="/paint-calculator"
@@ -438,7 +441,7 @@ export default function Dashboard() {
                     to="/my-projects/"
                     className="group text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
                   >
-                    View all
+                    {t("View all")}
                     <ArrowRight
                       aria-hidden="true"
                       className="ml-0.5 inline h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
@@ -468,7 +471,7 @@ export default function Dashboard() {
                 ) : (
                   <EmptyState
                     illustration="favorites"
-                    title="No favorites yet"
+                    title={t("No favorites yet")}
                     description="Tap the heart on any color to save it."
                     actionLabel="Browse colors"
                     actionTo="/colors"
@@ -490,7 +493,7 @@ export default function Dashboard() {
                     to="/my-projects/"
                     className="group text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
                   >
-                    View all
+                    {t("View all")}
                     <ArrowRight
                       aria-hidden="true"
                       className="ml-0.5 inline h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
@@ -520,7 +523,7 @@ export default function Dashboard() {
                 ) : (
                   <EmptyState
                     illustration="generic"
-                    title="No recently viewed colors"
+                    title={t("No recently viewed colors")}
                     description="Colors you browse will appear here for quick access."
                     actionLabel="Browse colors"
                     actionTo="/colors"
@@ -539,7 +542,7 @@ export default function Dashboard() {
                 aria-hidden="true"
               />
               <div className="relative flex items-center gap-2 text-sm font-semibold text-accent-orange">
-                <Lightbulb className="h-4 w-4" /> AI Suggestion
+                <Lightbulb className="h-4 w-4" /> {t("AI Suggestion")}
               </div>
               <p className="relative mt-3 text-sm text-muted-foreground dark:text-muted-foreground/80">
                 Try the Smart Color Assistant to get personalized color
@@ -550,7 +553,7 @@ export default function Dashboard() {
                 to="/ai-color-assistant/"
                 className="group relative mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
               >
-                Get recommendations
+                {t("Get recommendations")}
                 <ArrowRight
                   aria-hidden="true"
                   className="h-4 w-4 transition-transform group-hover:translate-x-0.5"

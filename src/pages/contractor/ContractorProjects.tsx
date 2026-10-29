@@ -29,6 +29,7 @@ import type { DbContractorProject } from "@/types/database";
 import { useSeo } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // ============================================================
 // Constants
@@ -121,6 +122,7 @@ function cn(...classes: (string | false | null | undefined)[]): string {
 // ============================================================
 
 export default function ContractorProjects() {
+  const { t } = useLanguage();
   useSeo({ title: "FRELUX", description: "FRELUX", noIndex: true });
   const navigate = useNavigate();
 
@@ -272,9 +274,11 @@ export default function ContractorProjects() {
         {/* ---------- Header ---------- */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Projects</h1>
+            <h1 className="text-2xl font-bold text-foreground">
+              {t("Projects")}
+            </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Manage your contractor estimation projects
+              {t("Manage your contractor estimation projects")}
             </p>
           </div>
           <Button
@@ -284,7 +288,7 @@ export default function ContractorProjects() {
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-background px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-card-foreground/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
             <Plus className="h-4 w-4" />
-            New Project
+            {t("New Project")}
           </Button>
         </div>
 
@@ -298,7 +302,7 @@ export default function ContractorProjects() {
               onClick={() => setError(null)}
               className="text-sm font-medium text-red-700 hover:text-red-800"
             >
-              Dismiss
+              {t("Dismiss")}
             </Button>
           </div>
         )}
@@ -311,7 +315,7 @@ export default function ContractorProjects() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by project name or client…"
+              placeholder={t("Search by project name or client…")}
               className="w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
@@ -420,7 +424,7 @@ export default function ContractorProjects() {
                 onClick={() => setConfirmDeleteId(null)}
                 className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
               >
-                Cancel
+                {t("Cancel")}
               </Button>
               <Button
                 variant="ghost"
@@ -428,7 +432,7 @@ export default function ContractorProjects() {
                 onClick={() => handleDelete(confirmDeleteId)}
                 className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-red-700"
               >
-                Delete
+                {t("Delete")}
               </Button>
             </div>
           </div>
@@ -471,6 +475,7 @@ function ProjectCard({
   onCancelDelete,
   onConfirmDelete,
 }: ProjectCardProps) {
+  const { t } = useLanguage();
   const isArchived = project.status === "archived";
   const progress = Math.max(0, Math.min(100, project.progress_percentage ?? 0));
 
@@ -504,7 +509,7 @@ function ProjectCard({
             onClick={onToggleMenu}
             disabled={busy}
             className="rounded-md p-1.5 text-muted-foreground transition hover:text-muted-foreground disabled:opacity-50"
-            aria-label="Project actions"
+            aria-label={t("Project actions")}
           >
             <MoreVertical className="h-5 w-5" />
           </Button>
@@ -518,7 +523,7 @@ function ProjectCard({
                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
               >
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                Open
+                {t("Open")}
               </Button>
               <Button
                 variant="ghost"
@@ -527,7 +532,7 @@ function ProjectCard({
                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
               >
                 <Copy className="h-4 w-4 text-muted-foreground" />
-                Duplicate
+                {t("Duplicate")}
               </Button>
               {isArchived ? (
                 <Button
@@ -537,7 +542,7 @@ function ProjectCard({
                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
                 >
                   <RotateCcw className="h-4 w-4 text-muted-foreground" />
-                  Restore
+                  {t("Restore")}
                 </Button>
               ) : (
                 <Button
@@ -547,7 +552,7 @@ function ProjectCard({
                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
                 >
                   <Archive className="h-4 w-4 text-muted-foreground" />
-                  Archive
+                  {t("Archive")}
                 </Button>
               )}
               <div className="my-1 border-t border-border/50" />
@@ -558,7 +563,7 @@ function ProjectCard({
                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
               >
                 <Trash2 className="h-4 w-4" />
-                Delete
+                {t("Delete")}
               </Button>
             </div>
           )}
@@ -591,17 +596,14 @@ function ProjectCard({
         <div className="mt-4 flex items-center gap-1.5">
           <DollarSign className="h-4 w-4 text-muted-foreground" />
           <span className="text-lg font-bold text-foreground">
-            {formatCurrency(
-              project.total_project_cost ?? 0,
-              project.currency,
-            )}
+            {formatCurrency(project.total_project_cost ?? 0, project.currency)}
           </span>
         </div>
 
         {/* Progress */}
         <div className="mt-4 w-full">
           <div className="mb-1 flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Progress</span>
+            <span className="text-muted-foreground">{t("Progress")}</span>
             <span className="font-medium text-card-foreground">
               {progress}%
             </span>
@@ -638,7 +640,7 @@ function ProjectCard({
               onClick={onCancelDelete}
               className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-card-foreground hover:bg-muted/50"
             >
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button
               variant="ghost"
@@ -646,7 +648,7 @@ function ProjectCard({
               onClick={onConfirmDelete}
               className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-red-700"
             >
-              Delete
+              {t("Delete")}
             </Button>
           </div>
         </div>
@@ -656,7 +658,7 @@ function ProjectCard({
       {busy && (
         <div
           role="status"
-          aria-label="Updating project"
+          aria-label={t("Updating project")}
           className="absolute inset-0 flex items-center justify-center rounded-xl bg-background/70"
         >
           <div
@@ -680,6 +682,7 @@ interface EmptyStateProps {
 }
 
 function EmptyState({ hasActiveFilters, onCreate, onReset }: EmptyStateProps) {
+  const { t } = useLanguage();
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card px-6 py-16 text-center">
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
@@ -701,7 +704,7 @@ function EmptyState({ hasActiveFilters, onCreate, onReset }: EmptyStateProps) {
             onClick={onReset}
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-semibold text-card-foreground hover:bg-muted/50"
           >
-            Clear filters
+            {t("Clear filters")}
           </Button>
         ) : null}
         <Button
@@ -711,7 +714,7 @@ function EmptyState({ hasActiveFilters, onCreate, onReset }: EmptyStateProps) {
           className="inline-flex items-center gap-2 rounded-lg bg-background px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-card-foreground/90"
         >
           <Plus className="h-4 w-4" />
-          Create your first project
+          {t("Create your first project")}
         </Button>
       </div>
     </div>

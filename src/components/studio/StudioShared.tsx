@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // =========================================================
 // Prompt Input, shared natural language input with generate button
@@ -83,6 +84,7 @@ export function CodeOutput({
   language?: string;
   title?: string;
 }) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   function copy() {
@@ -129,7 +131,7 @@ export function CodeOutput({
             type="button"
             onClick={download}
             className="rounded-md p-1.5 text-muted-foreground hover:text-foreground"
-            title="Download"
+            title={t("Download")}
           >
             <Download aria-hidden="true" className="h-3.5 w-3.5" />
           </Button>
@@ -138,7 +140,7 @@ export function CodeOutput({
             type="button"
             onClick={copy}
             className="rounded-md p-1.5 text-muted-foreground hover:text-foreground"
-            title="Copy"
+            title={t("Copy")}
           >
             {copied ? (
               <Check
@@ -170,6 +172,7 @@ export function AiResponseDisplay({
   loading: boolean;
   error: string | null;
 }) {
+  const { t } = useLanguage();
   if (loading) {
     return (
       <div className="flex items-center gap-3 rounded-xl border border-border bg-muted p-6">
@@ -193,7 +196,7 @@ export function AiResponseDisplay({
         />
         <div>
           <p className="text-sm font-semibold text-destructive">
-            Generation failed
+            {t("Generation failed")}
           </p>
           <p className="mt-1 text-xs text-destructive">{error}</p>
         </div>
@@ -403,6 +406,7 @@ export function SaveBar({
   saved: boolean;
   label?: string;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="flex items-center gap-3">
       <Button
@@ -420,7 +424,7 @@ export function SaveBar({
       </Button>
       {saved && (
         <span className="flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400">
-          <Check aria-hidden="true" className="h-4 w-4" /> Saved
+          <Check aria-hidden="true" className="h-4 w-4" /> {t("Saved")}
         </span>
       )}
     </div>

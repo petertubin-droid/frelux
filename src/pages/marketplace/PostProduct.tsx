@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { useMarket } from "@/lib/international/market-context";
 import { getCurrencySymbol } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 const NIGERIAN_STATES = [
   "Lagos",
@@ -54,6 +55,7 @@ const CONDITIONS: { value: ProductCondition; label: string }[] = [
 ];
 
 export default function PostProduct() {
+  const { t: tr } = useLanguage();
   // Prices are entered in the visitor's market currency (NG visitors
   // still see ₦ — zero behavior change for the reference market).
   const { market } = useMarket();
@@ -205,7 +207,7 @@ export default function PostProduct() {
     <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Post a Product for Sale
+          {tr("Post a Product for Sale")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Building materials, painting supplies, interior design products, tools
@@ -231,14 +233,14 @@ export default function PostProduct() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Category
+              {tr("Category")}
             </label>
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             >
-              <option value="">Select category</option>
+              <option value="">{tr("Select category")}</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -248,7 +250,7 @@ export default function PostProduct() {
           </div>
           <div>
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Brand
+              {tr("Brand")}
             </label>
             <input
               value={brand}
@@ -262,12 +264,14 @@ export default function PostProduct() {
         {/* Description */}
         <div>
           <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-            Description
+            {tr("Description")}
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe the product, condition, specifications, what's included..."
+            placeholder={tr(
+              "Describe the product, condition, specifications, what's included...",
+            )}
             rows={4}
             className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
@@ -289,7 +293,7 @@ export default function PostProduct() {
           </div>
           <div>
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Compare-at Price
+              {tr("Compare-at Price")}
             </label>
             <input
               type="number"
@@ -301,7 +305,7 @@ export default function PostProduct() {
           </div>
           <div>
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Condition
+              {tr("Condition")}
             </label>
             <select
               value={condition}
@@ -321,7 +325,7 @@ export default function PostProduct() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Quantity
+              {tr("Quantity")}
             </label>
             <input
               type="number"
@@ -333,7 +337,7 @@ export default function PostProduct() {
           </div>
           <div>
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Unit
+              {tr("Unit")}
             </label>
             <input
               value={unit}
@@ -351,7 +355,7 @@ export default function PostProduct() {
                 className="rounded"
               />
               <span className="text-card-foreground dark:text-muted-foreground/60">
-                Price negotiable
+                {tr("Price negotiable")}
               </span>
             </label>
           </div>
@@ -404,7 +408,7 @@ export default function PostProduct() {
                     </div>
                     {idx === 0 && (
                       <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
-                        COVER
+                        {tr("COVER")}
                       </span>
                     )}
                   </div>
@@ -422,7 +426,7 @@ export default function PostProduct() {
                 </>
               ) : (
                 <>
-                  <Upload className="h-4 w-4" /> Upload images (max 8)
+                  <Upload className="h-4 w-4" /> {tr("Upload images (max 8)")}
                 </>
               )}
               <input
@@ -448,7 +452,7 @@ export default function PostProduct() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Country
+              {tr("Country")}
             </label>
             <select
               value={country}
@@ -467,12 +471,14 @@ export default function PostProduct() {
                   ))}
                 </optgroup>
               ))}
-              <option value="OTHER">Other (specify in city/area)</option>
+              <option value="OTHER">
+                {tr("Other (specify in city/area)")}
+              </option>
             </select>
           </div>
           <div>
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              State / Region
+              {tr("State / Region")}
             </label>
             {country === "NG" ? (
               <select
@@ -480,7 +486,7 @@ export default function PostProduct() {
                 onChange={(e) => setState(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               >
-                <option value="">Select state</option>
+                <option value="">{tr("Select state")}</option>
                 {NIGERIAN_STATES.map((s) => (
                   <option key={s} value={s}>
                     {s}
@@ -493,7 +499,7 @@ export default function PostProduct() {
                 onChange={(e) => setState(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               >
-                <option value="">Select region</option>
+                <option value="">{tr("Select region")}</option>
                 {getRegions(country)!.map((r) => (
                   <option key={r} value={r}>
                     {r}
@@ -505,14 +511,14 @@ export default function PostProduct() {
                 type="text"
                 value={state}
                 onChange={(e) => setState(e.target.value)}
-                placeholder="Region, e.g. Greater Accra"
+                placeholder={tr("Region, e.g. Greater Accra")}
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             )}
           </div>
           <div>
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              City
+              {tr("City")}
             </label>
             <input
               value={city}
@@ -523,7 +529,7 @@ export default function PostProduct() {
           </div>
           <div>
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Area
+              {tr("Area")}
             </label>
             <input
               value={area}
@@ -545,7 +551,7 @@ export default function PostProduct() {
                 className="rounded"
               />
               <span className="text-card-foreground dark:text-muted-foreground/60">
-                Delivery available
+                {tr("Delivery available")}
               </span>
             </label>
             {deliveryAvailable && (
@@ -567,7 +573,7 @@ export default function PostProduct() {
                 className="rounded"
               />
               <span className="text-card-foreground dark:text-muted-foreground/60">
-                Pickup available
+                {tr("Pickup available")}
               </span>
             </label>
           </div>
@@ -576,7 +582,7 @@ export default function PostProduct() {
         {/* Tags */}
         <div>
           <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-            Tags
+            {tr("Tags")}
           </label>
           <div className="mt-1 flex flex-wrap gap-1">
             {tags.map((t) => (
@@ -602,7 +608,7 @@ export default function PostProduct() {
               onKeyDown={(e) =>
                 e.key === "Enter" && (e.preventDefault(), addTag())
               }
-              placeholder="Add a tag and press Enter"
+              placeholder={tr("Add a tag and press Enter")}
               className="flex-1 rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
             <Button
@@ -638,7 +644,7 @@ export default function PostProduct() {
             onClick={() => navigate("/marketplace")}
             className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
           >
-            Cancel
+            {tr("Cancel")}
           </Button>
         </div>
       </div>

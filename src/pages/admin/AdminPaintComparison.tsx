@@ -7,8 +7,10 @@ import {
 } from "@/lib/project-intelligence";
 import type { DbPaintComparison } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function AdminPaintComparison() {
+  const { t } = useLanguage();
   const [items, setItems] = useState<DbPaintComparison[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<DbPaintComparison | null>(null);
@@ -81,12 +83,13 @@ export default function AdminPaintComparison() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Paint Comparison</h1>
+          <h1 className="text-2xl font-bold">{t("Paint Comparison")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage paint comparison data shown on the comparison page.
+            {t("Manage paint comparison data shown on the comparison page.")}
           </p>
         </div>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => {
             setForm(empty);
             setEditing(null);
@@ -108,7 +111,8 @@ export default function AdminPaintComparison() {
             <h3 className="font-semibold">
               {editing ? "Edit" : "Add"} Paint Type
             </h3>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setShowForm(false)}
               className="rounded-lg p-1.5 hover:bg-muted transition-all"
             >
@@ -139,7 +143,7 @@ export default function AdminPaintComparison() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className={labelCls}>Description</label>
+              <label className={labelCls}>{t("Description")}</label>
               <textarea
                 className={inputCls}
                 rows={2}
@@ -150,7 +154,7 @@ export default function AdminPaintComparison() {
               />
             </div>
             <div>
-              <label className={labelCls}>Finish</label>
+              <label className={labelCls}>{t("Finish")}</label>
               <input
                 className={inputCls}
                 value={form.finish || ""}
@@ -158,7 +162,7 @@ export default function AdminPaintComparison() {
               />
             </div>
             <div>
-              <label className={labelCls}>Recommended Use</label>
+              <label className={labelCls}>{t("Recommended Use")}</label>
               <input
                 className={inputCls}
                 value={form.recommended_use || ""}
@@ -168,7 +172,7 @@ export default function AdminPaintComparison() {
               />
             </div>
             <div>
-              <label className={labelCls}>Durability</label>
+              <label className={labelCls}>{t("Durability")}</label>
               <input
                 className={inputCls}
                 value={form.durability || ""}
@@ -178,7 +182,7 @@ export default function AdminPaintComparison() {
               />
             </div>
             <div>
-              <label className={labelCls}>Washability</label>
+              <label className={labelCls}>{t("Washability")}</label>
               <input
                 className={inputCls}
                 value={form.washability || ""}
@@ -188,7 +192,7 @@ export default function AdminPaintComparison() {
               />
             </div>
             <div>
-              <label className={labelCls}>Appearance</label>
+              <label className={labelCls}>{t("Appearance")}</label>
               <input
                 className={inputCls}
                 value={form.appearance || ""}
@@ -198,7 +202,7 @@ export default function AdminPaintComparison() {
               />
             </div>
             <div>
-              <label className={labelCls}>Suitable Areas</label>
+              <label className={labelCls}>{t("Suitable Areas")}</label>
               <input
                 className={inputCls}
                 value={form.suitable_areas || ""}
@@ -208,7 +212,7 @@ export default function AdminPaintComparison() {
               />
             </div>
             <div>
-              <label className={labelCls}>Price Range</label>
+              <label className={labelCls}>{t("Price Range")}</label>
               <input
                 className={inputCls}
                 value={form.price_range || ""}
@@ -218,7 +222,7 @@ export default function AdminPaintComparison() {
               />
             </div>
             <div>
-              <label className={labelCls}>Product Characteristics</label>
+              <label className={labelCls}>{t("Product Characteristics")}</label>
               <input
                 className={inputCls}
                 value={form.product_characteristics || ""}
@@ -228,7 +232,7 @@ export default function AdminPaintComparison() {
               />
             </div>
             <div>
-              <label className={labelCls}>Sort Order</label>
+              <label className={labelCls}>{t("Sort Order")}</label>
               <input
                 type="number"
                 className={inputCls}
@@ -240,13 +244,15 @@ export default function AdminPaintComparison() {
             </div>
           </div>
           <div className="flex gap-3">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setShowForm(false)}
               className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all"
             >
-              Cancel
+              {t("Cancel")}
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={handleSave}
               className="group flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
@@ -294,13 +300,15 @@ export default function AdminPaintComparison() {
                 </div>
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => startEdit(item)}
                   className="rounded-lg p-2 hover:bg-muted transition-all hover:scale-110"
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => handleDelete(item.id)}
                   className="rounded-lg p-2 hover:bg-destructive/10 transition-all hover:scale-110"
                 >

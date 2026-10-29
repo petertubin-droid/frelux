@@ -18,6 +18,7 @@ import {
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
 import { SITE_URL } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 
 const PaintCalculator = lazy(() => import("@/pages/PaintCalculator"));
 const CostEstimator = lazy(() => import("@/pages/CostEstimator"));
@@ -94,6 +95,7 @@ function localizeFaqs(
 }
 
 export default function PaintingCalculatorHub() {
+  const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialMode = searchParams.get("mode") || "quantity";
   const [activeTab, setActiveTab] = useState(initialMode);
@@ -180,7 +182,7 @@ export default function PaintingCalculatorHub() {
         variant="tool"
         image="https://images.pexels.com/photos/34264478/pexels-photo-34264478.jpeg?auto=compress&cs=tinysrgb&w=1600"
         eyebrow="Calculator"
-        title="Painting Calculator"
+        title={t("Painting Calculator")}
         subtitle="Calculate paint buckets, painting requirements, and estimated costs, all in one place."
         breadcrumbs={[
           { label: "Calculators", path: "/calculators" },
@@ -218,7 +220,7 @@ export default function PaintingCalculatorHub() {
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
           <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
-            About the FRELUX Painting Calculator
+            {t("About the FRELUX Painting Calculator")}
           </h2>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             The FRELUX Painting Calculator is a comprehensive tool for anyone
@@ -227,22 +229,23 @@ export default function PaintingCalculatorHub() {
           </p>
           <ul>
             <li>
-              <strong>Paint Quantity</strong>, Calculate exactly how many paint
-              buckets you need based on wall area, doors, windows, and coats.
+              <strong>{t("Paint Quantity")}</strong>, Calculate exactly how many
+              paint buckets you need based on wall area, doors, windows, and
+              coats.
             </li>
             <li>
-              <strong>Cost Estimate</strong>, Get a full paint material cost
-              breakdown using admin-configured material prices for paint
+              <strong>{t("Cost Estimate")}</strong>, Get a full paint material
+              cost breakdown using admin-configured material prices for paint
               buckets, primer, and materials.
             </li>
             <li>
-              <strong>Room Estimate</strong>, A detailed room-by-room painting
-              estimator using the FRELUX Phase 2 engine with production rules,
-              surface conditions, and colour conditions.
+              <strong>{t("Room Estimate")}</strong>, A detailed room-by-room
+              painting estimator using the FRELUX Phase 2 engine with production
+              rules, surface conditions, and colour conditions.
             </li>
           </ul>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            FRELUX Painting Methodology
+            {t("FRELUX Painting Methodology")}
           </h3>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             FRELUX uses a proprietary calculation methodology that accounts for
@@ -253,7 +256,7 @@ export default function PaintingCalculatorHub() {
             paint buckets, not generic m²-per-litre estimates.
           </p>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            Construction Context
+            {t("Construction Context")}
           </h3>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             All calculations are tuned for real market conditions with local

@@ -1,6 +1,7 @@
 import { ChevronDown, ExternalLink, ShieldCheck } from "lucide-react";
 import { getStructuralJurisdictionScope } from "@/lib/engineering/structural-jurisdiction-scope";
 import { useMarket } from "@/lib/international/market-context";
+import { useLanguage } from "@/lib/i18n";
 
 export type EngineerReviewDiscipline = "structural" | "foundation";
 
@@ -23,6 +24,7 @@ export default function EngineerReviewBadge({
 }: {
   discipline?: EngineerReviewDiscipline;
 }) {
+  const { t } = useLanguage();
   const { marketCode, market } = useMarket();
   const scope = getStructuralJurisdictionScope(marketCode, market?.countryName);
 
@@ -36,7 +38,7 @@ export default function EngineerReviewBadge({
           aria-hidden="true"
           className="h-4 w-4 text-amber-600 dark:text-amber-400"
         />
-        <span>Engineer Review</span>
+        <span>{t("Engineer Review")}</span>
         <span className="hidden rounded-full bg-amber-500/10 px-1.5 py-0.5 font-medium text-amber-800 sm:inline dark:text-amber-200">
           {marketCode}
         </span>
@@ -48,14 +50,14 @@ export default function EngineerReviewBadge({
       <div
         className="absolute right-0 top-full mt-2 w-[min(24rem,calc(100vw-2rem))] rounded-xl border border-amber-500/25 bg-card p-4 text-left text-foreground shadow-xl shadow-black/10 dark:border-amber-400/20"
         role="region"
-        aria-label="Engineer review details"
+        aria-label={t("Engineer review details")}
       >
         <p className="flex items-center gap-2 text-sm font-semibold">
           <ShieldCheck
             aria-hidden="true"
             className="h-4 w-4 text-amber-600 dark:text-amber-400"
           />
-          Licensed engineer approval required
+          {t("Licensed engineer approval required")}
         </p>
         <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
           This preliminary {discipline} calculation must be independently

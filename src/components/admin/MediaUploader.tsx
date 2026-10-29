@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Upload, Image as ImageIcon, X } from "lucide-react";
 import { MediaPicker } from "@/components/admin/MediaPicker";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface MediaUploaderProps {
   value: string | null | undefined;
@@ -18,6 +19,7 @@ export function MediaUploader({
   folder = "branding",
   className,
 }: MediaUploaderProps) {
+  const { t } = useLanguage();
   const [pickerOpen, setPickerOpen] = useState(false);
 
   return (
@@ -32,7 +34,7 @@ export function MediaUploader({
           {value ? (
             <img
               src={value}
-              alt="Preview"
+              alt={t("Preview")}
               className="h-full w-full object-cover"
             />
           ) : (
@@ -58,14 +60,14 @@ export function MediaUploader({
               onClick={() => onChange("")}
               className="inline-flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground hover:text-red-500"
             >
-              <X className="h-3 w-3" /> Remove
+              <X className="h-3 w-3" /> {t("Remove")}
             </Button>
           )}
         </div>
       </div>
       {value && (
         <input
-          aria-label="Media URL"
+          aria-label={t("Media URL")}
           type="text"
           value={value}
           readOnly

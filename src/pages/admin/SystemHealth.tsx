@@ -19,6 +19,7 @@ import {
   type ErrorFixHistoryRecord,
 } from "@/lib/error-analysis";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // ── Types ──
 
@@ -106,6 +107,7 @@ function formatDate(date: string | null): string {
 // ── Main component ──
 
 export default function SystemHealth() {
+  const { t: tr } = useLanguage();
   const { isAdmin } = useAuth();
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<AppError[]>([]);
@@ -546,7 +548,7 @@ export default function SystemHealth() {
     return (
       <div className="flex items-center justify-center p-12">
         <p className="text-sm text-muted-foreground">
-          Administrator access required.
+          {tr("Administrator access required.")}
         </p>
       </div>
     );
@@ -555,8 +557,10 @@ export default function SystemHealth() {
   return (
     <div>
       <AdminHeader
-        title="System Health"
-        subtitle="Centralized error monitoring and system health monitoring"
+        title={tr("System Health")}
+        subtitle={tr(
+          "Centralized error monitoring and system health monitoring",
+        )}
         action={
           <div className="flex items-center gap-2">
             <Button
@@ -569,7 +573,7 @@ export default function SystemHealth() {
               }}
               className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
             >
-              Refresh
+              {tr("Refresh")}
             </Button>
           </div>
         }
@@ -663,12 +667,12 @@ export default function SystemHealth() {
           {/* Most affected */}
           <AdminCard>
             <h3 className="mb-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
-              Most Affected
+              {tr("Most Affected")}
             </h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <span className="text-xs text-muted-foreground dark:text-muted-foreground">
-                  Route
+                  {tr("Route")}
                 </span>
                 <p className="mt-1 text-sm font-medium text-foreground dark:text-primary-foreground">
                   {stats.mostAffectedRoute}
@@ -676,7 +680,7 @@ export default function SystemHealth() {
               </div>
               <div>
                 <span className="text-xs text-muted-foreground dark:text-muted-foreground">
-                  Feature
+                  {tr("Feature")}
                 </span>
                 <p className="mt-1 text-sm font-medium text-foreground dark:text-primary-foreground">
                   {stats.mostAffectedFeature}
@@ -689,7 +693,7 @@ export default function SystemHealth() {
           <AdminCard>
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                Error Trend
+                {tr("Error Trend")}
               </h3>
               <div className="flex gap-1">
                 {(["24h", "7d", "30d"] as DateRange[]).map((r) => (
@@ -718,7 +722,7 @@ export default function SystemHealth() {
             </div>
             {trend.length === 0 ? (
               <p className="py-8 text-center text-sm text-muted-foreground">
-                No errors in this period.
+                {tr("No errors in this period.")}
               </p>
             ) : (
               <div className="flex h-40 items-end gap-1 overflow-x-auto">
@@ -754,7 +758,7 @@ export default function SystemHealth() {
           {errors.length > 0 && (
             <AdminCard>
               <h3 className="mb-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
-                Recent Errors
+                {tr("Recent Errors")}
               </h3>
               <div className="space-y-2">
                 {errors.slice(0, 5).map((e) => (
@@ -802,7 +806,7 @@ export default function SystemHealth() {
           <div className="flex flex-wrap gap-2">
             <input
               type="text"
-              placeholder="Search errors..."
+              placeholder={tr("Search errors...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 min-w-[200px] rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-card"
@@ -814,11 +818,11 @@ export default function SystemHealth() {
               }
               className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-card"
             >
-              <option value="all">All Severities</option>
-              <option value="critical">Critical</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
+              <option value="all">{tr("All Severities")}</option>
+              <option value="critical">{tr("Critical")}</option>
+              <option value="high">{tr("High")}</option>
+              <option value="medium">{tr("Medium")}</option>
+              <option value="low">{tr("Low")}</option>
             </select>
             <select
               value={showResolved}
@@ -829,43 +833,47 @@ export default function SystemHealth() {
               }
               className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-card"
             >
-              <option value="unresolved">Unresolved</option>
-              <option value="resolved">Resolved</option>
-              <option value="all">All</option>
+              <option value="unresolved">{tr("Unresolved")}</option>
+              <option value="resolved">{tr("Resolved")}</option>
+              <option value="all">{tr("All")}</option>
             </select>
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value as DateRange)}
               className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-card"
             >
-              <option value="24h">Last 24 hours</option>
-              <option value="7d">Last 7 days</option>
-              <option value="30d">Last 30 days</option>
+              <option value="24h">{tr("Last 24 hours")}</option>
+              <option value="7d">{tr("Last 7 days")}</option>
+              <option value="30d">{tr("Last 30 days")}</option>
             </select>
           </div>
 
           {/* Error table */}
           {loading ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              Loading errors...
+              {tr("Loading errors...")}
             </p>
           ) : errors.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No errors found.
+              {tr("No errors found.")}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-xs text-muted-foreground dark:border-white/10 dark:text-muted-foreground">
-                    <th className="pb-2 pr-3 font-medium">Severity</th>
-                    <th className="pb-2 pr-3 font-medium">Error</th>
-                    <th className="pb-2 pr-3 font-medium">Feature</th>
-                    <th className="pb-2 pr-3 font-medium">Route</th>
-                    <th className="pb-2 pr-3 font-medium">Occurrences</th>
-                    <th className="pb-2 pr-3 font-medium">First seen</th>
-                    <th className="pb-2 pr-3 font-medium">Last seen</th>
-                    <th className="pb-2 font-medium">Status</th>
+                    <th className="pb-2 pr-3 font-medium">{tr("Severity")}</th>
+                    <th className="pb-2 pr-3 font-medium">{tr("Error")}</th>
+                    <th className="pb-2 pr-3 font-medium">{tr("Feature")}</th>
+                    <th className="pb-2 pr-3 font-medium">{tr("Route")}</th>
+                    <th className="pb-2 pr-3 font-medium">
+                      {tr("Occurrences")}
+                    </th>
+                    <th className="pb-2 pr-3 font-medium">
+                      {tr("First seen")}
+                    </th>
+                    <th className="pb-2 pr-3 font-medium">{tr("Last seen")}</th>
+                    <th className="pb-2 font-medium">{tr("Status")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -907,10 +915,12 @@ export default function SystemHealth() {
                       <td className="py-2">
                         {e.resolved ? (
                           <span className="text-xs text-emerald-600">
-                            Resolved
+                            {tr("Resolved")}
                           </span>
                         ) : (
-                          <span className="text-xs text-amber-600">Open</span>
+                          <span className="text-xs text-amber-600">
+                            {tr("Open")}
+                          </span>
                         )}
                       </td>
                     </tr>
@@ -928,14 +938,14 @@ export default function SystemHealth() {
           <AdminCard>
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                Service Health
+                {tr("Service Health")}
               </h3>
               <Button
                 variant="ghost"
                 onClick={runHealthChecks}
                 className="text-xs font-medium text-brand-purple hover:underline"
               >
-                Re-check
+                {tr("Re-check")}
               </Button>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -974,7 +984,7 @@ export default function SystemHealth() {
         <div className="space-y-4">
           <AdminCard>
             <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
-              Alert Thresholds
+              {tr("Alert Thresholds")}
             </h3>
             <div className="space-y-3">
               {alertConfigs.map((cfg) => (
@@ -1019,7 +1029,7 @@ export default function SystemHealth() {
         <AdminModal
           open={!!selectedError}
           onClose={() => setSelectedError(null)}
-          title="Error Details"
+          title={tr("Error Details")}
         >
           <div className="space-y-4">
             {/* Severity & status */}
@@ -1045,7 +1055,7 @@ export default function SystemHealth() {
             {/* Message */}
             <div>
               <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Message
+                {tr("Message")}
               </span>
               <p className="mt-1 rounded-lg bg-muted/50 p-3 text-sm text-foreground dark:bg-white/5 dark:text-muted-foreground/60">
                 {selectedError.message}
@@ -1056,7 +1066,7 @@ export default function SystemHealth() {
             {selectedError.stack_trace && (
               <div>
                 <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                  Stack Trace
+                  {tr("Stack Trace")}
                 </span>
                 <pre className="mt-1 max-h-48 overflow-auto rounded-lg bg-background p-3 text-xs text-muted-foreground/80">
                   {selectedError.stack_trace}
@@ -1115,7 +1125,7 @@ export default function SystemHealth() {
               Object.keys(selectedError.metadata).length > 0 && (
                 <div>
                   <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                    Metadata
+                    {tr("Metadata")}
                   </span>
                   <pre className="mt-1 max-h-32 overflow-auto rounded-lg bg-muted/50 p-2 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
                     {JSON.stringify(selectedError.metadata, null, 2)}
@@ -1127,7 +1137,7 @@ export default function SystemHealth() {
             <div className="rounded-lg border border-brand-purple/20 bg-primary/5 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-brand-purple">
-                  AI Studio Error Analysis
+                  {tr("AI Studio Error Analysis")}
                 </h4>
                 <div className="flex gap-2">
                   <Link
@@ -1161,7 +1171,7 @@ export default function SystemHealth() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                     />
                   </svg>
-                  Analyzing error with AI...
+                  {tr("Analyzing error with AI...")}
                 </div>
               )}
 
@@ -1257,7 +1267,7 @@ export default function SystemHealth() {
               {aiFix && (
                 <div className="space-y-2 border-t border-brand-purple/10 pt-3">
                   <h5 className="text-xs font-semibold text-brand-purple">
-                    Proposed Fix
+                    {tr("Proposed Fix")}
                   </h5>
                   <div className="text-xs">
                     <span className="font-medium text-muted-foreground dark:text-muted-foreground">
@@ -1317,7 +1327,7 @@ export default function SystemHealth() {
               {showFixHistory && fixHistory.length > 0 && (
                 <div className="space-y-1 border-t border-brand-purple/10 pt-3">
                   <h5 className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
-                    Fix History
+                    {tr("Fix History")}
                   </h5>
                   {fixHistory.map((h) => (
                     <div key={h.id} className="flex items-center gap-2 text-xs">
@@ -1353,7 +1363,7 @@ export default function SystemHealth() {
                   onClick={() => handleAnalyzeError(selectedError)}
                   className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
                 >
-                  Analyze with AI Studio
+                  {tr("Analyze with AI Studio")}
                 </Button>
               )}
             </div>
@@ -1361,7 +1371,7 @@ export default function SystemHealth() {
             {/* Resolve/reopen actions */}
             <div className="flex justify-end gap-2 border-t border-border/50 pt-4 dark:border-white/5">
               <AdminButton variant="secondary" onClick={handleCloseModal}>
-                Close
+                {tr("Close")}
               </AdminButton>
               {selectedError.resolved ? (
                 <AdminButton
@@ -1369,7 +1379,7 @@ export default function SystemHealth() {
                   onClick={() => toggleResolved(selectedError.id, true)}
                   disabled={resolving}
                 >
-                  Reopen
+                  {tr("Reopen")}
                 </AdminButton>
               ) : (
                 <AdminButton

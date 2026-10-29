@@ -32,8 +32,10 @@ import type {
 import { classNames } from "@/lib/utils";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ProConnectRegister() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
@@ -314,7 +316,7 @@ export default function ProConnectRegister() {
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
       >
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-        Back to directory
+        {t("Back to directory")}
       </Link>
 
       <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
@@ -376,19 +378,19 @@ export default function ProConnectRegister() {
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Your name or professional name"
+              placeholder={t("Your name or professional name")}
               className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
             />
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Business Name
+              {t("Business Name")}
             </label>
             <input
               type="text"
               value={businessName}
               onChange={(e) => setBusinessName(e.target.value)}
-              placeholder="Optional company/business name"
+              placeholder={t("Optional company/business name")}
               className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
             />
           </div>
@@ -404,7 +406,7 @@ export default function ProConnectRegister() {
               }}
               className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
             >
-              <option value="">Select your category</option>
+              <option value="">{t("Select your category")}</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -414,7 +416,7 @@ export default function ProConnectRegister() {
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Bio
+              {t("Bio")}
             </label>
             <textarea
               value={bio}
@@ -427,7 +429,7 @@ export default function ProConnectRegister() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                Years of Experience
+                {t("Years of Experience")}
               </label>
               <input
                 type="number"
@@ -439,20 +441,20 @@ export default function ProConnectRegister() {
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                Phone
+                {t("Phone")}
               </label>
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="Your contact phone"
+                placeholder={t("Your contact phone")}
                 className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
               />
             </div>
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Website
+              {t("Website")}
             </label>
             <input
               type="url"
@@ -477,10 +479,10 @@ export default function ProConnectRegister() {
       {step === 2 && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
-            Select Your Services
+            {t("Select Your Services")}
           </h2>
           <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-            Choose all services you offer. You can update these anytime.
+            {t("Choose all services you offer. You can update these anytime.")}
           </p>
           <div className="space-y-2">
             {filteredServices.map((s) => (
@@ -513,7 +515,7 @@ export default function ProConnectRegister() {
               onClick={() => setStep(1)}
               className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
             >
-              Back
+              {t("Back")}
             </Button>
             <Button
               variant="default"
@@ -532,26 +534,26 @@ export default function ProConnectRegister() {
         <div className="space-y-6">
           <div>
             <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
-              Service Areas
+              {t("Service Areas")}
             </h2>
             <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-              Select the locations where you provide services.
+              {t("Select the locations where you provide services.")}
             </p>
           </div>
 
           <div className="max-w-xs">
             <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Country
+              {t("Country")}
             </label>
             <select
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             >
-              <option value="NG">Nigeria</option>
-              <option value="GH">Ghana</option>
-              <option value="KE">Kenya</option>
-              <option value="ZA">South Africa</option>
+              <option value="NG">{t("Nigeria")}</option>
+              <option value="GH">{t("Ghana")}</option>
+              <option value="KE">{t("Kenya")}</option>
+              <option value="ZA">{t("South Africa")}</option>
             </select>
           </div>
 
@@ -606,7 +608,7 @@ export default function ProConnectRegister() {
 
           <div>
             <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-              Availability Status
+              {t("Availability Status")}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {(["available", "busy", "unavailable"] as const).map((a) => (
@@ -633,7 +635,7 @@ export default function ProConnectRegister() {
               onClick={() => setStep(2)}
               className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
             >
-              Back
+              {t("Back")}
             </Button>
             <Button
               variant="default"
@@ -655,7 +657,7 @@ export default function ProConnectRegister() {
               <Phone aria-hidden="true" className="h-8 w-8 text-brand-purple" />
             </div>
             <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-              Mobile Number Verification
+              {t("Mobile Number Verification")}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
               Verify your mobile number to unlock worker channels and increase
@@ -736,7 +738,7 @@ export default function ProConnectRegister() {
                       }}
                       className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                     >
-                      Change Number
+                      {t("Change Number")}
                     </Button>
                     <Button
                       variant="default"
@@ -793,7 +795,7 @@ export default function ProConnectRegister() {
               />
             </div>
             <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-              NIN Verification (KYC)
+              {t("NIN Verification (KYC)")}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
               Enter your National Identification Number (NIN) to verify your
@@ -849,10 +851,9 @@ export default function ProConnectRegister() {
                   className="mt-0.5 h-4 w-4 shrink-0"
                 />
                 <p>
-                  After submitting, FRELUX will verify your NIN. Once
-                  approved, you'll reach{" "}
-                  <strong>Tier 2 (FRELUX Verified)</strong> and can join Worker
-                  Channels.
+                  After submitting, FRELUX will verify your NIN. Once approved,
+                  you'll reach <strong>{t("Tier 2 (FRELUX Verified)")}</strong>{" "}
+                  and can join Worker Channels.
                 </p>
               </div>
 
@@ -920,13 +921,13 @@ export default function ProConnectRegister() {
               to={`/pro-connect/${slug}/`}
               className="rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground"
             >
-              View My Profile
+              {t("View My Profile")}
             </Link>
             <Link
               to="/pro-connect/dashboard/"
               className="rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
             >
-              Go to Dashboard
+              {t("Go to Dashboard")}
             </Link>
             {ninSubmitted && (
               <p className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">

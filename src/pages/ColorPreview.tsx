@@ -7,8 +7,10 @@ import { Loader2, Upload, X, Eye } from "lucide-react";
 import { isValidHexColor, normalizeHex } from "@/lib/colors";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ColorPreview() {
+  const { t } = useLanguage();
   useSeo({
     title: "Color Preview Tool",
     description: "Preview paint colors on your room photos with AI.",
@@ -99,14 +101,14 @@ export default function ColorPreview() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <PageHeader
-        title="AI Before & After Preview"
+        title={t("AI Before & After Preview")}
         subtitle="Upload a photo of your room and see how different paint colors would transform it."
       />
 
       {!user && (
         <div className="mt-4 rounded-lg border p-4">
           <p className="text-sm text-muted-foreground">
-            Sign in to use the AI Color Preview feature.
+            {t("Sign in to use the AI Color Preview feature.")}
           </p>
         </div>
       )}
@@ -116,13 +118,13 @@ export default function ColorPreview() {
           {/* Image Upload */}
           <div>
             <label className="text-sm font-medium text-foreground">
-              Room Photo (optional but recommended)
+              {t("Room Photo (optional but recommended)")}
             </label>
             {imagePreview ? (
               <div className="relative mt-2">
                 <img
                   src={imagePreview}
-                  alt="Room"
+                  alt={t("Room")}
                   className="max-h-64 rounded-lg border"
                 />
                 <Button
@@ -141,13 +143,13 @@ export default function ColorPreview() {
               >
                 <Upload className="h-8 w-8 text-muted-foreground" />
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Click to upload a room photo
+                  {t("Click to upload a room photo")}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  JPG, PNG up to 4MB
+                  {t("JPG, PNG up to 4MB")}
                 </p>
                 <input
-                  aria-label="Room photo upload"
+                  aria-label={t("Room photo upload")}
                   ref={fileRef}
                   type="file"
                   accept="image/jpeg,image/png"
@@ -165,7 +167,7 @@ export default function ColorPreview() {
                 htmlFor="cp-room-type"
                 className="text-sm font-medium text-foreground"
               >
-                Room Type
+                {t("Room Type")}
               </label>
               <select
                 id="cp-room-type"
@@ -173,15 +175,15 @@ export default function ColorPreview() {
                 onChange={(e) => setRoomType(e.target.value)}
                 className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
               >
-                <option value="">Select...</option>
-                <option>Living Room</option>
-                <option>Bedroom</option>
-                <option>Kitchen</option>
-                <option>Bathroom</option>
-                <option>Office</option>
-                <option>Dining Room</option>
-                <option>Corridor</option>
-                <option>Outdoor</option>
+                <option value="">{t("Select...")}</option>
+                <option>{t("Living Room")}</option>
+                <option>{t("Bedroom")}</option>
+                <option>{t("Kitchen")}</option>
+                <option>{t("Bathroom")}</option>
+                <option>{t("Office")}</option>
+                <option>{t("Dining Room")}</option>
+                <option>{t("Corridor")}</option>
+                <option>{t("Outdoor")}</option>
               </select>
             </div>
             <div>
@@ -189,7 +191,7 @@ export default function ColorPreview() {
                 htmlFor="cp-lighting"
                 className="text-sm font-medium text-foreground"
               >
-                Lighting
+                {t("Lighting")}
               </label>
               <select
                 id="cp-lighting"
@@ -197,13 +199,13 @@ export default function ColorPreview() {
                 onChange={(e) => setLighting(e.target.value)}
                 className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
               >
-                <option value="">Select...</option>
-                <option>Natural daylight (bright)</option>
-                <option>Natural daylight (limited)</option>
-                <option>Artificial warm light</option>
-                <option>Artificial cool light</option>
-                <option>Mixed lighting</option>
-                <option>Low light</option>
+                <option value="">{t("Select...")}</option>
+                <option>{t("Natural daylight (bright)")}</option>
+                <option>{t("Natural daylight (limited)")}</option>
+                <option>{t("Artificial warm light")}</option>
+                <option>{t("Artificial cool light")}</option>
+                <option>{t("Mixed lighting")}</option>
+                <option>{t("Low light")}</option>
               </select>
             </div>
             <div>
@@ -211,7 +213,7 @@ export default function ColorPreview() {
                 htmlFor="cp-mood"
                 className="text-sm font-medium text-foreground"
               >
-                Desired Mood
+                {t("Desired Mood")}
               </label>
               <select
                 id="cp-mood"
@@ -219,14 +221,14 @@ export default function ColorPreview() {
                 onChange={(e) => setMood(e.target.value)}
                 className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
               >
-                <option value="">Select...</option>
-                <option>Relaxing</option>
-                <option>Energetic</option>
-                <option>Professional</option>
-                <option>Cozy</option>
-                <option>Dramatic</option>
-                <option>Calm</option>
-                <option>Inviting</option>
+                <option value="">{t("Select...")}</option>
+                <option>{t("Relaxing")}</option>
+                <option>{t("Energetic")}</option>
+                <option>{t("Professional")}</option>
+                <option>{t("Cozy")}</option>
+                <option>{t("Dramatic")}</option>
+                <option>{t("Calm")}</option>
+                <option>{t("Inviting")}</option>
               </select>
             </div>
             <div>
@@ -234,7 +236,7 @@ export default function ColorPreview() {
                 htmlFor="cp-style"
                 className="text-sm font-medium text-foreground"
               >
-                Interior Style
+                {t("Interior Style")}
               </label>
               <select
                 id="cp-style"
@@ -242,15 +244,15 @@ export default function ColorPreview() {
                 onChange={(e) => setStyle(e.target.value)}
                 className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
               >
-                <option value="">Select...</option>
-                <option>Modern</option>
-                <option>Traditional</option>
-                <option>Minimalist</option>
-                <option>Industrial</option>
-                <option>Scandinavian</option>
-                <option>Bohemian</option>
-                <option>African Contemporary</option>
-                <option>Tropical</option>
+                <option value="">{t("Select...")}</option>
+                <option>{t("Modern")}</option>
+                <option>{t("Traditional")}</option>
+                <option>{t("Minimalist")}</option>
+                <option>{t("Industrial")}</option>
+                <option>{t("Scandinavian")}</option>
+                <option>{t("Bohemian")}</option>
+                <option>{t("African Contemporary")}</option>
+                <option>{t("Tropical")}</option>
               </select>
             </div>
           </div>
@@ -260,14 +262,16 @@ export default function ColorPreview() {
               htmlFor="cp-description"
               className="text-sm font-medium text-foreground"
             >
-              Additional Description
+              {t("Additional Description")}
             </label>
             <textarea
               id="cp-description"
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your room, furniture, existing colors, climate..."
+              placeholder={t(
+                "Describe your room, furniture, existing colors, climate...",
+              )}
               className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
             />
           </div>
@@ -276,7 +280,7 @@ export default function ColorPreview() {
           <div>
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-foreground">
-                Colors to Preview
+                {t("Colors to Preview")}
               </label>
               <Button
                 variant="ghost"
@@ -301,7 +305,7 @@ export default function ColorPreview() {
                     aria-label={`Colour ${i + 1} name`}
                     value={color.name}
                     onChange={(e) => updateColor(i, "name", e.target.value)}
-                    placeholder="Color name"
+                    placeholder={t("Color name")}
                     className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm"
                   />
                   {colors.length > 1 && (
@@ -354,7 +358,7 @@ export default function ColorPreview() {
               className="mx-auto h-10 w-10 animate-spin text-brand-purple"
             />
             <p className="mt-3 text-sm text-muted-foreground">
-              Analyzing your room and generating color previews...
+              {t("Analyzing your room and generating color previews...")}
             </p>
           </div>
         </div>
@@ -373,17 +377,17 @@ export default function ColorPreview() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <p className="mb-2 text-xs font-medium text-muted-foreground">
-                    Before
+                    {t("Before")}
                   </p>
                   <img
                     src={imagePreview}
-                    alt="Before"
+                    alt={t("Before")}
                     className="w-full rounded-lg border"
                   />
                 </div>
                 <div>
                   <p className="mb-2 text-xs font-medium text-muted-foreground">
-                    AI Color Suggestions
+                    {t("AI Color Suggestions")}
                   </p>
                   <div className="flex h-full min-h-[200px] flex-col rounded-lg border">
                     {result.colorSuggestions.map((c, i) => (
@@ -415,7 +419,7 @@ export default function ColorPreview() {
           {result.previewDescription && (
             <div className="rounded-lg border p-6">
               <h3 className="text-lg font-semibold text-foreground">
-                AI Visual Analysis
+                {t("AI Visual Analysis")}
               </h3>
               <p className="mt-2 text-sm text-muted-foreground">
                 {result.previewDescription}
@@ -427,7 +431,7 @@ export default function ColorPreview() {
           {result.colorSuggestions.length > 0 && (
             <div>
               <h3 className="mb-3 text-lg font-semibold text-foreground">
-                Recommended Colors
+                {t("Recommended Colors")}
               </h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 {result.colorSuggestions.map((c, i) => (
@@ -458,7 +462,7 @@ export default function ColorPreview() {
           {result.applicationTips.length > 0 && (
             <div className="rounded-lg border p-6">
               <h3 className="text-lg font-semibold text-foreground">
-                Application Tips
+                {t("Application Tips")}
               </h3>
               <ul className="mt-2 space-y-2">
                 {result.applicationTips.map((tip, i) => (

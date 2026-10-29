@@ -35,10 +35,12 @@ import { isPremiumEnabled } from "@/lib/premium-access";
 import { classNames } from "@/lib/utils";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 type BillingCycle = "monthly" | "yearly";
 
 export default function Pricing() {
+  const { t } = useLanguage();
   const seoOfferCurrency = useSeoOfferCurrency();
   useSeo({
     title: "Pricing, FRELUX Premium",
@@ -269,8 +271,8 @@ export default function Pricing() {
       <>
         <PageHeader
           eyebrow="Checkout"
-          title="Verifying Payment"
-          subtitle="Confirming your subscription with Paystack…"
+          title={t("Verifying Payment")}
+          subtitle={t("Confirming your subscription with Paystack…")}
         />
         <div className="mx-auto max-w-md px-4 py-20 text-center">
           <Loader2
@@ -290,8 +292,8 @@ export default function Pricing() {
       <>
         <PageHeader
           eyebrow="Welcome aboard"
-          title="Subscription Active!"
-          subtitle="You now have access to all FRELUX premium tools."
+          title={t("Subscription Active!")}
+          subtitle={t("You now have access to all FRELUX premium tools.")}
         />
         <div className="mx-auto max-w-lg px-4 py-16 text-center">
           <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-accent-green/15">
@@ -323,7 +325,7 @@ export default function Pricing() {
     <>
       <PageHeader
         eyebrow="Pricing"
-        title="Plans for Every Stage of Your Build"
+        title={t("Plans for Every Stage of Your Build")}
         subtitle="From free calculators to the full engineering toolkit. Upgrade anytime, cancel anytime."
       />
 
@@ -335,7 +337,7 @@ export default function Pricing() {
           <div className="mb-6 flex justify-center">
             <div
               role="radiogroup"
-              aria-label="Payment method"
+              aria-label={t("Payment method")}
               data-testid="gateway-selector"
               className="inline-flex rounded-xl border border-border bg-card p-1 dark:border-border"
             >
@@ -363,7 +365,7 @@ export default function Pricing() {
         <div className="flex justify-center">
           <div
             role="tablist"
-            aria-label="Billing cycle"
+            aria-label={t("Billing cycle")}
             className="inline-flex rounded-xl border border-border bg-card p-1 dark:border-border border-border dark:bg-background"
           >
             <Button
@@ -378,7 +380,7 @@ export default function Pricing() {
                   : "text-muted-foreground hover:text-brand-purple",
               )}
             >
-              Monthly
+              {t("Monthly")}
             </Button>
             <Button
               variant="ghost"
@@ -392,7 +394,7 @@ export default function Pricing() {
                   : "text-muted-foreground hover:text-brand-purple",
               )}
             >
-              Yearly
+              {t("Yearly")}
               <span className="ml-1.5 rounded-full bg-accent-green/15 px-2 py-0.5 text-[10px] font-bold text-accent-green">
                 2 months free
               </span>
@@ -408,7 +410,7 @@ export default function Pricing() {
               className="mx-auto h-8 w-8 text-brand-purple"
             />
             <h3 className="mt-3 text-lg font-bold text-foreground dark:text-primary-foreground">
-              Premium Subscriptions, Coming Soon
+              {t("Premium Subscriptions, Coming Soon")}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
               We're putting the finishing touches on FRELUX Premium. Browse the
@@ -575,17 +577,19 @@ export default function Pricing() {
             payment via Paystack
           </span>
           <span className="flex items-center gap-2">
-            <Zap aria-hidden="true" className="h-4 w-4" /> Instant activation
+            <Zap aria-hidden="true" className="h-4 w-4" />{" "}
+            {t("Instant activation")}
           </span>
           <span className="flex items-center gap-2">
-            <Check aria-hidden="true" className="h-4 w-4" /> Cancel anytime
+            <Check aria-hidden="true" className="h-4 w-4" />{" "}
+            {t("Cancel anytime")}
           </span>
         </div>
 
         {/* FAQ */}
         <div className="mx-auto mt-16 max-w-2xl">
           <h2 className="text-center text-xl font-bold text-foreground dark:text-primary-foreground">
-            Frequently Asked Questions
+            {t("Frequently Asked Questions")}
           </h2>
           <div className="mt-6 space-y-4">
             <FaqItem

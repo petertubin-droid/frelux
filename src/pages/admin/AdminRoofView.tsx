@@ -51,6 +51,7 @@ import {
   fetchRoofViewImagery,
 } from "@/lib/roof/provider-registry";
 import { classNames } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 // =========================================================
 // Types & constants
@@ -79,6 +80,7 @@ const TEST_LOCATION = { latitude: 6.5244, longitude: 3.3792 };
 // =========================================================
 
 export default function AdminRoofView() {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -364,12 +366,12 @@ export default function AdminRoofView() {
     return (
       <div>
         <AdminHeader
-          title="Roof View Imagery"
-          subtitle="Loading configuration…"
+          title={t("Roof View Imagery")}
+          subtitle={t("Loading configuration…")}
         />
         <StateMessage
           type="loading"
-          title="Loading"
+          title={t("Loading")}
           message="Reading the current imagery provider configuration…"
         />
       </div>
@@ -380,14 +382,14 @@ export default function AdminRoofView() {
     return (
       <div>
         <AdminHeader
-          title="Roof View Imagery"
-          subtitle="Provider configuration"
+          title={t("Roof View Imagery")}
+          subtitle={t("Provider configuration")}
         />
         <StateMessage
           type="error"
-          title="Could not load configuration"
+          title={t("Could not load configuration")}
           message={loadError}
-          action={<AdminButton onClick={load}>Retry</AdminButton>}
+          action={<AdminButton onClick={load}>{t("Retry")}</AdminButton>}
         />
       </div>
     );
@@ -398,7 +400,7 @@ export default function AdminRoofView() {
   return (
     <div>
       <AdminHeader
-        title="Roof View Imagery"
+        title={t("Roof View Imagery")}
         subtitle="Configure the satellite imagery provider that powers Roof View in the Build-to-Roof Estimator. The API key is stored server-side and never exposed to site visitors."
         action={
           <span
@@ -411,11 +413,11 @@ export default function AdminRoofView() {
           >
             {live ? (
               <>
-                <CheckCircle2 className="h-3.5 w-3.5" /> Active
+                <CheckCircle2 className="h-3.5 w-3.5" /> {t("Active")}
               </>
             ) : (
               <>
-                <AlertCircle className="h-3.5 w-3.5" /> Inactive
+                <AlertCircle className="h-3.5 w-3.5" /> {t("Inactive")}
               </>
             )}
           </span>
@@ -430,7 +432,7 @@ export default function AdminRoofView() {
               <Satellite className="mt-0.5 h-5 w-5 text-brand-purple" />
               <div>
                 <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                  Feature status
+                  {t("Feature status")}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
                   {live
@@ -452,7 +454,7 @@ export default function AdminRoofView() {
         {/* Provider selection */}
         <AdminCard>
           <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Provider
+            {t("Provider")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
             The provider is called server-side by the roof-view-imagery Edge
@@ -507,7 +509,7 @@ export default function AdminRoofView() {
         {/* API key */}
         <AdminCard>
           <p className="flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            <KeyRound className="h-4 w-4" /> API key
+            <KeyRound className="h-4 w-4" /> {t("API key")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
             Stored in integration_settings and read server-side only. Write-only
@@ -542,14 +544,16 @@ export default function AdminRoofView() {
           {apiKeyConfigured && (
             <div className="mt-4 flex items-center justify-between gap-3">
               <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                A key is stored. Removing it disables the feature entirely.
+                {t(
+                  "A key is stored. Removing it disables the feature entirely.",
+                )}
               </p>
               <AdminButton
                 variant="danger"
                 onClick={handleRemoveKey}
                 disabled={saving}
               >
-                Remove key
+                {t("Remove key")}
               </AdminButton>
             </div>
           )}
@@ -608,7 +612,7 @@ export default function AdminRoofView() {
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4" /> Save configuration
+                  <Save className="h-4 w-4" /> {t("Save configuration")}
                 </>
               )}
             </AdminButton>
@@ -628,7 +632,7 @@ export default function AdminRoofView() {
         {/* Test */}
         <AdminCard>
           <p className="flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            <TestTube2 className="h-4 w-4" /> End-to-end test
+            <TestTube2 className="h-4 w-4" /> {t("End-to-end test")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
             Fetches a real image through the roof-view-imagery function for a
@@ -656,7 +660,7 @@ export default function AdminRoofView() {
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <img
                     src={testResult.imagery_url}
-                    alt="Sample roof view imagery"
+                    alt={t("Sample roof view imagery")}
                     className="h-48 w-48 rounded-lg border border-border object-cover dark:border-white/10"
                   />
                   <div>

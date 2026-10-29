@@ -22,6 +22,7 @@ import {
   AdminTextarea,
 } from "@/components/admin/AdminUi";
 import { classNames } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 type Action =
   | "generate_article"
@@ -111,6 +112,7 @@ const actions: {
 ];
 
 export default function AdminAiLearningAssistant() {
+  const { t } = useLanguage();
   const [action, setAction] = useState<Action>("generate_article");
   const [topic, setTopic] = useState("");
   const [content, setContent] = useState("");
@@ -160,8 +162,10 @@ export default function AdminAiLearningAssistant() {
   return (
     <>
       <AdminHeader
-        title="AI Learning Assistant"
-        subtitle="Generate, optimize, and manage educational content with AI."
+        title={t("AI Learning Assistant")}
+        subtitle={t(
+          "Generate, optimize, and manage educational content with AI.",
+        )}
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -169,7 +173,7 @@ export default function AdminAiLearningAssistant() {
         <div className="lg:col-span-1">
           <AdminCard className="space-y-4">
             <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-              AI Action
+              {t("AI Action")}
             </h2>
             <div className="space-y-2">
               {actions.map((a) => {
@@ -222,7 +226,7 @@ export default function AdminAiLearningAssistant() {
         <div className="space-y-6 lg:col-span-2">
           <AdminCard className="space-y-4">
             <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-              Input
+              {t("Input")}
             </h2>
 
             <AdminField
@@ -245,7 +249,7 @@ export default function AdminAiLearningAssistant() {
                 rows={6}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Paste content here…"
+                placeholder={t("Paste content here…")}
               />
             </AdminField>
 
@@ -269,7 +273,7 @@ export default function AdminAiLearningAssistant() {
             <AdminCard className="space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-                  Result
+                  {t("Result")}
                 </h2>
                 <AdminButton
                   variant="secondary"
@@ -277,7 +281,7 @@ export default function AdminAiLearningAssistant() {
                   onClick={handleCopyResult}
                   className="text-xs"
                 >
-                  <Send aria-hidden="true" className="h-3 w-3" /> Copy
+                  <Send aria-hidden="true" className="h-3 w-3" /> {t("Copy")}
                 </AdminButton>
               </div>
               <div className="max-h-[500px] overflow-y-auto rounded-lg border border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 p-4">

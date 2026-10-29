@@ -39,9 +39,18 @@ export function __clearIndexableLocalePaths() {
   indexable.clear();
 }
 
-/** Locales whose prerendered pages may be indexed at all. Kept in sync with
- * scripts/prerender.mjs INDEXABLE_LOCALES; a locale leaves this list when its
- * translation coverage is live and reviewed. */
+/**
+ * Locales whose prerendered pages may be indexed at all. Kept in sync with
+ * scripts/prerender.mjs INDEXABLE_LOCALES.
+ *
+ * All twelve target locales now carry the full interface catalog (3,518
+ * strings) with hand-curated navigation and footer labels, so the translation
+ * side of the launch gate is met. What still blocks the other eleven is the
+ * pipeline: prerender only emits English route bodies plus localized learn
+ * articles, so an unlaunched locale would be an English shell behind an
+ * indexable URL. A locale joins this list when prerender can emit its routes
+ * with hreflang and a self-referencing canonical.
+ */
 export const INDEXABLE_LOCALES = ["es"] as const;
 
 export function isLocaleLaunched(locale: string): boolean {

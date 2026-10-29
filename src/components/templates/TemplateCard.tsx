@@ -19,6 +19,7 @@ import { useMarket } from "@/lib/international/market-context";
 import type { DbCalculatorTemplate } from "@/types/database";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface TemplateCardProps {
   template: DbCalculatorTemplate;
@@ -41,6 +42,7 @@ export default function TemplateCard({
   onToggleFavorite,
   onExport,
 }: TemplateCardProps) {
+  const { t } = useLanguage();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { market } = useMarket();
   // Public templates render their curated prose plus a generated
@@ -111,7 +113,7 @@ export default function TemplateCard({
             onClick={onUse}
             className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors hover:bg-primary/90"
           >
-            Use Template
+            {t("Use Template")}
             <ArrowRight className="h-3.5 w-3.5" />
           </Button>
         ) : useHref ? (
@@ -119,7 +121,7 @@ export default function TemplateCard({
             to={useHref}
             className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            View Template
+            {t("View Template")}
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         ) : null}
@@ -131,7 +133,7 @@ export default function TemplateCard({
                 variant="ghost"
                 onClick={onEdit}
                 className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
-                aria-label="Edit template"
+                aria-label={t("Edit template")}
               >
                 <Edit2 className="h-3.5 w-3.5" />
               </Button>
@@ -141,7 +143,7 @@ export default function TemplateCard({
                 variant="ghost"
                 onClick={onExport}
                 className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
-                aria-label="Export template"
+                aria-label={t("Export template")}
               >
                 <Download className="h-3.5 w-3.5" />
               </Button>
@@ -151,7 +153,7 @@ export default function TemplateCard({
                 variant="ghost"
                 onClick={onDuplicate}
                 className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
-                aria-label="Duplicate template"
+                aria-label={t("Duplicate template")}
               >
                 <Copy className="h-3.5 w-3.5" />
               </Button>
@@ -173,7 +175,7 @@ export default function TemplateCard({
                   variant="ghost"
                   onClick={() => setConfirmDelete(true)}
                   className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
-                  aria-label="Delete template"
+                  aria-label={t("Delete template")}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>

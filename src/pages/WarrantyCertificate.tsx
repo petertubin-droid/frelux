@@ -36,6 +36,7 @@ import type {
   EstimationCalcRule,
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import { useLanguage } from "@/lib/i18n";
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "N/A";
@@ -47,6 +48,7 @@ function fmtDate(iso: string | null): string {
 }
 
 export default function WarrantyCertificate() {
+  const { t } = useLanguage();
   useSeo({
     title: "Warranty Certificate & Dispute Verification | FRELUX",
     description:
@@ -167,7 +169,7 @@ export default function WarrantyCertificate() {
             { label: "Construction Tools", path: "/construction-tools" },
             { label: "Warranty Certificate & Dispute Verification" },
           ]}
-          title="Warranty Certificate & Dispute Verification"
+          title={t("Warranty Certificate & Dispute Verification")}
           subtitle="Issue a hash-verified warranty certificate for a saved estimate. The exact configuration behind your quote is frozen and replayable: if a claim or dispute ever arises, both sides verify against the same frozen record, never a reconstruction."
         />
 
@@ -192,7 +194,7 @@ export default function WarrantyCertificate() {
         ) : (
           <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
             <label className="grid gap-1 text-sm font-medium">
-              Saved estimate
+              {t("Saved estimate")}
               <select
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={selectedId}
@@ -201,7 +203,7 @@ export default function WarrantyCertificate() {
                   setResult(null);
                 }}
               >
-                <option value="">Select an estimate</option>
+                <option value="">{t("Select an estimate")}</option>
                 {estimates.map((e) => (
                   <option key={e.id} value={e.id}>
                     {e.estimate_ref}: {e.calculator_type} (
@@ -238,7 +240,7 @@ export default function WarrantyCertificate() {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-medium uppercase text-muted-foreground">
-                    Certificate
+                    {t("Certificate")}
                   </p>
                   <p className="mt-1 font-mono text-lg font-semibold">
                     {result.certificate_ref}
@@ -262,18 +264,20 @@ export default function WarrantyCertificate() {
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-4">
                 <div>
-                  <p className="text-xs text-muted-foreground">Config hash</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("Config hash")}
+                  </p>
                   <p className="font-mono text-sm">{result.config_hash}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Issued</p>
+                  <p className="text-xs text-muted-foreground">{t("Issued")}</p>
                   <p className="text-sm font-medium">
                     {fmtDate(result.issued_at)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">
-                    Warranty period
+                    {t("Warranty period")}
                   </p>
                   <p className="text-sm font-medium">
                     {result.warranty_months !== null
@@ -282,7 +286,9 @@ export default function WarrantyCertificate() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Expires</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("Expires")}
+                  </p>
                   <p className="text-sm font-medium">
                     {result.expires_at
                       ? fmtDate(result.expires_at)
@@ -305,7 +311,7 @@ export default function WarrantyCertificate() {
             {result.dispute_flags.length > 0 && (
               <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
                 <p className="mb-2 text-sm font-semibold text-destructive">
-                  Dispute flags
+                  {t("Dispute flags")}
                 </p>
                 {result.dispute_flags.map((f, i) => (
                   <p key={i} className="text-sm text-muted-foreground">
@@ -320,11 +326,11 @@ export default function WarrantyCertificate() {
               <table className="w-full text-sm">
                 <thead className="bg-muted/50 text-left">
                   <tr>
-                    <th className="p-3">Line</th>
+                    <th className="p-3">{t("Line")}</th>
                     <th className="p-3 text-right">Qty × price</th>
-                    <th className="p-3 text-right">Replayed total</th>
-                    <th className="p-3 text-right">Stored total</th>
-                    <th className="p-3">Replay</th>
+                    <th className="p-3 text-right">{t("Replayed total")}</th>
+                    <th className="p-3 text-right">{t("Stored total")}</th>
+                    <th className="p-3">{t("Replay")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -362,7 +368,7 @@ export default function WarrantyCertificate() {
 
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
-                How this certificate was produced
+                {t("How this certificate was produced")}
               </summary>
               <ul className="mt-2 space-y-1">
                 {result.steps.map((s, i) => (
@@ -379,16 +385,16 @@ export default function WarrantyCertificate() {
         {certificates.length > 0 && (
           <div>
             <h2 className="mb-2 text-lg font-semibold">
-              Your issued certificates
+              {t("Your issued certificates")}
             </h2>
             <div className="overflow-x-auto rounded-lg border border-border dark:border-white/5">
               <table className="w-full text-sm">
                 <thead className="bg-muted/50 text-left">
                   <tr>
-                    <th className="p-3">Certificate</th>
-                    <th className="p-3">Issued</th>
-                    <th className="p-3">Expires</th>
-                    <th className="p-3">Status</th>
+                    <th className="p-3">{t("Certificate")}</th>
+                    <th className="p-3">{t("Issued")}</th>
+                    <th className="p-3">{t("Expires")}</th>
+                    <th className="p-3">{t("Status")}</th>
                   </tr>
                 </thead>
                 <tbody>

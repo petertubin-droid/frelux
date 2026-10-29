@@ -38,6 +38,7 @@ import {
   isValidSection,
 } from "@/lib/roof/geometry-engine";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const SVG_WIDTH = 600;
 const SVG_HEIGHT = 400;
@@ -60,6 +61,7 @@ export function RoofGeometryEditor({
   backgroundImageUrl,
   disabled,
 }: RoofGeometryEditorProps) {
+  const { t } = useLanguage();
   const [tool, setTool] = useState<Tool>("add");
   const [draggingPointId, setDraggingPointId] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -203,7 +205,7 @@ export function RoofGeometryEditor({
           className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:border-border hover:text-muted-foreground disabled:opacity-50"
         >
           <Plus aria-hidden="true" className="w-3 h-3" />
-          Add Section
+          {t("Add Section")}
         </Button>
       </div>
 
@@ -211,7 +213,7 @@ export function RoofGeometryEditor({
       {activeSection && (
         <div className="flex items-center gap-2">
           <input
-            aria-label="Section name"
+            aria-label={t("Section name")}
             type="text"
             value={activeSection.name}
             onChange={(e) =>
@@ -221,7 +223,7 @@ export function RoofGeometryEditor({
             }
             disabled={disabled}
             className="flex-1 rounded-lg border border-border px-3 py-1.5 text-sm"
-            placeholder="Section name"
+            placeholder={t("Section name")}
           />
           {geometry.sections.length > 1 && (
             <Button
@@ -399,7 +401,7 @@ export function RoofGeometryEditor({
         {activeSection && activeSection.vertices.length === 0 && !disabled && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="rounded-lg bg-black/60 backdrop-blur px-4 py-2 text-xs text-primary-foreground">
-              Click on the canvas to add boundary points
+              {t("Click on the canvas to add boundary points")}
             </div>
           </div>
         )}
@@ -438,13 +440,13 @@ export function RoofGeometryEditor({
           className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-accent-green/90 transition-colors"
         >
           <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
-          Confirm Roof Geometry
+          {t("Confirm Roof Geometry")}
         </Button>
       )}
       {allConfirmed && (
         <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-xs font-medium text-green-700">
           <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
-          Geometry confirmed, ready for calculation
+          {t("Geometry confirmed, ready for calculation")}
         </div>
       )}
     </div>

@@ -46,10 +46,12 @@ import type {
 } from "@/types/database";
 import NotFound from "@/pages/NotFound";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 type Status = "loading" | "ready" | "error";
 
 export default function PaintColorDetail() {
+  const { t } = useLanguage();
   const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
   const [status, setStatus] = useState<Status>("loading");
@@ -160,13 +162,13 @@ export default function PaintColorDetail() {
           className="mx-auto h-8 w-8 text-red-400"
         />
         <p className="mt-3 text-sm font-semibold text-red-700">
-          Couldn't load this color.
+          {t("Couldn't load this color.")}
         </p>
         <Link
           to="/colors/"
           className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline"
         >
-          Back to color library
+          {t("Back to color library")}
         </Link>
       </div>
     );
@@ -191,7 +193,7 @@ export default function PaintColorDetail() {
         to="/colors/"
         className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-brand-purple"
       >
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> All colors
+        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> {t("All colors")}
       </Link>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2">
@@ -243,22 +245,22 @@ export default function PaintColorDetail() {
             )}
             {color.is_interior && (
               <span className="rounded-full bg-accent-green/10 px-2.5 py-0.5 text-[11px] font-semibold text-accent-green">
-                Interior
+                {t("Interior")}
               </span>
             )}
             {color.is_exterior && (
               <span className="rounded-full bg-accent-cyan/10 px-2.5 py-0.5 text-[11px] font-semibold text-accent-cyan">
-                Exterior
+                {t("Exterior")}
               </span>
             )}
             {color.is_trending && (
               <span className="rounded-full bg-accent-orange/10 px-2.5 py-0.5 text-[11px] font-semibold text-accent-orange">
-                Trending
+                {t("Trending")}
               </span>
             )}
             {color.is_featured && (
               <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand-purple">
-                Featured
+                {t("Featured")}
               </span>
             )}
           </div>
@@ -307,7 +309,7 @@ export default function PaintColorDetail() {
           {color.recommended_usage.length > 0 && (
             <div className="mt-6">
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Recommended usage
+                {t("Recommended usage")}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {color.recommended_usage.map((u) => (
@@ -326,7 +328,7 @@ export default function PaintColorDetail() {
           {color.finish_compatibility.length > 0 && (
             <div className="mt-4">
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Compatible finishes
+                {t("Compatible finishes")}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {color.finish_compatibility.map((f) => (
@@ -357,7 +359,7 @@ export default function PaintColorDetail() {
       {related.length > 0 && (
         <div className="mt-12">
           <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-            Similar colors
+            {t("Similar colors")}
           </h2>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
             {related.map((c) => (
@@ -400,6 +402,7 @@ function ColorRelationships({
   allColors: DbPaintColor[];
   overrides: DbColorRelationshipOverride[];
 }) {
+  const { t } = useLanguage();
   const hex = normalizeHex(color.hex_code);
   const overrideMap = new Map(
     overrides.map((o) => [o.relationship_type, o.override_color_ids]),
@@ -480,10 +483,10 @@ function ColorRelationships({
   return (
     <div className="mt-12">
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Color Relationships
+        {t("Color Relationships")}
       </h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Automatically computed harmonies and coordinated colors.
+        {t("Automatically computed harmonies and coordinated colors.")}
       </p>
       <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {sections
@@ -516,7 +519,7 @@ function ColorRelationships({
                 ))}
                 {overrideMap.has(s.type) && (
                   <span className="text-[10px] font-semibold text-brand-purple">
-                    Admin curated
+                    {t("Admin curated")}
                   </span>
                 )}
               </div>

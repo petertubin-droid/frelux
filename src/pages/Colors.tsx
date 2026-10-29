@@ -34,6 +34,7 @@ import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ColorsPageSeo } from "@/components/seo/SeoContent";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 type Tab = "colors" | "palettes";
 type Status = "loading" | "error" | "ready";
 
@@ -54,6 +55,7 @@ const familySwatchColors: Record<string, string> = {
 };
 
 export default function Colors() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([{ name: "Color Library", path: "/colors" }]);
   useSeo({
     title: "Color Library: Paint Colors & Palettes",
@@ -197,7 +199,7 @@ export default function Colors() {
     <>
       <PageHeader
         eyebrow="Inspiration"
-        title="Color Library"
+        title={t("Color Library")}
         subtitle="Browse hundreds of professional paint colors and curated palettes with color codes you can take to any paint shop."
         breadcrumbs={[{ label: "Home", path: "/" }, { label: "Color Library" }]}
       />
@@ -251,7 +253,7 @@ export default function Colors() {
               className="mx-auto h-8 w-8 text-red-400"
             />
             <p className="mt-3 text-sm font-semibold text-red-700">
-              Couldn't load colors
+              {t("Couldn't load colors")}
             </p>
             <p className="mt-1 text-xs text-red-500">{errorMsg}</p>
             <Button
@@ -260,7 +262,7 @@ export default function Colors() {
               onClick={() => window.location.reload()}
               className="mt-4 text-sm font-semibold text-brand-purple hover:underline"
             >
-              Try again
+              {t("Try again")}
             </Button>
           </div>
         )}
@@ -277,10 +279,10 @@ export default function Colors() {
                   <div className="mb-4 flex items-center justify-between">
                     <div>
                       <h3 className="font-display text-sm font-bold text-foreground dark:text-primary-foreground">
-                        Color Family Distribution
+                        {t("Color Family Distribution")}
                       </h3>
                       <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
-                        Click a family to filter
+                        {t("Click a family to filter")}
                       </p>
                     </div>
                     <span className="text-xs font-semibold text-muted-foreground">
@@ -349,27 +351,27 @@ export default function Colors() {
                   className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                 />
                 <input
-                  aria-label="Search colours"
+                  aria-label={t("Search colours")}
                   type="search"
                   value={query}
                   onChange={(e) => {
                     setQuery(e.target.value);
                     setPage(1);
                   }}
-                  placeholder="Search colors…"
+                  placeholder={t("Search colors…")}
                   className="input-field pl-9"
                 />
               </div>
               <select
-                aria-label="Sort colours"
+                aria-label={t("Sort colours")}
                 value={sort}
                 onChange={(e) => setSort(e.target.value as typeof sort)}
                 className="input-field sm:w-auto"
               >
-                <option value="display_order">Default order</option>
-                <option value="popularity">Most popular</option>
-                <option value="name">Name (A to Z)</option>
-                <option value="newest">Newest first</option>
+                <option value="display_order">{t("Default order")}</option>
+                <option value="popularity">{t("Most popular")}</option>
+                <option value="name">{t("Name (A to Z)")}</option>
+                <option value="newest">{t("Newest first")}</option>
               </select>
             </div>
 
@@ -383,7 +385,7 @@ export default function Colors() {
                     setPage(1);
                   }}
                 >
-                  All
+                  {t("All")}
                 </Chip>
                 {families.map((f) => (
                   <Chip
@@ -406,7 +408,7 @@ export default function Colors() {
                     setPage(1);
                   }}
                 >
-                  All
+                  {t("All")}
                 </Chip>
                 <Chip
                   active={filterType === "interior"}
@@ -415,7 +417,7 @@ export default function Colors() {
                     setPage(1);
                   }}
                 >
-                  Interior
+                  {t("Interior")}
                 </Chip>
                 <Chip
                   active={filterType === "exterior"}
@@ -424,7 +426,7 @@ export default function Colors() {
                     setPage(1);
                   }}
                 >
-                  Exterior
+                  {t("Exterior")}
                 </Chip>
                 <Chip
                   active={filterType === "featured"}
@@ -433,7 +435,7 @@ export default function Colors() {
                     setPage(1);
                   }}
                 >
-                  Featured
+                  {t("Featured")}
                 </Chip>
                 <Chip
                   active={filterType === "trending"}
@@ -442,7 +444,7 @@ export default function Colors() {
                     setPage(1);
                   }}
                 >
-                  Trending
+                  {t("Trending")}
                 </Chip>
               </FilterRow>
               <FilterRow label="Room">
@@ -453,7 +455,7 @@ export default function Colors() {
                     setPage(1);
                   }}
                 >
-                  All
+                  {t("All")}
                 </Chip>
                 {roomCats.map((c) => (
                   <Chip
@@ -517,7 +519,7 @@ export default function Colors() {
             ) : (
               <EmptyState
                 illustration="search"
-                title="No colors match your filters"
+                title={t("No colors match your filters")}
                 description="Try adjusting your search or filters to find what you're looking for."
                 actionLabel="Clear filters"
                 onAction={() => {
@@ -540,7 +542,7 @@ export default function Colors() {
                   onClick={() => setPage((p) => p - 1)}
                   className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors disabled:opacity-40 hover:bg-muted/50 dark:border-white/5 dark:text-muted-foreground/80 dark:hover:bg-white/5"
                 >
-                  Prev
+                  {t("Prev")}
                 </Button>
                 <span className="px-3 text-sm text-muted-foreground">
                   Page {page} of {totalPages}
@@ -552,7 +554,7 @@ export default function Colors() {
                   onClick={() => setPage((p) => p + 1)}
                   className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors disabled:opacity-40 hover:bg-muted/50 dark:border-white/5 dark:text-muted-foreground/80 dark:hover:bg-white/5"
                 >
-                  Next
+                  {t("Next")}
                 </Button>
               </div>
             )}
@@ -567,11 +569,11 @@ export default function Colors() {
                 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
               />
               <input
-                aria-label="Search saved palettes"
+                aria-label={t("Search saved palettes")}
                 type="search"
                 value={paletteQuery}
                 onChange={(e) => setPaletteQuery(e.target.value)}
-                placeholder="Search palettes…"
+                placeholder={t("Search palettes…")}
                 className="input-field pl-9"
               />
             </div>
@@ -620,12 +622,12 @@ export default function Colors() {
                         </span>
                         {c.is_trending && (
                           <span className="rounded-full bg-accent-orange/15 px-2.5 py-1 text-[11px] font-semibold text-accent-orange">
-                            Trending
+                            {t("Trending")}
                           </span>
                         )}
                         {c.is_featured && (
                           <span className="rounded-full bg-accent-green/10 px-2.5 py-1 text-[11px] font-semibold text-accent-green">
-                            Featured
+                            {t("Featured")}
                           </span>
                         )}
                       </div>
@@ -636,7 +638,7 @@ export default function Colors() {
             ) : (
               <EmptyState
                 illustration="search"
-                title="No palettes match your search"
+                title={t("No palettes match your search")}
                 description="Try a different search term to find color palettes."
               />
             )}

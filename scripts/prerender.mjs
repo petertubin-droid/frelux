@@ -1051,6 +1051,9 @@ const routes = [
 // indexable when a published content_translations row exists for it; every
 // other locale page is emitted as a noindex stub pointing at the English
 // canonical. Keep in sync with src/lib/translation-index.ts.
+// Mirrors INDEXABLE_LOCALES in src/lib/translation-index.ts. Raising this list
+// alone does nothing yet: the loop below only emits locale pages for translated
+// learn articles. Locale route emission has to exist before a locale goes live.
 const INDEXABLE_LOCALES = ['es'];
 
 // ── Learn section: dynamic article + category pages from Supabase ───

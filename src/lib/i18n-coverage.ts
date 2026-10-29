@@ -1,16 +1,28 @@
 import { LANGUAGES, translations, type Language } from "@/lib/i18n";
+import generatedEs from "@/lib/i18n/locales/es.json";
+import generatedFr from "@/lib/i18n/locales/fr.json";
+import generatedDe from "@/lib/i18n/locales/de.json";
+import generatedPt from "@/lib/i18n/locales/pt.json";
+import generatedAr from "@/lib/i18n/locales/ar.json";
+import generatedHi from "@/lib/i18n/locales/hi.json";
+import generatedZh from "@/lib/i18n/locales/zh.json";
+import generatedJa from "@/lib/i18n/locales/ja.json";
+import generatedRu from "@/lib/i18n/locales/ru.json";
+import generatedId from "@/lib/i18n/locales/id.json";
+import generatedSw from "@/lib/i18n/locales/sw.json";
+import generatedNl from "@/lib/i18n/locales/nl.json";
+import approvedOverrides from "@/lib/i18n/overrides.json";
 
 /**
  * The strings every locale must translate before its pages are eligible to be
- * indexed. These are the navigation and footer labels a visitor sees on every
- * single page: if half of them are still English, the locale URL is a
- * near-duplicate of the English page and must not enter the sitemap.
+ * indexed: the navigation and footer labels a visitor meets on every page.
+ * If half of them are still English, the locale URL is a near-duplicate of the
+ * English page and must not enter the sitemap.
  *
  * Keep this list in sync with src/config/site.ts (nav workspaces) and
  * src/components/layout/Footer.tsx (footer groups).
  */
 export const CORE_CATALOG: readonly string[] = [
-  // Navigation workspaces
   "Home",
   "Construction Tools",
   "Colors & Design",
@@ -35,12 +47,10 @@ export const CORE_CATALOG: readonly string[] = [
   "About FRELUX",
   "Contact",
   "Feedback",
-  // Footer groups
   "Calculators",
   "Explore",
   "Resources",
   "Legal",
-  // Footer calculators
   "Painting Calculator",
   "Screeding Calculator",
   "POP Ceiling Calculator",
@@ -51,14 +61,12 @@ export const CORE_CATALOG: readonly string[] = [
   "Smart Calculator",
   "Structural Calculator",
   "Foundation Calculator",
-  // Footer resources
   "Case Studies",
   "Project Gallery",
   "Material Prices",
   "Glossary",
   "Free Templates",
   "Partners",
-  // Legal
   "Privacy Policy",
   "Terms of Service",
   "Cookie Policy",
@@ -66,6 +74,40 @@ export const CORE_CATALOG: readonly string[] = [
   "AI Disclaimer",
   "Sign In",
 ] as const;
+
+const GENERATED_DICTIONARIES: Record<string, Record<string, string>> = {
+  es: generatedEs,
+  fr: generatedFr,
+  de: generatedDe,
+  pt: generatedPt,
+  ar: generatedAr,
+  hi: generatedHi,
+  zh: generatedZh,
+  ja: generatedJa,
+  ru: generatedRu,
+  id: generatedId,
+  sw: generatedSw,
+  nl: generatedNl,
+};
+
+/**
+ * Every interface string the app routes through t("..."). Built from the
+ * generated dictionaries so a string that exists in one locale must exist in
+ * all of them, and the count can never drift silently.
+ */
+export const UI_CATALOG: readonly string[] = Array.from(
+  new Set([
+    ...CORE_CATALOG,
+    ...Object.values(GENERATED_DICTIONARIES).flatMap((dictionary) =>
+      Object.keys(dictionary),
+    ),
+    ...Object.values(
+      approvedOverrides as unknown as Record<string, Record<string, string>>,
+    )
+      .filter((value) => typeof value === "object")
+      .flatMap((value) => Object.keys(value)),
+  ]),
+).sort();
 
 export interface LocaleCoverage {
   language: Language;
@@ -78,12 +120,12 @@ export interface LocaleCoverage {
 }
 
 export function coverageFor(language: Language): LocaleCoverage {
-  const total = CORE_CATALOG.length;
+  const total = UI_CATALOG.length;
   if (language === "en") {
     return { language, translated: total, total, percent: 100, missing: [] };
   }
-  const dictionary = translations[language] ?? {};
-  const missing = CORE_CATALOG.filter((key) => {
+  const dictionary = (translations[language] ?? {}) as Record<string, string>;
+  const missing = UI_CATALOG.filter((key) => {
     const value = dictionary[key];
     return !value || value.trim().length === 0;
   });
@@ -117,3 +159,5 @@ export const CHROME_COMPLETE_LOCALES: Language[] = LANGUAGES.map(
 export function isChromeComplete(language: Language): boolean {
   return CHROME_COMPLETE_LOCALES.includes(language);
 }
+
+export { GENERATED_DICTIONARIES, approvedOverrides };

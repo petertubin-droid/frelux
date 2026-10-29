@@ -14,22 +14,36 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 import {
   resolveConsumptionTax,
   type TaxResolution,
 } from "@/lib/tax/tax-calculator";
-import {
-  convertAmount,
-  type FxConversion,
-} from "@/lib/fx/fx-converter";
+import { convertAmount, type FxConversion } from "@/lib/fx/fx-converter";
 import {
   resolveWithholding,
   type WithholdingResolution,
 } from "@/lib/tax/withholding";
 
 export const FX_TARGET_CURRENCIES = [
-  "NGN", "USD", "GBP", "EUR", "CAD", "AUD", "INR", "GHS", "KES",
-  "ZAR", "JPY", "BRL", "SAR", "AED", "CNY", "IDR", "MXN", "KRW",
+  "NGN",
+  "USD",
+  "GBP",
+  "EUR",
+  "CAD",
+  "AUD",
+  "INR",
+  "GHS",
+  "KES",
+  "ZAR",
+  "JPY",
+  "BRL",
+  "SAR",
+  "AED",
+  "CNY",
+  "IDR",
+  "MXN",
+  "KRW",
 ] as const;
 
 function fmt(amount: number, currency: string): string {
@@ -56,9 +70,11 @@ export default function TaxAndFxCard({
   quoteCurrency,
   grandTotal,
 }: TaxAndFxCardProps) {
+  const { t } = useLanguage();
   const [tax, setTax] = useState<TaxResolution | null>(null);
-  const [withholding, setWithholding] =
-    useState<WithholdingResolution | null>(null);
+  const [withholding, setWithholding] = useState<WithholdingResolution | null>(
+    null,
+  );
   const [target, setTarget] = useState<string>("USD");
   const [fx, setFx] = useState<FxConversion | null>(null);
   const [fxBusy, setFxBusy] = useState(false);
@@ -68,12 +84,13 @@ export default function TaxAndFxCard({
     setTax(null);
     resolveConsumptionTax(marketCode)
       .then((t) => alive && setTax(t))
-      .catch(() =>
-        alive &&
-        setTax({
-          status: "unknown",
-          message: "The tax catalog could not be reached right now.",
-        }),
+      .catch(
+        () =>
+          alive &&
+          setTax({
+            status: "unknown",
+            message: "The tax catalog could not be reached right now.",
+          }),
       );
     resolveWithholding(marketCode)
       .then((w) => alive && setWithholding(w))
@@ -122,7 +139,7 @@ export default function TaxAndFxCard({
 
       {/* ── 1. Verified consumption tax ── */}
       <div className="mt-3 grid gap-1">
-        <h4 className="font-medium">Verified tax rate</h4>
+        <h4 className="font-medium">{t("Verified tax rate")}</h4>
         {!tax ? (
           <p className="text-muted-foreground">Loading the tax catalog…</p>
         ) : tax.status === "ok" ? (
@@ -154,7 +171,10 @@ export default function TaxAndFxCard({
             ) : null}
           </>
         ) : (
-          <p data-testid={`tax-${tax.status}`} className="text-muted-foreground">
+          <p
+            data-testid={`tax-${tax.status}`}
+            className="text-muted-foreground"
+          >
             {tax.message}
           </p>
         )}
@@ -162,10 +182,10 @@ export default function TaxAndFxCard({
 
       {/* ── 2. FX conversion with provenance ── */}
       <div className="mt-4 grid gap-1">
-        <h4 className="font-medium">Currency conversion</h4>
+        <h4 className="font-medium">{t("Currency conversion")}</h4>
         {!canConvert ? (
           <p className="text-muted-foreground">
-            Generate a quote to convert its grand total.
+            {t("Generate a quote to convert its grand total.")}
           </p>
         ) : (
           <>
@@ -174,7 +194,7 @@ export default function TaxAndFxCard({
                 {fmt(grandTotal, quoteCurrency)} =
               </span>
               <select
-                aria-label="Target currency"
+                aria-label={t("Target currency")}
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
                 className="rounded border border-input bg-background px-2 py-1"
@@ -187,10 +207,7 @@ export default function TaxAndFxCard({
                   ),
                 )}
               </select>
-              <span
-                data-testid="fx-result"
-                className="font-semibold"
-              >
+              <span data-testid="fx-result" className="font-semibold">
                 {fxBusy
                   ? "…"
                   : fx?.result !== null && fx?.result !== undefined
@@ -220,7 +237,7 @@ export default function TaxAndFxCard({
         <h4 className="font-medium">Settlement &amp; withholding rules</h4>
         {!withholding ? (
           <p className="text-muted-foreground">
-            Rules could not be loaded right now.
+            {t("Rules could not be loaded right now.")}
           </p>
         ) : withholding.status === "none" ? (
           <p className="text-muted-foreground">{withholding.message}</p>
@@ -231,7 +248,8 @@ export default function TaxAndFxCard({
                 <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-xs font-medium text-emerald-600">
                   approved
                 </span>{" "}
-                <span className="font-medium">{r.rule_name}</span> — {r.rate_pct}% ·{" "}
+                <span className="font-medium">{r.rule_name}</span> —{" "}
+                {r.rate_pct}% ·{" "}
                 <a
                   href={r.citation_url}
                   target="_blank"
@@ -250,7 +268,8 @@ export default function TaxAndFxCard({
                 >
                   pending legal review — informational
                 </span>{" "}
-                <span className="font-medium">{r.rule_name}</span> — {r.rate_pct}% ·{" "}
+                <span className="font-medium">{r.rule_name}</span> —{" "}
+                {r.rate_pct}% ·{" "}
                 <a
                   href={r.citation_url}
                   target="_blank"

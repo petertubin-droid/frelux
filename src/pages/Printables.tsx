@@ -9,6 +9,7 @@ import {
 import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * Free printable project sheets (stand-out item 5).
@@ -62,6 +63,7 @@ function printSheet(id: string) {
 const LINES_12 = Array.from({ length: 12 }, (_, i) => i + 1);
 
 export default function Printables() {
+  const { t } = useLanguage();
   useSeo({
     title: "Free Printable Templates: Quotes, Schedules & Checklists",
     description:
@@ -83,7 +85,7 @@ export default function Printables() {
     <>
       <PageHeader
         eyebrow="Free Tools"
-        title="Printable Project Templates"
+        title={t("Printable Project Templates")}
         subtitle="Three free, print-ready sheets for your next paint or build project. Fill them in on paper, or save them as PDF."
         breadcrumbs={[{ label: "Free Templates" }]}
       />
@@ -111,14 +113,14 @@ export default function Printables() {
                     onClick={() => printSheet(sheet.id)}
                     className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
                   >
-                    <Printer className="h-4 w-4" /> Print
+                    <Printer className="h-4 w-4" /> {t("Print")}
                   </button>
                   <button
                     onClick={() => setPreview(sheet.id)}
                     className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-brand-purple/40 dark:border-white/10 dark:text-primary-foreground"
                     aria-label={`Preview ${sheet.title}`}
                   >
-                    Preview
+                    {t("Preview")}
                   </button>
                 </div>
               </div>
@@ -151,7 +153,7 @@ export default function Printables() {
               <h3 className="font-display text-sm font-bold">{active.title}</h3>
               <button
                 onClick={() => setPreview(null)}
-                aria-label="Close preview"
+                aria-label={t("Close preview")}
                 className="rounded-lg border border-border p-1.5 text-muted-foreground transition-colors hover:bg-muted dark:border-white/10"
               >
                 <X className="h-4 w-4" />
@@ -165,7 +167,7 @@ export default function Printables() {
                 onClick={() => printSheet(active.id)}
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
               >
-                <Printer className="h-4 w-4" /> Print this sheet
+                <Printer className="h-4 w-4" /> {t("Print this sheet")}
               </button>
             </div>
           </div>
@@ -214,10 +216,11 @@ function Field({ label }: { label: string }) {
 }
 
 function QuoteComparison() {
+  const { t } = useLanguage();
   return (
     <div className="bg-white p-8 text-black">
       <SheetHeader
-        title="Quote Comparison Sheet"
+        title={t("Quote Comparison Sheet")}
         hint="Use identical line items for every quote so the totals are genuinely comparable."
       />
       <div className="mt-4 grid grid-cols-3 gap-6">
@@ -228,24 +231,26 @@ function QuoteComparison() {
       <div
         className="mt-5 w-full overflow-x-auto print:overflow-visible"
         role="region"
-        aria-label="Scrollable quote comparison template"
+        aria-label={t("Scrollable quote comparison template")}
         tabIndex={0}
       >
         <table className="w-full min-w-[44rem] border-collapse text-xs print:min-w-0">
           <thead>
             <tr>
-              <th className="w-8 border border-gray-300 p-2 text-left">S/N</th>
+              <th className="w-8 border border-gray-300 p-2 text-left">
+                {t("S/N")}
+              </th>
               <th className="border border-gray-300 p-2 text-left">
-                Item / scope of work
+                {t("Item / scope of work")}
               </th>
               <th className="border border-gray-300 p-2">
-                Quote A (contractor)
+                {t("Quote A (contractor)")}
               </th>
               <th className="border border-gray-300 p-2">
-                Quote B (contractor)
+                {t("Quote B (contractor)")}
               </th>
               <th className="border border-gray-300 p-2">
-                Quote C (contractor)
+                {t("Quote C (contractor)")}
               </th>
             </tr>
           </thead>
@@ -261,7 +266,7 @@ function QuoteComparison() {
             ))}
             <tr>
               <td colSpan={2} className="border border-gray-300 p-2 font-bold">
-                Materials total
+                {t("Materials total")}
               </td>
               <td className="border border-gray-300 p-2" />
               <td className="border border-gray-300 p-2" />
@@ -269,7 +274,7 @@ function QuoteComparison() {
             </tr>
             <tr>
               <td colSpan={2} className="border border-gray-300 p-2 font-bold">
-                Labour total
+                {t("Labour total")}
               </td>
               <td className="border border-gray-300 p-2" />
               <td className="border border-gray-300 p-2" />
@@ -277,7 +282,7 @@ function QuoteComparison() {
             </tr>
             <tr>
               <td colSpan={2} className="border border-gray-300 p-2 font-bold">
-                GRAND TOTAL
+                {t("GRAND TOTAL")}
               </td>
               <td className="border border-gray-300 p-2" />
               <td className="border border-gray-300 p-2" />
@@ -305,10 +310,11 @@ function QuoteComparison() {
 }
 
 function PaintSchedule() {
+  const { t } = useLanguage();
   return (
     <div className="bg-white p-8 text-black">
       <SheetHeader
-        title="Paint Project Schedule"
+        title={t("Paint Project Schedule")}
         hint="Work top down: ceilings first, then walls, then trim. Respect drying and curing times between coats."
       />
       <div className="mt-4 grid grid-cols-3 gap-6">
@@ -319,21 +325,23 @@ function PaintSchedule() {
       <div
         className="mt-5 w-full overflow-x-auto print:overflow-visible"
         role="region"
-        aria-label="Scrollable paint schedule template"
+        aria-label={t("Scrollable paint schedule template")}
         tabIndex={0}
       >
         <table className="w-full min-w-[44rem] border-collapse text-xs print:min-w-0">
           <thead>
             <tr>
-              <th className="w-8 border border-gray-300 p-2">S/N</th>
+              <th className="w-8 border border-gray-300 p-2">{t("S/N")}</th>
               <th className="border border-gray-300 p-2 text-left">
-                Room / surface
+                {t("Room / surface")}
               </th>
               <th className="border border-gray-300 p-2 text-left">
                 Colour &amp; finish
               </th>
-              <th className="border border-gray-300 p-2">Coats</th>
-              <th className="border border-gray-300 p-2">Planned date</th>
+              <th className="border border-gray-300 p-2">{t("Coats")}</th>
+              <th className="border border-gray-300 p-2">
+                {t("Planned date")}
+              </th>
               <th className="border border-gray-300 p-2">Done ✓</th>
             </tr>
           </thead>
@@ -354,10 +362,12 @@ function PaintSchedule() {
       <div className="mt-4 text-xs">
         <p className="font-semibold">Reminder notes:</p>
         <ul className="mt-1 list-inside list-disc text-gray-600">
-          <li>Repair and sand before any primer touches the wall.</li>
-          <li>Primer needs its full drying time, not just touch-dry.</li>
-          <li>Keep a wet edge while rolling to avoid lap marks.</li>
-          <li>Leave full cure time before washing or placing furniture.</li>
+          <li>{t("Repair and sand before any primer touches the wall.")}</li>
+          <li>{t("Primer needs its full drying time, not just touch-dry.")}</li>
+          <li>{t("Keep a wet edge while rolling to avoid lap marks.")}</li>
+          <li>
+            {t("Leave full cure time before washing or placing furniture.")}
+          </li>
         </ul>
       </div>
     </div>
@@ -365,10 +375,11 @@ function PaintSchedule() {
 }
 
 function MaterialChecklist() {
+  const { t } = useLanguage();
   return (
     <div className="bg-white p-8 text-black">
       <SheetHeader
-        title="Material Shopping Checklist"
+        title={t("Material Shopping Checklist")}
         hint="Copy quantities from your FRELUX calculator result, then fill the price columns at the supplier."
       />
       <div className="mt-4 grid grid-cols-3 gap-6">
@@ -379,20 +390,22 @@ function MaterialChecklist() {
       <div
         className="mt-5 w-full overflow-x-auto print:overflow-visible"
         role="region"
-        aria-label="Scrollable material checklist template"
+        aria-label={t("Scrollable material checklist template")}
         tabIndex={0}
       >
         <table className="w-full min-w-[44rem] border-collapse text-xs print:min-w-0">
           <thead>
             <tr>
               <th className="w-8 border border-gray-300 p-2">✓</th>
-              <th className="border border-gray-300 p-2 text-left">Material</th>
               <th className="border border-gray-300 p-2 text-left">
-                Specification / colour
+                {t("Material")}
               </th>
-              <th className="border border-gray-300 p-2">Quantity</th>
-              <th className="border border-gray-300 p-2">Unit price</th>
-              <th className="border border-gray-300 p-2">Line total</th>
+              <th className="border border-gray-300 p-2 text-left">
+                {t("Specification / colour")}
+              </th>
+              <th className="border border-gray-300 p-2">{t("Quantity")}</th>
+              <th className="border border-gray-300 p-2">{t("Unit price")}</th>
+              <th className="border border-gray-300 p-2">{t("Line total")}</th>
             </tr>
           </thead>
           <tbody>
@@ -408,7 +421,7 @@ function MaterialChecklist() {
             ))}
             <tr>
               <td colSpan={5} className="border border-gray-300 p-2 font-bold">
-                TOTAL SPEND
+                {t("TOTAL SPEND")}
               </td>
               <td className="border border-gray-300 p-2" />
             </tr>

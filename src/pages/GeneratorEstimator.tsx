@@ -36,6 +36,7 @@ import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
 import { shareableFromQuote } from "@/lib/estimate-share-adapter";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import { useLanguage } from "@/lib/i18n";
 import {
   calculateGenerator,
   parseGeneratorRules,
@@ -62,6 +63,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function GeneratorEstimator() {
+  const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
@@ -166,58 +168,58 @@ export default function GeneratorEstimator() {
   const buildQuote = (): Parameters<typeof printQuote>[0] | null => {
     if (!result?.ok) return null;
     return {
-    title: "FRELUX Backup Power Estimate",
-    subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
-    metaRows: result.steps.map(
-      (st) => [st.label, st.detail] as [string, string],
-    ),
-    lines: result.lines.map((l) => ({
-      label: l.label,
-      quantity:
-        l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
-      unit: l.unit,
-      unit_price:
-        l.unit_price === null
-          ? "unpriced"
-          : formatCurrency(l.unit_price, currencySymbol),
-      line_total:
-        l.line_total === null
-          ? "N/A"
-          : formatCurrency(l.line_total, currencySymbol),
-      detail: l.detail,
-    })),
-    totals: [
-      {
-        label: "Material subtotal",
-        value:
-          result.material_subtotal === null
-            ? "(prices/inputs missing)"
-            : formatCurrency(result.material_subtotal, currencySymbol),
-      },
-      {
-        label: "Priced so far",
-        value: formatCurrency(result.priced_subtotal, currencySymbol),
-      },
-      {
-        label: "Labour",
-        value:
-          labourMode === "none"
-            ? "Not included"
-            : formatCurrency(result.labour_total, currencySymbol),
-      },
-      {
-        label: "Grand total",
-        value:
-          result.grand_total === null
+      title: "FRELUX Backup Power Estimate",
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
+      metaRows: result.steps.map(
+        (st) => [st.label, st.detail] as [string, string],
+      ),
+      lines: result.lines.map((l) => ({
+        label: l.label,
+        quantity:
+          l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
+        unit: l.unit,
+        unit_price:
+          l.unit_price === null
+            ? "unpriced"
+            : formatCurrency(l.unit_price, currencySymbol),
+        line_total:
+          l.line_total === null
             ? "N/A"
-            : formatCurrency(result.grand_total, currencySymbol),
-        strong: true,
-      },
-    ],
-    warnings: result.warnings,
-    footer:
-      "Estimates are indicative and not a formal quote. Quantities are sized from your inputs; unpriced items are reported, never invented.",
-  };
+            : formatCurrency(l.line_total, currencySymbol),
+        detail: l.detail,
+      })),
+      totals: [
+        {
+          label: "Material subtotal",
+          value:
+            result.material_subtotal === null
+              ? "(prices/inputs missing)"
+              : formatCurrency(result.material_subtotal, currencySymbol),
+        },
+        {
+          label: "Priced so far",
+          value: formatCurrency(result.priced_subtotal, currencySymbol),
+        },
+        {
+          label: "Labour",
+          value:
+            labourMode === "none"
+              ? "Not included"
+              : formatCurrency(result.labour_total, currencySymbol),
+        },
+        {
+          label: "Grand total",
+          value:
+            result.grand_total === null
+              ? "N/A"
+              : formatCurrency(result.grand_total, currencySymbol),
+          strong: true,
+        },
+      ],
+      warnings: result.warnings,
+      footer:
+        "Estimates are indicative and not a formal quote. Quantities are sized from your inputs; unpriced items are reported, never invented.",
+    };
   };
 
   const exportQuote = () => {
@@ -225,7 +227,6 @@ export default function GeneratorEstimator() {
     if (!quote) return;
     printQuote(quote, "frelux-generator-estimate.html");
   };
-
 
   const save = useCallback(async () => {
     if (!result || !result.ok || saving) return;
@@ -328,14 +329,14 @@ export default function GeneratorEstimator() {
           { label: "Construction Tools", path: "/construction-tools" },
           { label: "Generator & Power Backup Estimator" },
         ]}
-        title="Generator & Power Backup Estimator"
+        title={t("Generator & Power Backup Estimator")}
         subtitle="Choose your generator bracket from your own load assessment and give the measured cable run. The engine lists generator units, ATS, battery and cable with waste visible, and prices from the shared material database. It never sizes the generator: estimation only, not an installation design."
       />
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
         <h3 className="mb-1 font-semibold">
-          Your load decision, your measurements
+          {t("Your load decision, your measurements")}
         </h3>
         <p className="mb-2 text-xs text-muted-foreground">
           This engine NEVER sizes the generator. Choose the bracket from your
@@ -348,7 +349,7 @@ export default function GeneratorEstimator() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <label className="block text-sm">
             <span className="mb-1 block font-medium">
-              Generator size (your choice)
+              {t("Generator size (your choice)")}
             </span>
             <select
               value={size}
@@ -376,7 +377,7 @@ export default function GeneratorEstimator() {
               checked={includeAts}
               onChange={(e) => setIncludeAts(e.target.checked)}
             />
-            Include ATS (one per set, labelled)
+            {t("Include ATS (one per set, labelled)")}
           </label>
           <label className="inline-flex items-center gap-2">
             <input
@@ -384,14 +385,14 @@ export default function GeneratorEstimator() {
               checked={includeBattery}
               onChange={(e) => setIncludeBattery(e.target.checked)}
             />
-            Include starting battery (one per set, labelled)
+            {t("Include starting battery (one per set, labelled)")}
           </label>
         </div>
 
-        <h3 className="mt-5 mb-2 font-semibold">Labour</h3>
+        <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
         <div className="flex flex-wrap items-end gap-3">
           <label className="text-sm">
-            <span className="mb-1 block font-medium">Labour mode</span>
+            <span className="mb-1 block font-medium">{t("Labour mode")}</span>
             <select
               value={labourMode}
               onChange={(e) =>
@@ -399,8 +400,8 @@ export default function GeneratorEstimator() {
               }
               className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
             >
-              <option value="none">Not included</option>
-              <option value="lump_sum">Lump sum</option>
+              <option value="none">{t("Not included")}</option>
+              <option value="lump_sum">{t("Lump sum")}</option>
             </select>
           </label>
           {labourMode !== "none" &&
@@ -420,7 +421,7 @@ export default function GeneratorEstimator() {
             onClick={run}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
-            Calculate estimate
+            {t("Calculate estimate")}
           </button>
           {result?.ok && (
             <>
@@ -435,9 +436,13 @@ export default function GeneratorEstimator() {
                 onClick={exportQuote}
                 className="rounded-md border px-4 py-2 text-sm font-medium"
               >
-                Export quote (PDF)
+                {t("Export quote (PDF)")}
               </button>
-              <QuoteShareButton build={buildQuote} kind="Backup Power Estimate" link="/generator" />
+              <QuoteShareButton
+                build={buildQuote}
+                kind="Backup Power Estimate"
+                link="/generator"
+              />
               <SaveToProjectButton
                 calculatorType="generator"
                 calculatorSlug="generator-estimator"
@@ -481,7 +486,7 @@ export default function GeneratorEstimator() {
           role="alert"
         >
           <h3 className="mb-1 font-semibold text-destructive">
-            Fix these inputs first
+            {t("Fix these inputs first")}
           </h3>
           <ul className="list-disc pl-5 text-sm text-destructive">
             {result.errors.map((e) => (
@@ -505,7 +510,9 @@ export default function GeneratorEstimator() {
           >
             {result.incomplete ? (
               <>
-                <strong className="block">This estimate is INCOMPLETE.</strong>
+                <strong className="block">
+                  {t("This estimate is INCOMPLETE.")}
+                </strong>
                 <ul className="mt-1 list-disc pl-5">
                   {result.missing.map((m) => (
                     <li key={m}>{m}</li>
@@ -532,16 +539,16 @@ export default function GeneratorEstimator() {
           <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
             <table
               className="w-full text-sm"
-              aria-label="Backup power material takeoff"
+              aria-label={t("Backup power material takeoff")}
             >
               <thead className="border-b bg-muted/50 text-left">
                 <tr>
-                  <th className="p-3">Material</th>
-                  <th className="p-3">Quantity</th>
-                  <th className="p-3">Unit</th>
-                  <th className="p-3">How it was sized</th>
-                  <th className="p-3">Unit price</th>
-                  <th className="p-3">Line total</th>
+                  <th className="p-3">{t("Material")}</th>
+                  <th className="p-3">{t("Quantity")}</th>
+                  <th className="p-3">{t("Unit")}</th>
+                  <th className="p-3">{t("How it was sized")}</th>
+                  <th className="p-3">{t("Unit price")}</th>
+                  <th className="p-3">{t("Line total")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -560,7 +567,7 @@ export default function GeneratorEstimator() {
                     <td className="p-3">
                       {l.unit_price === null ? (
                         <span className="font-medium text-amber-700 dark:text-amber-400">
-                          PRICE NOT CONFIGURED
+                          {t("PRICE NOT CONFIGURED")}
                         </span>
                       ) : (
                         formatCurrency(l.unit_price, currencySymbol)
@@ -579,7 +586,7 @@ export default function GeneratorEstimator() {
 
           {/* Breakdown */}
           <div className="mb-6 rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">Calculation breakdown</h3>
+            <h3 className="mb-2 font-semibold">{t("Calculation breakdown")}</h3>
             <ol className="space-y-2 text-sm">
               {result.steps.map((s, i) => (
                 <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
@@ -593,7 +600,9 @@ export default function GeneratorEstimator() {
           {/* Cost summary */}
           <div className="mb-6 grid gap-3 sm:grid-cols-4">
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Material subtotal</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Material subtotal")}
+              </p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
                   ? "(prices/inputs missing)"
@@ -602,14 +611,14 @@ export default function GeneratorEstimator() {
             </div>
             <div className="rounded-lg border bg-card p-4">
               <p className="text-sm text-muted-foreground">
-                Of which priced so far
+                {t("Of which priced so far")}
               </p>
               <p className="text-xl font-semibold">
                 {formatCurrency(result.priced_subtotal, currencySymbol)}
               </p>
             </div>
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Labour</p>
+              <p className="text-sm text-muted-foreground">{t("Labour")}</p>
               <p className="text-xl font-semibold">
                 {labourMode === "none"
                   ? "Not included"
@@ -617,7 +626,9 @@ export default function GeneratorEstimator() {
               </p>
             </div>
             <div className="rounded-lg border bg-primary/10 p-4">
-              <p className="text-sm text-muted-foreground">Grand total</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Grand total")}
+              </p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
                   ? "N/A"
@@ -628,7 +639,7 @@ export default function GeneratorEstimator() {
 
           {/* Warnings */}
           <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
-            <h3 className="mb-1 font-semibold">Important</h3>
+            <h3 className="mb-1 font-semibold">{t("Important")}</h3>
             <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
               {result.warnings.map((w) => (
                 <li key={w}>{w}</li>
@@ -642,7 +653,7 @@ export default function GeneratorEstimator() {
 
       {/* How it works */}
       <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">How this estimator works</h2>
+        <h2 className="mb-2 font-semibold">{t("How this estimator works")}</h2>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
             The size bracket is YOUR decision from your load assessment. The

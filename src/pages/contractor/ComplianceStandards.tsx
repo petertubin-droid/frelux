@@ -21,6 +21,7 @@ import {
   type ComplianceChecklist,
 } from "@/lib/regulatory/compliance-checklist";
 import { ALL_20_MARKETS } from "@/lib/international/engine-inventory-types";
+import { useLanguage } from "@/lib/i18n";
 
 /** Engine scopes the registry tracks (applies_to->engines union, stable order). */
 const ENGINE_SCOPES = [
@@ -44,8 +45,13 @@ const CONFIDENCE_BADGE: Record<string, string> = {
 };
 
 export default function ComplianceStandards() {
+  const { t } = useLanguage();
   const [marketCode, setMarketCode] = useState("NG");
-  const [engines, setEngines] = useState<string[]>(["structural", "plumbing", "electrical"]);
+  const [engines, setEngines] = useState<string[]>([
+    "structural",
+    "plumbing",
+    "electrical",
+  ]);
   const [checklist, setChecklist] = useState<ComplianceChecklist | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -82,7 +88,9 @@ export default function ComplianceStandards() {
       list.push(item);
       groups.set(item.domain, list);
     }
-    return Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    return Array.from(groups.entries()).sort((a, b) =>
+      a[0].localeCompare(b[0]),
+    );
   }, [checklist]);
 
   return (
@@ -107,9 +115,9 @@ export default function ComplianceStandards() {
           <p className="mt-1 max-w-2xl text-xs leading-snug text-muted-foreground">
             A cited checklist from the live standards registry: every entry
             names its exact reference, authority and verified date. The
-            checklist cites — it never certifies; expert review gates
-            pending items, and engines with no standard on file are
-            disclosed as unknowns.
+            checklist cites — it never certifies; expert review gates pending
+            items, and engines with no standard on file are disclosed as
+            unknowns.
           </p>
           {checklist && (
             <div className="mt-3 flex flex-wrap gap-3 text-xs">
@@ -128,8 +136,11 @@ export default function ComplianceStandards() {
       {/* ── Scope controls ── */}
       <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5">
         <div className="flex flex-wrap items-center gap-2">
-          <label className="text-xs font-medium text-muted-foreground" htmlFor="cl-market">
-            Market
+          <label
+            className="text-xs font-medium text-muted-foreground"
+            htmlFor="cl-market"
+          >
+            {t("Market")}
           </label>
           <select
             id="cl-market"
@@ -145,7 +156,9 @@ export default function ComplianceStandards() {
           </select>
         </div>
         <div className="mt-3">
-          <p className="text-xs font-medium text-muted-foreground">Project scope</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("Project scope")}
+          </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {ENGINE_SCOPES.map((e) => (
               <button
@@ -168,7 +181,10 @@ export default function ComplianceStandards() {
 
       {loading && (
         <div className="flex justify-center py-8">
-          <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-primary" />
+          <Loader2
+            aria-hidden="true"
+            className="h-6 w-6 animate-spin text-primary"
+          />
         </div>
       )}
       {loadError && (
@@ -181,10 +197,9 @@ export default function ComplianceStandards() {
         <>
           {checklist.noStandardsOnFile && (
             <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs text-amber-700 dark:text-amber-400">
-              No standard is on file in the registry for{" "}
-              {checklist.marketCode}. Nothing is invented: confirm the
-              governing requirements with the relevant authority before
-              construction.
+              No standard is on file in the registry for {checklist.marketCode}.
+              Nothing is invented: confirm the governing requirements with the
+              relevant authority before construction.
             </div>
           )}
 
@@ -212,7 +227,8 @@ export default function ComplianceStandards() {
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs">
                       <span
                         className={`rounded px-1.5 py-0.5 font-medium ${
-                          CONFIDENCE_BADGE[item.confidence ?? "low"] ?? "bg-secondary text-secondary-foreground"
+                          CONFIDENCE_BADGE[item.confidence ?? "low"] ??
+                          "bg-secondary text-secondary-foreground"
                         }`}
                       >
                         {item.confidence === "high"
@@ -262,8 +278,11 @@ export default function ComplianceStandards() {
           {checklist.unknowns.length > 0 && (
             <div className="rounded-xl border border-border bg-card p-4 text-xs dark:border-white/5">
               <h3 className="flex items-center gap-1.5 font-semibold text-foreground">
-                <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5 text-primary" />
-                Disclosed unknowns
+                <ShieldCheck
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 text-primary"
+                />
+                {t("Disclosed unknowns")}
               </h3>
               <p className="mt-1 text-muted-foreground">
                 No standard is on file for: {checklist.unknowns.join(", ")}.{" "}
@@ -274,7 +293,9 @@ export default function ComplianceStandards() {
           )}
 
           {/* ── Never-certify disclaimer ── */}
-          <p className="text-xs text-muted-foreground">{checklist.disclaimer}</p>
+          <p className="text-xs text-muted-foreground">
+            {checklist.disclaimer}
+          </p>
         </>
       )}
     </div>

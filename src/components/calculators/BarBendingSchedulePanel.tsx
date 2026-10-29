@@ -12,6 +12,7 @@ import {
   type BbsDraftRow,
 } from "@/lib/estimation/bbs-panel-model";
 import { downloadCsv } from "@/lib/export-utils";
+import { useLanguage } from "@/lib/i18n";
 
 const SHAPE_CODES: Bs8666ShapeCode[] = ["00", "11", "21", "51"];
 
@@ -34,6 +35,7 @@ const emptyRow = (index: number): BbsDraftRow => ({
  * that cannot be computed shows no length rather than a guess.
  */
 export function BarBendingSchedulePanel() {
+  const { t } = useLanguage();
   const [draft, setDraft] = useState<BbsDraftRow[]>(DEFAULT_BBS_DRAFT);
 
   const { schedule, issues } = useMemo(
@@ -64,7 +66,9 @@ export function BarBendingSchedulePanel() {
     <div className="card p-5 sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold">Bar bending schedule (BS 8666)</h2>
+          <h2 className="text-xl font-bold">
+            {t("Bar bending schedule (BS 8666)")}
+          </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Cutting lengths are neutral-axis lengths for BS 8666 shape codes,
             with mandrel diameters of 4d up to 16 mm and 7d above, and 135° link
@@ -78,7 +82,7 @@ export function BarBendingSchedulePanel() {
             className="btn btn-secondary inline-flex items-center gap-2"
             onClick={() => setDraft((rows) => [...rows, emptyRow(rows.length)])}
           >
-            <Plus className="h-4 w-4" /> Add bar mark
+            <Plus className="h-4 w-4" /> {t("Add bar mark")}
           </button>
           <button
             type="button"
@@ -86,7 +90,7 @@ export function BarBendingSchedulePanel() {
             onClick={exportCsv}
             disabled={schedule.rows.length === 0}
           >
-            <Download className="h-4 w-4" /> Export CSV
+            <Download className="h-4 w-4" /> {t("Export CSV")}
           </button>
         </div>
       </div>
@@ -98,7 +102,7 @@ export function BarBendingSchedulePanel() {
             className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7 lg:items-end"
           >
             <label className="grid gap-1 text-sm font-medium">
-              Bar mark
+              {t("Bar mark")}
               <input
                 aria-label={`Bar mark row ${index + 1}`}
                 className="input-field"
@@ -107,7 +111,7 @@ export function BarBendingSchedulePanel() {
               />
             </label>
             <label className="grid gap-1 text-sm font-medium">
-              Type/grade
+              {t("Type/grade")}
               <input
                 aria-label={`Type or grade row ${index + 1}`}
                 className="input-field"
@@ -116,7 +120,7 @@ export function BarBendingSchedulePanel() {
               />
             </label>
             <label className="grid gap-1 text-sm font-medium">
-              Size (mm)
+              {t("Size (mm)")}
               <input
                 aria-label={`Bar size row ${index + 1}`}
                 className="input-field"
@@ -128,7 +132,7 @@ export function BarBendingSchedulePanel() {
               />
             </label>
             <label className="grid gap-1 text-sm font-medium">
-              Members
+              {t("Members")}
               <input
                 aria-label={`Members row ${index + 1}`}
                 className="input-field"
@@ -140,7 +144,7 @@ export function BarBendingSchedulePanel() {
               />
             </label>
             <label className="grid gap-1 text-sm font-medium">
-              Bars in each
+              {t("Bars in each")}
               <input
                 aria-label={`Bars in each row ${index + 1}`}
                 className="input-field"
@@ -154,7 +158,7 @@ export function BarBendingSchedulePanel() {
               />
             </label>
             <label className="grid gap-1 text-sm font-medium">
-              Shape code
+              {t("Shape code")}
               <select
                 aria-label={`Shape code row ${index + 1}`}
                 className="input-field"
@@ -216,7 +220,7 @@ export function BarBendingSchedulePanel() {
               onClick={() => remove(index)}
               aria-label={`Remove bar mark row ${index + 1}`}
             >
-              <Trash2 className="h-4 w-4" /> Remove
+              <Trash2 className="h-4 w-4" /> {t("Remove")}
             </button>
           </div>
         ))}
@@ -227,17 +231,17 @@ export function BarBendingSchedulePanel() {
           <table className="w-full min-w-[900px] text-sm">
             <thead>
               <tr className="border-b text-left">
-                <th className="py-2 pr-3">Mark</th>
-                <th className="py-2 pr-3">Type/grade</th>
-                <th className="py-2 pr-3">Size</th>
-                <th className="py-2 pr-3">Members</th>
-                <th className="py-2 pr-3">Bars each</th>
-                <th className="py-2 pr-3">Total bars</th>
-                <th className="py-2 pr-3">Length each</th>
-                <th className="py-2 pr-3">Total length</th>
-                <th className="py-2 pr-3">Shape</th>
-                <th className="py-2 pr-3">A / B / C</th>
-                <th className="py-2 pr-3">Weight</th>
+                <th className="py-2 pr-3">{t("Mark")}</th>
+                <th className="py-2 pr-3">{t("Type/grade")}</th>
+                <th className="py-2 pr-3">{t("Size")}</th>
+                <th className="py-2 pr-3">{t("Members")}</th>
+                <th className="py-2 pr-3">{t("Bars each")}</th>
+                <th className="py-2 pr-3">{t("Total bars")}</th>
+                <th className="py-2 pr-3">{t("Length each")}</th>
+                <th className="py-2 pr-3">{t("Total length")}</th>
+                <th className="py-2 pr-3">{t("Shape")}</th>
+                <th className="py-2 pr-3">{t("A / B / C")}</th>
+                <th className="py-2 pr-3">{t("Weight")}</th>
               </tr>
             </thead>
             <tbody>

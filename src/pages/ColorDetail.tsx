@@ -13,10 +13,12 @@ import type { DbColorCombination, DbColorCategory } from "@/types/database";
 import AdSlot from "@/components/ui/AdSlot";
 import NotFound from "@/pages/NotFound";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 type Status = "loading" | "ready" | "error";
 
 export default function ColorDetail() {
+  const { t } = useLanguage();
   const { slug } = useParams<{ slug: string }>();
   const [status, setStatus] = useState<Status>("loading");
   const [color, setColor] = useState<DbColorCombination | null>(null);
@@ -92,7 +94,7 @@ export default function ColorDetail() {
           to="/colors/"
           className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline"
         >
-          Back to color ideas
+          {t("Back to color ideas")}
         </Link>
       </div>
     );
@@ -128,7 +130,7 @@ export default function ColorDetail() {
         className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-brand-purple"
       >
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-        All color ideas
+        {t("All color ideas")}
       </Link>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2">
@@ -215,7 +217,7 @@ export default function ColorDetail() {
       {related.length > 0 && (
         <div>
           <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-            Related combinations
+            {t("Related combinations")}
           </h2>
           <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((c) => (

@@ -11,6 +11,7 @@ import {
 import Container from "@/components/ui/Container";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const templateActions = [
   {
@@ -46,6 +47,7 @@ const templateActions = [
 ];
 
 export default function TemplatesShowcase() {
+  const { t } = useLanguage();
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
 
   return (
@@ -58,10 +60,10 @@ export default function TemplatesShowcase() {
       <Container className="relative">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple dark:text-brand-purple-lighter">
-            Saved calculations
+            {t("Saved calculations")}
           </span>
           <h2 className="mt-3 font-display text-3xl font-bold text-foreground dark:text-primary-foreground sm:text-4xl">
-            Save, reuse & share your estimates
+            {t("Save, reuse & share your estimates")}
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground">
             Every calculation is a reusable template. Organize your projects,
@@ -111,7 +113,7 @@ export default function TemplatesShowcase() {
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 rounded-md bg-primary/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
                   <FileText className="h-3 w-3" />
-                  Painting
+                  {t("Painting")}
                 </span>
                 <span className="flex items-center gap-0.5 text-xs text-amber-500">
                   <Bookmark className="h-3 w-3 fill-amber-500" />
@@ -123,7 +125,7 @@ export default function TemplatesShowcase() {
             </div>
             <div className="px-5 py-4">
               <h3 className="font-display text-base font-bold text-foreground dark:text-primary-foreground">
-                Living Room, 2 Coats
+                {t("Living Room, 2 Coats")}
               </h3>
               <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 12 × 12 ft · 2 coats · Premium emulsion
@@ -142,20 +144,20 @@ export default function TemplatesShowcase() {
                 className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
               >
                 <Copy className="h-3.5 w-3.5" />
-                Duplicate
+                {t("Duplicate")}
               </Button>
               <Button
                 variant="ghost"
                 className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
               >
                 <Share2 className="h-3.5 w-3.5" />
-                Share
+                {t("Share")}
               </Button>
               <Link
                 to="/my-templates/"
                 className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-brand-purple transition-all hover:gap-2 dark:text-brand-purple-lighter"
               >
-                View all
+                {t("View all")}
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -168,7 +170,7 @@ export default function TemplatesShowcase() {
             to="/templates/"
             className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
           >
-            Browse all templates
+            {t("Browse all templates")}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>

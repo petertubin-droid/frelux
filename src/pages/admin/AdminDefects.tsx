@@ -32,10 +32,12 @@ import {
   deleteDefectCause,
 } from "@/lib/estimation/queries";
 import type { Defect, DefectCause } from "@/types/estimation";
+import { useLanguage } from "@/lib/i18n";
 
 const SEVERITIES: DefectCause["severity"][] = ["low", "medium", "high"];
 
 export default function AdminDefects() {
+  const { t } = useLanguage();
   // ── symptom list ──
   const [defects, setDefects] = useState<Defect[]>([]);
   const [loading, setLoading] = useState(true);
@@ -297,21 +299,21 @@ export default function AdminDefects() {
           action={
             <div className="flex gap-2">
               <AdminButton onClick={() => setSelected(null)}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> All symptoms
+                <ArrowLeft className="mr-2 h-4 w-4" /> {t("All symptoms")}
               </AdminButton>
               <AdminButton onClick={openCauseCreate}>
-                <Plus className="mr-2 h-4 w-4" /> Add Cause
+                <Plus className="mr-2 h-4 w-4" /> {t("Add Cause")}
               </AdminButton>
             </div>
           }
         />
       ) : (
         <AdminHeader
-          title="Defects"
+          title={t("Defects")}
           subtitle="Admin-configured defect symptoms and root causes with fix quantities. Select a symptom to manage its causes. The diagnosis engine refuses unknown symptoms and never invents consumption rates."
           action={
             <AdminButton onClick={openDefectCreate}>
-              <Plus className="mr-2 h-4 w-4" /> Add Symptom
+              <Plus className="mr-2 h-4 w-4" /> {t("Add Symptom")}
             </AdminButton>
           }
         />
@@ -320,17 +322,19 @@ export default function AdminDefects() {
       {error && (
         <StateMessage
           type="error"
-          title="Something went wrong"
+          title={t("Something went wrong")}
           message={error}
         />
       )}
-      {success && <StateMessage type="empty" title="Saved" message={success} />}
+      {success && (
+        <StateMessage type="empty" title={t("Saved")} message={success} />
+      )}
 
       {!selected &&
         (loading ? (
           <StateMessage
             type="loading"
-            title="Loading"
+            title={t("Loading")}
             message="Loading symptoms…"
           />
         ) : defects.length === 0 ? (
@@ -345,9 +349,9 @@ export default function AdminDefects() {
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-left">
                 <tr>
-                  <th className="p-3">Symptom</th>
-                  <th className="p-3">Key</th>
-                  <th className="p-3">Active</th>
+                  <th className="p-3">{t("Symptom")}</th>
+                  <th className="p-3">{t("Key")}</th>
+                  <th className="p-3">{t("Active")}</th>
                   <th className="p-3"></th>
                 </tr>
               </thead>
@@ -381,19 +385,19 @@ export default function AdminDefects() {
                       <div className="flex gap-1">
                         <AdminIconButton
                           onClick={() => setSelected(d)}
-                          title="Manage causes"
+                          title={t("Manage causes")}
                         >
                           <Stethoscope className="h-4 w-4" />
                         </AdminIconButton>
                         <AdminIconButton
                           onClick={() => openDefectEdit(d)}
-                          title="Edit"
+                          title={t("Edit")}
                         >
                           <Pencil className="h-4 w-4" />
                         </AdminIconButton>
                         <AdminIconButton
                           onClick={() => removeDefect(d)}
-                          title="Delete"
+                          title={t("Delete")}
                         >
                           <Trash2 className="h-4 w-4" />
                         </AdminIconButton>
@@ -410,7 +414,7 @@ export default function AdminDefects() {
         (causesLoading ? (
           <StateMessage
             type="loading"
-            title="Loading"
+            title={t("Loading")}
             message="Loading causes…"
           />
         ) : causes.length === 0 ? (
@@ -424,11 +428,11 @@ export default function AdminDefects() {
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-left">
                 <tr>
-                  <th className="p-3">Cause</th>
-                  <th className="p-3">Severity</th>
-                  <th className="p-3">Fix</th>
-                  <th className="p-3">Consumption</th>
-                  <th className="p-3">Active</th>
+                  <th className="p-3">{t("Cause")}</th>
+                  <th className="p-3">{t("Severity")}</th>
+                  <th className="p-3">{t("Fix")}</th>
+                  <th className="p-3">{t("Consumption")}</th>
+                  <th className="p-3">{t("Active")}</th>
                   <th className="p-3"></th>
                 </tr>
               </thead>
@@ -468,13 +472,13 @@ export default function AdminDefects() {
                       <div className="flex gap-1">
                         <AdminIconButton
                           onClick={() => openCauseEdit(c)}
-                          title="Edit"
+                          title={t("Edit")}
                         >
                           <Pencil className="h-4 w-4" />
                         </AdminIconButton>
                         <AdminIconButton
                           onClick={() => removeCause(c)}
-                          title="Delete"
+                          title={t("Delete")}
                         >
                           <Trash2 className="h-4 w-4" />
                         </AdminIconButton>
@@ -522,7 +526,7 @@ export default function AdminDefects() {
               onChange={(e) =>
                 setDefectForm({ ...defectForm, description: e.target.value })
               }
-              placeholder="What the symptom looks like"
+              placeholder={t("What the symptom looks like")}
             />
           </AdminField>
           <AdminField label="Active">
@@ -533,10 +537,10 @@ export default function AdminDefects() {
           </AdminField>
           <div className="flex justify-end gap-2">
             <AdminButton onClick={() => setShowDefectForm(false)}>
-              Cancel
+              {t("Cancel")}
             </AdminButton>
             <AdminButton onClick={saveDefect} variant="primary">
-              Save
+              {t("Save")}
             </AdminButton>
           </div>
         </div>
@@ -579,7 +583,7 @@ export default function AdminDefects() {
               onChange={(e) =>
                 setCauseForm({ ...causeForm, root_cause: e.target.value })
               }
-              placeholder="What is actually happening"
+              placeholder={t("What is actually happening")}
             />
           </AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -667,10 +671,10 @@ export default function AdminDefects() {
           </AdminField>
           <div className="flex justify-end gap-2">
             <AdminButton onClick={() => setShowCauseForm(false)}>
-              Cancel
+              {t("Cancel")}
             </AdminButton>
             <AdminButton onClick={saveCause} variant="primary">
-              Save
+              {t("Save")}
             </AdminButton>
           </div>
         </div>

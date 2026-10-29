@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { DbSiteSettings, AiAccessMode } from "@/types/database";
+import { useLanguage } from "@/lib/i18n";
 import {
   AdminHeader,
   AdminCard,
@@ -56,6 +57,7 @@ const ACCESS_MODES: {
 ];
 
 export default function AdminAiMonetization() {
+  const { t } = useLanguage();
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -136,12 +138,14 @@ export default function AdminAiMonetization() {
     return (
       <>
         <AdminHeader
-          title="AI Monetization"
-          subtitle="Configure AI feature access, daily limits, and monetization options."
+          title={t("AI Monetization")}
+          subtitle={t(
+            "Configure AI feature access, daily limits, and monetization options.",
+          )}
         />
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={t("Loading…")}
           message="Fetching AI settings."
         />
       </>
@@ -150,12 +154,14 @@ export default function AdminAiMonetization() {
     return (
       <>
         <AdminHeader
-          title="AI Monetization"
-          subtitle="Configure AI feature access, daily limits, and monetization options."
+          title={t("AI Monetization")}
+          subtitle={t(
+            "Configure AI feature access, daily limits, and monetization options.",
+          )}
         />
         <StateMessage
           type="error"
-          title="Couldn't load settings"
+          title={t("Couldn't load settings")}
           message={error ?? "No settings row found."}
         />
       </>
@@ -167,8 +173,10 @@ export default function AdminAiMonetization() {
   return (
     <>
       <AdminHeader
-        title="AI Monetization"
-        subtitle="Configure AI feature access, daily limits, and monetization options."
+        title={t("AI Monetization")}
+        subtitle={t(
+          "Configure AI feature access, daily limits, and monetization options.",
+        )}
         action={
           <AdminButton onClick={onSave} disabled={saving || !canSave()}>
             <Save aria-hidden="true" className="h-4 w-4" />
@@ -193,7 +201,9 @@ export default function AdminAiMonetization() {
         <div className="mb-4 flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4 text-sm text-orange-700">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-orange-500" />
           <div>
-            <p className="font-semibold">No payment provider connected</p>
+            <p className="font-semibold">
+              {t("No payment provider connected")}
+            </p>
             <p className="mt-1 text-xs">
               Paid mode is selected but no payment provider (Paystack,
               Flutterwave, Stripe) is configured. Users will be completely
@@ -213,7 +223,7 @@ export default function AdminAiMonetization() {
             </div>
             <div className="flex-1">
               <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-                Global AI
+                {t("Global AI")}
               </h2>
               <div className="mt-3 flex items-center gap-3">
                 <Toggle
@@ -222,10 +232,10 @@ export default function AdminAiMonetization() {
                 />
                 <div>
                   <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                    AI features enabled
+                    {t("AI features enabled")}
                   </p>
                   <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                    Master switch for all Smart Color Assistant features.
+                    {t("Master switch for all Smart Color Assistant features.")}
                   </p>
                 </div>
               </div>
@@ -236,7 +246,7 @@ export default function AdminAiMonetization() {
         {/* Access mode */}
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-            Access Mode
+            {t("Access Mode")}
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {ACCESS_MODES.map((m) => (
@@ -272,7 +282,7 @@ export default function AdminAiMonetization() {
         {/* Daily usage */}
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-            Shared Daily Usage
+            {t("Shared Daily Usage")}
           </h2>
           <p className="mb-4 text-xs text-muted-foreground dark:text-muted-foreground">
             This limit is shared across all AI features (text consultation,
@@ -298,8 +308,8 @@ export default function AdminAiMonetization() {
                 value={settings.ai_reset_period}
                 onChange={(e) => update("ai_reset_period", e.target.value)}
               >
-                <option value="daily">Daily (midnight reset)</option>
-                <option value="hourly">Hourly</option>
+                <option value="daily">{t("Daily (midnight reset)")}</option>
+                <option value="hourly">{t("Hourly")}</option>
               </AdminSelect>
             </AdminField>
           </div>
@@ -310,7 +320,7 @@ export default function AdminAiMonetization() {
           <div className="flex items-center gap-2">
             <Gift aria-hidden="true" className="h-4 w-4 text-accent-orange" />
             <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-              Rewarded Access
+              {t("Rewarded Access")}
             </h2>
           </div>
           <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
@@ -324,7 +334,7 @@ export default function AdminAiMonetization() {
               onChange={(v) => update("ai_rewarded_enabled", v)}
             />
             <span className="text-sm text-muted-foreground">
-              Rewarded access available (shows option to users)
+              {t("Rewarded access available (shows option to users)")}
             </span>
           </div>
         </AdminCard>
@@ -337,7 +347,7 @@ export default function AdminAiMonetization() {
               className="h-4 w-4 text-accent-green"
             />
             <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-              Paid Access
+              {t("Paid Access")}
             </h2>
           </div>
           <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
@@ -402,11 +412,11 @@ export default function AdminAiMonetization() {
           <div className="flex items-center gap-2">
             <Lock aria-hidden="true" className="h-4 w-4 text-foreground" />
             <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-              Admin Override
+              {t("Admin Override")}
             </h2>
           </div>
           <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
-            When enabled, admin users bypass AI usage limits for testing.
+            {t("When enabled, admin users bypass AI usage limits for testing.")}
           </p>
           <div className="mt-3 flex items-center gap-3">
             <Toggle
@@ -414,7 +424,7 @@ export default function AdminAiMonetization() {
               onChange={(v) => update("ai_admin_override", v)}
             />
             <span className="text-sm text-muted-foreground">
-              Admins bypass daily limits
+              {t("Admins bypass daily limits")}
             </span>
           </div>
         </AdminCard>

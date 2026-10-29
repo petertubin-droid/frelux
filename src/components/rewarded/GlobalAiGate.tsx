@@ -19,6 +19,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/lib/i18n";
 
 interface GlobalAiGateProps {
   featureName: string;
@@ -29,6 +30,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
   featureName,
   children,
 }) => {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const { wallet } = useCredits();
   const [gatewayStatus, setGatewayStatus] = useState<AiGatewayStatus | null>(
@@ -54,7 +56,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
     return (
       <div className="flex items-center justify-center p-8 text-sm text-muted-foreground">
         <Sparkles className="w-4 h-4 mr-2 animate-spin text-primary" />
-        Checking AI Access & Entitlements...
+        {t("Checking AI Access & Entitlements...")}
       </div>
     );
   }
@@ -78,7 +80,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
           </div>
 
           <h3 className="text-lg font-bold text-foreground mb-2">
-            Daily Guest AI Allowance Used
+            {t("Daily Guest AI Allowance Used")}
           </h3>
 
           <p className="text-sm text-muted-foreground mb-6">
@@ -93,7 +95,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
             >
               <UserPlus className="w-4 h-4" />
-              Create Free Account
+              {t("Create Free Account")}
             </button>
 
             <button
@@ -101,7 +103,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
             >
               <LogIn className="w-4 h-4" />
-              Sign In
+              {t("Sign In")}
             </button>
           </div>
         </div>
@@ -118,7 +120,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
               Unlocked Today
             </span>
             <span className="opacity-80">
-              Shared across all FRELUX AI tools
+              {t("Shared across all FRELUX AI tools")}
             </span>
           </div>
           {children}
@@ -134,7 +136,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
         </div>
 
         <h3 className="text-lg font-bold text-foreground mb-2">
-          Unlock 1 Free Guest AI Operation
+          {t("Unlock 1 Free Guest AI Operation")}
         </h3>
 
         <p className="text-sm text-muted-foreground mb-4">
@@ -157,13 +159,13 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
               onClick={() => navigate("/login?mode=signup")}
               className="px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
             >
-              Create Free Account
+              {t("Create Free Account")}
             </button>
             <button
               onClick={() => navigate("/login")}
               className="px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
             >
-              Sign In
+              {t("Sign In")}
             </button>
           </div>
         </div>
@@ -189,7 +191,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
             onClick={() => navigate("/profile")}
             className="text-primary hover:underline flex items-center gap-1"
           >
-            Manage in Profile <ArrowRight className="w-3 h-3" />
+            {t("Manage in Profile")} <ArrowRight className="w-3 h-3" />
           </button>
         </div>
         {children}
@@ -206,7 +208,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
       </div>
 
       <h3 className="text-lg font-bold text-foreground mb-2">
-        Additional Credits Needed
+        {t("Additional Credits Needed")}
       </h3>
 
       <p className="text-sm text-muted-foreground mb-4">
@@ -227,7 +229,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
           className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           <Coins className="w-4 h-4" />
-          Earn or Buy in Profile
+          {t("Earn or Buy in Profile")}
         </button>
 
         <button
@@ -235,7 +237,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
           className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
         >
           <ShieldCheck className="w-4 h-4" />
-          Upgrade to Pro
+          {t("Upgrade to Pro")}
         </button>
       </div>
     </div>

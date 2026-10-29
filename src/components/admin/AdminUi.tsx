@@ -239,6 +239,7 @@ export function GroupControls({
   onCollapseAll: () => void;
   groupLabel?: string;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="flex items-center gap-3 text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
       <span>Organized into {groupLabel}</span>
@@ -248,7 +249,7 @@ export function GroupControls({
         onClick={onExpandAll}
         className="text-brand-purple hover:underline dark:text-brand-purple-lighter"
       >
-        Expand all
+        {t("Expand all")}
       </Button>
       <span className="text-muted-foreground/80 dark:text-muted-foreground">
         ·
@@ -259,7 +260,7 @@ export function GroupControls({
         onClick={onCollapseAll}
         className="text-brand-purple hover:underline dark:text-brand-purple-lighter"
       >
-        Collapse all
+        {t("Collapse all")}
       </Button>
     </div>
   );
@@ -314,6 +315,7 @@ export function AdminTextarea({
 import type { SelectHTMLAttributes } from "react";
 import { Button } from "@/components/ui/shadcn/button";
 import { normalizeStatus, statusTone } from "@/lib/admin-status";
+import { useLanguage } from "@/lib/i18n";
 
 export function AdminSelect({
   className,

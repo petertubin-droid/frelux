@@ -47,10 +47,12 @@ import {
 } from "@/types/international";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 type Tab = "profiles" | "rules" | "calculators" | "typologies";
 
 export default function AdminMarkets() {
+  const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>("profiles");
   const [selectedMarket, setSelectedMarket] = useState<string>("NG");
 
@@ -59,14 +61,14 @@ export default function AdminMarkets() {
       <div className="mb-6 flex items-center gap-3">
         <Globe aria-hidden="true" className="h-6 w-6 text-brand-purple" />
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          International Markets
+          {t("International Markets")}
         </h1>
       </div>
 
       {/* Market selector */}
       <div className="mb-6">
         <label className="mb-1 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-          Selected Market
+          {t("Selected Market")}
         </label>
         <MarketSelector value={selectedMarket} onChange={setSelectedMarket} />
       </div>
@@ -158,6 +160,7 @@ function MarketSelector({
 // PROFILES TAB
 // ============================================================
 function ProfilesTab() {
+  const { t } = useLanguage();
   const [profiles, setProfiles] = useState<MarketProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<MarketProfile | null>(null);
@@ -200,7 +203,7 @@ function ProfilesTab() {
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add Market
+          <Plus aria-hidden="true" className="h-4 w-4" /> {t("Add Market")}
         </Button>
       </div>
 
@@ -248,7 +251,7 @@ function ProfilesTab() {
                 onClick={() => setEditing(p)}
                 className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-brand-purple"
               >
-                <Edit2 className="h-3 w-3" /> Edit
+                <Edit2 className="h-3 w-3" /> {t("Edit")}
               </Button>
               {p.country_code !== "NG" && (
                 <Button
@@ -265,7 +268,8 @@ function ProfilesTab() {
                   }}
                   className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-red-500"
                 >
-                  <Trash2 aria-hidden="true" className="h-3 w-3" /> Delete
+                  <Trash2 aria-hidden="true" className="h-3 w-3" />{" "}
+                  {t("Delete")}
                 </Button>
               )}
             </div>
@@ -300,6 +304,7 @@ function ProfileEditModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     country_code: profile?.country_code ?? "",
     country_name: profile?.country_name ?? "",
@@ -371,19 +376,19 @@ function ProfileEditModal({
               setForm({ ...form, country_code: v.toUpperCase() })
             }
             disabled={!!profile}
-            placeholder="NG"
+            placeholder={t("NG")}
           />
           <Field
             label="Country Name"
             value={form.country_name}
             onChange={(v) => setForm({ ...form, country_name: v })}
-            placeholder="Nigeria"
+            placeholder={t("Nigeria")}
           />
           <Field
             label="Region"
             value={form.region}
             onChange={(v) => setForm({ ...form, region: v })}
-            placeholder="West Africa"
+            placeholder={t("West Africa")}
           />
           <Field
             label="Currency Code"
@@ -391,7 +396,7 @@ function ProfileEditModal({
             onChange={(v) =>
               setForm({ ...form, currency_code: v.toUpperCase() })
             }
-            placeholder="NGN"
+            placeholder={t("NGN")}
           />
           <Field
             label="Currency Symbol"
@@ -403,7 +408,7 @@ function ProfileEditModal({
             label="Currency Name"
             value={form.currency_name}
             onChange={(v) => setForm({ ...form, currency_name: v })}
-            placeholder="Naira"
+            placeholder={t("Naira")}
           />
           <SelectField
             label="Measurement System"
@@ -466,7 +471,7 @@ function ProfileEditModal({
               }
               className="h-4 w-4 rounded border-border text-brand-purple"
             />
-            Visible in country selector
+            {t("Visible in country selector")}
           </label>
         </div>
 
@@ -476,7 +481,7 @@ function ProfileEditModal({
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button
             variant="default"
@@ -501,6 +506,7 @@ function ProfileEditModal({
 // RULES TAB
 // ============================================================
 function RulesTab({ marketCode }: { marketCode: string }) {
+  const { t } = useLanguage();
   const [rules, setRules] = useState<MarketMaterialRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
@@ -542,7 +548,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add Rule
+          <Plus aria-hidden="true" className="h-4 w-4" /> {t("Add Rule")}
         </Button>
       </div>
 
@@ -621,6 +627,7 @@ function RuleEditModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     calculator_type: "painting" as MarketCalculatorType,
     rule_key: "",
@@ -701,11 +708,11 @@ function RuleEditModal({
             label="Rule Label"
             value={form.rule_label}
             onChange={(v) => setForm({ ...form, rule_label: v })}
-            placeholder="Paint Coverage Per Coat"
+            placeholder={t("Paint Coverage Per Coat")}
           />
           <div>
             <label className="mb-1 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-              Rule Value (JSON)
+              {t("Rule Value (JSON)")}
             </label>
             <textarea
               value={form.rule_value}
@@ -719,7 +726,7 @@ function RuleEditModal({
             label="Description"
             value={form.description}
             onChange={(v) => setForm({ ...form, description: v })}
-            placeholder="Coverage per coat for standard paint"
+            placeholder={t("Coverage per coat for standard paint")}
           />
           <Field
             label="Rule Version"
@@ -734,7 +741,7 @@ function RuleEditModal({
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button
             variant="default"
@@ -917,6 +924,7 @@ function SelectField({
 // TYPOLOGIES TAB
 // ============================================================
 function TypologiesTab({ marketCode }: { marketCode: string }) {
+  const { t } = useLanguage();
   const typology = getConstructionTypology(marketCode);
   const electrical = getElectricalProfile(marketCode);
   const plumbing = getPlumbingProfile(marketCode);
@@ -936,7 +944,7 @@ function TypologiesTab({ marketCode }: { marketCode: string }) {
         <div className="mt-4 grid gap-4 md:grid-cols-2 text-sm">
           <div className="rounded-lg bg-muted/40 p-3">
             <span className="block text-xs uppercase font-semibold text-muted-foreground">
-              Structural System
+              {t("Structural System")}
             </span>
             <span className="mt-1 block text-foreground">
               {typology.primaryStructuralSystem}
@@ -944,7 +952,7 @@ function TypologiesTab({ marketCode }: { marketCode: string }) {
           </div>
           <div className="rounded-lg bg-muted/40 p-3">
             <span className="block text-xs uppercase font-semibold text-muted-foreground">
-              Wall Assembly
+              {t("Wall Assembly")}
             </span>
             <span className="mt-1 block text-foreground">
               {typology.wallTypology}
@@ -952,7 +960,7 @@ function TypologiesTab({ marketCode }: { marketCode: string }) {
           </div>
           <div className="rounded-lg bg-muted/40 p-3">
             <span className="block text-xs uppercase font-semibold text-muted-foreground">
-              Foundation Typology
+              {t("Foundation Typology")}
             </span>
             <span className="mt-1 block text-foreground">
               {typology.foundationTypology}
@@ -960,7 +968,7 @@ function TypologiesTab({ marketCode }: { marketCode: string }) {
           </div>
           <div className="rounded-lg bg-muted/40 p-3">
             <span className="block text-xs uppercase font-semibold text-muted-foreground">
-              Roof System
+              {t("Roof System")}
             </span>
             <span className="mt-1 block text-foreground">
               {typology.roofTypology}
@@ -975,7 +983,7 @@ function TypologiesTab({ marketCode }: { marketCode: string }) {
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <h3 className="font-bold text-foreground">
-            Electrical Engineering Profile
+            {t("Electrical Engineering Profile")}
           </h3>
           <p className="text-xs text-muted-foreground">
             {electrical.standardsRef}
@@ -1013,7 +1021,7 @@ function TypologiesTab({ marketCode }: { marketCode: string }) {
 
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <h3 className="font-bold text-foreground">
-            Plumbing Engineering Profile
+            {t("Plumbing Engineering Profile")}
           </h3>
           <p className="text-xs text-muted-foreground">
             {plumbing.standardsRef}

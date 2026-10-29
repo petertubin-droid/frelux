@@ -17,6 +17,7 @@ import { EstimateDisclaimer } from "@/components/calculators";
 import { SITE_URL } from "@/lib/seo";
 import { useMarket } from "@/lib/international/market-context";
 import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
+import { useLanguage } from "@/lib/i18n";
 
 const ScreedingCalculator = lazy(() => import("@/pages/ScreedingCalculator"));
 const ScreedingCostEstimator = lazy(
@@ -59,6 +60,7 @@ function buildFaqs(finishTerm: string) {
 }
 
 export default function ScreedingCalculatorHub() {
+  const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const { marketCode } = useMarket();
   const finishTerm = getConstructionTerm(
@@ -194,7 +196,7 @@ export default function ScreedingCalculatorHub() {
             dimensions; area results are normalized to square metres.
           </p>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            Calculation Modes
+            {t("Calculation Modes")}
           </h3>
           <ul>
             <li>
@@ -203,8 +205,9 @@ export default function ScreedingCalculatorHub() {
               doors and windows deducted.
             </li>
             <li>
-              <strong>Cost Estimate</strong>, Get a full material cost breakdown
-              including cement, sand, and bonding agents at real market prices.
+              <strong>{t("Cost Estimate")}</strong>, Get a full material cost
+              breakdown including cement, sand, and bonding agents at real
+              market prices.
             </li>
           </ul>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">

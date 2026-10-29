@@ -15,6 +15,7 @@ import {
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
 import { SITE_URL } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 
 const PopCeilingCalculator = lazy(() => import("@/pages/PopCeilingCalculator"));
 const PopCeilingCostEstimator = lazy(
@@ -56,6 +57,7 @@ const FAQS = [
 ];
 
 export default function PopCeilingCalculatorHub() {
+  const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialMode = searchParams.get("mode") || "quantity";
   const [activeTab, setActiveTab] = useState(initialMode);
@@ -138,8 +140,10 @@ export default function PopCeilingCalculatorHub() {
       <PageHeader
         variant="tool"
         eyebrow="Calculator"
-        title="POP Ceiling Calculator"
-        subtitle="Calculate POP ceiling material quantities, breakdown, and cost, all in one place."
+        title={t("POP Ceiling Calculator")}
+        subtitle={t(
+          "Calculate POP ceiling material quantities, breakdown, and cost, all in one place.",
+        )}
         breadcrumbs={[
           { label: "Calculators", path: "/calculators" },
           { label: "POP Ceiling Calculator" },
@@ -174,7 +178,7 @@ export default function PopCeilingCalculatorHub() {
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
           <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
-            About the FRELUX POP Ceiling Calculator
+            {t("About the FRELUX POP Ceiling Calculator")}
           </h2>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             The FRELUX POP Ceiling Calculator is a comprehensive tool for
@@ -184,22 +188,22 @@ export default function PopCeilingCalculatorHub() {
             workflows.
           </p>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            Calculation Modes
+            {t("Calculation Modes")}
           </h3>
           <ul>
             <li>
-              <strong>Material Quantity</strong>, Calculate POP cement,
+              <strong>{t("Material Quantity")}</strong>, Calculate POP cement,
               fibreglass mesh, and other material quantities based on your
               ceiling area and chosen workflow.
             </li>
             <li>
-              <strong>Cost Estimate</strong>, Get a full cost breakdown using
-              admin-configured material prices for all POP ceiling materials
-              including waste factors.
+              <strong>{t("Cost Estimate")}</strong>, Get a full cost breakdown
+              using admin-configured material prices for all POP ceiling
+              materials including waste factors.
             </li>
           </ul>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            FRELUX POP Material Logic
+            {t("FRELUX POP Material Logic")}
           </h3>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             The calculator uses established POP material rules with

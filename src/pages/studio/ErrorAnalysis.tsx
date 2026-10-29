@@ -24,6 +24,7 @@ import {
 import { ToolHeader } from "@/components/studio/StudioShared";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // ── Types ──
 
@@ -95,6 +96,7 @@ function formatDate(date: string | null): string {
 }
 
 export default function ErrorAnalysis() {
+  const { t } = useLanguage();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const initialErrorId =
@@ -228,7 +230,7 @@ export default function ErrorAnalysis() {
     <div>
       <ToolHeader
         icon={Bug}
-        title="Error Analysis"
+        title={t("Error Analysis")}
         description="Diagnose application errors with AI and generate safe fixes"
       />
 
@@ -238,7 +240,8 @@ export default function ErrorAnalysis() {
           to="/admin/studio/"
           className="flex items-center gap-1 text-xs text-muted-foreground hover:text-brand-purple"
         >
-          <ArrowLeft aria-hidden="true" className="h-3 w-3" /> Back to Studio
+          <ArrowLeft aria-hidden="true" className="h-3 w-3" />{" "}
+          {t("Back to Studio")}
         </Link>
         <Link
           to="/admin/system-health/"
@@ -273,13 +276,13 @@ export default function ErrorAnalysis() {
           {/* Error list */}
           <div className="space-y-2">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Unresolved Errors
+              {t("Unresolved Errors")}
             </h3>
             {loading ? (
-              <p className="text-sm text-muted-foreground">Loading...</p>
+              <p className="text-sm text-muted-foreground">{t("Loading...")}</p>
             ) : recentErrors.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No unresolved errors.
+                {t("No unresolved errors.")}
               </p>
             ) : (
               <div className="space-y-1.5 max-h-[600px] overflow-y-auto">
@@ -328,7 +331,7 @@ export default function ErrorAnalysis() {
               <div className="flex flex-col items-center justify-center rounded-xl border border-border p-12 dark:border-white/5">
                 <Bug className="h-8 w-8 text-muted-foreground/80" />
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Select an error to analyze with AI
+                  {t("Select an error to analyze with AI")}
                 </p>
               </div>
             ) : (
@@ -398,7 +401,7 @@ export default function ErrorAnalysis() {
                       />
                     </svg>
                     <span className="text-sm text-muted-foreground">
-                      AI is analyzing the error...
+                      {t("AI is analyzing the error...")}
                     </span>
                   </div>
                 )}
@@ -423,7 +426,7 @@ export default function ErrorAnalysis() {
                       <div className="mb-3 flex items-center gap-2">
                         <Activity className="h-4 w-4 text-brand-purple" />
                         <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                          AI Diagnosis
+                          {t("AI Diagnosis")}
                         </h3>
                       </div>
                       <div className="space-y-3">
@@ -496,7 +499,7 @@ export default function ErrorAnalysis() {
                         onClick={handleGenerateFix}
                         className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold hover:bg-primary/90"
                       >
-                        <FileCode className="h-4 w-4" /> Generate Fix
+                        <FileCode className="h-4 w-4" /> {t("Generate Fix")}
                       </Button>
                     )}
 
@@ -522,7 +525,7 @@ export default function ErrorAnalysis() {
                           />
                         </svg>
                         <span className="text-sm text-muted-foreground">
-                          Generating fix...
+                          {t("Generating fix...")}
                         </span>
                       </div>
                     )}
@@ -534,7 +537,7 @@ export default function ErrorAnalysis() {
                           <div className="mb-3 flex items-center gap-2">
                             <FileCode className="h-4 w-4 text-brand-purple" />
                             <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                              Proposed Fix
+                              {t("Proposed Fix")}
                             </h3>
                           </div>
                           <div className="space-y-3">
@@ -632,7 +635,7 @@ export default function ErrorAnalysis() {
                 {fixHistory.length > 0 && (
                   <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
                     <h3 className="mb-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
-                      Fix History for This Error
+                      {t("Fix History for This Error")}
                     </h3>
                     <div className="space-y-2">
                       {fixHistory.map((h) => (
@@ -675,7 +678,7 @@ export default function ErrorAnalysis() {
             <div className="flex flex-col items-center justify-center rounded-xl border border-border p-12 dark:border-white/5">
               <Clock className="h-8 w-8 text-muted-foreground/80" />
               <p className="mt-2 text-sm text-muted-foreground">
-                No fix history yet
+                {t("No fix history yet")}
               </p>
             </div>
           ) : (
@@ -683,12 +686,12 @@ export default function ErrorAnalysis() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-xs text-muted-foreground dark:border-white/10 dark:text-muted-foreground">
-                    <th className="pb-2 pr-3 font-medium">Status</th>
-                    <th className="pb-2 pr-3 font-medium">Error</th>
-                    <th className="pb-2 pr-3 font-medium">Severity</th>
-                    <th className="pb-2 pr-3 font-medium">Approved</th>
-                    <th className="pb-2 pr-3 font-medium">Created</th>
-                    <th className="pb-2 font-medium">Deployed</th>
+                    <th className="pb-2 pr-3 font-medium">{t("Status")}</th>
+                    <th className="pb-2 pr-3 font-medium">{t("Error")}</th>
+                    <th className="pb-2 pr-3 font-medium">{t("Severity")}</th>
+                    <th className="pb-2 pr-3 font-medium">{t("Approved")}</th>
+                    <th className="pb-2 pr-3 font-medium">{t("Created")}</th>
+                    <th className="pb-2 font-medium">{t("Deployed")}</th>
                   </tr>
                 </thead>
                 <tbody>

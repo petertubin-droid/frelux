@@ -18,6 +18,7 @@ import {
   StateMessage,
 } from "@/components/admin/AdminUi";
 import { getSupabase } from "@/lib/supabase-lazy";
+import { useLanguage } from "@/lib/i18n";
 
 type Row = {
   id: string;
@@ -35,7 +36,18 @@ type Row = {
 };
 
 const LOCALES = [
-  "es", "fr", "de", "pt", "ru", "id", "sw", "ar", "hi", "zh", "ja", "nl",
+  "es",
+  "fr",
+  "de",
+  "pt",
+  "ru",
+  "id",
+  "sw",
+  "ar",
+  "hi",
+  "zh",
+  "ja",
+  "nl",
 ];
 
 const STATUS_STYLE: Record<Row["status"], string> = {
@@ -46,6 +58,7 @@ const STATUS_STYLE: Record<Row["status"], string> = {
 };
 
 export default function AdminTranslations() {
+  const { t } = useLanguage();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -164,12 +177,12 @@ export default function AdminTranslations() {
   return (
     <div className="space-y-6">
       <AdminHeader
-        title="Content Translations"
+        title={t("Content Translations")}
         subtitle={`${rows.length} translation(s), ${published} published. Only published rows are public and get hreflang.`}
       />
 
       <div className="rounded-lg border bg-card p-4">
-        <p className="text-sm font-medium">Generate a machine draft</p>
+        <p className="text-sm font-medium">{t("Generate a machine draft")}</p>
         <p className="mt-1 text-xs text-muted-foreground">
           Drafts are never public. Review the text, then publish. English is
           always the source language.
@@ -206,11 +219,15 @@ export default function AdminTranslations() {
       )}
 
       {loading ? (
-        <StateMessage type="loading" title="Loading translations…" message="Fetching translations from the database." />
+        <StateMessage
+          type="loading"
+          title={t("Loading translations…")}
+          message="Fetching translations from the database."
+        />
       ) : rows.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No translations yet"
+          title={t("No translations yet")}
           message="Generate a draft above to start the first localized page."
         />
       ) : (
@@ -218,12 +235,12 @@ export default function AdminTranslations() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="p-3">Content</th>
-                <th className="p-3">Locale</th>
-                <th className="p-3">Title</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Source</th>
-                <th className="p-3 text-right">Actions</th>
+                <th className="p-3">{t("Content")}</th>
+                <th className="p-3">{t("Locale")}</th>
+                <th className="p-3">{t("Title")}</th>
+                <th className="p-3">{t("Status")}</th>
+                <th className="p-3">{t("Source")}</th>
+                <th className="p-3 text-right">{t("Actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -251,7 +268,7 @@ export default function AdminTranslations() {
                     <div className="flex justify-end gap-1">
                       <button
                         type="button"
-                        title="Review"
+                        title={t("Review")}
                         className="rounded p-1.5 hover:bg-muted"
                         onClick={() => {
                           setActive(row);
@@ -267,7 +284,7 @@ export default function AdminTranslations() {
                       {row.status !== "published" && (
                         <button
                           type="button"
-                          title="Publish (makes the locale page indexable)"
+                          title={t("Publish (makes the locale page indexable)")}
                           disabled={busy === row.id}
                           className="rounded p-1.5 text-emerald-600 hover:bg-muted"
                           onClick={() => setStatus(row, "published")}
@@ -278,7 +295,7 @@ export default function AdminTranslations() {
                       {row.status !== "rejected" && (
                         <button
                           type="button"
-                          title="Reject"
+                          title={t("Reject")}
                           disabled={busy === row.id}
                           className="rounded p-1.5 text-destructive hover:bg-muted"
                           onClick={() => setStatus(row, "rejected")}
@@ -288,7 +305,7 @@ export default function AdminTranslations() {
                       )}
                       <button
                         type="button"
-                        title="Send back for review"
+                        title={t("Send back for review")}
                         disabled={busy === row.id}
                         className="rounded p-1.5 hover:bg-muted"
                         onClick={() => setStatus(row, "in_review")}
@@ -311,22 +328,24 @@ export default function AdminTranslations() {
               Reviewing {active.locale.toUpperCase()} · {active.content_key}
             </h3>
             <AdminButton variant="link" onClick={() => setActive(null)}>
-              Close
+              {t("Close")}
             </AdminButton>
           </div>
           <div className="mt-3 space-y-3">
             <div>
               <label className="text-xs font-medium text-muted-foreground">
-                Title
+                {t("Title")}
               </label>
               <AdminInput
                 value={draft.title ?? ""}
-                onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, title: e.target.value }))
+                }
               />
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">
-                Meta description
+                {t("Meta description")}
               </label>
               <AdminInput
                 value={draft.description ?? ""}
@@ -337,7 +356,7 @@ export default function AdminTranslations() {
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">
-                Body (Markdown)
+                {t("Body (Markdown)")}
               </label>
               <AdminTextarea
                 rows={16}
@@ -349,7 +368,7 @@ export default function AdminTranslations() {
             </div>
             <div className="flex gap-2">
               <AdminButton onClick={saveEdits} disabled={busy === active.id}>
-                Save edits
+                {t("Save edits")}
               </AdminButton>
               <AdminButton
                 variant="secondary"
@@ -359,7 +378,7 @@ export default function AdminTranslations() {
                 }}
                 disabled={busy === active.id}
               >
-                Save and publish
+                {t("Save and publish")}
               </AdminButton>
             </div>
           </div>

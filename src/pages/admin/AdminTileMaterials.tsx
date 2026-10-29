@@ -1,21 +1,46 @@
-import { useEffect, useState } from 'react';
-import { Plus, Trash2, Pencil, X, Check, Download } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminIconButton, AdminSelect } from '@/components/admin/AdminUi';
-import { classNames } from '@/lib/utils';
-import type { DbTileSize, DbTileMaterial, TileMaterialCategory } from '@/types/database';
+import { useEffect, useState } from "react";
+import { Plus, Trash2, Pencil, X, Check, Download } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import {
+  AdminHeader,
+  AdminCard,
+  AdminButton,
+  AdminField,
+  StateMessage,
+  Toggle,
+  AdminInput,
+  AdminIconButton,
+  AdminSelect,
+} from "@/components/admin/AdminUi";
+import { classNames } from "@/lib/utils";
+import type {
+  DbTileSize,
+  DbTileMaterial,
+  TileMaterialCategory,
+} from "@/types/database";
+import { useLanguage } from "@/lib/i18n";
 
-type Status = 'loading' | 'ready' | 'error';
-type Tab = 'sizes' | 'materials';
+type Status = "loading" | "ready" | "error";
+type Tab = "sizes" | "materials";
 
-const tileCategories: TileMaterialCategory[] = ['tile', 'adhesive', 'grout', 'spacer', 'cement', 'sand', 'labour', 'other'];
+const tileCategories: TileMaterialCategory[] = [
+  "tile",
+  "adhesive",
+  "grout",
+  "spacer",
+  "cement",
+  "sand",
+  "labour",
+  "other",
+];
 
 export default function AdminTileMaterials() {
-  const [tab, setTab] = useState<Tab>('sizes');
+  const { t: tr } = useLanguage();
+  const [tab, setTab] = useState<Tab>("sizes");
   const [sizes, setSizes] = useState<DbTileSize[]>([]);
   const [materials, setMaterials] = useState<DbTileMaterial[]>([]);
-  const [status, setStatus] = useState<Status>('loading');
-  const [error, setError] = useState('');
+  const [status, setStatus] = useState<Status>("loading");
+  const [error, setError] = useState("");
   const [editingSize, setEditingSize] = useState<DbTileSize | null>(null);
   const [editingMat, setEditingMat] = useState<DbTileMaterial | null>(null);
   const [showSizeEditor, setShowSizeEditor] = useState(false);
@@ -23,19 +48,33 @@ export default function AdminTileMaterials() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   async function load() {
-    setStatus('loading');
+    setStatus("loading");
     const [sizeRes, matRes] = await Promise.all([
-      supabase.from('tile_sizes').select('*').order('sort_order'),
-      supabase.from('tile_materials').select('*').order('category').order('sort_order'),
+      supabase.from("tile_sizes").select("*").order("sort_order"),
+      supabase
+        .from("tile_materials")
+        .select("*")
+        .order("category")
+        .order("sort_order"),
     ]);
-    if (sizeRes.error) { setError(sizeRes.error.message); setStatus('error'); return; }
-    if (matRes.error) { setError(matRes.error.message); setStatus('error'); return; }
+    if (sizeRes.error) {
+      setError(sizeRes.error.message);
+      setStatus("error");
+      return;
+    }
+    if (matRes.error) {
+      setError(matRes.error.message);
+      setStatus("error");
+      return;
+    }
     setSizes((sizeRes.data ?? []) as DbTileSize[]);
     setMaterials((matRes.data ?? []) as DbTileMaterial[]);
-    setStatus('ready');
+    setStatus("ready");
   }
 
   async function handleSaveSize(data: Partial<DbTileSize>) {
@@ -43,171 +82,398 @@ export default function AdminTileMaterials() {
     setSaveError(null);
     setSaving(true);
     const { error } = editingSize
-      ? await supabase.from('tile_sizes').update({ ...data, updated_at: new Date().toISOString() }).eq('id', editingSize.id)
-      : await supabase.from('tile_sizes').insert(data);
+      ? await supabase
+          .from("tile_sizes")
+          .update({ ...data, updated_at: new Date().toISOString() })
+          .eq("id", editingSize.id)
+      : await supabase.from("tile_sizes").insert(data);
     setSaving(false);
-    if (error) { setSaveError(error.message); return; }
-    setShowSizeEditor(false); setEditingSize(null); load();
+    if (error) {
+      setSaveError(error.message);
+      return;
+    }
+    setShowSizeEditor(false);
+    setEditingSize(null);
+    load();
   }
 
   async function handleSaveMat(data: Partial<DbTileMaterial>) {
     if (saving) return;
     // Validate numeric fields before saving
     const validated = { ...data };
-    if ('coverage_rate' in validated) validated.coverage_rate = Math.max(0.1, Number(validated.coverage_rate) || 0.1);
-    if ('package_size' in validated) validated.package_size = Math.max(1, Number(validated.package_size) || 1);
-    if ('unit_price' in validated) validated.unit_price = Math.max(0, Number(validated.unit_price) || 0);
-    if ('labour_rate_per_sqm' in validated) validated.labour_rate_per_sqm = Math.max(0, Number(validated.labour_rate_per_sqm) || 0);
+    if ("coverage_rate" in validated)
+      validated.coverage_rate = Math.max(
+        0.1,
+        Number(validated.coverage_rate) || 0.1,
+      );
+    if ("package_size" in validated)
+      validated.package_size = Math.max(1, Number(validated.package_size) || 1);
+    if ("unit_price" in validated)
+      validated.unit_price = Math.max(0, Number(validated.unit_price) || 0);
+    if ("labour_rate_per_sqm" in validated)
+      validated.labour_rate_per_sqm = Math.max(
+        0,
+        Number(validated.labour_rate_per_sqm) || 0,
+      );
     setSaveError(null);
     setSaving(true);
     const { error } = editingMat
-      ? await supabase.from('tile_materials').update({ ...validated, updated_at: new Date().toISOString() }).eq('id', editingMat.id)
-      : await supabase.from('tile_materials').insert(validated);
+      ? await supabase
+          .from("tile_materials")
+          .update({ ...validated, updated_at: new Date().toISOString() })
+          .eq("id", editingMat.id)
+      : await supabase.from("tile_materials").insert(validated);
     setSaving(false);
-    if (error) { setSaveError(error.message); return; }
-    setShowMatEditor(false); setEditingMat(null); load();
+    if (error) {
+      setSaveError(error.message);
+      return;
+    }
+    setShowMatEditor(false);
+    setEditingMat(null);
+    load();
   }
 
   async function handleDeleteSize(id: string) {
-    if (!confirm('Delete this tile size?')) return;
+    if (!confirm("Delete this tile size?")) return;
     setSaveError(null);
-    const { error } = await supabase.from('tile_sizes').delete().eq('id', id);
-    if (error) { setSaveError(error.message); return; }
+    const { error } = await supabase.from("tile_sizes").delete().eq("id", id);
+    if (error) {
+      setSaveError(error.message);
+      return;
+    }
     setSizes((prev) => prev.filter((s) => s.id !== id));
   }
 
   async function handleDeleteMat(id: string) {
-    if (!confirm('Delete this material?')) return;
+    if (!confirm("Delete this material?")) return;
     setSaveError(null);
-    const { error } = await supabase.from('tile_materials').delete().eq('id', id);
-    if (error) { setSaveError(error.message); return; }
+    const { error } = await supabase
+      .from("tile_materials")
+      .delete()
+      .eq("id", id);
+    if (error) {
+      setSaveError(error.message);
+      return;
+    }
     setMaterials((prev) => prev.filter((m) => m.id !== id));
   }
 
   async function handleToggleSizeActive(s: DbTileSize) {
-    await supabase.from('tile_sizes').update({ is_active: !s.is_active }).eq('id', s.id);
-    setSizes((prev) => prev.map((x) => x.id === s.id ? { ...x, is_active: !x.is_active } : x));
+    await supabase
+      .from("tile_sizes")
+      .update({ is_active: !s.is_active })
+      .eq("id", s.id);
+    setSizes((prev) =>
+      prev.map((x) => (x.id === s.id ? { ...x, is_active: !x.is_active } : x)),
+    );
   }
 
   async function handleToggleMatActive(m: DbTileMaterial) {
-    await supabase.from('tile_materials').update({ is_active: !m.is_active }).eq('id', m.id);
-    setMaterials((prev) => prev.map((x) => x.id === m.id ? { ...x, is_active: !x.is_active } : x));
+    await supabase
+      .from("tile_materials")
+      .update({ is_active: !m.is_active })
+      .eq("id", m.id);
+    setMaterials((prev) =>
+      prev.map((x) => (x.id === m.id ? { ...x, is_active: !x.is_active } : x)),
+    );
   }
 
   function handleExportSizes() {
-    const csv = ['name,width_mm,height_mm,tiles_per_box,is_standard,is_active,sort_order'];
-    sizes.forEach((s) => csv.push([`"${s.name}"`, s.width_mm, s.height_mm, s.tiles_per_box, s.is_standard, s.is_active, s.sort_order].join(',')));
-    const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+    const csv = [
+      "name,width_mm,height_mm,tiles_per_box,is_standard,is_active,sort_order",
+    ];
+    sizes.forEach((s) =>
+      csv.push(
+        [
+          `"${s.name}"`,
+          s.width_mm,
+          s.height_mm,
+          s.tiles_per_box,
+          s.is_standard,
+          s.is_active,
+          s.sort_order,
+        ].join(","),
+      ),
+    );
+    const blob = new Blob([csv.join("\n")], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'tile_sizes.csv'; a.click();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "tile_sizes.csv";
+    a.click();
     URL.revokeObjectURL(url);
   }
 
-  if (status === 'loading') return <><AdminHeader title="Tile Library" subtitle="Manage tile sizes and installation materials." /><StateMessage type="loading" title="Loading…" message="Fetching data." /></>;
-  if (status === 'error') return <><AdminHeader title="Tile Library" subtitle="Manage tile sizes and installation materials." /><StateMessage type="error" title="Error" message={error} /></>;
+  if (status === "loading")
+    return (
+      <>
+        <AdminHeader
+          title={tr("Tile Library")}
+          subtitle={tr("Manage tile sizes and installation materials.")}
+        />
+        <StateMessage
+          type="loading"
+          title={tr("Loading…")}
+          message="Fetching data."
+        />
+      </>
+    );
+  if (status === "error")
+    return (
+      <>
+        <AdminHeader
+          title={tr("Tile Library")}
+          subtitle={tr("Manage tile sizes and installation materials.")}
+        />
+        <StateMessage type="error" title={tr("Error")} message={error} />
+      </>
+    );
 
   return (
     <>
-      <AdminHeader title="Tile Library" subtitle="Manage tile sizes and installation materials."
-        action={tab === 'sizes' ?
-          <div className="flex gap-2"><AdminButton onClick={handleExportSizes}><Download aria-hidden="true" className="h-4 w-4" /> Export</AdminButton>
-          <AdminButton onClick={() => { setEditingSize(null); setShowSizeEditor(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add Size</AdminButton></div> :
-          <AdminButton onClick={() => { setEditingMat(null); setShowMatEditor(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add Material</AdminButton>
+      <AdminHeader
+        title={tr("Tile Library")}
+        subtitle={tr("Manage tile sizes and installation materials.")}
+        action={
+          tab === "sizes" ? (
+            <div className="flex gap-2">
+              <AdminButton onClick={handleExportSizes}>
+                <Download aria-hidden="true" className="h-4 w-4" />{" "}
+                {tr("Export")}
+              </AdminButton>
+              <AdminButton
+                onClick={() => {
+                  setEditingSize(null);
+                  setShowSizeEditor(true);
+                }}
+              >
+                <Plus aria-hidden="true" className="h-4 w-4" /> {tr("Add Size")}
+              </AdminButton>
+            </div>
+          ) : (
+            <AdminButton
+              onClick={() => {
+                setEditingMat(null);
+                setShowMatEditor(true);
+              }}
+            >
+              <Plus aria-hidden="true" className="h-4 w-4" />{" "}
+              {tr("Add Material")}
+            </AdminButton>
+          )
         }
       />
       {saveError && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400" role="alert">{saveError}</div>
+        <div
+          className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400"
+          role="alert"
+        >
+          {saveError}
+        </div>
       )}
 
       <div className="mb-4 inline-flex rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-1">
-        {(['sizes', 'materials'] as Tab[]).map((t) => (
-          <AdminButton key={t} type="button" onClick={() => setTab(t)}
-            className={classNames('rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-brand-purple')}>
-            {t === 'sizes' ? 'Tile Sizes' : 'Materials'}
+        {(["sizes", "materials"] as Tab[]).map((t) => (
+          <AdminButton
+            key={t}
+            type="button"
+            onClick={() => setTab(t)}
+            className={classNames(
+              "rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all",
+              tab === t
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-brand-purple",
+            )}
+          >
+            {t === "sizes" ? "Tile Sizes" : "Materials"}
           </AdminButton>
         ))}
       </div>
 
       {/* Tile sizes */}
-      {tab === 'sizes' && !showSizeEditor && (
+      {tab === "sizes" && !showSizeEditor && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {sizes.length === 0 ? (
-            <StateMessage type="empty" title="No tile sizes" message="Add tile sizes to get started." />
-          ) : sizes.map((s) => (
-            <AdminCard key={s.id} className="flex flex-col gap-2 p-3">
-              <div className="flex-1">
-                <div className="flex items-center gap-1.5">
-                  <p className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">{s.name}</p>
-                  {s.is_standard && <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-semibold text-brand-purple">Std</span>}
-                  <span className={classNames('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', s.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-muted text-muted-foreground')}>
-                    {s.is_active ? 'On' : 'Off'}
-                  </span>
+            <StateMessage
+              type="empty"
+              title={tr("No tile sizes")}
+              message="Add tile sizes to get started."
+            />
+          ) : (
+            sizes.map((s) => (
+              <AdminCard key={s.id} className="flex flex-col gap-2 p-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <p className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">
+                      {s.name}
+                    </p>
+                    {s.is_standard && (
+                      <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-semibold text-brand-purple">
+                        {tr("Std")}
+                      </span>
+                    )}
+                    <span
+                      className={classNames(
+                        "rounded-full px-1.5 py-0.5 text-[9px] font-semibold",
+                        s.is_active
+                          ? "bg-accent-green/15 text-accent-green"
+                          : "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      {s.is_active ? "On" : "Off"}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
+                    {s.width_mm}×{s.height_mm}mm · {s.tiles_per_box}/box
+                  </p>
                 </div>
-                <p className="mt-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">{s.width_mm}×{s.height_mm}mm · {s.tiles_per_box}/box</p>
-              </div>
-              <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
-                <Toggle checked={s.is_active} onChange={() => handleToggleSizeActive(s)} />
-                <div className="flex items-center gap-0.5">
-                  <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingSize(s); setShowSizeEditor(true); }} className="rounded-md p-1.5 text-muted-foreground hover:text-brand-purple"><Pencil aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
-                  <AdminIconButton variant="ghost" type="button" onClick={() => handleDeleteSize(s.id)} className="rounded-md p-1.5 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
+                <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
+                  <Toggle
+                    checked={s.is_active}
+                    onChange={() => handleToggleSizeActive(s)}
+                  />
+                  <div className="flex items-center gap-0.5">
+                    <AdminIconButton
+                      variant="ghost"
+                      type="button"
+                      onClick={() => {
+                        setEditingSize(s);
+                        setShowSizeEditor(true);
+                      }}
+                      className="rounded-md p-1.5 text-muted-foreground hover:text-brand-purple"
+                    >
+                      <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
+                    </AdminIconButton>
+                    <AdminIconButton
+                      variant="ghost"
+                      type="button"
+                      onClick={() => handleDeleteSize(s.id)}
+                      className="rounded-md p-1.5 text-muted-foreground/80 hover:text-red-500"
+                    >
+                      <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
+                    </AdminIconButton>
+                  </div>
                 </div>
-              </div>
-            </AdminCard>
-          ))}
+              </AdminCard>
+            ))
+          )}
         </div>
       )}
 
-      {tab === 'sizes' && showSizeEditor && (
-        <TileSizeEditor size={editingSize} onSave={handleSaveSize} onCancel={() => { setShowSizeEditor(false); setEditingSize(null); }} />
+      {tab === "sizes" && showSizeEditor && (
+        <TileSizeEditor
+          size={editingSize}
+          onSave={handleSaveSize}
+          onCancel={() => {
+            setShowSizeEditor(false);
+            setEditingSize(null);
+          }}
+        />
       )}
 
       {/* Tile materials */}
-      {tab === 'materials' && !showMatEditor && (
+      {tab === "materials" && !showMatEditor && (
         <div className="space-y-3">
           {materials.length === 0 ? (
-            <StateMessage type="empty" title="No materials" message="Add tile installation materials." />
-          ) : tileCategories.map((cat) => {
-            const catItems = materials.filter((m) => m.category === cat);
-            if (catItems.length === 0) return null;
-            return (
-              <div key={cat}>
-                <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{cat}</h3>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                  {catItems.map((m) => (
-                    <AdminCard key={m.id} className="flex flex-col gap-2 p-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-bold text-foreground dark:text-primary-foreground">{m.name}</p>
-                          <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold', m.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-muted text-muted-foreground')}>
-                            {m.is_active ? 'Active' : 'Inactive'}
-                          </span>
+            <StateMessage
+              type="empty"
+              title={tr("No materials")}
+              message="Add tile installation materials."
+            />
+          ) : (
+            tileCategories.map((cat) => {
+              const catItems = materials.filter((m) => m.category === cat);
+              if (catItems.length === 0) return null;
+              return (
+                <div key={cat}>
+                  <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+                    {cat}
+                  </h3>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {catItems.map((m) => (
+                      <AdminCard key={m.id} className="flex flex-col gap-2 p-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                              {m.name}
+                            </p>
+                            <span
+                              className={classNames(
+                                "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                                m.is_active
+                                  ? "bg-accent-green/15 text-accent-green"
+                                  : "bg-muted text-muted-foreground",
+                              )}
+                            >
+                              {m.is_active ? "Active" : "Inactive"}
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
+                            {m.coverage_rate} {m.coverage_unit} · ₦
+                            {m.unit_price} · Labour ₦{m.labour_rate_per_sqm}/m²
+                          </p>
                         </div>
-                        <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">{m.coverage_rate} {m.coverage_unit} · ₦{m.unit_price} · Labour ₦{m.labour_rate_per_sqm}/m²</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Toggle checked={m.is_active} onChange={() => handleToggleMatActive(m)} />
-                        <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingMat(m); setShowMatEditor(true); }} className="rounded-md p-2 text-muted-foreground hover:text-brand-purple"><Pencil aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
-                        <AdminIconButton variant="ghost" type="button" onClick={() => handleDeleteMat(m.id)} className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
-                      </div>
-                    </AdminCard>
-                  ))}
+                        <div className="flex items-center gap-2">
+                          <Toggle
+                            checked={m.is_active}
+                            onChange={() => handleToggleMatActive(m)}
+                          />
+                          <AdminIconButton
+                            variant="ghost"
+                            type="button"
+                            onClick={() => {
+                              setEditingMat(m);
+                              setShowMatEditor(true);
+                            }}
+                            className="rounded-md p-2 text-muted-foreground hover:text-brand-purple"
+                          >
+                            <Pencil aria-hidden="true" className="h-4 w-4" />
+                          </AdminIconButton>
+                          <AdminIconButton
+                            variant="ghost"
+                            type="button"
+                            onClick={() => handleDeleteMat(m.id)}
+                            className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"
+                          >
+                            <Trash2 aria-hidden="true" className="h-4 w-4" />
+                          </AdminIconButton>
+                        </div>
+                      </AdminCard>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       )}
 
-      {tab === 'materials' && showMatEditor && (
-        <TileMaterialEditor material={editingMat} onSave={handleSaveMat} onCancel={() => { setShowMatEditor(false); setEditingMat(null); }} />
+      {tab === "materials" && showMatEditor && (
+        <TileMaterialEditor
+          material={editingMat}
+          onSave={handleSaveMat}
+          onCancel={() => {
+            setShowMatEditor(false);
+            setEditingMat(null);
+          }}
+        />
       )}
     </>
   );
 }
 
-function TileSizeEditor({ size, onSave, onCancel }: { size: DbTileSize | null; onSave: (d: Partial<DbTileSize>) => void; onCancel: () => void }) {
+function TileSizeEditor({
+  size,
+  onSave,
+  onCancel,
+}: {
+  size: DbTileSize | null;
+  onSave: (d: Partial<DbTileSize>) => void;
+  onCancel: () => void;
+}) {
+  const { t: tr } = useLanguage();
   const [form, setForm] = useState({
-    name: size?.name ?? '',
+    name: size?.name ?? "",
     width_mm: size?.width_mm ?? 300,
     height_mm: size?.height_mm ?? 300,
     tiles_per_box: size?.tiles_per_box ?? 1,
@@ -218,37 +484,109 @@ function TileSizeEditor({ size, onSave, onCancel }: { size: DbTileSize | null; o
   return (
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{size ? 'Edit Tile Size' : 'New Tile Size'}</h2>
-        <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X className="h-4 w-4" /></AdminIconButton>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+          {size ? "Edit Tile Size" : "New Tile Size"}
+        </h2>
+        <AdminIconButton variant="ghost" type="button" onClick={onCancel}>
+          <X className="h-4 w-4" />
+        </AdminIconButton>
       </div>
-      <AdminField label="Name"><AdminInput  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. 300 × 300 mm" /></AdminField>
+      <AdminField label="Name">
+        <AdminInput
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="e.g. 300 × 300 mm"
+        />
+      </AdminField>
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Width (mm)"><AdminInput type="number"  value={form.width_mm} onChange={(e) => setForm({ ...form, width_mm: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Height (mm)"><AdminInput type="number"  value={form.height_mm} onChange={(e) => setForm({ ...form, height_mm: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Tiles per box"><AdminInput type="number" min={1}  value={form.tiles_per_box} onChange={(e) => setForm({ ...form, tiles_per_box: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Width (mm)">
+          <AdminInput
+            type="number"
+            value={form.width_mm}
+            onChange={(e) =>
+              setForm({ ...form, width_mm: Number(e.target.value) })
+            }
+          />
+        </AdminField>
+        <AdminField label="Height (mm)">
+          <AdminInput
+            type="number"
+            value={form.height_mm}
+            onChange={(e) =>
+              setForm({ ...form, height_mm: Number(e.target.value) })
+            }
+          />
+        </AdminField>
+        <AdminField label="Tiles per box">
+          <AdminInput
+            type="number"
+            min={1}
+            value={form.tiles_per_box}
+            onChange={(e) =>
+              setForm({ ...form, tiles_per_box: Number(e.target.value) })
+            }
+          />
+        </AdminField>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Sort Order"><AdminInput type="number"  value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
-        <label className="flex items-center gap-2 pt-6 text-sm text-muted-foreground"><AdminInput type="checkbox" checked={form.is_standard} onChange={(e) => setForm({ ...form, is_standard: e.target.checked })} className="h-4 w-4 rounded border-border text-brand-purple" /> Standard</label>
-        <label className="flex items-center gap-2 pt-6 text-sm text-muted-foreground"><AdminInput type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-border text-brand-purple" /> Active</label>
+        <AdminField label="Sort Order">
+          <AdminInput
+            type="number"
+            value={form.sort_order}
+            onChange={(e) =>
+              setForm({ ...form, sort_order: Number(e.target.value) })
+            }
+          />
+        </AdminField>
+        <label className="flex items-center gap-2 pt-6 text-sm text-muted-foreground">
+          <AdminInput
+            type="checkbox"
+            checked={form.is_standard}
+            onChange={(e) =>
+              setForm({ ...form, is_standard: e.target.checked })
+            }
+            className="h-4 w-4 rounded border-border text-brand-purple"
+          />{" "}
+          {tr("Standard")}
+        </label>
+        <label className="flex items-center gap-2 pt-6 text-sm text-muted-foreground">
+          <AdminInput
+            type="checkbox"
+            checked={form.is_active}
+            onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+            className="h-4 w-4 rounded border-border text-brand-purple"
+          />{" "}
+          {tr("Active")}
+        </label>
       </div>
       <div className="flex justify-end gap-3">
-        <AdminButton onClick={onCancel}>Cancel</AdminButton>
-        <AdminButton onClick={() => onSave(form)} disabled={!form.name.trim()}><Check aria-hidden="true" className="h-4 w-4" /> Save</AdminButton>
+        <AdminButton onClick={onCancel}>{tr("Cancel")}</AdminButton>
+        <AdminButton onClick={() => onSave(form)} disabled={!form.name.trim()}>
+          <Check aria-hidden="true" className="h-4 w-4" /> {tr("Save")}
+        </AdminButton>
       </div>
     </AdminCard>
   );
 }
 
-function TileMaterialEditor({ material, onSave, onCancel }: { material: DbTileMaterial | null; onSave: (d: Partial<DbTileMaterial>) => void; onCancel: () => void }) {
+function TileMaterialEditor({
+  material,
+  onSave,
+  onCancel,
+}: {
+  material: DbTileMaterial | null;
+  onSave: (d: Partial<DbTileMaterial>) => void;
+  onCancel: () => void;
+}) {
+  const { t: tr } = useLanguage();
   const [form, setForm] = useState({
-    category: material?.category ?? 'adhesive',
-    name: material?.name ?? '',
-    unit: material?.unit ?? 'bag',
+    category: material?.category ?? "adhesive",
+    name: material?.name ?? "",
+    unit: material?.unit ?? "bag",
     coverage_rate: material?.coverage_rate ?? 1,
-    coverage_unit: material?.coverage_unit ?? 'm²',
+    coverage_unit: material?.coverage_unit ?? "m²",
     package_size: material?.package_size ?? 1,
-    package_unit: material?.package_unit ?? 'unit',
+    package_unit: material?.package_unit ?? "unit",
     unit_price: material?.unit_price ?? 0,
     labour_rate_per_sqm: material?.labour_rate_per_sqm ?? 0,
     is_active: material?.is_active ?? true,
@@ -257,35 +595,125 @@ function TileMaterialEditor({ material, onSave, onCancel }: { material: DbTileMa
   return (
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{material ? 'Edit Material' : 'New Material'}</h2>
-        <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X className="h-4 w-4" /></AdminIconButton>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+          {material ? "Edit Material" : "New Material"}
+        </h2>
+        <AdminIconButton variant="ghost" type="button" onClick={onCancel}>
+          <X className="h-4 w-4" />
+        </AdminIconButton>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <AdminField label="Name"><AdminInput  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></AdminField>
+        <AdminField label="Name">
+          <AdminInput
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
+        </AdminField>
         <AdminField label="Category">
-          <AdminSelect  value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as TileMaterialCategory })}>
-            {tileCategories.map((c) => <option key={c} value={c}>{c}</option>)}
+          <AdminSelect
+            value={form.category}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                category: e.target.value as TileMaterialCategory,
+              })
+            }
+          >
+            {tileCategories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
           </AdminSelect>
         </AdminField>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Coverage Rate"><AdminInput type="number" step="0.1"  value={form.coverage_rate} onChange={(e) => setForm({ ...form, coverage_rate: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Coverage Unit"><AdminInput  value={form.coverage_unit} onChange={(e) => setForm({ ...form, coverage_unit: e.target.value })} /></AdminField>
-        <AdminField label="Unit"><AdminInput  value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} /></AdminField>
+        <AdminField label="Coverage Rate">
+          <AdminInput
+            type="number"
+            step="0.1"
+            value={form.coverage_rate}
+            onChange={(e) =>
+              setForm({ ...form, coverage_rate: Number(e.target.value) })
+            }
+          />
+        </AdminField>
+        <AdminField label="Coverage Unit">
+          <AdminInput
+            value={form.coverage_unit}
+            onChange={(e) =>
+              setForm({ ...form, coverage_unit: e.target.value })
+            }
+          />
+        </AdminField>
+        <AdminField label="Unit">
+          <AdminInput
+            value={form.unit}
+            onChange={(e) => setForm({ ...form, unit: e.target.value })}
+          />
+        </AdminField>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Package Size"><AdminInput type="number" step="0.1"  value={form.package_size} onChange={(e) => setForm({ ...form, package_size: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Package Unit"><AdminInput  value={form.package_unit} onChange={(e) => setForm({ ...form, package_unit: e.target.value })} /></AdminField>
-        <AdminField label="Unit Price (₦)"><AdminInput type="number"  value={form.unit_price} onChange={(e) => setForm({ ...form, unit_price: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Package Size">
+          <AdminInput
+            type="number"
+            step="0.1"
+            value={form.package_size}
+            onChange={(e) =>
+              setForm({ ...form, package_size: Number(e.target.value) })
+            }
+          />
+        </AdminField>
+        <AdminField label="Package Unit">
+          <AdminInput
+            value={form.package_unit}
+            onChange={(e) => setForm({ ...form, package_unit: e.target.value })}
+          />
+        </AdminField>
+        <AdminField label="Unit Price (₦)">
+          <AdminInput
+            type="number"
+            value={form.unit_price}
+            onChange={(e) =>
+              setForm({ ...form, unit_price: Number(e.target.value) })
+            }
+          />
+        </AdminField>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <AdminField label="Labour Rate/m² (₦)"><AdminInput type="number"  value={form.labour_rate_per_sqm} onChange={(e) => setForm({ ...form, labour_rate_per_sqm: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Sort Order"><AdminInput type="number"  value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Labour Rate/m² (₦)">
+          <AdminInput
+            type="number"
+            value={form.labour_rate_per_sqm}
+            onChange={(e) =>
+              setForm({ ...form, labour_rate_per_sqm: Number(e.target.value) })
+            }
+          />
+        </AdminField>
+        <AdminField label="Sort Order">
+          <AdminInput
+            type="number"
+            value={form.sort_order}
+            onChange={(e) =>
+              setForm({ ...form, sort_order: Number(e.target.value) })
+            }
+          />
+        </AdminField>
       </div>
-      <label className="flex items-center gap-2 text-sm text-muted-foreground"><AdminInput type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-border text-brand-purple" /> Active</label>
+      <label className="flex items-center gap-2 text-sm text-muted-foreground">
+        <AdminInput
+          type="checkbox"
+          checked={form.is_active}
+          onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+          className="h-4 w-4 rounded border-border text-brand-purple"
+        />{" "}
+        {tr("Active")}
+      </label>
       <div className="flex justify-end gap-3">
-        <AdminButton onClick={onCancel}>Cancel</AdminButton>
-        <AdminButton onClick={() => onSave(form)} disabled={!form.name.trim()}><Check aria-hidden="true" className="h-4 w-4" /> Save</AdminButton>
+        <AdminButton onClick={onCancel}>{tr("Cancel")}</AdminButton>
+        <AdminButton onClick={() => onSave(form)} disabled={!form.name.trim()}>
+          <Check aria-hidden="true" className="h-4 w-4" /> {tr("Save")}
+        </AdminButton>
       </div>
     </AdminCard>
   );

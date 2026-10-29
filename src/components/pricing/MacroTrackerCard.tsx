@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/shadcn/card";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 import {
   fetchMarketMacroIndicators,
   fetchMarketElasticityRules,
@@ -38,6 +39,7 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
   onRefresh,
   className = "",
 }) => {
+  const { t } = useLanguage();
   const [indicators, setIndicators] = useState<MacroIndicator[]>([]);
   const [rules, setRules] = useState<MacroElasticityRule[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -77,7 +79,7 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
             </div>
             <div>
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                The Fluctuation Filter
+                {t("The Fluctuation Filter")}
                 <Badge
                   variant="outline"
                   className="text-xs uppercase font-mono font-medium"
@@ -86,7 +88,9 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
                 </Badge>
               </CardTitle>
               <CardDescription className="text-xs text-slate-500">
-                Database-fed macro indicators only. No live feed means no market adjustment.
+                {t(
+                  "Database-fed macro indicators only. No live feed means no market adjustment.",
+                )}
               </CardDescription>
             </div>
           </div>
@@ -103,7 +107,7 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
             <RefreshCw
               className={`w-3.5 h-3.5 mr-1 ${loading ? "animate-spin" : ""}`}
             />
-            Sync
+            {t("Sync")}
           </Button>
         </div>
       </CardHeader>
@@ -111,7 +115,7 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
       <CardContent className="pt-4 space-y-4">
         <div>
           <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">
-            Regional Commodity & Inflation Feeds
+            {t("Regional Commodity & Inflation Feeds")}
           </h4>
           {indicators.length === 0 ? (
             <p className="text-xs text-slate-400 italic py-2">
@@ -168,11 +172,11 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
         <div className="pt-2 border-t border-slate-100 dark:border-slate-800/60">
           <div className="flex items-center justify-between mb-2">
             <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Active Elasticity Filter Rules
+              {t("Active Elasticity Filter Rules")}
             </h4>
             <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1">
               <ShieldCheck className="w-3 h-3" />
-              Automated Passthrough
+              {t("Automated Passthrough")}
             </span>
           </div>
 

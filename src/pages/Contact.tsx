@@ -14,10 +14,12 @@ import { classNames } from "@/lib/utils";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
 export default function Contact() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([{ name: "Get in touch", path: "/contact" }]);
   useSeo({
     title: "Contact: Get in Touch with FRELUX",
@@ -92,7 +94,7 @@ export default function Contact() {
     <>
       <PageHeader
         eyebrow="Contact"
-        title="Get in touch"
+        title={t("Get in touch")}
         subtitle="Questions about a paint project, pricing, or colors? Send a message or reach us directly on WhatsApp."
         breadcrumbs={[{ label: "Contact" }]}
       />
@@ -102,7 +104,7 @@ export default function Contact() {
           <div className="lg:col-span-3">
             <form
               onSubmit={onSubmit}
-              aria-label="Contact form"
+              aria-label={t("Contact form")}
               className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card"
               noValidate
             >
@@ -112,7 +114,7 @@ export default function Contact() {
                     value={form.name}
                     onChange={(e) => update("name", e.target.value)}
                     className="input-field dark:bg-card dark:border-white/10"
-                    placeholder="Jane Doe"
+                    placeholder={t("Jane Doe")}
                   />
                 </Field>
                 <Field label="Email" error={errors.email}>
@@ -131,7 +133,7 @@ export default function Contact() {
                     value={form.subject}
                     onChange={(e) => update("subject", e.target.value)}
                     className="input-field dark:bg-card dark:border-white/10"
-                    placeholder="How can we help?"
+                    placeholder={t("How can we help?")}
                   />
                 </Field>
               </div>
@@ -142,7 +144,7 @@ export default function Contact() {
                     onChange={(e) => update("message", e.target.value)}
                     rows={5}
                     className="input-field dark:bg-card dark:border-white/10 resize-y"
-                    placeholder="Tell us a bit about your project…"
+                    placeholder={t("Tell us a bit about your project…")}
                   />
                 </Field>
               </div>
@@ -167,10 +169,15 @@ export default function Contact() {
                     className="mt-0.5 h-4 w-4 shrink-0"
                   />
                   <div className="space-y-1">
-                    <p className="font-semibold">Unable to send message right now.</p>
+                    <p className="font-semibold">
+                      {t("Unable to send message right now.")}
+                    </p>
                     <p className="text-xs">
                       Please send an email directly to{" "}
-                      <a href={`mailto:${siteConfig.email}`} className="underline font-medium hover:text-foreground">
+                      <a
+                        href={`mailto:${siteConfig.email}`}
+                        className="underline font-medium hover:text-foreground"
+                      >
                         {siteConfig.email}
                       </a>{" "}
                       or reach us via WhatsApp at{" "}
@@ -206,7 +213,7 @@ export default function Contact() {
           <div className="lg:col-span-2">
             <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
               <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                Other ways to reach us
+                {t("Other ways to reach us")}
               </h2>
               <ul className="mt-4 space-y-4 text-sm">
                 <li className="flex items-start gap-3 rounded-lg border border-border p-3 dark:border-white/5">
@@ -215,7 +222,7 @@ export default function Contact() {
                   </span>
                   <div>
                     <span className="block font-semibold text-foreground dark:text-primary-foreground">
-                      WhatsApp Support
+                      {t("WhatsApp Support")}
                     </span>
                     <a
                       href={siteConfig.supportContact.whatsappUrl}
@@ -226,7 +233,7 @@ export default function Contact() {
                       {siteConfig.supportContact.whatsappDisplay}
                     </a>
                     <span className="block text-xs text-muted-foreground mt-0.5">
-                      Fastest response on business days
+                      {t("Fastest response on business days")}
                     </span>
                   </div>
                 </li>
@@ -236,7 +243,7 @@ export default function Contact() {
                   </span>
                   <div>
                     <span className="block font-semibold text-foreground dark:text-primary-foreground">
-                      Email
+                      {t("Email")}
                     </span>
                     <a
                       href={`mailto:${siteConfig.email}`}

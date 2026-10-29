@@ -38,6 +38,7 @@ import {
 } from "@/lib/pro-connect";
 import type { DbProCredentialPublic, DbProSettings } from "@/types/pro-connect";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const availabilityConfig = {
   available: {
@@ -58,6 +59,7 @@ const availabilityConfig = {
 };
 
 export default function ProConnectProfile() {
+  const { t } = useLanguage();
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -165,10 +167,10 @@ export default function ProConnectProfile() {
     return (
       <div className="mx-auto max-w-4xl px-4 py-16 text-center">
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Professional not found
+          {t("Professional not found")}
         </h1>
         <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
-          This profile may have been removed or is no longer available.
+          {t("This profile may have been removed or is no longer available.")}
         </p>
         <Link
           to="/pro-connect/"
@@ -191,7 +193,7 @@ export default function ProConnectProfile() {
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
       >
         <ChevronLeft className="h-4 w-4" />
-        Back to directory
+        {t("Back to directory")}
       </Link>
 
       {/* Header card */}
@@ -258,7 +260,7 @@ export default function ProConnectProfile() {
                   variant="ghost"
                   onClick={() => setShowReportModal(true)}
                   className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
-                  title="Report this profile"
+                  title={t("Report this profile")}
                 >
                   <Flag className="h-5 w-5" />
                 </Button>
@@ -300,7 +302,7 @@ export default function ProConnectProfile() {
                   className="flex items-center gap-1.5 text-brand-purple dark:text-brand-purple-lighter"
                 >
                   <Globe aria-hidden="true" className="h-4 w-4" />
-                  <span>Website</span>
+                  <span>{t("Website")}</span>
                 </a>
               )}
             </div>
@@ -338,7 +340,7 @@ export default function ProConnectProfile() {
                 className="mt-6 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold transition-colors hover:bg-primary/90"
               >
                 <MessageSquare className="h-4 w-4" />
-                Message this professional
+                {t("Message this professional")}
               </Button>
             )}
           </div>
@@ -349,7 +351,7 @@ export default function ProConnectProfile() {
       {getVerificationTier(profile) > 0 && (
         <section className="mt-6 rounded-2xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card">
           <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
-            Verification
+            {t("Verification")}
           </h2>
           <div className="flex flex-wrap items-start gap-4">
             {profile.contact_verified_at && (
@@ -360,10 +362,10 @@ export default function ProConnectProfile() {
                 />
                 <div>
                   <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                    Contact Verified
+                    {t("Contact Verified")}
                   </p>
                   <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                    Email & phone confirmed
+                    {t("Email & phone confirmed")}
                   </p>
                 </div>
               </div>
@@ -376,10 +378,10 @@ export default function ProConnectProfile() {
                 />
                 <div>
                   <p className="text-sm font-medium text-blue-700 dark:text-blue-400">
-                    FRELUX Verified
+                    {t("FRELUX Verified")}
                   </p>
                   <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                    Identity & profile reviewed
+                    {t("Identity & profile reviewed")}
                   </p>
                 </div>
               </div>
@@ -389,10 +391,10 @@ export default function ProConnectProfile() {
                 <Award className="h-4 w-4 fill-amber-400 text-amber-600 dark:text-amber-400" />
                 <div>
                   <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
-                    FRELUX Pro
+                    {t("FRELUX Pro")}
                   </p>
                   <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                    Top-rated professional
+                    {t("Top-rated professional")}
                   </p>
                 </div>
               </div>
@@ -410,7 +412,7 @@ export default function ProConnectProfile() {
       {credentials.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-3 text-lg font-semibold text-foreground dark:text-primary-foreground">
-            Professional Credentials
+            {t("Professional Credentials")}
           </h2>
           <div className="space-y-2">
             {credentials.map((cred) => (
@@ -434,13 +436,13 @@ export default function ProConnectProfile() {
                   {cred.public_verification_label === "registry_verified" && (
                     <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
                       <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />
-                      Registry verified
+                      {t("Registry verified")}
                     </span>
                   )}
                   {cred.public_verification_label === "document_reviewed" && (
                     <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
                       <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />
-                      Document reviewed
+                      {t("Document reviewed")}
                     </span>
                   )}
                 </div>
@@ -462,7 +464,7 @@ export default function ProConnectProfile() {
       {profile.bio && (
         <section className="mt-8">
           <h2 className="mb-3 text-lg font-semibold text-foreground dark:text-primary-foreground">
-            About
+            {t("About")}
           </h2>
           <p className="whitespace-pre-line text-muted-foreground dark:text-muted-foreground/80">
             {profile.bio}
@@ -474,7 +476,7 @@ export default function ProConnectProfile() {
       {services.length > 0 && (
         <section className="mt-8">
           <h2 className="mb-3 text-lg font-semibold text-foreground dark:text-primary-foreground">
-            Services
+            {t("Services")}
           </h2>
           <div className="flex flex-wrap gap-2">
             {services.map((s) => (
@@ -493,7 +495,7 @@ export default function ProConnectProfile() {
       {portfolio.length > 0 && (
         <section className="mt-8">
           <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
-            Portfolio
+            {t("Portfolio")}
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {portfolio.map((item) =>
@@ -534,14 +536,14 @@ export default function ProConnectProfile() {
               onClick={() => setShowReviewModal(true)}
               className="text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
             >
-              Write a review
+              {t("Write a review")}
             </Button>
           )}
         </div>
 
         {reviews.length === 0 ? (
           <p className="rounded-xl border border-border bg-card py-8 text-center text-muted-foreground dark:border-white/5 dark:bg-card dark:text-muted-foreground">
-            No reviews yet. Be the first to review this professional.
+            {t("No reviews yet. Be the first to review this professional.")}
           </p>
         ) : (
           <div className="space-y-4">
@@ -574,7 +576,7 @@ export default function ProConnectProfile() {
                   {review.is_verified_review && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
                       <ShieldCheck aria-hidden="true" className="h-3 w-3" />
-                      Verified Project Review
+                      {t("Verified Project Review")}
                     </span>
                   )}
                 </div>
@@ -607,7 +609,7 @@ export default function ProConnectProfile() {
         >
           <img
             src={activeImage}
-            alt="Portfolio image"
+            alt={t("Portfolio image")}
             className="max-h-full max-w-full rounded-lg object-contain"
           />
         </div>
@@ -651,6 +653,7 @@ function ReportModal({
   targetId: string;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -690,13 +693,13 @@ function ReportModal({
         {submitted ? (
           <div className="text-center py-8">
             <p className="text-card-foreground dark:text-muted-foreground/60">
-              Report submitted. Our team will review it.
+              {t("Report submitted. Our team will review it.")}
             </p>
           </div>
         ) : (
           <>
             <h3 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
-              Report this profile
+              {t("Report this profile")}
             </h3>
             <div className="space-y-3">
               <select
@@ -704,7 +707,7 @@ function ReportModal({
                 onChange={(e) => setReason(e.target.value)}
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
-                <option value="">Select a reason</option>
+                <option value="">{t("Select a reason")}</option>
                 {reportReasons.map((r) => (
                   <option key={r} value={r}>
                     {r}
@@ -714,7 +717,7 @@ function ReportModal({
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Additional details (optional)"
+                placeholder={t("Additional details (optional)")}
                 rows={3}
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               />
@@ -725,7 +728,7 @@ function ReportModal({
                 onClick={onClose}
                 className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
-                Cancel
+                {t("Cancel")}
               </Button>
               <Button
                 variant="ghost"
@@ -753,6 +756,7 @@ function ReviewModal({
   onClose: () => void;
   onSubmitted: () => void;
 }) {
+  const { t } = useLanguage();
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -786,7 +790,7 @@ function ReviewModal({
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
-          Write a review
+          {t("Write a review")}
         </h3>
         <div className="space-y-4">
           <div>
@@ -813,7 +817,9 @@ function ReviewModal({
           <textarea
             value={reviewText}
             onChange={(e) => setReviewText(e.target.value)}
-            placeholder="Share your experience working with this professional..."
+            placeholder={t(
+              "Share your experience working with this professional...",
+            )}
             rows={4}
             className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
           />
@@ -825,7 +831,7 @@ function ReviewModal({
             onClick={onClose}
             className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
           >
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button
             variant="default"

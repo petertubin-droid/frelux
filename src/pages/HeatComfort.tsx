@@ -29,8 +29,10 @@ import type {
   EstimationCalcRule,
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import { useLanguage } from "@/lib/i18n";
 
 export default function HeatComfort() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     {
@@ -99,7 +101,7 @@ export default function HeatComfort() {
             { label: "Construction Tools", path: "/construction-tools" },
             { label: "Heat Comfort: Finish Choice & Indoor Heat" },
           ]}
-          title="Heat Comfort: Finish Choice & Indoor Heat"
+          title={t("Heat Comfort: Finish Choice & Indoor Heat")}
           subtitle="Brighter finishes reflect more solar energy and keep a space cooler. Compare two finishes on a roof or wall and see the honest difference in absorbed heat: computed only from sourced reflectance factors, never a guess."
         />
 
@@ -112,7 +114,7 @@ export default function HeatComfort() {
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="grid gap-1 text-sm font-medium">
-              Surface type
+              {t("Surface type")}
               <select
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={surfaceType}
@@ -123,8 +125,8 @@ export default function HeatComfort() {
                   setResult(null);
                 }}
               >
-                <option value="roof">Roof</option>
-                <option value="wall">Wall</option>
+                <option value="roof">{t("Roof")}</option>
+                <option value="wall">{t("Wall")}</option>
               </select>
             </label>
             <label className="grid gap-1 text-sm font-medium">
@@ -139,7 +141,7 @@ export default function HeatComfort() {
               />
             </label>
             <label className="grid gap-1 text-sm font-medium">
-              Current finish
+              {t("Current finish")}
               <select
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={currentCat}
@@ -148,7 +150,7 @@ export default function HeatComfort() {
                   setResult(null);
                 }}
               >
-                <option value="">Select the current finish</option>
+                <option value="">{t("Select the current finish")}</option>
                 {surfaceFactors.map((f) => (
                   <option key={f.id} value={f.category}>
                     {f.category_label ?? f.category}
@@ -157,7 +159,7 @@ export default function HeatComfort() {
               </select>
             </label>
             <label className="grid gap-1 text-sm font-medium">
-              Proposed finish
+              {t("Proposed finish")}
               <select
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={proposedCat}
@@ -166,7 +168,7 @@ export default function HeatComfort() {
                   setResult(null);
                 }}
               >
-                <option value="">Select the proposed finish</option>
+                <option value="">{t("Select the proposed finish")}</option>
                 {surfaceFactors.map((f) => (
                   <option key={f.id} value={f.category}>
                     {f.category_label ?? f.category}
@@ -181,7 +183,7 @@ export default function HeatComfort() {
             disabled={!currentCat || !proposedCat}
             className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
-            Compare finishes
+            {t("Compare finishes")}
           </button>
         </div>
 
@@ -200,7 +202,7 @@ export default function HeatComfort() {
             <div className="grid gap-4 sm:grid-cols-4">
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Current albedo
+                  {t("Current albedo")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.current_albedo}
@@ -211,7 +213,7 @@ export default function HeatComfort() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Proposed albedo
+                  {t("Proposed albedo")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.proposed_albedo}
@@ -222,7 +224,7 @@ export default function HeatComfort() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Energy delta
+                  {t("Energy delta")}
                 </p>
                 <p
                   className={`mt-1 text-xl font-semibold ${result.daily_energy_delta_kwh! > 0 ? "text-emerald-600 dark:text-emerald-400" : result.daily_energy_delta_kwh! < 0 ? "text-destructive" : ""}`}
@@ -236,7 +238,7 @@ export default function HeatComfort() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Effect
+                  {t("Effect")}
                 </p>
                 <p
                   className={`mt-1 text-xl font-semibold ${result.direction === "cooler" ? "text-emerald-600 dark:text-emerald-400" : result.direction === "warmer" ? "text-destructive" : ""}`}
@@ -277,7 +279,7 @@ export default function HeatComfort() {
 
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
-                How this was determined
+                {t("How this was determined")}
               </summary>
               <ul className="mt-2 space-y-1">
                 {result.steps.map((s, i) => (

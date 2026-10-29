@@ -12,6 +12,7 @@ import {
 import { formatExpiry } from "@/lib/rewarded-access";
 import type { RewardedAccess } from "@/lib/rewarded-access";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface Props {
   access: RewardedAccess;
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function RewardedAdModal({ access, featureName, features }: Props) {
+  const { t } = useLanguage();
   const {
     adLoading,
     cancelUnlock,
@@ -111,7 +113,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
               }}
               className="text-xs font-semibold text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-primary-foreground"
             >
-              Maybe later
+              {t("Maybe later")}
             </Button>
           </div>
         </div>
@@ -217,7 +219,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors hover:bg-primary/90"
               >
                 <PlayCircle aria-hidden="true" className="h-5 w-5" />
-                Watch Rewarded Ad to Unlock for Today
+                {t("Watch Rewarded Ad to Unlock for Today")}
               </Button>
             )}
 
@@ -229,7 +231,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-green px-4 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-accent-green/90"
               >
                 <Lock aria-hidden="true" className="h-4 w-4" />
-                Continue to Advanced Calculator
+                {t("Continue to Advanced Calculator")}
               </Button>
             )}
 
@@ -246,7 +248,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
             )}
 
             <p className="mt-4 text-center text-xs text-muted-foreground dark:text-muted-foreground">
-              Access resets automatically at midnight. One ad per day.
+              {t("Access resets automatically at midnight. One ad per day.")}
             </p>
           </div>
         </div>

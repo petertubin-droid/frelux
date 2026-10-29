@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 // FRELUX Entry Experience - a premium construction-technology welcome
 // shown exactly once, on the very first page load of the homepage.
@@ -46,6 +47,7 @@ interface EntryExperienceProps {
 }
 
 export default function EntryExperience({ onComplete }: EntryExperienceProps) {
+  const { t } = useLanguage();
   const [leaving, setLeaving] = useState(false);
   const [bgReady, setBgReady] = useState(false);
   const ctaRef = useRef<HTMLButtonElement | null>(null);
@@ -95,7 +97,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Welcome to FRELUX SMART CALC"
+      aria-label={t("Welcome to FRELUX SMART CALC")}
       className={`fixed inset-0 z-[9999] select-none overflow-hidden bg-[#0A0A1A] ${leaving ? "entry-leave" : ""}`}
       data-testid="entry-experience"
     >
@@ -149,7 +151,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
           <div className="entry-rise" style={rise(120)}>
             <img
               src="/logo-mark.png"
-              alt="FRELUX SMART CALC"
+              alt={t("FRELUX SMART CALC")}
               width={64}
               height={64}
               className="h-14 w-14 rounded-2xl bg-white/5 p-1.5 ring-1 ring-white/15 shadow-[0_10px_40px_-12px_rgba(109,40,217,0.55)] sm:h-16 sm:w-16"
@@ -161,7 +163,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
             className="entry-rise mt-5 font-display text-[26px] font-bold tracking-[0.32em] text-white sm:text-[32px]"
             style={rise(260)}
           >
-            FRELUX
+            {t("FRELUX")}
           </p>
 
           {/* Headline: split coloring: the craft in white, the outcome in
@@ -170,10 +172,10 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
             className="entry-rise mt-6 font-display text-[30px] font-semibold leading-[1.12] text-balance sm:mt-8 sm:text-5xl sm:leading-[1.1] lg:text-[56px]"
             style={rise(420)}
           >
-            <span className="text-white">Smarter Construction.</span>
+            <span className="text-white">{t("Smarter Construction.")}</span>
             <br />
             <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-orange-400 bg-clip-text text-transparent">
-              More Accurate Decisions.
+              {t("More Accurate Decisions.")}
             </span>
           </h1>
 
@@ -195,7 +197,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
             className="entry-rise group mt-9 inline-flex min-h-[56px] items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-violet-600 to-orange-500 px-9 py-4 text-base font-semibold text-white shadow-[0_14px_44px_-12px_rgba(124,58,237,0.75)] ring-1 ring-white/10 transition-all duration-300 ease-out hover:from-violet-500 hover:to-orange-400 hover:shadow-[0_18px_54px_-12px_rgba(249,115,22,0.65)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A1A] active:scale-[0.98] sm:mt-11 sm:px-11"
             style={rise(760)}
           >
-            Explore FRELUX
+            {t("Explore FRELUX")}
             <ArrowRight
               className="h-5 w-5 transition-transform duration-300 ease-out group-hover:translate-x-1"
               aria-hidden="true"
@@ -203,7 +205,9 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
           </button>
 
           <span className="sr-only" style={rise(760)}>
-            Press Enter or select the button to continue to the FRELUX homepage.
+            {t(
+              "Press Enter or select the button to continue to the FRELUX homepage.",
+            )}
           </span>
         </div>
       </main>
@@ -217,7 +221,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
         }}
       >
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400/80 sm:text-xs">
-          Construction intelligence, built for real projects.
+          {t("Construction intelligence, built for real projects.")}
         </p>
       </footer>
     </div>

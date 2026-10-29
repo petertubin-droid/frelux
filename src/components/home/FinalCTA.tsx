@@ -2,8 +2,10 @@ import { Link } from "react-router-dom";
 import { Calculator, ArrowRight } from "lucide-react";
 import Container from "@/components/ui/Container";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useLanguage } from "@/lib/i18n";
 
 export default function FinalCTA() {
+  const { t } = useLanguage();
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
 
   return (
@@ -43,14 +45,14 @@ export default function FinalCTA() {
                 className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-brand-purple/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-brand-purple/30 hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 <Calculator className="h-5 w-5" />
-                Start Calculating
+                {t("Start Calculating")}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link
                 to="/paint-calculator/?mode=cost"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-primary-foreground backdrop-blur-md transition-all hover:bg-white/10 hover:-translate-y-0.5 active:scale-[0.98]"
               >
-                Estimate Cost
+                {t("Estimate Cost")}
               </Link>
             </div>
           </div>

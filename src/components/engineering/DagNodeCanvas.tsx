@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
+import { useLanguage } from "@/lib/i18n";
 
 interface DagNodeCanvasProps {
   graph: DAGGraph<SequenceStep>;
@@ -36,6 +37,7 @@ export function DagNodeCanvas({
   nodeStatuses = {},
   onSelectNode,
 }: DagNodeCanvasProps) {
+  const { t } = useLanguage();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
@@ -147,7 +149,7 @@ export function DagNodeCanvas({
           </div>
           <div>
             <h4 className="text-sm font-bold text-foreground">
-              Interactive DAG Network Graph
+              {t("Interactive DAG Network Graph")}
             </h4>
             <p className="text-xs text-muted-foreground">
               {graph.metrics.totalNodes} nodes · {graph.metrics.totalEdges}{" "}
@@ -163,7 +165,7 @@ export function DagNodeCanvas({
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search tasks..."
+              placeholder={t("Search tasks...")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="h-8 pl-8 text-xs"
@@ -214,7 +216,7 @@ export function DagNodeCanvas({
               size="icon"
               className="h-7 w-7"
               onClick={() => setZoom((z) => Math.min(1.4, z + 0.1))}
-              title="Zoom in"
+              title={t("Zoom in")}
             >
               <ZoomIn className="h-3.5 w-3.5" />
             </Button>
@@ -223,7 +225,7 @@ export function DagNodeCanvas({
               size="icon"
               className="h-7 w-7"
               onClick={() => setZoom((z) => Math.max(0.7, z - 0.1))}
-              title="Zoom out"
+              title={t("Zoom out")}
             >
               <ZoomOut className="h-3.5 w-3.5" />
             </Button>
@@ -232,7 +234,7 @@ export function DagNodeCanvas({
               size="icon"
               className="h-7 w-7"
               onClick={() => setZoom(1)}
-              title="Reset zoom"
+              title={t("Reset zoom")}
             >
               <Maximize2 className="h-3.5 w-3.5" />
             </Button>
@@ -400,17 +402,17 @@ export function DagNodeCanvas({
                         {status === "in_progress" && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold text-brand-purple animate-pulse">
                             <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" />
-                            Executing
+                            {t("Executing")}
                           </span>
                         )}
                         {status === "completed" && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
-                            <CheckCircle2 className="h-3 w-3" /> Done
+                            <CheckCircle2 className="h-3 w-3" /> {t("Done")}
                           </span>
                         )}
                         {status === "pending" && node.isCritical && (
                           <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-600">
-                            Critical (0d float)
+                            {t("Critical (0d float)")}
                           </span>
                         )}
                         {status === "pending" && !node.isCritical && (
@@ -485,14 +487,14 @@ export function DagNodeCanvas({
               size="sm"
               onClick={() => setSelectedId(null)}
             >
-              Close
+              {t("Close")}
             </Button>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-border bg-muted/40 p-3 text-xs sm:grid-cols-6">
             <div>
               <span className="block text-[11px] text-muted-foreground">
-                Duration
+                {t("Duration")}
               </span>
               <strong className="text-sm text-foreground">
                 {selectedNode.duration} days
@@ -500,7 +502,7 @@ export function DagNodeCanvas({
             </div>
             <div>
               <span className="block text-[11px] text-muted-foreground">
-                Early Start (ES)
+                {t("Early Start (ES)")}
               </span>
               <strong className="text-sm text-foreground font-mono">
                 Day {selectedNode.earlyStart}
@@ -508,7 +510,7 @@ export function DagNodeCanvas({
             </div>
             <div>
               <span className="block text-[11px] text-muted-foreground">
-                Early Finish (EF)
+                {t("Early Finish (EF)")}
               </span>
               <strong className="text-sm text-foreground font-mono">
                 Day {selectedNode.earlyFinish}
@@ -516,7 +518,7 @@ export function DagNodeCanvas({
             </div>
             <div>
               <span className="block text-[11px] text-muted-foreground">
-                Late Start (LS)
+                {t("Late Start (LS)")}
               </span>
               <strong className="text-sm text-foreground font-mono">
                 Day {selectedNode.lateStart}
@@ -524,7 +526,7 @@ export function DagNodeCanvas({
             </div>
             <div>
               <span className="block text-[11px] text-muted-foreground">
-                Late Finish (LF)
+                {t("Late Finish (LF)")}
               </span>
               <strong className="text-sm text-foreground font-mono">
                 Day {selectedNode.lateFinish}
@@ -532,7 +534,7 @@ export function DagNodeCanvas({
             </div>
             <div>
               <span className="block text-[11px] text-muted-foreground">
-                Total Float / Free Float
+                {t("Total Float / Free Float")}
               </span>
               <strong className="text-sm text-foreground font-mono">
                 {selectedNode.totalFloat}d / {selectedNode.freeFloat}d
@@ -549,7 +551,7 @@ export function DagNodeCanvas({
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {selectedNode.dependencies.length === 0 ? (
                   <span className="text-xs text-muted-foreground">
-                    None (Project Milestone / Root)
+                    {t("None (Project Milestone / Root)")}
                   </span>
                 ) : (
                   selectedNode.dependencies.map((depId) => {
@@ -576,7 +578,7 @@ export function DagNodeCanvas({
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {selectedNode.dependents.length === 0 ? (
                   <span className="text-xs text-muted-foreground">
-                    None (Terminal Activity / Project Completion)
+                    {t("None (Terminal Activity / Project Completion)")}
                   </span>
                 ) : (
                   selectedNode.dependents.map((succId) => {
@@ -605,7 +607,7 @@ export function DagNodeCanvas({
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-border p-4">
                   <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-brand-purple">
-                    <HardHat className="h-4 w-4" /> Activities
+                    <HardHat className="h-4 w-4" /> {t("Activities")}
                   </p>
                   <ul className="space-y-1.5">
                     {selectedNode.data.activities.map(

@@ -36,6 +36,7 @@ import {
   X,
 } from "lucide-react";
 import { track } from "@/lib/analytics";
+import { useLanguage } from "@/lib/i18n";
 import {
   useHousePromoSettings,
   normalizeBaseUrl,
@@ -245,12 +246,13 @@ function go(dest: PromoItem, source: string) {
 
 /** AdSense-style "Ad" badge with AdChoices info glyph. */
 function AdBadge({ className = "" }: { className?: string }) {
+  const { t } = useLanguage();
   return (
     <span
-      title="Ads by Heartsyncx · Sponsored"
+      title={t("Ads by Heartsyncx · Sponsored")}
       className={`inline-flex items-center gap-0.5 cursor-help rounded bg-[#f1f3f4] px-1 py-px text-[9px] font-bold leading-none text-[#5f6368] dark:bg-[#3c4043] dark:text-[#9aa0a6] ${className}`}
     >
-      Ad
+      {t("Ad")}
       <Info aria-hidden="true" className="h-2 w-2" />
     </span>
   );
@@ -258,9 +260,10 @@ function AdBadge({ className = "" }: { className?: string }) {
 
 /** Standalone AdChoices glyph (top-right corner of a unit). */
 function AdChoices({ className = "" }: { className?: string }) {
+  const { t } = useLanguage();
   return (
     <span
-      title="Why this ad? Ads by Heartsyncx"
+      title={t("Why this ad? Ads by Heartsyncx")}
       className={`inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full text-[#5f6368] hover:bg-[#f1f3f4] dark:text-[#9aa0a6] dark:hover:bg-[#3c4043] ${className}`}
     >
       <Info aria-hidden="true" className="h-2.5 w-2.5" />
@@ -307,6 +310,7 @@ function DisplayAd({
   source: string;
   items: PromoItem[];
 }) {
+  const { t } = useLanguage();
   const d = items[slotIndex % items.length];
   const [logoFailed, setLogoFailed] = useState(false);
   const showLogo = Boolean(d.logo) && !logoFailed;
@@ -314,7 +318,7 @@ function DisplayAd({
     <div className={`my-6 overflow-hidden ${AD_CONTAINER}`}>
       <div className="flex items-center justify-center gap-1.5 pt-2 pb-1.5">
         <span className="text-[9px] font-bold uppercase tracking-widest text-[#5f6368] dark:text-[#9aa0a6]">
-          Advertisement
+          {t("Advertisement")}
         </span>
         <AdChoices />
       </div>
@@ -506,6 +510,7 @@ function RecCard({
   source: string;
   items: PromoItem[];
 }) {
+  const { t } = useLanguage();
   const rotated = items.map((_, i) => items[(i + slotIndex) % items.length]);
   return (
     <div className={`my-8 overflow-hidden ${AD_CONTAINER}`}>
@@ -513,7 +518,7 @@ function RecCard({
         <span
           className={`text-xs font-bold uppercase tracking-wide ${AD_BODY}`}
         >
-          Recommended for you
+          {t("Recommended for you")}
         </span>
         <AdChoices />
       </div>
@@ -547,7 +552,7 @@ function RecCard({
                   {d.domain}
                 </span>
                 <span className="mt-0.5 block text-[10px] text-[#5f6368] dark:text-[#9aa0a6]">
-                  Sponsored
+                  {t("Sponsored")}
                 </span>
               </span>
             </button>
@@ -566,6 +571,7 @@ function Interstitial({
   source: string;
   items: PromoItem[];
 }) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const featured = items[0];
   useEffect(() => {
@@ -596,13 +602,13 @@ function Interstitial({
       >
         <div className="flex items-center justify-between px-4 pt-2">
           <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#5f6368] dark:text-[#9aa0a6]">
-            Advertisement <AdBadge />
+            {t("Advertisement")} <AdBadge />
           </span>
           <div className="flex items-center gap-1">
             <AdChoices />
             <button
               type="button"
-              aria-label="Close ad"
+              aria-label={t("Close ad")}
               onClick={() => setOpen(false)}
               className="cursor-pointer rounded-full p-1 text-[#5f6368] hover:bg-[#f1f3f4] dark:text-[#9aa0a6] dark:hover:bg-[#3c4043]"
             >

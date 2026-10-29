@@ -29,7 +29,10 @@ import {
   getBuildingPresets,
   type BuildingPreset,
 } from "@/lib/measurement/building-presets";
-import { houseFloorAreaM2, houseRowsFromPreset } from "@/lib/estimation/multi-unit";
+import {
+  houseFloorAreaM2,
+  houseRowsFromPreset,
+} from "@/lib/estimation/multi-unit";
 import type { HouseRoomRow } from "@/types";
 import { track } from "@/lib/analytics";
 import {
@@ -94,6 +97,7 @@ import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
 import UnitToggle from "@/components/measurement/UnitToggle";
+import { tx } from "@/lib/i18n";
 const ADVANCED_FEATURES = [
   "AI-powered project analysis & breakdown",
   "Smart cost optimization recommendations",
@@ -487,8 +491,8 @@ export default function TileCalculator({
           <>
             <PageHeader
               eyebrow="Calculate"
-              title="Tile Calculator"
-              subtitle="Calculate tile quantities, adhesive, and grout."
+              title={tx("Tile Calculator")}
+              subtitle={tx("Calculate tile quantities, adhesive, and grout.")}
               breadcrumbs={[
                 { label: "Home", path: "/" },
                 { label: "Calculators", path: "/calculators" },
@@ -511,7 +515,7 @@ export default function TileCalculator({
       {!embedded && (
         <PageHeader
           eyebrow="Calculate"
-          title="Tile Calculator"
+          title={tx("Tile Calculator")}
           subtitle="Calculate tile quantity, boxes, adhesive, grout, and labour cost for your tiling project."
           breadcrumbs={[
             { label: "Home", path: "/" },
@@ -533,7 +537,7 @@ export default function TileCalculator({
       </div>
       <div
         role="region"
-        aria-label="Tile calculator"
+        aria-label={tx("Tile calculator")}
         className="mx-auto max-w-3xl px-4 py-10 sm:px-6"
       >
         {!result && (
@@ -623,147 +627,156 @@ export default function TileCalculator({
               />
             ) : (
               <>
-            {/* Surface type */}
-            <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-              Surface type
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Are you tiling a floor or a wall?
-            </p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {(
-                [
-                  {
-                    value: "floor",
-                    label: "Floor",
-                    desc: "Tile a floor surface",
-                  },
-                  { value: "wall", label: "Wall", desc: "Tile a wall surface" },
-                ] as const
-              ).map((s) => {
-                const selected = input.surfaceType === s.value;
-                return (
-                  <Button
-                    variant="ghost"
-                    key={s.value}
-                    type="button"
-                    onClick={() => update("surfaceType", s.value)}
-                    className={
-                      "select-card flex h-auto items-start gap-3 rounded-xl border p-4 text-left " +
-                      (selected
-                        ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
-                        : "border-border")
+                {/* Surface type */}
+                <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
+                  {tx("Surface type")}
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Are you tiling a floor or a wall?
+                </p>
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  {(
+                    [
+                      {
+                        value: "floor",
+                        label: "Floor",
+                        desc: "Tile a floor surface",
+                      },
+                      {
+                        value: "wall",
+                        label: "Wall",
+                        desc: "Tile a wall surface",
+                      },
+                    ] as const
+                  ).map((s) => {
+                    const selected = input.surfaceType === s.value;
+                    return (
+                      <Button
+                        variant="ghost"
+                        key={s.value}
+                        type="button"
+                        onClick={() => update("surfaceType", s.value)}
+                        className={
+                          "select-card flex h-auto items-start gap-3 rounded-xl border p-4 text-left " +
+                          (selected
+                            ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
+                            : "border-border")
+                        }
+                      >
+                        <span
+                          className={
+                            "inline-flex h-10 w-10 items-center justify-center rounded-lg " +
+                            (selected
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted text-muted-foreground")
+                          }
+                        >
+                          <Grid3x3 aria-hidden="true" className="h-5 w-5" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-semibold text-foreground dark:text-primary-foreground">
+                            {s.label}
+                          </span>
+                          <span className="block text-xs text-muted-foreground">
+                            {s.desc}
+                          </span>
+                        </span>
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                {/* Unit toggle */}
+                <div className="mt-6">
+                  <div className="inline-flex rounded-lg border border-border p-1">
+                    <UnitToggle
+                      value={input.unit}
+                      onChange={(u) => update("unit", u)}
+                    />
+                  </div>
+                </div>
+
+                {/* Dimensions */}
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <Field
+                    label={
+                      input.surfaceType === "floor"
+                        ? "Floor length"
+                        : "Wall length"
                     }
+                    suffix={unitShortLabel(input.unit)}
+                    error={errors.length}
                   >
-                    <span
-                      className={
-                        "inline-flex h-10 w-10 items-center justify-center rounded-lg " +
-                        (selected
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground")
-                      }
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      value={input.length || ""}
+                      onChange={(e) => update("length", Number(e.target.value))}
+                      className="input-field"
+                      placeholder="0.00"
+                    />
+                  </Field>
+                  {input.surfaceType === "floor" ? (
+                    <Field
+                      label="Floor width"
+                      suffix={unitShortLabel(input.unit)}
+                      error={errors.width}
                     >
-                      <Grid3x3 aria-hidden="true" className="h-5 w-5" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-semibold text-foreground dark:text-primary-foreground">
-                        {s.label}
-                      </span>
-                      <span className="block text-xs text-muted-foreground">
-                        {s.desc}
-                      </span>
-                    </span>
-                  </Button>
-                );
-              })}
-            </div>
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={input.width || ""}
+                        onChange={(e) =>
+                          update("width", Number(e.target.value))
+                        }
+                        className="input-field"
+                        placeholder="0.00"
+                      />
+                    </Field>
+                  ) : (
+                    <Field
+                      label="Wall height"
+                      suffix={unitShortLabel(input.unit)}
+                      error={errors.height}
+                    >
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={input.height || ""}
+                        onChange={(e) =>
+                          update("height", Number(e.target.value))
+                        }
+                        className="input-field"
+                        placeholder="0.00"
+                      />
+                    </Field>
+                  )}
+                </div>
 
-            {/* Unit toggle */}
-            <div className="mt-6">
-              <div className="inline-flex rounded-lg border border-border p-1">
-                <UnitToggle
-                  value={input.unit}
-                  onChange={(u) => update("unit", u)}
-                />
-              </div>
-            </div>
-
-            {/* Dimensions */}
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <Field
-                label={
-                  input.surfaceType === "floor" ? "Floor length" : "Wall length"
-                }
-                suffix={unitShortLabel(input.unit)}
-                error={errors.length}
-              >
-                <input
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={input.length || ""}
-                  onChange={(e) => update("length", Number(e.target.value))}
-                  className="input-field"
-                  placeholder="0.00"
-                />
-              </Field>
-              {input.surfaceType === "floor" ? (
-                <Field
-                  label="Floor width"
-                  suffix={unitShortLabel(input.unit)}
-                  error={errors.width}
-                >
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={input.width || ""}
-                    onChange={(e) => update("width", Number(e.target.value))}
-                    className="input-field"
-                    placeholder="0.00"
-                  />
-                </Field>
-              ) : (
-                <Field
-                  label="Wall height"
-                  suffix={unitShortLabel(input.unit)}
-                  error={errors.height}
-                >
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={input.height || ""}
-                    onChange={(e) => update("height", Number(e.target.value))}
-                    className="input-field"
-                    placeholder="0.00"
-                  />
-                </Field>
-              )}
-            </div>
-
-            {/* Identical surfaces */}
-            <div className="mt-4 max-w-xs">
-              <Field
-                label="Number of identical surfaces"
-                hint="Tiling 3 identical bedroom floors? Set 3 and buy for all at once."
-              >
-                <input
-                  type="number"
-                  min={1}
-                  step={1}
-                  value={input.quantity ?? 1}
-                  onChange={(e) =>
-                    update(
-                      "quantity" as keyof typeof input,
-                      Math.max(1, Math.round(Number(e.target.value) || 1)),
-                    )
-                  }
-                  className="input-field"
-                />
-              </Field>
-            </div>
-
+                {/* Identical surfaces */}
+                <div className="mt-4 max-w-xs">
+                  <Field
+                    label="Number of identical surfaces"
+                    hint="Tiling 3 identical bedroom floors? Set 3 and buy for all at once."
+                  >
+                    <input
+                      type="number"
+                      min={1}
+                      step={1}
+                      value={input.quantity ?? 1}
+                      onChange={(e) =>
+                        update(
+                          "quantity" as keyof typeof input,
+                          Math.max(1, Math.round(Number(e.target.value) || 1)),
+                        )
+                      }
+                      className="input-field"
+                    />
+                  </Field>
+                </div>
               </>
             )}
 
@@ -778,7 +791,7 @@ export default function TileCalculator({
                   className="input-field"
                   defaultValue=""
                 >
-                  <option value="">Custom size</option>
+                  <option value="">{tx("Custom size")}</option>
                   {tileSizes.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name} ({s.tiles_per_box}/box)
@@ -842,10 +855,10 @@ export default function TileCalculator({
             {/* Installation method */}
             <div className="mt-6">
               <h2 className="text-lg font-bold text-foreground">
-                Installation method
+                {tx("Installation method")}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Choose how the tiles will be installed.
+                {tx("Choose how the tiles will be installed.")}
               </p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {(
@@ -964,7 +977,7 @@ export default function TileCalculator({
             {/* Grout (admin-configured) + Spacers (always shown) */}
             <div className="mt-6 rounded-lg border border-primary/20 bg-primary/5 p-4">
               <p className="text-xs font-semibold text-muted-foreground">
-                Grout, configured in Admin
+                {tx("Grout, configured in Admin")}
               </p>
               <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
                 <ConfigItem
@@ -1013,7 +1026,7 @@ export default function TileCalculator({
             {/* Waste margin */}
             <div className="mt-6">
               <span className="block text-sm font-semibold text-card-foreground">
-                Waste / safety margin
+                {tx("Waste / safety margin")}
               </span>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 Buys extra tiles for cuts, breakage, and future repairs, the
@@ -1032,7 +1045,7 @@ export default function TileCalculator({
                   aria-hidden="true"
                   className="mt-0.5 h-4 w-4 shrink-0"
                 />
-                <p>Please fix the errors above before calculating.</p>
+                <p>{tx("Please fix the errors above before calculating.")}</p>
               </div>
             )}
 
@@ -1042,7 +1055,7 @@ export default function TileCalculator({
               onClick={compute}
               className="btn-glow mt-6 w-full sm:w-auto"
             >
-              Calculate Tiles <ArrowRight className="h-4 w-4" />
+              {tx("Calculate Tiles")} <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         )}
@@ -1199,7 +1212,7 @@ function TileResultCard({
         <div className="flex items-center gap-2 text-accent-green">
           <CheckCircle2 className="h-5 w-5" />
           <span className="text-sm font-semibold uppercase tracking-widest">
-            Your Tile Estimate
+            {tx("Your Tile Estimate")}
           </span>
         </div>
         <p className="mt-3 text-sm text-primary-foreground/60">
@@ -1471,7 +1484,8 @@ function TileResultCard({
           onClick={onAgain}
           className="btn-secondary"
         >
-          <RotateCcw aria-hidden="true" className="h-4 w-4" /> Calculate Again
+          <RotateCcw aria-hidden="true" className="h-4 w-4" />{" "}
+          {tx("Calculate Again")}
         </Button>
         <div className="flex flex-col gap-3 sm:flex-row">
           {user && (
@@ -1504,7 +1518,7 @@ function TileResultCard({
             onClick={onStartOver}
             className="btn-secondary"
           >
-            Start Over
+            {tx("Start Over")}
           </Button>
           <Link
             to="/tile-calculator/?mode=cost"
@@ -1515,7 +1529,7 @@ function TileResultCard({
             }}
             className="btn-primary"
           >
-            Continue to Cost Estimate <ArrowRight className="h-4 w-4" />
+            {tx("Continue to Cost Estimate")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </div>
@@ -1536,7 +1550,7 @@ function TileResultCard({
             href={`/marketplace/post/?project_type=tiling&budget_min=${Math.round(result.grandTotal * 0.9)}&budget_max=${Math.round(result.grandTotal * 1.2)}&title=Tiling, ${result.surfaceArea.toFixed(1)} m²`}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 whitespace-nowrap"
           >
-            Post as Job
+            {tx("Post as Job")}
           </a>
         </div>
       </div>
@@ -1720,7 +1734,7 @@ function TileHouseEditor({
           htmlFor={selectId}
           className="mb-1 block text-sm font-semibold text-foreground dark:text-primary-foreground"
         >
-          House type
+          {tx("House type")}
         </label>
         <select
           id={selectId}
@@ -1736,7 +1750,7 @@ function TileHouseEditor({
           }}
           className="input-field"
         >
-          <option value="">Select a house type...</option>
+          <option value="">{tx("Select a house type...")}</option>
           {marketPresets.map((preset) => (
             <option key={preset.id} value={preset.id}>
               {preset.label} — {preset.description}
@@ -1746,9 +1760,14 @@ function TileHouseEditor({
         </select>
         {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
         <p className="mt-1 text-xs text-muted-foreground">
-          Loads every room's floor from a typical {marketPresets[0]?.label ? "local" : ""} layout.
-          Common in your market:{" "}
-          {marketPresets.slice(0, 3).map((p) => p.label).join(", ")}.
+          Loads every room's floor from a typical{" "}
+          {marketPresets[0]?.label ? "local" : ""} layout. Common in your
+          market:{" "}
+          {marketPresets
+            .slice(0, 3)
+            .map((p) => p.label)
+            .join(", ")}
+          .
         </p>
       </div>
 
@@ -1760,9 +1779,11 @@ function TileHouseEditor({
                 <input
                   type="text"
                   value={row.label}
-                  onChange={(e) => onUpdateRoom(row.id, { label: e.target.value })}
+                  onChange={(e) =>
+                    onUpdateRoom(row.id, { label: e.target.value })
+                  }
                   className="input-field max-w-xs font-semibold"
-                  aria-label="Room name"
+                  aria-label={tx("Room name")}
                 />
                 <Button
                   variant="ghost"
@@ -1828,13 +1849,13 @@ function TileHouseEditor({
         className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary"
       >
         <Plus size={18} />
-        Add Room
+        {tx("Add Room")}
       </Button>
 
       {/* Quick-add: any number of identical single rooms in one step */}
       <div className="mt-5 rounded-xl border border-border/70 bg-muted/30 p-4">
         <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-          Quick add identical rooms
+          {tx("Quick add identical rooms")}
         </p>
         <p className="mt-0.5 text-xs text-muted-foreground">
           Tiling 5 identical bedrooms? Enter one room's floor size and the
@@ -1891,17 +1912,17 @@ function TileHouseEditor({
               className="w-full"
             >
               <Plus className="h-4 w-4" />
-              Add Rooms
+              {tx("Add Rooms")}
             </Button>
           </div>
         </div>
       </div>
 
       <p className="mt-4 text-xs text-muted-foreground">
-        Whole-house mode tiles every room's floor. For bathroom or kitchen
-        wall tiles, switch to Single Surface and use Wall with the identical
-        surfaces count. Boxes and materials are bought once for the whole
-        project, so quantities round on the combined area.
+        Whole-house mode tiles every room's floor. For bathroom or kitchen wall
+        tiles, switch to Single Surface and use Wall with the identical surfaces
+        count. Boxes and materials are bought once for the whole project, so
+        quantities round on the combined area.
       </p>
     </div>
   );

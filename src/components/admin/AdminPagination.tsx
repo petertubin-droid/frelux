@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * Shared admin pagination control.
@@ -45,6 +46,7 @@ export default function AdminPagination({
   pageSizeOptions = ADMIN_PAGINATION_PAGE_SIZES,
   loading = false,
 }: AdminPaginationProps) {
+  const { t } = useLanguage();
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(page, totalPages - 1);
   const pages = useMemo(
@@ -65,11 +67,11 @@ export default function AdminPagination({
       <div className="flex items-center gap-3">
         {onPageSizeChange && (
           <label className="flex items-center gap-1.5">
-            <span className="sr-only">Rows per page</span>
+            <span className="sr-only">{t("Rows per page")}</span>
             <select
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
-              aria-label="Rows per page"
+              aria-label={t("Rows per page")}
               className="h-8 rounded-md border border-border bg-background px-2 text-xs text-foreground outline-none focus:ring-1 focus:ring-brand-purple/50 dark:border-border dark:bg-card dark:text-primary-foreground"
             >
               {pageSizeOptions.map((size) => (
@@ -85,7 +87,7 @@ export default function AdminPagination({
             type="button"
             disabled={safePage === 0 || loading}
             onClick={() => onPageChange(safePage - 1)}
-            aria-label="Previous page"
+            aria-label={t("Previous page")}
             className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40 dark:border-border dark:text-primary-foreground dark:hover:bg-card-foreground/90"
           >
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />
@@ -111,7 +113,7 @@ export default function AdminPagination({
             type="button"
             disabled={safePage >= totalPages - 1 || loading}
             onClick={() => onPageChange(safePage + 1)}
-            aria-label="Next page"
+            aria-label={t("Next page")}
             className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40 dark:border-border dark:text-primary-foreground dark:hover:bg-card-foreground/90"
           >
             <ChevronRight className="h-4 w-4" aria-hidden="true" />

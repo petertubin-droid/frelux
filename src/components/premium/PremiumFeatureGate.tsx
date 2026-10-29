@@ -29,6 +29,7 @@ import { useToast } from "@/components/ui/Toast";
 import { supportsRewardedAds } from "@/lib/ad-providers";
 import { getClientHash, REWARDED_AD_BRIDGES } from "@/lib/rewarded-access";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface Props {
   /** Feature key in ai_feature_costs table (e.g. 'pdf_export', 'ai_building_estimation') */
@@ -50,6 +51,7 @@ export function PremiumFeatureGate({
   onClose,
   description,
 }: Props) {
+  const { t } = useLanguage();
   const { isPaid, user } = useAuth();
   const { toast } = useToast();
   const [featureCost, setFeatureCost] = useState<AiFeatureCost | null>(null);
@@ -268,7 +270,7 @@ export function PremiumFeatureGate({
                 <div className="flex items-center gap-3">
                   <div className="h-px flex-1 bg-muted dark:bg-white/10" />
                   <span className="text-[10px] font-medium text-muted-foreground">
-                    OR
+                    {t("OR")}
                   </span>
                   <div className="h-px flex-1 bg-muted dark:bg-white/10" />
                 </div>
@@ -294,7 +296,7 @@ export function PremiumFeatureGate({
 
             {!canWatchAd && (
               <p className="text-center text-xs text-muted-foreground dark:text-muted-foreground">
-                Watch ads from the Rewards page to earn more credits.
+                {t("Watch ads from the Rewards page to earn more credits.")}
               </p>
             )}
           </div>

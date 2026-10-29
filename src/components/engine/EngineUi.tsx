@@ -39,6 +39,7 @@ import type {
   EstimateReportData,
 } from "@/lib/measurement/use-engine-features";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // ============================================================
 // WASTE SELECTOR
@@ -55,6 +56,7 @@ export function EngineWasteSelector({
   userWaste: number | undefined;
   onUserWasteChange: (waste: number | undefined) => void;
 }) {
+  const { t } = useLanguage();
   const [mode, setMode] = useState<WasteMode>(
     userWaste === undefined ? "system" : "user",
   );
@@ -70,7 +72,7 @@ export function EngineWasteSelector({
   return (
     <div className="rounded-lg border border-border bg-card p-4 dark:border-white/10 dark:bg-background">
       <label className="mb-2 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-        Waste Allowance
+        {t("Waste Allowance")}
       </label>
       <div className="flex gap-2">
         {(
@@ -115,7 +117,7 @@ export function EngineWasteSelector({
               if (Number.isNaN(parsed)) return;
               onUserWasteChange(Math.min(100, Math.max(0.1, parsed)));
             }}
-            aria-label="Custom waste percentage"
+            aria-label={t("Custom waste percentage")}
             className="w-20 rounded-md border border-border px-2 py-1 text-sm dark:border-white/10 dark:bg-background"
           />
           <span className="text-sm text-muted-foreground">% waste</span>
@@ -125,7 +127,7 @@ export function EngineWasteSelector({
 
       {mode === "none" && (
         <p className="mt-2 text-xs text-muted-foreground">
-          No waste allowance, exact quantity only
+          {t("No waste allowance, exact quantity only")}
         </p>
       )}
     </div>
@@ -147,24 +149,27 @@ export function EngineAlreadyHaveInput({
   onAlreadyHaveChange: (n: number) => void;
   unit: string;
 }) {
+  const { t } = useLanguage();
   const purchase = Math.max(0, required - alreadyHave);
 
   return (
     <div className="rounded-lg border border-border bg-card p-4 dark:border-white/10 dark:bg-background">
       <label className="mb-2 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-        Already Have / Purchase Quantity
+        {t("Already Have / Purchase Quantity")}
       </label>
       <div className="grid grid-cols-3 gap-3 text-sm">
         <div>
-          <div className="text-xs text-muted-foreground">Required</div>
+          <div className="text-xs text-muted-foreground">{t("Required")}</div>
           <div className="font-semibold">
             {required} {unit}
           </div>
         </div>
         <div>
-          <div className="text-xs text-muted-foreground">Already Have</div>
+          <div className="text-xs text-muted-foreground">
+            {t("Already Have")}
+          </div>
           <input
-            aria-label="Already have quantity"
+            aria-label={t("Already have quantity")}
             type="number"
             min={0}
             max={required}
@@ -176,7 +181,7 @@ export function EngineAlreadyHaveInput({
           />
         </div>
         <div>
-          <div className="text-xs text-muted-foreground">Purchase</div>
+          <div className="text-xs text-muted-foreground">{t("Purchase")}</div>
           <div className="font-semibold text-brand-purple">
             {purchase} {unit}
           </div>
@@ -256,6 +261,7 @@ export function EngineConfidenceDetail({
 }: {
   result: ConfidenceResult;
 }) {
+  const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -267,7 +273,7 @@ export function EngineConfidenceDetail({
       >
         <span className="flex items-center gap-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
           <ShieldCheck className="h-4 w-4 text-brand-purple" />
-          Result Confidence
+          {t("Result Confidence")}
         </span>
         {expanded ? (
           <ChevronUp
@@ -305,7 +311,7 @@ export function EngineConfidenceDetail({
           {result.recommendations.length > 0 && (
             <div className="mt-3 space-y-1">
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Recommendations
+                {t("Recommendations")}
               </p>
               {result.recommendations.map((rec, i) => (
                 <p key={i} className="text-xs text-muted-foreground">
@@ -329,6 +335,7 @@ export function EngineExplanationPanel({
 }: {
   result: ExplanationResult;
 }) {
+  const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -340,7 +347,7 @@ export function EngineExplanationPanel({
       >
         <span className="flex items-center gap-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
           <Info aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-          How FRELUX Calculated This
+          {t("How FRELUX Calculated This")}
         </span>
         {expanded ? (
           <ChevronUp
@@ -404,6 +411,7 @@ export function EngineMaterialSummaryCard({
 }: {
   summary: MaterialSummary;
 }) {
+  const { t } = useLanguage();
   if (summary.entries.length === 0) return null;
 
   return (
@@ -411,7 +419,7 @@ export function EngineMaterialSummaryCard({
       <div className="mb-3 flex items-center gap-2">
         <Package className="h-4 w-4 text-brand-purple" />
         <h3 className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-          Material Summary
+          {t("Material Summary")}
         </h3>
       </div>
       <div className="overflow-x-auto">
@@ -419,16 +427,16 @@ export function EngineMaterialSummaryCard({
           <thead>
             <tr className="border-b border-border dark:border-white/10 text-left">
               <th className="pb-2 pr-3 font-medium text-muted-foreground">
-                Material
+                {t("Material")}
               </th>
               <th className="pb-2 pr-3 font-medium text-muted-foreground">
-                Total Qty
+                {t("Total Qty")}
               </th>
               <th className="pb-2 pr-3 font-medium text-muted-foreground">
-                Unit
+                {t("Unit")}
               </th>
               <th className="pb-2 font-medium text-muted-foreground">
-                Sources
+                {t("Sources")}
               </th>
             </tr>
           </thead>
@@ -468,6 +476,7 @@ export function EngineEstimateReportView({
 }: {
   report: EstimateReportData;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="rounded-lg border border-border bg-card p-6 dark:border-white/10 dark:bg-background">
       {/* Header */}
@@ -489,7 +498,7 @@ export function EngineEstimateReportView({
       {report.spaces.length > 0 && (
         <div className="mb-4">
           <h3 className="mb-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Spaces
+            {t("Spaces")}
           </h3>
           {report.spaces.map((space, i) => (
             <div
@@ -509,18 +518,20 @@ export function EngineEstimateReportView({
       {report.materials.length > 0 && (
         <div className="mb-4">
           <h3 className="mb-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Materials
+            {t("Materials")}
           </h3>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border dark:border-white/10 text-left">
                 <th className="pb-1 font-medium text-muted-foreground">
-                  Material
+                  {t("Material")}
                 </th>
                 <th className="pb-1 font-medium text-muted-foreground">
-                  Quantity
+                  {t("Quantity")}
                 </th>
-                <th className="pb-1 font-medium text-muted-foreground">Unit</th>
+                <th className="pb-1 font-medium text-muted-foreground">
+                  {t("Unit")}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -543,7 +554,7 @@ export function EngineEstimateReportView({
       {report.unitPrices.length > 0 && (
         <div className="mb-4">
           <h3 className="mb-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Unit Prices
+            {t("Unit Prices")}
           </h3>
           {report.unitPrices.map((price, i) => (
             <div key={i} className="flex justify-between text-sm">
@@ -560,7 +571,7 @@ export function EngineEstimateReportView({
       {report.total > 0 && (
         <div className="border-t border-border pt-4 dark:border-white/10">
           <div className="flex justify-between text-base font-bold">
-            <span>Total</span>
+            <span>{t("Total")}</span>
             <span>
               {report.total.toLocaleString()} {report.currency}
             </span>
@@ -572,7 +583,7 @@ export function EngineEstimateReportView({
       {report.notes.length > 0 && (
         <div className="mt-4 border-t border-border pt-3 dark:border-white/10">
           <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Notes
+            {t("Notes")}
           </p>
           {report.notes.map((note, i) => (
             <p key={i} className="text-xs text-muted-foreground">
@@ -584,7 +595,7 @@ export function EngineEstimateReportView({
 
       <div className="mt-4 flex items-center gap-1 text-xs text-muted-foreground">
         <FileText aria-hidden="true" className="h-3 w-3" />
-        Generated by FRELUX Calculation Engine
+        {t("Generated by FRELUX Calculation Engine")}
       </div>
     </div>
   );

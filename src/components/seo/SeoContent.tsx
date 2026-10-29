@@ -1,12 +1,14 @@
 import { SeoContent } from "./SeoSections";
 import type { ReactNode } from "react";
+import { useLanguage } from "@/lib/i18n";
 
 // ── Paint Calculator ────────────────────────────────────────────────
 export function PaintCalculatorSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        How to Calculate Paint Quantity for Any Room
+        {t("How to Calculate Paint Quantity for Any Room")}
       </h2>
       <p>
         Calculating how much paint you need is the first step in any painting
@@ -16,38 +18,39 @@ export function PaintCalculatorSeo(): ReactNode {
         required for your project.
       </p>
       <p>
-        FRELUX estimates paint requirements in <strong>buckets</strong>, a
-        standard purchase unit for paint in many markets. The engine calculates
-        your paintable wall area, applies coverage rates specific to your
-        selected paint type and quality, accounts for the number of coats, and
-        rounds up to whole paint buckets so you know exactly what to buy.
+        {t("FRELUX estimates paint requirements in")} <strong>buckets</strong>,
+        a standard purchase unit for paint in many markets. The engine
+        calculates your paintable wall area, applies coverage rates specific to
+        your selected paint type and quality, accounts for the number of coats,
+        and rounds up to whole paint buckets so you know exactly what to buy.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Factors That Affect Paint Quantity
+        {t("Factors That Affect Paint Quantity")}
       </h2>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Wall surface area</strong>: larger walls need more paint
-        </li>
-        <li>
-          <strong>Number of coats</strong>: most projects need 2–3 coats for
-          full coverage
-        </li>
-        <li>
-          <strong>Paint type</strong>: emulsion, satin, gloss, and texture
-          paints have different coverage rates
-        </li>
-        <li>
-          <strong>Surface texture</strong>: rough or porous surfaces absorb more
+          <strong>{t("Wall surface area")}</strong>: larger walls need more
           paint
         </li>
         <li>
-          <strong>Doors and windows</strong>: deduct these openings from the
-          total wall area
+          <strong>{t("Number of coats")}</strong>: most projects need 2–3 coats
+          for full coverage
         </li>
         <li>
-          <strong>Waste factor</strong>: always add 5–10% for spillage and
-          touch-ups
+          <strong>{t("Paint type")}</strong>: emulsion, satin, gloss, and
+          texture paints have different coverage rates
+        </li>
+        <li>
+          <strong>{t("Surface texture")}</strong>: rough or porous surfaces
+          absorb more paint
+        </li>
+        <li>
+          <strong>{t("Doors and windows")}</strong>: deduct these openings from
+          the total wall area
+        </li>
+        <li>
+          <strong>{t("Waste factor")}</strong>: always add 5–10% for spillage
+          and touch-ups
         </li>
       </ul>
       <p>
@@ -62,10 +65,11 @@ export function PaintCalculatorSeo(): ReactNode {
 
 // ── Screeding Calculator ───────────────────────────────────────────
 export function ScreedingCalculatorSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        How to Calculate Wall Screeding Area and Materials
+        {t("How to Calculate Wall Screeding Area and Materials")}
       </h2>
       <p>
         Wall screeding is the process of smoothing interior walls with a thin
@@ -81,7 +85,7 @@ export function ScreedingCalculatorSeo(): ReactNode {
         paint system), using coverage rates set in the calculator.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Materials Needed for Wall Screeding
+        {t("Materials Needed for Wall Screeding")}
       </h2>
       <p className="mb-2">
         FRELUX supports two screeding systems, and the calculator prices the one
@@ -89,13 +93,13 @@ export function ScreedingCalculatorSeo(): ReactNode {
       </p>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Putty-based system</strong>: premixed putty applied straight
-          from the bucket, the fastest, most common modern approach
+          <strong>{t("Putty-based system")}</strong>: premixed putty applied
+          straight from the bucket, the fastest, most common modern approach
         </li>
         <li>
-          <strong>White cement + screeding paint system</strong>: white cement
-          as the binder, finished with screeding paint for a smooth, paint-ready
-          surface
+          <strong>{t("White cement + screeding paint system")}</strong>: white
+          cement as the binder, finished with screeding paint for a smooth,
+          paint-ready surface
         </li>
       </ul>
       <p>
@@ -110,10 +114,11 @@ export function ScreedingCalculatorSeo(): ReactNode {
 
 // ── POP Ceiling Calculator ────────────────────────────────────────
 export function PopCeilingCalculatorSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        How to Calculate POP Ceiling Materials
+        {t("How to Calculate POP Ceiling Materials")}
       </h2>
       <p>
         Plaster of Paris (POP) ceilings are a popular choice for many homes,
@@ -127,26 +132,27 @@ export function PopCeilingCalculatorSeo(): ReactNode {
         fibreglass mesh, and other materials based on standard coverage rates.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        POP Ceiling Material Guide
+        {t("POP Ceiling Material Guide")}
       </h2>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>POP cement</strong>: the primary material, mixed with water to
-          form a paste
+          <strong>{t("POP cement")}</strong>: the primary material, mixed with
+          water to form a paste
         </li>
         <li>
-          <strong>Fibreglass mesh</strong>: reinforcement to prevent cracking
+          <strong>{t("Fibreglass mesh")}</strong>: reinforcement to prevent
+          cracking
         </li>
         <li>
-          <strong>POP powder</strong>: for filling joints and creating
+          <strong>{t("POP powder")}</strong>: for filling joints and creating
           decorative mouldings
         </li>
         <li>
-          <strong>Bonding agent</strong>: ensures the POP adheres to the ceiling
-          slab
+          <strong>{t("Bonding agent")}</strong>: ensures the POP adheres to the
+          ceiling slab
         </li>
         <li>
-          <strong>Sandpaper</strong>: for smoothing the finished surface
+          <strong>{t("Sandpaper")}</strong>: for smoothing the finished surface
         </li>
       </ul>
       <p>
@@ -160,10 +166,11 @@ export function PopCeilingCalculatorSeo(): ReactNode {
 
 // ── Tile Calculator ───────────────────────────────────────────────
 export function TileCalculatorSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        How to Calculate Tile Quantity for Floors and Walls
+        {t("How to Calculate Tile Quantity for Floors and Walls")}
       </h2>
       <p>
         Whether you're tiling a bathroom, kitchen, or entire floor, knowing how
@@ -182,27 +189,28 @@ export function TileCalculatorSeo(): ReactNode {
         repairs.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Tile Calculation Tips
+        {t("Tile Calculation Tips")}
       </h2>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Measure carefully</strong>: even small measurement errors can
-          lead to tile shortages
+          <strong>{t("Measure carefully")}</strong>: even small measurement
+          errors can lead to tile shortages
         </li>
         <li>
-          <strong>Account for grout gaps</strong>: typically 2–5mm between tiles
+          <strong>{t("Account for grout gaps")}</strong>: typically 2–5mm
+          between tiles
         </li>
         <li>
-          <strong>Buy extra tiles</strong>: keep 1–2 boxes for future repairs as
-          designs get discontinued
+          <strong>{t("Buy extra tiles")}</strong>: keep 1–2 boxes for future
+          repairs as designs get discontinued
         </li>
         <li>
-          <strong>Consider tile layout</strong>: diagonal layouts need 15–20%
-          more tiles than straight layouts
+          <strong>{t("Consider tile layout")}</strong>: diagonal layouts need
+          15–20% more tiles than straight layouts
         </li>
         <li>
-          <strong>Check tile quality</strong>: inspect for chipped or warped
-          tiles before installation
+          <strong>{t("Check tile quality")}</strong>: inspect for chipped or
+          warped tiles before installation
         </li>
       </ul>
       <p>
@@ -216,10 +224,11 @@ export function TileCalculatorSeo(): ReactNode {
 
 // ── Cost Estimator ─────────────────────────────────────────────────
 export function CostEstimatorSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        How to Estimate the Cost of a Painting Project
+        {t("How to Estimate the Cost of a Painting Project")}
       </h2>
       <p>
         Budgeting for a painting project requires more than just the cost of
@@ -234,30 +243,31 @@ export function CostEstimatorSeo(): ReactNode {
         calculates the total paint material cost.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        What's Included in a Paint Project Cost
+        {t("What's Included in a Paint Project Cost")}
       </h2>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Paint</strong>: the main material cost, varies by brand and
-          quality
+          <strong>{t("Paint")}</strong>: the main material cost, varies by brand
+          and quality
         </li>
         <li>
-          <strong>Primer and undercoat</strong>: essential for surface
+          <strong>{t("Primer and undercoat")}</strong>: essential for surface
           preparation
         </li>
         <li>
-          <strong>Wall putty and filler</strong>: for smoothing and repairing
-          walls
+          <strong>{t("Wall putty and filler")}</strong>: for smoothing and
+          repairing walls
         </li>
         <li>
-          <strong>Sandpaper and cleaning supplies</strong>: surface preparation
-          materials
+          <strong>{t("Sandpaper and cleaning supplies")}</strong>: surface
+          preparation materials
         </li>
         <li>
-          <strong>Brushes, rollers, and trays</strong>: application tools
+          <strong>{t("Brushes, rollers, and trays")}</strong>: application tools
         </li>
         <li>
-          <strong>Masking tape and drop cloths</strong>: for protecting surfaces
+          <strong>{t("Masking tape and drop cloths")}</strong>: for protecting
+          surfaces
         </li>
       </ul>
       <p>
@@ -272,10 +282,11 @@ export function CostEstimatorSeo(): ReactNode {
 
 // ── Screeding Cost Estimator ───────────────────────────────────────
 export function ScreedingCostEstimatorSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        How to Estimate Wall Screeding Cost
+        {t("How to Estimate Wall Screeding Cost")}
       </h2>
       <p>
         Wall screeding cost depends on the area to be screeded, the screeding
@@ -289,24 +300,26 @@ export function ScreedingCostEstimatorSeo(): ReactNode {
         Estimator along with your chosen screeding system and material prices.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Screeding Cost Breakdown
+        {t("Screeding Cost Breakdown")}
       </h2>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Cement</strong>: typically the largest material cost
+          <strong>{t("Cement")}</strong>: typically the largest material cost
         </li>
         <li>
-          <strong>Sand</strong>: sharp sand for the screeding mix
+          <strong>{t("Sand")}</strong>: sharp sand for the screeding mix
         </li>
         <li>
-          <strong>Bonding agent</strong>: for adhesion to the wall surface
+          <strong>{t("Bonding agent")}</strong>: for adhesion to the wall
+          surface
         </li>
         <li>
-          <strong>Fibreglass mesh</strong>: for large or crack-prone walls
+          <strong>{t("Fibreglass mesh")}</strong>: for large or crack-prone
+          walls
         </li>
         <li>
-          <strong>Labour</strong>: screeding requires skilled labour for a
-          smooth finish
+          <strong>{t("Labour")}</strong>: screeding requires skilled labour for
+          a smooth finish
         </li>
       </ul>
       <p>
@@ -320,10 +333,11 @@ export function ScreedingCostEstimatorSeo(): ReactNode {
 
 // ── POP Ceiling Cost Estimator ────────────────────────────────────
 export function PopCeilingCostEstimatorSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        How to Estimate POP Ceiling Cost
+        {t("How to Estimate POP Ceiling Cost")}
       </h2>
       <p>
         The cost of a POP ceiling project depends on the ceiling area, the
@@ -337,26 +351,27 @@ export function PopCeilingCostEstimatorSeo(): ReactNode {
         skilled labour, increasing the total cost.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Factors Affecting POP Ceiling Cost
+        {t("Factors Affecting POP Ceiling Cost")}
       </h2>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Ceiling area</strong>: larger rooms need more materials
+          <strong>{t("Ceiling area")}</strong>: larger rooms need more materials
         </li>
         <li>
-          <strong>Design complexity</strong>: simple flat ceilings cost less
-          than decorative ones
+          <strong>{t("Design complexity")}</strong>: simple flat ceilings cost
+          less than decorative ones
         </li>
         <li>
-          <strong>POP cement quality</strong>: premium brands cost more but set
-          harder
+          <strong>{t("POP cement quality")}</strong>: premium brands cost more
+          but set harder
         </li>
         <li>
-          <strong>Room accessibility</strong>: high ceilings or tight spaces may
-          increase labour cost
+          <strong>{t("Room accessibility")}</strong>: high ceilings or tight
+          spaces may increase labour cost
         </li>
         <li>
-          <strong>Location</strong>: material and labour prices vary by region
+          <strong>{t("Location")}</strong>: material and labour prices vary by
+          region
         </li>
       </ul>
       <p>
@@ -370,10 +385,11 @@ export function PopCeilingCostEstimatorSeo(): ReactNode {
 
 // ── Tile Cost Estimator ────────────────────────────────────────────
 export function TileCostEstimatorSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        How to Estimate Tiling Project Cost
+        {t("How to Estimate Tiling Project Cost")}
       </h2>
       <p>
         Tiling cost includes the tiles themselves, adhesive, grout, and labour.
@@ -387,26 +403,30 @@ export function TileCostEstimatorSeo(): ReactNode {
         choice.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Tiling Cost Components
+        {t("Tiling Cost Components")}
       </h2>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Tiles</strong>: the main cost, depends on material and brand
+          <strong>{t("Tiles")}</strong>: the main cost, depends on material and
+          brand
         </li>
         <li>
-          <strong>Tile adhesive</strong>: for bonding tiles to the surface
+          <strong>{t("Tile adhesive")}</strong>: for bonding tiles to the
+          surface
         </li>
         <li>
-          <strong>Grout</strong>: for filling joints between tiles
+          <strong>{t("Grout")}</strong>: for filling joints between tiles
         </li>
         <li>
-          <strong>Waterproofing</strong>: essential for bathrooms and wet areas
+          <strong>{t("Waterproofing")}</strong>: essential for bathrooms and wet
+          areas
         </li>
         <li>
-          <strong>Labour</strong>: skilled tilers charge per square metre
+          <strong>{t("Labour")}</strong>: skilled tilers charge per square metre
         </li>
         <li>
-          <strong>Tile trims and accessories</strong>: for edges and corners
+          <strong>{t("Tile trims and accessories")}</strong>: for edges and
+          corners
         </li>
       </ul>
       <p>
@@ -420,10 +440,11 @@ export function TileCostEstimatorSeo(): ReactNode {
 
 // ── Finish Estimator ───────────────────────────────────────────────
 export function FinishEstimatorSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Estimating Wall Finish Materials and Costs
+        {t("Estimating Wall Finish Materials and Costs")}
       </h2>
       <p>
         Exterior and interior wall finishes go beyond simple painting. The
@@ -437,21 +458,21 @@ export function FinishEstimatorSeo(): ReactNode {
         current prices to give you accurate quantities and costs.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Wall Finish Types Compared
+        {t("Wall Finish Types Compared")}
       </h2>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Painting</strong>: the most common finish, suitable for
+          <strong>{t("Painting")}</strong>: the most common finish, suitable for
           interior and exterior walls
         </li>
         <li>
-          <strong>Tyrolene</strong>: a textured exterior finish made from
+          <strong>{t("Tyrolene")}</strong>: a textured exterior finish made from
           cement, sand, and additives, applied with a Tyrolene machine for a
           speckled effect
         </li>
         <li>
-          <strong>Grafitex</strong>: a modern textured finish that creates a
-          smooth or patterned surface, popular for exterior walls
+          <strong>{t("Grafitex")}</strong>: a modern textured finish that
+          creates a smooth or patterned surface, popular for exterior walls
         </li>
       </ul>
       <p>
@@ -465,10 +486,11 @@ export function FinishEstimatorSeo(): ReactNode {
 
 // ── Painting Estimator ─────────────────────────────────────────────
 export function PaintingEstimatorSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Room-Based Painting Estimation with the FRELUX Method
+        {t("Room-Based Painting Estimation with the FRELUX Method")}
       </h2>
       <p>
         The FRELUX Painting Estimator uses a room-by-room approach to calculate
@@ -483,24 +505,26 @@ export function PaintingEstimatorSeo(): ReactNode {
         admin-configured material prices.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Why Room-Based Estimation Is More Accurate
+        {t("Why Room-Based Estimation Is More Accurate")}
       </h2>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Different rooms have different requirements</strong>:
+          <strong>{t("Different rooms have different requirements")}</strong>:
           bathrooms need moisture-resistant paint, kitchens need washable paint
         </li>
         <li>
-          <strong>Ceiling and walls can use different paint types</strong>:
-          ceiling paint vs wall paint
+          <strong>
+            {t("Ceiling and walls can use different paint types")}
+          </strong>
+          : ceiling paint vs wall paint
         </li>
         <li>
-          <strong>Multiple rooms can share bulk purchases</strong>: buying 20L
-          containers is cheaper than multiple 4L containers
+          <strong>{t("Multiple rooms can share bulk purchases")}</strong>:
+          buying 20L containers is cheaper than multiple 4L containers
         </li>
         <li>
-          <strong>Track per-room costs</strong>: helps identify where your
-          budget is going
+          <strong>{t("Track per-room costs")}</strong>: helps identify where
+          your budget is going
         </li>
       </ul>
       <p>
@@ -515,10 +539,11 @@ export function PaintingEstimatorSeo(): ReactNode {
 
 // ── Tyrolene Estimator ─────────────────────────────────────────────
 export function TyroleneEstimatorSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        How to Estimate Tyrolene Materials for Exterior Walls
+        {t("How to Estimate Tyrolene Materials for Exterior Walls")}
       </h2>
       <p>
         Tyrolene is a durable exterior wall finish made from cement, sand, and
@@ -533,27 +558,29 @@ export function TyroleneEstimatorSeo(): ReactNode {
         seal, anti-fungal additive, and Tyrolene machine coverage.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Tyrolene Material Components
+        {t("Tyrolene Material Components")}
       </h2>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Cement</strong>: the base binder, typically OPC grade 42.5 or
-          52.5
+          <strong>{t("Cement")}</strong>: the base binder, typically OPC grade
+          42.5 or 52.5
         </li>
         <li>
-          <strong>Sand</strong>: fine, clean sand for the Tyrolene mix
+          <strong>{t("Sand")}</strong>: fine, clean sand for the Tyrolene mix
         </li>
         <li>
-          <strong>Acrylic bond</strong>: improves adhesion and flexibility
+          <strong>{t("Acrylic bond")}</strong>: improves adhesion and
+          flexibility
         </li>
         <li>
-          <strong>Water seal</strong>: makes the finish water-repellent
+          <strong>{t("Water seal")}</strong>: makes the finish water-repellent
         </li>
         <li>
-          <strong>Anti-fungal additive</strong>: prevents mould and algae growth
+          <strong>{t("Anti-fungal additive")}</strong>: prevents mould and algae
+          growth
         </li>
         <li>
-          <strong>Primer coat</strong>: applied before the Tyrolene layer
+          <strong>{t("Primer coat")}</strong>: applied before the Tyrolene layer
         </li>
       </ul>
       <p>
@@ -568,10 +595,11 @@ export function TyroleneEstimatorSeo(): ReactNode {
 
 // ── AI Color Assistant ─────────────────────────────────────────────
 export function AiColorAssistantSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        AI-Powered Paint Color Recommendations
+        {t("AI-Powered Paint Color Recommendations")}
       </h2>
       <p>
         Choosing the right paint colour can be overwhelming with thousands of
@@ -585,28 +613,28 @@ export function AiColorAssistantSeo(): ReactNode {
         colour palettes with specific paint codes you can buy.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        How AI Color Selection Works
+        {t("How AI Color Selection Works")}
       </h2>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Room type</strong>: living rooms, bedrooms, and kitchens have
-          different colour needs
+          <strong>{t("Room type")}</strong>: living rooms, bedrooms, and
+          kitchens have different colour needs
         </li>
         <li>
-          <strong>Lighting</strong>: natural light direction affects how colours
-          appear
+          <strong>{t("Lighting")}</strong>: natural light direction affects how
+          colours appear
         </li>
         <li>
-          <strong>Mood</strong>: calming colours for bedrooms, energising for
-          workspaces
+          <strong>{t("Mood")}</strong>: calming colours for bedrooms, energising
+          for workspaces
         </li>
         <li>
           <strong>Existing décor</strong>: the assistant considers your
           furniture and flooring
         </li>
         <li>
-          <strong>Colour theory</strong>: complementary, analogous, and triadic
-          schemes
+          <strong>{t("Colour theory")}</strong>: complementary, analogous, and
+          triadic schemes
         </li>
       </ul>
       <p>
@@ -620,10 +648,11 @@ export function AiColorAssistantSeo(): ReactNode {
 
 // ── Colors Page ───────────────────────────────────────────────────
 export function ColorsPageSeo(): ReactNode {
+  const { t } = useLanguage();
   return (
     <SeoContent>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Browse Paint Colors for Every Project
+        {t("Browse Paint Colors for Every Project")}
       </h2>
       <p>
         The FRELUX Color Library contains hundreds of paint colours from popular
@@ -636,28 +665,28 @@ export function ColorsPageSeo(): ReactNode {
         the colour library makes it easy to find and compare options.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-        Tips for Choosing Paint Colors
+        {t("Tips for Choosing Paint Colors")}
       </h2>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Test before you commit</strong>: buy a small sample and paint
-          a test patch
+          <strong>{t("Test before you commit")}</strong>: buy a small sample and
+          paint a test patch
         </li>
         <li>
-          <strong>Consider lighting</strong>: colours look different under
-          natural and artificial light
+          <strong>{t("Consider lighting")}</strong>: colours look different
+          under natural and artificial light
         </li>
         <li>
-          <strong>Use the 60-30-10 rule</strong>: 60% dominant colour, 30%
-          secondary, 10% accent
+          <strong>{t("Use the 60-30-10 rule")}</strong>: 60% dominant colour,
+          30% secondary, 10% accent
         </li>
         <li>
-          <strong>Sample in the actual room</strong>: colours change depending
-          on surrounding surfaces
+          <strong>{t("Sample in the actual room")}</strong>: colours change
+          depending on surrounding surfaces
         </li>
         <li>
-          <strong>Check drying time</strong>: some colours darken or lighten as
-          they dry
+          <strong>{t("Check drying time")}</strong>: some colours darken or
+          lighten as they dry
         </li>
       </ul>
       <p>

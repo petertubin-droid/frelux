@@ -11,6 +11,7 @@ import {
   addGalleryImage,
 } from "@/lib/project-intelligence";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const CATEGORIES = [
   { value: "painting", label: "Painting" },
@@ -22,6 +23,7 @@ const CATEGORIES = [
 ];
 
 export default function GalleryUpload() {
+  const { t } = useLanguage();
   useSeo({
     title: "Share Your Project",
     description: "Upload your before and after project photos.",
@@ -52,7 +54,7 @@ export default function GalleryUpload() {
   if (!user) {
     return (
       <div className="container mx-auto py-20 text-center text-muted-foreground">
-        Please log in to share your project.
+        {t("Please log in to share your project.")}
       </div>
     );
   }
@@ -145,8 +147,8 @@ export default function GalleryUpload() {
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
-        title="Share Your Project"
-        subtitle="Show off your before & after transformation."
+        title={t("Share Your Project")}
+        subtitle={t("Show off your before & after transformation.")}
       />
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <Link
@@ -194,8 +196,10 @@ export default function GalleryUpload() {
                     ) : (
                       <div className="text-center text-muted-foreground">
                         <Upload className="mx-auto h-8 w-8 mb-2 group-hover:scale-110 transition-transform" />
-                        <p className="text-sm font-medium">Click to upload</p>
-                        <p className="text-xs">Max 10MB</p>
+                        <p className="text-sm font-medium">
+                          {t("Click to upload")}
+                        </p>
+                        <p className="text-xs">{t("Max 10MB")}</p>
                       </div>
                     )}
                   </div>
@@ -221,13 +225,13 @@ export default function GalleryUpload() {
               className={inputCls}
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="My Living Room Transformation"
+              placeholder={t("My Living Room Transformation")}
               required
             />
           </div>
           <div>
             <label htmlFor="gu-description" className={labelCls}>
-              Description
+              {t("Description")}
             </label>
             <textarea
               id="gu-description"
@@ -237,13 +241,13 @@ export default function GalleryUpload() {
               onChange={(e) =>
                 setForm({ ...form, description: e.target.value })
               }
-              placeholder="Describe your project..."
+              placeholder={t("Describe your project...")}
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="gu-category" className={labelCls}>
-                Category
+                {t("Category")}
               </label>
               <select
                 id="gu-category"
@@ -262,7 +266,7 @@ export default function GalleryUpload() {
             </div>
             <div>
               <label htmlFor="gu-paint-type" className={labelCls}>
-                Paint Type Used
+                {t("Paint Type Used")}
               </label>
               <input
                 id="gu-paint-type"
@@ -276,7 +280,7 @@ export default function GalleryUpload() {
             </div>
             <div>
               <label htmlFor="gu-paint-quality" className={labelCls}>
-                Paint Quality
+                {t("Paint Quality")}
               </label>
               <input
                 id="gu-paint-quality"
@@ -290,7 +294,7 @@ export default function GalleryUpload() {
             </div>
             <div>
               <label htmlFor="gu-colour" className={labelCls}>
-                Colour Used
+                {t("Colour Used")}
               </label>
               <input
                 id="gu-colour"
@@ -304,7 +308,7 @@ export default function GalleryUpload() {
             </div>
             <div>
               <label htmlFor="gu-location" className={labelCls}>
-                Location (City/State)
+                {t("Location (City/State)")}
               </label>
               <input
                 id="gu-location"
@@ -316,7 +320,7 @@ export default function GalleryUpload() {
             </div>
             <div>
               <label htmlFor="gu-completion-date" className={labelCls}>
-                Completion Date
+                {t("Completion Date")}
               </label>
               <input
                 id="gu-completion-date"
@@ -339,7 +343,7 @@ export default function GalleryUpload() {
               />
             </div>
             <span className="text-sm font-medium">
-              Make public (subject to admin review)
+              {t("Make public (subject to admin review)")}
             </span>
           </label>
 
@@ -351,7 +355,7 @@ export default function GalleryUpload() {
           >
             {submitting ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" /> Uploading...
+                <Loader2 className="h-4 w-4 animate-spin" /> {t("Uploading...")}
               </>
             ) : (
               <>

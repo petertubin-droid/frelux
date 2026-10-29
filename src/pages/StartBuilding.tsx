@@ -25,8 +25,10 @@ import Container from "@/components/ui/Container";
 import { useSeo } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { SITE_URL } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 
 export default function StartBuilding() {
+  const { t } = useLanguage();
   useSeo({
     title: "Start Building: What Are You Building Today? | FRELUX",
     description:
@@ -147,7 +149,7 @@ export default function StartBuilding() {
           { label: "Start Building" },
         ]}
         eyebrow="Construction Planning"
-        title="What Are You Building Today?"
+        title={t("What Are You Building Today?")}
         subtitle="Choose what you're working on and FRELUX will help you calculate materials, quantities and estimated project costs."
       />
 
@@ -156,43 +158,43 @@ export default function StartBuilding() {
         <Container className="py-6">
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide text-xs font-medium text-primary-foreground/60">
             <span className="whitespace-nowrap text-primary-foreground/40">
-              FOUNDATION
+              {t("FOUNDATION")}
             </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
             <span className="whitespace-nowrap text-primary-foreground/40">
-              STRUCTURE
+              {t("STRUCTURE")}
             </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
             <span className="whitespace-nowrap text-primary-foreground/40">
-              WALLS
+              {t("WALLS")}
             </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
             <span className="whitespace-nowrap text-primary-foreground/40">
-              ROOF
+              {t("ROOF")}
             </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
             <span className="whitespace-nowrap text-primary-foreground/40">
-              SCREEDING
+              {t("SCREEDING")}
             </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
             <span className="whitespace-nowrap text-primary-foreground/40">
-              POP CEILING
+              {t("POP CEILING")}
             </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
             <span className="whitespace-nowrap text-primary-foreground/40">
-              TILES / FLOORING
+              {t("TILES / FLOORING")}
             </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
             <span className="whitespace-nowrap text-primary-foreground/40">
-              PAINTING
+              {t("PAINTING")}
             </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
             <span className="whitespace-nowrap text-primary-foreground/40">
-              EXTERIOR FINISHING
+              {t("EXTERIOR FINISHING")}
             </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
             <span className="whitespace-nowrap text-primary-foreground/40">
-              COLOUR / DESIGN
+              {t("COLOUR / DESIGN")}
             </span>
           </div>
         </Container>
@@ -212,10 +214,10 @@ export default function StartBuilding() {
             <div className="p-8 sm:p-10 lg:p-12">
               <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-3 py-1 text-xs font-medium text-brand-purple-light">
                 <Building2 aria-hidden="true" className="h-3.5 w-3.5" />
-                Start Here
+                {t("Start Here")}
               </div>
               <h2 className="mt-5 font-display text-3xl font-bold tracking-tight text-primary-foreground sm:text-4xl">
-                Build to Roof
+                {t("Build to Roof")}
               </h2>
               <p className="mt-4 max-w-md text-base leading-relaxed text-primary-foreground/60">
                 Your starting point for estimating a building project. Estimate
@@ -228,14 +230,14 @@ export default function StartBuilding() {
                     aria-hidden="true"
                     className="h-3.5 w-3.5 text-accent-green"
                   />
-                  Foundation to roofing
+                  {t("Foundation to roofing")}
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground/50">
                   <CheckCircle2
                     aria-hidden="true"
                     className="h-3.5 w-3.5 text-accent-green"
                   />
-                  Blocks, cement, sand & granite
+                  {t("Blocks, cement, sand & granite")}
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground/50">
                   <CheckCircle2
@@ -246,7 +248,7 @@ export default function StartBuilding() {
                 </span>
               </div>
               <div className="mt-7 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/25 transition-all group-hover:bg-primary/90 group-hover:shadow-xl">
-                Start Build-to-Roof Estimate
+                {t("Start Build-to-Roof Estimate")}
                 <ArrowRight
                   aria-hidden="true"
                   className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
@@ -257,7 +259,7 @@ export default function StartBuilding() {
             <div className="relative hidden min-h-[280px] md:block">
               <img
                 src="https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg?auto=compress&cs=tinysrgb&w=800"
-                alt="Building under construction from foundation to roof"
+                alt={t("Building under construction from foundation to roof")}
                 className="absolute inset-0 h-full w-full object-cover"
                 loading="eager"
               />
@@ -271,7 +273,7 @@ export default function StartBuilding() {
       <Container className="pb-12">
         <div className="mb-6">
           <h2 className="font-display text-xl font-bold tracking-tight text-foreground dark:text-primary-foreground sm:text-2xl">
-            Finishing & Specialised Calculators
+            {t("Finishing & Specialised Calculators")}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
             After your structure is built, estimate materials and costs for each
@@ -283,7 +285,7 @@ export default function StartBuilding() {
           {/* Painting */}
           <CategoryCard
             icon={<Paintbrush aria-hidden="true" className="h-5 w-5" />}
-            title="Painting"
+            title={t("Painting")}
             description="Estimate paint quantities, finishes and material requirements for rooms, homes and projects."
             tools={[
               { label: "Paint Calculator", to: "/paint-calculator" },
@@ -304,7 +306,7 @@ export default function StartBuilding() {
           {/* Screeding */}
           <CategoryCard
             icon={<Hammer aria-hidden="true" className="h-5 w-5" />}
-            title="Screeding"
+            title={t("Screeding")}
             description="Calculate screeding materials and estimate the requirements for your project."
             tools={[
               { label: "Screeding Calculator", to: "/screeding-calculator" },
@@ -321,7 +323,7 @@ export default function StartBuilding() {
           {/* POP Ceiling */}
           <CategoryCard
             icon={<Layers aria-hidden="true" className="h-5 w-5" />}
-            title="POP Ceiling"
+            title={t("POP Ceiling")}
             description="Estimate POP ceiling materials and project requirements."
             tools={[
               {
@@ -341,7 +343,7 @@ export default function StartBuilding() {
           {/* Tiles & Flooring */}
           <CategoryCard
             icon={<Grid3x3 aria-hidden="true" className="h-5 w-5" />}
-            title="Tiles & Flooring"
+            title={t("Tiles & Flooring")}
             description="Calculate tile quantities, cartons, wastage and project requirements."
             tools={[
               { label: "Tile Calculator", to: "/tile-calculator" },
@@ -358,7 +360,7 @@ export default function StartBuilding() {
           {/* Exterior Finishing */}
           <CategoryCard
             icon={<Building className="h-5 w-5" />}
-            title="Exterior Finishing"
+            title={t("Exterior Finishing")}
             description="Estimate exterior wall finishes including Tyrolene and other coatings."
             tools={[
               {
@@ -375,7 +377,7 @@ export default function StartBuilding() {
           {/* Colour & Design */}
           <CategoryCard
             icon={<Palette aria-hidden="true" className="h-5 w-5" />}
-            title="Colour & Design"
+            title={t("Colour & Design")}
             description="Browse paint colours, compare options, and get AI-powered colour recommendations."
             tools={[
               { label: "Colour Gallery", to: "/colors" },
@@ -411,7 +413,7 @@ export default function StartBuilding() {
             </p>
           </div>
           <div className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-5 py-3 text-sm font-semibold text-primary-foreground transition-all group-hover:bg-white/15">
-            Try it now
+            {t("Try it now")}
             <ArrowRight
               aria-hidden="true"
               className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
@@ -438,14 +440,14 @@ export default function StartBuilding() {
               to="/calculators/"
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90"
             >
-              View All Calculators
+              {t("View All Calculators")}
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
             <Link
               to="/learn/"
               className="inline-flex items-center gap-2 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-card-foreground transition-all hover:bg-muted dark:border-white/10 dark:text-primary-foreground dark:hover:bg-white/5"
             >
-              Learn Construction Basics
+              {t("Learn Construction Basics")}
             </Link>
           </div>
         </div>

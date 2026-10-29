@@ -1,35 +1,69 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { Gift, BarChart3, DollarSign, Users, Calendar, TrendingUp, Loader2, Settings2 } from 'lucide-react';
-import {AdminHeader, AdminCard, AdminField, Toggle, StateMessage, AdminSelect, AdminButton, AdminInput} from '@/components/admin/AdminUi';
-import { fetchAllRewardedToolConfigs, fetchRewardedUnlockStats, fetchRewardedAdEventStats } from '@/lib/queries';
-import { supabase } from '@/lib/supabase';
-import { classNames } from '@/lib/utils';
-import { REWARDED_FEATURES, supportsRewardedAds } from '@/lib/ad-providers';
-import type { DbRewardedToolConfig, DbRewardedUnlockLog, DbRewardedAdEvent, DbRewardedFeatureConfig, DbAdProvider } from '@/types/database';
+import { useEffect, useState, useMemo, useCallback } from "react";
+import {
+  Gift,
+  BarChart3,
+  DollarSign,
+  Users,
+  Calendar,
+  TrendingUp,
+  Loader2,
+  Settings2,
+} from "lucide-react";
+import {
+  AdminHeader,
+  AdminCard,
+  AdminField,
+  Toggle,
+  StateMessage,
+  AdminSelect,
+  AdminButton,
+  AdminInput,
+} from "@/components/admin/AdminUi";
+import {
+  fetchAllRewardedToolConfigs,
+  fetchRewardedUnlockStats,
+  fetchRewardedAdEventStats,
+} from "@/lib/queries";
+import { supabase } from "@/lib/supabase";
+import { classNames } from "@/lib/utils";
+import { REWARDED_FEATURES, supportsRewardedAds } from "@/lib/ad-providers";
+import type {
+  DbRewardedToolConfig,
+  DbRewardedUnlockLog,
+  DbRewardedAdEvent,
+  DbRewardedFeatureConfig,
+  DbAdProvider,
+} from "@/types/database";
+import { useLanguage } from "@/lib/i18n";
 
-type Tab = 'features' | 'tools' | 'analytics';
+type Tab = "features" | "tools" | "analytics";
 
 export default function AdminRewardedAccess() {
-  const [tab, setTab] = useState<Tab>('features');
+  const { t: tr } = useLanguage();
+  const [tab, setTab] = useState<Tab>("features");
   return (
     <>
       <AdminHeader
-        title="Rewarded Ads Manager"
+        title={tr("Rewarded Ads Manager")}
         subtitle="Configure rewarded ad providers, feature unlock durations, daily limits, cooldowns, and reward rules. Track unlock analytics and ad performance."
       />
       <div className="mb-5 inline-flex flex-wrap rounded-lg border border-border bg-card dark:bg-background p-1 dark:border-border border-border">
-        {([
-          { key: 'features', label: 'Feature Config', icon: Settings2 },
-          { key: 'tools', label: 'Tool Config', icon: Gift },
-          { key: 'analytics', label: 'Analytics', icon: BarChart3 },
-        ] as { key: Tab; label: string; icon: typeof Gift }[]).map((t) => (
+        {(
+          [
+            { key: "features", label: "Feature Config", icon: Settings2 },
+            { key: "tools", label: "Tool Config", icon: Gift },
+            { key: "analytics", label: "Analytics", icon: BarChart3 },
+          ] as { key: Tab; label: string; icon: typeof Gift }[]
+        ).map((t) => (
           <AdminButton
             key={t.key}
             type="button"
             onClick={() => setTab(t.key)}
             className={classNames(
-              'inline-flex items-center gap-1.5 rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all',
-              tab === t.key ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80',
+              "inline-flex items-center gap-1.5 rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all",
+              tab === t.key
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80",
             )}
           >
             <t.icon className="h-4 w-4" />
@@ -37,9 +71,9 @@ export default function AdminRewardedAccess() {
           </AdminButton>
         ))}
       </div>
-      {tab === 'features' && <FeatureConfigTab />}
-      {tab === 'tools' && <ToolConfigTab />}
-      {tab === 'analytics' && <AnalyticsTab />}
+      {tab === "features" && <FeatureConfigTab />}
+      {tab === "tools" && <ToolConfigTab />}
+      {tab === "analytics" && <AnalyticsTab />}
     </>
   );
 }
@@ -48,6 +82,7 @@ export default function AdminRewardedAccess() {
 // Feature Config Tab, manages rewarded_feature_config table
 // =========================================================
 function FeatureConfigTab() {
+  const { t: tr } = useLanguage();
   const [features, setFeatures] = useState<DbRewardedFeatureConfig[]>([]);
   const [providers, setProviders] = useState<DbAdProvider[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,8 +92,12 @@ function FeatureConfigTab() {
   const load = useCallback(async () => {
     setLoading(true);
     const [featRes, provRes] = await Promise.all([
-      supabase.from('rewarded_feature_config').select('*').order('feature_key'),
-      supabase.from('ad_providers').select('*').eq('is_active', true).order('priority'),
+      supabase.from("rewarded_feature_config").select("*").order("feature_key"),
+      supabase
+        .from("ad_providers")
+        .select("*")
+        .eq("is_active", true)
+        .order("priority"),
     ]);
     if (featRes.error) setError(featRes.error.message);
     setFeatures((featRes.data as DbRewardedFeatureConfig[]) ?? []);
@@ -66,106 +105,183 @@ function FeatureConfigTab() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  async function updateFeature(id: string, updates: Partial<DbRewardedFeatureConfig>) {
+  async function updateFeature(
+    id: string,
+    updates: Partial<DbRewardedFeatureConfig>,
+  ) {
     // Validate numeric fields
     const validated: Partial<DbRewardedFeatureConfig> = { ...updates };
-    if ('unlock_duration_minutes' in validated) {
-      validated.unlock_duration_minutes = Math.max(1, Math.floor(Number(validated.unlock_duration_minutes) || 1));
+    if ("unlock_duration_minutes" in validated) {
+      validated.unlock_duration_minutes = Math.max(
+        1,
+        Math.floor(Number(validated.unlock_duration_minutes) || 1),
+      );
     }
-    if ('daily_usage_limit' in validated) {
-      validated.daily_usage_limit = Math.max(0, Math.floor(Number(validated.daily_usage_limit) || 0));
+    if ("daily_usage_limit" in validated) {
+      validated.daily_usage_limit = Math.max(
+        0,
+        Math.floor(Number(validated.daily_usage_limit) || 0),
+      );
     }
-    if ('cooldown_minutes' in validated) {
-      validated.cooldown_minutes = Math.max(0, Math.floor(Number(validated.cooldown_minutes) || 0));
+    if ("cooldown_minutes" in validated) {
+      validated.cooldown_minutes = Math.max(
+        0,
+        Math.floor(Number(validated.cooldown_minutes) || 0),
+      );
     }
     setSaving(id);
     const { error: updateError } = await supabase
-      .from('rewarded_feature_config')
+      .from("rewarded_feature_config")
       .update({ ...validated, updated_at: new Date().toISOString() })
-      .eq('id', id);
+      .eq("id", id);
     if (updateError) {
       setError(updateError.message);
     } else {
-      setFeatures((prev) => prev.map((f) => (f.id === id ? { ...f, ...validated } : f)));
+      setFeatures((prev) =>
+        prev.map((f) => (f.id === id ? { ...f, ...validated } : f)),
+      );
     }
     setSaving(null);
   }
 
-  if (loading) return <StateMessage type="loading" title="Loading…" message="Fetching feature configurations." />;
-  if (error) return <StateMessage type="error" title="Error" message={error} />;
+  if (loading)
+    return (
+      <StateMessage
+        type="loading"
+        title={tr("Loading…")}
+        message="Fetching feature configurations."
+      />
+    );
+  if (error)
+    return <StateMessage type="error" title={tr("Error")} message={error} />;
 
   const rewardedProviders = providers.filter(supportsRewardedAds);
 
   return (
     <>
-      {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {features.map((feat) => {
-          const featureMeta = REWARDED_FEATURES.find(f => f.key === feat.feature_key);
+          const featureMeta = REWARDED_FEATURES.find(
+            (f) => f.key === feat.feature_key,
+          );
           void featureMeta;
           return (
             <AdminCard key={feat.id} className="p-4">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">{feat.feature_name}</h3>
-                    <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground dark:bg-card-foreground/90">{feat.feature_key}</code>
+                    <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                      {feat.feature_name}
+                    </h3>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground dark:bg-card-foreground/90">
+                      {feat.feature_key}
+                    </code>
                   </div>
-                  {feat.description && <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">{feat.description}</p>}
+                  {feat.description && (
+                    <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
+                      {feat.description}
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Toggle checked={feat.is_enabled} onChange={(v) => updateFeature(feat.id, { is_enabled: v })} />
-                  <span className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground">{feat.is_enabled ? 'Enabled' : 'Disabled'}</span>
+                  <Toggle
+                    checked={feat.is_enabled}
+                    onChange={(v) => updateFeature(feat.id, { is_enabled: v })}
+                  />
+                  <span className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
+                    {feat.is_enabled ? "Enabled" : "Disabled"}
+                  </span>
                 </div>
               </div>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <AdminField label="Primary Provider">
                   <AdminSelect
-                    value={feat.primary_provider_id ?? ''}
-                    onChange={(e) => updateFeature(feat.id, { primary_provider_id: e.target.value || null })}
+                    value={feat.primary_provider_id ?? ""}
+                    onChange={(e) =>
+                      updateFeature(feat.id, {
+                        primary_provider_id: e.target.value || null,
+                      })
+                    }
                     className="dark:bg-card dark:border-white/10"
                   >
-                    <option value="">None</option>
-                    {rewardedProviders.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    <option value="">{tr("None")}</option>
+                    {rewardedProviders.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
                   </AdminSelect>
                 </AdminField>
                 <AdminField label="Fallback Provider">
                   <AdminSelect
-                    value={feat.fallback_provider_id ?? ''}
-                    onChange={(e) => updateFeature(feat.id, { fallback_provider_id: e.target.value || null })}
+                    value={feat.fallback_provider_id ?? ""}
+                    onChange={(e) =>
+                      updateFeature(feat.id, {
+                        fallback_provider_id: e.target.value || null,
+                      })
+                    }
                     className="dark:bg-card dark:border-white/10"
                   >
-                    <option value="">None</option>
-                    {rewardedProviders.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    <option value="">{tr("None")}</option>
+                    {rewardedProviders.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
                   </AdminSelect>
                 </AdminField>
-                <AdminField label="Unlock Duration (minutes)" hint="1440 = 24 hours / end of day">
+                <AdminField
+                  label="Unlock Duration (minutes)"
+                  hint="1440 = 24 hours / end of day"
+                >
                   <AdminInput
- type="number"
- min={1}
- value={feat.unlock_duration_minutes}
- onChange={(e) => updateFeature(feat.id, { unlock_duration_minutes: Number(e.target.value) })}
+                    type="number"
+                    min={1}
+                    value={feat.unlock_duration_minutes}
+                    onChange={(e) =>
+                      updateFeature(feat.id, {
+                        unlock_duration_minutes: Number(e.target.value),
+                      })
+                    }
                     className="dark:bg-card dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Daily Usage Limit" hint="0 = unlimited">
                   <AdminInput
- type="number"
- min={0}
- value={feat.daily_usage_limit}
- onChange={(e) => updateFeature(feat.id, { daily_usage_limit: Number(e.target.value) })}
+                    type="number"
+                    min={0}
+                    value={feat.daily_usage_limit}
+                    onChange={(e) =>
+                      updateFeature(feat.id, {
+                        daily_usage_limit: Number(e.target.value),
+                      })
+                    }
                     className="dark:bg-card dark:border-white/10"
                   />
                 </AdminField>
-                <AdminField label="Cooldown (minutes)" hint="Wait time between unlocks">
+                <AdminField
+                  label="Cooldown (minutes)"
+                  hint="Wait time between unlocks"
+                >
                   <AdminInput
- type="number"
- min={0}
- value={feat.cooldown_minutes}
- onChange={(e) => updateFeature(feat.id, { cooldown_minutes: Number(e.target.value) })}
+                    type="number"
+                    min={0}
+                    value={feat.cooldown_minutes}
+                    onChange={(e) =>
+                      updateFeature(feat.id, {
+                        cooldown_minutes: Number(e.target.value),
+                      })
+                    }
                     className="dark:bg-card dark:border-white/10"
                   />
                 </AdminField>
@@ -173,24 +289,42 @@ function FeatureConfigTab() {
 
               {/* Reward rules */}
               <div className="mt-4">
-                <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Reward Rules</h4>
+                <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+                  {tr("Reward Rules")}
+                </h4>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <AdminField label="Success Message">
                     <AdminInput
- type="text"
- value={feat.reward_rules?.success_message ?? ''}
- onChange={(e) => updateFeature(feat.id, { reward_rules: { ...feat.reward_rules, success_message: e.target.value } })}
+                      type="text"
+                      value={feat.reward_rules?.success_message ?? ""}
+                      onChange={(e) =>
+                        updateFeature(feat.id, {
+                          reward_rules: {
+                            ...feat.reward_rules,
+                            success_message: e.target.value,
+                          },
+                        })
+                      }
                       className="dark:bg-card dark:border-white/10"
-                      placeholder="Feature unlocked! Enjoy your premium access."
+                      placeholder={tr(
+                        "Feature unlocked! Enjoy your premium access.",
+                      )}
                     />
                   </AdminField>
                   <AdminField label="Failure Message">
                     <AdminInput
- type="text"
- value={feat.reward_rules?.failure_message ?? ''}
- onChange={(e) => updateFeature(feat.id, { reward_rules: { ...feat.reward_rules, failure_message: e.target.value } })}
+                      type="text"
+                      value={feat.reward_rules?.failure_message ?? ""}
+                      onChange={(e) =>
+                        updateFeature(feat.id, {
+                          reward_rules: {
+                            ...feat.reward_rules,
+                            failure_message: e.target.value,
+                          },
+                        })
+                      }
                       className="dark:bg-card dark:border-white/10"
-                      placeholder="Unable to load ad. Please try again."
+                      placeholder={tr("Unable to load ad. Please try again.")}
                     />
                   </AdminField>
                 </div>
@@ -198,7 +332,11 @@ function FeatureConfigTab() {
 
               {saving === feat.id && (
                 <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
-                  <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" /> Saving…
+                  <Loader2
+                    aria-hidden="true"
+                    className="h-3 w-3 animate-spin"
+                  />{" "}
+                  Saving…
                 </div>
               )}
             </AdminCard>
@@ -213,6 +351,7 @@ function FeatureConfigTab() {
 // Tool Config Tab, legacy rewarded_tool_config management
 // =========================================================
 function ToolConfigTab() {
+  const { t: tr } = useLanguage();
   const [configs, setConfigs] = useState<DbRewardedToolConfig[]>([]);
   const [providers, setProviders] = useState<DbAdProvider[]>([]);
   const [loading, setLoading] = useState(true);
@@ -223,7 +362,11 @@ function ToolConfigTab() {
     setLoading(true);
     const [cfgRes, provRes] = await Promise.all([
       fetchAllRewardedToolConfigs(),
-      supabase.from('ad_providers').select('*').eq('is_active', true).order('priority'),
+      supabase
+        .from("ad_providers")
+        .select("*")
+        .eq("is_active", true)
+        .order("priority"),
     ]);
     if (cfgRes.error) setError(cfgRes.error);
     setConfigs(cfgRes.data);
@@ -231,43 +374,73 @@ function ToolConfigTab() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  async function updateConfig(id: string, updates: Partial<DbRewardedToolConfig>) {
+  async function updateConfig(
+    id: string,
+    updates: Partial<DbRewardedToolConfig>,
+  ) {
     // Validate numeric fields
     const validated: Partial<DbRewardedToolConfig> = { ...updates };
-    if ('unlock_duration_minutes' in validated) {
-      validated.unlock_duration_minutes = Math.max(1, Math.floor(Number(validated.unlock_duration_minutes) || 1));
+    if ("unlock_duration_minutes" in validated) {
+      validated.unlock_duration_minutes = Math.max(
+        1,
+        Math.floor(Number(validated.unlock_duration_minutes) || 1),
+      );
     }
-    if ('daily_usage_limit' in validated) {
-      validated.daily_usage_limit = Math.max(0, Math.floor(Number(validated.daily_usage_limit) || 0));
+    if ("daily_usage_limit" in validated) {
+      validated.daily_usage_limit = Math.max(
+        0,
+        Math.floor(Number(validated.daily_usage_limit) || 0),
+      );
     }
-    if ('cooldown_minutes' in validated) {
-      validated.cooldown_minutes = Math.max(0, Math.floor(Number(validated.cooldown_minutes) || 0));
+    if ("cooldown_minutes" in validated) {
+      validated.cooldown_minutes = Math.max(
+        0,
+        Math.floor(Number(validated.cooldown_minutes) || 0),
+      );
     }
     setSaving(id);
     const { error: updateError } = await supabase
-      .from('rewarded_tool_config')
+      .from("rewarded_tool_config")
       .update({ ...validated, updated_at: new Date().toISOString() })
-      .eq('id', id);
+      .eq("id", id);
     if (updateError) {
       setError(updateError.message);
     } else {
-      setConfigs((prev) => prev.map((c) => (c.id === id ? { ...c, ...validated } : c)));
+      setConfigs((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, ...validated } : c)),
+      );
     }
     setSaving(null);
   }
 
-  if (loading) return <StateMessage type="loading" title="Loading…" message="Fetching tool configurations." />;
-  if (error) return <StateMessage type="error" title="Error" message={error} />;
+  if (loading)
+    return (
+      <StateMessage
+        type="loading"
+        title={tr("Loading…")}
+        message="Fetching tool configurations."
+      />
+    );
+  if (error)
+    return <StateMessage type="error" title={tr("Error")} message={error} />;
 
   const rewardedProviders = providers.filter(supportsRewardedAds);
 
   return (
     <>
-      {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
       <p className="mb-3 text-sm text-muted-foreground dark:text-muted-foreground">
-        These are tool-level configs that link specific tools to rewarded ad providers. Feature-level configs in the Feature Config tab take priority when both are set.
+        These are tool-level configs that link specific tools to rewarded ad
+        providers. Feature-level configs in the Feature Config tab take priority
+        when both are set.
       </p>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {configs.map((cfg) => (
@@ -275,85 +448,130 @@ function ToolConfigTab() {
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">{cfg.tool_label}</h3>
-                  <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground dark:bg-card-foreground/90">{cfg.tool_key}</code>
+                  <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                    {cfg.tool_label}
+                  </h3>
+                  <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground dark:bg-card-foreground/90">
+                    {cfg.tool_key}
+                  </code>
                 </div>
-                {cfg.description && <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">{cfg.description}</p>}
+                {cfg.description && (
+                  <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
+                    {cfg.description}
+                  </p>
+                )}
               </div>
               <div className="flex items-center gap-2">
-                <Toggle checked={cfg.is_enabled} onChange={(v) => updateConfig(cfg.id, { is_enabled: v })} />
-                <span className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground">{cfg.is_enabled ? 'Enabled' : 'Disabled'}</span>
+                <Toggle
+                  checked={cfg.is_enabled}
+                  onChange={(v) => updateConfig(cfg.id, { is_enabled: v })}
+                />
+                <span className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
+                  {cfg.is_enabled ? "Enabled" : "Disabled"}
+                </span>
               </div>
             </div>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <AdminField label="Primary Provider">
                 <AdminSelect
-                  value={cfg.primary_provider_id ?? ''}
-                  onChange={(e) => updateConfig(cfg.id, { primary_provider_id: e.target.value || null })}
+                  value={cfg.primary_provider_id ?? ""}
+                  onChange={(e) =>
+                    updateConfig(cfg.id, {
+                      primary_provider_id: e.target.value || null,
+                    })
+                  }
                   className="dark:bg-card dark:border-white/10"
                 >
                   <option value="">Use legacy ad_provider</option>
-                  {rewardedProviders.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  {rewardedProviders.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
                 </AdminSelect>
               </AdminField>
               <AdminField label="Fallback Provider">
                 <AdminSelect
-                  value={cfg.fallback_provider_id ?? ''}
-                  onChange={(e) => updateConfig(cfg.id, { fallback_provider_id: e.target.value || null })}
+                  value={cfg.fallback_provider_id ?? ""}
+                  onChange={(e) =>
+                    updateConfig(cfg.id, {
+                      fallback_provider_id: e.target.value || null,
+                    })
+                  }
                   className="dark:bg-card dark:border-white/10"
                 >
-                  <option value="">None</option>
-                  {rewardedProviders.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  <option value="">{tr("None")}</option>
+                  {rewardedProviders.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
                 </AdminSelect>
               </AdminField>
               <AdminField label="Legacy Ad Provider">
                 <AdminSelect
                   value={cfg.ad_provider}
-                  onChange={(e) => updateConfig(cfg.id, { ad_provider: e.target.value })}
+                  onChange={(e) =>
+                    updateConfig(cfg.id, { ad_provider: e.target.value })
+                  }
                   className="dark:bg-card dark:border-white/10"
                 >
-                  <option value="adsense">Google AdSense</option>
-                  <option value="admob">Google AdMob</option>
-                  <option value="applovin">AppLovin</option>
-                  <option value="unity">Unity Ads</option>
-                  <option value="custom">Custom</option>
+                  <option value="adsense">{tr("Google AdSense")}</option>
+                  <option value="admob">{tr("Google AdMob")}</option>
+                  <option value="applovin">{tr("AppLovin")}</option>
+                  <option value="unity">{tr("Unity Ads")}</option>
+                  <option value="custom">{tr("Custom")}</option>
                 </AdminSelect>
               </AdminField>
               <AdminField label="Ad Unit ID">
                 <AdminInput
- type="text"
- value={cfg.ad_unit_id ?? ''}
- onChange={(e) => updateConfig(cfg.id, { ad_unit_id: e.target.value })}
+                  type="text"
+                  value={cfg.ad_unit_id ?? ""}
+                  onChange={(e) =>
+                    updateConfig(cfg.id, { ad_unit_id: e.target.value })
+                  }
                   className="dark:bg-card dark:border-white/10"
                   placeholder="ca app pub xxx"
                 />
               </AdminField>
               <AdminField label="Unlock Duration (hours)">
                 <AdminInput
- type="number"
- min={1}
- max={168}
- value={cfg.unlock_duration_hours}
- onChange={(e) => updateConfig(cfg.id, { unlock_duration_hours: Number(e.target.value) })}
+                  type="number"
+                  min={1}
+                  max={168}
+                  value={cfg.unlock_duration_hours}
+                  onChange={(e) =>
+                    updateConfig(cfg.id, {
+                      unlock_duration_hours: Number(e.target.value),
+                    })
+                  }
                   className="dark:bg-card dark:border-white/10"
                 />
               </AdminField>
               <AdminField label="Daily Usage Limit" hint="0 = unlimited">
                 <AdminInput
- type="number"
- min={0}
- value={cfg.daily_usage_limit}
- onChange={(e) => updateConfig(cfg.id, { daily_usage_limit: Number(e.target.value) })}
+                  type="number"
+                  min={0}
+                  value={cfg.daily_usage_limit}
+                  onChange={(e) =>
+                    updateConfig(cfg.id, {
+                      daily_usage_limit: Number(e.target.value),
+                    })
+                  }
                   className="dark:bg-card dark:border-white/10"
                 />
               </AdminField>
               <AdminField label="Cooldown (minutes)">
                 <AdminInput
- type="number"
- min={0}
- value={cfg.cooldown_minutes}
- onChange={(e) => updateConfig(cfg.id, { cooldown_minutes: Number(e.target.value) })}
+                  type="number"
+                  min={0}
+                  value={cfg.cooldown_minutes}
+                  onChange={(e) =>
+                    updateConfig(cfg.id, {
+                      cooldown_minutes: Number(e.target.value),
+                    })
+                  }
                   className="dark:bg-card dark:border-white/10"
                 />
               </AdminField>
@@ -361,7 +579,8 @@ function ToolConfigTab() {
 
             {saving === cfg.id && (
               <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
-                <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" /> Saving…
+                <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" />{" "}
+                Saving…
               </div>
             )}
           </AdminCard>
@@ -375,8 +594,19 @@ function ToolConfigTab() {
 // Analytics Tab
 // =========================================================
 function AnalyticsTab() {
-  const [unlocks, setUnlocks] = useState<Pick<DbRewardedUnlockLog, 'tool_key' | 'unlock_date' | 'ad_provider' | 'ad_revenue_estimated'>[]>([]);
-  const [events, setEvents] = useState<Pick<DbRewardedAdEvent, 'tool_key' | 'event_type' | 'revenue_estimated' | 'created_at'>[]>([]);
+  const { t: tr } = useLanguage();
+  const [unlocks, setUnlocks] = useState<
+    Pick<
+      DbRewardedUnlockLog,
+      "tool_key" | "unlock_date" | "ad_provider" | "ad_revenue_estimated"
+    >[]
+  >([]);
+  const [events, setEvents] = useState<
+    Pick<
+      DbRewardedAdEvent,
+      "tool_key" | "event_type" | "revenue_estimated" | "created_at"
+    >[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [days, setDays] = useState(30);
@@ -398,45 +628,100 @@ function AnalyticsTab() {
 
   const stats = useMemo(() => {
     const totalUnlocks = unlocks.length;
-    const uniqueUsers = new Set(unlocks.map((u) => u.tool_key + u.unlock_date)).size;
-    const totalRevenue = unlocks.reduce((sum, u) => sum + Number(u.ad_revenue_estimated || 0), 0);
+    const uniqueUsers = new Set(unlocks.map((u) => u.tool_key + u.unlock_date))
+      .size;
+    const totalRevenue = unlocks.reduce(
+      (sum, u) => sum + Number(u.ad_revenue_estimated || 0),
+      0,
+    );
     const eventCounts = events.reduce<Record<string, number>>((acc, e) => {
       acc[e.event_type] = (acc[e.event_type] || 0) + 1;
       return acc;
     }, {});
-    const eventRevenue = events.reduce((sum, e) => sum + Number(e.revenue_estimated || 0), 0);
+    const eventRevenue = events.reduce(
+      (sum, e) => sum + Number(e.revenue_estimated || 0),
+      0,
+    );
     const byDate: Record<string, number> = {};
-    unlocks.forEach((u) => { byDate[u.unlock_date] = (byDate[u.unlock_date] || 0) + 1; });
-    const dailyData = Object.entries(byDate).sort(([a], [b]) => a.localeCompare(b)).slice(-14);
+    unlocks.forEach((u) => {
+      byDate[u.unlock_date] = (byDate[u.unlock_date] || 0) + 1;
+    });
+    const dailyData = Object.entries(byDate)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-14);
     const byTool: Record<string, number> = {};
-    unlocks.forEach((u) => { byTool[u.tool_key] = (byTool[u.tool_key] || 0) + 1; });
-    return { totalUnlocks, uniqueUsers, totalRevenue, eventCounts, eventRevenue, dailyData, byTool };
+    unlocks.forEach((u) => {
+      byTool[u.tool_key] = (byTool[u.tool_key] || 0) + 1;
+    });
+    return {
+      totalUnlocks,
+      uniqueUsers,
+      totalRevenue,
+      eventCounts,
+      eventRevenue,
+      dailyData,
+      byTool,
+    };
   }, [unlocks, events]);
 
-  if (loading) return <StateMessage type="loading" title="Loading…" message="Fetching analytics data." />;
-  if (error) return <StateMessage type="error" title="Error" message={error} />;
+  if (loading)
+    return (
+      <StateMessage
+        type="loading"
+        title={tr("Loading…")}
+        message="Fetching analytics data."
+      />
+    );
+  if (error)
+    return <StateMessage type="error" title={tr("Error")} message={error} />;
 
   return (
     <>
       {/* Stats overview */}
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Users} label="Total Unlocks" value={stats.totalUnlocks.toString()} color="text-brand-purple" />
-        <StatCard icon={Calendar} label="Unique Daily Unlocks" value={stats.uniqueUsers.toString()} color="text-accent-cyan" />
-        <StatCard icon={DollarSign} label="Est. Ad Revenue" value={`$${stats.totalRevenue.toFixed(2)}`} color="text-accent-green" />
-        <StatCard icon={TrendingUp} label="Ad Events" value={Object.values(stats.eventCounts).reduce((a, b) => a + b, 0).toString()} color="text-accent-yellow" />
+        <StatCard
+          icon={Users}
+          label="Total Unlocks"
+          value={stats.totalUnlocks.toString()}
+          color="text-brand-purple"
+        />
+        <StatCard
+          icon={Calendar}
+          label="Unique Daily Unlocks"
+          value={stats.uniqueUsers.toString()}
+          color="text-accent-cyan"
+        />
+        <StatCard
+          icon={DollarSign}
+          label="Est. Ad Revenue"
+          value={`$${stats.totalRevenue.toFixed(2)}`}
+          color="text-accent-green"
+        />
+        <StatCard
+          icon={TrendingUp}
+          label="Ad Events"
+          value={Object.values(stats.eventCounts)
+            .reduce((a, b) => a + b, 0)
+            .toString()}
+          color="text-accent-yellow"
+        />
       </div>
 
       {/* Time range selector */}
       <div className="mb-4 flex items-center gap-2">
-        <span className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80">Time range:</span>
+        <span className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80">
+          Time range:
+        </span>
         {[7, 30, 90].map((d) => (
           <AdminButton
             key={d}
             type="button"
             onClick={() => setDays(d)}
             className={classNames(
-              'rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
-              days === d ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted dark:bg-card-foreground/90 dark:text-muted-foreground/80',
+              "rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
+              days === d
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted dark:bg-card-foreground/90 dark:text-muted-foreground/80",
             )}
           >
             {d} days
@@ -446,10 +731,14 @@ function AnalyticsTab() {
 
       {/* Daily unlock chart */}
       <div className="mb-6">
-        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Daily Unlocks (Last 14 Days)</h2>
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+          {tr("Daily Unlocks (Last 14 Days)")}
+        </h2>
         <AdminCard className="p-5">
           {stats.dailyData.length === 0 ? (
-            <p className="text-sm text-muted-foreground dark:text-muted-foreground">No unlock data yet.</p>
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+              {tr("No unlock data yet.")}
+            </p>
           ) : (
             <div className="space-y-2">
               {stats.dailyData.map(([date, count]) => {
@@ -457,9 +746,14 @@ function AnalyticsTab() {
                 const pct = maxCount > 0 ? (count / maxCount) * 100 : 0;
                 return (
                   <div key={date} className="flex items-center gap-3">
-                    <span className="w-24 shrink-0 text-xs text-muted-foreground dark:text-muted-foreground">{date}</span>
+                    <span className="w-24 shrink-0 text-xs text-muted-foreground dark:text-muted-foreground">
+                      {date}
+                    </span>
                     <div className="h-6 flex-1 overflow-hidden rounded bg-muted dark:bg-card-foreground/90">
-                      <div className="flex h-full items-center rounded bg-primary/60 px-2 text-[10px] font-semibold text-primary-foreground" style={{ width: `${Math.max(pct, 5)}%` }}>
+                      <div
+                        className="flex h-full items-center rounded bg-primary/60 px-2 text-[10px] font-semibold text-primary-foreground"
+                        style={{ width: `${Math.max(pct, 5)}%` }}
+                      >
                         {count}
                       </div>
                     </div>
@@ -473,19 +767,33 @@ function AnalyticsTab() {
 
       {/* Ad event breakdown */}
       <div className="mb-6">
-        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Ad Event Breakdown</h2>
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+          {tr("Ad Event Breakdown")}
+        </h2>
         <AdminCard className="p-5">
           <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            {(['impression', 'click', 'reward', 'close', 'error'] as const).map((type) => (
-              <div key={type} className="rounded-lg border border-border p-3 text-center dark:border-border border-border">
-                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{type}</p>
-                <p className="mt-1 text-2xl font-bold text-foreground dark:text-primary-foreground">{stats.eventCounts[type] || 0}</p>
-              </div>
-            ))}
+            {(["impression", "click", "reward", "close", "error"] as const).map(
+              (type) => (
+                <div
+                  key={type}
+                  className="rounded-lg border border-border p-3 text-center dark:border-border border-border"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+                    {type}
+                  </p>
+                  <p className="mt-1 text-2xl font-bold text-foreground dark:text-primary-foreground">
+                    {stats.eventCounts[type] || 0}
+                  </p>
+                </div>
+              ),
+            )}
           </div>
           <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground">
             <DollarSign aria-hidden="true" className="h-3.5 w-3.5" />
-            Estimated event revenue: <span className="font-semibold text-card-foreground dark:text-muted-foreground/80">${stats.eventRevenue.toFixed(2)}</span>
+            Estimated event revenue:{" "}
+            <span className="font-semibold text-card-foreground dark:text-muted-foreground/80">
+              ${stats.eventRevenue.toFixed(2)}
+            </span>
           </div>
         </AdminCard>
       </div>
@@ -493,14 +801,28 @@ function AnalyticsTab() {
   );
 }
 
-function StatCard({ icon: Icon, label, value, color }: { icon: typeof Users; label: string; value: string; color: string }) {
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  color,
+}: {
+  icon: typeof Users;
+  label: string;
+  value: string;
+  color: string;
+}) {
   return (
     <div className="rounded-xl border border-border bg-card dark:bg-background p-4 dark:border-border border-border">
       <div className="flex items-center gap-2">
         <Icon className={`h-4 w-4 ${color}`} />
-        <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{label}</span>
+        <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+          {label}
+        </span>
       </div>
-      <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">{value}</p>
+      <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
+        {value}
+      </p>
     </div>
   );
 }

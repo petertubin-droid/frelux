@@ -12,27 +12,40 @@
  * All changes are audited.
  */
 
-import { useEffect, useState, useCallback } from 'react';
-import { Save, Loader2, AlertCircle, CheckCircle2, Info, Ruler, Package, DollarSign, MapPin } from 'lucide-react';
-import {AdminHeader,
+import { useEffect, useState, useCallback } from "react";
+import {
+  Save,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  Info,
+  Ruler,
+  Package,
+  DollarSign,
+  MapPin,
+} from "lucide-react";
+import {
+  AdminHeader,
   AdminCard,
   AdminButton,
   AdminField,
   AdminInput,
-  AdminTabButton} from '@/components/admin/AdminUi';
-import { supabase } from '@/lib/supabase';
-import { classNames } from '@/lib/utils';
+  AdminTabButton,
+} from "@/components/admin/AdminUi";
+import { supabase } from "@/lib/supabase";
+import { classNames } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 import type {
   EstimationCalcRule,
   EstimationMaterial,
   EstimationPrice,
-} from '@/types/estimation';
+} from "@/types/estimation";
 
 // =========================================================
 // Types
 // =========================================================
 
-type TabType = 'partition' | 'ratio' | 'prices' | 'production';
+type TabType = "partition" | "ratio" | "prices" | "production";
 
 interface MaterialRatioEntry {
   slug: string;
@@ -55,21 +68,31 @@ interface ProductionRule {
 // Constants
 // =========================================================
 
-const TYROLENE_SLUGS = ['cement', 'sand', 'acrylic-bond', 'water-seal', 'anti-fungal'];
+const TYROLENE_SLUGS = [
+  "cement",
+  "sand",
+  "acrylic-bond",
+  "water-seal",
+  "anti-fungal",
+];
 
 // =========================================================
 // Component
 // =========================================================
 
 export default function AdminTyroleneConfig() {
-  const [activeTab, setActiveTab] = useState<TabType>('partition');
+  const { t } = useLanguage();
+  const [activeTab, setActiveTab] = useState<TabType>("partition");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [saveMessage, setSaveMessage] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   // ── Partition dimensions ──
-  const [partitionWidth, setPartitionWidth] = useState<string>('');
-  const [partitionHeight, setPartitionHeight] = useState<string>('');
+  const [partitionWidth, setPartitionWidth] = useState<string>("");
+  const [partitionHeight, setPartitionHeight] = useState<string>("");
   const [partitionRuleId, setPartitionRuleId] = useState<string | null>(null);
 
   // ── Material ratio ──
@@ -83,7 +106,7 @@ export default function AdminTyroleneConfig() {
 
   // ── Production rules ──
   const [productionRules, setProductionRules] = useState<ProductionRule[]>([]);
-  const [outsideOwerriMin, setOutsideOwerriMin] = useState<string>('');
+  const [outsideOwerriMin, setOutsideOwerriMin] = useState<string>("");
 
   // =========================================================
   // Load configuration
@@ -94,47 +117,56 @@ export default function AdminTyroleneConfig() {
       try {
         // Fetch calc rules for tyrolene
         const { data: rules } = await supabase
-          .from('estimation_calc_rules')
-          .select('*')
-          .eq('calculator_type', 'tyrolene')
-          .eq('is_active', true);
+          .from("estimation_calc_rules")
+          .select("*")
+          .eq("calculator_type", "tyrolene")
+          .eq("is_active", true);
 
         const ruleMap = new Map<string, EstimationCalcRule>();
-        for (const rule of (rules ?? [])) {
+        for (const rule of rules ?? []) {
           ruleMap.set(rule.rule_key, rule as EstimationCalcRule);
         }
 
         // Standard partition dimensions
-        const spRule = ruleMap.get('standard_partition_dimensions');
+        const spRule = ruleMap.get("standard_partition_dimensions");
         if (spRule) {
           setPartitionRuleId(spRule.id);
           const val = spRule.rule_value as Record<string, unknown>;
-          setPartitionWidth(val.width ? String(val.width) : '');
-          setPartitionHeight(val.height ? String(val.height) : '');
+          setPartitionWidth(val.width ? String(val.width) : "");
+          setPartitionHeight(val.height ? String(val.height) : "");
         }
 
         // Material ratio
-        const ratioRule = ruleMap.get('material_ratio');
+        const ratioRule = ruleMap.get("material_ratio");
         if (ratioRule) {
           setRatioRuleId(ratioRule.id);
           const val = ratioRule.rule_value as Record<string, unknown>;
-          setPartitionsPerRatio(typeof val.partitions_per_ratio === 'number' ? val.partitions_per_ratio : 4);
+          setPartitionsPerRatio(
+            typeof val.partitions_per_ratio === "number"
+              ? val.partitions_per_ratio
+              : 4,
+          );
           const rawMats = Array.isArray(val.materials) ? val.materials : [];
-          setRatioEntries(rawMats
-            .filter((m): m is Record<string, unknown> => m !== null && typeof m === 'object')
-            .map((m) => ({
-              slug: String(m.slug ?? ''),
-              quantity: typeof m.quantity === 'number' ? m.quantity : 0,
-              unit: String(m.unit ?? ''),
-            })));
+          setRatioEntries(
+            rawMats
+              .filter(
+                (m): m is Record<string, unknown> =>
+                  m !== null && typeof m === "object",
+              )
+              .map((m) => ({
+                slug: String(m.slug ?? ""),
+                quantity: typeof m.quantity === "number" ? m.quantity : 0,
+                unit: String(m.unit ?? ""),
+              })),
+          );
         }
 
         // Fetch materials
         const { data: matData } = await supabase
-          .from('estimation_materials')
-          .select('*')
-          .in('slug', TYROLENE_SLUGS)
-          .order('sort_order', { ascending: true });
+          .from("estimation_materials")
+          .select("*")
+          .in("slug", TYROLENE_SLUGS)
+          .order("sort_order", { ascending: true });
 
         const mats = (matData ?? []) as EstimationMaterial[];
         setMaterials(mats);
@@ -143,40 +175,45 @@ export default function AdminTyroleneConfig() {
         const priceMap: Record<string, string> = {};
         for (const mat of mats) {
           const { data: price } = await supabase
-            .from('estimation_prices')
-            .select('*')
-            .eq('price_type', 'material')
-            .eq('ref_id', mat.id)
-            .eq('is_active', true)
-            .order('effective_date', { ascending: false })
+            .from("estimation_prices")
+            .select("*")
+            .eq("price_type", "material")
+            .eq("ref_id", mat.id)
+            .eq("is_active", true)
+            .order("effective_date", { ascending: false })
             .limit(1)
             .maybeSingle();
           if (price) {
             priceMap[mat.slug] = String((price as EstimationPrice).price);
           } else {
-            priceMap[mat.slug] = '';
+            priceMap[mat.slug] = "";
           }
         }
         setPrices(priceMap);
 
         // Fetch production rules
         const { data: prodRules } = await supabase
-          .from('estimation_production_rules')
-          .select('*')
-          .eq('product_category', 'tyrolene')
-          .eq('is_active', true)
-          .order('sort_order', { ascending: true });
+          .from("estimation_production_rules")
+          .select("*")
+          .eq("product_category", "tyrolene")
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true });
 
         setProductionRules((prodRules ?? []) as ProductionRule[]);
 
         const outsideRule = (prodRules ?? []).find(
-          (r) => r.location_rule === 'outside_owerri'
+          (r) => r.location_rule === "outside_owerri",
         );
-        setOutsideOwerriMin(outsideRule ? String((outsideRule as ProductionRule).min_quantity) : '');
+        setOutsideOwerriMin(
+          outsideRule
+            ? String((outsideRule as ProductionRule).min_quantity)
+            : "",
+        );
       } catch (err) {
         setSaveMessage({
-          type: 'error',
-          message: err instanceof Error ? err.message : 'Failed to load configuration',
+          type: "error",
+          message:
+            err instanceof Error ? err.message : "Failed to load configuration",
         });
       } finally {
         setLoading(false);
@@ -198,29 +235,37 @@ export default function AdminTyroleneConfig() {
       const height = parseFloat(partitionHeight);
 
       if (isNaN(width) || width <= 0 || isNaN(height) || height <= 0) {
-        setSaveMessage({ type: 'error', message: 'Width and height must be positive numbers.' });
+        setSaveMessage({
+          type: "error",
+          message: "Width and height must be positive numbers.",
+        });
         return;
       }
 
       const ruleValue = { width, height };
       const oldData = partitionRuleId
-        ? await supabase.from('estimation_calc_rules').select('rule_value').eq('id', partitionRuleId).maybeSingle()
+        ? await supabase
+            .from("estimation_calc_rules")
+            .select("rule_value")
+            .eq("id", partitionRuleId)
+            .maybeSingle()
         : null;
 
       if (partitionRuleId) {
         await supabase
-          .from('estimation_calc_rules')
+          .from("estimation_calc_rules")
           .update({ rule_value: ruleValue })
-          .eq('id', partitionRuleId);
+          .eq("id", partitionRuleId);
       } else {
         const { data } = await supabase
-          .from('estimation_calc_rules')
+          .from("estimation_calc_rules")
           .insert({
-            rule_key: 'standard_partition_dimensions',
-            calculator_type: 'tyrolene',
+            rule_key: "standard_partition_dimensions",
+            calculator_type: "tyrolene",
             rule_value: ruleValue,
-            rule_status: 'admin_configured',
-            description: 'Standard partition dimensions (width × height in metres) for Tyrolene estimation.',
+            rule_status: "admin_configured",
+            description:
+              "Standard partition dimensions (width × height in metres) for Tyrolene estimation.",
             is_active: true,
           })
           .select()
@@ -229,17 +274,23 @@ export default function AdminTyroleneConfig() {
       }
 
       // Audit log
-      await supabase.from('estimation_audit_log').insert({
-        entity_type: 'calc_rule',
+      await supabase.from("estimation_audit_log").insert({
+        entity_type: "calc_rule",
         entity_id: partitionRuleId,
-        action: 'update',
+        action: "update",
         old_value: oldData?.data?.rule_value ?? null,
         new_value: ruleValue,
       });
 
-      setSaveMessage({ type: 'success', message: 'Standard partition dimensions saved.' });
+      setSaveMessage({
+        type: "success",
+        message: "Standard partition dimensions saved.",
+      });
     } catch (err) {
-      setSaveMessage({ type: 'error', message: err instanceof Error ? err.message : 'Save failed' });
+      setSaveMessage({
+        type: "error",
+        message: err instanceof Error ? err.message : "Save failed",
+      });
     } finally {
       setSaving(false);
     }
@@ -251,7 +302,7 @@ export default function AdminTyroleneConfig() {
     try {
       const ruleValue = {
         partitions_per_ratio: partitionsPerRatio,
-        materials: ratioEntries.map(m => ({
+        materials: ratioEntries.map((m) => ({
           slug: m.slug,
           quantity: m.quantity,
           unit: m.unit,
@@ -259,23 +310,28 @@ export default function AdminTyroleneConfig() {
       };
 
       const oldData = ratioRuleId
-        ? await supabase.from('estimation_calc_rules').select('rule_value').eq('id', ratioRuleId).maybeSingle()
+        ? await supabase
+            .from("estimation_calc_rules")
+            .select("rule_value")
+            .eq("id", ratioRuleId)
+            .maybeSingle()
         : null;
 
       if (ratioRuleId) {
         await supabase
-          .from('estimation_calc_rules')
+          .from("estimation_calc_rules")
           .update({ rule_value: ruleValue })
-          .eq('id', ratioRuleId);
+          .eq("id", ratioRuleId);
       } else {
         const { data } = await supabase
-          .from('estimation_calc_rules')
+          .from("estimation_calc_rules")
           .insert({
-            rule_key: 'material_ratio',
-            calculator_type: 'tyrolene',
+            rule_key: "material_ratio",
+            calculator_type: "tyrolene",
             rule_value: ruleValue,
-            rule_status: 'verified_frelux',
-            description: 'FRELUX Tyrolene material ratio per standard partitions.',
+            rule_status: "verified_frelux",
+            description:
+              "FRELUX Tyrolene material ratio per standard partitions.",
             is_active: true,
           })
           .select()
@@ -283,72 +339,92 @@ export default function AdminTyroleneConfig() {
         if (data) setRatioRuleId(data.id);
       }
 
-      await supabase.from('estimation_audit_log').insert({
-        entity_type: 'calc_rule',
+      await supabase.from("estimation_audit_log").insert({
+        entity_type: "calc_rule",
         entity_id: ratioRuleId,
-        action: 'update',
+        action: "update",
         old_value: oldData?.data?.rule_value ?? null,
         new_value: ruleValue,
       });
 
-      setSaveMessage({ type: 'success', message: 'Material ratio saved. Changes apply to new estimates only.' });
+      setSaveMessage({
+        type: "success",
+        message: "Material ratio saved. Changes apply to new estimates only.",
+      });
     } catch (err) {
-      setSaveMessage({ type: 'error', message: err instanceof Error ? err.message : 'Save failed' });
+      setSaveMessage({
+        type: "error",
+        message: err instanceof Error ? err.message : "Save failed",
+      });
     } finally {
       setSaving(false);
     }
   }, [partitionsPerRatio, ratioEntries, ratioRuleId]);
 
-  const savePrice = useCallback(async (materialSlug: string) => {
-    setSaving(true);
-    setSaveMessage(null);
-    try {
-      const priceStr = prices[materialSlug];
-      const newPrice = parseFloat(priceStr);
+  const savePrice = useCallback(
+    async (materialSlug: string) => {
+      setSaving(true);
+      setSaveMessage(null);
+      try {
+        const priceStr = prices[materialSlug];
+        const newPrice = parseFloat(priceStr);
 
-      if (isNaN(newPrice) || newPrice < 0) {
-        setSaveMessage({ type: 'error', message: `Price for ${materialSlug} must be a non-negative number.` });
-        return;
-      }
+        if (isNaN(newPrice) || newPrice < 0) {
+          setSaveMessage({
+            type: "error",
+            message: `Price for ${materialSlug} must be a non-negative number.`,
+          });
+          return;
+        }
 
-      const material = materials.find(m => m.slug === materialSlug);
-      if (!material) return;
+        const material = materials.find((m) => m.slug === materialSlug);
+        if (!material) return;
 
-      // Deactivate old price
-      await supabase
-        .from('estimation_prices')
-        .update({ is_active: false })
-        .eq('price_type', 'material')
-        .eq('ref_id', material.id)
-        .eq('is_active', true);
+        // Deactivate old price
+        await supabase
+          .from("estimation_prices")
+          .update({ is_active: false })
+          .eq("price_type", "material")
+          .eq("ref_id", material.id)
+          .eq("is_active", true);
 
-      // Insert new price
-      await supabase
-        .from('estimation_prices')
-        .insert({
-          price_type: 'material',
+        // Insert new price
+        await supabase.from("estimation_prices").insert({
+          price_type: "material",
           ref_id: material.id,
           price: newPrice,
-          currency: 'NGN',
-          effective_date: new Date().toISOString().split('T')[0],
+          currency: "NGN",
+          effective_date: new Date().toISOString().split("T")[0],
           is_active: true,
         });
 
-      // Audit log
-      await supabase.from('estimation_audit_log').insert({
-        entity_type: 'price',
-        entity_id: material.id,
-        action: 'price_change',
-        new_value: { price: newPrice, currency: 'NGN', material: material.name },
-      });
+        // Audit log
+        await supabase.from("estimation_audit_log").insert({
+          entity_type: "price",
+          entity_id: material.id,
+          action: "price_change",
+          new_value: {
+            price: newPrice,
+            currency: "NGN",
+            material: material.name,
+          },
+        });
 
-      setSaveMessage({ type: 'success', message: `Price for ${material.name} saved. New estimates will use this price.` });
-    } catch (err) {
-      setSaveMessage({ type: 'error', message: err instanceof Error ? err.message : 'Save failed' });
-    } finally {
-      setSaving(false);
-    }
-  }, [prices, materials]);
+        setSaveMessage({
+          type: "success",
+          message: `Price for ${material.name} saved. New estimates will use this price.`,
+        });
+      } catch (err) {
+        setSaveMessage({
+          type: "error",
+          message: err instanceof Error ? err.message : "Save failed",
+        });
+      } finally {
+        setSaving(false);
+      }
+    },
+    [prices, materials],
+  );
 
   const saveProductionMin = useCallback(async () => {
     setSaving(true);
@@ -356,49 +432,63 @@ export default function AdminTyroleneConfig() {
     try {
       const minQty = parseFloat(outsideOwerriMin);
 
-      if (outsideOwerriMin === '') {
+      if (outsideOwerriMin === "") {
         // If empty, don't set, leave unconfigured
-        setSaveMessage({ type: 'success', message: 'Outside Owerri minimum left unconfigured. Production eligibility cannot be determined for outside-Owerri clients until a minimum is set.' });
+        setSaveMessage({
+          type: "success",
+          message:
+            "Outside Owerri minimum left unconfigured. Production eligibility cannot be determined for outside-Owerri clients until a minimum is set.",
+        });
         return;
       }
 
       if (isNaN(minQty) || minQty < 0) {
-        setSaveMessage({ type: 'error', message: 'Minimum quantity must be a non-negative number.' });
+        setSaveMessage({
+          type: "error",
+          message: "Minimum quantity must be a non-negative number.",
+        });
         return;
       }
 
       // Check if rule already exists
-      const existing = productionRules.find(r => r.location_rule === 'outside_owerri');
+      const existing = productionRules.find(
+        (r) => r.location_rule === "outside_owerri",
+      );
 
       if (existing) {
         await supabase
-          .from('estimation_production_rules')
+          .from("estimation_production_rules")
           .update({ min_quantity: minQty })
-          .eq('id', existing.id);
+          .eq("id", existing.id);
       } else {
-        await supabase
-          .from('estimation_production_rules')
-          .insert({
-            product_category: 'tyrolene',
-            quality_slug: null,
-            location_rule: 'outside_owerri',
-            min_quantity: minQty,
-            unit: 'partitions',
-            is_active: true,
-            description: 'FRELUX Tyrolene production minimum for outside Owerri.',
-            sort_order: 21,
-          });
+        await supabase.from("estimation_production_rules").insert({
+          product_category: "tyrolene",
+          quality_slug: null,
+          location_rule: "outside_owerri",
+          min_quantity: minQty,
+          unit: "partitions",
+          is_active: true,
+          description: "FRELUX Tyrolene production minimum for outside Owerri.",
+          sort_order: 21,
+        });
       }
 
-      await supabase.from('estimation_audit_log').insert({
-        entity_type: 'production_rule',
-        action: 'update',
-        new_value: { product_category: 'tyrolene', location_rule: 'outside_owerri', min_quantity: minQty },
+      await supabase.from("estimation_audit_log").insert({
+        entity_type: "production_rule",
+        action: "update",
+        new_value: {
+          product_category: "tyrolene",
+          location_rule: "outside_owerri",
+          min_quantity: minQty,
+        },
       });
 
-      setSaveMessage({ type: 'success', message: 'Production minimum saved.' });
+      setSaveMessage({ type: "success", message: "Production minimum saved." });
     } catch (err) {
-      setSaveMessage({ type: 'error', message: err instanceof Error ? err.message : 'Save failed' });
+      setSaveMessage({
+        type: "error",
+        message: err instanceof Error ? err.message : "Save failed",
+      });
     } finally {
       setSaving(false);
     }
@@ -411,35 +501,49 @@ export default function AdminTyroleneConfig() {
   if (loading) {
     return (
       <>
-        <AdminHeader title="Tyrolene Config" subtitle="Configure Tyrolene estimation parameters." />
+        <AdminHeader
+          title={t("Tyrolene Config")}
+          subtitle={t("Configure Tyrolene estimation parameters.")}
+        />
         <div className="flex items-center justify-center py-20">
-          <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+          <Loader2
+            aria-hidden="true"
+            className="h-6 w-6 animate-spin text-brand-purple"
+          />
         </div>
       </>
     );
   }
 
   const tabs: { id: TabType; label: string; icon: typeof Ruler }[] = [
-    { id: 'partition', label: 'Standard Partition', icon: Ruler },
-    { id: 'ratio', label: 'Material Ratio', icon: Package },
-    { id: 'prices', label: 'Material Prices', icon: DollarSign },
-    { id: 'production', label: 'Production', icon: MapPin },
+    { id: "partition", label: "Standard Partition", icon: Ruler },
+    { id: "ratio", label: "Material Ratio", icon: Package },
+    { id: "prices", label: "Material Prices", icon: DollarSign },
+    { id: "production", label: "Production", icon: MapPin },
   ];
 
   return (
     <>
-      <AdminHeader title="Tyrolene Config" subtitle="Configure Tyrolene estimation parameters, exterior only, partition-based." />
+      <AdminHeader
+        title={t("Tyrolene Config")}
+        subtitle={t(
+          "Configure Tyrolene estimation parameters, exterior only, partition-based.",
+        )}
+      />
 
       {/* Tab Navigation */}
       <div className="mb-6 flex flex-wrap gap-2">
-        {tabs.map(tab => {
+        {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
             <AdminTabButton
               variant="pill"
               key={tab.id}
               active={activeTab === tab.id}
-              onClick={() => { setActiveTab(tab.id); setSaveMessage(null); }}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setSaveMessage(null);
+              }}
             >
               <Icon aria-hidden="true" className="h-4 w-4" />
               {tab.label}
@@ -450,62 +554,85 @@ export default function AdminTyroleneConfig() {
 
       {/* Save Message */}
       {saveMessage && (
-        <div className={classNames(
-          'mb-4 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm',
-          saveMessage.type === 'success'
-            ? 'border-green-200 bg-green-50 text-green-800'
-            : 'border-red-200 bg-red-50 text-red-800'
-        )}>
-          {saveMessage.type === 'success'
-            ? <CheckCircle2 aria-hidden="true" className="h-4 w-4 flex-shrink-0" />
-            : <AlertCircle aria-hidden="true" className="h-4 w-4 flex-shrink-0" />}
+        <div
+          className={classNames(
+            "mb-4 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm",
+            saveMessage.type === "success"
+              ? "border-green-200 bg-green-50 text-green-800"
+              : "border-red-200 bg-red-50 text-red-800",
+          )}
+        >
+          {saveMessage.type === "success" ? (
+            <CheckCircle2
+              aria-hidden="true"
+              className="h-4 w-4 flex-shrink-0"
+            />
+          ) : (
+            <AlertCircle aria-hidden="true" className="h-4 w-4 flex-shrink-0" />
+          )}
           {saveMessage.message}
         </div>
       )}
 
       {/* Tab Content */}
       {/* Standard Partition Dimensions */}
-      {activeTab === 'partition' && (
+      {activeTab === "partition" && (
         <AdminCard>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
+              <Info
+                aria-hidden="true"
+                className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5"
+              />
               <p className="text-sm text-muted-foreground">
-                Standard partition dimensions (width × height in metres) used as the baseline for Tyrolene estimation.
-                When actual partition dimensions differ, the system calculates equivalent standard partitions.
+                Standard partition dimensions (width × height in metres) used as
+                the baseline for Tyrolene estimation. When actual partition
+                dimensions differ, the system calculates equivalent standard
+                partitions.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <AdminField label="Standard Partition Width (m)">
                 <AdminInput
- type="number"
- step="0.01"
- min="0"
- value={partitionWidth}
- onChange={e => setPartitionWidth(e.target.value)}
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={partitionWidth}
+                  onChange={(e) => setPartitionWidth(e.target.value)}
                   placeholder="e.g., 3"
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm"
                 />
               </AdminField>
               <AdminField label="Standard Partition Height (m)">
                 <AdminInput
- type="number"
- step="0.01"
- min="0"
- value={partitionHeight}
- onChange={e => setPartitionHeight(e.target.value)}
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={partitionHeight}
+                  onChange={(e) => setPartitionHeight(e.target.value)}
                   placeholder="e.g., 3"
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm"
                 />
               </AdminField>
             </div>
-            {partitionWidth && partitionHeight && !isNaN(parseFloat(partitionWidth)) && !isNaN(parseFloat(partitionHeight)) && (
-              <p className="text-xs text-muted-foreground">
-                Standard partition area: {(parseFloat(partitionWidth) * parseFloat(partitionHeight)).toFixed(2)}m²
-              </p>
-            )}
+            {partitionWidth &&
+              partitionHeight &&
+              !isNaN(parseFloat(partitionWidth)) &&
+              !isNaN(parseFloat(partitionHeight)) && (
+                <p className="text-xs text-muted-foreground">
+                  Standard partition area:{" "}
+                  {(
+                    parseFloat(partitionWidth) * parseFloat(partitionHeight)
+                  ).toFixed(2)}
+                  m²
+                </p>
+              )}
             <AdminButton onClick={savePartitionDimensions} disabled={saving}>
-              {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
+              {saving ? (
+                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save aria-hidden="true" className="h-4 w-4" />
+              )}
               Save Dimensions
             </AdminButton>
           </div>
@@ -513,51 +640,69 @@ export default function AdminTyroleneConfig() {
       )}
 
       {/* Material Ratio */}
-      {activeTab === 'ratio' && (
+      {activeTab === "ratio" && (
         <AdminCard>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
+              <Info
+                aria-hidden="true"
+                className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5"
+              />
               <div>
                 <p className="text-sm text-muted-foreground">
-                  FRELUX verified material ratio. For every {partitionsPerRatio} standard partitions:
+                  FRELUX verified material ratio. For every {partitionsPerRatio}{" "}
+                  standard partitions:
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Changes apply only to new estimates. Historical estimates retain the ratio used at the time of calculation.
+                  Changes apply only to new estimates. Historical estimates
+                  retain the ratio used at the time of calculation.
                 </p>
               </div>
             </div>
             <AdminField label="Partitions per Ratio">
               <AdminInput
- type="number"
- min="1"
- value={partitionsPerRatio}
- onChange={e => setPartitionsPerRatio(parseInt(e.target.value) || 4)}
+                type="number"
+                min="1"
+                value={partitionsPerRatio}
+                onChange={(e) =>
+                  setPartitionsPerRatio(parseInt(e.target.value) || 4)
+                }
                 className="w-32 rounded-lg border border-border px-3 py-2 text-sm"
               />
             </AdminField>
             <div className="space-y-2">
               {ratioEntries.map((entry, idx) => (
                 <div key={entry.slug} className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-card-foreground w-32">{entry.slug.replace(/-/g, ' ')}:</span>
+                  <span className="text-sm font-medium text-card-foreground w-32">
+                    {entry.slug.replace(/-/g, " ")}:
+                  </span>
                   <AdminInput
- type="number"
- step="0.01"
- min="0"
- value={entry.quantity}
- onChange={e => {
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={entry.quantity}
+                    onChange={(e) => {
                       const updated = [...ratioEntries];
-                      updated[idx] = { ...entry, quantity: parseFloat(e.target.value) || 0 };
+                      updated[idx] = {
+                        ...entry,
+                        quantity: parseFloat(e.target.value) || 0,
+                      };
                       setRatioEntries(updated);
                     }}
                     className="w-24 rounded-lg border border-border px-3 py-2 text-sm"
                   />
-                  <span className="text-sm text-muted-foreground">{entry.unit}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {entry.unit}
+                  </span>
                 </div>
               ))}
             </div>
             <AdminButton onClick={saveMaterialRatio} disabled={saving}>
-              {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
+              {saving ? (
+                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save aria-hidden="true" className="h-4 w-4" />
+              )}
               Save Ratio
             </AdminButton>
           </div>
@@ -565,34 +710,54 @@ export default function AdminTyroleneConfig() {
       )}
 
       {/* Material Prices */}
-      {activeTab === 'prices' && (
+      {activeTab === "prices" && (
         <AdminCard>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
+              <Info
+                aria-hidden="true"
+                className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5"
+              />
               <p className="text-sm text-muted-foreground">
-                Configure the current price for each Tyrolene material. New estimates will use these prices.
-                Historical estimates retain the price snapshot from when they were created.
+                Configure the current price for each Tyrolene material. New
+                estimates will use these prices. Historical estimates retain the
+                price snapshot from when they were created.
               </p>
             </div>
             {materials.length === 0 ? (
-              <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">No Tyrolene materials found. Run the Tyrolene database migration first.</div>
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                {t(
+                  "No Tyrolene materials found. Run the Tyrolene database migration first.",
+                )}
+              </div>
             ) : (
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {materials.map(mat => (
-                  <div key={mat.id} className="flex items-center gap-2 rounded-lg border border-border p-2.5">
+                {materials.map((mat) => (
+                  <div
+                    key={mat.id}
+                    className="flex items-center gap-2 rounded-lg border border-border p-2.5"
+                  >
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">{mat.name}</p>
-                      <p className="text-xs text-muted-foreground">{mat.slug} · {mat.category}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {mat.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {mat.slug} · {mat.category}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground">₦</span>
                       <AdminInput
- type="number"
- min="0"
- step="0.01"
- value={prices[mat.slug] ?? ''}
- onChange={e => setPrices(prev => ({ ...prev, [mat.slug]: e.target.value }))}
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={prices[mat.slug] ?? ""}
+                        onChange={(e) =>
+                          setPrices((prev) => ({
+                            ...prev,
+                            [mat.slug]: e.target.value,
+                          }))
+                        }
                         placeholder="0.00"
                         className="w-32 rounded-lg border border-border px-3 py-2 text-sm"
                       />
@@ -601,7 +766,7 @@ export default function AdminTyroleneConfig() {
                         disabled={saving}
                         className="text-xs py-2"
                       >
-                        Save
+                        {t("Save")}
                       </AdminButton>
                     </div>
                   </div>
@@ -613,48 +778,70 @@ export default function AdminTyroleneConfig() {
       )}
 
       {/* Production Rules */}
-      {activeTab === 'production' && (
+      {activeTab === "production" && (
         <AdminCard>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
+              <Info
+                aria-hidden="true"
+                className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5"
+              />
               <p className="text-sm text-muted-foreground">
-                Configure Tyrolene production minimums. Owerri has no minimum (always eligible).
-                For outside Owerri, set the minimum partition count or leave empty to indicate
-                that production eligibility cannot be determined.
+                Configure Tyrolene production minimums. Owerri has no minimum
+                (always eligible). For outside Owerri, set the minimum partition
+                count or leave empty to indicate that production eligibility
+                cannot be determined.
               </p>
             </div>
 
             {/* Owerri */}
             <div className="rounded-lg border border-green-200 bg-green-50 p-3">
-              <p className="text-sm font-medium text-green-900">Owerri</p>
-              <p className="text-xs text-green-700 mt-1">No minimum, production is always available for clients in Owerri.</p>
+              <p className="text-sm font-medium text-green-900">
+                {t("Owerri")}
+              </p>
+              <p className="text-xs text-green-700 mt-1">
+                {t(
+                  "No minimum, production is always available for clients in Owerri.",
+                )}
+              </p>
             </div>
 
             {/* Outside Owerri */}
             <div className="rounded-lg border border-border p-3">
-              <p className="text-sm font-medium text-foreground mb-2">Outside Owerri. Minimum Partitions</p>
+              <p className="text-sm font-medium text-foreground mb-2">
+                {t("Outside Owerri. Minimum Partitions")}
+              </p>
               <div className="flex items-center gap-3">
                 <AdminInput
- type="number"
- min="0"
- value={outsideOwerriMin}
- onChange={e => setOutsideOwerriMin(e.target.value)}
-                  placeholder="Not configured"
+                  type="number"
+                  min="0"
+                  value={outsideOwerriMin}
+                  onChange={(e) => setOutsideOwerriMin(e.target.value)}
+                  placeholder={t("Not configured")}
                   className="w-40 rounded-lg border border-border px-3 py-2 text-sm"
                 />
-                <span className="text-sm text-muted-foreground">partitions</span>
+                <span className="text-sm text-muted-foreground">
+                  partitions
+                </span>
                 <AdminButton
                   onClick={saveProductionMin}
                   disabled={saving}
                   className="text-xs py-2"
                 >
-                  {saving ? <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" /> : 'Save'}
+                  {saving ? (
+                    <Loader2
+                      aria-hidden="true"
+                      className="h-3.5 w-3.5 animate-spin"
+                    />
+                  ) : (
+                    "Save"
+                  )}
                 </AdminButton>
               </div>
               {!outsideOwerriMin && (
                 <p className="text-xs text-amber-700 mt-2">
-                  ⚠ Not configured. Production eligibility cannot be determined for outside-Owerri clients until a minimum is set.
+                  ⚠ Not configured. Production eligibility cannot be determined
+                  for outside-Owerri clients until a minimum is set.
                 </p>
               )}
             </div>

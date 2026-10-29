@@ -29,10 +29,12 @@ import {
 } from "@/components/ui/shadcn/dialog";
 import { Input } from "@/components/ui/shadcn/input";
 import { Label } from "@/components/ui/shadcn/label";
+import { useLanguage } from "@/lib/i18n";
 
 export const WorkspaceSwitcher: React.FC<{ className?: string }> = ({
   className = "",
 }) => {
+  const { t } = useLanguage();
   const {
     activeWorkspace,
     workspaces,
@@ -113,7 +115,7 @@ export const WorkspaceSwitcher: React.FC<{ className?: string }> = ({
               className="flex items-center gap-2 cursor-pointer text-primary focus:text-primary"
             >
               <Plus className="h-4 w-4" />
-              <span>Create New Workspace</span>
+              <span>{t("Create New Workspace")}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
@@ -122,7 +124,7 @@ export const WorkspaceSwitcher: React.FC<{ className?: string }> = ({
                 className="flex items-center gap-2 cursor-pointer w-full text-foreground"
               >
                 <Settings className="h-4 w-4" />
-                <span>Workspace Settings & Team</span>
+                <span>{t("Workspace Settings & Team")}</span>
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -143,11 +145,13 @@ export const WorkspaceSwitcher: React.FC<{ className?: string }> = ({
         <DialogContent className="sm:max-w-[425px]">
           <form onSubmit={handleCreate}>
             <DialogHeader>
-              <DialogTitle>Create Enterprise Workspace</DialogTitle>
+              <DialogTitle>{t("Create Enterprise Workspace")}</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="ws-name">Workspace / Organization Name</Label>
+                <Label htmlFor="ws-name">
+                  {t("Workspace / Organization Name")}
+                </Label>
                 <Input
                   id="ws-name"
                   placeholder="e.g., Summit Construction Group"
@@ -169,7 +173,7 @@ export const WorkspaceSwitcher: React.FC<{ className?: string }> = ({
                 onClick={() => setCreateOpen(false)}
                 disabled={creating}
               >
-                Cancel
+                {t("Cancel")}
               </Button>
               <Button type="submit" disabled={creating || !newWsName.trim()}>
                 {creating ? "Creating..." : "Create Workspace"}

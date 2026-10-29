@@ -11,6 +11,7 @@ import {
 import type { DbGalleryEntry } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import AdminPagination from "@/components/admin/AdminPagination";
+import { useLanguage } from "@/lib/i18n";
 
 const STATUS_BADGE: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-600 border-amber-500/20",
@@ -21,6 +22,7 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 export default function AdminGallery() {
+  const { t } = useLanguage();
   const [entries, setEntries] = useState<DbGalleryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("pending");
@@ -91,9 +93,9 @@ export default function AdminGallery() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Gallery Moderation</h1>
+          <h1 className="text-2xl font-bold">{t("Gallery Moderation")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Review, approve, and feature community project submissions.
+            {t("Review, approve, and feature community project submissions.")}
           </p>
         </div>
       </div>
@@ -119,7 +121,7 @@ export default function AdminGallery() {
 
       {!loading && entries.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          No entries found.
+          {t("No entries found.")}
         </div>
       )}
 
@@ -199,7 +201,7 @@ export default function AdminGallery() {
                     onClick={() => handleUnfeature(entry.id)}
                     className="group inline-flex items-center gap-1.5 rounded-lg bg-zinc-500/10 px-3 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-500/20 transition-all hover:scale-105"
                   >
-                    <Crown className="h-3.5 w-3.5" /> Unfeature
+                    <Crown className="h-3.5 w-3.5" /> {t("Unfeature")}
                   </Button>
                 )}
                 <Button
@@ -207,7 +209,7 @@ export default function AdminGallery() {
                   onClick={() => handleDelete(entry.id)}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/20 transition-all hover:scale-105"
                 >
-                  <Trash2 className="h-3.5 w-3.5" /> Delete
+                  <Trash2 className="h-3.5 w-3.5" /> {t("Delete")}
                 </Button>
               </div>
             </div>

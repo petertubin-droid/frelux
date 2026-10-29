@@ -12,6 +12,7 @@ import {
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useLanguage } from "@/lib/i18n";
 
 const capabilities = [
   {
@@ -65,6 +66,7 @@ const capabilities = [
 ];
 
 export default function CommercialReadiness() {
+  const { t } = useLanguage();
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
 
   return (
@@ -76,7 +78,7 @@ export default function CommercialReadiness() {
 
       <SectionHeading
         label="More than calculators"
-        title="A complete construction planning toolkit"
+        title={t("A complete construction planning toolkit")}
         subtitle="FRELUX handles the entire flow from measurement to final estimate, so you can plan with confidence."
         align="center"
       />
@@ -137,7 +139,7 @@ export default function CommercialReadiness() {
             className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
           >
             <Calculator className="h-4 w-4" />
-            Start Calculating
+            {t("Start Calculating")}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>

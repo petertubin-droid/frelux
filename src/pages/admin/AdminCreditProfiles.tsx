@@ -19,6 +19,7 @@ import {
 } from "@/lib/estimation/queries";
 import type { ContractorCreditProfile } from "@/types/estimation";
 import { getSafeError } from "@/lib/safeError";
+import { useLanguage } from "@/lib/i18n";
 import {
   AdminButton,
   AdminHeader,
@@ -97,6 +98,7 @@ function validate(f: ProfileForm): string | null {
 }
 
 export default function AdminCreditProfiles() {
+  const { t } = useLanguage();
   const [profiles, setProfiles] = useState<ContractorCreditProfile[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -182,34 +184,36 @@ export default function AdminCreditProfiles() {
   return (
     <div className="space-y-4">
       <AdminHeader
-        title="Contractor Credit Profiles"
+        title={t("Contractor Credit Profiles")}
         subtitle="Admin-verified contractor job statistics: the data behind the Credit-Score Engine. Every profile needs a verification reference (audited job records, warranty certificate hashes, lender file); the engine refuses to score zero verified jobs rather than scoring them zero."
         action={
           <AdminButton onClick={openCreate}>
-            <Plus className="mr-1 inline h-4 w-4" /> Add profile
+            <Plus className="mr-1 inline h-4 w-4" /> {t("Add profile")}
           </AdminButton>
         }
       />
 
-      {error && <StateMessage type="error" title="Error" message={error} />}
+      {error && (
+        <StateMessage type="error" title={t("Error")} message={error} />
+      )}
       {message && !error && (
-        <StateMessage type="empty" title="Saved" message={message} />
+        <StateMessage type="empty" title={t("Saved")} message={message} />
       )}
 
       <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
-              <th className="p-3">Contractor</th>
-              <th className="p-3">Registration</th>
-              <th className="p-3 text-right">Verified jobs</th>
-              <th className="p-3 text-right">On time</th>
-              <th className="p-3 text-right">Disputes</th>
+              <th className="p-3">{t("Contractor")}</th>
+              <th className="p-3">{t("Registration")}</th>
+              <th className="p-3 text-right">{t("Verified jobs")}</th>
+              <th className="p-3 text-right">{t("On time")}</th>
+              <th className="p-3 text-right">{t("Disputes")}</th>
               <th className="p-3 text-right">Avg error %</th>
-              <th className="p-3">Verification reference</th>
-              <th className="p-3">Effective</th>
-              <th className="p-3">Active</th>
-              <th className="p-3 text-right">Actions</th>
+              <th className="p-3">{t("Verification reference")}</th>
+              <th className="p-3">{t("Effective")}</th>
+              <th className="p-3">{t("Active")}</th>
+              <th className="p-3 text-right">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -257,12 +261,15 @@ export default function AdminCreditProfiles() {
                   <td className="p-3 text-xs">{p.is_active ? "Yes" : "No"}</td>
                   <td className="p-3">
                     <div className="flex justify-end gap-1">
-                      <AdminIconButton onClick={() => openEdit(p)} title="Edit">
+                      <AdminIconButton
+                        onClick={() => openEdit(p)}
+                        title={t("Edit")}
+                      >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
                         onClick={() => remove(p)}
-                        title="Delete"
+                        title={t("Delete")}
                         variant="danger"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -368,7 +375,7 @@ export default function AdminCreditProfiles() {
                   checked={form.is_active}
                   onChange={(e) => set("is_active", e.target.checked)}
                 />
-                Active
+                {t("Active")}
               </label>
             </div>
             <div className="mt-4 flex justify-end gap-2">
@@ -376,7 +383,7 @@ export default function AdminCreditProfiles() {
                 variant="secondary"
                 onClick={() => setModalOpen(false)}
               >
-                Cancel
+                {t("Cancel")}
               </AdminButton>
               <AdminButton onClick={save}>
                 {editing ? "Save changes" : "Create profile"}

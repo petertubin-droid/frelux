@@ -24,6 +24,7 @@ import {
 import { getSupabase } from "@/lib/supabase-lazy";
 import type { DbClientEstimate } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const fmt = (v: number, currency = "NGN") =>
   new Intl.NumberFormat("en-NG", {
@@ -33,6 +34,7 @@ const fmt = (v: number, currency = "NGN") =>
   }).format(v || 0);
 
 export default function ClientEstimateEditor() {
+  const { t } = useLanguage();
   const { id: projectId } = useParams<{ id: string }>();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -192,7 +194,7 @@ export default function ClientEstimateEditor() {
   return (
     <>
       <PageHeader
-        title="Create Client Estimate"
+        title={t("Create Client Estimate")}
         subtitle="Build a professional estimate and share it securely with your client for approval."
       />
 
@@ -201,7 +203,7 @@ export default function ClientEstimateEditor() {
           to={`/project-workspace/${projectId}/`}
           className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to Project
+          <ArrowLeft className="h-4 w-4" /> {t("Back to Project")}
         </Link>
 
         {existing.length > 0 && (
@@ -238,7 +240,7 @@ export default function ClientEstimateEditor() {
                       to={`/estimate/${est.share_token}/`}
                       className="text-xs text-primary hover:underline"
                     >
-                      View
+                      {t("View")}
                     </Link>
                   )}
                 </div>
@@ -253,14 +255,14 @@ export default function ClientEstimateEditor() {
           <div className="rounded-xl border bg-card p-6 space-y-4">
             <div className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold">Estimate Details</h3>
+              <h3 className="font-semibold">{t("Estimate Details")}</h3>
             </div>
             <div>
               <label
                 htmlFor="ce-title"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Title <span className="text-destructive">*</span>
+                {t("Title")} <span className="text-destructive">*</span>
               </label>
               <input
                 id="ce-title"
@@ -276,13 +278,13 @@ export default function ClientEstimateEditor() {
                 htmlFor="ce-description"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Description
+                {t("Description")}
               </label>
               <textarea
                 id="ce-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Scope of work, special requirements, etc."
+                placeholder={t("Scope of work, special requirements, etc.")}
                 rows={3}
                 className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none resize-none"
               />
@@ -293,7 +295,7 @@ export default function ClientEstimateEditor() {
           <div className="rounded-xl border bg-card p-6 space-y-4">
             <div className="flex items-center gap-2">
               <DollarSign className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold">Cost Breakdown</h3>
+              <h3 className="font-semibold">{t("Cost Breakdown")}</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <CostInput
@@ -340,7 +342,7 @@ export default function ClientEstimateEditor() {
             {/* Summary */}
             <div className="rounded-lg bg-muted p-4 space-y-1.5">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">{t("Subtotal")}</span>
                 <span className="font-medium">{fmt(subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
@@ -350,7 +352,7 @@ export default function ClientEstimateEditor() {
                 <span className="font-medium">{fmt(markupAmount)}</span>
               </div>
               <div className="flex justify-between border-t pt-1.5 text-base font-bold">
-                <span>Grand Total</span>
+                <span>{t("Grand Total")}</span>
                 <span className="text-primary">{fmt(grandTotal)}</span>
               </div>
             </div>
@@ -359,13 +361,13 @@ export default function ClientEstimateEditor() {
           {/* Materials summary */}
           <div className="rounded-xl border bg-card p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Materials Summary</h3>
+              <h3 className="font-semibold">{t("Materials Summary")}</h3>
               <Button
                 variant="default"
                 onClick={addMaterialRow}
                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-primary hover:transition-colors"
               >
-                <Plus className="h-3.5 w-3.5" /> Add Item
+                <Plus className="h-3.5 w-3.5" /> {t("Add Item")}
               </Button>
             </div>
             {materialsSummary.length === 0 ? (
@@ -387,7 +389,7 @@ export default function ClientEstimateEditor() {
                       onChange={(e) =>
                         updateMaterialRow(idx, "name", e.target.value)
                       }
-                      placeholder="Material name"
+                      placeholder={t("Material name")}
                       className="col-span-4 rounded-lg border bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                     />
                     <input
@@ -401,7 +403,7 @@ export default function ClientEstimateEditor() {
                           Number(e.target.value),
                         )
                       }
-                      placeholder="Qty"
+                      placeholder={t("Qty")}
                       min={0}
                       className="col-span-2 rounded-lg border bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                     />
@@ -426,7 +428,7 @@ export default function ClientEstimateEditor() {
                           Number(e.target.value),
                         )
                       }
-                      placeholder="Unit cost"
+                      placeholder={t("Unit cost")}
                       min={0}
                       className="col-span-3 rounded-lg border bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                     />
@@ -447,7 +449,7 @@ export default function ClientEstimateEditor() {
           <div className="rounded-xl border bg-card p-6 space-y-4">
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold">Client Information</h3>
+              <h3 className="font-semibold">{t("Client Information")}</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -455,14 +457,14 @@ export default function ClientEstimateEditor() {
                   htmlFor="ce-client-name"
                   className="mb-1.5 block text-sm font-medium"
                 >
-                  Client Name
+                  {t("Client Name")}
                 </label>
                 <input
                   id="ce-client-name"
                   type="text"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  placeholder="John Doe"
+                  placeholder={t("John Doe")}
                   className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                 />
               </div>
@@ -471,7 +473,7 @@ export default function ClientEstimateEditor() {
                   htmlFor="ce-client-email"
                   className="mb-1.5 block text-sm font-medium"
                 >
-                  Client Email
+                  {t("Client Email")}
                 </label>
                 <input
                   id="ce-client-email"
@@ -487,14 +489,16 @@ export default function ClientEstimateEditor() {
                   htmlFor="ce-client-phone"
                   className="mb-1.5 block text-sm font-medium"
                 >
-                  Client Phone
+                  {t("Client Phone")}
                 </label>
                 <input
                   id="ce-client-phone"
                   type="tel"
                   value={clientPhone}
                   onChange={(e) => setClientPhone(e.target.value)}
-                  placeholder="Include country code, e.g. +234 800 000 0000"
+                  placeholder={t(
+                    "Include country code, e.g. +234 800 000 0000",
+                  )}
                   className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                 />
               </div>
@@ -503,7 +507,7 @@ export default function ClientEstimateEditor() {
                   htmlFor="ce-validity"
                   className="mb-1.5 block text-sm font-medium"
                 >
-                  Validity (days)
+                  {t("Validity (days)")}
                 </label>
                 <input
                   id="ce-validity"
@@ -521,20 +525,20 @@ export default function ClientEstimateEditor() {
           <div className="rounded-xl border bg-card p-6 space-y-4">
             <div className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold">Notes & Terms</h3>
+              <h3 className="font-semibold">{t("Notes & Terms")}</h3>
             </div>
             <div>
               <label
                 htmlFor="ce-notes"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Notes
+                {t("Notes")}
               </label>
               <textarea
                 id="ce-notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Additional notes for the client..."
+                placeholder={t("Additional notes for the client...")}
                 rows={2}
                 className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none resize-none"
               />
@@ -544,13 +548,13 @@ export default function ClientEstimateEditor() {
                 htmlFor="ce-terms"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Terms & Conditions
+                {t("Terms & Conditions")}
               </label>
               <textarea
                 id="ce-terms"
                 value={terms}
                 onChange={(e) => setTerms(e.target.value)}
-                placeholder="Payment terms, warranty, etc."
+                placeholder={t("Payment terms, warranty, etc.")}
                 rows={3}
                 className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none resize-none"
               />

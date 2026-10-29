@@ -58,6 +58,7 @@ import { getPublicTemplates } from "@/lib/templates";
 import { Link } from "react-router-dom";
 import { ShoppingBag, Plus } from "lucide-react";
 import { SITE_URL } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 
 // Reserves approximate vertical space for a below-the-fold lazy section
 // while its chunk loads, so it doesn't shove later content down when it
@@ -85,6 +86,7 @@ function SectionSkeleton({ minHeight }: { minHeight: number }) {
  * is deeper and more useful than a homepage strip ever could be.
  */
 export default function Home() {
+  const { t } = useLanguage();
   const [featuredSlugs, setFeaturedSlugs] = useState<
     { name: string; slug: string; type: string }[]
   >([]);
@@ -171,7 +173,7 @@ export default function Home() {
       {/* Try it: 6 calculator cards immediately below hero */}
       <section
         id="calculators"
-        aria-label="Calculators"
+        aria-label={t("Calculators")}
         className="bg-card dark:bg-background"
       >
         <ChooseProject />
@@ -216,7 +218,7 @@ export default function Home() {
 
       {/* Marketplace CTA, post a job and get bids */}
       <section
-        aria-label="FRELUX Marketplace"
+        aria-label={t("FRELUX Marketplace")}
         className="bg-muted/50 py-16 dark:bg-card sm:py-20"
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -226,7 +228,7 @@ export default function Home() {
               FRELUX Marketplace · Nigeria Directory
             </div>
             <h2 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-              Post a Job & Get Bids from Verified Pros
+              {t("Post a Job & Get Bids from Verified Pros")}
             </h2>
             <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground sm:text-base">
               Run a calculation, post it as a job, and receive competitive bids
@@ -244,7 +246,8 @@ export default function Home() {
                 to="/marketplace/post/"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border px-6 py-3 text-sm font-semibold text-card-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/60 dark:hover:border-brand-purple-lighter dark:hover:text-brand-purple-lighter sm:w-auto"
               >
-                <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
+                <Plus aria-hidden="true" className="h-4 w-4" />{" "}
+                {t("Post a Job")}
               </Link>
             </div>
           </div>

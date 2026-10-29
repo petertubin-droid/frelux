@@ -24,6 +24,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { fetchAiAccessConfig } from "@/lib/ai-access";
 import { CONSTRUCTION_TOOLS } from "@/config/construction-tools";
+import { useLanguage } from "@/lib/i18n";
 import {
   AdminCard,
   AdminHeader,
@@ -90,6 +91,7 @@ function StatTile({
 }
 
 export default function AdminOverview() {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [dbHealth, setDbHealth] = useState<Health>("checking");
   const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
@@ -160,10 +162,13 @@ export default function AdminOverview() {
   if (loading) {
     return (
       <>
-        <AdminHeader title="Overview" subtitle="Platform health at a glance." />
+        <AdminHeader
+          title={t("Overview")}
+          subtitle={t("Platform health at a glance.")}
+        />
         <StateMessage
           type="loading"
-          title="Loading summary…"
+          title={t("Loading summary…")}
           message="Checking database, AI status and platform counts."
         />
       </>
@@ -241,8 +246,8 @@ export default function AdminOverview() {
   return (
     <>
       <AdminHeader
-        title="Overview"
-        subtitle="Is FRELUX healthy? Live answers, no assumptions."
+        title={t("Overview")}
+        subtitle={t("Is FRELUX healthy? Live answers, no assumptions.")}
       />
 
       {/* Health strip */}
@@ -256,7 +261,7 @@ export default function AdminOverview() {
             {dbHealth === "down" && <StatusBadge status="Error" />}
           </div>
           <p className="mt-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
-            Database
+            {t("Database")}
           </p>
           <p className="mt-1 text-sm text-foreground dark:text-primary-foreground">
             {dbHealth === "ok"
@@ -281,7 +286,7 @@ export default function AdminOverview() {
             )}
           </div>
           <p className="mt-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
-            ARCHIE / AI
+            {t("ARCHIE / AI")}
           </p>
           <p className="mt-1 text-sm text-foreground dark:text-primary-foreground">
             {aiEnabled === null
@@ -294,7 +299,7 @@ export default function AdminOverview() {
             to="/admin/ai-settings"
             className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple"
           >
-            AI Control Center
+            {t("AI Control Center")}
           </Link>
         </AdminCard>
 
@@ -332,7 +337,7 @@ export default function AdminOverview() {
 
       {/* Platform at a glance */}
       <h2 className="mb-3 mt-8 text-sm font-bold uppercase tracking-widest text-muted-foreground">
-        Platform at a glance
+        {t("Platform at a glance")}
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatTile
@@ -374,7 +379,7 @@ export default function AdminOverview() {
 
       {/* Owner quick actions */}
       <h2 className="mb-3 mt-8 text-sm font-bold uppercase tracking-widest text-muted-foreground">
-        Owner quick actions
+        {t("Owner quick actions")}
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
@@ -415,7 +420,7 @@ export default function AdminOverview() {
 
       {/* Section map */}
       <h2 className="mb-3 mt-8 text-sm font-bold uppercase tracking-widest text-muted-foreground">
-        Admin sections
+        {t("Admin sections")}
       </h2>
       <AdminCard className="p-4">
         <div className="grid gap-2 sm:grid-cols-2">
@@ -449,7 +454,7 @@ export default function AdminOverview() {
         <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
         Every figure on this page is a live query: failed queries say so.
         <XCircle className="ml-2 h-3.5 w-3.5" aria-hidden="true" />
-        Nothing here is hardcoded.
+        {t("Nothing here is hardcoded.")}
       </p>
     </>
   );

@@ -64,6 +64,7 @@ import {
 import type { WallFinProjectResult } from "@/types/wallfinishing";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import type { QuotePayloadLike } from "@/lib/estimate-share-adapter";
+import { useLanguage } from "@/lib/i18n";
 
 /* ── helpers ─────────────────────────────────────────────── */
 
@@ -137,6 +138,7 @@ function makeRoom(name: string): DraftRoom {
 /* ── page ────────────────────────────────────────────────── */
 
 export default function WallFinishEstimator() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Construction Tools", path: "/construction-tools" },
     { name: "Wall Finish Estimator", path: "/wall-finish-estimator" },
@@ -375,7 +377,14 @@ export default function WallFinishEstimator() {
       metaRows: rows.map((r) => [r.label, r.value] as [string, string]),
       lines: layers,
       totals: [
-        { label: "Total", value: result.cost.total.toLocaleString(undefined, { style: "currency", currency: result.currency }), strong: true },
+        {
+          label: "Total",
+          value: result.cost.total.toLocaleString(undefined, {
+            style: "currency",
+            currency: result.currency,
+          }),
+          strong: true,
+        },
       ],
       warnings: result.warnings,
     };
@@ -498,8 +507,10 @@ export default function WallFinishEstimator() {
   return (
     <div className="min-h-screen bg-background pb-16">
       <PageHeader
-        title="Wall Finish Estimator"
-        subtitle="Plan any wall worldwide: from structure to the final coat."
+        title={t("Wall Finish Estimator")}
+        subtitle={t(
+          "Plan any wall worldwide: from structure to the final coat.",
+        )}
       />
       <Container className="max-w-6xl space-y-8">
         <AdSlot slotKey="wall-finish-top" />
@@ -516,7 +527,7 @@ export default function WallFinishEstimator() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <label className="space-y-1.5">
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Country / market
+                {t("Country / market")}
               </span>
               <select
                 value={country}
@@ -536,7 +547,7 @@ export default function WallFinishEstimator() {
             </label>
             <label className="space-y-1.5">
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Region / city
+                {t("Region / city")}
               </span>
               <input
                 value={region}
@@ -547,21 +558,21 @@ export default function WallFinishEstimator() {
             </label>
             <label className="space-y-1.5">
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Building type
+                {t("Building type")}
               </span>
               <select
                 value={buildingType}
                 onChange={(e) => setBuildingType(e.target.value)}
                 className="input-field"
               >
-                <option value="residential">Residential</option>
-                <option value="commercial">Commercial</option>
-                <option value="renovation">Renovation</option>
+                <option value="residential">{t("Residential")}</option>
+                <option value="commercial">{t("Commercial")}</option>
+                <option value="renovation">{t("Renovation")}</option>
               </select>
             </label>
             <label className="space-y-1.5">
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Contingency
+                {t("Contingency")}
               </span>
               <div className="flex items-center gap-2">
                 <input
@@ -606,7 +617,7 @@ export default function WallFinishEstimator() {
                   value={r.name}
                   onChange={(e) => setRoom(r.id, { name: e.target.value })}
                   className="input-field max-w-56 font-medium"
-                  aria-label="Room name"
+                  aria-label={t("Room name")}
                 />
                 {rooms.length > 1 && (
                   <button
@@ -616,7 +627,7 @@ export default function WallFinishEstimator() {
                     }
                     className="text-xs text-muted-foreground hover:text-destructive"
                   >
-                    Remove
+                    {t("Remove")}
                   </button>
                 )}
               </div>
@@ -642,7 +653,7 @@ export default function WallFinishEstimator() {
                 ))}
                 <label className="space-y-1">
                   <span className="text-[11px] uppercase text-muted-foreground">
-                    Doors
+                    {t("Doors")}
                   </span>
                   <input
                     type="number"
@@ -656,7 +667,7 @@ export default function WallFinishEstimator() {
                 </label>
                 <label className="space-y-1">
                   <span className="text-[11px] uppercase text-muted-foreground">
-                    Windows
+                    {t("Windows")}
                   </span>
                   <input
                     type="number"
@@ -670,7 +681,7 @@ export default function WallFinishEstimator() {
                 </label>
                 <label className="space-y-1">
                   <span className="text-[11px] uppercase text-muted-foreground">
-                    Exterior walls
+                    {t("Exterior walls")}
                   </span>
                   <select
                     value={r.exteriorWalls}
@@ -697,7 +708,7 @@ export default function WallFinishEstimator() {
                     }
                     className="h-4 w-4"
                   />
-                  Wet area (bathroom / kitchen)
+                  {t("Wet area (bathroom / kitchen)")}
                 </label>
               </div>
               {/* per-wall finishing assemblies */}
@@ -716,7 +727,7 @@ export default function WallFinishEstimator() {
                       }}
                       className="input-field"
                     >
-                      <option value="">Country default</option>
+                      <option value="">{t("Country default")}</option>
                       {assemblies.map((opt) => (
                         <option key={opt.id} value={opt.id}>
                           {opt.surface === "interior" ? "Interior" : "Exterior"}{" "}
@@ -810,12 +821,16 @@ export default function WallFinishEstimator() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
-                          <th className="py-2 pr-3">Layer</th>
-                          <th className="py-2 pr-3">Material</th>
-                          <th className="py-2 pr-3">Quantity</th>
-                          <th className="py-2 pr-3 text-right">Material</th>
-                          <th className="py-2 pr-3 text-right">Labour</th>
-                          <th className="py-2 text-right">Total</th>
+                          <th className="py-2 pr-3">{t("Layer")}</th>
+                          <th className="py-2 pr-3">{t("Material")}</th>
+                          <th className="py-2 pr-3">{t("Quantity")}</th>
+                          <th className="py-2 pr-3 text-right">
+                            {t("Material")}
+                          </th>
+                          <th className="py-2 pr-3 text-right">
+                            {t("Labour")}
+                          </th>
+                          <th className="py-2 text-right">{t("Total")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1019,7 +1034,9 @@ export default function WallFinishEstimator() {
 
             {/* cost summary */}
             <div className="card p-6 space-y-3">
-              <h3 className="text-lg font-semibold">Estimated cost summary</h3>
+              <h3 className="text-lg font-semibold">
+                {t("Estimated cost summary")}
+              </h3>
               <dl className="grid gap-2 sm:grid-cols-2">
                 {[
                   ["Materials", result.cost.materials],
@@ -1040,7 +1057,7 @@ export default function WallFinishEstimator() {
                 ))}
               </dl>
               <p className="flex justify-between pt-2 text-lg font-semibold">
-                <span>Total (estimate)</span>
+                <span>{t("Total (estimate)")}</span>
                 <span>
                   {fmt(result.cost.total)} {result.currency}
                 </span>
@@ -1063,14 +1080,14 @@ export default function WallFinishEstimator() {
                   onClick={saveEstimate}
                   className="btn-primary text-sm"
                 >
-                  Save estimate
+                  {t("Save estimate")}
                 </button>
                 <button
                   type="button"
                   onClick={() => exportWallFinPdf(buildSpec(), result)}
                   className="btn-secondary text-sm"
                 >
-                  Export PDF
+                  {t("Export PDF")}
                 </button>
                 <QuoteShareButton
                   build={buildShareQuote}
@@ -1082,7 +1099,7 @@ export default function WallFinishEstimator() {
                   onClick={() => exportWallFinExcel(buildSpec(), result)}
                   className="btn-secondary text-sm"
                 >
-                  Export Excel
+                  {t("Export Excel")}
                 </button>
               </div>
               {saveNote && (
@@ -1095,7 +1112,9 @@ export default function WallFinishEstimator() {
 
         {savedList.length > 0 && (
           <section className="card p-6 space-y-3">
-            <h3 className="font-semibold">Saved estimates (this device)</h3>
+            <h3 className="font-semibold">
+              {t("Saved estimates (this device)")}
+            </h3>
             <ul className="space-y-2 text-sm">
               {savedList.map((p) => (
                 <li
@@ -1114,7 +1133,7 @@ export default function WallFinishEstimator() {
                       className="text-xs underline"
                       onClick={() => loadEstimate(p)}
                     >
-                      Load
+                      {t("Load")}
                     </button>
                     <button
                       type="button"
@@ -1124,7 +1143,7 @@ export default function WallFinishEstimator() {
                           deleteEstimate(p.id);
                       }}
                     >
-                      Delete
+                      {t("Delete")}
                     </button>
                   </span>
                 </li>
@@ -1153,7 +1172,7 @@ export default function WallFinishEstimator() {
                 onClick={() => setStepsFor(null)}
                 className="text-muted-foreground"
               >
-                Close
+                {t("Close")}
               </button>
             </div>
             <ol className="mt-4 space-y-3">

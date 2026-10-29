@@ -22,10 +22,12 @@ import AskAiWidget from "@/components/learn/AskAiWidget";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { useLearnMarketScope } from "@/lib/learn-scope";
+import { useLanguage } from "@/lib/i18n";
 
 type Status = "loading" | "ready" | "error";
 
 export default function Learn() {
+  const { t } = useLanguage();
   useSeo({
     title: "Learn: Construction & Painting Guides, Tips & Tutorials",
     description:
@@ -189,7 +191,7 @@ export default function Learn() {
         <PageHeader
           image="https://images.pexels.com/photos/4458210/pexels-photo-4458210.jpeg?auto=compress&cs=tinysrgb&w=1600"
           eyebrow="Education"
-          title="Learn"
+          title={t("Learn")}
           subtitle="Guides, tutorials, and expert tips for painting, screeding, POP ceiling, tiling, finishing, and construction."
           breadcrumbs={[{ label: "Learn Hub" }]}
         />
@@ -205,7 +207,7 @@ export default function Learn() {
       <>
         <PageHeader
           eyebrow="Education"
-          title="Learn"
+          title={t("Learn")}
           subtitle="Guides, tutorials, and expert tips for painting, screeding, POP ceiling, tiling, finishing, and construction."
           breadcrumbs={[{ label: "Learn Hub" }]}
         />
@@ -232,7 +234,7 @@ export default function Learn() {
             <div className="max-w-2xl">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-white/70 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple shadow-sm dark:bg-white/5">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" />
-                FRELUX Field Notes
+                {t("FRELUX Field Notes")}
               </div>
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-brand-purple">
                 {totalPublished !== null && totalPublished > 0
@@ -255,8 +257,8 @@ export default function Learn() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search articles, guides, tutorials…"
-                  aria-label="Search construction articles"
+                  placeholder={t("Search articles, guides, tutorials…")}
+                  aria-label={t("Search construction articles")}
                   className="w-full rounded-2xl border border-slate-200 bg-white/90 py-4 pl-12 pr-4 text-sm font-medium text-foreground shadow-lg shadow-slate-900/[0.04] outline-none transition focus:border-brand-purple/50 focus:ring-4 focus:ring-brand-purple/10 dark:border-white/10 dark:bg-slate-950/70 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
                 />
               </div>
@@ -303,11 +305,11 @@ export default function Learn() {
                 </div>
               )}
               <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-                <span>Materials</span>
+                <span>{t("Materials")}</span>
                 <span className="text-primary/60">/</span>
-                <span>Methods</span>
+                <span>{t("Methods")}</span>
                 <span className="text-primary/60">/</span>
-                <span>Practice</span>
+                <span>{t("Practice")}</span>
               </div>
             </div>
             <div
@@ -326,10 +328,10 @@ export default function Learn() {
               </div>
               <div className="absolute bottom-[4%] right-0 rounded-2xl border border-white/80 bg-white/85 px-4 py-3 shadow-lg backdrop-blur dark:border-white/10 dark:bg-slate-900/85">
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
-                  A wider lens
+                  {t("A wider lens")}
                 </p>
                 <p className="mt-1 text-xs font-medium text-slate-600 dark:text-slate-300">
-                  Ideas for a connected industry
+                  {t("Ideas for a connected industry")}
                 </p>
               </div>
             </div>
@@ -348,7 +350,7 @@ export default function Learn() {
             </span>
             <span>
               <span className="block font-display text-lg font-bold text-foreground">
-                Market-aware wall finishing library
+                {t("Market-aware wall finishing library")}
               </span>
               <span className="mt-1 block text-sm text-muted-foreground">
                 Explore reviewed local guidance for your selected market.
@@ -374,10 +376,10 @@ export default function Learn() {
                 </div>
                 <div>
                   <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                    Browse by Topic
+                    {t("Browse by Topic")}
                   </h2>
                   <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                    Explore guides organized by discipline
+                    {t("Explore guides organized by discipline")}
                   </p>
                 </div>
               </div>
@@ -410,7 +412,7 @@ export default function Learn() {
                       </p>
                     )}
                     <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-purple">
-                      Explore
+                      {t("Explore")}
                       <ArrowRight
                         aria-hidden="true"
                         className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
@@ -435,7 +437,7 @@ export default function Learn() {
                   Editor’s Picks
                 </h2>
                 <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                  Selected practical guidance for the work ahead
+                  {t("Selected practical guidance for the work ahead")}
                 </p>
               </div>
             </div>
@@ -458,7 +460,7 @@ export default function Learn() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                       <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-accent-orange shadow-sm backdrop-blur-sm">
-                        <Award className="h-3 w-3" /> Featured
+                        <Award className="h-3 w-3" /> {t("Featured")}
                       </span>
                     </div>
                   ) : (
@@ -466,7 +468,7 @@ export default function Learn() {
                       className={`relative flex items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_70%_25%,rgba(255,255,255,0.9),transparent_20%),linear-gradient(135deg,hsl(var(--primary)/.12),hsl(var(--muted)))] dark:bg-[radial-gradient(circle_at_70%_25%,rgba(255,255,255,0.12),transparent_20%),linear-gradient(135deg,hsl(var(--primary)/.2),hsl(var(--muted)))] ${index === 0 ? "aspect-[16/8]" : "aspect-[16/10]"}`}
                     >
                       <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-accent-orange shadow-sm">
-                        <Award className="h-3 w-3" /> Featured
+                        <Award className="h-3 w-3" /> {t("Featured")}
                       </span>
                     </div>
                   )}
@@ -524,10 +526,10 @@ export default function Learn() {
                 </div>
                 <div>
                   <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                    Latest from FRELUX
+                    {t("Latest from FRELUX")}
                   </h2>
                   <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                    New ideas, methods, and practical know-how
+                    {t("New ideas, methods, and practical know-how")}
                   </p>
                 </div>
               </div>
@@ -536,7 +538,7 @@ export default function Learn() {
                 className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-brand-purple transition-colors hover:text-primary"
               >
                 <Library className="h-4 w-4" />
-                Browse the full library
+                {t("Browse the full library")}
               </Link>
             </div>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

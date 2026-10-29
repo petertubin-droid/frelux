@@ -36,6 +36,7 @@ import {
   type CountVisionRules,
 } from "@/lib/estimation/count-vision-engine";
 import type { EstimationCalcRule } from "@/types/estimation";
+import { useLanguage } from "@/lib/i18n";
 
 const ITEM_HINTS = [
   "Cement bags",
@@ -47,6 +48,7 @@ const ITEM_HINTS = [
 ] as const;
 
 export default function CountVision() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Counter-Vision", path: "/count-vision" },
@@ -153,7 +155,7 @@ export default function CountVision() {
           { label: "Construction Tools", path: "/construction-tools" },
           { label: "Counter-Vision" },
         ]}
-        title="Counter-Vision"
+        title={t("Counter-Vision")}
         subtitle="Photograph your stacked materials and the engine counts what is visible. It tells you honestly when it cannot count: it never guesses a number."
       />
 
@@ -177,14 +179,14 @@ export default function CountVision() {
         </label>
 
         <label className="block text-sm">
-          <span className="mb-1 block font-medium">Site photo</span>
+          <span className="mb-1 block font-medium">{t("Site photo")}</span>
           <input
             ref={fileRef}
             type="file"
             accept="image/jpeg,image/png,image/webp,image/heic"
             onChange={(e) => onPickPhoto(e.target.files?.[0] ?? null)}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            aria-label="Site photo to count"
+            aria-label={t("Site photo to count")}
           />
         </label>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -196,7 +198,7 @@ export default function CountVision() {
           <div className="mt-4">
             <img
               src={preview}
-              alt="Selected site photo, ready for counting"
+              alt={t("Selected site photo, ready for counting")}
               className="max-h-64 rounded-md border"
             />
             <p className="mt-1 text-xs text-muted-foreground">
@@ -224,7 +226,7 @@ export default function CountVision() {
               }}
               className="text-sm text-muted-foreground underline"
             >
-              Clear
+              {t("Clear")}
             </button>
           )}
         </div>
@@ -302,7 +304,7 @@ export default function CountVision() {
 
       {/* How it works: the honesty contract, in plain words */}
       <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">How Counter-Vision works</h2>
+        <h2 className="mb-2 font-semibold">{t("How Counter-Vision works")}</h2>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
             The photo goes to the counting service (Google Gemini, configured

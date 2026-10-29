@@ -41,12 +41,14 @@ import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 import { getClientHash, REWARDED_AD_BRIDGES } from "@/lib/rewarded-access";
 import { getCreditRewardCandidates } from "@/lib/rewarded-bridges";
+import { useLanguage } from "@/lib/i18n";
 
 // ───────────────────────────────────────────────────────
 // Main Credits Wallet Component
 // ───────────────────────────────────────────────────────
 
 export function CreditsWallet({ userId }: { userId: string }) {
+  const { t } = useLanguage();
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [config, setConfig] = useState<RewardedAdCreditConfig | null>(null);
   const [transactions, setTransactions] = useState<CreditTransaction[]>([]);
@@ -117,7 +119,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-primary-foreground/70">
-              FRELUX Credits
+              {t("FRELUX Credits")}
             </p>
             <p className="mt-1 text-4xl font-bold">{wallet?.balance ?? 0}</p>
           </div>
@@ -163,7 +165,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
       {/* Daily limit progress */}
       {config?.is_enabled && (
         <div className="flex items-center justify-between text-xs text-muted-foreground dark:text-muted-foreground">
-          <span>Today's ad earnings</span>
+          <span>{t("Today's ad earnings")}</span>
           <span className="font-medium">
             {todayEarned} / {dailyLimit}
           </span>
@@ -201,7 +203,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
         <div className="space-y-3">
           <div className="rounded-xl border border-border p-4 dark:border-white/10">
             <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              How Credits Work
+              {t("How Credits Work")}
             </h3>
             <p className="mt-2 text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground">
               FRELUX Credits are your access currency for AI-powered features.
@@ -216,7 +218,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground/80">
                 <Coins className="h-3.5 w-3.5 text-accent-green" />
-                Spend credits on AI features (cost varies per feature)
+                {t("Spend credits on AI features (cost varies per feature)")}
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground/80">
                 <Clock
@@ -234,7 +236,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
         <div className="space-y-2">
           {transactions.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No transactions yet
+              {t("No transactions yet")}
             </p>
           ) : (
             transactions.map((tx) => (
@@ -285,7 +287,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
         <div className="space-y-2">
           {adHistory.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No ad history yet
+              {t("No ad history yet")}
             </p>
           ) : (
             adHistory.map((evt) => (
@@ -371,6 +373,7 @@ function EarnCreditsModal({
   onClose: () => void;
   onEarned: (newBalance: number, creditsEarned: number) => void;
 }) {
+  const { t } = useLanguage();
   const [phase, setPhase] = useState<
     | "idle"
     | "loading"
@@ -523,7 +526,7 @@ function EarnCreditsModal({
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
               <Gift aria-hidden="true" className="h-6 w-6 text-accent-green" />
-              <h2 className="text-lg font-bold">Earn FRELUX Credits</h2>
+              <h2 className="text-lg font-bold">{t("Earn FRELUX Credits")}</h2>
             </div>
             <Button
               variant="ghost"
@@ -545,7 +548,7 @@ function EarnCreditsModal({
           {/* Daily limit indicator */}
           <div className="mb-4 flex items-center justify-between rounded-lg border border-border p-3 dark:border-white/10">
             <span className="text-xs text-muted-foreground dark:text-muted-foreground">
-              Today's progress
+              {t("Today's progress")}
             </span>
             <span className="text-xs font-bold text-foreground dark:text-primary-foreground">
               {todayEarned} / {dailyLimit}
@@ -587,7 +590,9 @@ function EarnCreditsModal({
                 Complete Offers: Earn More Credits
               </Link>
               <p className="mt-2 text-center text-xs text-muted-foreground dark:text-muted-foreground">
-                Surveys, app installs, and other offers. Rewards vary by offer.
+                {t(
+                  "Surveys, app installs, and other offers. Rewards vary by offer.",
+                )}
               </p>
             </>
           )}
@@ -613,7 +618,7 @@ function EarnCreditsModal({
                 Ad playing…
               </p>
               <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                Please keep this tab open.
+                {t("Please keep this tab open.")}
               </p>
             </div>
           )}
@@ -628,7 +633,7 @@ function EarnCreditsModal({
                 Verifying ad completion…
               </p>
               <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                Credits will be added if the ad was completed.
+                {t("Credits will be added if the ad was completed.")}
               </p>
             </div>
           )}
@@ -645,7 +650,7 @@ function EarnCreditsModal({
                 +{earnedAmount} Credits!
               </p>
               <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                Added to your FRELUX Credits balance.
+                {t("Added to your FRELUX Credits balance.")}
               </p>
               <Button
                 variant="ghost"
@@ -653,7 +658,7 @@ function EarnCreditsModal({
                 onClick={onClose}
                 className="mt-2 rounded-xl bg-accent-green px-6 py-2.5 text-sm font-bold text-primary-foreground hover:bg-accent-green/90"
               >
-                Done
+                {t("Done")}
               </Button>
             </div>
           )}
@@ -667,13 +672,13 @@ function EarnCreditsModal({
                 />
               </div>
               <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                Ad unavailable
+                {t("Ad unavailable")}
               </p>
               <p className="text-center text-xs text-muted-foreground dark:text-muted-foreground">
                 {errorMsg}
               </p>
               <p className="text-center text-xs text-muted-foreground">
-                No credits were added.
+                {t("No credits were added.")}
               </p>
               <Button
                 variant="ghost"
@@ -681,7 +686,7 @@ function EarnCreditsModal({
                 onClick={() => setPhase("idle")}
                 className="mt-2 rounded-xl border border-border px-6 py-2.5 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
-                Try Again
+                {t("Try Again")}
               </Button>
             </div>
           )}
@@ -695,7 +700,7 @@ function EarnCreditsModal({
                 />
               </div>
               <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                Daily limit reached
+                {t("Daily limit reached")}
               </p>
               <p className="text-center text-xs text-muted-foreground dark:text-muted-foreground">
                 You've earned the maximum {dailyLimit} credits from ads today.
@@ -707,7 +712,7 @@ function EarnCreditsModal({
                 onClick={onClose}
                 className="mt-2 rounded-xl border border-border px-6 py-2.5 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
-                Close
+                {t("Close")}
               </Button>
             </div>
           )}
@@ -732,6 +737,7 @@ export function AiFeatureGate({
   onUnlocked: () => void;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const [featureCost, setFeatureCost] = useState<AiFeatureCost | null>(null);
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [loading, setLoading] = useState(true);
@@ -885,7 +891,7 @@ export function AiFeatureGate({
           {/* Balance */}
           <div className="mb-4 flex items-center justify-between rounded-lg border border-border p-3 dark:border-white/10">
             <span className="text-xs text-muted-foreground dark:text-muted-foreground">
-              Your balance
+              {t("Your balance")}
             </span>
             <span className="flex items-center gap-1 text-sm font-bold text-foreground dark:text-primary-foreground">
               <Coins className="h-3.5 w-3.5 text-accent-green" />
@@ -909,7 +915,7 @@ export function AiFeatureGate({
                 Playing ad…
               </p>
               <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                Feature will unlock after the ad completes.
+                {t("Feature will unlock after the ad completes.")}
               </p>
             </div>
           ) : (
@@ -946,7 +952,7 @@ export function AiFeatureGate({
                   <div className="flex items-center gap-3">
                     <div className="h-px flex-1 bg-muted dark:bg-white/10" />
                     <span className="text-[10px] font-medium text-muted-foreground">
-                      OR
+                      {t("OR")}
                     </span>
                     <div className="h-px flex-1 bg-muted dark:bg-white/10" />
                   </div>
@@ -957,7 +963,7 @@ export function AiFeatureGate({
                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 bg-card px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:bg-primary/5 disabled:opacity-50 dark:bg-transparent dark:text-brand-purple"
                   >
                     <PlayCircle className="h-5 w-5" />
-                    Watch Ad to Unlock
+                    {t("Watch Ad to Unlock")}
                   </Button>
                 </>
               )}

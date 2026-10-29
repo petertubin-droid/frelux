@@ -14,6 +14,7 @@ import {
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
 import { SITE_URL } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 
 const FinishEstimator = lazy(() => import("@/pages/FinishEstimator"));
 const TyroleneEstimator = lazy(() => import("@/pages/TyroleneEstimator"));
@@ -62,6 +63,7 @@ const FAQS = [
 ];
 
 export default function FinishingCalculatorHub() {
+  const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialMode = searchParams.get("mode") || "compare";
   const [activeTab, setActiveTab] = useState(initialMode);
@@ -139,7 +141,7 @@ export default function FinishingCalculatorHub() {
       <PageHeader
         variant="tool"
         eyebrow="Calculator"
-        title="Finishing Calculator"
+        title={t("Finishing Calculator")}
         subtitle="Compare wall finishes and calculate Tyrolene material quantities, all in one place."
         breadcrumbs={[
           { label: "Calculators", path: "/calculators" },
@@ -177,7 +179,7 @@ export default function FinishingCalculatorHub() {
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
           <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
-            About the FRELUX Finishing Calculator
+            {t("About the FRELUX Finishing Calculator")}
           </h2>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             The FRELUX Finishing Calculator is a comprehensive tool for wall
@@ -187,22 +189,23 @@ export default function FinishingCalculatorHub() {
             Mineral Stone finishes.
           </p>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            Calculation Modes
+            {t("Calculation Modes")}
           </h3>
           <ul>
             <li>
-              <strong>Compare Finishes</strong>, Compare material quantities and
-              costs for Painting, Tyrolene, and Grafitex side by side. Enter
-              your wall area and see which finish suits your budget.
+              <strong>{t("Compare Finishes")}</strong>, Compare material
+              quantities and costs for Painting, Tyrolene, and Grafitex side by
+              side. Enter your wall area and see which finish suits your budget.
             </li>
             <li>
-              <strong>Tyrolene Estimator</strong>, A detailed partition-based
-              exterior finishing estimator using the FRELUX Tyrolene engine with
-              production rules, material breakdowns, and saveable estimates.
+              <strong>{t("Tyrolene Estimator")}</strong>, A detailed
+              partition-based exterior finishing estimator using the FRELUX
+              Tyrolene engine with production rules, material breakdowns, and
+              saveable estimates.
             </li>
           </ul>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            FRELUX Tyrolene Methodology
+            {t("FRELUX Tyrolene Methodology")}
           </h3>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             The established FRELUX Tyrolene rule is:
@@ -212,7 +215,7 @@ export default function FinishingCalculatorHub() {
             <li>1 partition = 1/4 bag cement</li>
             <li>1 kg water seal</li>
             <li>3 kg acrylic bond</li>
-            <li>Anti-fungal material where already supported</li>
+            <li>{t("Anti-fungal material where already supported")}</li>
           </ul>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             This methodology is preserved exactly in the Tyrolene Estimator mode

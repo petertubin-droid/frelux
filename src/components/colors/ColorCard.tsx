@@ -4,6 +4,7 @@ import type { DbPaintColor } from "@/types/database";
 import { readableTextColor } from "@/lib/colors";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface Props {
   color: DbPaintColor;
@@ -16,6 +17,7 @@ export default function ColorCard({
   isFavorited,
   onToggleFavorite,
 }: Props) {
+  const { t } = useLanguage();
   const textColor = readableTextColor(color.hex_code);
 
   return (
@@ -37,12 +39,12 @@ export default function ColorCard({
           {/* Badges */}
           {color.is_trending && (
             <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-orange backdrop-blur-sm dark:bg-background/90">
-              Trending
+              {t("Trending")}
             </span>
           )}
           {color.is_featured && !color.is_trending && (
             <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-purple backdrop-blur-sm dark:bg-background/90">
-              Featured
+              {t("Featured")}
             </span>
           )}
 

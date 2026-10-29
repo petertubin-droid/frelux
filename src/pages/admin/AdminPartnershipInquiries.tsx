@@ -10,6 +10,7 @@ import {
 import { AdminModal } from "@/components/admin/AdminModal";
 import AdminPagination from "@/components/admin/AdminPagination";
 import { classNames } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 interface PartnershipInquiry {
   id: string;
@@ -37,6 +38,7 @@ const INTEREST_LABELS: Record<string, string> = {
 };
 
 export default function AdminPartnershipInquiries() {
+  const { t } = useLanguage();
   const [items, setItems] = useState<PartnershipInquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,7 +101,7 @@ export default function AdminPartnershipInquiries() {
   return (
     <>
       <AdminHeader
-        title="Partnership Inquiries"
+        title={t("Partnership Inquiries")}
         subtitle="Submissions from the public Partners page: investors, strategic partners and collaborators."
       />
       {error && (
@@ -110,13 +112,13 @@ export default function AdminPartnershipInquiries() {
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={t("Loading…")}
           message="Fetching partnership inquiries."
         />
       ) : items.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No inquiries"
+          title={t("No inquiries")}
           message="Partnership inquiries from the /partners form will appear here."
         />
       ) : (
@@ -155,13 +157,13 @@ export default function AdminPartnershipInquiries() {
                       updateStatus(item.id, "reviewed");
                   }}
                 >
-                  <Mail className="h-3.5 w-3.5" /> View
+                  <Mail className="h-3.5 w-3.5" /> {t("View")}
                 </AdminButton>
                 <AdminIconButton
                   variant="danger"
                   type="button"
                   onClick={() => del(item.id)}
-                  aria-label="Delete"
+                  aria-label={t("Delete")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </AdminIconButton>
@@ -216,7 +218,7 @@ export default function AdminPartnershipInquiries() {
               href={`mailto:${viewing.email}?subject=${encodeURIComponent("Frelux partnerships")}`}
             >
               <AdminButton variant="secondary">
-                <Mail className="h-4 w-4" /> Reply by email
+                <Mail className="h-4 w-4" /> {t("Reply by email")}
               </AdminButton>
             </a>
             {viewing.status !== "responded" && (
@@ -224,7 +226,7 @@ export default function AdminPartnershipInquiries() {
                 variant="secondary"
                 onClick={() => updateStatus(viewing.id, "responded")}
               >
-                <CheckCircle2 className="h-4 w-4" /> Mark responded
+                <CheckCircle2 className="h-4 w-4" /> {t("Mark responded")}
               </AdminButton>
             )}
             {viewing.status !== "archived" && (
@@ -232,7 +234,7 @@ export default function AdminPartnershipInquiries() {
                 variant="secondary"
                 onClick={() => updateStatus(viewing.id, "archived")}
               >
-                <Archive className="h-4 w-4" /> Archive
+                <Archive className="h-4 w-4" /> {t("Archive")}
               </AdminButton>
             )}
           </div>

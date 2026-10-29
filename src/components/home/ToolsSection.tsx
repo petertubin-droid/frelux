@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useLanguage } from "@/lib/i18n";
 import {
   CONSTRUCTION_TOOLS,
   TOOL_CATEGORIES,
@@ -33,6 +34,7 @@ const categoryCards = TOOL_CATEGORIES.map((category) => {
 });
 
 export default function ToolsSection() {
+  const { t } = useLanguage();
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
 
   return (
@@ -47,7 +49,7 @@ export default function ToolsSection() {
 
       <SectionHeading
         label="The complete tool library"
-        title="Every trade, one platform"
+        title={t("Every trade, one platform")}
         subtitle="Material calculators, cost estimators, project tools and AI assistants: all using market-localized coverage rates and verified prices."
         align="center"
       />
@@ -108,7 +110,7 @@ export default function ToolsSection() {
           >
             <div>
               <h3 className="font-display text-base font-bold text-foreground dark:text-primary-foreground">
-                Explore all tools
+                {t("Explore all tools")}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
                 The full library with search, categorized by trade: free to use,
@@ -116,7 +118,7 @@ export default function ToolsSection() {
               </p>
             </div>
             <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">
-              Open the tool library
+              {t("Open the tool library")}
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </span>
           </Link>

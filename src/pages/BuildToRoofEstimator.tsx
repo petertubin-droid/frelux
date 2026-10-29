@@ -88,6 +88,7 @@ import { trackBuildToRoofRewards } from "@/lib/rewards-integration";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const PHASES = [
   {
@@ -399,6 +400,7 @@ function RotatingText({
 }
 
 export default function BuildToRoofEstimator() {
+  const { t } = useLanguage();
   const { market, marketCode } = useMarket();
   const typology = useMemo(
     () => getConstructionTypology(marketCode),
@@ -803,7 +805,7 @@ export default function BuildToRoofEstimator() {
               <div className="min-w-0 flex-1">
                 <HeroTitle
                   className="text-xl text-foreground dark:text-primary-foreground sm:text-3xl md:text-4xl"
-                  title="Build-to-Roof Estimator"
+                  title={t("Build-to-Roof Estimator")}
                 />
                 <div className="mt-1.5">
                   <RotatingText
@@ -825,7 +827,9 @@ export default function BuildToRoofEstimator() {
                 style={{ animationDelay: "0.1s" }}
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-accent-green" />
-                <span className="hidden sm:inline">Foundation to Roof</span>
+                <span className="hidden sm:inline">
+                  {t("Foundation to Roof")}
+                </span>
                 <span className="sm:hidden">F→R</span>
               </span>
               <span
@@ -833,8 +837,10 @@ export default function BuildToRoofEstimator() {
                 style={{ animationDelay: "0.2s" }}
               >
                 <BadgeCheck className="w-3.5 h-3.5 text-accent-green" />
-                <span className="hidden sm:inline">Transparent Pricing</span>
-                <span className="sm:hidden">Pricing</span>
+                <span className="hidden sm:inline">
+                  {t("Transparent Pricing")}
+                </span>
+                <span className="sm:hidden">{t("Pricing")}</span>
               </span>
               <span
                 className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-primary-foreground/80 backdrop-blur-md animate-badge-pop-in"
@@ -854,9 +860,9 @@ export default function BuildToRoofEstimator() {
             >
               <Camera className="w-4 h-4" />
               <span className="hidden sm:inline">
-                Estimate from a Photo, Try our AI Photo Estimator
+                {t("Estimate from a Photo, Try our AI Photo Estimator")}
               </span>
-              <span className="sm:hidden">Try AI Photo Estimator</span>
+              <span className="sm:hidden">{t("Try AI Photo Estimator")}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -1004,7 +1010,7 @@ export default function BuildToRoofEstimator() {
                 }}
                 className="text-[11px] font-medium text-muted-foreground hover:text-brand-purple hover:underline"
               >
-                Start fresh
+                {t("Start fresh")}
               </button>
             </div>
           </div>
@@ -1016,7 +1022,7 @@ export default function BuildToRoofEstimator() {
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs sm:text-sm text-foreground shadow-xs">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>We restored your previous calculation draft.</span>
+                <span>{t("We restored your previous calculation draft.")}</span>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -1028,14 +1034,14 @@ export default function BuildToRoofEstimator() {
                   }}
                   className="font-semibold text-brand-purple hover:underline"
                 >
-                  Start fresh
+                  {t("Start fresh")}
                 </button>
                 <button
                   type="button"
                   onClick={dismissRestored}
                   className="text-muted-foreground hover:text-foreground text-xs"
                 >
-                  Dismiss
+                  {t("Dismiss")}
                 </button>
               </div>
             </div>
@@ -1058,7 +1064,7 @@ export default function BuildToRoofEstimator() {
                 {phase === 1 && (
                   <div className="space-y-6">
                     <div className="space-y-4">
-                      <SectionCard title="Project Information" icon={Home}>
+                      <SectionCard title={t("Project Information")} icon={Home}>
                         <div className="grid md:grid-cols-2 gap-4">
                           {/* Regional Construction Typology banner */}
                           <div
@@ -1136,7 +1142,7 @@ export default function BuildToRoofEstimator() {
                         </div>
                       </SectionCard>
                     </div>
-                    <SectionCard title="Building Dimensions" icon={Ruler}>
+                    <SectionCard title={t("Building Dimensions")} icon={Ruler}>
                       <div className="flex items-center gap-2 mb-4">
                         <span className="text-sm font-medium text-muted-foreground">
                           Measurement unit:
@@ -1156,7 +1162,7 @@ export default function BuildToRoofEstimator() {
                             }}
                             className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === "m" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50"}`}
                           >
-                            Meters (m)
+                            {t("Meters (m)")}
                           </Button>
                           <Button
                             variant="ghost"
@@ -1172,7 +1178,7 @@ export default function BuildToRoofEstimator() {
                             }}
                             className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === "ft" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50"}`}
                           >
-                            Feet (ft)
+                            {t("Feet (ft)")}
                           </Button>
                         </div>
                       </div>
@@ -1248,7 +1254,7 @@ export default function BuildToRoofEstimator() {
                       </div>
                     </SectionCard>
                     <SectionCard
-                      title="Door & Window Openings"
+                      title={t("Door & Window Openings")}
                       icon={FolderOpen}
                     >
                       <p className="text-sm text-muted-foreground mb-4">
@@ -1267,7 +1273,7 @@ export default function BuildToRoofEstimator() {
                                 htmlFor={`opening-type-${i}`}
                                 className="text-xs font-medium text-muted-foreground mb-1 block"
                               >
-                                Type
+                                {t("Type")}
                               </label>
                               <select
                                 id={`opening-type-${i}`}
@@ -1283,8 +1289,8 @@ export default function BuildToRoofEstimator() {
                                 }}
                                 className="w-full rounded-lg border border-border px-2.5 py-2 text-sm"
                               >
-                                <option value="door">Door</option>
-                                <option value="window">Window</option>
+                                <option value="door">{t("Door")}</option>
+                                <option value="window">{t("Window")}</option>
                               </select>
                             </div>
                             <Field
@@ -1335,7 +1341,7 @@ export default function BuildToRoofEstimator() {
                               }
                               className="text-sm text-red-500 hover:text-red-700 font-medium"
                             >
-                              Remove
+                              {t("Remove")}
                             </Button>
                           </div>
                         ))}
@@ -1359,7 +1365,7 @@ export default function BuildToRoofEstimator() {
                       </div>
                     </SectionCard>
                     <SectionCard
-                      title="Upload Architectural Drawing (Optional)"
+                      title={t("Upload Architectural Drawing (Optional)")}
                       icon={Upload}
                     >
                       <ConstructionExtractionPanel
@@ -1388,7 +1394,7 @@ export default function BuildToRoofEstimator() {
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                         <div>
                           <h3 className="text-base sm:text-lg font-bold text-foreground">
-                            Modular Assemblies Configuration
+                            {t("Modular Assemblies Configuration")}
                           </h3>
                           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                             Include or skip specific building stages. You can
@@ -1438,7 +1444,7 @@ export default function BuildToRoofEstimator() {
                                 }`}
                               />
                               <span className="text-sm font-bold text-foreground">
-                                Foundation
+                                {t("Foundation")}
                               </span>
                             </div>
                             <span
@@ -1486,7 +1492,7 @@ export default function BuildToRoofEstimator() {
                                 }`}
                               />
                               <span className="text-sm font-bold text-foreground">
-                                Superstructure Walls
+                                {t("Superstructure Walls")}
                               </span>
                             </div>
                             <span
@@ -1532,7 +1538,7 @@ export default function BuildToRoofEstimator() {
                                 }`}
                               />
                               <span className="text-sm font-bold text-foreground">
-                                Roofing & Trusses
+                                {t("Roofing & Trusses")}
                               </span>
                             </div>
                             <span
@@ -1554,7 +1560,10 @@ export default function BuildToRoofEstimator() {
                     </div>
 
                     {includedStages.foundation ? (
-                      <SectionCard title="Foundation Details" icon={Layers}>
+                      <SectionCard
+                        title={t("Foundation Details")}
+                        icon={Layers}
+                      >
                         <div className="grid md:grid-cols-3 gap-4">
                           <SelectField
                             label="Foundation type"
@@ -1642,7 +1651,7 @@ export default function BuildToRoofEstimator() {
                           onClick={() => toggleStage("foundation")}
                           className="font-semibold text-brand-purple hover:underline"
                         >
-                          Include Foundation
+                          {t("Include Foundation")}
                         </button>
                       </div>
                     )}
@@ -1650,7 +1659,7 @@ export default function BuildToRoofEstimator() {
                     {includedStages.walls ? (
                       <div className="space-y-4">
                         <SectionCard
-                          title="Block Specification"
+                          title={t("Block Specification")}
                           icon={Settings}
                         >
                           <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
@@ -1715,7 +1724,10 @@ export default function BuildToRoofEstimator() {
                             />
                           </div>
                         </SectionCard>
-                        <SectionCard title="Concrete Mix Ratio" icon={Settings}>
+                        <SectionCard
+                          title={t("Concrete Mix Ratio")}
+                          icon={Settings}
+                        >
                           <div className="grid grid-cols-3 gap-4">
                             <Field
                               label="Cement (parts)"
@@ -1753,7 +1765,10 @@ export default function BuildToRoofEstimator() {
                             specified by your engineer's design).
                           </p>
                         </SectionCard>
-                        <SectionCard title="Mortar Mix Ratio" icon={Settings}>
+                        <SectionCard
+                          title={t("Mortar Mix Ratio")}
+                          icon={Settings}
+                        >
                           <div className="grid grid-cols-2 gap-4">
                             <Field
                               label="Cement (parts)"
@@ -1778,7 +1793,7 @@ export default function BuildToRoofEstimator() {
                           </p>
                         </SectionCard>
                         <SectionCard
-                          title="Wastage Allowances"
+                          title={t("Wastage Allowances")}
                           icon={TrendingUp}
                         >
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1887,13 +1902,16 @@ export default function BuildToRoofEstimator() {
                           onClick={() => toggleStage("walls")}
                           className="font-semibold text-brand-purple hover:underline"
                         >
-                          Include Walls
+                          {t("Include Walls")}
                         </button>
                       </div>
                     )}
 
                     {includedStages.roof ? (
-                      <SectionCard title="Roof Configuration" icon={Building2}>
+                      <SectionCard
+                        title={t("Roof Configuration")}
+                        icon={Building2}
+                      >
                         {/* Roof View, optional aerial imagery (Feature 2) */}
                         <div className="mb-4">
                           <RoofViewPanel />
@@ -1901,7 +1919,7 @@ export default function BuildToRoofEstimator() {
                         {/* Roof Geometry Editor, editable tracing (Feature 3) */}
                         <div className="mb-4">
                           <p className="text-xs font-semibold text-muted-foreground mb-2">
-                            Roof Geometry (trace your roof outline)
+                            {t("Roof Geometry (trace your roof outline)")}
                           </p>
                           <RoofGeometryEditor
                             geometry={roofGeometry}
@@ -1977,7 +1995,7 @@ export default function BuildToRoofEstimator() {
                           onClick={() => toggleStage("roof")}
                           className="font-semibold text-brand-purple hover:underline"
                         >
-                          Include Roof
+                          {t("Include Roof")}
                         </button>
                       </div>
                     )}
@@ -1988,7 +2006,7 @@ export default function BuildToRoofEstimator() {
                           <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                           <div>
                             <h3 className="font-semibold text-amber-900 mb-1">
-                              Structural Engineering Safety Boundary
+                              {t("Structural Engineering Safety Boundary")}
                             </h3>
                             <p className="text-sm text-amber-800">
                               FRELUX does NOT design or certify foundation
@@ -2004,7 +2022,7 @@ export default function BuildToRoofEstimator() {
                         </div>
                       </div>
                       <SectionCard
-                        title="Engineer-Supplied Structural Schedule"
+                        title={t("Engineer-Supplied Structural Schedule")}
                         icon={Hammer}
                       >
                         <label className="flex items-center gap-2 mb-4 cursor-pointer">
@@ -2017,7 +2035,9 @@ export default function BuildToRoofEstimator() {
                             className="w-4 h-4 rounded border-border text-brand-purple focus:ring-brand-purple/20"
                           />
                           <span className="text-sm font-medium text-card-foreground">
-                            I have an engineer-supplied structural schedule
+                            {t(
+                              "I have an engineer-supplied structural schedule",
+                            )}
                           </span>
                         </label>
                         {input.has_engineer_schedule && (
@@ -2032,7 +2052,7 @@ export default function BuildToRoofEstimator() {
                                     htmlFor={`member-type-${i}`}
                                     className="text-xs font-medium text-muted-foreground mb-1 block"
                                   >
-                                    Type
+                                    {t("Type")}
                                   </label>
                                   <select
                                     id={`member-type-${i}`}
@@ -2051,17 +2071,23 @@ export default function BuildToRoofEstimator() {
                                     }}
                                     className="w-full rounded-lg border border-border px-2 py-1.5 text-xs"
                                   >
-                                    <option value="column">Column</option>
+                                    <option value="column">
+                                      {t("Column")}
+                                    </option>
                                     <option value="ground_beam">
-                                      Ground Beam
+                                      {t("Ground Beam")}
                                     </option>
                                     <option value="suspended_beam">
-                                      Suspended Beam
+                                      {t("Suspended Beam")}
                                     </option>
-                                    <option value="ring_beam">Ring Beam</option>
-                                    <option value="lintel">Lintel</option>
-                                    <option value="slab">Slab</option>
-                                    <option value="other">Other</option>
+                                    <option value="ring_beam">
+                                      {t("Ring Beam")}
+                                    </option>
+                                    <option value="lintel">
+                                      {t("Lintel")}
+                                    </option>
+                                    <option value="slab">{t("Slab")}</option>
+                                    <option value="other">{t("Other")}</option>
                                   </select>
                                 </div>
                                 <Field
@@ -2147,7 +2173,7 @@ export default function BuildToRoofEstimator() {
                                   }
                                   className="col-span-2 md:col-span-6 text-xs text-red-500 hover:text-red-700 font-medium text-left"
                                 >
-                                  Remove member
+                                  {t("Remove member")}
                                 </Button>
                               </div>
                             ))}
@@ -2198,7 +2224,7 @@ export default function BuildToRoofEstimator() {
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <h3 className="text-base sm:text-lg font-bold text-foreground">
-                            Material & Labor Rates Mode
+                            {t("Material & Labor Rates Mode")}
                           </h3>
                           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                             Select whether to calculate using verified country
@@ -2215,7 +2241,7 @@ export default function BuildToRoofEstimator() {
                                 : "text-muted-foreground hover:text-foreground"
                             }`}
                           >
-                            Country Standard Rates
+                            {t("Country Standard Rates")}
                           </button>
                           <button
                             type="button"
@@ -2226,7 +2252,7 @@ export default function BuildToRoofEstimator() {
                                 : "text-muted-foreground hover:text-foreground"
                             }`}
                           >
-                            Custom Contractor Rates
+                            {t("Custom Contractor Rates")}
                           </button>
                         </div>
                       </div>
@@ -2817,7 +2843,7 @@ export default function BuildToRoofEstimator() {
                           <div></div>
                           <div className="md:col-span-3 border-t border-border/50 pt-4 mt-2">
                             <p className="text-sm font-medium text-card-foreground mb-3">
-                              Contractor Payment
+                              {t("Contractor Payment")}
                             </p>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                               <div>
@@ -2825,7 +2851,7 @@ export default function BuildToRoofEstimator() {
                                   htmlFor="btr-contractor-fee-type"
                                   className="text-sm font-medium text-muted-foreground mb-1 block"
                                 >
-                                  Payment type
+                                  {t("Payment type")}
                                 </label>
                                 <select
                                   id="btr-contractor-fee-type"
@@ -2840,9 +2866,11 @@ export default function BuildToRoofEstimator() {
                                   className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all"
                                 >
                                   <option value="contract">
-                                    Lump sum (contract)
+                                    {t("Lump sum (contract)")}
                                   </option>
-                                  <option value="daily">Daily rate</option>
+                                  <option value="daily">
+                                    {t("Daily rate")}
+                                  </option>
                                 </select>
                               </div>
                               {input.labour.contractor_fee_type ===
@@ -2942,7 +2970,7 @@ export default function BuildToRoofEstimator() {
                       className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-green to-green-600 px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30"
                     >
                       <Calculator className="w-4 h-4" />
-                      <span>Generate Summary BOQ & Estimate</span>
+                      <span>{t("Generate Summary BOQ & Estimate")}</span>
                     </Button>
                   </div>
                 )}
@@ -2961,7 +2989,7 @@ export default function BuildToRoofEstimator() {
                   className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-muted-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors active:scale-95"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span className="hidden sm:inline">Back</span>
+                  <span className="hidden sm:inline">{t("Back")}</span>
                 </Button>
 
                 <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
@@ -2981,8 +3009,8 @@ export default function BuildToRoofEstimator() {
                     disabled={phase === 1 && !canProceed}
                     className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-primary to-primary-light px-4 sm:px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-md shadow-brand-purple/20 disabled:opacity-40 hover:shadow-lg hover:shadow-brand-purple/25 transition-all active:scale-95"
                   >
-                    <span className="hidden sm:inline">Next Phase</span>
-                    <span className="sm:hidden">Next</span>
+                    <span className="hidden sm:inline">{t("Next Phase")}</span>
+                    <span className="sm:hidden">{t("Next")}</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 ) : phase === 3 ? (
@@ -2993,9 +3021,9 @@ export default function BuildToRoofEstimator() {
                   >
                     <Calculator aria-hidden="true" className="w-4 h-4" />
                     <span className="hidden sm:inline">
-                      Generate Summary BOQ
+                      {t("Generate Summary BOQ")}
                     </span>
-                    <span className="sm:hidden">Estimate</span>
+                    <span className="sm:hidden">{t("Estimate")}</span>
                   </Button>
                 ) : (
                   <Button
@@ -3003,7 +3031,7 @@ export default function BuildToRoofEstimator() {
                     onClick={() => setPhase(3)}
                     className="inline-flex items-center gap-1 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
                   >
-                    <span>Adjust Specifications</span>
+                    <span>{t("Adjust Specifications")}</span>
                   </Button>
                 )}
               </div>
@@ -3030,7 +3058,7 @@ export default function BuildToRoofEstimator() {
               <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-amber-900">
-                  Planning & Budgeting Estimate
+                  {t("Planning & Budgeting Estimate")}
                 </p>
                 <p className="text-xs text-amber-700 mt-1">
                   This estimate is for planning and budgeting purposes only.
@@ -3060,6 +3088,7 @@ function EstimateResult({
   onBack: () => void;
   missingLocalPrices?: string[];
 }) {
+  const { t } = useLanguage();
   const confidenceColors: Record<string, string> = {
     high: "bg-green-50 text-green-700 border-green-200",
     moderate: "bg-amber-50 text-amber-700 border-amber-200",
@@ -3089,35 +3118,35 @@ function EstimateResult({
       })),
     );
     return {
-        title: `FRELUX Build-to-Roof Estimate: ${result.project_name}`,
-        subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.total_floor_area} m² · ${result.stages.length} construction stages`,
-        metaRows: [
-          ["Project", result.project_name],
-          ["Total floor area", `${result.total_floor_area} m²`],
-          ["Construction stage", result.construction_stage],
-          ["Confidence", result.confidence],
-          ["Market price age", `${result.price_age_days} day(s) old`],
-        ],
-        lines: [...materialLines, ...labourLines],
-        totals: [
-          {
-            label: "Materials total",
-            value: formatCurrency(result.materials_total),
-          },
-          { label: "Labour total", value: formatCurrency(result.labour_total) },
-          {
-            label: "Wastage allowance",
-            value: formatCurrency(result.wastage_allowance),
-          },
-          { label: "Contingency", value: formatCurrency(result.contingency) },
-          {
-            label: "Grand total",
-            value: formatCurrency(result.grand_total),
-            strong: true,
-          },
-        ],
-        footer:
-          "Estimates are indicative and not a formal quote. Quantities include wastage where the takeoff specifies it; costs use the market prices you entered or loaded at estimate time.",
+      title: `FRELUX Build-to-Roof Estimate: ${result.project_name}`,
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.total_floor_area} m² · ${result.stages.length} construction stages`,
+      metaRows: [
+        ["Project", result.project_name],
+        ["Total floor area", `${result.total_floor_area} m²`],
+        ["Construction stage", result.construction_stage],
+        ["Confidence", result.confidence],
+        ["Market price age", `${result.price_age_days} day(s) old`],
+      ],
+      lines: [...materialLines, ...labourLines],
+      totals: [
+        {
+          label: "Materials total",
+          value: formatCurrency(result.materials_total),
+        },
+        { label: "Labour total", value: formatCurrency(result.labour_total) },
+        {
+          label: "Wastage allowance",
+          value: formatCurrency(result.wastage_allowance),
+        },
+        { label: "Contingency", value: formatCurrency(result.contingency) },
+        {
+          label: "Grand total",
+          value: formatCurrency(result.grand_total),
+          strong: true,
+        },
+      ],
+      footer:
+        "Estimates are indicative and not a formal quote. Quantities include wastage where the takeoff specifies it; costs use the market prices you entered or loaded at estimate time.",
     };
   };
 
@@ -3205,7 +3234,7 @@ function EstimateResult({
           className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-card animate-stat-count-in"
           style={{ animationDelay: "0.1s" }}
         >
-          <p className="text-xs text-muted-foreground mb-1">Materials</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("Materials")}</p>
           <p className="text-lg sm:text-xl font-bold text-foreground">
             {formatCurrency(result.materials_total)}
           </p>
@@ -3214,7 +3243,7 @@ function EstimateResult({
           className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-card animate-stat-count-in"
           style={{ animationDelay: "0.2s" }}
         >
-          <p className="text-xs text-muted-foreground mb-1">Labour</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("Labour")}</p>
           <p className="text-lg sm:text-xl font-bold text-foreground">
             {formatCurrency(result.labour_total)}
           </p>
@@ -3223,7 +3252,9 @@ function EstimateResult({
           className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-card animate-stat-count-in col-span-2 md:col-span-1"
           style={{ animationDelay: "0.3s" }}
         >
-          <p className="text-xs text-muted-foreground mb-1">Contingency</p>
+          <p className="text-xs text-muted-foreground mb-1">
+            {t("Contingency")}
+          </p>
           <p className="text-lg sm:text-xl font-bold text-foreground">
             {formatCurrency(result.contingency)}
           </p>
@@ -3243,7 +3274,7 @@ function EstimateResult({
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
               <DollarSign className="w-4 h-4 text-brand-purple" />
             </div>
-            Cost Breakdown by Stage
+            {t("Cost Breakdown by Stage")}
           </h3>
           <span className="text-xs font-medium text-muted-foreground">
             {result.stages.length} stages
@@ -3254,16 +3285,16 @@ function EstimateResult({
             <thead>
               <tr className="border-y border-border/50 bg-muted/50 text-left">
                 <th className="px-6 py-3 font-medium text-muted-foreground">
-                  Stage
+                  {t("Stage")}
                 </th>
                 <th className="px-6 py-3 font-medium text-muted-foreground text-right">
-                  Materials
+                  {t("Materials")}
                 </th>
                 <th className="px-6 py-3 font-medium text-muted-foreground text-right">
-                  Labour
+                  {t("Labour")}
                 </th>
                 <th className="px-4 sm:px-6 py-3 font-medium text-muted-foreground text-right">
-                  Total
+                  {t("Total")}
                 </th>
               </tr>
             </thead>
@@ -3289,7 +3320,7 @@ function EstimateResult({
               ))}
               <tr className="border-t-2 border-border bg-muted/50">
                 <td className="px-4 sm:px-6 py-3 font-bold text-foreground">
-                  TOTAL
+                  {t("TOTAL")}
                 </td>
                 <td className="px-4 sm:px-6 py-3 text-right font-semibold text-foreground">
                   {formatCurrency(result.materials_total)}
@@ -3316,7 +3347,7 @@ function EstimateResult({
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
               <Package className="w-4 h-4 text-brand-purple" />
             </div>
-            Consolidated Material Shopping List
+            {t("Consolidated Material Shopping List")}
           </h3>
           <span className="text-xs font-medium text-muted-foreground">
             {result.shopping_list.length} items
@@ -3327,16 +3358,16 @@ function EstimateResult({
             <thead>
               <tr className="border-y border-border/50 bg-muted/50 text-left">
                 <th className="px-4 sm:px-6 py-3 font-medium text-muted-foreground">
-                  Material
+                  {t("Material")}
                 </th>
                 <th className="px-6 py-3 font-medium text-muted-foreground text-right">
-                  Quantity
+                  {t("Quantity")}
                 </th>
                 <th className="px-6 py-3 font-medium text-muted-foreground text-right">
-                  Unit
+                  {t("Unit")}
                 </th>
                 <th className="px-6 py-3 font-medium text-muted-foreground text-right">
-                  Est. Cost
+                  {t("Est. Cost")}
                 </th>
               </tr>
             </thead>
@@ -3374,36 +3405,38 @@ function EstimateResult({
                 <TrendingUp className="w-4 h-4 text-brand-purple" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">
-                Reinforcement Breakdown
+                {t("Reinforcement Breakdown")}
               </h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Steel rods split by diameter, priced per 12m standard length
+              {t(
+                "Steel rods split by diameter, priced per 12m standard length",
+              )}
             </p>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="border-b border-border">
                   <tr>
                     <th className="px-4 py-2 text-left font-medium text-muted-foreground">
-                      Bar Type
+                      {t("Bar Type")}
                     </th>
                     <th className="px-4 py-2 text-right font-medium text-muted-foreground">
-                      Diameter
+                      {t("Diameter")}
                     </th>
                     <th className="px-4 py-2 text-right font-medium text-muted-foreground">
-                      Total Length
+                      {t("Total Length")}
                     </th>
                     <th className="px-4 py-2 text-right font-medium text-muted-foreground">
-                      Std Lengths (12m)
+                      {t("Std Lengths (12m)")}
                     </th>
                     <th className="px-4 py-2 text-right font-medium text-muted-foreground">
-                      Weight
+                      {t("Weight")}
                     </th>
                     <th className="px-4 py-2 text-right font-medium text-muted-foreground">
-                      Unit Price
+                      {t("Unit Price")}
                     </th>
                     <th className="px-4 py-2 text-right font-medium text-muted-foreground">
-                      Cost
+                      {t("Cost")}
                     </th>
                   </tr>
                 </thead>
@@ -3435,7 +3468,7 @@ function EstimateResult({
                   ))}
                   <tr className="bg-muted/50 font-semibold">
                     <td className="px-4 py-3" colSpan={3}>
-                      Total Steel
+                      {t("Total Steel")}
                     </td>
                     <td className="px-4 py-3 text-right">
                       {result.reinforcement_breakdown.total_length_m.toFixed(1)}{" "}
@@ -3484,7 +3517,7 @@ function EstimateResult({
             {/* Quantities */}
             <div>
               <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">
-                Quantity Takeoff
+                {t("Quantity Takeoff")}
               </h4>
               <div className="space-y-2">
                 {stage.quantities.map((q, j) => (
@@ -3512,22 +3545,22 @@ function EstimateResult({
             {stage.materials.length > 0 && (
               <div>
                 <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">
-                  Materials
+                  {t("Materials")}
                 </h4>
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border/50 text-left">
                       <th className="py-2 font-medium text-muted-foreground">
-                        Item
+                        {t("Item")}
                       </th>
                       <th className="py-2 font-medium text-muted-foreground text-right">
-                        Qty
+                        {t("Qty")}
                       </th>
                       <th className="py-2 font-medium text-muted-foreground text-right">
-                        Unit
+                        {t("Unit")}
                       </th>
                       <th className="py-2 font-medium text-muted-foreground text-right">
-                        Cost
+                        {t("Cost")}
                       </th>
                     </tr>
                   </thead>
@@ -3554,22 +3587,22 @@ function EstimateResult({
             {stage.labour.length > 0 && (
               <div>
                 <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">
-                  Labour
+                  {t("Labour")}
                 </h4>
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border/50 text-left">
                       <th className="py-2 font-medium text-muted-foreground">
-                        Task
+                        {t("Task")}
                       </th>
                       <th className="py-2 font-medium text-muted-foreground text-right">
-                        Qty
+                        {t("Qty")}
                       </th>
                       <th className="py-2 font-medium text-muted-foreground text-right">
-                        Rate
+                        {t("Rate")}
                       </th>
                       <th className="py-2 font-medium text-muted-foreground text-right">
-                        Cost
+                        {t("Cost")}
                       </th>
                     </tr>
                   </thead>
@@ -3606,7 +3639,7 @@ function EstimateResult({
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
               <Info aria-hidden="true" className="w-4 h-4 text-blue-500" />
             </div>
-            Assumptions
+            {t("Assumptions")}
           </h3>
           <ul className="space-y-1.5">
             {result.assumptions.map((a, i) => (
@@ -3628,7 +3661,7 @@ function EstimateResult({
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50">
               <AlertTriangle className="w-4 h-4 text-amber-500" />
             </div>
-            Limitations & Missing Info
+            {t("Limitations & Missing Info")}
           </h3>
           <ul className="space-y-1.5">
             {result.limitations.map((l, i) => (
@@ -3709,17 +3742,21 @@ function EstimateResult({
             className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors active:scale-95"
           >
             <FileDown className="h-4 w-4" />
-            Export quote (PDF)
+            {t("Export quote (PDF)")}
           </Button>
           <ShareEstimateButton
-            estimate={quoteToShareable(quoteOptions(), "/build-to-roof-estimator")}
+            estimate={quoteToShareable(
+              quoteOptions(),
+              "/build-to-roof-estimator",
+            )}
             compact
           />
           <Button
             variant="outline"
             onClick={() => {
               stageStudioImport({
-                title: result.project_name || "Roofing and construction estimate",
+                title:
+                  result.project_name || "Roofing and construction estimate",
                 document_type: "bill_of_quantities",
                 currency: "NGN",
                 notes: `Project: ${result.project_name}. Location: ${result.location}. Floor area: ${result.total_floor_area} m². Materials subtotal: ${result.materials_total}. Labour subtotal: ${result.labour_total}. Wastage allowance: ${result.wastage_allowance}. Contingency: ${result.contingency}. Grand total: ${result.grand_total}. Price source: ${result.price_source}, dated ${result.price_date}.`,
@@ -3735,7 +3772,7 @@ function EstimateResult({
             className="inline-flex items-center gap-2 rounded-xl border-primary/40 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/5 transition-colors active:scale-95"
           >
             <FileDown className="h-4 w-4" />
-            Customize in Studio
+            {t("Customize in Studio")}
           </Button>
           <SaveToProjectButton
             calculatorType="build_to_roof"
@@ -3764,8 +3801,8 @@ function EstimateResult({
           className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors active:scale-95"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span className="hidden sm:inline">Edit Inputs</span>
-          <span className="sm:hidden">Edit</span>
+          <span className="hidden sm:inline">{t("Edit Inputs")}</span>
+          <span className="sm:hidden">{t("Edit")}</span>
         </Button>
         <div className="flex items-center gap-2">
           <Button
@@ -3774,8 +3811,8 @@ function EstimateResult({
             className="inline-flex items-center gap-2 rounded-xl border border-border px-3.5 sm:px-4 py-2.5 text-sm font-medium text-card-foreground hover:bg-muted/50 hover:border-border transition-all active:scale-95"
           >
             <Printer className="w-4 h-4" />
-            <span className="hidden sm:inline">Print Estimate</span>
-            <span className="sm:hidden">Print</span>
+            <span className="hidden sm:inline">{t("Print Estimate")}</span>
+            <span className="sm:hidden">{t("Print")}</span>
           </Button>
         </div>
       </div>

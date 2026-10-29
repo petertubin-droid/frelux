@@ -65,6 +65,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { Button } from "@/components/ui/shadcn/button";
 import { getSafeError } from "@/lib/safeError";
 import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
+import { useLanguage } from "@/lib/i18n";
 
 interface PassedState {
   netScreedingArea?: number;
@@ -127,6 +128,7 @@ async function resolveScreedPrices<T extends ScreedingSystemConfig>(
 export default function ScreedingCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
@@ -473,7 +475,7 @@ export default function ScreedingCostEstimator({
 
               {/* Coats selector */}
               {activeConfig && (
-                <Section title="Coats">
+                <Section title={t("Coats")}>
                   <Field
                     label="Number of coats"
                     hint={`Default: ${activeConfig.defaultCoats} coats (verified). The configured material quantities already include the default ${activeConfig.defaultCoats} coats; choosing a different number scales requirements proportionally.`}
@@ -483,7 +485,7 @@ export default function ScreedingCostEstimator({
                         type="button"
                         onClick={() => setCoats(Math.max(1, coats - 1))}
                         className="grid h-9 w-9 place-items-center rounded-lg border border-border text-sm font-bold text-foreground hover:bg-muted dark:border-white/10 dark:text-primary-foreground dark:hover:bg-white/5"
-                        aria-label="Decrease coats"
+                        aria-label={t("Decrease coats")}
                       >
                         −
                       </button>
@@ -494,7 +496,7 @@ export default function ScreedingCostEstimator({
                         type="button"
                         onClick={() => setCoats(Math.min(10, coats + 1))}
                         className="grid h-9 w-9 place-items-center rounded-lg border border-border text-sm font-bold text-foreground hover:bg-muted dark:border-white/10 dark:text-primary-foreground dark:hover:bg-white/5"
-                        aria-label="Increase coats"
+                        aria-label={t("Increase coats")}
                       >
                         +
                       </button>
@@ -515,7 +517,7 @@ export default function ScreedingCostEstimator({
 
               {/* Configuration summary */}
               {activeConfig && (
-                <Section title="Active Configuration (FRELUX managed)">
+                <Section title={t("Active Configuration (FRELUX managed)")}>
                   <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
                     <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-3">
                       <ConfigItem
@@ -583,7 +585,7 @@ export default function ScreedingCostEstimator({
               <div className="card lg:sticky lg:top-20">
                 <div className="relative rounded-t-[inherit] bg-gradient-to-br from-primary to-primary-deep p-5 text-primary-foreground">
                   <p className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/60">
-                    Estimated material cost
+                    {t("Estimated material cost")}
                   </p>
                   {result && result.materialCost != null ? (
                     <p className="mt-1 text-3xl font-bold sm:text-4xl">
@@ -591,7 +593,7 @@ export default function ScreedingCostEstimator({
                     </p>
                   ) : result && result.materialCost == null ? (
                     <p className="mt-1 text-2xl font-bold text-primary-foreground/60 sm:text-3xl">
-                      Price not configured
+                      {t("Price not configured")}
                     </p>
                   ) : (
                     <p className="mt-1 text-3xl font-bold text-primary-foreground/40 sm:text-4xl">
@@ -606,7 +608,7 @@ export default function ScreedingCostEstimator({
                           aria-hidden="true"
                           className="h-3.5 w-3.5"
                         />
-                        Configuration incomplete
+                        {t("Configuration incomplete")}
                       </p>
                       <ul className="mt-1.5 space-y-1">
                         {result.warnings.map((w) => (
@@ -621,7 +623,7 @@ export default function ScreedingCostEstimator({
                     </div>
                   )}
                   <p className="mt-1 text-xs text-primary-foreground/50">
-                    Estimate only, not a final quote.
+                    {t("Estimate only, not a final quote.")}
                   </p>
                 </div>
                 <div className="space-y-3 p-6">
@@ -648,14 +650,16 @@ export default function ScreedingCostEstimator({
                           </span>
                         </div>
                         <div className="mt-1 flex items-center justify-between">
-                          <span className="text-muted-foreground">Coats</span>
+                          <span className="text-muted-foreground">
+                            {t("Coats")}
+                          </span>
                           <span className="font-semibold text-foreground dark:text-primary-foreground">
                             {result.coats}
                           </span>
                         </div>
                         <div className="mt-1 flex items-center justify-between">
                           <span className="text-muted-foreground">
-                            Coverage rule
+                            {t("Coverage rule")}
                           </span>
                           <span className="font-semibold text-foreground dark:text-primary-foreground">
                             {result.coverageAreaM2} m² per unit group
@@ -718,7 +722,7 @@ export default function ScreedingCostEstimator({
                         <>
                           <div className="flex items-center justify-between border-t border-border pt-3 dark:border-white/10">
                             <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                              Total estimated material cost
+                              {t("Total estimated material cost")}
                             </span>
                             <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
                               {formatCurrency(
@@ -729,7 +733,7 @@ export default function ScreedingCostEstimator({
                           </div>
                           <div className="flex items-center justify-between pt-1">
                             <span className="text-sm text-muted-foreground">
-                              Labour
+                              {t("Labour")}
                             </span>
                             <span className="text-sm text-muted-foreground">
                               {formatCurrency(labourCost, currencySymbol)}
@@ -737,7 +741,7 @@ export default function ScreedingCostEstimator({
                           </div>
                           <div className="flex items-center justify-between border-t border-border pt-2 dark:border-white/10">
                             <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                              Grand total (materials + labour)
+                              {t("Grand total (materials + labour)")}
                             </span>
                             <span className="text-base font-bold text-foreground dark:text-primary-foreground">
                               {formatCurrency(
@@ -836,11 +840,16 @@ export default function ScreedingCostEstimator({
                             }
                             className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-muted"
                           >
-                            Print Quote
+                            {t("Print Quote")}
                           </button>
                           <ShareEstimateButton
                             estimate={quoteToShareable(
-                              screedingQuoteOptions({ result, labourCost, currencySymbol, finishTerm }),
+                              screedingQuoteOptions({
+                                result,
+                                labourCost,
+                                currencySymbol,
+                                finishTerm,
+                              }),
                               "/screeding-cost-estimator",
                             )}
                             compact
@@ -910,7 +919,7 @@ export default function ScreedingCostEstimator({
                             }}
                             className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                           >
-                            Open in Document Studio
+                            {t("Open in Document Studio")}
                           </button>
                         </div>
                         <SaveToProjectButton
@@ -1022,7 +1031,7 @@ export default function ScreedingCostEstimator({
               }}
             >
               <Calculator aria-hidden="true" className="h-4 w-4" />
-              Go to Paint Calculator
+              {t("Go to Paint Calculator")}
             </Link>
           </div>
         )}
@@ -1152,7 +1161,7 @@ function screedingQuoteOptions(args: {
   labourCost: number;
   currencySymbol: string;
   finishTerm: string;
-}) : QuoteOptions {
+}): QuoteOptions {
   const { result, labourCost, currencySymbol, finishTerm } = args;
   const fmt = (v: number) => formatCurrency(v, currencySymbol);
   const breakdowns =
@@ -1160,48 +1169,50 @@ function screedingQuoteOptions(args: {
       ? [result.putty]
       : [result.paint, result.cement, ...(result.extra ? [result.extra] : [])];
   return {
-      title: `FRELUX ${finishTerm} Estimate (${result.systemType === "putty" ? "Putty" : "White Cement + Paint"})`,
-      subtitle: `Generated ${new Date().toLocaleDateString()} · ${formatNumber(result.netScreedingArea, 2)} m² · ${result.coats} coats`,
-      metaRows: [
-        [
-          `Net ${finishTerm.toLowerCase()} area`,
-          `${formatNumber(result.netScreedingArea, 2)} m²`,
-        ],
-        ["Coats", String(result.coats)],
+    title: `FRELUX ${finishTerm} Estimate (${result.systemType === "putty" ? "Putty" : "White Cement + Paint"})`,
+    subtitle: `Generated ${new Date().toLocaleDateString()} · ${formatNumber(result.netScreedingArea, 2)} m² · ${result.coats} coats`,
+    metaRows: [
+      [
+        `Net ${finishTerm.toLowerCase()} area`,
+        `${formatNumber(result.netScreedingArea, 2)} m²`,
       ],
-      lines: breakdowns.map((b) => ({
-        label: b.name,
-        quantity: formatNumber(b.purchaseQuantity),
-        unit: b.unit,
-        unit_price: b.pricePerUnit == null ? "unpriced" : fmt(b.pricePerUnit),
-        line_total: b.totalCost == null ? "N/A" : fmt(b.totalCost),
-        detail: `${formatNumber(b.finalQuantity, 2)} ${b.unit}s incl. ${b.wastePercentage}% waste`,
-      })),
-      totals: [
-        {
-          label: "Material cost",
-          value:
-            result.materialCost == null
-              ? "(prices not configured)"
-              : fmt(result.materialCost),
-        },
-        { label: "Labour", value: fmt(labourCost) },
-        {
-          label: "Grand total",
-          value:
-            result.materialCost == null
-              ? "N/A"
-              : fmt(result.materialCost + labourCost),
-          strong: true,
-        },
-      ],
-      warnings: result.warnings,
-      footer:
-        "Estimates are indicative and not a formal quote. Quantities include the configured waste margin; unpriced items are reported, never invented.",
-    };
+      ["Coats", String(result.coats)],
+    ],
+    lines: breakdowns.map((b) => ({
+      label: b.name,
+      quantity: formatNumber(b.purchaseQuantity),
+      unit: b.unit,
+      unit_price: b.pricePerUnit == null ? "unpriced" : fmt(b.pricePerUnit),
+      line_total: b.totalCost == null ? "N/A" : fmt(b.totalCost),
+      detail: `${formatNumber(b.finalQuantity, 2)} ${b.unit}s incl. ${b.wastePercentage}% waste`,
+    })),
+    totals: [
+      {
+        label: "Material cost",
+        value:
+          result.materialCost == null
+            ? "(prices not configured)"
+            : fmt(result.materialCost),
+      },
+      { label: "Labour", value: fmt(labourCost) },
+      {
+        label: "Grand total",
+        value:
+          result.materialCost == null
+            ? "N/A"
+            : fmt(result.materialCost + labourCost),
+        strong: true,
+      },
+    ],
+    warnings: result.warnings,
+    footer:
+      "Estimates are indicative and not a formal quote. Quantities include the configured waste margin; unpriced items are reported, never invented.",
+  };
 }
 
-function exportScreedingQuote(args: Parameters<typeof screedingQuoteOptions>[0]) {
+function exportScreedingQuote(
+  args: Parameters<typeof screedingQuoteOptions>[0],
+) {
   printQuote(screedingQuoteOptions(args), "frelux-screeding-estimate.html");
 }
 
@@ -1214,6 +1225,7 @@ function MaterialBreakdownCard({
   currencySymbol: string;
   icon: ReactNode;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="rounded-lg border border-border dark:border-white/5 p-3">
       <div className="flex items-center gap-2">
@@ -1258,7 +1270,7 @@ function MaterialBreakdownCard({
           </>
         ) : (
           <p className="text-xs text-accent-yellow">
-            Price not configured, cost cannot be calculated.
+            {t("Price not configured, cost cannot be calculated.")}
           </p>
         )}
       </div>

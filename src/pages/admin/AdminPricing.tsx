@@ -19,6 +19,7 @@ import {
 } from "@/components/admin/AdminUi";
 import { AdminModal } from "@/components/admin/AdminModal";
 import { classNames, formatCurrency } from "@/lib/utils";
+import { tx } from "@/lib/i18n";
 
 type Tab = "products" | "materials" | "labor";
 
@@ -27,8 +28,8 @@ export default function AdminPricing() {
   return (
     <>
       <AdminHeader
-        title="Cost & Pricing"
-        subtitle="Manage paint products, materials, and labor rates."
+        title={tx("Cost & Pricing")}
+        subtitle={tx("Manage paint products, materials, and labor rates.")}
       />
       <div className="mb-5 inline-flex rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-1">
         {(["products", "materials", "labor"] as Tab[]).map((t) => (
@@ -128,7 +129,7 @@ function ProductsTab() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={tx("Loading…")}
         message="Fetching paint products."
       />
     );
@@ -146,13 +147,13 @@ function ProductsTab() {
             setShowForm(true);
           }}
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add product
+          <Plus aria-hidden="true" className="h-4 w-4" /> {tx("Add product")}
         </AdminButton>
       </div>
       {items.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No products yet"
+          title={tx("No products yet")}
           message="Add your first paint product."
         />
       ) : (
@@ -168,7 +169,7 @@ function ProductsTab() {
                     </h3>
                     {!item.is_active && (
                       <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
-                        Off
+                        {tx("Off")}
                       </span>
                     )}
                   </div>
@@ -323,7 +324,7 @@ function SimpleForm({
             value={paintTypeId}
             onChange={(e) => setPaintTypeId(e.target.value)}
           >
-            <option value="">None</option>
+            <option value="">{tx("None")}</option>
             {paintTypes.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
@@ -378,7 +379,7 @@ function SimpleForm({
         </AdminField>
         <div>
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Active
+            {tx("Active")}
           </span>
           <div className="mt-2">
             <Toggle checked={isActive} onChange={setIsActive} />
@@ -392,7 +393,7 @@ function SimpleForm({
       )}
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {tx("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}
@@ -440,7 +441,7 @@ function MaterialsTab() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={tx("Loading…")}
         message="Fetching materials."
       />
     );
@@ -458,13 +459,13 @@ function MaterialsTab() {
             setShowForm(true);
           }}
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add material
+          <Plus aria-hidden="true" className="h-4 w-4" /> {tx("Add material")}
         </AdminButton>
       </div>
       {items.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No materials yet"
+          title={tx("No materials yet")}
           message="Add your first material price."
         />
       ) : (
@@ -478,7 +479,7 @@ function MaterialsTab() {
                   </h3>
                   {!item.is_active && (
                     <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
-                      Off
+                      {tx("Off")}
                     </span>
                   )}
                 </div>
@@ -684,11 +685,15 @@ function MaterialForm({
         <AdminField label="Last Updated Via">
           <AdminSelect
             value={lastUpdatedVia}
-            onChange={(e) => setLastUpdatedVia(e.target.value as DbMaterialPrice["last_updated_via"])}
+            onChange={(e) =>
+              setLastUpdatedVia(
+                e.target.value as DbMaterialPrice["last_updated_via"],
+              )
+            }
           >
-            <option value="manual">Manual</option>
-            <option value="api">API Feed</option>
-            <option value="crowdsourced">Crowdsourced</option>
+            <option value="manual">{tx("Manual")}</option>
+            <option value="api">{tx("API Feed")}</option>
+            <option value="crowdsourced">{tx("Crowdsourced")}</option>
           </AdminSelect>
         </AdminField>
         <AdminField label="Currency">
@@ -712,7 +717,7 @@ function MaterialForm({
       </div>
       <div>
         <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-          Active
+          {tx("Active")}
         </span>
         <div className="mt-2">
           <Toggle checked={isActive} onChange={setIsActive} />
@@ -725,7 +730,7 @@ function MaterialForm({
       )}
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {tx("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}
@@ -773,7 +778,7 @@ function LaborTab() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={tx("Loading…")}
         message="Fetching labor rates."
       />
     );
@@ -791,13 +796,13 @@ function LaborTab() {
             setShowForm(true);
           }}
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add labor rate
+          <Plus aria-hidden="true" className="h-4 w-4" /> {tx("Add labor rate")}
         </AdminButton>
       </div>
       {items.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No labor rates yet"
+          title={tx("No labor rates yet")}
           message="Add your first labor rate."
         />
       ) : (
@@ -811,7 +816,7 @@ function LaborTab() {
                   </h3>
                   {!item.is_active && (
                     <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
-                      Off
+                      {tx("Off")}
                     </span>
                   )}
                 </div>
@@ -914,7 +919,7 @@ function LaborForm({
         <AdminInput
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Standard painter"
+          placeholder={tx("Standard painter")}
         />
       </AdminField>
       <div className="grid gap-4 sm:grid-cols-3">
@@ -950,7 +955,7 @@ function LaborForm({
       </div>
       <div>
         <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-          Active
+          {tx("Active")}
         </span>
         <div className="mt-2">
           <Toggle checked={isActive} onChange={setIsActive} />
@@ -963,7 +968,7 @@ function LaborForm({
       )}
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {tx("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}

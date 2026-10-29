@@ -11,6 +11,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Container from "@/components/ui/Container";
+import { useLanguage } from "@/lib/i18n";
 
 interface ProjectCard {
   icon: typeof Paintbrush;
@@ -103,16 +104,17 @@ const projectCards: ProjectCard[] = [
 ];
 
 export default function ChooseProject() {
+  const { t } = useLanguage();
   return (
     <section
-      aria-label="Choose your project type"
+      aria-label={t("Choose your project type")}
       className="relative -mt-12 pb-16 pt-4 sm:pb-20"
       style={{ zIndex: 1 }}
     >
       <Container>
         <div className="mb-8 text-center">
           <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl dark:text-primary-foreground">
-            Start With What You Need
+            {t("Start With What You Need")}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
             The most-used tools on FRELUX: from a single room to an entire
@@ -152,7 +154,7 @@ export default function ChooseProject() {
                 </p>
 
                 <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">
-                  Open calculator
+                  {t("Open calculator")}
                   <ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </span>
               </Link>

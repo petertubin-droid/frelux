@@ -43,6 +43,7 @@ import {
   SelectValue,
 } from "@/components/ui/shadcn/select";
 import { useToast } from "@/components/ui/Toast";
+import { useLanguage } from "@/lib/i18n";
 
 interface Props {
   project: DbContractorProject;
@@ -70,6 +71,7 @@ const WORLD_CURRENCIES = [
 ];
 
 export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
+  const { t } = useLanguage();
   const { can, currentRole } = useWorkspace();
   const { toast } = useToast();
 
@@ -264,14 +266,14 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
             onClick={handleDownloadCsv}
             className="flex items-center gap-1.5"
           >
-            <Download className="h-4 w-4" /> Download CSV
+            <Download className="h-4 w-4" /> {t("Download CSV")}
           </Button>
           <Button
             size="sm"
             onClick={handlePrintHtml}
             className="flex items-center gap-1.5"
           >
-            <Printer className="h-4 w-4" /> Print / PDF BOQ
+            <Printer className="h-4 w-4" /> {t("Print / PDF BOQ")}
           </Button>
         </div>
       </div>
@@ -301,11 +303,11 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               {currencySummary.base.formatted}
             </div>
             <p className="text-xs text-muted-foreground">
-              Internal accounting & material takeoff baseline.
+              {t("Internal accounting & material takeoff baseline.")}
             </p>
             {canEditFinancials && (
               <div className="pt-2">
-                <Label className="text-xs">Base Currency</Label>
+                <Label className="text-xs">{t("Base Currency")}</Label>
                 <Select value={baseCurrency} onValueChange={setBaseCurrency}>
                   <SelectTrigger className="h-8 text-xs mt-1">
                     <SelectValue />
@@ -338,11 +340,11 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               {currencySummary.settlement.formatted}
             </div>
             <p className="text-xs text-muted-foreground">
-              Trade labor and local subcontractor payout currency.
+              {t("Trade labor and local subcontractor payout currency.")}
             </p>
             {canEditFinancials && (
               <div className="pt-2">
-                <Label className="text-xs">Settlement Currency</Label>
+                <Label className="text-xs">{t("Settlement Currency")}</Label>
                 <Select
                   value={settlementCurrency}
                   onValueChange={setSettlementCurrency}
@@ -378,11 +380,11 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               {currencySummary.clientQuote.formatted}
             </div>
             <p className="text-xs text-muted-foreground">
-              Contract sum & commercial bank loan underwriting currency.
+              {t("Contract sum & commercial bank loan underwriting currency.")}
             </p>
             {canEditFinancials && (
               <div className="pt-2">
-                <Label className="text-xs">Client Quote Currency</Label>
+                <Label className="text-xs">{t("Client Quote Currency")}</Label>
                 <Select value={quoteCurrency} onValueChange={setQuoteCurrency}>
                   <SelectTrigger className="h-8 text-xs mt-1">
                     <SelectValue />
@@ -443,10 +445,10 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="NRM2">NRM2 (RICS)</SelectItem>
-                <SelectItem value="CESMM4">CESMM4 (Civil)</SelectItem>
-                <SelectItem value="ICMS">ICMS (Global)</SelectItem>
-                <SelectItem value="Commercial">Commercial</SelectItem>
+                <SelectItem value="NRM2">{t("NRM2 (RICS)")}</SelectItem>
+                <SelectItem value="CESMM4">{t("CESMM4 (Civil)")}</SelectItem>
+                <SelectItem value="ICMS">{t("ICMS (Global)")}</SelectItem>
+                <SelectItem value="Commercial">{t("Commercial")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -521,8 +523,8 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-muted/40 border-b text-left">
-                <th className="p-2.5 font-semibold">Cost Component</th>
-                <th className="p-2.5 font-semibold">Standard Basis</th>
+                <th className="p-2.5 font-semibold">{t("Cost Component")}</th>
+                <th className="p-2.5 font-semibold">{t("Standard Basis")}</th>
                 <th className="p-2.5 font-semibold text-right">
                   Amount ({quoteCurrency})
                 </th>
@@ -530,9 +532,11 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
             </thead>
             <tbody className="divide-y">
               <tr>
-                <td className="p-2.5 font-medium">Measured Building Works</td>
+                <td className="p-2.5 font-medium">
+                  {t("Measured Building Works")}
+                </td>
                 <td className="p-2.5 text-muted-foreground">
-                  Takeoff calculations & quantities
+                  {t("Takeoff calculations & quantities")}
                 </td>
                 <td className="p-2.5 text-right font-semibold">
                   {formatByCode(
@@ -544,7 +548,7 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               {boqDocument.summary.preliminariesAmount > 0 && (
                 <tr>
                   <td className="p-2.5">
-                    Preliminaries & General Requirements
+                    {t("Preliminaries & General Requirements")}
                   </td>
                   <td className="p-2.5 text-muted-foreground">
                     {prelimsPercent}% of measured works
@@ -559,7 +563,9 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               )}
               {boqDocument.summary.overheadProfitAmount > 0 && (
                 <tr>
-                  <td className="p-2.5">Contractor Overhead & Profit (OH&P)</td>
+                  <td className="p-2.5">
+                    {t("Contractor Overhead & Profit (OH&P)")}
+                  </td>
                   <td className="p-2.5 text-muted-foreground">
                     {ohpPercent}% markup
                   </td>
@@ -573,7 +579,7 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               )}
               {boqDocument.summary.contingencyAmount > 0 && (
                 <tr>
-                  <td className="p-2.5">Construction Contingency</td>
+                  <td className="p-2.5">{t("Construction Contingency")}</td>
                   <td className="p-2.5 text-muted-foreground">
                     {contingencyPercent}% unforeseen reserve
                   </td>
@@ -587,10 +593,10 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               )}
               <tr className="bg-muted/20">
                 <td className="p-2.5 font-semibold">
-                  Net Contract Sum (Excl. Tax)
+                  {t("Net Contract Sum (Excl. Tax)")}
                 </td>
                 <td className="p-2.5 text-muted-foreground">
-                  Commercial subtotal
+                  {t("Commercial subtotal")}
                 </td>
                 <td className="p-2.5 text-right font-semibold">
                   {formatByCode(
@@ -617,7 +623,7 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               </tr>
               <tr className="bg-primary/5 font-bold text-sm">
                 <td className="p-3 text-primary">
-                  GROSS BILL OF QUANTITIES TOTAL
+                  {t("GROSS BILL OF QUANTITIES TOTAL")}
                 </td>
                 <td className="p-3 text-xs text-muted-foreground font-normal">
                   Standard {boqStandard} schedule
@@ -628,7 +634,9 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               </tr>
               {boqDocument.summary.retentionAmount > 0 && (
                 <tr className="text-muted-foreground">
-                  <td className="p-2.5">Less Statutory Holdback / Retention</td>
+                  <td className="p-2.5">
+                    {t("Less Statutory Holdback / Retention")}
+                  </td>
                   <td className="p-2.5">
                     {retentionPercent}% held during defects liability period
                   </td>
@@ -643,9 +651,11 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               )}
               {boqDocument.summary.retentionAmount > 0 && (
                 <tr className="font-bold text-xs bg-muted/30">
-                  <td className="p-2.5">Net Initial Contract Draw Baseline</td>
+                  <td className="p-2.5">
+                    {t("Net Initial Contract Draw Baseline")}
+                  </td>
                   <td className="p-2.5 text-muted-foreground">
-                    Payable during construction phases
+                    {t("Payable during construction phases")}
                   </td>
                   <td className="p-2.5 text-right">
                     {formatByCode(

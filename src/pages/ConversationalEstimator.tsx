@@ -17,6 +17,7 @@ import { fetchPaintTypes } from "@/lib/queries";
 import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
 import { fetchPackSizeById } from "@/lib/estimation/queries";
 import { useMarket } from "@/lib/international/market-context";
+import { useLanguage } from "@/lib/i18n";
 import {
   fetchConversationalPacks,
   insertConversationalParseLog,
@@ -34,6 +35,7 @@ const SAMPLES: Record<ConversationLanguage, string> = {
 };
 
 export default function ConversationalEstimator() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "WhatsApp Estimator", path: "/conversational-estimator" },
@@ -177,14 +179,14 @@ export default function ConversationalEstimator() {
           { label: "Construction Tools", path: "/construction-tools" },
           { label: "WhatsApp Estimator" },
         ]}
-        title="WhatsApp Estimator"
+        title={t("WhatsApp Estimator")}
         subtitle="Paste the chat: or the voice-note transcript: in English. You get the same honest FRELUX estimate, plus every fact the engine picked up and where it found it."
       />
 
       <section className="mx-auto max-w-3xl space-y-4">
         <div className="rounded-lg border bg-card p-4">
           <label htmlFor="thread" className="block text-sm font-medium">
-            Your WhatsApp chat / voice-note transcript
+            {t("Your WhatsApp chat / voice-note transcript")}
           </label>
           <textarea
             id="thread"
@@ -201,7 +203,7 @@ export default function ConversationalEstimator() {
                 setLanguage(e.target.value as ConversationLanguage | "auto")
               }
               className="rounded-md border bg-background px-3 py-2 text-sm"
-              aria-label="Language"
+              aria-label={t("Language")}
             >
               {LANGUAGES.map((l) => (
                 <option key={l} value={l}>
@@ -287,23 +289,27 @@ export default function ConversationalEstimator() {
 
             {result.paintEstimate && (
               <div className="rounded-lg border bg-card p-4">
-                <h3 className="font-semibold">Your paint estimate</h3>
+                <h3 className="font-semibold">{t("Your paint estimate")}</h3>
                 <dl className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
                   <div>
-                    <dt className="text-muted-foreground">Paintable area</dt>
+                    <dt className="text-muted-foreground">
+                      {t("Paintable area")}
+                    </dt>
                     <dd className="font-medium">
                       {result.paintEstimate.paintableArea.toFixed(2)} m²
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-muted-foreground">Paint needed</dt>
+                    <dt className="text-muted-foreground">
+                      {t("Paint needed")}
+                    </dt>
                     <dd className="font-medium">
                       {result.paintEstimate.liters.toFixed(2)} litres (incl.
                       waste)
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-muted-foreground">Coats</dt>
+                    <dt className="text-muted-foreground">{t("Coats")}</dt>
                     <dd className="font-medium">
                       {result.paintEstimate.coats}
                     </dd>

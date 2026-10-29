@@ -25,6 +25,7 @@ import {
   type InvoiceWithState,
 } from "@/lib/finance/invoice-service";
 import { formatByCode } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 export interface InvoiceQuoteSource {
   id: string;
@@ -63,6 +64,7 @@ export function InvoicesCard({
   marketCode: string;
   userId: string | null;
 }) {
+  const { t } = useLanguage();
   const [invoices, setInvoices] = useState<InvoiceWithState[]>([]);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -153,7 +155,7 @@ export function InvoicesCard({
         `<h1>${inv.invoice.invoice_ref}</h1>` +
         `<p class="meta">${inv.invoice.title} · Issued ${inv.invoice.issue_date} · Due ${inv.invoice.due_date ?? "—"}</p>` +
         `<p class="meta">Client: ${inv.invoice.client_name}${inv.invoice.client_contact ? ` · ${inv.invoice.client_contact}` : ""}</p>` +
-        `<table><thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Unit cost</th><th>Total</th></tr></thead><tbody>` +
+        `<table><thead><tr><th>{t("Description")}</th><th>{t("Qty")}</th><th>{t("Unit")}</th><th>{t("Unit cost")}</th><th>{t("Total")}</th></tr></thead><tbody>` +
         inv.invoice.items
           .map(
             (it) =>
@@ -185,7 +187,7 @@ export function InvoicesCard({
     <section className="mt-6 rounded-xl border border-border bg-card p-4">
       <header className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold">Invoices</h3>
+          <h3 className="text-sm font-semibold">{t("Invoices")}</h3>
           <p className="text-xs text-muted-foreground">
             One-click quotation → invoice. Paid / overdue statuses come from
             recorded payments only — never assumed.
@@ -197,7 +199,7 @@ export function InvoicesCard({
           disabled={!canInvoice || busy}
           className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity disabled:opacity-50"
         >
-          Create invoice from this quote
+          {t("Create invoice from this quote")}
         </button>
       </header>
 
@@ -268,7 +270,7 @@ export function InvoicesCard({
                     disabled={busy}
                     className="rounded border border-border px-2 py-1 text-[11px] font-medium transition-colors hover:bg-muted/50 disabled:opacity-50"
                   >
-                    Issue
+                    {t("Issue")}
                   </button>
                 )}
                 {invoice.status === "issued" && (
@@ -278,7 +280,7 @@ export function InvoicesCard({
                     disabled={busy}
                     className="rounded border border-border px-2 py-1 text-[11px] font-medium text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
                   >
-                    Cancel invoice
+                    {t("Cancel invoice")}
                   </button>
                 )}
                 <button
@@ -293,7 +295,7 @@ export function InvoicesCard({
                   }
                   className="rounded border border-border px-2 py-1 text-[11px] font-medium transition-colors hover:bg-muted/50"
                 >
-                  Print
+                  {t("Print")}
                 </button>
                 <button
                   type="button"
@@ -302,14 +304,14 @@ export function InvoicesCard({
                   }
                   className="rounded border border-border px-2 py-1 text-[11px] font-medium transition-colors hover:bg-muted/50"
                 >
-                  Record payment
+                  {t("Record payment")}
                 </button>
               </div>
 
               {payOpenFor === invoice.id && (
                 <div className="mt-2 flex flex-wrap items-center gap-2 rounded bg-muted/40 p-2">
                   <label className="text-[11px] text-muted-foreground">
-                    Amount
+                    {t("Amount")}
                     <input
                       type="number"
                       min="0"
@@ -320,7 +322,7 @@ export function InvoicesCard({
                     />
                   </label>
                   <label className="text-[11px] text-muted-foreground">
-                    Method
+                    {t("Method")}
                     <select
                       value={payMethod}
                       onChange={(e) =>
@@ -336,7 +338,7 @@ export function InvoicesCard({
                     </select>
                   </label>
                   <label className="text-[11px] text-muted-foreground">
-                    Reference
+                    {t("Reference")}
                     <input
                       type="text"
                       value={payReference}
@@ -351,7 +353,7 @@ export function InvoicesCard({
                     disabled={busy}
                     className="rounded bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground disabled:opacity-50"
                   >
-                    Save payment
+                    {t("Save payment")}
                   </button>
                 </div>
               )}

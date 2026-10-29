@@ -30,6 +30,7 @@ import {
   deleteCarbonFactor,
 } from "@/lib/estimation/queries";
 import type { CarbonFactor } from "@/types/estimation";
+import { useLanguage } from "@/lib/i18n";
 
 interface FactorForm {
   category: string;
@@ -84,6 +85,7 @@ function validate(f: FactorForm): string | null {
 }
 
 export default function AdminCarbonFactors() {
+  const { t } = useLanguage();
   const [factors, setFactors] = useState<CarbonFactor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -183,11 +185,11 @@ export default function AdminCarbonFactors() {
   return (
     <div className="space-y-6">
       <AdminHeader
-        title="Carbon Factors"
+        title={t("Carbon Factors")}
         subtitle="Admin-configured embodied carbon factors per material/finish category (kgCO2e per unit), each with a verifiable source (EPD, ICE database). The carbon engine excludes lines without a configured factor with a warning: it never guesses emissions."
         action={
           <AdminButton onClick={openCreate}>
-            <Plus className="mr-2 h-4 w-4" /> Add Factor
+            <Plus className="mr-2 h-4 w-4" /> {t("Add Factor")}
           </AdminButton>
         }
       />
@@ -195,15 +197,17 @@ export default function AdminCarbonFactors() {
       {error && (
         <StateMessage
           type="error"
-          title="Something went wrong"
+          title={t("Something went wrong")}
           message={error}
         />
       )}
-      {success && <StateMessage type="empty" title="Saved" message={success} />}
+      {success && (
+        <StateMessage type="empty" title={t("Saved")} message={success} />
+      )}
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading"
+          title={t("Loading")}
           message="Loading factors…"
         />
       ) : factors.length === 0 ? (
@@ -218,12 +222,12 @@ export default function AdminCarbonFactors() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="p-3">Category</th>
-                <th className="p-3">Unit</th>
+                <th className="p-3">{t("Category")}</th>
+                <th className="p-3">{t("Unit")}</th>
                 <th className="p-3">kgCO2e/unit</th>
-                <th className="p-3">Effective</th>
-                <th className="p-3">Source</th>
-                <th className="p-3">Active</th>
+                <th className="p-3">{t("Effective")}</th>
+                <th className="p-3">{t("Source")}</th>
+                <th className="p-3">{t("Active")}</th>
                 <th className="p-3"></th>
               </tr>
             </thead>
@@ -258,10 +262,16 @@ export default function AdminCarbonFactors() {
                   </td>
                   <td className="p-3">
                     <div className="flex gap-1">
-                      <AdminIconButton onClick={() => openEdit(f)} title="Edit">
+                      <AdminIconButton
+                        onClick={() => openEdit(f)}
+                        title={t("Edit")}
+                      >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
-                      <AdminIconButton onClick={() => remove(f)} title="Delete">
+                      <AdminIconButton
+                        onClick={() => remove(f)}
+                        title={t("Delete")}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </AdminIconButton>
                     </div>
@@ -342,7 +352,7 @@ export default function AdminCarbonFactors() {
               onChange={(e) =>
                 setForm({ ...form, description: e.target.value })
               }
-              placeholder="Optional context (what the factor covers)"
+              placeholder={t("Optional context (what the factor covers)")}
             />
           </AdminField>
 
@@ -354,7 +364,9 @@ export default function AdminCarbonFactors() {
           </AdminField>
 
           <div className="flex justify-end gap-2">
-            <AdminButton onClick={() => setShowForm(false)}>Cancel</AdminButton>
+            <AdminButton onClick={() => setShowForm(false)}>
+              {t("Cancel")}
+            </AdminButton>
             <AdminButton onClick={save} variant="primary" disabled={saving}>
               {saving ? "Saving…" : "Save"}
             </AdminButton>

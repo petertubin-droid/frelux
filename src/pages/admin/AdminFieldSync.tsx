@@ -29,6 +29,7 @@ import {
 } from "@/lib/estimation/offline-field-engine";
 import { getSafeError } from "@/lib/safeError";
 import { AdminHeader, StateMessage } from "@/components/admin/AdminUi";
+import { useLanguage } from "@/lib/i18n";
 
 const KIND_LABEL: Record<FieldCaptureLogRow["entry_kind"], string> = {
   measurement: "Measurement",
@@ -49,6 +50,7 @@ function fmt(iso: string): string {
 }
 
 export default function AdminFieldSync() {
+  const { t } = useLanguage();
   const [rules, setRules] = useState<FieldSyncRules>(DEFAULT_FIELD_SYNC_RULES);
   const [captures, setCaptures] = useState<FieldCaptureLogRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,40 +89,46 @@ export default function AdminFieldSync() {
   return (
     <div className="space-y-4">
       <AdminHeader
-        title="Field Sync"
+        title={t("Field Sync")}
         subtitle="Offline-First Field Engine: captures recorded on site with no connectivity, synced to field_capture_log. Client UUID primary key makes sync idempotent."
       />
 
       {loading && (
         <StateMessage
           type="loading"
-          title="Loading"
+          title={t("Loading")}
           message="Loading field sync data…"
         />
       )}
-      {error && <StateMessage type="error" title="Error" message={error} />}
+      {error && (
+        <StateMessage type="error" title={t("Error")} message={error} />
+      )}
       {!loading && !error && (
         <>
           {/* Current behaviour rules: editable in Calc Rules */}
           <div className="rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">Current sync rules</h3>
+            <h3 className="mb-2 font-semibold">{t("Current sync rules")}</h3>
             <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <p className="text-muted-foreground">Auto-sync on reconnect</p>
+                <p className="text-muted-foreground">
+                  {t("Auto-sync on reconnect")}
+                </p>
                 <p className="font-medium">
                   {rules.auto_sync ? "Yes" : "No: manual only"}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Device queue capacity</p>
+                <p className="text-muted-foreground">
+                  {t("Device queue capacity")}
+                </p>
                 <p className="font-medium">{rules.max_queue} captures</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Retention</p>
+                <p className="text-muted-foreground">{t("Retention")}</p>
                 <p className="font-medium">{rules.retention_days} days</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Sync batch size</p>
+                <p className="text-muted-foreground">{t("Sync batch size")}</p>
                 <p className="font-medium">{rules.sync_batch} per run</p>
               </div>
             </div>
@@ -134,12 +142,12 @@ export default function AdminFieldSync() {
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-lg border bg-card p-4">
               <p className="text-sm text-muted-foreground">
-                Recent synced captures
+                {t("Recent synced captures")}
               </p>
               <p className="text-2xl font-semibold">{captures.length}</p>
             </div>
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">By kind</p>
+              <p className="text-sm text-muted-foreground">{t("By kind")}</p>
               <p className="text-sm font-medium">
                 {Object.keys(byKind).length === 0
                   ? "None yet"
@@ -152,7 +160,9 @@ export default function AdminFieldSync() {
               </p>
             </div>
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Needed a retry</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Needed a retry")}
+              </p>
               <p className="text-2xl font-semibold">{retried}</p>
               {retried > 0 && (
                 <p className="text-xs text-muted-foreground">
@@ -166,23 +176,23 @@ export default function AdminFieldSync() {
           {captures.length === 0 ? (
             <StateMessage
               type="empty"
-              title="No captures yet"
+              title={t("No captures yet")}
               message="No field captures yet. They appear here the moment an artisan syncs work recorded on site."
             />
           ) : (
             <div className="overflow-x-auto rounded-lg border bg-card">
               <table
                 className="w-full text-sm"
-                aria-label="Synced field captures"
+                aria-label={t("Synced field captures")}
               >
                 <thead className="border-b bg-muted/50 text-left">
                   <tr>
-                    <th className="p-3">Captured (field)</th>
-                    <th className="p-3">Synced (server)</th>
-                    <th className="p-3">Kind</th>
-                    <th className="p-3">Job</th>
-                    <th className="p-3">Device</th>
-                    <th className="p-3">Record</th>
+                    <th className="p-3">{t("Captured (field)")}</th>
+                    <th className="p-3">{t("Synced (server)")}</th>
+                    <th className="p-3">{t("Kind")}</th>
+                    <th className="p-3">{t("Job")}</th>
+                    <th className="p-3">{t("Device")}</th>
+                    <th className="p-3">{t("Record")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -199,7 +209,9 @@ export default function AdminFieldSync() {
                         {c.queue_last_attempt && (
                           <span
                             className="ml-2 inline-flex items-center gap-1 rounded-full bg-amber-600/10 px-2 py-0.5 text-xs text-amber-700 dark:text-amber-400"
-                            title="First sync attempt failed; retried successfully"
+                            title={t(
+                              "First sync attempt failed; retried successfully",
+                            )}
                           >
                             <CloudOff className="h-3 w-3" /> retried
                           </span>

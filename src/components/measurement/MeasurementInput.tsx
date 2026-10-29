@@ -47,6 +47,7 @@ import {
   type BuildingPreset,
 } from "@/lib/measurement/building-presets";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // =========================================================
 // Sub-components
@@ -61,10 +62,11 @@ function UnitSelect({
   onChange: (unit: LengthUnit) => void;
   context: CalculatorContext;
 }) {
+  const { t } = useLanguage();
   const allowed = getAllowedUnits(context);
   return (
     <select
-      aria-label="Unit"
+      aria-label={t("Unit")}
       value={value}
       onChange={(e) => onChange(e.target.value as LengthUnit)}
       className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
@@ -127,6 +129,7 @@ function EntryCard({
   index: number;
   entryTitleLabel?: string;
 }) {
+  const { t } = useLanguage();
   const [expanded, setExpanded] = useState(true);
   // Quantity field is clearable while editing: an empty or partial value
   // stays in a local draft instead of snapping back to a sticky "1".
@@ -165,7 +168,7 @@ function EntryCard({
             variant="ghost"
             onClick={onRemove}
             className="text-muted-foreground hover:text-destructive transition-colors"
-            aria-label="Remove measurement"
+            aria-label={t("Remove measurement")}
           >
             <Trash2 size={16} />
           </Button>
@@ -181,7 +184,7 @@ function EntryCard({
                 htmlFor={`space-type-${entry.id}`}
                 className="block text-xs font-medium text-muted-foreground mb-1"
               >
-                Space Type
+                {t("Space Type")}
               </label>
               <select
                 id={`space-type-${entry.id}`}
@@ -226,7 +229,7 @@ function EntryCard({
           {/* Unit selector */}
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1">
-              Measurement Unit
+              {t("Measurement Unit")}
             </label>
             <UnitSelect
               value={entry.unit}
@@ -244,7 +247,7 @@ function EntryCard({
                 htmlFor={`mi-partitions-${entry.id}`}
                 className="block text-xs font-medium text-muted-foreground mb-1"
               >
-                Number of Partitions
+                {t("Number of Partitions")}
               </label>
               <input
                 id={`mi-partitions-${entry.id}`}
@@ -265,7 +268,7 @@ function EntryCard({
               htmlFor={`mi-quantity-${entry.id}`}
               className="block text-xs font-medium text-muted-foreground mb-1"
             >
-              Quantity (identical units)
+              {t("Quantity (identical units)")}
             </label>
             <input
               id={`mi-quantity-${entry.id}`}
@@ -347,7 +350,7 @@ function EntryCard({
               htmlFor={`mi-description-${entry.id}`}
               className="block text-xs font-medium text-muted-foreground mb-1"
             >
-              Description (optional)
+              {t("Description (optional)")}
             </label>
             <input
               id={`mi-description-${entry.id}`}
@@ -384,6 +387,7 @@ function TileConfigFields({
   entry: MeasurementEntry;
   onUpdate: (updates: Partial<MeasurementEntry>) => void;
 }) {
+  const { t } = useLanguage();
   const tc = entry.tileConfig;
   if (!tc) {
     return (
@@ -410,7 +414,7 @@ function TileConfigFields({
   return (
     <div className="rounded-md border border-border p-3 space-y-3 bg-muted/30">
       <p className="text-xs font-medium text-muted-foreground">
-        Tile Configuration
+        {t("Tile Configuration")}
       </p>
 
       {/* Tile size */}
@@ -435,7 +439,7 @@ function TileConfigFields({
         />
         <div>
           <label className="block text-xs font-medium text-muted-foreground mb-1">
-            Unit
+            {t("Unit")}
           </label>
           <select
             value={tc.tileUnit}
@@ -462,7 +466,7 @@ function TileConfigFields({
           htmlFor={`mi-packaging-${entry.id}`}
           className="block text-xs font-medium text-muted-foreground mb-1"
         >
-          Packaging Method
+          {t("Packaging Method")}
         </label>
         <select
           id={`mi-packaging-${entry.id}`}
@@ -478,7 +482,7 @@ function TileConfigFields({
           }
           className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground"
         >
-          <option value="tiles_per_carton">Tiles per carton</option>
+          <option value="tiles_per_carton">{t("Tiles per carton")}</option>
           <option value="carton_coverage">Carton coverage (m²)</option>
         </select>
       </div>
@@ -654,6 +658,7 @@ function BuildingPresetSelect({
   presets: BuildingPreset[];
   onApplyPreset: (presetId: string) => void;
 }) {
+  const { t } = useLanguage();
   const selectId = useId();
   if (presets.length === 0) return null;
   return (
@@ -662,7 +667,7 @@ function BuildingPresetSelect({
         htmlFor={selectId}
         className="mb-1 block text-sm font-semibold text-foreground"
       >
-        House type
+        {t("House type")}
       </label>
       <select
         id={selectId}
@@ -674,7 +679,9 @@ function BuildingPresetSelect({
           e.currentTarget.value = v; // keep selection visible
         }}
       >
-        <option value="">Select a house type to load its rooms...</option>
+        <option value="">
+          {t("Select a house type to load its rooms...")}
+        </option>
         {presets.map((p) => (
           <option key={p.id} value={p.id}>
             {p.label}
@@ -684,7 +691,11 @@ function BuildingPresetSelect({
       <p className="mt-1 text-xs text-muted-foreground">
         Loads a full room breakdown (bedrooms, living room, kitchen, toilets &
         baths...) that you can edit. Common in your market:{" "}
-        {presets.slice(0, 3).map((p) => p.label).join(", ")}.
+        {presets
+          .slice(0, 3)
+          .map((p) => p.label)
+          .join(", ")}
+        .
       </p>
     </div>
   );
@@ -720,6 +731,7 @@ export function MeasurementInput({
   onApplyPreset,
   children,
 }: MeasurementInputProps) {
+  const { t } = useLanguage();
   // Use the first section (auto-created by the hook)
   const activeSection = project.sections[0];
 
@@ -816,7 +828,7 @@ export function MeasurementInput({
 
           {activeSection.groups.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-4">
-              No measurements added yet. Click below to start.
+              {t("No measurements added yet. Click below to start.")}
             </p>
           )}
         </div>

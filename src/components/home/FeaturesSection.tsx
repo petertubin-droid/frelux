@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
+import { useLanguage } from "@/lib/i18n";
 
 const features = [
   {
@@ -37,6 +38,7 @@ const features = [
 ];
 
 export default function FeaturesSection() {
+  const { t } = useLanguage();
   return (
     <section
       data-tour="ai"
@@ -59,7 +61,7 @@ export default function FeaturesSection() {
 
       <SectionHeading
         label="Why FRELUX"
-        title="Tools that respect your time and budget"
+        title={t("Tools that respect your time and budget")}
         subtitle="Everything you need to plan a paint project with confidence, in one focused place."
         align="center"
         className="[&_.section-label]:text-brand-purple-light [&_.section-title]:text-primary-foreground [&_.section-subtitle]:text-primary-foreground/45"
@@ -94,7 +96,7 @@ export default function FeaturesSection() {
           to="/paint-calculator/"
           className="group inline-flex items-center justify-center gap-2 rounded-xl bg-card dark:bg-card px-6 py-3 text-sm font-semibold text-foreground dark:text-primary-foreground shadow-lg transition-all hover:bg-muted hover:shadow-xl active:scale-[0.98]"
         >
-          Start planning
+          {t("Start planning")}
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
       </Container>

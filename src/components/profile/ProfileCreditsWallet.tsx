@@ -27,8 +27,10 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/lib/i18n";
 
 export const ProfileCreditsWallet: React.FC = () => {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const { wallet, refresh: refreshWallet } = useCredits();
   const [tasks, setTasks] = useState<CreditTask[]>([]);
@@ -132,7 +134,7 @@ export const ProfileCreditsWallet: React.FC = () => {
           <div className="flex items-center gap-2">
             <Coins className="w-5 h-5 text-primary" />
             <h2 className="text-xl font-bold text-foreground">
-              AI Credits & Rewards Wallet
+              {t("AI Credits & Rewards Wallet")}
             </h2>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
@@ -144,11 +146,11 @@ export const ProfileCreditsWallet: React.FC = () => {
         <div className="bg-primary/10 border border-primary/20 px-4 py-2.5 rounded-xl flex items-center gap-3">
           <div>
             <div className="text-[10px] uppercase font-semibold text-primary tracking-wider">
-              Available Balance
+              {t("Available Balance")}
             </div>
             <div className="text-2xl font-black text-primary">
               {wallet?.balance ?? 0}{" "}
-              <span className="text-sm font-medium">Credits</span>
+              <span className="text-sm font-medium">{t("Credits")}</span>
             </div>
           </div>
           <Coins className="w-8 h-8 text-primary/40" />
@@ -159,17 +161,19 @@ export const ProfileCreditsWallet: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 my-6">
         <div className="p-3.5 rounded-xl bg-muted/40 border border-border text-center">
           <div className="text-xs text-muted-foreground">
-            Standard AI Operation
+            {t("Standard AI Operation")}
           </div>
           <div className="text-base font-bold text-foreground mt-0.5">
             10 Credits
           </div>
           <div className="text-[10px] text-muted-foreground mt-0.5">
-            Uniform across all tools
+            {t("Uniform across all tools")}
           </div>
         </div>
         <div className="p-3.5 rounded-xl bg-muted/40 border border-border text-center">
-          <div className="text-xs text-muted-foreground">Rewarded Ad Grant</div>
+          <div className="text-xs text-muted-foreground">
+            {t("Rewarded Ad Grant")}
+          </div>
           <div className="text-base font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
             +5 Credits
           </div>
@@ -178,12 +182,14 @@ export const ProfileCreditsWallet: React.FC = () => {
           </div>
         </div>
         <div className="p-3.5 rounded-xl bg-muted/40 border border-border text-center">
-          <div className="text-xs text-muted-foreground">Pro Subscribers</div>
+          <div className="text-xs text-muted-foreground">
+            {t("Pro Subscribers")}
+          </div>
           <div className="text-base font-bold text-primary mt-0.5">
-            Unlimited Access
+            {t("Unlimited Access")}
           </div>
           <div className="text-[10px] text-muted-foreground mt-0.5">
-            Exempt from credit spends
+            {t("Exempt from credit spends")}
           </div>
         </div>
       </div>
@@ -196,7 +202,7 @@ export const ProfileCreditsWallet: React.FC = () => {
             <div className="flex items-center gap-2">
               <PlayCircle className="w-5 h-5 text-primary" />
               <h3 className="font-semibold text-sm text-foreground">
-                Watch Partner Ad to Earn Credits
+                {t("Watch Partner Ad to Earn Credits")}
               </h3>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
                 {todayAdCount} / {MAX_ADS_PER_DAY} watched today
@@ -244,17 +250,17 @@ export const ProfileCreditsWallet: React.FC = () => {
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-primary" />
-              Eligible Reward Tasks
+              {t("Eligible Reward Tasks")}
             </h3>
             <span className="text-xs text-muted-foreground">
-              Earn credits by completing platform milestones
+              {t("Earn credits by completing platform milestones")}
             </span>
           </div>
 
           <div className="space-y-2">
             {loadingTasks ? (
               <div className="text-xs text-muted-foreground py-4 text-center">
-                Loading available reward tasks...
+                {t("Loading available reward tasks...")}
               </div>
             ) : tasks.length === 0 ? (
               <div className="text-xs text-muted-foreground py-4 text-center border border-dashed rounded-lg">
@@ -311,13 +317,13 @@ export const ProfileCreditsWallet: React.FC = () => {
               onClick={() => navigate("/pricing")}
               className="flex-1 sm:flex-none px-4 py-2 text-xs font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
             >
-              Credit Bundles
+              {t("Credit Bundles")}
             </button>
             <button
               onClick={() => navigate("/pricing")}
               className="flex-1 sm:flex-none px-4 py-2 text-xs font-semibold rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-colors"
             >
-              Subscription Plans
+              {t("Subscription Plans")}
             </button>
           </div>
         </div>
@@ -327,14 +333,14 @@ export const ProfileCreditsWallet: React.FC = () => {
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-muted-foreground" />
-              Recent AI Credit Activity
+              {t("Recent AI Credit Activity")}
             </h3>
           </div>
 
           <div className="border border-border rounded-xl overflow-hidden">
             {transactions.length === 0 ? (
               <div className="p-6 text-center text-xs text-muted-foreground">
-                No recent credit activity found.
+                {t("No recent credit activity found.")}
               </div>
             ) : (
               <div className="divide-y divide-border">

@@ -35,6 +35,7 @@ import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
+import { useLanguage } from "@/lib/i18n";
 import {
   calculateWaterproofing,
   parseWaterproofingRules,
@@ -69,6 +70,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function WaterproofingEstimator() {
+  const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
@@ -348,13 +350,13 @@ export default function WaterproofingEstimator() {
           { label: "Construction Tools", path: "/construction-tools" },
           { label: "Waterproofing Estimator" },
         ]}
-        title="Waterproofing Estimator"
+        title={t("Waterproofing Estimator")}
         subtitle="Enter your measured DPC run, DPM area, wet-area surfaces and terrace area. The engine sizes DPC, DPM, coating, membrane and tape from your measurements with the visible coats, coverage, waste and overlap rules. Estimation only: not waterproofing design."
       />
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
-        <h3 className="mb-1 font-semibold">Measured areas and runs</h3>
+        <h3 className="mb-1 font-semibold">{t("Measured areas and runs")}</h3>
         <p className="mb-2 text-xs text-muted-foreground">
           The engine never assumes surfaces. Enter your measured DPC run, DPM
           area, wet-area surfaces and terrace area. Leave a field blank when it
@@ -369,10 +371,10 @@ export default function WaterproofingEstimator() {
           )}
         </div>
 
-        <h3 className="mt-5 mb-2 font-semibold">Labour</h3>
+        <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
         <div className="flex flex-wrap items-end gap-3">
           <label className="text-sm">
-            <span className="mb-1 block font-medium">Labour mode</span>
+            <span className="mb-1 block font-medium">{t("Labour mode")}</span>
             <select
               value={labourMode}
               onChange={(e) =>
@@ -380,9 +382,9 @@ export default function WaterproofingEstimator() {
               }
               className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
             >
-              <option value="none">Not included</option>
+              <option value="none">{t("Not included")}</option>
               <option value="per_m2">Per m² treated (rate)</option>
-              <option value="lump_sum">Lump sum</option>
+              <option value="lump_sum">{t("Lump sum")}</option>
             </select>
           </label>
           {labourMode !== "none" &&
@@ -404,7 +406,7 @@ export default function WaterproofingEstimator() {
             onClick={run}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
-            Calculate estimate
+            {t("Calculate estimate")}
           </button>
           {result?.ok && (
             <>
@@ -419,7 +421,7 @@ export default function WaterproofingEstimator() {
                 onClick={exportQuote}
                 className="rounded-md border px-4 py-2 text-sm font-medium"
               >
-                Export quote (PDF)
+                {t("Export quote (PDF)")}
               </button>
               <SaveToProjectButton
                 calculatorType="waterproofing"
@@ -464,7 +466,7 @@ export default function WaterproofingEstimator() {
           role="alert"
         >
           <h3 className="mb-1 font-semibold text-destructive">
-            Fix these inputs first
+            {t("Fix these inputs first")}
           </h3>
           <ul className="list-disc pl-5 text-sm text-destructive">
             {result.errors.map((e) => (
@@ -488,7 +490,9 @@ export default function WaterproofingEstimator() {
           >
             {result.incomplete ? (
               <>
-                <strong className="block">This estimate is INCOMPLETE.</strong>
+                <strong className="block">
+                  {t("This estimate is INCOMPLETE.")}
+                </strong>
                 <ul className="mt-1 list-disc pl-5">
                   {result.missing.map((m) => (
                     <li key={m}>{m}</li>
@@ -515,16 +519,16 @@ export default function WaterproofingEstimator() {
           <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
             <table
               className="w-full text-sm"
-              aria-label="Waterproofing material takeoff"
+              aria-label={t("Waterproofing material takeoff")}
             >
               <thead className="border-b bg-muted/50 text-left">
                 <tr>
-                  <th className="p-3">Material</th>
-                  <th className="p-3">Quantity</th>
-                  <th className="p-3">Unit</th>
-                  <th className="p-3">How it was sized</th>
-                  <th className="p-3">Unit price</th>
-                  <th className="p-3">Line total</th>
+                  <th className="p-3">{t("Material")}</th>
+                  <th className="p-3">{t("Quantity")}</th>
+                  <th className="p-3">{t("Unit")}</th>
+                  <th className="p-3">{t("How it was sized")}</th>
+                  <th className="p-3">{t("Unit price")}</th>
+                  <th className="p-3">{t("Line total")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -543,7 +547,7 @@ export default function WaterproofingEstimator() {
                     <td className="p-3">
                       {l.unit_price === null ? (
                         <span className="font-medium text-amber-700 dark:text-amber-400">
-                          PRICE NOT CONFIGURED
+                          {t("PRICE NOT CONFIGURED")}
                         </span>
                       ) : (
                         formatCurrency(l.unit_price, currencySymbol)
@@ -562,7 +566,7 @@ export default function WaterproofingEstimator() {
 
           {/* Breakdown */}
           <div className="mb-6 rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">Calculation breakdown</h3>
+            <h3 className="mb-2 font-semibold">{t("Calculation breakdown")}</h3>
             <ol className="space-y-2 text-sm">
               {result.steps.map((s, i) => (
                 <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
@@ -576,7 +580,9 @@ export default function WaterproofingEstimator() {
           {/* Cost summary */}
           <div className="mb-6 grid gap-3 sm:grid-cols-4">
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Material subtotal</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Material subtotal")}
+              </p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
                   ? "(prices/inputs missing)"
@@ -585,14 +591,14 @@ export default function WaterproofingEstimator() {
             </div>
             <div className="rounded-lg border bg-card p-4">
               <p className="text-sm text-muted-foreground">
-                Of which priced so far
+                {t("Of which priced so far")}
               </p>
               <p className="text-xl font-semibold">
                 {formatCurrency(result.priced_subtotal, currencySymbol)}
               </p>
             </div>
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Labour</p>
+              <p className="text-sm text-muted-foreground">{t("Labour")}</p>
               <p className="text-xl font-semibold">
                 {labourMode === "none"
                   ? "Not included"
@@ -600,7 +606,9 @@ export default function WaterproofingEstimator() {
               </p>
             </div>
             <div className="rounded-lg border bg-primary/10 p-4">
-              <p className="text-sm text-muted-foreground">Grand total</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Grand total")}
+              </p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
                   ? "N/A"
@@ -611,7 +619,7 @@ export default function WaterproofingEstimator() {
 
           {/* Warnings */}
           <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
-            <h3 className="mb-1 font-semibold">Important</h3>
+            <h3 className="mb-1 font-semibold">{t("Important")}</h3>
             <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
               {result.warnings.map((w) => (
                 <li key={w}>{w}</li>
@@ -625,7 +633,7 @@ export default function WaterproofingEstimator() {
 
       {/* How it works */}
       <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">How this estimator works</h2>
+        <h2 className="mb-2 font-semibold">{t("How this estimator works")}</h2>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
             Quantities come from your measured runs and areas, with FRELUX's

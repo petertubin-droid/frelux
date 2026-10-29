@@ -16,6 +16,7 @@ import {
   type SupplierOfferCardData,
 } from "@/lib/international/supplier-inventory-engine";
 import { slugifyMaterial } from "@/lib/international/crowdsourcing-engine";
+import { useLanguage } from "@/lib/i18n";
 
 interface SupplierOfferBadgeProps {
   materialName: string;
@@ -32,6 +33,7 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
   onSelectSupplierPrice,
   className = "",
 }) => {
+  const { t } = useLanguage();
   const [offers, setOffers] = useState<SupplierOfferCardData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -59,7 +61,7 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
       <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
         <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
           <Store className="w-3.5 h-3.5" />
-          Matching-market verified supplier quote
+          {t("Matching-market verified supplier quote")}
         </span>
         <span className="text-[11px] text-slate-400">
           Supplier quote · updated within 30 days
@@ -77,7 +79,7 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
               className="text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-300"
             >
               <CheckCircle2 className="w-2.5 h-2.5 mr-0.5 inline" />
-              Verified supplier
+              {t("Verified supplier")}
             </Badge>
             <span className="text-[11px] text-slate-400">{bestOffer.city}</span>
           </div>
@@ -93,11 +95,13 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
                 className="text-[10px] text-indigo-600 bg-indigo-50 dark:bg-indigo-950"
               >
                 <Percent className="w-2.5 h-2.5 mr-0.5 inline" />
-                Bulk Tier Applied
+                {t("Bulk Tier Applied")}
               </Badge>
             )}
             <span className="text-[11px] text-emerald-600 font-medium">
-              {(bestOffer.stockQuantity ?? 0) > 0 ? `(${bestOffer.stockQuantity} in stock)` : "(stock quantity not provided)"}
+              {(bestOffer.stockQuantity ?? 0) > 0
+                ? `(${bestOffer.stockQuantity} in stock)`
+                : "(stock quantity not provided)"}
             </span>
           </div>
         </div>
@@ -115,14 +119,14 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
                 )
               }
             >
-              Use Supplier Quote
+              {t("Use Supplier Quote")}
             </Button>
           )}
           {bestOffer.phone && (
             <a
               href={`tel:${bestOffer.phone}`}
               className="p-1.5 rounded border border-slate-200 dark:border-slate-800 text-slate-600 hover:text-slate-900"
-              title="Call Supplier"
+              title={t("Call Supplier")}
             >
               <Phone className="w-3.5 h-3.5" />
             </a>

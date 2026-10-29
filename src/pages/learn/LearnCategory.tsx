@@ -18,6 +18,7 @@ import type { DbLearnCategory, DbLearnArticle } from "@/types/database";
 import Pagination from "@/components/ui/Pagination";
 import { useLearnMarketScope } from "@/lib/learn-scope";
 import { SITE_URL } from "@/lib/site-config";
+import { useLanguage } from "@/lib/i18n";
 
 type Status = "loading" | "ready" | "error" | "notfound";
 
@@ -26,6 +27,7 @@ type Status = "loading" | "ready" | "error" | "notfound";
 const ARTICLES_PER_PAGE = 20;
 
 export default function LearnCategory() {
+  const { t } = useLanguage();
   const scope = useLearnMarketScope();
   const { categorySlug } = useParams<{ categorySlug: string }>();
 
@@ -55,8 +57,7 @@ export default function LearnCategory() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const SITE_URL_ =
-    SITE_URL;
+  const SITE_URL_ = SITE_URL;
   useSeo({
     title: category ? `${category.name}: Learn` : "Learn Category",
     description:
@@ -150,7 +151,7 @@ export default function LearnCategory() {
       <>
         <PageHeader
           eyebrow="Learn"
-          title="Loading…"
+          title={t("Loading…")}
           subtitle=""
           breadcrumbs={[
             { label: "Learn Hub", path: "/learn" },
@@ -169,7 +170,7 @@ export default function LearnCategory() {
       <>
         <PageHeader
           eyebrow="Learn"
-          title="Category not found"
+          title={t("Category not found")}
           subtitle=""
           breadcrumbs={[
             { label: "Learn Hub", path: "/learn" },
@@ -182,13 +183,13 @@ export default function LearnCategory() {
             className="mx-auto h-8 w-8 text-muted-foreground/80"
           />
           <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground">
-            This category doesn't exist or has been removed.
+            {t("This category doesn't exist or has been removed.")}
           </p>
           <Link
             to="/learn/"
             className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline"
           >
-            Back to Learn
+            {t("Back to Learn")}
           </Link>
         </div>
       </>
@@ -259,7 +260,7 @@ export default function LearnCategory() {
                   Topics within {category.name}
                 </h3>
                 <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                  Dive deeper into specific areas
+                  {t("Dive deeper into specific areas")}
                 </p>
               </div>
             </div>
@@ -285,7 +286,7 @@ export default function LearnCategory() {
                         </p>
                       )}
                       <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple">
-                        Explore
+                        {t("Explore")}
                         <ArrowRight
                           aria-hidden="true"
                           className="h-3 w-3 transition-transform group-hover:translate-x-0.5"
@@ -309,10 +310,10 @@ export default function LearnCategory() {
                 </div>
                 <div>
                   <h3 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                    All Articles
+                    {t("All Articles")}
                   </h3>
                   <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                    Every guide in this category
+                    {t("Every guide in this category")}
                   </p>
                 </div>
               </div>
@@ -405,7 +406,8 @@ export default function LearnCategory() {
             to="/learn/"
             className="inline-flex items-center gap-2 text-sm font-semibold text-brand-purple hover:underline"
           >
-            <ArrowLeft aria-hidden="true" className="h-4 w-4" /> All topics
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" />{" "}
+            {t("All topics")}
           </Link>
         </div>
         <div className="mt-8">

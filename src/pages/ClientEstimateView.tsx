@@ -18,6 +18,7 @@ import {
 import type { DbClientEstimate } from "@/types/database";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const fmt = (v: number, currency = "NGN") =>
   new Intl.NumberFormat("en-NG", {
@@ -27,6 +28,7 @@ const fmt = (v: number, currency = "NGN") =>
   }).format(v || 0);
 
 export default function ClientEstimateView() {
+  const { t } = useLanguage();
   useSeo({
     title: "Project Estimate",
     description: "Review and approve your project estimate.",
@@ -108,7 +110,9 @@ export default function ClientEstimateView() {
     return (
       <div className="container mx-auto py-20 max-w-lg text-center">
         <AlertCircle className="mx-auto h-12 w-12 text-destructive mb-4" />
-        <h1 className="text-xl font-bold mb-2">Unable to Load Estimate</h1>
+        <h1 className="text-xl font-bold mb-2">
+          {t("Unable to Load Estimate")}
+        </h1>
         <p className="text-muted-foreground">{error}</p>
       </div>
     );
@@ -148,7 +152,7 @@ export default function ClientEstimateView() {
               <div className="flex items-center gap-2 mb-1">
                 <Shield className="h-4 w-4 text-primary" />
                 <span className="text-xs font-medium text-muted-foreground">
-                  Secure Estimate
+                  {t("Secure Estimate")}
                 </span>
               </div>
               <h1 className="text-2xl font-bold">{estimate.title}</h1>
@@ -183,7 +187,7 @@ export default function ClientEstimateView() {
 
         {/* Cost breakdown */}
         <div className="mb-8 rounded-2xl border bg-card p-6 shadow-sm">
-          <h2 className="font-semibold text-lg mb-4">Cost Breakdown</h2>
+          <h2 className="font-semibold text-lg mb-4">{t("Cost Breakdown")}</h2>
           <div className="space-y-2">
             {[
               { label: "Materials", value: estimate.materials_cost },
@@ -212,7 +216,7 @@ export default function ClientEstimateView() {
               </div>
             )}
             <div className="flex justify-between pt-2">
-              <span className="font-bold text-lg">Grand Total</span>
+              <span className="font-bold text-lg">{t("Grand Total")}</span>
               <span className="font-bold text-lg text-primary">
                 {fmt(estimate.grand_total, estimate.currency)}
               </span>
@@ -223,7 +227,7 @@ export default function ClientEstimateView() {
         {/* Materials summary */}
         {estimate.materials_summary?.length > 0 && (
           <div className="mb-8 rounded-2xl border bg-card p-6 shadow-sm">
-            <h2 className="font-semibold text-lg mb-4">Materials</h2>
+            <h2 className="font-semibold text-lg mb-4">{t("Materials")}</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -269,7 +273,7 @@ export default function ClientEstimateView() {
           <div className="mb-8 rounded-2xl border bg-card p-6 shadow-sm">
             {estimate.notes && (
               <div className="mb-4">
-                <h3 className="font-semibold mb-1">Notes</h3>
+                <h3 className="font-semibold mb-1">{t("Notes")}</h3>
                 <p className="text-sm text-muted-foreground">
                   {estimate.notes}
                 </p>
@@ -277,7 +281,9 @@ export default function ClientEstimateView() {
             )}
             {estimate.terms_conditions && (
               <div>
-                <h3 className="font-semibold mb-1">Terms & Conditions</h3>
+                <h3 className="font-semibold mb-1">
+                  {t("Terms & Conditions")}
+                </h3>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                   {estimate.terms_conditions}
                 </p>
@@ -292,7 +298,9 @@ export default function ClientEstimateView() {
             <div className="mb-8 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6">
               <div className="flex items-center gap-2 mb-2">
                 <MessageSquare className="h-4 w-4 text-amber-500" />
-                <h3 className="font-semibold text-amber-600">Your Feedback</h3>
+                <h3 className="font-semibold text-amber-600">
+                  {t("Your Feedback")}
+                </h3>
               </div>
               <p className="text-sm">{estimate.client_feedback}</p>
             </div>
@@ -304,10 +312,10 @@ export default function ClientEstimateView() {
             {showFeedback ? (
               <div className="space-y-4">
                 <textarea
-                  aria-label="Feedback for the professional"
+                  aria-label={t("Feedback for the professional")}
                   className="w-full rounded-lg border bg-background px-4 py-3 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
                   rows={4}
-                  placeholder="Describe what changes you'd like..."
+                  placeholder={t("Describe what changes you'd like...")}
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
                   autoFocus
@@ -318,7 +326,7 @@ export default function ClientEstimateView() {
                     onClick={() => setShowFeedback(false)}
                     className="flex-1 rounded-lg border px-4 py-3 text-sm font-medium hover:bg-muted transition-all"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -330,7 +338,8 @@ export default function ClientEstimateView() {
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <>
-                        <MessageSquare className="h-4 w-4" /> Submit Feedback
+                        <MessageSquare className="h-4 w-4" />{" "}
+                        {t("Submit Feedback")}
                       </>
                     )}
                   </Button>
@@ -373,7 +382,9 @@ export default function ClientEstimateView() {
               Estimate Approved!
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Thank you for your approval. The project owner has been notified.
+              {t(
+                "Thank you for your approval. The project owner has been notified.",
+              )}
             </p>
           </div>
         )}

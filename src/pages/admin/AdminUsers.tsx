@@ -12,6 +12,7 @@ import { Clock, X, Check } from "lucide-react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import AdminPagination from "@/components/admin/AdminPagination";
 import { AdminButton } from "@/components/admin/AdminUi";
+import { useLanguage } from "@/lib/i18n";
 
 type Status = "loading" | "ready" | "error";
 
@@ -35,6 +36,7 @@ const DURATION_OPTIONS = [
 ];
 
 export default function AdminUsers() {
+  const { t } = useLanguage();
   const [users, setUsers] = useState<UserWithPaid[]>([]);
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState("");
@@ -165,12 +167,12 @@ export default function AdminUsers() {
     return (
       <>
         <AdminHeader
-          title="User Management"
-          subtitle="View and manage user accounts & subscriptions."
+          title={t("User Management")}
+          subtitle={t("View and manage user accounts & subscriptions.")}
         />
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={t("Loading…")}
           message="Fetching users."
         />
       </>
@@ -179,18 +181,18 @@ export default function AdminUsers() {
     return (
       <>
         <AdminHeader
-          title="User Management"
-          subtitle="View and manage user accounts & subscriptions."
+          title={t("User Management")}
+          subtitle={t("View and manage user accounts & subscriptions.")}
         />
-        <StateMessage type="error" title="Error" message={error} />
+        <StateMessage type="error" title={t("Error")} message={error} />
       </>
     );
 
   return (
     <>
       <AdminHeader
-        title="User Management"
-        subtitle="View and manage user accounts & subscriptions."
+        title={t("User Management")}
+        subtitle={t("View and manage user accounts & subscriptions.")}
       />
       {error && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -203,22 +205,22 @@ export default function AdminUsers() {
             <thead>
               <tr className="border-b border-border dark:border-border border-border">
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
-                  Email
+                  {t("Email")}
                 </th>
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
-                  Role
+                  {t("Role")}
                 </th>
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
-                  Subscription
+                  {t("Subscription")}
                 </th>
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
-                  Plan
+                  {t("Plan")}
                 </th>
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
-                  Expires
+                  {t("Expires")}
                 </th>
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
-                  Actions
+                  {t("Actions")}
                 </th>
               </tr>
             </thead>
@@ -229,7 +231,7 @@ export default function AdminUsers() {
                     colSpan={6}
                     className="py-8 text-center text-muted-foreground dark:text-muted-foreground"
                   >
-                    No users yet.
+                    {t("No users yet.")}
                   </td>
                 </tr>
               ) : (
@@ -272,7 +274,7 @@ export default function AdminUsers() {
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground dark:bg-card-foreground/90">
-                            <X className="h-3 w-3" /> Free
+                            <X className="h-3 w-3" /> {t("Free")}
                           </span>
                         )}
                       </td>
@@ -335,7 +337,7 @@ export default function AdminUsers() {
                               onClick={() => setEditingId(null)}
                               className="text-xs py-1"
                             >
-                              Cancel
+                              {t("Cancel")}
                             </AdminButton>
                           </div>
                         ) : (
@@ -359,7 +361,7 @@ export default function AdminUsers() {
                                 disabled={saving}
                                 className="text-xs py-1"
                               >
-                                Revoke
+                                {t("Revoke")}
                               </AdminButton>
                             )}
                           </div>
@@ -374,7 +376,7 @@ export default function AdminUsers() {
         </div>
       </AdminCard>
       <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-900/20 dark:text-blue-300">
-        <p className="font-semibold">Subscription Management</p>
+        <p className="font-semibold">{t("Subscription Management")}</p>
         <p className="mt-1">
           Grant, extend, or revoke premium access for any user. Paid subscribers
           get access to all FRELUX engineering tools, calculators, and AI

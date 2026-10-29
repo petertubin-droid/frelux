@@ -20,6 +20,7 @@ import {
   AdminTextarea,
 } from "@/components/admin/AdminUi";
 import { AdminModal } from "@/components/admin/AdminModal";
+import { useLanguage } from "@/lib/i18n";
 
 interface ProductionRule {
   id: string;
@@ -54,6 +55,7 @@ const LOCATION_RULES = [
 ];
 
 export default function AdminEstimationProduction() {
+  const { t } = useLanguage();
   const [rules, setRules] = useState<ProductionRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -116,8 +118,10 @@ export default function AdminEstimationProduction() {
   return (
     <>
       <AdminHeader
-        title="Production Rules"
-        subtitle="Manage FRELUX paint production minimums by product and location."
+        title={t("Production Rules")}
+        subtitle={t(
+          "Manage FRELUX paint production minimums by product and location.",
+        )}
         action={
           <AdminButton
             onClick={() => {
@@ -126,7 +130,7 @@ export default function AdminEstimationProduction() {
             }}
           >
             <Plus aria-hidden="true" className="h-4 w-4" />
-            Add Rule
+            {t("Add Rule")}
           </AdminButton>
         }
       />
@@ -140,13 +144,13 @@ export default function AdminEstimationProduction() {
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={t("Loading…")}
           message="Fetching production rules."
         />
       ) : rules.length === 0 && !showForm ? (
         <StateMessage
           type="empty"
-          title="No rules found"
+          title={t("No rules found")}
           message="Add production rules to manage minimums."
         />
       ) : (
@@ -282,6 +286,7 @@ function ProductionRuleForm({
   onSave: (rule: Partial<ProductionRule>) => void;
   onCancel: () => void;
 }) {
+  const { t } = useLanguage();
   const [productCategory, setProductCategory] = useState(
     rule?.product_category ?? "emulsion",
   );
@@ -390,7 +395,7 @@ function ProductionRuleForm({
 
       <div className="mt-5 flex justify-end gap-2">
         <AdminButton variant="secondary" onClick={onCancel}>
-          Cancel
+          {t("Cancel")}
         </AdminButton>
         <AdminButton
           onClick={() =>
@@ -407,7 +412,7 @@ function ProductionRuleForm({
             })
           }
         >
-          Save
+          {t("Save")}
         </AdminButton>
       </div>
     </AdminModal>

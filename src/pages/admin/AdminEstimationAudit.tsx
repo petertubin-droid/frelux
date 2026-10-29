@@ -1,13 +1,35 @@
-import { useEffect, useState, useCallback } from 'react';
-import { ChevronDown, ChevronUp, Filter, User, Calendar, Database, RefreshCw } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import {  AdminHeader, AdminButton, StateMessage, AdminSelect } from '@/components/admin/AdminUi';
+import { useEffect, useState, useCallback } from "react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  User,
+  Calendar,
+  Database,
+  RefreshCw,
+} from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import {
+  AdminHeader,
+  AdminButton,
+  StateMessage,
+  AdminSelect,
+} from "@/components/admin/AdminUi";
+import { useLanguage } from "@/lib/i18n";
 
 interface AuditLogEntry {
   id: string;
   entity_type: string;
   entity_id: string | null;
-  action: 'create' | 'update' | 'delete' | 'activate' | 'deactivate' | 'price_change' | 'adjust' | string;
+  action:
+    | "create"
+    | "update"
+    | "delete"
+    | "activate"
+    | "deactivate"
+    | "price_change"
+    | "adjust"
+    | string;
   old_value: unknown;
   new_value: unknown;
   changed_by: string | null;
@@ -18,26 +40,27 @@ const PAGE_SIZE = 50;
 
 function getActionBadge(action: string) {
   switch (action) {
-    case 'create':
-      return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-    case 'update':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'delete':
-      return 'bg-red-100 text-red-800 border-red-200';
-    case 'activate':
-      return 'bg-green-100 text-green-800 border-green-200';
-    case 'deactivate':
-      return 'bg-amber-100 text-amber-800 border-amber-200';
-    case 'price_change':
-      return 'bg-primary/10 text-primary border-primary/20';
-    case 'adjust':
-      return 'bg-orange-100 text-orange-800 border-orange-200';
+    case "create":
+      return "bg-emerald-100 text-emerald-800 border-emerald-200";
+    case "update":
+      return "bg-blue-100 text-blue-800 border-blue-200";
+    case "delete":
+      return "bg-red-100 text-red-800 border-red-200";
+    case "activate":
+      return "bg-green-100 text-green-800 border-green-200";
+    case "deactivate":
+      return "bg-amber-100 text-amber-800 border-amber-200";
+    case "price_change":
+      return "bg-primary/10 text-primary border-primary/20";
+    case "adjust":
+      return "bg-orange-100 text-orange-800 border-orange-200";
     default:
-      return 'bg-muted text-card-foreground border-border';
+      return "bg-muted text-card-foreground border-border";
   }
 }
 
 export default function AdminEstimationAudit() {
+  const { t } = useLanguage();
   const [entries, setEntries] = useState<AuditLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -48,7 +71,7 @@ export default function AdminEstimationAudit() {
   const [hasMore, setHasMore] = useState(true);
 
   // Filter state
-  const [selectedEntityType, setSelectedEntityType] = useState<string>('all');
+  const [selectedEntityType, setSelectedEntityType] = useState<string>("all");
 
   // Expansion state
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -66,13 +89,13 @@ export default function AdminEstimationAudit() {
       const to = from + PAGE_SIZE - 1;
 
       let query = supabase
-        .from('estimation_audit_log')
-        .select('*')
-        .order('created_at', { ascending: false })
+        .from("estimation_audit_log")
+        .select("*")
+        .order("created_at", { ascending: false })
         .range(from, to);
 
-      if (entityType !== 'all') {
-        query = query.eq('entity_type', entityType);
+      if (entityType !== "all") {
+        query = query.eq("entity_type", entityType);
       }
 
       const { data, error } = await query;
@@ -92,7 +115,7 @@ export default function AdminEstimationAudit() {
       setLoading(false);
       setLoadingMore(false);
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -113,7 +136,7 @@ export default function AdminEstimationAudit() {
   return (
     <>
       <AdminHeader
-        title="Estimation Audit Trail"
+        title={t("Estimation Audit Trail")}
         subtitle="View-only audit log tracking changes across estimation products, prices, rules, and calculations."
       />
 
@@ -126,14 +149,19 @@ export default function AdminEstimationAudit() {
       {/* Filter Header */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <Filter aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
-          <span className="text-xs font-semibold text-muted-foreground">Filter Entity:</span>
+          <Filter
+            aria-hidden="true"
+            className="h-4 w-4 text-muted-foreground"
+          />
+          <span className="text-xs font-semibold text-muted-foreground">
+            Filter Entity:
+          </span>
           <AdminSelect
             className="text-xs py-1.5 w-48"
             value={selectedEntityType}
             onChange={(e) => setSelectedEntityType(e.target.value)}
           >
-            <option value="all">All Entities</option>
+            <option value="all">{t("All Entities")}</option>
             <option value="product">product</option>
             <option value="quality">quality</option>
             <option value="material">material</option>
@@ -152,20 +180,25 @@ export default function AdminEstimationAudit() {
           }}
           className="text-xs py-1.5"
         >
-          <RefreshCw aria-hidden="true" className="h-3.5 w-3.5" /> Refresh
+          <RefreshCw aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+          {t("Refresh")}
         </AdminButton>
       </div>
 
       {loading ? (
-        <StateMessage type="loading" title="Loading audit log..." message="Fetching security audit trail." />
+        <StateMessage
+          type="loading"
+          title={t("Loading audit log...")}
+          message="Fetching security audit trail."
+        />
       ) : entries.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No audit entries found"
+          title={t("No audit entries found")}
           message={
-            selectedEntityType !== 'all'
+            selectedEntityType !== "all"
               ? `No audit logs recorded for entity type "${selectedEntityType}".`
-              : 'Audit events will be recorded here automatically when changes are made.'
+              : "Audit events will be recorded here automatically when changes are made."
           }
         />
       ) : (
@@ -188,7 +221,7 @@ export default function AdminEstimationAudit() {
 
                       <span
                         className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${getActionBadge(
-                          entry.action
+                          entry.action,
                         )}`}
                       >
                         {entry.action}
@@ -208,17 +241,23 @@ export default function AdminEstimationAudit() {
                       </span>
                       <span className="inline-flex items-center gap-1 font-mono">
                         <User aria-hidden="true" className="h-3 w-3" />
-                        {entry.changed_by ? `User: ${entry.changed_by}` : 'System / Trigger'}
+                        {entry.changed_by
+                          ? `User: ${entry.changed_by}`
+                          : "System / Trigger"}
                       </span>
                     </div>
                   </div>
 
                   <div className="flex shrink-0 items-center gap-2">
                     <span className="text-xs text-brand-purple font-medium hidden sm:inline">
-                      {isExpanded ? 'Hide changes' : 'View details'}
+                      {isExpanded ? "Hide changes" : "View details"}
                     </span>
                     <div className="rounded-full bg-muted p-1.5 text-muted-foreground hover:bg-muted">
-                      {isExpanded ? <ChevronUp aria-hidden="true" className="h-4 w-4" /> : <ChevronDown aria-hidden="true" className="h-4 w-4" />}
+                      {isExpanded ? (
+                        <ChevronUp aria-hidden="true" className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown aria-hidden="true" className="h-4 w-4" />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -229,30 +268,32 @@ export default function AdminEstimationAudit() {
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
                         <h4 className="mb-1.5 font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
-                          Old Value
+                          {t("Old Value")}
                         </h4>
-                        {entry.old_value !== null && entry.old_value !== undefined ? (
+                        {entry.old_value !== null &&
+                        entry.old_value !== undefined ? (
                           <pre className="max-h-60 overflow-x-auto rounded-lg bg-background p-3 font-mono text-[11px] text-red-300">
                             {JSON.stringify(entry.old_value, null, 2)}
                           </pre>
                         ) : (
                           <div className="rounded-lg border border-dashed border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 p-3 text-muted-foreground italic">
-                            None (Initial creation)
+                            {t("None (Initial creation)")}
                           </div>
                         )}
                       </div>
 
                       <div>
                         <h4 className="mb-1.5 font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
-                          New Value
+                          {t("New Value")}
                         </h4>
-                        {entry.new_value !== null && entry.new_value !== undefined ? (
+                        {entry.new_value !== null &&
+                        entry.new_value !== undefined ? (
                           <pre className="max-h-60 overflow-x-auto rounded-lg bg-background p-3 font-mono text-[11px] text-emerald-300">
                             {JSON.stringify(entry.new_value, null, 2)}
                           </pre>
                         ) : (
                           <div className="rounded-lg border border-dashed border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 p-3 text-muted-foreground italic">
-                            None (Record deleted)
+                            {t("None (Record deleted)")}
                           </div>
                         )}
                       </div>
@@ -272,7 +313,7 @@ export default function AdminEstimationAudit() {
                 disabled={loadingMore}
                 className="w-full sm:w-auto"
               >
-                {loadingMore ? 'Loading more logs…' : 'Load More Audit Entries'}
+                {loadingMore ? "Loading more logs…" : "Load More Audit Entries"}
               </AdminButton>
             </div>
           )}

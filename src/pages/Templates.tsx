@@ -19,6 +19,7 @@ import { classNames } from "@/lib/utils";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 const CATEGORY_TABS: { key: CalculatorType | "all"; label: string }[] = [
   { key: "all", label: "All" },
   { key: "paint", label: "Painting" },
@@ -28,6 +29,7 @@ const CATEGORY_TABS: { key: CalculatorType | "all"; label: string }[] = [
 ];
 
 export default function Templates() {
+  const { t } = useLanguage();
   useSeo({
     title: "Calculator Templates",
     description:
@@ -99,14 +101,14 @@ export default function Templates() {
             to="/"
             className="hover:text-brand-purple dark:hover:text-brand-purple-lighter"
           >
-            Home
+            {t("Home")}
           </Link>
           <ChevronRight className="h-3 w-3" />
-          <span>Templates</span>
+          <span>{t("Templates")}</span>
         </div>
         <HeroTitle
           className="mt-3 text-2xl text-foreground dark:text-primary-foreground sm:text-3xl"
-          title="FRELUX Calculator Templates"
+          title={t("FRELUX Calculator Templates")}
         />
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground dark:text-muted-foreground">
           Professionally curated templates for common painting, tiling,
@@ -129,11 +131,11 @@ export default function Templates() {
             className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
           />
           <input
-            aria-label="Search templates"
+            aria-label={t("Search templates")}
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search templates..."
+            placeholder={t("Search templates...")}
             className="w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
           />
         </div>
@@ -173,10 +175,10 @@ export default function Templates() {
         <div className="rounded-xl border border-dashed border-border bg-muted/50 p-12 text-center dark:border-white/10 dark:bg-white/5">
           <BadgeCheck className="mx-auto h-8 w-8 text-muted-foreground/80 dark:text-muted-foreground" />
           <p className="mt-3 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80">
-            No templates found
+            {t("No templates found")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-            Try a different search or category filter.
+            {t("Try a different search or category filter.")}
           </p>
         </div>
       ) : (
@@ -185,7 +187,7 @@ export default function Templates() {
             <div>
               <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
                 <BadgeCheck className="h-3.5 w-3.5 text-amber-500" />
-                Featured Templates
+                {t("Featured Templates")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {featured.map((t) => (
@@ -197,7 +199,7 @@ export default function Templates() {
           {rest.length > 0 && (
             <div>
               <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
-                All Templates
+                {t("All Templates")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {rest.map((t) => (
@@ -212,7 +214,7 @@ export default function Templates() {
       {/* Calculator links */}
       <div className="mt-10 rounded-xl border border-border bg-muted/50 p-6 dark:border-white/10 dark:bg-white/5">
         <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-          Browse Calculators
+          {t("Browse Calculators")}
         </h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {(["paint", "tile", "screeding", "pop"] as CalculatorType[]).map(
@@ -250,6 +252,7 @@ export default function Templates() {
 }
 
 function PublicTemplateCard({ template }: { template: DbCalculatorTemplate }) {
+  const { t } = useLanguage();
   return (
     <Link
       to={`/templates/${template.slug}/`}
@@ -273,7 +276,7 @@ function PublicTemplateCard({ template }: { template: DbCalculatorTemplate }) {
         </p>
       )}
       <div className="mt-4 flex items-center gap-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
-        View Template
+        {t("View Template")}
         <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
       </div>
     </Link>

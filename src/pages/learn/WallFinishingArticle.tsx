@@ -22,6 +22,7 @@ import { slugifyHeading } from "@/lib/learn/heading-slug";
 import { Button } from "@/components/ui/shadcn/button";
 import { WALL_FINISHING_LIBRARY_MARKETS } from "@/lib/wallfinishing/knowledge-library";
 import { SITE_URL } from "@/lib/site-config";
+import { useLanguage } from "@/lib/i18n";
 
 type Status = "loading" | "ready" | "missing" | "error";
 
@@ -79,6 +80,7 @@ const themeLabels: Record<string, string> = {
  * reviewed section, and market-scoped navigation.
  */
 export default function WallFinishingArticle() {
+  const { t } = useLanguage();
   const { marketCode = "", articleSlug = "" } = useParams<{
     marketCode: string;
     articleSlug: string;
@@ -101,8 +103,7 @@ export default function WallFinishingArticle() {
   const [copied, setCopied] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
 
-  const SITE_URL_ =
-    SITE_URL;
+  const SITE_URL_ = SITE_URL;
   const canonicalPath = `/learn/wall-finishing/${marketCode.toLowerCase()}/${articleSlug}`;
 
   // Structured data: Article + BreadcrumbList (+ FAQPage when FAQs exist)
@@ -171,8 +172,11 @@ export default function WallFinishingArticle() {
   }, [article, faqs, canonicalPath, marketName, marketCode, SITE_URL_]);
 
   useSeo({
-    title: article ? `${article.title} | ${marketName} | FRELUX` : "Wall finishing guidance | FRELUX",
-    description: article?.excerpt ?? `Reviewed wall finishing guidance for ${marketName}.`,
+    title: article
+      ? `${article.title} | ${marketName} | FRELUX`
+      : "Wall finishing guidance | FRELUX",
+    description:
+      article?.excerpt ?? `Reviewed wall finishing guidance for ${marketName}.`,
     canonicalPath,
     ogType: "article",
     ogImage: article?.cover_image_url ?? undefined,
@@ -222,7 +226,9 @@ export default function WallFinishingArticle() {
         await Promise.all([
           supabase
             .from("learn_wall_finishing_sources")
-            .select("id,title,url,publisher,published_on,retrieved_at,claim_scope")
+            .select(
+              "id,title,url,publisher,published_on,retrieved_at,claim_scope",
+            )
             .eq("topic_id", row.wall_topic_id)
             .eq("review_status", "accepted")
             .order("created_at"),
@@ -314,9 +320,17 @@ export default function WallFinishingArticle() {
     const headings: { id: string; text: string; level: number }[] = [];
     for (const line of article.content.split("\n")) {
       if (line.startsWith("## ")) {
-        headings.push({ id: slugifyHeading(line.slice(3)), text: line.slice(3), level: 2 });
+        headings.push({
+          id: slugifyHeading(line.slice(3)),
+          text: line.slice(3),
+          level: 2,
+        });
       } else if (line.startsWith("### ")) {
-        headings.push({ id: slugifyHeading(line.slice(4)), text: line.slice(4), level: 3 });
+        headings.push({
+          id: slugifyHeading(line.slice(4)),
+          text: line.slice(4),
+          level: 3,
+        });
       }
     }
     return headings;
@@ -347,7 +361,9 @@ export default function WallFinishingArticle() {
           className="mx-auto h-8 w-8 text-muted-foreground/80"
         />
         <p className="mt-3 text-sm text-muted-foreground">
-          This article isn't published and approved for the selected market.
+          {t(
+            "This article isn't published and approved for the selected market.",
+          )}
         </p>
         <Link
           to={`/learn/wall-finishing/${marketCode.toLowerCase()}/`}
@@ -361,9 +377,12 @@ export default function WallFinishingArticle() {
   if (status === "error" || !article)
     return (
       <div className="mx-auto max-w-md py-20 text-center">
-        <AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-red-400" />
+        <AlertCircle
+          aria-hidden="true"
+          className="mx-auto h-8 w-8 text-red-400"
+        />
         <p className="mt-3 text-sm text-red-600">
-          The article or its reviewed citations could not be loaded.
+          {t("The article or its reviewed citations could not be loaded.")}
         </p>
       </div>
     );
@@ -390,8 +409,11 @@ export default function WallFinishingArticle() {
       >
         {/* Breadcrumb */}
         <nav className="mb-8 flex items-center gap-2 text-xs text-muted-foreground">
-          <Link to="/learn/" className="transition-colors hover:text-brand-purple">
-            Learn
+          <Link
+            to="/learn/"
+            className="transition-colors hover:text-brand-purple"
+          >
+            {t("Learn")}
           </Link>
           <span className="text-muted-foreground/80">/</span>
           <Link
@@ -408,7 +430,7 @@ export default function WallFinishingArticle() {
             <aside className="hidden w-56 shrink-0 lg:block">
               <div className="sticky top-20">
                 <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  <BookOpen className="h-3.5 w-3.5" /> Contents
+                  <BookOpen className="h-3.5 w-3.5" /> {t("Contents")}
                 </div>
                 <nav className="space-y-1 border-l border-border dark:border-white/10">
                   {tableOfContents.map((h) => (
@@ -429,7 +451,7 @@ export default function WallFinishingArticle() {
                       href="#sources"
                       className="block border-l-2 border-transparent py-1.5 pl-3 text-xs text-muted-foreground transition-colors hover:border-border hover:text-card-foreground dark:hover:text-muted-foreground/80"
                     >
-                      Sources
+                      {t("Sources")}
                     </a>
                   )}
                   {faqs.length > 0 && (
@@ -437,7 +459,7 @@ export default function WallFinishingArticle() {
                       href="#faqs"
                       className="block border-l-2 border-transparent py-1.5 pl-3 text-xs text-muted-foreground transition-colors hover:border-border hover:text-card-foreground dark:hover:text-muted-foreground/80"
                     >
-                      FAQs
+                      {t("FAQs")}
                     </a>
                   )}
                 </nav>
@@ -473,7 +495,8 @@ export default function WallFinishingArticle() {
               <div className="mt-7 flex flex-wrap items-center gap-5 border-b border-border pb-7 dark:border-white/10">
                 {article.author && (
                   <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                    <User aria-hidden="true" className="h-4 w-4" /> {article.author}
+                    <User aria-hidden="true" className="h-4 w-4" />{" "}
+                    {article.author}
                   </span>
                 )}
                 <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
@@ -481,11 +504,14 @@ export default function WallFinishingArticle() {
                 </span>
                 {article.published_at && (
                   <span className="text-xs font-medium text-muted-foreground">
-                    {new Date(article.published_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {new Date(article.published_at).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      },
+                    )}
                   </span>
                 )}
                 <Button
@@ -515,7 +541,10 @@ export default function WallFinishingArticle() {
               </div>
             ) : (
               <div className="mb-10 flex items-center justify-center rounded-2xl border border-dashed border-border bg-gradient-to-br from-muted/50 to-primary/5 py-20 dark:border-white/5 dark:from-card dark:to-background">
-                <ImageOff aria-hidden="true" className="h-10 w-10 text-muted-foreground/80" />
+                <ImageOff
+                  aria-hidden="true"
+                  className="h-10 w-10 text-muted-foreground/80"
+                />
               </div>
             )}
 
@@ -550,7 +579,7 @@ export default function WallFinishingArticle() {
                   </div>
                   <div>
                     <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                      Sources Reviewed
+                      {t("Sources Reviewed")}
                     </h2>
                     <p className="text-xs text-muted-foreground">
                       References accepted for this {marketName} guidance
@@ -598,10 +627,10 @@ export default function WallFinishingArticle() {
                 <div className="overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-muted/50 to-card p-7 dark:border-white/10 dark:from-card dark:to-background sm:p-9">
                   <div className="mb-6">
                     <h2 className="font-display text-xl font-bold text-foreground dark:text-primary-foreground">
-                      Frequently Asked Questions
+                      {t("Frequently Asked Questions")}
                     </h2>
                     <p className="mt-1.5 text-sm text-muted-foreground">
-                      Quick answers to common questions about this topic
+                      {t("Quick answers to common questions about this topic")}
                     </p>
                   </div>
                   <div className="space-y-3">
@@ -612,7 +641,9 @@ export default function WallFinishingArticle() {
                       >
                         <Button
                           variant="ghost"
-                          onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                          onClick={() =>
+                            setOpenFaq(openFaq === idx ? null : idx)
+                          }
                           className="flex w-full items-center justify-between gap-4 p-5 text-left transition-colors hover:bg-primary/[0.02]"
                         >
                           <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
@@ -659,7 +690,8 @@ export default function WallFinishingArticle() {
                     to="/calculators/"
                     className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md"
                   >
-                    Try Our Calculators <ArrowRight className="h-4 w-4" />
+                    {t("Try Our Calculators")}{" "}
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link
                     to={`/learn/wall-finishing/${marketCode.toLowerCase()}/`}
@@ -685,7 +717,7 @@ export default function WallFinishingArticle() {
                     />
                     <div className="min-w-0">
                       <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        Previous
+                        {t("Previous")}
                       </span>
                       <p className="mt-1 truncate text-sm font-bold text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
                         {prevArticle.title}
@@ -702,7 +734,7 @@ export default function WallFinishingArticle() {
                   >
                     <div className="min-w-0">
                       <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        Next
+                        {t("Next")}
                       </span>
                       <p className="mt-1 truncate text-sm font-bold text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
                         {nextArticle.title}
@@ -742,7 +774,7 @@ export default function WallFinishingArticle() {
                       Related {marketName} Guidance
                     </h2>
                     <p className="text-xs text-muted-foreground">
-                      More reviewed articles from this market edition
+                      {t("More reviewed articles from this market edition")}
                     </p>
                   </div>
                 </div>
@@ -769,14 +801,16 @@ export default function WallFinishingArticle() {
                       )}
                       <div className="flex flex-1 flex-col p-4">
                         <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                          {themeLabels[a.wall_article_theme ?? ""] ?? "Wall finishing"}
+                          {themeLabels[a.wall_article_theme ?? ""] ??
+                            "Wall finishing"}
                         </span>
                         <h3 className="mt-1 text-sm font-bold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
                           {a.title}
                         </h3>
                         {a.read_time_minutes && (
                           <span className="mt-auto flex items-center gap-1 pt-3 text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3" /> {a.read_time_minutes} min read
+                            <Clock className="h-3 w-3" /> {a.read_time_minutes}{" "}
+                            min read
                           </span>
                         )}
                       </div>

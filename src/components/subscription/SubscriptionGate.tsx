@@ -7,6 +7,7 @@ import { formatSubscriptionStatus } from "@/lib/subscription";
 import type { PaidFeature } from "@/lib/subscription";
 import { FEATURE_LABELS, getFeatureMinPlan } from "@/lib/subscription";
 import { isPremiumEnabled } from "@/lib/premium-access";
+import { useLanguage } from "@/lib/i18n";
 
 interface SubscriptionGateProps {
   feature: PaidFeature;
@@ -31,6 +32,7 @@ export function SubscriptionGate({
   children,
   fallback,
 }: SubscriptionGateProps) {
+  const { t } = useLanguage();
   const { isAdmin, isPaid, paidStatus, user } = useAuth();
   const [premiumLive, setPremiumLive] = useState<boolean | null>(null);
 
@@ -127,12 +129,12 @@ export function SubscriptionGate({
 
           <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 bg-primary/5 px-6 py-3 text-sm font-bold text-brand-purple">
             <Gem className="h-4 w-4" />
-            Coming Soon
+            {t("Coming Soon")}
           </div>
 
           {user && (
             <p className="mt-3 text-xs text-muted-foreground">
-              You'll be notified as soon as Premium goes live.
+              {t("You'll be notified as soon as Premium goes live.")}
             </p>
           )}
         </div>
@@ -196,7 +198,7 @@ export function SubscriptionGate({
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             <PremiumBadge size="xs" />
-            Upgrade
+            {t("Upgrade")}
           </Link>
         ) : (
           <Link
@@ -204,7 +206,7 @@ export function SubscriptionGate({
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             <PremiumBadge size="xs" />
-            Sign in to Subscribe
+            {t("Sign in to Subscribe")}
           </Link>
         )}
       </div>

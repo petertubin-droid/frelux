@@ -33,6 +33,7 @@ import {
 } from "@/lib/estimation/queries";
 import { getSafeError } from "@/lib/safeError";
 import type { ThermalFinishFactor } from "@/types/estimation";
+import { useLanguage } from "@/lib/i18n";
 
 interface FactorForm {
   surface_type: "roof" | "wall";
@@ -85,6 +86,7 @@ function validate(f: FactorForm): string | null {
 }
 
 export default function AdminThermalFactors() {
+  const { t } = useLanguage();
   const [factors, setFactors] = useState<ThermalFinishFactor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -173,32 +175,34 @@ export default function AdminThermalFactors() {
   return (
     <div>
       <AdminHeader
-        title="Thermal Finish Factors"
+        title={t("Thermal Finish Factors")}
         subtitle="Solar reflectance (albedo) per finish category and surface type: the data behind the Heat Comfort Engine. Every factor needs a verifiable source; the engine refuses to score a finish without one."
         action={
           <AdminButton onClick={openCreate}>
-            <Plus className="mr-1 inline h-4 w-4" /> Add factor
+            <Plus className="mr-1 inline h-4 w-4" /> {t("Add factor")}
           </AdminButton>
         }
       />
 
-      {error && <StateMessage type="error" title="Error" message={error} />}
+      {error && (
+        <StateMessage type="error" title={t("Error")} message={error} />
+      )}
       {message && !error && (
-        <StateMessage type="empty" title="Saved" message={message} />
+        <StateMessage type="empty" title={t("Saved")} message={message} />
       )}
 
       <div className="overflow-x-auto rounded-lg border border-border bg-card dark:border-white/5">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">
             <tr>
-              <th className="p-3">Surface</th>
-              <th className="p-3">Category</th>
-              <th className="p-3">Label</th>
-              <th className="p-3 text-right">Albedo</th>
-              <th className="p-3">Source reference</th>
-              <th className="p-3">Effective</th>
-              <th className="p-3">Active</th>
-              <th className="p-3 text-right">Actions</th>
+              <th className="p-3">{t("Surface")}</th>
+              <th className="p-3">{t("Category")}</th>
+              <th className="p-3">{t("Label")}</th>
+              <th className="p-3 text-right">{t("Albedo")}</th>
+              <th className="p-3">{t("Source reference")}</th>
+              <th className="p-3">{t("Effective")}</th>
+              <th className="p-3">{t("Active")}</th>
+              <th className="p-3 text-right">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -256,12 +260,15 @@ export default function AdminThermalFactors() {
                   </td>
                   <td className="p-3 text-right">
                     <div className="flex justify-end gap-1">
-                      <AdminIconButton onClick={() => openEdit(f)} title="Edit">
+                      <AdminIconButton
+                        onClick={() => openEdit(f)}
+                        title={t("Edit")}
+                      >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
                         onClick={() => remove(f)}
-                        title="Delete"
+                        title={t("Delete")}
                         variant="danger"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -289,8 +296,8 @@ export default function AdminThermalFactors() {
                 set("surface_type", e.target.value as "roof" | "wall")
               }
             >
-              <option value="roof">Roof</option>
-              <option value="wall">Wall</option>
+              <option value="roof">{t("Roof")}</option>
+              <option value="wall">{t("Wall")}</option>
             </select>
           </AdminField>
           <AdminField label="Category key (e.g. cool_roof_coating)">
@@ -351,7 +358,7 @@ export default function AdminThermalFactors() {
               variant="secondary"
               onClick={() => setModalOpen(false)}
             >
-              Cancel
+              {t("Cancel")}
             </AdminButton>
             <AdminButton onClick={save} disabled={saving}>
               {saving ? "Saving…" : editing ? "Save changes" : "Create factor"}

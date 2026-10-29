@@ -20,10 +20,12 @@ import type {
   DbColorCombination,
 } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const MAX_COMPARE = 4;
 
 export default function CompareColors() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Colors", path: "/colors" },
     { name: "Compare Colors", path: "/colors/compare" },
@@ -165,7 +167,7 @@ export default function CompareColors() {
     <>
       <PageHeader
         eyebrow="Tools"
-        title="Compare Colors"
+        title={t("Compare Colors")}
         subtitle="Compare up to 4 paint colors side by side with HEX, RGB, HSL, and recommendations."
         breadcrumbs={[
           { label: "Color Library", path: "/colors" },
@@ -181,11 +183,11 @@ export default function CompareColors() {
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
           />
           <input
-            aria-label="Search colours to compare"
+            aria-label={t("Search colours to compare")}
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search colors to add…"
+            placeholder={t("Search colors to add…")}
             className="input-field pl-9"
           />
         </div>
@@ -227,7 +229,7 @@ export default function CompareColors() {
 
         {search && !loading && results.length === 0 && (
           <p className="mt-3 text-sm text-muted-foreground">
-            No colors found. Try a different search term.
+            {t("No colors found. Try a different search term.")}
           </p>
         )}
 
@@ -235,7 +237,7 @@ export default function CompareColors() {
         {selected.length === 0 ? (
           <div className="mt-8 rounded-xl border border-dashed border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 p-12 text-center">
             <p className="text-sm font-medium text-muted-foreground">
-              Search and select colors above to compare them here.
+              {t("Search and select colors above to compare them here.")}
             </p>
           </div>
         ) : (
@@ -424,7 +426,7 @@ export default function CompareColors() {
             {keyDifferences.length > 0 && (
               <div>
                 <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-                  Key Differences
+                  {t("Key Differences")}
                 </h3>
                 <div className="mt-3 overflow-x-auto">
                   <table className="w-full border-collapse">
@@ -458,10 +460,10 @@ export default function CompareColors() {
             {coordinatedPalettes.length > 0 && (
               <div>
                 <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-                  Coordinated Palettes
+                  {t("Coordinated Palettes")}
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Color combinations featuring your selected colors.
+                  {t("Color combinations featuring your selected colors.")}
                 </p>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {coordinatedPalettes.map((p) => (

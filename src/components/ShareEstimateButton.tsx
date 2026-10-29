@@ -20,6 +20,7 @@
 import { useState } from "react";
 import { FileText, Copy, Check, MessageCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 import {
   copyEstimateSummary,
   downloadEstimatePdf,
@@ -39,6 +40,7 @@ export function ShareEstimateButton({
   compact = false,
   className = "",
 }: ShareEstimateButtonProps) {
+  const { t } = useLanguage();
   const [pdfBusy, setPdfBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
@@ -51,7 +53,9 @@ export function ShareEstimateButton({
     try {
       await downloadEstimatePdf(estimate);
     } catch {
-      setPdfError("PDF could not be generated. Try the WhatsApp share instead.");
+      setPdfError(
+        "PDF could not be generated. Try the WhatsApp share instead.",
+      );
     } finally {
       setPdfBusy(false);
     }
@@ -76,7 +80,7 @@ export function ShareEstimateButton({
           className="gap-1.5 text-accent-green"
         >
           <MessageCircle className="h-4 w-4" />
-          WhatsApp
+          {t("WhatsApp")}
         </Button>
         <Button
           type="button"
@@ -86,7 +90,11 @@ export function ShareEstimateButton({
           disabled={pdfBusy}
           className="gap-1.5"
         >
-          {pdfBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+          {pdfBusy ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <FileText className="h-4 w-4" />
+          )}
           Save PDF
         </Button>
         <Button
@@ -96,10 +104,16 @@ export function ShareEstimateButton({
           onClick={handleCopy}
           className="gap-1.5"
         >
-          {copied ? <Check className="h-4 w-4 text-accent-green" /> : <Copy className="h-4 w-4" />}
+          {copied ? (
+            <Check className="h-4 w-4 text-accent-green" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
           {copied ? "Copied" : "Copy"}
         </Button>
-        {pdfError && <span className="text-xs text-destructive">{pdfError}</span>}
+        {pdfError && (
+          <span className="text-xs text-destructive">{pdfError}</span>
+        )}
       </div>
     );
   }
@@ -114,7 +128,9 @@ export function ShareEstimateButton({
           className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20"
         >
           <MessageCircle className="h-5 w-5 text-accent-green" />
-          <span className="text-xs font-semibold text-accent-green">WhatsApp</span>
+          <span className="text-xs font-semibold text-accent-green">
+            {t("WhatsApp")}
+          </span>
         </Button>
         <Button
           type="button"
@@ -128,7 +144,9 @@ export function ShareEstimateButton({
           ) : (
             <FileText className="h-5 w-5 text-brand-purple" />
           )}
-          <span className="text-xs font-semibold text-brand-purple">Save PDF</span>
+          <span className="text-xs font-semibold text-brand-purple">
+            {t("Save PDF")}
+          </span>
         </Button>
         <Button
           type="button"

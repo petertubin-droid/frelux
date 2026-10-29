@@ -20,6 +20,7 @@ import {
   AdminSelect,
 } from "@/components/admin/AdminUi";
 import AdminPagination from "@/components/admin/AdminPagination";
+import { useLanguage } from "@/lib/i18n";
 
 interface EstimationEstimate {
   id: string;
@@ -129,6 +130,7 @@ function getItemTypeBadge(type: string) {
 }
 
 export default function AdminEstimationEstimates() {
+  const { t } = useLanguage();
   const [estimates, setEstimates] = useState<EstimationEstimate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -230,7 +232,7 @@ export default function AdminEstimationEstimates() {
   return (
     <>
       <AdminHeader
-        title="Estimation Records"
+        title={t("Estimation Records")}
         subtitle="Read-only view of calculation estimates and itemized cost breakdowns generated across all tools."
       />
 
@@ -256,13 +258,13 @@ export default function AdminEstimationEstimates() {
               value={calcFilter}
               onChange={(e) => setCalcFilter(e.target.value)}
             >
-              <option value="all">All Calculators</option>
-              <option value="painting">Painting</option>
-              <option value="tyrolene">Tyrolene</option>
-              <option value="grafitex">Grafitex</option>
-              <option value="screeding">Screeding</option>
-              <option value="pop">POP</option>
-              <option value="tile">Tile</option>
+              <option value="all">{t("All Calculators")}</option>
+              <option value="painting">{t("Painting")}</option>
+              <option value="tyrolene">{t("Tyrolene")}</option>
+              <option value="grafitex">{t("Grafitex")}</option>
+              <option value="screeding">{t("Screeding")}</option>
+              <option value="pop">{t("POP")}</option>
+              <option value="tile">{t("Tile")}</option>
             </AdminSelect>
           </div>
 
@@ -275,14 +277,14 @@ export default function AdminEstimationEstimates() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="all">All Statuses</option>
-              <option value="draft">Draft</option>
-              <option value="calculated">Calculated</option>
-              <option value="adjusted">Adjusted</option>
-              <option value="saved">Saved</option>
-              <option value="shared">Shared</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
+              <option value="all">{t("All Statuses")}</option>
+              <option value="draft">{t("Draft")}</option>
+              <option value="calculated">{t("Calculated")}</option>
+              <option value="adjusted">{t("Adjusted")}</option>
+              <option value="saved">{t("Saved")}</option>
+              <option value="shared">{t("Shared")}</option>
+              <option value="completed">{t("Completed")}</option>
+              <option value="cancelled">{t("Cancelled")}</option>
             </AdminSelect>
           </div>
         </div>
@@ -294,7 +296,7 @@ export default function AdminEstimationEstimates() {
           />
           <AdminInput
             type="text"
-            placeholder="Search estimate ref or description..."
+            placeholder={t("Search estimate ref or description...")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 text-xs"
@@ -305,13 +307,13 @@ export default function AdminEstimationEstimates() {
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading estimates..."
+          title={t("Loading estimates...")}
           message="Fetching estimate history."
         />
       ) : filteredEstimates.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No estimate records found"
+          title={t("No estimate records found")}
           message={
             searchQuery || calcFilter !== "all" || statusFilter !== "all"
               ? "Try clearing or modifying your search filters."
@@ -383,7 +385,7 @@ export default function AdminEstimationEstimates() {
                         {formatCurrency(est.total_material_cost, est.currency)}
                       </span>
                       <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">
-                        Total Material Cost
+                        {t("Total Material Cost")}
                       </p>
                     </div>
 
@@ -412,26 +414,32 @@ export default function AdminEstimationEstimates() {
 
                     {isItemLoading ? (
                       <div className="p-4 text-center text-xs text-muted-foreground dark:text-muted-foreground">
-                        Loading line items...
+                        {t("Loading line items...")}
                       </div>
                     ) : lineItems.length === 0 ? (
                       <p className="text-xs text-muted-foreground italic p-2">
-                        No line items recorded for this estimate.
+                        {t("No line items recorded for this estimate.")}
                       </p>
                     ) : (
                       <div className="overflow-x-auto rounded-lg border border-border">
                         <table className="w-full text-left text-xs">
                           <thead className="bg-muted/50 dark:bg-white/5 font-semibold text-muted-foreground border-b border-border">
                             <tr>
-                              <th className="p-2.5">Item Name</th>
-                              <th className="p-2.5">Type</th>
-                              <th className="p-2.5 text-right">Req. Qty</th>
+                              <th className="p-2.5">{t("Item Name")}</th>
+                              <th className="p-2.5">{t("Type")}</th>
                               <th className="p-2.5 text-right">
-                                Practical Qty
+                                {t("Req. Qty")}
                               </th>
-                              <th className="p-2.5 text-right">Unit Price</th>
-                              <th className="p-2.5 text-right">Total Price</th>
-                              <th className="p-2.5">Source</th>
+                              <th className="p-2.5 text-right">
+                                {t("Practical Qty")}
+                              </th>
+                              <th className="p-2.5 text-right">
+                                {t("Unit Price")}
+                              </th>
+                              <th className="p-2.5 text-right">
+                                {t("Total Price")}
+                              </th>
+                              <th className="p-2.5">{t("Source")}</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-border">
@@ -539,7 +547,7 @@ export default function AdminEstimationEstimates() {
                         {est.notes && (
                           <div className="rounded-lg border border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 p-2.5 text-card-foreground sm:col-span-2">
                             <span className="font-bold block mb-1 text-[11px]">
-                              Notes
+                              {t("Notes")}
                             </span>
                             <p className="text-[11px]">{est.notes}</p>
                           </div>

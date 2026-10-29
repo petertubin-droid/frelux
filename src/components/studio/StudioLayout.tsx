@@ -6,7 +6,9 @@ import { TOOLS, TOOL_CATEGORIES } from "@/components/studio/tools";
 
 import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 export default function StudioLayout() {
+  const { t } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   useSeo({
     title: "FRELUX Studio",
@@ -21,7 +23,7 @@ export default function StudioLayout() {
         <Link to="/admin/studio/" className="flex items-center gap-2">
           <Code className="h-5 w-5 text-brand-purple" />
           <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            AI Studio
+            {t("AI Studio")}
           </span>
         </Link>
         <Button
@@ -29,7 +31,7 @@ export default function StudioLayout() {
           type="button"
           onClick={() => setMobileOpen(true)}
           className="rounded-md p-2 text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted"
-          aria-label="Open menu"
+          aria-label={t("Open menu")}
         >
           <Menu className="h-5 w-5" />
         </Button>
@@ -51,7 +53,8 @@ export default function StudioLayout() {
             <aside className="absolute left-0 top-0 h-full w-72 bg-card dark:bg-card shadow-xl">
               <div className="flex h-14 items-center justify-between border-b border-border dark:border-white/5 px-4">
                 <span className="flex items-center gap-2 text-sm font-bold text-foreground dark:text-primary-foreground">
-                  <Code className="h-5 w-5 text-brand-purple" /> AI Studio
+                  <Code className="h-5 w-5 text-brand-purple" />{" "}
+                  {t("AI Studio")}
                 </span>
                 <Button
                   variant="ghost"
@@ -79,17 +82,18 @@ export default function StudioLayout() {
 }
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+  const { t } = useLanguage();
   return (
     <div className="flex h-full flex-col">
       <div className="hidden border-b border-border dark:border-white/5 px-5 py-4 lg:block">
         <Link to="/admin/studio/" className="flex items-center gap-2">
           <Code className="h-5 w-5 text-brand-purple" />
           <span className="text-base font-bold text-foreground dark:text-primary-foreground">
-            AI Developer Studio
+            {t("AI Developer Studio")}
           </span>
         </Link>
         <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
-          AI assisted development
+          {t("AI assisted development")}
         </p>
       </div>
 
@@ -131,13 +135,13 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           to="/admin/system-health/"
           className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted"
         >
-          <Activity className="h-4 w-4" /> System Health
+          <Activity className="h-4 w-4" /> {t("System Health")}
         </Link>
         <Link
           to="/admin/"
           className="mt-1 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to studio
+          <ArrowLeft className="h-4 w-4" /> {t("Back to studio")}
         </Link>
       </div>
     </div>

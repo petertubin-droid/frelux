@@ -27,6 +27,7 @@ import {
   deleteCashFlowTemplate,
 } from "@/lib/estimation/queries";
 import type { CashFlowTemplate, CashFlowMilestone } from "@/types/estimation";
+import { useLanguage } from "@/lib/i18n";
 
 interface TemplateForm {
   name: string;
@@ -81,6 +82,7 @@ function validate(f: TemplateForm): string | null {
 }
 
 export default function AdminCashFlowTemplates() {
+  const { t: tr } = useLanguage();
   const [templates, setTemplates] = useState<CashFlowTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -181,11 +183,11 @@ export default function AdminCashFlowTemplates() {
   return (
     <div className="space-y-6">
       <AdminHeader
-        title="Cash-Flow Templates"
+        title={tr("Cash-Flow Templates")}
         subtitle="Admin-configured payment milestone templates (label, percent, months after start). Percentages must sum to exactly 100%: the engine refuses anything else rather than silently adjusting a payment plan."
         action={
           <AdminButton onClick={openCreate}>
-            <Plus className="mr-2 h-4 w-4" /> Add Template
+            <Plus className="mr-2 h-4 w-4" /> {tr("Add Template")}
           </AdminButton>
         }
       />
@@ -193,15 +195,17 @@ export default function AdminCashFlowTemplates() {
       {error && (
         <StateMessage
           type="error"
-          title="Something went wrong"
+          title={tr("Something went wrong")}
           message={error}
         />
       )}
-      {success && <StateMessage type="empty" title="Saved" message={success} />}
+      {success && (
+        <StateMessage type="empty" title={tr("Saved")} message={success} />
+      )}
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading"
+          title={tr("Loading")}
           message="Loading templates…"
         />
       ) : templates.length === 0 ? (
@@ -216,11 +220,11 @@ export default function AdminCashFlowTemplates() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="p-3">Name</th>
-                <th className="p-3">Milestones</th>
-                <th className="p-3">Sum</th>
-                <th className="p-3">Default</th>
-                <th className="p-3">Active</th>
+                <th className="p-3">{tr("Name")}</th>
+                <th className="p-3">{tr("Milestones")}</th>
+                <th className="p-3">{tr("Sum")}</th>
+                <th className="p-3">{tr("Default")}</th>
+                <th className="p-3">{tr("Active")}</th>
                 <th className="p-3"></th>
               </tr>
             </thead>
@@ -273,13 +277,13 @@ export default function AdminCashFlowTemplates() {
                       <div className="flex gap-1">
                         <AdminIconButton
                           onClick={() => openEdit(t)}
-                          title="Edit"
+                          title={tr("Edit")}
                         >
                           <Pencil className="h-4 w-4" />
                         </AdminIconButton>
                         <AdminIconButton
                           onClick={() => remove(t)}
-                          title="Delete"
+                          title={tr("Delete")}
                         >
                           <Trash2 className="h-4 w-4" />
                         </AdminIconButton>
@@ -312,7 +316,9 @@ export default function AdminCashFlowTemplates() {
               onChange={(e) =>
                 setForm({ ...form, description: e.target.value })
               }
-              placeholder="Optional context (what project types this fits)"
+              placeholder={tr(
+                "Optional context (what project types this fits)",
+              )}
             />
           </AdminField>
 
@@ -343,7 +349,7 @@ export default function AdminCashFlowTemplates() {
                   placeholder="months"
                 />
                 <AdminIconButton
-                  title="Remove milestone"
+                  title={tr("Remove milestone")}
                   onClick={() =>
                     setForm((f) => ({
                       ...f,
@@ -367,7 +373,7 @@ export default function AdminCashFlowTemplates() {
                   }))
                 }
               >
-                <Plus className="mr-2 h-4 w-4" /> Add milestone
+                <Plus className="mr-2 h-4 w-4" /> {tr("Add milestone")}
               </AdminButton>
               <p
                 className={
@@ -398,7 +404,9 @@ export default function AdminCashFlowTemplates() {
           </div>
 
           <div className="flex justify-end gap-2">
-            <AdminButton onClick={() => setShowForm(false)}>Cancel</AdminButton>
+            <AdminButton onClick={() => setShowForm(false)}>
+              {tr("Cancel")}
+            </AdminButton>
             <AdminButton onClick={save} variant="primary" disabled={saving}>
               {saving ? "Saving…" : "Save"}
             </AdminButton>

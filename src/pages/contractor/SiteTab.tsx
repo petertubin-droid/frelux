@@ -36,6 +36,7 @@ import {
   type ImageryRecord,
 } from "@/lib/geospatial/imagery";
 import type { LatLon } from "@/lib/geospatial/geodesy";
+import { useLanguage } from "@/lib/i18n";
 
 function parseBoundary(text: string): { a: number; b: number }[] | null {
   const lines = text
@@ -46,7 +47,9 @@ function parseBoundary(text: string): { a: number; b: number }[] | null {
   return lines.map((l) => {
     const parts = l.split(/[,;]\s*/);
     if (parts.length !== 2) {
-      throw new Error(`Each boundary line must be "lat, lon" (received: "${l}").`);
+      throw new Error(
+        `Each boundary line must be "lat, lon" (received: "${l}").`,
+      );
     }
     const a = Number(parts[0]);
     const b = Number(parts[1]);
@@ -58,10 +61,11 @@ function parseBoundary(text: string): { a: number; b: number }[] | null {
 }
 
 export function SiteTab({ projectId }: { projectId: string }) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
-  const [site, setSite] = useState<
-    (Awaited<ReturnType<typeof getSiteLocation>>) | null
-  >(null);
+  const [site, setSite] = useState<Awaited<
+    ReturnType<typeof getSiteLocation>
+  > | null>(null);
   const [lat, setLat] = useState("");
   const [lon, setLon] = useState("");
   const [boundary, setBoundary] = useState("");
@@ -94,9 +98,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
           setLat(String(s.lat));
           setLon(String(s.lon));
           if (s.polygon && s.polygon.length > 0) {
-            setBoundary(
-              s.polygon.map((v) => `${v.lat}, ${v.lon}`).join("\n"),
-            );
+            setBoundary(s.polygon.map((v) => `${v.lat}, ${v.lon}`).join("\n"));
           }
         }
       })
@@ -126,7 +128,9 @@ export function SiteTab({ projectId }: { projectId: string }) {
     try {
       polygon = parseBoundary(boundary);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "The boundary could not be read.");
+      setError(
+        e instanceof Error ? e.message : "The boundary could not be read.",
+      );
       return;
     }
     const input: SiteLocationInput = {
@@ -210,7 +214,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
   const selectedRecord =
     basemap === "osm-standard"
       ? null
-      : imagery.find((r) => r.provider_id === basemap) ?? null;
+      : (imagery.find((r) => r.provider_id === basemap) ?? null);
 
   const satelliteRecord = imagery.find(
     (r) => r.provider_id === "esri-world-imagery",
@@ -236,7 +240,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
           <div className="flex items-center gap-2">
             <Satellite aria-hidden="true" className="h-4 w-4 text-primary" />
             <h3 className="text-sm font-semibold text-foreground">
-              Licensed site imagery
+              {t("Licensed site imagery")}
             </h3>
           </div>
           <p className="mt-1 max-w-2xl text-xs leading-snug text-muted-foreground">
@@ -251,7 +255,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
       <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold">Site location</h3>
+          <h3 className="text-sm font-semibold">{t("Site location")}</h3>
           {site && (
             <span className="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-medium text-secondary-foreground">
               {site.source_crs}
@@ -313,9 +317,9 @@ export function SiteTab({ projectId }: { projectId: string }) {
               </p>
               <p className="text-xs text-muted-foreground">
                 {site.site_area_m2 !== null
-                  ? `Boundary area: ${Math.round(site.site_area_m2).toLocaleString(
-                      "en-NG",
-                    )} m² (spherical, ~0.5%)`
+                  ? `Boundary area: ${Math.round(
+                      site.site_area_m2,
+                    ).toLocaleString("en-NG")} m² (spherical, ~0.5%)`
                   : "No boundary captured yet."}
               </p>
             </div>
@@ -329,7 +333,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="grid gap-1 text-xs font-medium">
-            Latitude (decimal degrees)
+            {t("Latitude (decimal degrees)")}
             <input
               value={lat}
               onChange={(e) => setLat(e.target.value)}
@@ -339,7 +343,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
             />
           </label>
           <label className="grid gap-1 text-xs font-medium">
-            Longitude (decimal degrees)
+            {t("Longitude (decimal degrees)")}
             <input
               value={lon}
               onChange={(e) => setLon(e.target.value)}
@@ -370,7 +374,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
           </button>
           {saved && (
             <span className="text-xs text-emerald-600 dark:text-emerald-400">
-              Saved.
+              {t("Saved.")}
             </span>
           )}
         </div>
@@ -382,20 +386,20 @@ export function SiteTab({ projectId }: { projectId: string }) {
         <div className="flex items-center gap-2">
           <ShieldCheck aria-hidden="true" className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-semibold">
-            Imagery license records
+            {t("Imagery license records")}
           </h3>
           {satelliteCheck.usable && (
             <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-              Satellite licensed
+              {t("Satellite licensed")}
             </span>
           )}
         </div>
 
         {imagery.length === 0 ? (
           <p className="mt-2 text-xs text-muted-foreground">
-            No imagery registered for this project yet. The street basemap
-            needs no record; the satellite basemap and drone imagery register
-            their licenses below.
+            No imagery registered for this project yet. The street basemap needs
+            no record; the satellite basemap and drone imagery register their
+            licenses below.
           </p>
         ) : (
           <ul className="mt-3 space-y-2">
@@ -440,7 +444,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
         <details className="mt-4 rounded-lg border border-border bg-background/50 p-3">
           <summary className="flex cursor-pointer items-center gap-1.5 text-xs font-semibold">
             <Plus aria-hidden="true" className="h-3.5 w-3.5 text-primary" />
-            Register drone / hosted imagery
+            {t("Register drone / hosted imagery")}
           </summary>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label className="grid gap-1 text-xs font-medium">
@@ -466,7 +470,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
               />
             </label>
             <label className="grid gap-1 text-xs font-medium">
-              License URL
+              {t("License URL")}
               <input
                 value={droneForm.license_url}
                 onChange={(e) =>
@@ -488,7 +492,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
               />
             </label>
             <label className="grid gap-1 text-xs font-medium sm:col-span-2">
-              Coverage note
+              {t("Coverage note")}
               <input
                 value={droneForm.coverage_note}
                 onChange={(e) =>
@@ -499,7 +503,9 @@ export function SiteTab({ projectId }: { projectId: string }) {
               />
             </label>
             <label className="grid gap-1 text-xs font-medium sm:col-span-2">
-              Hosted XYZ tile URL (renders the imagery as the site basemap)
+              {t(
+                "Hosted XYZ tile URL (renders the imagery as the site basemap)",
+              )}
               <input
                 value={droneForm.tile_url_template}
                 onChange={(e) =>

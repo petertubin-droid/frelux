@@ -12,8 +12,10 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function Messages() {
+  const { t } = useLanguage();
   const { conversationId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -124,13 +126,13 @@ export default function Messages() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Sign in to view messages
+          {t("Sign in to view messages")}
         </h1>
         <Link
           to="/login/?redirect=/messages"
           className="mt-4 inline-block text-brand-purple dark:text-brand-purple-lighter"
         >
-          Sign in
+          {t("Sign in")}
         </Link>
       </div>
     );
@@ -139,7 +141,7 @@ export default function Messages() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
       <h1 className="mb-6 text-2xl font-bold text-foreground dark:text-primary-foreground">
-        Messages
+        {t("Messages")}
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 lg:grid-cols-3">
@@ -162,13 +164,13 @@ export default function Messages() {
           ) : conversations.length === 0 ? (
             <div className="p-8 text-center">
               <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                No conversations yet.
+                {t("No conversations yet.")}
               </p>
               <Link
                 to="/pro-connect/"
                 className="mt-3 inline-block text-sm text-brand-purple dark:text-brand-purple-lighter"
               >
-                Browse professionals
+                {t("Browse professionals")}
               </Link>
             </div>
           ) : (
@@ -311,7 +313,7 @@ export default function Messages() {
                                 className="mt-1 flex items-center gap-1 text-xs underline"
                               >
                                 <Paperclip className="h-3 w-3" />
-                                Attachment
+                                {t("Attachment")}
                               </a>
                             )}
                             <p
@@ -349,7 +351,7 @@ export default function Messages() {
                         handleSend();
                       }
                     }}
-                    placeholder="Type a message..."
+                    placeholder={t("Type a message...")}
                     className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
                   />
                   <Button
@@ -367,13 +369,13 @@ export default function Messages() {
             <div className="flex flex-1 items-center justify-center p-8">
               <div className="text-center">
                 <p className="text-muted-foreground dark:text-muted-foreground">
-                  Select a conversation to view messages
+                  {t("Select a conversation to view messages")}
                 </p>
                 <Link
                   to="/pro-connect/"
                   className="mt-3 inline-block text-sm text-brand-purple dark:text-brand-purple-lighter"
                 >
-                  Browse professionals
+                  {t("Browse professionals")}
                 </Link>
               </div>
             </div>

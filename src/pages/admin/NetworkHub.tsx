@@ -12,6 +12,7 @@ import { clearAdConfigCache } from "@/lib/ad-config";
 import { classNames } from "@/lib/utils";
 import type { DbAdProvider, DbAdPlacement } from "@/types/database";
 import type { ExternalPromo } from "@/lib/house-promo";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * NETWORK HUB - the complete Heartsyncx ad-network settings surface,
@@ -309,6 +310,7 @@ function HubCard({
 }
 
 export default function NetworkHub() {
+  const { t: tr } = useLanguage();
   const [tab, setTab] = useState<SubTab>("adsense");
   const [state, setState] = useState<HubState>(emptyHubState);
   const [rows, setRows] = useState<ProviderRows>({
@@ -598,7 +600,10 @@ export default function NetworkHub() {
 
   if (loading) {
     return (
-      <HubCard title="Network Hub" subtitle="Loading ad network settings…">
+      <HubCard
+        title={tr("Network Hub")}
+        subtitle={tr("Loading ad network settings…")}
+      >
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
       </HubCard>
     );
@@ -608,7 +613,7 @@ export default function NetworkHub() {
     <div className="space-y-5">
       {/* Top Networks Hub bar (Heartsyncx layout) */}
       <HubCard
-        title="Ad Network Hub"
+        title={tr("Ad Network Hub")}
         subtitle="Complete Heartsyncx-style ad settings: configure Google AdSense, Monetag and Adsterra, manage placement slots, and verify live slot-to-provider connectivity. Everything saves to the ad providers, placements and site settings in the database."
       >
         <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-lg border border-border bg-card">
@@ -649,7 +654,7 @@ export default function NetworkHub() {
 
       {tab === "adsense" && (
         <HubCard
-          title="Google AdSense: Primary Provider"
+          title={tr("Google AdSense: Primary Provider")}
           subtitle="First claim on every placement slot. Monetag and Adsterra coexist until AdSense approves the site; per-slot AdSense units serve once your publisher ID and slot IDs are configured."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -736,7 +741,7 @@ export default function NetworkHub() {
 
       {tab === "monetag" && (
         <HubCard
-          title="Monetag Global Ad Network"
+          title={tr("Monetag Global Ad Network")}
           subtitle="One display tag serves all site-wide formats (popunder, interstitial, vignette). Visible in-content Monetag ads use Native Banner zones per slot."
         >
           <div className="rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-300">
@@ -847,7 +852,7 @@ export default function NetworkHub() {
           <div className="mt-5">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Script tag (derived from the Zone ID)
+                {tr("Script tag (derived from the Zone ID)")}
               </p>
               <AdminButton
                 variant="secondary"
@@ -857,7 +862,8 @@ export default function NetworkHub() {
                   )
                 }
               >
-                <RefreshCw className="h-3.5 w-3.5" /> Reset to official tag
+                <RefreshCw className="h-3.5 w-3.5" />{" "}
+                {tr("Reset to official tag")}
               </AdminButton>
             </div>
             <pre className="rounded-lg border border-border bg-muted/40 p-3 text-[11px] font-mono overflow-x-auto">
@@ -867,7 +873,7 @@ export default function NetworkHub() {
           </div>
           <div className="mt-5">
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
-              Per-slot Native Banner zones (paste each slot's zone id)
+              {tr("Per-slot Native Banner zones (paste each slot's zone id)")}
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {SLOT_MAP.map(({ family, label, placementKey }) => (
@@ -890,7 +896,7 @@ export default function NetworkHub() {
 
       {tab === "adsterra" && (
         <HubCard
-          title="Adsterra Ad Network"
+          title={tr("Adsterra Ad Network")}
           subtitle="Per-slot banner/native-banner units plus site-wide formats (Popunder, Social Bar, Interstitial, In-Page Push, Skim) and a Direct Link rendered in the footer."
         >
           <div className="rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-300">
@@ -898,7 +904,7 @@ export default function NetworkHub() {
           </div>
           <div className="mt-4 flex items-center justify-between rounded-lg border border-border p-3">
             <div>
-              <p className="text-sm font-semibold">Adsterra active</p>
+              <p className="text-sm font-semibold">{tr("Adsterra active")}</p>
               <p className="text-xs text-muted-foreground">
                 Master switch for every Adsterra unit below. Everything injects
                 only after advertising-cookie consent.
@@ -1015,7 +1021,7 @@ export default function NetworkHub() {
                     d.adsterra.directLinkLabel = v;
                   })
                 }
-                placeholder="Sponsored: check out this offer"
+                placeholder={tr("Sponsored: check out this offer")}
               />
             </AdminField>
           </div>
@@ -1045,11 +1051,11 @@ export default function NetworkHub() {
 
       {tab === "placements" && (
         <HubCard
-          title="Frontend Ad Placement Slots"
+          title={tr("Frontend Ad Placement Slots")}
           subtitle="Toggle the physical ad positions and verify which provider fills each slot. These map to the same placement rows the site renders."
         >
           <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
-            Live frontend ad-slot switches
+            {tr("Live frontend ad-slot switches")}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {SLOT_MAP.map(({ family, label, placementKey }) => (
@@ -1084,7 +1090,7 @@ export default function NetworkHub() {
 
       {tab === "house_promo" && (
         <HubCard
-          title="House Promos: Sister Site & External Partners"
+          title={tr("House Promos: Sister Site & External Partners")}
           subtitle="First-party promo slots: advertise Heartsyncx across Frelux and sell the same slots to external website owners. Not ad-network units: no consent gate, cannot be blocked by ad blockers. Clicks are tracked as cross_promo_click."
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1115,13 +1121,17 @@ export default function NetworkHub() {
                 <option value="display">
                   Display (single real-logo image ad: recommended)
                 </option>
-                <option value="card">Card (rich grid of section links)</option>
-                <option value="banner">
-                  Banner (slim strip, 3 rotating links)
+                <option value="card">
+                  {tr("Card (rich grid of section links)")}
                 </option>
-                <option value="native">Native (quiet in-feed text unit)</option>
+                <option value="banner">
+                  {tr("Banner (slim strip, 3 rotating links)")}
+                </option>
+                <option value="native">
+                  {tr("Native (quiet in-feed text unit)")}
+                </option>
                 <option value="interstitial">
-                  Interstitial (full-screen overlay, once per session)
+                  {tr("Interstitial (full-screen overlay, once per session)")}
                 </option>
               </select>
             </AdminField>
@@ -1185,7 +1195,7 @@ export default function NetworkHub() {
                 </p>
               )}
             </div>
-            <p className="text-sm font-bold">External Partner Promos</p>
+            <p className="text-sm font-bold">{tr("External Partner Promos")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Let outside website owners advertise in the same promo slots.
               Entries rotate alongside the Heartsyncx links; disabled entries
@@ -1205,7 +1215,7 @@ export default function NetworkHub() {
                 >
                   <label
                     className="lg:col-span-1 flex items-center gap-1.5 cursor-pointer"
-                    title="Enabled"
+                    title={tr("Enabled")}
                   >
                     <input
                       type="checkbox"
@@ -1221,7 +1231,7 @@ export default function NetworkHub() {
                       className="h-4 w-4 rounded"
                     />
                     <span className="text-[9px] font-bold uppercase text-muted-foreground">
-                      On
+                      {tr("On")}
                     </span>
                   </label>
                   <input
@@ -1234,7 +1244,9 @@ export default function NetworkHub() {
                         if (row) row.label = e.target.value;
                       })
                     }
-                    placeholder="Headline, e.g. Buy building materials online"
+                    placeholder={tr(
+                      "Headline, e.g. Buy building materials online",
+                    )}
                     className="lg:col-span-3 h-9 rounded-md border border-border bg-background px-3 text-xs"
                   />
                   <input
@@ -1260,7 +1272,9 @@ export default function NetworkHub() {
                         if (row) row.blurb = e.target.value;
                       })
                     }
-                    placeholder="Short description shown under the headline"
+                    placeholder={tr(
+                      "Short description shown under the headline",
+                    )}
                     className="lg:col-span-2 h-9 rounded-md border border-border bg-background px-3 text-xs"
                   />
                   <input
@@ -1273,7 +1287,7 @@ export default function NetworkHub() {
                         if (row) row.logo_url = e.target.value;
                       })
                     }
-                    placeholder="Logo/image URL (Display format)"
+                    placeholder={tr("Logo/image URL (Display format)")}
                     className="lg:col-span-2 h-9 rounded-md border border-border bg-background px-3 font-mono text-xs"
                   />
                   <div className="lg:col-span-2 flex gap-1.5">
@@ -1287,7 +1301,7 @@ export default function NetworkHub() {
                           if (row) row.owner_name = e.target.value;
                         })
                       }
-                      placeholder="Ads by (name)"
+                      placeholder={tr("Ads by (name)")}
                       className="w-full h-9 rounded-md border border-border bg-background px-3 text-xs"
                     />
                     <button
@@ -1301,7 +1315,7 @@ export default function NetworkHub() {
                         })
                       }
                       className="shrink-0 h-9 px-2.5 rounded-md border border-red-200 text-red-600 text-xs font-bold hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10"
-                      title="Remove this partner promo"
+                      title={tr("Remove this partner promo")}
                     >
                       ✕
                     </button>
@@ -1381,6 +1395,7 @@ function SlotConnectivity({
   providers: ProviderRows;
   placements: DbAdPlacement[];
 }) {
+  const { t: tr } = useLanguage();
   const [checks, setChecks] = useState<
     Partial<Record<SlotFamily, { status: CheckStatus; detail: string }>>
   >({});
@@ -1531,7 +1546,7 @@ function SlotConnectivity({
   }
 
   const badge = (c?: { status: CheckStatus; detail: string }) => {
-    if (!c) return <span className="text-muted-foreground">N/A</span>;
+    if (!c) return <span className="text-muted-foreground">{tr("N/A")}</span>;
     const map: Record<CheckStatus, string> = {
       idle: "bg-muted text-muted-foreground",
       checking: "bg-blue-100 text-blue-700",
@@ -1582,19 +1597,19 @@ function SlotConnectivity({
           <thead>
             <tr className="bg-muted/50 text-muted-foreground text-left">
               <th className="p-2 font-bold uppercase tracking-wider text-[10px]">
-                Slot
+                {tr("Slot")}
               </th>
               <th className="p-2 font-bold uppercase tracking-wider text-[10px]">
-                Placement key
+                {tr("Placement key")}
               </th>
               <th className="p-2 font-bold uppercase tracking-wider text-[10px]">
-                Serving provider
+                {tr("Serving provider")}
               </th>
               <th className="p-2 font-bold uppercase tracking-wider text-[10px]">
-                Reachability
+                {tr("Reachability")}
               </th>
               <th className="p-2 font-bold uppercase tracking-wider text-[10px]">
-                Detail
+                {tr("Detail")}
               </th>
             </tr>
           </thead>
@@ -1612,13 +1627,13 @@ function SlotConnectivity({
                   </td>
                   <td className="p-2 font-mono whitespace-nowrap">
                     {r.provider === "adsense" && (
-                      <span className="text-blue-600">AdSense</span>
+                      <span className="text-blue-600">{tr("AdSense")}</span>
                     )}
                     {r.provider === "adsterra" && (
-                      <span className="text-amber-600">Adsterra</span>
+                      <span className="text-amber-600">{tr("Adsterra")}</span>
                     )}
                     {r.provider === "monetag" && (
-                      <span className="text-sky-600">Monetag</span>
+                      <span className="text-sky-600">{tr("Monetag")}</span>
                     )}
                     {r.provider === "none" && (
                       <span className="text-muted-foreground">none</span>

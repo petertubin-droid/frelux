@@ -35,6 +35,7 @@ import { useSeo } from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 import {
   formatByCode,
   getCurrencySymbol,
@@ -55,6 +56,7 @@ function formatBudget(
 }
 
 export default function ListingDetail() {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, profile } = useAuth();
@@ -249,7 +251,8 @@ export default function ListingDetail() {
                 </span>
                 {listing.urgency === "urgent" && (
                   <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
-                    <Clock aria-hidden="true" className="h-3 w-3" /> Urgent
+                    <Clock aria-hidden="true" className="h-3 w-3" />{" "}
+                    {t("Urgent")}
                   </span>
                 )}
               </div>
@@ -282,7 +285,7 @@ export default function ListingDetail() {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                  Posted by
+                  {t("Posted by")}
                 </p>
                 <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                   {listing.client.full_name || "Anonymous"}
@@ -300,7 +303,7 @@ export default function ListingDetail() {
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Budget
+                {t("Budget")}
               </p>
               <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
                 {formatBudget(
@@ -313,7 +316,7 @@ export default function ListingDetail() {
             {listing.location_state && (
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  Location
+                  {t("Location")}
                 </p>
                 <p className="inline-flex items-center gap-1 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                   <MapPin aria-hidden="true" className="h-3 w-3" />
@@ -325,7 +328,7 @@ export default function ListingDetail() {
             )}
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Bids
+                {t("Bids")}
               </p>
               <p className="inline-flex items-center gap-1 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                 <Users aria-hidden="true" className="h-3 w-3" />{" "}
@@ -334,7 +337,7 @@ export default function ListingDetail() {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Views
+                {t("Views")}
               </p>
               <p className="inline-flex items-center gap-1 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                 <Eye aria-hidden="true" className="h-3 w-3" />{" "}
@@ -348,7 +351,7 @@ export default function ListingDetail() {
             Object.keys(listing.scope_summary).length > 0 && (
               <div className="mt-4 rounded-lg bg-muted/50 p-4 dark:bg-white/5">
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  Project Scope
+                  {t("Project Scope")}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {Object.entries(listing.scope_summary).map(([key, val]) => (
@@ -388,7 +391,8 @@ export default function ListingDetail() {
                 onClick={() => setShowBidForm(!showBidForm)}
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
-                <Send aria-hidden="true" className="h-4 w-4" /> Place a Bid
+                <Send aria-hidden="true" className="h-4 w-4" />{" "}
+                {t("Place a Bid")}
               </Button>
             )}
             {!user && isOpen && (
@@ -396,7 +400,7 @@ export default function ListingDetail() {
                 to="/login/"
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
-                Sign in to bid
+                {t("Sign in to bid")}
               </Link>
             )}
           </div>
@@ -405,7 +409,7 @@ export default function ListingDetail() {
           {showBidForm && (
             <div className="mb-4 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
               <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                Submit Your Bid
+                {t("Submit Your Bid")}
               </h3>
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
@@ -422,7 +426,7 @@ export default function ListingDetail() {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                    Timeline (days)
+                    {t("Timeline (days)")}
                   </label>
                   <input
                     type="number"
@@ -435,12 +439,14 @@ export default function ListingDetail() {
               </div>
               <div className="mt-3">
                 <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                  Cover Message
+                  {t("Cover Message")}
                 </label>
                 <textarea
                   value={bidMessage}
                   onChange={(e) => setBidMessage(e.target.value)}
-                  placeholder="Tell the client why you're the right fit for this job..."
+                  placeholder={t(
+                    "Tell the client why you're the right fit for this job...",
+                  )}
                   rows={3}
                   className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
@@ -468,7 +474,7 @@ export default function ListingDetail() {
                   onClick={() => setShowBidForm(false)}
                   className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                 >
-                  Cancel
+                  {t("Cancel")}
                 </Button>
               </div>
             </div>
@@ -583,11 +589,12 @@ export default function ListingDetail() {
                       </span>
                     ) : bid.status === "rejected" ? (
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                        <X aria-hidden="true" className="h-4 w-4" /> Rejected
+                        <X aria-hidden="true" className="h-4 w-4" />{" "}
+                        {t("Rejected")}
                       </span>
                     ) : bid.status === "withdrawn" ? (
                       <span className="text-xs font-semibold text-muted-foreground">
-                        Withdrawn
+                        {t("Withdrawn")}
                       </span>
                     ) : (
                       <span className="text-xs text-muted-foreground dark:text-muted-foreground">
@@ -603,7 +610,7 @@ export default function ListingDetail() {
                           onClick={() => handleRejectBid(bid.id)}
                           className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:text-muted-foreground/80"
                         >
-                          Decline
+                          {t("Decline")}
                         </Button>
                         <Button
                           variant="ghost"

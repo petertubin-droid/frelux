@@ -28,6 +28,7 @@ interface MaterialOption {
 }
 
 import { getCountryCurrency } from "@/lib/international/countries";
+import { useLanguage } from "@/lib/i18n";
 
 const STATUS_TABS = [
   "pending",
@@ -38,6 +39,7 @@ const STATUS_TABS = [
 ];
 
 export default function AdminPriceSubmissions() {
+  const { t } = useLanguage();
   const [rows, setRows] = useState<SubmissionRow[]>([]);
   const [materials, setMaterials] = useState<MaterialOption[]>([]);
   const [materialPick, setMaterialPick] = useState<Record<string, string>>({});
@@ -135,7 +137,7 @@ export default function AdminPriceSubmissions() {
   return (
     <div>
       <AdminHeader
-        title="Community Price Submissions"
+        title={t("Community Price Submissions")}
         subtitle="User-reported local prices. Approve into the price book, or reject. Consensus-verified rows (3+ agreeing reports) are highlighted."
       />
 
@@ -159,15 +161,17 @@ export default function AdminPriceSubmissions() {
       {loading && (
         <StateMessage
           type="loading"
-          title="Loading"
+          title={t("Loading")}
           message="Loading submissions…"
         />
       )}
-      {error && <StateMessage type="error" title="Error" message={error} />}
+      {error && (
+        <StateMessage type="error" title={t("Error")} message={error} />
+      )}
       {!loading && !error && rows.length === 0 && (
         <StateMessage
           type="empty"
-          title="Nothing here"
+          title={t("Nothing here")}
           message="No submissions in this view."
         />
       )}
@@ -198,7 +202,7 @@ export default function AdminPriceSubmissions() {
               )}
               {r.status === "community_verified" && (
                 <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
-                  <Sparkles className="h-3 w-3" /> Consensus
+                  <Sparkles className="h-3 w-3" /> {t("Consensus")}
                 </span>
               )}
               <span className="ml-auto text-[11px] text-muted-foreground">
@@ -230,14 +234,14 @@ export default function AdminPriceSubmissions() {
                   onClick={() => void promote(r)}
                 >
                   <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
-                  Approve into price book
+                  {t("Approve into price book")}
                 </AdminButton>
                 <AdminButton
                   variant="secondary"
                   disabled={busyId === r.id}
                   onClick={() => void setStatus(r.id, "rejected")}
                 >
-                  <XCircle className="mr-1.5 h-3.5 w-3.5" /> Reject
+                  <XCircle className="mr-1.5 h-3.5 w-3.5" /> {t("Reject")}
                 </AdminButton>
               </div>
             ) : (

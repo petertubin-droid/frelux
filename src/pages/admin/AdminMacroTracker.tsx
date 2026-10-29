@@ -28,6 +28,7 @@ import {
 import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
+import { useLanguage } from "@/lib/i18n";
 import {
   fetchMarketMacroIndicators,
   fetchMarketElasticityRules,
@@ -49,6 +50,7 @@ const SUPPORTED_MARKETS = [
 ];
 
 export default function AdminMacroTracker() {
+  const { t } = useLanguage();
   const [selectedMarket, setSelectedMarket] = useState<string>("KE");
   const [indicators, setIndicators] = useState<MacroIndicator[]>([]);
   const [rules, setRules] = useState<MacroElasticityRule[]>([]);
@@ -134,10 +136,10 @@ export default function AdminMacroTracker() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge className="bg-indigo-600 text-white hover:bg-indigo-700">
-              System A
+              {t("System A")}
             </Badge>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-              The Fluctuation Filter (Macro Tracker)
+              {t("The Fluctuation Filter (Macro Tracker)")}
             </h1>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -191,7 +193,7 @@ export default function AdminMacroTracker() {
                   <RefreshCw
                     className={`w-3.5 h-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`}
                   />
-                  Sync Feeds
+                  {t("Sync Feeds")}
                 </Button>
               </div>
             </CardHeader>
@@ -245,7 +247,7 @@ export default function AdminMacroTracker() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <Sliders className="w-4 h-4 text-indigo-600" />
-                Regional Elasticity Multipliers & Activation Gates
+                {t("Regional Elasticity Multipliers & Activation Gates")}
               </CardTitle>
               <CardDescription className="text-xs">
                 Defines what percentage of commodity inflation passes through to
@@ -257,13 +259,19 @@ export default function AdminMacroTracker() {
                 <table className="w-full text-xs text-left">
                   <thead className="text-[11px] text-slate-400 uppercase border-b border-slate-200 dark:border-slate-800 pb-2">
                     <tr>
-                      <th className="py-2 font-medium">Material Category</th>
-                      <th className="py-2 font-medium">Trigger Commodity</th>
                       <th className="py-2 font-medium">
-                        Elasticity Multiplier
+                        {t("Material Category")}
                       </th>
-                      <th className="py-2 font-medium">Activation Gate</th>
-                      <th className="py-2 font-medium">Ceiling Cap</th>
+                      <th className="py-2 font-medium">
+                        {t("Trigger Commodity")}
+                      </th>
+                      <th className="py-2 font-medium">
+                        {t("Elasticity Multiplier")}
+                      </th>
+                      <th className="py-2 font-medium">
+                        {t("Activation Gate")}
+                      </th>
+                      <th className="py-2 font-medium">{t("Ceiling Cap")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -300,11 +308,11 @@ export default function AdminMacroTracker() {
               <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 mb-1">
                 <Zap className="w-4 h-4" />
                 <span className="text-xs font-bold uppercase tracking-wider">
-                  Live Fluctuation Sandbox
+                  {t("Live Fluctuation Sandbox")}
                 </span>
               </div>
               <CardTitle className="text-base font-semibold">
-                Simulate Economic Shocks
+                {t("Simulate Economic Shocks")}
               </CardTitle>
               <CardDescription className="text-xs">
                 Test how a macro spike in {currentMarketMeta.name} cascades
@@ -312,26 +320,35 @@ export default function AdminMacroTracker() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-        {indicators.length === 0 && !loading && <div role="status" className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">No macro indicator is connected for this market. Add a sourced, dated observation before the fluctuation filter can use it.</div>}
+              {indicators.length === 0 && !loading && (
+                <div
+                  role="status"
+                  className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+                >
+                  No macro indicator is connected for this market. Add a
+                  sourced, dated observation before the fluctuation filter can
+                  use it.
+                </div>
+              )}
               <div>
                 <label className="text-xs font-medium text-slate-700 dark:text-slate-300 block mb-1.5">
-                  Commodity Trigger
+                  {t("Commodity Trigger")}
                 </label>
                 <select
-                  aria-label="Commodity Trigger"
+                  aria-label={t("Commodity Trigger")}
                   value={simCommodity}
                   onChange={(e) =>
                     setSimCommodity(e.target.value as CommodityCategory)
                   }
                   className="w-full text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 font-medium"
                 >
-                  <option value="steel">Steel Rebar & Coil</option>
-                  <option value="cement">Portland Cement</option>
+                  <option value="steel">{t("Steel Rebar & Coil")}</option>
+                  <option value="cement">{t("Portland Cement")}</option>
                   <option value="general_inflation">
-                    General CPI Inflation
+                    {t("General CPI Inflation")}
                   </option>
                   <option value="fuel_transport">
-                    Diesel & Heavy Transport
+                    {t("Diesel & Heavy Transport")}
                   </option>
                 </select>
               </div>
@@ -346,7 +363,7 @@ export default function AdminMacroTracker() {
                   </span>
                 </div>
                 <input
-                  aria-label="Spike Percentage"
+                  aria-label={t("Spike Percentage")}
                   type="range"
                   min="0"
                   max="25"
@@ -360,7 +377,7 @@ export default function AdminMacroTracker() {
               {/* Simulation Result Items */}
               <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
                 <div className="text-[11px] font-semibold uppercase text-slate-500">
-                  Calculated Estimate Adjustments
+                  {t("Calculated Estimate Adjustments")}
                 </div>
                 {simResults.map((res, i) => (
                   <div

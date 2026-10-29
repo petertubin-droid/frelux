@@ -39,8 +39,10 @@ import {
 import type { SolarPanelModel, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
+import { useLanguage } from "@/lib/i18n";
 
 export default function SolarPvEstimator() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Solar/PV Roofing Estimator", path: "/solar-pv-estimator" },
@@ -214,35 +216,33 @@ export default function SolarPvEstimator() {
       );
     }
     return {
-        title: "FRELUX Solar/PV Installation Estimate",
-        subtitle: `Generated ${new Date().toLocaleDateString()} · Panel model: ${model?.model_name ?? ""} (${model?.watt_peak ?? ""} Wp)`,
-        metaRows: [
-          ["Panels", `${result.panel_count} (${result.array_kwp} kWp)`],
-          ["Daily energy", `${result.daily_energy_kwh} kWh`],
-          [
-            "Inverter",
-            `${result.inverter_size_kw} kW (${result.string_count} string(s))`,
-          ],
-          ["Roof area needed", `${result.needed_roof_area_m2} m²`],
-          [
-            "Batteries",
-            result.battery_count > 0
-              ? `${result.battery_count} unit(s)`
-              : "none",
-          ],
-          ["Cable run", `${cableRun} m`],
+      title: "FRELUX Solar/PV Installation Estimate",
+      subtitle: `Generated ${new Date().toLocaleDateString()} · Panel model: ${model?.model_name ?? ""} (${model?.watt_peak ?? ""} Wp)`,
+      metaRows: [
+        ["Panels", `${result.panel_count} (${result.array_kwp} kWp)`],
+        ["Daily energy", `${result.daily_energy_kwh} kWh`],
+        [
+          "Inverter",
+          `${result.inverter_size_kw} kW (${result.string_count} string(s))`,
         ],
-        lines,
-        totals: [
-          {
-            label: "Total estimate",
-            value: formatCurrency(pricedTotal),
-            strong: true,
-          },
+        ["Roof area needed", `${result.needed_roof_area_m2} m²`],
+        [
+          "Batteries",
+          result.battery_count > 0 ? `${result.battery_count} unit(s)` : "none",
         ],
-        warnings,
-        footer:
-          "Estimates are indicative and not a formal quote. Prices come from FRELUX verified component prices; unpriced components are reported, never invented.",
+        ["Cable run", `${cableRun} m`],
+      ],
+      lines,
+      totals: [
+        {
+          label: "Total estimate",
+          value: formatCurrency(pricedTotal),
+          strong: true,
+        },
+      ],
+      warnings,
+      footer:
+        "Estimates are indicative and not a formal quote. Prices come from FRELUX verified component prices; unpriced components are reported, never invented.",
     };
   };
 
@@ -251,7 +251,6 @@ export default function SolarPvEstimator() {
     if (!quote) return;
     printQuote(quote, "frelux-solar-pv-estimate.html");
   };
-
 
   const load = useCallback(async () => {
     const m = await fetchSolarPanelModels(true);
@@ -313,7 +312,7 @@ export default function SolarPvEstimator() {
             { label: "Construction Tools", path: "/construction-tools" },
             { label: "Solar/PV Roofing Estimator" },
           ]}
-          title="Solar/PV Roofing Estimator"
+          title={t("Solar/PV Roofing Estimator")}
           subtitle="A complete solar installation estimate from sourced data: fit panels to your roof or size the array for your daily energy target, then get every material quantity: rails, clamps, connectors, DC/AC cabling, breakers, surge protection, earthing, batteries: with configured prices. Nothing is guessed, and unpriced components are reported honestly."
         />
 
@@ -334,7 +333,7 @@ export default function SolarPvEstimator() {
                 }}
                 className={`rounded-lg px-3 py-1.5 font-medium ${mode === "roof_area" ? "bg-primary text-primary-foreground" : "border border-border"}`}
               >
-                Fit to my roof
+                {t("Fit to my roof")}
               </button>
               <button
                 type="button"
@@ -344,13 +343,13 @@ export default function SolarPvEstimator() {
                 }}
                 className={`rounded-lg px-3 py-1.5 font-medium ${mode === "energy_target" ? "bg-primary text-primary-foreground" : "border border-border"}`}
               >
-                Size for my energy target
+                {t("Size for my energy target")}
               </button>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="grid gap-1 text-sm font-medium">
-                Panel model
+                {t("Panel model")}
                 <select
                   className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                   value={modelId}
@@ -359,7 +358,9 @@ export default function SolarPvEstimator() {
                     setResult(null);
                   }}
                 >
-                  <option value="">Select a configured panel model</option>
+                  <option value="">
+                    {t("Select a configured panel model")}
+                  </option>
                   {models.map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.model_name}: {m.watt_peak} Wp
@@ -382,7 +383,7 @@ export default function SolarPvEstimator() {
                 </label>
               ) : (
                 <label className="grid gap-1 text-sm font-medium">
-                  Target daily energy (kWh/day)
+                  {t("Target daily energy (kWh/day)")}
                   <input
                     type="number"
                     min="1"
@@ -395,7 +396,7 @@ export default function SolarPvEstimator() {
               )}
 
               <label className="grid gap-1 text-sm font-medium">
-                Cable run, array to inverter (m)
+                {t("Cable run, array to inverter (m)")}
                 <input
                   type="number"
                   min="1"
@@ -426,7 +427,7 @@ export default function SolarPvEstimator() {
             disabled={!canRun}
             className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
-            Estimate my installation
+            {t("Estimate my installation")}
           </button>
         </div>
 
@@ -445,7 +446,7 @@ export default function SolarPvEstimator() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Panels
+                  {t("Panels")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.panel_count}
@@ -456,7 +457,7 @@ export default function SolarPvEstimator() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Daily energy
+                  {t("Daily energy")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.daily_energy_kwh} kWh
@@ -467,7 +468,7 @@ export default function SolarPvEstimator() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Inverter
+                  {t("Inverter")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.inverter_size_kw} kW
@@ -478,7 +479,7 @@ export default function SolarPvEstimator() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Roof needed
+                  {t("Roof needed")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.needed_roof_area_m2} m²
@@ -492,15 +493,17 @@ export default function SolarPvEstimator() {
             </div>
 
             <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-              <h3 className="mb-2 text-sm font-semibold">Materials takeoff</h3>
+              <h3 className="mb-2 text-sm font-semibold">
+                {t("Materials takeoff")}
+              </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="text-xs uppercase text-muted-foreground">
                     <tr>
-                      <th className="py-2 text-left">Material</th>
-                      <th className="py-2 text-right">Quantity</th>
-                      <th className="py-2 text-right">Unit price</th>
-                      <th className="py-2 text-right">Line cost</th>
+                      <th className="py-2 text-left">{t("Material")}</th>
+                      <th className="py-2 text-right">{t("Quantity")}</th>
+                      <th className="py-2 text-right">{t("Unit price")}</th>
+                      <th className="py-2 text-right">{t("Line cost")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -526,11 +529,13 @@ export default function SolarPvEstimator() {
                       </tr>
                     ))}
                     <tr className="border-t border-border dark:border-white/5">
-                      <td className="py-2">Installation labour</td>
+                      <td className="py-2">{t("Installation labour")}</td>
                       <td className="py-2 text-right font-mono text-xs">
                         {result.panel_count} panels
                       </td>
-                      <td className="py-2 text-right font-mono text-xs">N/A</td>
+                      <td className="py-2 text-right font-mono text-xs">
+                        {t("N/A")}
+                      </td>
                       <td className="py-2 text-right font-mono text-xs">
                         {formatCurrency(result.labor_cost_naira ?? 0)}
                       </td>
@@ -543,7 +548,7 @@ export default function SolarPvEstimator() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Total estimate
+                  {t("Total estimate")}
                 </p>
                 {result.total_cost_naira !== null ? (
                   <p className="mt-1 text-3xl font-semibold">
@@ -578,7 +583,7 @@ export default function SolarPvEstimator() {
 
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
-                How this was determined
+                {t("How this was determined")}
               </summary>
               <ul className="mt-2 space-y-1">
                 {result.steps.map((s, i) => (
@@ -608,9 +613,13 @@ export default function SolarPvEstimator() {
                 onClick={handleExportQuote}
                 className="rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground"
               >
-                Export quote (PDF)
+                {t("Export quote (PDF)")}
               </button>
-              <QuoteShareButton build={buildQuote} kind="Solar/PV Installation Estimate" link="/solar-pv-estimator" />
+              <QuoteShareButton
+                build={buildQuote}
+                kind="Solar/PV Installation Estimate"
+                link="/solar-pv-estimator"
+              />
               <SaveToProjectButton
                 calculatorType="cost"
                 calculatorSlug="solar-pv-estimator"

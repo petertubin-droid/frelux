@@ -37,12 +37,14 @@ import {
   SelectValue,
 } from "@/components/ui/shadcn/select";
 import { useToast } from "@/components/ui/Toast";
+import { useLanguage } from "@/lib/i18n";
 
 interface Props {
   project: DbContractorProject;
 }
 
 export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const { can, currentRole, activeWorkspace } = useWorkspace();
   const { toast } = useToast();
@@ -211,7 +213,8 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border bg-card/60">
         <div>
           <h3 className="text-lg font-bold flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-primary" /> Daily Field Site Logs
+            <Calendar className="h-5 w-5 text-primary" />{" "}
+            {t("Daily Field Site Logs")}
           </h3>
           <p className="text-sm text-muted-foreground mt-0.5">
             Real-time daily activity tracking, workforce attendance, weather
@@ -247,7 +250,7 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <Label htmlFor="log-date">Log Date</Label>
+              <Label htmlFor="log-date">{t("Log Date")}</Label>
               <Input
                 id="log-date"
                 type="date"
@@ -258,7 +261,7 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
             </div>
 
             <div>
-              <Label htmlFor="shift">Shift</Label>
+              <Label htmlFor="shift">{t("Shift")}</Label>
               <Select
                 value={shift}
                 onValueChange={(val: "day" | "night" | "weekend") =>
@@ -269,15 +272,19 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="day">Day Shift (Standard)</SelectItem>
-                  <SelectItem value="night">Night Shift</SelectItem>
-                  <SelectItem value="weekend">Weekend / Overtime</SelectItem>
+                  <SelectItem value="day">
+                    {t("Day Shift (Standard)")}
+                  </SelectItem>
+                  <SelectItem value="night">{t("Night Shift")}</SelectItem>
+                  <SelectItem value="weekend">
+                    {t("Weekend / Overtime")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label htmlFor="workers">Workers On Site</Label>
+              <Label htmlFor="workers">{t("Workers On Site")}</Label>
               <div className="relative">
                 <Users className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -317,7 +324,8 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
 
           <div>
             <Label htmlFor="work-performed">
-              Work Performed Today <span className="text-destructive">*</span>
+              {t("Work Performed Today")}{" "}
+              <span className="text-destructive">*</span>
             </Label>
             <Textarea
               id="work-performed"
@@ -343,7 +351,7 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                 onClick={handleAddMaterialRow}
                 className="h-7 text-xs flex items-center gap-1"
               >
-                <Plus className="h-3 w-3" /> Add Material
+                <Plus className="h-3 w-3" /> {t("Add Material")}
               </Button>
             </div>
 
@@ -354,7 +362,7 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                   className="flex flex-col sm:flex-row gap-2 items-center"
                 >
                   <Input
-                    placeholder="Material name (e.g. Portland Cement)"
+                    placeholder={t("Material name (e.g. Portland Cement)")}
                     className="flex-1 text-sm"
                     value={mat.material_name}
                     onChange={(e) =>
@@ -364,7 +372,7 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                   <Input
                     type="number"
                     step="any"
-                    placeholder="Qty"
+                    placeholder={t("Qty")}
                     className="w-24 text-sm"
                     value={mat.quantity || ""}
                     onChange={(e) =>
@@ -376,7 +384,7 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                     }
                   />
                   <Input
-                    placeholder="Unit (bags, m³, kg)"
+                    placeholder={t("Unit (bags, m³, kg)")}
                     className="w-28 text-sm"
                     value={mat.unit}
                     onChange={(e) =>
@@ -384,7 +392,7 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                     }
                   />
                   <Input
-                    placeholder="Purpose / Location"
+                    placeholder={t("Purpose / Location")}
                     className="flex-1 text-sm"
                     value={mat.purpose || ""}
                     onChange={(e) =>
@@ -453,7 +461,7 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
               onClick={() => setShowCreate(false)}
               disabled={submitting}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button type="submit" disabled={submitting}>
               {submitting ? "Submitting Log..." : "Submit Site Log"}
@@ -466,12 +474,14 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
       <div className="space-y-3">
         {loading ? (
           <div className="p-8 text-center text-sm text-muted-foreground">
-            Loading site logs...
+            {t("Loading site logs...")}
           </div>
         ) : logs.length === 0 ? (
           <div className="p-8 text-center rounded-xl border border-dashed bg-card/40">
             <Calendar className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="font-semibold text-sm">No site logs recorded yet</p>
+            <p className="font-semibold text-sm">
+              {t("No site logs recorded yet")}
+            </p>
             <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
               Field foremen and site managers can record daily shifts, worker
               headcounts, material consumption, and weather reports here.
@@ -483,7 +493,7 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                 className="mt-4"
                 onClick={() => setShowCreate(true)}
               >
-                <Plus className="h-3.5 w-3.5 mr-1" /> Record First Log
+                <Plus className="h-3.5 w-3.5 mr-1" /> {t("Record First Log")}
               </Button>
             )}
           </div>
@@ -524,17 +534,17 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                         </span>
                         {isApproved && (
                           <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                            <CheckCircle className="h-3 w-3" /> Approved
+                            <CheckCircle className="h-3 w-3" /> {t("Approved")}
                           </span>
                         )}
                         {isRejected && (
                           <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-600 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
-                            <XCircle className="h-3 w-3" /> Rejected
+                            <XCircle className="h-3 w-3" /> {t("Rejected")}
                           </span>
                         )}
                         {!isApproved && !isRejected && (
                           <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-                            Submitted (Pending Review)
+                            {t("Submitted (Pending Review)")}
                           </span>
                         )}
                       </div>
@@ -567,7 +577,7 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                   <div className="px-4 pb-4 pt-2 border-t bg-muted/10 space-y-4 text-sm">
                     <div>
                       <h5 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                        Work Performed
+                        {t("Work Performed")}
                       </h5>
                       <p className="whitespace-pre-wrap text-foreground">
                         {log.work_performed}
@@ -577,15 +587,16 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                     {log.material_usage && log.material_usage.length > 0 && (
                       <div>
                         <h5 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                          <Package className="h-3.5 w-3.5" /> Material Usage
+                          <Package className="h-3.5 w-3.5" />{" "}
+                          {t("Material Usage")}
                         </h5>
                         <div className="overflow-x-auto rounded-lg border bg-card">
                           <table className="w-full text-xs">
                             <thead>
                               <tr className="border-b bg-muted/40 text-left">
-                                <th className="p-2">Material</th>
-                                <th className="p-2">Quantity</th>
-                                <th className="p-2">Purpose</th>
+                                <th className="p-2">{t("Material")}</th>
+                                <th className="p-2">{t("Quantity")}</th>
+                                <th className="p-2">{t("Purpose")}</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -664,7 +675,8 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                                 handleStatusChange(log.id, "rejected")
                               }
                             >
-                              <XCircle className="h-3 w-3 mr-1" /> Reject Log
+                              <XCircle className="h-3 w-3 mr-1" />{" "}
+                              {t("Reject Log")}
                             </Button>
                           )}
                         </div>

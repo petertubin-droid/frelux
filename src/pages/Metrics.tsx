@@ -1,5 +1,6 @@
 import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * Public platform metrics - real, verifiable numbers, no vanity
@@ -12,6 +13,7 @@ const TEST_FILES = 764;
 const REPO = "petertubin-droid/frelux";
 
 export default function Metrics() {
+  const { t } = useLanguage();
   useSeo({
     title: "Platform Metrics",
     description:
@@ -44,7 +46,9 @@ export default function Metrics() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-      <h1 className="text-3xl font-bold sm:text-4xl">Platform metrics</h1>
+      <h1 className="text-3xl font-bold sm:text-4xl">
+        {t("Platform metrics")}
+      </h1>
       <p className="mt-3 max-w-2xl text-muted-foreground">
         Real numbers from the FRELUX build. Every release ships through CI:
         typecheck, {TESTS_PASSING.toLocaleString()} tests, build, then
@@ -63,7 +67,7 @@ export default function Metrics() {
         ))}
       </div>
 
-      <h2 className="mt-14 text-2xl font-semibold">Platform status</h2>
+      <h2 className="mt-14 text-2xl font-semibold">{t("Platform status")}</h2>
       <div className="mt-4 flex flex-col gap-3 rounded-2xl border bg-card p-6">
         <div className="flex items-center gap-3">
           <span

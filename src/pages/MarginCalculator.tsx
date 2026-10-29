@@ -25,11 +25,13 @@ import type { MarginPreset, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
+import { useLanguage } from "@/lib/i18n";
 
 // Worldwide-currency money formatting via the site-wide layer.
 const money = (v: number) => formatCurrency(v);
 
 export default function MarginCalculator() {
+  const { t } = useLanguage();
   const { symbol: currencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
@@ -177,7 +179,7 @@ export default function MarginCalculator() {
             { label: "Construction Tools", path: "/construction-tools" },
             { label: "Profit Margin Calculator" },
           ]}
-          title="Profit Margin Calculator"
+          title={t("Profit Margin Calculator")}
           subtitle="Build a complete bid cost from direct costs, labor hours and weekly overhead, or enter one base cost. Apply a configured profit preset and distinguish markup on cost from margin on price. VAT is added only from a configured rate, never guessed."
         />
 
@@ -199,7 +201,7 @@ export default function MarginCalculator() {
               <div
                 className="mb-5 flex flex-wrap gap-2"
                 role="group"
-                aria-label="Project cost entry method"
+                aria-label={t("Project cost entry method")}
               >
                 <button
                   type="button"
@@ -209,7 +211,7 @@ export default function MarginCalculator() {
                   }}
                   className={`rounded-lg px-3 py-2 text-sm font-semibold ${costMode === "components" ? "bg-primary text-primary-foreground" : "border border-border"}`}
                 >
-                  Build cost from components
+                  {t("Build cost from components")}
                 </button>
                 <button
                   type="button"
@@ -219,12 +221,14 @@ export default function MarginCalculator() {
                   }}
                   className={`rounded-lg px-3 py-2 text-sm font-semibold ${costMode === "single" ? "bg-primary text-primary-foreground" : "border border-border"}`}
                 >
-                  Enter one base cost
+                  {t("Enter one base cost")}
                 </button>
               </div>
               {costMode === "components" && (
                 <div className="mb-5 rounded-xl border border-border bg-muted/20 p-4 sm:p-5">
-                  <h2 className="font-semibold">Build your project cost</h2>
+                  <h2 className="font-semibold">
+                    {t("Build your project cost")}
+                  </h2>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Enter costs in the selected display currency; no cost, rate,
                     duration or tax is inferred.
@@ -264,7 +268,7 @@ export default function MarginCalculator() {
                             setValue(e.target.value);
                             setResult(null);
                           }}
-                          placeholder="Enter amount"
+                          placeholder={t("Enter amount")}
                         />
                       </label>
                     ))}
@@ -278,7 +282,7 @@ export default function MarginCalculator() {
               )}
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-1 text-sm font-medium">
-                  Margin preset
+                  {t("Margin preset")}
                   <select
                     className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                     value={presetId}
@@ -318,7 +322,7 @@ export default function MarginCalculator() {
                     }
                     className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                   >
-                    Calculate Quote
+                    {t("Calculate Quote")}
                   </button>
                 </div>
               </div>
@@ -360,7 +364,7 @@ export default function MarginCalculator() {
               </p>
               {costBreakdown && (
                 <div className="mt-4 rounded-xl bg-muted/35 p-3 text-sm">
-                  <p className="mb-2 font-semibold">Cost build-up</p>
+                  <p className="mb-2 font-semibold">{t("Cost build-up")}</p>
                   {[
                     [
                       "Materials and subcontracted direct costs",
@@ -385,18 +389,22 @@ export default function MarginCalculator() {
               )}
               <div className="mt-3 space-y-1 text-sm">
                 <p className="flex justify-between">
-                  <span className="text-muted-foreground">Base cost</span>
+                  <span className="text-muted-foreground">
+                    {t("Base cost")}
+                  </span>
                   <span>{money(result.base_cost!)}</span>
                 </p>
                 <p className="flex justify-between">
-                  <span className="text-muted-foreground">Markup on cost</span>
+                  <span className="text-muted-foreground">
+                    {t("Markup on cost")}
+                  </span>
                   <span>
                     {((result.profit! / result.base_cost!) * 100).toFixed(2)}%
                   </span>
                 </p>
                 <p className="flex justify-between">
                   <span className="text-muted-foreground">
-                    Net margin on priced subtotal
+                    {t("Net margin on priced subtotal")}
                   </span>
                   <span>
                     {((result.profit! / result.priced_subtotal!) * 100).toFixed(
@@ -406,11 +414,13 @@ export default function MarginCalculator() {
                   </span>
                 </p>
                 <p className="flex justify-between">
-                  <span className="text-muted-foreground">Profit</span>
+                  <span className="text-muted-foreground">{t("Profit")}</span>
                   <span>{money(result.profit!)}</span>
                 </p>
                 <p className="flex justify-between">
-                  <span className="text-muted-foreground">Priced subtotal</span>
+                  <span className="text-muted-foreground">
+                    {t("Priced subtotal")}
+                  </span>
                   <span>{money(result.priced_subtotal!)}</span>
                 </p>
                 {result.vat_amount !== null && (
@@ -423,14 +433,14 @@ export default function MarginCalculator() {
                   </p>
                 )}
                 <p className="flex justify-between border-t border-border pt-1 font-semibold">
-                  <span>Quote total</span>
+                  <span>{t("Quote total")}</span>
                   <span>{money(result.quote_total!)}</span>
                 </p>
               </div>
             </div>
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
-                Calculation breakdown
+                {t("Calculation breakdown")}
               </summary>
               <ul className="mt-2 space-y-1">
                 {result.steps.map((s, i) => (

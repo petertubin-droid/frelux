@@ -20,6 +20,7 @@ import {
   slugifyMaterial,
 } from "@/lib/international/crowdsourcing-engine";
 import type { CrowdsourcedMarketBenchmark } from "@/types/hybrid-pricing";
+import { useLanguage } from "@/lib/i18n";
 
 interface ExpenseCrowdsourceCardProps {
   marketCode: string;
@@ -42,6 +43,7 @@ export const ExpenseCrowdsourceCard: React.FC<ExpenseCrowdsourceCardProps> = ({
   onToggleOptIn,
   className = "",
 }) => {
+  const { t } = useLanguage();
   const [benchmark, setBenchmark] =
     useState<CrowdsourcedMarketBenchmark | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -80,12 +82,12 @@ export const ExpenseCrowdsourceCard: React.FC<ExpenseCrowdsourceCardProps> = ({
             </div>
             <div>
               <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-                Closed-Loop Price Sharing
+                {t("Closed-Loop Price Sharing")}
                 <Badge
                   variant="outline"
                   className="text-[10px] text-blue-600 border-blue-200"
                 >
-                  Self-Healing Data
+                  {t("Self-Healing Data")}
                 </Badge>
               </div>
               <p className="text-[11px] text-slate-500">
@@ -106,7 +108,7 @@ export const ExpenseCrowdsourceCard: React.FC<ExpenseCrowdsourceCardProps> = ({
               id="crowdsource-opt-in"
               checked={optIn}
               onCheckedChange={onToggleOptIn}
-              aria-label="Contribute price anonymously"
+              aria-label={t("Contribute price anonymously")}
             />
           </div>
         </div>

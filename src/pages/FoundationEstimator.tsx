@@ -51,6 +51,7 @@ import type {
   EstimationMaterial,
 } from "@/types/estimation";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import { useLanguage } from "@/lib/i18n";
 
 type Field =
   | "concrete_volume_m3"
@@ -70,6 +71,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function FoundationEstimator() {
+  const { t } = useLanguage();
   const { code: displayCurrencyCode, symbol: displayCurrencySymbol } =
     useDisplayCurrency();
   const { user } = useAuth();
@@ -176,58 +178,58 @@ export default function FoundationEstimator() {
   const buildQuote = (): Parameters<typeof printQuote>[0] | null => {
     if (!result?.ok) return null;
     return {
-    title: "FRELUX Foundation Estimate",
-    subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
-    metaRows: result.steps.map(
-      (st) => [st.label, st.detail] as [string, string],
-    ),
-    lines: result.lines.map((l) => ({
-      label: l.label,
-      quantity:
-        l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
-      unit: l.unit,
-      unit_price:
-        l.unit_price === null
-          ? "unpriced"
-          : formatCurrency(l.unit_price, currencySymbol),
-      line_total:
-        l.line_total === null
-          ? "N/A"
-          : formatCurrency(l.line_total, currencySymbol),
-      detail: l.detail,
-    })),
-    totals: [
-      {
-        label: "Material subtotal",
-        value:
-          result.material_subtotal === null
-            ? "(prices/inputs missing)"
-            : formatCurrency(result.material_subtotal, currencySymbol),
-      },
-      {
-        label: "Priced so far",
-        value: formatCurrency(result.priced_subtotal, currencySymbol),
-      },
-      {
-        label: "Labour",
-        value:
-          labourMode === "none"
-            ? "Not included"
-            : formatCurrency(result.labour_total, currencySymbol),
-      },
-      {
-        label: "Grand total",
-        value:
-          result.grand_total === null
+      title: "FRELUX Foundation Estimate",
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
+      metaRows: result.steps.map(
+        (st) => [st.label, st.detail] as [string, string],
+      ),
+      lines: result.lines.map((l) => ({
+        label: l.label,
+        quantity:
+          l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
+        unit: l.unit,
+        unit_price:
+          l.unit_price === null
+            ? "unpriced"
+            : formatCurrency(l.unit_price, currencySymbol),
+        line_total:
+          l.line_total === null
             ? "N/A"
-            : formatCurrency(result.grand_total, currencySymbol),
-        strong: true,
-      },
-    ],
-    warnings: result.warnings,
-    footer:
-      "Estimates are indicative and not a formal quote. Quantities are sized from your foundation dimensions and soil rules; unpriced items are reported, never invented.",
-  };
+            : formatCurrency(l.line_total, currencySymbol),
+        detail: l.detail,
+      })),
+      totals: [
+        {
+          label: "Material subtotal",
+          value:
+            result.material_subtotal === null
+              ? "(prices/inputs missing)"
+              : formatCurrency(result.material_subtotal, currencySymbol),
+        },
+        {
+          label: "Priced so far",
+          value: formatCurrency(result.priced_subtotal, currencySymbol),
+        },
+        {
+          label: "Labour",
+          value:
+            labourMode === "none"
+              ? "Not included"
+              : formatCurrency(result.labour_total, currencySymbol),
+        },
+        {
+          label: "Grand total",
+          value:
+            result.grand_total === null
+              ? "N/A"
+              : formatCurrency(result.grand_total, currencySymbol),
+          strong: true,
+        },
+      ],
+      warnings: result.warnings,
+      footer:
+        "Estimates are indicative and not a formal quote. Quantities are sized from your foundation dimensions and soil rules; unpriced items are reported, never invented.",
+    };
   };
 
   const exportQuote = () => {
@@ -235,8 +237,6 @@ export default function FoundationEstimator() {
     if (!quote) return;
     printQuote(quote, "frelux-foundation-estimate.html");
   };
-
-
 
   const exportToDocumentStudio = () => {
     if (!result?.ok) return;
@@ -375,7 +375,7 @@ export default function FoundationEstimator() {
           { label: "Construction Tools", path: "/construction-tools" },
           { label: "Foundation Estimator" },
         ]}
-        title="Foundation Estimator"
+        title={t("Foundation Estimator")}
         subtitle="Enter your measured concrete volume, wall area, hardcore and formwork. The engine splits concrete into cement, sand and granite with the visible mix ratio and every constant shown, sizes blocks from the blocks-per-m² rule, and prices from the shared material database. Estimation only: not foundation design."
       />
 
@@ -407,7 +407,9 @@ export default function FoundationEstimator() {
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
-        <h3 className="mb-1 font-semibold">Measured volumes and areas</h3>
+        <h3 className="mb-1 font-semibold">
+          {t("Measured volumes and areas")}
+        </h3>
         <p className="mb-2 text-xs text-muted-foreground">
           The engine never assumes volumes. Enter what you measured. Leave a
           field blank when it needs a decision (the estimate is marked
@@ -423,10 +425,10 @@ export default function FoundationEstimator() {
           )}
         </div>
 
-        <h3 className="mt-5 mb-2 font-semibold">Labour</h3>
+        <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
         <div className="flex flex-wrap items-end gap-3">
           <label className="text-sm">
-            <span className="mb-1 block font-medium">Labour mode</span>
+            <span className="mb-1 block font-medium">{t("Labour mode")}</span>
             <select
               value={labourMode}
               onChange={(e) =>
@@ -434,9 +436,9 @@ export default function FoundationEstimator() {
               }
               className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
             >
-              <option value="none">Not included</option>
+              <option value="none">{t("Not included")}</option>
               <option value="per_m3">Per m³ of concrete (rate)</option>
-              <option value="lump_sum">Lump sum</option>
+              <option value="lump_sum">{t("Lump sum")}</option>
             </select>
           </label>
           {labourMode !== "none" &&
@@ -458,7 +460,7 @@ export default function FoundationEstimator() {
             onClick={run}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
-            Calculate estimate
+            {t("Calculate estimate")}
           </button>
           {result?.ok && (
             <>
@@ -473,14 +475,18 @@ export default function FoundationEstimator() {
                 onClick={exportQuote}
                 className="rounded-md border px-4 py-2 text-sm font-medium"
               >
-                Export quote (PDF)
+                {t("Export quote (PDF)")}
               </button>
-              <QuoteShareButton build={buildQuote} kind="Foundation Estimate" link="/foundation" />
+              <QuoteShareButton
+                build={buildQuote}
+                kind="Foundation Estimate"
+                link="/foundation"
+              />
               <button
                 onClick={exportToDocumentStudio}
                 className="rounded-md border px-4 py-2 text-sm font-medium"
               >
-                Customize in Document Studio
+                {t("Customize in Document Studio")}
               </button>
               <SaveToProjectButton
                 calculatorType="foundation"
@@ -525,7 +531,7 @@ export default function FoundationEstimator() {
           role="alert"
         >
           <h3 className="mb-1 font-semibold text-destructive">
-            Fix these inputs first
+            {t("Fix these inputs first")}
           </h3>
           <ul className="list-disc pl-5 text-sm text-destructive">
             {result.errors.map((e) => (
@@ -549,7 +555,9 @@ export default function FoundationEstimator() {
           >
             {result.incomplete ? (
               <>
-                <strong className="block">This estimate is INCOMPLETE.</strong>
+                <strong className="block">
+                  {t("This estimate is INCOMPLETE.")}
+                </strong>
                 <ul className="mt-1 list-disc pl-5">
                   {result.missing.map((m) => (
                     <li key={m}>{m}</li>
@@ -576,16 +584,16 @@ export default function FoundationEstimator() {
           <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
             <table
               className="w-full text-sm"
-              aria-label="Foundation material takeoff"
+              aria-label={t("Foundation material takeoff")}
             >
               <thead className="border-b bg-muted/50 text-left">
                 <tr>
-                  <th className="p-3">Material</th>
-                  <th className="p-3">Quantity</th>
-                  <th className="p-3">Unit</th>
-                  <th className="p-3">How it was sized</th>
-                  <th className="p-3">Unit price</th>
-                  <th className="p-3">Line total</th>
+                  <th className="p-3">{t("Material")}</th>
+                  <th className="p-3">{t("Quantity")}</th>
+                  <th className="p-3">{t("Unit")}</th>
+                  <th className="p-3">{t("How it was sized")}</th>
+                  <th className="p-3">{t("Unit price")}</th>
+                  <th className="p-3">{t("Line total")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -604,7 +612,7 @@ export default function FoundationEstimator() {
                     <td className="p-3">
                       {l.unit_price === null ? (
                         <span className="font-medium text-amber-700 dark:text-amber-400">
-                          PRICE NOT CONFIGURED
+                          {t("PRICE NOT CONFIGURED")}
                         </span>
                       ) : (
                         formatCurrency(l.unit_price, currencySymbol)
@@ -623,7 +631,7 @@ export default function FoundationEstimator() {
 
           {/* Breakdown */}
           <div className="mb-6 rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">Calculation breakdown</h3>
+            <h3 className="mb-2 font-semibold">{t("Calculation breakdown")}</h3>
             <ol className="space-y-2 text-sm">
               {result.steps.map((s, i) => (
                 <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
@@ -637,7 +645,9 @@ export default function FoundationEstimator() {
           {/* Cost summary */}
           <div className="mb-6 grid gap-3 sm:grid-cols-4">
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Material subtotal</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Material subtotal")}
+              </p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
                   ? "(prices/inputs missing)"
@@ -646,14 +656,14 @@ export default function FoundationEstimator() {
             </div>
             <div className="rounded-lg border bg-card p-4">
               <p className="text-sm text-muted-foreground">
-                Of which priced so far
+                {t("Of which priced so far")}
               </p>
               <p className="text-xl font-semibold">
                 {formatCurrency(result.priced_subtotal, currencySymbol)}
               </p>
             </div>
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Labour</p>
+              <p className="text-sm text-muted-foreground">{t("Labour")}</p>
               <p className="text-xl font-semibold">
                 {labourMode === "none"
                   ? "Not included"
@@ -661,7 +671,9 @@ export default function FoundationEstimator() {
               </p>
             </div>
             <div className="rounded-lg border bg-primary/10 p-4">
-              <p className="text-sm text-muted-foreground">Grand total</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Grand total")}
+              </p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
                   ? "N/A"
@@ -672,7 +684,7 @@ export default function FoundationEstimator() {
 
           {/* Warnings */}
           <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
-            <h3 className="mb-1 font-semibold">Important</h3>
+            <h3 className="mb-1 font-semibold">{t("Important")}</h3>
             <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
               {result.warnings.map((w) => (
                 <li key={w}>{w}</li>
@@ -686,18 +698,18 @@ export default function FoundationEstimator() {
 
       {/* How it works */}
       <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">How this estimator works</h2>
+        <h2 className="mb-2 font-semibold">{t("How this estimator works")}</h2>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
             Concrete follows the standard dry-volume mix math with every
             constant shown: wet volume × waste × 1.54 dry factor, split by the
-            mix ratio (default 1:2:4), cement at 0.0347 m³ per 50 kg
-            bag. Change the ratio in FRELUX settings and the split changes visibly.
+            mix ratio (default 1:2:4), cement at 0.0347 m³ per 50 kg bag. Change
+            the ratio in FRELUX settings and the split changes visibly.
           </li>
           <li>
-            Blocks follow the visible blocks-per-m² rule, which must
-            match the block supplier prices. Hardcore and formwork take your
-            measured volumes and areas directly.
+            Blocks follow the visible blocks-per-m² rule, which must match the
+            block supplier prices. Hardcore and formwork take your measured
+            volumes and areas directly.
           </li>
           <li>
             All materials use the same shared records the Price Tracker manages

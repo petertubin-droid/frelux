@@ -14,8 +14,10 @@ import { useSeo } from "@/lib/seo";
 import { fetchCaseStudyById, type CaseStudyView } from "@/lib/case-studies";
 import { CATEGORY_LABELS } from "@/lib/case-study-labels";
 import { getCurrencySymbol } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 export default function CaseStudyDetail() {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const [view, setView] = useState<CaseStudyView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,8 +67,8 @@ export default function CaseStudyDetail() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16">
         <PageHeader
-          title="Case study not found"
-          subtitle="It may have been unpublished or removed."
+          title={t("Case study not found")}
+          subtitle={t("It may have been unpublished or removed.")}
         />
         <Link
           to="/case-studies"
@@ -89,7 +91,8 @@ export default function CaseStudyDetail() {
         to="/case-studies"
         className="inline-flex items-center gap-2 text-sm font-medium text-brand-purple hover:underline"
       >
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> All case studies
+        <ArrowLeft aria-hidden="true" className="h-4 w-4" />{" "}
+        {t("All case studies")}
       </Link>
 
       <div className="mt-4">
@@ -129,7 +132,7 @@ export default function CaseStudyDetail() {
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <figure className="overflow-hidden rounded-xl border bg-muted">
           <span className="block border-b bg-muted/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Before
+            {t("Before")}
           </span>
           {beforeImage ? (
             <img
@@ -139,13 +142,13 @@ export default function CaseStudyDetail() {
             />
           ) : (
             <div className="flex aspect-[4/3] items-center justify-center text-sm text-muted-foreground">
-              No before photo
+              {t("No before photo")}
             </div>
           )}
         </figure>
         <figure className="overflow-hidden rounded-xl border bg-muted">
           <span className="block border-b bg-muted/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            After
+            {t("After")}
           </span>
           {afterImage ? (
             <img
@@ -155,7 +158,7 @@ export default function CaseStudyDetail() {
             />
           ) : (
             <div className="flex aspect-[4/3] items-center justify-center text-sm text-muted-foreground">
-              No after photo
+              {t("No after photo")}
             </div>
           )}
         </figure>
@@ -164,18 +167,18 @@ export default function CaseStudyDetail() {
       {/* Story sections */}
       <div className="mt-8 space-y-6">
         {caseStudy.project_scope && (
-          <Section title="Project Scope" body={caseStudy.project_scope} />
+          <Section title={t("Project Scope")} body={caseStudy.project_scope} />
         )}
         {caseStudy.challenges && (
-          <Section title="Challenges" body={caseStudy.challenges} />
+          <Section title={t("Challenges")} body={caseStudy.challenges} />
         )}
         {caseStudy.outcome && (
-          <Section title="Outcome" body={caseStudy.outcome} />
+          <Section title={t("Outcome")} body={caseStudy.outcome} />
         )}
         {caseStudy.materials_used.length > 0 && (
           <section>
             <h2 className="text-lg font-semibold text-foreground">
-              Materials Used
+              {t("Materials Used")}
             </h2>
             <div className="mt-2 flex flex-wrap gap-2">
               {caseStudy.materials_used.map((m) => (
@@ -198,7 +201,9 @@ export default function CaseStudyDetail() {
       {/* Additional photos */}
       {images.length > 2 && (
         <div className="mt-8">
-          <h2 className="text-lg font-semibold text-foreground">More Photos</h2>
+          <h2 className="text-lg font-semibold text-foreground">
+            {t("More Photos")}
+          </h2>
           <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {images.slice(2).map((img) => (
               <figure
@@ -230,7 +235,7 @@ export default function CaseStudyDetail() {
           to="/calculators"
           className="font-medium text-brand-purple underline-offset-4 hover:underline"
         >
-          Run a free estimate
+          {t("Run a free estimate")}
         </Link>
         .
       </p>

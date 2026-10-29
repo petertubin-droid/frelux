@@ -10,8 +10,10 @@ import {
 } from "@/lib/achievements";
 import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 export default function Achievements() {
+  const { t } = useLanguage();
   const [unlocked, setUnlocked] = useState<UnlockedAchievement[]>([]);
   const [stats, setStats] = useState<UsageStats | null>(null);
 
@@ -49,17 +51,19 @@ export default function Achievements() {
         to="/"
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
       >
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to home
+        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> {t("Back to home")}
       </Link>
 
       {/* Header */}
       <div className="mb-8 text-center">
         <HeroTitle
           className="text-3xl text-foreground dark:text-primary-foreground"
-          title="Achievements"
+          title={t("Achievements")}
         />
         <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-          Unlock badges as you use FRELUX. Track your progress and milestones.
+          {t(
+            "Unlock badges as you use FRELUX. Track your progress and milestones.",
+          )}
         </p>
         <Link
           to="/rewards/"
@@ -74,7 +78,7 @@ export default function Achievements() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-              Total Progress
+              {t("Total Progress")}
             </p>
             <p className="text-2xl font-bold text-foreground dark:text-primary-foreground">
               {totalUnlocked} / {totalAchievements} unlocked
@@ -146,7 +150,7 @@ export default function Achievements() {
                     </div>
                     {isUnlocked && (
                       <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
-                        DONE
+                        {t("DONE")}
                       </span>
                     )}
                   </div>

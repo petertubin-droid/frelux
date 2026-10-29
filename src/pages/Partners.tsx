@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import { Textarea } from "@/components/ui/shadcn/textarea";
 import { Label } from "@/components/ui/shadcn/label";
+import { useLanguage } from "@/lib/i18n";
 
 type Interest = "investor" | "partner" | "collaborator" | "other";
 
@@ -45,6 +46,7 @@ const LANES = [
 ];
 
 export default function Partners() {
+  const { t } = useLanguage();
   useSeo({
     title: "Partnerships & Collaboration | Frelux",
     description:
@@ -111,7 +113,7 @@ export default function Partners() {
     <>
       <PageHeader
         eyebrow="Partnerships"
-        title="Build with Frelux"
+        title={t("Build with Frelux")}
         subtitle="We work with a small number of investors, strategic partners and collaborators who share one conviction: construction deserves honest numbers."
         breadcrumbs={[{ label: "Partners" }]}
       />
@@ -153,7 +155,7 @@ export default function Partners() {
                   <CheckCircle2 className="h-7 w-7 text-primary" aria-hidden />
                 </span>
                 <h2 className="mt-5 font-display text-xl font-semibold">
-                  Thank you. Your message is with the team.
+                  {t("Thank you. Your message is with the team.")}
                 </h2>
                 <p className="mt-2 max-w-sm text-sm text-muted-foreground">
                   We read every inquiry and reply to the serious ones. If your
@@ -164,7 +166,7 @@ export default function Partners() {
                   className="mt-6"
                   onClick={() => setStatus("idle")}
                 >
-                  Send another message
+                  {t("Send another message")}
                 </Button>
               </div>
             ) : (
@@ -180,7 +182,7 @@ export default function Partners() {
                       id="partners-name"
                       value={form.name}
                       onChange={(e) => set("name", e.target.value)}
-                      placeholder="Your full name"
+                      placeholder={t("Your full name")}
                       aria-invalid={!!errors.name}
                     />
                     {errors.name && (
@@ -206,13 +208,13 @@ export default function Partners() {
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="partners-company">
-                      Company / organisation
+                      {t("Company / organisation")}
                     </Label>
                     <Input
                       id="partners-company"
                       value={form.company}
                       onChange={(e) => set("company", e.target.value)}
-                      placeholder="Optional"
+                      placeholder={t("Optional")}
                     />
                   </div>
                   <div className="space-y-2">
@@ -225,7 +227,7 @@ export default function Partners() {
                       className="flex h-10 w-full appearance-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-background"
                     >
                       <option value="" disabled>
-                        Select an option
+                        {t("Select an option")}
                       </option>
                       {INTERESTS.map((i) => (
                         <option key={i.value} value={i.value}>
@@ -248,7 +250,9 @@ export default function Partners() {
                     rows={5}
                     value={form.message}
                     onChange={(e) => set("message", e.target.value)}
-                    placeholder="Tell us who you are and what you would like to explore."
+                    placeholder={t(
+                      "Tell us who you are and what you would like to explore.",
+                    )}
                     aria-invalid={!!errors.message}
                   />
                   {errors.message && (
@@ -262,7 +266,9 @@ export default function Partners() {
                     className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-sm text-destructive"
                   >
                     <AlertCircle className="h-4 w-4 shrink-0" aria-hidden />
-                    Something went wrong sending your message. Please try again.
+                    {t(
+                      "Something went wrong sending your message. Please try again.",
+                    )}
                   </div>
                 )}
 
@@ -279,12 +285,12 @@ export default function Partners() {
                     {status === "submitting" ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                        Sending
+                        {t("Sending")}
                       </>
                     ) : (
                       <>
                         <Send className="h-4 w-4" aria-hidden />
-                        Send message
+                        {t("Send message")}
                       </>
                     )}
                   </Button>

@@ -87,6 +87,7 @@ import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
 import { AdminThemeProvider, useAdminTheme } from "@/lib/admin-theme";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // =========================================================
 // Admin sidebar - 11 sections, owner-first control center.
@@ -341,7 +342,11 @@ const navModules: NavModule[] = [
     heading: "Content",
     items: [
       { label: "Learn Articles", to: "/admin/learn", icon: BookOpen },
-      { label: "Wall Finishing Library", to: "/admin/learn/wall-finishing", icon: Globe },
+      {
+        label: "Wall Finishing Library",
+        to: "/admin/learn/wall-finishing",
+        icon: Globe,
+      },
       {
         label: "Construction Dictionary",
         to: "/admin/dictionary",
@@ -455,12 +460,13 @@ function crumbsFor(pathname: string): { label: string; to?: string }[] {
 }
 
 function Breadcrumbs() {
+  const { t } = useLanguage();
   const location = useLocation();
   const crumbs = crumbsFor(location.pathname);
   if (crumbs.length < 2) return null;
   return (
     <nav
-      aria-label="Breadcrumb"
+      aria-label={t("Breadcrumb")}
       className="mb-5 flex flex-wrap items-center gap-1.5 text-xs"
     >
       {crumbs.map((c, i) => (
@@ -504,6 +510,7 @@ export default function AdminLayout() {
 }
 
 function AdminLayoutInner() {
+  const { t } = useLanguage();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { theme, toggle } = useAdminTheme();
@@ -533,14 +540,14 @@ function AdminLayoutInner() {
       {/* Mobile header */}
       <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-card px-4 dark:border-border dark:bg-background lg:hidden">
         <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
-          FRELUX Admin
+          {t("FRELUX Admin")}
         </span>
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             type="button"
             onClick={toggle}
-            aria-label="Toggle dark mode"
+            aria-label={t("Toggle dark mode")}
             className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
           >
             {theme === "dark" ? (
@@ -554,7 +561,7 @@ function AdminLayoutInner() {
             type="button"
             onClick={() => setMobileOpen(true)}
             className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
-            aria-label="Open admin menu"
+            aria-label={t("Open admin menu")}
           >
             <Menu className="h-5 w-5" />
           </Button>
@@ -582,14 +589,14 @@ function AdminLayoutInner() {
             <aside className="absolute left-0 top-0 h-full w-64 bg-card shadow-xl dark:bg-background">
               <div className="flex h-14 items-center justify-between border-b border-border px-4 dark:border-border">
                 <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                  FRELUX Admin
+                  {t("FRELUX Admin")}
                 </span>
                 <Button
                   variant="ghost"
                   type="button"
                   onClick={() => setMobileOpen(false)}
                   className="rounded-md p-2 text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
-                  aria-label="Close admin menu"
+                  aria-label={t("Close admin menu")}
                 >
                   <X className="h-5 w-5" />
                 </Button>
@@ -629,6 +636,7 @@ function SidebarContent({
   theme: string;
   onToggleTheme: () => void;
 }) {
+  const { t } = useLanguage();
   // Sidebar search filters sections/pages so the owner can jump straight to
   // any admin page (materials, prices, engines, users, settings…) instead of
   // hunting through the sidebar.
@@ -702,9 +710,11 @@ function SidebarContent({
     <div className="flex h-full flex-col">
       <div className="hidden border-b border-border px-5 py-4 dark:border-border lg:block">
         <span className="text-base font-bold text-foreground dark:text-primary-foreground">
-          FRELUX Admin
+          {t("FRELUX Admin")}
         </span>
-        <p className="text-xs text-muted-foreground">Platform management</p>
+        <p className="text-xs text-muted-foreground">
+          {t("Platform management")}
+        </p>
       </div>
       <div className="border-b border-border p-3 dark:border-border">
         <div className="relative">
@@ -716,14 +726,17 @@ function SidebarContent({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search admin pages…"
-            aria-label="Search admin pages"
+            placeholder={t("Search admin pages…")}
+            aria-label={t("Search admin pages")}
             className="h-9 w-full rounded-lg border border-border bg-background pl-8 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/70 focus:ring-1 focus:ring-brand-purple/50 dark:border-border dark:bg-card dark:text-primary-foreground"
           />
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-3" aria-label="Admin sections">
+      <nav
+        className="flex-1 overflow-y-auto p-3"
+        aria-label={t("Admin sections")}
+      >
         {modules.map((module) => {
           let lastGroup: string | undefined;
           // When searching, every matching section is force-expanded so
@@ -805,13 +818,13 @@ function SidebarContent({
             to="/"
             className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
           >
-            <ExternalLink className="h-4 w-4" /> View website
+            <ExternalLink className="h-4 w-4" /> {t("View website")}
           </Link>
           <Button
             variant="ghost"
             type="button"
             onClick={onToggleTheme}
-            aria-label="Toggle dark mode"
+            aria-label={t("Toggle dark mode")}
             className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
           >
             {theme === "dark" ? (
@@ -830,7 +843,7 @@ function SidebarContent({
           onClick={onSignOut}
           className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
         >
-          <LogOut className="h-4 w-4" /> Sign out
+          <LogOut className="h-4 w-4" /> {t("Sign out")}
         </Button>
       </div>
     </div>

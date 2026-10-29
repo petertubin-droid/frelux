@@ -7,9 +7,16 @@ import AdSlot from "@/components/ui/AdSlot";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
-import { BrickWall, CheckCircle2, Download, Ruler, RotateCcw } from "lucide-react";
+import {
+  BrickWall,
+  CheckCircle2,
+  Download,
+  Ruler,
+  RotateCcw,
+} from "lucide-react";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import { useLanguage } from "@/lib/i18n";
 import {
   calculateMasonryTakeoff,
   resolveMarketMasonryConfig,
@@ -107,6 +114,7 @@ export default function StandaloneTakeoffPage({
 }: {
   initialEngine?: Engine;
 }) {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { market, availableMarkets } = useMarket();
   const [searchParams] = useSearchParams();
@@ -427,9 +435,7 @@ export default function StandaloneTakeoffPage({
     const record = result as unknown as Record<string, unknown>;
     const skip = /packagingEvidence|warnings|assumptions|safetyNotice|steps/i;
     const prettify = (key: string) =>
-      key
-        .replace(/([A-Z])/g, " $1")
-        .replace(/^./, (c) => c.toUpperCase());
+      key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
     const lines = Object.entries(record)
       .filter(([key, value]) => {
         if (key === "marketCode" || skip.test(key)) return false;
@@ -509,7 +515,7 @@ export default function StandaloneTakeoffPage({
             role="status"
             className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm"
           >
-            <strong>Imported measured quantity for review</strong>
+            <strong>{t("Imported measured quantity for review")}</strong>
             <p className="mt-1 text-muted-foreground">{bridgeProvenance}</p>
           </div>
         )}
@@ -520,9 +526,13 @@ export default function StandaloneTakeoffPage({
           >
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-lg font-semibold">Project measurements</h2>
+                <h2 className="text-lg font-semibold">
+                  {t("Project measurements")}
+                </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Choose the working market, then enter measured dimensions.
+                  {t(
+                    "Choose the working market, then enter measured dimensions.",
+                  )}
                 </p>
               </div>
               <Ruler className="h-5 w-5 text-primary" />
@@ -656,7 +666,7 @@ export default function StandaloneTakeoffPage({
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button type="submit" className="rounded-xl">
-                Calculate quantities
+                {t("Calculate quantities")}
               </Button>
               <Button
                 type="button"
@@ -665,7 +675,7 @@ export default function StandaloneTakeoffPage({
                 onClick={() => setResult(null)}
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Clear results
+                {t("Clear results")}
               </Button>
             </div>
             {error && (
@@ -683,7 +693,9 @@ export default function StandaloneTakeoffPage({
                 <BrickWall className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold">Quantity summary</h2>
+                <h2 className="text-lg font-semibold">
+                  {t("Quantity summary")}
+                </h2>
                 <p className="text-sm text-muted-foreground">
                   {result
                     ? `Calculated for ${marketCode}`
@@ -747,7 +759,7 @@ export default function StandaloneTakeoffPage({
                     onClick={exportTakeoffPdf}
                   >
                     <Download className="mr-2 h-4 w-4" />
-                    Export PDF
+                    {t("Export PDF")}
                   </Button>
                   <QuoteShareButton
                     build={buildTakeoffQuote}
@@ -764,7 +776,7 @@ export default function StandaloneTakeoffPage({
             ) : (
               <div className="flex min-h-52 flex-col items-center justify-center rounded-2xl border border-dashed border-border text-center">
                 <Ruler className="mb-3 h-7 w-7 text-muted-foreground/60" />
-                <p className="text-sm font-medium">Ready when you are</p>
+                <p className="text-sm font-medium">{t("Ready when you are")}</p>
                 <p className="mt-1 max-w-xs text-sm text-muted-foreground">
                   Enter the measured quantities and run the estimate to see a
                   material breakdown.

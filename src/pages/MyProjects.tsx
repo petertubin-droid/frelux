@@ -77,12 +77,14 @@ import {
   type FreluxLocation,
 } from "@/lib/location-intelligence";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 type Tab = "projects" | "colors" | "palettes" | "collections" | "recent";
 type ProjectSubFilter = "all" | "contractor" | "estimates" | "device";
 type Status = "loading" | "ready" | "error";
 
 export default function MyProjects() {
+  const { t } = useLanguage();
   useSeo({
     title: "My Projects: Saved Calculations, Workspaces & Favorites",
     description:
@@ -452,7 +454,7 @@ export default function MyProjects() {
       <>
         <PageHeader
           eyebrow="Your workspace"
-          title="My Projects & Estimates"
+          title={t("My Projects & Estimates")}
           subtitle="Your saved contractor projects, calculator estimates, colors, and custom collections, all in one place."
           breadcrumbs={[{ label: "My Projects" }]}
         />
@@ -476,7 +478,7 @@ export default function MyProjects() {
           onClick={() => loadAll()}
           className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
         >
-          Try Again
+          {t("Try Again")}
         </Button>
       </div>
     );
@@ -543,7 +545,7 @@ export default function MyProjects() {
     <>
       <PageHeader
         eyebrow="Your workspace"
-        title="My Projects & Estimates"
+        title={t("My Projects & Estimates")}
         subtitle="Manage your contractor workspaces, calculator estimates, colors, and collections in one place."
         breadcrumbs={[{ label: "My Projects" }]}
       />
@@ -557,7 +559,9 @@ export default function MyProjects() {
                 <Smartphone className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold">Guest Device Mode</h4>
+                <h4 className="text-sm font-semibold">
+                  {t("Guest Device Mode")}
+                </h4>
                 <p className="text-xs text-muted-foreground">
                   You are viewing estimates saved on this browser. Sign in to
                   sync across devices and access full Contractor Workspaces.
@@ -568,7 +572,7 @@ export default function MyProjects() {
               to="/login/?redirect=/my-projects"
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-all shrink-0"
             >
-              <LogIn className="h-3.5 w-3.5" /> Sign in to sync
+              <LogIn className="h-3.5 w-3.5" /> {t("Sign in to sync")}
             </Link>
           </div>
         )}
@@ -613,7 +617,7 @@ export default function MyProjects() {
               className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
             />
             <input
-              aria-label="Search projects"
+              aria-label={t("Search projects")}
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -690,13 +694,14 @@ export default function MyProjects() {
                   to="/contractor"
                   className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all"
                 >
-                  <HardHat className="h-3.5 w-3.5" /> Contractor Workspace
+                  <HardHat className="h-3.5 w-3.5" />{" "}
+                  {t("Contractor Workspace")}
                 </Link>
                 <Link
                   to="/calculators"
                   className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-all"
                 >
-                  <Plus className="h-3.5 w-3.5" /> New Estimate
+                  <Plus className="h-3.5 w-3.5" /> {t("New Estimate")}
                 </Link>
               </div>
             </div>
@@ -704,7 +709,7 @@ export default function MyProjects() {
             {totalProjectsCount === 0 ? (
               <EmptyState
                 illustration="projects"
-                title="No saved projects or estimates yet"
+                title={t("No saved projects or estimates yet")}
                 description="Save calculations, estimates, or contractor workspaces to access them here anytime."
                 actionLabel="Explore Calculators"
                 actionTo="/calculators"
@@ -779,7 +784,7 @@ export default function MyProjects() {
                                   handleDeleteContractorProject(cp.id)
                                 }
                                 className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50 dark:border-red-950 dark:hover:bg-red-950/20"
-                                title="Delete"
+                                title={t("Delete")}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -842,16 +847,17 @@ export default function MyProjects() {
                                 size="sm"
                                 onClick={() => handleOpenProject(p)}
                                 className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
-                                title="Open in Calculator"
+                                title={t("Open in Calculator")}
                               >
-                                <ArrowRight className="h-3.5 w-3.5" /> Open
+                                <ArrowRight className="h-3.5 w-3.5" />{" "}
+                                {t("Open")}
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleShare("project", p.id)}
                                 className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple"
-                                title="Share"
+                                title={t("Share")}
                               >
                                 <Share2 className="h-4 w-4" />
                               </Button>
@@ -871,7 +877,7 @@ export default function MyProjects() {
                                 size="sm"
                                 onClick={() => handleDuplicate(p.id)}
                                 className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple"
-                                title="Duplicate"
+                                title={t("Duplicate")}
                               >
                                 <Copy className="h-4 w-4" />
                               </Button>
@@ -880,7 +886,7 @@ export default function MyProjects() {
                                 size="sm"
                                 onClick={() => handleDeleteProject(p.id)}
                                 className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50 dark:border-red-950 dark:hover:bg-red-950/20"
-                                title="Delete"
+                                title={t("Delete")}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -934,7 +940,8 @@ export default function MyProjects() {
                                 onClick={() => handleOpenLocalProject(lp)}
                                 className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
                               >
-                                <ArrowRight className="h-3.5 w-3.5" /> Open
+                                <ArrowRight className="h-3.5 w-3.5" />{" "}
+                                {t("Open")}
                               </Button>
                               {user ? (
                                 <Button
@@ -942,7 +949,7 @@ export default function MyProjects() {
                                   size="sm"
                                   onClick={() => handleSyncLocalToCloud(lp)}
                                   className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10"
-                                  title="Upload to Cloud Account"
+                                  title={t("Upload to Cloud Account")}
                                 >
                                   <Cloud className="h-3.5 w-3.5" /> Sync to
                                   Cloud
@@ -961,7 +968,7 @@ export default function MyProjects() {
                                 size="sm"
                                 onClick={() => handleDeleteLocalProject(lp.id)}
                                 className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50 dark:border-red-950 dark:hover:bg-red-950/20"
-                                title="Delete from device"
+                                title={t("Delete from device")}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -1008,7 +1015,7 @@ export default function MyProjects() {
           ) : (
             <EmptyState
               illustration="favorites"
-              title="No favorite colors yet"
+              title={t("No favorite colors yet")}
               description="Tap the heart icon on any color to save it here."
               actionLabel="Browse colors"
               actionTo="/colors"
@@ -1057,7 +1064,7 @@ export default function MyProjects() {
           ) : (
             <EmptyState
               illustration="favorites"
-              title="No favorite palettes yet"
+              title={t("No favorite palettes yet")}
               description="Browse color palettes and save the ones you love."
               actionLabel="Browse palettes"
               actionTo="/colors"
@@ -1069,10 +1076,12 @@ export default function MyProjects() {
           <>
             <div className="mb-6 flex gap-2">
               <input
-                aria-label="New collection name"
+                aria-label={t("New collection name")}
                 value={newCollName}
                 onChange={(e) => setNewCollName(e.target.value)}
-                placeholder="New collection name (e.g., Luxury Living Room)"
+                placeholder={t(
+                  "New collection name (e.g., Luxury Living Room)",
+                )}
                 className="input-field flex-1"
                 onKeyDown={(e) => e.key === "Enter" && handleCreateCollection()}
               />
@@ -1083,7 +1092,7 @@ export default function MyProjects() {
                 disabled={creating || !newCollName.trim()}
                 className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50 hover:bg-primary/90"
               >
-                <Plus aria-hidden="true" className="h-4 w-4" /> Create
+                <Plus aria-hidden="true" className="h-4 w-4" /> {t("Create")}
               </Button>
             </div>
             {filteredCollections.length > 0 ? (
@@ -1098,7 +1107,7 @@ export default function MyProjects() {
                         {renamingId === c.id ? (
                           <div className="flex items-center gap-2">
                             <input
-                              aria-label="Rename collection"
+                              aria-label={t("Rename collection")}
                               className="input-field flex-1 text-sm font-bold"
                               value={renameValue}
                               onChange={(e) => setRenameValue(e.target.value)}
@@ -1150,7 +1159,7 @@ export default function MyProjects() {
                               setRenameValue(c.name);
                             }}
                             className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
-                            title="Rename"
+                            title={t("Rename")}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -1159,7 +1168,7 @@ export default function MyProjects() {
                             type="button"
                             onClick={() => handleDeleteCollection(c.id)}
                             className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50"
-                            title="Delete"
+                            title={t("Delete")}
                           >
                             <Trash2 aria-hidden="true" className="h-4 w-4" />
                           </Button>
@@ -1197,7 +1206,7 @@ export default function MyProjects() {
                                     })
                                   }
                                   className="rounded p-0.5 text-muted-foreground hover:text-brand-purple"
-                                  title="Move to another collection"
+                                  title={t("Move to another collection")}
                                 >
                                   <ArrowRight
                                     aria-hidden="true"
@@ -1207,7 +1216,7 @@ export default function MyProjects() {
                                 {moveState?.colorId === col.id && (
                                   <div className="absolute right-0 top-6 z-10 w-48 rounded-lg border border-border bg-card p-2 shadow-lg dark:border-white/5 dark:bg-card">
                                     <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">
-                                      Move to
+                                      {t("Move to")}
                                     </p>
                                     {collections
                                       .filter((oc) => oc.id !== c.id)
@@ -1236,7 +1245,7 @@ export default function MyProjects() {
             ) : (
               <EmptyState
                 illustration="projects"
-                title="No collections yet"
+                title={t("No collections yet")}
                 description="Create custom collections to organize your favorite colors by project or theme."
               />
             )}
@@ -1270,7 +1279,7 @@ export default function MyProjects() {
                         type="button"
                         onClick={() => handlePinRecent(c.id)}
                         className="absolute right-2 top-2 z-10 rounded-full bg-white/80 p-1.5 text-muted-foreground dark:bg-background/80 dark:text-muted-foreground hover:text-brand-purple"
-                        title="Pin/Unpin"
+                        title={t("Pin/Unpin")}
                       >
                         <Pin className="h-3.5 w-3.5" />
                       </Button>
@@ -1299,7 +1308,7 @@ export default function MyProjects() {
             ) : (
               <EmptyState
                 illustration="generic"
-                title="No recently viewed colors"
+                title={t("No recently viewed colors")}
                 description="Browse the color library and your viewed colors will appear here."
                 actionLabel="Browse colors"
                 actionTo="/colors"
@@ -1314,7 +1323,7 @@ export default function MyProjects() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Project location"
+          aria-label={t("Project location")}
           className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4 backdrop-blur-[2px]"
         >
           <div className="w-full max-w-md rounded-2xl border border-border/40 bg-card p-5 shadow-premium-lg sm:p-6">
@@ -1326,7 +1335,7 @@ export default function MyProjects() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setLocationProject(null)}
-                aria-label="Close"
+                aria-label={t("Close")}
               >
                 <X className="h-4 w-4" aria-hidden />
               </Button>

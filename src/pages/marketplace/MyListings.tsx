@@ -11,6 +11,7 @@ import {
 import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const STATUS_COLORS: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -25,6 +26,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function MyListings() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   useSeo({
     description: "FRELUX marketplace",
@@ -82,7 +84,7 @@ export default function MyListings() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-              My Listings
+              {t("My Listings")}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
               {listings.length} {listings.length === 1 ? "listing" : "listings"}{" "}
@@ -93,14 +95,14 @@ export default function MyListings() {
             to="/marketplace/post/"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
-            <Plus aria-hidden="true" className="h-4 w-4" /> New Job
+            <Plus aria-hidden="true" className="h-4 w-4" /> {t("New Job")}
           </Link>
         </div>
 
         {listings.length === 0 ? (
           <div className="mt-8 flex flex-col items-center justify-center rounded-xl border border-border bg-card p-12 text-center dark:border-white/5 dark:bg-card">
             <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-              You haven't posted any jobs yet.
+              {t("You haven't posted any jobs yet.")}
             </p>
             <Link
               to="/marketplace/post/"
@@ -195,7 +197,7 @@ export default function MyListings() {
                       to={`/marketplace/${listing.id}/`}
                       className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
                     >
-                      View Details
+                      {t("View Details")}
                     </Link>
                   </div>
                 </div>

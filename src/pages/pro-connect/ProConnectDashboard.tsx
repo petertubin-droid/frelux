@@ -49,8 +49,10 @@ import type { DbProVerificationRequest } from "@/types/pro-connect";
 import { Button } from "@/components/ui/shadcn/button";
 import { ProCredentialManager } from "@/components/pro-connect/ProCredentialManager";
 import { formatByCode } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ProConnectDashboard() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [profile, setProfile] = useState<DbProProfile | null>(null);
   const [services, setServices] = useState<DbProService[]>([]);
@@ -133,13 +135,13 @@ export default function ProConnectDashboard() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Sign in to access your dashboard
+          {t("Sign in to access your dashboard")}
         </h1>
         <Link
           to="/login/?redirect=/pro-connect/dashboard"
           className="mt-4 inline-block text-brand-purple dark:text-brand-purple-lighter"
         >
-          Sign in
+          {t("Sign in")}
         </Link>
       </div>
     );
@@ -157,16 +159,16 @@ export default function ProConnectDashboard() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          No professional profile found
+          {t("No professional profile found")}
         </h1>
         <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
-          Create your professional profile to get started.
+          {t("Create your professional profile to get started.")}
         </p>
         <Link
           to="/pro-connect/register/"
           className="mt-6 inline-block rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
         >
-          Create Professional Profile
+          {t("Create Professional Profile")}
         </Link>
       </div>
     );
@@ -181,21 +183,21 @@ export default function ProConnectDashboard() {
           className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/20 bg-primary/5 px-3 py-1.5 text-sm font-medium text-brand-purple transition-colors hover:bg-primary/10"
         >
           <Hash className="h-4 w-4" />
-          Worker Channels
+          {t("Worker Channels")}
         </Link>
         <Link
           to="/messages/"
           className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
         >
           <MessageSquare aria-hidden="true" className="h-4 w-4" />
-          Messages
+          {t("Messages")}
         </Link>
         <Link
           to="/profile/"
           className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
         >
           <Settings aria-hidden="true" className="h-4 w-4" />
-          My Profile
+          {t("My Profile")}
         </Link>
       </div>
 
@@ -203,10 +205,10 @@ export default function ProConnectDashboard() {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-            Professional Dashboard
+            {t("Professional Dashboard")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-            Manage your profile, portfolio, and conversations
+            {t("Manage your profile, portfolio, and conversations")}
           </p>
         </div>
         <Link
@@ -214,7 +216,7 @@ export default function ProConnectDashboard() {
           className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-card-foreground dark:border-white/10 dark:text-muted-foreground/60"
         >
           <Eye aria-hidden="true" className="h-4 w-4" />
-          View public profile
+          {t("View public profile")}
         </Link>
       </div>
 
@@ -223,7 +225,7 @@ export default function ProConnectDashboard() {
         <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
           <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
             <Award className="h-4 w-4" />
-            <span className="text-xs">Rating</span>
+            <span className="text-xs">{t("Rating")}</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
             {profile.rating_avg.toFixed(1)}
@@ -235,7 +237,7 @@ export default function ProConnectDashboard() {
         <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
           <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
             <MessageSquare aria-hidden="true" className="h-4 w-4" />
-            <span className="text-xs">Messages</span>
+            <span className="text-xs">{t("Messages")}</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
             {unreadCount > 0 ? unreadCount : conversations.length}
@@ -247,7 +249,7 @@ export default function ProConnectDashboard() {
         <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
           <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
             <Eye aria-hidden="true" className="h-4 w-4" />
-            <span className="text-xs">Listed</span>
+            <span className="text-xs">{t("Listed")}</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
             {profile.is_listed ? "Yes" : "No"}
@@ -259,7 +261,7 @@ export default function ProConnectDashboard() {
         <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
           <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
             <Briefcase aria-hidden="true" className="h-4 w-4" />
-            <span className="text-xs">Experience</span>
+            <span className="text-xs">{t("Experience")}</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
             {profile.years_experience || 0} yrs
@@ -295,7 +297,7 @@ export default function ProConnectDashboard() {
               </span>
               {profile.verification_status === "verified" && (
                 <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                  Verified
+                  {t("Verified")}
                 </span>
               )}
             </div>
@@ -305,7 +307,7 @@ export default function ProConnectDashboard() {
             className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
           >
             <Settings aria-hidden="true" className="h-4 w-4" />
-            Edit Profile
+            {t("Edit Profile")}
           </Link>
         </div>
 
@@ -313,7 +315,7 @@ export default function ProConnectDashboard() {
         {services.length > 0 && (
           <div className="mt-4">
             <p className="mb-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              Services
+              {t("Services")}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {services.map((s) => (
@@ -332,7 +334,7 @@ export default function ProConnectDashboard() {
         {locations.length > 0 && (
           <div className="mt-3">
             <p className="mb-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              Service Areas
+              {t("Service Areas")}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {locations.map((l, i) => (
@@ -352,7 +354,7 @@ export default function ProConnectDashboard() {
       {/* Verification Status */}
       <div className="mb-8 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
         <h2 className="mb-4 text-base font-semibold text-foreground dark:text-primary-foreground">
-          Verification Status
+          {t("Verification Status")}
         </h2>
         <div className="flex flex-wrap items-start gap-4">
           {/* Contact Verified */}
@@ -385,7 +387,7 @@ export default function ProConnectDashboard() {
                     : "text-muted-foreground dark:text-muted-foreground",
                 )}
               >
-                Contact Verified
+                {t("Contact Verified")}
               </p>
               <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 {profile.contact_verified_at
@@ -428,7 +430,7 @@ export default function ProConnectDashboard() {
                     : "text-muted-foreground dark:text-muted-foreground",
                 )}
               >
-                FRELUX Verified
+                {t("FRELUX Verified")}
               </p>
               <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 {profile.identity_verified_at
@@ -468,7 +470,7 @@ export default function ProConnectDashboard() {
                     : "text-muted-foreground dark:text-muted-foreground",
                 )}
               >
-                FRELUX Pro
+                {t("FRELUX Pro")}
               </p>
               <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 {profile.pro_level
@@ -545,13 +547,13 @@ export default function ProConnectDashboard() {
         {showVerificationForm && !verifSuccess && (
           <div className="mt-4 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
             <h3 className="mb-4 text-base font-semibold text-foreground dark:text-primary-foreground">
-              Request Verification
+              {t("Request Verification")}
             </h3>
 
             {/* Verification type selector */}
             <div className="mb-4">
               <label className="mb-2 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                Verification Type
+                {t("Verification Type")}
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <Button
@@ -585,7 +587,7 @@ export default function ProConnectDashboard() {
                     Level 2: Identity
                   </span>
                   <span className="block whitespace-normal break-words text-xs">
-                    Verify your identity (NIN/ID)
+                    {t("Verify your identity (NIN/ID)")}
                   </span>
                 </Button>
               </div>
@@ -601,19 +603,19 @@ export default function ProConnectDashboard() {
                   type="text"
                   value={verifName}
                   onChange={(e) => setVerifName(e.target.value)}
-                  placeholder="Your full name"
+                  placeholder={t("Your full name")}
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
-                  Business Name
+                  {t("Business Name")}
                 </label>
                 <input
                   type="text"
                   value={verifBusiness}
                   onChange={(e) => setVerifBusiness(e.target.value)}
-                  placeholder="Optional"
+                  placeholder={t("Optional")}
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 />
               </div>
@@ -621,7 +623,7 @@ export default function ProConnectDashboard() {
 
             <div className="mt-3">
               <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
-                Years of Experience
+                {t("Years of Experience")}
               </label>
               <input
                 type="number"
@@ -646,12 +648,14 @@ export default function ProConnectDashboard() {
                     onChange={(e) => setVerifIdType(e.target.value)}
                     className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                   >
-                    <option value="national_id">National ID</option>
-                    <option value="drivers_license">Driver's License</option>
-                    <option value="international_passport">
-                      International Passport
+                    <option value="national_id">{t("National ID")}</option>
+                    <option value="drivers_license">
+                      {t("Driver's License")}
                     </option>
-                    <option value="voters_card">Voter's Card</option>
+                    <option value="international_passport">
+                      {t("International Passport")}
+                    </option>
+                    <option value="voters_card">{t("Voter's Card")}</option>
                   </select>
                 </div>
                 <div>
@@ -662,7 +666,7 @@ export default function ProConnectDashboard() {
                     type="text"
                     value={verifIdNumber}
                     onChange={(e) => setVerifIdNumber(e.target.value)}
-                    placeholder="Enter your ID number"
+                    placeholder={t("Enter your ID number")}
                     className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                   />
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -745,7 +749,7 @@ export default function ProConnectDashboard() {
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
-            Portfolio
+            {t("Portfolio")}
           </h2>
           <Button
             variant="ghost"
@@ -753,7 +757,7 @@ export default function ProConnectDashboard() {
             className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
           >
             <Plus aria-hidden="true" className="h-4 w-4" />
-            Add Item
+            {t("Add Item")}
           </Button>
         </div>
 
@@ -817,7 +821,7 @@ export default function ProConnectDashboard() {
       {/* Recent conversations */}
       <div className="mb-8">
         <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
-          Recent Conversations
+          {t("Recent Conversations")}
         </h2>
         {conversations.length === 0 ? (
           <p className="rounded-xl border border-border bg-card py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card dark:text-muted-foreground">
@@ -858,11 +862,11 @@ export default function ProConnectDashboard() {
       {/* Reviews */}
       <div>
         <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
-          Reviews About You
+          {t("Reviews About You")}
         </h2>
         {reviews.length === 0 ? (
           <p className="rounded-xl border border-border bg-card py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card dark:text-muted-foreground">
-            No reviews yet. Reviews appear after customers work with you.
+            {t("No reviews yet. Reviews appear after customers work with you.")}
           </p>
         ) : (
           <div className="space-y-3">
@@ -910,7 +914,7 @@ export default function ProConnectDashboard() {
                     }}
                     className="mt-2 text-xs text-brand-purple dark:text-brand-purple-lighter"
                   >
-                    Respond to this review
+                    {t("Respond to this review")}
                   </Button>
                 )}
                 {review.professional_response && (
@@ -937,7 +941,7 @@ export default function ProConnectDashboard() {
               aria-hidden="true"
               className="h-5 w-5 text-brand-purple"
             />
-            Marketplace Bids
+            {t("Marketplace Bids")}
           </h2>
           <Link
             to="/marketplace/"
@@ -950,7 +954,7 @@ export default function ProConnectDashboard() {
         {myBids.length === 0 ? (
           <div className="rounded-xl border border-border bg-card p-6 text-center dark:border-white/5 dark:bg-card">
             <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-              You haven't placed any bids yet.
+              {t("You haven't placed any bids yet.")}
             </p>
             <Link
               to="/marketplace/"
@@ -1007,7 +1011,7 @@ export default function ProConnectDashboard() {
               aria-hidden="true"
               className="h-5 w-5 text-brand-purple"
             />
-            Active Orders
+            {t("Active Orders")}
           </h2>
           <div className="space-y-2">
             {myOrders
@@ -1062,6 +1066,7 @@ function PortfolioForm({
   profileId: string;
   onAdded: () => void;
 }) {
+  const { t } = useLanguage();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -1115,13 +1120,13 @@ function PortfolioForm({
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Project title *"
+          placeholder={t("Project title *")}
           className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
         />
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Project description"
+          placeholder={t("Project description")}
           rows={2}
           className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
         />
@@ -1129,7 +1134,7 @@ function PortfolioForm({
           type="text"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          placeholder="Category (e.g. Painting, Tiling)"
+          placeholder={t("Category (e.g. Painting, Tiling)")}
           className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
         />
         <div>
@@ -1156,7 +1161,7 @@ function PortfolioForm({
                 <img
                   key={i}
                   src={url}
-                  alt="Preview"
+                  alt={t("Preview")}
                   className="h-16 w-16 rounded-lg object-cover"
                 />
               ))}

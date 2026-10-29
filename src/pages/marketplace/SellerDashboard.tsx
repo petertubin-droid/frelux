@@ -34,8 +34,10 @@ import type { DbMarketplaceProduct } from "@/types/marketplace-products";
 import { PRODUCT_STATUS_LABELS } from "@/types/marketplace-products";
 import { Button } from "@/components/ui/shadcn/button";
 import { formatByCode } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 export default function SellerDashboard() {
+  const { t } = useLanguage();
   useSeo({
     title: "Seller Dashboard | FRELUX Marketplace",
     description:
@@ -164,17 +166,17 @@ export default function SellerDashboard() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-            Seller Dashboard
+            {t("Seller Dashboard")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage your profile, products, and sales
+            {t("Manage your profile, products, and sales")}
           </p>
         </div>
         <Link
           to="/marketplace/products/post/"
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> List a Product
+          <Plus aria-hidden="true" className="h-4 w-4" /> {t("List a Product")}
         </Link>
       </div>
 
@@ -243,7 +245,7 @@ export default function SellerDashboard() {
               onClick={() => setEditing(true)}
               className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
-              <Edit aria-hidden="true" className="h-4 w-4" /> Edit
+              <Edit aria-hidden="true" className="h-4 w-4" /> {t("Edit")}
             </Button>
           )}
         </div>
@@ -275,7 +277,7 @@ export default function SellerDashboard() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                  Seller Type
+                  {t("Seller Type")}
                 </label>
                 <AdminSelect
                   value={sellerType}
@@ -291,37 +293,37 @@ export default function SellerDashboard() {
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                  Business Name
+                  {t("Business Name")}
                 </label>
                 <AdminInput
                   type="text"
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
-                  placeholder="Your business name"
+                  placeholder={t("Your business name")}
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                  Business Phone
+                  {t("Business Phone")}
                 </label>
                 <AdminInput
                   type="text"
                   value={businessPhone}
                   onChange={(e) => setBusinessPhone(e.target.value)}
-                  placeholder="Country code + number, e.g. +234..."
+                  placeholder={t("Country code + number, e.g. +234...")}
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                  Business Address
+                  {t("Business Address")}
                 </label>
                 <AdminInput
                   type="text"
                   value={businessAddress}
                   onChange={(e) => setBusinessAddress(e.target.value)}
-                  placeholder="Your address"
+                  placeholder={t("Your address")}
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
@@ -366,7 +368,7 @@ export default function SellerDashboard() {
                 variant="secondary"
                 onClick={() => setEditing(false)}
               >
-                Cancel
+                {t("Cancel")}
               </AdminButton>
             </div>
           </div>
@@ -385,7 +387,7 @@ export default function SellerDashboard() {
       <div className="rounded-xl border border-border dark:border-white/10">
         <div className="border-b border-border p-4 dark:border-white/10">
           <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-            Your Products
+            {t("Your Products")}
           </h2>
         </div>
         {products.length === 0 ? (
@@ -395,7 +397,7 @@ export default function SellerDashboard() {
               className="mx-auto h-10 w-10 text-muted-foreground/80"
             />
             <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
-              No products yet
+              {t("No products yet")}
             </p>
             <Link
               to="/marketplace/products/post/"

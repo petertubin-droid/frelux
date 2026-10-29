@@ -30,6 +30,7 @@ import {
   Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface ParallelExecutionSimulatorProps {
   graph: DAGGraph<SequenceStep>;
@@ -58,6 +59,7 @@ export function ParallelExecutionSimulator({
   onChangeContingencyBuffer,
   marketCode = "Global",
 }: ParallelExecutionSimulatorProps) {
+  const { t } = useLanguage();
   const [isPlaying, setIsPlaying] = useState(false);
   const [copiedBrief, setCopiedBrief] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -126,7 +128,7 @@ export function ParallelExecutionSimulator({
         <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary/10 p-4">
           <div className="flex items-center justify-between">
             <p className="text-xs font-medium text-muted-foreground">
-              Parallel duration (CPM Critical Path)
+              {t("Parallel duration (CPM Critical Path)")}
             </p>
             <Calendar className="h-4 w-4 text-brand-purple" />
           </div>
@@ -145,14 +147,14 @@ export function ParallelExecutionSimulator({
         {/* Sequential Baseline */}
         <div className="rounded-2xl border border-border bg-card p-4">
           <p className="text-xs font-medium text-muted-foreground">
-            Sequential Duration
+            {t("Sequential Duration")}
           </p>
           <p className="mt-1 text-2xl font-bold text-muted-foreground line-through">
             {metrics.sequentialDuration}{" "}
             <span className="text-xs font-normal">days</span>
           </p>
           <p className="mt-1 text-[11px] text-muted-foreground">
-            Single-crew linear execution
+            {t("Single-crew linear execution")}
           </p>
         </div>
 
@@ -160,7 +162,7 @@ export function ParallelExecutionSimulator({
         <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
           <div className="flex items-center justify-between">
             <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-              Parallel Time Saved
+              {t("Parallel Time Saved")}
             </p>
             <TrendingUp className="h-4 w-4 text-emerald-600" />
           </div>
@@ -171,7 +173,7 @@ export function ParallelExecutionSimulator({
             </span>
           </p>
           <p className="mt-1 text-[11px] text-emerald-600/80">
-            Schedule compression gain
+            {t("Schedule compression gain")}
           </p>
         </div>
 
@@ -179,7 +181,7 @@ export function ParallelExecutionSimulator({
         <div className="rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center justify-between">
             <p className="text-xs font-medium text-muted-foreground">
-              Peak concurrency (Multi-Trade)
+              {t("Peak concurrency (Multi-Trade)")}
             </p>
             <Users className="h-4 w-4 text-brand-purple" />
           </div>
@@ -204,7 +206,7 @@ export function ParallelExecutionSimulator({
             <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="font-semibold text-foreground">Calendar:</span>
             <select
-              aria-label="Working calendar model"
+              aria-label={t("Working calendar model")}
               value={calendarModel}
               onChange={(e) =>
                 onChangeCalendarModel?.(e.target.value as WorkingCalendarModel)
@@ -230,7 +232,7 @@ export function ParallelExecutionSimulator({
               Time Risk Buffer (TRA):
             </span>
             <select
-              aria-label="Time risk buffer percentage"
+              aria-label={t("Time risk buffer percentage")}
               value={contingencyBufferPct}
               onChange={(e) =>
                 onChangeContingencyBuffer?.(parseInt(e.target.value, 10))
@@ -261,10 +263,12 @@ export function ParallelExecutionSimulator({
             size="sm"
             onClick={handleDownloadCSV}
             className="inline-flex items-center gap-1 text-xs h-7"
-            title="Download CSV for Microsoft Project, Primavera P6, or Excel"
+            title={t(
+              "Download CSV for Microsoft Project, Primavera P6, or Excel",
+            )}
           >
             <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-            Export CPM CSV
+            {t("Export CPM CSV")}
           </Button>
 
           <Button
@@ -272,7 +276,7 @@ export function ParallelExecutionSimulator({
             size="sm"
             onClick={handleCopyExecutiveBrief}
             className="inline-flex items-center gap-1 text-xs h-7"
-            title="Copy Executive Schedule Brief in Markdown"
+            title={t("Copy Executive Schedule Brief in Markdown")}
           >
             {copiedBrief ? (
               <>
@@ -282,7 +286,7 @@ export function ParallelExecutionSimulator({
             ) : (
               <>
                 <FileText className="h-3.5 w-3.5 text-brand-purple" />
-                Executive Brief
+                {t("Executive Brief")}
               </>
             )}
           </Button>
@@ -295,10 +299,10 @@ export function ParallelExecutionSimulator({
           <div className="flex items-center gap-2">
             <span className="flex h-2 w-2 rounded-full bg-brand-purple" />
             <h4 className="text-sm font-bold text-foreground">
-              Interactive Parallel Execution Runner
+              {t("Interactive Parallel Execution Runner")}
             </h4>
             <span className="rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-              ISO 21502 / PMBOK 7th Ed
+              {t("ISO 21502 / PMBOK 7th Ed")}
             </span>
           </div>
           <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
@@ -309,7 +313,7 @@ export function ParallelExecutionSimulator({
               className="rounded border-border text-brand-purple focus:ring-brand-purple"
             />
             <span className="font-medium text-foreground">
-              Fast-track overlapping branches (MEP, Partitions, Fascia)
+              {t("Fast-track overlapping branches (MEP, Partitions, Fascia)")}
             </span>
           </label>
         </div>
@@ -340,7 +344,7 @@ export function ParallelExecutionSimulator({
               disabled={simulationState.isCompleted || isPlaying}
               className="inline-flex items-center gap-1 text-xs"
             >
-              <SkipForward className="h-3.5 w-3.5" /> Step Wave
+              <SkipForward className="h-3.5 w-3.5" /> {t("Step Wave")}
             </Button>
             <Button
               variant="ghost"
@@ -351,7 +355,7 @@ export function ParallelExecutionSimulator({
               }}
               className="inline-flex items-center gap-1 text-xs text-muted-foreground"
             >
-              <RotateCcw className="h-3.5 w-3.5" /> Reset
+              <RotateCcw className="h-3.5 w-3.5" /> {t("Reset")}
             </Button>
           </div>
 

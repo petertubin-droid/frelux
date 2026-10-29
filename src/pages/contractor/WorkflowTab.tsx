@@ -26,6 +26,7 @@ import {
   summarize,
 } from "@/lib/workflow/workflow-engine";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 import {
   isEmailNotifyActive,
   isPushNotifyActive,
@@ -145,6 +146,7 @@ const emptyForm: NewDocForm = {
 };
 
 export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
+  const { t } = useLanguage();
   const [docs, setDocs] = useState<WorkflowDocument[] | null>(null);
   const [filter, setFilter] = useState<WorkflowDocType | "all">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -251,9 +253,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
           setPushNote("This browser will receive workflow push alerts");
         } else if (outcome.reason === "not configured") {
           setPushConfigured(false);
-          setPushNote(
-            "Push is not configured yet — see FRELUX settings",
-          );
+          setPushNote("Push is not configured yet — see FRELUX settings");
         } else if (outcome.reason === "denied") {
           setPushNote(
             "Browser blocked notifications — allow them in site settings",
@@ -620,12 +620,12 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
           onClick={() => setShowForm((v) => !v)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
-          <Plus className="h-4 w-4" /> New workflow item
+          <Plus className="h-4 w-4" /> {t("New workflow item")}
         </button>
         <div
           className="flex flex-wrap gap-1"
           role="tablist"
-          aria-label="Filter by type"
+          aria-label={t("Filter by type")}
         >
           {(["all", "rfi", "submittal", "change_order"] as const).map((f) => (
             <button
@@ -648,11 +648,11 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
           type="button"
           onClick={() => exportWorkflowDocumentsCsv(docs ?? [], projectId)}
           disabled={!docs || docs.length === 0}
-          aria-label="Export workflow CSV"
+          aria-label={t("Export workflow CSV")}
           className="ml-auto inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-muted-foreground hover:bg-accent disabled:opacity-50"
         >
           <FileDown className="h-4 w-4" />
-          Export CSV
+          {t("Export CSV")}
         </button>
         <button
           type="button"
@@ -661,7 +661,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
           className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-muted-foreground hover:bg-accent disabled:opacity-50"
         >
           <RefreshCw className={`h-4 w-4 ${busy ? "animate-spin" : ""}`} />
-          Refresh
+          {t("Refresh")}
         </button>
       </div>
 
@@ -672,7 +672,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
           className="grid gap-3 rounded-xl border bg-card p-5 shadow-sm sm:grid-cols-2"
         >
           <label className="text-sm sm:col-span-2">
-            <span className="font-medium">Type</span>
+            <span className="font-medium">{t("Type")}</span>
             <select
               value={form.doc_type}
               onChange={(e) =>
@@ -691,7 +691,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
             </select>
           </label>
           <label className="text-sm sm:col-span-2">
-            <span className="font-medium">Title</span>
+            <span className="font-medium">{t("Title")}</span>
             <input
               required
               value={form.title}
@@ -709,7 +709,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
             />
           </label>
           <label className="text-sm sm:col-span-2">
-            <span className="font-medium">Description</span>
+            <span className="font-medium">{t("Description")}</span>
             <textarea
               rows={3}
               value={form.description}
@@ -720,7 +720,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
             />
           </label>
           <label className="text-sm">
-            <span className="font-medium">Priority</span>
+            <span className="font-medium">{t("Priority")}</span>
             <select
               value={form.priority}
               onChange={(e) =>
@@ -731,25 +731,25 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
               }
               className="mt-1 w-full rounded-md border bg-background px-3 py-2"
             >
-              <option value="low">Low</option>
-              <option value="normal">Normal</option>
-              <option value="high">High</option>
-              <option value="urgent">Urgent</option>
+              <option value="low">{t("Low")}</option>
+              <option value="normal">{t("Normal")}</option>
+              <option value="high">{t("High")}</option>
+              <option value="urgent">{t("Urgent")}</option>
             </select>
           </label>
           <label className="text-sm">
-            <span className="font-medium">Assign to</span>
+            <span className="font-medium">{t("Assign to")}</span>
             <input
               value={form.assignee}
               onChange={(e) =>
                 setForm((f) => ({ ...f, assignee: e.target.value }))
               }
-              placeholder="Site engineer, QS, client…"
+              placeholder={t("Site engineer, QS, client…")}
               className="mt-1 w-full rounded-md border bg-background px-3 py-2"
             />
           </label>
           <label className="text-sm">
-            <span className="font-medium">Due date</span>
+            <span className="font-medium">{t("Due date")}</span>
             <input
               type="date"
               value={form.due_date}
@@ -826,7 +826,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                       <PriorityDot priority={doc.priority} />
                       {overdue && (
                         <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive">
-                          <AlertTriangle className="h-3 w-3" /> Overdue
+                          <AlertTriangle className="h-3 w-3" /> {t("Overdue")}
                         </span>
                       )}
                     </div>
@@ -901,7 +901,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                     {/* Audit timeline */}
                     <div>
                       <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Audit trail
+                        {t("Audit trail")}
                       </h4>
                       <ol className="mt-2 space-y-2">
                         {(events[doc.id] ?? []).map((ev) => (
@@ -949,14 +949,15 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                         aria-label={`Export record ${doc.reference_code}`}
                         className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-accent"
                       >
-                        <FileDown className="h-3.5 w-3.5" /> Export record
+                        <FileDown className="h-3.5 w-3.5" />{" "}
+                        {t("Export record")}
                       </button>
                     </div>
 
                     {/* Cross-role handoff / share */}
                     <div>
                       <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Share
+                        {t("Share")}
                       </h4>
                       <ul className="mt-2 space-y-1">
                         {(participants[doc.id] ?? []).map((p) => (
@@ -1002,7 +1003,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                           value={shareEmail}
                           onChange={(e) => setShareEmail(e.target.value)}
                           placeholder="colleague@example.com"
-                          aria-label="Invite email"
+                          aria-label={t("Invite email")}
                           className="min-w-0 flex-1 rounded-md border bg-background px-3 py-2 text-sm"
                         />
                         <select
@@ -1012,11 +1013,11 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                               e.target.value as WorkflowParticipantRole,
                             )
                           }
-                          aria-label="Invite role"
+                          aria-label={t("Invite role")}
                           className="rounded-md border bg-background px-3 py-2 text-sm"
                         >
-                          <option value="reviewer">Reviewer</option>
-                          <option value="viewer">Viewer</option>
+                          <option value="reviewer">{t("Reviewer")}</option>
+                          <option value="viewer">{t("Viewer")}</option>
                         </select>
                         <button
                           type="button"
@@ -1024,7 +1025,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                           disabled={shareBusy || !shareEmail.trim()}
                           className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-accent disabled:opacity-50"
                         >
-                          <UserPlus className="h-4 w-4" /> Share
+                          <UserPlus className="h-4 w-4" /> {t("Share")}
                         </button>
                       </div>
                     </div>
@@ -1032,7 +1033,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                     {/* Attachments */}
                     <div>
                       <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Attachments
+                        {t("Attachments")}
                       </h4>
                       <ul className="mt-2 space-y-1">
                         {(attachments[doc.id] ?? []).map((a) => (
@@ -1078,7 +1079,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                         ))}
                         {(attachments[doc.id] ?? []).length === 0 && (
                           <li className="text-xs text-muted-foreground">
-                            No files attached yet.
+                            {t("No files attached yet.")}
                           </li>
                         )}
                       </ul>
@@ -1103,7 +1104,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                       <input
                         value={commentDraft}
                         onChange={(e) => setCommentDraft(e.target.value)}
-                        placeholder="Add a note to the record…"
+                        placeholder={t("Add a note to the record…")}
                         className="flex-1 rounded-md border bg-background px-3 py-2 text-sm"
                       />
                       <button
@@ -1112,7 +1113,7 @@ export function WorkflowTab({ projectId, currency }: WorkflowTabProps) {
                         disabled={saving || !commentDraft.trim()}
                         className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-accent disabled:opacity-50"
                       >
-                        <MessageSquarePlus className="h-4 w-4" /> Note
+                        <MessageSquarePlus className="h-4 w-4" /> {t("Note")}
                       </button>
                     </div>
                   </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 import {
   calculateEarthwork,
   type EarthworkResult,
@@ -22,6 +23,7 @@ const display = (n: number) =>
   new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(n);
 
 export default function EarthworksEstimator() {
+  const { t } = useLanguage();
   useSeo({
     title: "Earthworks Cut & Fill Estimator | FRELUX",
     description:
@@ -69,7 +71,7 @@ export default function EarthworksEstimator() {
       <PageHeader
         variant="tool"
         eyebrow="Measured survey takeoff"
-        title="Earthworks: Cut & Fill"
+        title={t("Earthworks: Cut & Fill")}
         subtitle="Enter cross-section areas from a survey or design and site-specific material factors. FRELUX calculates interval volumes with the average end-area method, without guessing soil behavior."
         breadcrumbs={[
           { label: "Home", path: "/" },
@@ -82,7 +84,9 @@ export default function EarthworksEstimator() {
           <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="text-xl font-bold">Survey cross-sections</h2>
+                <h2 className="text-xl font-bold">
+                  {t("Survey cross-sections")}
+                </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Chainage in metres; section areas in square metres.
                 </p>
@@ -129,7 +133,7 @@ export default function EarthworksEstimator() {
                             ),
                           )
                         }
-                        placeholder="Enter survey value"
+                        placeholder={t("Enter survey value")}
                       />
                     </label>
                   ))}
@@ -142,14 +146,14 @@ export default function EarthworksEstimator() {
                     }
                     className="self-end rounded-lg px-3 py-2 text-sm text-destructive disabled:opacity-30"
                   >
-                    Remove
+                    {t("Remove")}
                   </button>
                 </div>
               ))}
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <label className="grid gap-1 text-sm font-medium">
-                Soil description (informational)
+                {t("Soil description (informational)")}
                 <span className="text-xs font-normal text-muted-foreground">
                   Optional description from the site investigation; it does not
                   set or change volume factors.
@@ -158,7 +162,7 @@ export default function EarthworksEstimator() {
                   className={inputClass}
                   value={soilDescription}
                   onChange={(e) => setSoilDescription(e.target.value)}
-                  placeholder="Optional project soil description"
+                  placeholder={t("Optional project soil description")}
                 />
               </label>
               <label className="grid gap-1 text-sm font-medium">
@@ -175,7 +179,7 @@ export default function EarthworksEstimator() {
                   step="any"
                   value={bulking}
                   onChange={(e) => setBulking(e.target.value)}
-                  placeholder="Enter verified factor"
+                  placeholder={t("Enter verified factor")}
                 />
               </label>
               <label className="grid gap-1 text-sm font-medium">
@@ -193,7 +197,7 @@ export default function EarthworksEstimator() {
                   step="any"
                   value={shrinkage}
                   onChange={(e) => setShrinkage(e.target.value)}
-                  placeholder="Enter verified factor"
+                  placeholder={t("Enter verified factor")}
                 />
               </label>
             </div>
@@ -220,7 +224,7 @@ export default function EarthworksEstimator() {
               onClick={run}
               className="mt-5 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm"
             >
-              Calculate cut & fill
+              {t("Calculate cut & fill")}
             </button>
             {errors.length > 0 && (
               <div
@@ -235,9 +239,9 @@ export default function EarthworksEstimator() {
           </section>
           <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
             <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
-              Quantity report
+              {t("Quantity report")}
             </p>
-            <h2 className="mt-2 text-xl font-bold">Measured volumes</h2>
+            <h2 className="mt-2 text-xl font-bold">{t("Measured volumes")}</h2>
             {result ? (
               <>
                 <div className="mt-5 grid gap-3">
@@ -276,7 +280,9 @@ export default function EarthworksEstimator() {
                   </div>
                 )}
                 <div className="mt-5">
-                  <h3 className="text-sm font-semibold">Interval schedule</h3>
+                  <h3 className="text-sm font-semibold">
+                    {t("Interval schedule")}
+                  </h3>
                   <div className="mt-2 space-y-2">
                     {result.intervals.map((row) => (
                       <p

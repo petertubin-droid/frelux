@@ -1,25 +1,44 @@
-import { useState, useEffect, useCallback } from 'react';
-import { AdminModal } from '@/components/admin/AdminModal';
-import { Plus, Loader2, Edit2, Trash2, Copy, BadgeCheck, Eye, EyeOff, Save, Search } from 'lucide-react';
+import { useState, useEffect, useCallback } from "react";
+import { AdminModal } from "@/components/admin/AdminModal";
+import {
+  Plus,
+  Loader2,
+  Edit2,
+  Trash2,
+  Copy,
+  BadgeCheck,
+  Eye,
+  EyeOff,
+  Save,
+  Search,
+} from "lucide-react";
 import {
   adminGetAllTemplates,
   adminCreateTemplate,
   adminUpdateTemplate,
   adminDeleteTemplate,
   calculatorLabel,
-} from '@/lib/templates';
-import { useToast } from '@/components/ui/Toast';
-import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
-import { classNames } from '@/lib/utils';
-import {AdminButton, AdminIconButton, AdminInput, AdminSelect, AdminTextarea} from '@/components/admin/AdminUi';
+} from "@/lib/templates";
+import { useToast } from "@/components/ui/Toast";
+import type { DbCalculatorTemplate, CalculatorType } from "@/types/database";
+import { classNames } from "@/lib/utils";
+import {
+  AdminButton,
+  AdminIconButton,
+  AdminInput,
+  AdminSelect,
+  AdminTextarea,
+} from "@/components/admin/AdminUi";
+import { useLanguage } from "@/lib/i18n";
 
-const CALC_TYPES: CalculatorType[] = ['paint', 'tile', 'pop', 'screeding'];
+const CALC_TYPES: CalculatorType[] = ["paint", "tile", "pop", "screeding"];
 
 export default function AdminTemplates() {
+  const { t: tr } = useLanguage();
   const { toast } = useToast();
   const [templates, setTemplates] = useState<DbCalculatorTemplate[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<DbCalculatorTemplate | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -29,26 +48,37 @@ export default function AdminTemplates() {
       const data = await adminGetAllTemplates();
       setTemplates(data);
     } catch (e) {
-      toast({ type: 'error', title: e instanceof Error ? e.message : 'Failed to load templates' });
+      toast({
+        type: "error",
+        title: e instanceof Error ? e.message : "Failed to load templates",
+      });
     } finally {
       setLoading(false);
     }
   }, [toast]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const filtered = templates.filter(
-    (t) => !search || t.name.toLowerCase().includes(search.toLowerCase()) || (t.slug ?? '').includes(search.toLowerCase())
+    (t) =>
+      !search ||
+      t.name.toLowerCase().includes(search.toLowerCase()) ||
+      (t.slug ?? "").includes(search.toLowerCase()),
   );
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this template? This cannot be undone.')) return;
+    if (!confirm("Delete this template? This cannot be undone.")) return;
     try {
       await adminDeleteTemplate(id);
-      toast({ type: 'success', title: 'Template deleted' });
+      toast({ type: "success", title: "Template deleted" });
       await load();
     } catch (e) {
-      toast({ type: 'error', title: e instanceof Error ? e.message : 'Delete failed' });
+      toast({
+        type: "error",
+        title: e instanceof Error ? e.message : "Delete failed",
+      });
     }
   };
 
@@ -62,20 +92,29 @@ export default function AdminTemplates() {
         is_published: false,
         is_featured: false,
       });
-      toast({ type: 'success', title: 'Template duplicated' });
+      toast({ type: "success", title: "Template duplicated" });
       await load();
     } catch (e) {
-      toast({ type: 'error', title: e instanceof Error ? e.message : 'Duplicate failed' });
+      toast({
+        type: "error",
+        title: e instanceof Error ? e.message : "Duplicate failed",
+      });
     }
   };
 
   const togglePublished = async (t: DbCalculatorTemplate) => {
     try {
       await adminUpdateTemplate(t.id, { is_published: !t.is_published });
-      toast({ type: 'success', title: t.is_published ? 'Unpublished' : 'Published' });
+      toast({
+        type: "success",
+        title: t.is_published ? "Unpublished" : "Published",
+      });
       await load();
     } catch (e) {
-      toast({ type: 'error', title: e instanceof Error ? e.message : 'Update failed' });
+      toast({
+        type: "error",
+        title: e instanceof Error ? e.message : "Update failed",
+      });
     }
   };
 
@@ -84,7 +123,10 @@ export default function AdminTemplates() {
       await adminUpdateTemplate(t.id, { is_featured: !t.is_featured });
       await load();
     } catch (e) {
-      toast({ type: 'error', title: e instanceof Error ? e.message : 'Update failed' });
+      toast({
+        type: "error",
+        title: e instanceof Error ? e.message : "Update failed",
+      });
     }
   };
 
@@ -92,22 +134,29 @@ export default function AdminTemplates() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground dark:text-primary-foreground">Calculator Templates</h1>
-          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">Manage public FRELUX templates and user-submitted templates.</p>
+          <h1 className="text-xl font-semibold text-foreground dark:text-primary-foreground">
+            {tr("Calculator Templates")}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
+            {tr("Manage public FRELUX templates and user-submitted templates.")}
+          </p>
         </div>
         <AdminButton onClick={() => setCreating(true)}>
-          <Plus aria-hidden="true" className="h-4 w-4" /> New Template
+          <Plus aria-hidden="true" className="h-4 w-4" /> {tr("New Template")}
         </AdminButton>
       </div>
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search
+          aria-hidden="true"
+          className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+        />
         <AdminInput
- type="text"
- value={search}
- onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search templates..."
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={tr("Search templates...")}
           className="w-full rounded-lg border border-border bg-card py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
         />
       </div>
@@ -115,55 +164,104 @@ export default function AdminTemplates() {
       {/* Table */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+          <Loader2
+            aria-hidden="true"
+            className="h-6 w-6 animate-spin text-brand-purple"
+          />
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-border dark:border-white/10">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 dark:bg-white/5">
               <tr className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Type</th>
-                <th className="px-4 py-3">Visibility</th>
-                <th className="px-4 py-3">Published</th>
-                <th className="px-4 py-3">Featured</th>
-                <th className="px-4 py-3">Slug</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-4 py-3">{tr("Name")}</th>
+                <th className="px-4 py-3">{tr("Type")}</th>
+                <th className="px-4 py-3">{tr("Visibility")}</th>
+                <th className="px-4 py-3">{tr("Published")}</th>
+                <th className="px-4 py-3">{tr("Featured")}</th>
+                <th className="px-4 py-3">{tr("Slug")}</th>
+                <th className="px-4 py-3 text-right">{tr("Actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50 dark:divide-white/5">
               {filtered.map((t) => (
                 <tr key={t.id} className="bg-card dark:bg-transparent">
                   <td className="px-4 py-3">
-                    <div className="font-medium text-foreground dark:text-primary-foreground">{t.name}</div>
-                    {t.description && <div className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground line-clamp-1">{t.description}</div>}
+                    <div className="font-medium text-foreground dark:text-primary-foreground">
+                      {t.name}
+                    </div>
+                    {t.description && (
+                      <div className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground line-clamp-1">
+                        {t.description}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span className="rounded-md bg-primary/8 px-2 py-0.5 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
                       {calculatorLabel(t.calculator_type)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground dark:text-muted-foreground">{t.visibility}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground dark:text-muted-foreground">
+                    {t.visibility}
+                  </td>
                   <td className="px-4 py-3">
-                    <AdminIconButton variant="ghost" onClick={() => togglePublished(t)} className={classNames('rounded-md p-1', t.is_published ? 'text-green-500' : 'text-muted-foreground/80 dark:text-muted-foreground')}>
-                      {t.is_published ? <Eye aria-hidden="true" className="h-4 w-4" /> : <EyeOff aria-hidden="true" className="h-4 w-4" />}
+                    <AdminIconButton
+                      variant="ghost"
+                      onClick={() => togglePublished(t)}
+                      className={classNames(
+                        "rounded-md p-1",
+                        t.is_published
+                          ? "text-green-500"
+                          : "text-muted-foreground/80 dark:text-muted-foreground",
+                      )}
+                    >
+                      {t.is_published ? (
+                        <Eye aria-hidden="true" className="h-4 w-4" />
+                      ) : (
+                        <EyeOff aria-hidden="true" className="h-4 w-4" />
+                      )}
                     </AdminIconButton>
                   </td>
                   <td className="px-4 py-3">
-                    <AdminIconButton variant="ghost" onClick={() => toggleFeatured(t)}>
-                      <BadgeCheck className={classNames('h-4 w-4', t.is_featured ? 'text-amber-500' : 'text-muted-foreground/80 dark:text-muted-foreground')} fill={t.is_featured ? 'currentColor' : 'none'} />
+                    <AdminIconButton
+                      variant="ghost"
+                      onClick={() => toggleFeatured(t)}
+                    >
+                      <BadgeCheck
+                        className={classNames(
+                          "h-4 w-4",
+                          t.is_featured
+                            ? "text-amber-500"
+                            : "text-muted-foreground/80 dark:text-muted-foreground",
+                        )}
+                        fill={t.is_featured ? "currentColor" : "none"}
+                      />
                     </AdminIconButton>
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground dark:text-muted-foreground">{t.slug ?? '-'}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground dark:text-muted-foreground">
+                    {t.slug ?? "-"}
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
-                      <AdminIconButton variant="ghost" onClick={() => setEditing(t)} title="Edit">
+                      <AdminIconButton
+                        variant="ghost"
+                        onClick={() => setEditing(t)}
+                        title={tr("Edit")}
+                      >
                         <Edit2 aria-hidden="true" className="h-3.5 w-3.5" />
                       </AdminIconButton>
-                      <AdminIconButton variant="ghost" onClick={() => handleDuplicate(t)} title="Duplicate">
+                      <AdminIconButton
+                        variant="ghost"
+                        onClick={() => handleDuplicate(t)}
+                        title={tr("Duplicate")}
+                      >
                         <Copy aria-hidden="true" className="h-3.5 w-3.5" />
                       </AdminIconButton>
-                      <AdminIconButton variant="danger" onClick={() => handleDelete(t.id)}  title="Delete">
+                      <AdminIconButton
+                        variant="danger"
+                        onClick={() => handleDelete(t.id)}
+                        title={tr("Delete")}
+                      >
                         <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                       </AdminIconButton>
                     </div>
@@ -173,7 +271,9 @@ export default function AdminTemplates() {
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <div className="py-12 text-center text-sm text-muted-foreground dark:text-muted-foreground">No templates found.</div>
+            <div className="py-12 text-center text-sm text-muted-foreground dark:text-muted-foreground">
+              {tr("No templates found.")}
+            </div>
           )}
         </div>
       )}
@@ -182,8 +282,15 @@ export default function AdminTemplates() {
       {(editing || creating) && (
         <TemplateEditor
           template={editing}
-          onClose={() => { setEditing(null); setCreating(false); }}
-          onSaved={async () => { setEditing(null); setCreating(false); await load(); }}
+          onClose={() => {
+            setEditing(null);
+            setCreating(false);
+          }}
+          onSaved={async () => {
+            setEditing(null);
+            setCreating(false);
+            await load();
+          }}
         />
       )}
     </div>
@@ -197,28 +304,49 @@ interface TemplateEditorProps {
 }
 
 function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
+  const { t: tr } = useLanguage();
   const { toast } = useToast();
   const isEdit = !!template;
-  const [name, setName] = useState(template?.name ?? '');
-  const [description, setDescription] = useState(template?.description ?? '');
-  const [calculatorType, setCalculatorType] = useState<CalculatorType>(template?.calculator_type ?? 'paint');
+  const [name, setName] = useState(template?.name ?? "");
+  const [description, setDescription] = useState(template?.description ?? "");
+  const [calculatorType, setCalculatorType] = useState<CalculatorType>(
+    template?.calculator_type ?? "paint",
+  );
   const [inputJson, setInputJson] = useState(() => {
-    try { return JSON.stringify(template?.input_data ?? {}, null, 2); } catch { return '{}'; }
+    try {
+      return JSON.stringify(template?.input_data ?? {}, null, 2);
+    } catch {
+      return "{}";
+    }
   });
-  const [slug, setSlug] = useState(template?.slug ?? '');
-  const [seoTitle, setSeoTitle] = useState(template?.seo_title ?? '');
-  const [seoDescription, setSeoDescription] = useState(template?.seo_description ?? '');
-  const [isPublished, setIsPublished] = useState(template?.is_published ?? true);
+  const [slug, setSlug] = useState(template?.slug ?? "");
+  const [seoTitle, setSeoTitle] = useState(template?.seo_title ?? "");
+  const [seoDescription, setSeoDescription] = useState(
+    template?.seo_description ?? "",
+  );
+  const [isPublished, setIsPublished] = useState(
+    template?.is_published ?? true,
+  );
   const [isFeatured, setIsFeatured] = useState(template?.is_featured ?? false);
-  const [displayOrder, setDisplayOrder] = useState(template?.display_order ?? 0);
+  const [displayOrder, setDisplayOrder] = useState(
+    template?.display_order ?? 0,
+  );
   const [saving, setSaving] = useState(false);
   const [jsonError, setJsonError] = useState<string | null>(null);
 
   const handleSave = async () => {
-    if (!name.trim()) { toast({ type: 'error', title: 'Name is required' }); return; }
+    if (!name.trim()) {
+      toast({ type: "error", title: "Name is required" });
+      return;
+    }
     let parsedData: Record<string, unknown>;
-    try { parsedData = JSON.parse(inputJson); setJsonError(null); }
-    catch (e) { setJsonError(e instanceof Error ? e.message : 'Invalid JSON'); return; }
+    try {
+      parsedData = JSON.parse(inputJson);
+      setJsonError(null);
+    } catch (e) {
+      setJsonError(e instanceof Error ? e.message : "Invalid JSON");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -235,7 +363,7 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
           is_featured: isFeatured,
           display_order: displayOrder,
         });
-        toast({ type: 'success', title: 'Template updated' });
+        toast({ type: "success", title: "Template updated" });
       } else {
         await adminCreateTemplate({
           calculator_type: calculatorType,
@@ -249,90 +377,183 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
           is_featured: isFeatured,
           display_order: displayOrder,
         });
-        toast({ type: 'success', title: 'Template created' });
+        toast({ type: "success", title: "Template created" });
       }
       onSaved();
     } catch (e) {
-      toast({ type: 'error', title: e instanceof Error ? e.message : 'Save failed' });
+      toast({
+        type: "error",
+        title: e instanceof Error ? e.message : "Save failed",
+      });
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <AdminModal open onClose={onClose} title={isEdit ? 'Edit Template' : 'Create Template'} maxWidth="max-w-2xl">
+    <AdminModal
+      open
+      onClose={onClose}
+      title={isEdit ? "Edit Template" : "Create Template"}
+      maxWidth="max-w-2xl"
+    >
+      <div className="mt-4 space-y-4">
+        {/* Name */}
+        <div>
+          <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">
+            Name *
+          </label>
+          <AdminInput
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
+          />
+        </div>
 
-        <div className="mt-4 space-y-4">
-          {/* Name */}
+        {/* Description */}
+        <div>
+          <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">
+            {tr("Description")}
+          </label>
+          <AdminTextarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={2}
+            className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
+          />
+        </div>
+
+        {/* Calculator type */}
+        <div>
+          <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">
+            {tr("Calculator Type")}
+          </label>
+          <AdminSelect
+            value={calculatorType}
+            onChange={(e) =>
+              setCalculatorType(e.target.value as CalculatorType)
+            }
+            className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
+          >
+            {CALC_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {calculatorLabel(t)}
+              </option>
+            ))}
+          </AdminSelect>
+        </div>
+
+        {/* Input JSON */}
+        <div>
+          <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">
+            {tr("Input Configuration (JSON)")}
+          </label>
+          <AdminTextarea
+            value={inputJson}
+            onChange={(e) => setInputJson(e.target.value)}
+            rows={8}
+            className="mt-1 w-full rounded-lg border border-border bg-muted/50 px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-black/20 dark:text-primary-foreground"
+          />
+          {jsonError && (
+            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+              {jsonError}
+            </p>
+          )}
+        </div>
+
+        {/* SEO fields */}
+        <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">Name *</label>
-            <AdminInput type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground" />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">Description</label>
-            <AdminTextarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground" />
-          </div>
-
-          {/* Calculator type */}
-          <div>
-            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">Calculator Type</label>
-            <AdminSelect value={calculatorType} onChange={(e) => setCalculatorType(e.target.value as CalculatorType)} className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground">
-              {CALC_TYPES.map((t) => <option key={t} value={t}>{calculatorLabel(t)}</option>)}
-            </AdminSelect>
-          </div>
-
-          {/* Input JSON */}
-          <div>
-            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">Input Configuration (JSON)</label>
-            <AdminTextarea value={inputJson} onChange={(e) => setInputJson(e.target.value)} rows={8} className="mt-1 w-full rounded-lg border border-border bg-muted/50 px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-black/20 dark:text-primary-foreground" />
-            {jsonError && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{jsonError}</p>}
-          </div>
-
-          {/* SEO fields */}
-          <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">URL Slug</label>
-              <AdminInput type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="e.g. 10x12-bedroom-painting" className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">Display Order</label>
-              <AdminInput type="number" value={displayOrder} onChange={(e) => setDisplayOrder(Number(e.target.value))} className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground" />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">SEO Title</label>
-            <AdminInput type="text" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground" />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">SEO Description</label>
-            <AdminTextarea value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground" />
-          </div>
-
-          {/* Toggles */}
-          <div className="flex flex-wrap gap-4">
-            <label className="flex items-center gap-2 text-sm text-card-foreground dark:text-muted-foreground/80">
-              <AdminInput type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="rounded border-border" />
-              Published
+            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">
+              {tr("URL Slug")}
             </label>
-            <label className="flex items-center gap-2 text-sm text-card-foreground dark:text-muted-foreground/80">
-              <AdminInput type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="rounded border-border" />
-              Featured
-            </label>
+            <AdminInput
+              type="text"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              placeholder="e.g. 10x12-bedroom-painting"
+              className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
+            />
           </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-2 pt-2">
-            <AdminButton variant="secondary" onClick={onClose} className="flex-1">Cancel</AdminButton>
-            <AdminButton onClick={handleSave} disabled={saving} className="flex-1">
-              {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
-              {saving ? 'Saving...' : 'Save Template'}
-            </AdminButton>
+          <div>
+            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">
+              {tr("Display Order")}
+            </label>
+            <AdminInput
+              type="number"
+              value={displayOrder}
+              onChange={(e) => setDisplayOrder(Number(e.target.value))}
+              className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
+            />
           </div>
         </div>
+
+        <div>
+          <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">
+            {tr("SEO Title")}
+          </label>
+          <AdminInput
+            type="text"
+            value={seoTitle}
+            onChange={(e) => setSeoTitle(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">
+            {tr("SEO Description")}
+          </label>
+          <AdminTextarea
+            value={seoDescription}
+            onChange={(e) => setSeoDescription(e.target.value)}
+            rows={2}
+            className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
+          />
+        </div>
+
+        {/* Toggles */}
+        <div className="flex flex-wrap gap-4">
+          <label className="flex items-center gap-2 text-sm text-card-foreground dark:text-muted-foreground/80">
+            <AdminInput
+              type="checkbox"
+              checked={isPublished}
+              onChange={(e) => setIsPublished(e.target.checked)}
+              className="rounded border-border"
+            />
+            {tr("Published")}
+          </label>
+          <label className="flex items-center gap-2 text-sm text-card-foreground dark:text-muted-foreground/80">
+            <AdminInput
+              type="checkbox"
+              checked={isFeatured}
+              onChange={(e) => setIsFeatured(e.target.checked)}
+              className="rounded border-border"
+            />
+            {tr("Featured")}
+          </label>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 pt-2">
+          <AdminButton variant="secondary" onClick={onClose} className="flex-1">
+            {tr("Cancel")}
+          </AdminButton>
+          <AdminButton
+            onClick={handleSave}
+            disabled={saving}
+            className="flex-1"
+          >
+            {saving ? (
+              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save aria-hidden="true" className="h-4 w-4" />
+            )}
+            {saving ? "Saving..." : "Save Template"}
+          </AdminButton>
+        </div>
+      </div>
     </AdminModal>
   );
 }

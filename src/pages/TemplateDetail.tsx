@@ -33,8 +33,10 @@ import {
   resolveTemplateMarketContext,
 } from "@/lib/templates-market";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function TemplateDetail() {
+  const { t } = useLanguage();
   const { slug, code } = useParams<{ slug: string; code?: string }>();
   const { market } = useMarket();
   // Market-scoped route (/market/:code/templates/:slug) vs the generic
@@ -218,7 +220,7 @@ export default function TemplateDetail() {
           className="mx-auto h-10 w-10 text-muted-foreground/80 dark:text-muted-foreground"
         />
         <h1 className="mt-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
-          Market Not Covered Yet
+          {t("Market Not Covered Yet")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
           FRELUX does not publish templates for this market. Browse the 32
@@ -229,13 +231,13 @@ export default function TemplateDetail() {
             to="/templates/"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
           >
-            All templates <ChevronRight className="h-4 w-4" />
+            {t("All templates")} <ChevronRight className="h-4 w-4" />
           </Link>
           <Link
             to="/global-markets"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
           >
-            Supported markets <ChevronRight className="h-4 w-4" />
+            {t("Supported markets")} <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
       </div>
@@ -250,7 +252,7 @@ export default function TemplateDetail() {
           className="mx-auto h-10 w-10 text-muted-foreground/80 dark:text-muted-foreground"
         />
         <h1 className="mt-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
-          Template Not Found
+          {t("Template Not Found")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
           {error ?? "This template may have been removed."}
@@ -259,7 +261,7 @@ export default function TemplateDetail() {
           to="/templates/"
           className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
         >
-          Browse all templates <ChevronRight className="h-4 w-4" />
+          {t("Browse all templates")} <ChevronRight className="h-4 w-4" />
         </Link>
       </div>
     );
@@ -349,7 +351,7 @@ export default function TemplateDetail() {
       <div className="mt-6 rounded-xl border border-border bg-card p-5 dark:border-white/10 dark:bg-card">
         <h2 className="flex items-center gap-1.5 text-sm font-semibold text-foreground dark:text-primary-foreground">
           <Layers aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-          Template Configuration
+          {t("Template Configuration")}
         </h2>
         <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
           {inputSummary.map((item) => (
@@ -367,7 +369,7 @@ export default function TemplateDetail() {
 
       {/* How it works explanation */}
       <div className="prose prose-sm mt-6 max-w-none dark:prose-invert">
-        <h2>How This Template Works</h2>
+        <h2>{t("How This Template Works")}</h2>
         <p>
           When you click "Use This Template," the {calcLabel} opens with the
           configuration above already filled in. You can adjust any value to
@@ -386,7 +388,7 @@ export default function TemplateDetail() {
           onClick={() => navigate(`${calcPath}?template=${template.id}`)}
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
         >
-          Use This Template
+          {t("Use This Template")}
           <ArrowRight aria-hidden="true" className="h-4 w-4" />
         </Button>
         <Link
@@ -400,11 +402,11 @@ export default function TemplateDetail() {
       {/* Same template in other markets: crawlable internal links for the
           hreflang family, so every market page is reachable without the sitemap. */}
       <nav
-        aria-label="This template in other markets"
+        aria-label={t("This template in other markets")}
         className="mt-10 rounded-xl border border-border bg-card p-5 dark:border-white/10 dark:bg-card"
       >
         <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-          This template in other markets
+          {t("This template in other markets")}
         </h2>
         <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
           <li>
@@ -416,7 +418,7 @@ export default function TemplateDetail() {
                   : "text-xs text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80"
               }
             >
-              Global
+              {t("Global")}
             </Link>
           </li>
           {listTemplateMarkets().map((p) => (
@@ -439,7 +441,7 @@ export default function TemplateDetail() {
       {/* FAQ */}
       <div className="mt-10">
         <h2 className="mb-4 font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-          Frequently Asked Questions
+          {t("Frequently Asked Questions")}
         </h2>
         <div className="space-y-4">
           <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
@@ -482,7 +484,7 @@ export default function TemplateDetail() {
       {related.length > 0 && (
         <div className="mt-10">
           <h2 className="mb-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
-            Related Templates
+            {t("Related Templates")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
             {related.map((t) => (

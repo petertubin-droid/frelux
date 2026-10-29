@@ -51,6 +51,7 @@ import { getProjectStory, type ProjectStory } from "@/lib/project-agent/audit";
 import { buildProjectSnapshot } from "@/lib/predictive-intelligence/snapshot";
 import { supabase } from "@/lib/supabase";
 import type { AgentResult } from "@/lib/project-agent/types";
+import { useLanguage } from "@/lib/i18n";
 
 // =========================================================
 // PHASE 6 STAGE 13, Project Agent panel (mobile-first).
@@ -125,6 +126,7 @@ export default function ProjectAgentPanel({
 }: {
   projectId: string;
 }) {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const nowIso = () => new Date().toISOString();
 
@@ -484,7 +486,7 @@ export default function ProjectAgentPanel({
           <div className="flex items-center gap-2">
             <HeadsetGlyph className="h-5 w-5 text-primary" />
             <div>
-              <h3 className="font-semibold text-lg">Project Agent</h3>
+              <h3 className="font-semibold text-lg">{t("Project Agent")}</h3>
               <p className="text-xs text-muted-foreground">
                 Evidence-based guidance. Nothing is written without your
                 approval.
@@ -537,7 +539,7 @@ export default function ProjectAgentPanel({
                   className="h-7 px-2 text-xs"
                   onClick={() => dismissAlert(a.id)}
                 >
-                  Dismiss
+                  {t("Dismiss")}
                 </Button>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
@@ -556,7 +558,7 @@ export default function ProjectAgentPanel({
       <div className="rounded-xl border bg-card p-4 sm:p-6">
         <div className="flex items-center gap-2 mb-3">
           <HelpCircle className="h-4 w-4 text-primary" />
-          <h4 className="font-semibold text-sm">Ask the agent</h4>
+          <h4 className="font-semibold text-sm">{t("Ask the agent")}</h4>
         </div>
         <div className="flex flex-wrap gap-2">
           {GUIDANCE_QUESTIONS.map((q) => (
@@ -612,7 +614,7 @@ export default function ProjectAgentPanel({
       <div className="rounded-xl border bg-card p-4 sm:p-6">
         <div className="flex items-center gap-2 mb-1">
           <Wrench className="h-4 w-4 text-primary" />
-          <h4 className="font-semibold text-sm">Agent tools</h4>
+          <h4 className="font-semibold text-sm">{t("Agent tools")}</h4>
         </div>
         <p className="mb-3 text-xs text-muted-foreground">
           Read-only. Each tool calls an authoritative FRELUX engine and credits
@@ -686,13 +688,13 @@ export default function ProjectAgentPanel({
         <div className="rounded-xl border bg-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-3">
             <ShieldCheck className="h-4 w-4 text-primary" />
-            <h4 className="font-semibold text-sm">Recommendations</h4>
+            <h4 className="font-semibold text-sm">{t("Recommendations")}</h4>
           </div>
           <p className="mb-3 text-xs text-muted-foreground">{report.summary}</p>
 
           {report.recommendations.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              No risks found in the recorded project state.
+              {t("No risks found in the recorded project state.")}
             </p>
           )}
 
@@ -793,7 +795,7 @@ export default function ProjectAgentPanel({
                     are offered.
                   </p>
                   <select
-                    aria-label="Which purchase did you make?"
+                    aria-label={t("Which purchase did you make?")}
                     className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
                     value={draft.shoppingItemId}
                     onChange={(e) =>
@@ -812,9 +814,9 @@ export default function ProjectAgentPanel({
                     ))}
                   </select>
                   <input
-                    aria-label="Actual price paid"
+                    aria-label={t("Actual price paid")}
                     className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-                    placeholder="Actual price paid (optional)"
+                    placeholder={t("Actual price paid (optional)")}
                     inputMode="decimal"
                     value={draft.actualPrice}
                     onChange={(e) =>
@@ -831,7 +833,7 @@ export default function ProjectAgentPanel({
                     offered.
                   </p>
                   <select
-                    aria-label="Which stage is complete?"
+                    aria-label={t("Which stage is complete?")}
                     className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
                     value={draft.stageId}
                     onChange={(e) =>
@@ -852,10 +854,12 @@ export default function ProjectAgentPanel({
               {draft.kind === "update_material_price" && (
                 <>
                   <p className="text-xs text-muted-foreground">
-                    Record the price you actually found. Never guess a price.
+                    {t(
+                      "Record the price you actually found. Never guess a price.",
+                    )}
                   </p>
                   <select
-                    aria-label="Material for this price"
+                    aria-label={t("Material for this price")}
                     className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
                     value={draft.materialId}
                     onChange={(e) =>
@@ -871,9 +875,9 @@ export default function ProjectAgentPanel({
                     ))}
                   </select>
                   <input
-                    aria-label="New price"
+                    aria-label={t("New price")}
                     className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-                    placeholder="New price"
+                    placeholder={t("New price")}
                     inputMode="decimal"
                     value={draft.newPrice}
                     onChange={(e) =>
@@ -904,7 +908,7 @@ export default function ProjectAgentPanel({
       <div className="rounded-xl border bg-card p-4 sm:p-6">
         <div className="flex items-center gap-2 mb-3">
           <ShieldCheck className="h-4 w-4 text-primary" />
-          <h4 className="font-semibold text-sm">Prepared actions</h4>
+          <h4 className="font-semibold text-sm">{t("Prepared actions")}</h4>
         </div>
 
         {actions.length === 0 ? (
@@ -951,9 +955,9 @@ export default function ProjectAgentPanel({
                 {amendOpenFor === action.id ? (
                   <div className="mt-2 space-y-2">
                     <input
-                      aria-label="Assumption or note"
+                      aria-label={t("Assumption or note")}
                       className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
-                      placeholder="Add an assumption or note…"
+                      placeholder={t("Add an assumption or note…")}
                       value={amendText}
                       onChange={(e) => setAmendText(e.target.value)}
                     />
@@ -963,14 +967,14 @@ export default function ProjectAgentPanel({
                         onClick={() => amend(action.id)}
                         disabled={decisionBusy === `${action.id}:amend`}
                       >
-                        Save
+                        {t("Save")}
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => setAmendOpenFor(null)}
                       >
-                        Cancel edit
+                        {t("Cancel edit")}
                       </Button>
                     </div>
                   </div>
@@ -996,7 +1000,7 @@ export default function ProjectAgentPanel({
                         onClick={() => decide(approval.id, "rejected")}
                         disabled={decisionBusy === `${approval.id}:rejected`}
                       >
-                        Reject
+                        {t("Reject")}
                       </Button>
                     )}
                     {action.state === "approved" && (
@@ -1007,7 +1011,7 @@ export default function ProjectAgentPanel({
                         className="gap-1.5"
                       >
                         <Play className="h-3.5 w-3.5" />
-                        Execute
+                        {t("Execute")}
                       </Button>
                     )}
                     {action.state !== "executed" &&
@@ -1018,7 +1022,7 @@ export default function ProjectAgentPanel({
                           onClick={() => cancel(action.id)}
                           disabled={decisionBusy === `${action.id}:cancel`}
                         >
-                          Cancel
+                          {t("Cancel")}
                         </Button>
                       )}
                     {action.state === "prepared" && (
@@ -1031,7 +1035,7 @@ export default function ProjectAgentPanel({
                           setAmendText("");
                         }}
                       >
-                        <Pencil className="h-3 w-3" /> Edit
+                        <Pencil className="h-3 w-3" /> {t("Edit")}
                       </Button>
                     )}
                   </div>
@@ -1050,18 +1054,18 @@ export default function ProjectAgentPanel({
         <div className="flex items-center gap-2 mb-3">
           <History className="h-4 w-4 text-primary" />
           <h4 className="font-semibold text-sm">
-            What the agent observed & what happened
+            {t("What the agent observed & what happened")}
           </h4>
         </div>
         {!story ? (
           <p className="text-sm text-muted-foreground">
-            Run an agent check to load the recorded history.
+            {t("Run an agent check to load the recorded history.")}
           </p>
         ) : (
           <div className="space-y-2">
             {story.timeline.length === 0 && (
               <p className="text-sm text-muted-foreground">
-                No recorded agent activity yet.
+                {t("No recorded agent activity yet.")}
               </p>
             )}
             {story.timeline

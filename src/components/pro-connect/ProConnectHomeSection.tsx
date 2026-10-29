@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Users, Briefcase, Search } from "lucide-react";
 import { fetchCategories } from "@/lib/pro-connect";
 import type { DbProCategory } from "@/types/pro-connect";
+import { useLanguage } from "@/lib/i18n";
 
 // Category icon mapping using lucide names from DB
 const categoryIconMap: Record<string, string> = {
@@ -23,6 +24,7 @@ const categoryIconMap: Record<string, string> = {
 };
 
 export default function ProConnectHomeSection() {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState<DbProCategory[]>([]);
 
   const mountedRef = useRef(true);
@@ -48,11 +50,12 @@ export default function ProConnectHomeSection() {
             FRELUX Pro Connect · Regional Directory
           </div>
           <h2 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-            Find the Right Professional for Your Project
+            {t("Find the Right Professional for Your Project")}
           </h2>
           <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground sm:text-base">
-            Connect with verified painters, tilers, contractors, engineers, screeders,
-            and POP specialists across Nigeria. International artisan network expansion is currently in progress.
+            Connect with verified painters, tilers, contractors, engineers,
+            screeders, and POP specialists across Nigeria. International artisan
+            network expansion is currently in progress.
           </p>
         </div>
 
@@ -63,14 +66,14 @@ export default function ProConnectHomeSection() {
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
           >
             <Search aria-hidden="true" className="h-4 w-4" />
-            Find a Professional
+            {t("Find a Professional")}
           </Link>
           <Link
             to="/pro-connect/register/"
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border px-6 py-3 text-sm font-semibold text-card-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/60 dark:hover:border-brand-purple-lighter dark:hover:text-brand-purple-lighter sm:w-auto"
           >
             <Briefcase aria-hidden="true" className="h-4 w-4" />
-            Join as a Pro Worker
+            {t("Join as a Pro Worker")}
           </Link>
         </div>
 
@@ -105,7 +108,7 @@ export default function ProConnectHomeSection() {
             to="/pro-connect/"
             className="inline-flex items-center gap-1 text-sm font-medium text-brand-purple hover:text-brand-purple-dark dark:text-brand-purple-lighter"
           >
-            Explore All Professionals
+            {t("Explore All Professionals")}
             <ArrowRight aria-hidden="true" className="h-4 w-4" />
           </Link>
         </div>

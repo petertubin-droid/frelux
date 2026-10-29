@@ -1,7 +1,9 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { Store, Briefcase, Plus, LayoutDashboard, Package } from "lucide-react";
 import { classNames } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 export default function MarketplaceLayout() {
+  const { t } = useLanguage();
   const location = useLocation();
 
   const navItems = [
@@ -54,13 +56,13 @@ export default function MarketplaceLayout() {
                     : "text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/60",
                 )}
               >
-                <LayoutDashboard className="h-4 w-4" /> Dashboard
+                <LayoutDashboard className="h-4 w-4" /> {t("Dashboard")}
               </Link>
               <Link
                 to="/marketplace/post/"
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
-                <Plus aria-hidden="true" className="h-4 w-4" /> Post
+                <Plus aria-hidden="true" className="h-4 w-4" /> {t("Post")}
               </Link>
             </div>
           </div>

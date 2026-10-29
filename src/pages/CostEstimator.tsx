@@ -93,6 +93,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // Printable professional quote, market-currency formatted.
 function exportCostQuote(args: {
@@ -170,6 +171,7 @@ function exportCostQuote(args: {
 export default function CostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { t } = useLanguage();
   const { defaults: calcDefaults } = useCalcDefaults("cost");
   const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
@@ -509,8 +511,10 @@ export default function CostEstimator({
           <PageHeader
             variant="tool"
             eyebrow="Tool"
-            title="Cost Estimator"
-            subtitle="Estimate the cost of your paint materials, buckets, primer, and supplies."
+            title={t("Cost Estimator")}
+            subtitle={t(
+              "Estimate the cost of your paint materials, buckets, primer, and supplies.",
+            )}
             breadcrumbs={[
               { label: "Home", path: "/" },
               { label: "Calculators", path: "/calculators" },
@@ -532,7 +536,7 @@ export default function CostEstimator({
         <PageHeader
           variant="tool"
           eyebrow="Tool"
-          title="Cost Estimator"
+          title={t("Cost Estimator")}
           subtitle="Estimate the cost of your paint materials. Prices are editable so you can match local rates. Labour not included."
           breadcrumbs={[
             { label: "Home", path: "/" },
@@ -567,7 +571,7 @@ export default function CostEstimator({
                 to="/paint-calculator/"
                 className="font-semibold text-brand-purple underline"
               >
-                Paint Calculator
+                {t("Paint Calculator")}
               </Link>{" "}
               first, then continue here. Your paintable area and paint quantity
               will carry over automatically.
@@ -578,7 +582,7 @@ export default function CostEstimator({
         <div className="grid gap-6 lg:grid-cols-5">
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3">
             {/* Project summary */}
-            <Section title="Project summary">
+            <Section title={t("Project summary")}>
               <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Project type">
                   <select
@@ -588,10 +592,10 @@ export default function CostEstimator({
                     }
                     className="input-field"
                   >
-                    <option value="room">Room</option>
-                    <option value="house">House</option>
-                    <option value="exterior">Exterior</option>
-                    <option value="fence">Fence or Gate</option>
+                    <option value="room">{t("Room")}</option>
+                    <option value="house">{t("House")}</option>
+                    <option value="exterior">{t("Exterior")}</option>
+                    <option value="fence">{t("Fence or Gate")}</option>
                   </select>
                 </Field>
                 <Field
@@ -669,7 +673,7 @@ export default function CostEstimator({
             </Section>
 
             {/* Paint cost */}
-            <Section title="Paint">
+            <Section title={t("Paint")}>
               {products.length > 0 ? (
                 <Field
                   label="Paint product"
@@ -682,7 +686,7 @@ export default function CostEstimator({
                     }
                     className="input-field"
                   >
-                    <option value="">Manual price entry</option>
+                    <option value="">{t("Manual price entry")}</option>
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.name}
@@ -705,7 +709,7 @@ export default function CostEstimator({
               input.paintContainerSize > 0 ? (
                 <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4">
                   <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                    Container based pricing
+                    {t("Container based pricing")}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {formatNumber(input.paintLiters, 1)} L required ·{" "}
@@ -774,7 +778,7 @@ export default function CostEstimator({
                   {manualBucketPrice > 0 && input.paintLiters > 0 && (
                     <div className="mt-3 rounded-lg border border-brand-purple/20 bg-primary/5 p-4">
                       <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                        Bucket based pricing
+                        {t("Bucket based pricing")}
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {formatNumber(input.paintLiters, 1)} L required ·{" "}
@@ -802,14 +806,14 @@ export default function CostEstimator({
             </Section>
 
             {/* Primer */}
-            <Section title="Primer">
+            <Section title={t("Primer")}>
               <div className="flex items-center gap-3">
                 <Toggle
                   checked={input.includePrimer}
                   onChange={(v) => update("includePrimer", v)}
                 />
                 <span className="text-sm text-muted-foreground">
-                  Include primer
+                  {t("Include primer")}
                 </span>
               </div>
               {input.includePrimer && (
@@ -844,7 +848,7 @@ export default function CostEstimator({
             </Section>
 
             {/* Materials */}
-            <Section title="Additional materials">
+            <Section title={t("Additional materials")}>
               <p className="mb-3 text-xs text-muted-foreground">
                 Toggle materials to include them. Prices auto fill from
                 configured data when available.
@@ -930,7 +934,7 @@ export default function CostEstimator({
               onClick={compute}
               className="btn-glow mt-6 w-full sm:w-auto"
             >
-              Calculate estimate
+              {t("Calculate estimate")}
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Button>
           </div>
@@ -940,7 +944,7 @@ export default function CostEstimator({
             <div className="card sticky top-20 overflow-hidden">
               <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground">
                 <p className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/60">
-                  Estimated total
+                  {t("Estimated total")}
                 </p>
                 {result ? (
                   <p className="mt-1 text-3xl font-bold sm:text-4xl">
@@ -952,7 +956,7 @@ export default function CostEstimator({
                   </p>
                 )}
                 <p className="mt-1 text-xs text-primary-foreground/50">
-                  Estimate only, not a final quote.
+                  {t("Estimate only, not a final quote.")}
                 </p>
               </div>
               <div className="space-y-2 p-6">
@@ -1106,7 +1110,7 @@ export default function CostEstimator({
                     >
                       <MessageCircle className="h-5 w-5 text-accent-green" />
                       <span className="text-xs font-semibold text-accent-green">
-                        WhatsApp
+                        {t("WhatsApp")}
                       </span>
                     </Button>
                     <Button
@@ -1117,7 +1121,7 @@ export default function CostEstimator({
                     >
                       <FileText className="h-5 w-5 text-brand-purple" />
                       <span className="text-xs font-semibold text-brand-purple">
-                        Export PDF
+                        {t("Export PDF")}
                       </span>
                     </Button>
                     <Button
@@ -1128,7 +1132,7 @@ export default function CostEstimator({
                     >
                       <ShoppingBag className="h-5 w-5 text-accent-orange" />
                       <span className="text-xs font-semibold text-accent-orange">
-                        Shopping List
+                        {t("Shopping List")}
                       </span>
                     </Button>
                     <Button
@@ -1139,7 +1143,7 @@ export default function CostEstimator({
                     >
                       <Save className="h-5 w-5 text-muted-foreground dark:text-muted-foreground/80" />
                       <span className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground/80">
-                        Save to Device
+                        {t("Save to Device")}
                       </span>
                     </Button>
                   </div>
@@ -1164,7 +1168,7 @@ export default function CostEstimator({
                       }
                       className="rounded-lg border px-4 py-2 text-sm font-semibold"
                     >
-                      Export quote (PDF)
+                      {t("Export quote (PDF)")}
                     </button>
                     <SaveToProjectButton
                       calculatorType="cost"
@@ -1209,7 +1213,7 @@ export default function CostEstimator({
         {shoppingListOpen && (
           <ShoppingListModal
             items={shoppingListItems}
-            title="Cost Estimate Shopping List"
+            title={t("Cost Estimate Shopping List")}
             onClose={() => setShoppingListOpen(false)}
           />
         )}

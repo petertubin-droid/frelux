@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Activity } from "lucide-react";
 import { AdminHeader, AdminButton } from "@/components/admin/AdminUi";
+import { useLanguage } from "@/lib/i18n";
 import {
   listSources,
   listCrawlRuns,
@@ -23,6 +24,7 @@ interface Obs {
 }
 
 export default function AdminIntelligenceDashboard() {
+  const { t } = useLanguage();
   const [sources, setSources] = useState<
     Array<{
       enabled: boolean;
@@ -89,7 +91,7 @@ export default function AdminIntelligenceDashboard() {
   return (
     <div>
       <AdminHeader
-        title="Intelligence Dashboard"
+        title={t("Intelligence Dashboard")}
         subtitle="Crawling and learning activity for approved external sources. External prices are OBSERVED MARKET PRICES, they never automatically change FRELUX configured calculator prices."
       />
       <div className="space-y-6">
@@ -99,7 +101,7 @@ export default function AdminIntelligenceDashboard() {
           </div>
         )}
         <div className="flex justify-end">
-          <AdminButton onClick={load}>Refresh</AdminButton>
+          <AdminButton onClick={load}>{t("Refresh")}</AdminButton>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
@@ -172,19 +174,19 @@ export default function AdminIntelligenceDashboard() {
 
         {/* Crawl history */}
         <section className="rounded-lg border bg-card p-4 space-y-3">
-          <h2 className="text-sm font-semibold">Crawl history</h2>
+          <h2 className="text-sm font-semibold">{t("Crawl history")}</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-left text-muted-foreground border-b">
-                  <th className="p-2">Run</th>
-                  <th className="p-2">Status</th>
-                  <th className="p-2">Started</th>
-                  <th className="p-2">Pages</th>
-                  <th className="p-2">New</th>
-                  <th className="p-2">Changed</th>
-                  <th className="p-2">Candidates</th>
-                  <th className="p-2">Failure reason</th>
+                  <th className="p-2">{t("Run")}</th>
+                  <th className="p-2">{t("Status")}</th>
+                  <th className="p-2">{t("Started")}</th>
+                  <th className="p-2">{t("Pages")}</th>
+                  <th className="p-2">{t("New")}</th>
+                  <th className="p-2">{t("Changed")}</th>
+                  <th className="p-2">{t("Candidates")}</th>
+                  <th className="p-2">{t("Failure reason")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -256,7 +258,7 @@ export default function AdminIntelligenceDashboard() {
             ))}
             {products.length === 0 && (
               <p className="text-xs text-muted-foreground">
-                No products extracted yet.
+                {t("No products extracted yet.")}
               </p>
             )}
           </div>

@@ -18,8 +18,10 @@ import { fetchPaintComparisons } from "@/lib/project-intelligence";
 import type { DbPaintComparison } from "@/types/database";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function PaintComparison() {
+  const { t } = useLanguage();
   useSeo({
     title: "Paint Comparison Tool: Matt vs Satin vs Emulsion",
     description:
@@ -119,8 +121,10 @@ export default function PaintComparison() {
           { label: "Paint Comparison Tool" },
         ]}
         eyebrow="Tools"
-        title="Paint Comparison Tool"
-        subtitle="Compare paint types side by side to find the right finish for your project."
+        title={t("Paint Comparison Tool")}
+        subtitle={t(
+          "Compare paint types side by side to find the right finish for your project.",
+        )}
       />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         {loading && (
@@ -143,7 +147,7 @@ export default function PaintComparison() {
             {/* Paint selector chips */}
             <div className="mb-8">
               <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground">
-                Select paints to compare
+                {t("Select paints to compare")}
               </h2>
               <div className="flex flex-wrap gap-2">
                 {comparisons.map((c) => {
@@ -179,7 +183,7 @@ export default function PaintComparison() {
                     <tr className="border-b border-border bg-gradient-to-r from-primary/5 to-transparent dark:border-white/10">
                       <th className="sticky left-0 z-10 bg-gradient-to-r from-primary/5 to-transparent p-5 text-left font-bold text-muted-foreground dark:bg-card">
                         <span className="text-xs uppercase tracking-widest">
-                          Feature
+                          {t("Feature")}
                         </span>
                       </th>
                       {visibleComparisons.map((c) => (
@@ -201,7 +205,7 @@ export default function PaintComparison() {
                     <tr className="border-b border-border dark:border-white/10">
                       <td className="sticky left-0 z-10 bg-card p-5 font-semibold text-muted-foreground dark:bg-card">
                         <span className="text-xs uppercase tracking-widest">
-                          Description
+                          {t("Description")}
                         </span>
                       </td>
                       {visibleComparisons.map((c) => (
@@ -303,21 +307,21 @@ export default function PaintComparison() {
                   className="group inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-primary-foreground"
                 >
                   <Eye className="h-4 w-4 text-brand-purple transition-transform duration-300 group-hover:rotate-12" />
-                  AI Color Assistant
+                  {t("AI Color Assistant")}
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
                 <Link
                   to="/start-building/"
                   className="group inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-primary-foreground"
                 >
-                  Create a Project
+                  {t("Create a Project")}
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
                 <Link
                   to="/learn/category/painting-guides/"
                   className="group inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-primary-foreground"
                 >
-                  Learn More
+                  {t("Learn More")}
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
               </div>
@@ -329,10 +333,10 @@ export default function PaintComparison() {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Palette className="h-12 w-12 text-muted-foreground/80 mb-4" />
             <p className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground">
-              No paint comparison data available yet.
+              {t("No paint comparison data available yet.")}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Please check back soon.
+              {t("Please check back soon.")}
             </p>
           </div>
         )}

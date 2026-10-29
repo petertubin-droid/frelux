@@ -21,6 +21,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
+import { useLanguage } from "@/lib/i18n";
 
 type Status = "loading" | "ready" | "saving" | "error";
 
@@ -56,6 +57,7 @@ const DEFAULT_CONFIG: EstimationConfig = {
 };
 
 export default function AdminImageEstimation() {
+  const { t } = useLanguage();
   const [config, setConfig] = useState<EstimationConfig>(DEFAULT_CONFIG);
   const [rowId, setRowId] = useState<string | null>(null);
   const [stats, setStats] = useState<UsageStats | null>(null);
@@ -179,12 +181,12 @@ export default function AdminImageEstimation() {
     return (
       <>
         <AdminHeader
-          title="AI Image Estimation"
-          subtitle="Premium building photo estimation feature."
+          title={t("AI Image Estimation")}
+          subtitle={t("Premium building photo estimation feature.")}
         />
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={t("Loading…")}
           message="Fetching configuration."
         />
       </>
@@ -194,8 +196,10 @@ export default function AdminImageEstimation() {
   return (
     <>
       <AdminHeader
-        title="AI Image Estimation"
-        subtitle="Premium building photo estimation, control access, pricing, and usage limits."
+        title={t("AI Image Estimation")}
+        subtitle={t(
+          "Premium building photo estimation, control access, pricing, and usage limits.",
+        )}
       />
 
       {error && (
@@ -206,7 +210,7 @@ export default function AdminImageEstimation() {
           />
           <div>
             <p className="text-sm font-medium text-amber-800">
-              Migration Required
+              {t("Migration Required")}
             </p>
             <p className="text-xs text-amber-700 mt-1">{error}</p>
             <p className="text-xs text-amber-600 mt-2 font-mono">
@@ -224,7 +228,7 @@ export default function AdminImageEstimation() {
           />
           <div>
             <p className="text-sm font-medium text-red-800">
-              Couldn't save changes
+              {t("Couldn't save changes")}
             </p>
             <p className="text-xs text-red-700 mt-1">{saveError}</p>
           </div>
@@ -257,7 +261,7 @@ export default function AdminImageEstimation() {
         <div className="flex items-center gap-2 mb-6">
           <Settings2 className="w-5 h-5 text-brand-purple" />
           <h3 className="font-semibold text-foreground">
-            Access Configuration
+            {t("Access Configuration")}
           </h3>
         </div>
 
@@ -267,10 +271,10 @@ export default function AdminImageEstimation() {
             <div>
               <p className="font-medium text-foreground flex items-center gap-2">
                 <Camera aria-hidden="true" className="w-4 h-4" />
-                Feature Enabled
+                {t("Feature Enabled")}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Master switch for the AI building photo estimator.
+                {t("Master switch for the AI building photo estimator.")}
               </p>
             </div>
             <Toggle
@@ -284,7 +288,7 @@ export default function AdminImageEstimation() {
           {/* Access mode */}
           <div>
             <label className="text-sm font-medium text-card-foreground mb-2 block">
-              Access Mode
+              {t("Access Mode")}
             </label>
             <AdminSelect
               value={config.estimation_access_mode}
@@ -297,13 +301,15 @@ export default function AdminImageEstimation() {
               }
               className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none"
             >
-              <option value="disabled">Disabled</option>
-              <option value="free">Free (with daily limit)</option>
+              <option value="disabled">{t("Disabled")}</option>
+              <option value="free">{t("Free (with daily limit)")}</option>
               <option value="rewarded">
-                Rewarded (free uses, then watch ad)
+                {t("Rewarded (free uses, then watch ad)")}
               </option>
-              <option value="free_rewarded">Free + Rewarded (hybrid)</option>
-              <option value="paid">Paid (subscription required)</option>
+              <option value="free_rewarded">
+                {t("Free + Rewarded (hybrid)")}
+              </option>
+              <option value="paid">{t("Paid (subscription required)")}</option>
             </AdminSelect>
           </div>
 
@@ -313,7 +319,7 @@ export default function AdminImageEstimation() {
             config.estimation_access_mode === "free_rewarded") && (
             <div>
               <label className="text-sm font-medium text-card-foreground mb-1 block">
-                Daily Free Uses
+                {t("Daily Free Uses")}
               </label>
               <AdminInput
                 type="number"
@@ -331,7 +337,7 @@ export default function AdminImageEstimation() {
                 className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Number of free estimations per user per day.
+                {t("Number of free estimations per user per day.")}
               </p>
             </div>
           )}
@@ -342,10 +348,10 @@ export default function AdminImageEstimation() {
             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
               <div>
                 <p className="font-medium text-foreground">
-                  Rewarded Ads Enabled
+                  {t("Rewarded Ads Enabled")}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Let users watch ads to unlock more estimations.
+                  {t("Let users watch ads to unlock more estimations.")}
                 </p>
               </div>
               <Toggle
@@ -367,10 +373,10 @@ export default function AdminImageEstimation() {
                 <div>
                   <p className="font-medium text-foreground flex items-center gap-2">
                     <PremiumBadge size="xs" />
-                    Paid Access Enabled
+                    {t("Paid Access Enabled")}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Require payment/subscription for access.
+                    {t("Require payment/subscription for access.")}
                   </p>
                 </div>
                 <Toggle
@@ -386,7 +392,7 @@ export default function AdminImageEstimation() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-card-foreground mb-1 block">
-                    Price per Estimation
+                    {t("Price per Estimation")}
                   </label>
                   <AdminInput
                     type="number"
@@ -406,7 +412,7 @@ export default function AdminImageEstimation() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-card-foreground mb-1 block">
-                    Currency
+                    {t("Currency")}
                   </label>
                   <AdminInput
                     type="text"
@@ -427,7 +433,7 @@ export default function AdminImageEstimation() {
           {/* Reset period */}
           <div>
             <label className="text-sm font-medium text-card-foreground mb-1 block">
-              Usage Reset Period
+              {t("Usage Reset Period")}
             </label>
             <AdminSelect
               value={config.estimation_reset_period}
@@ -439,18 +445,20 @@ export default function AdminImageEstimation() {
               }
               className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none"
             >
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
+              <option value="daily">{t("Daily")}</option>
+              <option value="weekly">{t("Weekly")}</option>
+              <option value="monthly">{t("Monthly")}</option>
             </AdminSelect>
           </div>
 
           {/* Admin override */}
           <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
             <div>
-              <p className="font-medium text-foreground">Admin Override</p>
+              <p className="font-medium text-foreground">
+                {t("Admin Override")}
+              </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Admins can use the feature without limits.
+                {t("Admins can use the feature without limits.")}
               </p>
             </div>
             <Toggle
@@ -494,7 +502,7 @@ export default function AdminImageEstimation() {
           />
           <div>
             <p className="text-sm font-medium text-foreground">
-              Edge Function Deployment
+              {t("Edge Function Deployment")}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               The AI building estimation edge function must be deployed to
@@ -530,7 +538,9 @@ function StatCard({
     <div className="rounded-xl border border-border bg-card p-5">
       <div className="flex items-center gap-2 mb-2">
         <Icon className="w-4 h-4 text-muted-foreground" />
-        <span className="text-xs font-medium text-muted-foreground">{label}</span>
+        <span className="text-xs font-medium text-muted-foreground">
+          {label}
+        </span>
       </div>
       <p className="text-2xl font-bold text-foreground">{value}</p>
     </div>

@@ -22,6 +22,7 @@ import {
   type EngineCapability,
 } from "@/lib/international/capability-registry";
 import { Search, ShieldCheck, ShieldAlert, Cpu, FileText } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 type Category = EngineCapability["category"] | "all";
 
@@ -52,6 +53,7 @@ function Metric({
 }
 
 function PortabilityBadge({ engine }: { engine: EngineCapability }) {
+  const { t } = useLanguage();
   if (engine.deterministic) {
     return (
       <span className="inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
@@ -61,12 +63,13 @@ function PortabilityBadge({ engine }: { engine: EngineCapability }) {
   }
   return (
     <span className="inline-flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
-      AI-mediated
+      {t("AI-mediated")}
     </span>
   );
 }
 
 export function AdminCapabilityAvailability() {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<Category>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -130,8 +133,8 @@ export function AdminCapabilityAvailability() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search engines, ids, evidence…"
-            aria-label="Search capability registry"
+            placeholder={t("Search engines, ids, evidence…")}
+            aria-label={t("Search capability registry")}
             className="rounded-md border bg-background py-2 pl-8 pr-3 text-sm"
           />
         </div>
@@ -144,7 +147,7 @@ export function AdminCapabilityAvailability() {
               : "rounded-md border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-accent"
           }
         >
-          All
+          {t("All")}
         </button>
         {categories.map((c) => (
           <button
@@ -254,7 +257,7 @@ export function AdminCapabilityAvailability() {
         })}
         {engines.length === 0 && (
           <li className="rounded-xl border bg-card p-4 text-sm text-muted-foreground">
-            No engines match this filter.
+            {t("No engines match this filter.")}
           </li>
         )}
       </ul>

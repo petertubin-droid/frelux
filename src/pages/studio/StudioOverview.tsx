@@ -4,8 +4,10 @@ import { ArrowRight, Code, AlertCircle } from "lucide-react";
 import { TOOLS, TOOL_CATEGORIES } from "@/components/studio/tools";
 import { supabase } from "@/lib/supabase";
 import { fetchRecentErrorsForStudio } from "@/lib/error-analysis";
+import { useLanguage } from "@/lib/i18n";
 
 export default function StudioOverview() {
+  const { t: tr } = useLanguage();
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [recentErrors, setRecentErrors] = useState<
     {
@@ -69,10 +71,10 @@ export default function StudioOverview() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-            AI Developer Studio
+            {tr("AI Developer Studio")}
           </h1>
           <p className="mt-0.5 text-sm text-muted-foreground dark:text-muted-foreground">
-            AI assisted development environment for the FRELUX platform.
+            {tr("AI assisted development environment for the FRELUX platform.")}
           </p>
         </div>
       </div>
@@ -104,7 +106,7 @@ export default function StudioOverview() {
                 className="h-4 w-4 text-brand-purple"
               />
               <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                Recent Errors from System Health
+                {tr("Recent Errors from System Health")}
               </h2>
             </div>
             <Link

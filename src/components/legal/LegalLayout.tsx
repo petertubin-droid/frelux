@@ -11,6 +11,7 @@ import { siteConfig } from "@/config/site";
 import { useLegalPage } from "@/lib/useLegalPage";
 import { classNames } from "@/lib/utils";
 import Container from "@/components/ui/Container";
+import { useLanguage } from "@/lib/i18n";
 
 export default function LegalLayout({
   slug,
@@ -25,6 +26,7 @@ export default function LegalLayout({
   intro?: ReactNode;
   sections: { heading: string; body: ReactNode }[];
 }) {
+  const { t } = useLanguage();
   const { page, loading } = useLegalPage(slug);
   const published = Boolean(page);
   const [activeSection, setActiveSection] = useState<string>("");
@@ -73,7 +75,7 @@ export default function LegalLayout({
             className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-primary-foreground/70 backdrop-blur-md transition-colors hover:text-primary-foreground"
           >
             <ChevronLeft className="h-3 w-3" />
-            Home
+            {t("Home")}
           </Link>
           <div className="mt-6 flex items-center gap-3">
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm">
@@ -81,7 +83,7 @@ export default function LegalLayout({
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-primary-foreground/60">
               <Shield className="h-3 w-3" />
-              Legal
+              {t("Legal")}
             </span>
           </div>
           <h1 className="mt-4 font-display text-3xl font-bold leading-tight sm:text-4xl">
@@ -140,7 +142,7 @@ export default function LegalLayout({
             <aside className="hidden lg:block">
               <nav className="sticky top-24 space-y-1">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
-                  Contents
+                  {t("Contents")}
                 </p>
                 {sections.map((s) => (
                   <a

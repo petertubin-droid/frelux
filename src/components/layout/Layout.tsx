@@ -21,6 +21,7 @@ import type { Achievement } from "@/lib/achievements";
 import { getSupabase } from "@/lib/supabase-lazy";
 import { adDebug, instrumentScript } from "@/lib/ad-diagnostics";
 import { useAuth } from "@/lib/auth";
+import { useLanguage } from "@/lib/i18n";
 
 // Lazy-loaded below-the-fold components, not visible on first paint
 const SupportChatWidget = lazy(
@@ -50,6 +51,7 @@ const AchievementToast = lazy(() =>
 );
 
 export default function Layout() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [maintenance, setMaintenance] = useState(false);
@@ -469,10 +471,10 @@ export default function Layout() {
           <Wrench className="h-8 w-8" />
         </div>
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Under Maintenance
+          {t("Under Maintenance")}
         </h1>
         <p className="mt-2 max-w-md text-muted-foreground dark:text-muted-foreground">
-          We're making some improvements. Please check back soon.
+          {t("We're making some improvements. Please check back soon.")}
         </p>
       </div>
     );
@@ -507,7 +509,7 @@ export default function Layout() {
         href="#main-content"
         className="sr-only sr-only-focusable absolute left-4 top-4 z-[100] rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
       >
-        Skip to main content
+        {t("Skip to main content")}
       </a>
       <Navbar />
       {/* Site-wide neon viewport frame: illuminates ALL screen edges,
@@ -539,7 +541,7 @@ export default function Layout() {
           id={`container-${adsterraNative.key}`}
           data-adsterra-native-sitewide="container"
           className="mx-auto w-full max-w-5xl px-4 py-2"
-          aria-label="Advertisement"
+          aria-label={t("Advertisement")}
         />
       )}
       <Footer />

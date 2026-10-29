@@ -51,6 +51,7 @@ import {
   type SyncReport,
 } from "@/lib/estimation/offline-field-engine";
 import type { EstimationCalcRule } from "@/types/estimation";
+import { useLanguage } from "@/lib/i18n";
 
 const KIND_LABEL: Record<FieldCaptureKind, string> = {
   measurement: "Measurement",
@@ -70,6 +71,7 @@ function timeAgo(iso: string): string {
 }
 
 export default function FieldSync() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Field Sync", path: "/field-sync" },
@@ -284,7 +286,7 @@ export default function FieldSync() {
           { label: "Construction Tools", path: "/construction-tools" },
           { label: "Field Sync" },
         ]}
-        title="Field Sync"
+        title={t("Field Sync")}
         subtitle="Record site work with no network. Your captures queue on this device and sync when connectivity returns: honestly, one by one."
       />
 
@@ -319,9 +321,9 @@ export default function FieldSync() {
       <form
         onSubmit={submitCapture}
         className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
-        aria-label="Capture site work"
+        aria-label={t("Capture site work")}
       >
-        <h2 className="mb-4 text-lg font-semibold">New capture</h2>
+        <h2 className="mb-4 text-lg font-semibold">{t("New capture")}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-sm">
             <span className="mb-1 block font-medium">What is it?</span>
@@ -343,7 +345,9 @@ export default function FieldSync() {
             </select>
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block font-medium">Job label (optional)</span>
+            <span className="mb-1 block font-medium">
+              {t("Job label (optional)")}
+            </span>
             <input
               value={form.project_label}
               onChange={(e) =>
@@ -374,7 +378,7 @@ export default function FieldSync() {
             type="submit"
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
-            Save to device queue
+            {t("Save to device queue")}
           </button>
           <span className="text-xs text-muted-foreground">
             Works offline · queue keeps {rules.max_queue} captures for{" "}
@@ -410,9 +414,9 @@ export default function FieldSync() {
           onClick={downloadBackup}
           disabled={queue.length === 0}
           className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
-          title="Download the unsynced queue as a JSON file you can keep"
+          title={t("Download the unsynced queue as a JSON file you can keep")}
         >
-          Back up unsynced captures
+          {t("Back up unsynced captures")}
         </button>
       </div>
 
@@ -436,7 +440,7 @@ export default function FieldSync() {
           className="mb-6 rounded-lg border bg-muted/40 p-4 text-sm"
           role="status"
         >
-          <p className="font-medium">Last sync</p>
+          <p className="font-medium">{t("Last sync")}</p>
           <p>
             {syncReport.synced} synced
             {syncReport.duplicates > 0 &&
@@ -494,7 +498,7 @@ export default function FieldSync() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-amber-600/10 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-400">
-                    Queued
+                    {t("Queued")}
                   </span>
                   <button
                     onClick={() => {
@@ -504,7 +508,7 @@ export default function FieldSync() {
                     className="text-xs text-muted-foreground underline"
                     aria-label={`Delete queued capture ${capture.project_label}`}
                   >
-                    Discard
+                    {t("Discard")}
                   </button>
                 </div>
               </div>
@@ -528,7 +532,7 @@ export default function FieldSync() {
             }}
             className="text-xs text-muted-foreground underline"
           >
-            Discard all queued captures
+            {t("Discard all queued captures")}
           </button>
         </div>
       )}
@@ -537,7 +541,7 @@ export default function FieldSync() {
 
       {/* How it works: the honesty contract, in plain words */}
       <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">How Field Sync works</h2>
+        <h2 className="mb-2 font-semibold">{t("How Field Sync works")}</h2>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
             Captures are stored on this device only until the server confirms

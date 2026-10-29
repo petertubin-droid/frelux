@@ -30,8 +30,10 @@ import type {
   EstimationCalcRule,
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ContractorCredit() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Contractor Credit Score", path: "/contractor-credit" },
@@ -98,7 +100,7 @@ export default function ContractorCredit() {
             { label: "Construction Tools", path: "/construction-tools" },
             { label: "Contractor Credit Score" },
           ]}
-          title="Contractor Credit Score"
+          title={t("Contractor Credit Score")}
           subtitle="Before you commit money to a contractor, check the record: on-time delivery, estimate accuracy, verified job volume and disputes: scored deterministically from FRELUX-verified job history. Unverified history is refused, never scored zero."
         />
 
@@ -110,13 +112,13 @@ export default function ContractorCredit() {
 
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
           <label className="grid gap-1 text-sm font-medium">
-            Contractor
+            {t("Contractor")}
             <select
               className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
               value={contractorId}
               onChange={(e) => run(e.target.value)}
             >
-              <option value="">Select a contractor to check</option>
+              <option value="">{t("Select a contractor to check")}</option>
               {profiles.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.contractor_name}
@@ -150,14 +152,14 @@ export default function ContractorCredit() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Credit score
+                  {t("Credit score")}
                 </p>
                 <p className="mt-1 text-3xl font-semibold">{result.score}</p>
                 <p className="text-xs text-muted-foreground">out of 100</p>
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Band
+                  {t("Band")}
                 </p>
                 <p className="mt-1 text-3xl font-semibold">{result.band}</p>
                 <p className="text-xs text-muted-foreground">
@@ -169,7 +171,7 @@ export default function ContractorCredit() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Reliability
+                  {t("Reliability")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.reliability_pct}%
@@ -178,7 +180,7 @@ export default function ContractorCredit() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Estimate accuracy
+                  {t("Estimate accuracy")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.accuracy_pct}%
@@ -189,7 +191,7 @@ export default function ContractorCredit() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Verified volume
+                  {t("Verified volume")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.volume_pct}%
@@ -200,7 +202,7 @@ export default function ContractorCredit() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Dispute penalty
+                  {t("Dispute penalty")}
                 </p>
                 <p className="mt-1 text-xl font-semibold text-destructive">
                   −{result.penalty}
@@ -223,7 +225,7 @@ export default function ContractorCredit() {
 
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
-                How this was determined
+                {t("How this was determined")}
               </summary>
               <ul className="mt-2 space-y-1">
                 {result.steps.map((s, i) => (

@@ -11,6 +11,7 @@ import {
 } from "@/lib/brand-studio";
 import type { DbBrandProfile, DbPdfBrandingTemplate } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface Props {
   access: BSAccess | null;
@@ -25,6 +26,7 @@ export function PdfTemplateSection({
   selectedProfileId,
   onSelectProfile,
 }: Props) {
+  const { t } = useLanguage();
   const [templates, setTemplates] = useState<DbPdfBrandingTemplate[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -60,20 +62,20 @@ export function PdfTemplateSection({
       {/* Profile selector */}
       <div className="rounded-2xl border border-border bg-card p-5 dark:border-white/10 dark:bg-white/5">
         <h2 className="mb-3 text-base font-bold text-foreground dark:text-primary-foreground">
-          Select Brand Profile
+          {t("Select Brand Profile")}
         </h2>
         {profiles.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No saved brand profiles. Create one in Brand Identity first.
+            {t("No saved brand profiles. Create one in Brand Identity first.")}
           </p>
         ) : (
           <select
-            aria-label="Brand profile for PDF header"
+            aria-label={t("Brand profile for PDF header")}
             value={selectedProfileId ?? ""}
             onChange={(e) => onSelectProfile(e.target.value || null)}
             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
           >
-            <option value="">Select a profile</option>
+            <option value="">{t("Select a profile")}</option>
             {profiles.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
@@ -86,7 +88,7 @@ export function PdfTemplateSection({
       {/* Templates */}
       <div className="rounded-2xl border border-border bg-card p-5 dark:border-white/10 dark:bg-white/5">
         <h2 className="mb-3 text-base font-bold text-foreground dark:text-primary-foreground">
-          PDF Templates
+          {t("PDF Templates")}
         </h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {templates.map((tpl) => {
@@ -122,7 +124,7 @@ export function PdfTemplateSection({
                 )}
                 {tpl.rewarded_unlock_enabled && (
                   <p className="mt-1 text-xs text-brand-purple">
-                    Can unlock via rewarded ad
+                    {t("Can unlock via rewarded ad")}
                   </p>
                 )}
                 {!isLocked && selectedProfileId && (

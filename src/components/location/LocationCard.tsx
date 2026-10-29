@@ -45,6 +45,7 @@ import {
 } from "@/lib/location-intelligence";
 import { Button } from "@/components/ui/shadcn/button";
 import { useMarket } from "@/lib/international/market-context";
+import { tx } from "@/lib/i18n";
 
 export interface LocationCardProps {
   /** Existing canonical location loaded from the project/property row. */
@@ -152,14 +153,14 @@ export default function LocationCard({
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300">
           <AlertTriangle className="h-3 w-3" />
-          Regional data unavailable
+          {tx("Regional data unavailable")}
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
         <Globe2 className="h-3 w-3" />
-        Country needs confirmation
+        {tx("Country needs confirmation")}
       </span>
     );
   }, [loc.location, regional, regionalLoading]);
@@ -184,10 +185,10 @@ export default function LocationCard({
           </span>
           <div>
             <h3 className="text-sm font-semibold leading-tight">
-              Project Location
+              {tx("Project Location")}
             </h3>
             <p className="text-[11px] text-muted-foreground">
-              Sets regional context, currency, units, terminology
+              {tx("Sets regional context, currency, units, terminology")}
             </p>
           </div>
         </div>
@@ -198,7 +199,7 @@ export default function LocationCard({
             data-testid="change-location"
           >
             <Pencil className="h-3 w-3" />
-            Change
+            {tx("Change")}
           </button>
         )}
       </div>
@@ -219,7 +220,7 @@ export default function LocationCard({
                 data-testid="use-my-location"
               >
                 <Navigation className="h-4 w-4" />
-                Use My Location
+                {tx("Use My Location")}
               </Button>
               <Button
                 variant="outline"
@@ -229,7 +230,7 @@ export default function LocationCard({
                 data-testid="open-search"
               >
                 <Search className="h-4 w-4" />
-                Search Location
+                {tx("Search Location")}
               </Button>
             </div>
             <p className="text-[11px] leading-relaxed text-muted-foreground">
@@ -249,7 +250,7 @@ export default function LocationCard({
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
             <p className="text-sm font-medium">Detecting your location…</p>
             <p className="text-xs text-muted-foreground">
-              Allow location access in your browser if prompted.
+              {tx("Allow location access in your browser if prompted.")}
             </p>
           </div>
         )}
@@ -260,7 +261,9 @@ export default function LocationCard({
             <div className="flex items-start gap-2">
               <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
               <div className="text-sm">
-                <p className="font-medium">Location permission denied</p>
+                <p className="font-medium">
+                  {tx("Location permission denied")}
+                </p>
                 <p className="text-muted-foreground">{loc.error}</p>
               </div>
             </div>
@@ -274,7 +277,7 @@ export default function LocationCard({
                 }}
                 data-testid="denied-manual-fallback"
               >
-                Enter manually instead
+                {tx("Enter manually instead")}
               </Button>
               <Button
                 variant="ghost"
@@ -284,7 +287,7 @@ export default function LocationCard({
                 data-testid="retry-permission"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
-                Retry permission
+                {tx("Retry permission")}
               </Button>
             </div>
             {!editing && (
@@ -296,7 +299,7 @@ export default function LocationCard({
                 data-testid="denied-search-fallback"
               >
                 <Search className="h-3.5 w-3.5" />
-                Search for my location
+                {tx("Search for my location")}
               </Button>
             )}
           </div>
@@ -308,7 +311,9 @@ export default function LocationCard({
             <div className="flex items-start gap-2">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
               <div className="text-sm">
-                <p className="font-medium">Location detection unavailable</p>
+                <p className="font-medium">
+                  {tx("Location detection unavailable")}
+                </p>
                 <p className="text-muted-foreground">{loc.error}</p>
               </div>
             </div>
@@ -319,7 +324,7 @@ export default function LocationCard({
                 onClick={() => loc.useMyLocation()}
                 data-testid="retry-detect"
               >
-                Try again
+                {tx("Try again")}
               </Button>
               <Button
                 variant="outline"
@@ -329,7 +334,7 @@ export default function LocationCard({
                 }}
                 data-testid="unavailable-manual-fallback"
               >
-                Enter manually
+                {tx("Enter manually")}
               </Button>
             </div>
           </div>
@@ -379,7 +384,7 @@ export default function LocationCard({
                 {formatCoordinates(loc.location) && (
                   <div className="rounded-lg bg-muted px-2.5 py-1.5">
                     <span className="block text-muted-foreground">
-                      Coordinates
+                      {tx("Coordinates")}
                     </span>
                     <span className="font-mono">
                       {formatCoordinates(loc.location)}
@@ -389,7 +394,7 @@ export default function LocationCard({
                 {formatAccuracy(loc.location) && (
                   <div className="rounded-lg bg-muted px-2.5 py-1.5">
                     <span className="block text-muted-foreground">
-                      Accuracy
+                      {tx("Accuracy")}
                     </span>
                     <span className="font-mono">
                       {formatAccuracy(loc.location)}
@@ -426,7 +431,7 @@ export default function LocationCard({
               >
                 <div className="mb-1.5 flex items-center justify-between gap-2">
                   <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    Regional intelligence
+                    {tx("Regional intelligence")}
                   </span>
                   {regionalBadge}
                 </div>
@@ -440,19 +445,19 @@ export default function LocationCard({
                   <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs sm:grid-cols-3">
                     <div>
                       <span className="block text-[11px] text-muted-foreground">
-                        Country
+                        {tx("Country")}
                       </span>
                       {regional.country_name}
                     </div>
                     <div>
                       <span className="block text-[11px] text-muted-foreground">
-                        Currency
+                        {tx("Currency")}
                       </span>
                       {regional.currency_code} ({regional.currency_symbol})
                     </div>
                     <div>
                       <span className="block text-[11px] text-muted-foreground">
-                        Measurement
+                        {tx("Measurement")}
                       </span>
                       {regional.measurement_system}
                     </div>
@@ -503,7 +508,7 @@ export default function LocationCard({
                     onClick={() => loc.clearLocation()}
                     disabled={saving}
                   >
-                    Discard
+                    {tx("Discard")}
                   </Button>
                 </div>
               )}
@@ -526,10 +531,10 @@ export default function LocationCard({
                   <div className="relative flex-1">
                     <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                     <input
-                      aria-label="Search address, city, or postcode"
+                      aria-label={tx("Search address, city, or postcode")}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search address, city, or postcode…"
+                      placeholder={tx("Search address, city, or postcode…")}
                       className="h-9 w-full rounded-md border border-input bg-background pl-8 pr-3 text-sm outline-none focus:ring-2 focus:ring-ring"
                       data-testid="search-input"
                     />
@@ -600,11 +605,13 @@ export default function LocationCard({
                 className="rounded-lg border p-3 text-xs"
                 data-testid="map-picker-slot"
               >
-                Map provider configured, pin selection renders here.
+                {tx("Map provider configured, pin selection renders here.")}
               </div>
             ) : (
               <p className="text-[11px] text-muted-foreground">
-                Map pin selection is unavailable, no map provider configured.
+                {tx(
+                  "Map pin selection is unavailable, no map provider configured.",
+                )}
               </p>
             )}
 
@@ -622,7 +629,7 @@ export default function LocationCard({
                 size="sm"
                 onClick={() => setEditing(false)}
               >
-                <X className="h-3.5 w-3.5" /> Close
+                <X className="h-3.5 w-3.5" /> {tx("Close")}
               </Button>
               {!loc.permissionDeniedRemembered && (
                 <Button
@@ -635,7 +642,7 @@ export default function LocationCard({
                   }}
                   data-testid="editing-use-gps"
                 >
-                  <Navigation className="h-3.5 w-3.5" /> Use GPS
+                  <Navigation className="h-3.5 w-3.5" /> {tx("Use GPS")}
                 </Button>
               )}
             </div>
@@ -686,65 +693,65 @@ function ManualEntry({
   return (
     <div className="space-y-2 rounded-lg border p-3" data-testid="manual-entry">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-        Enter location manually
+        {tx("Enter location manually")}
       </p>
       <div className="grid grid-cols-2 gap-2">
         <input
-          aria-label="Latitude"
+          aria-label={tx("Latitude")}
           value={lat}
           onChange={(e) => setLat(e.target.value)}
           inputMode="decimal"
-          placeholder="Latitude (e.g. 6.5244)"
+          placeholder={tx("Latitude (e.g. 6.5244)")}
           className="h-8 rounded-md border border-input bg-background px-2 text-xs outline-none focus:ring-2 focus:ring-ring"
           data-testid="manual-lat"
         />
         <input
-          aria-label="Longitude"
+          aria-label={tx("Longitude")}
           value={lng}
           onChange={(e) => setLng(e.target.value)}
           inputMode="decimal"
-          placeholder="Longitude (e.g. 3.3792)"
+          placeholder={tx("Longitude (e.g. 3.3792)")}
           className="h-8 rounded-md border border-input bg-background px-2 text-xs outline-none focus:ring-2 focus:ring-ring"
           data-testid="manual-lng"
         />
         <input
-          aria-label="Address"
+          aria-label={tx("Address")}
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          placeholder="Address (optional)"
+          placeholder={tx("Address (optional)")}
           className="col-span-2 h-8 rounded-md border border-input bg-background px-2 text-xs outline-none focus:ring-2 focus:ring-ring"
           data-testid="manual-address"
         />
         <input
-          aria-label="City or area"
+          aria-label={tx("City or area")}
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          placeholder="City / area (optional)"
+          placeholder={tx("City / area (optional)")}
           className="h-8 rounded-md border border-input bg-background px-2 text-xs outline-none focus:ring-2 focus:ring-ring"
           data-testid="manual-city"
         />
         <input
-          aria-label="State or region"
+          aria-label={tx("State or region")}
           value={region}
           onChange={(e) => setRegion(e.target.value)}
-          placeholder="State / region (optional)"
+          placeholder={tx("State / region (optional)")}
           className="h-8 rounded-md border border-input bg-background px-2 text-xs outline-none focus:ring-2 focus:ring-ring"
           data-testid="manual-region"
         />
         <input
-          aria-label="Country code"
+          aria-label={tx("Country code")}
           value={countryCode}
           onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
           maxLength={2}
-          placeholder="Country code (e.g. NG)"
+          placeholder={tx("Country code (e.g. NG)")}
           className="h-8 rounded-md border border-input bg-background px-2 text-xs uppercase outline-none focus:ring-2 focus:ring-ring"
           data-testid="manual-country"
         />
         <input
-          aria-label="Postcode"
+          aria-label={tx("Postcode")}
           value={postcode}
           onChange={(e) => setPostcode(e.target.value)}
-          placeholder="Postcode (optional)"
+          placeholder={tx("Postcode (optional)")}
           className="h-8 rounded-md border border-input bg-background px-2 text-xs outline-none focus:ring-2 focus:ring-ring"
           data-testid="manual-postcode"
         />
@@ -752,10 +759,10 @@ function ManualEntry({
       {err && <p className="text-[11px] text-destructive">{err}</p>}
       <div className="flex gap-2">
         <Button size="sm" onClick={submit} data-testid="manual-submit">
-          Set location
+          {tx("Set location")}
         </Button>
         <Button size="sm" variant="ghost" onClick={onCancel}>
-          Cancel
+          {tx("Cancel")}
         </Button>
       </div>
       <p className="text-[11px] leading-relaxed text-muted-foreground">

@@ -42,10 +42,12 @@ import PageHeader from "@/components/ui/PageHeader";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { formatByCode } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 const QUICK_EMOJIS = ["👍", "❤️", "🔥", "📈", "🇳🇬", "💰"];
 
 export default function WorkerChannels() {
+  const { t } = useLanguage();
   const { channelSlug } = useParams();
   const navigate = useNavigate();
   const { user, profile } = useAuth();
@@ -335,7 +337,7 @@ export default function WorkerChannels() {
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <Users className="mx-auto mb-4 h-12 w-12 text-brand-purple" />
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Worker Channels
+          {t("Worker Channels")}
         </h1>
         <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
           You need to sign in with a worker account to access the nationwide
@@ -345,7 +347,7 @@ export default function WorkerChannels() {
           to="/login/"
           className="mt-6 inline-flex items-center rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground"
         >
-          Sign In
+          {t("Sign In")}
         </Link>
       </div>
     );
@@ -360,7 +362,7 @@ export default function WorkerChannels() {
           className="mx-auto mb-4 h-12 w-12 text-amber-500"
         />
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Worker Access Only
+          {t("Worker Access Only")}
         </h1>
         <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
           These channels are exclusive to FRELUX worker accounts. Register as a
@@ -370,7 +372,7 @@ export default function WorkerChannels() {
           to="/pro-connect/register/"
           className="mt-6 inline-flex items-center rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground"
         >
-          Become a Professional
+          {t("Become a Professional")}
         </Link>
       </div>
     );
@@ -389,11 +391,12 @@ export default function WorkerChannels() {
           className="mx-auto mb-4 h-12 w-12 text-amber-500"
         />
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Verification Required
+          {t("Verification Required")}
         </h1>
         <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
-          Worker Channels are available to <strong>FRELUX Verified</strong>{" "}
-          (Tier 2) and <strong>FRELUX Pro</strong> (Tier 3) members only.
+          {t("Worker Channels are available to")}{" "}
+          <strong>{t("FRELUX Verified")}</strong> (Tier 2) and{" "}
+          <strong>{t("FRELUX Pro")}</strong> (Tier 3) members only.
         </p>
         <p className="mt-1 text-sm text-muted-foreground">
           Your current tier:{" "}
@@ -409,7 +412,7 @@ export default function WorkerChannels() {
           to="/pro-connect/register/"
           className="mt-6 inline-flex items-center rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground"
         >
-          Complete Verification
+          {t("Complete Verification")}
         </Link>
       </div>
     );
@@ -426,7 +429,7 @@ export default function WorkerChannels() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <PageHeader
-        title="Worker Channels"
+        title={t("Worker Channels")}
         subtitle="Connect with fellow workers nationwide. Share price updates, market intel, and professional tips."
       />
 
@@ -446,7 +449,7 @@ export default function WorkerChannels() {
           <div className="mb-2 flex items-center gap-2 px-2">
             <Hash className="h-4 w-4 text-brand-purple" />
             <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-              Channels
+              {t("Channels")}
             </span>
           </div>
           {channels.map((ch) => (
@@ -541,14 +544,14 @@ export default function WorkerChannels() {
               {replyingTo && (
                 <div className="flex items-center justify-between border-t border-border/40 bg-muted/50 px-4 py-2 dark:border-white/10 dark:bg-white/5">
                   <span className="text-xs text-muted-foreground">
-                    Replying to a message
+                    {t("Replying to a message")}
                   </span>
                   <Button
                     variant="ghost"
                     onClick={() => setReplyingTo(null)}
                     className="text-xs text-brand-purple"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </Button>
                 </div>
               )}
@@ -559,12 +562,12 @@ export default function WorkerChannels() {
                   <div className="space-y-3 rounded-lg border border-brand-purple/20 bg-primary/5 p-3">
                     <div className="flex items-center gap-2 text-sm font-semibold text-brand-purple">
                       <TrendingUp className="h-4 w-4" />
-                      Share Price Update
+                      {t("Share Price Update")}
                     </div>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <input
                         type="text"
-                        placeholder="Item (e.g. 20L Premium Paint)"
+                        placeholder={t("Item (e.g. 20L Premium Paint)")}
                         className="input-field"
                         value={priceForm.item}
                         onChange={(e) =>
@@ -573,7 +576,7 @@ export default function WorkerChannels() {
                       />
                       <input
                         type="number"
-                        placeholder="Price (₦)"
+                        placeholder={t("Price (₦)")}
                         className="input-field"
                         value={priceForm.amount}
                         onChange={(e) =>
@@ -582,7 +585,7 @@ export default function WorkerChannels() {
                       />
                       <input
                         type="text"
-                        placeholder="Location (e.g. city, area)"
+                        placeholder={t("Location (e.g. city, area)")}
                         className="input-field"
                         value={priceForm.location}
                         onChange={(e) =>
@@ -594,7 +597,7 @@ export default function WorkerChannels() {
                       />
                       <input
                         type="text"
-                        placeholder="Store/Market (optional)"
+                        placeholder={t("Store/Market (optional)")}
                         className="input-field"
                         value={priceForm.store}
                         onChange={(e) =>
@@ -608,7 +611,7 @@ export default function WorkerChannels() {
                         onClick={() => setShowPriceUpdate(false)}
                         className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted dark:hover:bg-white/5"
                       >
-                        Cancel
+                        {t("Cancel")}
                       </Button>
                       <Button
                         variant="default"
@@ -618,7 +621,7 @@ export default function WorkerChannels() {
                         }
                         className="rounded-lg px-4 py-1.5 text-sm font-semibold disabled:opacity-50"
                       >
-                        Share Price
+                        {t("Share Price")}
                       </Button>
                     </div>
                   </div>
@@ -628,7 +631,7 @@ export default function WorkerChannels() {
                       variant="ghost"
                       onClick={() => setShowPriceUpdate(true)}
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border text-brand-purple transition-colors hover:bg-primary/5 dark:border-white/10"
-                      title="Share price update"
+                      title={t("Share price update")}
                     >
                       <TrendingUp className="h-5 w-5" />
                     </Button>
@@ -659,7 +662,7 @@ export default function WorkerChannels() {
               <div>
                 <MessageSquare className="mx-auto mb-3 h-10 w-10 text-muted-foreground/80 dark:text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
-                  Select a channel to start chatting
+                  {t("Select a channel to start chatting")}
                 </p>
               </div>
             </div>
@@ -747,20 +750,26 @@ export default function WorkerChannels() {
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               {viewingProfile.years_experience != null && (
                 <div>
-                  <p className="text-xs text-muted-foreground">Experience</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("Experience")}
+                  </p>
                   <p className="font-semibold text-foreground dark:text-primary-foreground">
                     {viewingProfile.years_experience} years
                   </p>
                 </div>
               )}
               <div>
-                <p className="text-xs text-muted-foreground">Phone Verified</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("Phone Verified")}
+                </p>
                 <p className="font-semibold {viewingProfile.phone_verified ? 'text-emerald-500' : 'text-muted-foreground'}">
                   {viewingProfile.phone_verified ? "✓ Yes" : "✗ No"}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">NIN Verified</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("NIN Verified")}
+                </p>
                 <p
                   className={`font-semibold ${viewingProfile.nin_verified ? "text-emerald-500" : "text-muted-foreground"}`}
                 >
@@ -768,7 +777,9 @@ export default function WorkerChannels() {
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Mobile OTP</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("Mobile OTP")}
+                </p>
                 <p
                   className={`font-semibold ${viewingProfile.mobile_otp_verified ? "text-emerald-500" : "text-muted-foreground"}`}
                 >
@@ -782,7 +793,7 @@ export default function WorkerChannels() {
               onClick={() => setViewingProfile(null)}
               className="mt-5 block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-semibold text-primary-foreground"
             >
-              View Full Profile
+              {t("View Full Profile")}
             </Link>
             {viewingProfile.id && (
               <Button
@@ -792,7 +803,7 @@ export default function WorkerChannels() {
                 }
                 className="mt-2 w-full rounded-lg border border-red-200 py-2 text-center text-xs font-medium text-red-500 hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10"
               >
-                Report This User
+                {t("Report This User")}
               </Button>
             )}
           </div>
@@ -810,7 +821,7 @@ export default function WorkerChannels() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-              Report User
+              {t("Report User")}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
               Report inappropriate behavior. The user's NIN and verification
@@ -827,23 +838,23 @@ export default function WorkerChannels() {
                   onChange={(e) => setReportReason(e.target.value)}
                   className="w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background"
                 >
-                  <option value="">Select a reason</option>
-                  <option value="spam">Spam</option>
-                  <option value="harassment">Harassment</option>
-                  <option value="scam">Scam / Fraud</option>
-                  <option value="misinformation">Misinformation</option>
-                  <option value="offensive">Offensive Content</option>
-                  <option value="other">Other</option>
+                  <option value="">{t("Select a reason")}</option>
+                  <option value="spam">{t("Spam")}</option>
+                  <option value="harassment">{t("Harassment")}</option>
+                  <option value="scam">{t("Scam / Fraud")}</option>
+                  <option value="misinformation">{t("Misinformation")}</option>
+                  <option value="offensive">{t("Offensive Content")}</option>
+                  <option value="other">{t("Other")}</option>
                 </select>
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                  Description (optional)
+                  {t("Description (optional)")}
                 </label>
                 <textarea
                   value={reportDesc}
                   onChange={(e) => setReportDesc(e.target.value)}
-                  placeholder="Provide additional details..."
+                  placeholder={t("Provide additional details...")}
                   rows={3}
                   className="w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background"
                 />
@@ -863,7 +874,7 @@ export default function WorkerChannels() {
                   onClick={() => setShowReportModal(false)}
                   className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                 >
-                  Cancel
+                  {t("Cancel")}
                 </Button>
                 <Button
                   variant="ghost"
@@ -904,6 +915,7 @@ function MessageBubble({
   onProfileView: () => void;
   replyTo: string | null;
 }) {
+  const { t } = useLanguage();
   const [showReactions, setShowReactions] = useState(false);
   const isOwn = message.user_id === currentUserId;
   const isSystem =
@@ -952,7 +964,7 @@ function MessageBubble({
               isOwn ? "bg-white/10" : "bg-muted dark:bg-white/5",
             )}
           >
-            Replying to a message
+            {t("Replying to a message")}
           </div>
         )}
 
@@ -965,7 +977,7 @@ function MessageBubble({
           >
             <div className="flex items-center gap-1.5 text-xs font-semibold">
               <ShoppingCart className="h-3.5 w-3.5" />
-              <span>PRICE UPDATE</span>
+              <span>{t("PRICE UPDATE")}</span>
             </div>
             <div className="mt-1 text-sm font-bold">{message.price_item}</div>
             {message.price_amount != null && (
@@ -1006,7 +1018,7 @@ function MessageBubble({
           variant="ghost"
           onClick={() => setShowReactions(!showReactions)}
           className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
-          title="React"
+          title={t("React")}
         >
           <span className="text-xs">😊</span>
         </Button>
@@ -1014,7 +1026,7 @@ function MessageBubble({
           variant="ghost"
           onClick={() => onReply(message.id)}
           className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
-          title="Reply"
+          title={t("Reply")}
         >
           <MessageSquare className="h-3.5 w-3.5" />
         </Button>
@@ -1023,7 +1035,7 @@ function MessageBubble({
             variant="ghost"
             onClick={() => onDelete(message.id)}
             className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500"
-            title="Delete"
+            title={t("Delete")}
           >
             <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
           </Button>

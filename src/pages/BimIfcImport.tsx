@@ -25,6 +25,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { serializeIfcTakeoffExport } from "@/lib/estimation/ifc-takeoff-export";
 import { Button } from "@/components/ui/shadcn/button";
 import { Download } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 import {
   parseIfcModel,
   type IfcModelParseResult,
@@ -51,6 +52,7 @@ const CATEGORY_ORDER: EstimateCategory[] = [
 ];
 
 export default function BimIfcImport() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "BIM/IFC Import", path: "/bim-ifc-import" },
@@ -164,13 +166,13 @@ export default function BimIfcImport() {
             { label: "Construction Tools", path: "/construction-tools" },
             { label: "BIM/IFC Import" },
           ]}
-          title="BIM/IFC Import"
+          title={t("BIM/IFC Import")}
           subtitle="Upload an architect's .ifc (BIM) export and get an instant material takeoff: walls, slabs, roofs, doors, windows with the areas and volumes the file itself declares. Parsed entirely in your browser: the file never leaves your device, no AI is involved, and if the export contains no quantities you get honest element counts with a warning, never invented areas."
         />
 
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
           <label className="grid gap-2 text-sm font-medium">
-            IFC file (.ifc or .ifczip)
+            {t("IFC file (.ifc or .ifczip)")}
             <input
               type="file"
               accept=".ifc,.ifczip"
@@ -179,7 +181,9 @@ export default function BimIfcImport() {
             />
           </label>
           <p className="mt-2 text-xs text-muted-foreground">
-            The file is parsed locally in your browser. Nothing is uploaded.
+            {t(
+              "The file is parsed locally in your browser. Nothing is uploaded.",
+            )}
           </p>
           {busy && (
             <p className="mt-2 text-sm text-muted-foreground">Parsing…</p>
@@ -192,7 +196,7 @@ export default function BimIfcImport() {
         {validation && (
           <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-semibold">Import validation</p>
+              <p className="text-sm font-semibold">{t("Import validation")}</p>
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                   validation.verdict === "invalid"
@@ -265,7 +269,7 @@ export default function BimIfcImport() {
             ))}
             {result.warnings.length === 0 && (
               <p className="text-sm text-muted-foreground">
-                The file could not be turned into a takeoff.
+                {t("The file could not be turned into a takeoff.")}
               </p>
             )}
           </div>
@@ -276,7 +280,7 @@ export default function BimIfcImport() {
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  File
+                  {t("File")}
                 </p>
                 <p
                   className="mt-1 truncate text-lg font-semibold"
@@ -291,7 +295,7 @@ export default function BimIfcImport() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Elements
+                  {t("Elements")}
                 </p>
                 <p className="mt-1 text-lg font-semibold">
                   {result.elements
@@ -304,7 +308,7 @@ export default function BimIfcImport() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Quantities
+                  {t("Quantities")}
                 </p>
                 <p className="mt-1 text-lg font-semibold">
                   {result.has_quantities
@@ -321,7 +325,7 @@ export default function BimIfcImport() {
 
             <section className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
               <h3 className="text-sm font-semibold">
-                Observed IFC schema coverage
+                {t("Observed IFC schema coverage")}
               </h3>
               <p className="mt-1 text-xs text-muted-foreground">
                 Declared schema:{" "}
@@ -332,7 +336,9 @@ export default function BimIfcImport() {
               </p>
               <div className="mt-3 grid gap-3 sm:grid-cols-3">
                 <div>
-                  <p className="text-xs font-medium">Spatial structures</p>
+                  <p className="text-xs font-medium">
+                    {t("Spatial structures")}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {Object.entries(result.schema_coverage.spatial_structures)
                       .map(
@@ -344,7 +350,7 @@ export default function BimIfcImport() {
                 </div>
                 <div>
                   <p className="text-xs font-medium">
-                    Recognized takeoff types
+                    {t("Recognized takeoff types")}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {Object.entries(result.schema_coverage.recognized_elements)
@@ -357,7 +363,7 @@ export default function BimIfcImport() {
                 </div>
                 <div>
                   <p className="text-xs font-medium">
-                    Geometry representation entities
+                    {t("Geometry representation entities")}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {Object.entries(
@@ -380,7 +386,7 @@ export default function BimIfcImport() {
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 dark:border-white/5">
               <div>
                 <h3 className="text-sm font-semibold">
-                  Portable review record
+                  {t("Portable review record")}
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Export declared quantities and warnings as JSON. The source
@@ -405,19 +411,22 @@ export default function BimIfcImport() {
                   URL.revokeObjectURL(url);
                 }}
               >
-                <Download className="mr-2 h-4 w-4" /> Export review record
+                <Download className="mr-2 h-4 w-4" />{" "}
+                {t("Export review record")}
               </Button>
             </div>
             <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-              <h3 className="mb-2 text-sm font-semibold">Material takeoff</h3>
+              <h3 className="mb-2 text-sm font-semibold">
+                {t("Material takeoff")}
+              </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="text-xs uppercase text-muted-foreground">
                     <tr>
-                      <th className="py-2 text-left">IFC type</th>
-                      <th className="py-2 text-right">Count</th>
+                      <th className="py-2 text-left">{t("IFC type")}</th>
+                      <th className="py-2 text-right">{t("Count")}</th>
                       <th className="py-2 text-left">
-                        Declared quantities (file totals)
+                        {t("Declared quantities (file totals)")}
                       </th>
                     </tr>
                   </thead>
@@ -500,7 +509,7 @@ export default function BimIfcImport() {
 
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
-                How this was determined
+                {t("How this was determined")}
               </summary>
               <ul className="mt-2 space-y-1">
                 {result.steps.map((s, i) => (
@@ -534,6 +543,7 @@ function Bim5dSection({
   onElementSelect: (id: string | null) => void;
   onLineSelect: (lineId: string) => void;
 }) {
+  const { t } = useLanguage();
   const handleViewerSelect = useCallback(onElementSelect, [onElementSelect]);
   const highlightedLineIds = useMemo(
     () =>
@@ -611,9 +621,9 @@ function Bim5dSection({
           <table className="w-full text-xs">
             <thead className="text-[11px] uppercase text-muted-foreground">
               <tr>
-                <th className="py-2 text-left">Bill of Quantities</th>
-                <th className="py-2 text-right">Qty</th>
-                <th className="py-2 text-right">Source</th>
+                <th className="py-2 text-left">{t("Bill of Quantities")}</th>
+                <th className="py-2 text-right">{t("Qty")}</th>
+                <th className="py-2 text-right">{t("Source")}</th>
               </tr>
             </thead>
             <tbody>

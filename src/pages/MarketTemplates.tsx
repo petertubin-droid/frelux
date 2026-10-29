@@ -15,6 +15,7 @@ import {
   resolveTemplateMarketContext,
 } from "@/lib/templates-market";
 import { describeTemplateForMarket } from "@/lib/templates-global";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * Market template hub: /market/:code/templates
@@ -23,6 +24,7 @@ import { describeTemplateForMarket } from "@/lib/templates-global";
  * template library (the sitemap and prerender pipeline both include every page).
  */
 export default function MarketTemplates() {
+  const { t: tr } = useLanguage();
   const { code } = useParams<{ code: string }>();
   const profile = useMemo(() => getTemplateMarketProfile(code), [code]);
   const marketContext = useMemo(
@@ -103,7 +105,7 @@ export default function MarketTemplates() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <h1 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
-          Market Not Covered Yet
+          {tr("Market Not Covered Yet")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
           FRELUX publishes templates for 32 markets. Browse the global template
@@ -114,13 +116,13 @@ export default function MarketTemplates() {
             to="/templates/"
             className="text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
           >
-            All templates
+            {tr("All templates")}
           </Link>
           <Link
             to="/global-markets"
             className="text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
           >
-            Supported markets
+            {tr("Supported markets")}
           </Link>
         </div>
       </div>
@@ -213,7 +215,7 @@ export default function MarketTemplates() {
                           : t.description}
                       </span>
                       <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
-                        Open template
+                        {tr("Open template")}
                         <ChevronRight
                           aria-hidden="true"
                           className="h-3.5 w-3.5"
@@ -229,11 +231,11 @@ export default function MarketTemplates() {
       )}
 
       <nav
-        aria-label="Template hubs in other markets"
+        aria-label={tr("Template hubs in other markets")}
         className="mt-12 rounded-xl border border-border bg-card p-5 dark:border-white/10 dark:bg-card"
       >
         <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-          Templates in other markets
+          {tr("Templates in other markets")}
         </h2>
         <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
           {listTemplateMarkets().map((p) => (

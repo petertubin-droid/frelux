@@ -1,5 +1,6 @@
 import { Edit } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const CONDITIONS = [
   {
@@ -36,10 +37,11 @@ const CONDITIONS = [
 ];
 
 export default function AdminSurfaceConditions() {
+  const { t } = useLanguage();
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Surface Conditions</h1>
+        <h1 className="text-2xl font-bold">{t("Surface Conditions")}</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Manage configurable surface condition options and their preparation
           recommendations.
@@ -54,7 +56,10 @@ export default function AdminSurfaceConditions() {
             <h3 className="font-semibold mb-1">{c.name}</h3>
             <p className="text-sm text-muted-foreground">{c.desc}</p>
             <div className="mt-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button variant="ghost" className="rounded-lg p-1.5 transition-all hover:scale-110">
+              <Button
+                variant="ghost"
+                className="rounded-lg p-1.5 transition-all hover:scale-110"
+              >
                 <Edit className="h-4 w-4" />
               </Button>
             </div>

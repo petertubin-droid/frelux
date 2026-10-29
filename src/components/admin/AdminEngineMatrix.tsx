@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useLanguage } from "@/lib/i18n";
 import {
   Search,
   Filter,
@@ -72,6 +73,7 @@ const STATUS_CONFIG: Record<
 };
 
 export const AdminEngineMatrix: React.FC = () => {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedMarket, setSelectedMarket] = useState("ALL");
@@ -126,7 +128,7 @@ export const AdminEngineMatrix: React.FC = () => {
       <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs text-zinc-300 space-y-2">
         <div className="font-semibold text-amber-400 flex items-center gap-2">
           <Cpu className="w-4 h-4" />
-          Registry reconciliation
+          {t("Registry reconciliation")}
         </div>
         <ul className="list-disc list-inside space-y-1 text-zinc-400">
           {report.reconciliationNotes.map((note, i) => (
@@ -139,17 +141,17 @@ export const AdminEngineMatrix: React.FC = () => {
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
-            aria-label="Search engines"
+            aria-label={t("Search engines")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search engines, formulas, or files..."
+            placeholder={t("Search engines, formulas, or files...")}
             className="w-full pl-9 pr-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-200"
           />
         </div>
         <div className="flex items-center gap-2 w-full md:w-auto">
           <Filter className="w-4 h-4 text-zinc-500" />
           <select
-            aria-label="Filter by category"
+            aria-label={t("Filter by category")}
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2"
@@ -164,12 +166,12 @@ export const AdminEngineMatrix: React.FC = () => {
             ))}
           </select>
           <select
-            aria-label="Filter by market"
+            aria-label={t("Filter by market")}
             value={selectedMarket}
             onChange={(e) => setSelectedMarket(e.target.value)}
             className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2"
           >
-            <option value="ALL">All 20 markets</option>
+            <option value="ALL">{t("All 20 markets")}</option>
             {ALL_20_MARKETS.map((m) => (
               <option key={m} value={m}>
                 {m} - {MARKET_DISPLAY_NAMES[m]}
@@ -185,9 +187,9 @@ export const AdminEngineMatrix: React.FC = () => {
             <thead className="bg-zinc-900/90 border-b border-zinc-800 text-zinc-400 uppercase tracking-wider font-semibold">
               <tr>
                 <th className="py-3 px-4" />
-                <th className="py-3 px-4">Engine / Sub-engine</th>
-                <th className="py-3 px-4">Classification</th>
-                <th className="py-3 px-4">Category</th>
+                <th className="py-3 px-4">{t("Engine / Sub-engine")}</th>
+                <th className="py-3 px-4">{t("Classification")}</th>
+                <th className="py-3 px-4">{t("Category")}</th>
                 <th className="py-3 px-4">
                   {selectedMarket === "ALL"
                     ? "20-market status matrix"
@@ -338,22 +340,33 @@ function EngineDetails({
 }: {
   engine: (typeof FULL_ENGINE_INVENTORY)[number];
 }) {
+  const { t } = useLanguage();
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
       <div className="space-y-3">
-        <Detail title="Calculation purpose" value={engine.calculationPurpose} />
-        <Detail title="Key formulas" value={engine.keyFormulas} mono />
-        <Detail title="Market assumptions" value={engine.marketAssumptions} />
+        <Detail
+          title={t("Calculation purpose")}
+          value={engine.calculationPurpose}
+        />
+        <Detail title={t("Key formulas")} value={engine.keyFormulas} mono />
+        <Detail
+          title={t("Market assumptions")}
+          value={engine.marketAssumptions}
+        />
       </div>
       <div className="space-y-3">
         <Detail
-          title="Source files"
+          title={t("Source files")}
           value={engine.sourceFiles.join(" · ")}
           mono
         />
-        <Detail title="Consumers" value={engine.consumers.join(" · ")} mono />
         <Detail
-          title="Dependencies"
+          title={t("Consumers")}
+          value={engine.consumers.join(" · ")}
+          mono
+        />
+        <Detail
+          title={t("Dependencies")}
           value={engine.dependencies.join(" · ")}
           mono
         />

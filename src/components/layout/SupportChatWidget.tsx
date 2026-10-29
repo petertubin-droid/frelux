@@ -18,6 +18,7 @@ import { recordLiveChatSignal } from "@/lib/learning/learning-client";
 import { getClientId } from "@/lib/ai-access";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface ChatMessage {
   id: number;
@@ -41,6 +42,7 @@ const WELCOME_MESSAGE: ChatMessage = {
 };
 
 export default function SupportChatWidget() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
@@ -161,7 +163,7 @@ export default function SupportChatWidget() {
           type="button"
           onClick={() => setOpen(true)}
           className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full p-0 transition-transform hover:scale-105 active:scale-95 hover:bg-transparent sm:bottom-4 sm:right-4"
-          aria-label="Chat with ARCHIE"
+          aria-label={t("Chat with ARCHIE")}
         >
           <SupportMark className="h-14 w-14 animate-chat-bounce drop-shadow-lg" />
           <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5">
@@ -187,7 +189,7 @@ export default function SupportChatWidget() {
               className="inline-flex items-center gap-2 rounded-full bg-primary pl-2.5 pr-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
             >
               <SupportMark className="h-6 w-6" aria-label="" />
-              Chat with ARCHIE
+              {t("Chat with ARCHIE")}
             </Button>
           ) : (
             <>
@@ -197,7 +199,7 @@ export default function SupportChatWidget() {
                   <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white/15 ring-2 ring-white/20">
                     <SupportMark
                       className="h-full w-full"
-                      aria-label="ARCHIE assistant"
+                      aria-label={t("ARCHIE assistant")}
                     />
                   </div>
                   <div className="leading-tight">
@@ -216,7 +218,7 @@ export default function SupportChatWidget() {
                     type="button"
                     onClick={() => setMinimized(true)}
                     className="rounded p-1.5 hover:bg-white/10"
-                    aria-label="Minimize chat"
+                    aria-label={t("Minimize chat")}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -225,7 +227,7 @@ export default function SupportChatWidget() {
                     type="button"
                     onClick={() => setOpen(false)}
                     className="rounded p-1.5 hover:bg-white/10"
-                    aria-label="Close chat"
+                    aria-label={t("Close chat")}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -245,7 +247,7 @@ export default function SupportChatWidget() {
                   }
                 >
                   <MessageCircle className="h-3.5 w-3.5" strokeWidth={2} />
-                  Live Chat
+                  {t("Live Chat")}
                 </button>
                 <button
                   type="button"
@@ -257,7 +259,7 @@ export default function SupportChatWidget() {
                   }
                 >
                   <HeadsetGlyph className="h-3.5 w-3.5" strokeWidth={2} />
-                  FRELUX AI
+                  {t("FRELUX AI")}
                 </button>
               </div>
 
@@ -375,8 +377,8 @@ export default function SupportChatWidget() {
                       type="text"
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
-                      placeholder="Ask about paint, tiles, POP, colors…"
-                      aria-label="Type a message"
+                      placeholder={t("Ask about paint, tiles, POP, colors…")}
+                      aria-label={t("Type a message")}
                       disabled={loading}
                       className="flex-1 rounded-full border border-border bg-muted/50 px-4 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple disabled:opacity-50 dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground/60"
                     />
@@ -386,7 +388,7 @@ export default function SupportChatWidget() {
                       type="submit"
                       disabled={!draft.trim() || loading}
                       className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-opacity disabled:opacity-40"
-                      aria-label="Send message"
+                      aria-label={t("Send message")}
                     >
                       {loading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />

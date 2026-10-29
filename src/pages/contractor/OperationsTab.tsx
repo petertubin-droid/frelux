@@ -50,6 +50,7 @@ import {
   type ProcurementStatus,
 } from "@/lib/procurement/state-machine";
 import { resolveWorkCalendar } from "@/lib/calendars/work-calendar";
+import { useLanguage } from "@/lib/i18n";
 
 type OperationsSection = "tax" | "credentials" | "procurement" | "schedule";
 
@@ -188,6 +189,7 @@ export function OperationsTab({
   timeline: DbProjectTimeline[];
   onNavigateTab: (tab: "quotation" | "timeline") => void;
 }) {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [credentials, setCredentials] = useState<CredentialRow[] | null>(null);
   const [procurement, setProcurement] = useState<ProcurementRow[] | null>(null);
@@ -358,7 +360,7 @@ export function OperationsTab({
     return (
       <div
         role="status"
-        aria-label="Loading operations summary"
+        aria-label={t("Loading operations summary")}
         className="space-y-4"
       >
         <div className="h-24 animate-pulse rounded-xl border bg-muted" />
@@ -376,7 +378,7 @@ export function OperationsTab({
       {/* ---------------- Tax status ---------------- */}
       <SectionCard
         icon={<FileText className="h-4 w-4" />}
-        title="Tax status"
+        title={t("Tax status")}
         action={
           latestQuotation
             ? {
@@ -388,7 +390,9 @@ export function OperationsTab({
       >
         {!latestQuotation ? (
           <>
-            <StatusLine tone="neutral">No quotation on record</StatusLine>
+            <StatusLine tone="neutral">
+              {t("No quotation on record")}
+            </StatusLine>
             <EvidenceLine>
               Tax is applied when a quotation is generated for a market with a
               validated rule. This project has none yet.
@@ -398,7 +402,7 @@ export function OperationsTab({
               onClick={() => onNavigateTab("quotation")}
               className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              Create a quotation
+              {t("Create a quotation")}
               <ArrowRight aria-hidden="true" className="h-3 w-3" />
             </button>
           </>
@@ -406,7 +410,7 @@ export function OperationsTab({
           !latestQuotation.tax_source ? (
           <>
             <StatusLine tone="attention">
-              Tax not determined on the latest quotation
+              {t("Tax not determined on the latest quotation")}
             </StatusLine>
             <EvidenceLine>
               No tax was applied: the market has no validated tax rule. The
@@ -457,14 +461,16 @@ export function OperationsTab({
       {/* ---------------- Workforce credentials ---------------- */}
       <SectionCard
         icon={<ShieldCheck className="h-4 w-4" />}
-        title="Workforce credentials"
+        title={t("Workforce credentials")}
         action={{ label: "Manage", to: "/pro-connect/dashboard" }}
       >
         {loadError?.source === "credentials" && loadError.code === "42501" ? (
           <PermissionDeniedLine what="saved credentials" />
         ) : !credentialSummary ? (
           <>
-            <StatusLine tone="neutral">Credentials unavailable</StatusLine>
+            <StatusLine tone="neutral">
+              {t("Credentials unavailable")}
+            </StatusLine>
             <EvidenceLine>
               Your saved credentials could not be loaded. They may require sign
               in, or the service is unavailable right now.
@@ -472,7 +478,9 @@ export function OperationsTab({
           </>
         ) : credentialSummary.total === 0 ? (
           <>
-            <StatusLine tone="neutral">No credentials on file</StatusLine>
+            <StatusLine tone="neutral">
+              {t("No credentials on file")}
+            </StatusLine>
             <EvidenceLine>
               You have not submitted any professional credentials. Clients see
               credential status on your public profile only after submission.
@@ -513,22 +521,24 @@ export function OperationsTab({
       {/* ---------------- Procurement / shipment ---------------- */}
       <SectionCard
         icon={<Truck className="h-4 w-4" />}
-        title="Procurement and shipments"
+        title={t("Procurement and shipments")}
         action={{ label: "Open logistics board", to: "/contractor/logistics" }}
       >
         {loadError?.source === "procurement" && loadError.code === "42501" ? (
           <PermissionDeniedLine what="procurement records" />
         ) : !procurementGroups ? (
           <>
-            <StatusLine tone="neutral">Procurement data unavailable</StatusLine>
+            <StatusLine tone="neutral">
+              {t("Procurement data unavailable")}
+            </StatusLine>
             <EvidenceLine>
-              Linked procurement records could not be loaded right now.
+              {t("Linked procurement records could not be loaded right now.")}
             </EvidenceLine>
           </>
         ) : procurement && procurement.length === 0 ? (
           <>
             <StatusLine tone="neutral">
-              No procurement records linked to this project
+              {t("No procurement records linked to this project")}
             </StatusLine>
             <EvidenceLine>
               Records you link to this project appear here with their auditable
@@ -539,19 +549,23 @@ export function OperationsTab({
           <>
             <div className="grid grid-cols-2 gap-2">
               <div className="rounded-lg border bg-background p-2.5">
-                <p className="text-xs text-muted-foreground">Open</p>
+                <p className="text-xs text-muted-foreground">{t("Open")}</p>
                 <p className="text-lg font-semibold">
                   {procurementGroups.open}
                 </p>
               </div>
               <div className="rounded-lg border bg-background p-2.5">
-                <p className="text-xs text-muted-foreground">In motion</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("In motion")}
+                </p>
                 <p className="text-lg font-semibold">
                   {procurementGroups.inMotion}
                 </p>
               </div>
               <div className="rounded-lg border bg-background p-2.5">
-                <p className="text-xs text-muted-foreground">Needs attention</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("Needs attention")}
+                </p>
                 <p
                   className={`text-lg font-semibold ${
                     procurementGroups.needsAttention > 0
@@ -563,7 +577,9 @@ export function OperationsTab({
                 </p>
               </div>
               <div className="rounded-lg border bg-background p-2.5">
-                <p className="text-xs text-muted-foreground">Delivered</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("Delivered")}
+                </p>
                 <p className="text-lg font-semibold">
                   {procurementGroups.delivered}
                 </p>
@@ -606,7 +622,7 @@ export function OperationsTab({
       {/* ---------------- Schedule impact ---------------- */}
       <SectionCard
         icon={<CalendarDays className="h-4 w-4" />}
-        title="Schedule"
+        title={t("Schedule")}
         action={
           scheduleProgress
             ? {
@@ -618,22 +634,24 @@ export function OperationsTab({
       >
         {!calendar ? (
           <>
-            <StatusLine tone="neutral">Calendar status unavailable</StatusLine>
+            <StatusLine tone="neutral">
+              {t("Calendar status unavailable")}
+            </StatusLine>
             <EvidenceLine>
-              The site calendar could not be checked right now.
+              {t("The site calendar could not be checked right now.")}
             </EvidenceLine>
           </>
         ) : calendar.status === "no_country" ? (
           <>
             <StatusLine tone="attention">
-              Calendar-verified scheduling unavailable
+              {t("Calendar-verified scheduling unavailable")}
             </StatusLine>
             <EvidenceLine>{calendar.note}</EvidenceLine>
           </>
         ) : calendar.status === "verified" ? (
           <>
             <StatusLine tone="verified">
-              Verified work calendar covers the site country
+              {t("Verified work calendar covers the site country")}
             </StatusLine>
             {scheduleProgress ? (
               <EvidenceLine>
@@ -654,7 +672,7 @@ export function OperationsTab({
         ) : (
           <>
             <StatusLine tone="attention">
-              No verified work calendar for the site country
+              {t("No verified work calendar for the site country")}
             </StatusLine>
             <EvidenceLine>
               {calendar.note} Timeline planning continues as a day-offset
@@ -668,7 +686,7 @@ export function OperationsTab({
             onClick={() => onNavigateTab("timeline")}
             className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            Review project details
+            {t("Review project details")}
             <ArrowRight aria-hidden="true" className="h-3 w-3" />
           </button>
         )}

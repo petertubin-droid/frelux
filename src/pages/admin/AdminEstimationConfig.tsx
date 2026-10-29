@@ -13,6 +13,7 @@ import {
 } from "@/components/admin/AdminUi";
 import { AdminModal } from "@/components/admin/AdminModal";
 import { classNames } from "@/lib/utils";
+import { tx } from "@/lib/i18n";
 import type {
   EstimationUnit,
   EstimationPackSize,
@@ -67,8 +68,10 @@ export default function AdminEstimationConfig() {
   return (
     <>
       <AdminHeader
-        title="Estimation Config"
-        subtitle="Manage units, pack sizes, calculation rules, and versions."
+        title={tx("Estimation Config")}
+        subtitle={tx(
+          "Manage units, pack sizes, calculation rules, and versions.",
+        )}
       />
 
       {/* Tabs navigation */}
@@ -83,7 +86,7 @@ export default function AdminEstimationConfig() {
               : "border border-border bg-card dark:border-white/5 dark:bg-card text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5 hover:text-brand-purple",
           )}
         >
-          Units
+          {tx("Units")}
         </AdminButton>
         <AdminButton
           type="button"
@@ -95,7 +98,7 @@ export default function AdminEstimationConfig() {
               : "border border-border bg-card dark:border-white/5 dark:bg-card text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5 hover:text-brand-purple",
           )}
         >
-          Pack Sizes
+          {tx("Pack Sizes")}
         </AdminButton>
         <AdminButton
           type="button"
@@ -107,7 +110,7 @@ export default function AdminEstimationConfig() {
               : "border border-border bg-card dark:border-white/5 dark:bg-card text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5 hover:text-brand-purple",
           )}
         >
-          Calc Rules
+          {tx("Calc Rules")}
         </AdminButton>
         <AdminButton
           type="button"
@@ -119,7 +122,7 @@ export default function AdminEstimationConfig() {
               : "border border-border bg-card dark:border-white/5 dark:bg-card text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5 hover:text-brand-purple",
           )}
         >
-          Calc Versions
+          {tx("Calc Versions")}
         </AdminButton>
       </div>
 
@@ -192,7 +195,7 @@ function UnitsTab() {
     <>
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-          Estimation Units
+          {tx("Estimation Units")}
         </h2>
         <AdminButton
           onClick={() => {
@@ -200,7 +203,7 @@ function UnitsTab() {
             setShowForm(true);
           }}
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add unit
+          <Plus aria-hidden="true" className="h-4 w-4" /> {tx("Add unit")}
         </AdminButton>
       </div>
 
@@ -213,13 +216,13 @@ function UnitsTab() {
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={tx("Loading…")}
           message="Fetching estimation units."
         />
       ) : items.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No units yet"
+          title={tx("No units yet")}
           message="Add your first estimation unit to get started."
         />
       ) : (
@@ -253,7 +256,7 @@ function UnitsTab() {
                         </span>
                         {!item.is_active && (
                           <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
-                            Inactive
+                            {tx("Inactive")}
                           </span>
                         )}
                       </div>
@@ -273,7 +276,7 @@ function UnitsTab() {
                           setShowForm(true);
                         }}
                       >
-                        <Pencil className="h-3.5 w-3.5" /> Edit
+                        <Pencil className="h-3.5 w-3.5" /> {tx("Edit")}
                       </AdminButton>
                       <AdminButton
                         variant="danger"
@@ -433,7 +436,7 @@ function UnitForm({
         </AdminField>
         <div>
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-            Active
+            {tx("Active")}
           </span>
           <div className="mt-2">
             <Toggle checked={isActive} onChange={setIsActive} />
@@ -447,7 +450,7 @@ function UnitForm({
       )}
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {tx("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}
@@ -557,7 +560,7 @@ function PackSizesTab() {
     <>
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-          Pack Sizes
+          {tx("Pack Sizes")}
         </h2>
         <AdminButton
           onClick={() => {
@@ -565,7 +568,7 @@ function PackSizesTab() {
             setShowForm(true);
           }}
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add pack size
+          <Plus aria-hidden="true" className="h-4 w-4" /> {tx("Add pack size")}
         </AdminButton>
       </div>
 
@@ -578,13 +581,13 @@ function PackSizesTab() {
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={tx("Loading…")}
           message="Fetching pack sizes."
         />
       ) : packSizes.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No pack sizes yet"
+          title={tx("No pack sizes yet")}
           message="Add your first pack size to get started."
         />
       ) : (
@@ -607,7 +610,7 @@ function PackSizesTab() {
                     </h3>
                     {!item.is_active && (
                       <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
-                        Inactive
+                        {tx("Inactive")}
                       </span>
                     )}
                   </div>
@@ -638,7 +641,7 @@ function PackSizesTab() {
                       setShowForm(true);
                     }}
                   >
-                    <Pencil className="h-3.5 w-3.5" /> Edit
+                    <Pencil className="h-3.5 w-3.5" /> {tx("Edit")}
                   </AdminButton>
                   <AdminButton variant="danger" onClick={() => remove(item)}>
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
@@ -797,9 +800,9 @@ function PackSizeForm({
               setRefId("");
             }}
           >
-            <option value="product">Product</option>
-            <option value="material">Material</option>
-            <option value="quality">Quality Level</option>
+            <option value="product">{tx("Product")}</option>
+            <option value="material">{tx("Material")}</option>
+            <option value="quality">{tx("Quality Level")}</option>
           </AdminSelect>
         </AdminField>
 
@@ -825,7 +828,7 @@ function PackSizeForm({
               className="font-mono"
               value={refId}
               onChange={(e) => setRefId(e.target.value)}
-              placeholder="UUID of target item"
+              placeholder={tx("UUID of target item")}
             />
           )}
         </AdminField>
@@ -910,7 +913,7 @@ function PackSizeForm({
 
       <div>
         <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-          Active
+          {tx("Active")}
         </span>
         <div className="mt-2">
           <Toggle checked={isActive} onChange={setIsActive} />
@@ -925,7 +928,7 @@ function PackSizeForm({
 
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {tx("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}
@@ -944,31 +947,31 @@ function getRuleStatusBadge(status: RuleStatus | string) {
     case "verified_frelux":
       return (
         <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
-          Verified FRELUX
+          {tx("Verified FRELUX")}
         </span>
       );
     case "admin_configured":
       return (
         <span className="rounded-full border border-blue-200 bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800">
-          Admin Configured
+          {tx("Admin Configured")}
         </span>
       );
     case "calculated":
       return (
         <span className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
-          Calculated
+          {tx("Calculated")}
         </span>
       );
     case "manual_adjustment":
       return (
         <span className="rounded-full border border-orange-200 bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-800">
-          Manual Adjustment
+          {tx("Manual Adjustment")}
         </span>
       );
     case "negotiated":
       return (
         <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-          Negotiated
+          {tx("Negotiated")}
         </span>
       );
     default:
@@ -1037,7 +1040,7 @@ function CalcRulesTab() {
     <>
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-          Calculation Rules
+          {tx("Calculation Rules")}
         </h2>
         <AdminButton
           onClick={() => {
@@ -1045,7 +1048,7 @@ function CalcRulesTab() {
             setShowForm(true);
           }}
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add calc rule
+          <Plus aria-hidden="true" className="h-4 w-4" /> {tx("Add calc rule")}
         </AdminButton>
       </div>
 
@@ -1058,13 +1061,13 @@ function CalcRulesTab() {
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={tx("Loading…")}
           message="Fetching calculation rules."
         />
       ) : rules.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No calculation rules yet"
+          title={tx("No calculation rules yet")}
           message="Add your first calculation rule to get started."
         />
       ) : (
@@ -1082,7 +1085,7 @@ function CalcRulesTab() {
                   </span>
                   {!rule.is_active && (
                     <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
-                      Inactive
+                      {tx("Inactive")}
                     </span>
                   )}
                 </div>
@@ -1095,7 +1098,7 @@ function CalcRulesTab() {
 
                 <div className="mt-2 rounded-lg bg-muted/50 dark:bg-white/5 p-2.5 border border-border">
                   <span className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
-                    Rule Value (JSON)
+                    {tx("Rule Value (JSON)")}
                   </span>
                   <pre className="mt-1 max-h-24 overflow-x-auto font-mono text-xs text-foreground">
                     {JSON.stringify(rule.rule_value, null, 2)}
@@ -1115,7 +1118,7 @@ function CalcRulesTab() {
                     setShowForm(true);
                   }}
                 >
-                  <Pencil className="h-3.5 w-3.5" /> Edit
+                  <Pencil className="h-3.5 w-3.5" /> {tx("Edit")}
                 </AdminButton>
                 <AdminButton variant="danger" onClick={() => remove(rule)}>
                   <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
@@ -1229,7 +1232,7 @@ function CalcRuleForm({
             value={calculatorType}
             onChange={(e) => setCalculatorType(e.target.value)}
           >
-            <option value="">Global (All Calculators)</option>
+            <option value="">{tx("Global (All Calculators)")}</option>
             {CALCULATOR_TYPES.map((type) => (
               <option key={type} value={type}>
                 {type}
@@ -1270,13 +1273,15 @@ function CalcRuleForm({
           rows={2}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Explain the purpose and usage of this calculation rule"
+          placeholder={tx(
+            "Explain the purpose and usage of this calculation rule",
+          )}
         />
       </AdminField>
 
       <div>
         <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-          Active
+          {tx("Active")}
         </span>
         <div className="mt-2">
           <Toggle checked={isActive} onChange={setIsActive} />
@@ -1291,7 +1296,7 @@ function CalcRuleForm({
 
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {tx("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}
@@ -1367,7 +1372,7 @@ function CalcVersionsTab() {
     <>
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-          Calculation Versions
+          {tx("Calculation Versions")}
         </h2>
         <AdminButton
           onClick={() => {
@@ -1375,7 +1380,7 @@ function CalcVersionsTab() {
             setShowForm(true);
           }}
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add version
+          <Plus aria-hidden="true" className="h-4 w-4" /> {tx("Add version")}
         </AdminButton>
       </div>
 
@@ -1388,13 +1393,13 @@ function CalcVersionsTab() {
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={tx("Loading…")}
           message="Fetching calculation versions."
         />
       ) : versions.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No calculation versions yet"
+          title={tx("No calculation versions yet")}
           message="Add your first calculation version to get started."
         />
       ) : (
@@ -1412,7 +1417,7 @@ function CalcVersionsTab() {
                   </h3>
                   {!ver.is_active && (
                     <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
-                      Inactive
+                      {tx("Inactive")}
                     </span>
                   )}
                 </div>
@@ -1434,7 +1439,7 @@ function CalcVersionsTab() {
                     setShowForm(true);
                   }}
                 >
-                  <Pencil className="h-3.5 w-3.5" /> Edit
+                  <Pencil className="h-3.5 w-3.5" /> {tx("Edit")}
                 </AdminButton>
                 <AdminButton variant="danger" onClick={() => remove(ver)}>
                   <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
@@ -1569,13 +1574,13 @@ function CalcVersionForm({
           rows={2}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Details about changes or features in this version"
+          placeholder={tx("Details about changes or features in this version")}
         />
       </AdminField>
 
       <div>
         <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-          Active
+          {tx("Active")}
         </span>
         <div className="mt-2">
           <Toggle checked={isActive} onChange={setIsActive} />
@@ -1590,7 +1595,7 @@ function CalcVersionForm({
 
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {tx("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? "Saving…" : "Save"}

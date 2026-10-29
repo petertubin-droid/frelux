@@ -38,12 +38,14 @@ import {
 import { ALL_MARKET_CODES } from "@/lib/international/capability-registry";
 import { Loader2, TrendingUp, ShieldAlert, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const VERDICT_STYLES: Record<string, string> = {
   adequate:
     "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
   insufficient_data: "bg-muted text-muted-foreground border-border",
-  stale: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
+  stale:
+    "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
   biased_sample:
     "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30",
 };
@@ -59,7 +61,9 @@ function VerdictChip({ verdict }: { verdict: string }) {
 }
 
 /** Market-mean predictor used for the honest baseline back-test. */
-function meanPredictor(label: OutcomeLabelKey): OutcomePredictor<OutcomeLabelKey> {
+function meanPredictor(
+  label: OutcomeLabelKey,
+): OutcomePredictor<OutcomeLabelKey> {
   return (train) => {
     const labelled = train.filter(
       (r) => r[label] !== null && r[label] !== undefined,
@@ -83,11 +87,13 @@ const FORM_DEFAULT = {
 };
 
 export default function PredictiveAnalytics() {
+  const { t } = useLanguage();
   const [records, setRecords] = useState<ProjectOutcomeRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [validation, setValidation] =
-    useState<SafetyValidationRecord | null>(null);
+  const [validation, setValidation] = useState<SafetyValidationRecord | null>(
+    null,
+  );
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(FORM_DEFAULT);
   const [formError, setFormError] = useState<string | null>(null);
@@ -109,9 +115,7 @@ export default function PredictiveAnalytics() {
 
   const marketsWithData = useMemo(
     () =>
-      ALL_MARKET_CODES.filter((m) =>
-        records.some((r) => r.market_code === m),
-      ),
+      ALL_MARKET_CODES.filter((m) => records.some((r) => r.market_code === m)),
     [records],
   );
 
@@ -119,13 +123,18 @@ export default function PredictiveAnalytics() {
     () =>
       marketsWithData.map((m) => ({
         market: m,
-        reports: (["delay_days", "cost_overrun_pct", "safety_incident_count"] as DataQualityLabel[]).map(
-          (label) =>
-            assessMarketDataQuality({
-              market_code: m,
-              label,
-              records,
-            }),
+        reports: (
+          [
+            "delay_days",
+            "cost_overrun_pct",
+            "safety_incident_count",
+          ] as DataQualityLabel[]
+        ).map((label) =>
+          assessMarketDataQuality({
+            market_code: m,
+            label,
+            records,
+          }),
         ),
       })),
     [marketsWithData, records],
@@ -206,21 +215,22 @@ export default function PredictiveAnalytics() {
           <div className="flex items-center gap-2">
             <TrendingUp aria-hidden="true" className="h-4 w-4 text-primary" />
             <h2 className="text-sm font-semibold text-foreground">
-              Predictive analytics
+              {t("Predictive analytics")}
             </h2>
           </div>
           <p className="mt-1 max-w-2xl text-xs leading-snug text-muted-foreground">
-            Built only from completed projects you recorded. Labels are
-            derived, never typed; accuracy is measured by walk-forward
-            back-test with out-of-sample calibration; safety outputs stay
-            decision support behind an independent validation gate.
+            Built only from completed projects you recorded. Labels are derived,
+            never typed; accuracy is measured by walk-forward back-test with
+            out-of-sample calibration; safety outputs stay decision support
+            behind an independent validation gate.
           </p>
           <div className="mt-3 flex flex-wrap gap-3 text-xs">
             <span className="rounded-full bg-secondary px-2.5 py-0.5 font-medium text-secondary-foreground">
               {records.length} outcome records
             </span>
             <span className="rounded-full bg-secondary px-2.5 py-0.5 font-medium text-secondary-foreground">
-              {marketsWithData.length} market{marketsWithData.length === 1 ? "" : "s"} with history
+              {marketsWithData.length} market
+              {marketsWithData.length === 1 ? "" : "s"} with history
             </span>
           </div>
         </div>
@@ -228,7 +238,10 @@ export default function PredictiveAnalytics() {
 
       {loading && (
         <div className="flex justify-center py-8">
-          <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-primary" />
+          <Loader2
+            aria-hidden="true"
+            className="h-6 w-6 animate-spin text-primary"
+          />
         </div>
       )}
       {loadError && (
@@ -241,7 +254,9 @@ export default function PredictiveAnalytics() {
       <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
         <div className="flex items-center justify-between gap-2">
           <div>
-            <h3 className="text-sm font-semibold">Completed-project history</h3>
+            <h3 className="text-sm font-semibold">
+              {t("Completed-project history")}
+            </h3>
             <p className="text-xs text-muted-foreground">
               {OUTCOME_LABELS.map((l) => l.label).join(" · ")} are derived from
               the facts you enter — never typed in.
@@ -252,7 +267,11 @@ export default function PredictiveAnalytics() {
             variant="outline"
             onClick={() => setShowForm((v) => !v)}
           >
-            {showForm ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+            {showForm ? (
+              <X className="h-3.5 w-3.5" />
+            ) : (
+              <Plus className="h-3.5 w-3.5" />
+            )}
             {showForm ? "Close" : "Add completed project"}
           </Button>
         </div>
@@ -260,7 +279,7 @@ export default function PredictiveAnalytics() {
         {showForm && (
           <div className="mt-3 grid gap-2 rounded-md border border-border bg-background/60 p-3 sm:grid-cols-2">
             <label className="text-[11px] font-medium text-muted-foreground">
-              Market
+              {t("Market")}
               <select
                 className={field}
                 value={form.market_code}
@@ -287,7 +306,7 @@ export default function PredictiveAnalytics() {
               />
             </label>
             <label className="text-[11px] font-medium text-muted-foreground">
-              Planned end date
+              {t("Planned end date")}
               <input
                 type="date"
                 className={field}
@@ -309,7 +328,7 @@ export default function PredictiveAnalytics() {
               />
             </label>
             <label className="text-[11px] font-medium text-muted-foreground">
-              Budgeted amount
+              {t("Budgeted amount")}
               <input
                 type="number"
                 min="0"
@@ -321,7 +340,7 @@ export default function PredictiveAnalytics() {
               />
             </label>
             <label className="text-[11px] font-medium text-muted-foreground">
-              Budget currency (ISO)
+              {t("Budget currency (ISO)")}
               <input
                 className={field}
                 maxLength={3}
@@ -335,7 +354,7 @@ export default function PredictiveAnalytics() {
               />
             </label>
             <label className="text-[11px] font-medium text-muted-foreground">
-              Final amount
+              {t("Final amount")}
               <input
                 type="number"
                 min="0"
@@ -347,7 +366,7 @@ export default function PredictiveAnalytics() {
               />
             </label>
             <label className="text-[11px] font-medium text-muted-foreground">
-              Safety incidents
+              {t("Safety incidents")}
               <input
                 type="number"
                 min="0"
@@ -369,7 +388,10 @@ export default function PredictiveAnalytics() {
             <div className="sm:col-span-2">
               <Button size="sm" disabled={saving} onClick={onSave}>
                 {saving && (
-                  <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
+                  <Loader2
+                    aria-hidden="true"
+                    className="h-3.5 w-3.5 animate-spin"
+                  />
                 )}
                 Save outcome
               </Button>
@@ -381,7 +403,9 @@ export default function PredictiveAnalytics() {
       {/* ── Per-market data quality ── */}
       {qualityReports.length > 0 && (
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-          <h3 className="text-sm font-semibold">Regional data quality</h3>
+          <h3 className="text-sm font-semibold">
+            {t("Regional data quality")}
+          </h3>
           <p className="text-xs text-muted-foreground">
             A predictive claim is only supported where the gates pass: sample,
             recency, span, completeness, type concentration, size spread.
@@ -425,7 +449,7 @@ export default function PredictiveAnalytics() {
       {/* ── Back-test metrics ── */}
       <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
         <h3 className="text-sm font-semibold">
-          Walk-forward back-test (market-mean baseline)
+          {t("Walk-forward back-test (market-mean baseline)")}
         </h3>
         <p className="text-xs text-muted-foreground">
           Targets are predicted only from strictly earlier completions;
@@ -443,16 +467,18 @@ export default function PredictiveAnalytics() {
                   {bt.label.replace(/_/g, " ")}
                 </span>
                 <VerdictChip
-                  verdict={bt.status === "ok" ? "adequate" : "insufficient_data"}
+                  verdict={
+                    bt.status === "ok" ? "adequate" : "insufficient_data"
+                  }
                 />
               </div>
               {bt.status === "ok" ? (
                 <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
-                  <dt className="text-muted-foreground">Scored</dt>
+                  <dt className="text-muted-foreground">{t("Scored")}</dt>
                   <dd>{bt.scored.length}</dd>
-                  <dt className="text-muted-foreground">MAE</dt>
+                  <dt className="text-muted-foreground">{t("MAE")}</dt>
                   <dd>{bt.mae?.toFixed(2)}</dd>
-                  <dt className="text-muted-foreground">Bias</dt>
+                  <dt className="text-muted-foreground">{t("Bias")}</dt>
                   <dd>{bt.bias?.toFixed(2)}</dd>
                   {bt.calibrations.map((c) => (
                     <span key={c.nominal} className="col-span-2 contents">

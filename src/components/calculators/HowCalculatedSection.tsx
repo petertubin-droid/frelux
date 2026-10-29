@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { ChevronDown, Info } from 'lucide-react';
+import { useState } from "react";
+import { ChevronDown, Info } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface HowCalculatedSectionProps {
   methodologyText: string;
@@ -15,13 +16,15 @@ export default function HowCalculatedSection({
   priceSourceDate,
   priceSource,
 }: HowCalculatedSectionProps) {
+  const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
 
   if (!methodologyText && assumptions.length === 0) return null;
 
   return (
     <div className="calc-card mt-4 overflow-hidden rounded-xl border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={() => setExpanded((v) => !v)}
         className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-muted dark:hover:bg-white/5"
@@ -29,10 +32,10 @@ export default function HowCalculatedSection({
       >
         <span className="flex items-center gap-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
           <Info className="h-4 w-4 text-brand-purple" />
-          How this estimate is calculated
+          {t("How this estimate is calculated")}
         </span>
         <ChevronDown
-          className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}
         />
       </Button>
 
@@ -47,12 +50,16 @@ export default function HowCalculatedSection({
           {assumptions.length > 0 && (
             <div className="mt-3 space-y-1">
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                Active assumptions
+                {t("Active assumptions")}
               </p>
               {assumptions.map((a) => (
                 <div key={a.label} className="flex justify-between text-xs">
-                  <span className="text-muted-foreground dark:text-muted-foreground">{a.label}</span>
-                  <span className="font-medium text-card-foreground dark:text-muted-foreground/80">{a.value}</span>
+                  <span className="text-muted-foreground dark:text-muted-foreground">
+                    {a.label}
+                  </span>
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/80">
+                    {a.value}
+                  </span>
                 </div>
               ))}
             </div>
@@ -61,18 +68,26 @@ export default function HowCalculatedSection({
           {(priceSourceDate || priceSource) && (
             <div className="mt-3 space-y-1 border-t border-border pt-2 dark:border-white/5">
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                Price information
+                {t("Price information")}
               </p>
               {priceSource && (
                 <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground dark:text-muted-foreground">Source</span>
-                  <span className="font-medium text-card-foreground dark:text-muted-foreground/80">{priceSource}</span>
+                  <span className="text-muted-foreground dark:text-muted-foreground">
+                    {t("Source")}
+                  </span>
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/80">
+                    {priceSource}
+                  </span>
                 </div>
               )}
               {priceSourceDate && (
                 <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground dark:text-muted-foreground">Effective date</span>
-                  <span className="font-medium text-card-foreground dark:text-muted-foreground/80">{priceSourceDate}</span>
+                  <span className="text-muted-foreground dark:text-muted-foreground">
+                    {t("Effective date")}
+                  </span>
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/80">
+                    {priceSourceDate}
+                  </span>
                 </div>
               )}
             </div>

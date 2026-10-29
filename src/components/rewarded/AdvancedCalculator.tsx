@@ -22,6 +22,7 @@ import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
 import { useMarket } from "@/lib/international/market-context";
 import { Button } from "@/components/ui/shadcn/button";
+import { tx } from "@/lib/i18n";
 
 interface Props {
   /** Identifies which calculator this is attached to, e.g. "paint", "tile", "pop", "screeding" */
@@ -379,7 +380,7 @@ Also flag any unrealistic values or potential issues. Use ${currencySymbol} for 
             </p>
           </div>
           <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-brand-purple">
-            <Brain className="h-3 w-3" /> AI
+            <Brain className="h-3 w-3" /> {tx("AI")}
           </span>
         </div>
 
@@ -490,7 +491,7 @@ function AiBreakdownTab({
         <div className="flex items-center gap-2">
           <Layers aria-hidden="true" className="h-4 w-4 text-brand-purple" />
           <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            Calculator Input Summary
+            {tx("Calculator Input Summary")}
           </h4>
         </div>
         <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground dark:text-muted-foreground/80">
@@ -504,7 +505,7 @@ function AiBreakdownTab({
           <div className="flex items-center gap-2">
             <Brain aria-hidden="true" className="h-4 w-4 text-brand-purple" />
             <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              AI-Powered Analysis
+              {tx("AI-Powered Analysis")}
             </h4>
           </div>
           <Button
@@ -538,7 +539,7 @@ function AiBreakdownTab({
 
         {!loading && !aiBreakdown && (
           <p className="mt-3 text-sm text-muted-foreground">
-            No analysis yet. Click refresh to generate.
+            {tx("No analysis yet. Click refresh to generate.")}
           </p>
         )}
       </div>
@@ -547,11 +548,11 @@ function AiBreakdownTab({
       <div className="flex flex-wrap gap-2">
         <div className="flex flex-1 gap-2">
           <input
-            aria-label="Saved calculation title"
+            aria-label={tx("Saved calculation title")}
             type="text"
             value={saveTitle}
             onChange={(e) => setSaveTitle(e.target.value)}
-            placeholder="Estimate name…"
+            placeholder={tx("Estimate name…")}
             className="input-field flex-1"
           />
           <Button
@@ -560,7 +561,7 @@ function AiBreakdownTab({
             onClick={onSave}
             className="flex items-center gap-1.5 whitespace-nowrap"
           >
-            <Save aria-hidden="true" className="h-4 w-4" /> Save
+            <Save aria-hidden="true" className="h-4 w-4" /> {tx("Save")}
           </Button>
         </div>
         <Button
@@ -569,7 +570,7 @@ function AiBreakdownTab({
           onClick={onDuplicate}
           className="flex items-center gap-1.5"
         >
-          <Copy aria-hidden="true" className="h-4 w-4" /> Duplicate
+          <Copy aria-hidden="true" className="h-4 w-4" /> {tx("Duplicate")}
         </Button>
         <Button
           variant="secondary"
@@ -577,14 +578,14 @@ function AiBreakdownTab({
           onClick={onExport}
           className="flex items-center gap-1.5"
         >
-          <Download aria-hidden="true" className="h-4 w-4" /> PDF
+          <Download aria-hidden="true" className="h-4 w-4" /> {tx("PDF")}
         </Button>
       </div>
       {saveStatus === "saving" && (
         <p className="text-xs text-muted-foreground">Saving…</p>
       )}
       {saveStatus === "saved" && (
-        <p className="text-xs text-accent-green">Saved successfully.</p>
+        <p className="text-xs text-accent-green">{tx("Saved successfully.")}</p>
       )}
       {saveStatus?.startsWith("Error") && (
         <p className="text-xs text-red-600">{saveStatus}</p>
@@ -654,10 +655,10 @@ function CostsTab({
 
       <div>
         <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-          Waste Percentage Scenarios
+          {tx("Waste Percentage Scenarios")}
         </h4>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Compare different waste allowances.
+          {tx("Compare different waste allowances.")}
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {[0, 5, 10, 15, 20, 25].map((w) => (
@@ -703,7 +704,7 @@ function CostsTab({
 
       <div className="rounded-lg border border-border p-4 dark:border-white/5">
         <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-          Cost Summary
+          {tx("Cost Summary")}
         </h4>
         <div className="mt-3 space-y-2 text-sm">
           <>
@@ -729,7 +730,7 @@ function CostsTab({
             />
             <div className="flex items-center justify-between border-t border-border pt-2">
               <span className="font-bold text-foreground dark:text-primary-foreground">
-                Additional Costs
+                {tx("Additional Costs")}
               </span>
               <span className="text-lg font-bold text-foreground dark:text-primary-foreground">
                 {formatCurrency(grandTotal, currencySymbol)}
@@ -783,7 +784,7 @@ function AiTab({
         <div className="flex items-center gap-2">
           <Bot aria-hidden="true" className="h-4 w-4 text-brand-purple" />
           <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            AI Powered Recommendations
+            {tx("AI Powered Recommendations")}
           </h4>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -808,7 +809,7 @@ function AiTab({
 
       <div>
         <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-          Ask the AI Assistant
+          {tx("Ask the AI Assistant")}
         </h4>
         <p className="mt-0.5 text-xs text-muted-foreground">
           Ask about calculations, materials, cost saving tips, or construction
@@ -816,7 +817,7 @@ function AiTab({
         </p>
         <div className="mt-3 flex gap-2">
           <input
-            aria-label="Ask a question about this result"
+            aria-label={tx("Ask a question about this result")}
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
@@ -902,7 +903,7 @@ function SavedTab({
     return (
       <div className="rounded-lg border border-dashed border-border bg-muted/50 p-6 text-center">
         <p className="text-sm text-muted-foreground">
-          No saved estimates yet. Save an estimate to access it later.
+          {tx("No saved estimates yet. Save an estimate to access it later.")}
         </p>
       </div>
     );
@@ -939,7 +940,7 @@ function SavedTab({
               type="button"
               onClick={() => onExport(e)}
               className="rounded p-1.5 text-muted-foreground hover:text-brand-purple"
-              aria-label="Export"
+              aria-label={tx("Export")}
             >
               <Download className="h-4 w-4" />
             </Button>
@@ -948,7 +949,7 @@ function SavedTab({
               type="button"
               onClick={() => onDelete(e.id)}
               className="rounded p-1.5 text-muted-foreground hover:text-red-500"
-              aria-label="Delete"
+              aria-label={tx("Delete")}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -1059,10 +1060,10 @@ body{font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;col
 .footer{margin-top:40px;text-align:center;font-size:11px;color:#999}
 </style></head><body>
 <div class="header"><h1>FRELUX | ${toolLabel}</h1><p>AI-Powered Advanced Analysis</p><p>${new Date().toLocaleDateString()}</p></div>
-<div class="section"><h2>Calculator Results</h2><p>${contextSummary.replace(/</g, "&lt;")}</p></div>
-${aiBreakdown ? `<div class="section"><h2>AI Analysis</h2><p>${aiBreakdown.replace(/</g, "&lt;")}</p></div>` : ""}
+<div class="section"><h2>{tx("Calculator Results")}</h2><p>${contextSummary.replace(/</g, "&lt;")}</p></div>
+${aiBreakdown ? `<div class="section"><h2>{tx("AI Analysis")}</h2><p>${aiBreakdown.replace(/</g, "&lt;")}</p></div>` : ""}
 <div class="costs">
-<h2>Cost Adjustments</h2>
+<h2>{tx("Cost Adjustments")}</h2>
 <div><span>Labour</span><span>${currencySymbol}${formatNumber(costAdjust.labourCost)}</span></div>
 <div><span>Transport</span><span>${currencySymbol}${formatNumber(costAdjust.transportCost)}</span></div>
 <div><span>Waste</span><span>${costAdjust.wastePercentage}%</span></div>

@@ -17,8 +17,10 @@ import {
 } from "@/lib/workspace/workspace-service";
 import { Button } from "@/components/ui/shadcn/button";
 import { useToast } from "@/components/ui/Toast";
+import { useLanguage } from "@/lib/i18n";
 
 export default function AcceptInvitation() {
+  const { t } = useLanguage();
   const { token } = useParams<{ token: string }>();
   const { user } = useAuth();
   const { switchWorkspace, refreshWorkspaces } = useWorkspace();
@@ -86,7 +88,7 @@ export default function AcceptInvitation() {
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
         <p className="text-sm text-muted-foreground">
-          Verifying invitation details...
+          {t("Verifying invitation details...")}
         </p>
       </div>
     );
@@ -99,12 +101,12 @@ export default function AcceptInvitation() {
           <div className="h-12 w-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto">
             <AlertCircle className="h-6 w-6" />
           </div>
-          <h2 className="text-xl font-bold">Invitation Unavailable</h2>
+          <h2 className="text-xl font-bold">{t("Invitation Unavailable")}</h2>
           <p className="text-sm text-muted-foreground">
             {error || "This invitation link is invalid or has expired."}
           </p>
           <Button asChild className="w-full mt-4">
-            <Link to="/project-workspace">Return to Projects</Link>
+            <Link to="/project-workspace">{t("Return to Projects")}</Link>
           </Button>
         </div>
       </div>
@@ -120,16 +122,16 @@ export default function AcceptInvitation() {
           <div className="h-14 w-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-2">
             <Building2 className="h-7 w-7" />
           </div>
-          <h1 className="text-2xl font-bold">Workspace Invitation</h1>
+          <h1 className="text-2xl font-bold">{t("Workspace Invitation")}</h1>
           <p className="text-sm text-muted-foreground">
-            You've been invited to collaborate on FRELUX Enterprise.
+            {t("You've been invited to collaborate on FRELUX Enterprise.")}
           </p>
         </div>
 
         <div className="p-4 rounded-xl border bg-muted/30 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-              Workspace
+              {t("Workspace")}
             </span>
             <span className="font-semibold text-sm">
               {invitation.workspace?.name || "Enterprise Workspace"}
@@ -138,7 +140,7 @@ export default function AcceptInvitation() {
 
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-              Assigned Role
+              {t("Assigned Role")}
             </span>
             <span
               className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${roleInfo.badgeColor}`}
@@ -164,7 +166,8 @@ export default function AcceptInvitation() {
             </p>
             <Button asChild className="w-full">
               <Link to={`/auth?redirect=/invite/${token}`}>
-                Sign In to Accept <ArrowRight className="h-4 w-4 ml-1.5" />
+                {t("Sign In to Accept")}{" "}
+                <ArrowRight className="h-4 w-4 ml-1.5" />
               </Link>
             </Button>
           </div>
@@ -177,7 +180,8 @@ export default function AcceptInvitation() {
             >
               {accepting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Accepting...
+                  <Loader2 className="h-4 w-4 animate-spin" />{" "}
+                  {t("Accepting...")}
                 </>
               ) : (
                 <>

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useSeo } from "@/lib/seo";
 import Container from "@/components/ui/Container";
+import { useLanguage } from "@/lib/i18n";
 
 const suggestions = [
   { icon: Paintbrush, label: "Paint Calculator", to: "/paint-calculator" },
@@ -19,6 +20,7 @@ const suggestions = [
 ];
 
 export default function NotFound() {
+  const { t } = useLanguage();
   useSeo({
     title: "Page Not Found, FRELUX",
     description:
@@ -49,10 +51,10 @@ export default function NotFound() {
             404
           </p>
           <h1 className="mt-4 font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
-            Page not found
+            {t("Page not found")}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-            The page you're looking for doesn't exist or may have moved.
+            {t("The page you're looking for doesn't exist or may have moved.")}
           </p>
 
           {/* Suggested pages */}
@@ -79,7 +81,7 @@ export default function NotFound() {
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link to="/" className="btn-primary group">
               <Home className="h-4 w-4" />
-              Back to home
+              {t("Back to home")}
               <ArrowLeft className="h-4 w-4 rotate-180 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>

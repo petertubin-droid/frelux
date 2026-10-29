@@ -8,6 +8,7 @@ import {
   computeCalendarSchedule,
 } from "@/lib/engineering/dag-engine";
 import type { SequenceStep } from "@/lib/engineering/sequence-planner";
+import { useLanguage } from "@/lib/i18n";
 import {
   Clock,
   CheckCircle2,
@@ -30,6 +31,7 @@ export function ParallelWavesView({
   nodeStatuses = {},
   calendarModel = "calendar_7d",
 }: ParallelWavesViewProps) {
+  const { t } = useLanguage();
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-border bg-card p-4 text-xs shadow-sm">
@@ -124,7 +126,7 @@ export function ParallelWavesView({
                         </span>
                         {node.isCritical ? (
                           <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-600">
-                            Critical (0d float)
+                            {t("Critical (0d float)")}
                           </span>
                         ) : (
                           <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-700 dark:text-emerald-400 font-medium">

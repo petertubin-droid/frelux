@@ -47,15 +47,17 @@ import type {
   AdProviderType,
 } from "@/types/database";
 import NetworkHub from "@/pages/admin/NetworkHub";
+import { useLanguage } from "@/lib/i18n";
 
 type Tab = "providers" | "placements" | "analytics" | "network";
 
 export default function AdminAds() {
+  const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>("providers");
   return (
     <>
       <AdminHeader
-        title="Ad Management Center"
+        title={t("Ad Management Center")}
         subtitle="Manage ad providers, placements, and analytics across the entire site. Add unlimited providers without code changes."
       />
       <div className="mb-5 inline-flex flex-wrap rounded-lg border border-border bg-card dark:bg-background p-1 dark:border-border border-border">
@@ -95,6 +97,7 @@ export default function AdminAds() {
 // Providers Tab
 // =========================================================
 function ProvidersTab() {
+  const { t } = useLanguage();
   const [providers, setProviders] = useState<DbAdProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -225,11 +228,12 @@ function ProvidersTab() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching ad providers."
       />
     );
-  if (error) return <StateMessage type="error" title="Error" message={error} />;
+  if (error)
+    return <StateMessage type="error" title={t("Error")} message={error} />;
 
   return (
     <>
@@ -240,10 +244,10 @@ function ProvidersTab() {
         </p>
         <div className="flex flex-wrap gap-2">
           <AdminButton variant="secondary" onClick={exportConfig}>
-            <Download className="h-4 w-4" /> Export
+            <Download className="h-4 w-4" /> {t("Export")}
           </AdminButton>
           <AdminButton variant="secondary" onClick={() => setShowImport(true)}>
-            <Upload className="h-4 w-4" /> Import
+            <Upload className="h-4 w-4" /> {t("Import")}
           </AdminButton>
           <AdminButton
             onClick={() => {
@@ -251,7 +255,7 @@ function ProvidersTab() {
               setShowForm(true);
             }}
           >
-            <Plus className="h-4 w-4" /> Add Provider
+            <Plus className="h-4 w-4" /> {t("Add Provider")}
           </AdminButton>
         </div>
       </div>
@@ -291,7 +295,7 @@ function ProvidersTab() {
                   {prov.is_active &&
                     prov.settings?.display_ads_enabled === false && (
                       <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600 dark:text-amber-400">
-                        Ads hidden
+                        {t("Ads hidden")}
                       </span>
                     )}
                 </div>
@@ -300,7 +304,7 @@ function ProvidersTab() {
                 <div className="mt-2 flex items-center justify-between gap-2 rounded-md bg-muted/50 px-2 py-1.5 dark:bg-white/5">
                   <div className="min-w-0">
                     <p className="text-[10px] font-semibold text-foreground dark:text-primary-foreground">
-                      Display ads
+                      {t("Display ads")}
                     </p>
                     <p className="truncate text-[9px] text-muted-foreground">
                       {prov.settings?.display_ads_enabled === false
@@ -321,7 +325,7 @@ function ProvidersTab() {
                     type="button"
                     onClick={() => movePriority(prov, -1)}
                     disabled={idx === 0}
-                    aria-label="Move up"
+                    aria-label={t("Move up")}
                   >
                     <ArrowUp className="h-3 w-3" />
                   </AdminIconButton>
@@ -330,7 +334,7 @@ function ProvidersTab() {
                     type="button"
                     onClick={() => movePriority(prov, 1)}
                     disabled={idx === arr.length - 1}
-                    aria-label="Move down"
+                    aria-label={t("Move down")}
                   >
                     <ArrowDown className="h-3 w-3" />
                   </AdminIconButton>
@@ -408,6 +412,7 @@ function ProviderForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [providerType, setProviderType] = useState<AdProviderType>(
@@ -494,7 +499,7 @@ function ProviderForm({
                 onChange={() => setUseCustomSchema(false)}
                 className="text-brand-purple"
               />
-              Built in
+              {t("Built in")}
             </label>
             <label className="flex items-center gap-1.5 text-sm">
               <AdminInput
@@ -503,7 +508,7 @@ function ProviderForm({
                 onChange={() => setUseCustomSchema(true)}
                 className="text-brand-purple"
               />
-              Custom
+              {t("Custom")}
             </label>
           </div>
         </AdminField>
@@ -523,7 +528,7 @@ function ProviderForm({
               }
             }}
           >
-            <option value="">Choose a provider</option>
+            <option value="">{t("Choose a provider")}</option>
             {BUILTIN_PROVIDERS.map((p) => (
               <option key={p.slug} value={p.slug}>
                 {p.name}
@@ -555,11 +560,11 @@ function ProviderForm({
             value={providerType}
             onChange={(e) => setProviderType(e.target.value as AdProviderType)}
           >
-            <option value="display">Display</option>
-            <option value="rewarded">Rewarded</option>
-            <option value="interstitial">Interstitial</option>
-            <option value="native">Native</option>
-            <option value="mixed">Mixed</option>
+            <option value="display">{t("Display")}</option>
+            <option value="rewarded">{t("Rewarded")}</option>
+            <option value="interstitial">{t("Interstitial")}</option>
+            <option value="native">{t("Native")}</option>
+            <option value="mixed">{t("Mixed")}</option>
           </AdminSelect>
         </AdminField>
         <AdminField label="Priority" hint="Lower = higher priority">
@@ -579,7 +584,7 @@ function ProviderForm({
       {/* Credential fields */}
       <div>
         <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-          Credentials
+          {t("Credentials")}
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
           {schema.credential_fields.map((field) => (
@@ -615,10 +620,10 @@ function ProviderForm({
           <code className="mt-2 block break-all rounded bg-background p-2 text-[11px]">{`${import.meta.env.VITE_SUPABASE_URL ?? "<your-supabase-project-url>"}/functions/v1/ayet-rewarded-callback?transaction_id={transaction_id}&external_identifier={external_identifier}&adslot_id={adslot_id}`}</code>
           <p className="mt-2 text-xs text-muted-foreground">
             The callback must include ayeT’s{" "}
-            <code>X-Ayetstudios-Security-Hash</code> header. The publisher API
-            key stays in the private Credentials field and is never put in this
-            URL. Keep rewarded video off until functions and migrations are
-            deployed.
+            <code>{t("X-Ayetstudios-Security-Hash")}</code> header. The
+            publisher API key stays in the private Credentials field and is
+            never put in this URL. Keep rewarded video off until functions and
+            migrations are deployed.
           </p>
         </div>
       )}
@@ -627,7 +632,7 @@ function ProviderForm({
       {schema.setting_fields.length > 0 && (
         <div>
           <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-            Settings
+            {t("Settings")}
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
             {schema.setting_fields.map((field) => (
@@ -673,7 +678,7 @@ function ProviderForm({
       )}
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {t("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? (
@@ -695,6 +700,7 @@ function ImportModal({
   onClose: () => void;
   onDone: () => void;
 }) {
+  const { t } = useLanguage();
   const [text, setText] = useState("");
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<{
@@ -749,7 +755,7 @@ function ImportModal({
     <AdminModal
       open
       onClose={onClose}
-      title="Import Providers"
+      title={t("Import Providers")}
       maxWidth="max-w-xl"
     >
       <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
@@ -775,7 +781,7 @@ function ImportModal({
       )}
       <div className="mt-4 flex justify-end gap-3">
         <AdminButton variant="secondary" onClick={onClose}>
-          Close
+          {t("Close")}
         </AdminButton>
         <AdminButton onClick={doImport} disabled={importing || !text.trim()}>
           {importing ? (
@@ -901,6 +907,7 @@ function isDeadSlot(pl: DbAdPlacement, providers: DbAdProvider[]): boolean {
 // Placements Tab
 // =========================================================
 function PlacementsTab() {
+  const { t } = useLanguage();
   const [placements, setPlacements] = useState<DbAdPlacement[]>([]);
   const [providers, setProviders] = useState<DbAdProvider[]>([]);
   const [loading, setLoading] = useState(true);
@@ -994,7 +1001,7 @@ function PlacementsTab() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching ad placements."
       />
     );
@@ -1045,7 +1052,7 @@ function PlacementsTab() {
               setShowForm(true);
             }}
           >
-            <Plus className="h-4 w-4" /> Add Placement
+            <Plus className="h-4 w-4" /> {t("Add Placement")}
           </AdminButton>
         </div>
       </div>
@@ -1094,7 +1101,7 @@ function PlacementsTab() {
               {pl.is_active && isDeadSlot(pl, providers) && (
                 <p className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
                   <AlertTriangle className="h-3 w-3 shrink-0" />
-                  No fillable ad unit, slot renders nothing
+                  {t("No fillable ad unit, slot renders nothing")}
                 </p>
               )}
               {pl.is_active &&
@@ -1115,7 +1122,7 @@ function PlacementsTab() {
                   <AdminIconButton
                     variant="ghost"
                     type="button"
-                    title="Move up"
+                    title={t("Move up")}
                     onClick={() => move(pl, -1)}
                   >
                     <ArrowUp className="h-3 w-3" />
@@ -1123,7 +1130,7 @@ function PlacementsTab() {
                   <AdminIconButton
                     variant="ghost"
                     type="button"
-                    title="Move down"
+                    title={t("Move down")}
                     onClick={() => move(pl, 1)}
                   >
                     <ArrowDown className="h-3 w-3" />
@@ -1179,6 +1186,7 @@ function PageMapPanel({
   placements: DbAdPlacement[];
   providers: DbAdProvider[];
 }) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const byKey = new Map(placements.map((p) => [p.placement_key, p]));
 
@@ -1227,16 +1235,16 @@ function PageMapPanel({
     <div className="mb-6 rounded-xl border border-border/70 bg-card p-4 dark:border-white/10">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-          Ad Slot Page Map, where every slot sits
+          {t("Ad Slot Page Map, where every slot sits")}
         </h3>
         <AdminButton variant="secondary" onClick={copyMarkdown}>
           {copied ? (
             <>
-              <Check className="h-4 w-4" /> Copied
+              <Check className="h-4 w-4" /> {t("Copied")}
             </>
           ) : (
             <>
-              <Copy className="h-4 w-4" /> Copy markdown
+              <Copy className="h-4 w-4" /> {t("Copy markdown")}
             </>
           )}
         </AdminButton>
@@ -1323,6 +1331,7 @@ function PlacementForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [placementKey, setPlacementKey] = useState(
     initial?.placement_key ?? "",
   );
@@ -1477,7 +1486,7 @@ function PlacementForm({
       {/* Display rules */}
       <div>
         <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-          Display Rules
+          {t("Display Rules")}
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <AdminField label="Show on Mobile">
@@ -1530,7 +1539,7 @@ function PlacementForm({
       {/* Provider assignment + ad unit IDs */}
       <div>
         <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-          Provider Fallback Chain
+          {t("Provider Fallback Chain")}
         </h3>
         <p className="mb-2 text-xs text-muted-foreground dark:text-muted-foreground">
           Select providers in order of priority. The first provider with a
@@ -1539,7 +1548,9 @@ function PlacementForm({
         </p>
         {activeProviders.length === 0 && (
           <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-            No active providers. Enable providers in the Providers tab first.
+            {t(
+              "No active providers. Enable providers in the Providers tab first.",
+            )}
           </p>
         )}
         <div className="space-y-2">
@@ -1610,9 +1621,11 @@ function PlacementForm({
                             });
                           }}
                         >
-                          <option value="banner">Banner (atOptions)</option>
+                          <option value="banner">
+                            {t("Banner (atOptions)")}
+                          </option>
                           <option value="native_banner">
-                            Native Banner (in-place)
+                            {t("Native Banner (in-place)")}
                           </option>
                         </AdminSelect>
                       )}
@@ -1671,7 +1684,7 @@ function PlacementForm({
       )}
       <div className="flex justify-end gap-3 pt-2">
         <AdminButton variant="secondary" onClick={onClose}>
-          Cancel
+          {t("Cancel")}
         </AdminButton>
         <AdminButton onClick={onSave} disabled={saving}>
           {saving ? (
@@ -1690,6 +1703,7 @@ function PlacementForm({
 // Analytics Tab
 // =========================================================
 function AnalyticsTab() {
+  const { t } = useLanguage();
   const [events, setEvents] = useState<
     { event_type: string; count: number; revenue: number }[]
   >([]);
@@ -1784,13 +1798,13 @@ function AnalyticsTab() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching ad analytics."
       />
     );
   if (error)
     return (
-      <StateMessage type="error" title="Analytics Error" message={error} />
+      <StateMessage type="error" title={t("Analytics Error")} message={error} />
     );
 
   return (
@@ -1840,7 +1854,7 @@ function AnalyticsTab() {
       {/* Event breakdown */}
       <AdminCard className="mb-4 p-5">
         <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-          Event Breakdown
+          {t("Event Breakdown")}
         </h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {events.map((ev) => (
@@ -1863,7 +1877,7 @@ function AnalyticsTab() {
           ))}
           {events.length === 0 && (
             <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-              No events recorded yet.
+              {t("No events recorded yet.")}
             </p>
           )}
         </div>
@@ -1872,7 +1886,7 @@ function AnalyticsTab() {
       {/* Provider performance */}
       <AdminCard className="p-5">
         <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-          Provider Performance
+          {t("Provider Performance")}
         </h2>
         {providerStats.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground">
@@ -1884,10 +1898,10 @@ function AnalyticsTab() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:border-border border-border">
-                  <th className="pb-2 pr-4">Provider</th>
-                  <th className="pb-2 pr-4">Event Type</th>
-                  <th className="pb-2 pr-4 text-right">Count</th>
-                  <th className="pb-2 text-right">Revenue</th>
+                  <th className="pb-2 pr-4">{t("Provider")}</th>
+                  <th className="pb-2 pr-4">{t("Event Type")}</th>
+                  <th className="pb-2 pr-4 text-right">{t("Count")}</th>
+                  <th className="pb-2 text-right">{t("Revenue")}</th>
                 </tr>
               </thead>
               <tbody>

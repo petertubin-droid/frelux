@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import PageHeader from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 type FeedbackKind = "feedback" | "feature_request" | "bug_report";
 
@@ -25,6 +26,7 @@ const CATEGORY_OPTIONS = [
 ];
 
 export default function Feedback() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([{ name: "Feedback & Suggestions", path: "/feedback" }]);
   const { user } = useAuth();
   const location = useLocation();
@@ -76,8 +78,10 @@ export default function Feedback() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
       <PageHeader
-        title="Feedback & Suggestions"
-        subtitle="Tell us what to build next. Every suggestion goes straight to the team."
+        title={t("Feedback & Suggestions")}
+        subtitle={t(
+          "Tell us what to build next. Every suggestion goes straight to the team.",
+        )}
       />
 
       {submitted ? (
@@ -96,7 +100,7 @@ export default function Feedback() {
             has been received and will be reviewed by the team.
           </p>
           <Button asChild variant="outline" className="mt-4">
-            <Link to="/">Back to homepage</Link>
+            <Link to="/">{t("Back to homepage")}</Link>
           </Button>
         </div>
       ) : (
@@ -130,7 +134,7 @@ export default function Feedback() {
               htmlFor="feedback-category"
               className="text-sm font-medium text-card-foreground"
             >
-              Area
+              {t("Area")}
             </label>
             <select
               id="feedback-category"
@@ -194,7 +198,7 @@ export default function Feedback() {
           <p className="text-center text-xs text-muted-foreground">
             You can also report prices you see locally on the{" "}
             <Link to="/material-prices" className="underline">
-              Price Tracker
+              {t("Price Tracker")}
             </Link>
             .
           </p>

@@ -5,8 +5,10 @@ import _Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { fetchColorCombinations, fetchColorCategories } from "@/lib/queries";
 import type { DbColorCombination, DbColorCategory } from "@/types/database";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ColorPreview() {
+  const { t } = useLanguage();
   const [combinations, setCombinations] = useState<DbColorCombination[]>([]);
   const [categories, setCategories] = useState<DbColorCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,11 +44,11 @@ export default function ColorPreview() {
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading
             label="Color ideas"
-            title="Find colors that fit your space"
+            title={t("Find colors that fit your space")}
             subtitle="Browse curated palettes for every room and style, from calm neutrals to bold statements."
           />
           <Link to="/colors/" className="btn-outline shrink-0">
-            View all colors
+            {t("View all colors")}
             <ArrowRight aria-hidden="true" className="h-4 w-4" />
           </Link>
         </div>
@@ -60,7 +62,7 @@ export default function ColorPreview() {
           )}
           {!loading && combinations.length === 0 && (
             <div className="col-span-full py-16 text-center text-sm text-muted-foreground dark:text-muted-foreground">
-              No color combinations published yet.
+              {t("No color combinations published yet.")}
             </div>
           )}
           {combinations.map((c) => (

@@ -24,6 +24,7 @@ import type {
   StudioToolType,
 } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const GENERATION_TOOLS = new Set([
   "page_builder",
@@ -88,6 +89,7 @@ const MANAGEMENT_TOOLS = new Set([
 ]);
 
 export default function StudioDispatcher() {
+  const { t } = useLanguage();
   const { toolSlug } = useParams<{ toolSlug: string }>();
 
   // Route management/infrastructure tools to StudioManagement
@@ -102,7 +104,7 @@ export default function StudioDispatcher() {
   if (!tool) {
     return (
       <div className="py-20 text-center text-sm text-muted-foreground">
-        Tool not found.
+        {t("Tool not found.")}
       </div>
     );
   }
@@ -117,7 +119,7 @@ export default function StudioDispatcher() {
 
   return (
     <div className="py-20 text-center text-sm text-muted-foreground">
-      This tool is available in the sidebar.
+      {t("This tool is available in the sidebar.")}
     </div>
   );
 }
@@ -222,6 +224,7 @@ function ChatTool({
   toolSlug: string;
   tool: ReturnType<typeof getTool>;
 }) {
+  const { t } = useLanguage();
   const [messages, setMessages] = useState<DbStudioChat[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -346,7 +349,7 @@ function ChatTool({
             }}
             className="w-full rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
-            New Chat
+            {t("New Chat")}
           </Button>
           <div className="max-h-96 space-y-1 overflow-y-auto">
             {sessions.map((s) => (
@@ -386,7 +389,7 @@ function ChatTool({
                 <div>
                   <Icon className="mx-auto h-8 w-8 text-muted-foreground/80" />
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Ask the AI assistant anything about your project.
+                    {t("Ask the AI assistant anything about your project.")}
                   </p>
                 </div>
               </div>
@@ -414,7 +417,7 @@ function ChatTool({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Type your message…"
+              placeholder={t("Type your message…")}
               disabled={loading}
               className="input-field flex-1"
             />
@@ -425,7 +428,7 @@ function ChatTool({
               disabled={loading || !input.trim()}
               className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
             >
-              Send
+              {t("Send")}
             </Button>
           </div>
         </div>

@@ -8,8 +8,10 @@ import {
 import type { MaterialWithPrice } from "@/lib/project-intelligence";
 import type { DbMaterialPriceHistory } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function AdminMaterialPrices() {
+  const { t } = useLanguage();
   const [materials, setMaterials] = useState<MaterialWithPrice[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -57,13 +59,14 @@ export default function AdminMaterialPrices() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Material Price Tracker</h1>
+          <h1 className="text-2xl font-bold">{t("Material Price Tracker")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Manage current material prices. Price history is preserved
             automatically.
           </p>
         </div>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={loadHistory}
           className="group inline-flex items-center gap-2 rounded-xl bg-muted px-4 py-2.5 text-sm font-medium hover:bg-muted/80 transition-all hover:scale-105"
         >
@@ -136,13 +139,15 @@ export default function AdminMaterialPrices() {
                           onChange={(e) => setNewPrice(e.target.value)}
                           autoFocus
                         />
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() => handleUpdatePrice(m)}
                           className="rounded p-1.5 hover:bg-emerald-500/10 transition-all hover:scale-110"
                         >
                           <Save className="h-4 w-4 text-emerald-600" />
                         </Button>
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() => setEditingId(null)}
                           className="rounded p-1.5 hover:bg-muted transition-all"
                         >
@@ -150,7 +155,8 @@ export default function AdminMaterialPrices() {
                         </Button>
                       </div>
                     ) : (
-                      <Button variant="ghost"
+                      <Button
+                        variant="ghost"
                         onClick={() => {
                           setEditingId(m.id);
                           setNewPrice(String(m.current_price));
@@ -180,8 +186,9 @@ export default function AdminMaterialPrices() {
             style={{ animation: "fadeInScale 0.3s ease-out" }}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-lg">Price History</h3>
-              <Button variant="ghost"
+              <h3 className="font-semibold text-lg">{t("Price History")}</h3>
+              <Button
+                variant="ghost"
                 onClick={() => setShowHistory(false)}
                 className="rounded-lg p-1.5 hover:bg-muted"
               >
@@ -191,7 +198,7 @@ export default function AdminMaterialPrices() {
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {history.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">
-                  No price changes recorded yet.
+                  {t("No price changes recorded yet.")}
                 </p>
               ) : (
                 history.map((h) => (

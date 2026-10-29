@@ -25,8 +25,10 @@ import { useCredits } from "@/lib/credits-context";
 import { useSeo } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function Profile() {
+  const { t } = useLanguage();
   useSeo({
     title: "My Profile, FRELUX",
     description:
@@ -58,8 +60,8 @@ export default function Profile() {
       <>
         <PageHeader
           eyebrow="Account"
-          title="My Profile"
-          subtitle="Sign in to edit your profile and manage your account."
+          title={t("My Profile")}
+          subtitle={t("Sign in to edit your profile and manage your account.")}
         />
         <div className="mx-auto max-w-lg px-4 py-16 text-center">
           <User
@@ -67,13 +69,13 @@ export default function Profile() {
             className="mx-auto h-12 w-12 text-muted-foreground/80"
           />
           <p className="mt-4 text-muted-foreground">
-            Please sign in to view and edit your profile.
+            {t("Please sign in to view and edit your profile.")}
           </p>
           <Link
             to="/login/?redirect=/profile"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Sign In
+            {t("Sign In")}
           </Link>
         </div>
       </>
@@ -190,8 +192,8 @@ export default function Profile() {
     <>
       <PageHeader
         eyebrow="Account"
-        title="My Profile"
-        subtitle="Manage your personal information and profile picture."
+        title={t("My Profile")}
+        subtitle={t("Manage your personal information and profile picture.")}
       />
 
       <div className="mx-auto max-w-3xl px-4 py-8">
@@ -221,7 +223,7 @@ export default function Profile() {
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
                 className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all hover:bg-primary/90 active:scale-95 disabled:opacity-50"
-                aria-label="Change profile picture"
+                aria-label={t("Change profile picture")}
               >
                 {uploading ? (
                   <Loader2
@@ -233,7 +235,7 @@ export default function Profile() {
                 )}
               </Button>
               <input
-                aria-label="Profile photo upload"
+                aria-label={t("Profile photo upload")}
                 ref={fileRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
@@ -276,7 +278,7 @@ export default function Profile() {
                 </div>
                 <div>
                   <p className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                    Marketplace ID
+                    {t("Marketplace ID")}
                   </p>
                   <p className="text-sm font-bold tracking-wider text-foreground dark:text-primary-foreground">
                     {profile.marketplace_id}
@@ -306,10 +308,10 @@ export default function Profile() {
         {/* Edit Form */}
         <div className="mt-6 rounded-2xl border border-border/60 bg-card p-6 shadow-sm dark:border-white/10 dark:bg-card">
           <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
-            Personal Information
+            {t("Personal Information")}
           </h3>
           <p className="mt-0.5 text-sm text-muted-foreground dark:text-muted-foreground">
-            Update your name and contact details.
+            {t("Update your name and contact details.")}
           </p>
 
           <div className="mt-5 space-y-4">
@@ -322,14 +324,14 @@ export default function Profile() {
                   aria-hidden="true"
                   className="h-3.5 w-3.5 text-muted-foreground"
                 />
-                Full Name
+                {t("Full Name")}
               </label>
               <input
                 id="profile-full-name"
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Enter your full name"
+                placeholder={t("Enter your full name")}
                 className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground transition-colors placeholder:text-muted-foreground/80 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
               />
             </div>
@@ -340,14 +342,14 @@ export default function Profile() {
                 className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80"
               >
                 <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                Phone Number
+                {t("Phone Number")}
               </label>
               <input
                 id="profile-phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="Include country code, e.g. +234 800 000 0000"
+                placeholder={t("Include country code, e.g. +234 800 000 0000")}
                 className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground transition-colors placeholder:text-muted-foreground/80 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
               />
             </div>
@@ -358,7 +360,7 @@ export default function Profile() {
                 className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80"
               >
                 <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                Email
+                {t("Email")}
               </label>
               <input
                 id="profile-email"
@@ -401,7 +403,7 @@ export default function Profile() {
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                  Member Since
+                  {t("Member Since")}
                 </p>
                 <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                   {profile?.created_at
@@ -423,7 +425,7 @@ export default function Profile() {
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                  Account Type
+                  {t("Account Type")}
                 </p>
                 <p className="text-sm font-semibold capitalize text-foreground dark:text-primary-foreground">
                   {profile?.account_type?.replace("_", " ") ?? "Client"}
@@ -439,7 +441,7 @@ export default function Profile() {
             <ShoppingBag className="mt-0.5 h-5 w-5 shrink-0 text-brand-purple" />
             <div>
               <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                Your Marketplace ID
+                {t("Your Marketplace ID")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 This unique ID will be used to identify you in the upcoming
@@ -459,7 +461,7 @@ export default function Profile() {
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground">
-                  FRELUX Credits
+                  {t("FRELUX Credits")}
                 </p>
                 <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
                   {wallet?.balance ?? 0}
@@ -478,7 +480,7 @@ export default function Profile() {
                 to="/rewards/"
                 className="rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                View Rewards
+                {t("View Rewards")}
               </Link>
             </div>
           </div>
@@ -506,7 +508,7 @@ export default function Profile() {
             </div>
             <div className="flex-1">
               <p className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                Subscription Status
+                {t("Subscription Status")}
               </p>
               {isPaid ? (
                 <div>
@@ -537,14 +539,14 @@ export default function Profile() {
               ) : (
                 <div>
                   <p className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground">
-                    Free Plan
+                    {t("Free Plan")}
                   </p>
                   <Link
                     to="/pricing/"
                     className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline"
                   >
                     <PremiumBadge size="xs" />
-                    Upgrade
+                    {t("Upgrade")}
                   </Link>
                 </div>
               )}

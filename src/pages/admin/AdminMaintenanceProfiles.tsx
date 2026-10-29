@@ -28,6 +28,7 @@ import {
   deleteMaintenanceProfile,
 } from "@/lib/estimation/queries";
 import type { MaintenanceProfile } from "@/types/estimation";
+import { useLanguage } from "@/lib/i18n";
 
 interface ProfileForm {
   finish_category: string;
@@ -141,6 +142,7 @@ function validate(f: ProfileForm): string | null {
 }
 
 export default function AdminMaintenanceProfiles() {
+  const { t: tr } = useLanguage();
   const [profiles, setProfiles] = useState<MaintenanceProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -244,11 +246,11 @@ export default function AdminMaintenanceProfiles() {
   return (
     <div className="space-y-6">
       <AdminHeader
-        title="Maintenance Profiles"
+        title={tr("Maintenance Profiles")}
         subtitle="Verified maintenance data per finish category and surface type: service lives, re-coat intervals, inspection cadence and cost factors. The Maintenance Planner refuses to schedule categories without a configured profile."
         action={
           <AdminButton onClick={openCreate}>
-            <Plus className="mr-2 h-4 w-4" /> Add Profile
+            <Plus className="mr-2 h-4 w-4" /> {tr("Add Profile")}
           </AdminButton>
         }
       />
@@ -256,21 +258,23 @@ export default function AdminMaintenanceProfiles() {
       {error && (
         <StateMessage
           type="error"
-          title="Something went wrong"
+          title={tr("Something went wrong")}
           message={error}
         />
       )}
-      {success && <StateMessage type="empty" title="Saved" message={success} />}
+      {success && (
+        <StateMessage type="empty" title={tr("Saved")} message={success} />
+      )}
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={tr("Loading…")}
           message="Fetching maintenance profiles."
         />
       ) : profiles.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No maintenance profiles yet"
+          title={tr("No maintenance profiles yet")}
           message="Add verified data (e.g. paint / exterior with an 8–12 year service life from a manufacturer datasheet) to enable the Maintenance Planner."
         />
       ) : null}
@@ -279,14 +283,14 @@ export default function AdminMaintenanceProfiles() {
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">
             <tr>
-              <th className="p-3">Category / Surface</th>
-              <th className="p-3">Service life</th>
-              <th className="p-3">Maint. interval</th>
-              <th className="p-3">Inspection</th>
-              <th className="p-3">Cost factors</th>
-              <th className="p-3">Source</th>
-              <th className="p-3">Active</th>
-              <th className="p-3 text-right">Actions</th>
+              <th className="p-3">{tr("Category / Surface")}</th>
+              <th className="p-3">{tr("Service life")}</th>
+              <th className="p-3">{tr("Maint. interval")}</th>
+              <th className="p-3">{tr("Inspection")}</th>
+              <th className="p-3">{tr("Cost factors")}</th>
+              <th className="p-3">{tr("Source")}</th>
+              <th className="p-3">{tr("Active")}</th>
+              <th className="p-3 text-right">{tr("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -450,7 +454,9 @@ export default function AdminMaintenanceProfiles() {
               <AdminTextarea
                 value={form.source_reference}
                 onChange={(e) => set("source_reference", e.target.value)}
-                placeholder="Manufacturer datasheet, standard or trade source this data comes from"
+                placeholder={tr(
+                  "Manufacturer datasheet, standard or trade source this data comes from",
+                )}
               />
             </AdminField>
           </div>
@@ -464,7 +470,7 @@ export default function AdminMaintenanceProfiles() {
         </div>
         <div className="mt-4 flex justify-end gap-2">
           <AdminButton variant="secondary" onClick={() => setShowForm(false)}>
-            Cancel
+            {tr("Cancel")}
           </AdminButton>
           <AdminButton onClick={save} disabled={saving}>
             {saving

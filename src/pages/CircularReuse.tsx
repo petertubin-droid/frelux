@@ -32,8 +32,10 @@ import type {
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { formatCurrency } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 export default function CircularReuse() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Circular & Reuse: Demolition Recovery", path: "/circular-reuse" },
@@ -109,7 +111,7 @@ export default function CircularReuse() {
             { label: "Construction Tools", path: "/construction-tools" },
             { label: "Circular & Reuse: Demolition Recovery" },
           ]}
-          title="Circular & Reuse: Demolition Recovery"
+          title={t("Circular & Reuse: Demolition Recovery")}
           subtitle="Circular-economy mandates are coming to construction. Plan a demolition or strip-out honestly: how much material is recoverable, reusable, recyclable, and what lands in a dump: computed only from sourced recovery factors, never a guess."
         />
 
@@ -122,7 +124,7 @@ export default function CircularReuse() {
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="grid gap-1 text-sm font-medium">
-              Material category
+              {t("Material category")}
               <select
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={category}
@@ -131,7 +133,9 @@ export default function CircularReuse() {
                   setResult(null);
                 }}
               >
-                <option value="">Select the material being stripped out</option>
+                <option value="">
+                  {t("Select the material being stripped out")}
+                </option>
                 {factors.map((f) => (
                   <option key={f.id} value={f.category}>
                     {f.category_label ?? f.category}
@@ -157,7 +161,7 @@ export default function CircularReuse() {
             disabled={!category || !quantity}
             className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
-            Plan recovery
+            {t("Plan recovery")}
           </button>
         </div>
 
@@ -176,7 +180,7 @@ export default function CircularReuse() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Recovered
+                  {t("Recovered")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.recovered_qty} {selected?.unit}
@@ -187,7 +191,7 @@ export default function CircularReuse() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Reused
+                  {t("Reused")}
                 </p>
                 <p className="mt-1 text-xl font-semibold text-emerald-600 dark:text-emerald-400">
                   {result.reused_qty} {selected?.unit}
@@ -198,7 +202,7 @@ export default function CircularReuse() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Recycled
+                  {t("Recycled")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.recycled_qty} {selected?.unit}
@@ -209,7 +213,7 @@ export default function CircularReuse() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  To landfill
+                  {t("To landfill")}
                 </p>
                 <p className="mt-1 text-xl font-semibold text-destructive">
                   {result.landfill_qty} {selected?.unit}
@@ -221,7 +225,7 @@ export default function CircularReuse() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Landfill diversion
+                  {t("Landfill diversion")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.diversion_percent}%
@@ -236,7 +240,7 @@ export default function CircularReuse() {
               </div>
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">
-                  Reuse value
+                  {t("Reuse value")}
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.reuse_value_naira === null
@@ -263,7 +267,7 @@ export default function CircularReuse() {
 
             <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
               <summary className="cursor-pointer font-medium">
-                How this was determined
+                {t("How this was determined")}
               </summary>
               <ul className="mt-2 space-y-1">
                 {result.steps.map((s, i) => (

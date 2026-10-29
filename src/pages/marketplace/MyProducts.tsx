@@ -16,8 +16,10 @@ import { classNames } from "@/lib/utils";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { formatByCode } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 export default function MyProducts() {
+  const { t } = useLanguage();
   useSeo({
     description: "FRELUX marketplace",
     title: "My Products, FRELUX Marketplace",
@@ -102,17 +104,17 @@ export default function MyProducts() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-            My Products
+            {t("My Products")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage your product listings on the marketplace.
+            {t("Manage your product listings on the marketplace.")}
           </p>
         </div>
         <Link
           to="/marketplace/products/post/"
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Sell Product
+          <Plus aria-hidden="true" className="h-4 w-4" /> {t("Sell Product")}
         </Link>
       </div>
 
@@ -139,10 +141,10 @@ export default function MyProducts() {
         <div className="py-12 text-center">
           <Store className="mx-auto h-10 w-10 text-muted-foreground/80" />
           <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
-            No products yet
+            {t("No products yet")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Start selling building materials and interior products.
+            {t("Start selling building materials and interior products.")}
           </p>
           <Link
             to="/marketplace/products/post/"
@@ -227,7 +229,7 @@ export default function MyProducts() {
                 <Link
                   to={`/marketplace/products/${product.id}/`}
                   className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-brand-purple dark:hover:bg-white/5"
-                  title="View"
+                  title={t("View")}
                 >
                   <Eye aria-hidden="true" className="h-4 w-4" />
                 </Link>
@@ -235,7 +237,7 @@ export default function MyProducts() {
                   variant="ghost"
                   onClick={() => handleDelete(product.id)}
                   className="rounded p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"
-                  title="Delete"
+                  title={t("Delete")}
                 >
                   <Trash2 aria-hidden="true" className="h-4 w-4" />
                 </Button>

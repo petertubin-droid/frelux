@@ -8,6 +8,7 @@ import type {
 import { ProAvailability } from "@/types/pro-connect";
 import { VerificationBadgeInline } from "@/components/pro-connect/VerificationBadge";
 import { classNames } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 interface ProfessionalCardProps {
   profile: DbProProfile;
@@ -41,6 +42,7 @@ export default function ProfessionalCard({
   category,
   services,
 }: ProfessionalCardProps) {
+  const { t } = useLanguage();
   const avail = availabilityConfig[profile.availability];
 
   return (
@@ -103,7 +105,7 @@ export default function ProfessionalCard({
           </div>
         ) : (
           <span className="text-xs text-muted-foreground dark:text-muted-foreground">
-            No reviews yet
+            {t("No reviews yet")}
           </span>
         )}
 
@@ -150,7 +152,7 @@ export default function ProfessionalCard({
       {/* CTA */}
       <div className="mt-auto pt-4">
         <span className="inline-flex w-full items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground transition-colors group-hover:border-brand-purple group-hover:bg-primary group-hover:text-primary-foreground dark:border-white/10 dark:text-muted-foreground/60 dark:group-hover:border-brand-purple dark:group-hover:bg-primary">
-          View Profile
+          {t("View Profile")}
         </span>
       </div>
     </Link>

@@ -45,7 +45,11 @@ import type {
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
-import { printQuote, exportQuoteToDocumentStudio, type QuoteOptions } from "@/lib/estimation/quote-export";
+import {
+  printQuote,
+  exportQuoteToDocumentStudio,
+  type QuoteOptions,
+} from "@/lib/estimation/quote-export";
 import { quoteToShareable } from "@/lib/estimate-sharing";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useNavigate } from "react-router-dom";
@@ -53,6 +57,7 @@ import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 
 import UnitToggle from "@/components/measurement/UnitToggle";
+import { useLanguage } from "@/lib/i18n";
 interface PassedState {
   surfaceArea?: number;
   grandTotal?: number;
@@ -89,77 +94,84 @@ function tileQuoteOptions(
 ): QuoteOptions {
   const fmt = (v: number) => formatCurrency(v, result.currencySymbol);
   return {
-      title: "FRELUX Tile Cost Estimate",
-      subtitle: `Generated ${new Date().toLocaleDateString()} · ${method} installation`,
-      metaRows: [
-        ["Surface area", `${formatNumber(result.surfaceArea)} m²`],
-        ["Tiles needed", String(result.tilesNeeded)],
-        ["Boxes needed", String(result.boxesNeeded)],
-        ["Waste allowance", `${formatNumber(result.wasteAmount)} m²`],
-      ],
-      lines: [
-        {
-          label: "Tiles",
-          quantity: String(result.boxesNeeded),
-          unit: "boxes",
-          unit_price: "included",
-          line_total: fmt(result.tileCost),
-          detail: `${result.tilesNeeded} tiles incl. waste`,
-        },
-        {
-          label: "Adhesive",
-          quantity: formatNumber(result.adhesiveNeeded),
-          unit: "kg",
-          unit_price: "included",
-          line_total: fmt(result.adhesiveCost),
-        },
-        {
-          label: "Cement",
-          quantity: formatNumber(result.cementNeeded),
-          unit: "bags",
-          unit_price: "included",
-          line_total: fmt(result.cementCost),
-        },
-        {
-          label: "Sand",
-          quantity: formatNumber(result.sandNeeded),
-          unit: "trips",
-          unit_price: "included",
-          line_total: fmt(result.sandCost),
-        },
-        {
-          label: "Grout",
-          quantity: formatNumber(result.groutNeeded),
-          unit: "kg",
-          unit_price: "included",
-          line_total: fmt(result.groutCost),
-        },
-        {
-          label: "Spacers",
-          quantity: formatNumber(result.spacerNeeded),
-          unit: "pcs",
-          unit_price: "included",
-          line_total: fmt(result.spacerCost),
-        },
-      ].filter((l) => l.line_total !== fmt(0)),
-      totals: [
-        { label: "Material cost", value: fmt(result.materialCost) },
-        { label: "Labour", value: fmt(result.labourCost) },
-        { label: "Grand total", value: fmt(result.grandTotal), strong: true },
-      ],
-      warnings: result.warnings ?? [],
-      footer:
-        "Estimates are indicative and not a formal quote. Tile quantities include the configured waste margin; prices use the configured material database for your market.",
+    title: "FRELUX Tile Cost Estimate",
+    subtitle: `Generated ${new Date().toLocaleDateString()} · ${method} installation`,
+    metaRows: [
+      ["Surface area", `${formatNumber(result.surfaceArea)} m²`],
+      ["Tiles needed", String(result.tilesNeeded)],
+      ["Boxes needed", String(result.boxesNeeded)],
+      ["Waste allowance", `${formatNumber(result.wasteAmount)} m²`],
+    ],
+    lines: [
+      {
+        label: "Tiles",
+        quantity: String(result.boxesNeeded),
+        unit: "boxes",
+        unit_price: "included",
+        line_total: fmt(result.tileCost),
+        detail: `${result.tilesNeeded} tiles incl. waste`,
+      },
+      {
+        label: "Adhesive",
+        quantity: formatNumber(result.adhesiveNeeded),
+        unit: "kg",
+        unit_price: "included",
+        line_total: fmt(result.adhesiveCost),
+      },
+      {
+        label: "Cement",
+        quantity: formatNumber(result.cementNeeded),
+        unit: "bags",
+        unit_price: "included",
+        line_total: fmt(result.cementCost),
+      },
+      {
+        label: "Sand",
+        quantity: formatNumber(result.sandNeeded),
+        unit: "trips",
+        unit_price: "included",
+        line_total: fmt(result.sandCost),
+      },
+      {
+        label: "Grout",
+        quantity: formatNumber(result.groutNeeded),
+        unit: "kg",
+        unit_price: "included",
+        line_total: fmt(result.groutCost),
+      },
+      {
+        label: "Spacers",
+        quantity: formatNumber(result.spacerNeeded),
+        unit: "pcs",
+        unit_price: "included",
+        line_total: fmt(result.spacerCost),
+      },
+    ].filter((l) => l.line_total !== fmt(0)),
+    totals: [
+      { label: "Material cost", value: fmt(result.materialCost) },
+      { label: "Labour", value: fmt(result.labourCost) },
+      { label: "Grand total", value: fmt(result.grandTotal), strong: true },
+    ],
+    warnings: result.warnings ?? [],
+    footer:
+      "Estimates are indicative and not a formal quote. Tile quantities include the configured waste margin; prices use the configured material database for your market.",
   };
 }
 
-function exportTileQuote(result: Parameters<typeof tileQuoteOptions>[0], method: string) {
-  printQuote(tileQuoteOptions(result, method), "frelux-tile-cost-estimate.html");
+function exportTileQuote(
+  result: Parameters<typeof tileQuoteOptions>[0],
+  method: string,
+) {
+  printQuote(
+    tileQuoteOptions(result, method),
+    "frelux-tile-cost-estimate.html",
+  );
 }
 
 export default function TileCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { marketCode } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("tile_cost");
@@ -384,8 +396,10 @@ export default function TileCostEstimator({
         {!embedded && (
           <PageHeader
             eyebrow="Estimate"
-            title="Tile Cost Estimator"
-            subtitle="Estimate material and labour costs for your tile installation."
+            title={t("Tile Cost Estimator")}
+            subtitle={t(
+              "Estimate material and labour costs for your tile installation.",
+            )}
             breadcrumbs={[
               { label: "Home", path: "/" },
               { label: "Calculators", path: "/calculators" },
@@ -406,8 +420,10 @@ export default function TileCostEstimator({
       {!embedded && (
         <PageHeader
           eyebrow="Estimate"
-          title="Tile Cost Estimator"
-          subtitle="Estimate tile, adhesive, grout, and labour costs for your tiling project."
+          title={t("Tile Cost Estimator")}
+          subtitle={t(
+            "Estimate tile, adhesive, grout, and labour costs for your tiling project.",
+          )}
           breadcrumbs={[
             { label: "Home", path: "/" },
             { label: "Calculators", path: "/calculators" },
@@ -442,7 +458,7 @@ export default function TileCostEstimator({
                     setMarketNotConfigured(false);
                   }}
                 >
-                  Use Nigerian reference materials (marked)
+                  {t("Use Nigerian reference materials (marked)")}
                 </button>
               </div>
             )}
@@ -456,7 +472,7 @@ export default function TileCostEstimator({
                 and prices for your market before ordering.
               </div>
             )}
-            <Section title="Surface">
+            <Section title={t("Surface")}>
               <Field label="Surface type">
                 <select
                   value={input.surfaceType}
@@ -465,8 +481,8 @@ export default function TileCostEstimator({
                   }
                   className="input-field dark:bg-card dark:border-white/10"
                 >
-                  <option value="floor">Floor</option>
-                  <option value="wall">Wall</option>
+                  <option value="floor">{t("Floor")}</option>
+                  <option value="wall">{t("Wall")}</option>
                 </select>
               </Field>
               <div className="mt-4 inline-flex rounded-lg border border-border dark:border-white/5 p-1">
@@ -528,7 +544,7 @@ export default function TileCostEstimator({
               </div>
             </Section>
 
-            <Section title="Tile specifications">
+            <Section title={t("Tile specifications")}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Tile width (mm)">
                   <input
@@ -578,7 +594,7 @@ export default function TileCostEstimator({
               </div>
             </Section>
 
-            <Section title="Materials">
+            <Section title={t("Materials")}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label={`Adhesive price per bag (${currencySymbol})`}>
                   <input
@@ -672,7 +688,7 @@ export default function TileCostEstimator({
             <div className="card sticky top-20 overflow-hidden">
               <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground">
                 <p className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/60">
-                  Estimated total
+                  {t("Estimated total")}
                 </p>
                 {result ? (
                   <p className="mt-1 text-3xl font-bold sm:text-4xl">
@@ -684,7 +700,7 @@ export default function TileCostEstimator({
                   </p>
                 )}
                 <p className="mt-1 text-xs text-primary-foreground/50">
-                  Estimate only, not a final quote.
+                  {t("Estimate only, not a final quote.")}
                 </p>
               </div>
               <div className="space-y-2 p-6">
@@ -791,10 +807,12 @@ export default function TileCostEstimator({
                         <div className="flex gap-2">
                           <button
                             type="button"
-                            onClick={() => exportTileQuote(result, result.method)}
+                            onClick={() =>
+                              exportTileQuote(result, result.method)
+                            }
                             className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-muted"
                           >
-                            Print Quote
+                            {t("Print Quote")}
                           </button>
                           <ShareEstimateButton
                             estimate={quoteToShareable(
@@ -811,24 +829,67 @@ export default function TileCostEstimator({
                                 title: "Tile Cost Estimate",
                                 subtitle: `Surface: ${formatNumber(result.surfaceArea)} m² · ${result.method}`,
                                 metaRows: [
-                                  ["Surface area", `${formatNumber(result.surfaceArea)} m²`],
+                                  [
+                                    "Surface area",
+                                    `${formatNumber(result.surfaceArea)} m²`,
+                                  ],
                                   ["Tiles needed", String(result.tilesNeeded)],
                                   ["Boxes needed", String(result.boxesNeeded)],
                                 ] as [string, string][],
                                 lines: [
-                                  { label: "Tiles", quantity: String(result.boxesNeeded), unit: "boxes", unit_price: String(result.tileCost / (result.boxesNeeded || 1)), line_total: String(result.tileCost), detail: `${result.tilesNeeded} tiles` },
-                                  { label: "Adhesive", quantity: String(result.adhesiveNeeded), unit: "kg", unit_price: "0", line_total: String(result.adhesiveCost) },
-                                  { label: "Grout", quantity: String(result.groutNeeded), unit: "kg", unit_price: "0", line_total: String(result.groutCost) },
-                                  { label: "Labour", quantity: "1", unit: "lot", unit_price: String(result.labourCost), line_total: String(result.labourCost) },
+                                  {
+                                    label: "Tiles",
+                                    quantity: String(result.boxesNeeded),
+                                    unit: "boxes",
+                                    unit_price: String(
+                                      result.tileCost /
+                                        (result.boxesNeeded || 1),
+                                    ),
+                                    line_total: String(result.tileCost),
+                                    detail: `${result.tilesNeeded} tiles`,
+                                  },
+                                  {
+                                    label: "Adhesive",
+                                    quantity: String(result.adhesiveNeeded),
+                                    unit: "kg",
+                                    unit_price: "0",
+                                    line_total: String(result.adhesiveCost),
+                                  },
+                                  {
+                                    label: "Grout",
+                                    quantity: String(result.groutNeeded),
+                                    unit: "kg",
+                                    unit_price: "0",
+                                    line_total: String(result.groutCost),
+                                  },
+                                  {
+                                    label: "Labour",
+                                    quantity: "1",
+                                    unit: "lot",
+                                    unit_price: String(result.labourCost),
+                                    line_total: String(result.labourCost),
+                                  },
                                 ],
-                                totals: [{ label: "Grand Total", value: formatCurrency(result.grandTotal, result.currencySymbol), strong: true }],
+                                totals: [
+                                  {
+                                    label: "Grand Total",
+                                    value: formatCurrency(
+                                      result.grandTotal,
+                                      result.currencySymbol,
+                                    ),
+                                    strong: true,
+                                  },
+                                ],
                               };
-                              exportQuoteToDocumentStudio(opts, result.currencySymbol === "₦" ? "NGN" : "USD");
+                              exportQuoteToDocumentStudio(
+                                opts,
+                                result.currencySymbol === "₦" ? "NGN" : "USD",
+                              );
                               navigate("/document-studio?calculatorImport=1");
                             }}
                             className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                           >
-                            Open in Document Studio
+                            {t("Open in Document Studio")}
                           </button>
                         </div>
                         <SaveToProjectButton

@@ -11,8 +11,10 @@ import {
 } from "lucide-react";
 import Container from "@/components/ui/Container";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useLanguage } from "@/lib/i18n";
 
 export default function PWASection() {
+  const { t } = useLanguage();
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
 
   return (
@@ -41,7 +43,7 @@ export default function PWASection() {
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-primary-foreground/70 backdrop-blur-md">
               <Smartphone className="h-3 w-3 text-brand-purple-light" />
-              Mobile-first & PWA
+              {t("Mobile-first & PWA")}
             </span>
 
             <h2 className="mt-6 font-display text-3xl font-bold leading-[1.12] tracking-tight sm:text-4xl text-balance">
@@ -65,10 +67,10 @@ export default function PWASection() {
                 </span>
                 <div>
                   <p className="text-sm font-semibold text-primary-foreground">
-                    Installable as a PWA
+                    {t("Installable as a PWA")}
                   </p>
                   <p className="text-xs text-primary-foreground/45">
-                    Add to your home screen, no app store needed
+                    {t("Add to your home screen, no app store needed")}
                   </p>
                 </div>
               </div>
@@ -78,7 +80,7 @@ export default function PWASection() {
                 </span>
                 <div>
                   <p className="text-sm font-semibold text-primary-foreground">
-                    Works offline
+                    {t("Works offline")}
                   </p>
                   <p className="text-xs text-primary-foreground/45">
                     Saved estimates and recent calculations are available
@@ -92,7 +94,7 @@ export default function PWASection() {
                 </span>
                 <div>
                   <p className="text-sm font-semibold text-primary-foreground">
-                    Optimized for small screens
+                    {t("Optimized for small screens")}
                   </p>
                   <p className="text-xs text-primary-foreground/45">
                     Clean, readable interface that works on any Android or iOS
@@ -107,7 +109,7 @@ export default function PWASection() {
                 to="/paint-calculator/?mode=room-estimate"
                 className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
               >
-                Try on your phone
+                {t("Try on your phone")}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>
@@ -135,10 +137,10 @@ export default function PWASection() {
                   {/* App header */}
                   <div className="mb-4 flex items-center justify-between">
                     <span className="text-xs font-bold text-primary-foreground">
-                      FRELUX
+                      {t("FRELUX")}
                     </span>
                     <span className="text-[10px] text-primary-foreground/40">
-                      Paint Calculator
+                      {t("Paint Calculator")}
                     </span>
                   </div>
 
@@ -149,7 +151,7 @@ export default function PWASection() {
                         <CalcIcon className="h-4 w-4" />
                       </span>
                       <span className="text-xs font-semibold text-primary-foreground">
-                        Paint Calculator
+                        {t("Paint Calculator")}
                       </span>
                     </div>
 
@@ -158,7 +160,7 @@ export default function PWASection() {
                       <div className="flex gap-2">
                         <div className="flex-1 rounded-lg bg-white/5 px-3 py-2">
                           <p className="text-[9px] text-primary-foreground/30">
-                            Length
+                            {t("Length")}
                           </p>
                           <p className="text-xs font-bold text-primary-foreground">
                             12 ft
@@ -166,7 +168,7 @@ export default function PWASection() {
                         </div>
                         <div className="flex-1 rounded-lg bg-white/5 px-3 py-2">
                           <p className="text-[9px] text-primary-foreground/30">
-                            Width
+                            {t("Width")}
                           </p>
                           <p className="text-xs font-bold text-primary-foreground">
                             12 ft
@@ -176,7 +178,7 @@ export default function PWASection() {
                       <div className="flex gap-2">
                         <div className="flex-1 rounded-lg bg-white/5 px-3 py-2">
                           <p className="text-[9px] text-primary-foreground/30">
-                            Height
+                            {t("Height")}
                           </p>
                           <p className="text-xs font-bold text-primary-foreground">
                             10 ft
@@ -184,7 +186,7 @@ export default function PWASection() {
                         </div>
                         <div className="flex-1 rounded-lg bg-primary/10 px-3 py-2">
                           <p className="text-[9px] text-brand-purple-light/50">
-                            Coats
+                            {t("Coats")}
                           </p>
                           <p className="text-xs font-bold text-brand-purple-light">
                             2
@@ -196,7 +198,7 @@ export default function PWASection() {
                     {/* Result */}
                     <div className="mt-3 rounded-lg bg-primary/10 p-3">
                       <p className="text-[9px] font-semibold uppercase tracking-wide text-brand-purple-light/60">
-                        Paint needed
+                        {t("Paint needed")}
                       </p>
                       <p className="font-display text-xl font-bold text-primary-foreground">
                         14 L
@@ -212,19 +214,19 @@ export default function PWASection() {
                     <div className="rounded-lg border border-white/5 bg-white/[0.02] p-2.5 text-center">
                       <Square className="mx-auto h-4 w-4 text-accent-cyan" />
                       <p className="mt-1 text-[9px] text-primary-foreground/50">
-                        Screeding
+                        {t("Screeding")}
                       </p>
                     </div>
                     <div className="rounded-lg border border-white/5 bg-white/[0.02] p-2.5 text-center">
                       <Layers className="mx-auto h-4 w-4 text-brand-purple-light" />
                       <p className="mt-1 text-[9px] text-primary-foreground/50">
-                        POP
+                        {t("POP")}
                       </p>
                     </div>
                     <div className="rounded-lg border border-white/5 bg-white/[0.02] p-2.5 text-center">
                       <Grid3x3 className="mx-auto h-4 w-4 text-accent-cyan" />
                       <p className="mt-1 text-[9px] text-primary-foreground/50">
-                        Tiles
+                        {t("Tiles")}
                       </p>
                     </div>
                   </div>
@@ -242,10 +244,10 @@ export default function PWASection() {
                   </span>
                   <div>
                     <p className="text-[10px] font-bold text-foreground dark:text-primary-foreground">
-                      Install FRELUX
+                      {t("Install FRELUX")}
                     </p>
                     <p className="text-[9px] text-muted-foreground dark:text-primary-foreground/40">
-                      Add to home screen
+                      {t("Add to home screen")}
                     </p>
                   </div>
                 </div>

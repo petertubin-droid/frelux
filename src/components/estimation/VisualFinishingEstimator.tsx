@@ -50,6 +50,7 @@ import {
 } from "@/lib/plan-vision/video-walkthrough";
 import { requestAiVisualFinishing } from "@/lib/plan-vision/ai-visual-finishing";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/lib/i18n";
 
 export interface VisualFinishingEstimatorProps {
   initialActivity?: VisualFinishingActivity;
@@ -60,6 +61,7 @@ export function VisualFinishingEstimator({
   initialActivity = "painting",
   initialMarket = "NG",
 }: VisualFinishingEstimatorProps) {
+  const { t } = useLanguage();
   // Step State
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
@@ -541,14 +543,14 @@ export function VisualFinishingEstimator({
               variant="outline"
               className="border-primary/40 bg-primary/10 text-primary"
             >
-              <Sparkles className="mr-1 h-3 w-3" /> FRELUX Visual Engine
+              <Sparkles className="mr-1 h-3 w-3" /> {t("FRELUX Visual Engine")}
             </Badge>
             <Badge variant="secondary" className="text-xs">
-              Phase 1 Finishing Takeoff
+              {t("Phase 1 Finishing Takeoff")}
             </Badge>
           </div>
           <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground">
-            Visual Surface Estimation
+            {t("Visual Surface Estimation")}
           </h2>
           <p className="text-sm text-muted-foreground">
             Photograph surfaces, confirm verified dimensions, and generate
@@ -596,7 +598,7 @@ export function VisualFinishingEstimator({
           <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[10px]">
             1
           </span>
-          Media Input
+          {t("Media Input")}
         </button>
         <button
           disabled={!media}
@@ -610,7 +612,7 @@ export function VisualFinishingEstimator({
           <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[10px]">
             2
           </span>
-          Surfaces & Dimensions
+          {t("Surfaces & Dimensions")}
         </button>
         <button
           disabled={!isCalibrated}
@@ -624,7 +626,7 @@ export function VisualFinishingEstimator({
           <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[10px]">
             3
           </span>
-          Specification
+          {t("Specification")}
         </button>
         <button
           disabled={!result}
@@ -638,7 +640,7 @@ export function VisualFinishingEstimator({
           <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[10px]">
             4
           </span>
-          Takeoff & Provenance
+          {t("Takeoff & Provenance")}
         </button>
       </div>
 
@@ -647,7 +649,7 @@ export function VisualFinishingEstimator({
         <div className="space-y-6">
           <div>
             <Label className="text-sm font-semibold text-foreground">
-              Select Construction Activity
+              {t("Select Construction Activity")}
             </Label>
             <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
               {VISUAL_FINISHING_ACTIVITIES.map((act) => (
@@ -674,7 +676,7 @@ export function VisualFinishingEstimator({
                 <Camera className="h-6 w-6" />
               </div>
               <h3 className="text-base font-semibold text-foreground">
-                Upload or Capture Project Photo
+                {t("Upload or Capture Project Photo")}
               </h3>
               <p className="mt-1 text-xs text-muted-foreground">
                 Photograph the room, wall or ceiling. Supported formats: JPEG,
@@ -695,7 +697,7 @@ export function VisualFinishingEstimator({
                   className="gap-2"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <Upload className="h-4 w-4" /> Choose Photo
+                  <Upload className="h-4 w-4" /> {t("Choose Photo")}
                 </Button>
                 <Button
                   type="button"
@@ -703,7 +705,7 @@ export function VisualFinishingEstimator({
                   className="gap-2"
                   onClick={() => cameraInputRef.current?.click()}
                 >
-                  <Camera className="h-4 w-4" /> Capture with Camera
+                  <Camera className="h-4 w-4" /> {t("Capture with Camera")}
                 </Button>
               </div>
 
@@ -714,10 +716,10 @@ export function VisualFinishingEstimator({
                 onClick={() => videoInputRef.current?.click()}
                 disabled={isProcessingMedia}
               >
-                <Video className="h-4 w-4" /> Upload Walkthrough Video
+                <Video className="h-4 w-4" /> {t("Upload Walkthrough Video")}
               </Button>
               <input
-                aria-label="Walkthrough video upload"
+                aria-label={t("Walkthrough video upload")}
                 ref={videoInputRef}
                 type="file"
                 accept="video/mp4,video/webm,video/quicktime,video/x-m4v"
@@ -746,7 +748,7 @@ export function VisualFinishingEstimator({
               )}
 
               <input
-                aria-label="Photo upload"
+                aria-label={t("Photo upload")}
                 ref={fileInputRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
@@ -757,7 +759,7 @@ export function VisualFinishingEstimator({
                 }}
               />
               <input
-                aria-label="Camera photo upload"
+                aria-label={t("Camera photo upload")}
                 ref={cameraInputRef}
                 type="file"
                 accept="image/*"
@@ -793,7 +795,7 @@ export function VisualFinishingEstimator({
             {/* Visual Photo with Overlays */}
             <div className="space-y-3">
               <Label className="text-sm font-semibold">
-                Visual Inspection & Overlays
+                {t("Visual Inspection & Overlays")}
               </Label>
               {visionWarnings.length > 0 && (
                 <div className="space-y-1">
@@ -811,7 +813,7 @@ export function VisualFinishingEstimator({
               {media?.keyframes && media.keyframes.length > 1 && (
                 <div
                   className="flex flex-wrap gap-2"
-                  aria-label="Review extracted video keyframes"
+                  aria-label={t("Review extracted video keyframes")}
                 >
                   {media.keyframes.map((frame, index) => (
                     <Button
@@ -833,12 +835,12 @@ export function VisualFinishingEstimator({
                 {imagePreview ? (
                   <img
                     src={imagePreview}
-                    alt="Uploaded project"
+                    alt={t("Uploaded project")}
                     className="h-full w-full object-contain opacity-80"
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                    No image available
+                    {t("No image available")}
                   </div>
                 )}
                 {/* Visual landmark indicators */}
@@ -854,7 +856,7 @@ export function VisualFinishingEstimator({
 
               <div className="space-y-3">
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Review and edit 2D candidates
+                  {t("Review and edit 2D candidates")}
                 </span>
                 {surfaces.map((surface) => {
                   const draft = surfaceDimensionDrafts[surface.id] ?? {
@@ -892,7 +894,7 @@ export function VisualFinishingEstimator({
                             htmlFor={`surface-width-${surface.id}`}
                             className="text-xs"
                           >
-                            Your measured width (m)
+                            {t("Your measured width (m)")}
                           </Label>
                           <Input
                             id={`surface-width-${surface.id}`}
@@ -916,7 +918,7 @@ export function VisualFinishingEstimator({
                             htmlFor={`surface-height-${surface.id}`}
                             className="text-xs"
                           >
-                            Your measured height / depth (m)
+                            {t("Your measured height / depth (m)")}
                           </Label>
                           <Input
                             id={`surface-height-${surface.id}`}
@@ -950,7 +952,7 @@ export function VisualFinishingEstimator({
             <div className="space-y-4 rounded-lg border border-border bg-background p-4">
               <div>
                 <h4 className="text-sm font-bold text-foreground">
-                  Calibration Method
+                  {t("Calibration Method")}
                 </h4>
                 <p className="text-xs text-muted-foreground">
                   Choose between direct physical measurement per candidate, or
@@ -970,7 +972,8 @@ export function VisualFinishingEstimator({
                   onClick={() => setCalibrationMode("dimensions")}
                   className="text-xs"
                 >
-                  <Ruler className="mr-1.5 h-3.5 w-3.5" /> Direct Measurements
+                  <Ruler className="mr-1.5 h-3.5 w-3.5" />{" "}
+                  {t("Direct Measurements")}
                 </Button>
                 <Button
                   type="button"
@@ -1000,7 +1003,8 @@ export function VisualFinishingEstimator({
                     className="w-full gap-2"
                     disabled={surfaces.length === 0 || isProcessingMedia}
                   >
-                    <Ruler className="h-4 w-4" /> Confirm entered dimensions
+                    <Ruler className="h-4 w-4" />{" "}
+                    {t("Confirm entered dimensions")}
                   </Button>
                 </div>
               ) : (
@@ -1010,7 +1014,7 @@ export function VisualFinishingEstimator({
                       htmlFor="ref-target-select"
                       className="text-xs font-semibold"
                     >
-                      Known Reference Target in Scene
+                      {t("Known Reference Target in Scene")}
                     </Label>
                     <select
                       id="ref-target-select"
@@ -1027,14 +1031,16 @@ export function VisualFinishingEstimator({
                           {target.label} ({target.metricDimensionM}m)
                         </option>
                       ))}
-                      <option value="custom">Custom Dimension Target</option>
+                      <option value="custom">
+                        {t("Custom Dimension Target")}
+                      </option>
                     </select>
                   </div>
 
                   {selectedReferenceTarget === "custom" && (
                     <div>
                       <Label htmlFor="custom-ref-dim" className="text-xs">
-                        Custom Real Dimension (m)
+                        {t("Custom Real Dimension (m)")}
                       </Label>
                       <Input
                         id="custom-ref-dim"
@@ -1113,7 +1119,7 @@ export function VisualFinishingEstimator({
                 <>
                   <div>
                     <Label htmlFor={coatsInputId} className="text-xs">
-                      Coats of Paint
+                      {t("Coats of Paint")}
                     </Label>
                     <Input
                       id={coatsInputId}
@@ -1135,7 +1141,7 @@ export function VisualFinishingEstimator({
                         onChange={(e) => setIncludeCeiling(e.target.checked)}
                         className="rounded border-input"
                       />
-                      Include Ceiling Painting
+                      {t("Include Ceiling Painting")}
                     </label>
                     <label className="flex items-center gap-2 text-xs">
                       <input
@@ -1144,7 +1150,7 @@ export function VisualFinishingEstimator({
                         onChange={(e) => setIncludePrimer(e.target.checked)}
                         className="rounded border-input"
                       />
-                      Include Undercoat / Primer
+                      {t("Include Undercoat / Primer")}
                     </label>
                   </div>
                 </>
@@ -1153,7 +1159,7 @@ export function VisualFinishingEstimator({
               {activity === "screeding" && (
                 <div>
                   <Label htmlFor="screed-system" className="text-xs">
-                    Screeding System
+                    {t("Screeding System")}
                   </Label>
                   <select
                     id="screed-system"
@@ -1165,9 +1171,11 @@ export function VisualFinishingEstimator({
                     }
                     className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
                   >
-                    <option value="putty">Acrylic Wall Putty System</option>
+                    <option value="putty">
+                      {t("Acrylic Wall Putty System")}
+                    </option>
                     <option value="white_cement_paint">
-                      White Cement + Screeding Paint Mix
+                      {t("White Cement + Screeding Paint Mix")}
                     </option>
                   </select>
                 </div>
@@ -1177,7 +1185,7 @@ export function VisualFinishingEstimator({
                 <>
                   <div>
                     <Label htmlFor={tileWidthInputId} className="text-xs">
-                      Tile Width (mm)
+                      {t("Tile Width (mm)")}
                     </Label>
                     <Input
                       id={tileWidthInputId}
@@ -1192,7 +1200,7 @@ export function VisualFinishingEstimator({
                   </div>
                   <div>
                     <Label htmlFor={tileHeightInputId} className="text-xs">
-                      Tile Height (mm)
+                      {t("Tile Height (mm)")}
                     </Label>
                     <Input
                       id={tileHeightInputId}
@@ -1211,7 +1219,7 @@ export function VisualFinishingEstimator({
               {activity === "flooring" && (
                 <div>
                   <Label htmlFor="flooring-type" className="text-xs">
-                    Flooring Product
+                    {t("Flooring Product")}
                   </Label>
                   <select
                     id="flooring-type"
@@ -1223,9 +1231,15 @@ export function VisualFinishingEstimator({
                     }
                     className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
                   >
-                    <option value="laminate">Laminate Planks (Packs)</option>
-                    <option value="vinyl">Luxury Vinyl Tile (LVT)</option>
-                    <option value="parquet">Engineered Hardwood Parquet</option>
+                    <option value="laminate">
+                      {t("Laminate Planks (Packs)")}
+                    </option>
+                    <option value="vinyl">
+                      {t("Luxury Vinyl Tile (LVT)")}
+                    </option>
+                    <option value="parquet">
+                      {t("Engineered Hardwood Parquet")}
+                    </option>
                   </select>
                 </div>
               )}
@@ -1239,21 +1253,22 @@ export function VisualFinishingEstimator({
                   </span>
                   {isLoadingMarketRates ? (
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                      <Loader2 className="h-3 w-3 animate-spin" /> Querying DB
+                      <Loader2 className="h-3 w-3 animate-spin" />{" "}
+                      {t("Querying DB")}
                     </span>
                   ) : marketRates?.source === "verified_db" ? (
                     <Badge
                       variant="outline"
                       className="border-emerald-500 text-emerald-600 bg-emerald-500/10 text-[10px]"
                     >
-                      Verified DB Rates
+                      {t("Verified DB Rates")}
                     </Badge>
                   ) : (
                     <Badge
                       variant="outline"
                       className="border-amber-500 text-amber-600 bg-amber-500/10 text-[10px]"
                     >
-                      Price Unavailable
+                      {t("Price Unavailable")}
                     </Badge>
                   )}
                 </div>
@@ -1303,7 +1318,8 @@ export function VisualFinishingEstimator({
 
             <div className="mt-6 flex justify-end">
               <Button onClick={handleCalculateEstimate} className="gap-2">
-                <Sparkles className="h-4 w-4" /> Calculate Material Takeoff
+                <Sparkles className="h-4 w-4" />{" "}
+                {t("Calculate Material Takeoff")}
               </Button>
             </div>
           </div>
@@ -1317,7 +1333,7 @@ export function VisualFinishingEstimator({
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-lg border border-border bg-background p-3 text-center">
               <span className="text-xs text-muted-foreground">
-                Gross Surface Area
+                {t("Gross Surface Area")}
               </span>
               <div className="text-xl font-bold text-foreground">
                 {result.totalGrossAreaM2} m²
@@ -1325,7 +1341,7 @@ export function VisualFinishingEstimator({
             </div>
             <div className="rounded-lg border border-border bg-background p-3 text-center">
               <span className="text-xs text-muted-foreground">
-                Openings Deducted
+                {t("Openings Deducted")}
               </span>
               <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
                 -{result.totalOpeningDeductionM2} m²
@@ -1333,7 +1349,7 @@ export function VisualFinishingEstimator({
             </div>
             <div className="rounded-lg border border-border bg-background p-3 text-center">
               <span className="text-xs text-muted-foreground">
-                Net Quantified Area
+                {t("Net Quantified Area")}
               </span>
               <div className="text-xl font-bold text-primary">
                 {result.totalNetAreaM2} m²
@@ -1345,7 +1361,7 @@ export function VisualFinishingEstimator({
           <div className="rounded-lg border border-border bg-background overflow-hidden">
             <div className="border-b border-border bg-muted/40 px-4 py-3 flex items-center justify-between">
               <h4 className="text-sm font-bold text-foreground">
-                Material Quantities & Breakdown
+                {t("Material Quantities & Breakdown")}
               </h4>
               <Badge variant={result.isFullyPriced ? "default" : "secondary"}>
                 {result.isFullyPriced
@@ -1358,12 +1374,12 @@ export function VisualFinishingEstimator({
               <table className="w-full text-left text-xs">
                 <thead className="border-b border-border bg-muted/20 text-muted-foreground">
                   <tr>
-                    <th className="px-4 py-2">Material</th>
-                    <th className="px-4 py-2">Quantity</th>
-                    <th className="px-4 py-2">Package Sizing</th>
-                    <th className="px-4 py-2">Unit Price</th>
-                    <th className="px-4 py-2">Total Cost</th>
-                    <th className="px-4 py-2">Price Status</th>
+                    <th className="px-4 py-2">{t("Material")}</th>
+                    <th className="px-4 py-2">{t("Quantity")}</th>
+                    <th className="px-4 py-2">{t("Package Sizing")}</th>
+                    <th className="px-4 py-2">{t("Unit Price")}</th>
+                    <th className="px-4 py-2">{t("Total Cost")}</th>
+                    <th className="px-4 py-2">{t("Price Status")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -1412,7 +1428,7 @@ export function VisualFinishingEstimator({
 
             <div className="border-t border-border bg-muted/20 px-4 py-3 flex items-center justify-between">
               <span className="text-xs font-semibold text-foreground">
-                Subtotal Material Cost
+                {t("Subtotal Material Cost")}
               </span>
               <span className="text-base font-bold text-primary">
                 {result.subtotalMaterialCost != null
@@ -1427,7 +1443,7 @@ export function VisualFinishingEstimator({
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-primary" />
               <h5 className="text-xs font-bold uppercase tracking-wider text-foreground">
-                Provenance & Engineering Audit Trail
+                {t("Provenance & Engineering Audit Trail")}
               </h5>
             </div>
 
@@ -1483,7 +1499,7 @@ export function VisualFinishingEstimator({
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
             <Button variant="outline" size="sm" onClick={() => setStep(2)}>
-              Adjust Dimensions
+              {t("Adjust Dimensions")}
             </Button>
             <div className="flex flex-wrap items-center gap-2">
               <Button
@@ -1501,10 +1517,10 @@ export function VisualFinishingEstimator({
                 onClick={() => window.print()}
                 className="gap-1"
               >
-                <Printer className="h-3.5 w-3.5" /> Print / PDF Export
+                <Printer className="h-3.5 w-3.5" /> {t("Print / PDF Export")}
               </Button>
               <Button size="sm" onClick={() => setStep(1)} className="gap-1">
-                Start New Estimate
+                {t("Start New Estimate")}
               </Button>
             </div>
             {cloudSaveStatus && (

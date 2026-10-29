@@ -15,6 +15,7 @@ import {
   type ProjectDataForAi,
 } from "@/lib/ai-project";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface AiProjectPanelProps {
   projectData: ProjectDataForAi;
@@ -23,6 +24,7 @@ interface AiProjectPanelProps {
 type AiAction = "review" | "optimize" | "explain" | "qa";
 
 export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
+  const { t } = useLanguage();
   const [activeAction, setActiveAction] = useState<AiAction>("review");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -113,7 +115,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.strengths && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Strengths
+                {t("Strengths")}
               </h4>
               <ul className="space-y-1">
                 {parsed.strengths.map((s: string, i: number) => (
@@ -127,7 +129,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.weaknesses && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Areas for Improvement
+                {t("Areas for Improvement")}
               </h4>
               <ul className="space-y-1">
                 {parsed.weaknesses.map((s: string, i: number) => (
@@ -141,7 +143,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.missingMaterials && parsed.missingMaterials.length > 0 && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Missing Materials
+                {t("Missing Materials")}
               </h4>
               <ul className="space-y-1">
                 {parsed.missingMaterials.map((s: string, i: number) => (
@@ -155,7 +157,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.recommendations && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Recommendations
+                {t("Recommendations")}
               </h4>
               <ul className="space-y-1">
                 {parsed.recommendations.map((s: string, i: number) => (
@@ -169,7 +171,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.costAnalysis && (
             <div className="rounded-lg border p-4">
               <h4 className="mb-1 text-sm font-semibold text-foreground">
-                Cost Analysis
+                {t("Cost Analysis")}
               </h4>
               <p className="text-sm text-muted-foreground">
                 {parsed.costAnalysis}
@@ -179,7 +181,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.changes && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Suggested Changes
+                {t("Suggested Changes")}
               </h4>
               <div className="space-y-2">
                 {parsed.changes.map(
@@ -226,7 +228,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.tradeOffs && parsed.tradeOffs.length > 0 && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Trade-offs
+                {t("Trade-offs")}
               </h4>
               <ul className="space-y-1">
                 {parsed.tradeOffs.map((s: string, i: number) => (
@@ -240,7 +242,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.warnings && parsed.warnings.length > 0 && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Warnings
+                {t("Warnings")}
               </h4>
               <ul className="space-y-1">
                 {parsed.warnings.map((s: string, i: number) => (
@@ -257,7 +259,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.roomBreakdowns && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Room Calculations
+                {t("Room Calculations")}
               </h4>
               {parsed.roomBreakdowns.map(
                 (
@@ -293,7 +295,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.bestPractices && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Best Practices
+                {t("Best Practices")}
               </h4>
               <ul className="space-y-1">
                 {parsed.bestPractices.map((s: string, i: number) => (
@@ -307,7 +309,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.industryStandards && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Industry Standards
+                {t("Industry Standards")}
               </h4>
               <ul className="space-y-1">
                 {parsed.industryStandards.map((s: string, i: number) => (
@@ -321,7 +323,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.proTips && parsed.proTips.length > 0 && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Pro Tips
+                {t("Pro Tips")}
               </h4>
               <ul className="space-y-1">
                 {parsed.proTips.map((s: string, i: number) => (
@@ -335,7 +337,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.recommendations && activeAction === "qa" && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Recommendations
+                {t("Recommendations")}
               </h4>
               <ul className="space-y-1">
                 {parsed.recommendations.map((s: string, i: number) => (
@@ -349,7 +351,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.references && parsed.references.length > 0 && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                References
+                {t("References")}
               </h4>
               <ul className="space-y-1">
                 {parsed.references.map((s: string, i: number) => (
@@ -363,7 +365,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           {parsed.applicationTips && parsed.applicationTips.length > 0 && (
             <div>
               <h4 className="mb-2 text-sm font-semibold text-foreground">
-                Application Tips
+                {t("Application Tips")}
               </h4>
               <ul className="space-y-1">
                 {parsed.applicationTips.map((s: string, i: number) => (
@@ -432,7 +434,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
       <div>
         <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
           <Brain className="h-5 w-5 text-brand-purple" />
-          AI Project Assistant
+          {t("AI Project Assistant")}
         </h3>
         <p className="mt-1 text-sm text-muted-foreground">
           Get intelligent insights, cost optimizations, and expert guidance
@@ -471,7 +473,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
       {activeAction === "optimize" && (
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground">
-            Optimization Goal
+            {t("Optimization Goal")}
           </label>
           <div className="flex flex-wrap gap-2">
             {optimizePresets.map((preset) => (
@@ -490,11 +492,11 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
             ))}
           </div>
           <input
-            aria-label="Optimization goal"
+            aria-label={t("Optimization goal")}
             type="text"
             value={optimizeTarget}
             onChange={(e) => setOptimizeTarget(e.target.value)}
-            placeholder="Or type your own optimization goal..."
+            placeholder={t("Or type your own optimization goal...")}
             className="w-full rounded-lg border bg-background px-4 py-2 text-sm text-foreground"
           />
         </div>
@@ -503,18 +505,20 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
       {activeAction === "qa" && (
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground">
-            Your Question
+            {t("Your Question")}
           </label>
           <div className="flex gap-2">
             <input
-              aria-label="Ask about this project"
+              aria-label={t("Ask about this project")}
               type="text"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && question.trim()) runAi();
               }}
-              placeholder="Ask about materials, techniques, costs, best practices..."
+              placeholder={t(
+                "Ask about materials, techniques, costs, best practices...",
+              )}
               className="flex-1 rounded-lg border bg-background px-4 py-2 text-sm text-foreground"
             />
             <Button
@@ -581,7 +585,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
               className="mx-auto h-8 w-8 animate-spin text-brand-purple"
             />
             <p className="mt-3 text-sm text-muted-foreground">
-              Analyzing your project...
+              {t("Analyzing your project...")}
             </p>
           </div>
         </div>

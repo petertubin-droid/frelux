@@ -1,8 +1,10 @@
 import LegalLayout from "@/components/legal/LegalLayout";
 import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 
 export default function About() {
+  const { t } = useLanguage();
   useSeo({
     title: "About: FRELUX",
     description:
@@ -42,7 +44,7 @@ export default function About() {
   return (
     <LegalLayout
       slug="about"
-      title="About FRELUX"
+      title={t("About FRELUX")}
       updated="2026-10-10"
       intro={
         <p>
@@ -78,35 +80,35 @@ export default function About() {
               FRELUX provides a suite of focused tools:
               <br />
               <br />
-              <strong>Paint Calculator</strong>, Estimate the exact quantity of
-              paint needed for any room, house, exterior, or fence. Factor in
-              doors, windows, coats, surface conditions, and waste margin for an
-              accurate material list.
+              <strong>{t("Paint Calculator")}</strong>, Estimate the exact
+              quantity of paint needed for any room, house, exterior, or fence.
+              Factor in doors, windows, coats, surface conditions, and waste
+              margin for an accurate material list.
               <br />
               <br />
-              <strong>Cost Estimators</strong>, Go beyond quantity. Our
+              <strong>{t("Cost Estimators")}</strong>, Go beyond quantity. Our
               estimators factor in labour, transport, markup, profit, and tax to
               give you a realistic project budget calibrated to real market
               rates.
               <br />
               <br />
-              <strong>Screeding, POP Ceiling & Tile Calculators</strong>, The
-              same precision applied to wall screeding, POP ceiling
+              <strong>{t("Screeding, POP Ceiling & Tile Calculators")}</strong>,
+              The same precision applied to wall screeding, POP ceiling
               installation, and tiling projects.
               <br />
               <br />
-              <strong>Color Library & Smart Color Assistant</strong>, Browse
-              curated color combinations, compare options side by side, and get
-              AI-powered color recommendations based on your room description or
-              uploaded photo.
+              <strong>{t("Color Library & Smart Color Assistant")}</strong>,
+              Browse curated color combinations, compare options side by side,
+              and get AI-powered color recommendations based on your room
+              description or uploaded photo.
               <br />
               <br />
-              <strong>Project Templates</strong>, Pre-configured project
+              <strong>{t("Project Templates")}</strong>, Pre-configured project
               templates for common painting, tiling, and screeding scenarios.
               Start with a template and adjust the details to fit your space.
               <br />
               <br />
-              <strong>Learn Hub</strong>, Educational guides on painting
+              <strong>{t("Learn Hub")}</strong>, Educational guides on painting
               techniques, material selection, preparation, and construction best
               practices.
             </p>

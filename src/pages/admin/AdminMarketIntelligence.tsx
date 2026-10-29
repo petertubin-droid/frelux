@@ -64,11 +64,13 @@ import {
 import { classNames } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 type Tab =
   "providers" | "sources" | "observations" | "approved" | "anomalies" | "logs";
 
 export default function AdminMarketIntelligence() {
+  const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>("observations");
 
   return (
@@ -76,10 +78,10 @@ export default function AdminMarketIntelligence() {
       <div className="mb-6 flex items-center gap-3">
         <TrendingUp aria-hidden="true" className="h-6 w-6 text-brand-purple" />
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Market Intelligence
+          {t("Market Intelligence")}
         </h1>
         <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">
-          PRICE ENGINE
+          {t("PRICE ENGINE")}
         </span>
       </div>
 
@@ -125,6 +127,7 @@ export default function AdminMarketIntelligence() {
 // OBSERVATIONS TAB
 // ============================================================
 function ObservationsTab() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [observations, setObservations] = useState<MiPriceObservation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -174,7 +177,7 @@ function ObservationsTab() {
             }
             className="rounded-lg border border-border px-3 py-1.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
-            <option value="all">All Statuses</option>
+            <option value="all">{t("All Statuses")}</option>
             {Object.entries(VALIDATION_STATUS_LABELS).map(([v, l]) => (
               <option key={v} value={v}>
                 {l}
@@ -190,27 +193,28 @@ function ObservationsTab() {
           onClick={() => setShowManual(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Manual Price Entry
+          <Plus aria-hidden="true" className="h-4 w-4" />{" "}
+          {t("Manual Price Entry")}
         </Button>
       </div>
 
       {observations.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">
-          No price observations found.
+          {t("No price observations found.")}
         </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs text-muted-foreground dark:border-white/10">
-                <th className="pb-2 pr-3 font-medium">Product</th>
-                <th className="pb-2 pr-3 font-medium">Price</th>
-                <th className="pb-2 pr-3 font-medium">Package</th>
-                <th className="pb-2 pr-3 font-medium">Market</th>
-                <th className="pb-2 pr-3 font-medium">Confidence</th>
-                <th className="pb-2 pr-3 font-medium">Status</th>
-                <th className="pb-2 pr-3 font-medium">Collected</th>
-                <th className="pb-2 font-medium">Actions</th>
+                <th className="pb-2 pr-3 font-medium">{t("Product")}</th>
+                <th className="pb-2 pr-3 font-medium">{t("Price")}</th>
+                <th className="pb-2 pr-3 font-medium">{t("Package")}</th>
+                <th className="pb-2 pr-3 font-medium">{t("Market")}</th>
+                <th className="pb-2 pr-3 font-medium">{t("Confidence")}</th>
+                <th className="pb-2 pr-3 font-medium">{t("Status")}</th>
+                <th className="pb-2 pr-3 font-medium">{t("Collected")}</th>
+                <th className="pb-2 font-medium">{t("Actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -267,7 +271,7 @@ function ObservationsTab() {
                             load();
                           }}
                           className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-500/10"
-                          title="Approve"
+                          title={t("Approve")}
                         >
                           <Check aria-hidden="true" className="h-3.5 w-3.5" />
                         </Button>
@@ -283,7 +287,7 @@ function ObservationsTab() {
                             load();
                           }}
                           className="rounded p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
-                          title="Reject"
+                          title={t("Reject")}
                         >
                           <Ban className="h-3.5 w-3.5" />
                         </Button>
@@ -318,6 +322,7 @@ function ObservationsTab() {
 // APPROVED PRICES TAB
 // ============================================================
 function ApprovedTab() {
+  const { t } = useLanguage();
   const [prices, setPrices] = useState<MiApprovedPrice[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -345,7 +350,9 @@ function ApprovedTab() {
       </p>
       {prices.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">
-          No approved prices yet. Approve observations or enter prices manually.
+          {t(
+            "No approved prices yet. Approve observations or enter prices manually.",
+          )}
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
@@ -407,7 +414,7 @@ function ApprovedTab() {
                   }}
                   className="text-xs text-muted-foreground hover:text-red-500"
                 >
-                  Deactivate
+                  {t("Deactivate")}
                 </Button>
               </div>
             </div>
@@ -422,6 +429,7 @@ function ApprovedTab() {
 // SOURCES TAB
 // ============================================================
 function SourcesTab() {
+  const { t } = useLanguage();
   const [sources, setSources] = useState<MiSource[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
@@ -489,7 +497,7 @@ function SourcesTab() {
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add Source
+          <Plus aria-hidden="true" className="h-4 w-4" /> {t("Add Source")}
         </Button>
       </div>
 
@@ -500,7 +508,7 @@ function SourcesTab() {
             className="mx-auto mb-3 h-8 w-8 text-muted-foreground/80"
           />
           <p className="text-sm font-medium text-muted-foreground">
-            No sources registered yet
+            {t("No sources registered yet")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             Add an approved source to start crawling construction material
@@ -526,7 +534,7 @@ function SourcesTab() {
                       </span>
                       {s.is_verified && (
                         <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-600 dark:bg-emerald-500/10">
-                          Verified
+                          {t("Verified")}
                         </span>
                       )}
                     </div>
@@ -575,7 +583,7 @@ function SourcesTab() {
                         variant="ghost"
                         onClick={() => handleCrawl(s, "test")}
                         className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400"
-                        title="Fetch and extract without publishing prices"
+                        title={t("Fetch and extract without publishing prices")}
                       >
                         <Eye aria-hidden="true" className="h-3 w-3" /> Test
                         Crawl
@@ -584,9 +592,10 @@ function SourcesTab() {
                         variant="ghost"
                         onClick={() => handleCrawl(s, "production")}
                         className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
-                        title="Full crawl with price observation creation"
+                        title={t("Full crawl with price observation creation")}
                       >
-                        <Zap aria-hidden="true" className="h-3 w-3" /> Crawl Now
+                        <Zap aria-hidden="true" className="h-3 w-3" />{" "}
+                        {t("Crawl Now")}
                       </Button>
                     </>
                   )}
@@ -597,7 +606,7 @@ function SourcesTab() {
                       load();
                     }}
                     className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
-                    title="Delete source"
+                    title={t("Delete source")}
                   >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                   </Button>
@@ -638,6 +647,7 @@ function CrawlReportModal({
   };
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const job = report.job;
   return (
     <div
@@ -650,7 +660,7 @@ function CrawlReportModal({
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
-            Crawl Report
+            {t("Crawl Report")}
           </h2>
           <Button
             variant="ghost"
@@ -706,7 +716,7 @@ function CrawlReportModal({
             {job.errors.length > 0 && (
               <div>
                 <h3 className="mb-1 text-xs font-bold uppercase text-muted-foreground">
-                  Errors
+                  {t("Errors")}
                 </h3>
                 <div className="space-y-1">
                   {job.errors.map((e, i) => (
@@ -724,7 +734,7 @@ function CrawlReportModal({
             {job.warnings.length > 0 && (
               <div>
                 <h3 className="mb-1 text-xs font-bold uppercase text-muted-foreground">
-                  Warnings
+                  {t("Warnings")}
                 </h3>
                 <div className="space-y-1">
                   {job.warnings.map((w, i) => (
@@ -738,7 +748,7 @@ function CrawlReportModal({
           </div>
         ) : (
           <div className="text-sm text-muted-foreground">
-            No crawl data returned.
+            {t("No crawl data returned.")}
           </div>
         )}
         <div className="mt-4 flex justify-end">
@@ -747,7 +757,7 @@ function CrawlReportModal({
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
-            Close
+            {t("Close")}
           </Button>
         </div>
       </div>
@@ -773,6 +783,7 @@ function SourceEditModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     source_name: "",
     domain: "",
@@ -816,7 +827,7 @@ function SourceEditModal({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
-          New Source
+          {t("New Source")}
         </h2>
         {error && (
           <div className="mb-3 rounded-lg bg-red-50 p-2 text-sm text-red-600 dark:bg-red-500/10">
@@ -865,7 +876,7 @@ function SourceEditModal({
             label="Region"
             value={form.region}
             onChange={(v) => setForm({ ...form, region: v })}
-            placeholder="Lagos"
+            placeholder={t("Lagos")}
           />
           <Input
             label="City"
@@ -909,7 +920,7 @@ function SourceEditModal({
             onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
             className="h-4 w-4 rounded border-border text-brand-purple"
           />
-          Active source
+          {t("Active source")}
         </label>
         <div className="mt-4 flex justify-end gap-2">
           <Button
@@ -917,7 +928,7 @@ function SourceEditModal({
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button
             variant="default"
@@ -942,6 +953,7 @@ function SourceEditModal({
 // PROVIDERS TAB
 // ============================================================
 function ProvidersTab() {
+  const { t } = useLanguage();
   const [providers, setProviders] = useState<MiProvider[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -985,7 +997,7 @@ function ProvidersTab() {
                   </span>
                   {p.is_free && (
                     <span className="text-[10px] font-semibold text-emerald-600">
-                      FREE
+                      {t("FREE")}
                     </span>
                   )}
                   {p.is_fallback && (
@@ -1039,6 +1051,7 @@ function ProvidersTab() {
 // ANOMALIES TAB
 // ============================================================
 function AnomaliesTab() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [anomalies, setAnomalies] = useState<MiAnomalyFlag[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1075,7 +1088,7 @@ function AnomaliesTab() {
       </p>
       {anomalies.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">
-          No anomalies detected.
+          {t("No anomalies detected.")}
         </p>
       ) : (
         <div className="space-y-2">
@@ -1121,7 +1134,7 @@ function AnomaliesTab() {
                     }}
                     className="rounded-md bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-600 dark:bg-emerald-500/10"
                   >
-                    Resolve
+                    {t("Resolve")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -1131,7 +1144,7 @@ function AnomaliesTab() {
                     }}
                     className="rounded-md bg-muted px-2 py-1 text-xs font-semibold text-muted-foreground dark:bg-white/5"
                   >
-                    Dismiss
+                    {t("Dismiss")}
                   </Button>
                 </div>
               )}
@@ -1207,6 +1220,7 @@ function ManualEntryModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [form, setForm] = useState({
     market_code: "NG",
@@ -1288,7 +1302,7 @@ function ManualEntryModal({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
-          Manual Price Entry
+          {t("Manual Price Entry")}
         </h2>
         {error && (
           <div className="mb-3 rounded-lg bg-red-50 p-2 text-sm text-red-600 dark:bg-red-500/10">
@@ -1316,19 +1330,19 @@ function ManualEntryModal({
             label="Product Name (raw)"
             value={form.original_name}
             onChange={(v) => setForm({ ...form, original_name: v })}
-            placeholder="Portland Cement 50kg"
+            placeholder={t("Portland Cement 50kg")}
           />
           <Input
             label="Normalized Name"
             value={form.normalized_name}
             onChange={(v) => setForm({ ...form, normalized_name: v })}
-            placeholder="Portland Cement"
+            placeholder={t("Portland Cement")}
           />
           <Input
             label="Brand"
             value={form.brand}
             onChange={(v) => setForm({ ...form, brand: v })}
-            placeholder="Dangote"
+            placeholder={t("Dangote")}
           />
           <Input
             label="Category"
@@ -1358,7 +1372,7 @@ function ManualEntryModal({
             label="Region"
             value={form.region}
             onChange={(v) => setForm({ ...form, region: v })}
-            placeholder="Lagos"
+            placeholder={t("Lagos")}
           />
         </div>
         <div className="mt-4 flex justify-end gap-2">
@@ -1367,7 +1381,7 @@ function ManualEntryModal({
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button
             variant="default"

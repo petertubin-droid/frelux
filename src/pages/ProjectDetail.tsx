@@ -78,6 +78,7 @@ import {
   type RiskFlag,
 } from "@/lib/construction-intelligence/risk-flags";
 import { calculateConstructionProject } from "@/lib/measurement/project-engine";
+import { useLanguage } from "@/lib/i18n";
 
 type Tab =
   | "overview"
@@ -108,6 +109,7 @@ const TABS: { key: Tab; label: string; icon: typeof TrendingUp }[] = [
 ];
 
 export default function ProjectDetail() {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -285,7 +287,9 @@ export default function ProjectDetail() {
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">
-                <p className="text-xs text-muted-foreground">Project Value</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("Project Value")}
+                </p>
                 <p className="font-bold text-lg">
                   {fmt(project.total_project_cost)}
                 </p>
@@ -394,14 +398,14 @@ export default function ProjectDetail() {
             />
             {project.description && (
               <div className="rounded-xl border bg-card p-5">
-                <h3 className="font-semibold mb-2">Description</h3>
+                <h3 className="font-semibold mb-2">{t("Description")}</h3>
                 <p className="text-sm text-muted-foreground">
                   {project.description}
                 </p>
               </div>
             )}
             <div className="rounded-xl border bg-card p-5">
-              <h3 className="font-semibold mb-3">Quick Actions</h3>
+              <h3 className="font-semibold mb-3">{t("Quick Actions")}</h3>
               <div className="flex flex-wrap gap-3">
                 <Link
                   to="/calculators/"
@@ -442,7 +446,9 @@ export default function ProjectDetail() {
         {tab === "calculations" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-lg">Saved Calculations</h3>
+              <h3 className="font-semibold text-lg">
+                {t("Saved Calculations")}
+              </h3>
               <Link
                 to="/calculators/"
                 className="group inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
@@ -462,7 +468,7 @@ export default function ProjectDetail() {
                   to="/calculators/"
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all hover:scale-105"
                 >
-                  Browse Calculators
+                  {t("Browse Calculators")}
                 </Link>
               </div>
             ) : (
@@ -525,7 +531,7 @@ export default function ProjectDetail() {
           <div className="space-y-6">
             <div>
               <h3 className="font-semibold text-lg">
-                Unified Quantity Takeoff
+                {t("Unified Quantity Takeoff")}
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
                 One traceable takeoff for this project. Measurements come from
@@ -546,7 +552,7 @@ export default function ProjectDetail() {
                   to={`/contractor/projects/${id}/`}
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
-                  Open Room Builder
+                  {t("Open Room Builder")}
                 </Link>
               </div>
             ) : (
@@ -554,7 +560,7 @@ export default function ProjectDetail() {
                 {/* Risk flags */}
                 <section className="rounded-xl border bg-card p-5">
                   <h4 className="font-semibold flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4" /> Risk Flags
+                    <AlertTriangle className="h-4 w-4" /> {t("Risk Flags")}
                   </h4>
                   <p className="text-xs text-muted-foreground mt-1">
                     Evidence-based warnings with traceable reasons. Each flag
@@ -625,7 +631,9 @@ export default function ProjectDetail() {
                   <>
                     {/* Measurements by discipline */}
                     <section className="rounded-xl border bg-card p-5">
-                      <h4 className="font-semibold">Measured Surfaces</h4>
+                      <h4 className="font-semibold">
+                        {t("Measured Surfaces")}
+                      </h4>
                       <p className="text-xs text-muted-foreground mt-1">
                         Areas produced by the FRELUX Project Engine from your
                         recorded room dimensions.
@@ -678,7 +686,9 @@ export default function ProjectDetail() {
 
                     {/* Material quantities from saved calculations */}
                     <section className="rounded-xl border bg-card p-5">
-                      <h4 className="font-semibold">Material Quantities</h4>
+                      <h4 className="font-semibold">
+                        {t("Material Quantities")}
+                      </h4>
                       <p className="text-xs text-muted-foreground mt-1">
                         Each material references the saved deterministic
                         calculator run that produced it.
@@ -747,7 +757,9 @@ export default function ProjectDetail() {
                   Need commercial package rounding or purchase requisitions?
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Apply whole-pack rules and export a purchase requisition CSV.
+                  {t(
+                    "Apply whole-pack rules and export a purchase requisition CSV.",
+                  )}
                 </p>
               </div>
               <Button
@@ -763,7 +775,7 @@ export default function ProjectDetail() {
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-xl border bg-card p-5">
                 <p className="text-xs text-muted-foreground mb-1">
-                  Estimated Total
+                  {t("Estimated Total")}
                 </p>
                 <p className="text-xl font-bold">
                   {fmt(shoppingTotals.estimatedTotal)}
@@ -771,7 +783,7 @@ export default function ProjectDetail() {
               </div>
               <div className="rounded-xl border bg-card p-5">
                 <p className="text-xs text-muted-foreground mb-1">
-                  Actual Total
+                  {t("Actual Total")}
                 </p>
                 <p className="text-xl font-bold">
                   {fmt(shoppingTotals.actualTotal)}
@@ -780,7 +792,9 @@ export default function ProjectDetail() {
               <div
                 className={`rounded-xl border bg-card p-5 ${shoppingTotals.difference > 0 ? "border-red-500/30" : "border-emerald-500/30"}`}
               >
-                <p className="text-xs text-muted-foreground mb-1">Difference</p>
+                <p className="text-xs text-muted-foreground mb-1">
+                  {t("Difference")}
+                </p>
                 <p
                   className={`text-xl font-bold ${shoppingTotals.difference > 0 ? "text-red-500" : "text-emerald-500"}`}
                 >
@@ -793,7 +807,9 @@ export default function ProjectDetail() {
               <div className="text-center py-16 border-2 border-dashed rounded-xl">
                 <ClipboardList className="mx-auto h-12 w-12 text-muted-foreground mb-3" />
                 <p className="text-muted-foreground">
-                  No shopping items yet. Generate a list from your calculations.
+                  {t(
+                    "No shopping items yet. Generate a list from your calculations.",
+                  )}
                 </p>
               </div>
             ) : (
@@ -886,11 +902,12 @@ export default function ProjectDetail() {
                           >
                             {item.is_purchased ? (
                               <>
-                                <CheckCircle2 className="h-3 w-3" /> Purchased
+                                <CheckCircle2 className="h-3 w-3" />{" "}
+                                {t("Purchased")}
                               </>
                             ) : (
                               <>
-                                <Circle className="h-3 w-3" /> Pending
+                                <Circle className="h-3 w-3" /> {t("Pending")}
                               </>
                             )}
                           </Button>
@@ -909,9 +926,11 @@ export default function ProjectDetail() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-lg">Project Progress</h3>
+                <h3 className="font-semibold text-lg">
+                  {t("Project Progress")}
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  Track your project through each stage.
+                  {t("Track your project through each stage.")}
                 </p>
               </div>
               {stages.length === 0 && stageTemplates.length > 0 && (
@@ -928,7 +947,9 @@ export default function ProjectDetail() {
             {stages.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Overall Progress</span>
+                  <span className="text-sm font-medium">
+                    {t("Overall Progress")}
+                  </span>
                   <span className="text-sm font-bold text-primary">
                     {progressPercent}%
                   </span>
@@ -967,7 +988,7 @@ export default function ProjectDetail() {
                         </span>
                         {stage.is_completed && (
                           <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600">
-                            Completed
+                            {t("Completed")}
                           </span>
                         )}
                       </div>
@@ -986,7 +1007,7 @@ export default function ProjectDetail() {
                       <input
                         aria-label={`Notes for stage ${stage.stage_name}`}
                         className="mt-3 w-full rounded-lg border bg-background px-3 py-2 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
-                        placeholder="Add notes for this stage..."
+                        placeholder={t("Add notes for this stage...")}
                         defaultValue={stage.notes || ""}
                         onBlur={async (e) => {
                           if (e.target.value !== (stage.notes || "")) {
@@ -1004,7 +1025,7 @@ export default function ProjectDetail() {
               <div className="text-center py-16 border-2 border-dashed rounded-xl">
                 <CheckCircle2 className="mx-auto h-12 w-12 text-muted-foreground mb-3" />
                 <p className="text-muted-foreground mb-4">
-                  Progress tracking not enabled for this project.
+                  {t("Progress tracking not enabled for this project.")}
                 </p>
               </div>
             )}
@@ -1015,7 +1036,7 @@ export default function ProjectDetail() {
         {tab === "client" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-lg">Client Estimates</h3>
+              <h3 className="font-semibold text-lg">{t("Client Estimates")}</h3>
               <Link
                 to={`/project-workspace/${id}/client-estimate/new/`}
                 className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
@@ -1073,7 +1094,7 @@ export default function ProjectDetail() {
                             to={`/estimate/${est.share_token}/`}
                             className="text-xs text-primary hover:underline"
                           >
-                            View
+                            {t("View")}
                           </Link>
                           <Button
                             onClick={async () => {
@@ -1093,7 +1114,7 @@ export default function ProjectDetail() {
                             }}
                             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                           >
-                            Copy Link
+                            {t("Copy Link")}
                           </Button>
                         </>
                       ) : (
@@ -1117,7 +1138,7 @@ export default function ProjectDetail() {
                           }}
                           className="text-xs text-primary hover:underline"
                         >
-                          Share
+                          {t("Share")}
                         </Button>
                       )}
                     </div>
@@ -1135,7 +1156,9 @@ export default function ProjectDetail() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Images className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold text-lg">Project Gallery</h3>
+                  <h3 className="font-semibold text-lg">
+                    {t("Project Gallery")}
+                  </h3>
                 </div>
                 <label className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 cursor-pointer transition-all">
                   <Plus className="h-4 w-4" />
@@ -1241,7 +1264,7 @@ export default function ProjectDetail() {
               {attachments.some((a) => !a.mime_type.startsWith("image/")) && (
                 <div className="mt-4 space-y-2">
                   <h4 className="text-sm font-medium text-muted-foreground">
-                    Other Files
+                    {t("Other Files")}
                   </h4>
                   {attachments
                     .filter((a) => !a.mime_type.startsWith("image/"))
@@ -1264,7 +1287,7 @@ export default function ProjectDetail() {
                             rel="noopener noreferrer"
                             className="text-xs text-primary hover:underline"
                           >
-                            View
+                            {t("View")}
                           </a>
                           <Button
                             onClick={async () => {
@@ -1302,7 +1325,9 @@ export default function ProjectDetail() {
             <div className="rounded-xl border bg-card p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Brain className="h-5 w-5 text-primary" />
-                <h3 className="font-semibold text-lg">AI Project Assistant</h3>
+                <h3 className="font-semibold text-lg">
+                  {t("AI Project Assistant")}
+                </h3>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
                 Describe your project goals and the AI will help you identify

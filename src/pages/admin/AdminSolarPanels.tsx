@@ -18,6 +18,7 @@ import {
 } from "@/lib/estimation/queries";
 import type { SolarPanelModel } from "@/types/estimation";
 import { getSafeError } from "@/lib/safeError";
+import { useLanguage } from "@/lib/i18n";
 import {
   AdminHeader,
   AdminButton,
@@ -89,6 +90,7 @@ function validate(f: PanelForm): string | null {
 }
 
 export default function AdminSolarPanels() {
+  const { t } = useLanguage();
   const [models, setModels] = useState<SolarPanelModel[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -175,33 +177,35 @@ export default function AdminSolarPanels() {
   return (
     <div className="space-y-4">
       <AdminHeader
-        title="Solar Panel Models"
+        title={t("Solar Panel Models")}
         subtitle="Panel specs (wattage, dimensions, price) for the Solar/PV Estimator. Every model needs a manufacturer datasheet reference: the estimator refuses to run without one and never guesses panel specs. A blank price is reported as unpriced, never invented."
         action={
           <AdminButton onClick={openCreate}>
-            <Plus className="mr-1 inline h-4 w-4" /> Add model
+            <Plus className="mr-1 inline h-4 w-4" /> {t("Add model")}
           </AdminButton>
         }
       />
 
-      {error && <StateMessage type="error" title="Error" message={error} />}
+      {error && (
+        <StateMessage type="error" title={t("Error")} message={error} />
+      )}
       {message && !error && (
-        <StateMessage type="empty" title="Saved" message={message} />
+        <StateMessage type="empty" title={t("Saved")} message={message} />
       )}
 
       <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
-              <th className="p-3">Model</th>
-              <th className="p-3 text-right">Wp</th>
-              <th className="p-3 text-right">Length (m)</th>
-              <th className="p-3 text-right">Width (m)</th>
+              <th className="p-3">{t("Model")}</th>
+              <th className="p-3 text-right">{t("Wp")}</th>
+              <th className="p-3 text-right">{t("Length (m)")}</th>
+              <th className="p-3 text-right">{t("Width (m)")}</th>
               <th className="p-3 text-right">₦ / panel</th>
-              <th className="p-3">Datasheet reference</th>
-              <th className="p-3">Effective</th>
-              <th className="p-3">Active</th>
-              <th className="p-3 text-right">Actions</th>
+              <th className="p-3">{t("Datasheet reference")}</th>
+              <th className="p-3">{t("Effective")}</th>
+              <th className="p-3">{t("Active")}</th>
+              <th className="p-3 text-right">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -244,12 +248,15 @@ export default function AdminSolarPanels() {
                   <td className="p-3 text-xs">{m.is_active ? "Yes" : "No"}</td>
                   <td className="p-3">
                     <div className="flex justify-end gap-1">
-                      <AdminIconButton onClick={() => openEdit(m)} title="Edit">
+                      <AdminIconButton
+                        onClick={() => openEdit(m)}
+                        title={t("Edit")}
+                      >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
                         onClick={() => remove(m)}
-                        title="Delete"
+                        title={t("Delete")}
                         variant="danger"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -344,7 +351,7 @@ export default function AdminSolarPanels() {
                   checked={form.is_active}
                   onChange={(e) => set("is_active", e.target.checked)}
                 />
-                Active
+                {t("Active")}
               </label>
             </div>
             <div className="mt-4 flex justify-end gap-2">
@@ -352,7 +359,7 @@ export default function AdminSolarPanels() {
                 variant="secondary"
                 onClick={() => setModalOpen(false)}
               >
-                Cancel
+                {t("Cancel")}
               </AdminButton>
               <AdminButton onClick={save}>
                 {editing ? "Save changes" : "Create model"}

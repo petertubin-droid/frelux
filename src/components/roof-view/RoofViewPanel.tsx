@@ -28,8 +28,10 @@ import {
 import { useRoofView } from "@/lib/roof/use-roof-view";
 import type {} from "@/lib/roof/types";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export function RoofViewPanel() {
+  const { t } = useLanguage();
   const {
     state,
     config,
@@ -59,7 +61,7 @@ export function RoofViewPanel() {
       <div className="rounded-xl border border-border bg-muted/50 p-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" />
-          Checking roof view availability...
+          {t("Checking roof view availability...")}
         </div>
       </div>
     );
@@ -78,7 +80,7 @@ export function RoofViewPanel() {
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-card-foreground">
-              Roof View (Aerial Imagery)
+              {t("Roof View (Aerial Imagery)")}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Aerial or satellite imagery can help you trace your roof outline
@@ -87,10 +89,10 @@ export function RoofViewPanel() {
             </p>
             <div className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-amber-50 border border-amber-200 px-2 py-1 text-xs font-medium text-amber-700">
               <Info aria-hidden="true" className="w-3 h-3" />
-              Ready for provider connection
+              {t("Ready for provider connection")}
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              You can still enter your roof dimensions manually below.
+              {t("You can still enter your roof dimensions manually below.")}
             </p>
           </div>
         </div>
@@ -111,7 +113,7 @@ export function RoofViewPanel() {
           </div>
           <div>
             <p className="text-sm font-semibold text-card-foreground">
-              Roof View (Aerial Imagery)
+              {t("Roof View (Aerial Imagery)")}
             </p>
             <p className="text-xs text-muted-foreground">
               Provider: {config?.display_name}
@@ -120,7 +122,7 @@ export function RoofViewPanel() {
         </div>
         <div className="inline-flex items-center gap-1.5 rounded-md bg-green-50 border border-green-200 px-2 py-1 text-xs font-medium text-green-700">
           <CheckCircle2 aria-hidden="true" className="w-3 h-3" />
-          Provider active
+          {t("Provider active")}
         </div>
       </div>
 
@@ -132,7 +134,7 @@ export function RoofViewPanel() {
               htmlFor="rv-address"
               className="text-xs font-medium text-muted-foreground mb-1 block"
             >
-              Property address
+              {t("Property address")}
             </label>
             <div className="relative">
               <MapPin
@@ -156,7 +158,7 @@ export function RoofViewPanel() {
                 htmlFor="rv-lat"
                 className="text-xs font-medium text-muted-foreground mb-1 block"
               >
-                Latitude (optional)
+                {t("Latitude (optional)")}
               </label>
               <input
                 id="rv-lat"
@@ -173,7 +175,7 @@ export function RoofViewPanel() {
                 htmlFor="rv-lng"
                 className="text-xs font-medium text-muted-foreground mb-1 block"
               >
-                Longitude (optional)
+                {t("Longitude (optional)")}
               </label>
               <input
                 id="rv-lng"
@@ -196,12 +198,12 @@ export function RoofViewPanel() {
             {loadingImagery ? (
               <>
                 <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" />
-                Retrieving imagery...
+                {t("Retrieving imagery...")}
               </>
             ) : (
               <>
                 <Satellite aria-hidden="true" className="w-4 h-4" />
-                Get Aerial Image
+                {t("Get Aerial Image")}
               </>
             )}
           </Button>
@@ -222,7 +224,7 @@ export function RoofViewPanel() {
           <div className="relative rounded-lg overflow-hidden border border-border">
             <img
               src={imagery.imagery_url}
-              alt="Aerial roof view"
+              alt={t("Aerial roof view")}
               className="w-full h-auto"
             />
             <Button
@@ -231,7 +233,7 @@ export function RoofViewPanel() {
               className="absolute top-2 right-2 flex items-center gap-1 rounded-md bg-black/50 backdrop-blur px-2 py-1 text-xs text-primary-foreground hover:bg-black/70"
             >
               <X className="w-3 h-3" />
-              Clear
+              {t("Clear")}
             </Button>
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -257,11 +259,11 @@ export function RoofViewPanel() {
           />
           <div>
             <p className="text-xs font-medium text-red-700">
-              Could not retrieve imagery
+              {t("Could not retrieve imagery")}
             </p>
             <p className="text-xs text-red-600 mt-1">{imagery.error}</p>
             <p className="text-xs text-muted-foreground mt-2">
-              You can still enter your roof dimensions manually below.
+              {t("You can still enter your roof dimensions manually below.")}
             </p>
           </div>
         </div>

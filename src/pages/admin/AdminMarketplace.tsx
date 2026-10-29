@@ -75,12 +75,13 @@ type Tab =
   | "sellers";
 
 export default function AdminMarketplace() {
+  const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>("listings");
 
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold text-foreground dark:text-primary-foreground">
-        Marketplace Management
+        {t("Marketplace Management")}
       </h1>
 
       <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">
@@ -118,8 +119,10 @@ export default function AdminMarketplace() {
 
 import AdminPagination from "@/components/admin/AdminPagination";
 import { formatByCode } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 function ListingsTab() {
+  const { t } = useLanguage();
   const [listings, setListings] = useState<DbMarketplaceListing[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -196,7 +199,7 @@ function ListingsTab() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search listings..."
+            placeholder={t("Search listings...")}
             className="w-full rounded-lg border border-border py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
@@ -205,7 +208,7 @@ function ListingsTab() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
-          <option value="">All Statuses</option>
+          <option value="">{t("All Statuses")}</option>
           {Object.entries(LISTING_STATUS_LABELS).map(([v, l]) => (
             <option key={v} value={v}>
               {l}
@@ -272,7 +275,7 @@ function ListingsTab() {
                 onClick={() => handleRemove(l.id)}
                 className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[10px] font-medium text-muted-foreground hover:text-red-500"
               >
-                <Trash2 aria-hidden="true" className="h-3 w-3" /> Remove
+                <Trash2 aria-hidden="true" className="h-3 w-3" /> {t("Remove")}
               </AdminIconButton>
             </div>
           </div>
@@ -289,6 +292,7 @@ function ListingsTab() {
 // PRODUCTS TAB
 // ============================================================
 function ProductsTab() {
+  const { t } = useLanguage();
   const [products, setProducts] = useState<DbMarketplaceProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -377,7 +381,7 @@ function ProductsTab() {
         <AdminInput
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search products..."
+          placeholder={t("Search products...")}
           className="flex-1 rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         />
         <AdminSelect
@@ -385,7 +389,7 @@ function ProductsTab() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
-          <option value="">All statuses</option>
+          <option value="">{t("All statuses")}</option>
           {Object.entries(PRODUCT_STATUS_LABELS).map(([v, l]) => (
             <option key={v} value={v}>
               {l}
@@ -403,7 +407,7 @@ function ProductsTab() {
         </div>
       ) : products.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">
-          No products found.
+          {t("No products found.")}
         </p>
       ) : (
         <div className="space-y-2">
@@ -452,7 +456,7 @@ function ProductsTab() {
                 <AdminIconButton
                   variant="ghost"
                   onClick={() => toggleProductStatus(p.id, p.status)}
-                  title="Toggle status"
+                  title={t("Toggle status")}
                 >
                   {p.status === "active" ? (
                     <EyeOff aria-hidden="true" className="h-3.5 w-3.5" />
@@ -463,7 +467,7 @@ function ProductsTab() {
                 <AdminIconButton
                   variant="danger"
                   onClick={() => adminRemoveProduct(p.id)}
-                  title="Remove"
+                  title={t("Remove")}
                 >
                   <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                 </AdminIconButton>
@@ -488,6 +492,7 @@ function ProductsTab() {
 }
 
 function OrdersTab() {
+  const { t } = useLanguage();
   const [orders, setOrders] = useState<DbMarketplaceOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
@@ -530,7 +535,7 @@ function OrdersTab() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
-          <option value="">All Statuses</option>
+          <option value="">{t("All Statuses")}</option>
           {Object.entries(ORDER_STATUS_LABELS).map(([v, l]) => (
             <option key={v} value={v}>
               {l}
@@ -540,7 +545,7 @@ function OrdersTab() {
       </div>
 
       {orders.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No orders found.</p>
+        <p className="text-sm text-muted-foreground">{t("No orders found.")}</p>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {orders.map((o) => (
@@ -583,6 +588,7 @@ function OrdersTab() {
 }
 
 function DisputesTab() {
+  const { t } = useLanguage();
   const [disputes, setDisputes] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(true);
   const [resolving, setResolving] = useState<string | null>(null);
@@ -633,7 +639,7 @@ function DisputesTab() {
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <ShieldAlert className="h-10 w-10 text-muted-foreground/80 dark:text-muted-foreground" />
         <p className="mt-2 text-sm text-muted-foreground">
-          No disputes reported.
+          {t("No disputes reported.")}
         </p>
       </div>
     );
@@ -702,6 +708,7 @@ function DisputesTab() {
 // REPORTS TAB
 // ============================================================
 function ReportsTab() {
+  const { t } = useLanguage();
   const [reports, setReports] = useState<DbMarketplaceReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("pending");
@@ -788,7 +795,7 @@ function ReportsTab() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
-          <option value="">All Statuses</option>
+          <option value="">{t("All Statuses")}</option>
           {Object.entries(REPORT_STATUS_LABELS).map(([v, l]) => (
             <option key={v} value={v}>
               {l}
@@ -801,7 +808,7 @@ function ReportsTab() {
         <div className="py-12 text-center">
           <Flag className="mx-auto h-10 w-10 text-muted-foreground/80" />
           <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
-            No reports found
+            {t("No reports found")}
           </p>
         </div>
       ) : (
@@ -848,7 +855,8 @@ function ReportsTab() {
                       onClick={() => handleStatusUpdate(r.id, "dismissed")}
                       className="text-xs py-1.5"
                     >
-                      <X aria-hidden="true" className="h-3.5 w-3.5" /> Dismiss
+                      <X aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+                      {t("Dismiss")}
                     </AdminButton>
                   </div>
                 )}
@@ -876,6 +884,7 @@ function ReportsTab() {
 // REVIEWS TAB
 // ============================================================
 function ReviewsTab() {
+  const { t } = useLanguage();
   const [reviews, setReviews] = useState<DbMarketplaceReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("published");
@@ -955,7 +964,7 @@ function ReviewsTab() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
-          <option value="">All Statuses</option>
+          <option value="">{t("All Statuses")}</option>
           {Object.entries(REVIEW_STATUS_LABELS).map(([v, l]) => (
             <option key={v} value={v}>
               {l}
@@ -968,7 +977,7 @@ function ReviewsTab() {
         <div className="py-12 text-center">
           <MessageSquare className="mx-auto h-10 w-10 text-muted-foreground/80" />
           <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
-            No reviews found
+            {t("No reviews found")}
           </p>
         </div>
       ) : (
@@ -1027,7 +1036,8 @@ function ReviewsTab() {
                       onClick={() => handleStatusUpdate(r.id, "hidden")}
                       className="text-xs py-1.5"
                     >
-                      <EyeOff aria-hidden="true" className="h-3.5 w-3.5" /> Hide
+                      <EyeOff aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+                      {t("Hide")}
                     </AdminButton>
                   )}
                   {r.status === "hidden" && (
@@ -1036,7 +1046,8 @@ function ReviewsTab() {
                       onClick={() => handleStatusUpdate(r.id, "published")}
                       className="text-xs py-1.5"
                     >
-                      <Eye aria-hidden="true" className="h-3.5 w-3.5" /> Publish
+                      <Eye aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+                      {t("Publish")}
                     </AdminButton>
                   )}
                   {r.status !== "removed" && (
@@ -1074,6 +1085,7 @@ function ReviewsTab() {
 // SELLERS TAB
 // ============================================================
 function SellersTab() {
+  const { t } = useLanguage();
   const [sellers, setSellers] = useState<DbMarketplaceSellerProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [verificationFilter, setVerificationFilter] = useState("");
@@ -1189,7 +1201,7 @@ function SellersTab() {
           onChange={(e) => setVerificationFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
-          <option value="">All Verification Statuses</option>
+          <option value="">{t("All Verification Statuses")}</option>
           {Object.entries(SELLER_VERIFICATION_LABELS).map(([v, l]) => (
             <option key={v} value={v}>
               {l}
@@ -1202,7 +1214,7 @@ function SellersTab() {
         <div className="py-12 text-center">
           <Store className="mx-auto h-10 w-10 text-muted-foreground/80" />
           <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
-            No sellers found
+            {t("No sellers found")}
           </p>
         </div>
       ) : (
@@ -1265,7 +1277,8 @@ function SellersTab() {
                         onClick={() => handleReject(s.id)}
                         className="text-xs py-1.5"
                       >
-                        <X aria-hidden="true" className="h-3.5 w-3.5" /> Reject
+                        <X aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+                        {t("Reject")}
                       </AdminButton>
                     </>
                   )}
@@ -1275,7 +1288,7 @@ function SellersTab() {
                       onClick={() => handleSuspend(s.id)}
                       className="text-xs py-1.5"
                     >
-                      <ShieldAlert className="h-3.5 w-3.5" /> Suspend
+                      <ShieldAlert className="h-3.5 w-3.5" /> {t("Suspend")}
                     </AdminButton>
                   )}
                 </div>

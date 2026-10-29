@@ -22,8 +22,10 @@ import {
   invalidateLoaderConfigCache,
 } from "@/components/ui/BrandedLoader";
 import type { LoaderConfig } from "@/types/database";
+import { useLanguage } from "@/lib/i18n";
 
 export default function AdminSettings() {
+  const { t } = useLanguage();
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -133,12 +135,12 @@ export default function AdminSettings() {
     return (
       <>
         <AdminHeader
-          title="Site Settings"
-          subtitle="Brand wide configuration shown across the public site."
+          title={t("Site Settings")}
+          subtitle={t("Brand wide configuration shown across the public site.")}
         />
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={t("Loading…")}
           message="Fetching site settings."
         />
       </>
@@ -147,12 +149,12 @@ export default function AdminSettings() {
     return (
       <>
         <AdminHeader
-          title="Site Settings"
-          subtitle="Brand wide configuration shown across the public site."
+          title={t("Site Settings")}
+          subtitle={t("Brand wide configuration shown across the public site.")}
         />
         <StateMessage
           type="error"
-          title="Couldn't load settings"
+          title={t("Couldn't load settings")}
           message={error ?? "No settings row found."}
         />
       </>
@@ -161,8 +163,8 @@ export default function AdminSettings() {
   return (
     <>
       <AdminHeader
-        title="Site Settings"
-        subtitle="Brand wide configuration shown across the public site."
+        title={t("Site Settings")}
+        subtitle={t("Brand wide configuration shown across the public site.")}
         action={
           <AdminButton onClick={onSave} disabled={saving}>
             <Save aria-hidden="true" className="h-4 w-4" />
@@ -184,7 +186,7 @@ export default function AdminSettings() {
       <div className="space-y-6">
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-            Brand
+            {t("Brand")}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Site name">
@@ -228,7 +230,7 @@ export default function AdminSettings() {
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-            Contact
+            {t("Contact")}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Contact email">
@@ -250,7 +252,7 @@ export default function AdminSettings() {
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-            Defaults
+            {t("Defaults")}
           </h2>
           <div className="grid gap-4 sm:grid-cols-3">
             <AdminField label="Default currency">
@@ -269,9 +271,11 @@ export default function AdminSettings() {
                   )
                 }
               >
-                <option value="paystack">Paystack (Nigeria)</option>
-                <option value="stripe">Stripe (international)</option>
-                <option value="flutterwave">Flutterwave (Pan-African)</option>
+                <option value="paystack">{t("Paystack (Nigeria)")}</option>
+                <option value="stripe">{t("Stripe (international)")}</option>
+                <option value="flutterwave">
+                  {t("Flutterwave (Pan-African)")}
+                </option>
               </AdminSelect>
             </AdminField>
             <AdminField label="Currency symbol">
@@ -289,15 +293,15 @@ export default function AdminSettings() {
                   update("default_unit", e.target.value as "meters" | "feet")
                 }
               >
-                <option value="meters">Meters</option>
-                <option value="feet">Feet</option>
+                <option value="meters">{t("Meters")}</option>
+                <option value="feet">{t("Feet")}</option>
               </AdminSelect>
             </AdminField>
           </div>
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-            Cost Estimator
+            {t("Cost Estimator")}
           </h2>
           <AdminField
             label="Manual paint bucket sizes (liters)"
@@ -313,7 +317,7 @@ export default function AdminSettings() {
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-            SEO
+            {t("SEO")}
           </h2>
           <AdminField label="SEO title" hint="Optional">
             <AdminInput
@@ -335,12 +339,12 @@ export default function AdminSettings() {
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-            Premium Subscriptions
+            {t("Premium Subscriptions")}
           </h2>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Enable Premium Subscriptions
+                {t("Enable Premium Subscriptions")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 When enabled, users can subscribe to Pro and Premium plans via
@@ -355,15 +359,16 @@ export default function AdminSettings() {
           </div>
           {(settings.premium_subscriptions_enabled ?? false) && (
             <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
-              ⚠️ Configure PAYSTACK_SECRET_KEY as a Supabase Edge Function secret and
-              deploy the payment checkout, verification, and webhook functions
-              before enabling. The hosted checkout does not use a browser public key.
+              ⚠️ Configure PAYSTACK_SECRET_KEY as a Supabase Edge Function
+              secret and deploy the payment checkout, verification, and webhook
+              functions before enabling. The hosted checkout does not use a
+              browser public key.
             </div>
           )}
         </AdminCard>
         <AdminCard>
           <h2 className="mb-1 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-            Homepage Hero
+            {t("Homepage Hero")}
           </h2>
           <p className="mb-4 text-xs text-amber-600 dark:text-amber-400">
             This is the approved, client-controlled copy shown on the homepage
@@ -384,7 +389,9 @@ export default function AdminSettings() {
                 onChange={(e) =>
                   update("hero_headline", e.target.value || null)
                 }
-                placeholder="Know Exactly What Materials Your Project Needs."
+                placeholder={t(
+                  "Know Exactly What Materials Your Project Needs.",
+                )}
               />
             </AdminField>
             <AdminField
@@ -396,7 +403,9 @@ export default function AdminSettings() {
                 onChange={(e) =>
                   update("hero_subheadline", e.target.value || null)
                 }
-                placeholder="Calculate materials and estimate project costs..."
+                placeholder={t(
+                  "Calculate materials and estimate project costs...",
+                )}
               />
             </AdminField>
           </div>
@@ -407,7 +416,7 @@ export default function AdminSettings() {
                 onChange={(e) =>
                   update("hero_cta_primary_label", e.target.value || null)
                 }
-                placeholder="Start Calculating"
+                placeholder={t("Start Calculating")}
               />
             </AdminField>
             <AdminField label="Primary CTA link" hint="Route or anchor">
@@ -427,7 +436,7 @@ export default function AdminSettings() {
                 onChange={(e) =>
                   update("hero_cta_secondary_label", e.target.value || null)
                 }
-                placeholder="Explore Calculators"
+                placeholder={t("Explore Calculators")}
               />
             </AdminField>
             <AdminField label="Secondary CTA link" hint="Route or anchor">
@@ -443,12 +452,12 @@ export default function AdminSettings() {
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-            Maintenance
+            {t("Maintenance")}
           </h2>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Maintenance mode
+                {t("Maintenance mode")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 When on, visitors see a maintenance notice instead of the tools.
@@ -490,7 +499,9 @@ export default function AdminSettings() {
         <AdminCard>
           <div className="flex flex-col gap-5">
             <div>
-              <h3 className="text-base font-semibold">Loading Experience</h3>
+              <h3 className="text-base font-semibold">
+                {t("Loading Experience")}
+              </h3>
               <p className="text-sm text-muted-foreground">
                 The branded loader shown while pages load. Saved to
                 loader_config and applied site-wide immediately after save.
@@ -536,9 +547,9 @@ export default function AdminSettings() {
                     })
                   }
                 >
-                  <option value="sm">Small (64px)</option>
-                  <option value="md">Medium (96px)</option>
-                  <option value="lg">Large (128px)</option>
+                  <option value="sm">{t("Small (64px)")}</option>
+                  <option value="md">{t("Medium (96px)")}</option>
+                  <option value="lg">{t("Large (128px)")}</option>
                 </AdminSelect>
               </AdminField>
 
@@ -551,9 +562,9 @@ export default function AdminSettings() {
                     })
                   }
                 >
-                  <option value="slow">Slow</option>
-                  <option value="normal">Normal</option>
-                  <option value="fast">Fast</option>
+                  <option value="slow">{t("Slow")}</option>
+                  <option value="normal">{t("Normal")}</option>
+                  <option value="fast">{t("Fast")}</option>
                 </AdminSelect>
               </AdminField>
 
@@ -564,7 +575,7 @@ export default function AdminSettings() {
                 <AdminInput
                   value={(loader ?? DEFAULT_LOADER_CONFIG).text}
                   onChange={(e) => updateLoader({ text: e.target.value })}
-                  placeholder="Loading…"
+                  placeholder={t("Loading…")}
                 />
               </AdminField>
 

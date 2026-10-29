@@ -21,6 +21,7 @@ import {
   type ConversationalParseLogRow,
 } from "@/lib/estimation/queries";
 import { getSafeError } from "@/lib/safeError";
+import { useLanguage } from "@/lib/i18n";
 import {
   AdminHeader,
   AdminButton,
@@ -98,6 +99,7 @@ function validate(f: PackForm): string | null {
 }
 
 export default function AdminConversationalPacks() {
+  const { t } = useLanguage();
   const [packs, setPacks] = useState<ConversationalLanguagePackRow[]>([]);
   const [logs, setLogs] = useState<ConversationalParseLogRow[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -187,31 +189,33 @@ export default function AdminConversationalPacks() {
   return (
     <div className="space-y-4">
       <AdminHeader
-        title="Conversational Estimator: Language Packs"
+        title={t("Conversational Estimator: Language Packs")}
         subtitle="Keyword packs the WhatsApp estimator uses to detect English chat and to extract sizes, coats and regions. Every pack needs a source reference; the engine falls back to its built-in defaults only where a category is unconfigured."
         action={
           <AdminButton onClick={openCreate}>
-            <Plus className="mr-1 inline h-4 w-4" /> Add pack
+            <Plus className="mr-1 inline h-4 w-4" /> {t("Add pack")}
           </AdminButton>
         }
       />
 
-      {error && <StateMessage type="error" title="Error" message={error} />}
+      {error && (
+        <StateMessage type="error" title={t("Error")} message={error} />
+      )}
       {message && !error && (
-        <StateMessage type="empty" title="Saved" message={message} />
+        <StateMessage type="empty" title={t("Saved")} message={message} />
       )}
 
       <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
-              <th className="p-3">Language</th>
-              <th className="p-3">Category</th>
-              <th className="p-3">Keywords</th>
-              <th className="p-3 text-right">Weight</th>
-              <th className="p-3">Source reference</th>
-              <th className="p-3">Active</th>
-              <th className="p-3 text-right">Actions</th>
+              <th className="p-3">{t("Language")}</th>
+              <th className="p-3">{t("Category")}</th>
+              <th className="p-3">{t("Keywords")}</th>
+              <th className="p-3 text-right">{t("Weight")}</th>
+              <th className="p-3">{t("Source reference")}</th>
+              <th className="p-3">{t("Active")}</th>
+              <th className="p-3 text-right">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -251,12 +255,15 @@ export default function AdminConversationalPacks() {
                   <td className="p-3 text-xs">{p.is_active ? "Yes" : "No"}</td>
                   <td className="p-3">
                     <div className="flex justify-end gap-1">
-                      <AdminIconButton onClick={() => openEdit(p)} title="Edit">
+                      <AdminIconButton
+                        onClick={() => openEdit(p)}
+                        title={t("Edit")}
+                      >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
                         onClick={() => remove(p)}
-                        title="Delete"
+                        title={t("Delete")}
                         variant="danger"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -270,7 +277,9 @@ export default function AdminConversationalPacks() {
         </table>
       </div>
 
-      <h2 className="pt-4 text-lg font-semibold">Recent parses (last 50)</h2>
+      <h2 className="pt-4 text-lg font-semibold">
+        {t("Recent parses (last 50)")}
+      </h2>
       <p className="text-sm text-muted-foreground">
         What customers ask and what the engine found. Missing dimensions show up
         as intent + no estimate: that is the engine asking rather than guessing.
@@ -279,11 +288,11 @@ export default function AdminConversationalPacks() {
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
-              <th className="p-3">When</th>
-              <th className="p-3">Language</th>
-              <th className="p-3">Intent</th>
+              <th className="p-3">{t("When")}</th>
+              <th className="p-3">{t("Language")}</th>
+              <th className="p-3">{t("Intent")}</th>
               <th className="p-3">Estimate?</th>
-              <th className="p-3">Thread</th>
+              <th className="p-3">{t("Thread")}</th>
             </tr>
           </thead>
           <tbody>
@@ -293,7 +302,7 @@ export default function AdminConversationalPacks() {
                   colSpan={5}
                   className="p-6 text-center text-muted-foreground"
                 >
-                  No parses logged yet.
+                  {t("No parses logged yet.")}
                 </td>
               </tr>
             ) : (
@@ -399,7 +408,7 @@ export default function AdminConversationalPacks() {
                   checked={form.is_active}
                   onChange={(e) => set("is_active", e.target.checked)}
                 />
-                Active
+                {t("Active")}
               </label>
             </div>
             <div className="mt-4 flex justify-end gap-2">
@@ -407,7 +416,7 @@ export default function AdminConversationalPacks() {
                 variant="secondary"
                 onClick={() => setModalOpen(false)}
               >
-                Cancel
+                {t("Cancel")}
               </AdminButton>
               <AdminButton onClick={save}>
                 {editing ? "Save changes" : "Create pack"}

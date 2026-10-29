@@ -14,6 +14,7 @@ import {
 import type { DbLabourCategory } from "@/types/database";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface LabourCostSectionProps {
   estimatorKey: LabourEstimatorKey;
@@ -83,6 +84,7 @@ export default function LabourCostSection({
   label = "Labour Cost",
   last = false,
 }: LabourCostSectionProps) {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState<DbLabourCategory[]>([]);
 
   useEffect(() => {
@@ -152,7 +154,9 @@ export default function LabourCostSection({
 
       {!config.includeLabour && (
         <p className="text-sm text-muted-foreground">
-          Labour cost is optional. Toggle on to include labour in your estimate.
+          {t(
+            "Labour cost is optional. Toggle on to include labour in your estimate.",
+          )}
         </p>
       )}
 
@@ -161,7 +165,7 @@ export default function LabourCostSection({
           {/* Pricing method selector */}
           <div>
             <label className="mb-2 block text-sm font-semibold text-card-foreground">
-              Pricing Method
+              {t("Pricing Method")}
             </label>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {methods.map((method) => (
@@ -192,18 +196,18 @@ export default function LabourCostSection({
           {categories.length > 0 && (
             <div>
               <label className="mb-2 block text-sm font-semibold text-card-foreground">
-                Suggested Labour Categories
+                {t("Suggested Labour Categories")}
                 <span className="ml-1 font-normal text-muted-foreground">
                   (optional, you can override)
                 </span>
               </label>
               <select
-                aria-label="Suggested labour categories"
+                aria-label={t("Suggested labour categories")}
                 value={config.categoryId ?? ""}
                 onChange={(e) => applyCategory(e.target.value)}
                 className="input-field"
               >
-                <option value="">No category selected</option>
+                <option value="">{t("No category selected")}</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.category_name} · {currencySymbol}
@@ -373,6 +377,7 @@ function Toggle({
   checked: boolean;
   onChange: (v: boolean) => void;
 }) {
+  const { t } = useLanguage();
   // Plain native <button>, deliberately NOT wrapping shadcn's <Button>.
   // Button's `ghost` variant adds `hover:bg-accent`, and on touch devices
   // that hover state gets "stuck" after a tap until the next tap
@@ -391,7 +396,7 @@ function Toggle({
           : "bg-muted dark:bg-white/10",
       )}
       aria-checked={checked}
-      aria-label="Include labour cost"
+      aria-label={t("Include labour cost")}
     >
       <span
         className={classNames(

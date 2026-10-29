@@ -48,16 +48,48 @@ import type {
   PdfWatermarkConfig,
 } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function AdminPdfBranding() {
+  const { t: tr } = useLanguage();
 
   // Plan limits state
   const [planLimits, setPlanLimits] = useState<StudioPlanLimit[]>([
-    { plan: "free", monthly_exports: 3, visual_builder: false, custom_branding: false, watermark_removal: false },
-    { plan: "basic", monthly_exports: 3, visual_builder: false, custom_branding: false, watermark_removal: false },
-    { plan: "pro", monthly_exports: 25, visual_builder: true, custom_branding: true, watermark_removal: true },
-    { plan: "premium", monthly_exports: 100, visual_builder: true, custom_branding: true, watermark_removal: true },
-    { plan: "enterprise", monthly_exports: 500, visual_builder: true, custom_branding: true, watermark_removal: true },
+    {
+      plan: "free",
+      monthly_exports: 3,
+      visual_builder: false,
+      custom_branding: false,
+      watermark_removal: false,
+    },
+    {
+      plan: "basic",
+      monthly_exports: 3,
+      visual_builder: false,
+      custom_branding: false,
+      watermark_removal: false,
+    },
+    {
+      plan: "pro",
+      monthly_exports: 25,
+      visual_builder: true,
+      custom_branding: true,
+      watermark_removal: true,
+    },
+    {
+      plan: "premium",
+      monthly_exports: 100,
+      visual_builder: true,
+      custom_branding: true,
+      watermark_removal: true,
+    },
+    {
+      plan: "enterprise",
+      monthly_exports: 500,
+      visual_builder: true,
+      custom_branding: true,
+      watermark_removal: true,
+    },
   ]);
   const [auditLogs, setAuditLogs] = useState<StudioAuditEntry[]>([]);
   const [loadingLimits, setLoadingLimits] = useState(false);
@@ -79,9 +111,15 @@ export default function AdminPdfBranding() {
     }
   }, []);
 
-  const handleLimitChange = (plan: string, field: keyof StudioPlanLimit, value: unknown) => {
+  const handleLimitChange = (
+    plan: string,
+    field: keyof StudioPlanLimit,
+    value: unknown,
+  ) => {
     setPlanLimits((prev) =>
-      prev.map((item) => (item.plan === plan ? { ...item, [field]: value } : item))
+      prev.map((item) =>
+        item.plan === plan ? { ...item, [field]: value } : item,
+      ),
     );
   };
 
@@ -102,7 +140,9 @@ export default function AdminPdfBranding() {
       setTimeout(() => setLimitMsg(null), 3000);
       loadLimits();
     } catch (err: unknown) {
-      setLimitErr(err instanceof Error ? err.message : "Failed to update plan limits.");
+      setLimitErr(
+        err instanceof Error ? err.message : "Failed to update plan limits.",
+      );
     } finally {
       setSavingPlan(null);
     }
@@ -241,7 +281,7 @@ export default function AdminPdfBranding() {
       setNewTplPremium(false);
       setNewTplRewarded(false);
       await loadData();
-    loadLimits();
+      loadLimits();
     }
   }
 
@@ -268,7 +308,7 @@ export default function AdminPdfBranding() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={tr("Loading…")}
         message="Fetching PDF branding configuration."
       />
     );
@@ -276,7 +316,7 @@ export default function AdminPdfBranding() {
   return (
     <>
       <AdminHeader
-        title="PDF Branding & Templates"
+        title={tr("PDF Branding & Templates")}
         subtitle="Configure the default FRELUX PDF branding, watermark settings, and manage PDF templates available to users."
       />
 
@@ -301,7 +341,7 @@ export default function AdminPdfBranding() {
         <div className="flex items-center gap-2">
           <Settings2 className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            Brand Studio Feature
+            {tr("Brand Studio Feature")}
           </h2>
         </div>
         <div className="mt-4 space-y-3">
@@ -311,7 +351,7 @@ export default function AdminPdfBranding() {
               checked={brandStudioEnabled}
               onChange={(e) => setBrandStudioEnabled(e.target.checked)}
             />
-            Enable FRELUX Brand Studio for users
+            {tr("Enable FRELUX Brand Studio for users")}
           </label>
           <AdminField label="AI Logo Daily Limit">
             <AdminInput
@@ -330,7 +370,7 @@ export default function AdminPdfBranding() {
         <div className="flex items-center gap-2">
           <FileText className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            FRELUX Default PDF Branding
+            {tr("FRELUX Default PDF Branding")}
           </h2>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -420,7 +460,7 @@ export default function AdminPdfBranding() {
 
         <div className="mt-4">
           <h3 className="mb-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
-            Watermark Configuration
+            {tr("Watermark Configuration")}
           </h3>
           <div className="space-y-3">
             <label className="flex items-center gap-2 text-sm">
@@ -429,7 +469,7 @@ export default function AdminPdfBranding() {
                 checked={watermarkEnabled}
                 onChange={(e) => setWatermarkEnabled(e.target.checked)}
               />
-              Enable watermark
+              {tr("Enable watermark")}
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -437,7 +477,7 @@ export default function AdminPdfBranding() {
                 checked={watermarkDiagonal}
                 onChange={(e) => setWatermarkDiagonal(e.target.checked)}
               />
-              Diagonal watermark
+              {tr("Diagonal watermark")}
             </label>
             <div className="grid gap-4 sm:grid-cols-3">
               <AdminField label="Opacity (0.01–0.3)">
@@ -466,11 +506,11 @@ export default function AdminPdfBranding() {
                   onChange={(e) => setWatermarkPosition(e.target.value)}
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
                 >
-                  <option value="center">Center</option>
-                  <option value="top-left">Top Left</option>
-                  <option value="top-right">Top Right</option>
-                  <option value="bottom-left">Bottom Left</option>
-                  <option value="bottom-right">Bottom Right</option>
+                  <option value="center">{tr("Center")}</option>
+                  <option value="top-left">{tr("Top Left")}</option>
+                  <option value="top-right">{tr("Top Right")}</option>
+                  <option value="bottom-left">{tr("Bottom Left")}</option>
+                  <option value="bottom-right">{tr("Bottom Right")}</option>
                 </select>
               </AdminField>
             </div>
@@ -495,7 +535,7 @@ export default function AdminPdfBranding() {
           <div className="flex items-center gap-2">
             <PremiumBadge size="sm" />
             <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              PDF Templates
+              {tr("PDF Templates")}
             </h2>
           </div>
           <Button
@@ -503,7 +543,7 @@ export default function AdminPdfBranding() {
             onClick={() => setShowNewTpl(!showNewTpl)}
             className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-brand-purple hover:bg-primary/20"
           >
-            <Plus className="h-3 w-3" /> New Template
+            <Plus className="h-3 w-3" /> {tr("New Template")}
           </Button>
         </div>
 
@@ -523,7 +563,7 @@ export default function AdminPdfBranding() {
                   type="text"
                   value={newTplDesc}
                   onChange={(e) => setNewTplDesc(e.target.value)}
-                  placeholder="Template description"
+                  placeholder={tr("Template description")}
                 />
               </AdminField>
             </div>
@@ -547,14 +587,14 @@ export default function AdminPdfBranding() {
             </div>
             <div className="mt-3 flex gap-2">
               <AdminButton onClick={handleCreateTemplate}>
-                Create Template
+                {tr("Create Template")}
               </AdminButton>
               <Button
                 variant="ghost"
                 onClick={() => setShowNewTpl(false)}
                 className="rounded-lg border border-border px-3 py-1.5 text-xs dark:border-white/10"
               >
-                Cancel
+                {tr("Cancel")}
               </Button>
             </div>
           </div>
@@ -574,18 +614,18 @@ export default function AdminPdfBranding() {
                     </span>
                     {tpl.is_system && (
                       <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground dark:bg-white/10">
-                        System
+                        {tr("System")}
                       </span>
                     )}
                     {tpl.is_default && (
                       <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                        Default
+                        {tr("Default")}
                       </span>
                     )}
                     {tpl.is_premium && <PremiumBadge size="xs" glow />}
                     {tpl.rewarded_unlock_enabled && (
                       <span className="rounded bg-accent-green/10 px-1.5 py-0.5 text-xs text-accent-green">
-                        Ad unlock
+                        {tr("Ad unlock")}
                       </span>
                     )}
                   </div>
@@ -643,10 +683,13 @@ export default function AdminPdfBranding() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h2 className="text-base font-semibold text-foreground">Document Studio Plan Quotas & Entitlements</h2>
+            <h2 className="text-base font-semibold text-foreground">
+              {tr("Document Studio Plan Quotas & Entitlements")}
+            </h2>
             <p className="text-xs text-muted-foreground">
-              Configure server-enforced monthly export quotas and feature permissions for each subscription tier.
-              Changes are immediately enforced by database rules.
+              Configure server-enforced monthly export quotas and feature
+              permissions for each subscription tier. Changes are immediately
+              enforced by database rules.
             </p>
           </div>
           <Button
@@ -675,12 +718,22 @@ export default function AdminPdfBranding() {
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-border text-muted-foreground">
-                <th className="pb-2 font-semibold uppercase">Plan</th>
-                <th className="pb-2 font-semibold uppercase">Monthly Export Limit</th>
-                <th className="pb-2 font-semibold uppercase">Custom Branding</th>
-                <th className="pb-2 font-semibold uppercase">Watermark Removable</th>
-                <th className="pb-2 font-semibold uppercase">Visual Builder</th>
-                <th className="pb-2 font-semibold uppercase text-right">Actions</th>
+                <th className="pb-2 font-semibold uppercase">{tr("Plan")}</th>
+                <th className="pb-2 font-semibold uppercase">
+                  {tr("Monthly Export Limit")}
+                </th>
+                <th className="pb-2 font-semibold uppercase">
+                  {tr("Custom Branding")}
+                </th>
+                <th className="pb-2 font-semibold uppercase">
+                  {tr("Watermark Removable")}
+                </th>
+                <th className="pb-2 font-semibold uppercase">
+                  {tr("Visual Builder")}
+                </th>
+                <th className="pb-2 font-semibold uppercase text-right">
+                  {tr("Actions")}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -693,7 +746,13 @@ export default function AdminPdfBranding() {
                       min={0}
                       max={10000}
                       value={l.monthly_exports}
-                      onChange={(e) => handleLimitChange(l.plan, "monthly_exports", parseInt(e.target.value) || 0)}
+                      onChange={(e) =>
+                        handleLimitChange(
+                          l.plan,
+                          "monthly_exports",
+                          parseInt(e.target.value) || 0,
+                        )
+                      }
                       className="w-20 rounded border border-border px-2 py-1 text-xs dark:bg-background"
                     />
                   </td>
@@ -702,9 +761,21 @@ export default function AdminPdfBranding() {
                       <input
                         type="checkbox"
                         checked={l.custom_branding}
-                        onChange={(e) => handleLimitChange(l.plan, "custom_branding", e.target.checked)}
+                        onChange={(e) =>
+                          handleLimitChange(
+                            l.plan,
+                            "custom_branding",
+                            e.target.checked,
+                          )
+                        }
                       />
-                      <span className={l.custom_branding ? "text-emerald-600 font-medium" : "text-muted-foreground"}>
+                      <span
+                        className={
+                          l.custom_branding
+                            ? "text-emerald-600 font-medium"
+                            : "text-muted-foreground"
+                        }
+                      >
                         {l.custom_branding ? "Allowed" : "Disabled"}
                       </span>
                     </label>
@@ -714,9 +785,21 @@ export default function AdminPdfBranding() {
                       <input
                         type="checkbox"
                         checked={l.watermark_removal}
-                        onChange={(e) => handleLimitChange(l.plan, "watermark_removal", e.target.checked)}
+                        onChange={(e) =>
+                          handleLimitChange(
+                            l.plan,
+                            "watermark_removal",
+                            e.target.checked,
+                          )
+                        }
                       />
-                      <span className={l.watermark_removal ? "text-emerald-600 font-medium" : "text-muted-foreground"}>
+                      <span
+                        className={
+                          l.watermark_removal
+                            ? "text-emerald-600 font-medium"
+                            : "text-muted-foreground"
+                        }
+                      >
                         {l.watermark_removal ? "Allowed" : "Disabled"}
                       </span>
                     </label>
@@ -726,9 +809,21 @@ export default function AdminPdfBranding() {
                       <input
                         type="checkbox"
                         checked={l.visual_builder}
-                        onChange={(e) => handleLimitChange(l.plan, "visual_builder", e.target.checked)}
+                        onChange={(e) =>
+                          handleLimitChange(
+                            l.plan,
+                            "visual_builder",
+                            e.target.checked,
+                          )
+                        }
                       />
-                      <span className={l.visual_builder ? "text-emerald-600 font-medium" : "text-muted-foreground"}>
+                      <span
+                        className={
+                          l.visual_builder
+                            ? "text-emerald-600 font-medium"
+                            : "text-muted-foreground"
+                        }
+                      >
                         {l.visual_builder ? "Allowed" : "Disabled"}
                       </span>
                     </label>
@@ -752,11 +847,19 @@ export default function AdminPdfBranding() {
 
         {auditLogs.length > 0 && (
           <div className="mt-6 border-t border-border pt-4">
-            <h3 className="text-xs font-semibold uppercase text-muted-foreground mb-2">Recent Quota Audits</h3>
+            <h3 className="text-xs font-semibold uppercase text-muted-foreground mb-2">
+              {tr("Recent Quota Audits")}
+            </h3>
             <div className="space-y-1.5 max-h-40 overflow-y-auto">
               {auditLogs.slice(0, 10).map((log) => (
-                <div key={log.id} className="text-[11px] text-muted-foreground flex justify-between border-b border-border/40 pb-1">
-                  <span>Plan <strong>{log.plan}</strong> updated ({JSON.stringify(log.new_values)})</span>
+                <div
+                  key={log.id}
+                  className="text-[11px] text-muted-foreground flex justify-between border-b border-border/40 pb-1"
+                >
+                  <span>
+                    {tr("Plan")} <strong>{log.plan}</strong> updated (
+                    {JSON.stringify(log.new_values)})
+                  </span>
                   <span>{new Date(log.created_at).toLocaleString()}</span>
                 </div>
               ))}

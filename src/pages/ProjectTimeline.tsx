@@ -14,6 +14,7 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Calendar, Clock, AlertTriangle, TrendingUp, Flag } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 import {
   evaluateStageWeatherRisk,
   type WeatherRiskAlert,
@@ -28,6 +29,7 @@ import {
 } from "lucide-react";
 
 export default function ProjectTimeline() {
+  const { t } = useLanguage();
   useSeo({
     title: "Construction Timeline Estimator | FRELUX",
     description:
@@ -116,7 +118,7 @@ export default function ProjectTimeline() {
       <PageHeader
         variant="tool"
         eyebrow="Planning Tool"
-        title="Construction Timeline Estimator"
+        title={t("Construction Timeline Estimator")}
         subtitle="How long will your project take? Stage-by-stage estimates based on practical construction benchmarks."
         breadcrumbs={[
           { label: "Home", path: "/" },
@@ -213,7 +215,7 @@ export default function ProjectTimeline() {
               checked={hasEngineer}
               onChange={(e) => setHasEngineer(e.target.checked)}
             />
-            Structural engineer engaged (has reinforcement schedule)
+            {t("Structural engineer engaged (has reinforcement schedule)")}
           </label>
 
           <Button
@@ -403,7 +405,7 @@ export default function ProjectTimeline() {
             <div className="grid md:grid-cols-2 gap-4">
               <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
                 <h3 className="font-semibold text-amber-900 flex items-center gap-2 mb-3">
-                  <AlertTriangle className="w-5 h-5" /> Risks
+                  <AlertTriangle className="w-5 h-5" /> {t("Risks")}
                 </h3>
                 <ul className="space-y-1.5">
                   {result.risks.map((r, i) => (
@@ -418,7 +420,7 @@ export default function ProjectTimeline() {
               </div>
               <div className="rounded-2xl border border-green-200 bg-green-50 p-6">
                 <h3 className="font-semibold text-green-900 flex items-center gap-2 mb-3">
-                  <TrendingUp className="w-5 h-5" /> Recommendations
+                  <TrendingUp className="w-5 h-5" /> {t("Recommendations")}
                 </h3>
                 <ul className="space-y-1.5">
                   {result.recommendations.map((r, i) => (

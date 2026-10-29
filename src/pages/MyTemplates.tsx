@@ -22,6 +22,7 @@ import TemplateCard from "@/components/templates/TemplateCard";
 import type { CalculatorType, DbCalculatorTemplate } from "@/types/database";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 const SORT_OPTIONS = [
   { key: "recent", label: "Recent" },
@@ -38,6 +39,7 @@ const CATEGORY_TABS: { key: CalculatorType | "all"; label: string }[] = [
 ];
 
 export default function MyTemplates() {
+  const { t } = useLanguage();
   useSeo({
     title: "My Templates",
     description: "Your saved calculator templates for FRELUX.",
@@ -140,16 +142,18 @@ export default function MyTemplates() {
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <Bookmark className="mx-auto h-10 w-10 text-muted-foreground/80 dark:text-muted-foreground" />
         <h1 className="mt-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
-          Sign in to view your templates
+          {t("Sign in to view your templates")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-          Your saved calculator templates are private and tied to your account.
+          {t(
+            "Your saved calculator templates are private and tied to your account.",
+          )}
         </p>
         <Link
           to="/dashboard/"
           className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
         >
-          <LogIn className="h-4 w-4" /> Sign In
+          <LogIn className="h-4 w-4" /> {t("Sign In")}
         </Link>
       </div>
     );
@@ -168,19 +172,19 @@ export default function MyTemplates() {
           to="/"
           className="hover:text-brand-purple dark:hover:text-brand-purple-lighter"
         >
-          Home
+          {t("Home")}
         </Link>
         <ChevronRight className="h-3 w-3" />
-        <span>My Templates</span>
+        <span>{t("My Templates")}</span>
       </div>
 
       <div className="mt-3 flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight text-foreground dark:text-primary-foreground sm:text-3xl">
-            My Templates
+            {t("My Templates")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-            Your saved calculator configurations. Private and secure.
+            {t("Your saved calculator configurations. Private and secure.")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -188,12 +192,12 @@ export default function MyTemplates() {
             variant="ghost"
             onClick={() => fileRef.current?.click()}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground/80"
-            title="Import a template from JSON file"
+            title={t("Import a template from JSON file")}
           >
-            <Upload className="h-3.5 w-3.5" /> Import
+            <Upload className="h-3.5 w-3.5" /> {t("Import")}
           </Button>
           <input
-            aria-label="Import templates file"
+            aria-label={t("Import templates file")}
             ref={fileRef}
             type="file"
             accept="application/json"
@@ -205,16 +209,17 @@ export default function MyTemplates() {
               variant="ghost"
               onClick={handleExportAll}
               className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground/80"
-              title="Export all templates as JSON files"
+              title={t("Export all templates as JSON files")}
             >
-              <Download aria-hidden="true" className="h-3.5 w-3.5" /> Export All
+              <Download aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+              {t("Export All")}
             </Button>
           )}
           <Link
             to="/templates/"
             className="shrink-0 text-xs font-medium text-brand-purple hover:underline dark:text-brand-purple-lighter"
           >
-            Browse FRELUX Templates
+            {t("Browse FRELUX Templates")}
           </Link>
         </div>
       </div>
@@ -240,11 +245,11 @@ export default function MyTemplates() {
               className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
             />
             <input
-              aria-label="Search templates"
+              aria-label={t("Search templates")}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search your templates..."
+              placeholder={t("Search your templates...")}
               className="w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
             />
           </div>
@@ -302,7 +307,7 @@ export default function MyTemplates() {
         <div className="rounded-xl border border-dashed border-border bg-muted/50 p-12 text-center dark:border-white/10 dark:bg-white/5">
           <Bookmark className="mx-auto h-8 w-8 text-muted-foreground/80 dark:text-muted-foreground" />
           <p className="mt-3 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80">
-            No templates yet
+            {t("No templates yet")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
             Use "Save as Template" in any calculator to create your first one.

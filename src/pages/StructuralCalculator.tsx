@@ -94,6 +94,7 @@ import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 import EngineerReviewBadge from "@/components/EngineerReviewBadge";
+import { useLanguage } from "@/lib/i18n";
 
 type Tab = "beam" | "column" | "slab" | "wind" | "seismic" | "bbs" | "concrete";
 
@@ -145,6 +146,7 @@ function exportDesignSheet(args: {
 }
 
 export default function StructuralCalculator() {
+  const { t } = useLanguage();
   useSeo({
     title: "Structural Calculator | FRELUX",
     description:
@@ -160,7 +162,7 @@ export default function StructuralCalculator() {
       <PageHeader
         variant="tool"
         eyebrow="Engineering Tool"
-        title="Structural Engineering Calculator"
+        title={t("Structural Engineering Calculator")}
         subtitle="Preliminary beam, column, and slab sizing estimates with formula transparency, plus a preliminary per-code capacity check on the recommended section. This tool does not certify jurisdictional code compliance. A locally licensed structural engineer must verify designs before use or construction."
         breadcrumbs={[
           { label: "Home", path: "/" },
@@ -213,7 +215,7 @@ export default function StructuralCalculator() {
             <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-amber-900 dark:text-amber-300">
-                Professional Disclaimer
+                {t("Professional Disclaimer")}
               </p>
               <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400 mt-1.5">
                 Preliminary screening and budget-planning only. Concrete-grade
@@ -236,6 +238,7 @@ export default function StructuralCalculator() {
 // ── Concrete quantity takeoff (separate from structural design) ──
 
 export function ConcreteTakeoffCalculator() {
+  const { t } = useLanguage();
   const [elementType, setElementType] = useState<
     "slab" | "beam" | "column" | "footing"
   >("slab");
@@ -390,7 +393,9 @@ export function ConcreteTakeoffCalculator() {
   return (
     <div className="space-y-6">
       <div className="card p-5 sm:p-7">
-        <h2 className="text-xl font-bold">Measured concrete quantities</h2>
+        <h2 className="text-xl font-bold">
+          {t("Measured concrete quantities")}
+        </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Rectangular element quantity takeoff only. It does not size or design
           structural elements. Measurements accept metric or imperial units;
@@ -398,19 +403,19 @@ export function ConcreteTakeoffCalculator() {
         </p>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label className="grid gap-1 text-sm font-medium">
-            Concrete element type
+            {t("Concrete element type")}
             <select
-              aria-label="Concrete element type"
+              aria-label={t("Concrete element type")}
               className="input-field"
               value={elementType}
               onChange={(e) =>
                 setElementType(e.target.value as typeof elementType)
               }
             >
-              <option value="slab">Slab</option>
-              <option value="beam">Rectangular beam segment</option>
-              <option value="column">Rectangular column segment</option>
-              <option value="footing">Rectangular pad footing</option>
+              <option value="slab">{t("Slab")}</option>
+              <option value="beam">{t("Rectangular beam segment")}</option>
+              <option value="column">{t("Rectangular column segment")}</option>
+              <option value="footing">{t("Rectangular pad footing")}</option>
             </select>
           </label>
           {dimensionField(
@@ -453,7 +458,7 @@ export function ConcreteTakeoffCalculator() {
         <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h3 className="text-base font-semibold">
-              Rebar schedule (optional)
+              {t("Rebar schedule (optional)")}
             </h3>
             <p className="mt-1 text-xs text-muted-foreground">
               Only calculated from a supplied engineer/drawing schedule. No
@@ -514,12 +519,12 @@ export function ConcreteTakeoffCalculator() {
                 setBars((items) => items.filter((_, j) => j !== i))
               }
             >
-              Remove bar group
+              {t("Remove bar group")}
             </button>
           </div>
         ))}
         <Button className="mt-5" onClick={calculate}>
-          Calculate concrete takeoff
+          {t("Calculate concrete takeoff")}
         </Button>
         {errors.length > 0 && (
           <div
@@ -536,7 +541,7 @@ export function ConcreteTakeoffCalculator() {
         <div className="card-elevated p-5 sm:p-7">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs font-bold uppercase tracking-wider text-primary">
-              Material quantity schedule
+              {t("Material quantity schedule")}
             </p>
             <EngineerReviewBadge />
           </div>
@@ -579,8 +584,12 @@ export function ConcreteTakeoffCalculator() {
             ))}
           </ul>
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <button type="button" onClick={exportConcretePdf} className="btn-secondary text-sm">
-              Export quote (PDF)
+            <button
+              type="button"
+              onClick={exportConcretePdf}
+              className="btn-secondary text-sm"
+            >
+              {t("Export quote (PDF)")}
             </button>
             <QuoteShareButton
               build={buildConcreteQuote}
@@ -671,6 +680,7 @@ function CapacityCheckCard({
 // ── Wind Load ──
 
 function WindLoadCalculator() {
+  const { t } = useLanguage();
   const { market } = useMarket();
   const zone = WIND_ZONE_DEFAULTS[market.marketCode];
   const defaultCode: WindCode = zone ? zone.code : ("EN_1991_1_4" as WindCode);
@@ -827,7 +837,8 @@ function WindLoadCalculator() {
         {errors.length > 0 && <WarningList warnings={errors} />}
         <div className="mt-4">
           <Button onClick={calculate} className="w-full sm:w-auto">
-            <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Wind
+            <Calculator aria-hidden="true" className="w-4 h-4" />{" "}
+            {t("Calculate Wind")}
           </Button>
         </div>
       </div>
@@ -861,7 +872,7 @@ function WindLoadCalculator() {
               }
               className="rounded-lg border px-4 py-2 text-sm font-semibold"
             >
-              Export design sheet (PDF)
+              {t("Export design sheet (PDF)")}
             </button>
           </div>
           <EngineerReviewBadge />
@@ -874,6 +885,7 @@ function WindLoadCalculator() {
 // ── Seismic Detailing ──
 
 function SeismicDetailingCalculator() {
+  const { t } = useLanguage();
   const { market } = useMarket();
   const [standard, setStandard] = useState<"ACI" | "EC8">(() =>
     market.marketCode === "US" ||
@@ -1172,7 +1184,7 @@ function SeismicDetailingCalculator() {
               }
               className="rounded-lg border px-4 py-2 text-sm font-semibold"
             >
-              Export design sheet (PDF)
+              {t("Export design sheet (PDF)")}
             </button>
           </div>
           <EngineerReviewBadge />
@@ -1197,6 +1209,7 @@ const BBS_SHAPES: Array<{ code: BsShapeCode; label: string; dims: string }> = [
 ];
 
 function BarScheduleCalculator() {
+  const { t } = useLanguage();
   const [shape, setShape] = useState<BsShapeCode>("21");
   const [d, setD] = useState(12);
   const [qty, setQty] = useState(10);
@@ -1514,7 +1527,7 @@ function BarScheduleCalculator() {
               onClick={downloadBvbs}
               className="rounded-lg border px-4 py-2 text-sm font-semibold"
             >
-              Export BVBS / .bfx (CNC machines)
+              {t("Export BVBS / .bfx (CNC machines)")}
             </button>
             <button
               type="button"
@@ -1538,7 +1551,7 @@ function BarScheduleCalculator() {
               }
               className="rounded-lg border px-4 py-2 text-sm font-semibold"
             >
-              Export schedule sheet (PDF)
+              {t("Export schedule sheet (PDF)")}
             </button>
           </div>
           <p className="mt-3 text-center text-xs text-muted-foreground">
@@ -1551,7 +1564,9 @@ function BarScheduleCalculator() {
       )}
 
       <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
-        <h3 className="text-base font-semibold">Lap and development lengths</h3>
+        <h3 className="text-base font-semibold">
+          {t("Lap and development lengths")}
+        </h3>
         <p className="mt-1 text-xs text-muted-foreground">
           Tension and compression development and lap lengths by bond
           conditions: ACI 318-19 Chapter 25 (simplified) or EN 1992-1-1 Sections
@@ -1635,6 +1650,7 @@ function BarScheduleCalculator() {
 }
 
 function BeamCalculator() {
+  const { t } = useLanguage();
   const [span, setSpan] = useState(4.5);
   const [beamType, setBeamType] = useState<BeamType>("suspended_beam");
   const [support, setSupport] = useState<SupportCondition>("simply_supported");
@@ -1820,7 +1836,8 @@ function BeamCalculator() {
           onClick={calculate}
           className="btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
         >
-          <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Beam
+          <Calculator aria-hidden="true" className="w-4 h-4" />{" "}
+          {t("Calculate Beam")}
         </Button>
       </div>
 
@@ -1937,7 +1954,7 @@ function BeamCalculator() {
               }
               className="rounded-lg border px-4 py-2 text-sm font-semibold"
             >
-              Export design sheet (PDF)
+              {t("Export design sheet (PDF)")}
             </button>
             <SaveToProjectButton
               calculatorType="structural"
@@ -1977,6 +1994,7 @@ function BeamCalculator() {
 // ── Column Calculator ──
 
 function ColumnCalculator() {
+  const { t } = useLanguage();
   const [axialLoad, setAxialLoad] = useState(200);
   const [height, setHeight] = useState(3.0);
 
@@ -2076,7 +2094,8 @@ function ColumnCalculator() {
           onClick={calculate}
           className="btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
         >
-          <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Column
+          <Calculator aria-hidden="true" className="w-4 h-4" />{" "}
+          {t("Calculate Column")}
         </Button>
       </div>
 
@@ -2176,7 +2195,7 @@ function ColumnCalculator() {
               }
               className="rounded-lg border px-4 py-2 text-sm font-semibold"
             >
-              Export design sheet (PDF)
+              {t("Export design sheet (PDF)")}
             </button>
             <SaveToProjectButton
               calculatorType="structural"
@@ -2203,6 +2222,7 @@ function ColumnCalculator() {
 // ── Slab Calculator ──
 
 function SlabCalculator() {
+  const { t } = useLanguage();
   const [spanX, setSpanX] = useState(4.0);
   const [spanY, setSpanY] = useState(6.0);
   const [slabType, setSlabType] = useState<SlabType>("one_way");
@@ -2385,7 +2405,8 @@ function SlabCalculator() {
           onClick={calculate}
           className="btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
         >
-          <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Slab
+          <Calculator aria-hidden="true" className="w-4 h-4" />{" "}
+          {t("Calculate Slab")}
         </Button>
       </div>
 
@@ -2494,7 +2515,7 @@ function SlabCalculator() {
               }
               className="rounded-lg border px-4 py-2 text-sm font-semibold"
             >
-              Export design sheet (PDF)
+              {t("Export design sheet (PDF)")}
             </button>
             <SaveToProjectButton
               calculatorType="structural"

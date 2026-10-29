@@ -33,6 +33,7 @@ import type {
 } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { useBreadcrumbJsonLd } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 
 const sections = [
   { id: "identity", label: "Brand Identity", icon: "🎨" },
@@ -43,6 +44,7 @@ const sections = [
 ] as const;
 
 export default function BrandStudio() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([{ name: "Brand Studio", path: "/brand-studio" }]);
   const { user, isAdmin, isPaid, paidStatus } = useAuth();
   const [access, setAccess] = useState<BrandStudioAccess | null>(null);
@@ -100,10 +102,10 @@ export default function BrandStudio() {
             <div>
               <HeroTitle
                 className="text-2xl text-foreground dark:text-primary-foreground"
-                title="FRELUX Brand Studio"
+                title={t("FRELUX Brand Studio")}
               />
               <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                Brand your PDF exports with your own business identity.
+                {t("Brand your PDF exports with your own business identity.")}
               </p>
             </div>
           </div>

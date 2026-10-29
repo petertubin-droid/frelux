@@ -23,10 +23,12 @@ import { formatCurrency } from "@/lib/utils";
 import type { DbScreedingSystemConfig } from "@/types/database";
 import type { ScreedingMaterialSystem } from "@/types";
 import { getSafeError } from "@/lib/safeError";
+import { useLanguage } from "@/lib/i18n";
 
 type SystemTab = ScreedingMaterialSystem | "legacy";
 
 export default function AdminScreedingMaterials() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<SystemTab>("putty");
   const [puttyConfig, setPuttyConfig] =
     useState<DbScreedingSystemConfig | null>(null);
@@ -97,7 +99,7 @@ export default function AdminScreedingMaterials() {
     return (
       <StateMessage
         type="loading"
-        title="Loading…"
+        title={t("Loading…")}
         message="Fetching screeding material system configurations."
       />
     );
@@ -105,7 +107,7 @@ export default function AdminScreedingMaterials() {
   return (
     <>
       <AdminHeader
-        title="Screeding Engine Configuration"
+        title={t("Screeding Engine Configuration")}
         subtitle="Configure the screeding material systems that drive the Screeding Calculator and Cost Estimator. All values are database-driven and take effect immediately."
       />
 
@@ -148,7 +150,7 @@ export default function AdminScreedingMaterials() {
       {activeTab === "putty" && !puttyConfig && (
         <StateMessage
           type="error"
-          title="No configuration found"
+          title={t("No configuration found")}
           message="No active Putty configuration was found in the database. Please run the latest migration."
         />
       )}
@@ -163,7 +165,7 @@ export default function AdminScreedingMaterials() {
       {activeTab === "white_cement_paint" && !mixConfig && (
         <StateMessage
           type="error"
-          title="No configuration found"
+          title={t("No configuration found")}
           message="No active White Cement + Screeding Paint configuration was found in the database. Please run the latest migration."
         />
       )}
@@ -210,6 +212,7 @@ function PuttyConfigPanel({
   onSave: (updates: Record<string, unknown>) => void;
   saving: boolean;
 }) {
+  const { t } = useLanguage();
   const [displayName, setDisplayName] = useState(config.display_name);
   const [description, setDescription] = useState(config.description ?? "");
   const [coverageArea, setCoverageArea] = useState(
@@ -261,7 +264,7 @@ function PuttyConfigPanel({
             className="h-5 w-5 text-brand-purple"
           />
           <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            Putty Material Configuration
+            {t("Putty Material Configuration")}
           </h2>
         </div>
         <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
@@ -300,7 +303,7 @@ function PuttyConfigPanel({
         <div className="flex items-center gap-2">
           <Layers aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            Coverage & Coating Rules
+            {t("Coverage & Coating Rules")}
           </h2>
         </div>
         <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
@@ -356,7 +359,7 @@ function PuttyConfigPanel({
         <div className="flex items-center gap-2">
           <Package aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            Putty Material
+            {t("Putty Material")}
           </h2>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -400,7 +403,7 @@ function PuttyConfigPanel({
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            Currency & Rounding
+            {t("Currency & Rounding")}
           </h2>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-4">
@@ -426,8 +429,8 @@ function PuttyConfigPanel({
                 setRoundingRule(e.target.value as "ceil" | "none")
               }
             >
-              <option value="ceil">Round up (ceil)</option>
-              <option value="none">No rounding</option>
+              <option value="ceil">{t("Round up (ceil)")}</option>
+              <option value="none">{t("No rounding")}</option>
             </select>
           </AdminField>
         </div>
@@ -468,6 +471,7 @@ function MixConfigPanel({
   onSave: (updates: Record<string, unknown>) => void;
   saving: boolean;
 }) {
+  const { t } = useLanguage();
   const [displayName, setDisplayName] = useState(config.display_name);
   const [description, setDescription] = useState(config.description ?? "");
   const [coverageArea, setCoverageArea] = useState(
@@ -501,9 +505,7 @@ function MixConfigPanel({
   const [extraEnabled, setExtraEnabled] = useState(
     config.extra_enabled === true,
   );
-  const [extraName, setExtraName] = useState(
-    config.extra_name ?? "Bond",
-  );
+  const [extraName, setExtraName] = useState(config.extra_name ?? "Bond");
   const [extraQuantity, setExtraQuantity] = useState(
     Number(config.extra_quantity ?? 1),
   );
@@ -553,7 +555,7 @@ function MixConfigPanel({
             className="h-5 w-5 text-brand-purple"
           />
           <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            White Cement + Screeding Paint Configuration
+            {t("White Cement + Screeding Paint Configuration")}
           </h2>
         </div>
         <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
@@ -592,7 +594,7 @@ function MixConfigPanel({
         <div className="flex items-center gap-2">
           <Layers aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            Coverage & Coating Rules
+            {t("Coverage & Coating Rules")}
           </h2>
         </div>
         <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
@@ -651,7 +653,7 @@ function MixConfigPanel({
             className="h-5 w-5 text-brand-purple"
           />
           <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            Screeding Paint
+            {t("Screeding Paint")}
           </h2>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -696,7 +698,7 @@ function MixConfigPanel({
         <div className="flex items-center gap-2">
           <Package aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            White Cement
+            {t("White Cement")}
           </h2>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -740,24 +742,23 @@ function MixConfigPanel({
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Droplets aria-hidden="true" className="h-5 w-5 text-brand-purple" />
+            <Droplets
+              aria-hidden="true"
+              className="h-5 w-5 text-brand-purple"
+            />
             <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              Extra Material (e.g. Bond)
+              {t("Extra Material (e.g. Bond)")}
             </h2>
           </div>
           <Toggle checked={extraEnabled} onChange={setExtraEnabled} />
         </div>
         <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-          Optional third material calculated from the same coverage rule,
-          e.g. Bond, glue or primer. Enable it to include it in the White
-          Cement + Screeding Paint system. Nothing is shown to users while
-          disabled.
+          Optional third material calculated from the same coverage rule, e.g.
+          Bond, glue or primer. Enable it to include it in the White Cement +
+          Screeding Paint system. Nothing is shown to users while disabled.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <AdminField
-            label="Material name"
-            hint="e.g. Bond, Wall Primer"
-          >
+          <AdminField label="Material name" hint="e.g. Bond, Wall Primer">
             <AdminInput
               type="text"
               value={extraName}
@@ -801,7 +802,7 @@ function MixConfigPanel({
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            Currency & Rounding
+            {t("Currency & Rounding")}
           </h2>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-4">
@@ -827,8 +828,8 @@ function MixConfigPanel({
                 setRoundingRule(e.target.value as "ceil" | "none")
               }
             >
-              <option value="ceil">Round up (ceil)</option>
-              <option value="none">No rounding</option>
+              <option value="ceil">{t("Round up (ceil)")}</option>
+              <option value="none">{t("No rounding")}</option>
             </select>
           </AdminField>
         </div>

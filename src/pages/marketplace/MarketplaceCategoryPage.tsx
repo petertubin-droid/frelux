@@ -11,6 +11,7 @@ import { PROJECT_TYPE_LABELS } from "@/types/marketplace";
 import LocationPicker from "@/components/ui/LocationPicker";
 import AdSlot from "@/components/ui/AdSlot";
 import { formatByCode } from "@/lib/international/currency-format";
+import { useLanguage } from "@/lib/i18n";
 
 // ============================================================
 // SEO Page: /marketplace/category/:categorySlug
@@ -32,6 +33,7 @@ function formatBudget(
 }
 
 export default function MarketplaceCategoryPage() {
+  const { t } = useLanguage();
   const { categorySlug } = useParams<{ categorySlug: string }>();
   const [category, setCategory] = useState<DbProCategory | null>(null);
   const [listings, setListings] = useState<DbMarketplaceListing[]>([]);
@@ -91,10 +93,10 @@ export default function MarketplaceCategoryPage() {
           className="mx-auto h-12 w-12 text-muted-foreground/80"
         />
         <h1 className="mt-4 text-xl font-bold text-foreground dark:text-primary-foreground">
-          Category Not Found
+          {t("Category Not Found")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          This category doesn't exist or is no longer active.
+          {t("This category doesn't exist or is no longer active.")}
         </p>
         <Link
           to="/marketplace/"
@@ -114,11 +116,11 @@ export default function MarketplaceCategoryPage() {
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-muted-foreground">
             <Link to="/" className="hover:text-brand-purple">
-              Home
+              {t("Home")}
             </Link>
             <span>/</span>
             <Link to="/marketplace/" className="hover:text-brand-purple">
-              Marketplace
+              {t("Marketplace")}
             </Link>
             <span>/</span>
             <span className="text-foreground dark:text-primary-foreground">
@@ -162,7 +164,7 @@ export default function MarketplaceCategoryPage() {
               className="mx-auto h-12 w-12 text-muted-foreground/80"
             />
             <h2 className="mt-4 text-lg font-semibold text-card-foreground dark:text-muted-foreground/60">
-              No Active Listings
+              {t("No Active Listings")}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
               There are currently no active job listings in this category.
@@ -183,7 +185,7 @@ export default function MarketplaceCategoryPage() {
               to="/marketplace/post/"
               className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
             >
-              Post a Job
+              {t("Post a Job")}
             </Link>
           </div>
         ) : (
@@ -207,7 +209,7 @@ export default function MarketplaceCategoryPage() {
                     </span>
                     {listing.urgency === "urgent" && (
                       <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
-                        Urgent
+                        {t("Urgent")}
                       </span>
                     )}
                   </div>

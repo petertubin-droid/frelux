@@ -27,6 +27,7 @@ import {
   deleteLabourRate,
 } from "@/lib/estimation/queries";
 import type { LabourRate } from "@/types/estimation";
+import { useLanguage } from "@/lib/i18n";
 
 interface RateForm {
   task_key: string;
@@ -77,6 +78,7 @@ function validate(f: RateForm): string | null {
 }
 
 export default function AdminLabourRates() {
+  const { t } = useLanguage();
   const [rates, setRates] = useState<LabourRate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -174,11 +176,11 @@ export default function AdminLabourRates() {
   return (
     <div className="space-y-6">
       <AdminHeader
-        title="Labour Rates"
+        title={t("Labour Rates")}
         subtitle="Admin-configured labour productivity rates per finishing task (unit output per worker-day), each with a verifiable source. The labour engine applies the site-efficiency loss as a separate, labelled line: never folded into the base rate."
         action={
           <AdminButton onClick={openCreate}>
-            <Plus className="mr-2 h-4 w-4" /> Add Rate
+            <Plus className="mr-2 h-4 w-4" /> {t("Add Rate")}
           </AdminButton>
         }
       />
@@ -186,13 +188,19 @@ export default function AdminLabourRates() {
       {error && (
         <StateMessage
           type="error"
-          title="Something went wrong"
+          title={t("Something went wrong")}
           message={error}
         />
       )}
-      {success && <StateMessage type="empty" title="Saved" message={success} />}
+      {success && (
+        <StateMessage type="empty" title={t("Saved")} message={success} />
+      )}
       {loading ? (
-        <StateMessage type="loading" title="Loading" message="Loading rates…" />
+        <StateMessage
+          type="loading"
+          title={t("Loading")}
+          message="Loading rates…"
+        />
       ) : rates.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
           <Users className="mx-auto mb-2 h-6 w-6" />
@@ -205,11 +213,11 @@ export default function AdminLabourRates() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="p-3">Task</th>
-                <th className="p-3">Unit</th>
-                <th className="p-3">Output/worker-day</th>
-                <th className="p-3">Source</th>
-                <th className="p-3">Active</th>
+                <th className="p-3">{t("Task")}</th>
+                <th className="p-3">{t("Unit")}</th>
+                <th className="p-3">{t("Output/worker-day")}</th>
+                <th className="p-3">{t("Source")}</th>
+                <th className="p-3">{t("Active")}</th>
                 <th className="p-3"></th>
               </tr>
             </thead>
@@ -243,10 +251,16 @@ export default function AdminLabourRates() {
                   </td>
                   <td className="p-3">
                     <div className="flex gap-1">
-                      <AdminIconButton onClick={() => openEdit(r)} title="Edit">
+                      <AdminIconButton
+                        onClick={() => openEdit(r)}
+                        title={t("Edit")}
+                      >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
-                      <AdminIconButton onClick={() => remove(r)} title="Delete">
+                      <AdminIconButton
+                        onClick={() => remove(r)}
+                        title={t("Delete")}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </AdminIconButton>
                     </div>
@@ -316,7 +330,7 @@ export default function AdminLabourRates() {
               onChange={(e) =>
                 setForm({ ...form, description: e.target.value })
               }
-              placeholder="Optional context (what the rate covers)"
+              placeholder={t("Optional context (what the rate covers)")}
             />
           </AdminField>
 
@@ -328,7 +342,9 @@ export default function AdminLabourRates() {
           </AdminField>
 
           <div className="flex justify-end gap-2">
-            <AdminButton onClick={() => setShowForm(false)}>Cancel</AdminButton>
+            <AdminButton onClick={() => setShowForm(false)}>
+              {t("Cancel")}
+            </AdminButton>
             <AdminButton onClick={save} variant="primary" disabled={saving}>
               {saving ? "Saving…" : "Save"}
             </AdminButton>

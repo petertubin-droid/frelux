@@ -3,6 +3,7 @@ import { useRewardedAccess, formatExpiry } from "@/lib/rewarded-access";
 import { RewardedAdModal } from "./RewardedAdModal";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface Props {
   toolKey: string;
@@ -17,6 +18,7 @@ export function RewardedFeatureGate({
   features,
   children,
 }: Props) {
+  const { t } = useLanguage();
   const access = useRewardedAccess(toolKey);
   const { isPaid } = useAuth();
 
@@ -98,11 +100,11 @@ export function RewardedFeatureGate({
             className="mt-5 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             <Lock aria-hidden="true" className="h-4 w-4" />
-            Watch Ad to Unlock Advanced Calculator
+            {t("Watch Ad to Unlock Advanced Calculator")}
           </Button>
           {!access.config?.is_enabled && (
             <p className="mt-2 text-xs text-muted-foreground">
-              This feature is temporarily disabled.
+              {t("This feature is temporarily disabled.")}
             </p>
           )}
           {access.config?.is_enabled &&

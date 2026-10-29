@@ -13,8 +13,10 @@ import {
 } from "@/lib/contractor";
 import type { DbQuotationSettings } from "@/types/database";
 import { Save, Check, AlertCircle } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 export default function AdminQuotationSettings() {
+  const { t } = useLanguage();
   const [settings, setSettings] = useState<DbQuotationSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -57,12 +59,14 @@ export default function AdminQuotationSettings() {
     return (
       <>
         <AdminHeader
-          title="Quotation Settings"
-          subtitle="Configure default quotation branding, terms, and pricing"
+          title={t("Quotation Settings")}
+          subtitle={t(
+            "Configure default quotation branding, terms, and pricing",
+          )}
         />
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={t("Loading…")}
           message="Fetching quotation settings."
         />
       </>
@@ -71,12 +75,14 @@ export default function AdminQuotationSettings() {
     return (
       <>
         <AdminHeader
-          title="Quotation Settings"
-          subtitle="Configure default quotation branding, terms, and pricing"
+          title={t("Quotation Settings")}
+          subtitle={t(
+            "Configure default quotation branding, terms, and pricing",
+          )}
         />
         <StateMessage
           type="error"
-          title="Couldn't load settings"
+          title={t("Couldn't load settings")}
           message={error}
         />
       </>
@@ -85,12 +91,14 @@ export default function AdminQuotationSettings() {
     return (
       <>
         <AdminHeader
-          title="Quotation Settings"
-          subtitle="Configure default quotation branding, terms, and pricing"
+          title={t("Quotation Settings")}
+          subtitle={t(
+            "Configure default quotation branding, terms, and pricing",
+          )}
         />
         <StateMessage
           type="empty"
-          title="No settings found"
+          title={t("No settings found")}
           message="Quotation settings row not found in the database."
         />
       </>
@@ -99,19 +107,20 @@ export default function AdminQuotationSettings() {
   return (
     <div>
       <AdminHeader
-        title="Quotation Settings"
-        subtitle="Configure default quotation branding, terms, and pricing"
+        title={t("Quotation Settings")}
+        subtitle={t("Configure default quotation branding, terms, and pricing")}
         action={
           <AdminButton onClick={handleSave} disabled={saving}>
             {saving ? (
               "Saving..."
             ) : saved ? (
               <>
-                <Check aria-hidden="true" className="h-4 w-4" /> Saved
+                <Check aria-hidden="true" className="h-4 w-4" /> {t("Saved")}
               </>
             ) : (
               <>
-                <Save aria-hidden="true" className="h-4 w-4" /> Save Changes
+                <Save aria-hidden="true" className="h-4 w-4" />{" "}
+                {t("Save Changes")}
               </>
             )}
           </AdminButton>
@@ -134,12 +143,12 @@ export default function AdminQuotationSettings() {
       <div className="space-y-6">
         <AdminCard>
           <h3 className="mb-4 font-semibold text-foreground dark:text-primary-foreground">
-            Company Branding
+            {t("Company Branding")}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Company Name
+                {t("Company Name")}
               </span>
               <AdminInput
                 value={settings.company_name ?? ""}
@@ -151,7 +160,7 @@ export default function AdminQuotationSettings() {
             </label>
             <label className="block">
               <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Company Phone
+                {t("Company Phone")}
               </span>
               <AdminInput
                 value={settings.company_phone ?? ""}
@@ -163,7 +172,7 @@ export default function AdminQuotationSettings() {
             </label>
             <label className="block">
               <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Company Email
+                {t("Company Email")}
               </span>
               <AdminInput
                 value={settings.company_email ?? ""}
@@ -175,7 +184,7 @@ export default function AdminQuotationSettings() {
             </label>
             <label className="block">
               <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Logo URL
+                {t("Logo URL")}
               </span>
               <AdminInput
                 value={settings.company_logo_url ?? ""}
@@ -187,7 +196,7 @@ export default function AdminQuotationSettings() {
             </label>
             <label className="block col-span-2">
               <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Company Address
+                {t("Company Address")}
               </span>
               <AdminInput
                 value={settings.company_address ?? ""}
@@ -202,7 +211,7 @@ export default function AdminQuotationSettings() {
 
         <AdminCard>
           <h3 className="mb-4 font-semibold text-foreground dark:text-primary-foreground">
-            Default Pricing
+            {t("Default Pricing")}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <label className="block">
@@ -264,11 +273,11 @@ export default function AdminQuotationSettings() {
 
         <AdminCard>
           <h3 className="mb-4 font-semibold text-foreground dark:text-primary-foreground">
-            Terms & Conditions
+            {t("Terms & Conditions")}
           </h3>
           <label className="block">
             <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-              Default Terms & Conditions
+              {t("Default Terms & Conditions")}
             </span>
             <AdminTextarea
               value={settings.default_terms_conditions}
@@ -285,7 +294,7 @@ export default function AdminQuotationSettings() {
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Default Payment Terms
+                {t("Default Payment Terms")}
               </span>
               <AdminInput
                 value={settings.default_payment_terms}
@@ -300,7 +309,7 @@ export default function AdminQuotationSettings() {
             </label>
             <label className="block">
               <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Default Validity (days)
+                {t("Default Validity (days)")}
               </span>
               <AdminInput
                 type="number"

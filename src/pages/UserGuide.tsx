@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Info } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import { useLanguage } from "@/lib/i18n";
 import {
   guideSections,
   guideFaq,
@@ -34,6 +35,7 @@ function InlineLink({ text, link }: { text: string; link?: GuideLink }) {
 }
 
 export default function UserGuide() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([{ name: "FRELUX User Guide", path: "/user-guide" }]);
   useSeo({
     title: "FRELUX User Guide: How to Use Every Calculator and Feature",
@@ -67,7 +69,7 @@ export default function UserGuide() {
   return (
     <div>
       <PageHeader
-        title="FRELUX User Guide"
+        title={t("FRELUX User Guide")}
         subtitle="How to use every calculator and feature, in plain language. Written for homeowners and professionals alike."
         breadcrumbs={[
           { label: "Home", path: "/" },
@@ -80,11 +82,11 @@ export default function UserGuide() {
         <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
           {/* Table of contents */}
           <nav
-            aria-label="Guide contents"
+            aria-label={t("Guide contents")}
             className="lg:sticky lg:top-20 lg:self-start"
           >
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Contents
+              {t("Contents")}
             </p>
             <ul className="space-y-1">
               {guideSections.map((s) => (
@@ -211,7 +213,7 @@ export default function UserGuide() {
             {/* FAQ */}
             <section id="faq" className="scroll-mt-24">
               <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
-                Frequently Asked Questions
+                {t("Frequently Asked Questions")}
               </h2>
               <div className="mt-4 divide-y rounded-lg border">
                 {guideFaq.map((f) => (

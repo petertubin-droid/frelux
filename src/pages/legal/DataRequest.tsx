@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSeo } from "@/lib/seo";
 import { getSupabase } from "@/lib/supabase-lazy";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * GDPR/CCPA data subject request intake. Requests land in the
@@ -18,6 +19,7 @@ const REQUEST_TYPES = [
 ] as const;
 
 export default function DataRequest() {
+  const { t: tr } = useLanguage();
   useSeo({
     title: "Data Subject Request",
     description:
@@ -51,7 +53,7 @@ export default function DataRequest() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
-      <h1 className="text-3xl font-bold">Data subject request</h1>
+      <h1 className="text-3xl font-bold">{tr("Data subject request")}</h1>
       <p className="mt-3 text-muted-foreground">
         Under the GDPR (EU/EEA) and CCPA/CPRA (California), you can request
         access to, deletion of, correction of, or a copy of your personal data,
@@ -60,7 +62,7 @@ export default function DataRequest() {
 
       {state === "done" ? (
         <div className="mt-8 rounded-2xl border bg-card p-6" role="status">
-          <h2 className="text-lg font-semibold">Request received</h2>
+          <h2 className="text-lg font-semibold">{tr("Request received")}</h2>
           <p className="mt-2 text-muted-foreground">
             We&apos;ve logged your request and will verify your identity by
             email before processing. You&apos;ll hear from us within 30 days.
@@ -70,7 +72,7 @@ export default function DataRequest() {
         <form className="mt-8 space-y-4" onSubmit={submit}>
           <div>
             <label htmlFor="dsr-email" className="block text-sm font-medium">
-              Email
+              {tr("Email")}
             </label>
             <input
               id="dsr-email"
@@ -84,7 +86,7 @@ export default function DataRequest() {
           </div>
           <div>
             <label htmlFor="dsr-type" className="block text-sm font-medium">
-              Request type
+              {tr("Request type")}
             </label>
             <select
               id="dsr-type"
@@ -101,7 +103,7 @@ export default function DataRequest() {
           </div>
           <div>
             <label htmlFor="dsr-details" className="block text-sm font-medium">
-              Details (optional)
+              {tr("Details (optional)")}
             </label>
             <textarea
               id="dsr-details"

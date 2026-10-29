@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { formatNumber } from "@/lib/utils";
 import { AdminButton, AdminTabButton } from "@/components/admin/AdminUi";
 import AdminPagination from "@/components/admin/AdminPagination";
+import { useLanguage } from "@/lib/i18n";
 
 interface ErrorLog {
   id: string;
@@ -29,6 +30,7 @@ const SEVERITY_STYLES: Record<string, string> = {
 };
 
 export default function AdminErrors() {
+  const { t } = useLanguage();
   const [errors, setErrors] = useState<ErrorLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<SeverityFilter>("all");
@@ -140,10 +142,10 @@ export default function AdminErrors() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-            Error Monitor
+            {t("Error Monitor")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-            Runtime errors and exceptions logged from the frontend
+            {t("Runtime errors and exceptions logged from the frontend")}
           </p>
         </div>
         <AdminButton
@@ -245,7 +247,7 @@ export default function AdminErrors() {
                     onClick={() => setSelectedError(err)}
                     className="text-xs"
                   >
-                    Details
+                    {t("Details")}
                   </AdminButton>
                   {!err.is_resolved && (
                     <AdminButton
@@ -253,7 +255,7 @@ export default function AdminErrors() {
                       onClick={() => resolveError(err.id)}
                       className="text-xs py-1 bg-green-50 border-green-200 text-green-600 hover:bg-green-100"
                     >
-                      Resolve
+                      {t("Resolve")}
                     </AdminButton>
                   )}
                 </div>
@@ -268,7 +270,7 @@ export default function AdminErrors() {
         <AdminModal
           open
           onClose={() => setSelectedError(null)}
-          title="Error Details"
+          title={t("Error Details")}
           maxWidth="max-w-2xl"
         >
           <div className="space-y-3">
@@ -287,7 +289,7 @@ export default function AdminErrors() {
             {selectedError.error_stack && (
               <div>
                 <p className="mb-1 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                  Stack trace
+                  {t("Stack trace")}
                 </p>
                 <pre className="overflow-auto rounded-lg bg-background p-3 text-xs text-muted-foreground/80">
                   {selectedError.error_stack}
@@ -297,7 +299,7 @@ export default function AdminErrors() {
             {selectedError.component_stack && (
               <div>
                 <p className="mb-1 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                  Component stack
+                  {t("Component stack")}
                 </p>
                 <pre className="overflow-auto rounded-lg bg-muted p-3 text-xs text-muted-foreground">
                   {selectedError.component_stack}

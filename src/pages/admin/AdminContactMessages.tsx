@@ -10,6 +10,7 @@ import {
 import { AdminModal } from "@/components/admin/AdminModal";
 import AdminPagination from "@/components/admin/AdminPagination";
 import { classNames } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 interface ContactMessage {
   id: string;
@@ -29,6 +30,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function AdminContactMessages() {
+  const { t } = useLanguage();
   const [items, setItems] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,8 +93,8 @@ export default function AdminContactMessages() {
   return (
     <>
       <AdminHeader
-        title="Contact Messages"
-        subtitle="Submissions from the public contact form."
+        title={t("Contact Messages")}
+        subtitle={t("Submissions from the public contact form.")}
       />
       {error && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -102,13 +104,13 @@ export default function AdminContactMessages() {
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading…"
+          title={t("Loading…")}
           message="Fetching contact messages."
         />
       ) : items.length === 0 ? (
         <StateMessage
           type="empty"
-          title="No messages"
+          title={t("No messages")}
           message="Contact form submissions will appear here."
         />
       ) : (
@@ -145,13 +147,13 @@ export default function AdminContactMessages() {
                     if (item.status === "new") updateStatus(item.id, "read");
                   }}
                 >
-                  <Mail className="h-3.5 w-3.5" /> View
+                  <Mail className="h-3.5 w-3.5" /> {t("View")}
                 </AdminButton>
                 <AdminIconButton
                   variant="danger"
                   type="button"
                   onClick={() => del(item.id)}
-                  aria-label="Delete"
+                  aria-label={t("Delete")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </AdminIconButton>
@@ -200,7 +202,7 @@ export default function AdminContactMessages() {
               href={`mailto:${viewing.email}?subject=Re: ${encodeURIComponent(viewing.subject)}`}
             >
               <AdminButton variant="secondary">
-                <Mail className="h-4 w-4" /> Reply by email
+                <Mail className="h-4 w-4" /> {t("Reply by email")}
               </AdminButton>
             </a>
             {viewing.status !== "replied" && (
@@ -208,7 +210,7 @@ export default function AdminContactMessages() {
                 variant="secondary"
                 onClick={() => updateStatus(viewing.id, "replied")}
               >
-                <CheckCircle2 className="h-4 w-4" /> Mark replied
+                <CheckCircle2 className="h-4 w-4" /> {t("Mark replied")}
               </AdminButton>
             )}
             {viewing.status !== "archived" && (
@@ -216,7 +218,7 @@ export default function AdminContactMessages() {
                 variant="secondary"
                 onClick={() => updateStatus(viewing.id, "archived")}
               >
-                <Archive className="h-4 w-4" /> Archive
+                <Archive className="h-4 w-4" /> {t("Archive")}
               </AdminButton>
             )}
           </div>

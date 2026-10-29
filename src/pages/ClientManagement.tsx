@@ -30,8 +30,10 @@ import {
 } from "lucide-react";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ClientManagement() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [clients, setClients] = useState<DbClient[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,11 +121,11 @@ export default function ClientManagement() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16">
         <PageHeader
-          title="Client Management"
-          subtitle="Sign in to manage your clients."
+          title={t("Client Management")}
+          subtitle={t("Sign in to manage your clients.")}
         />
         <p className="mt-8 text-center text-muted-foreground">
-          Please sign in to access the CRM.
+          {t("Please sign in to access the CRM.")}
         </p>
       </div>
     );
@@ -132,8 +134,10 @@ export default function ClientManagement() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <PageHeader
-        title="Client Management"
-        subtitle="Track clients, project history, communications, and documents."
+        title={t("Client Management")}
+        subtitle={t(
+          "Track clients, project history, communications, and documents.",
+        )}
       />
 
       {error && (
@@ -144,7 +148,7 @@ export default function ClientManagement() {
             onClick={() => setError(null)}
             className="mt-2 text-xs underline"
           >
-            Dismiss
+            {t("Dismiss")}
           </Button>
         </div>
       )}
@@ -169,7 +173,7 @@ export default function ClientManagement() {
           }}
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
         >
-          <Plus aria-hidden="true" className="h-4 w-4" /> Add Client
+          <Plus aria-hidden="true" className="h-4 w-4" /> {t("Add Client")}
         </Button>
       </div>
 
@@ -214,7 +218,7 @@ export default function ClientManagement() {
                 htmlFor="cm-company"
                 className="text-sm font-medium text-foreground"
               >
-                Company
+                {t("Company")}
               </label>
               <input
                 id="cm-company"
@@ -228,7 +232,7 @@ export default function ClientManagement() {
                 htmlFor="cm-email"
                 className="text-sm font-medium text-foreground"
               >
-                Email
+                {t("Email")}
               </label>
               <input
                 id="cm-email"
@@ -243,7 +247,7 @@ export default function ClientManagement() {
                 htmlFor="cm-phone"
                 className="text-sm font-medium text-foreground"
               >
-                Phone
+                {t("Phone")}
               </label>
               <input
                 id="cm-phone"
@@ -257,7 +261,7 @@ export default function ClientManagement() {
                 htmlFor="cm-address"
                 className="text-sm font-medium text-foreground"
               >
-                Address
+                {t("Address")}
               </label>
               <input
                 id="cm-address"
@@ -271,7 +275,7 @@ export default function ClientManagement() {
                 htmlFor="cm-notes"
                 className="text-sm font-medium text-foreground"
               >
-                Notes
+                {t("Notes")}
               </label>
               <textarea
                 id="cm-notes"
@@ -299,7 +303,7 @@ export default function ClientManagement() {
               }}
               className="rounded-lg border px-6 py-2 text-sm"
             >
-              Cancel
+              {t("Cancel")}
             </Button>
           </div>
         </form>
@@ -316,7 +320,7 @@ export default function ClientManagement() {
         <div className="mt-8 rounded-lg border p-12 text-center">
           <Users className="mx-auto h-12 w-12 text-muted-foreground" />
           <p className="mt-4 text-muted-foreground">
-            No clients yet. Add your first client to get started.
+            {t("No clients yet. Add your first client to get started.")}
           </p>
         </div>
       ) : (
@@ -415,6 +419,7 @@ function ClientDetailDrawer({
   userId: string;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const [communications, setCommunications] = useState<DbClientCommunication[]>(
     [],
   );
@@ -541,13 +546,15 @@ function ClientDetailDrawer({
         {/* Project History */}
         <div className="mt-6">
           <h3 className="text-sm font-semibold text-foreground">
-            Project History
+            {t("Project History")}
           </h3>
           {loading ? (
-            <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t("Loading...")}
+            </p>
           ) : projects.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">
-              No projects linked to this client.
+              {t("No projects linked to this client.")}
             </p>
           ) : (
             <div className="mt-2 space-y-2">
@@ -583,7 +590,7 @@ function ClientDetailDrawer({
         <div className="mt-6">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-foreground">
-              Communication History
+              {t("Communication History")}
             </h3>
             <Button
               variant="ghost"
@@ -600,7 +607,7 @@ function ClientDetailDrawer({
               className="mt-2 space-y-2 rounded-lg border p-3"
             >
               <select
-                aria-label="Communication type"
+                aria-label={t("Communication type")}
                 value={commForm.type}
                 onChange={(e) =>
                   setCommForm({
@@ -610,29 +617,29 @@ function ClientDetailDrawer({
                 }
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
               >
-                <option value="note">Note</option>
-                <option value="call">Phone Call</option>
-                <option value="email">Email</option>
-                <option value="whatsapp">WhatsApp</option>
-                <option value="meeting">Meeting</option>
+                <option value="note">{t("Note")}</option>
+                <option value="call">{t("Phone Call")}</option>
+                <option value="email">{t("Email")}</option>
+                <option value="whatsapp">{t("WhatsApp")}</option>
+                <option value="meeting">{t("Meeting")}</option>
               </select>
               <input
-                aria-label="Subject"
+                aria-label={t("Subject")}
                 value={commForm.subject}
                 onChange={(e) =>
                   setCommForm({ ...commForm, subject: e.target.value })
                 }
-                placeholder="Subject..."
+                placeholder={t("Subject...")}
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
               <textarea
-                aria-label="Message"
+                aria-label={t("Message")}
                 rows={2}
                 value={commForm.body}
                 onChange={(e) =>
                   setCommForm({ ...commForm, body: e.target.value })
                 }
-                placeholder="Details..."
+                placeholder={t("Details...")}
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
               <Button
@@ -640,16 +647,18 @@ function ClientDetailDrawer({
                 type="submit"
                 className="rounded-lg px-4 py-1.5 text-sm font-medium"
               >
-                Save
+                {t("Save")}
               </Button>
             </form>
           )}
 
           {loading ? (
-            <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t("Loading...")}
+            </p>
           ) : communications.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">
-              No communications logged yet.
+              {t("No communications logged yet.")}
             </p>
           ) : (
             <div className="mt-2 space-y-2">

@@ -30,6 +30,7 @@ import type { FreluxLocation } from "@/lib/location-intelligence";
 import { formatCurrency } from "@/lib/utils";
 import { WorkspaceSwitcher } from "@/components/workspace/WorkspaceSwitcher";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
+import { useLanguage } from "@/lib/i18n";
 
 const STATUS_COLORS: Record<string, string> = {
   draft:
@@ -53,6 +54,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function ProjectWorkspace() {
+  const { t } = useLanguage();
   useSeo({
     title: "Project Workspace: Manage Your Construction Projects",
     description:
@@ -175,7 +177,7 @@ export default function ProjectWorkspace() {
   if (!user) {
     return (
       <div className="container mx-auto py-20 text-center text-muted-foreground">
-        Please log in to access your project workspace.
+        {t("Please log in to access your project workspace.")}
       </div>
     );
   }
@@ -187,8 +189,10 @@ export default function ProjectWorkspace() {
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
-        title="Project Workspace"
-        subtitle="Your central hub for managing all construction and finishing projects."
+        title={t("Project Workspace")}
+        subtitle={t(
+          "Your central hub for managing all construction and finishing projects.",
+        )}
       />
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Stats row */}
@@ -242,7 +246,7 @@ export default function ProjectWorkspace() {
               to="/workspace-settings"
               className="text-xs text-muted-foreground hover:text-foreground font-medium underline-offset-4 hover:underline"
             >
-              Workspace Settings & Members
+              {t("Workspace Settings & Members")}
             </Link>
           </div>
         </div>
@@ -252,24 +256,24 @@ export default function ProjectWorkspace() {
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
-              aria-label="Search projects"
+              aria-label={t("Search projects")}
               className="w-full rounded-lg border pl-10 pr-4 py-2.5 text-sm bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
-              placeholder="Search projects..."
+              placeholder={t("Search projects...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
           <select
-            aria-label="Sort projects"
+            aria-label={t("Sort projects")}
             className="rounded-lg border bg-background px-3 py-2.5 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 outline-none"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option value="">All Statuses</option>
-            <option value="draft">Planning</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-            <option value="archived">Archived</option>
+            <option value="">{t("All Statuses")}</option>
+            <option value="draft">{t("Planning")}</option>
+            <option value="in_progress">{t("In Progress")}</option>
+            <option value="completed">{t("Completed")}</option>
+            <option value="archived">{t("Archived")}</option>
           </select>
           <Link
             to="/material-prices/"
@@ -299,14 +303,14 @@ export default function ProjectWorkspace() {
           <div className="text-center py-20 border-2 border-dashed rounded-xl">
             <Folder className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground mb-4">
-              No projects yet. Create your first project to get started.
+              {t("No projects yet. Create your first project to get started.")}
             </p>
             <Button
               variant="ghost"
               onClick={() => setShowCreate(true)}
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all hover:scale-105"
             >
-              <Plus className="h-4 w-4" /> Create Project
+              <Plus className="h-4 w-4" /> {t("Create Project")}
             </Button>
           </div>
         )}
@@ -330,7 +334,7 @@ export default function ProjectWorkspace() {
                       variant="ghost"
                       onClick={() => handleArchive(project.id)}
                       className="rounded-lg p-1.5 hover:bg-muted transition-colors"
-                      title="Archive"
+                      title={t("Archive")}
                     >
                       <Archive className="h-4 w-4 text-muted-foreground" />
                     </Button>
@@ -338,7 +342,7 @@ export default function ProjectWorkspace() {
                       variant="ghost"
                       onClick={() => handleDelete(project.id)}
                       className="rounded-lg p-1.5 hover:bg-destructive/10 transition-colors"
-                      title="Delete"
+                      title={t("Delete")}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
@@ -374,7 +378,7 @@ export default function ProjectWorkspace() {
                   {project.total_project_cost > 0 && (
                     <div className="flex items-center justify-between border-t pt-3">
                       <span className="text-xs text-muted-foreground">
-                        Total Cost
+                        {t("Total Cost")}
                       </span>
                       <span className="font-semibold text-sm">
                         {formatCurrency(project.total_project_cost)}
@@ -382,7 +386,7 @@ export default function ProjectWorkspace() {
                     </div>
                   )}
                   <div className="mt-3 flex items-center gap-1 text-sm font-medium text-primary group-hover:gap-2 transition-all">
-                    Open Project <ArrowRight className="h-4 w-4" />
+                    {t("Open Project")} <ArrowRight className="h-4 w-4" />
                   </div>
                 </Link>
               </div>
@@ -403,7 +407,7 @@ export default function ProjectWorkspace() {
             >
               <div className="mb-4 flex items-center gap-2">
                 <Crown className="h-5 w-5 text-primary" />
-                <h2 className="text-xl font-bold">Create New Project</h2>
+                <h2 className="text-xl font-bold">{t("Create New Project")}</h2>
               </div>
               <div className="space-y-4">
                 <div>
@@ -423,7 +427,7 @@ export default function ProjectWorkspace() {
                 </div>
                 <div>
                   <label htmlFor="pw-description" className={labelCls}>
-                    Description
+                    {t("Description")}
                   </label>
                   <textarea
                     id="pw-description"
@@ -436,13 +440,13 @@ export default function ProjectWorkspace() {
                         description: e.target.value,
                       })
                     }
-                    placeholder="Brief description..."
+                    placeholder={t("Brief description...")}
                   />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label htmlFor="pw-type" className={labelCls}>
-                      Project Type
+                      {t("Project Type")}
                     </label>
                     <select
                       id="pw-type"
@@ -455,16 +459,16 @@ export default function ProjectWorkspace() {
                         })
                       }
                     >
-                      <option value="painting">Painting</option>
-                      <option value="screeding">Screeding</option>
-                      <option value="pop_ceiling">POP Ceiling</option>
-                      <option value="tiling">Tiling</option>
-                      <option value="multi_trade">Multi-Trade</option>
+                      <option value="painting">{t("Painting")}</option>
+                      <option value="screeding">{t("Screeding")}</option>
+                      <option value="pop_ceiling">{t("POP Ceiling")}</option>
+                      <option value="tiling">{t("Tiling")}</option>
+                      <option value="multi_trade">{t("Multi-Trade")}</option>
                     </select>
                   </div>
                   <div>
                     <label htmlFor="pw-building-type" className={labelCls}>
-                      Building Type
+                      {t("Building Type")}
                     </label>
                     <select
                       id="pw-building-type"
@@ -477,15 +481,15 @@ export default function ProjectWorkspace() {
                         })
                       }
                     >
-                      <option value="residential">Residential</option>
-                      <option value="commercial">Commercial</option>
-                      <option value="industrial">Industrial</option>
-                      <option value="renovation">Renovation</option>
+                      <option value="residential">{t("Residential")}</option>
+                      <option value="commercial">{t("Commercial")}</option>
+                      <option value="industrial">{t("Industrial")}</option>
+                      <option value="renovation">{t("Renovation")}</option>
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className={labelCls}>Location (optional)</label>
+                  <label className={labelCls}>{t("Location (optional)")}</label>
                   <LocationCard compact onLocationChange={setDraftLocation} />
                 </div>
                 <div className="flex gap-3 pt-2">
@@ -494,7 +498,7 @@ export default function ProjectWorkspace() {
                     onClick={() => setShowCreate(false)}
                     className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </Button>
                   <Button
                     variant="ghost"

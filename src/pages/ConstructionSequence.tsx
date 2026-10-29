@@ -37,10 +37,12 @@ import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 export type SequenceViewMode = "dag" | "waves" | "list";
 
 export default function ConstructionSequence() {
+  const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Construction Sequence Planner", path: "/construction-sequence" },
@@ -95,7 +97,7 @@ export default function ConstructionSequence() {
       <PageHeader
         variant="tool"
         eyebrow="Orchestration & Planning"
-        title="Construction Sequence & DAG Execution"
+        title={t("Construction Sequence & DAG Execution")}
         subtitle="Directed Acyclic Graph (DAG) task network, Critical Path Method (CPM), and multi-trade parallel execution waves conforming to ISO 21502 and PMI PMBOK® standards."
         breadcrumbs={[
           { label: "Home", path: "/" },
@@ -109,7 +111,7 @@ export default function ConstructionSequence() {
           <p className="flex-1 min-w-[280px]">{plan.methodology_note}</p>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded bg-brand-purple/10 px-2 py-0.5 font-semibold text-brand-purple">
-              <Award className="h-3.5 w-3.5" /> ISO 21502 / PMBOK 7th Ed
+              <Award className="h-3.5 w-3.5" /> {t("ISO 21502 / PMBOK 7th Ed")}
             </span>
             <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-foreground font-medium">
               <Globe className="h-3 w-3 text-muted-foreground" />{" "}
@@ -145,7 +147,7 @@ export default function ConstructionSequence() {
               className="inline-flex items-center gap-2 text-xs font-semibold"
             >
               <GitFork className="h-3.5 w-3.5" />
-              DAG Network Graph
+              {t("DAG Network Graph")}
             </Button>
             <Button
               variant={viewMode === "waves" ? "default" : "outline"}
@@ -154,7 +156,7 @@ export default function ConstructionSequence() {
               className="inline-flex items-center gap-2 text-xs font-semibold"
             >
               <Layers className="h-3.5 w-3.5" />
-              Parallel Execution Waves
+              {t("Parallel Execution Waves")}
             </Button>
             <Button
               variant={viewMode === "list" ? "default" : "outline"}
@@ -163,7 +165,7 @@ export default function ConstructionSequence() {
               className="inline-flex items-center gap-2 text-xs font-semibold"
             >
               <ListOrdered className="h-3.5 w-3.5" />
-              Sequential Step List
+              {t("Sequential Step List")}
             </Button>
           </div>
           <span className="text-xs text-muted-foreground">
@@ -197,7 +199,7 @@ export default function ConstructionSequence() {
             {/* Stage overview */}
             <div className="rounded-2xl border border-border bg-card shadow-card p-6">
               <h3 className="font-semibold text-foreground mb-3">
-                Construction Stages
+                {t("Construction Stages")}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {plan.stages.map((s, i) => (
@@ -315,7 +317,7 @@ export default function ConstructionSequence() {
             <ShieldCheck className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-amber-900 dark:text-amber-300">
-                International Engineering & CPM Scheduling Governance
+                {t("International Engineering & CPM Scheduling Governance")}
               </p>
               <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
                 This schedule network conforms to ISO 21502:2020 and PMI PMBOK®
@@ -343,6 +345,7 @@ function StepCard({
   isOpen: boolean;
   onToggle: () => void;
 }) {
+  const { t } = useLanguage();
   const { trade, standardRef } = resolveTradeDiscipline(step.title, step.stage);
 
   return (
@@ -407,28 +410,28 @@ function StepCard({
           {/* Activities */}
           <Section
             icon={HardHat}
-            title="Activities"
+            title={t("Activities")}
             items={step.activities}
             color="brand-purple"
           />
           {/* Materials */}
           <Section
             icon={Package}
-            title="Materials Required"
+            title={t("Materials Required")}
             items={step.materials_required}
             color="neutral"
           />
           {/* Quality checks */}
           <Section
             icon={CheckCircle2}
-            title="Quality Checks"
+            title={t("Quality Checks")}
             items={step.quality_checks}
             color="green"
           />
           {/* Safety notes */}
           <Section
             icon={ShieldCheck}
-            title="Safety Notes"
+            title={t("Safety Notes")}
             items={step.safety_notes}
             color="blue"
           />

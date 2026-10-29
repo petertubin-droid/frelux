@@ -26,6 +26,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
 import { getSafeError } from "@/lib/safeError";
 import { Globe2, RefreshCw, PlayCircle, Plus } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 interface ScanRun {
   id: string;
@@ -101,6 +102,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function AdminPricePipeline() {
+  const { t } = useLanguage();
   const [runs, setRuns] = useState<ScanRun[]>([]);
   const [failed, setFailed] = useState<FailedCandidate[]>([]);
   const [rankings, setRankings] = useState<RankingRow[]>([]);
@@ -265,7 +267,7 @@ export default function AdminPricePipeline() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold">
-            <Globe2 className="h-6 w-6" /> Price Pipeline
+            <Globe2 className="h-6 w-6" /> {t("Price Pipeline")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Recurring price-intelligence runs, sourced market rankings, and scan
@@ -277,7 +279,7 @@ export default function AdminPricePipeline() {
           onClick={load}
           className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
         >
-          <RefreshCw className="h-4 w-4" /> Refresh
+          <RefreshCw className="h-4 w-4" /> {t("Refresh")}
         </button>
       </div>
 
@@ -294,7 +296,7 @@ export default function AdminPricePipeline() {
 
       {/* Pipeline: manual trigger + runs */}
       <section className="rounded-lg border bg-card p-5">
-        <h2 className="text-lg font-semibold">Price pipeline</h2>
+        <h2 className="text-lg font-semibold">{t("Price pipeline")}</h2>
         <p className="mt-1 text-xs text-muted-foreground">
           The cron walks the whole scan-source registry every Monday 06:40 UTC.
           Each result lands as a pending candidate in Price Scan with its
@@ -305,9 +307,9 @@ export default function AdminPricePipeline() {
             value={marketFilter}
             onChange={(e) => setMarketFilter(e.target.value)}
             className="rounded-md border bg-background px-3 py-1.5 text-sm"
-            aria-label="Market filter for the scan"
+            aria-label={t("Market filter for the scan")}
           >
-            <option value="">All markets</option>
+            <option value="">{t("All markets")}</option>
             {markets.map((m) => (
               <option key={m.country_code} value={m.country_code}>
                 {m.country_name} ({m.country_code})
@@ -333,13 +335,13 @@ export default function AdminPricePipeline() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-xs text-muted-foreground">
-                  <th className="py-2 pr-3">Run</th>
-                  <th className="py-2 pr-3">Trigger</th>
-                  <th className="py-2 pr-3">Status</th>
-                  <th className="py-2 pr-3">Sources</th>
-                  <th className="py-2 pr-3">Candidates</th>
-                  <th className="py-2 pr-3">Started</th>
-                  <th className="py-2">Notes</th>
+                  <th className="py-2 pr-3">{t("Run")}</th>
+                  <th className="py-2 pr-3">{t("Trigger")}</th>
+                  <th className="py-2 pr-3">{t("Status")}</th>
+                  <th className="py-2 pr-3">{t("Sources")}</th>
+                  <th className="py-2 pr-3">{t("Candidates")}</th>
+                  <th className="py-2 pr-3">{t("Started")}</th>
+                  <th className="py-2">{t("Notes")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -382,7 +384,9 @@ export default function AdminPricePipeline() {
 
         {failed.length > 0 && (
           <div className="mt-4">
-            <h3 className="text-sm font-semibold">Recent scan failures</h3>
+            <h3 className="text-sm font-semibold">
+              {t("Recent scan failures")}
+            </h3>
             <ul className="mt-2 space-y-1 text-xs">
               {failed.map((f) => (
                 <li key={f.id} className="text-muted-foreground">
@@ -401,7 +405,7 @@ export default function AdminPricePipeline() {
       <section className="rounded-lg border bg-card p-5">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold">Market rankings</h2>
+            <h2 className="text-lg font-semibold">{t("Market rankings")}</h2>
             <p className="mt-1 text-xs text-muted-foreground">
               External metrics are only stored with a named source. FRELUX
               coverage rows are recomputed from the platform's own data.
@@ -411,14 +415,14 @@ export default function AdminPricePipeline() {
             onClick={() => setShowAdd((v) => !v)}
             className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
           >
-            <Plus className="h-4 w-4" /> Add sourced metric
+            <Plus className="h-4 w-4" /> {t("Add sourced metric")}
           </button>
         </div>
 
         {showAdd && (
           <div className="mt-4 grid gap-3 rounded-md border bg-muted/40 p-4 md:grid-cols-3">
             <label className="text-sm">
-              Market
+              {t("Market")}
               <select
                 value={newMetric.market_code}
                 onChange={(e) =>
@@ -434,7 +438,7 @@ export default function AdminPricePipeline() {
               </select>
             </label>
             <label className="text-sm">
-              Metric
+              {t("Metric")}
               <input
                 list="metric-suggestions"
                 value={newMetric.metric}
@@ -452,7 +456,7 @@ export default function AdminPricePipeline() {
               </datalist>
             </label>
             <label className="text-sm">
-              Value
+              {t("Value")}
               <input
                 value={newMetric.value}
                 onChange={(e) =>
@@ -484,7 +488,7 @@ export default function AdminPricePipeline() {
               />
             </label>
             <label className="text-sm">
-              Source URL
+              {t("Source URL")}
               <input
                 value={newMetric.source_url}
                 onChange={(e) =>
@@ -495,7 +499,7 @@ export default function AdminPricePipeline() {
               />
             </label>
             <label className="text-sm">
-              As of (date)
+              {t("As of (date)")}
               <input
                 type="date"
                 value={newMetric.as_of}
@@ -506,7 +510,7 @@ export default function AdminPricePipeline() {
               />
             </label>
             <label className="text-sm">
-              Confidence
+              {t("Confidence")}
               <select
                 value={newMetric.confidence}
                 onChange={(e) =>
@@ -520,7 +524,7 @@ export default function AdminPricePipeline() {
               </select>
             </label>
             <label className="text-sm">
-              Notes
+              {t("Notes")}
               <input
                 value={newMetric.notes}
                 onChange={(e) =>
@@ -546,13 +550,13 @@ export default function AdminPricePipeline() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-xs text-muted-foreground">
-                  <th className="py-2 pr-3">Market</th>
-                  <th className="py-2 pr-3">Metric</th>
-                  <th className="py-2 pr-3">Value</th>
-                  <th className="py-2 pr-3">Source</th>
-                  <th className="py-2 pr-3">As of</th>
-                  <th className="py-2 pr-3">Confidence</th>
-                  <th className="py-2 pr-3">Active</th>
+                  <th className="py-2 pr-3">{t("Market")}</th>
+                  <th className="py-2 pr-3">{t("Metric")}</th>
+                  <th className="py-2 pr-3">{t("Value")}</th>
+                  <th className="py-2 pr-3">{t("Source")}</th>
+                  <th className="py-2 pr-3">{t("As of")}</th>
+                  <th className="py-2 pr-3">{t("Confidence")}</th>
+                  <th className="py-2 pr-3">{t("Active")}</th>
                   <th className="py-2" />
                 </tr>
               </thead>

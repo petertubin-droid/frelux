@@ -53,6 +53,7 @@ import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import UnitToggle from "@/components/measurement/UnitToggle";
+import { useLanguage } from "@/lib/i18n";
 interface PassedState {
   ceilingArea?: number;
   workflow?: string;
@@ -77,42 +78,42 @@ function popQuoteOptions(result: {
     quantity: number;
   }[];
   warnings?: string[];
-}) : QuoteOptions {
+}): QuoteOptions {
   return {
-      title: "FRELUX POP Ceiling Estimate",
-      subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.materials.length} material line(s)`,
-      metaRows: [
-        ["Ceiling area", `${formatNumber(result.ceilingArea)} m²`],
-        ["Waste allowance", `${formatNumber(result.wasteAmount)} m²`],
-        ["Materials", String(result.materials.length)],
-      ],
-      lines: result.materials.map((m) => ({
-        label: m.name,
-        quantity: formatNumber(m.packagesNeeded),
-        unit: m.unit,
-        unit_price: "included",
-        line_total: formatCurrency(m.cost, result.currencySymbol),
-        detail: `${formatNumber(m.quantity)} needed incl. waste`,
-      })),
-      totals: [
-        {
-          label: "Material cost",
-          value: formatCurrency(result.materialCost, result.currencySymbol),
-        },
-        {
-          label: "Labour",
-          value: formatCurrency(result.labourCost, result.currencySymbol),
-        },
-        {
-          label: "Grand total",
-          value: formatCurrency(result.grandTotal, result.currencySymbol),
-          strong: true,
-        },
-      ],
-      warnings: result.warnings ?? [],
-      footer:
-        "Estimates are indicative and not a formal quote. Package quantities include the configured waste margin; prices come from the configured material database.",
-    };
+    title: "FRELUX POP Ceiling Estimate",
+    subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.materials.length} material line(s)`,
+    metaRows: [
+      ["Ceiling area", `${formatNumber(result.ceilingArea)} m²`],
+      ["Waste allowance", `${formatNumber(result.wasteAmount)} m²`],
+      ["Materials", String(result.materials.length)],
+    ],
+    lines: result.materials.map((m) => ({
+      label: m.name,
+      quantity: formatNumber(m.packagesNeeded),
+      unit: m.unit,
+      unit_price: "included",
+      line_total: formatCurrency(m.cost, result.currencySymbol),
+      detail: `${formatNumber(m.quantity)} needed incl. waste`,
+    })),
+    totals: [
+      {
+        label: "Material cost",
+        value: formatCurrency(result.materialCost, result.currencySymbol),
+      },
+      {
+        label: "Labour",
+        value: formatCurrency(result.labourCost, result.currencySymbol),
+      },
+      {
+        label: "Grand total",
+        value: formatCurrency(result.grandTotal, result.currencySymbol),
+        strong: true,
+      },
+    ],
+    warnings: result.warnings ?? [],
+    footer:
+      "Estimates are indicative and not a formal quote. Package quantities include the configured waste margin; prices come from the configured material database.",
+  };
 }
 
 function exportPopQuote(args: Parameters<typeof popQuoteOptions>[0]) {
@@ -122,6 +123,7 @@ function exportPopQuote(args: Parameters<typeof popQuoteOptions>[0]) {
 export default function PopCeilingCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { t } = useLanguage();
   const { marketCode, market } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("pop_ceiling_cost");
   const seoOfferCurrency = useSeoOfferCurrency();
@@ -326,8 +328,10 @@ export default function PopCeilingCostEstimator({
         {!embedded && (
           <PageHeader
             eyebrow="Estimate"
-            title="POP Ceiling Cost Estimator"
-            subtitle="Estimate material costs for your POP ceiling project. Labour not included."
+            title={t("POP Ceiling Cost Estimator")}
+            subtitle={t(
+              "Estimate material costs for your POP ceiling project. Labour not included.",
+            )}
             breadcrumbs={[
               { label: "Cost Estimators", path: "/paint-calculator?mode=cost" },
               { label: "POP Ceiling Cost Estimator" },
@@ -347,7 +351,7 @@ export default function PopCeilingCostEstimator({
       {!embedded && (
         <PageHeader
           eyebrow="Estimate"
-          title="POP Ceiling Cost Estimator"
+          title={t("POP Ceiling Cost Estimator")}
           subtitle="Estimate material quantities and grand total for your POP ceiling project. Labour not included."
           breadcrumbs={[
             { label: "Cost Estimators", path: "/paint-calculator?mode=cost" },
@@ -383,7 +387,7 @@ export default function PopCeilingCostEstimator({
                     setMarketNotConfigured(false);
                   }}
                 >
-                  Use Nigerian reference workflow (marked)
+                  {t("Use Nigerian reference workflow (marked)")}
                 </button>
               </div>
             )}
@@ -397,7 +401,7 @@ export default function PopCeilingCostEstimator({
                 and prices for your market before ordering.
               </div>
             )}
-            <Section title="Workflow">
+            <Section title={t("Workflow")}>
               <Field label="POP ceiling workflow">
                 <select
                   value={input.workflow}
@@ -410,16 +414,16 @@ export default function PopCeilingCostEstimator({
                   className="input-field dark:bg-card dark:border-white/10"
                 >
                   <option value="nigeria">
-                    Nigeria (POP cement, fibre, surface board)
+                    {t("Nigeria (POP cement, fibre, surface board)")}
                   </option>
                   <option value="international">
-                    International (gypsum board, framework)
+                    {t("International (gypsum board, framework)")}
                   </option>
                 </select>
               </Field>
             </Section>
 
-            <Section title="Dimensions">
+            <Section title={t("Dimensions")}>
               <div className="inline-flex rounded-lg border border-border dark:border-white/5 p-1">
                 <UnitToggle
                   value={input.unit}
@@ -456,7 +460,7 @@ export default function PopCeilingCostEstimator({
               </div>
             </Section>
 
-            <Section title="Options">
+            <Section title={t("Options")}>
               <div className="space-y-3">
                 <ToggleRow
                   checked={input.includeDecorative}
@@ -473,7 +477,7 @@ export default function PopCeilingCostEstimator({
               </div>
             </Section>
 
-            <Section title="Waste margin">
+            <Section title={t("Waste margin")}>
               <div className="flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
                   <Button
@@ -521,7 +525,7 @@ export default function PopCeilingCostEstimator({
             <div className="card sticky top-20 overflow-hidden">
               <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground">
                 <p className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/60">
-                  Estimated total
+                  {t("Estimated total")}
                 </p>
                 {result ? (
                   <p className="mt-1 text-3xl font-bold sm:text-4xl">
@@ -533,7 +537,7 @@ export default function PopCeilingCostEstimator({
                   </p>
                 )}
                 <p className="mt-1 text-xs text-primary-foreground/50">
-                  Estimate only, not a final quote.
+                  {t("Estimate only, not a final quote.")}
                 </p>
               </div>
               <div className="space-y-2 p-6">
@@ -619,7 +623,7 @@ export default function PopCeilingCostEstimator({
                           onClick={() => exportPopQuote(result)}
                           className="rounded-lg border px-4 py-2 text-sm font-semibold"
                         >
-                          Export quote (PDF)
+                          {t("Export quote (PDF)")}
                         </button>
                         <ShareEstimateButton
                           estimate={quoteToShareable(

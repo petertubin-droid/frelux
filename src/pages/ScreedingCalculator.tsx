@@ -43,10 +43,12 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useMarket } from "@/lib/international/market-context";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ScreedingCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { t } = useLanguage();
   const { marketCode, market } = useMarket();
   const finishTerm = getConstructionTerm(
     "wall_finishing",
@@ -281,12 +283,12 @@ export default function ScreedingCalculator({
               {project.projectMode === "house_building" && (
                 <div className="rounded-xl border border-border/80 bg-muted/50 p-4 text-xs text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground">
                   <p className="font-medium text-foreground dark:text-primary-foreground mb-1.5">
-                    House / Building
+                    {t("House / Building")}
                   </p>
                   Pick a house type above to load a full editable room breakdown
                   (bedrooms, living room, kitchen, toilets & baths...), or add
-                  spaces manually. Use quantity for identical rooms (e.g.,
-                  12×12 ft bedroom × 2).
+                  spaces manually. Use quantity for identical rooms (e.g., 12×12
+                  ft bedroom × 2).
                 </div>
               )}
             </MeasurementInput>
@@ -327,7 +329,7 @@ export default function ScreedingCalculator({
                 <span className="text-2xl text-muted-foreground">m²</span>
               </p>
               <p className="relative mt-1 text-xs text-muted-foreground">
-                Surface area in square metres
+                {t("Surface area in square metres")}
               </p>
             </div>
 
@@ -350,7 +352,7 @@ export default function ScreedingCalculator({
 
             <div className="rounded-xl border border-border/80 bg-muted/50 p-4 text-sm text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground">
               <p className="font-medium text-foreground dark:text-primary-foreground mb-1.5">
-                Next Step
+                {t("Next Step")}
               </p>
               This area feeds into the FRELUX {finishTerm.toLowerCase()}{" "}
               material calculation rules, which determine material quantity
@@ -366,14 +368,14 @@ export default function ScreedingCalculator({
                 className="inline-flex items-center gap-2"
               >
                 <RotateCcw aria-hidden="true" className="h-4 w-4" />
-                Start Over
+                {t("Start Over")}
               </Button>
               <Link
                 to="/screeding-calculator/?mode=cost"
                 state={{ netScreedingArea: screedingResult.totalAreaM2 }}
                 className="btn-primary btn-glow inline-flex items-center gap-2"
               >
-                Continue to Cost Estimate
+                {t("Continue to Cost Estimate")}
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Link>
             </div>

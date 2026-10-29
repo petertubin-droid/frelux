@@ -21,6 +21,7 @@ import {
 import type { EstimationCalcRule } from "@/types/estimation";
 import type { DbMaterialPriceHistory } from "@/types/database";
 import { formatNGNForDisplay } from "@/lib/international/fx-display";
+import { useLanguage } from "@/lib/i18n";
 
 // Engine-narrative formatting: honours the visitor display currency and
 // keeps trailing decimals (up to 2) so exact math values stay visible.
@@ -31,6 +32,7 @@ const fmtAuto = (n: number) => formatNGNForDisplay(n, { decimals: "auto" });
 const money = (v: number) => fmtAuto(v);
 
 export default function MaterialPriceForecast() {
+  const { t } = useLanguage();
   const [history, setHistory] = useState<DbMaterialPriceHistory[]>([]);
   const [rules, setRules] = useState<EstimationCalcRule[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -99,7 +101,7 @@ export default function MaterialPriceForecast() {
 
   return (
     <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-      <h2 className="mb-1 text-base font-semibold">Price Forecast</h2>
+      <h2 className="mb-1 text-base font-semibold">{t("Price Forecast")}</h2>
       <p className="mb-3 text-sm text-muted-foreground">
         Trend projections computed only from recorded price history
         (least-squares fit, no invented inflation). The engine refuses materials
@@ -121,7 +123,7 @@ export default function MaterialPriceForecast() {
         <>
           <div className="grid gap-4 sm:grid-cols-3">
             <label className="grid gap-1 text-sm font-medium">
-              Material
+              {t("Material")}
               <select
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={materialKey}
@@ -130,7 +132,7 @@ export default function MaterialPriceForecast() {
                   setResult(null);
                 }}
               >
-                <option value="">Select material</option>
+                <option value="">{t("Select material")}</option>
                 {materials.map((m) => (
                   <option key={m.key} value={m.key}>
                     {m.label} ({m.points.length} price points)
@@ -139,7 +141,7 @@ export default function MaterialPriceForecast() {
               </select>
             </label>
             <label className="grid gap-1 text-sm font-medium">
-              Horizon (months)
+              {t("Horizon (months)")}
               <input
                 type="number"
                 min="1"
@@ -156,7 +158,7 @@ export default function MaterialPriceForecast() {
                 disabled={!materialKey || !horizon}
                 className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
               >
-                Forecast Price
+                {t("Forecast Price")}
               </button>
             </div>
           </div>
@@ -206,7 +208,7 @@ export default function MaterialPriceForecast() {
               </div>
               <details className="text-sm">
                 <summary className="cursor-pointer font-medium">
-                  Forecast breakdown
+                  {t("Forecast breakdown")}
                 </summary>
                 <ul className="mt-2 space-y-1">
                   {result.steps.map((s, i) => (

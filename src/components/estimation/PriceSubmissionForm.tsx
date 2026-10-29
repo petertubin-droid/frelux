@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/Toast";
 import { getRegions } from "@/lib/international/regions";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 import {
   COUNTRY_OPTIONS,
@@ -38,6 +39,7 @@ const STATUS_LABEL: Record<string, string> = {
  * admin promotes an entry into the authoritative price book.
  */
 export default function PriceSubmissionForm() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
   const [market, setMarket] = useState<Market>("NG");
@@ -106,7 +108,7 @@ export default function PriceSubmissionForm() {
     return (
       <div className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
         <p className="font-medium text-card-foreground">
-          Report what materials cost in your area
+          {t("Report what materials cost in your area")}
         </p>
         <p className="mt-1">
           Signed-in users can report local prices for any market. Reports are
@@ -114,7 +116,7 @@ export default function PriceSubmissionForm() {
           community price book.
         </p>
         <Button asChild variant="outline" size="sm" className="mt-3">
-          <Link to="/login">Sign in to report prices</Link>
+          <Link to="/login">{t("Sign in to report prices")}</Link>
         </Button>
       </div>
     );
@@ -123,7 +125,7 @@ export default function PriceSubmissionForm() {
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <p className="text-sm font-semibold text-card-foreground">
-        Report what this costs in your area
+        {t("Report what this costs in your area")}
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
         Prices are reviewed before entering the price book. Three agreeing
@@ -135,7 +137,7 @@ export default function PriceSubmissionForm() {
             htmlFor="price-submission-market"
             className="text-xs font-medium text-muted-foreground"
           >
-            Market
+            {t("Market")}
           </label>
           <select
             id="price-submission-market"
@@ -162,7 +164,7 @@ export default function PriceSubmissionForm() {
             htmlFor="price-submission-region"
             className="text-xs font-medium text-muted-foreground"
           >
-            Region
+            {t("Region")}
           </label>
           {regions ? (
             <select
@@ -171,7 +173,7 @@ export default function PriceSubmissionForm() {
               onChange={(e) => setRegion(e.target.value)}
               className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             >
-              <option value="">Select region</option>
+              <option value="">{t("Select region")}</option>
               {regions.map((r) => (
                 <option key={r} value={r}>
                   {r}
@@ -183,7 +185,7 @@ export default function PriceSubmissionForm() {
               id="price-submission-region"
               value={region}
               onChange={(e) => setRegion(e.target.value)}
-              placeholder="Region"
+              placeholder={t("Region")}
               className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
           )}
@@ -193,7 +195,7 @@ export default function PriceSubmissionForm() {
             htmlFor="price-submission-item"
             className="text-xs font-medium text-muted-foreground"
           >
-            Item
+            {t("Item")}
           </label>
           <input
             id="price-submission-item"
@@ -208,7 +210,7 @@ export default function PriceSubmissionForm() {
             htmlFor="price-submission-unit"
             className="text-xs font-medium text-muted-foreground"
           >
-            Unit
+            {t("Unit")}
           </label>
           <input
             id="price-submission-unit"
@@ -241,13 +243,13 @@ export default function PriceSubmissionForm() {
             htmlFor="price-submission-vendor"
             className="text-xs font-medium text-muted-foreground"
           >
-            Vendor <span className="opacity-70">(optional)</span>
+            {t("Vendor")} <span className="opacity-70">(optional)</span>
           </label>
           <input
             id="price-submission-vendor"
             value={vendor}
             onChange={(e) => setVendor(e.target.value)}
-            placeholder="Where you saw this price"
+            placeholder={t("Where you saw this price")}
             className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
@@ -261,7 +263,7 @@ export default function PriceSubmissionForm() {
       {mine.length > 0 && (
         <div className="mt-5 border-t border-border pt-4">
           <p className="text-xs font-medium text-muted-foreground">
-            Your recent reports
+            {t("Your recent reports")}
           </p>
           <ul className="mt-2 space-y-1.5">
             {mine.map((m) => (

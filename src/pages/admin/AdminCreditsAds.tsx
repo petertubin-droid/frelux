@@ -44,6 +44,7 @@ import {
 } from "@/lib/credits";
 import { Button } from "@/components/ui/shadcn/button";
 import { StatusBadge } from "@/components/admin/AdminUi";
+import { useLanguage } from "@/lib/i18n";
 
 type Tab =
   | "overview"
@@ -55,6 +56,7 @@ type Tab =
   | "audit";
 
 export default function AdminCreditsAds() {
+  const { t } = useLanguage();
   const { user: _user } = useAuth();
   const { toast } = useToast();
   const [tab, setTab] = useState<Tab>("overview");
@@ -297,10 +299,12 @@ export default function AdminCreditsAds() {
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-          Credits & Rewarded Ads
+          {t("Credits & Rewarded Ads")}
         </h1>
         <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-          FRELUX Credits wallet, AI feature costs, and rewarded ad management.
+          {t(
+            "FRELUX Credits wallet, AI feature costs, and rewarded ad management.",
+          )}
         </p>
       </div>
 
@@ -358,12 +362,12 @@ export default function AdminCreditsAds() {
         <div className="space-y-4">
           <div className="rounded-xl border border-border p-4 dark:border-white/10">
             <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              System Status
+              {t("System Status")}
             </h3>
             <div className="mt-3 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground dark:text-muted-foreground">
-                  Rewarded Ads
+                  {t("Rewarded Ads")}
                 </span>
                 <span
                   className={classNames(
@@ -378,7 +382,7 @@ export default function AdminCreditsAds() {
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground dark:text-muted-foreground">
-                  Credits per ad
+                  {t("Credits per ad")}
                 </span>
                 <span className="font-semibold text-foreground dark:text-primary-foreground">
                   {adConfig?.credits_per_ad ?? 5}
@@ -386,7 +390,7 @@ export default function AdminCreditsAds() {
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground dark:text-muted-foreground">
-                  Daily earn limit
+                  {t("Daily earn limit")}
                 </span>
                 <span className="font-semibold text-foreground dark:text-primary-foreground">
                   {adConfig?.daily_earn_limit ?? 10}
@@ -394,7 +398,7 @@ export default function AdminCreditsAds() {
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground dark:text-muted-foreground">
-                  Active AI features
+                  {t("Active AI features")}
                 </span>
                 <span className="font-semibold text-foreground dark:text-primary-foreground">
                   {features.filter((f) => f.is_enabled).length} /{" "}
@@ -407,7 +411,7 @@ export default function AdminCreditsAds() {
           {/* Recent transactions */}
           <div className="rounded-xl border border-border p-4 dark:border-white/10">
             <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              Recent Transactions
+              {t("Recent Transactions")}
             </h3>
             <div className="mt-3 space-y-2">
               {transactions.slice(0, 10).map((tx) => (
@@ -436,7 +440,7 @@ export default function AdminCreditsAds() {
               ))}
               {transactions.length === 0 && (
                 <p className="text-xs text-muted-foreground">
-                  No transactions yet
+                  {t("No transactions yet")}
                 </p>
               )}
             </div>
@@ -457,7 +461,7 @@ export default function AdminCreditsAds() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
                     <label className="text-[10px] font-semibold text-muted-foreground">
-                      Feature Name
+                      {t("Feature Name")}
                     </label>
                     <input
                       value={draft.feature_name ?? f.feature_name}
@@ -472,7 +476,7 @@ export default function AdminCreditsAds() {
                   </div>
                   <div>
                     <label className="text-[10px] font-semibold text-muted-foreground">
-                      Credit Cost
+                      {t("Credit Cost")}
                     </label>
                     <input
                       type="number"
@@ -510,7 +514,7 @@ export default function AdminCreditsAds() {
                   </div>
                   <div>
                     <label className="text-[10px] font-semibold text-muted-foreground">
-                      Description
+                      {t("Description")}
                     </label>
                     <input
                       value={draft.description ?? f.description ?? ""}
@@ -540,7 +544,7 @@ export default function AdminCreditsAds() {
                       }
                       className="h-3.5 w-3.5 rounded"
                     />
-                    Requires Credits
+                    {t("Requires Credits")}
                   </label>
                   <label className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground/80">
                     <input
@@ -557,7 +561,7 @@ export default function AdminCreditsAds() {
                       }
                       className="h-3.5 w-3.5 rounded"
                     />
-                    Ad Unlock Enabled
+                    {t("Ad Unlock Enabled")}
                   </label>
                   <label className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground/80">
                     <input
@@ -571,7 +575,7 @@ export default function AdminCreditsAds() {
                       }
                       className="h-3.5 w-3.5 rounded"
                     />
-                    Enabled
+                    {t("Enabled")}
                   </label>
                 </div>
                 <Button
@@ -601,12 +605,12 @@ export default function AdminCreditsAds() {
       {tab === "ad_config" && adConfigDraft && (
         <div className="rounded-xl border border-border p-4 dark:border-white/10">
           <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            Rewarded Ad Credit Configuration
+            {t("Rewarded Ad Credit Configuration")}
           </h3>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div>
               <label className="text-[10px] font-semibold text-muted-foreground">
-                Credits per Ad
+                {t("Credits per Ad")}
               </label>
               <input
                 type="number"
@@ -622,7 +626,7 @@ export default function AdminCreditsAds() {
             </div>
             <div>
               <label className="text-[10px] font-semibold text-muted-foreground">
-                Daily Earn Limit
+                {t("Daily Earn Limit")}
               </label>
               <input
                 type="number"
@@ -638,7 +642,7 @@ export default function AdminCreditsAds() {
             </div>
             <div>
               <label className="text-[10px] font-semibold text-muted-foreground">
-                Cooldown (seconds)
+                {t("Cooldown (seconds)")}
               </label>
               <input
                 type="number"
@@ -654,7 +658,7 @@ export default function AdminCreditsAds() {
             </div>
             <div>
               <label className="text-[10px] font-semibold text-muted-foreground">
-                Min Interval Between Ads (seconds)
+                {t("Min Interval Between Ads (seconds)")}
               </label>
               <input
                 type="number"
@@ -682,7 +686,7 @@ export default function AdminCreditsAds() {
                 }
                 className="h-3.5 w-3.5 rounded"
               />
-              Rewarded Ads Enabled
+              {t("Rewarded Ads Enabled")}
             </label>
           </div>
           <Button
@@ -710,7 +714,7 @@ export default function AdminCreditsAds() {
         <div className="space-y-4">
           <div className="rounded-xl border border-border p-4 dark:border-white/10">
             <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              Token Purchase Configuration (Paystack)
+              {t("Token Purchase Configuration (Paystack)")}
             </h3>
             <p className="mt-1 text-[11px] text-muted-foreground">
               The pack shown on the Rewards page. Price is charged in Naira via
@@ -719,7 +723,7 @@ export default function AdminCreditsAds() {
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <div>
                 <label className="text-[10px] font-semibold text-muted-foreground">
-                  Tokens per Pack
+                  {t("Tokens per Pack")}
                 </label>
                 <input
                   type="number"
@@ -767,7 +771,7 @@ export default function AdminCreditsAds() {
                   }
                   className="h-3.5 w-3.5 rounded"
                 />
-                Token Purchases Enabled
+                {t("Token Purchases Enabled")}
               </label>
             </div>
             <p className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground dark:bg-white/5">
@@ -798,7 +802,7 @@ export default function AdminCreditsAds() {
 
           <div className="rounded-xl border border-border p-4 dark:border-white/10">
             <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              International Prices (Flutterwave)
+              {t("International Prices (Flutterwave)")}
             </h3>
             <p className="mt-1 text-[11px] text-muted-foreground">
               Charge tokens directly in a visitor's currency. A visitor with a
@@ -825,7 +829,7 @@ export default function AdminCreditsAds() {
                       </span>
                       {saved && (
                         <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
-                          Active
+                          {t("Active")}
                         </span>
                       )}
                     </div>
@@ -834,7 +838,7 @@ export default function AdminCreditsAds() {
                         type="number"
                         min={0}
                         step="0.01"
-                        placeholder="Not sold in this currency"
+                        placeholder={t("Not sold in this currency")}
                         value={tokenPriceDrafts[c.code] ?? ""}
                         onChange={(e) =>
                           setTokenPriceDrafts({
@@ -869,11 +873,11 @@ export default function AdminCreditsAds() {
 
           <div className="rounded-xl border border-border p-4 dark:border-white/10">
             <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              Recent Token Purchases
+              {t("Recent Token Purchases")}
             </h3>
             {tokenPurchases.length === 0 ? (
               <p className="mt-2 text-[11px] text-muted-foreground">
-                No token purchases yet.
+                {t("No token purchases yet.")}
               </p>
             ) : (
               <div className="mt-3 space-y-2">
@@ -940,7 +944,7 @@ export default function AdminCreditsAds() {
           ))}
           {transactions.length === 0 && (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No transactions
+              {t("No transactions")}
             </p>
           )}
         </div>
@@ -952,27 +956,27 @@ export default function AdminCreditsAds() {
           {/* Manual adjustment */}
           <div className="rounded-xl border border-border p-4 dark:border-white/10">
             <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              Manual Credit Adjustment
+              {t("Manual Credit Adjustment")}
             </h3>
             <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-              Adjust a user's FRELUX Credits. A reason is mandatory.
+              {t("Adjust a user's FRELUX Credits. A reason is mandatory.")}
             </p>
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
               <input
-                placeholder="User ID (UUID)"
+                placeholder={t("User ID (UUID)")}
                 value={adjustUserId}
                 onChange={(e) => setAdjustUserId(e.target.value)}
                 className="rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
               <input
                 type="number"
-                placeholder="Amount (+/-)"
+                placeholder={t("Amount (+/-)")}
                 value={adjustAmount}
                 onChange={(e) => setAdjustAmount(parseInt(e.target.value) || 0)}
                 className="rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
               <input
-                placeholder="Reason (required)"
+                placeholder={t("Reason (required)")}
                 value={adjustReason}
                 onChange={(e) => setAdjustReason(e.target.value)}
                 className="rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -1020,7 +1024,7 @@ export default function AdminCreditsAds() {
             ))}
             {wallets.length === 0 && (
               <p className="py-8 text-center text-sm text-muted-foreground">
-                No wallets
+                {t("No wallets")}
               </p>
             )}
           </div>
@@ -1033,7 +1037,7 @@ export default function AdminCreditsAds() {
           {/* Ad credit events */}
           <div className="rounded-xl border border-border p-4 dark:border-white/10">
             <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              Rewarded Ad Events
+              {t("Rewarded Ad Events")}
             </h3>
             <div className="mt-3 space-y-2">
               {adEvents.slice(0, 20).map((evt) => (
@@ -1069,7 +1073,9 @@ export default function AdminCreditsAds() {
                 </div>
               ))}
               {adEvents.length === 0 && (
-                <p className="text-xs text-muted-foreground">No ad events</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("No ad events")}
+                </p>
               )}
             </div>
           </div>
@@ -1077,7 +1083,7 @@ export default function AdminCreditsAds() {
           {/* AI feature usage */}
           <div className="rounded-xl border border-border p-4 dark:border-white/10">
             <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              AI Feature Usage
+              {t("AI Feature Usage")}
             </h3>
             <div className="mt-3 space-y-2">
               {aiUsage.slice(0, 20).map((u) => (
@@ -1096,7 +1102,7 @@ export default function AdminCreditsAds() {
                   <div className="flex items-center gap-2">
                     {u.unlocked_via_ad ? (
                       <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
-                        Ad
+                        {t("Ad")}
                       </span>
                     ) : (
                       <span className="rounded bg-accent-green/10 px-1.5 py-0.5 text-[10px] font-semibold text-accent-green">
@@ -1108,7 +1114,7 @@ export default function AdminCreditsAds() {
               ))}
               {aiUsage.length === 0 && (
                 <p className="text-xs text-muted-foreground">
-                  No usage records
+                  {t("No usage records")}
                 </p>
               )}
             </div>
@@ -1119,7 +1125,7 @@ export default function AdminCreditsAds() {
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-amber-500" />
               <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                Fraud Monitoring
+                {t("Fraud Monitoring")}
               </h3>
             </div>
             <div className="mt-3 space-y-1.5 text-xs text-muted-foreground dark:text-muted-foreground/80">

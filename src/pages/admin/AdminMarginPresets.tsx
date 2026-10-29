@@ -27,6 +27,7 @@ import {
   deleteMarginPreset,
 } from "@/lib/estimation/queries";
 import type { MarginPreset } from "@/types/estimation";
+import { useLanguage } from "@/lib/i18n";
 
 interface PresetForm {
   name: string;
@@ -72,6 +73,7 @@ function validate(f: PresetForm): string | null {
 }
 
 export default function AdminMarginPresets() {
+  const { t } = useLanguage();
   const [presets, setPresets] = useState<MarginPreset[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -153,11 +155,11 @@ export default function AdminMarginPresets() {
   return (
     <div className="space-y-6">
       <AdminHeader
-        title="Margin Presets"
+        title={t("Margin Presets")}
         subtitle="Admin-configured pricing presets with an explicit basis: markup on cost (profit = cost × %) or margin on price (price = cost ÷ (1 − %)). The margin engine never confuses the two: every quote shows which basis produced it."
         action={
           <AdminButton onClick={openCreate}>
-            <Plus className="mr-2 h-4 w-4" /> Add Preset
+            <Plus className="mr-2 h-4 w-4" /> {t("Add Preset")}
           </AdminButton>
         }
       />
@@ -165,15 +167,17 @@ export default function AdminMarginPresets() {
       {error && (
         <StateMessage
           type="error"
-          title="Something went wrong"
+          title={t("Something went wrong")}
           message={error}
         />
       )}
-      {success && <StateMessage type="empty" title="Saved" message={success} />}
+      {success && (
+        <StateMessage type="empty" title={t("Saved")} message={success} />
+      )}
       {loading ? (
         <StateMessage
           type="loading"
-          title="Loading"
+          title={t("Loading")}
           message="Loading presets…"
         />
       ) : presets.length === 0 ? (
@@ -188,11 +192,11 @@ export default function AdminMarginPresets() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="p-3">Name</th>
-                <th className="p-3">Basis</th>
-                <th className="p-3">Margin</th>
-                <th className="p-3">Default</th>
-                <th className="p-3">Active</th>
+                <th className="p-3">{t("Name")}</th>
+                <th className="p-3">{t("Basis")}</th>
+                <th className="p-3">{t("Margin")}</th>
+                <th className="p-3">{t("Default")}</th>
+                <th className="p-3">{t("Active")}</th>
                 <th className="p-3"></th>
               </tr>
             </thead>
@@ -231,10 +235,16 @@ export default function AdminMarginPresets() {
                   </td>
                   <td className="p-3">
                     <div className="flex gap-1">
-                      <AdminIconButton onClick={() => openEdit(p)} title="Edit">
+                      <AdminIconButton
+                        onClick={() => openEdit(p)}
+                        title={t("Edit")}
+                      >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
-                      <AdminIconButton onClick={() => remove(p)} title="Delete">
+                      <AdminIconButton
+                        onClick={() => remove(p)}
+                        title={t("Delete")}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </AdminIconButton>
                     </div>
@@ -297,7 +307,7 @@ export default function AdminMarginPresets() {
               onChange={(e) =>
                 setForm({ ...form, description: e.target.value })
               }
-              placeholder="Optional context (what project types this fits)"
+              placeholder={t("Optional context (what project types this fits)")}
             />
           </AdminField>
 
@@ -317,7 +327,9 @@ export default function AdminMarginPresets() {
           </div>
 
           <div className="flex justify-end gap-2">
-            <AdminButton onClick={() => setShowForm(false)}>Cancel</AdminButton>
+            <AdminButton onClick={() => setShowForm(false)}>
+              {t("Cancel")}
+            </AdminButton>
             <AdminButton onClick={save} variant="primary" disabled={saving}>
               {saving ? "Saving…" : "Save"}
             </AdminButton>

@@ -63,6 +63,7 @@ import {
 import { PlayCircle, Film, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 // Icon mapping for reward types
 const rewardIcon: Record<string, typeof Crown> = {
@@ -73,6 +74,7 @@ const rewardIcon: Record<string, typeof Crown> = {
 };
 
 export default function Rewards() {
+  const { t } = useLanguage();
   useSeo({
     title: "FRELUX Rewards, Earn Credits & Unlock Features",
     description:
@@ -434,7 +436,7 @@ export default function Rewards() {
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <Gem className="mx-auto h-12 w-12 text-brand-purple/40" />
         <h1 className="mt-4 text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Sign in to earn FRELUX Credits
+          {t("Sign in to earn FRELUX Credits")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Create a free FRELUX account or sign in to securely earn, save, and
@@ -445,19 +447,19 @@ export default function Rewards() {
             to="/login/?redirect=/rewards"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Sign In
+            {t("Sign In")}
           </Link>
           <Link
             to="/register/?redirect=/rewards"
             className="inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 px-6 py-3 text-sm font-bold text-brand-purple transition-colors hover:bg-primary/5"
           >
-            Create Free Account
+            {t("Create Free Account")}
           </Link>
           <Link
             to="/"
             className="text-xs font-medium text-muted-foreground transition-colors hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/80"
           >
-            Continue browsing FRELUX
+            {t("Continue browsing FRELUX")}
           </Link>
         </div>
       </div>
@@ -472,17 +474,17 @@ export default function Rewards() {
         to="/"
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
       >
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to home
+        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> {t("Back to home")}
       </Link>
 
       {/* Header */}
       <div className="mb-8 text-center">
         <HeroTitle
           className="text-3xl text-foreground dark:text-primary-foreground"
-          title="FRELUX Rewards"
+          title={t("FRELUX Rewards")}
         />
         <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-          Earn credits, complete missions, and unlock premium features.
+          {t("Earn credits, complete missions, and unlock premium features.")}
         </p>
       </div>
 
@@ -496,7 +498,7 @@ export default function Rewards() {
             </div>
             <div>
               <p className="text-xs font-medium text-muted-foreground">
-                FRELUX Credits
+                {t("FRELUX Credits")}
               </p>
               <p className="text-3xl font-bold text-foreground dark:text-primary-foreground">
                 {loading ? (
@@ -524,7 +526,7 @@ export default function Rewards() {
             </div>
             <div>
               <p className="text-xs font-medium text-muted-foreground">
-                Activity Streak
+                {t("Activity Streak")}
               </p>
               <p className="text-3xl font-bold text-foreground dark:text-primary-foreground">
                 {loading ? (
@@ -593,7 +595,7 @@ export default function Rewards() {
                         aria-hidden="true"
                         className="h-4 w-4 animate-spin"
                       />
-                      Verifying...
+                      {t("Verifying...")}
                     </>
                   ) : (
                     <>
@@ -647,7 +649,9 @@ export default function Rewards() {
                       Buy {tokenConfig.token_amount} Tokens, {price}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Instantly top up your balance. Secure card checkout.
+                      {t(
+                        "Instantly top up your balance. Secure card checkout.",
+                      )}
                     </p>
                     {priceNote && (
                       <p className="mt-0.5 text-xs text-muted-foreground">
@@ -674,12 +678,12 @@ export default function Rewards() {
                         aria-hidden="true"
                         className="h-4 w-4 animate-spin"
                       />
-                      Redirecting...
+                      {t("Redirecting...")}
                     </>
                   ) : (
                     <>
                       <Zap className="h-4 w-4" aria-hidden="true" />
-                      Buy Tokens
+                      {t("Buy Tokens")}
                     </>
                   )}
                 </Button>
@@ -700,7 +704,7 @@ export default function Rewards() {
                 Complete Offers: Earn FRELUX Credits
               </p>
               <p className="text-xs text-muted-foreground">
-                Surveys, app installs, and other offers.
+                {t("Surveys, app installs, and other offers.")}
               </p>
             </div>
           </div>
@@ -708,11 +712,11 @@ export default function Rewards() {
             variant="ghost"
             type="button"
             onClick={() => setActiveTab("offerwall")}
-            aria-label="Open the offerwall"
+            aria-label={t("Open the offerwall")}
             className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
           >
             <Crown className="h-4 w-4" />
-            Open Offerwall
+            {t("Open Offerwall")}
           </Button>
         </div>
       </div>
@@ -759,9 +763,9 @@ export default function Rewards() {
                 className="mt-0.5 h-4 w-4 shrink-0 text-accent-green"
               />
               <span>
-                You have <strong>{unusedAiTokens}</strong> unused AI Estimate
-                Token{unusedAiTokens > 1 ? "s" : ""}, it&apos;ll be used
-                automatically next time you hit your daily AI limit.
+                {t("You have")} <strong>{unusedAiTokens}</strong> unused AI
+                Estimate Token{unusedAiTokens > 1 ? "s" : ""}, it&apos;ll be
+                used automatically next time you hit your daily AI limit.
               </span>
             </div>
           )}
@@ -786,7 +790,7 @@ export default function Rewards() {
           )}
           {!rewardsLoading && rewards.length === 0 && (
             <p className="col-span-full text-center text-sm text-muted-foreground py-8">
-              No rewards available.
+              {t("No rewards available.")}
             </p>
           )}
           {!rewardsLoading &&
@@ -857,7 +861,8 @@ export default function Rewards() {
                       </>
                     ) : canAfford ? (
                       <>
-                        <Gift aria-hidden="true" className="h-4 w-4" /> Redeem
+                        <Gift aria-hidden="true" className="h-4 w-4" />{" "}
+                        {t("Redeem")}
                       </>
                     ) : (
                       <>
@@ -883,7 +888,7 @@ export default function Rewards() {
             <ExternalLink className="h-10 w-10 text-muted-foreground" />
             <div>
               <p className="text-sm font-semibold text-card-foreground dark:text-primary-foreground">
-                Sign in to complete offers
+                {t("Sign in to complete offers")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 The offerwall is personalized to your account, and your credits
@@ -912,6 +917,7 @@ function WeeklyMissionCard({
   mission: WeeklyMission;
   progress: MissionProgress[];
 }) {
+  const { t } = useLanguage();
   const tasks = mission.mission_config.tasks ?? [];
   const completedCount = tasks.filter((t) =>
     progress.find((p) => p.task_key === t.key && p.completed),
@@ -926,7 +932,7 @@ function WeeklyMissionCard({
         <div className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-blue-500" />
           <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
-            This Week's Mission
+            {t("This Week's Mission")}
           </h3>
         </div>
         <div className="flex items-center gap-1 rounded-lg bg-blue-100 px-2.5 py-1 dark:bg-blue-500/10">

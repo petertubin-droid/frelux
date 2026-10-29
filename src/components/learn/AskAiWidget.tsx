@@ -4,6 +4,7 @@ import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
 import { getClientId } from "@/lib/ai-access";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -18,6 +19,7 @@ const SUGGESTED_QUESTIONS = [
 ];
 
 export default function AskAiWidget() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -84,7 +86,7 @@ export default function AskAiWidget() {
         className="fixed bottom-6 right-6 z-30 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 hover:shadow-xl"
       >
         <MessageSquare className="h-5 w-5" />
-        Ask AI
+        {t("Ask AI")}
       </Button>
     );
   }
@@ -95,14 +97,14 @@ export default function AskAiWidget() {
       <div className="flex items-center justify-between border-b border-border dark:border-white/5 bg-background px-4 py-3">
         <div className="flex items-center gap-2 text-primary-foreground">
           <MessageSquare className="h-4 w-4 text-accent-green" />
-          <span className="text-sm font-semibold">Ask AI Assistant</span>
+          <span className="text-sm font-semibold">{t("Ask AI Assistant")}</span>
         </div>
         <Button
           variant="ghost"
           type="button"
           onClick={() => setOpen(false)}
           className="rounded-md p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
-          aria-label="Close"
+          aria-label={t("Close")}
         >
           <X className="h-4 w-4" />
         </Button>
@@ -114,10 +116,10 @@ export default function AskAiWidget() {
           <div className="flex h-full flex-col items-center justify-center text-center">
             <MessageSquare className="h-10 w-10 text-muted-foreground/80" />
             <p className="mt-3 text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80">
-              Ask me anything about painting
+              {t("Ask me anything about painting")}
             </p>
             <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-              POP ceiling, tiles, colors, and more
+              {t("POP ceiling, tiles, colors, and more")}
             </p>
             <div className="mt-4 w-full space-y-2">
               {SUGGESTED_QUESTIONS.map((q) => (
@@ -178,14 +180,14 @@ export default function AskAiWidget() {
         )}
         <div className="flex items-center gap-2">
           <input
-            aria-label="Ask a question"
+            aria-label={t("Ask a question")}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") handleAsk();
             }}
-            placeholder="Ask a question…"
+            placeholder={t("Ask a question…")}
             className="input-field flex-1 text-sm"
             disabled={loading}
           />

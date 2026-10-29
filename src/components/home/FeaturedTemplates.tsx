@@ -5,6 +5,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import { getPublicTemplates, calculatorLabel } from "@/lib/templates";
 import { CALCULATOR_META } from "@/lib/templates";
 import type { DbCalculatorTemplate, CalculatorType } from "@/types/database";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * Featured Templates section for the homepage.
@@ -13,6 +14,7 @@ import type { DbCalculatorTemplate, CalculatorType } from "@/types/database";
  * Section uses semantic HTML (section, h2, h3, article, nav) for SEO.
  */
 export default function FeaturedTemplates() {
+  const { t } = useLanguage();
   const [templates, setTemplates] = useState<DbCalculatorTemplate[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,12 +41,12 @@ export default function FeaturedTemplates() {
   if (loading) {
     return (
       <section
-        aria-label="Featured calculator templates"
+        aria-label={t("Featured calculator templates")}
         className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"
       >
         <SectionHeading
           label="Templates"
-          title="Popular Calculator Templates"
+          title={t("Popular Calculator Templates")}
           subtitle="Pre-configured scenarios for common construction projects. Pick one to start calculating instantly."
         />
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -63,16 +65,16 @@ export default function FeaturedTemplates() {
 
   return (
     <section
-      aria-label="Featured calculator templates"
+      aria-label={t("Featured calculator templates")}
       className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"
     >
       <SectionHeading
         label="Templates"
-        title="Popular Calculator Templates"
+        title={t("Popular Calculator Templates")}
         subtitle="Pre-configured scenarios for common construction projects. Pick one to start calculating instantly."
       />
 
-      <nav aria-label="Featured templates" className="mt-8">
+      <nav aria-label={t("Featured templates")} className="mt-8">
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {templates.map((template) => {
             const meta =
@@ -92,7 +94,7 @@ export default function FeaturedTemplates() {
                     {template.is_featured && (
                       <span
                         className="inline-flex items-center gap-1 text-xs text-amber-500"
-                        title="Featured"
+                        title={t("Featured")}
                       >
                         <BadgeCheck className="h-3 w-3" />
                       </span>
@@ -114,7 +116,7 @@ export default function FeaturedTemplates() {
                     to={href}
                     className="mt-auto inline-flex items-center gap-1 pt-3 text-xs font-medium text-brand-purple transition-colors hover:text-brand-purple-dark dark:text-brand-purple-lighter dark:hover:text-primary-foreground"
                   >
-                    Use template
+                    {t("Use template")}
                     <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </article>
@@ -130,7 +132,7 @@ export default function FeaturedTemplates() {
           to="/templates/"
           className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-card-foreground transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80 dark:hover:border-brand-purple/40 dark:hover:text-brand-purple-lighter"
         >
-          Browse all templates
+          {t("Browse all templates")}
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>

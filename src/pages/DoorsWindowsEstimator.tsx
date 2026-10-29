@@ -52,6 +52,7 @@ import type {
   EstimationMaterial,
 } from "@/types/estimation";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import { useLanguage } from "@/lib/i18n";
 
 type NumField =
   | "flush_doors"
@@ -73,6 +74,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function DoorsWindowsEstimator() {
+  const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
@@ -197,58 +199,58 @@ export default function DoorsWindowsEstimator() {
   const buildQuote = (): Parameters<typeof printQuote>[0] | null => {
     if (!result?.ok) return null;
     return {
-    title: "FRELUX Doors & Windows Estimate",
-    subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
-    metaRows: result.steps.map(
-      (st) => [st.label, st.detail] as [string, string],
-    ),
-    lines: result.lines.map((l) => ({
-      label: l.label,
-      quantity:
-        l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
-      unit: l.unit,
-      unit_price:
-        l.unit_price === null
-          ? "unpriced"
-          : formatCurrency(l.unit_price, currencySymbol),
-      line_total:
-        l.line_total === null
-          ? "N/A"
-          : formatCurrency(l.line_total, currencySymbol),
-      detail: l.detail,
-    })),
-    totals: [
-      {
-        label: "Material subtotal",
-        value:
-          result.material_subtotal === null
-            ? "(prices/inputs missing)"
-            : formatCurrency(result.material_subtotal, currencySymbol),
-      },
-      {
-        label: "Priced so far",
-        value: formatCurrency(result.priced_subtotal, currencySymbol),
-      },
-      {
-        label: "Labour",
-        value:
-          labourMode === "none"
-            ? "Not included"
-            : formatCurrency(result.labour_total, currencySymbol),
-      },
-      {
-        label: "Grand total",
-        value:
-          result.grand_total === null
+      title: "FRELUX Doors & Windows Estimate",
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
+      metaRows: result.steps.map(
+        (st) => [st.label, st.detail] as [string, string],
+      ),
+      lines: result.lines.map((l) => ({
+        label: l.label,
+        quantity:
+          l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
+        unit: l.unit,
+        unit_price:
+          l.unit_price === null
+            ? "unpriced"
+            : formatCurrency(l.unit_price, currencySymbol),
+        line_total:
+          l.line_total === null
             ? "N/A"
-            : formatCurrency(result.grand_total, currencySymbol),
-        strong: true,
-      },
-    ],
-    warnings: result.warnings,
-    footer:
-      "Estimates are indicative and not a formal quote. Quantities are sized from your openings and hardware rules; unpriced items are reported, never invented.",
-  };
+            : formatCurrency(l.line_total, currencySymbol),
+        detail: l.detail,
+      })),
+      totals: [
+        {
+          label: "Material subtotal",
+          value:
+            result.material_subtotal === null
+              ? "(prices/inputs missing)"
+              : formatCurrency(result.material_subtotal, currencySymbol),
+        },
+        {
+          label: "Priced so far",
+          value: formatCurrency(result.priced_subtotal, currencySymbol),
+        },
+        {
+          label: "Labour",
+          value:
+            labourMode === "none"
+              ? "Not included"
+              : formatCurrency(result.labour_total, currencySymbol),
+        },
+        {
+          label: "Grand total",
+          value:
+            result.grand_total === null
+              ? "N/A"
+              : formatCurrency(result.grand_total, currencySymbol),
+          strong: true,
+        },
+      ],
+      warnings: result.warnings,
+      footer:
+        "Estimates are indicative and not a formal quote. Quantities are sized from your openings and hardware rules; unpriced items are reported, never invented.",
+    };
   };
 
   const exportQuote = () => {
@@ -256,8 +258,6 @@ export default function DoorsWindowsEstimator() {
     if (!quote) return;
     printQuote(quote, "frelux-doors-windows-estimate.html");
   };
-
-
 
   const exportToDocumentStudio = () => {
     if (!result?.ok) return;
@@ -397,7 +397,7 @@ export default function DoorsWindowsEstimator() {
           { label: "Construction Tools", path: "/construction-tools" },
           { label: "Doors & Windows Estimator" },
         ]}
-        title="Doors & Windows Estimator"
+        title={t("Doors & Windows Estimator")}
         subtitle="Enter your door and window counts per type. The engine lists leaves, frames, hinges, locksets and window units, labelling every derived count, and prices from the shared material database. Estimation only: confirm unit sizes on site."
       />
 
@@ -445,7 +445,7 @@ export default function DoorsWindowsEstimator() {
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
-        <h3 className="mb-1 font-semibold">Door and window counts</h3>
+        <h3 className="mb-1 font-semibold">{t("Door and window counts")}</h3>
         <p className="mb-2 text-xs text-muted-foreground">
           The engine never invents openings. Enter the counts from your drawing
           or site survey; leave a type at 0 if you have none. Frames, hinges and
@@ -469,13 +469,13 @@ export default function DoorsWindowsEstimator() {
             checked={includeLocksets}
             onChange={(e) => setIncludeLocksets(e.target.checked)}
           />
-          Include locksets (one per door, labelled)
+          {t("Include locksets (one per door, labelled)")}
         </label>
 
-        <h3 className="mt-5 mb-2 font-semibold">Labour</h3>
+        <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
         <div className="flex flex-wrap items-end gap-3">
           <label className="text-sm">
-            <span className="mb-1 block font-medium">Labour mode</span>
+            <span className="mb-1 block font-medium">{t("Labour mode")}</span>
             <select
               value={labourMode}
               onChange={(e) =>
@@ -483,9 +483,9 @@ export default function DoorsWindowsEstimator() {
               }
               className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
             >
-              <option value="none">Not included</option>
-              <option value="per_door">Per unit installed (rate)</option>
-              <option value="lump_sum">Lump sum</option>
+              <option value="none">{t("Not included")}</option>
+              <option value="per_door">{t("Per unit installed (rate)")}</option>
+              <option value="lump_sum">{t("Lump sum")}</option>
             </select>
           </label>
           {labourMode !== "none" &&
@@ -507,7 +507,7 @@ export default function DoorsWindowsEstimator() {
             onClick={run}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
-            Calculate estimate
+            {t("Calculate estimate")}
           </button>
           {result?.ok && (
             <>
@@ -522,14 +522,18 @@ export default function DoorsWindowsEstimator() {
                 onClick={exportQuote}
                 className="rounded-md border px-4 py-2 text-sm font-medium"
               >
-                Export quote (PDF)
+                {t("Export quote (PDF)")}
               </button>
-              <QuoteShareButton build={buildQuote} kind="Doors & Windows Estimate" link="/doors-windows" />
+              <QuoteShareButton
+                build={buildQuote}
+                kind="Doors & Windows Estimate"
+                link="/doors-windows"
+              />
               <button
                 onClick={exportToDocumentStudio}
                 className="rounded-md border px-4 py-2 text-sm font-medium"
               >
-                Customize in Document Studio
+                {t("Customize in Document Studio")}
               </button>
               <SaveToProjectButton
                 calculatorType="doors_windows"
@@ -574,7 +578,7 @@ export default function DoorsWindowsEstimator() {
           role="alert"
         >
           <h3 className="mb-1 font-semibold text-destructive">
-            Fix these inputs first
+            {t("Fix these inputs first")}
           </h3>
           <ul className="list-disc pl-5 text-sm text-destructive">
             {result.errors.map((e) => (
@@ -598,7 +602,9 @@ export default function DoorsWindowsEstimator() {
           >
             {result.incomplete ? (
               <>
-                <strong className="block">This estimate is INCOMPLETE.</strong>
+                <strong className="block">
+                  {t("This estimate is INCOMPLETE.")}
+                </strong>
                 <ul className="mt-1 list-disc pl-5">
                   {result.missing.map((m) => (
                     <li key={m}>{m}</li>
@@ -625,16 +631,16 @@ export default function DoorsWindowsEstimator() {
           <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
             <table
               className="w-full text-sm"
-              aria-label="Doors and windows material takeoff"
+              aria-label={t("Doors and windows material takeoff")}
             >
               <thead className="border-b bg-muted/50 text-left">
                 <tr>
-                  <th className="p-3">Material</th>
-                  <th className="p-3">Quantity</th>
-                  <th className="p-3">Unit</th>
-                  <th className="p-3">How it was sized</th>
-                  <th className="p-3">Unit price</th>
-                  <th className="p-3">Line total</th>
+                  <th className="p-3">{t("Material")}</th>
+                  <th className="p-3">{t("Quantity")}</th>
+                  <th className="p-3">{t("Unit")}</th>
+                  <th className="p-3">{t("How it was sized")}</th>
+                  <th className="p-3">{t("Unit price")}</th>
+                  <th className="p-3">{t("Line total")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -653,7 +659,7 @@ export default function DoorsWindowsEstimator() {
                     <td className="p-3">
                       {l.unit_price === null ? (
                         <span className="font-medium text-amber-700 dark:text-amber-400">
-                          PRICE NOT CONFIGURED
+                          {t("PRICE NOT CONFIGURED")}
                         </span>
                       ) : (
                         formatCurrency(l.unit_price, currencySymbol)
@@ -672,7 +678,7 @@ export default function DoorsWindowsEstimator() {
 
           {/* Breakdown */}
           <div className="mb-6 rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">Calculation breakdown</h3>
+            <h3 className="mb-2 font-semibold">{t("Calculation breakdown")}</h3>
             <ol className="space-y-2 text-sm">
               {result.steps.map((s, i) => (
                 <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
@@ -686,7 +692,9 @@ export default function DoorsWindowsEstimator() {
           {/* Cost summary */}
           <div className="mb-6 grid gap-3 sm:grid-cols-4">
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Material subtotal</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Material subtotal")}
+              </p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
                   ? "(prices/inputs missing)"
@@ -695,14 +703,14 @@ export default function DoorsWindowsEstimator() {
             </div>
             <div className="rounded-lg border bg-card p-4">
               <p className="text-sm text-muted-foreground">
-                Of which priced so far
+                {t("Of which priced so far")}
               </p>
               <p className="text-xl font-semibold">
                 {formatCurrency(result.priced_subtotal, currencySymbol)}
               </p>
             </div>
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">Labour</p>
+              <p className="text-sm text-muted-foreground">{t("Labour")}</p>
               <p className="text-xl font-semibold">
                 {labourMode === "none"
                   ? "Not included"
@@ -710,7 +718,9 @@ export default function DoorsWindowsEstimator() {
               </p>
             </div>
             <div className="rounded-lg border bg-primary/10 p-4">
-              <p className="text-sm text-muted-foreground">Grand total</p>
+              <p className="text-sm text-muted-foreground">
+                {t("Grand total")}
+              </p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
                   ? "N/A"
@@ -721,7 +731,7 @@ export default function DoorsWindowsEstimator() {
 
           {/* Warnings */}
           <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
-            <h3 className="mb-1 font-semibold">Important</h3>
+            <h3 className="mb-1 font-semibold">{t("Important")}</h3>
             <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
               {result.warnings.map((w) => (
                 <li key={w}>{w}</li>
@@ -735,13 +745,13 @@ export default function DoorsWindowsEstimator() {
 
       {/* How it works */}
       <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">How this estimator works</h2>
+        <h2 className="mb-2 font-semibold">{t("How this estimator works")}</h2>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
             Door leaves and window units take your counts directly. Frames
             follow at one set per door, locksets at one per door when you
-            include them, and hinges follow the visible planning rule:
-            every derived count is labelled in the breakdown, not presented as a
+            include them, and hinges follow the visible planning rule: every
+            derived count is labelled in the breakdown, not presented as a
             measurement.
           </li>
           <li>
@@ -750,12 +760,13 @@ export default function DoorsWindowsEstimator() {
           </li>
           <li>
             Prices come from the shared FRELUX material database, configured by
-            FRELUX price tracking. Door and window prices must match
-            the size and finish the configured: confirm actual unit sizes
-            on site. Unpriced materials show PRICE NOT CONFIGURED, never
-            invented.
+            FRELUX price tracking. Door and window prices must match the size
+            and finish the configured: confirm actual unit sizes on site.
+            Unpriced materials show PRICE NOT CONFIGURED, never invented.
           </li>
-          <li>This is material ESTIMATION, not a fixing specification.</li>
+          <li>
+            {t("This is material ESTIMATION, not a fixing specification.")}
+          </li>
         </ul>
       </section>
     </Container>
