@@ -23,7 +23,7 @@ export function RecentlyUsed() {
   if (tools.length === 0) return null;
 
   return (
-    <section className="animate-fade-in-up">
+    <section className="animate-fade-in-up mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <div className="mb-3 flex items-center gap-2">
         <Clock aria-hidden="true" className="h-4 w-4 text-brand-purple" />
         <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">Recently Used</h2>

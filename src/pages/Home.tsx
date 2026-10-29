@@ -177,10 +177,9 @@ export default function Home() {
         <ChooseProject />
       </section>
 
-      {/* Recently used tools, personalized quick access */}
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <RecentlyUsed />
-      </div>
+      {/* Recently used tools, personalized quick access. Owns its own
+          container so a first-time visitor gets no empty band here. */}
+      <RecentlyUsed />
 
       {/* Proof, not promises: live demo with the real calc engine */}
       <Suspense fallback={<SectionSkeleton minHeight={600} />}>
