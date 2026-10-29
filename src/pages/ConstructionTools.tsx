@@ -496,9 +496,6 @@ export default function ConstructionTools() {
               </section>
             )}
 
-            {/* Ad slot: between the tool grid and the section controls */}
-            <AdSlot slotKey="calculator_hub_mid" className="mt-10" />
-
             {/* Section controls: previous / next through 10-tool sections */}
             <nav
               className="mt-8 flex flex-wrap items-center justify-between gap-3"

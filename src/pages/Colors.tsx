@@ -679,13 +679,6 @@ export default function Colors() {
         <AdSlot slotKey="gallery_mid" className="my-8" />
         {/* Native banner slot, placement "gallery_native" */}
         <AdSlot slotKey="gallery_native" className="mt-10" />
-
-        {/* AdSense-dedicated slot: locked to google_adsense only. */}
-        <AdSlot
-          slotKey="adsense_colors"
-          providerSlug="google_adsense"
-          className="mt-10"
-        />
       </div>
 
       <ColorsPageSeo />

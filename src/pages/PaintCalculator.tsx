@@ -1313,17 +1313,6 @@ ${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map(
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />
-
-      {/* Monetag In-Page Push, placement "calculator_push"
-          (zone ID editable in Admin → Ads → Placements) */}
-      <AdSlot slotKey="calculator_push" className="mt-8" />
-      {/* AdSense-dedicated slot on the flagship calculator: locked to
-          google_adsense only, never falls back to other providers. */}
-      <AdSlot
-        slotKey="adsense_paint_calculator"
-        providerSlug="google_adsense"
-        className="mt-8"
-      />
     </>
   );
 }
