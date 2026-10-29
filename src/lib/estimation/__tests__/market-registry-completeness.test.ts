@@ -10,6 +10,7 @@
  * at runtime, but none of the 32 approved markets may resolve to one.
  */
 import { describe, expect, it } from "vitest";
+import { SITE_URL } from "@/lib/site-config";
 import { ALL_MARKET_CODES } from "@/lib/international/capability-registry";
 import { ELECTRICAL_PROFILES } from "../electrical-profiles";
 import { PLUMBING_PROFILES } from "../plumbing-profiles";
@@ -195,7 +196,7 @@ describe("globalization completeness — market landing pages (Phase 3)", () => 
     const xml = readFileSync(sitemapPath, "utf8");
     for (const m of marketLandingRoutes) {
       expect(xml).toContain(
-        `https://freluxtools.netlify.app/market/${m.code.toLowerCase()}`,
+        `${SITE_URL}/market/${m.code.toLowerCase()}`,
       );
     }
   });

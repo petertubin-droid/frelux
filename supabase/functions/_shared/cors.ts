@@ -15,7 +15,8 @@
 //     restores the legacy wildcard explicitly (documented,
 //     deliberate, never silent).
 //   - Default (env unset): the production webapp origin
-//     (https://freluxtools.netlify.app) plus local dev
+//     (the legacy https://freluxtools.netlify.app origin, kept only so
+//     links shared before the custom-domain switch keep working) plus local dev
 //     origins (localhost / 127.0.0.1 on common ports).
 //   - A request whose Origin header is in the allowlist gets
 //     that exact origin echoed with Vary: Origin.

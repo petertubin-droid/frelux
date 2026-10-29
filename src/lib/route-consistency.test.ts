@@ -7,6 +7,7 @@
  * prerender list or the generated sitemap.
  */
 import { readFileSync, existsSync } from "fs";
+import { SITE_URL } from "@/lib/site-config";
 import { join } from "path";
 import { describe, expect, it } from "vitest";
 
@@ -143,7 +144,7 @@ describe("generated sitemap", () => {
     }
     const xml = readFileSync(sitemapPath, "utf8");
     for (const route of COVERAGE_FIX_ROUTES.slice(0, 10)) {
-      expect(xml).toContain(`https://freluxtools.netlify.app${route}`);
+      expect(xml).toContain(`${SITE_URL}${route}`);
     }
     expect(xml).not.toContain("/admin");
   });

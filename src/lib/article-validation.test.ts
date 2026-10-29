@@ -9,6 +9,7 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { SITE_URL } from "@/lib/site-config";
 import {
   validateArticle,
   isArticleCompliant,
@@ -438,10 +439,10 @@ describe("Article Validation Engine", () => {
       expect(rule.passed).toBe(true);
     });
 
-    it("passes with link to freluxtools.netlify.app", () => {
+    it("passes with a link to the site's own origin", () => {
       const content =
         makeLongContent() +
-        "\n\n[See calculator](https://freluxtools.netlify.app/paint-calculator)";
+        `\n\n[See calculator](${SITE_URL}/paint-calculator)`;
       const result = validateArticle(makeValidArticle({ content }));
       const rule = result.rules.find((r) => r.rule === "internal-links")!;
       expect(rule.passed).toBe(true);

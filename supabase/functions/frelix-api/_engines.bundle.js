@@ -20661,35 +20661,35 @@ var init_bundled_price_books = __esm({
             p: 1,
             c: "AED",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           AT: {
             p: 0.6,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           BE: {
             p: 0.6,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           BR: {
             p: 2,
             c: "BRL",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           CH: {
             p: 1,
             c: "CHF",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           DE: {
@@ -20703,35 +20703,35 @@ var init_bundled_price_books = __esm({
             p: 8,
             c: "DKK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           EG: {
             p: 5,
             c: "EGP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           ES: {
             p: 0.5,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           FI: {
             p: 1,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           FR: {
             p: 0.6,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           GB: {
@@ -20745,21 +20745,21 @@ var init_bundled_price_books = __esm({
             p: 3,
             c: "GHS",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           ID: {
             p: 3e3,
             c: "IDR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           IE: {
             p: 0.8,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           IN: {
@@ -20773,42 +20773,42 @@ var init_bundled_price_books = __esm({
             p: 0.6,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           JP: {
             p: 60,
             c: "JPY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           KE: {
             p: 20,
             c: "KES",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           KR: {
             p: 500,
             c: "KRW",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           MX: {
             p: 10,
             c: "MXN",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           MY: {
             p: 2,
             c: "MYR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           NG: {
@@ -20822,84 +20822,84 @@ var init_bundled_price_books = __esm({
             p: 0.6,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           NO: {
             p: 13,
             c: "NOK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           NZ: {
             p: 2,
             c: "NZD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           PH: {
             p: 15,
             c: "PHP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           PK: {
             p: 25,
             c: "PKR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           PL: {
             p: 2,
             c: "PLN",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           PT: {
             p: 0.5,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           SA: {
             p: 1,
             c: "SAR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           SE: {
             p: 10,
             c: "SEK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           SG: {
             p: 1,
             c: "SGD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           TH: {
             p: 8,
             c: "THB",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           TR: {
             p: 10,
             c: "TRY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           },
           US: {
@@ -20913,7 +20913,7 @@ var init_bundled_price_books = __esm({
             p: 8,
             c: "ZAR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -20927,7 +20927,7 @@ var init_bundled_price_books = __esm({
             p: 130,
             c: "AED",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -20941,7 +20941,7 @@ var init_bundled_price_books = __esm({
             p: 35,
             c: "AED",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -20955,7 +20955,7 @@ var init_bundled_price_books = __esm({
             p: 110,
             c: "AED",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -20983,7 +20983,7 @@ var init_bundled_price_books = __esm({
             p: 10,
             c: "AED",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21025,7 +21025,7 @@ var init_bundled_price_books = __esm({
             p: 55,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21039,7 +21039,7 @@ var init_bundled_price_books = __esm({
             p: 4,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21053,7 +21053,7 @@ var init_bundled_price_books = __esm({
             p: 25,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21067,7 +21067,7 @@ var init_bundled_price_books = __esm({
             p: 9,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21081,7 +21081,7 @@ var init_bundled_price_books = __esm({
             p: 5.5,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21123,7 +21123,7 @@ var init_bundled_price_books = __esm({
             p: 35,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21151,7 +21151,7 @@ var init_bundled_price_books = __esm({
             p: 41.43,
             c: "AUD",
             v: "2026-10-11",
-            s: "Plexs Australia 2026 steel & cement rates: rebar AUD 1,000-1,800/tonne by grade; band midpoint 1,400 applied as indicative, admin-adjustable",
+            s: "Plexs Australia 2026 steel & cement rates: rebar AUD 1,000-1,800/tonne by grade; band midpoint 1,400 applied as indicative, adjustable",
             f: "low"
           }
         }
@@ -21207,7 +21207,7 @@ var init_bundled_price_books = __esm({
             p: 64.75,
             c: "AUD",
             v: "2026-10-11",
-            s: "Plexs Australia 2026 steel & cement rates: rebar AUD 1,000-1,800/tonne by grade; band midpoint 1,400 applied as indicative, admin-adjustable",
+            s: "Plexs Australia 2026 steel & cement rates: rebar AUD 1,000-1,800/tonne by grade; band midpoint 1,400 applied as indicative, adjustable",
             f: "low"
           }
         }
@@ -21221,7 +21221,7 @@ var init_bundled_price_books = __esm({
             p: 26.51,
             c: "AUD",
             v: "2026-10-11",
-            s: "Plexs Australia 2026 steel & cement rates: rebar AUD 1,000-1,800/tonne by grade; band midpoint 1,400 applied as indicative, admin-adjustable",
+            s: "Plexs Australia 2026 steel & cement rates: rebar AUD 1,000-1,800/tonne by grade; band midpoint 1,400 applied as indicative, adjustable",
             f: "low"
           }
         }
@@ -21235,7 +21235,7 @@ var init_bundled_price_books = __esm({
             p: 14.92,
             c: "AUD",
             v: "2026-10-11",
-            s: "Plexs Australia 2026 steel & cement rates: rebar AUD 1,000-1,800/tonne by grade; band midpoint 1,400 applied as indicative, admin-adjustable",
+            s: "Plexs Australia 2026 steel & cement rates: rebar AUD 1,000-1,800/tonne by grade; band midpoint 1,400 applied as indicative, adjustable",
             f: "low"
           }
         }
@@ -21263,7 +21263,7 @@ var init_bundled_price_books = __esm({
             p: 9,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21277,7 +21277,7 @@ var init_bundled_price_books = __esm({
             p: 28,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21291,7 +21291,7 @@ var init_bundled_price_books = __esm({
             p: 6.5,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21319,7 +21319,7 @@ var init_bundled_price_books = __esm({
             p: 4.5,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21333,7 +21333,7 @@ var init_bundled_price_books = __esm({
             p: 60,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21473,7 +21473,7 @@ var init_bundled_price_books = __esm({
             p: 30,
             c: "CHF",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21487,7 +21487,7 @@ var init_bundled_price_books = __esm({
             p: 6,
             c: "CHF",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21515,7 +21515,7 @@ var init_bundled_price_books = __esm({
             p: 8,
             c: "CHF",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21529,7 +21529,7 @@ var init_bundled_price_books = __esm({
             p: 45,
             c: "CHF",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21543,7 +21543,7 @@ var init_bundled_price_books = __esm({
             p: 25,
             c: "CHF",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21557,7 +21557,7 @@ var init_bundled_price_books = __esm({
             p: 12,
             c: "CHF",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21753,7 +21753,7 @@ var init_bundled_price_books = __esm({
             p: 400,
             c: "DKK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21781,7 +21781,7 @@ var init_bundled_price_books = __esm({
             p: 60,
             c: "DKK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21795,7 +21795,7 @@ var init_bundled_price_books = __esm({
             p: 20,
             c: "DKK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21823,7 +21823,7 @@ var init_bundled_price_books = __esm({
             p: 280,
             c: "DKK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21837,7 +21837,7 @@ var init_bundled_price_books = __esm({
             p: 150,
             c: "DKK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21865,7 +21865,7 @@ var init_bundled_price_books = __esm({
             p: 300,
             c: "EGP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21879,7 +21879,7 @@ var init_bundled_price_books = __esm({
             p: 450,
             c: "EGP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21921,7 +21921,7 @@ var init_bundled_price_books = __esm({
             p: 350,
             c: "EGP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21963,7 +21963,7 @@ var init_bundled_price_books = __esm({
             p: 60,
             c: "EGP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21977,7 +21977,7 @@ var init_bundled_price_books = __esm({
             p: 550,
             c: "EGP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -21991,7 +21991,7 @@ var init_bundled_price_books = __esm({
             p: 180,
             c: "EGP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22117,7 +22117,7 @@ var init_bundled_price_books = __esm({
             p: 25,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22131,7 +22131,7 @@ var init_bundled_price_books = __esm({
             p: 35,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22145,7 +22145,7 @@ var init_bundled_price_books = __esm({
             p: 55,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22159,7 +22159,7 @@ var init_bundled_price_books = __esm({
             p: 6,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22173,7 +22173,7 @@ var init_bundled_price_books = __esm({
             p: 4,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22187,7 +22187,7 @@ var init_bundled_price_books = __esm({
             p: 10,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22509,7 +22509,7 @@ var init_bundled_price_books = __esm({
             p: 220,
             c: "GHS",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22523,7 +22523,7 @@ var init_bundled_price_books = __esm({
             p: 15,
             c: "GHS",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22551,7 +22551,7 @@ var init_bundled_price_books = __esm({
             p: 150,
             c: "GHS",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22565,7 +22565,7 @@ var init_bundled_price_books = __esm({
             p: 90,
             c: "GHS",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22579,7 +22579,7 @@ var init_bundled_price_books = __esm({
             p: 120,
             c: "GHS",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22649,7 +22649,7 @@ var init_bundled_price_books = __esm({
             p: 15e4,
             c: "IDR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22663,7 +22663,7 @@ var init_bundled_price_books = __esm({
             p: 25e3,
             c: "IDR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22691,7 +22691,7 @@ var init_bundled_price_books = __esm({
             p: 3e5,
             c: "IDR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22719,7 +22719,7 @@ var init_bundled_price_books = __esm({
             p: 25,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22733,7 +22733,7 @@ var init_bundled_price_books = __esm({
             p: 30,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -22747,7 +22747,7 @@ var init_bundled_price_books = __esm({
             p: 10,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23027,7 +23027,7 @@ var init_bundled_price_books = __esm({
             p: 3.5,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23055,7 +23055,7 @@ var init_bundled_price_books = __esm({
             p: 6e3,
             c: "JPY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23069,7 +23069,7 @@ var init_bundled_price_books = __esm({
             p: 8e3,
             c: "JPY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23083,7 +23083,7 @@ var init_bundled_price_books = __esm({
             p: 9e3,
             c: "JPY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23097,7 +23097,7 @@ var init_bundled_price_books = __esm({
             p: 12e3,
             c: "JPY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23111,7 +23111,7 @@ var init_bundled_price_books = __esm({
             p: 5e3,
             c: "JPY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23139,7 +23139,7 @@ var init_bundled_price_books = __esm({
             p: 300,
             c: "JPY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23153,7 +23153,7 @@ var init_bundled_price_books = __esm({
             p: 2e3,
             c: "KES",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23167,7 +23167,7 @@ var init_bundled_price_books = __esm({
             p: 3e3,
             c: "KES",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23209,7 +23209,7 @@ var init_bundled_price_books = __esm({
             p: 100,
             c: "KES",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23223,7 +23223,7 @@ var init_bundled_price_books = __esm({
             p: 1200,
             c: "KES",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23237,7 +23237,7 @@ var init_bundled_price_books = __esm({
             p: 1800,
             c: "KES",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23251,7 +23251,7 @@ var init_bundled_price_books = __esm({
             p: 3e3,
             c: "KRW",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23265,7 +23265,7 @@ var init_bundled_price_books = __esm({
             p: 6e3,
             c: "KRW",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23293,7 +23293,7 @@ var init_bundled_price_books = __esm({
             p: 3e4,
             c: "KRW",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23321,7 +23321,7 @@ var init_bundled_price_books = __esm({
             p: 6e4,
             c: "KRW",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23335,7 +23335,7 @@ var init_bundled_price_books = __esm({
             p: 25e3,
             c: "KRW",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23433,7 +23433,7 @@ var init_bundled_price_books = __esm({
             p: 90,
             c: "MXN",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23447,7 +23447,7 @@ var init_bundled_price_books = __esm({
             p: 100,
             c: "MYR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23461,7 +23461,7 @@ var init_bundled_price_books = __esm({
             p: 15,
             c: "MYR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23475,7 +23475,7 @@ var init_bundled_price_books = __esm({
             p: 30,
             c: "MYR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23489,7 +23489,7 @@ var init_bundled_price_books = __esm({
             p: 50,
             c: "MYR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23503,7 +23503,7 @@ var init_bundled_price_books = __esm({
             p: 60,
             c: "MYR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -23517,7 +23517,7 @@ var init_bundled_price_books = __esm({
             p: 80,
             c: "MYR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24007,7 +24007,7 @@ var init_bundled_price_books = __esm({
             p: 25,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24021,7 +24021,7 @@ var init_bundled_price_books = __esm({
             p: 8,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24063,7 +24063,7 @@ var init_bundled_price_books = __esm({
             p: 4,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24077,7 +24077,7 @@ var init_bundled_price_books = __esm({
             p: 55,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24091,7 +24091,7 @@ var init_bundled_price_books = __esm({
             p: 6,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24105,7 +24105,7 @@ var init_bundled_price_books = __esm({
             p: 650,
             c: "NOK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24119,7 +24119,7 @@ var init_bundled_price_books = __esm({
             p: 260,
             c: "NOK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24147,7 +24147,7 @@ var init_bundled_price_books = __esm({
             p: 60,
             c: "NOK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24161,7 +24161,7 @@ var init_bundled_price_books = __esm({
             p: 100,
             c: "NOK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24175,7 +24175,7 @@ var init_bundled_price_books = __esm({
             p: 35,
             c: "NOK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24189,7 +24189,7 @@ var init_bundled_price_books = __esm({
             p: 295,
             c: "NOK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24203,7 +24203,7 @@ var init_bundled_price_books = __esm({
             p: 80,
             c: "NZD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24231,7 +24231,7 @@ var init_bundled_price_books = __esm({
             p: 60,
             c: "NZD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24245,7 +24245,7 @@ var init_bundled_price_books = __esm({
             p: 110,
             c: "NZD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24259,7 +24259,7 @@ var init_bundled_price_books = __esm({
             p: 20,
             c: "NZD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24273,7 +24273,7 @@ var init_bundled_price_books = __esm({
             p: 10,
             c: "NZD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24301,7 +24301,7 @@ var init_bundled_price_books = __esm({
             p: 800,
             c: "PHP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24329,7 +24329,7 @@ var init_bundled_price_books = __esm({
             p: 800,
             c: "PHP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24343,7 +24343,7 @@ var init_bundled_price_books = __esm({
             p: 50,
             c: "PHP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24357,7 +24357,7 @@ var init_bundled_price_books = __esm({
             p: 500,
             c: "PHP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24385,7 +24385,7 @@ var init_bundled_price_books = __esm({
             p: 260,
             c: "PHP",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24413,7 +24413,7 @@ var init_bundled_price_books = __esm({
             p: 300,
             c: "PKR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24441,7 +24441,7 @@ var init_bundled_price_books = __esm({
             p: 2500,
             c: "PKR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24455,7 +24455,7 @@ var init_bundled_price_books = __esm({
             p: 1500,
             c: "PKR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24469,7 +24469,7 @@ var init_bundled_price_books = __esm({
             p: 2800,
             c: "PKR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24483,7 +24483,7 @@ var init_bundled_price_books = __esm({
             p: 900,
             c: "PKR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24525,7 +24525,7 @@ var init_bundled_price_books = __esm({
             p: 8,
             c: "PLN",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24539,7 +24539,7 @@ var init_bundled_price_books = __esm({
             p: 60,
             c: "PLN",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24553,7 +24553,7 @@ var init_bundled_price_books = __esm({
             p: 80,
             c: "PLN",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24567,7 +24567,7 @@ var init_bundled_price_books = __esm({
             p: 6,
             c: "PLN",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24581,7 +24581,7 @@ var init_bundled_price_books = __esm({
             p: 20,
             c: "PLN",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24609,7 +24609,7 @@ var init_bundled_price_books = __esm({
             p: 25,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24623,7 +24623,7 @@ var init_bundled_price_books = __esm({
             p: 8,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24637,7 +24637,7 @@ var init_bundled_price_books = __esm({
             p: 40,
             c: "EUR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24693,7 +24693,7 @@ var init_bundled_price_books = __esm({
             p: 35,
             c: "SAR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24707,7 +24707,7 @@ var init_bundled_price_books = __esm({
             p: 120,
             c: "SAR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24721,7 +24721,7 @@ var init_bundled_price_books = __esm({
             p: 90,
             c: "SAR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24749,7 +24749,7 @@ var init_bundled_price_books = __esm({
             p: 15,
             c: "SAR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24763,7 +24763,7 @@ var init_bundled_price_books = __esm({
             p: 110,
             c: "SAR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24777,7 +24777,7 @@ var init_bundled_price_books = __esm({
             p: 10,
             c: "SAR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24791,7 +24791,7 @@ var init_bundled_price_books = __esm({
             p: 500,
             c: "SEK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24805,7 +24805,7 @@ var init_bundled_price_books = __esm({
             p: 200,
             c: "SEK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24819,7 +24819,7 @@ var init_bundled_price_books = __esm({
             p: 80,
             c: "SEK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24833,7 +24833,7 @@ var init_bundled_price_books = __esm({
             p: 25,
             c: "SEK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24875,7 +24875,7 @@ var init_bundled_price_books = __esm({
             p: 350,
             c: "SEK",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24889,7 +24889,7 @@ var init_bundled_price_books = __esm({
             p: 30,
             c: "SGD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24903,7 +24903,7 @@ var init_bundled_price_books = __esm({
             p: 8,
             c: "SGD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24917,7 +24917,7 @@ var init_bundled_price_books = __esm({
             p: 5,
             c: "SGD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24945,7 +24945,7 @@ var init_bundled_price_books = __esm({
             p: 55,
             c: "SGD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24959,7 +24959,7 @@ var init_bundled_price_books = __esm({
             p: 25,
             c: "SGD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -24973,7 +24973,7 @@ var init_bundled_price_books = __esm({
             p: 20,
             c: "SGD",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -25001,7 +25001,7 @@ var init_bundled_price_books = __esm({
             p: 650,
             c: "THB",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -25015,7 +25015,7 @@ var init_bundled_price_books = __esm({
             p: 250,
             c: "THB",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -25029,7 +25029,7 @@ var init_bundled_price_books = __esm({
             p: 150,
             c: "THB",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -25057,7 +25057,7 @@ var init_bundled_price_books = __esm({
             p: 450,
             c: "THB",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -25071,7 +25071,7 @@ var init_bundled_price_books = __esm({
             p: 350,
             c: "THB",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -25085,7 +25085,7 @@ var init_bundled_price_books = __esm({
             p: 180,
             c: "TRY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -25113,7 +25113,7 @@ var init_bundled_price_books = __esm({
             p: 900,
             c: "TRY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -25127,7 +25127,7 @@ var init_bundled_price_books = __esm({
             p: 600,
             c: "TRY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -25141,7 +25141,7 @@ var init_bundled_price_books = __esm({
             p: 80,
             c: "TRY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -25155,7 +25155,7 @@ var init_bundled_price_books = __esm({
             p: 250,
             c: "TRY",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -25645,7 +25645,7 @@ var init_bundled_price_books = __esm({
             p: 120,
             c: "ZAR",
             v: "2026-10-11",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26015,7 +26015,7 @@ var init_bundled_price_books = __esm({
         }
       },
       // 2026-10-16 globalization wave: indicative finishing price bands
-      // for ET/TZ/CI (low confidence, admin-adjustable).
+      // for ET/TZ/CI (low confidence, adjustable).
       "et-emulsion-20l": {
         name: "Interior emulsion 20L (et)",
         category: "paint",
@@ -26025,7 +26025,7 @@ var init_bundled_price_books = __esm({
             p: 7500,
             c: "ETB",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26039,7 +26039,7 @@ var init_bundled_price_books = __esm({
             p: 8500,
             c: "ETB",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26053,7 +26053,7 @@ var init_bundled_price_books = __esm({
             p: 5500,
             c: "ETB",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26067,7 +26067,7 @@ var init_bundled_price_books = __esm({
             p: 2800,
             c: "ETB",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26081,7 +26081,7 @@ var init_bundled_price_books = __esm({
             p: 1050,
             c: "ETB",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26095,7 +26095,7 @@ var init_bundled_price_books = __esm({
             p: 250,
             c: "ETB",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26109,7 +26109,7 @@ var init_bundled_price_books = __esm({
             p: 3200,
             c: "ETB",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26123,7 +26123,7 @@ var init_bundled_price_books = __esm({
             p: 95e3,
             c: "TZS",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26137,7 +26137,7 @@ var init_bundled_price_books = __esm({
             p: 105e3,
             c: "TZS",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26151,7 +26151,7 @@ var init_bundled_price_books = __esm({
             p: 65e3,
             c: "TZS",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26165,7 +26165,7 @@ var init_bundled_price_books = __esm({
             p: 38e3,
             c: "TZS",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26179,7 +26179,7 @@ var init_bundled_price_books = __esm({
             p: 25e3,
             c: "TZS",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26193,7 +26193,7 @@ var init_bundled_price_books = __esm({
             p: 6e3,
             c: "TZS",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26207,7 +26207,7 @@ var init_bundled_price_books = __esm({
             p: 38e3,
             c: "TZS",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26221,7 +26221,7 @@ var init_bundled_price_books = __esm({
             p: 28e3,
             c: "XOF",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26235,7 +26235,7 @@ var init_bundled_price_books = __esm({
             p: 32e3,
             c: "XOF",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26249,7 +26249,7 @@ var init_bundled_price_books = __esm({
             p: 19e3,
             c: "XOF",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26263,7 +26263,7 @@ var init_bundled_price_books = __esm({
             p: 9500,
             c: "XOF",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26277,7 +26277,7 @@ var init_bundled_price_books = __esm({
             p: 5800,
             c: "XOF",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26291,7 +26291,7 @@ var init_bundled_price_books = __esm({
             p: 2500,
             c: "XOF",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -26305,7 +26305,7 @@ var init_bundled_price_books = __esm({
             p: 10500,
             c: "XOF",
             v: "2026-10-16",
-            s: "Indicative 2026 retail band; admin-adjustable",
+            s: "Indicative 2026 retail band; adjustable",
             f: "low"
           }
         }
@@ -30974,7 +30974,7 @@ var init_bundled_price_books = __esm({
       },
       // 2026-10-16 globalization wave: ceiling (POP international) sets
       // for the final three markets (indicative bands, low confidence,
-      // admin-adjustable - same honesty as the KE/GH wave).
+      // adjustable - same honesty as the KE/GH wave).
       {
         id: "047a6ae3-95a8-4924-b8af-991729a49768",
         workflow: "international",
@@ -32568,7 +32568,7 @@ var init_bundled_price_books = __esm({
         market: "KR"
       },
       // 2026-10-16 globalization wave: tile finishing sets for the
-      // final three markets (indicative bands, low confidence, admin-adjustable).
+      // final three markets (indicative bands, low confidence, adjustable).
       {
         id: "1275c0d7-6276-432c-80c0-fe1fbbfbe5e1",
         category: "adhesive",
@@ -33686,14 +33686,14 @@ function getScreedingSystemWarnings(config2) {
   const coverageOk = Number.isFinite(config2.coverageAreaM2) && config2.coverageAreaM2 > 0;
   if (!coverageOk) {
     warnings.push(
-      "Coverage area is not configured. Material quantities will be 0 until it is set in Admin \u2192 Screeding Material Systems."
+      "Coverage area is not configured. Material quantities will be 0 until it is set in the FRELUX screeding materials page."
     );
   }
   const qtyWarning = (name, label) => warnings.push(
-    `${label} quantity per coverage area is not configured. ${name} will show 0 units until it is set in Admin \u2192 Screeding Material Systems.`
+    `${label} quantity per coverage area is not configured. ${name} will show 0 units until it is set in the FRELUX screeding materials page.`
   );
   const priceWarning = (name, label) => warnings.push(
-    `${label} price per unit is not configured. Total cost cannot be shown for ${name.toLowerCase()} until a price is set in Admin \u2192 Screeding Material Systems.`
+    `${label} price per unit is not configured. Total cost cannot be shown for ${name.toLowerCase()} until a price is set in the FRELUX screeding materials page.`
   );
   if (config2.systemType === "putty") {
     if (config2.puttyQuantity == null || config2.puttyQuantity <= 0) {
@@ -39258,13 +39258,13 @@ function calculatePopCeiling(input, materials, currency, currencySymbol) {
       if (coverage > 0 && adjustedArea > 0) {
       } else if (adjustedArea > 0) {
         calcWarnings.push(
-          `Coverage rate is not configured for '${mat.name}'. Its quantity and cost are excluded from the total until an admin configures it.`
+          `Coverage rate is not configured for '${mat.name}'. Its quantity and cost are excluded from the total until it is configured.`
         );
       }
       if (unitPrice > 0) {
       } else {
         calcWarnings.push(
-          `Unit price is not configured for '${mat.name}'. Its cost is excluded from the total until an admin configures it.`
+          `Unit price is not configured for '${mat.name}'. Its cost is excluded from the total until it is configured.`
         );
       }
       const quantity = coverage > 0 ? adjustedArea / coverage : 0;
@@ -39454,7 +39454,7 @@ async function loadTyroleneCalcConfig(marketCode) {
   );
   if (!product) {
     warnings.push(
-      "Tyrolene product is not configured. Admin must configure the Tyrolene product before estimates can be calculated."
+      "Tyrolene product is not configured. FRELUX has not finished configuring the Tyrolene product before estimates can be calculated."
     );
   }
   const { data: allMaterials } = await fetchEstimationMaterials(true);
@@ -39463,7 +39463,7 @@ async function loadTyroleneCalcConfig(marketCode) {
   );
   if (materials.length < TYROLENE_MATERIAL_SLUGS.length) {
     warnings.push(
-      `Only ${materials.length}/${TYROLENE_MATERIAL_SLUGS.length} Tyrolene materials configured. Admin must configure: ${TYROLENE_MATERIAL_SLUGS.join(", ")}.`
+      `Only ${materials.length}/${TYROLENE_MATERIAL_SLUGS.length} Tyrolene materials configured. FRELUX has not finished configuring: ${TYROLENE_MATERIAL_SLUGS.join(", ")}.`
     );
   }
   const prices = /* @__PURE__ */ new Map();
@@ -39480,7 +39480,7 @@ async function loadTyroleneCalcConfig(marketCode) {
     const role = TYROLENE_ROLES[mat.slug];
     if (!role) {
       warnings.push(
-        `Material '${mat.name}' does not have a configured price. Material cost will be incomplete until FRELUX admin configures the price.`
+        `Material '${mat.name}' does not have a configured price. Material cost will be incomplete until the price is configured.`
       );
       continue;
     }
@@ -39491,7 +39491,7 @@ async function loadTyroleneCalcConfig(marketCode) {
     } else {
       unpricedSlugs.push(mat.slug);
       warnings.push(
-        `Material '${mat.name}' has no verified price for this market yet. Material cost will be incomplete until the market price book is filled via the Admin Scan system.`
+        `Material '${mat.name}' has no verified price for this market yet. Material cost will be incomplete until the market price book is filled via the FRELUX Scan system.`
       );
     }
   }
@@ -39876,7 +39876,7 @@ function validateTyroleneInput(input, config2) {
     errors.push("Standard partition count cannot be negative.");
   }
   if (!config2.product) {
-    errors.push("Tyrolene product is not configured. Contact FRELUX admin.");
+    errors.push("Tyrolene product is not configured. Contact FRELUX support.");
   } else if (!config2.product.is_active) {
     errors.push("Tyrolene product is currently inactive.");
   }
@@ -39885,19 +39885,19 @@ function validateTyroleneInput(input, config2) {
   );
   if (hasPartitionTypes) {
     if (standardPartition.width === null || standardPartition.height === null) {
-      errors.push("Standard partition dimensions are not configured. Accurate Tyrolene calculation with actual dimensions requires FRELUX admin to configure the standard partition width and height.");
+      errors.push("Standard partition dimensions are not configured. Accurate Tyrolene calculation with actual dimensions requires FRELUX to configure the standard partition width and height.");
     }
   }
   const materialRatio = parseMaterialRatio(
     config2.calcRules.get("material_ratio") ?? null
   );
   if (materialRatio.materials.length === 0) {
-    errors.push("Tyrolene material ratio is not configured. Contact FRELUX admin.");
+    errors.push("Tyrolene material ratio is not configured. Contact FRELUX support.");
   }
   for (const mat of materialRatio.materials) {
     const price = config2.prices.get(mat.slug);
     if (!price || !isPriceConfigured(price.price)) {
-      warnings.push(`Material '${mat.slug}' does not have a configured price. Material cost will be incomplete until FRELUX admin configures the price.`);
+      warnings.push(`Material '${mat.slug}' does not have a configured price. Material cost will be incomplete until the price is configured.`);
     }
   }
   for (const mat of materialRatio.materials) {
@@ -40010,7 +40010,7 @@ function calculateTyroleneProject(input, config2) {
       detail: "Entered directly, no dimensional adjustment applied"
     });
   } else if (hasActualDimensions && standardArea === null) {
-    errors.push("Accurate Tyrolene calculation unavailable until the required FRELUX configuration is completed. Standard partition dimensions must be configured by FRELUX admin to use actual partition dimensions.");
+    errors.push("Accurate Tyrolene calculation unavailable until the required FRELUX configuration is completed. Standard partition dimensions must be configured by FRELUX to use actual partition dimensions.");
   }
   const materialResults = [];
   if (equivalentPartitions > 0 && materialRatio.materials.length > 0) {
@@ -40140,7 +40140,7 @@ function calculateTyroleneProject(input, config2) {
     detail: "Cost based on practical purchase quantities (after pack rounding)"
   });
   if (!validation.valid) {
-    recommendations.push("Contact FRELUX admin to complete the required configuration for accurate Tyrolene estimation.");
+    recommendations.push("Contact FRELUX to complete the required configuration for accurate Tyrolene estimation.");
   }
   return {
     standard_partition_count: standardCount,
@@ -40445,7 +40445,7 @@ function calculateElectrical(input, rules, prices) {
       const price = prices["elec-conduit"] ?? null;
       steps.push({
         label: "Conduit (planning allowance)",
-        detail: `${input.lighting_points} lighting \xD7 ${rules.conduit_m_per_lighting_point ?? 0} m + ${input.socket_points} sockets \xD7 ${rules.conduit_m_per_socket_point ?? 0} m = ${roundTo(base, 2)} m; waste ${rules.conduit_waste_pct}% \u2192 ${qty} m. This is the admin's planning allowance, not a site measurement.`
+        detail: `${input.lighting_points} lighting \xD7 ${rules.conduit_m_per_lighting_point ?? 0} m + ${input.socket_points} sockets \xD7 ${rules.conduit_m_per_socket_point ?? 0} m = ${roundTo(base, 2)} m; waste ${rules.conduit_waste_pct}% \u2192 ${qty} m. This is the planning allowance, not a site measurement.`
       });
       lines.push({
         key: "conduit",
@@ -40454,7 +40454,7 @@ function calculateElectrical(input, rules, prices) {
         quantity: qty,
         quantity_source: "rule_derived",
         unit: "m",
-        detail: `Planning allowance from admin rules (${roundTo(base, 2)} m base + waste)`,
+        detail: `Planning allowance from configured rules (${roundTo(base, 2)} m base + waste)`,
         unit_price: price,
         line_total: price !== null ? money(qty * price) : null
       });
@@ -40877,7 +40877,7 @@ function calculatePlumbing(input, rules, prices) {
       quantity: qty,
       quantity_source: "rule_derived",
       unit: "pieces",
-      detail: `${totalFixtures} fixture connections \xD7 ${f.perFixture} per fixture = ${qty} (admin's visible planning allowance)`,
+      detail: `${totalFixtures} fixture connections \xD7 ${f.perFixture} per fixture = ${qty} (visible planning allowance)`,
       unit_price: price,
       line_total: price !== null ? money2(qty * price) : null
     });
@@ -41142,7 +41142,7 @@ function applyRegionalCost(input) {
       detail: `${base.toLocaleString()} \xD7 ${factor2.toFixed(2)} = ${adjusted2.toLocaleString()}`
     });
     result.warnings.push(
-      `No regional cost index is configured for ${country}/${state}${category !== "general" ? ` (${category})` : ""}. The national baseline (${factor2.toFixed(2)}) was used. Add an index under Admin \u2192 Regional Cost Indices for state-accurate costing.`
+      `No regional cost index is configured for ${country}/${state}${category !== "general" ? ` (${category})` : ""}. The national baseline (${factor2.toFixed(2)}) was used. Add an index under FRELUX \u2192 Regional Cost Indices for state-accurate costing.`
     );
     result.ok = true;
     return result;
@@ -41306,7 +41306,7 @@ function calculateMargin(input) {
   }
   if (vatRate === null) {
     result.warnings.push(
-      "No VAT rate is configured (Admin \u2192 Estimation Config & Rules \u2192 vat_rate for margin). The quote is produced without a VAT line rather than guessing one."
+      "No VAT rate is configured (FRELUX \u2192 Estimation Config & Rules \u2192 vat_rate for margin). The quote is produced without a VAT line rather than guessing one."
     );
   } else {
     vatAmount = roundTo3(subtotal * vatRate / 100, decimals);
@@ -41814,7 +41814,7 @@ function calculateDoorsWindows(input, rules, prices) {
       const price = prices["door-hinge"] ?? null;
       steps.push({
         label: "Hinges",
-        detail: `${totalDoors} doors \xD7 ${rules.hinges_per_door} per door = ${qty} (admin's visible planning allowance).`
+        detail: `${totalDoors} doors \xD7 ${rules.hinges_per_door} per door = ${qty} (visible planning allowance).`
       });
       lines.push({
         key: "hinges",
@@ -41931,7 +41931,7 @@ function calculateDoorsWindows(input, rules, prices) {
     }
   }
   warnings.push(
-    "Window and door prices must match the size and finish the admin configured: confirm actual unit sizes on site. This is material ESTIMATION, not a fixing specification."
+    "Window and door prices must match the size and finish the configured: confirm actual unit sizes on site. This is material ESTIMATION, not a fixing specification."
   );
   const incomplete = lines.some((l) => l.quantity === null || l.line_total === null) || missing.length > 0;
   const grandTotal = materialSubtotal !== null && errors.length === 0 && missing.length === 0 ? money5(materialSubtotal + labourTotal) : null;
@@ -42112,7 +42112,7 @@ function calculateReinforcement(input, rules, prices) {
         quantity: kg,
         quantity_source: "rule_derived",
         unit: "kg",
-        detail: `${roundTo5(totalMassKg / 1e3, 3)} t \xD7 ${rules.binding_wire_kg_per_tonne} kg/t \u2192 ${kg} kg (admin's visible planning allowance)`,
+        detail: `${roundTo5(totalMassKg / 1e3, 3)} t \xD7 ${rules.binding_wire_kg_per_tonne} kg/t \u2192 ${kg} kg (visible planning allowance)`,
         unit_price: price,
         line_total: price !== null ? money6(kg * price) : null
       });
@@ -47711,7 +47711,7 @@ function calculateRoom(room, config2) {
       steps.push({
         label: "Opening Deduction",
         value: `\u2212${deductedArea.toFixed(2)} m\xB2 (${deductionPct}% of ${totalOpeningArea.toFixed(2)} m\xB2)`,
-        detail: deductionPct === 100 ? "Full deduction (FRELUX default). Admin can configure a different percentage." : `Admin-configured deduction: ${deductionPct}%.`
+        detail: deductionPct === 100 ? "Full deduction (FRELUX default). FRELUX can configure a different percentage." : `verified deduction: ${deductionPct}%.`
       });
     }
   }
@@ -47796,7 +47796,7 @@ function calculateRoom(room, config2) {
   steps.push({
     label: "Paint Quality & Coverage",
     value: coverage ? `${config2.quality?.name ?? "N/A"}, ${coverage} ${getCoverageUnitLabel(coverageUnit)}` : `${config2.quality?.name ?? "N/A"}, NOT CONFIGURED`,
-    detail: coverage ? `Coverage rate configured for ${config2.quality?.name ?? "this quality"} level. This feeds the FRELUX room-based engine.` : "Admin must configure coverage before accurate calculation."
+    detail: coverage ? `Coverage rate configured for ${config2.quality?.name ?? "this quality"} level. This feeds the FRELUX room-based engine.` : "FRELUX has not finished configuring coverage before accurate calculation."
   });
   const coats = room.coats;
   steps.push({
@@ -50220,6 +50220,19 @@ function apiKeyDisplayPrefix(rawKey) {
 
 // src/lib/frelix-api/auth.ts
 init_define_import_meta_env();
+
+// src/lib/site-config.ts
+init_define_import_meta_env();
+var DEFAULT_SITE_URL = "https://freluxtools.com";
+function normalizeOrigin(origin) {
+  return origin.trim().replace(/\/+$/, "");
+}
+var SITE_URL = normalizeOrigin(
+  define_import_meta_env_default.VITE_SITE_URL || DEFAULT_SITE_URL
+);
+var SITE_HOST = SITE_URL.replace(/^https?:\/\//, "");
+
+// src/lib/frelix-api/auth.ts
 function evaluateKeyStatus(row, now) {
   if (row.status === "revoked") return { ok: false, code: "revoked_api_key" };
   if (row.status === "disabled") return { ok: false, code: "disabled_api_key" };
@@ -50255,7 +50268,7 @@ function regionAllowed(planRegions, requestedRegion) {
   if (requestedRegion === null) return true;
   return planRegions.includes(requestedRegion);
 }
-var API_ERROR_DOCUMENTATION = "https://freluxtools.netlify.app/developers#errors";
+var API_ERROR_DOCUMENTATION = `${SITE_URL}/developers#errors`;
 function apiError(code, message, requestId) {
   return {
     error: {

@@ -1,4 +1,5 @@
 import HeroTitle from "@/components/ui/HeroTitle";
+import { SITE_URL } from "@/lib/site-config";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -84,7 +85,7 @@ export default function PaintColorDetail() {
             name:
               families.find((f) => f.id === color.color_family_id)?.name ??
               "Paint Color",
-            url: "https://freluxtools.netlify.app/colors",
+            url: `${SITE_URL}/colors`,
           },
         }
       : undefined,

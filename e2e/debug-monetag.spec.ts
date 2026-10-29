@@ -44,7 +44,7 @@ test("diagnose monetag tag on live site", async ({ page }) => {
     }
   }, CONSENT);
 
-  await page.goto("https://freluxtools.netlify.app/", {
+  await page.goto("https://freluxtools.com/", {
     waitUntil: "domcontentloaded",
   });
   await page.waitForTimeout(15000);

@@ -40,6 +40,16 @@
   VITE_SENTRY_ENVIRONMENT = "staging"
 
 
+# 301 the legacy *.netlify.app host onto the custom domain.
+# Must stay FIRST: every other rule runs after host consolidation, otherwise
+# the old host keeps serving a full duplicate copy of the site and splits
+# ranking signals between two origins.
+[[redirects]]
+  from = "https://freluxtools.netlify.app/*"
+  to = "https://freluxtools.com/:splat"
+  status = 301
+  force = true
+
 # 301 redirects — worldwide rebrand of learn articles (was Nigeria-only slugs)
 [[redirects]]
   from = "/learn/nigerian-building-regulations-what-you-need-to-know/*"
