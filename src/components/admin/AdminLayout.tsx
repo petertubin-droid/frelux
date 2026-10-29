@@ -536,9 +536,13 @@ function AdminLayoutInner() {
   }
 
   return (
-    <div className="admin-layout min-h-screen bg-muted/50 dark:bg-[#0a0a0f]">
+    <div className="admin-layout min-h-screen bg-background">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(1200px_600px_at_15%_-10%,hsl(var(--primary)/0.10),transparent_60%),radial-gradient(900px_500px_at_100%_0%,hsl(var(--ring)/0.08),transparent_55%)] dark:bg-[radial-gradient(1200px_600px_at_15%_-10%,hsl(var(--primary)/0.18),transparent_60%),radial-gradient(900px_500px_at_100%_0%,hsl(var(--ring)/0.12),transparent_55%)]"
+      />
       {/* Mobile header */}
-      <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-card px-4 dark:border-border dark:bg-background lg:hidden">
+      <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/60 bg-card/80 px-4 backdrop-blur-xl dark:border-white/10 lg:hidden">
         <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
           {t("FRELUX Admin")}
         </span>
@@ -570,7 +574,7 @@ function AdminLayoutInner() {
 
       <div className="flex">
         {/* Desktop sidebar */}
-        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-card dark:border-border dark:bg-background lg:flex">
+        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border/60 bg-card/70 backdrop-blur-xl dark:border-white/10 dark:bg-background/80 lg:flex">
           <SidebarContent
             user={user?.email}
             onSignOut={handleSignOut}
@@ -586,7 +590,7 @@ function AdminLayoutInner() {
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => setMobileOpen(false)}
             />
-            <aside className="absolute left-0 top-0 h-full w-64 bg-card shadow-xl dark:bg-background">
+            <aside className="absolute left-0 top-0 h-full w-64 border-r border-border/60 bg-card/95 shadow-premium backdrop-blur-xl dark:border-white/10 dark:bg-background/95">
               <div className="flex h-14 items-center justify-between border-b border-border px-4 dark:border-border">
                 <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
                   {t("FRELUX Admin")}
@@ -613,7 +617,7 @@ function AdminLayoutInner() {
         )}
 
         <main className="min-w-0 flex-1">
-          <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
             <Breadcrumbs />
             <Outlet />
           </div>
@@ -708,15 +712,25 @@ function SidebarContent({
   );
   return (
     <div className="flex h-full flex-col">
-      <div className="hidden border-b border-border px-5 py-4 dark:border-border lg:block">
-        <span className="text-base font-bold text-foreground dark:text-primary-foreground">
-          {t("FRELUX Admin")}
-        </span>
-        <p className="text-xs text-muted-foreground">
-          {t("Platform management")}
-        </p>
+      <div className="hidden border-b border-border/60 px-5 py-5 dark:border-white/10 lg:block">
+        <div className="flex items-center gap-2.5">
+          <span
+            aria-hidden="true"
+            className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-[13px] font-bold text-primary-foreground shadow-[0_8px_18px_-10px_hsl(var(--primary))]"
+          >
+            F
+          </span>
+          <div className="min-w-0">
+            <span className="block font-display text-sm font-bold leading-tight tracking-tight text-foreground">
+              {t("FRELUX Admin")}
+            </span>
+            <p className="text-[11px] text-muted-foreground">
+              {t("Platform management")}
+            </p>
+          </div>
+        </div>
       </div>
-      <div className="border-b border-border p-3 dark:border-border">
+      <div className="border-b border-border/60 p-3 dark:border-white/10">
         <div className="relative">
           <Search
             className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -728,7 +742,7 @@ function SidebarContent({
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("Search admin pages…")}
             aria-label={t("Search admin pages")}
-            className="h-9 w-full rounded-lg border border-border bg-background pl-8 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/70 focus:ring-1 focus:ring-brand-purple/50 dark:border-border dark:bg-card dark:text-primary-foreground"
+            className="h-9 w-full rounded-lg border border-border/60 bg-card/70 pl-8 pr-3 text-sm text-foreground shadow-sm backdrop-blur outline-none transition-all placeholder:text-muted-foreground/70 hover:border-border focus:border-primary focus:ring-2 focus:ring-ring/30 dark:border-white/10 dark:bg-white/5"
           />
         </div>
       </div>
@@ -753,7 +767,7 @@ function SidebarContent({
                 onClick={() => toggleCollapsed(module.heading)}
                 aria-expanded={isOpen}
                 aria-label={`Toggle ${module.heading} section`}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:bg-muted hover:text-brand-purple dark:hover:text-brand-purple-light"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:bg-muted/60 hover:text-primary dark:hover:bg-white/5"
               >
                 <span>{module.heading}</span>
                 <span className="flex items-center gap-1.5">
@@ -788,10 +802,10 @@ function SidebarContent({
                         onClick={onNavigate}
                         className={({ isActive }) =>
                           classNames(
-                            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                            "relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
                             isActive
-                              ? "bg-primary text-primary-foreground dark:nav-active"
-                              : "text-muted-foreground hover:bg-muted hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90 dark:hover:text-brand-purple-light",
+                              ? "bg-gradient-to-r from-primary to-primary/85 text-primary-foreground shadow-[0_10px_24px_-14px_hsl(var(--primary)),inset_0_1px_0_0_rgba(255,255,255,0.12)]"
+                              : "text-muted-foreground hover:bg-muted/60 hover:text-foreground dark:text-muted-foreground/90 dark:hover:bg-white/5 dark:hover:text-foreground",
                           )
                         }
                       >
@@ -812,7 +826,7 @@ function SidebarContent({
         )}
       </nav>
 
-      <div className="border-t border-border p-3 dark:border-border">
+      <div className="border-t border-border/60 p-3 dark:border-white/10">
         <div className="mb-2 flex items-center justify-between">
           <Link
             to="/"

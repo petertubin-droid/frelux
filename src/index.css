@@ -464,6 +464,23 @@
   .card-elevated {
     @apply bg-card border border-border/40 rounded-2xl shadow-premium dark:bg-card dark:border-white/10;
   }
+  /* Admin surfaces, the same glass and depth language as the marketing
+     pages, tuned for dense management screens. */
+  .admin-surface {
+    @apply bg-card/80 border border-border/60 rounded-2xl shadow-card backdrop-blur-xl transition-all duration-300 dark:bg-card/70 dark:border-white/10;
+  }
+  .admin-surface-hover {
+    @apply hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-premium;
+  }
+  .admin-inset {
+    @apply bg-muted/40 border border-border/50 rounded-xl dark:bg-white/[0.03] dark:border-white/5;
+  }
+  .admin-eyebrow {
+    @apply text-[11px] font-bold uppercase tracking-[0.18em] text-primary/80;
+  }
+  .admin-divider {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-border to-transparent dark:via-white/10;
+  }
   /* Section label - premium eyebrow */
   .section-label {
     @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary;

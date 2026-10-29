@@ -13,7 +13,11 @@ export function AdminCard({
 }) {
   return (
     <div
-      className={classNames("card", compact ? "p-3" : "p-5 sm:p-6", className)}
+      className={classNames(
+        "admin-surface admin-surface-hover",
+        compact ? "p-3" : "p-5 sm:p-6",
+        className,
+      )}
     >
       {children}
     </div>
@@ -30,19 +34,25 @@ export function AdminHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h1 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-          {title}
-        </h1>
-        {subtitle && (
-          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-            {subtitle}
-          </p>
+    <header className="mb-7">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <span className="admin-eyebrow">Admin</span>
+          <h1 className="mt-1.5 font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-[28px]">
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              {subtitle}
+            </p>
+          )}
+        </div>
+        {action && (
+          <div className="flex shrink-0 items-center gap-2">{action}</div>
         )}
       </div>
-      {action}
-    </div>
+      <div className="admin-divider mt-5" />
+    </header>
   );
 }
 
@@ -64,15 +74,17 @@ export function AdminButton({
   title?: string;
 }) {
   const base =
-    "inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-semibold rounded-lg transition-all active:scale-95 disabled:opacity-50";
+    "inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-all duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2";
   const variants = {
-    primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+    primary:
+      "bg-gradient-to-b from-primary to-primary/90 text-primary-foreground shadow-[0_1px_2px_rgba(16,12,40,0.12),0_8px_20px_-8px_hsl(var(--primary)/0.65)] hover:shadow-[0_2px_6px_rgba(16,12,40,0.14),0_12px_26px_-10px_hsl(var(--primary)/0.7)]",
     secondary:
-      "bg-card text-card-foreground border border-border hover:bg-muted/50 dark:bg-card dark:text-muted-foreground/60 dark:border-white/5 dark:hover:bg-white/5",
+      "border border-border/70 bg-card/70 text-foreground backdrop-blur hover:border-primary/30 hover:bg-card dark:border-white/10 dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10",
     danger:
-      "bg-card text-red-600 border border-red-200 hover:bg-red-50 dark:bg-card dark:text-red-400 dark:border-red-500/20 dark:hover:bg-red-500/10",
-    success: "bg-emerald-500 text-primary-foreground hover:bg-emerald-600",
-    link: "bg-transparent text-brand-purple hover:underline px-0 py-0",
+      "border border-red-500/25 bg-red-500/10 text-red-600 hover:bg-red-500/15 dark:text-red-300 dark:hover:bg-red-500/20",
+    success:
+      "bg-gradient-to-b from-emerald-500 to-emerald-600 text-white shadow-[0_8px_20px_-10px_rgba(16,185,129,0.7)] hover:from-emerald-500 hover:to-emerald-500",
+    link: "bg-transparent px-0 py-0 text-primary hover:underline",
   };
   return (
     <Button
@@ -99,20 +111,32 @@ export function StateMessage({
   action?: ReactNode;
 }) {
   const styles = {
-    loading:
-      "border-border bg-muted/50 text-muted-foreground dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground",
+    loading: "admin-inset text-muted-foreground",
     error:
-      "border-red-200 bg-red-50 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400",
-    empty:
-      "border-dashed border-border bg-muted/50 text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground",
+      "border border-red-500/25 bg-red-500/10 text-red-700 dark:text-red-300",
+    empty: "admin-inset border-dashed text-muted-foreground",
+  };
+  const accent = {
+    loading: "bg-primary/80 animate-pulse",
+    error: "bg-red-500",
+    empty: "bg-muted-foreground/50",
   };
   return (
     <div
-      className={classNames("rounded-lg border p-8 text-center", styles[type])}
+      className={classNames(
+        "rounded-2xl p-10 text-center backdrop-blur-sm",
+        styles[type],
+      )}
     >
-      <p className="text-sm font-semibold">{title}</p>
-      <p className="mt-1 text-xs">{message}</p>
-      {action && <div className="mt-4">{action}</div>}
+      <span
+        className={classNames(
+          "mx-auto mb-3 block h-1.5 w-8 rounded-full",
+          accent[type],
+        )}
+      />
+      <p className="text-sm font-semibold text-foreground">{title}</p>
+      <p className="mx-auto mt-1 max-w-md text-xs leading-relaxed">{message}</p>
+      {action && <div className="mt-5 flex justify-center">{action}</div>}
     </div>
   );
 }
@@ -147,7 +171,7 @@ export function AdminField({
 }) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+      <span className="block text-[13px] font-semibold tracking-wide text-foreground">
         {label}
       </span>
       {hint && (
@@ -187,13 +211,13 @@ export function CollapsibleGroup({
   preview?: ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-border dark:border-white/5">
+    <div className="admin-surface admin-surface-hover overflow-hidden">
       <Button
         variant="ghost"
         type="button"
         onClick={onToggle}
         aria-expanded={isOpen}
-        className="flex w-full items-center justify-between gap-3 bg-card px-4 py-3 text-left transition-colors hover:bg-muted/50 dark:bg-card dark:hover:bg-white/5"
+        className="flex w-full items-center justify-between gap-3 bg-transparent px-4 py-3.5 text-left transition-colors hover:bg-muted/40 dark:hover:bg-white/[0.04]"
       >
         <div className="flex min-w-0 items-center gap-3">
           <svg
@@ -222,7 +246,7 @@ export function CollapsibleGroup({
         )}
       </Button>
       {isOpen && (
-        <div className="border-t border-border bg-muted/60 p-3 dark:border-white/5 dark:bg-white/[0.02]">
+        <div className="border-t border-border/60 bg-muted/30 p-3 backdrop-blur-sm dark:border-white/5 dark:bg-white/[0.02]">
           {children}
         </div>
       )}
@@ -280,15 +304,7 @@ export function AdminInput({
   className,
   ...props
 }: InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <ShadcnInput
-      className={classNames(
-        "rounded-lg px-3.5 py-2.5 dark:bg-card dark:border-white/10",
-        className,
-      )}
-      {...props}
-    />
-  );
+  return <ShadcnInput className={classNames("h-11", className)} {...props} />;
 }
 
 export function AdminTextarea({
@@ -297,10 +313,7 @@ export function AdminTextarea({
 }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <ShadcnTextarea
-      className={classNames(
-        "rounded-lg px-3.5 py-2.5 dark:bg-card dark:border-white/10",
-        className,
-      )}
+      className={classNames("px-3.5 py-2.5", className)}
       {...props}
     />
   );
@@ -325,8 +338,8 @@ export function AdminSelect({
   return (
     <select
       className={classNames(
-        "flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-        "dark:bg-card dark:border-white/10",
+        "flex h-11 w-full rounded-lg border border-border/70 bg-card px-3.5 py-2 text-sm text-foreground shadow-sm ring-offset-background transition-all duration-200 hover:border-border focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50",
+        "dark:border-white/10 dark:bg-card",
         className,
       )}
       {...props}
@@ -362,12 +375,11 @@ export function AdminIconButton({
   "aria-label"?: string;
 }) {
   const base =
-    "inline-flex items-center justify-center rounded-md p-1 transition-all active:scale-95 disabled:opacity-50";
+    "inline-flex items-center justify-center rounded-lg p-1.5 transition-all duration-150 active:scale-95 disabled:opacity-50";
   const variants = {
     ghost:
-      "text-muted-foreground hover:bg-muted hover:text-brand-purple dark:hover:bg-white/10",
-    danger:
-      "text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10",
+      "text-muted-foreground hover:bg-muted/70 hover:text-primary dark:hover:bg-white/10",
+    danger: "text-muted-foreground hover:bg-red-500/10 hover:text-red-500",
   };
   return (
     <Button
@@ -407,23 +419,24 @@ export function AdminTabButton({
   const base = "text-sm font-medium transition-colors";
   const variants = {
     underline: {
-      base: "px-4 py-2.5",
+      base: "px-4 py-2.5 rounded-none",
       active:
-        "border-b-2 border-brand-purple text-brand-purple dark:text-brand-purple-lighter",
-      inactive:
-        "text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
+        "border-b-2 border-primary text-foreground shadow-[inset_0_-1px_0_0_hsl(var(--primary))]",
+      inactive: "text-muted-foreground hover:text-foreground",
     },
     pill: {
-      base: "flex items-center gap-2 rounded-lg px-4 py-2 border",
-      active: "border-brand-purple bg-primary/10 text-brand-purple",
+      base: "flex items-center gap-2 rounded-xl border px-4 py-2",
+      active:
+        "border-primary/30 bg-primary/10 text-primary shadow-[0_6px_18px_-12px_hsl(var(--primary))]",
       inactive:
-        "border-border text-muted-foreground hover:border-border dark:border-white/10",
+        "border-border/60 bg-card/60 text-muted-foreground backdrop-blur hover:border-primary/25 hover:text-foreground dark:border-white/10 dark:bg-white/5",
     },
     filter: {
       base: "rounded-lg px-3 py-1.5 capitalize",
-      active: "bg-foreground text-background",
+      active:
+        "bg-gradient-to-b from-primary to-primary/90 text-primary-foreground shadow-[0_6px_16px_-10px_hsl(var(--primary)/0.8)]",
       inactive:
-        "bg-card border border-border text-muted-foreground hover:bg-muted/50 dark:bg-white/5 dark:border-white/10 dark:text-muted-foreground",
+        "border border-border/60 bg-card/60 text-muted-foreground backdrop-blur hover:bg-muted/50 dark:border-white/10 dark:bg-white/5",
     },
   };
   const v = variants[variant];
@@ -455,7 +468,7 @@ export function StatusBadge({
   return (
     <span
       className={
-        "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider " +
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] ring-1 ring-inset ring-current/10 " +
         statusTone(norm) +
         (className ? " " + className : "")
       }
