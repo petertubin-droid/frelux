@@ -1322,6 +1322,16 @@ const { routes: learnDynamicRoutes, content: learnDynamicContent } = await fetch
 routes.push(...learnDynamicRoutes);
 const contentMap = { ...seoContentMap, ...learnDynamicContent };
 
+// Route content goes into #root for crawlers. React replaces it on mount, but
+// until then it renders as bare HTML (no utility classes), which showed up as a
+// flash of raw text on every reload. The shield is a plain-CSS branded cover
+// that keeps that markup out of sight while the app boots, and lifts by itself
+// after a few seconds so non-JavaScript visitors still reach the content.
+const prerenderShell = (inner) =>
+  `<div class="frelux-prerender"><div class="frelux-prerender__shield" aria-hidden="true">` +
+  `<span class="frelux-prerender__mark">FRELUX SMART CALC</span>` +
+  `<span class="frelux-prerender__bar"></span></div>${inner}</div>`;
+
 
 // ── Prerender ──────────────────────────────────────────────────────
 const templatePath = join(distDir, 'index.html');
@@ -1459,7 +1469,7 @@ for (const route of routes) {
   // without JavaScript receive the same page content as the prerendered metadata.
   const pageContent = contentMap[route.path];
   if (pageContent) {
-    html = html.replace(/(<div id="root">)[\s\S]*(\n\s*<\/div>\s*<\/body>)/, (_match, opening, closing) => `${opening}\n      ${pageContent}${closing}`);
+    html = html.replace(/(<div id="root">)[\s\S]*(\n\s*<\/div>\s*<\/body>)/, (_match, opening, closing) => `${opening}\n      ${prerenderShell(pageContent)}${closing}`);
   }
 
   // Write file
@@ -1478,7 +1488,7 @@ for (const route of routes) {
   html404 = html404.replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/, '<meta name="robots" content="noindex, nofollow" />');
   html404 = html404.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, '');
   const notFoundContent = '<main><h1>Page Not Found</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; 404</nav><p>The page you are looking for does not exist. Browse our calculators and tools:</p><ul><li><a href="/paint-calculator/">Paint Calculator</a></li><li><a href="/tile-calculator/">Tile Calculator</a></li><li><a href="/screeding-calculator/">Screeding Calculator</a></li><li><a href="/pop-ceiling-calculator/">POP Ceiling Calculator</a></li><li><a href="/calculators/">All Calculators</a></li></ul><p><a href="/">Back to home</a></p></main>';
-  html404 = html404.replace(/(<div id="root">)[\s\S]*(\n\s*<\/div>\s*<\/body>)/, (_match, opening, closing) => `${opening}\n      ${notFoundContent}${closing}`);
+  html404 = html404.replace(/(<div id="root">)[\s\S]*(\n\s*<\/div>\s*<\/body>)/, (_match, opening, closing) => `${opening}\n      ${prerenderShell(notFoundContent)}${closing}`);
   html404 = html404.replace(/\s*<script type="module"[^>]*src="[^"]+"><\/script>/, '');
   writeFileSync(join(distDir, '404.html'), html404);
   console.log('  ✅ /404.html');
