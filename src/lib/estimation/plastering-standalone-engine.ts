@@ -165,7 +165,9 @@ export function calculatePlasteringTakeoff(
 
   // Wet volume = Area * thickness (convert mm to m) * coats
   const thicknessM = thicknessMm / 1000.0;
-  const netWetMortarVolumeM3 = areaM2 * thicknessM * (coats > 1 ? 1.0 : 1.0); // thickness is total applied
+  // `thicknessMm` is the total applied thickness across the specified coats, so
+  // coats must not multiply it again.
+  const netWetMortarVolumeM3 = areaM2 * thicknessM;
   const wetMortarVolumeM3 = netWetMortarVolumeM3 * (1 + roughnessAllowance);
 
   // Dry mortar factor: sand + cement shrink by ~33% when mixed with water.
