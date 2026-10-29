@@ -405,7 +405,7 @@ The last photograph in the file is the wall itself, made at handover and framed 
 
 The cover photograph shows a ceiling opened during demolition, with the plaster and lath partially removed to reveal the construction, photographed by Tomwsulcer and released under CC0 via Wikimedia Commons. It is a real photograph, not AI generated, and its status was verified through the Wikimedia Commons API at the time this article was drafted.
 
-$wallarticle4$, 8, 'quality-checks', 'https://upload.wikimedia.org/wikipedia/commons/7/72/Demolition_project_opening_up_the_ceiling_plaster_and_lath_partially_removed.JPG')
+$wallarticle4$, 8, 'quality', 'https://upload.wikimedia.org/wikipedia/commons/7/72/Demolition_project_opening_up_the_ceiling_plaster_and_lath_partially_removed.JPG')
 , ('gb-lime-heritage-maintenance-repair', 'Heritage Lime Finishes: Maintenance and Repair', 'A British maintenance guide for lime plaster and render: re-limewashing cycles, crack and patch repair in lime, diagnosing render failure, the cement trap, and the records that keep an old wall honest.', $wallarticle5$# Heritage Lime Finishes: Maintenance and Repair
 
 Old walls do not need less maintenance than new ones; they need the right maintenance, on a rhythm that respects how lime behaves. The maintenance article is the conservation philosophy applied to a calendar.
@@ -509,10 +509,18 @@ The lime tradition survives because it is cheaper than replacement and gentler t
 
 The cover photograph shows Old Treleddyd-fawr, a weathered limewashed farmhouse, photographed by ceridwen and made available under CC BY-SA 2.0 via Wikimedia Commons. It is a real photograph, not AI generated, and its license was verified through the Wikimedia Commons API at the time this article was drafted.
 
-$wallarticle5$, 8, 'maintenance-repair', 'https://upload.wikimedia.org/wikipedia/commons/d/dd/Old_Treleddyd-fawr_-_geograph.org.uk_-_1256186.jpg')
+$wallarticle5$, 8, 'maintenance', 'https://upload.wikimedia.org/wikipedia/commons/d/dd/Old_Treleddyd-fawr_-_geograph.org.uk_-_1256186.jpg')
 ) AS a(slug,title,excerpt,content,read_time_minutes,theme,cover_url)
 JOIN public.learn_wall_finishing_topics t ON t.market_code='GB' AND t.candidate_key='assembly:gb-lime-heritage-plaster'
 JOIN public.learn_wall_finishing_article_slots slot ON slot.topic_id=t.id AND slot.market_code=t.market_code AND slot.theme_key=a.theme AND slot.language_code='en'
 ON CONFLICT (slug) DO NOTHING;
+
+UPDATE public.learn_wall_finishing_article_slots slot
+SET article_id=a.id
+FROM public.learn_wall_finishing_topics t, public.learn_articles a
+WHERE slot.topic_id=t.id AND slot.market_code='GB' AND t.market_code='GB'
+  AND t.candidate_key='assembly:gb-lime-heritage-plaster'
+  AND a.wall_topic_id=t.id AND a.wall_market_code='GB' AND a.wall_language_code='en'
+  AND a.wall_article_theme=slot.theme_key AND slot.language_code='en';
 
 COMMIT;
