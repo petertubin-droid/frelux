@@ -83,11 +83,53 @@ export function getProvidersForPlacement(
       const prov = providers.find((p) => p.id === pid);
       if (prov) ordered.push(prov);
     }
-    return ordered;
+    return applyPrimaryNetwork(ordered, providers);
   }
 
   // No explicit provider list, use all active providers sorted by priority
-  return providers;
+  return applyPrimaryNetwork(providers, providers);
+}
+
+/**
+ * AdSense is the primary network (owner directive 2026-10-29): once Google
+ * approves the account, AdSense must be able to replace every other provider
+ * on every placement immediately - no redeploy, no per-placement edits.
+ *
+ * The switch lives on the provider row itself (`settings.primary`), so the
+ * owner flips one boolean in Admin -> Ads when approval lands. Until then the
+ * flag is absent and the existing waterfall is untouched: an unapproved
+ * AdSense account must never sit at the head of the chain and starve the
+ * placements that currently earn.
+ */
+export function getAdsensePrimary(
+  providers: DbAdProvider[],
+): DbAdProvider | null {
+  const adsense = providers.find((p) => p.slug === "google_adsense");
+  if (!adsense) return null;
+  const settings = (adsense.settings ?? {}) as Record<string, unknown>;
+  const creds = (adsense.credentials ?? {}) as Record<string, unknown>;
+  const flagged =
+    settings.primary === true ||
+    settings.adsense_primary === true ||
+    settings.primary_network === true;
+  const configured = Boolean(creds.publisher_id || creds.client_id);
+  return flagged && configured ? adsense : null;
+}
+
+/**
+ * Order a placement chain once a primary network exists: the primary leads
+ * every placement, in every position, including placements that pinned an
+ * explicit provider list. The remaining providers stay behind it as fill, so
+ * a no-fill from the primary still earns instead of leaving an empty slot.
+ */
+export function applyPrimaryNetwork(
+  chain: DbAdProvider[],
+  providers: DbAdProvider[],
+): DbAdProvider[] {
+  const primary = getAdsensePrimary(providers);
+  if (!primary) return chain;
+  const rest = chain.filter((p) => p.id !== primary.id);
+  return [primary, ...rest];
 }
 
 /**

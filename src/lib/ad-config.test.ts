@@ -33,6 +33,8 @@ import {
   getEffectiveAdUnitId,
   clearAdConfigCache,
   logAdEvent,
+  getAdsensePrimary,
+  applyPrimaryNetwork,
 } from "./ad-config";
 import type { DbAdProvider, DbAdPlacement } from "@/types/database";
 
@@ -215,5 +217,57 @@ describe("automatic default display unit", () => {
     expect(
       getEffectiveAdUnitId({ ...placement, ad_unit_ids: {} }, provider),
     ).toBe("9876543210");
+  });
+});
+
+describe("AdSense as the primary network (owner directive 2026-10-29)", () => {
+  const adsense = (settings: Record<string, unknown>, creds = { publisher_id: "pub-123" }) => ({
+    id: "ads-1",
+    slug: "google_adsense",
+    is_active: true,
+    priority: 1,
+    credentials: creds,
+    settings,
+  }) as never;
+  const monetagProvider = {
+    id: "mon-1",
+    slug: "monetag",
+    is_active: true,
+    priority: 3,
+    credentials: { zone_id: "999" },
+    settings: {},
+  } as never;
+  const placement = {
+    id: "pl-1",
+    placement_key: "calculator_mid",
+    placement_name: "Calculator mid",
+    is_active: true,
+    provider_ids: ["mon-1"],
+    display_rules: { mobile: true, desktop: true },
+  } as never;
+
+  it("leads the chain once the flag is on", () => {
+    const providers = [adsense({ primary: true }), monetagProvider];
+    const chain = getProvidersForPlacement("calculator_mid", providers, [placement]);
+    expect(chain.map((p) => p.slug)).toEqual(["google_adsense", "monetag"]);
+  });
+
+  it("stays behind the configured order until approval is flagged", () => {
+    const providers = [adsense({}), monetagProvider];
+    const chain = getProvidersForPlacement("calculator_mid", providers, [placement]);
+    expect(chain.map((p) => p.slug)).toEqual(["monetag"]);
+  });
+
+  it("ignores the flag when AdSense has no publisher id", () => {
+    const providers = [adsense({ primary: true }, {}), monetagProvider];
+    expect(getAdsensePrimary(providers)).toBeNull();
+  });
+
+  it("keeps other providers behind the primary as fill", () => {
+    const providers = [adsense({ primary_network: true }), monetagProvider];
+    expect(applyPrimaryNetwork([monetagProvider], providers).map((p) => p.slug)).toEqual([
+      "google_adsense",
+      "monetag",
+    ]);
   });
 });

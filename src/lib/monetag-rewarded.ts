@@ -89,6 +89,28 @@ export function getMonetagDisplayZone(
 }
 
 /**
+ * Monetag in-page push zone. Monetag serves push from the same tag as the
+ * display zone and lets a zone carry both formats; a dedicated push zone can
+ * be set with `push_zone_id` when the dashboard separates them.
+ */
+export function getMonetagPushZone(
+  provider?: DbAdProvider | null,
+): string | null {
+  const creds = (provider?.credentials ?? {}) as Record<string, unknown>;
+  const settings = (provider?.settings ?? {}) as Record<string, unknown>;
+  const raw =
+    creds.push_zone_id ??
+    settings.push_zone_id ??
+    settings.push_zone ??
+    getMonetagDisplayZone(provider);
+  const zone =
+    typeof raw === "string" || typeof raw === "number"
+      ? String(raw).trim()
+      : "";
+  return zone || null;
+}
+
+/**
  * Resolve the optional Monetag Native Banner zone (from the provider
  * dashboard). Monetag's in-page display format, a Native Banner, renders
  * into the SDK container AdSlot provides. Zone IDs are numeric; anything

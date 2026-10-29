@@ -5,6 +5,7 @@ import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AdsterraDirectLink from "@/components/ui/AdsterraDirectLink";
+import { MonetagInPagePush } from "@/components/ads/MonetagInPagePush";
 import {
   hasAdvertisingConsent,
   hasAnyConsentChoice,
@@ -530,6 +531,9 @@ export default function Layout() {
           fixed to the viewport bottom; bottom-of-content units live inside
           the page flow (e.g. learn_article_end). */}
       <AdsterraDirectLink />
+      {/* Monetag in-page push: global overlay, one per session, so every
+          page keeps its two-unit budget while push still serves sitewide. */}
+      <MonetagInPagePush />
       {adsterraNative && hasAdvertisingConsent() && (
         <div
           id={`container-${adsterraNative.key}`}
