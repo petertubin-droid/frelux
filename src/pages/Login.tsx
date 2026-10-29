@@ -330,7 +330,7 @@ export default function Login() {
           )}
           {mode === "signup" && (
             <div className="mt-5">
-              <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+              <span className="block text-sm font-semibold text-card-foreground dark:text-foreground">
                 {t("Account type")}
               </span>
               <div className="mt-2 grid grid-cols-2 gap-3">
@@ -359,7 +359,7 @@ export default function Login() {
                         "text-sm font-bold",
                         accountType === "client"
                           ? "text-brand-purple dark:text-brand-purple-lighter"
-                          : "text-card-foreground dark:text-muted-foreground/60",
+                          : "text-card-foreground dark:text-foreground",
                       )}
                     >
                       {t("Client")}
@@ -394,7 +394,7 @@ export default function Login() {
                         "text-sm font-bold",
                         accountType === "pro_worker"
                           ? "text-brand-purple dark:text-brand-purple-lighter"
-                          : "text-card-foreground dark:text-muted-foreground/60",
+                          : "text-card-foreground dark:text-foreground",
                       )}
                     >
                       {t("Worker")}
@@ -414,7 +414,7 @@ export default function Login() {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading || !configured}
-                className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-card-foreground shadow-sm transition-all hover:bg-muted/50 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed dark:border-white/10 dark:bg-background dark:text-muted-foreground/60 dark:hover:bg-white/5"
+                className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-card-foreground shadow-sm transition-all hover:bg-muted/50 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed dark:border-white/10 dark:bg-background dark:text-foreground dark:hover:bg-white/5"
               >
                 <GoogleIcon />
                 {googleLoading ? "Connecting..." : "Continue with Google"}
@@ -430,7 +430,7 @@ export default function Login() {
           )}
           <form onSubmit={onSubmit} className="space-y-4" noValidate>
             <label className="block">
-              <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+              <span className="block text-sm font-semibold text-card-foreground dark:text-foreground">
                 {t("Email")}
               </span>
               <div className="relative mt-1.5">
@@ -448,7 +448,7 @@ export default function Login() {
             </label>
             {mode !== "reset" && (
               <label className="block">
-                <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+                <span className="block text-sm font-semibold text-card-foreground dark:text-foreground">
                   {t("Password")}
                 </span>
                 <div className="relative mt-1.5">
@@ -458,7 +458,7 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="input-field pl-9"
-                    placeholder="--------"
+                    placeholder="Enter your password"
                     autoComplete={
                       mode === "signin" ? "current-password" : "new-password"
                     }
