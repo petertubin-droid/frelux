@@ -20,6 +20,7 @@ import {
   calculateFasciaLength,
 } from "./build-to-roof-engine";
 import { voltageDropPercent } from "./electrical-engine";
+import { calculatePlumbing } from "./plumbing-engine";
 import {
   tilesRequired,
   cartonsFromTileCount,
@@ -192,5 +193,70 @@ describe("electrical voltage drop", () => {
     expect(v.drop_percent).toBeCloseTo(3.9, 1);
     expect(v.limit_percent).toBe(3);
     expect(v.passes).toBe(false);
+  });
+});
+
+describe("plumbing material takeoff", () => {
+  const rules = {
+    pipe_waste_pct: 5,
+    elbow_per_fixture: 2,
+    tee_per_fixture: null,
+    reducer_per_fixture: null,
+    union_per_fixture: null,
+    valve_per_tap: 1,
+  } as never;
+  const prices = {
+    "plumb-pipe-cold": 1200,
+    "plumb-pipe-hot": 1500,
+    "plumb-pipe-waste": 900,
+    "plumb-pipe-drainage": 2000,
+    "plumb-elbow": 300,
+    "plumb-valve": 2500,
+  } as never;
+  const input = {
+    taps: 3,
+    wcs: 2,
+    showers: 1,
+    sinks: 1,
+    floor_drains: 1,
+    water_storage_tanks: 0,
+    pumps: 0,
+    cold_run_m: 40,
+    hot_run_m: 20,
+    waste_run_m: 15,
+    drainage_run_m: 25,
+    labour: { mode: "none" },
+  } as never;
+
+  // 40 x 1.05 = 42 m cold, 20 x 1.05 = 21 m hot, plus 5% on waste and drainage
+  // with whole-metre purchase rounding: 15.75 -> 16, 26.25 -> 27.
+  it("applies pipe waste and rounds purchases up to whole metres", () => {
+    const r = calculatePlumbing(input, rules, prices);
+    const qty = (slug: string) =>
+      r.lines.find((l: never) => (l as { material_slug?: string }).material_slug === slug) as
+        | { quantity: number }
+        | undefined;
+    expect(qty("plumb-pipe-cold")?.quantity).toBe(42);
+    expect(qty("plumb-pipe-hot")?.quantity).toBe(21);
+    expect(qty("plumb-pipe-waste")?.quantity).toBe(16);
+    expect(qty("plumb-pipe-drainage")?.quantity).toBe(27);
+  });
+
+  // 8 fixtures x 2 elbows = 16; one valve per tap = 3.
+  it("counts fittings from the configured rules", () => {
+    const r = calculatePlumbing(input, rules, prices);
+    const qty = (slug: string) =>
+      r.lines.find((l: never) => (l as { material_slug?: string }).material_slug === slug) as
+        | { quantity: number }
+        | undefined;
+    expect(qty("plumb-elbow")?.quantity).toBe(16);
+    expect(qty("plumb-valve")?.quantity).toBe(3);
+  });
+
+  it("leaves the total null rather than guessing a missing price", () => {
+    const r = calculatePlumbing(input, rules, { "plumb-pipe-cold": 1200 } as never);
+    expect(r.material_subtotal).toBeNull();
+    expect(r.grand_total).toBeNull();
+    expect(r.incomplete).toBe(true);
   });
 });
