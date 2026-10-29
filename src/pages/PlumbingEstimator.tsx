@@ -622,7 +622,7 @@ export default function PlumbingEstimator() {
               >
                 Export quote (PDF)
               </button>
-              <QuoteShareButton build={buildQuote} kind="FRELUX Plumbing Estimate" link="/plumbing" />
+              <QuoteShareButton build={buildQuote} kind="Plumbing Estimate" link="/plumbing" />
               <SaveToProjectButton
                 calculatorType="plumbing"
                 calculatorSlug="plumbing-estimator"

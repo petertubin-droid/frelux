@@ -524,7 +524,7 @@ export default function DoorsWindowsEstimator() {
               >
                 Export quote (PDF)
               </button>
-              <QuoteShareButton build={buildQuote} kind="FRELUX Doors & Windows Estimate" link="/doors-windows" />
+              <QuoteShareButton build={buildQuote} kind="Doors & Windows Estimate" link="/doors-windows" />
               <button
                 onClick={exportToDocumentStudio}
                 className="rounded-md border px-4 py-2 text-sm font-medium"

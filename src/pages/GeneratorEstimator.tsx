@@ -437,7 +437,7 @@ export default function GeneratorEstimator() {
               >
                 Export quote (PDF)
               </button>
-              <QuoteShareButton build={buildQuote} kind="FRELUX Backup Power Estimate" link="/generator" />
+              <QuoteShareButton build={buildQuote} kind="Backup Power Estimate" link="/generator" />
               <SaveToProjectButton
                 calculatorType="generator"
                 calculatorSlug="generator-estimator"

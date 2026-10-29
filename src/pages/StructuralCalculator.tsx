@@ -1,5 +1,6 @@
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
-import { printQuote } from "@/lib/estimation/quote-export";
+import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useState, useCallback, useEffect, useMemo, useId } from "react";
 import { useSeo } from "@/lib/seo";
 import {
@@ -298,6 +299,58 @@ export function ConcreteTakeoffCalculator() {
     setErrors(response.errors);
     setResult(response.data);
   };
+  const buildConcreteQuote = (): QuoteOptions | null => {
+    if (!result) return null;
+    const lines: QuoteOptions["lines"] = [
+      {
+        label: `Wet ${result.elementType} volume`,
+        quantity: `${result.concreteVolumeM3.toFixed(3)} m³`,
+      },
+      {
+        label: "Wet volume with allowance",
+        quantity: `${result.volumeWithWasteM3.toFixed(3)} m³`,
+      },
+      {
+        label: "Cement",
+        quantity: `${result.cementBagsToBuy} whole ${bagMass} kg bags`,
+      },
+      { label: "Sand", quantity: `${result.sandM3.toFixed(3)} m³` },
+      {
+        label: "Coarse aggregate",
+        quantity: `${result.aggregateM3.toFixed(3)} m³`,
+      },
+      {
+        label: "Rebar weight",
+        quantity:
+          result.rebarWeightKg === null
+            ? "Not calculated: add an engineer's schedule"
+            : `${result.rebarWeightKg.toFixed(2)} kg`,
+      },
+      ...result.rebarGroups.map((group) => ({
+        label: `Rebar ${group.label || "group"} Ø${group.diameterMm}mm ×${group.count}`,
+        quantity: `${group.totalLengthM.toFixed(2)} m · ${group.weightKg.toFixed(1)} kg`,
+      })),
+    ];
+    return {
+      title: `Concrete ${result.elementType} takeoff`,
+      subtitle: `Mix ${result.mixParts.join(":")} · ${result.cementBagsToBuy} bags of ${bagMass} kg cement`,
+      metaRows: [
+        ["Element", result.elementType],
+        ["Mix ratio", result.mixParts.join(":")],
+        ["Cement bag mass", `${bagMass} kg`],
+      ],
+      lines,
+      totals: [],
+      warnings: result.assumptions.slice(0, 6),
+      footer:
+        "Quantity estimating only. Rectangular dimensions, concrete mix and reinforcement must match the project specification and qualified engineer's design.",
+    };
+  };
+  const exportConcretePdf = () => {
+    const quote = buildConcreteQuote();
+    if (!quote) return;
+    printQuote(quote, "frelux-concrete-takeoff.html");
+  };
   const field = (
     label: string,
     value: string,
@@ -525,6 +578,16 @@ export function ConcreteTakeoffCalculator() {
               <li key={note}>• {note}</li>
             ))}
           </ul>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={exportConcretePdf} className="btn-secondary text-sm">
+              Export quote (PDF)
+            </button>
+            <QuoteShareButton
+              build={buildConcreteQuote}
+              kind="Concrete Takeoff"
+              link="/concrete-takeoff-calculator"
+            />
+          </div>
           <p className="mt-4 rounded-xl border border-amber-500/30 bg-amber-50/50 p-3 text-xs text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
             Quantity estimating only. Rectangular dimensions, concrete mix and
             reinforcement must match the project specification and qualified

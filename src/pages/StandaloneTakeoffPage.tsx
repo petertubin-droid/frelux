@@ -751,7 +751,7 @@ export default function StandaloneTakeoffPage({
                   </Button>
                   <QuoteShareButton
                     build={buildTakeoffQuote}
-                    kind={`FRELUX ${title} Takeoff`}
+                    kind={`${title} Takeoff`}
                     link={currentPath}
                   />
                 </div>

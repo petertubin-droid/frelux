@@ -516,7 +516,7 @@ export default function ReinforcementEstimator() {
               >
                 Export quote (PDF)
               </button>
-              <QuoteShareButton build={buildQuote} kind="FRELUX Rebar Estimate" link="/reinforcement" />
+              <QuoteShareButton build={buildQuote} kind="Rebar Estimate" link="/reinforcement" />
               <SaveToProjectButton
                 calculatorType="reinforcement"
                 calculatorSlug="reinforcement-estimator"

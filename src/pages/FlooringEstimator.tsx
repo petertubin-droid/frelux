@@ -470,7 +470,7 @@ export default function FlooringEstimator() {
               >
                 Export quote (PDF)
               </button>
-              <QuoteShareButton build={buildQuote} kind="FRELUX Flooring Estimate" link="/flooring" />
+              <QuoteShareButton build={buildQuote} kind="Flooring Estimate" link="/flooring" />
               <button
                 onClick={exportToDocumentStudio}
                 className="rounded-md border px-4 py-2 text-sm font-medium"

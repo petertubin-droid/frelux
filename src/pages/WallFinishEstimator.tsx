@@ -1070,7 +1070,7 @@ export default function WallFinishEstimator() {
                 </button>
                 <QuoteShareButton
                   build={buildShareQuote}
-                  kind="FRELUX Wall Finishing Estimate"
+                  kind="Wall Finishing Estimate"
                   link="/wall-finish-estimator"
                 />
                 <button

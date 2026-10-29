@@ -642,7 +642,7 @@ export default function ElectricalEstimator() {
               >
                 Export quote (PDF)
               </button>
-              <QuoteShareButton build={buildQuote} kind="FRELUX Electrical Estimate" link="/electrical" />
+              <QuoteShareButton build={buildQuote} kind="Electrical Estimate" link="/electrical" />
               <SaveToProjectButton
                 calculatorType="electrical"
                 calculatorSlug="electrical-estimator"

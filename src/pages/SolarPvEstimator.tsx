@@ -610,7 +610,7 @@ export default function SolarPvEstimator() {
               >
                 Export quote (PDF)
               </button>
-              <QuoteShareButton build={buildQuote} kind="FRELUX Solar/PV Installation Estimate" link="/solar-pv-estimator" />
+              <QuoteShareButton build={buildQuote} kind="Solar/PV Installation Estimate" link="/solar-pv-estimator" />
               <SaveToProjectButton
                 calculatorType="cost"
                 calculatorSlug="solar-pv-estimator"

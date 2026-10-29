@@ -475,7 +475,7 @@ export default function FoundationEstimator() {
               >
                 Export quote (PDF)
               </button>
-              <QuoteShareButton build={buildQuote} kind="FRELUX Foundation Estimate" link="/foundation" />
+              <QuoteShareButton build={buildQuote} kind="Foundation Estimate" link="/foundation" />
               <button
                 onClick={exportToDocumentStudio}
                 className="rounded-md border px-4 py-2 text-sm font-medium"
