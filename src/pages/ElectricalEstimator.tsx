@@ -35,6 +35,8 @@ import { CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
+import { shareableFromQuote } from "@/lib/estimate-share-adapter";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import {
   ELECTRICAL_MATERIAL_SLUGS,
   calculateElectrical,
@@ -279,65 +281,78 @@ export default function ElectricalEstimator() {
   }, [input, rules, priceMap]);
 
   // Printable professional quote, worldwide-currency formatted.
-  const exportQuote = () => {
-    if (!result?.ok) return;
-    printQuote(
+  const buildQuote = (): Parameters<typeof printQuote>[0] | null => {
+    if (!result?.ok) return null;
+    return {
+    title: "FRELUX Electrical Estimate",
+    subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
+    metaRows: result.steps.map(
+      (st) => [st.label, st.detail] as [string, string],
+    ),
+    lines: result.lines.map((l) => ({
+      label: l.label,
+      quantity:
+        l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
+      unit: l.unit,
+      unit_price:
+        l.unit_price === null
+          ? "unpriced"
+          : formatCurrency(l.unit_price, currencySymbol),
+      line_total:
+        l.line_total === null
+          ? "N/A"
+          : formatCurrency(l.line_total, currencySymbol),
+      detail: l.detail,
+    })),
+    totals: [
       {
-        title: "FRELUX Electrical Estimate",
-        subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
-        metaRows: result.steps.map(
-          (st) => [st.label, st.detail] as [string, string],
-        ),
-        lines: result.lines.map((l) => ({
-          label: l.label,
-          quantity:
-            l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
-          unit: l.unit,
-          unit_price:
-            l.unit_price === null
-              ? "unpriced"
-              : formatCurrency(l.unit_price, currencySymbol),
-          line_total:
-            l.line_total === null
-              ? "N/A"
-              : formatCurrency(l.line_total, currencySymbol),
-          detail: l.detail,
-        })),
-        totals: [
-          {
-            label: "Material subtotal",
-            value:
-              result.material_subtotal === null
-                ? "(prices/inputs missing)"
-                : formatCurrency(result.material_subtotal, currencySymbol),
-          },
-          {
-            label: "Priced so far",
-            value: formatCurrency(result.priced_subtotal, currencySymbol),
-          },
-          {
-            label: "Labour",
-            value:
-              labourMode === "none"
-                ? "Not included"
-                : formatCurrency(result.labour_total, currencySymbol),
-          },
-          {
-            label: "Grand total",
-            value:
-              result.grand_total === null
-                ? "N/A"
-                : formatCurrency(result.grand_total, currencySymbol),
-            strong: true,
-          },
-        ],
-        warnings: result.warnings,
-        footer:
-          "Estimates are indicative and not a formal quote. Quantities are sized from your points, circuits and runs; unpriced items are reported, never invented.",
+        label: "Material subtotal",
+        value:
+          result.material_subtotal === null
+            ? "(prices/inputs missing)"
+            : formatCurrency(result.material_subtotal, currencySymbol),
       },
-      "frelux-electrical-estimate.html",
-    );
+      {
+        label: "Priced so far",
+        value: formatCurrency(result.priced_subtotal, currencySymbol),
+      },
+      {
+        label: "Labour",
+        value:
+          labourMode === "none"
+            ? "Not included"
+            : formatCurrency(result.labour_total, currencySymbol),
+      },
+      {
+        label: "Grand total",
+        value:
+          result.grand_total === null
+            ? "N/A"
+            : formatCurrency(result.grand_total, currencySymbol),
+        strong: true,
+      },
+    ],
+    warnings: result.warnings,
+    footer:
+      "Estimates are indicative and not a formal quote. Quantities are sized from your points, circuits and runs; unpriced items are reported, never invented.",
   };
+  };
+
+  const exportQuote = () => {
+    const quote = buildQuote();
+    if (!quote) return;
+    printQuote(quote, "frelux-electrical-estimate.html");
+  };
+
+  const shareable = useMemo(
+    () =>
+      shareableFromQuote(buildQuote(), {
+        kind: "FRELUX Electrical Estimate",
+        link: "/electrical",
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [result, labourMode, currencySymbol],
+  );
 
   const save = useCallback(async () => {
     if (!result || !result.ok || saving) return;
@@ -636,6 +651,7 @@ export default function ElectricalEstimator() {
               >
                 Export quote (PDF)
               </button>
+              <ShareEstimateButton estimate={shareable} compact />
               <SaveToProjectButton
                 calculatorType="electrical"
                 calculatorSlug="electrical-estimator"

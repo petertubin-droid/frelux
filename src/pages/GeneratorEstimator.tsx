@@ -34,6 +34,8 @@ import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
+import { shareableFromQuote } from "@/lib/estimate-share-adapter";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import {
   calculateGenerator,
   parseGeneratorRules,
@@ -63,7 +65,7 @@ export default function GeneratorEstimator() {
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
-    { name: "Doors & Windows Estimator", path: "/generator" },
+    { name: "Generator & Power Backup Estimator", path: "/generator" },
   ]);
   const { user } = useAuth();
   const { marketCode, market } = useMarket();
@@ -161,65 +163,78 @@ export default function GeneratorEstimator() {
   }, [input, rules, priceMap]);
 
   // Printable professional quote, worldwide-currency formatted.
-  const exportQuote = () => {
-    if (!result?.ok) return;
-    printQuote(
+  const buildQuote = (): Parameters<typeof printQuote>[0] | null => {
+    if (!result?.ok) return null;
+    return {
+    title: "FRELUX Backup Power Estimate",
+    subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
+    metaRows: result.steps.map(
+      (st) => [st.label, st.detail] as [string, string],
+    ),
+    lines: result.lines.map((l) => ({
+      label: l.label,
+      quantity:
+        l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
+      unit: l.unit,
+      unit_price:
+        l.unit_price === null
+          ? "unpriced"
+          : formatCurrency(l.unit_price, currencySymbol),
+      line_total:
+        l.line_total === null
+          ? "N/A"
+          : formatCurrency(l.line_total, currencySymbol),
+      detail: l.detail,
+    })),
+    totals: [
       {
-        title: "FRELUX Backup Power Estimate",
-        subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
-        metaRows: result.steps.map(
-          (st) => [st.label, st.detail] as [string, string],
-        ),
-        lines: result.lines.map((l) => ({
-          label: l.label,
-          quantity:
-            l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
-          unit: l.unit,
-          unit_price:
-            l.unit_price === null
-              ? "unpriced"
-              : formatCurrency(l.unit_price, currencySymbol),
-          line_total:
-            l.line_total === null
-              ? "N/A"
-              : formatCurrency(l.line_total, currencySymbol),
-          detail: l.detail,
-        })),
-        totals: [
-          {
-            label: "Material subtotal",
-            value:
-              result.material_subtotal === null
-                ? "(prices/inputs missing)"
-                : formatCurrency(result.material_subtotal, currencySymbol),
-          },
-          {
-            label: "Priced so far",
-            value: formatCurrency(result.priced_subtotal, currencySymbol),
-          },
-          {
-            label: "Labour",
-            value:
-              labourMode === "none"
-                ? "Not included"
-                : formatCurrency(result.labour_total, currencySymbol),
-          },
-          {
-            label: "Grand total",
-            value:
-              result.grand_total === null
-                ? "N/A"
-                : formatCurrency(result.grand_total, currencySymbol),
-            strong: true,
-          },
-        ],
-        warnings: result.warnings,
-        footer:
-          "Estimates are indicative and not a formal quote. Quantities are sized from your inputs; unpriced items are reported, never invented.",
+        label: "Material subtotal",
+        value:
+          result.material_subtotal === null
+            ? "(prices/inputs missing)"
+            : formatCurrency(result.material_subtotal, currencySymbol),
       },
-      "frelux-generator-estimate.html",
-    );
+      {
+        label: "Priced so far",
+        value: formatCurrency(result.priced_subtotal, currencySymbol),
+      },
+      {
+        label: "Labour",
+        value:
+          labourMode === "none"
+            ? "Not included"
+            : formatCurrency(result.labour_total, currencySymbol),
+      },
+      {
+        label: "Grand total",
+        value:
+          result.grand_total === null
+            ? "N/A"
+            : formatCurrency(result.grand_total, currencySymbol),
+        strong: true,
+      },
+    ],
+    warnings: result.warnings,
+    footer:
+      "Estimates are indicative and not a formal quote. Quantities are sized from your inputs; unpriced items are reported, never invented.",
   };
+  };
+
+  const exportQuote = () => {
+    const quote = buildQuote();
+    if (!quote) return;
+    printQuote(quote, "frelux-generator-estimate.html");
+  };
+
+  const shareable = useMemo(
+    () =>
+      shareableFromQuote(buildQuote(), {
+        kind: "FRELUX Backup Power Estimate",
+        link: "/generator",
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [result, currencySymbol],
+  );
 
   const save = useCallback(async () => {
     if (!result || !result.ok || saving) return;
@@ -320,9 +335,9 @@ export default function GeneratorEstimator() {
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Construction Tools", path: "/construction-tools" },
-          { label: "Doors & Windows Estimator" },
+          { label: "Generator & Power Backup Estimator" },
         ]}
-        title="Doors & Windows Estimator"
+        title="Generator & Power Backup Estimator"
         subtitle="Choose your generator bracket from your own load assessment and give the measured cable run. The engine lists generator units, ATS, battery and cable with waste visible, and prices from the shared material database. It never sizes the generator: estimation only, not an installation design."
       />
 
@@ -431,6 +446,7 @@ export default function GeneratorEstimator() {
               >
                 Export quote (PDF)
               </button>
+              <ShareEstimateButton estimate={shareable} compact />
               <SaveToProjectButton
                 calculatorType="generator"
                 calculatorSlug="generator-estimator"
