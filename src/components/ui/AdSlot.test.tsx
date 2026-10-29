@@ -1444,10 +1444,12 @@ describe("empty slots stay silent (owner report 2026-10-29)", () => {
 
   it("prints no Advertisement label while the slot is empty", async () => {
     const { container } = await mountWithAds();
-    await waitFor(() =>
-      expect(container.querySelector(".frelux-ad-unit")).toBeTruthy(),
-    );
+    // Whether the slot renders nothing or an unfilled container, the label
+    // must never appear on its own.
+    const adConfig = await import("@/lib/ad-config");
+    await waitFor(() => expect(adConfig.fetchAdConfig).toHaveBeenCalled());
     expect(container.textContent).not.toContain("Advertisement");
+    expect(container.querySelector(".ad-label-subtle")).toBeNull();
     expect(container.querySelector('[data-ad-filled="true"]')).toBeNull();
   });
 
