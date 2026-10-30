@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import ResultCard from "@/components/ui/ResultCard";
 
 const defaultProps = {
@@ -104,5 +104,57 @@ describe("ResultCard", () => {
       />,
     );
     expect(screen.queryByText("12×12 room, 2 coats")).toBeNull();
+  });
+
+  it("copies the visible stats and total, with units and a source link", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("navigator", { clipboard: { writeText } });
+
+    render(
+      <ResultCard
+        title="Tile estimate"
+        subtitle="Living room"
+        stats={[
+          { label: "Tiles required", value: "60 boxes" },
+          { label: "Adhesive", value: "4 bags (20 kg)" },
+        ]}
+        grandTotal={185000}
+        currencySymbol="₦"
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /copy these results/i }),
+    );
+
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    const copied = writeText.mock.calls[0][0] as string;
+    expect(copied).toContain("Tile estimate");
+    expect(copied).toContain("Tiles required: 60 boxes");
+    expect(copied).toContain("Adhesive: 4 bags (20 kg)");
+    expect(copied).toContain("Grand total: ₦185,000");
+    expect(await screen.findByText(/copied to clipboard/i)).toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("says so plainly when the browser cannot copy", async () => {
+    vi.stubGlobal("navigator", {});
+
+    render(
+      <ResultCard
+        title="Concrete"
+        stats={[{ label: "Volume", value: "1.2 m³" }]}
+        grandTotal={0}
+        currencySymbol="₦"
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /copy these results/i }),
+    );
+    expect(
+      await screen.findByText(/not available in this browser/i),
+    ).toBeInTheDocument();
+    vi.unstubAllGlobals();
   });
 });
