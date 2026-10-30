@@ -123,19 +123,28 @@ banks while accepting international cards and 30+ currencies.
 The `send-email` edge function sends transactional email through
 Resend. It is live and the `RESEND_API_KEY` Supabase secret is set.
 
-Setup remaining (one-time, in the Resend dashboard / DNS provider):
+Verified working 2026-10-30 (live project `nfgaaohweygwydoelxnf`):
 
-1. `freluxtools.com` was added as a Resend domain (id
-   3ff088ce-5a38-459b-97d2-ef9bccbcf112). Add the shown DNS records
-   (2x SPF TXT on `send`/`rsend`, DKIM TXT on
-   `resend._domainkey`) at the DNS provider, then verify the domain
-   in Resend. Until verified, Resend rejects the sender and the
-   function returns sent:false (the contact form is unaffected).
-2. Optional admin inbox for contact notifications:
-   `supabase secrets set CONTACT_NOTIFY_EMAIL=...`
+1. `freluxtools.com` is a verified Resend domain (id
+   3ff088ce-5a38-459b-97d2-ef9bccbcf112). The DNS records are published:
+   DKIM `p=` TXT on `resend._domainkey`, SPF `include:amazonses.com` on
+   `send`, and `v=DMARC1; p=none` on `_dmarc`. A real send through
+   `send-email` returned `{"sent":true,"detail":{"visitor":true}}`, so
+   Resend accepts mail from `noreply@freluxtools.com`. Any `sent:false`
+   now means a Resend-side problem, not a missing DNS record.
+2. Still unset: `CONTACT_NOTIFY_EMAIL`, so admin notifications are
+   skipped (`detail.admin` stays false). `OWNER_NOTIFY_EMAIL` and the
+   Termii variables used by `signup-digest` are unset too, so those
+   digests have no recipient until they are configured.
 3. Sending is best-effort and rate limited (5/min/IP). Recipients are
    derived from stored rows only; the admin panel stays the source
    of truth for contact messages.
+4. `send-welcome-email`, `subscribe-newsletter`, `signup-digest`,
+   `price-digest` and `workflow-notify` all use the same
+   `RESEND_API_KEY`, which resolves (env first, then
+   `integration_secrets` provider `resend`). There is no Resend
+   delivery webhook yet, so bounces and complaints are only visible in
+   the Resend dashboard.
 
 ## Learn article publication policy (owner directive, Oct 17 2026)
 
@@ -157,7 +166,7 @@ Recipe for a new series (replace `US` with the market code):
    least one accepted citation first).
 4. Approve + publish the articles:
    `status='published', editorial_review_status='approved',
-   author='petertubin', published_at=now()`.
+author='petertubin', published_at=now()`.
 
 The publication guard (`guard_wall_finishing_article_publication`)
 blocks `status='published'` on wall-finishing articles without recorded
