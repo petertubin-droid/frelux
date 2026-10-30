@@ -4,8 +4,9 @@ import { ArrowRight, Crosshair, MapPin } from "lucide-react";
 import { classNames } from "@/lib/utils";
 import { useLocation } from "@/lib/location";
 import { GlobeMap } from "@/components/map/GlobeMap";
-import { formatDistanceKm, haversineKm, type MapPoint } from "@/lib/map/geo";
+import { formatDistanceKm, haversineKm } from "@/lib/map/geo";
 import {
+  LAYER_COLOR,
   MAP_LAYER_META,
   useMapLayerPoints,
   type MapLayer,
@@ -97,12 +98,17 @@ export function MapPanel({
               onClick={() => setActiveLayer(layer)}
               aria-pressed={layer === activeLayer}
               className={classNames(
-                "rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
+                "inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
                 layer === activeLayer
                   ? "bg-primary/10 text-primary ring-1 ring-inset ring-primary/25"
                   : "text-muted-foreground hover:bg-muted/60 hover:text-foreground dark:hover:bg-white/5",
               )}
             >
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ background: LAYER_COLOR[layer] }}
+                aria-hidden="true"
+              />
               {MAP_LAYER_META[layer].label}
             </button>
           ))}

@@ -1903,147 +1903,464 @@ h2 {
 
 /* =========================================================
    FRELUX MAP
-   Globe markers and MapLibre controls, styled to match the
-   premium surface language (glass, hairline borders, depth).
+   One design language across the globe: glass chrome, a
+   compass dial, soft-shadowed pins and a themed record card.
    ========================================================= */
-.frelux-map-pin {
+.frelux-map canvas {
+  outline: none;
+}
+
+/* Depth wash so pins and chrome stay legible over imagery. */
+.frelux-map__vignette {
+  background: radial-gradient(
+    120% 90% at 50% 40%,
+    transparent 55%,
+    hsl(var(--background) / 0.22) 100%
+  );
+}
+
+.frelux-map__fade-top {
+  background: linear-gradient(
+    to bottom,
+    hsl(var(--background) / 0.55),
+    transparent
+  );
+}
+
+.frelux-map__fade-bottom {
+  background: linear-gradient(
+    to top,
+    hsl(var(--background) / 0.72),
+    transparent
+  );
+}
+
+/* Glass pill used for the live readout. */
+.frelux-map__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border) / 0.55);
+  background: hsl(var(--card) / 0.72);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  box-shadow: 0 10px 26px -20px rgba(16, 12, 40, 0.65);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+
+.frelux-map__live {
   position: relative;
-  width: 20px;
-  height: 20px;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.16);
+}
+
+.frelux-map__live::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--primary) / 0.5);
+  animation: frelux-live 2.8s ease-out infinite;
+}
+
+@keyframes frelux-live {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.85;
+  }
+  75% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Compass dial: a real instrument, not a map widget. */
+.frelux-map__dial {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: radial-gradient(
+    circle at 50% 28%,
+    hsl(var(--card) / 0.95),
+    hsl(var(--card) / 0.62)
+  );
+  box-shadow:
+    0 14px 34px -24px rgba(16, 12, 40, 0.85),
+    inset 0 1px 0 hsl(0 0% 100% / 0.4);
+  backdrop-filter: blur(16px) saturate(150%);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease;
+}
+
+.frelux-map__dial:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 18px 40px -24px rgba(16, 12, 40, 0.9),
+    inset 0 1px 0 hsl(0 0% 100% / 0.45);
+}
+
+.frelux-map__dial:active {
+  transform: scale(0.96);
+}
+
+.frelux-map__dial:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.frelux-map__needle {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transition: transform 0.18s linear;
+}
+
+.frelux-map__needle-north,
+.frelux-map__needle-south {
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 0;
+  translate: -50% 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+
+.frelux-map__needle-north {
+  top: 8px;
+  border-bottom: 13px solid hsl(var(--primary));
+}
+
+.frelux-map__needle-south {
+  bottom: 8px;
+  border-top: 11px solid hsl(var(--muted-foreground) / 0.42);
+}
+
+.frelux-map__dial-letter {
+  position: relative;
+  z-index: 1;
+  margin-top: 3px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: hsl(var(--foreground) / 0.55);
+}
+
+.frelux-map__tilt {
+  position: absolute;
+  bottom: -7px;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--card) / 0.9);
+  padding: 0 5px;
+  font-size: 9px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--muted-foreground));
+  backdrop-filter: blur(8px);
+}
+
+.frelux-map__keys {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid hsl(var(--border) / 0.55);
+  background: hsl(var(--card) / 0.72);
+  box-shadow: 0 12px 30px -22px rgba(16, 12, 40, 0.7);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+
+.frelux-map__key {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 32px;
+  color: hsl(var(--foreground) / 0.8);
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.frelux-map__key:hover {
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+}
+
+.frelux-map__key:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: -2px;
+}
+
+.frelux-map__key-divider {
+  height: 1px;
+  background: hsl(var(--border) / 0.5);
+}
+
+/* Pins: a teardrop with a halo, label on hover or focus. */
+.frelux-pin {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 22px;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
+  --pin: hsl(var(--primary));
 }
 
-.frelux-map-pin__dot {
+.frelux-pin--pro {
+  --pin: #7c5cff;
+}
+
+.frelux-pin--job {
+  --pin: #0ea5e9;
+}
+
+.frelux-pin--material {
+  --pin: #f59e0b;
+}
+
+.frelux-pin--you {
+  --pin: #10b981;
+}
+
+.frelux-pin__halo {
   position: absolute;
-  inset: 5px;
+  inset: -6px;
   border-radius: 9999px;
-  background: hsl(var(--primary));
-  box-shadow:
-    0 0 0 2px hsl(var(--background)),
-    0 8px 18px -6px hsl(var(--primary) / 0.85);
-  transition: transform 0.2s ease;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--pin) 30%, transparent) 0%,
+    transparent 70%
+  );
+  opacity: 0.55;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 
-.frelux-map-pin__pulse {
+.frelux-pin:hover .frelux-pin__halo,
+.frelux-pin.is-active .frelux-pin__halo {
+  opacity: 0.95;
+  transform: scale(1.25);
+}
+
+.frelux-pin__core {
   position: absolute;
-  inset: 1px;
+  inset: 3px;
   border-radius: 9999px;
-  border: 2px solid hsl(var(--primary) / 0.4);
-  animation: frelux-pin-pulse 2.6s ease-out infinite;
+  background: var(--pin);
+  border: 2px solid hsl(var(--background));
+  box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--pin) 75%, transparent);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.frelux-map-pin--job .frelux-map-pin__dot {
-  background: #0ea5e9;
-  box-shadow:
-    0 0 0 2px hsl(var(--background)),
-    0 8px 18px -6px rgba(14, 165, 233, 0.85);
-}
-.frelux-map-pin--job .frelux-map-pin__pulse {
-  border-color: rgba(14, 165, 233, 0.4);
+.frelux-pin:hover .frelux-pin__core,
+.frelux-pin.is-active .frelux-pin__core {
+  transform: scale(1.15);
 }
 
-.frelux-map-pin--material .frelux-map-pin__dot {
-  background: #f59e0b;
-  box-shadow:
-    0 0 0 2px hsl(var(--background)),
-    0 8px 18px -6px rgba(245, 158, 11, 0.85);
-}
-.frelux-map-pin--material .frelux-map-pin__pulse {
-  border-color: rgba(245, 158, 11, 0.4);
-}
-
-.frelux-map-pin:hover .frelux-map-pin__dot,
-.frelux-map-pin.is-active .frelux-map-pin__dot {
-  transform: scale(1.35);
+.frelux-pin__glyph {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: hsl(0 0% 100% / 0.92);
 }
 
-@keyframes frelux-pin-pulse {
-  0% {
-    transform: scale(0.6);
-    opacity: 0.9;
-  }
-  70% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
-}
-
-.frelux-map-pin .maplibregl-ctrl {
-  display: none;
-}
-
-/* Controls: glass groups instead of MapLibre's default white cards. */
-.frelux-map-surface .maplibregl-ctrl-group {
-  border-radius: 12px;
-  border: 1px solid hsl(var(--border) / 0.6);
-  background: hsl(var(--card) / 0.85);
-  box-shadow: 0 10px 28px -18px rgba(16, 12, 40, 0.5);
-  backdrop-filter: blur(14px);
+.frelux-pin__label {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  translate: -50% 4px;
+  max-width: 168px;
   overflow: hidden;
-}
-
-.frelux-map-surface .maplibregl-ctrl-group button {
-  width: 32px;
-  height: 32px;
-  background: transparent;
-}
-
-.frelux-map-surface .maplibregl-ctrl-group button + button {
-  border-top: 1px solid hsl(var(--border) / 0.5);
-}
-
-.frelux-map-surface .maplibregl-ctrl-group button:hover {
-  background: hsl(var(--muted) / 0.7);
-}
-
-.frelux-map-surface .maplibregl-ctrl button .maplibregl-ctrl-icon {
-  filter: none;
-  opacity: 0.75;
-}
-
-.frelux-map-surface .maplibregl-ctrl-attrib {
-  border-radius: 10px 0 0 0;
-  background: hsl(var(--card) / 0.8);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 8px;
+  border: 1px solid hsl(var(--border) / 0.55);
+  background: hsl(var(--card) / 0.92);
+  padding: 3px 8px;
+  font-size: 10.5px;
+  font-weight: 650;
+  color: hsl(var(--foreground));
+  box-shadow: 0 10px 24px -16px rgba(16, 12, 40, 0.7);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    translate 0.2s ease;
   backdrop-filter: blur(10px);
-  font-size: 10px;
 }
 
-.frelux-map-surface .maplibregl-popup-content {
+.frelux-pin:hover .frelux-pin__label,
+.frelux-pin:focus-visible .frelux-pin__label {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.frelux-pin.is-active .frelux-pin__label {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.frelux-pin:focus-visible {
+  outline: none;
+}
+
+.frelux-pin:focus-visible .frelux-pin__core {
+  box-shadow:
+    0 0 0 3px hsl(var(--background)),
+    0 0 0 5px hsl(var(--ring));
+}
+
+/* Record card anchored to a pin. */
+.frelux-map__card {
+  position: relative;
   border-radius: 14px;
   border: 1px solid hsl(var(--border) / 0.6);
   background: hsl(var(--card) / 0.96);
-  box-shadow: 0 18px 40px -22px rgba(16, 12, 40, 0.6);
-  backdrop-filter: blur(16px);
   padding: 12px 14px;
+  box-shadow: 0 24px 50px -28px rgba(16, 12, 40, 0.7);
+  backdrop-filter: blur(18px) saturate(150%);
 }
 
-.frelux-map-surface .maplibregl-popup-tip {
-  border-top-color: hsl(var(--card) / 0.96);
+.frelux-map__card::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 9px;
+  height: 9px;
+  translate: -50% 0;
+  rotate: 45deg;
+  border-right: 1px solid hsl(var(--border) / 0.6);
+  border-bottom: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--card) / 0.96);
 }
 
-.dark .frelux-map-surface .maplibregl-ctrl-group,
-.dark .frelux-map-surface .maplibregl-popup-content,
-.dark .frelux-map-surface .maplibregl-ctrl-attrib {
+.frelux-map__card-kind {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.frelux-map__card-close {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  color: hsl(var(--muted-foreground));
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.frelux-map__card-close:hover {
+  background: hsl(var(--muted) / 0.8);
+  color: hsl(var(--foreground));
+}
+
+/* Scale bar and credit line. */
+.frelux-map__scale {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: hsl(var(--foreground) / 0.75);
+  text-shadow: 0 1px 2px hsl(var(--background) / 0.6);
+}
+
+.frelux-map__scale-bar {
+  display: block;
+  height: 5px;
+  border: 1px solid hsl(var(--foreground) / 0.55);
+  border-top: 0;
+  border-radius: 0 0 2px 2px;
+}
+
+.frelux-map__credit {
+  font-size: 9.5px;
+  color: hsl(var(--muted-foreground) / 0.85);
+  text-shadow: 0 1px 2px hsl(var(--background) / 0.6);
+}
+
+.dark .frelux-map__pill,
+.dark .frelux-map__keys,
+.dark .frelux-map__card,
+.dark .frelux-pin__label,
+.dark .frelux-map__dial {
   border-color: rgba(255, 255, 255, 0.1);
-  background: hsl(var(--card) / 0.9);
 }
 
-.dark .frelux-map-surface .maplibregl-popup-tip {
-  border-top-color: hsl(var(--card) / 0.9);
+.dark .frelux-map__vignette {
+  background: radial-gradient(
+    120% 90% at 50% 40%,
+    transparent 50%,
+    rgba(4, 4, 10, 0.55) 100%
+  );
+}
+
+.dark .frelux-map__core,
+.dark .frelux-pin__core {
+  border-color: rgba(8, 8, 14, 0.9);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .frelux-map-pin__pulse {
+  .frelux-map__live::after,
+  .frelux-pin__halo,
+  .frelux-pin__core,
+  .frelux-pin__label,
+  .frelux-map__needle,
+  .frelux-map__dial {
     animation: none;
-  }
-  .frelux-map-pin__dot {
     transition: none;
+  }
+}
+
+/* Gentle entrance so the globe settles into the page. */
+.frelux-map--enter {
+  animation: frelux-map-enter 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes frelux-map-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.994);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frelux-map--enter {
+    animation: none;
   }
 }

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
+  MAP_KIND_COLOR,
   pointsFromJobs,
   pointsFromMaterials,
   pointsFromPros,
   sortByDistance,
+  type MapLayerKind,
   type MapPoint,
 } from "@/lib/map/geo";
 
@@ -32,6 +34,18 @@ export const MAP_LAYER_META: Record<
     empty:
       "No material listing carries a location yet. Sellers appear here when they list stock with pickup or delivery area.",
   },
+};
+
+export const LAYER_KIND: Record<MapLayer, MapLayerKind> = {
+  pros: "pro",
+  jobs: "job",
+  materials: "material",
+};
+
+export const LAYER_COLOR: Record<MapLayer, string> = {
+  pros: MAP_KIND_COLOR.pro,
+  jobs: MAP_KIND_COLOR.job,
+  materials: MAP_KIND_COLOR.material,
 };
 
 interface LayerState {

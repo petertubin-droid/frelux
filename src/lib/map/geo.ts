@@ -9,6 +9,14 @@
 
 export type MapLayerKind = "pro" | "job" | "material" | "you";
 
+/** Pin colour per record kind; the same value drives pins and legends. */
+export const MAP_KIND_COLOR: Record<MapLayerKind, string> = {
+  pro: "#7c5cff",
+  job: "#0ea5e9",
+  material: "#f59e0b",
+  you: "#10b981",
+};
+
 export interface MapPoint {
   id: string;
   lat: number;

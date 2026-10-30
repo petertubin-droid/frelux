@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Crosshair, Loader2, MapPin, Search } from "lucide-react";
+import { Crosshair, Loader2, Search } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { GlobeMap } from "@/components/map/GlobeMap";
 import { classNames } from "@/lib/utils";
 import { useLocation } from "@/lib/location";
 import { formatDistanceKm, haversineKm, type MapPoint } from "@/lib/map/geo";
 import {
+  LAYER_COLOR,
   MAP_LAYER_META,
   useMapLayerPoints,
   type MapLayer,
@@ -86,12 +87,17 @@ export default function ExploreMap() {
               aria-selected={option === layer}
               onClick={() => changeLayer(option)}
               className={classNames(
-                "rounded-xl border px-3.5 py-2 text-sm font-semibold transition-all",
+                "inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-semibold transition-all",
                 option === layer
                   ? "border-primary/30 bg-primary/10 text-primary shadow-[0_8px_20px_-14px_hsl(var(--primary))]"
                   : "border-border/60 bg-card/60 text-muted-foreground backdrop-blur hover:border-primary/25 hover:text-foreground dark:border-white/10 dark:bg-white/5",
               )}
             >
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ background: LAYER_COLOR[option] }}
+                aria-hidden="true"
+              />
               {MAP_LAYER_META[option].label}
             </button>
           ))}
@@ -187,8 +193,9 @@ export default function ExploreMap() {
                         : "hover:bg-muted/50 dark:hover:bg-white/5",
                     )}
                   >
-                    <MapPin
-                      className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                    <span
+                      className="mt-1.5 h-2 w-2 shrink-0 rounded-full ring-2 ring-background"
+                      style={{ background: LAYER_COLOR[layer] }}
                       aria-hidden="true"
                     />
                     <span className="min-w-0 flex-1">
