@@ -132,6 +132,19 @@ export interface Tool {
 }
 
 export const CONSTRUCTION_TOOLS: Tool[] = [
+  {
+    slug: "measurement-converter",
+    title: "Measurement Converter",
+    category: "pro",
+    icon: Ruler,
+    does: "Convert feet, inches, plots, tonnes, litres and bags into the metric units the calculators expect.",
+    enters:
+      "A measurement in whatever unit it arrived in, such as a tape reading in feet and inches.",
+    gets: "The same measurement in metres, square metres, cubic metres or buckets, with the assumptions stated.",
+    to: "/unit-converter",
+    benefit: "Plots · Tonnes · Buckets",
+    navVisible: true,
+  },
   // ---------------------------------------------------------------- finishes
   {
     slug: "paint",
@@ -212,7 +225,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     category: "finishes",
     icon: Footprints,
     does: "Estimate decorative concrete flooring quantities and costs from product coverage, local prices and project measurements.",
-    enters: "Market, floor dimensions, decorative system, product coverage, coats, waste and local prices.",
+    enters:
+      "Market, floor dimensions, decorative system, product coverage, coats, waste and local prices.",
     gets: "Surface area, optional concrete volume, package counts, itemized costs and missing-data warnings.",
     to: "/increte-flooring-calculator",
     benefit: "Stamped · Overlay · Sealer",

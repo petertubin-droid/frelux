@@ -12,6 +12,7 @@ import {
   onConsentChange,
 } from "@/lib/ad-consent";
 import { useCommandPalette } from "@/components/ui/useCommandPalette";
+import ConversionDock from "@/components/convert/ConversionDock";
 import { isOnboardingComplete } from "@/lib/onboarding";
 import { MONETAG_TAG_DOMAIN } from "@/lib/ad-network-formats";
 import { trackVisit } from "@/lib/achievements";
@@ -552,6 +553,7 @@ export default function Layout() {
         <SupportChatWidget />
       </Suspense>
       <Suspense fallback={null}>
+        <ConversionDock />
         <MobileBottomNav />
       </Suspense>
       <Suspense fallback={null}>

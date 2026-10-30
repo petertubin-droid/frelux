@@ -74,6 +74,7 @@ const Learn = lazy(() => import("@/pages/learn/Learn"));
 const MaterialPrices = lazy(() => import("@/pages/MaterialPrices"));
 const Glossary = lazy(() => import("@/pages/Glossary"));
 const Printables = lazy(() => import("@/pages/Printables"));
+const UnitConverter = lazy(() => import("@/pages/UnitConverter"));
 const UserGuide = lazy(() => import("@/pages/UserGuide"));
 const PaintingCalculatorHub = lazy(
   () => import("@/pages/PaintingCalculatorHub"),
@@ -1249,6 +1250,14 @@ export default function App() {
                         }
                       />
 
+                      <Route
+                        path="/unit-converter"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <UnitConverter />
+                          </Suspense>
+                        }
+                      />
                       <Route
                         path="/glossary"
                         element={

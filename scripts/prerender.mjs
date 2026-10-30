@@ -44,6 +44,13 @@ const ogImage = `${SITE_URL}/og-image.png`;
 // ── Route metadata ──────────────────────────────────────────────────
 const routes = [
   {
+    path: '/unit-converter',
+    title: 'Construction Measurement Converter: Feet, Plots, Tonnes and Bags | FRELUX SMART CALC',
+    description: 'Convert feet to metres, inches to millimetres, plots to square metres, tonnes of sand or granite to cubic metres and bags, and paint litres to 4L, 10L and 20L buckets.',
+    priority: '0.8',
+    changefreq: 'monthly',
+  },
+  {
     path: '/',
     title: 'FRELUX SMART CALC: Calculate Materials & Estimate Construction Costs',
     description: 'Know exactly what materials your construction project needs. Free construction calculators for paint, screeding, POP ceiling, tiles, and finishing. Estimate costs with real market prices.',

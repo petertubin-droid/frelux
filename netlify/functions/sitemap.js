@@ -45,6 +45,7 @@ const STATIC_PATHS = [
   "/feedback/",
   "/data-request/",
   "/start-building/",
+  "/unit-converter/",
   "/paint-calculator/",
   "/screeding-calculator/",
   "/pop-ceiling-calculator/",
