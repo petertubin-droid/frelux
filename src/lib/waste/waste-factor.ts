@@ -151,12 +151,33 @@ export interface WasteSettings {
 
 export const WASTE_SETTINGS_KEY = "frelux_waste_settings_v1";
 
+/**
+ * Settings with no per-material overrides. An absent entry means "use the
+ * catalogue recommendation", which is what lets a page keep its own starting
+ * margin until the user actually chooses one.
+ */
 export function defaultWasteSettings(): WasteSettings {
-  const perMaterial: Partial<Record<WasteMaterialKey, number>> = {};
-  WASTE_MATERIALS.forEach((material) => {
-    perMaterial[material.key] = material.defaultPercent;
-  });
-  return { enabled: true, perMaterial };
+  return { enabled: true, perMaterial: {} };
+}
+
+/** The catalogue recommendation for a material. */
+export function materialDefaultPercent(material: WasteMaterialKey): number {
+  return wasteMaterial(material).defaultPercent;
+}
+
+/**
+ * A page's starting margin: the user's own choice if they have made one for
+ * this material, otherwise whatever that page has always used.
+ */
+export function startingWastePercent(
+  settings: WasteSettings,
+  material: WasteMaterialKey,
+  pageFallback: number,
+): number {
+  const stored = settings.perMaterial[material];
+  if (typeof stored === "number" && Number.isFinite(stored))
+    return clampWastePercent(stored);
+  return clampWastePercent(pageFallback);
 }
 
 /** The percentage to use for a material, honouring the enable switch. */
@@ -183,7 +204,7 @@ export function loadWasteSettings(
     const raw = store.getItem(WASTE_SETTINGS_KEY);
     if (!raw) return defaults;
     const parsed = JSON.parse(raw) as Partial<WasteSettings>;
-    const perMaterial = { ...defaults.perMaterial };
+    const perMaterial: Partial<Record<WasteMaterialKey, number>> = {};
     if (parsed.perMaterial && typeof parsed.perMaterial === "object") {
       (Object.keys(parsed.perMaterial) as WasteMaterialKey[]).forEach((key) => {
         const value = parsed.perMaterial?.[key];

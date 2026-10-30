@@ -8,6 +8,7 @@ import {
   presetFor,
   resolveWastePercent,
   saveWasteSettings,
+  startingWastePercent,
   WASTE_MATERIALS,
   WASTE_PRESETS,
   WASTE_SETTINGS_KEY,
@@ -189,8 +190,30 @@ describe("settings persistence", () => {
     expect(loaded.perMaterial.tiles).toBe(20);
   });
 
+  it("stores only the materials a visitor actually changed", () => {
+    const storage = memoryStorage();
+    const settings = defaultWasteSettings();
+    settings.perMaterial.paint = 2;
+    saveWasteSettings(settings, storage);
+    const loaded = loadWasteSettings(storage);
+    expect(loaded.perMaterial.paint).toBe(2);
+    expect(loaded.perMaterial.tiles).toBeUndefined();
+    expect(resolveWastePercent(loaded, "tiles")).toBe(10);
+  });
+
+  it("keeps a page's own starting margin until the visitor chooses", () => {
+    const settings = defaultWasteSettings();
+    // PaintCalculator has always started at 0 even though paint recommends 5.
+    expect(startingWastePercent(settings, "paint", 0)).toBe(0);
+    const chosen = { ...settings, perMaterial: { paint: 12 } };
+    expect(startingWastePercent(chosen, "paint", 0)).toBe(12);
+    expect(startingWastePercent(chosen, "tiles", 10)).toBe(10);
+  });
+
   it("falls back to defaults when storage is empty or corrupt", () => {
-    expect(loadWasteSettings(memoryStorage()).perMaterial.tiles).toBe(10);
+    expect(
+      resolveWastePercent(loadWasteSettings(memoryStorage()), "tiles"),
+    ).toBe(10);
     const corrupt = memoryStorage({ [WASTE_SETTINGS_KEY]: "{not json" });
     expect(loadWasteSettings(corrupt).enabled).toBe(true);
   });

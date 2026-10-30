@@ -166,6 +166,7 @@ import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
+import { useWasteBridge } from "@/lib/waste/use-waste-settings";
 import { stageStudioImport } from "@/lib/document-studio";
 
 export default function PaintCalculator({
@@ -246,6 +247,9 @@ export default function PaintCalculator({
 
   const [step, setStep] = useState(1);
   const [result, setResult] = useState<CalculatorResult | null>(null);
+  // The shared allowance seeds this margin and remembers what the visitor
+  // chooses here. The engine still applies it once, inside the calculation.
+  const sharedWaste = useWasteBridge("paint", 0);
   const [input, setInput] = useState<CalculatorInput>({
     projectType: "room",
     length: 0,
@@ -259,7 +263,7 @@ export default function PaintCalculator({
     paintType: "",
     unit: roomUnit,
     includeCeiling: false,
-    wasteMargin: 0,
+    wasteMargin: sharedWaste.value,
     surfaceCondition: "smooth",
     colorCondition: "same_or_light",
     includePrimer: false,
@@ -1149,6 +1153,10 @@ export default function PaintCalculator({
               <Step3
                 input={input}
                 update={update}
+                onWasteChange={(w) => {
+                  update("wasteMargin", w);
+                  sharedWaste.setValue(w);
+                }}
                 errors={errors}
                 paintTypes={paintTypes}
                 typesLoading={typesLoading}
@@ -1951,6 +1959,7 @@ function Step2({
 function Step3({
   input,
   update,
+  onWasteChange,
   errors,
   paintTypes,
   typesLoading,
@@ -1969,6 +1978,8 @@ function Step3({
     key: K,
     value: CalculatorInput[K],
   ) => void;
+  /** Updates this page and remembers the choice for paint everywhere. */
+  onWasteChange: (percent: number) => void;
   errors: Record<string, string>;
   paintTypes: DbPaintType[];
   typesLoading: boolean;
@@ -2259,7 +2270,7 @@ function Step3({
         </p>
         <WasteMarginControl
           value={input.wasteMargin}
-          onChange={(w) => update("wasteMargin", w)}
+          onChange={onWasteChange}
           options={wasteOptions}
         />
         {errors.wasteMargin && (

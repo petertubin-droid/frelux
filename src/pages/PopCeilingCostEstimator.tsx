@@ -55,6 +55,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import { useWasteBridge } from "@/lib/waste/use-waste-settings";
 interface PassedState {
   ceilingArea?: number;
   workflow?: string;
@@ -180,6 +181,9 @@ export default function PopCeilingCostEstimator({
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
 
+  // The shared allowance seeds this margin and remembers what the visitor
+  // chooses here. The engine still applies it once, inside the calculation.
+  const sharedWaste = useWasteBridge("screeding", 10);
   const [input, setInput] = useState<PopCalcInput>({
     // Outside Nigeria the board-based (gypsum/drywall) system is the local
     // practice, not cast POP plaster.
@@ -189,7 +193,7 @@ export default function PopCeilingCostEstimator({
     roomLength: 0,
     roomWidth: 0,
     unit: resolveMarketRoomUnit(market, "meters"),
-    wasteMargin: 10,
+    wasteMargin: sharedWaste.value,
     includeDecorative: true,
     includeOptional: false,
   });
@@ -485,7 +489,10 @@ export default function PopCeilingCostEstimator({
                     variant="ghost"
                     key={w}
                     type="button"
-                    onClick={() => update("wasteMargin", w)}
+                    onClick={() => {
+                      update("wasteMargin", w);
+                      sharedWaste.setValue(w);
+                    }}
                     className={
                       "rounded-lg border px-4 py-2 text-sm font-semibold transition-all " +
                       (input.wasteMargin === w

@@ -83,6 +83,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
+import { useWasteBridge } from "@/lib/waste/use-waste-settings";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { tx } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
@@ -195,12 +196,15 @@ export default function PopCeilingCalculator({
   const [saveMsg, setSaveMsg] = useState("");
 
   const { market } = useMarket();
+  // The shared allowance seeds this margin and remembers what the visitor
+  // chooses here. The engine still applies it once, inside the calculation.
+  const sharedWaste = useWasteBridge("screeding", 10);
   const [input, setInput] = useState<PopCalcInput>({
     workflow: "nigeria",
     roomLength: 0,
     roomWidth: 0,
     unit: resolveMarketRoomUnit(market, "meters"),
-    wasteMargin: 10,
+    wasteMargin: sharedWaste.value,
     includeDecorative: false,
     includeOptional: false,
   });
@@ -467,7 +471,10 @@ export default function PopCeilingCalculator({
               </p>
               <WasteMarginControl
                 value={input.wasteMargin}
-                onChange={(w) => update("wasteMargin", w)}
+                onChange={(w) => {
+                  update("wasteMargin", w);
+                  sharedWaste.setValue(w);
+                }}
                 options={[0, 5, 10, 15, 20]}
               />
             </div>

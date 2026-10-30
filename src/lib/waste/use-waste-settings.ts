@@ -3,12 +3,15 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  WASTE_MATERIALS,
   applyWaste,
   clampWastePercent,
   defaultWasteSettings,
   loadWasteSettings,
   resolveWastePercent,
   saveWasteSettings,
+  materialDefaultPercent,
+  startingWastePercent,
   type ApplyWasteOptions,
   type WasteBreakdown,
   type WasteMaterialKey,
@@ -16,6 +19,26 @@ import {
 } from "./waste-factor";
 
 const SYNC_EVENT = "frelux-waste-settings";
+
+/**
+ * Binds a page's own waste input to the shared store. A page keeps its familiar
+ * starting value until the visitor chooses otherwise; after that, their choice
+ * follows them to every calculator handling the same material.
+ */
+export function useWasteBridge(
+  material: WasteMaterialKey,
+  pageFallback: number,
+): { value: number; setValue: (percent: number) => void; recommended: number } {
+  const { settings, setMaterialPercent } = useWasteSettings();
+  return useMemo(
+    () => ({
+      value: startingWastePercent(settings, material, pageFallback),
+      setValue: (percent: number) => setMaterialPercent(material, percent),
+      recommended: materialDefaultPercent(material),
+    }),
+    [settings, material, pageFallback, setMaterialPercent],
+  );
+}
 
 export interface WasteSettingsHandle {
   settings: WasteSettings;
