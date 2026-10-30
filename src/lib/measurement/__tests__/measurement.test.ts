@@ -70,8 +70,18 @@ describe("Unit Conversion Engine", () => {
 // =========================================================
 
 describe("Context-Aware Units", () => {
-  // Universal-units update (Oct 2026): every context offers all five units.
-  const ALL_FIVE = ["meters", "feet", "inches", "centimeters", "millimeters"];
+  // Global unit sync (Oct 2026): every context offers the full metric and
+  // imperial length set, including yards, kilometres and miles.
+  const ALL_FIVE = [
+    "millimeters",
+    "centimeters",
+    "meters",
+    "kilometers",
+    "inches",
+    "feet",
+    "yards",
+    "miles",
+  ];
 
   test("painting offers the full universal unit set", () => {
     expect(getAllowedUnits("painting")).toEqual(ALL_FIVE);

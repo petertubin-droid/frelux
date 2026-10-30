@@ -11,7 +11,7 @@
 // how heavy one bag is, so those helpers require both and never assume.
 // =========================================================
 
-export type LengthUnit = "mm" | "cm" | "m" | "km" | "in" | "ft" | "yd";
+export type LengthUnit = "mm" | "cm" | "m" | "km" | "in" | "ft" | "yd" | "mi";
 export type AreaUnit =
   "mm2" | "cm2" | "m2" | "ft2" | "yd2" | "acre" | "hectare";
 export type VolumeUnit = "ml" | "l" | "m3" | "ft3" | "gal_us" | "gal_imp";
@@ -25,6 +25,7 @@ export const LENGTH_TO_M: Record<LengthUnit, number> = {
   in: 0.0254,
   ft: 0.3048,
   yd: 0.9144,
+  mi: 1609.344,
 };
 
 export const AREA_TO_M2: Record<AreaUnit, number> = {
@@ -63,6 +64,7 @@ export const LENGTH_LABELS: Record<LengthUnit, string> = {
   in: "Inches (in)",
   ft: "Feet (ft)",
   yd: "Yards (yd)",
+  mi: "Miles (mi)",
 };
 
 export const AREA_LABELS: Record<AreaUnit, string> = {

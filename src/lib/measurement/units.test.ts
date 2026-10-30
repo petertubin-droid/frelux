@@ -69,8 +69,18 @@ describe("sqftToSqm / sqmToSqft", () => {
 });
 
 describe("getAllowedUnits", () => {
-  // Universal-units update (Oct 2026): every context offers all five units.
-  const ALL_FIVE = ["meters", "feet", "inches", "centimeters", "millimeters"];
+  // Global unit sync (Oct 2026): every context offers the full metric and
+  // imperial length set, including yards, kilometres and miles.
+  const ALL_FIVE = [
+    "millimeters",
+    "centimeters",
+    "meters",
+    "kilometers",
+    "inches",
+    "feet",
+    "yards",
+    "miles",
+  ];
   it("block offers all five units", () => {
     expect(getAllowedUnits("block")).toEqual(ALL_FIVE);
   });

@@ -17,7 +17,19 @@
 // =========================================================
 
 export type LengthUnit =
-  "feet" | "meters" | "inches" | "centimeters" | "millimeters";
+  | "feet"
+  | "meters"
+  | "inches"
+  | "centimeters"
+  | "millimeters"
+  | "yards"
+  | "kilometers"
+  | "miles";
+
+/** Exact SI factors. Defined once, used everywhere. */
+export const YARD_TO_M = 0.9144;
+export const MILE_TO_M = 1609.344;
+export const KM_TO_M = 1000;
 
 /**
  * Area input units the user might choose directly.
@@ -82,6 +94,12 @@ export function toMeters(value: number, unit: LengthUnit): number {
     case "millimeters":
       // 1 millimetre = 0.001 metres (exact)
       return value * 0.001;
+    case "yards":
+      return value * YARD_TO_M;
+    case "kilometers":
+      return value * KM_TO_M;
+    case "miles":
+      return value * MILE_TO_M;
     default:
       throw new Error(`Unknown length unit: ${unit}`);
   }
@@ -103,6 +121,12 @@ export function fromMeters(valueM: number, unit: LengthUnit): number {
       return valueM / 0.01; // exact inverse of 1 cm
     case "millimeters":
       return valueM / 0.001; // exact inverse of 1 mm
+    case "yards":
+      return valueM / YARD_TO_M;
+    case "kilometers":
+      return valueM / KM_TO_M;
+    case "miles":
+      return valueM / MILE_TO_M;
     default:
       throw new Error(`Unknown length unit: ${unit}`);
   }
@@ -171,12 +195,35 @@ export function sqmToSqft(sqm: number): number {
  * restricts the options.
  */
 export const ALL_LENGTH_UNITS: LengthUnit[] = [
-  "meters",
-  "feet",
-  "inches",
-  "centimeters",
   "millimeters",
+  "centimeters",
+  "meters",
+  "kilometers",
+  "inches",
+  "feet",
+  "yards",
+  "miles",
 ];
+
+/** Units that belong to the metric system, in display order. */
+export const METRIC_LENGTH_UNITS: LengthUnit[] = [
+  "millimeters",
+  "centimeters",
+  "meters",
+  "kilometers",
+];
+
+/** Units that belong to the imperial / US customary system, in display order. */
+export const IMPERIAL_LENGTH_UNITS: LengthUnit[] = [
+  "inches",
+  "feet",
+  "yards",
+  "miles",
+];
+
+export function lengthUnitSystem(unit: LengthUnit): "metric" | "imperial" {
+  return METRIC_LENGTH_UNITS.includes(unit) ? "metric" : "imperial";
+}
 
 export function getAllowedUnits(context: CalculatorContext): LengthUnit[] {
   void context;
@@ -206,6 +253,12 @@ export function lengthUnitLabel(unit: LengthUnit): string {
       return "Centimetres";
     case "millimeters":
       return "Millimetres";
+    case "yards":
+      return "Yards";
+    case "kilometers":
+      return "Kilometres";
+    case "miles":
+      return "Miles";
     default:
       return unit;
   }
@@ -226,6 +279,12 @@ export function lengthUnitShort(unit: LengthUnit): string {
       return "cm";
     case "millimeters":
       return "mm";
+    case "yards":
+      return "yd";
+    case "kilometers":
+      return "km";
+    case "miles":
+      return "mi";
     default:
       return unit;
   }

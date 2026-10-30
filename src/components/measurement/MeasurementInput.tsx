@@ -43,6 +43,7 @@ import {
   lengthUnitShort,
   getAllowedUnits,
 } from "@/lib/measurement";
+import { convertEntryDimensions } from "@/lib/measurement/unit-sync";
 import {
   getBuildingPresets,
   type BuildingPreset,
@@ -234,7 +235,12 @@ function EntryCard({
             </label>
             <UnitSelect
               value={entry.unit}
-              onChange={(unit) => onUpdate({ unit })}
+              onChange={(unit) =>
+                // Switching units rewrites the numbers so the wall measured
+                // stays the same size. Without this a 20 ft room becomes a
+                // 20 m room, which silently overstates every material.
+                onUpdate(convertEntryDimensions(entry, unit))
+              }
               context={context}
             />
           </div>
