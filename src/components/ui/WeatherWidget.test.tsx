@@ -97,16 +97,15 @@ describe("WeatherWidget location selector", () => {
       error: null,
     } as never);
     await renderWidget();
-    const select = screen.getByLabelText(
-      /select your state/i,
-    ) as HTMLSelectElement;
-    expect(select).toBeTruthy();
-    expect(select.value).toBe("lagos");
-    // All Nigerian states are available
-    const options = Array.from(select.options).map((o) => o.value);
-    expect(options).toContain("kano");
-    expect(options).toContain("rivers");
-    expect(options).toContain("fct");
+    const trigger = screen.getByRole("button", {
+      name: /weather location/i,
+    });
+    expect(trigger.textContent).toContain("Lagos");
+    // The picker opens on the market's local list.
+    fireEvent.click(trigger);
+    expect(screen.getByText("Kano")).toBeTruthy();
+    expect(screen.getByText("Rivers")).toBeTruthy();
+    expect(screen.getByText("FCT (Abuja)")).toBeTruthy();
   });
 
   it("persists the user's state choice", async () => {
@@ -118,11 +117,15 @@ describe("WeatherWidget location selector", () => {
       error: null,
     } as never);
     await renderWidget();
-    const select = screen.getByLabelText(
-      /select your state/i,
-    ) as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "kano" } });
-    expect(localStorage.getItem("frelux_weather_location")).toBe("kano");
-    expect(select.value).toBe("kano");
+    const trigger = screen.getByRole("button", {
+      name: /weather location/i,
+    });
+    fireEvent.click(trigger);
+    fireEvent.click(screen.getByText("Kano"));
+    const stored = localStorage.getItem("frelux_weather_location") ?? "";
+    expect(JSON.parse(stored).id).toBe("kano");
+    expect(
+      screen.getByRole("button", { name: /weather location/i }).textContent,
+    ).toContain("Kano");
   });
 });

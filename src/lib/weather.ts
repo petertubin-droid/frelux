@@ -353,6 +353,15 @@ const CLIMATE_PROFILES: Record<WeatherLocation["climate"], ClimateProfile> = {
     tempWet: [23, 32],
     tempDry: [25, 35],
   },
+  // Temperate markets (Europe, North America, Oceania): mild, rain spread
+  // across the year with cooler winters.
+  temperate: {
+    wetMonths: [0, 1, 2, 3, 9, 10, 11],
+    humidityWet: [65, 85],
+    humidityDry: [45, 70],
+    tempWet: [6, 19],
+    tempDry: [0, 15],
+  },
   // Arid far north: short wet season (Jun–Sep), hot and dry otherwise
   arid: {
     wetMonths: [5, 6, 7, 8],
