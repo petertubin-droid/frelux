@@ -1,4 +1,8 @@
 import { stageStudioImport } from "@/lib/document-studio";
+import {
+  autoDisplayForReport,
+  type QuoteDisplay,
+} from "@/lib/currency/quote-display";
 
 export function exportQuoteToDocumentStudio(
   opts: QuoteOptions,
@@ -100,6 +104,12 @@ export interface QuoteOptions {
   footer?: string;
   /** Optional custom or resolved branding */
   branding?: Partial<ResolvedBranding>;
+  /**
+   * The same totals read in another currency at a dated rate. Omitted when no
+   * trusted rate is available, because a blank or invented figure is worse than
+   * none.
+   */
+  display?: QuoteDisplay;
 }
 
 function escapeHtml(value: string): string {
@@ -218,6 +228,7 @@ function getBaseStyles(primaryColor: string, accentColor: string): string {
     color: #1e293b;
   }
   .n { text-align: right; font-variant-numeric: tabular-nums; }
+  .conversion-note { margin: 8px 0 0; font-size: 11px; line-height: 1.6; color: #475569; }
   .muted { color: #64748b; font-size: 11px; margin-top: 2px; }
   .meta-table { margin-bottom: 14px; }
   .meta-table td {
@@ -369,6 +380,27 @@ export function buildQuoteHtml(opts: QuoteOptions): string {
     ? `<h2>Totals</h2><table class="meta totals-table">${totalsRows}</table>`
     : "";
 
+  const display = opts.display ?? autoDisplayForReport(opts.totals);
+  const displayRows = display
+    ? display.totals
+        .map(
+          (t) =>
+            `<tr class="${t.strong ? "grand" : "total-row"}"><td>${escapeHtml(
+              t.label,
+            )}</td><td class="n">${escapeHtml(t.value)}</td></tr>`,
+        )
+        .join("")
+    : "";
+  const displayHtml = display
+    ? `<h2>Also shown in ${escapeHtml(display.currency)}</h2>
+       <table class="meta totals-table">${displayRows}</table>
+       <p class="conversion-note">${escapeHtml(display.rateLine)}. ${escapeHtml(display.note)}${
+         display.fromSnapshot
+           ? " Rates were read from a saved snapshot, not a live feed."
+           : ""
+       }</p>`
+    : "";
+
   const warningsHtml = opts.warnings?.length
     ? `<div class="notes-box"><h3>Notes &amp; Assumptions</h3><ul>${opts.warnings
         .map((w) => `<li>${escapeHtml(w)}</li>`)
@@ -413,6 +445,7 @@ export function buildQuoteHtml(opts: QuoteOptions): string {
       ${metaHtml}
       ${linesHtml}
       ${totalsHtml}
+      ${displayHtml}
       ${warningsHtml}
       ${stepsHtml}
       <p class="disclaimer">${escapeHtml(footerText)}</p>
