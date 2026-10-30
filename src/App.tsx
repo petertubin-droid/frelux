@@ -264,6 +264,7 @@ const AdminPaintTypes = lazy(() => import("@/pages/admin/AdminPaintTypes"));
 const AdminPricing = lazy(() => import("@/pages/admin/AdminPricing"));
 const AdminPriceUpdater = lazy(() => import("@/pages/admin/AdminPriceUpdater"));
 const AdminPriceScan = lazy(() => import("@/pages/admin/AdminPriceScan"));
+const AdminMarketPrices = lazy(() => import("@/pages/admin/AdminMarketPrices"));
 const AdminLabourSettings = lazy(
   () => import("@/pages/admin/AdminLabourSettings"),
 );
@@ -2022,6 +2023,10 @@ export default function App() {
                         element={<AdminPriceUpdater />}
                       />
                       <Route path="price-scan" element={<AdminPriceScan />} />
+                      <Route
+                        path="market-prices"
+                        element={<AdminMarketPrices />}
+                      />
                       <Route
                         path="labour-settings"
                         element={<AdminLabourSettings />}

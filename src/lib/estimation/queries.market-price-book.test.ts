@@ -53,6 +53,7 @@ vi.mock("@/lib/supabase", () => {
     select: ReturnType<typeof vi.fn>;
     eq: ReturnType<typeof vi.fn>;
     order: ReturnType<typeof vi.fn>;
+    limit: ReturnType<typeof vi.fn>;
     then: (resolve: (v: unknown) => void) => void;
     __rows: PricedRow[] | null;
   } = {
@@ -66,12 +67,14 @@ vi.mock("@/lib/supabase", () => {
       return chain;
     }),
     order: vi.fn(() => chain),
+    // the book also reads market_material_prices for freshness metadata
+    limit: vi.fn(() => chain),
     // mirror the real query's ordering: newest effective_date first,
     // so "first row wins" matches production semantics
     then: (resolve: (v: unknown) => void) =>
       Promise.resolve({
-        data: [...(chain.__rows ?? NG_ROWS)].sort(
-          (a, b) => (a.effective_date < b.effective_date ? 1 : -1),
+        data: [...(chain.__rows ?? NG_ROWS)].sort((a, b) =>
+          a.effective_date < b.effective_date ? 1 : -1,
         ),
         error: null,
       }).then(resolve),

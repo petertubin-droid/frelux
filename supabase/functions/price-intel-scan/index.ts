@@ -52,6 +52,17 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serveWithCors } from "../_shared/serve.ts";
+import {
+  matchMaterials,
+  parseFeed,
+  parseRobots,
+  robotsAllows,
+  STRUCTURED_FORMATS,
+  type FeedMapping,
+  type MaterialRef,
+  type RobotsRules,
+  type SourceFormat,
+} from "../_shared/market-feeds.ts";
 
 const CONCURRENCY = 6;
 const STAGGER_MS = 700;
@@ -82,7 +93,41 @@ interface ScanSource {
   currency: string;
   last_scanned_at: string | null;
   source_type: "product" | "search";
+  source_format: SourceFormat;
+  brand: string | null;
+  specification: string | null;
+  measurement_unit: string | null;
+  supplier_name: string | null;
+  supplier_location: string | null;
+  cadence_hours: number | null;
+  feed_mapping: FeedMapping | null;
+  consecutive_failures: number | null;
+  http_etag: string | null;
+  http_last_modified: string | null;
 }
+
+/** One supplier fact destined for market_price_observations. */
+interface ObservationDraft {
+  market: string;
+  material_slug: string;
+  brand: string;
+  specification: string;
+  unit: string;
+  price: number;
+  currency: string;
+  supplier_name: string | null;
+  supplier_location: string | null;
+  source_id: string;
+  source_url: string;
+  source_format: string;
+  extraction: string;
+  confidence: "high" | "medium" | "low";
+}
+
+/** Robots.txt is per host and does not change within a run. */
+const ROBOTS_CACHE = new Map<string, RobotsRules | null>();
+const LAST_FETCH_BY_HOST = new Map<string, number>();
+const POLITE_GAP_MS = 1_200;
 
 interface ExtractedPrice {
   price: number | null;
@@ -90,6 +135,315 @@ interface ExtractedPrice {
   product_name: string | null;
   extraction: "json_ld" | "meta" | "regex" | null;
   confidence: "high" | "medium" | "low" | null;
+}
+
+/** Reads robots.txt once per host per run and answers for one path.
+ *  Unreachable robots.txt is treated as "no rules published", which is the
+ *  spec default for an absent file; a 401/403 is treated as a refusal. */
+async function robotsFor(
+  origin: string,
+  path: string,
+): Promise<{ allowed: boolean; rules: RobotsRules | null; note?: string }> {
+  if (!ROBOTS_CACHE.has(origin)) {
+    try {
+      const res = await fetch(`${origin}/robots.txt`, {
+        headers: { "User-Agent": BROWSER_UA, Accept: "text/plain" },
+        signal: AbortSignal.timeout(8_000),
+        redirect: "follow",
+      });
+      if (res.status === 401 || res.status === 403) {
+        ROBOTS_CACHE.set(origin, null);
+        return {
+          allowed: false,
+          rules: null,
+          note: `robots.txt ${res.status}`,
+        };
+      }
+      ROBOTS_CACHE.set(
+        origin,
+        res.ok ? parseRobots(await res.text(), "frelux") : null,
+      );
+    } catch {
+      ROBOTS_CACHE.set(origin, null);
+    }
+  }
+  const rules = ROBOTS_CACHE.get(origin) ?? null;
+  if (!rules) return { allowed: true, rules: null };
+  return { allowed: robotsAllows(rules, path), rules };
+}
+
+/** Keeps at least POLITE_GAP_MS between calls to the same host (or the site's
+ *  own crawl-delay when that is longer). */
+async function respectHostGap(
+  hostname: string,
+  rules: RobotsRules | null,
+): Promise<void> {
+  const gap = Math.max(POLITE_GAP_MS, (rules?.crawlDelaySeconds ?? 0) * 1000);
+  const last = LAST_FETCH_BY_HOST.get(hostname) ?? 0;
+  const wait = last + gap - Date.now();
+  if (wait > 0) await new Promise((r) => setTimeout(r, Math.min(wait, 10_000)));
+  LAST_FETCH_BY_HOST.set(hostname, Date.now());
+}
+
+interface FetchResult {
+  ok: boolean;
+  notModified: boolean;
+  text: string;
+  status: number;
+  error: string | null;
+  etag: string | null;
+  lastModified: string | null;
+  contentType: string | null;
+}
+
+/** Conditional GET: a feed that has not changed answers 304 and costs no parse. */
+async function fetchDocument(
+  url: URL,
+  accept: string,
+  etag: string | null,
+  lastModified: string | null,
+): Promise<FetchResult> {
+  let lastError = "unreachable";
+  for (let attempt = 0; attempt <= FETCH_RETRY_DELAYS_MS.length; attempt += 1) {
+    try {
+      const headers: Record<string, string> = {
+        "User-Agent": BROWSER_UA,
+        Accept: accept,
+        "Accept-Language": "en-US,en;q=0.9",
+      };
+      if (etag) headers["If-None-Match"] = etag;
+      if (lastModified) headers["If-Modified-Since"] = lastModified;
+      const res = await fetch(url.toString(), {
+        headers,
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        redirect: "follow",
+      });
+      if (res.status === 304) {
+        return {
+          ok: true,
+          notModified: true,
+          text: "",
+          status: 304,
+          error: null,
+          etag,
+          lastModified,
+          contentType: res.headers.get("content-type"),
+        };
+      }
+      if (res.ok) {
+        return {
+          ok: true,
+          notModified: false,
+          text: (await res.text()).slice(0, 4_000_000),
+          status: res.status,
+          error: null,
+          etag: res.headers.get("etag"),
+          lastModified: res.headers.get("last-modified"),
+          contentType: res.headers.get("content-type"),
+        };
+      }
+      lastError = `site responded with ${res.status}`;
+      if (!RETRY_STATUSES.has(res.status)) break;
+    } catch (err: unknown) {
+      lastError = `unreachable: ${err instanceof Error ? err.message : "network error"}`;
+    }
+    if (attempt < FETCH_RETRY_DELAYS_MS.length) {
+      await new Promise((r) => setTimeout(r, FETCH_RETRY_DELAYS_MS[attempt]));
+    }
+  }
+  return {
+    ok: false,
+    notModified: false,
+    text: "",
+    status: 0,
+    error: lastError,
+    etag: null,
+    lastModified: null,
+    contentType: null,
+  };
+}
+
+/** Structured feed source: JSON, API, CSV or RSS. Respects robots.txt, uses
+ *  conditional GET, and only emits observations for rows it can both price and
+ *  match to a material in this market's catalogue. */
+async function scanFeedSource(
+  source: ScanSource,
+  materials: MaterialRef[],
+  marketCurrency: string,
+): Promise<{
+  ok: boolean;
+  notModified: boolean;
+  observations: ObservationDraft[];
+  matched: number;
+  rejected: number;
+  error: string | null;
+  robotsAllowed: boolean;
+  etag: string | null;
+  lastModified: string | null;
+  note: string;
+}> {
+  const empty = {
+    ok: false,
+    notModified: false,
+    observations: [] as ObservationDraft[],
+    matched: 0,
+    rejected: 0,
+    error: null as string | null,
+    robotsAllowed: true,
+    etag: null as string | null,
+    lastModified: null as string | null,
+    note: "",
+  };
+  let parsed: URL;
+  try {
+    parsed = new URL(source.product_url);
+  } catch {
+    return {
+      ...empty,
+      error: "invalid source url",
+      note: "invalid source url",
+    };
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+    return {
+      ...empty,
+      error: "unsupported protocol",
+      note: "unsupported protocol",
+    };
+  }
+  if (isBlockedHost(parsed.hostname)) {
+    return { ...empty, error: "blocked host", note: "blocked host" };
+  }
+
+  const robots = await robotsFor(parsed.origin, parsed.pathname);
+  if (!robots.allowed) {
+    return {
+      ...empty,
+      robotsAllowed: false,
+      error: robots.note ?? "disallowed by robots.txt",
+      note: "disallowed by robots.txt",
+    };
+  }
+  await respectHostGap(parsed.hostname, robots.rules);
+
+  const accept =
+    source.source_format === "csv"
+      ? "text/csv,text/plain;q=0.9,*/*;q=0.5"
+      : source.source_format === "rss"
+        ? "application/rss+xml,application/atom+xml,application/xml;q=0.9,*/*;q=0.5"
+        : "application/json,text/plain;q=0.9,*/*;q=0.5";
+
+  const doc = await fetchDocument(
+    parsed,
+    accept,
+    source.http_etag,
+    source.http_last_modified,
+  );
+  if (doc.notModified) {
+    return {
+      ...empty,
+      ok: true,
+      notModified: true,
+      robotsAllowed: true,
+      etag: doc.etag,
+      lastModified: doc.lastModified,
+      note: "feed unchanged (304)",
+    };
+  }
+  if (!doc.ok) {
+    return {
+      ...empty,
+      robotsAllowed: true,
+      error: doc.error ?? "fetch failed",
+      note: doc.error ?? "fetch failed",
+    };
+  }
+
+  const rows = parseFeed(
+    source.source_format,
+    doc.text,
+    (source.feed_mapping ?? {}) as FeedMapping,
+  ).map((row) => ({
+    ...row,
+    currency: (row.currency ?? source.currency).toUpperCase(),
+  }));
+
+  if (rows.length === 0) {
+    return {
+      ...empty,
+      ok: true,
+      robotsAllowed: true,
+      etag: doc.etag,
+      lastModified: doc.lastModified,
+      error: "feed carried no readable prices",
+      note: "feed carried no readable prices",
+    };
+  }
+
+  // A feed row binds to a material either because the source targets one slug
+  // explicitly, or because its name matches the catalogue.
+  const catalogue: MaterialRef[] =
+    source.material_slug && source.material_slug !== "*"
+      ? materials.filter((m) => m.slug === source.material_slug)
+      : materials;
+  const matched = matchMaterials(rows, catalogue);
+  const observations: ObservationDraft[] = [];
+  let rejected = 0;
+
+  for (const row of matched) {
+    const currency = (row.currency ?? source.currency).toUpperCase();
+    if (currency !== marketCurrency.toUpperCase()) {
+      rejected += 1;
+      continue;
+    }
+    observations.push({
+      market: source.market,
+      material_slug: row.material.slug,
+      brand: (row.brand ?? source.brand ?? "").slice(0, 120),
+      specification: (row.specification ?? source.specification ?? "").slice(
+        0,
+        160,
+      ),
+      unit: (
+        row.unit ??
+        source.measurement_unit ??
+        source.expected_unit ??
+        ""
+      ).slice(0, 40),
+      price: Math.round(row.price * 100) / 100,
+      currency,
+      supplier_name:
+        (row.supplier ?? source.supplier_name ?? source.retailer)?.slice(
+          0,
+          160,
+        ) ?? null,
+      supplier_location:
+        (row.location ?? source.supplier_location)?.slice(0, 160) ?? null,
+      source_id: source.id,
+      source_url: source.product_url,
+      source_format: source.source_format,
+      extraction: source.source_format,
+      // A structured feed states its prices; the confidence is about the
+      // material match, not about parsing.
+      confidence: row.score >= 0.85 ? "high" : "medium",
+    });
+  }
+
+  return {
+    ok: true,
+    notModified: false,
+    observations,
+    matched: observations.length,
+    rejected: rejected + (rows.length - matched.length),
+    error: null,
+    robotsAllowed: true,
+    etag: doc.etag,
+    lastModified: doc.lastModified,
+    note:
+      observations.length > 0
+        ? `${observations.length} price(s) from ${rows.length} feed rows`
+        : "no feed row matched a material",
+  };
 }
 
 function isBlockedHost(hostname: string): boolean {
@@ -322,7 +676,9 @@ function collectHtmlListingPrices(
     if (plausible(value)) out.push({ price: value, currency: null });
   }
   // Explicit data attributes.
-  for (const m of html.matchAll(/data-(?:price|product-price)="([0-9]+(?:[.,][0-9]+)?)"/gi)) {
+  for (const m of html.matchAll(
+    /data-(?:price|product-price)="([0-9]+(?:[.,][0-9]+)?)"/gi,
+  )) {
     const value = toNumber(m[1]);
     if (plausible(value)) out.push({ price: value, currency: null });
   }
@@ -400,7 +756,13 @@ async function scanOneSource(
   supabase: ReturnType<typeof createClient>,
   source: ScanSource,
   runId: string,
-): Promise<{ filed: boolean; failed: boolean; note: string }> {
+  knownMaterialId?: string | null,
+): Promise<{
+  filed: boolean;
+  failed: boolean;
+  note: string;
+  observation?: ObservationDraft;
+}> {
   let parsed: URL;
   try {
     parsed = new URL(source.product_url);
@@ -424,7 +786,8 @@ async function scanOneSource(
       const fetchRes = await fetch(parsed.toString(), {
         headers: {
           "User-Agent": BROWSER_UA,
-          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          Accept:
+            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
           "Accept-Language": "en-US,en;q=0.9",
         },
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
@@ -507,11 +870,13 @@ async function scanOneSource(
   // Deviation vs the market's CURRENT book price.
   let deviationNote = "";
   if (result.price !== null) {
-    const { data: material } = await supabase
-      .from("estimation_materials")
-      .select("id")
-      .eq("slug", source.material_slug)
-      .maybeSingle();
+    const { data: material } = knownMaterialId
+      ? { data: { id: knownMaterialId } }
+      : await supabase
+          .from("estimation_materials")
+          .select("id")
+          .eq("slug", source.material_slug)
+          .maybeSingle();
     if (material) {
       const { data: current } = await supabase
         .from("estimation_prices")
@@ -593,10 +958,34 @@ async function scanOneSource(
       note: `candidate insert failed: ${insertError.message}`,
     };
   }
+  const observation: ObservationDraft | undefined =
+    !failed && result.price !== null
+      ? {
+          market: source.market,
+          material_slug: source.material_slug,
+          brand: (source.brand ?? "").slice(0, 120),
+          specification: (source.specification ?? "").slice(0, 160),
+          unit: (source.measurement_unit ?? source.expected_unit ?? "").slice(
+            0,
+            40,
+          ),
+          price: Math.round(result.price * 100) / 100,
+          currency: source.currency,
+          supplier_name: source.supplier_name ?? source.retailer,
+          supplier_location: source.supplier_location,
+          source_id: source.id,
+          source_url: source.product_url,
+          source_format: source.source_format,
+          extraction: result.extraction ?? "html",
+          confidence: (confidence as "high" | "medium" | "low") ?? "low",
+        }
+      : undefined;
+
   return {
     filed: true,
     failed,
     note: failed ? (fetchError ?? "no price found") : deviationNote || "ok",
+    observation,
   };
 }
 
@@ -692,24 +1081,26 @@ serveWithCors(async (req: Request) => {
   }
   const runId = run.id;
 
-  // ── Load active sources (search sources on their rotation week) ──
+  // ── Load the sources that are due ──
+  const forceScan = parsedBody.force === true || trigger === "admin";
   const epochWeek = Math.floor(Date.now() / (7 * 24 * 3600 * 1000));
   const weekMod = epochWeek % ROTATION_GROUPS;
   let query = supabase
     .from("price_scan_sources")
     .select(
-      "id, market, material_slug, retailer, label, product_url, expected_unit, currency, last_scanned_at, source_type",
+      "id, market, material_slug, retailer, label, product_url, expected_unit, currency, last_scanned_at, source_type, source_format, brand, specification, measurement_unit, supplier_name, supplier_location, cadence_hours, feed_mapping, consecutive_failures, http_etag, http_last_modified",
     )
     .eq("is_active", true)
-    // product sources scan every week; search sources only on
-    // their rotation week, keeping the run inside its budget.
-    .or(`rotation_group.eq.${weekMod},source_type.eq.product`)
-    // Stalest first: with a bounded run, ordering by market alone means the
-    // alphabetical tail is never reached once the source book outgrows the cap.
+    // HTML search sources still rotate to keep an all-market batch inside the
+    // invocation budget; structured feeds and product pages are cheap and due.
+    .or(
+      `rotation_group.eq.${weekMod},source_type.eq.product,source_format.in.(json,api,csv,rss)`,
+    )
     .order("last_scanned_at", { ascending: true, nullsFirst: true })
     .order("market")
-    .limit(200);
+    .limit(marketFilter ? 200 : 400);
   if (marketFilter) query = query.eq("market", marketFilter);
+  if (!forceScan) query = query.lte("next_scan_at", new Date().toISOString());
   const { data: sources, error: sourcesError } = await query;
 
   if (sourcesError) {
@@ -731,13 +1122,56 @@ serveWithCors(async (req: Request) => {
 
   const list = (sources ?? []) as ScanSource[];
 
+  // ── Catalogues the market logic needs ──
+  const [{ data: materialRows }, { data: marketRows }] = await Promise.all([
+    supabase
+      .from("estimation_materials")
+      .select("slug, name, category")
+      .eq("is_active", true)
+      .limit(3000),
+    supabase
+      .from("market_profiles")
+      .select("country_code, currency_code, country_name"),
+  ]);
+  const materials = (materialRows ?? []) as MaterialRef[];
+  const materialIdBySlug = new Map<string, string>();
+  {
+    const { data: idRows } = await supabase
+      .from("estimation_materials")
+      .select("id, slug")
+      .eq("is_active", true)
+      .limit(3000);
+    for (const row of (idRows ?? []) as Array<{ id: string; slug: string }>) {
+      materialIdBySlug.set(row.slug, row.id);
+    }
+  }
+  const currencyByMarket = new Map<string, string>();
+  const nameByMarket = new Map<string, string>();
+  for (const row of (marketRows ?? []) as Array<{
+    country_code: string;
+    currency_code: string;
+    country_name: string;
+  }>) {
+    currencyByMarket.set(row.country_code, row.currency_code);
+    nameByMarket.set(row.country_code, row.country_name);
+  }
+
   // ── Scan with a small concurrency pool; stagger politely ──
   let scanned = 0;
   let candidatesCreated = 0;
   let candidatesFailed = 0;
   const failures: Array<{ market: string; slug: string; reason: string }> = [];
+  const observations: ObservationDraft[] = [];
+  const sourceOutcomes: Array<{
+    source: ScanSource;
+    ok: boolean;
+    notModified: boolean;
+    robotsAllowed: boolean;
+    etag: string | null;
+    lastModified: string | null;
+    note: string;
+  }> = [];
 
-  const outcomes: ScanOutcome[] = [];
   const runStartedAt = Date.now();
   let skippedForBudget = 0;
   for (let i = 0; i < list.length; i += CONCURRENCY) {
@@ -749,34 +1183,275 @@ serveWithCors(async (req: Request) => {
     const results = await Promise.allSettled(
       batch.map(async (source, j) => {
         if (j > 0) await new Promise((r) => setTimeout(r, STAGGER_MS * j));
-        return scanOneSource(supabase, source, runId);
+        const isStructured = STRUCTURED_FORMATS.includes(source.source_format);
+        if (isStructured) {
+          const feed = await scanFeedSource(
+            source,
+            materials,
+            currencyByMarket.get(source.market) ?? source.currency,
+          );
+          return {
+            kind: "feed" as const,
+            feed,
+            observation: undefined as ObservationDraft | undefined,
+          };
+        }
+        const html = await scanOneSource(
+          supabase,
+          source,
+          runId,
+          materialIdBySlug.get(source.material_slug) ?? null,
+        );
+        return {
+          kind: "html" as const,
+          html,
+          observation: html.observation,
+        };
       }),
     );
     results.forEach((res, j) => {
       const source = batch[j];
       scanned++;
-      if (res.status === "fulfilled") {
-        if (res.value.filed) {
-          if (res.value.failed) candidatesFailed++;
-          else candidatesCreated++;
-        } else {
-          candidatesFailed++;
-          failures.push({
-            market: source.market,
-            slug: source.material_slug,
-            reason: res.value.note,
-          });
-        }
-      } else {
+      if (res.status !== "fulfilled") {
         candidatesFailed++;
         failures.push({
           market: source.market,
           slug: source.material_slug,
           reason: String(res.reason),
         });
+        sourceOutcomes.push({
+          source,
+          ok: false,
+          notModified: false,
+          robotsAllowed: true,
+          etag: null,
+          lastModified: null,
+          note: String(res.reason),
+        });
+        return;
       }
-      outcomes.push({ source, ok: res.status === "fulfilled" });
+      const value = res.value;
+      if (value.kind === "feed") {
+        const feed = value.feed;
+        for (const draft of feed.observations) observations.push(draft);
+        if (!feed.ok) {
+          candidatesFailed++;
+          failures.push({
+            market: source.market,
+            slug: source.material_slug,
+            reason: feed.note || "feed failed",
+          });
+        } else if (feed.matched > 0) {
+          candidatesCreated += feed.matched;
+        }
+        sourceOutcomes.push({
+          source,
+          ok: feed.ok,
+          notModified: feed.notModified,
+          robotsAllowed: feed.robotsAllowed,
+          etag: feed.etag,
+          lastModified: feed.lastModified,
+          note: feed.note,
+        });
+        return;
+      }
+      const html = value.html;
+      if (html.filed) {
+        if (html.failed) candidatesFailed++;
+        else candidatesCreated++;
+      } else {
+        candidatesFailed++;
+        failures.push({
+          market: source.market,
+          slug: source.material_slug,
+          reason: html.note,
+        });
+      }
+      if (value.observation) observations.push(value.observation);
+      sourceOutcomes.push({
+        source,
+        ok: value.observation !== undefined,
+        notModified: false,
+        robotsAllowed: true,
+        etag: null,
+        lastModified: null,
+        note: html.note,
+      });
     });
+  }
+
+  // ── Persist supplier observations ──
+  // The unique (source, supplier, material, variant, day) index makes a second
+  // run on the same day a no-op instead of a duplicate fact.
+  let observationsFiled = 0;
+  if (observations.length > 0) {
+    const rows = observations.map((o) => ({
+      market: o.market,
+      material_slug: o.material_slug,
+      material_id: materialIdBySlug.get(o.material_slug) ?? null,
+      brand: o.brand,
+      specification: o.specification,
+      unit: o.unit,
+      price: o.price,
+      currency: o.currency,
+      supplier_name: o.supplier_name,
+      supplier_location: o.supplier_location,
+      source_id: o.source_id,
+      source_url: o.source_url,
+      source_format: o.source_format,
+      extraction: o.extraction,
+      confidence: o.confidence,
+      run_id: runId,
+    }));
+    for (let i = 0; i < rows.length; i += 200) {
+      const chunk = rows.slice(i, i + 200);
+      const { data: inserted, error: obsError } = await supabase
+        .from("market_price_observations")
+        .upsert(chunk, {
+          onConflict:
+            "source_id,supplier_name,market,material_slug,brand,specification,unit,observed_on",
+          ignoreDuplicates: true,
+        })
+        .select("id");
+      if (!obsError && inserted) observationsFiled += inserted.length;
+    }
+  }
+
+  // ── Per-source bookkeeping: cadence, backoff, availability ──
+  const nowIso = new Date().toISOString();
+  for (const outcome of sourceOutcomes) {
+    const cadence = Math.max(1, outcome.source.cadence_hours ?? 24);
+    const failuresBefore = outcome.ok
+      ? 0
+      : (outcome.source.consecutive_failures ?? 0) + 1;
+    // A failing source backs off exponentially but never stops being retried.
+    const nextDelayHours = outcome.ok
+      ? cadence
+      : Math.min(cadence * Math.pow(2, Math.min(failuresBefore, 5)), 168);
+    await supabase
+      .from("price_scan_sources")
+      .update({
+        last_scanned_at: nowIso,
+        last_success_at: outcome.ok ? nowIso : undefined,
+        last_scan_status: outcome.ok
+          ? outcome.notModified
+            ? "unchanged"
+            : "ok"
+          : outcome.robotsAllowed
+            ? "failed"
+            : "blocked",
+        last_scan_error: outcome.ok ? null : outcome.note || null,
+        consecutive_failures: failuresBefore,
+        next_scan_at: new Date(
+          Date.now() + nextDelayHours * 3600 * 1000,
+        ).toISOString(),
+        http_etag: outcome.etag ?? outcome.source.http_etag,
+        http_last_modified:
+          outcome.lastModified ?? outcome.source.http_last_modified,
+        robots_allowed: outcome.robotsAllowed,
+        robots_checked_at: nowIso,
+      })
+      .eq("id", outcome.source.id);
+  }
+
+  // ── Refresh aggregates, then promote through the market gate ──
+  const touchedMarkets = [
+    ...new Set(sourceOutcomes.map((o) => o.source.market)),
+  ];
+  const groupsTouched = [
+    ...new Set(
+      observations.map(
+        (o) =>
+          `${o.market}\u0000${o.material_slug}\u0000${o.brand}\u0000${o.specification}\u0000${o.unit}`,
+      ),
+    ),
+  ];
+  for (const key of groupsTouched) {
+    const [market, slug, brand, specification, unit] = key.split("\u0000");
+    await supabase.rpc("refresh_market_material_price", {
+      p_market: market,
+      p_material_slug: slug,
+      p_brand: brand,
+      p_specification: specification,
+      p_unit: unit,
+    });
+  }
+  const appliedByMarket = new Map<string, number>();
+  for (const market of touchedMarkets) {
+    const { data: applied } = await supabase.rpc(
+      "apply_market_material_prices",
+      {
+        p_market: market,
+      },
+    );
+    appliedByMarket.set(market, Number(applied ?? 0));
+  }
+
+  // ── Per-market run ledger + cadence + availability alerts ──
+  for (const market of touchedMarkets) {
+    const marketSources = sourceOutcomes.filter(
+      (o) => o.source.market === market,
+    );
+    const failed = marketSources.filter((o) => !o.ok).length;
+    const marketObs = observations.filter((o) => o.market === market).length;
+    await supabase.from("market_scan_runs").insert({
+      run_id: runId,
+      market,
+      trigger,
+      status:
+        failed === marketSources.length && marketSources.length > 0
+          ? "failed"
+          : "completed",
+      sources_total: marketSources.length,
+      sources_scanned: marketSources.length,
+      observations: marketObs,
+      updated_prices: appliedByMarket.get(market) ?? 0,
+      failed_sources: failed,
+      skipped_not_due: 0,
+      duration_ms: Date.now() - runStartedAt,
+      finished_at: nowIso,
+    });
+
+    const { data: settings } = await supabase
+      .from("market_scan_settings")
+      .select("cadence_hours")
+      .eq("market", market)
+      .maybeSingle();
+    const cadenceHours = Number(settings?.cadence_hours ?? 24);
+    await supabase
+      .from("market_scan_settings")
+      .update({
+        last_run_at: nowIso,
+        last_success_at: failed < marketSources.length ? nowIso : undefined,
+        next_run_at: new Date(
+          Date.now() + cadenceHours * 3600 * 1000,
+        ).toISOString(),
+        updated_at: nowIso,
+      })
+      .eq("market", market);
+
+    // A source that has failed three times running is an availability problem
+    // an operator must see, not a silent gap.
+    for (const outcome of marketSources.filter(
+      (o) => !o.ok && (o.source.consecutive_failures ?? 0) >= 2,
+    )) {
+      const { data: existing } = await supabase
+        .from("market_price_alerts")
+        .select("id")
+        .eq("market", market)
+        .eq("kind", "source_failed")
+        .is("acknowledged_at", null)
+        .gte("created_at", new Date(Date.now() - 7 * 864e5).toISOString())
+        .limit(1);
+      if ((existing ?? []).length > 0) continue;
+      await supabase.from("market_price_alerts").insert({
+        market,
+        material_slug: outcome.source.material_slug,
+        kind: "source_failed",
+        severity: "warning",
+        message: `${outcome.source.retailer} (${outcome.source.source_format}) has failed ${(outcome.source.consecutive_failures ?? 0) + 1} scans in a row: ${outcome.note}`,
+      });
+    }
   }
 
   // ── Auto-apply phase: promote gated candidate groups ──────
@@ -1022,6 +1697,9 @@ serveWithCors(async (req: Request) => {
       sources_scanned: scanned,
       candidates_created: candidatesCreated,
       candidates_failed: candidatesFailed,
+      observations_filed: observationsFiled,
+      markets_scanned: touchedMarkets.length,
+      prices_updated: [...appliedByMarket.values()].reduce((a, b) => a + b, 0),
       auto_applied: autoApplied,
       finished_at: finishedAt,
       notes:
@@ -1046,6 +1724,9 @@ serveWithCors(async (req: Request) => {
       scanned,
       candidates_created: candidatesCreated,
       candidates_failed: candidatesFailed,
+      observations_filed: observationsFiled,
+      markets_scanned: touchedMarkets.length,
+      prices_updated: [...appliedByMarket.values()].reduce((a, b) => a + b, 0),
       auto_applied: autoApplied,
       auto_apply_skipped: autoApplySkipped.slice(0, 20),
       failures: failures.slice(0, 20),

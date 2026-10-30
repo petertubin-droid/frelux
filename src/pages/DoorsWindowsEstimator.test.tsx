@@ -109,6 +109,9 @@ vi.mock("@/lib/estimation/queries", () => ({
       ]),
       missingFromMarket: [],
       fromReference: new Set(["mat-door-flush", "mat-door-frame"]),
+      asOf: new Map(),
+      stale: new Set(),
+      verified: new Set(),
     }),
   ),
   createEstimate: vi

@@ -365,6 +365,16 @@ export interface MarketPriceBook {
   byRef: Map<string, number>;
   /** ref_ids priced only by the NG reference book (disclosed fallback) */
   fromReference: Set<string>;
+  /** material id -> ISO date the market last verified its own price */
+  asOf: Map<string, string>;
+  /**
+   * ref_ids whose local price outlived the market's freshness window (or was
+   * never verified by a second supplier). Such a price is the last known one,
+   * not a verified local quote, and the UI must say so.
+   */
+  stale: Set<string>;
+  /** ref_ids whose price carries a recorded market verification */
+  verified: Set<string>;
 }
 
 export async function fetchMarketPriceBook(
@@ -373,6 +383,48 @@ export async function fetchMarketPriceBook(
   const market = marketCode || "NG";
   const byRef = new Map<string, number>();
   const fromReference = new Set<string>();
+  const asOf = new Map<string, string>();
+  const stale = new Set<string>();
+  const verified = new Set<string>();
+
+  // 0. This market's verification state, so a price can be labelled as verified
+  //    locally, last-known-but-stale, or unverified rather than silently shown
+  //    as if it were a fresh local quote.
+  const { data: groupRows } = await supabase
+    .from("market_material_prices")
+    .select(
+      "material_id, brand, specification, unit, verification_status, last_verified_at, last_scanned_at",
+    )
+    .eq("market", market)
+    .limit(5000);
+  for (const row of (groupRows ?? []) as Array<{
+    material_id: string | null;
+    brand: string | null;
+    specification: string | null;
+    unit: string | null;
+    verification_status: string;
+    last_verified_at: string | null;
+    last_scanned_at: string | null;
+  }>) {
+    if (!row.material_id) continue;
+    // Only the unvaried record describes the material the estimator prices.
+    if (
+      (row.brand ?? "") !== "" ||
+      (row.specification ?? "") !== "" ||
+      (row.unit ?? "") !== ""
+    ) {
+      continue;
+    }
+    const stamp = row.last_verified_at ?? row.last_scanned_at;
+    if (stamp) asOf.set(row.material_id, stamp);
+    if (row.verification_status === "verified") verified.add(row.material_id);
+    else if (
+      row.verification_status === "stale" ||
+      row.verification_status === "unverified"
+    ) {
+      stale.add(row.material_id);
+    }
+  }
 
   // 1. The market's own rows - the only source of truth for its currency.
   if (market !== "NG") {
@@ -402,7 +454,7 @@ export async function fetchMarketPriceBook(
     }
   }
 
-  return { byRef, fromReference };
+  return { byRef, fromReference, asOf, stale, verified };
 }
 
 export async function fetchPriceHistory(priceType: string, refId: string) {

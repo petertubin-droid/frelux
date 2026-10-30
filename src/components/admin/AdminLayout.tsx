@@ -9,6 +9,7 @@ import {
 import {
   AlertTriangle,
   BarChart3,
+  Globe2,
   ScanLine,
   BookOpen,
   Brain,
@@ -265,6 +266,7 @@ const navModules: NavModule[] = [
       },
       { label: "Price Updater", to: "/admin/price-updater", icon: TrendingUp },
       { label: "Price Scan", to: "/admin/price-scan", icon: ScanLine },
+      { label: "Market Prices", to: "/admin/market-prices", icon: Globe2 },
       { label: "Price Pipeline", to: "/admin/price-pipeline", icon: Globe },
       { label: "Solar Prices", to: "/admin/solar-prices", icon: Sun },
       { label: "Labour Rates", to: "/admin/labour-rates", icon: HardHat },
