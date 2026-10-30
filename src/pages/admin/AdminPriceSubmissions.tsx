@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, ClipboardList, XCircle, Sparkles } from "lucide-react";
+import {
+  CheckCircle2,
+  ClipboardList,
+  RefreshCw,
+  Sparkles,
+  XCircle,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
   AdminHeader,
@@ -20,11 +26,17 @@ interface SubmissionRow {
   vendor: string | null;
   status: string;
   created_at: string;
+  material_slug: string | null;
+  verification_count: number | null;
+  applied_price: number | null;
+  applied_at: string | null;
+  source_url: string | null;
 }
 
 interface MaterialOption {
   id: string;
   name: string;
+  slug: string;
 }
 
 import { getCountryCurrency } from "@/lib/international/countries";
@@ -47,6 +59,7 @@ export default function AdminPriceSubmissions() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState("pending");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   // Server-side pagination - submissions grow with every contribution.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
@@ -86,7 +99,7 @@ export default function AdminPriceSubmissions() {
     void (async () => {
       const { data } = await supabase
         .from("estimation_materials")
-        .select("id, name")
+        .select("id, name, slug")
         .eq("is_active", true)
         .order("name");
       setMaterials((data as MaterialOption[]) ?? []);
@@ -107,6 +120,31 @@ export default function AdminPriceSubmissions() {
     setRows((prev) => prev.filter((r) => r.id !== id || tab === "all"));
   };
 
+  /**
+   * Apply every group that already meets its market's agreement rule.
+   * Usually unnecessary because a report triggers this itself, but it lets the
+   * admin sweep the queue after a rule change.
+   */
+  const runVerification = async () => {
+    setBusyId("verify-all");
+    const { data, error: err } = await supabase.rpc(
+      "apply_community_prices",
+      {},
+    );
+    setBusyId(null);
+    if (err) {
+      setError(err.message);
+      return;
+    }
+    const applied = typeof data === "number" ? data : 0;
+    setNotice(
+      applied > 0
+        ? `${applied} ${applied === 1 ? "price" : "prices"} updated from agreed reports.`
+        : "No group has enough agreeing reports yet.",
+    );
+    void load(tab);
+  };
+
   /** Approve AND copy the community price into the price book. */
   const promote = async (row: SubmissionRow) => {
     const refId = materialPick[row.id];
@@ -115,7 +153,7 @@ export default function AdminPriceSubmissions() {
       return;
     }
     setBusyId(row.id);
-    const { error: priceErr } = await supabase
+    const { data: inserted, error: priceErr } = await supabase
       .from("estimation_prices")
       .insert({
         price_type: "material",
@@ -124,13 +162,34 @@ export default function AdminPriceSubmissions() {
         currency: getCountryCurrency(row.market),
         market: row.market,
         notes: `From community price report (${row.region}${row.vendor ? `, ${row.vendor}` : ""}).`,
-      });
+        price_source: row.vendor
+          ? `community report: ${row.vendor}`
+          : "community report",
+        origin: "community",
+        scan_confidence: "manual",
+        last_scanned_at: new Date().toISOString(),
+      })
+      .select("id")
+      .maybeSingle();
     if (priceErr) {
       setBusyId(null);
       setError(priceErr.message);
       return;
     }
-    await setStatus(row.id, "approved");
+    await supabase
+      .from("price_submissions")
+      .update({
+        status: "approved",
+        material_slug:
+          row.material_slug ??
+          materials.find((m) => m.id === refId)?.slug ??
+          null,
+        applied_price: row.price,
+        applied_price_id: inserted?.id ?? null,
+        applied_at: new Date().toISOString(),
+      })
+      .eq("id", row.id);
+    setRows((prev) => prev.filter((r) => r.id !== row.id || tab === "all"));
     setBusyId(null);
   };
 
@@ -138,8 +197,22 @@ export default function AdminPriceSubmissions() {
     <div>
       <AdminHeader
         title={t("Community Price Submissions")}
-        subtitle="User-reported local prices. Approve into the price book, or reject. Consensus-verified rows (3+ agreeing reports) are highlighted."
+        subtitle="Local prices reported by users. Built-in materials update automatically once the market's agreeing-report rule is met; the rest wait for a mapping here."
       />
+
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <AdminButton
+          variant="secondary"
+          disabled={busyId === "verify-all"}
+          onClick={() => void runVerification()}
+        >
+          <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+          {t("Apply agreed reports")}
+        </AdminButton>
+        {notice && (
+          <span className="text-xs text-muted-foreground">{notice}</span>
+        )}
+      </div>
 
       <div className="mb-4 flex flex-wrap gap-2">
         {STATUS_TABS.map((s) => (
@@ -200,6 +273,26 @@ export default function AdminPriceSubmissions() {
                   vendor: {r.vendor}
                 </span>
               )}
+              {r.material_slug && (
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                  {r.material_slug}
+                </span>
+              )}
+              {r.applied_price != null && (
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                  {t("book")} {Number(r.applied_price).toLocaleString()}
+                </span>
+              )}
+              {r.source_url && (
+                <a
+                  href={r.source_url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-[11px] text-primary underline-offset-2 hover:underline"
+                >
+                  {t("source")}
+                </a>
+              )}
               {r.status === "community_verified" && (
                 <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
                   <Sparkles className="h-3 w-3" /> {t("Consensus")}
@@ -213,7 +306,11 @@ export default function AdminPriceSubmissions() {
             {r.status === "pending" || r.status === "community_verified" ? (
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <select
-                  value={materialPick[r.id] ?? ""}
+                  value={
+                    materialPick[r.id] ??
+                    materials.find((m) => m.slug === r.material_slug)?.id ??
+                    ""
+                  }
                   onChange={(e) =>
                     setMaterialPick((prev) => ({
                       ...prev,

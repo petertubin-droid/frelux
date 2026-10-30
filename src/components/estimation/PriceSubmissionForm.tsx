@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/Toast";
 import { getRegions } from "@/lib/international/regions";
 import { supabase } from "@/lib/supabase";
+import { useMarket } from "@/lib/international/market-context";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 
@@ -23,6 +24,15 @@ type MySubmission = {
   unit: string;
   status: string;
   created_at: string;
+  applied_price: number | null;
+};
+
+type CatalogItem = { slug: string; name: string; category: string | null };
+
+type GroupProgress = {
+  reporters: number;
+  median_price: number | null;
+  verified: boolean;
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -33,26 +43,94 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 /**
- * Community price reporting. Prices submitted here never enter the
- * engines directly - they go to a review queue; 3 independent
- * agreeing entries get flagged community_verified, and only the
- * admin promotes an entry into the authoritative price book.
+ * Community price reporting, run by the people who actually buy materials.
+ * The admin cannot keep every market current alone, so a signed-in visitor
+ * reports what a material costs where they live.
+ *
+ * A report never enters an estimate on its own. Reports are grouped by
+ * market + catalog material, and the group is written into the price book
+ * (estimation_prices) only once the market's own auto-apply rule is met:
+ * enough independent reporters, agreeing within its tolerance. Until then the
+ * reports sit in review and the reporter sees how many more are needed.
  */
 export default function PriceSubmissionForm() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { marketCode, isLoading: marketLoading } = useMarket();
   const [market, setMarket] = useState<Market>("NG");
+  const [marketTouched, setMarketTouched] = useState(false);
   const [region, setRegion] = useState("");
   const [itemName, setItemName] = useState("");
   const [unit, setUnit] = useState("");
   const [price, setPrice] = useState("");
   const [vendor, setVendor] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
+  const [materialSlug, setMaterialSlug] = useState("");
+  const [catalog, setCatalog] = useState<CatalogItem[]>([]);
+  const [progress, setProgress] = useState<GroupProgress | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [mine, setMine] = useState<MySubmission[]>([]);
 
   const regions = getRegions(market);
   const currency = getCountryCurrency(market);
+
+  // The reporter's own market is the one they can actually price.
+  useEffect(() => {
+    if (marketLoading || marketTouched) return;
+    setMarket(marketCode);
+    setRegion("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [marketCode, marketLoading]);
+
+  // Catalog items let a report attach itself to a price-book material, which is
+  // what makes automatic promotion possible.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const { data } = await supabase
+        .from("estimation_materials")
+        .select("slug, name, category")
+        .eq("is_active", true)
+        .order("name")
+        .limit(600);
+      if (!cancelled) setCatalog((data as CatalogItem[]) ?? []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // How close this market + material is to a verified price.
+  useEffect(() => {
+    const rpc = (supabase as unknown as { rpc?: unknown }).rpc;
+    if (!materialSlug || typeof rpc !== "function") {
+      setProgress(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const { data } = await (
+          supabase as unknown as {
+            rpc: (
+              fn: string,
+              args: Record<string, unknown>,
+            ) => Promise<{ data: GroupProgress[] | null }>;
+          }
+        ).rpc("price_group_progress", {
+          p_market: market,
+          p_material_slug: materialSlug,
+        });
+        if (!cancelled) setProgress(data?.[0] ?? null);
+      } catch {
+        if (!cancelled) setProgress(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [market, materialSlug]);
 
   const loadMine = async () => {
     if (!user) return;
@@ -84,6 +162,8 @@ export default function PriceSubmissionForm() {
       price: Number(price),
       currency,
       vendor: vendor.trim() || null,
+      materialSlug: materialSlug || null,
+      sourceUrl: sourceUrl.trim() || null,
     });
     setSubmitting(false);
     if (error) {
@@ -101,6 +181,8 @@ export default function PriceSubmissionForm() {
     setUnit("");
     setPrice("");
     setVendor("");
+    setSourceUrl("");
+    setMaterialSlug("");
     void loadMine();
   };
 
@@ -144,6 +226,7 @@ export default function PriceSubmissionForm() {
             value={market}
             onChange={(e) => {
               setMarket(e.target.value as Market);
+              setMarketTouched(true);
               setRegion("");
             }}
             className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -200,10 +283,32 @@ export default function PriceSubmissionForm() {
           <input
             id="price-submission-item"
             value={itemName}
-            onChange={(e) => setItemName(e.target.value)}
-            placeholder="e.g. Bag of cement"
+            list="price-submission-catalog"
+            onChange={(e) => {
+              const value = e.target.value;
+              setItemName(value);
+              const hit = catalog.find(
+                (c) => c.name.toLowerCase() === value.toLowerCase(),
+              );
+              setMaterialSlug(hit ? hit.slug : "");
+            }}
+            placeholder={t("e.g. Bag of cement")}
             className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
+          <datalist id="price-submission-catalog">
+            {catalog.map((c) => (
+              <option key={c.slug} value={c.name} />
+            ))}
+          </datalist>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            {materialSlug
+              ? t(
+                  "Matched to the price book. Agreeing reports here update the published price automatically.",
+                )
+              : t(
+                  "Pick a price-book item from the list so your report can update the published price. A free-text item is kept for review only.",
+                )}
+          </p>
         </div>
         <div>
           <label
@@ -253,6 +358,36 @@ export default function PriceSubmissionForm() {
             className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
+        <div>
+          <label
+            htmlFor="price-submission-source"
+            className="text-xs font-medium text-muted-foreground"
+          >
+            {t("Link to the price")}{" "}
+            <span className="opacity-70">(optional)</span>
+          </label>
+          <input
+            id="price-submission-source"
+            type="url"
+            value={sourceUrl}
+            onChange={(e) => setSourceUrl(e.target.value)}
+            placeholder="https://"
+            className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+          />
+        </div>
+        {materialSlug && progress && (
+          <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground sm:col-span-2">
+            {progress.verified
+              ? t(
+                  "This market already has a verified price from community reports. Yours will keep it current.",
+                )
+              : progress.reporters > 0
+                ? `${progress.reporters} ${t("independent reports so far in this market. One more agreeing report is enough to update the price.")}`
+                : t(
+                    "No reports yet for this market. Two independent people reporting a similar price updates the published price.",
+                  )}
+          </div>
+        )}
         <div className="sm:col-span-2">
           <Button type="submit" size="sm" disabled={submitting}>
             {submitting ? "Submitting…" : "Submit price report"}
@@ -274,6 +409,9 @@ export default function PriceSubmissionForm() {
                 <span className="truncate text-muted-foreground">
                   {m.item_name} · {m.region} ({m.market}) ·{" "}
                   {Number(m.price).toLocaleString()}
+                  {m.applied_price != null && m.status === "approved"
+                    ? ` · ${t("book price")} ${Number(m.applied_price).toLocaleString()}`
+                    : ""}
                 </span>
                 <span
                   className={
@@ -308,6 +446,8 @@ export async function submitPrice(input: {
   price: number;
   currency: string;
   vendor: string | null;
+  materialSlug?: string | null;
+  sourceUrl?: string | null;
 }) {
   return supabase.from("price_submissions").insert({
     submitted_by: input.userId,
@@ -318,13 +458,17 @@ export async function submitPrice(input: {
     price: input.price,
     currency: input.currency,
     vendor: input.vendor,
+    material_slug: input.materialSlug ?? null,
+    source_url: input.sourceUrl ?? null,
   });
 }
 
 export async function supabaseFetch(userId: string) {
   return supabase
     .from("price_submissions")
-    .select("id, item_name, region, market, price, unit, status, created_at")
+    .select(
+      "id, item_name, region, market, price, unit, status, created_at, applied_price",
+    )
     .eq("submitted_by", userId)
     .order("created_at", { ascending: false })
     .limit(5);
