@@ -2497,6 +2497,12 @@ const routes = [
       "Analyse indoor heat comfort for your building design and material choices.",
   },
   {
+    path: "/material-advisor",
+    title: "Climate-Responsive Material Advisor | FRELUX SMART CALC",
+    description:
+      "Choose your project location and get construction material guidance for its real climate: rainfall, humidity, UV, coastal exposure and frost, across paints, waterproofing, roofing, tiles, concrete exposure, steel protection, insulation and drainage.",
+  },
+  {
     path: "/labour-estimator",
     title: "Labour Estimator | FRELUX SMART CALC",
     description:

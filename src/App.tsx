@@ -454,6 +454,7 @@ const DefectDiagnosis = lazy(() => import("@/pages/DefectDiagnosis"));
 const EstimateRefresh = lazy(() => import("@/pages/EstimateRefresh"));
 const WarrantyCertificate = lazy(() => import("@/pages/WarrantyCertificate"));
 const HeatComfort = lazy(() => import("@/pages/HeatComfort"));
+const MaterialAdvisor = lazy(() => import("@/pages/MaterialAdvisor"));
 const CircularReuse = lazy(() => import("@/pages/CircularReuse"));
 const ContractorCredit = lazy(() => import("@/pages/ContractorCredit"));
 const SolarPvEstimator = lazy(() => import("@/pages/SolarPvEstimator"));
@@ -1702,6 +1703,10 @@ export default function App() {
                           element={<WarrantyCertificate />}
                         />
                         <Route path="/heat-comfort" element={<HeatComfort />} />
+                        <Route
+                          path="/material-advisor"
+                          element={<MaterialAdvisor />}
+                        />
                         <Route
                           path="/circular-reuse"
                           element={<CircularReuse />}

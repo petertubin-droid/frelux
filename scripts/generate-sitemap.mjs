@@ -315,6 +315,7 @@ const routes = [
   { path: "/defect-diagnosis", priority: "0.9", changefreq: "monthly" },
   { path: "/estimate-refresh", priority: "0.9", changefreq: "monthly" },
   { path: "/heat-comfort", priority: "0.9", changefreq: "monthly" },
+  { path: "/material-advisor", priority: "0.9", changefreq: "monthly" },
   { path: "/labour-estimator", priority: "0.9", changefreq: "monthly" },
   { path: "/maintenance-planner", priority: "0.9", changefreq: "monthly" },
   { path: "/margin-calculator", priority: "0.9", changefreq: "monthly" },

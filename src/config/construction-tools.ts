@@ -23,6 +23,7 @@ import {
   Percent,
   Wallet,
   Globe,
+  Globe2,
   CalendarDays,
   Wrench,
   ShieldCheck,
@@ -533,6 +534,18 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Comfort score and practical cooling recommendations.",
     to: "/heat-comfort",
     navVisible: false,
+  },
+  {
+    slug: "material-advisor",
+    title: "Climate Material Advisor",
+    category: "services",
+    icon: Globe2,
+    does: "Match construction materials to your site's real climate: rain, humidity, UV, salt air and frost.",
+    enters: "Project location (search, map pick or coordinates).",
+    gets: "Material guidance for paints, waterproofing, roofing, tiles, concrete exposure, steel, insulation and drainage — with the reasoning and standards shown.",
+    to: "/material-advisor",
+    navVisible: false,
+    featured: true,
   },
 
   // ---------------------------------------------------------------- components

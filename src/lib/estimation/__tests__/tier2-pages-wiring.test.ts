@@ -101,9 +101,14 @@ describe("Tier 2 estimator pages wiring", () => {
   it("every engine has a sitemap entry (SEO)", async () => {
     const sitemap = await read("scripts/generate-sitemap.mjs");
     for (const e of ENGINES) {
-      expect(sitemap, `sitemap must include ${e.route}`).toContain(
-        `path: '${e.route}'`,
-      );
+      // Accept either quote style: the generator is prettier-formatted with
+      // double quotes today, older branches used single quotes.
+      const single = `path: '${e.route}'`;
+      const double = `path: "${e.route}"`;
+      expect(
+        sitemap.includes(single) || sitemap.includes(double),
+        `sitemap must include ${e.route}`,
+      ).toBe(true);
     }
   });
 

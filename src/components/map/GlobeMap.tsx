@@ -43,6 +43,11 @@ export interface GlobeMapProps {
   interactive?: boolean;
   showTerrain?: boolean;
   onSelect?: (point: MapPoint) => void;
+  /**
+   * When provided, clicking anywhere on the map reports the clicked
+   * coordinate (used by location pickers such as the Climate Advisor).
+   */
+  onPickCoordinate?: (coords: { lat: number; lon: number }) => void;
   activeId?: string | null;
   /** Accessible name and the caption used by the fallback. */
   label: string;
@@ -89,6 +94,7 @@ export function GlobeMap({
   interactive = true,
   showTerrain = true,
   onSelect,
+  onPickCoordinate,
   activeId,
   label,
   emptyTitle,
@@ -135,6 +141,8 @@ export function GlobeMap({
   // Kept in a ref so an inline parent callback never rebuilds the markers.
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
+  const onPickRef = useRef(onPickCoordinate);
+  onPickRef.current = onPickCoordinate;
 
   // Read scale and view from the live map.
   const syncChrome = useCallback(() => {
@@ -240,6 +248,21 @@ export function GlobeMap({
         map.on("error", () => {
           if (!mapRef.current) setFailed(true);
         });
+
+        // Optional coordinate picking: only fires when a parent attaches
+        // a pick handler (e.g. the Climate Advisor's location picker).
+        map.on(
+          "click",
+          (event: { lngLat?: { lat?: number; lng?: number } }) => {
+            const pick = onPickRef.current;
+            if (!pick) return;
+            const lat = event.lngLat?.lat;
+            const lon = event.lngLat?.lng;
+            if (Number.isFinite(lat) && Number.isFinite(lon)) {
+              pick({ lat: lat as number, lon: lon as number });
+            }
+          },
+        );
 
         resizeObserver = new ResizeObserver(() => {
           map.resize();

@@ -20,12 +20,14 @@ const seoMapSrc = readFileSync(
 
 function extractPrerenderStaticPaths(src: string): string[] {
   const paths: string[] = [];
-  const re = /path:\s*'([^']+)'/g;
+  // Accept either quote style: the prerender source is prettier-formatted
+  // with double quotes today, and older branches used single quotes.
+  const re = /path:\s*(["'])([^"']+)\1/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(src)) !== null) {
     // dynamic template-literal paths (`/learn/${...}`) use backticks and are
     // matched separately below; the regex above only catches quoted strings.
-    paths.push(m[1]);
+    paths.push(m[2]);
   }
   return paths;
 }
