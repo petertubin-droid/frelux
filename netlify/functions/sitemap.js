@@ -22,8 +22,11 @@
  * readable by RLS policy. If the database is unreachable the function
  * still returns a comprehensive, valid sitemap with all static routes.
  */
-const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL ||
-  "https://freluxtools.com").replace(/\/+$/, "");
+const SITE_URL = (
+  process.env.SITE_URL ||
+  process.env.VITE_SITE_URL ||
+  "https://freluxtools.com"
+).replace(/\/+$/, "");
 
 /** Static site routes kept in parity with the comprehensive route catalog. */
 // NOTE: legacy calculator slugs (cost-estimator, painting-estimator, screeding-cost-estimator,
@@ -46,6 +49,7 @@ const STATIC_PATHS = [
   "/data-request/",
   "/start-building/",
   "/unit-converter/",
+  "/map/",
   "/paint-calculator/",
   "/screeding-calculator/",
   "/pop-ceiling-calculator/",
@@ -203,7 +207,7 @@ const STATIC_PATHS = [
   "/market/sg/",
   "/market/tr/",
   "/market/nz/",
-  "/global-markets/"
+  "/global-markets/",
 ];
 
 function escapeXml(str) {
@@ -231,8 +235,7 @@ export const handler = async () => {
     add(p, today, "weekly", p === "/" ? "1.0" : "0.8");
   }
 
-  const supabaseUrl =
-    process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
   const anonKey =
     process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
   const headers =
@@ -273,10 +276,13 @@ export const handler = async () => {
   for (const cat of categories) {
     add(`/learn/category/${cat.slug}/`, today, "weekly", "0.7");
   }
-  const referencedCategories = new Set(articles.map((a) => a.category_slug).filter(Boolean));
+  const referencedCategories = new Set(
+    articles.map((a) => a.category_slug).filter(Boolean),
+  );
   const activeCategories = new Set(categories.map((c) => c.slug));
   for (const slug of referencedCategories) {
-    if (!activeCategories.has(slug)) add(`/learn/category/${slug}/`, today, "weekly", "0.6");
+    if (!activeCategories.has(slug))
+      add(`/learn/category/${slug}/`, today, "weekly", "0.6");
   }
 
   // Every published article.
@@ -431,9 +437,9 @@ export const handler = async () => {
   // Market × template pages: every market hub plus every template localized to
   // that market. These are real 200 pages with distinct titles, canonicals and
   // hreflang alternates, so they belong in the sitemap next to the global pages.
-  const marketCodes = STATIC_PATHS.filter((p) => /^\/market\/[a-z]{2}\/$/.test(p)).map(
-    (p) => p.split("/")[2],
-  );
+  const marketCodes = STATIC_PATHS.filter((p) =>
+    /^\/market\/[a-z]{2}\/$/.test(p),
+  ).map((p) => p.split("/")[2]);
   for (const code of marketCodes) {
     add(`/market/${code}/templates/`, today, "weekly", "0.7");
     for (const slug of templateSlugs) {
@@ -497,7 +503,9 @@ export const handler = async () => {
     ]);
     const catSlugById = new Map(proCats.map((c) => [c.id, c.slug]));
     const cityById = new Map(proLocs.map((l) => [l.id, l.city]));
-    const profileCat = new Map(proRows.map((p) => [p.id, catSlugById.get(p.category_id)]));
+    const profileCat = new Map(
+      proRows.map((p) => [p.id, catSlugById.get(p.category_id)]),
+    );
     const profileLastmod = new Map(proRows.map((p) => [p.id, lastmodOf(p)]));
     const proCombos = new Map();
     for (const link of proLocRows) {
@@ -506,7 +514,8 @@ export const handler = async () => {
       if (!cat || !city) continue;
       const key = `${cat}/${city}`;
       const lm = profileLastmod.get(link.profile_id) || today;
-      if (!proCombos.has(key) || proCombos.get(key) < lm) proCombos.set(key, lm);
+      if (!proCombos.has(key) || proCombos.get(key) < lm)
+        proCombos.set(key, lm);
     }
     for (const [key, lastmod] of proCombos) {
       add(`/pro/${key}/`, lastmod, "weekly", "0.6");
@@ -514,13 +523,18 @@ export const handler = async () => {
 
     // Published case studies whose gallery entry is public + approved/featured.
     const [caseRows, galleryRows] = await Promise.all([
-      getJson("case_studies?select=id,published_at,gallery_entry_id&is_published=eq.true&limit=500"),
-      getJson("gallery_entries?select=id,status,is_public&status=in.(approved,featured)&is_public=eq.true&limit=1000"),
+      getJson(
+        "case_studies?select=id,published_at,gallery_entry_id&is_published=eq.true&limit=500",
+      ),
+      getJson(
+        "gallery_entries?select=id,status,is_public&status=in.(approved,featured)&is_public=eq.true&limit=1000",
+      ),
     ]);
     const publicEntryIds = new Set(galleryRows.map((g) => g.id));
     for (const cs of caseRows) {
       if (!cs.id) continue;
-      if (cs.gallery_entry_id && !publicEntryIds.has(cs.gallery_entry_id)) continue;
+      if (cs.gallery_entry_id && !publicEntryIds.has(cs.gallery_entry_id))
+        continue;
       add(`/case-studies/${cs.id}/`, lastmodOf(cs), "monthly", "0.6");
     }
 
@@ -537,18 +551,28 @@ export const handler = async () => {
       if (cat) mkCats.add(cat);
       if (city) mkCities.add(city);
       if (cat && city) mkPairs.add(`${cat}/${city}`);
-      if (listing.id) add(`/marketplace/${listing.id}/`, lastmodOf(listing), "weekly", "0.5");
+      if (listing.id)
+        add(`/marketplace/${listing.id}/`, lastmodOf(listing), "weekly", "0.5");
     }
-    for (const cat of mkCats) add(`/marketplace/category/${cat}/`, today, "weekly", "0.6");
-    for (const city of mkCities) add(`/marketplace/sellers/${city}/`, today, "weekly", "0.5");
-    for (const pair of mkPairs) add(`/marketplace/${pair}/`, today, "weekly", "0.5");
+    for (const cat of mkCats)
+      add(`/marketplace/category/${cat}/`, today, "weekly", "0.6");
+    for (const city of mkCities)
+      add(`/marketplace/sellers/${city}/`, today, "weekly", "0.5");
+    for (const pair of mkPairs)
+      add(`/marketplace/${pair}/`, today, "weekly", "0.5");
 
     // Active marketplace products.
     const products = await getJson(
       "marketplace_products?select=id,updated_at&status=eq.active&admin_removed=eq.false&order=updated_at.desc&limit=1000",
     );
     for (const product of products) {
-      if (product.id) add(`/marketplace/products/${product.id}/`, lastmodOf(product), "weekly", "0.5");
+      if (product.id)
+        add(
+          `/marketplace/products/${product.id}/`,
+          lastmodOf(product),
+          "weekly",
+          "0.5",
+        );
     }
   }
 

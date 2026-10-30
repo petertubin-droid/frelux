@@ -4,6 +4,7 @@ import { Crosshair, Globe2, Loader2, MapPin, Search } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { GlobeMap } from "@/components/map/GlobeMap";
 import { classNames } from "@/lib/utils";
+import { useSeo } from "@/lib/seo";
 import { useLocation } from "@/lib/location";
 import {
   distanceUnitFor,
@@ -27,6 +28,30 @@ const LAYERS: MapLayer[] = ["pros", "jobs", "materials"];
  * accurate 3D globe, with distances from the visitor's own site.
  */
 export default function ExploreMap() {
+  useSeo({
+    title:
+      "Construction Map: Professionals, Projects and Materials on a Globe | FRELUX",
+    description:
+      "Explore verified construction professionals, open projects and material stock on one 3D globe. Search any place, see real distances from your site, and open a listing's details. Coverage grows as professionals and sellers publish.",
+    canonicalPath: "/map",
+    ogType: "website",
+    structuredDataArray: [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "FRELUX Construction Map",
+        description:
+          "A 3D globe of construction professionals, open projects and material stock with real distances from your site.",
+        url: "https://freluxtools.com/map",
+        isPartOf: {
+          "@type": "WebSite",
+          name: "FRELUX SMART CALC",
+          url: "https://freluxtools.com",
+        },
+      },
+    ],
+  });
+
   const [params, setParams] = useSearchParams();
   const requested = params.get("layer");
   const initialLayer: MapLayer = LAYERS.includes(requested as MapLayer)
