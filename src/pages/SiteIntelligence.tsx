@@ -149,6 +149,9 @@ export default function SiteIntelligence() {
   const [pileCount, setPileCount] = useState("8");
   const [pileDepth, setPileDepth] = useState("12");
   const [improveArea, setImproveArea] = useState("150");
+  const [pileRate, setPileRate] = useState("");
+  const [improveRate, setImproveRate] = useState("");
+  const [dewatering, setDewatering] = useState("");
   const [scenarios, setScenarios] = useState<
     { type: FoundationType; result: FoundationScenarioResult }[]
   >([]);
@@ -278,6 +281,7 @@ export default function SiteIntelligence() {
         pile_count: Number(pileCount) || undefined,
         pile_depth_m: Number(pileDepth) || undefined,
         ground_improvement_area_m2: Number(improveArea) || undefined,
+        dewatering_allowance: dewatering ? Number(dewatering) : undefined,
       };
       const results = await Promise.all(
         FOUNDATION_TYPES.map(async (t) => ({
@@ -286,6 +290,9 @@ export default function SiteIntelligence() {
             type: t.key,
             assumptions,
             citySlug,
+            pileRate: pileRate ? Number(pileRate) : null,
+            groundImprovementRate: improveRate ? Number(improveRate) : null,
+            dewateringRate: dewatering ? 1 : null,
           }),
         })),
       );
@@ -673,6 +680,54 @@ export default function SiteIntelligence() {
                 value={improveArea}
                 onChange={(e) => setImproveArea(e.target.value)}
                 inputMode="decimal"
+                className="mt-1 h-9 w-full rounded-md border border-border/70 bg-card px-2 text-sm"
+              />
+            </label>
+            <label className="text-xs">
+              <span className="text-muted-foreground">Pile count</span>
+              <input
+                value={pileCount}
+                onChange={(e) => setPileCount(e.target.value)}
+                inputMode="decimal"
+                className="mt-1 h-9 w-full rounded-md border border-border/70 bg-card px-2 text-sm"
+              />
+            </label>
+            <label className="text-xs">
+              <span className="text-muted-foreground">Pile depth (m)</span>
+              <input
+                value={pileDepth}
+                onChange={(e) => setPileDepth(e.target.value)}
+                inputMode="decimal"
+                className="mt-1 h-9 w-full rounded-md border border-border/70 bg-card px-2 text-sm"
+              />
+            </label>
+            <label className="text-xs">
+              <span className="text-muted-foreground">Piling rate (currency per m)</span>
+              <input
+                value={pileRate}
+                onChange={(e) => setPileRate(e.target.value)}
+                inputMode="decimal"
+                placeholder="From your piling contractor"
+                className="mt-1 h-9 w-full rounded-md border border-border/70 bg-card px-2 text-sm"
+              />
+            </label>
+            <label className="text-xs">
+              <span className="text-muted-foreground">Ground improvement rate (per m²)</span>
+              <input
+                value={improveRate}
+                onChange={(e) => setImproveRate(e.target.value)}
+                inputMode="decimal"
+                placeholder="From your contractor"
+                className="mt-1 h-9 w-full rounded-md border border-border/70 bg-card px-2 text-sm"
+              />
+            </label>
+            <label className="text-xs">
+              <span className="text-muted-foreground">Dewatering allowance (amount)</span>
+              <input
+                value={dewatering}
+                onChange={(e) => setDewatering(e.target.value)}
+                inputMode="decimal"
+                placeholder="What you are allowing for it"
                 className="mt-1 h-9 w-full rounded-md border border-border/70 bg-card px-2 text-sm"
               />
             </label>

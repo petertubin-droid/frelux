@@ -173,10 +173,11 @@ export async function costScenario(params: {
   quantities: ScenarioQuantities;
   citySlug?: string | null;
   groundImprovementRate?: number | null;
+  pileRate?: number | null;
   dewateringRate?: number | null;
   mix?: typeof DEFAULT_CONCRETE_MIX;
 }): Promise<ScenarioCost> {
-  const { quantities, citySlug, groundImprovementRate, dewateringRate } = params;
+  const { quantities, citySlug, groundImprovementRate, pileRate, dewateringRate } = params;
   const mix = params.mix ?? DEFAULT_CONCRETE_MIX;
 
   // Fetch without a material filter, then resolve each wanted material by its
@@ -278,7 +279,7 @@ export async function costScenario(params: {
   }
 
   if (quantities.pile_metres > 0) {
-    const rate = groundImprovementRate ?? null;
+    const rate = pileRate ?? null;
     lines.push({
       key: "piling",
       label: "Piling",
@@ -349,6 +350,7 @@ export async function runScenario(params: {
   assumptions: ScenarioAssumptions;
   citySlug?: string | null;
   groundImprovementRate?: number | null;
+  pileRate?: number | null;
   dewateringRate?: number | null;
 }): Promise<FoundationScenarioResult> {
   const { quantities, warnings, design } = computeQuantities(params.type, params.assumptions);
@@ -356,6 +358,7 @@ export async function runScenario(params: {
     quantities,
     citySlug: params.citySlug ?? null,
     groundImprovementRate: params.groundImprovementRate,
+    pileRate: params.pileRate,
     dewateringRate: params.dewateringRate,
   });
   return { quantities, design, warnings, cost };
