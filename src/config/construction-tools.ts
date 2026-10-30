@@ -24,6 +24,7 @@ import {
   Wallet,
   Globe,
   Globe2,
+  BookOpenCheck,
   CalendarDays,
   Wrench,
   ShieldCheck,
@@ -533,6 +534,18 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters: "Roof, wall and orientation details.",
     gets: "Comfort score and practical cooling recommendations.",
     to: "/heat-comfort",
+    navVisible: false,
+  },
+  {
+    slug: "code-reference",
+    title: "International Code Reference",
+    category: "services",
+    icon: BookOpenCheck,
+    does: "See which building code, edition and technical standards govern a project in any supported country.",
+    enters:
+      "Country, location, building type, structural system and code edition.",
+    gets: "The applicable code family and edition, references for concrete, reinforcement, loads, wind, snow, foundations, durability and materials, plus every unsupported or locally-verifiable point stated plainly.",
+    to: "/code-reference",
     navVisible: false,
   },
   {

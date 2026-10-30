@@ -2497,6 +2497,12 @@ const routes = [
       "Analyse indoor heat comfort for your building design and material choices.",
   },
   {
+    path: "/code-reference",
+    title: "International Building Code Reference | FRELUX SMART CALC",
+    description:
+      "Select your project country and building type to see the applicable building code, edition and standards for concrete, reinforcement, loads, wind, snow, foundations, durability and materials, with unsupported regulations identified and no cross-country parameter substitution.",
+  },
+  {
     path: "/material-advisor",
     title: "Climate-Responsive Material Advisor | FRELUX SMART CALC",
     description:

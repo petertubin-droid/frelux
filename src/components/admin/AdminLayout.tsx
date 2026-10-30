@@ -225,6 +225,7 @@ const navModules: NavModule[] = [
         icon: Activity,
         group: "Factor Tables",
       },
+      { label: "Code Registry", to: "/admin/code-registry", icon: Scale },
       { label: "Carbon Factors", to: "/admin/carbon-factors", icon: Leaf },
       {
         label: "Thermal Factors",

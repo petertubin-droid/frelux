@@ -207,6 +207,7 @@ const SupplierPortal = lazy(() => import("@/pages/marketplace/SupplierPortal"));
 const AdminRegionalCostIndices = lazy(
   () => import("@/pages/admin/AdminRegionalCostIndices"),
 );
+const AdminCodeRegistry = lazy(() => import("@/pages/admin/AdminCodeRegistry"));
 const AdminCarbonFactors = lazy(
   () => import("@/pages/admin/AdminCarbonFactors"),
 );
@@ -455,6 +456,7 @@ const EstimateRefresh = lazy(() => import("@/pages/EstimateRefresh"));
 const WarrantyCertificate = lazy(() => import("@/pages/WarrantyCertificate"));
 const HeatComfort = lazy(() => import("@/pages/HeatComfort"));
 const MaterialAdvisor = lazy(() => import("@/pages/MaterialAdvisor"));
+const CodeReference = lazy(() => import("@/pages/CodeReference"));
 const CircularReuse = lazy(() => import("@/pages/CircularReuse"));
 const ContractorCredit = lazy(() => import("@/pages/ContractorCredit"));
 const SolarPvEstimator = lazy(() => import("@/pages/SolarPvEstimator"));
@@ -1708,6 +1710,10 @@ export default function App() {
                           element={<MaterialAdvisor />}
                         />
                         <Route
+                          path="/code-reference"
+                          element={<CodeReference />}
+                        />
+                        <Route
                           path="/circular-reuse"
                           element={<CircularReuse />}
                         />
@@ -1944,6 +1950,10 @@ export default function App() {
                         <Route
                           path="regional-cost-indices"
                           element={<AdminRegionalCostIndices />}
+                        />
+                        <Route
+                          path="code-registry"
+                          element={<AdminCodeRegistry />}
                         />
                         <Route
                           path="carbon-factors"
