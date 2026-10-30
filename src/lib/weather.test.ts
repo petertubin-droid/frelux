@@ -44,3 +44,68 @@ describe("weather", () => {
     expect(conditionFromWmoCode(95)).toBe("Thunderstorm");
   });
 });
+
+describe("fetchForecastDays", () => {
+  const location = {
+    id: "test-city",
+    name: "Test City",
+    lat: -33.87,
+    lon: 151.21,
+    state: "Test",
+  } as never;
+
+  const openMeteoPayload = {
+    daily: {
+      time: ["2026-11-01", "2026-11-02"],
+      temperature_2m_max: [28.4, 24.1],
+      temperature_2m_min: [19.2, 18.0],
+      precipitation_sum: [0, 7.5],
+      wind_speed_10m_max: [3.2, 5.8],
+      weather_code: [0, 95],
+    },
+    hourly: {
+      time: ["2026-11-01T00:00", "2026-11-01T12:00", "2026-11-02T00:00"],
+      relative_humidity_2m: [60, 80, 90],
+    },
+  };
+
+  it("parses the keyless Open-Meteo feed when no OpenWeather key exists", async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify(openMeteoPayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })) as typeof fetch;
+    try {
+      const { fetchForecastDays } = await import("./weather");
+      const result = await fetchForecastDays(location);
+      expect(result.source).toBe("live");
+      expect(result.days).toHaveLength(2);
+      expect(result.days[0].condition).toBe("Clear");
+      expect(result.days[0].humidity).toBe(70);
+      expect(result.days[1].condition).toBe("Thunderstorm");
+      expect(result.days[1].precipitation).toBe(7.5);
+      expect(result.days[1].windSpeed).toBe(6);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it("throws when every live source fails", async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async () =>
+      new Response("nope", { status: 503 })) as typeof fetch;
+    try {
+      const { fetchForecastDays } = await import("./weather");
+      await expect(
+        fetchForecastDays({
+          ...(location as object),
+          lat: -1,
+          lon: -1,
+        } as never),
+      ).rejects.toThrow();
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+});
