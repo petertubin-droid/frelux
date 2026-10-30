@@ -13,6 +13,16 @@
 // another's market.
 // =========================================================
 
+import {
+  COUNTRY_CATALOG,
+  DECIMAL_COMMA_COUNTRIES,
+  IMPERIAL_COUNTRIES,
+  MARKET_COUNTRY_CODES,
+  SPACE_GROUP_COUNTRIES,
+  ZERO_DECIMAL_CURRENCIES,
+  type CatalogCountry,
+} from "./country-catalog";
+
 export type MeasurementSystem = "metric" | "imperial";
 
 export interface NumberFormatDefaults {
@@ -76,7 +86,7 @@ const IMPERIAL_DOT: NumberFormatDefaults = {
   currencyDecimals: 2,
 };
 
-export const SUPPORTED_COUNTRIES: CountryDefaults[] = [
+const CURATED_COUNTRIES: CountryDefaults[] = [
   {
     code: "NG",
     name: "Nigeria",
@@ -261,6 +271,62 @@ export const SUPPORTED_COUNTRIES: CountryDefaults[] = [
     },
   },
 ];
+
+/**
+ * Defaults for a country without a curated row. Currency is exact (ISO 4217),
+ * the measurement system and separators follow the country's own convention,
+ * and the trade numbers are the conservative international ones. The note says
+ * so plainly, because a 50 kg bag is right for much of the world and wrong for
+ * the UK, Australia or the United States, which have curated rows.
+ */
+function defaultsForCatalogCountry(entry: CatalogCountry): CountryDefaults {
+  const decimalComma = DECIMAL_COMMA_COUNTRIES.has(entry.code);
+  return {
+    code: entry.code,
+    name: entry.name,
+    marketCode: MARKET_COUNTRY_CODES.has(entry.code) ? entry.code : undefined,
+    measurementSystem: IMPERIAL_COUNTRIES.has(entry.code)
+      ? "imperial"
+      : "metric",
+    currencyCode: entry.currencyCode,
+    numberFormat: {
+      group: SPACE_GROUP_COUNTRIES.has(entry.code)
+        ? " "
+        : decimalComma
+          ? "."
+          : ",",
+      decimal: decimalComma ? "," : ".",
+      decimals: 2,
+      currencyDecimals: ZERO_DECIMAL_CURRENCIES.has(entry.currencyCode) ? 0 : 2,
+    },
+    regional: {
+      aggregateUnit: IMPERIAL_COUNTRIES.has(entry.code) ? "short ton" : "tonne",
+      bagKg: IMPERIAL_COUNTRIES.has(entry.code) ? 36.29 : 50,
+      paintBucketLitres: [20, 10, 4],
+      note: `${entry.name} uses the generic international conventions: metric units, 50 kg bags, 20 L, 10 L and 4 L packs. Set your local bag weight and pack sizes before relying on bag or bucket counts.`,
+    },
+  };
+}
+
+const CURATED_BY_CODE = new Map(
+  CURATED_COUNTRIES.map((country) => [country.code, country]),
+);
+
+/** Every country FRELUX can name: curated markets first in detail, then the world. */
+export const SUPPORTED_COUNTRIES: CountryDefaults[] = [
+  ...CURATED_COUNTRIES.filter((country) => country.code !== "ZZ"),
+  ...COUNTRY_CATALOG.filter((entry) => !CURATED_BY_CODE.has(entry.code)).map(
+    defaultsForCatalogCountry,
+  ),
+]
+  .sort((a, b) => a.name.localeCompare(b.name))
+  .concat(CURATED_COUNTRIES.filter((country) => country.code === "ZZ"));
+
+/** True when FRELUX publishes local pricing for this country. */
+export function countryHasMarket(code: string | null | undefined): boolean {
+  const country = findCountryDefaults(code);
+  return Boolean(country?.marketCode);
+}
 
 export const DEFAULT_COUNTRY_CODE = "NG";
 export const OTHER_COUNTRY_CODE = "ZZ";

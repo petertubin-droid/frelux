@@ -113,6 +113,7 @@ export default function ProjectSettings() {
     text: string;
   } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [query, setQuery] = useState("");
 
   useSeo({
     title: "Project Settings",
@@ -131,6 +132,26 @@ export default function ProjectSettings() {
   const country = findCountryDefaults(
     draft.countryCode ?? settings.countryCode,
   );
+  const selectedCode = draft.countryCode ?? settings.countryCode;
+  const allCountries = useMemo(() => countryOptions(), []);
+  const matches = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return allCountries;
+    return allCountries.filter(
+      (option) =>
+        option.name.toLowerCase().includes(needle) ||
+        option.code.toLowerCase() === needle,
+    );
+  }, [allCountries, query]);
+  // Keep the saved choice listed even while a search hides it.
+  const visibleCountries =
+    matches.length === 0
+      ? allCountries.filter((option) => option.code === selectedCode)
+      : matches.some((option) => option.code === selectedCode)
+        ? matches
+        : allCountries
+            .filter((option) => option.code === selectedCode)
+            .concat(matches);
   const numberFormat = {
     ...preview.numberFormat,
     ...(draft.numberFormat ?? {}),
@@ -197,12 +218,26 @@ export default function ProjectSettings() {
           >
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className={LABEL} htmlFor="settings-country">
+                <label className={LABEL} htmlFor="settings-country-search">
+                  Find your country
+                </label>
+                <input
+                  id="settings-country-search"
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search by name or code"
+                  className={FIELD}
+                />
+                <label
+                  className={classNames(LABEL, "mt-3")}
+                  htmlFor="settings-country"
+                >
                   Project country
                 </label>
                 <select
                   id="settings-country"
-                  value={draft.countryCode ?? settings.countryCode}
+                  value={selectedCode}
                   onChange={(e) =>
                     setDraft((prev) => ({
                       ...prev,
@@ -211,20 +246,31 @@ export default function ProjectSettings() {
                   }
                   className={FIELD}
                 >
-                  {countryOptions().map((option) => (
+                  {visibleCountries.map((option) => (
                     <option key={option.code} value={option.code}>
                       {option.name} ({option.currencyCode})
                     </option>
                   ))}
                 </select>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                  {query.trim() && matches.length === 0
+                    ? "No country matches that search."
+                    : `${matches.length} of ${allCountries.length} countries`}
+                  {" · "}
+                  {country?.marketCode
+                    ? "Local FRELUX pricing is published for this market."
+                    : "No local price book yet, so estimates use the reference market."}
+                </p>
               </div>
               <div className="rounded-xl border border-white/15 bg-white/50 p-3 text-xs leading-relaxed text-muted-foreground dark:border-white/10 dark:bg-white/5">
                 {country?.regional.note}
               </div>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              {SUPPORTED_COUNTRIES.length} countries covered. Anything else uses
-              the international defaults until you set your own.
+              {SUPPORTED_COUNTRIES.length} countries and territories, each with
+              its own currency and separators. Trade conventions are researched
+              for 13 of them; the rest start from editable international
+              defaults.
             </p>
           </Section>
 

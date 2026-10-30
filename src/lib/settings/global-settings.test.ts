@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   countryForMarket,
   countryDefaultsOrFallback,
+  countryHasMarket,
   findCountryDefaults,
   SUPPORTED_COUNTRIES,
 } from "./countries";
@@ -19,6 +20,56 @@ import {
 } from "./global-settings";
 
 describe("country catalogue", () => {
+  it("names every country, not just the curated markets", () => {
+    expect(SUPPORTED_COUNTRIES.length).toBeGreaterThanOrEqual(180);
+    const codes = SUPPORTED_COUNTRIES.map((country) => country.code);
+    expect(new Set(codes).size).toBe(codes.length);
+    SUPPORTED_COUNTRIES.forEach((country) => {
+      expect(country.code).toMatch(/^[A-Z]{2}$/);
+      expect(country.name.length).toBeGreaterThan(1);
+      expect(country.currencyCode).toMatch(/^[A-Z]{3}$/);
+      expect(country.regional.paintBucketLitres.length).toBeGreaterThan(0);
+    });
+    // the catch-all stays last so the picker reads naturally
+    expect(SUPPORTED_COUNTRIES[SUPPORTED_COUNTRIES.length - 1].code).toBe("ZZ");
+  });
+
+  it("honours each country's own currency and separators", () => {
+    expect(findCountryDefaults("JP")?.currencyCode).toBe("JPY");
+    expect(findCountryDefaults("JP")?.numberFormat.currencyDecimals).toBe(0);
+    expect(findCountryDefaults("GH")?.currencyCode).toBe("GHS");
+    expect(findCountryDefaults("IN")?.currencyCode).toBe("INR");
+    expect(findCountryDefaults("BR")?.currencyCode).toBe("BRL");
+    expect(findCountryDefaults("BR")?.numberFormat.decimal).toBe(",");
+    expect(findCountryDefaults("SE")?.numberFormat.group).toBe(" ");
+    expect(findCountryDefaults("SE")?.numberFormat.decimal).toBe(",");
+    expect(findCountryDefaults("CH")?.numberFormat.decimal).toBe(",");
+    expect(findCountryDefaults("SA")?.currencyCode).toBe("SAR");
+  });
+
+  it("knows which countries still measure in feet", () => {
+    expect(findCountryDefaults("LR")?.measurementSystem).toBe("imperial");
+    expect(findCountryDefaults("MM")?.measurementSystem).toBe("imperial");
+    expect(findCountryDefaults("JP")?.measurementSystem).toBe("metric");
+  });
+
+  it("distinguishes a priced market from a settings-only country", () => {
+    expect(countryHasMarket("NG")).toBe(true);
+    expect(countryHasMarket("JP")).toBe(true);
+    expect(countryHasMarket("SE")).toBe(true);
+    expect(countryHasMarket("AF")).toBe(false);
+    expect(findCountryDefaults("AF")?.marketCode).toBeUndefined();
+  });
+
+  it("keeps curated trade conventions on top of the generic ones", () => {
+    expect(findCountryDefaults("NG")?.regional.bagKg).toBe(50);
+    expect(findCountryDefaults("GB")?.regional.bagKg).toBe(25);
+    expect(findCountryDefaults("NG")?.regional.paintBucketLitres).toEqual([
+      20, 10, 4,
+    ]);
+    expect(findCountryDefaults("AF")?.regional.bagKg).toBe(50);
+  });
+
   it("covers every requested market", () => {
     [
       "NG",

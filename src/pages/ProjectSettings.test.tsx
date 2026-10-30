@@ -59,6 +59,53 @@ describe("project settings page", () => {
     ).toBeInTheDocument();
   });
 
+  it("searches the whole world by name or code", () => {
+    renderPage();
+    fireEvent.change(screen.getByLabelText(/find your country/i), {
+      target: { value: "japan" },
+    });
+    const select = screen.getByLabelText(
+      /project country/i,
+    ) as HTMLSelectElement;
+    const labels = Array.from(select.options).map(
+      (option) => option.textContent ?? "",
+    );
+    expect(labels.some((label) => label.includes("Japan"))).toBe(true);
+    // the current choice stays listed so the control never shows a blank value
+    expect(labels.some((label) => label.includes("Nigeria"))).toBe(true);
+
+    fireEvent.change(screen.getByLabelText(/find your country/i), {
+      target: { value: "gh" },
+    });
+    const ghanaOptions = Array.from(
+      (screen.getByLabelText(/project country/i) as HTMLSelectElement).options,
+    ).map((option) => option.textContent ?? "");
+    expect(ghanaOptions.some((label) => label.includes("Ghana"))).toBe(true);
+  });
+
+  it("formats a country FRELUX has no curated row for", () => {
+    renderPage();
+    fireEvent.change(screen.getByLabelText(/find your country/i), {
+      target: { value: "sweden" },
+    });
+    fireEvent.change(screen.getByLabelText(/project country/i), {
+      target: { value: "SE" },
+    });
+    // Swedish convention: space grouped thousands and a decimal comma
+    expect(screen.getByText(/1 250 000,00/)).toBeInTheDocument();
+  });
+
+  it("says plainly when a country has no local price book", () => {
+    renderPage();
+    fireEvent.change(screen.getByLabelText(/find your country/i), {
+      target: { value: "algeria" },
+    });
+    fireEvent.change(screen.getByLabelText(/project country/i), {
+      target: { value: "DZ" },
+    });
+    expect(screen.getByText(/no local price book yet/i)).toBeInTheDocument();
+  });
+
   it("shows the effect of a new country before saving", () => {
     renderPage();
     fireEvent.change(screen.getByLabelText(/project country/i), {
