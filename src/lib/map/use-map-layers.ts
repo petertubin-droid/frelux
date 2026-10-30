@@ -18,19 +18,19 @@ export const MAP_LAYER_META: Record<
 > = {
   pros: {
     label: "Professionals",
-    blurb: "Verified tilers, painters and POP installers by base location",
+    blurb: "Verified trade professionals, plotted at their own base",
     empty:
       "No professional has published a location yet. Professionals appear here as soon as they add a base on their FRELUX Pro Connect profile.",
   },
   jobs: {
     label: "Open projects",
-    blurb: "Live project requests you can bid on, by site location",
+    blurb: "Live project requests open to bids, plotted at the site",
     empty:
       "No project has a site location yet. Posted projects appear here once the client sets a location on the job.",
   },
   materials: {
     label: "Materials",
-    blurb: "Listed stock and supplies near your site",
+    blurb: "Listed stock and supplies, plotted where the seller is",
     empty:
       "No material listing carries a location yet. Sellers appear here when they list stock with pickup or delivery area.",
   },

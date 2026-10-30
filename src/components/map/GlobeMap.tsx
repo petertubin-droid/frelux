@@ -14,7 +14,9 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { classNames } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 import type { MapPoint } from "@/lib/map/geo";
+import { defaultMapOpening } from "@/lib/map/defaults";
 
 const LIGHT_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 const DARK_STYLE = "https://tiles.openfreemap.org/styles/dark";
@@ -26,7 +28,15 @@ export interface GlobeMapProps {
   points: MapPoint[];
   /** Where the map opens when there are no points to fit. */
   center?: { lat: number; lon: number } | null;
+  /** Opening zoom; defaults to the visitor's region, or the whole globe. */
   zoom?: number;
+  /** Fly the camera here whenever `key` changes (place search, deep links). */
+  focus?: {
+    lat: number;
+    lon: number;
+    zoom?: number;
+    key: string | number;
+  } | null;
   /** CSS height; the map is fixed to this box. */
   height?: number | string;
   className?: string;
@@ -72,7 +82,8 @@ const LAYER_NOUN: Record<MapPoint["kind"], string> = {
 export function GlobeMap({
   points,
   center,
-  zoom = 3.2,
+  zoom,
+  focus,
   height = 420,
   className,
   interactive = true,
@@ -87,12 +98,28 @@ export function GlobeMap({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<MapLibreMarker[]>([]);
+  const { t } = useLanguage();
+  // The opening frame follows the visitor, never a fixed head office.
+  const opening = useMemo(() => {
+    if (center && Number.isFinite(center.lat) && Number.isFinite(center.lon)) {
+      return {
+        lat: center.lat,
+        lon: center.lon,
+        zoom: zoom ?? 7.5,
+        source: "saved-place" as const,
+      };
+    }
+    const fallback = defaultMapOpening();
+    return { ...fallback, zoom: zoom ?? fallback.zoom };
+    // Fixed at mount: later camera moves are handled by their own effects.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [view, setView] = useState<ViewState>({
     bearing: 0,
     pitch: 0,
-    zoom,
+    zoom: 3,
   });
   const [scale, setScale] = useState<{ km: number; px: number } | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
@@ -169,8 +196,8 @@ export function GlobeMap({
         const map = new maplibregl.Map({
           container: containerRef.current,
           style: isDarkTheme() ? DARK_STYLE : LIGHT_STYLE,
-          center: [center?.lon ?? 3.38, center?.lat ?? 6.52],
-          zoom,
+          center: [opening.lon, opening.lat],
+          zoom: opening.zoom,
           pitch: 0,
           bearing: 0,
           antialias: true,
@@ -287,7 +314,7 @@ export function GlobeMap({
         el.type = "button";
         el.setAttribute(
           "aria-label",
-          `${LAYER_NOUN[point.kind]}: ${point.title}${point.meta ? `, ${point.meta}` : ""}`,
+          `${t(LAYER_NOUN[point.kind])}: ${point.title}${point.meta ? `, ${point.meta}` : ""}`,
         );
         el.className = classNames(
           "frelux-pin",
@@ -335,7 +362,7 @@ export function GlobeMap({
     return () => {
       cancelled = true;
     };
-  }, [points, ready, activeId, choose]);
+  }, [points, ready, activeId, choose, t]);
 
   // A record chosen outside the map (for example from the list beside it)
   // brings the camera to it and opens its card.
@@ -360,9 +387,29 @@ export function GlobeMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready || !center) return;
-    map.flyTo({ center: [center.lon, center.lat], zoom: Math.max(zoom, 6) });
+    map.flyTo({
+      center: [center.lon, center.lat],
+      zoom: Math.max(zoom ?? 6, 6),
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center?.lat, center?.lon, ready]);
+
+  // Place search and deep links move the camera without touching records.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !focus) return;
+    const target = { lat: focus.lat, lon: focus.lon };
+    if (!Number.isFinite(target.lat) || !Number.isFinite(target.lon)) return;
+    map.flyTo({
+      center: [target.lon, target.lat],
+      zoom: focus.zoom ?? 10.5,
+      duration: 1400,
+      essential: true,
+    });
+    setSelected(null);
+    setAnchor(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focus?.key, ready]);
 
   // Keyboard: escape closes the record card.
   useEffect(() => {
@@ -567,7 +614,7 @@ export function GlobeMap({
                 to={selected.href}
                 className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
               >
-                View details
+                {t("View details")}
                 <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
               </Link>
             )}

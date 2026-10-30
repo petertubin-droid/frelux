@@ -502,8 +502,10 @@ export default function ProConnectDirectory() {
         layers={["pros"]}
         className="mb-6"
         height={340}
-        title="Professionals near your site"
-        subtitle="Every pin is a verified professional's listed base. Pick a city filter above and the map follows."
+        title={t("Professionals on the map")}
+        subtitle={t(
+          "Every pin is a professional's own listed base, anywhere in the world. Select one to see who they are.",
+        )}
         nearestCount={4}
         exploreHref="/map"
       />

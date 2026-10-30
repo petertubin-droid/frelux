@@ -4,7 +4,8 @@ import { ArrowRight, Crosshair, MapPin } from "lucide-react";
 import { classNames } from "@/lib/utils";
 import { useLocation } from "@/lib/location";
 import { GlobeMap } from "@/components/map/GlobeMap";
-import { formatDistanceKm, haversineKm } from "@/lib/map/geo";
+import { distanceUnitFor, formatDistanceKm, haversineKm } from "@/lib/map/geo";
+import { useLanguage } from "@/lib/i18n";
 import {
   LAYER_COLOR,
   MAP_LAYER_META,
@@ -34,7 +35,7 @@ interface MapPanelProps {
  */
 export function MapPanel({
   layers,
-  title = "See it on the map",
+  title,
   subtitle,
   height = 360,
   className,
@@ -45,6 +46,8 @@ export function MapPanel({
   const [activeLayer, setActiveLayer] = useState<MapLayer>(
     defaultLayer ?? layers[0],
   );
+  const { t, language } = useLanguage();
+  const unit = distanceUnitFor(language);
   const { location: viewer } = useLocation();
   const viewerPoint = useMemo(
     () =>
@@ -69,15 +72,15 @@ export function MapPanel({
         <div className="min-w-0">
           <p className="section-label">Live map</p>
           <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-foreground">
-            {title}
+            {title ?? t("See it on the map")}
           </h2>
           <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-            {subtitle ?? meta.blurb}
+            {subtitle ?? t(meta.blurb)}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <span className="rounded-full border border-border/60 bg-muted/50 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground dark:border-white/10">
-            {loading ? "Loading" : `${points.length} plotted`}
+            {loading ? t("Loading") : `${points.length} ${t("plotted")}`}
           </span>
           <Link
             to={`${exploreHref}?layer=${activeLayer}`}
@@ -109,7 +112,7 @@ export function MapPanel({
                 style={{ background: LAYER_COLOR[layer] }}
                 aria-hidden="true"
               />
-              {MAP_LAYER_META[layer].label}
+              {t(MAP_LAYER_META[layer].label)}
             </button>
           ))}
         </div>
@@ -122,7 +125,7 @@ export function MapPanel({
           center={viewerPoint}
           height={height}
           label={`${meta.label} map`}
-          emptyTitle={error ? "Map data unavailable" : "No pins here yet"}
+          emptyTitle={t(error ? "Map data unavailable" : "No pins here yet")}
           emptyHint={error ?? meta.empty}
         />
       </div>
@@ -166,6 +169,7 @@ export function MapPanel({
                             point.lat,
                             point.lon,
                           ),
+                          unit,
                         )
                       : (point.meta ?? "")}
                   </span>
@@ -181,7 +185,7 @@ export function MapPanel({
               className="mt-0.5 h-3.5 w-3.5 shrink-0"
               aria-hidden="true"
             />
-            {meta.empty}
+            {t(meta.empty)}
           </p>
         )}
 

@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
 import {
   boundsFor,
+  distanceUnitFor,
+  formatMoney,
+  formatNumberFor,
   formatDistanceKm,
   haversineKm,
   isValidCoordinate,
@@ -163,6 +166,19 @@ describe("map geo", () => {
     const bounds = boundsFor(points);
     expect(bounds).toEqual({ west: 3.35, south: 4.8, east: 7.4, north: 9.07 });
     expect(boundsFor([])).toBeNull();
+  });
+
+  it("speaks the reader's units and number format", () => {
+    expect(distanceUnitFor("en-US")).toBe("imperial");
+    expect(distanceUnitFor("en-GB")).toBe("metric");
+    expect(distanceUnitFor("fr-FR")).toBe("metric");
+    expect(distanceUnitFor(undefined)).toBe("metric");
+    expect(formatDistanceKm(16.09, "imperial")).toBe("10.0 mi away");
+    expect(formatDistanceKm(16.09)).toBe("16 km away");
+    expect(formatNumberFor(250000, "en-US")).toBe("250,000");
+    expect(formatMoney("NGN", 250000)).toBe("NGN 250,000");
+    expect(formatMoney("USD", 1200, "de-DE")).toBe("USD 1.200");
+    expect(formatMoney(null, 40)).toBe("40");
   });
 
   it("labels a place from its parts", () => {

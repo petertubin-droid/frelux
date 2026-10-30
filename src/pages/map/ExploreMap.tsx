@@ -1,11 +1,18 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Crosshair, Loader2, Search } from "lucide-react";
+import { Crosshair, Globe2, Loader2, MapPin, Search } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { GlobeMap } from "@/components/map/GlobeMap";
 import { classNames } from "@/lib/utils";
 import { useLocation } from "@/lib/location";
-import { formatDistanceKm, haversineKm, type MapPoint } from "@/lib/map/geo";
+import {
+  distanceUnitFor,
+  formatDistanceKm,
+  haversineKm,
+  type MapPoint,
+} from "@/lib/map/geo";
+import { searchPlaces, type PlaceResult } from "@/lib/map/geocode";
+import { useLanguage } from "@/lib/i18n";
 import {
   LAYER_COLOR,
   MAP_LAYER_META,
@@ -29,6 +36,16 @@ export default function ExploreMap() {
   const [layer, setLayer] = useState<MapLayer>(initialLayer);
   const [query, setQuery] = useState(params.get("q") ?? "");
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [places, setPlaces] = useState<PlaceResult[]>([]);
+  const [searchingPlace, setSearchingPlace] = useState(false);
+  const [focus, setFocus] = useState<{
+    lat: number;
+    lon: number;
+    zoom?: number;
+    key: number;
+  } | null>(null);
+  const { t, language } = useLanguage();
+  const unit = distanceUnitFor(language);
   const {
     location,
     detect,
@@ -53,6 +70,39 @@ export default function ExploreMap() {
       `${p.title} ${p.subtitle ?? ""}`.toLowerCase().includes(term),
     );
   }, [points, query]);
+
+  // The record filter is instant and local. Place lookup runs alongside it so
+  // a visitor can reach any city in the world, not just cities with pins.
+  useEffect(() => {
+    const term = query.trim();
+    if (term.length < 2) {
+      setPlaces([]);
+      setSearchingPlace(false);
+      return;
+    }
+    const controller = new AbortController();
+    setSearchingPlace(true);
+    const timer = window.setTimeout(async () => {
+      const results = await searchPlaces(term, {
+        language: language === "en" ? "en" : language,
+        signal: controller.signal,
+        limit: 5,
+      });
+      if (controller.signal.aborted) return;
+      setPlaces(results);
+      setSearchingPlace(false);
+    }, 420);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [query, language]);
+
+  function goToPlace(place: PlaceResult) {
+    setFocus({ lat: place.lat, lon: place.lon, zoom: 10.5, key: Date.now() });
+    setPlaces([]);
+  }
 
   function changeLayer(next: MapLayer) {
     setLayer(next);
@@ -118,6 +168,57 @@ export default function ExploreMap() {
               className="h-10 w-full rounded-lg border border-border/60 bg-card pl-9 pr-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-ring/25 dark:border-white/10 sm:w-72"
             />
           </div>
+          {query.trim().length >= 2 && (
+            <div className="relative">
+              <div
+                className="absolute left-0 top-1 w-full min-w-[260px] overflow-hidden rounded-xl border border-border/60 bg-card/95 shadow-[0_24px_50px_-30px_rgba(16,12,40,0.6)] backdrop-blur dark:border-white/10"
+                role="listbox"
+                aria-label={t("Places worldwide")}
+              >
+                <p className="flex items-center gap-1.5 border-b border-border/50 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:border-white/5">
+                  <Globe2 className="h-3 w-3" aria-hidden="true" />
+                  {t("Places worldwide")}
+                </p>
+                {searchingPlace && (
+                  <p className="flex items-center gap-2 px-3 py-2.5 text-xs text-muted-foreground">
+                    <Loader2
+                      className="h-3.5 w-3.5 animate-spin"
+                      aria-hidden="true"
+                    />
+                    {t("Searching the globe")}
+                  </p>
+                )}
+                {!searchingPlace && places.length === 0 && (
+                  <p className="px-3 py-2.5 text-xs text-muted-foreground">
+                    {t("No place matched that name")}
+                  </p>
+                )}
+                {places.map((place) => (
+                  <button
+                    key={place.id}
+                    type="button"
+                    role="option"
+                    aria-selected={false}
+                    onClick={() => goToPlace(place)}
+                    className="flex w-full items-start gap-2 px-3 py-2 text-left transition-colors hover:bg-primary/5"
+                  >
+                    <MapPin
+                      className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary"
+                      aria-hidden="true"
+                    />
+                    <span className="min-w-0">
+                      <span className="block truncate text-xs font-semibold text-foreground">
+                        {place.name}
+                      </span>
+                      <span className="block truncate text-[11px] text-muted-foreground">
+                        {place.label}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <button
             type="button"
             onClick={detect}
@@ -147,16 +248,20 @@ export default function ExploreMap() {
             className="frelux-map-surface"
             points={filtered}
             center={viewerPoint}
+            focus={focus}
             height={520}
-            label={`${meta.label} map`}
+            label={`${t(meta.label)} ${t("map")}`}
             activeId={activeId}
             onSelect={(point) => setActiveId(point.id)}
-            emptyTitle={error ? "Map data unavailable" : "No pins here yet"}
+            emptyTitle={t(error ? "Map data unavailable" : "No pins here yet")}
             emptyHint={error ?? meta.empty}
           />
-          <p className="mt-2 text-[11px] text-muted-foreground">
-            Base map data © OpenStreetMap contributors, served by OpenFreeMap.
-            Elevation from the AWS Terrain Tiles set.
+          <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+            {t(
+              "Drag to spin the globe, search any city to fly there, or use your own location for distances.",
+            )}{" "}
+            {t("Base map")} © OpenStreetMap contributors, {t("served by")}{" "}
+            OpenFreeMap. {t("Elevation")}: AWS Terrain Tiles.
           </p>
         </div>
 
@@ -167,7 +272,9 @@ export default function ExploreMap() {
               {meta.blurb}
             </p>
             <p className="mt-2 text-[11px] font-semibold text-muted-foreground">
-              {loading ? "Loading records…" : `${filtered.length} plotted`}
+              {loading
+                ? t("Loading records")
+                : `${filtered.length} ${t("plotted")}`}
             </p>
           </div>
 
@@ -218,6 +325,7 @@ export default function ExploreMap() {
                                 point.lat,
                                 point.lon,
                               ),
+                              unit,
                             )}
                           </span>
                         )}

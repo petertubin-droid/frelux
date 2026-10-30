@@ -66,11 +66,57 @@ export function haversineKm(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-export function formatDistanceKm(km: number): string {
+export type DistanceUnit = "metric" | "imperial";
+
+/**
+ * Miles for the countries that use them, kilometres everywhere else. The map
+ * is worldwide, so distance has to follow the reader's own convention.
+ */
+export function distanceUnitFor(locale?: string): DistanceUnit {
+  const tag = (locale ?? "").toLowerCase();
+  const imperial = ["en-us", "en-lr", "en-mm", "my-mm"];
+  return imperial.some((prefix) => tag.startsWith(prefix))
+    ? "imperial"
+    : "metric";
+}
+
+export function formatDistanceKm(
+  km: number,
+  unit: DistanceUnit = "metric",
+): string {
   if (!Number.isFinite(km)) return "";
+  if (unit === "imperial") {
+    const miles = km * 0.621371;
+    if (miles < 0.1) return `${Math.round(miles * 5280)} ft away`;
+    if (miles < 10) return `${miles.toFixed(1)} mi away`;
+    return `${Math.round(miles)} mi away`;
+  }
   if (km < 1) return `${Math.round(km * 1000)} m away`;
   if (km < 10) return `${km.toFixed(1)} km away`;
   return `${Math.round(km)} km away`;
+}
+
+/** Grouped digits in the reader's own locale. */
+export function formatNumberFor(value: number, locale?: string): string {
+  try {
+    return new Intl.NumberFormat(locale).format(Math.round(value));
+  } catch {
+    return String(Math.round(value));
+  }
+}
+
+/**
+ * Money keeps its ISO currency code so a price is unambiguous in any country,
+ * while the digits follow the reader's locale.
+ */
+export function formatMoney(
+  currency: string | null | undefined,
+  amount: number,
+  locale?: string,
+): string {
+  const code = (currency ?? "").trim().toUpperCase();
+  const digits = formatNumberFor(amount, locale);
+  return code ? `${code} ${digits}` : digits;
 }
 
 export function boundsFor(points: MapPoint[]): GeoBounds | null {
@@ -226,7 +272,7 @@ export function pointsFromMaterials(rows: MaterialRow[]): MapPoint[] {
     if (!isValidCoordinate(row.latitude, row.longitude)) continue;
     const price =
       row.price && row.currency
-        ? `${row.currency} ${Math.round(row.price).toLocaleString()}${row.unit ? ` / ${row.unit}` : ""}`
+        ? `${formatMoney(row.currency, row.price)}${row.unit ? ` / ${row.unit}` : ""}`
         : undefined;
     const lat = row.latitude as number;
     const lon = row.longitude as number;

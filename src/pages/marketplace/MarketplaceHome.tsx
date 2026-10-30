@@ -872,8 +872,10 @@ function ProductsTab(props: {
         layers={["materials", "jobs"]}
         className="mb-6"
         height={320}
-        title="What is near you"
-        subtitle="Stock from sellers with a pickup or delivery area, and open projects you can bid on, plotted where they are."
+        title={tx("What is on the map")}
+        subtitle={tx(
+          "Stock from sellers and open projects you can bid on, plotted where they really are, anywhere in the world.",
+        )}
         nearestCount={3}
         exploreHref="/map"
       />
