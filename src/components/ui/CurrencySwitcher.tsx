@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Coins, ChevronDown, Check } from "lucide-react";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
-import { DISPLAY_CURRENCIES } from "@/lib/international/fx-display";
+import { listCurrencies } from "@/lib/currency/catalogue";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 
@@ -14,6 +14,9 @@ import { Button } from "@/components/ui/shadcn/button";
  * (no display_currencies config), it renders nothing, so the existing
  * Naira-only experience is completely unchanged.
  */
+/** The currencies the engine prices and converts, in selector order. */
+const CURRENCY_OPTIONS = listCurrencies();
+
 export function CurrencySwitcher({
   compact = false,
   inline = false,
@@ -42,11 +45,10 @@ export function CurrencySwitcher({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Hidden until the owner enables it in Currency & FX Rates.
-  if (!config?.enabled) return null;
+  if (!CURRENCY_OPTIONS.length) return null;
 
   const current =
-    DISPLAY_CURRENCIES.find((c) => c.code === code) ?? DISPLAY_CURRENCIES[0];
+    CURRENCY_OPTIONS.find((c) => c.code === code) ?? CURRENCY_OPTIONS[0];
 
   const handleSelect = (nextCode: string) => {
     setCurrency(nextCode);
@@ -80,7 +82,7 @@ export function CurrencySwitcher({
         </Button>
         {open && (
           <div className="mt-1 space-y-0.5 rounded-lg border border-border/50 bg-muted/50 p-2 dark:border-white/5 dark:bg-white/5">
-            {DISPLAY_CURRENCIES.map((c) => (
+            {CURRENCY_OPTIONS.map((c) => (
               <Button
                 variant="ghost"
                 key={c.code}
@@ -101,9 +103,9 @@ export function CurrencySwitcher({
               </Button>
             ))}
             <p className="px-3 pt-1.5 text-[10px] leading-snug text-muted-foreground/70">
-              {converting
-                ? `Amounts converted from Naira at the owner's set rate (${rateDescription}). Estimates always calculate in Naira.`
-                : "Amounts shown in Naira. Estimates always calculate in Naira."}
+              Estimates stay in the currency they were priced in. This only
+              changes how amounts are displayed, using dated exchange rates. The
+              original figures are never overwritten.
             </p>
           </div>
         )}
@@ -144,7 +146,7 @@ export function CurrencySwitcher({
           <p className="px-4 py-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             Display currency
           </p>
-          {DISPLAY_CURRENCIES.map((c) => (
+          {CURRENCY_OPTIONS.map((c) => (
             <Button
               key={c.code}
               variant="ghost"
@@ -155,11 +157,6 @@ export function CurrencySwitcher({
               <span className="flex items-center gap-2">
                 <span className="w-8 text-left">{c.symbol}</span>
                 <span>{c.name}</span>
-                {!rateConfigured(c.code) && c.code !== "NGN" && (
-                  <span className="text-[10px] uppercase tracking-wide text-muted-foreground/70">
-                    no rate
-                  </span>
-                )}
               </span>
               {code === c.code && <Check className="h-4 w-4" />}
             </Button>

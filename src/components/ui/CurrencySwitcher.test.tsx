@@ -17,14 +17,23 @@ vi.mock("@/lib/international/currency-context", () => ({
 describe("CurrencySwitcher", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("renders nothing until the owner enables display currencies", () => {
-    const disabled = { ...ctx, config: null };
+  it("offers the selector even when no owner rate table is enabled", () => {
     const restore = ctx.config;
     (ctx as any).config = null;
-    const { container, unmount } = render(<CurrencySwitcher />);
-    expect(container.firstChild).toBeNull();
-    unmount();
+    render(<CurrencySwitcher compact />);
+    expect(screen.getByRole("button", { name: /currency/i })).toBeTruthy();
     (ctx as any).config = restore ?? { enabled: true, rates: {} };
+  });
+
+  it("lists every currency the engine supports", () => {
+    render(<CurrencySwitcher inline />);
+    fireEvent.click(screen.getByRole("button", { name: /change currency/i }));
+    const labels = screen
+      .getAllByRole("button")
+      .map((b) => b.textContent ?? "");
+    expect(labels.some((t) => t.includes("Nigerian Naira"))).toBe(true);
+    expect(labels.some((t) => t.includes("UAE Dirham"))).toBe(true);
+    expect(labels.some((t) => t.includes("South African Rand"))).toBe(true);
   });
 
   it("shows the currency toggle when enabled (inline mode)", () => {
@@ -44,7 +53,7 @@ describe("CurrencySwitcher", () => {
       .find((b) => (b.textContent ?? "").includes("US Dollar"));
     expect(usdButton).toBeTruthy();
     expect(
-      screen.getByText(/Estimates always calculate in Naira/),
+      screen.getByText(/never overwritten|stay in the currency/i),
     ).toBeTruthy();
     fireEvent.click(usdButton!);
     expect(ctx.setCurrency).toHaveBeenCalledWith("USD");
