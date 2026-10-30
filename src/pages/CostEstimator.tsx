@@ -1,4 +1,5 @@
 import { MacroTrackerCard } from "@/components/pricing/MacroTrackerCard";
+import PriceFreshnessNotice from "@/components/prices/PriceFreshnessNotice";
 import { SupplierOfferBadge } from "@/components/calculator/SupplierOfferBadge";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation, Link } from "react-router-dom";
@@ -959,6 +960,11 @@ export default function CostEstimator({
                   {t("Estimate only, not a final quote.")}
                 </p>
               </div>
+              {materials.length > 0 && (
+                <div className="px-6 pt-4">
+                  <PriceFreshnessNotice rows={materials} className="mt-0" />
+                </div>
+              )}
               <div className="space-y-2 p-6">
                 <Row
                   label={

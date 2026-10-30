@@ -30,6 +30,11 @@ import {
   createEstimateItem,
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
+import PriceFreshnessNotice from "@/components/prices/PriceFreshnessNotice";
+import {
+  summarisePriceBook,
+  type PriceBookSummary,
+} from "@/lib/prices/freshness";
 import { useEstimatorDraft } from "@/hooks/useEstimatorDraft";
 import { CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
@@ -183,6 +188,9 @@ export default function ElectricalEstimator() {
 
   // Rules + materials prices load once
   const [priceMap, setPriceMap] = useState<ElectricalPriceMap>({});
+  const [bookFreshness, setBookFreshness] = useState<PriceBookSummary | null>(
+    null,
+  );
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -199,6 +207,7 @@ export default function ElectricalEstimator() {
         map[m.slug] = byRef.get(m.id) ?? null;
       }
       setPriceMap(map);
+      setBookFreshness(summarisePriceBook(book));
       // rules parsed on demand by the calculate handler via stored rows
       setRuleRows(rulesRes.data as unknown as EstimationCalcRule[]);
     })().catch(() => {});
@@ -486,6 +495,13 @@ export default function ElectricalEstimator() {
             </button>
           </div>
         </div>
+      )}
+
+      {bookFreshness && (
+        <PriceFreshnessNotice
+          bookSummary={bookFreshness}
+          className="mt-0 mb-4"
+        />
       )}
 
       <MarketScopeNotice />
