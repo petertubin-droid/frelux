@@ -9,10 +9,13 @@
  * Exterior only. No quality levels. Labour not included.
  */
 
+import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
+import { useProjectCity } from "@/lib/price-index/use-project-city";
 import {
   resolveMaterialPriceByRole,
   type MaterialRole,
 } from "@/lib/estimation/market-materials";
+import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
 import { useMarket } from "@/lib/international/market-context";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -187,6 +190,7 @@ export default function TyroleneEstimator({
 }: { embedded?: boolean } = {}) {
   const { t } = useLanguage();
   const { marketCode } = useMarket();
+  const { citySlug } = useProjectCity();
   const { defaults: calcDefaults } = useCalcDefaults("tyrolene");
   // Regional data flow: project location -> market profile -> currency.
   const passed =
@@ -396,7 +400,11 @@ export default function TyroleneEstimator({
             );
             continue;
           }
-          const resolved = await resolveMaterialPriceByRole(role, marketCode);
+          const resolved = await resolveCityAwarePriceByRole(
+            role,
+            marketCode,
+            citySlug,
+          );
           if (resolved) {
             priceMap.set(mat.slug, resolved.price);
             setRoleMaterials((prev) => new Map(prev).set(mat.slug, resolved));
@@ -476,7 +484,7 @@ export default function TyroleneEstimator({
     }
 
     loadConfig();
-  }, []);
+  }, [marketCode, citySlug]);
 
   // =========================================================
   // Handlers
@@ -731,6 +739,9 @@ export default function TyroleneEstimator({
     <>
       {!embedded && (
         <>
+          <div className="mx-auto flex w-full max-w-5xl justify-end px-4 pt-4 sm:px-6">
+            <CityPriceSelect />
+          </div>
           <PageHeader
             title={t("Tyrolene Estimator")}
             subtitle={t(

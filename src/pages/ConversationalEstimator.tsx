@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
+import { useProjectCity } from "@/lib/price-index/use-project-city";
 import { Link } from "react-router-dom";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
@@ -14,7 +16,7 @@ import {
 import type { CalcConfig } from "@/lib/calc";
 import type { DbPaintType } from "@/types/database";
 import { fetchPaintTypes } from "@/lib/queries";
-import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
+import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
 import { fetchPackSizeById } from "@/lib/estimation/queries";
 import { useMarket } from "@/lib/international/market-context";
 import { useLanguage } from "@/lib/i18n";
@@ -47,6 +49,7 @@ export default function ConversationalEstimator() {
   });
 
   const { marketCode, market } = useMarket();
+  const { citySlug } = useProjectCity();
   const [thread, setThread] = useState("");
   const [language, setLanguage] = useState<ConversationLanguage | "auto">(
     "auto",
@@ -68,7 +71,7 @@ export default function ConversationalEstimator() {
       try {
         const [typesRes, roleRes] = await Promise.all([
           fetchPaintTypes(),
-          resolveMaterialPriceByRole("interior-paint", marketCode),
+          resolveCityAwarePriceByRole("interior-paint", marketCode, citySlug),
         ]);
         if (!alive) return;
         // The price row references its retail pack by id — resolve the
@@ -116,7 +119,7 @@ export default function ConversationalEstimator() {
     return () => {
       alive = false;
     };
-  }, [marketCode]);
+  }, [marketCode, citySlug]);
 
   useEffect(() => {
     let alive = true;
@@ -173,6 +176,9 @@ export default function ConversationalEstimator() {
 
   return (
     <Container>
+      <div className="mx-auto flex w-full max-w-5xl justify-end px-4 pt-4 sm:px-6">
+        <CityPriceSelect />
+      </div>
       <PageHeader
         breadcrumbs={[
           { label: "Home", path: "/" },

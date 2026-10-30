@@ -12,6 +12,8 @@
  * never invented.
  */
 
+import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
+import { useProjectCity } from "@/lib/price-index/use-project-city";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
@@ -151,6 +153,7 @@ export default function WallFinishEstimator() {
   });
 
   const { marketCode } = useMarket();
+  const { citySlug } = useProjectCity();
   const [country, setCountry] = useState(marketCode);
   const [buildingType, setBuildingType] = useState("residential");
   const [region, setRegion] = useState("");
@@ -349,7 +352,7 @@ export default function WallFinishEstimator() {
       const ctx = {
         currency: resolved.profile.currency,
         resolvePrice: (role: string) =>
-          resolveLayerPrice(role, country, resolved.profile.currency),
+          resolveLayerPrice(role, country, resolved.profile.currency, citySlug),
         resolveLabour: (taskKey: string) =>
           resolveLabourRate(taskKey, country, resolved.profile.currency),
       };
@@ -506,6 +509,9 @@ export default function WallFinishEstimator() {
 
   return (
     <div className="min-h-screen bg-background pb-16">
+      <div className="mx-auto flex w-full max-w-5xl justify-end px-4 pt-4 sm:px-6">
+        <CityPriceSelect />
+      </div>
       <PageHeader
         title={t("Wall Finish Estimator")}
         subtitle={t(

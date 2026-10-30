@@ -16,6 +16,7 @@ import {
   fetchMarketRoleMappings,
   resolveMaterialPriceByRole,
 } from "@/lib/estimation/market-materials";
+import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
 import type {
   LabourRateMethod,
   ResolvedLabourRate,
@@ -26,8 +27,15 @@ export async function resolveLayerPrice(
   role: string,
   market: string,
   currency: string,
+  citySlug?: string | null,
 ): Promise<ResolvedLayerPrice> {
-  const resolved = await resolveMaterialPriceByRole(role as never, market);
+  // City figure when the local evidence clears the sample gate; otherwise the
+  // market price. Never blended, never extrapolated.
+  const resolved = await resolveCityAwarePriceByRole(
+    role as never,
+    market,
+    citySlug,
+  );
   if (!resolved) {
     return {
       materialName: null,

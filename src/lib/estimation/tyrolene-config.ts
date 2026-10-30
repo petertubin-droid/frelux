@@ -25,6 +25,7 @@ import {
   resolveMaterialPriceByRole,
   type MaterialRole,
 } from "@/lib/estimation/market-materials";
+import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
 import type { EstimationPackSize, EstimationPrice } from "@/types/estimation";
 import type {
   ProductionRuleRow,
@@ -67,6 +68,7 @@ export interface TyroleneConfigBundle {
  */
 export async function loadTyroleneCalcConfig(
   marketCode: string,
+  citySlug?: string | null,
 ): Promise<TyroleneConfigBundle> {
   const warnings: string[] = [];
   const roleResolutions = new Map<
@@ -116,7 +118,11 @@ export async function loadTyroleneCalcConfig(
       );
       continue;
     }
-    const resolved = await resolveMaterialPriceByRole(role, marketCode);
+    const resolved = await resolveCityAwarePriceByRole(
+      role,
+      marketCode,
+      citySlug,
+    );
     if (resolved) {
       prices.set(mat.slug, resolved.price as EstimationPrice);
       roleResolutions.set(mat.slug, resolved);
