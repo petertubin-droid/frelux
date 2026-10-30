@@ -1,4 +1,5 @@
 import { useState } from "react";
+import CopyResultsButton from "@/components/calculators/CopyResultsButton";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
@@ -459,6 +460,36 @@ export default function RoofFramingEstimator() {
               <h2 className="mt-2 text-xl font-bold">{t("Timber report")}</h2>
               {result ? (
                 <>
+                  <div className="mt-4">
+                    <CopyResultsButton
+                      block={{
+                        title: "Roof framing schedule",
+                        lines: [
+                          {
+                            label: "Total board feet",
+                            value: `${format(result.totalBoardFeet)} BF`,
+                          },
+                          {
+                            label: "Total linear timber",
+                            value: `${format(result.totalLinearM)} m`,
+                          },
+                          {
+                            label: "Ridge length",
+                            value: `${format(result.ridgeLengthM)} m`,
+                          },
+                          {
+                            label: "Roof rise",
+                            value: `${format(result.roofRiseM)} m`,
+                          },
+                        ],
+                        note: "Timber quantities only. Prices and fixings are not included in this schedule.",
+                        sourceUrl:
+                          typeof window === "undefined"
+                            ? undefined
+                            : window.location.href,
+                      }}
+                    />
+                  </div>
                   <div className="mt-5 grid grid-cols-2 gap-3">
                     <div className="rounded-xl bg-primary/5 p-4">
                       <p className="text-xs text-muted-foreground">

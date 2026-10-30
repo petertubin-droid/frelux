@@ -28,7 +28,10 @@ import {
   createEstimate,
   createEstimateItem,
 } from "@/lib/estimation/queries";
-import { SaveToProjectButton } from "@/components/calculators";
+import {
+  SaveToProjectButton,
+  CopyResultsButton,
+} from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import {
@@ -484,6 +487,26 @@ export default function FlooringEstimator() {
               >
                 {t("Customize in Document Studio")}
               </button>
+              <CopyResultsButton
+                block={{
+                  title: "Flooring estimate",
+                  lines: result.lines.map((line) => ({
+                    label: line.label,
+                    value:
+                      line.quantity === null
+                        ? "unavailable"
+                        : `${line.quantity} ${line.unit}`,
+                  })),
+                  total:
+                    result.grand_total === null
+                      ? "Grand total: not available until every line is priced"
+                      : `Grand total: ${formatCurrency(result.grand_total, currencySymbol)}`,
+                  sourceUrl:
+                    typeof window === "undefined"
+                      ? undefined
+                      : window.location.href,
+                }}
+              />
               <SaveToProjectButton
                 calculatorType="flooring"
                 calculatorSlug="flooring-estimator"

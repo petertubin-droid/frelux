@@ -1,4 +1,5 @@
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import CopyResultsButton from "@/components/calculators/CopyResultsButton";
 import { useState, useCallback } from "react";
 import { useSeo } from "@/lib/seo";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
@@ -508,7 +509,35 @@ export default function FoundationCalculator() {
           </div>
         </div>
         {result && (
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex flex-wrap items-start justify-center gap-3">
+            <CopyResultsButton
+              block={{
+                title: "Foundation estimate",
+                lines: [
+                  { label: "Footing shape", value: result.shape },
+                  {
+                    label: "Recommended width",
+                    value: `${result.recommended_width} mm`,
+                  },
+                  {
+                    label: "Bearing capacity used",
+                    value: `${result.bearing_capacity} kN/m²`,
+                  },
+                  {
+                    label: "Excavation",
+                    value: `${result.excavation_volume} m³`,
+                  },
+                  { label: "Blinding", value: `${result.blinding_volume} m³` },
+                  { label: "Concrete", value: `${result.concrete_volume} m³` },
+                  { label: "Hardcore", value: `${result.hardcore_volume} m³` },
+                ],
+                note: "Preliminary sizing only. Soil capacity is a generic assumption, not a site test result.",
+                sourceUrl:
+                  typeof window === "undefined"
+                    ? undefined
+                    : window.location.href,
+              }}
+            />
             <SaveToProjectButton
               calculatorType="foundation"
               calculatorSlug="foundation-calculator"

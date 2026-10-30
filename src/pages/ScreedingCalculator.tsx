@@ -2,7 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { CheckCircle2, RotateCcw, ArrowRight } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
-import { SaveToProjectButton } from "@/components/calculators";
+import {
+  SaveToProjectButton,
+  CopyResultsButton,
+} from "@/components/calculators";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { formatNumber } from "@/lib/utils";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
@@ -382,6 +385,23 @@ export default function ScreedingCalculator({
             </div>
 
             <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+              <CopyResultsButton
+                block={{
+                  title: "Screeding estimate",
+                  lines: [
+                    { label: "Finish", value: finishTerm },
+                    {
+                      label: "Surface area",
+                      value: `${formatNumber(screedingResult.totalAreaM2, 2)} m²`,
+                    },
+                  ],
+                  note: "Area only. Material quantities are calculated in the cost estimate, which applies coverage rates and waste.",
+                  sourceUrl:
+                    typeof window === "undefined"
+                      ? undefined
+                      : window.location.href,
+                }}
+              />
               <NearbySuppliersLink material="screeding cement" />
               <SaveToProjectButton
                 calculatorType="screeding"
