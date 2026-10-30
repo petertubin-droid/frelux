@@ -298,6 +298,10 @@ left join (
 group by s.market, mc.code, mc.label;
 
 -- ── Seven country coverage, honest about what is actually priced ──
+-- Drop first: an existing deployment can carry a different column set, and
+-- CREATE OR REPLACE cannot remove columns (the next migration redefines this
+-- view again with the grant attached).
+drop view if exists public.country_coverage_seven;
 create or replace view public.country_coverage_seven as
 with codes(code) as (values ('GB'),('US'),('CN'),('CA'),('AU'),('MX'),('AE'))
 select mp.country_code as market,
