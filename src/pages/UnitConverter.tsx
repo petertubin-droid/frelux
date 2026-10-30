@@ -25,11 +25,15 @@ import {
   MATERIAL_DENSITIES,
   PLOT_PRESETS,
   VOLUME_LABELS,
+  DIMENSION_LABELS,
+  UNIVERSAL_UNITS,
   bagsFromMass,
   convertArea,
   convertLength,
   convertMass,
+  convertUniversal,
   convertVolume,
+  findUniversalUnit,
   feetInchesToMetres,
   findMaterial,
   formatNumber,
@@ -44,6 +48,7 @@ import {
   roofPitchDegrees,
   volumeToMassKg,
   type AreaUnit,
+  type Dimension,
   type LengthUnit,
   type MassUnit,
   type VolumeUnit,
@@ -60,9 +65,17 @@ import {
  */
 
 type TabId =
-  "length" | "area" | "volume" | "weight" | "materials" | "paint" | "roofing";
+  | "universal"
+  | "length"
+  | "area"
+  | "volume"
+  | "weight"
+  | "materials"
+  | "paint"
+  | "roofing";
 
 const TABS: { id: TabId; label: string; icon: typeof Ruler }[] = [
+  { id: "universal", label: "All units", icon: ArrowLeftRight },
   { id: "length", label: "Length", icon: Ruler },
   { id: "area", label: "Area & land", icon: LandPlot },
   { id: "volume", label: "Volume", icon: FlaskConical },
@@ -128,7 +141,7 @@ function Assumption({ children }: { children: React.ReactNode }) {
 }
 
 export default function UnitConverter() {
-  const [tab, setTab] = useState<TabId>("length");
+  const [tab, setTab] = useState<TabId>("universal");
 
   useSeo({
     title: "Construction Measurement Converter: Plots, Feet, Tonnes to Bags",
@@ -158,6 +171,14 @@ export default function UnitConverter() {
         "@context": "https://schema.org",
         "@type": "FAQPage",
         mainEntity: [
+          {
+            "@type": "Question",
+            name: "Can any measurement be converted into any other?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes, within the all-units tab. Length, area, volume and weight are complete against each other. Crossing kinds is allowed only where the arithmetic is honest: a length can be squared into an area or cubed into a volume, an area becomes a volume with a depth, and a volume becomes a weight with a density. Pairs that measure unrelated things are refused with the reason stated.",
+            },
+          },
           {
             "@type": "Question",
             name: "How many square metres is a plot of land in Nigeria?",
@@ -208,7 +229,7 @@ export default function UnitConverter() {
       <Container className="pt-10 sm:pt-14">
         <PageHeader
           title="Construction Measurement Converter"
-          subtitle="Feet, inches, plots, tonnes, litres and bags, converted exactly and explained. Built for the units you meet on a Nigerian site, with imperial support for drawings that still use it."
+          subtitle="Every unit in the tool converts into every other: feet, inches, plots, acres, tonnes, litres, gallons and bags. Same-kind units convert exactly, and crossing kinds shows the square, cube, depth or density it used."
         />
 
         <div
@@ -240,6 +261,7 @@ export default function UnitConverter() {
         </div>
 
         <div className="mt-6">
+          {tab === "universal" && <UniversalPanel />}
           {tab === "length" && <LengthPanel />}
           {tab === "area" && <AreaPanel />}
           {tab === "volume" && <VolumePanel />}
@@ -308,6 +330,310 @@ export default function UnitConverter() {
           </div>
         </section>
       </Container>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- universal
+
+const DIMENSION_ORDER: Dimension[] = ["length", "area", "volume", "mass"];
+
+function UnitSelect({
+  id,
+  label,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  return (
+    <div>
+      <label className={LABEL} htmlFor={id}>
+        {label}
+      </label>
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={FIELD}
+      >
+        {DIMENSION_ORDER.map((dimension) => (
+          <optgroup key={dimension} label={DIMENSION_LABELS[dimension]}>
+            {UNIVERSAL_UNITS.filter((unit) => unit.dimension === dimension).map(
+              (unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.label}
+                </option>
+              ),
+            )}
+          </optgroup>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function UniversalPanel() {
+  const [amount, setAmount] = useState("60");
+  const [from, setFrom] = useState("area-plot-60x120");
+  const [to, setTo] = useState("area-m2");
+  const [depth, setDepth] = useState("0.1");
+  const [density, setDensity] = useState("1600");
+  const [materialId, setMaterialId] = useState("sharp-sand");
+  const { copied, copy } = useCopy();
+
+  const fromUnit = findUniversalUnit(from);
+  const toUnit = findUniversalUnit(to);
+  const dimensions = [fromUnit?.dimension, toUnit?.dimension];
+  const crossesAreaVolume =
+    dimensions.includes("area") && dimensions.includes("volume");
+  const crossesMass =
+    dimensions.includes("mass") &&
+    (dimensions.includes("volume") ||
+      dimensions.includes("area") ||
+      dimensions.includes("length"));
+  const incompatible =
+    dimensions.includes("mass") &&
+    !dimensions.includes("volume") &&
+    !dimensions.includes("area") &&
+    !dimensions.includes("length");
+
+  const value = parseMeasurement(amount);
+  const result =
+    value === null
+      ? null
+      : convertUniversal(value, from, to, {
+          depthM: parseMeasurement(depth) ?? undefined,
+          densityKgM3: parseMeasurement(density) ?? undefined,
+        });
+
+  const pickMaterial = (id: string) => {
+    setMaterialId(id);
+    const found = findMaterial(id);
+    if (found) setDensity(String(found.densityKgM3));
+  };
+
+  const swap = () => {
+    setFrom(to);
+    setTo(from);
+  };
+
+  const copyText =
+    result?.value !== null && result?.value !== undefined
+      ? `${formatNumber(result.value)} ${toUnit?.label ?? ""}`
+      : "";
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+      <div className={PANEL}>
+        <h2 className="text-base font-semibold text-foreground">
+          Any measurement into any other
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Every unit in the tool is available on both sides. Length, area,
+          volume and weight convert exactly within themselves, and cross over
+          where the arithmetic is honest.
+        </p>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-end">
+          <div>
+            <label className={LABEL} htmlFor="all-amount">
+              Measurement
+            </label>
+            <input
+              id="all-amount"
+              inputMode="decimal"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className={FIELD}
+            />
+            <div className="mt-2">
+              <UnitSelect
+                id="all-from"
+                label="From"
+                value={from}
+                onChange={setFrom}
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={swap}
+            aria-label="Swap units"
+            className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-white/70 text-foreground transition hover:border-primary/40 hover:bg-primary/10 dark:border-white/10 dark:bg-white/5"
+          >
+            <ArrowLeftRight aria-hidden="true" className="h-4 w-4" />
+          </button>
+
+          <div>
+            <label className={LABEL}>Result</label>
+            <div
+              aria-live="polite"
+              className="rounded-xl border border-primary/25 bg-primary/10 px-3 py-2.5 text-lg font-semibold tabular-nums text-foreground"
+            >
+              {result?.value === null || result?.value === undefined
+                ? "n/a"
+                : `${formatNumber(result.value)}`}
+            </div>
+            <div className="mt-2">
+              <UnitSelect id="all-to" label="To" value={to} onChange={setTo} />
+            </div>
+          </div>
+        </div>
+
+        {(crossesAreaVolume || crossesMass) && (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {crossesAreaVolume && (
+              <div>
+                <label className={LABEL} htmlFor="all-depth">
+                  Depth of the layer (m)
+                </label>
+                <input
+                  id="all-depth"
+                  inputMode="decimal"
+                  value={depth}
+                  onChange={(e) => setDepth(e.target.value)}
+                  className={FIELD}
+                />
+              </div>
+            )}
+            {crossesMass && (
+              <>
+                <div>
+                  <label className={LABEL} htmlFor="all-material">
+                    Material
+                  </label>
+                  <select
+                    id="all-material"
+                    value={materialId}
+                    onChange={(e) => pickMaterial(e.target.value)}
+                    className={FIELD}
+                  >
+                    {MATERIAL_DENSITIES.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={LABEL} htmlFor="all-density">
+                    Density (kg per m³)
+                  </label>
+                  <input
+                    id="all-density"
+                    inputMode="decimal"
+                    value={density}
+                    onChange={(e) => setDensity(e.target.value)}
+                    className={FIELD}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {[
+            {
+              a: "60",
+              f: "area-plot-60x120",
+              t: "area-m2",
+              label: "Plot 60 x 120 to m²",
+            },
+            { a: "12", f: "len-ft", t: "len-m", label: "12 ft to m" },
+            {
+              a: "1",
+              f: "area-acre",
+              t: "area-hectare",
+              label: "1 acre to hectares",
+            },
+            { a: "20", f: "mass-tonne", t: "vol-m3", label: "20 t sand to m³" },
+            { a: "100", f: "area-m2", t: "area-ft2", label: "100 m² to ft²" },
+          ].map((quick) => (
+            <button
+              key={quick.label}
+              className={CHIP}
+              onClick={() => {
+                setAmount(quick.a);
+                setFrom(quick.f);
+                setTo(quick.t);
+              }}
+            >
+              {quick.label}
+            </button>
+          ))}
+          <button className={CHIP} onClick={() => setAmount("")}>
+            <span className="inline-flex items-center gap-1">
+              <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" /> Clear
+            </span>
+          </button>
+          <button
+            className={CHIP}
+            onClick={() => copyText && copy(copyText)}
+            disabled={!copyText}
+          >
+            <span className="inline-flex items-center gap-1">
+              {copied ? (
+                <Check aria-hidden="true" className="h-3.5 w-3.5" />
+              ) : (
+                <Copy aria-hidden="true" className="h-3.5 w-3.5" />
+              )}
+              {copied ? "Copied" : "Copy"}
+            </span>
+          </button>
+        </div>
+
+        {result?.error && (
+          <p className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-xs leading-relaxed text-amber-700 dark:text-amber-300">
+            {result.error}
+          </p>
+        )}
+      </div>
+
+      <div className={PANEL}>
+        <h2 className="text-base font-semibold text-foreground">
+          How this one was reached
+        </h2>
+        <div className="mt-3">
+          <ResultRow
+            label="From"
+            value={`${amount || "0"} ${fromUnit?.label ?? ""}`}
+          />
+          <ResultRow
+            label="To"
+            value={
+              result?.value === null || result?.value === undefined
+                ? "n/a"
+                : formatNumber(result.value)
+            }
+            emphasis
+          />
+          <ResultRow label="Target unit" value={toUnit?.label ?? "n/a"} />
+        </div>
+        <p className="mt-3 text-sm text-muted-foreground">
+          {result?.explanation ||
+            "Choose a unit on both sides to see how the answer is reached."}
+        </p>
+        <Assumption>
+          Same-kind units convert exactly. A square, a cube, a depth or a
+          density is only assumed when the pair needs it, and the assumption is
+          written above the answer, never hidden.
+        </Assumption>
+        {incompatible && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Weight and{" "}
+            {fromUnit?.dimension === "mass"
+              ? toUnit?.dimension
+              : fromUnit?.dimension}{" "}
+            need a volume and a density between them. The Materials tab does
+            that path with a named material.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

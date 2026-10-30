@@ -524,3 +524,376 @@ export function litresPerSqm(
   if (!Number.isFinite(coats) || coats <= 0) return null;
   return 1 / (coverageSqmPerLitre * coats);
 }
+
+// =========================================================
+// Universal conversion
+//
+// One registry of every unit the tool knows, tagged with the dimension it
+// measures, so any unit can be offered against any other. Same-dimension
+// conversions are exact. Crossing dimensions is only allowed where the
+// arithmetic is honest: a square has one side, a cube has one side, a slab has
+// a depth, and a load has a density. Where a missing dimension is required the
+// result says which one instead of inventing an answer.
+// =========================================================
+
+export type Dimension = "length" | "area" | "volume" | "mass";
+
+export const DIMENSION_LABELS: Record<Dimension, string> = {
+  length: "Length",
+  area: "Area",
+  volume: "Volume",
+  mass: "Weight",
+};
+
+export interface UniversalUnit {
+  id: string;
+  label: string;
+  dimension: Dimension;
+  /** Factor into the dimension's base unit: m, m², L, kg. */
+  factor: number;
+}
+
+export const UNIVERSAL_UNITS: UniversalUnit[] = [
+  {
+    id: "len-mm",
+    label: "Millimetres (mm)",
+    dimension: "length",
+    factor: LENGTH_TO_M.mm,
+  },
+  {
+    id: "len-cm",
+    label: "Centimetres (cm)",
+    dimension: "length",
+    factor: LENGTH_TO_M.cm,
+  },
+  {
+    id: "len-m",
+    label: "Metres (m)",
+    dimension: "length",
+    factor: LENGTH_TO_M.m,
+  },
+  {
+    id: "len-km",
+    label: "Kilometres (km)",
+    dimension: "length",
+    factor: LENGTH_TO_M.km,
+  },
+  {
+    id: "len-in",
+    label: "Inches (in)",
+    dimension: "length",
+    factor: LENGTH_TO_M.in,
+  },
+  {
+    id: "len-ft",
+    label: "Feet (ft)",
+    dimension: "length",
+    factor: LENGTH_TO_M.ft,
+  },
+  {
+    id: "len-yd",
+    label: "Yards (yd)",
+    dimension: "length",
+    factor: LENGTH_TO_M.yd,
+  },
+
+  {
+    id: "area-mm2",
+    label: "Square millimetres (mm²)",
+    dimension: "area",
+    factor: AREA_TO_M2.mm2,
+  },
+  {
+    id: "area-cm2",
+    label: "Square centimetres (cm²)",
+    dimension: "area",
+    factor: AREA_TO_M2.cm2,
+  },
+  {
+    id: "area-m2",
+    label: "Square metres (m²)",
+    dimension: "area",
+    factor: AREA_TO_M2.m2,
+  },
+  {
+    id: "area-ft2",
+    label: "Square feet (ft²)",
+    dimension: "area",
+    factor: AREA_TO_M2.ft2,
+  },
+  {
+    id: "area-yd2",
+    label: "Square yards (yd²)",
+    dimension: "area",
+    factor: AREA_TO_M2.yd2,
+  },
+  {
+    id: "area-acre",
+    label: "Acres",
+    dimension: "area",
+    factor: AREA_TO_M2.acre,
+  },
+  {
+    id: "area-hectare",
+    label: "Hectares",
+    dimension: "area",
+    factor: AREA_TO_M2.hectare,
+  },
+  {
+    id: "area-plot-50x100",
+    label: "Plot, 50 x 100 ft",
+    dimension: "area",
+    factor: 464.5152,
+  },
+  {
+    id: "area-plot-60x120",
+    label: "Plot, 60 x 120 ft",
+    dimension: "area",
+    factor: 668.901888,
+  },
+  {
+    id: "area-plot-100x100",
+    label: "Plot, 100 x 100 ft",
+    dimension: "area",
+    factor: 929.0304,
+  },
+
+  {
+    id: "vol-ml",
+    label: "Millilitres (ml)",
+    dimension: "volume",
+    factor: VOLUME_TO_L.ml,
+  },
+  {
+    id: "vol-l",
+    label: "Litres (L)",
+    dimension: "volume",
+    factor: VOLUME_TO_L.l,
+  },
+  {
+    id: "vol-m3",
+    label: "Cubic metres (m³)",
+    dimension: "volume",
+    factor: VOLUME_TO_L.m3,
+  },
+  {
+    id: "vol-ft3",
+    label: "Cubic feet (ft³)",
+    dimension: "volume",
+    factor: VOLUME_TO_L.ft3,
+  },
+  {
+    id: "vol-gal-us",
+    label: "US gallons",
+    dimension: "volume",
+    factor: VOLUME_TO_L.gal_us,
+  },
+  {
+    id: "vol-gal-imp",
+    label: "Imperial gallons",
+    dimension: "volume",
+    factor: VOLUME_TO_L.gal_imp,
+  },
+
+  { id: "mass-g", label: "Grams (g)", dimension: "mass", factor: MASS_TO_KG.g },
+  {
+    id: "mass-kg",
+    label: "Kilograms (kg)",
+    dimension: "mass",
+    factor: MASS_TO_KG.kg,
+  },
+  {
+    id: "mass-tonne",
+    label: "Metric tonnes (t)",
+    dimension: "mass",
+    factor: MASS_TO_KG.tonne,
+  },
+  {
+    id: "mass-lb",
+    label: "Pounds (lb)",
+    dimension: "mass",
+    factor: MASS_TO_KG.lb,
+  },
+  {
+    id: "mass-ton-us",
+    label: "US short tons",
+    dimension: "mass",
+    factor: MASS_TO_KG.ton_us,
+  },
+  {
+    id: "mass-ton-imp",
+    label: "Imperial long tons",
+    dimension: "mass",
+    factor: MASS_TO_KG.ton_imp,
+  },
+];
+
+export function findUniversalUnit(id: string): UniversalUnit | null {
+  return UNIVERSAL_UNITS.find((unit) => unit.id === id) ?? null;
+}
+
+export interface UniversalOptions {
+  /** Depth in metres, used when crossing between area and volume. */
+  depthM?: number;
+  /** Density in kg per cubic metre, used when crossing between volume and weight. */
+  densityKgM3?: number;
+}
+
+export interface UniversalResult {
+  /** Null when the pair cannot be converted with what is known. */
+  value: number | null;
+  /** Plain sentence explaining how the answer was reached. */
+  explanation: string;
+  /** Another measurement the user must supply before this pair works. */
+  needs?: "depth" | "density";
+  error?: string;
+}
+
+const NO_VALUE = "Enter a number to convert.";
+
+export function convertUniversal(
+  amount: number,
+  fromId: string,
+  toId: string,
+  options: UniversalOptions = {},
+): UniversalResult {
+  const from = findUniversalUnit(fromId);
+  const to = findUniversalUnit(toId);
+  if (!from || !to) {
+    return {
+      value: null,
+      explanation: "",
+      error: "Choose a unit on both sides.",
+    };
+  }
+  if (!Number.isFinite(amount) || amount < 0) {
+    return { value: null, explanation: "" };
+  }
+
+  // Same dimension: one ratio, exact constants, no intermediates to drift.
+  if (from.dimension === to.dimension) {
+    const value = (amount * from.factor) / to.factor;
+    return {
+      value,
+      explanation: `1 ${unitShort(from)} = ${formatNumber(from.factor / to.factor, 8)} ${unitShort(to)}`,
+    };
+  }
+
+  const pair = [from.dimension, to.dimension].sort().join(">");
+
+  // A square and a cube each have a single side, which is enough to cross.
+  if (pair === "area>length") {
+    if (from.dimension === "length") {
+      const sideM = amount * from.factor;
+      const value = (sideM * sideM) / to.factor;
+      return {
+        value,
+        explanation: "Treated as a square: area = length x length.",
+      };
+    }
+    const areaM2 = amount * from.factor;
+    const sideM = Math.sqrt(areaM2);
+    const value = sideM / to.factor;
+    return {
+      value,
+      explanation: "Treated as a square: length = square root of area.",
+    };
+  }
+
+  if (pair === "length>volume") {
+    if (from.dimension === "length") {
+      const sideM = amount * from.factor;
+      const value = (sideM * sideM * sideM * 1000) / to.factor;
+      return {
+        value,
+        explanation: "Treated as a cube: volume = length x length x length.",
+      };
+    }
+    const volumeL = amount * from.factor;
+    const sideM = Math.cbrt(volumeL / 1000);
+    const value = sideM / to.factor;
+    return {
+      value,
+      explanation: "Treated as a cube: length = cube root of volume.",
+    };
+  }
+
+  if (pair === "area>volume") {
+    const depth = options.depthM;
+    if (!Number.isFinite(depth ?? NaN) || (depth ?? 0) <= 0) {
+      return {
+        value: null,
+        explanation:
+          "Area becomes volume only once you say how deep the layer is.",
+        needs: "depth",
+        error: "Add a depth to convert between area and volume.",
+      };
+    }
+    if (from.dimension === "area") {
+      const volumeL = amount * from.factor * (depth as number) * 1000;
+      return {
+        value: volumeL / to.factor,
+        explanation: `Volume = area x depth. Depth used: ${formatNumber(depth as number, 3)} m.`,
+      };
+    }
+    const areaM2 = (amount * from.factor) / 1000 / (depth as number);
+    return {
+      value: areaM2 / to.factor,
+      explanation: `Area = volume / depth. Depth used: ${formatNumber(depth as number, 3)} m.`,
+    };
+  }
+
+  if (
+    pair === "mass>volume" ||
+    pair === "area>mass" ||
+    pair === "length>mass"
+  ) {
+    if (from.dimension !== "volume" && to.dimension !== "volume") {
+      return {
+        value: null,
+        explanation:
+          "Weight needs a volume and a density, and this pair has no volume.",
+        needs: "density",
+        error:
+          "Weight conversions need a volume first. Use the Materials tab for tonnes of sand or granite.",
+      };
+    }
+    const density = options.densityKgM3;
+    if (!Number.isFinite(density ?? NaN) || (density ?? 0) <= 0) {
+      return {
+        value: null,
+        explanation:
+          "Volume becomes weight only through the density of the material.",
+        needs: "density",
+        error: "Add a density to convert between volume and weight.",
+      };
+    }
+    if (from.dimension === "volume") {
+      const massKg = ((amount * from.factor) / 1000) * (density as number);
+      return {
+        value: massKg / to.factor,
+        explanation: `Weight = volume x density. Density used: ${formatNumber(density as number, 0)} kg/m³.`,
+      };
+    }
+    const volumeL = ((amount * from.factor) / (density as number)) * 1000;
+    return {
+      value: volumeL / to.factor,
+      explanation: `Volume = weight / density. Density used: ${formatNumber(density as number, 0)} kg/m³.`,
+    };
+  }
+
+  return {
+    value: null,
+    explanation:
+      "These two units measure different things, so they cannot be swapped directly.",
+    error:
+      "Pick units of the same kind, or add the dimension the conversion needs.",
+  };
+}
+
+/** Short symbol for a universal unit, used inside explanations. */
+export function unitShort(unit: UniversalUnit): string {
+  return unit.id.replace(/^(len|area|vol|mass)-/, "").replace(/-/g, " ");
+}
+
+export const EMPTY_CONVERSION_HINT = NO_VALUE;

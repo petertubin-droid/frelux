@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   AREA_TO_M2,
+  convertUniversal,
   bagsFromMass,
   convertArea,
   convertLength,
@@ -179,5 +180,87 @@ describe("input handling", () => {
     expect(formatNumber(25.4)).toBe("25.4");
     expect(formatNumber(null)).toBe("n/a");
     expect(formatNumber(1234.56789, 2)).toBe("1234.57");
+  });
+});
+
+describe("universal conversion across every unit", () => {
+  it("converts any length into any other length", () => {
+    expect(convertUniversal(12, "len-ft", "len-in").value).toBeCloseTo(144, 9);
+    expect(convertUniversal(1, "len-yd", "len-mm").value).toBeCloseTo(914.4, 9);
+    expect(convertUniversal(2.5, "len-km", "len-m").value).toBeCloseTo(2500, 9);
+  });
+
+  it("converts land units including plots", () => {
+    expect(
+      convertUniversal(1, "area-plot-60x120", "area-m2").value,
+    ).toBeCloseTo(668.901888, 4);
+    expect(
+      convertUniversal(1, "area-acre", "area-plot-50x100").value,
+    ).toBeCloseTo(8.71, 2);
+    expect(convertUniversal(1, "area-hectare", "area-acre").value).toBeCloseTo(
+      2.4710538147,
+      8,
+    );
+    expect(
+      convertUniversal(1, "area-plot-100x100", "area-ft2").value,
+    ).toBeCloseTo(10000, 4);
+  });
+
+  it("squares a length to reach an area and takes the root back", () => {
+    expect(convertUniversal(10, "len-m", "area-m2").value).toBeCloseTo(100, 9);
+    expect(convertUniversal(100, "area-m2", "len-m").value).toBeCloseTo(10, 9);
+    expect(convertUniversal(6, "len-ft", "area-m2").value).toBeCloseTo(
+      3.34450944,
+      6,
+    );
+  });
+
+  it("cubes a length to reach a volume and roots it back", () => {
+    expect(convertUniversal(2, "len-m", "vol-l").value).toBeCloseTo(8000, 6);
+    expect(convertUniversal(8, "vol-m3", "len-m").value).toBeCloseTo(2, 9);
+  });
+
+  it("crosses area and volume only with a depth", () => {
+    const missing = convertUniversal(50, "area-m2", "vol-m3");
+    expect(missing.value).toBeNull();
+    expect(missing.needs).toBe("depth");
+    expect(missing.error).toMatch(/depth/i);
+
+    const withDepth = convertUniversal(50, "area-m2", "vol-m3", {
+      depthM: 0.1,
+    });
+    expect(withDepth.value).toBeCloseTo(5, 9);
+    expect(withDepth.explanation).toMatch(/depth used/i);
+
+    const backwards = convertUniversal(5, "vol-m3", "area-m2", { depthM: 0.1 });
+    expect(backwards.value).toBeCloseTo(50, 9);
+  });
+
+  it("crosses volume and weight only with a density", () => {
+    const missing = convertUniversal(1000, "vol-l", "mass-kg");
+    expect(missing.value).toBeNull();
+    expect(missing.needs).toBe("density");
+
+    expect(
+      convertUniversal(1000, "vol-l", "mass-kg", { densityKgM3: 1000 }).value,
+    ).toBeCloseTo(1000, 9);
+    expect(
+      convertUniversal(20, "mass-tonne", "vol-m3", { densityKgM3: 1600 }).value,
+    ).toBeCloseTo(12.5, 9);
+    expect(
+      convertUniversal(1, "vol-m3", "mass-tonne", { densityKgM3: 1650 }).value,
+    ).toBeCloseTo(1.65, 9);
+  });
+
+  it("refuses pairs that measure different things", () => {
+    const result = convertUniversal(5, "len-ft", "mass-kg");
+    expect(result.value).toBeNull();
+    expect(result.error).toBeTruthy();
+    expect(convertUniversal(5, "volume-nonsense", "len-m").error).toBeTruthy();
+  });
+
+  it("handles zero, and rejects negative amounts", () => {
+    expect(convertUniversal(0, "len-ft", "len-m").value).toBe(0);
+    expect(convertUniversal(-2, "len-ft", "len-m").value).toBeNull();
   });
 });
