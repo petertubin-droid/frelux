@@ -51,3 +51,12 @@ verify_jwt = true
 
 [functions.verify-ayet-rewarded-session]
 verify_jwt = true
+
+[functions.price-index-submit]
+verify_jwt = false
+
+[functions.price-index-api]
+verify_jwt = false
+
+[functions.price-index-review]
+verify_jwt = true

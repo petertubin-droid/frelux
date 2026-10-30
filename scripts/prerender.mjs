@@ -2497,6 +2497,12 @@ const routes = [
       "Analyse indoor heat comfort for your building design and material choices.",
   },
   {
+    path: "/material-price-index",
+    title: "Live Nigerian Material Price Index | FRELUX SMART CALC",
+    description:
+      "Construction material prices across Lagos, Abuja, Port Harcourt, Onitsha, Ibadan, Kano and more, with sample sizes, sources and last verification dates. Figures are published only when at least three independent prices support them.",
+  },
+  {
     path: "/code-reference",
     title: "International Building Code Reference | FRELUX SMART CALC",
     description:

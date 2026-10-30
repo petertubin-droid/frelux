@@ -1,4 +1,7 @@
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
+import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
+import { useProjectCity } from "@/lib/price-index/use-project-city";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLocation, Link } from "react-router-dom";
 import {
@@ -32,7 +35,6 @@ import { track } from "@/lib/analytics";
 import { logAnalyticsEvent, fetchScreedingSystemConfig } from "@/lib/queries";
 import { useMarket, useLocalTerm } from "@/lib/international/market-context";
 import {
-  resolveMaterialPriceByRole,
   type MaterialRole,
 } from "@/lib/estimation/market-materials";
 import type {
@@ -101,6 +103,7 @@ async function resolveScreedPrices<T extends ScreedingSystemConfig>(
   cfg: T,
   rowMarket: string | undefined,
   userMarket: string,
+  citySlug?: string | null,
 ): Promise<T> {
   if (!rowMarket || rowMarket === userMarket) {
     const resolve = async (
@@ -108,7 +111,9 @@ async function resolveScreedPrices<T extends ScreedingSystemConfig>(
       current: number | null,
     ): Promise<number | null> => {
       if (current != null && current > 0) return current;
-      const res = await resolveMaterialPriceByRole(role, userMarket);
+      // City figure where the evidence supports one, otherwise the market
+      // price. The resolver never substitutes across cities or currencies.
+      const res = await resolveCityAwarePriceByRole(role, userMarket, citySlug);
       return res?.price?.price ?? null;
     };
     return {
@@ -168,6 +173,7 @@ export default function ScreedingCostEstimator({
   // Regional data flow: project location -> market profile -> currency.
   // Hook must run before the loading early-return (Rules of Hooks).
   const { marketCode } = useMarket();
+  const { citySlug } = useProjectCity();
   // Market-aware mix term (e.g. "Joint Compound / Sheetrock Skim Coat"
   // in the US); NG keeps its established phrasing with no extra note.
   const localTerm = useLocalTerm();
@@ -240,7 +246,12 @@ export default function ScreedingCostEstimator({
         if (puttyRes.data) {
           const cfg = dbToSystemConfig(puttyRes.data);
           setPuttyConfig(
-            await resolveScreedPrices(cfg, puttyRes.data.market, marketCode),
+            await resolveScreedPrices(
+              cfg,
+              puttyRes.data.market,
+              marketCode,
+              citySlug,
+            ),
           );
           setSelectedSystem("putty");
           setCoats(cfg.defaultCoats);
@@ -251,6 +262,7 @@ export default function ScreedingCostEstimator({
               dbToSystemConfig(mixRes.data),
               mixRes.data.market,
               marketCode,
+              citySlug,
             ),
           );
         }
@@ -262,7 +274,7 @@ export default function ScreedingCostEstimator({
       setLoading(false);
     }
     loadConfigs();
-  }, [marketCode]);
+  }, [marketCode, citySlug]);
 
   const activeConfig = selectedSystem === "putty" ? puttyConfig : mixConfig;
 
@@ -356,6 +368,7 @@ export default function ScreedingCostEstimator({
         />
       )}
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+        <CityPriceSelect className="mb-4 justify-end" />
         {marketNotConfigured && (
           <div
             className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200"

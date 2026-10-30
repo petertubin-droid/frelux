@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
+import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
+import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
+import { useProjectCity } from "@/lib/price-index/use-project-city";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { useMarket, useLocalTerm } from "@/lib/international/market-context";
 import { useLanguage } from "@/lib/i18n";
@@ -174,6 +176,7 @@ export default function PaintCalculator({
 }: { embedded?: boolean } = {}) {
   const navigate = useNavigate();
   const { marketCode, market } = useMarket();
+  const { citySlug } = useProjectCity();
   const { t } = useLanguage();
   const roomUnit = resolveMarketRoomUnit(market, "feet");
   const { defaults: calcDefaults, rules: _calcRules } =
@@ -376,9 +379,12 @@ export default function PaintCalculator({
               const role = /premium|luxur/i.test(q.name ?? "")
                 ? "interior-paint-premium"
                 : "interior-paint";
-              const resolved = await resolveMaterialPriceByRole(
+              // City figure where the local evidence supports one, otherwise
+              // the market book price. Never blended or extrapolated.
+              const resolved = await resolveCityAwarePriceByRole(
                 role,
                 marketCode,
+                citySlug,
               );
               if (resolved) {
                 priceMap.set(q.id, resolved.price as EstimationPrice);
@@ -400,7 +406,7 @@ export default function PaintCalculator({
       mountedRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [marketCode, citySlug]);
 
   // Override the hardcoded surface condition factor if DB has a value
   const effectiveSurfaceFactor = useMemo(() => {
@@ -1068,6 +1074,9 @@ export default function PaintCalculator({
     <>
       {!embedded && (
         <>
+          <div className="mx-auto flex max-w-5xl justify-end px-4 pt-4 sm:px-6">
+            <CityPriceSelect />
+          </div>
           <PageHeader
             variant="tool"
             image="https://images.pexels.com/photos/6474478/pexels-photo-6474478.jpeg?auto=compress&cs=tinysrgb&w=1600"
