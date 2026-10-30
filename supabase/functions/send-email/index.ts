@@ -19,8 +19,10 @@
 // - RESEND_API_KEY          Resend API key (re_...)
 // - SUPABASE_URL
 // - SUPABASE_SERVICE_ROLE_KEY
-// - CONTACT_NOTIFY_EMAIL    optional admin inbox; notifications are
-//                           skipped silently when unset
+// - CONTACT_NOTIFY_EMAIL    admin inbox; OWNER_NOTIFY_EMAIL is used
+// - OWNER_NOTIFY_EMAIL      as a fallback so a single missing name
+//                           never silences notifications (both unset
+//                           means the admin email is skipped)
 //
 // Resend REST API: POST https://api.resend.com/emails
 // Emails fail gracefully (HTTP 200, sent:false) until the
@@ -105,6 +107,21 @@ function adminNotification(row: ContactRow): string {
     `</ul>`,
     `<p>Open the admin panel (Communications: Contact Messages) to reply and update the status.</p>`,
   ].join("\n");
+}
+
+/**
+ * Admin inbox for contact notifications. CONTACT_NOTIFY_EMAIL is the
+ * specific name; OWNER_NOTIFY_EMAIL is accepted as an alias so an
+ * operator who set only the general owner address still gets mail.
+ */
+export function resolveNotifyEmail(
+  getEnv: (name: string) => string | undefined,
+): string | null {
+  for (const name of ["CONTACT_NOTIFY_EMAIL", "OWNER_NOTIFY_EMAIL"]) {
+    const value = (getEnv(name) ?? "").trim();
+    if (value) return value;
+  }
+  return null;
 }
 
 async function sendEmail(
@@ -213,7 +230,7 @@ const handler = async (req: Request): Promise<Response> => {
   );
   results.visitor = visitor.sent;
 
-  const adminInbox = Deno.env.get("CONTACT_NOTIFY_EMAIL");
+  const adminInbox = resolveNotifyEmail((name) => Deno.env.get(name));
   if (adminInbox) {
     const notified = await sendEmail(
       apiKey,

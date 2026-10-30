@@ -132,10 +132,13 @@ Verified working 2026-10-30 (live project `nfgaaohweygwydoelxnf`):
    `send-email` returned `{"sent":true,"detail":{"visitor":true}}`, so
    Resend accepts mail from `noreply@freluxtools.com`. Any `sent:false`
    now means a Resend-side problem, not a missing DNS record.
-2. Still unset: `CONTACT_NOTIFY_EMAIL`, so admin notifications are
-   skipped (`detail.admin` stays false). `OWNER_NOTIFY_EMAIL` and the
-   Termii variables used by `signup-digest` are unset too, so those
-   digests have no recipient until they are configured.
+2. Admin inbox: `CONTACT_NOTIFY_EMAIL` is set to the owner address, and
+   a second live send returned
+   `{"sent":true,"detail":{"visitor":true,"admin":true}}`, so both halves
+   deliver. `send-email` also accepts `OWNER_NOTIFY_EMAIL` as a fallback
+   (`resolveNotifyEmail`), so setting only the general owner address is
+   enough. The Termii variables for the SMS half of `signup-digest` are
+   present; its email half uses the same addresses.
 3. Sending is best-effort and rate limited (5/min/IP). Recipients are
    derived from stored rows only; the admin panel stays the source
    of truth for contact messages.
