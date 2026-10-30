@@ -14,6 +14,7 @@ const FinalCTA = lazy(() => import("@/components/home/FinalCTA"));
 import AdSlot from "@/components/ui/AdSlot";
 import CrossPromoSlot from "@/components/houseAds/CrossPromoSlot";
 import { RecentlyUsed } from "@/components/ui/RecentlyUsed";
+import MapWeatherBand from "@/components/home/MapWeatherBand";
 import ProConnectHomeSection from "@/components/pro-connect/ProConnectHomeSection";
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useSeo } from "@/lib/seo";
@@ -117,7 +118,7 @@ export default function Home() {
         name: "FRELUX",
         applicationCategory: "HomeAndGardenApplication",
         description:
-          "Calculate materials and estimate costs for construction projects worldwide. Free calculators for every trade, full-building estimating, AI photo estimates, and professional BOQs.",
+          "Calculate materials and estimate costs for construction projects worldwide. Free calculators for every trade, full-building estimating, AI photo estimates, professional BOQs, saved templates, and a worldwide 3D site map.",
         offers: {
           "@type": "Offer",
           price: "0",
@@ -157,11 +158,11 @@ export default function Home() {
     title:
       "FRELUX: Construction Calculators, Cost Estimators & AI Building Tools",
     description:
-      "Know exactly what your build needs. Free construction calculators and cost estimators for every trade: paint, tiles, structure, solar, and full builds: with AI photo estimating, BOQs, and market-specific construction data in multiple languages.",
+      "Know exactly what your build needs. Free construction calculators and cost estimators for every trade, save any calculation as a reusable template, and see verified pros, projects and stock on a worldwide 3D map, with market-specific data in multiple languages.",
     canonicalPath: "/",
     ogType: "website",
     keywords:
-      "paint calculator, construction cost estimator, screeding calculator, POP ceiling calculator, tile calculator, building materials calculator, construction estimating, paint cost estimator, build to roof estimator, Pro Connect",
+      "paint calculator, construction cost estimator, screeding calculator, POP ceiling calculator, tile calculator, building materials calculator, construction estimating, paint cost estimator, build to roof estimator, saved calculation templates, construction site map, 3D map, construction weather forecast, Pro Connect",
     structuredDataArray: structuredData,
   });
 
@@ -215,6 +216,9 @@ export default function Home() {
 
       {/* Who it connects: hire a verified professional */}
       <ProConnectHomeSection />
+
+      {/* Where and when: the globe and the forecast for the site */}
+      <MapWeatherBand />
 
       {/* Marketplace CTA, post a job and get bids */}
       <section

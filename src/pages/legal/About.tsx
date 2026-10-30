@@ -8,7 +8,7 @@ export default function About() {
   useSeo({
     title: "About: FRELUX",
     description:
-      "Learn about FRELUX, a global construction intelligence and project estimation platform helping homeowners, decorators, and construction professionals across international markets plan projects with confidence.",
+      "Learn about FRELUX, a global construction intelligence platform with calculators, saved templates, a worldwide 3D site map and local weather, helping builders in 32 markets plan with confidence.",
     canonicalPath: "/about",
     ogType: "website",
     structuredData: {
@@ -16,7 +16,7 @@ export default function About() {
       "@type": "AboutPage",
       name: "About FRELUX",
       description:
-        "FRELUX is a practical painting and construction platform helping homeowners, decorators, and contractors plan paint projects with confidence.",
+        "FRELUX is a construction estimation platform helping homeowners, decorators, and contractors plan projects with confidence across 32 markets.",
       url: `${SITE_URL}/about`,
       mainEntity: {
         "@type": "Organization",
@@ -36,6 +36,9 @@ export default function About() {
           "Tile calculation",
           "Paint color selection",
           "Construction materials pricing",
+          "Construction site mapping",
+          "Saved calculation templates",
+          "Weather aware project planning",
         ],
       },
     },
@@ -45,16 +48,16 @@ export default function About() {
     <LegalLayout
       slug="about"
       title={t("About FRELUX")}
-      updated="2026-10-10"
+      updated="2026-10-30"
       intro={
         <p>
           FRELUX is a premium construction estimation platform built to help
           homeowners, decorators, and contractors anywhere in the world plan
           projects with confidence. Founded in 2025 and based in Nigeria, our
-          tools are priced and calibrated against real market data, and they
-          speak multiple languages, so the same platform that serves a Lagos
-          site serves a builder in London, Dubai, or São Paulo with equal
-          precision.
+          tools are priced and calibrated against real market data, they speak
+          multiple languages, and they plot work on a real 3D globe, so the same
+          platform that serves a Lagos site serves a builder in London, Dubai,
+          or São Paulo with equal precision.
         </p>
       }
       sections={[
@@ -103,9 +106,25 @@ export default function About() {
               description or uploaded photo.
               <br />
               <br />
-              <strong>{t("Project Templates")}</strong>, Pre-configured project
-              templates for common painting, tiling, and screeding scenarios.
-              Start with a template and adjust the details to fit your space.
+              <strong>{t("Saved Templates")}</strong>, Save the inputs of any
+              calculation as a private or public template. Reopening it
+              recalculates against current prices instead of replaying old
+              numbers, and published templates get their own crawlable page in
+              every market we serve.
+              <br />
+              <br />
+              <strong>{t("3D Site Map")}</strong>, See verified professionals,
+              open projects, and material stock plotted where they actually are
+              on a worldwide globe. Search any city to fly there, switch layers,
+              check the distance from your own site, and open a record without
+              losing your place.
+              <br />
+              <br />
+              <strong>{t("Local Weather Window")}</strong>, A live forecast for
+              the site you are planning, taken from your own location or your
+              market's reference city, so you can judge whether the week suits
+              painting, screeding, or roofing. When live data is unavailable we
+              say so rather than presenting a guess as a forecast.
               <br />
               <br />
               <strong>{t("Learn Hub")}</strong>, Educational guides on painting
@@ -128,6 +147,25 @@ export default function About() {
               configured international markets. Each estimate discloses which
               market configuration it uses and whether its data is verified or
               user-supplied.
+            </p>
+          ),
+        },
+        {
+          heading: "Planning where the work happens",
+          body: (
+            <p>
+              Estimating happens on a real site, so the platform is spatial as
+              well as numerical. The map opens on your own place when we know it
+              and on the whole globe when we do not, and every pin on it comes
+              from a record that carries a genuine coordinate: a professional's
+              base, a project's site, or a seller's pickup and delivery area.
+              Nothing is placed at a guessed location, and a layer with no data
+              says it is empty instead of filling the world with decoration.
+              Alongside the map, the weather window shows a live forecast for
+              the location you are planning for, drawn from your own device
+              location or your market's reference city. Both features are built
+              on open data with no per-visit licence cost, and both tell you
+              plainly when their information is missing or estimated.
             </p>
           ),
         },

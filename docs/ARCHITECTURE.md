@@ -29,6 +29,17 @@ handle payments and third-party calls.
   (`docs/CONSTRUCTION_DICTIONARY_API.md`).
 - **Market intelligence** — scheduled crawlers write validated material
   prices into estimation price books (market-tagged rows).
+- **Mapping** — `src/lib/map` (coordinates, layer queries, opening frame,
+  Nominatim place search) and `src/components/map/GlobeMap.tsx`: MapLibre GL
+  globe projection with OpenFreeMap vectors and AWS terrain tiles, no API key.
+  MapLibre is imported on demand so non-map routes keep their bundle small.
+- **Weather** — `src/lib/weather.ts` resolves OpenWeather (client-safe key via
+  the `integration_keys_public` view) then keyless Open-Meteo, caches per
+  coordinate for 30 minutes, and labels the seasonal estimate when both fail.
+  Coordinates come from `src/lib/weather-locations.ts` by market.
+- **Templates** — `src/lib/template-data.ts` stores calculator inputs (never
+  results); `src/lib/templates-market.ts` derives per-market SEO pages and the
+  hreflang family consumed by prerender and the sitemap.
 - **Payments** — Paystack (default); `stripe-checkout` edge function for
   international cards, returns 501 until `STRIPE_SECRET_KEY` is set.
 

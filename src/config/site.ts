@@ -9,7 +9,7 @@ export const siteConfig = {
   // 2026-10-06): premium, platform-level, trade-agnostic.
   tagline: "Every trade. Every market. One construction platform.",
   description:
-    "Frelux turns your measurements into exact material quantities and real, market-verified costs, from a single room to an entire building, foundation to roof. Free, professional-grade estimation in multiple languages, for builders worldwide.",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, from a single room to an entire building, foundation to roof. Save any calculation as a reusable template, see verified pros, projects and stock on a worldwide 3D map, and check the local forecast before you commit a crew. Free, professional-grade estimation in multiple languages, for builders worldwide.",
   email: "frenzyanthony39@gmail.com",
   // Verified support contact options and operating response standards
   supportContact: {

@@ -2,7 +2,7 @@
   "id": "/",
   "name": "FRELUX SMART CALC: Construction Estimation & Project Planning",
   "short_name": "Smart Calc",
-  "description": "Construction Estimation & Project Planning, calculators, cost estimators, and AI color recommendations.",
+  "description": "Construction estimation and project planning: calculators, cost estimators, saved templates, a worldwide 3D site map and local weather.",
   "start_url": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
