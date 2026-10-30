@@ -46,16 +46,21 @@ export function checkRateLimit(
 export async function getVerifiedUserId(req: Request): Promise<string | null> {
   const auth = req.headers.get("Authorization");
   if (!auth || !auth.startsWith("Bearer ")) return null;
+  const token = auth.slice("Bearer ".length).trim();
+  if (!token) return null;
   try {
     const url = Deno.env.get("SUPABASE_URL");
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
     if (!url || !anonKey) return null;
-    const client = createClient(url, anonKey, {
-      global: { headers: { Authorization: auth } },
+    // Ask GoTrue directly. A client-side getUser() call depends on session
+    // handling that an edge function does not have, which would report "not
+    // signed in" for every caller, administrators included.
+    const res = await fetch(`${url}/auth/v1/user`, {
+      headers: { apikey: anonKey, Authorization: `Bearer ${token}` },
     });
-    const { data, error } = await client.auth.getUser();
-    if (error || !data?.user) return null;
-    return data.user.id ?? null;
+    if (!res.ok) return null;
+    const user = (await res.json()) as { id?: string };
+    return user?.id ?? null;
   } catch (_e) {
     return null;
   }
