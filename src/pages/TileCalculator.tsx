@@ -96,6 +96,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
+import { useWasteSettings } from "@/lib/waste/use-waste-settings";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { tx } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
@@ -212,6 +213,13 @@ export default function TileCalculator({
   const [presetId, setPresetId] = useState("");
   const [quickAdd, setQuickAdd] = useState({ length: 0, width: 0, count: 1 });
   const marketPresets: BuildingPreset[] = getBuildingPresets(marketCode);
+  // The shared waste allowance seeds this page's margin, and edits here flow
+  // back to it. The engine still applies the margin exactly once, inside
+  // calculateTiles, so nothing is doubled.
+  const {
+    percentFor: sharedWastePercentFor,
+    setMaterialPercent: rememberWastePercent,
+  } = useWasteSettings();
   const [input, setInput] = useState<TileCalcInput>({
     surfaceType: "floor",
     method: "adhesive",
@@ -236,7 +244,7 @@ export default function TileCalculator({
     spacerCoverageRate: 50,
     spacerPricePerPack: 500,
     spacerPackageSize: 1,
-    wasteMargin: 10,
+    wasteMargin: sharedWastePercentFor("tiles"),
     labourRatePerSqm: 2000,
     unit: resolveMarketRoomUnit(market, "meters"),
   });
@@ -1035,7 +1043,10 @@ export default function TileCalculator({
               </p>
               <WasteMarginControl
                 value={input.wasteMargin}
-                onChange={(w) => update("wasteMargin", w)}
+                onChange={(w) => {
+                  update("wasteMargin", w);
+                  rememberWastePercent("tiles", w);
+                }}
                 options={[0, 5, 10, 15, 20]}
               />
             </div>
