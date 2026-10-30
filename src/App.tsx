@@ -39,6 +39,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { MarketProvider } from "@/lib/international/market-context";
+import { GlobalSettingsProvider } from "@/lib/settings/settings-store";
 import { CreditsProvider } from "@/lib/credits-context";
 import { ToastProvider } from "@/components/ui/Toast";
 import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
@@ -75,6 +76,7 @@ const MaterialPrices = lazy(() => import("@/pages/MaterialPrices"));
 const Glossary = lazy(() => import("@/pages/Glossary"));
 const Printables = lazy(() => import("@/pages/Printables"));
 const UnitConverter = lazy(() => import("@/pages/UnitConverter"));
+const ProjectSettings = lazy(() => import("@/pages/ProjectSettings"));
 const UserGuide = lazy(() => import("@/pages/UserGuide"));
 const PaintingCalculatorHub = lazy(
   () => import("@/pages/PaintingCalculatorHub"),
@@ -560,1709 +562,1766 @@ export default function App() {
       </a>
       <AuthProvider>
         <MarketProvider>
-          <ToastProvider>
-            <CreditsProvider>
-              <WorkspaceProvider>
-                <Suspense fallback={null}>
-                  <AnalyticsScripts />
-                </Suspense>
-                <Suspense fallback={null}>
-                  <AdBlockNotice />
-                </Suspense>
-                {!entryDismissed && (
-                  <EntryExperience onComplete={() => setEntryDismissed(true)} />
-                )}
-                <BrowserRouter>
-                  <ScrollToTop />
-                  <NotificationClickHandler />
+          <GlobalSettingsProvider>
+            <ToastProvider>
+              <CreditsProvider>
+                <WorkspaceProvider>
                   <Suspense fallback={null}>
-                    <FeedbackBanner />
+                    <AnalyticsScripts />
                   </Suspense>
-                  {/* Held back while the first-visit Entry Experience is on
+                  <Suspense fallback={null}>
+                    <AdBlockNotice />
+                  </Suspense>
+                  {!entryDismissed && (
+                    <EntryExperience
+                      onComplete={() => setEntryDismissed(true)}
+                    />
+                  )}
+                  <BrowserRouter>
+                    <ScrollToTop />
+                    <NotificationClickHandler />
+                    <Suspense fallback={null}>
+                      <FeedbackBanner />
+                    </Suspense>
+                    {/* Held back while the first-visit Entry Experience is on
                     screen, so newcomers are welcomed by the brand before
                     the consent prompt (it appears right after they enter). */}
-                  {!entryDismissed ? null : (
-                    <Suspense fallback={null}>
-                      <CookieBanner />
-                    </Suspense>
-                  )}
-                  <LocaleAwareRoutes>
-                    {/* ─────────────────────────────────────────────────────── */}
-                    {/* PUBLIC SITE, all public-facing pages under Layout */}
-                    {/* No admin links, routes, or components appear here. */}
-                    {/* ─────────────────────────────────────────────────────── */}
+                    {!entryDismissed ? null : (
+                      <Suspense fallback={null}>
+                        <CookieBanner />
+                      </Suspense>
+                    )}
+                    <LocaleAwareRoutes>
+                      {/* ─────────────────────────────────────────────────────── */}
+                      {/* PUBLIC SITE, all public-facing pages under Layout */}
+                      {/* No admin links, routes, or components appear here. */}
+                      {/* ─────────────────────────────────────────────────────── */}
 
-                    <Route element={<Layout />}>
-                      {/* Home workspace */}
-                      <Route
-                        path="/"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Home />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/start-building"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <StartBuilding />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/construction-tools"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ConstructionTools />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/market/:code"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <MarketLanding />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/market/:code/templates"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <MarketTemplates />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/market/:code/templates/:slug"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <TemplateDetail />
-                          </Suspense>
-                        }
-                      />
-                      {/* 5 Core Pillars Structure (Section 1.B.1 / 2.D.2) */}
-
-                      {/* Pillar 1: Tools & Estimators (/tools/) */}
-                      <Route
-                        path="/tools"
-                        element={<Navigate to="/construction-tools" replace />}
-                      />
-                      <Route
-                        path="/tools/:category"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ConstructionTools />
-                          </Suspense>
-                        }
-                      />
-                      {/* Pillar 1 categorized tool subroutes */}
-                      <Route
-                        path="/tools/finishes/paint"
-                        element={<Navigate to="/paint-calculator" replace />}
-                      />
-                      <Route
-                        path="/tools/finishes/tiles"
-                        element={<Navigate to="/tile-calculator" replace />}
-                      />
-                      <Route
-                        path="/tools/finishes/screeding"
-                        element={
-                          <Navigate to="/screeding-calculator" replace />
-                        }
-                      />
-                      <Route
-                        path="/tools/finishes/pop"
-                        element={
-                          <Navigate to="/pop-ceiling-calculator" replace />
-                        }
-                      />
-                      <Route
-                        path="/tools/finishes/flooring"
-                        element={<Navigate to="/flooring" replace />}
-                      />
-                      <Route
-                        path="/tools/finishes/waterproofing"
-                        element={<Navigate to="/waterproofing" replace />}
-                      />
-                      <Route
-                        path="/tools/structure/build-to-roof"
-                        element={
-                          <Navigate to="/build-to-roof-estimator" replace />
-                        }
-                      />
-                      <Route
-                        path="/tools/structure/concrete"
-                        element={
-                          <Navigate to="/structural-calculator" replace />
-                        }
-                      />
-                      <Route
-                        path="/tools/structure/foundation"
-                        element={
-                          <Navigate to="/foundation-calculator" replace />
-                        }
-                      />
-                      <Route
-                        path="/tools/structure/rebar"
-                        element={<Navigate to="/reinforcement" replace />}
-                      />
-                      <Route
-                        path="/tools/services/electrical"
-                        element={<Navigate to="/electrical" replace />}
-                      />
-                      <Route
-                        path="/tools/services/plumbing"
-                        element={<Navigate to="/plumbing" replace />}
-                      />
-                      <Route
-                        path="/tools/services/solar"
-                        element={<Navigate to="/solar-pv-estimator" replace />}
-                      />
-                      <Route
-                        path="/tools/services/comfort"
-                        element={<Navigate to="/heat-comfort" replace />}
-                      />
-                      <Route
-                        path="/tools/components/doors-windows"
-                        element={<Navigate to="/doors-windows" replace />}
-                      />
-                      <Route
-                        path="/tools/project/boq"
-                        element={<Navigate to="/boq-generator" replace />}
-                      />
-                      <Route
-                        path="/tools/project/labour"
-                        element={<Navigate to="/labour-estimator" replace />}
-                      />
-                      <Route
-                        path="/tools/project/margin"
-                        element={<Navigate to="/margin-calculator" replace />}
-                      />
-                      <Route
-                        path="/tools/project/timeline"
-                        element={<Navigate to="/project-timeline" replace />}
-                      />
-                      <Route
-                        path="/tools/project/cash-flow"
-                        element={<Navigate to="/cash-flow-timeline" replace />}
-                      />
-                      <Route
-                        path="/tools/ai/photo-estimator"
-                        element={<Navigate to="/smart-calculator" replace />}
-                      />
-                      <Route
-                        path="/tools/ai/color-assistant"
-                        element={<Navigate to="/ai-color-assistant" replace />}
-                      />
-                      <Route
-                        path="/tools/ai/defects"
-                        element={<Navigate to="/defect-diagnosis" replace />}
-                      />
-
-                      {/* Pillar 2: Prices & Market Intelligence (/prices/) */}
-                      <Route
-                        path="/prices/trends"
-                        element={<Navigate to="/prices" replace />}
-                      />
-                      <Route
-                        path="/prices/regional-indices"
-                        element={<Navigate to="/regional-cost-index" replace />}
-                      />
-
-                      {/* Pillar 3: Project Workspace (/projects/) */}
-                      <Route
-                        path="/projects"
-                        element={<Navigate to="/my-projects" replace />}
-                      />
-                      <Route
-                        path="/projects/templates"
-                        element={<Navigate to="/templates" replace />}
-                      />
-                      <Route
-                        path="/projects/:id"
-                        element={<ProjectIdRedirect />}
-                      />
-
-                      {/* Pillar 4: Network & Commerce (/network/) */}
-                      <Route
-                        path="/network"
-                        element={<Navigate to="/pro-connect" replace />}
-                      />
-                      <Route
-                        path="/network/pros"
-                        element={<Navigate to="/pro-connect" replace />}
-                      />
-                      <Route
-                        path="/network/marketplace"
-                        element={<Navigate to="/marketplace" replace />}
-                      />
-
-                      {/* Pillar 5: Knowledge & Enterprise (/learn/) */}
-                      <Route
-                        path="/learn/glossary"
-                        element={<Navigate to="/learn" replace />}
-                      />
-
-                      {/* Legacy path: every internal link, WhatsApp share and
-                        search result pointing at /calculators keeps working. */}
-                      <Route
-                        path="/calculators"
-                        element={<Navigate to="/construction-tools" replace />}
-                      />
-
-                      {/* Consolidated calculator hubs */}
-                      <Route
-                        path="/paint-calculator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <PaintingCalculatorHub />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/screeding-calculator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ScreedingCalculatorHub />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/pop-ceiling-calculator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <PopCeilingCalculatorHub />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/tile-calculator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <TileCalculatorHub />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/finish-estimator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <FinishingCalculatorHub />
-                          </Suspense>
-                        }
-                      />
-
-                      {/* 301 redirects from old secondary routes to consolidated hubs */}
-                      <Route
-                        path="/cost-estimator"
-                        element={
-                          <RedirectToHub to="/paint-calculator/" mode="cost" />
-                        }
-                      />
-                      <Route
-                        path="/painting-estimator"
-                        element={
-                          <RedirectToHub
-                            to="/paint-calculator/"
-                            mode="room-estimate"
-                          />
-                        }
-                      />
-                      <Route
-                        path="/screeding-cost-estimator"
-                        element={
-                          <RedirectToHub
-                            to="/screeding-calculator/"
-                            mode="cost"
-                          />
-                        }
-                      />
-                      <Route
-                        path="/pop-ceiling-cost-estimator"
-                        element={
-                          <RedirectToHub
-                            to="/pop-ceiling-calculator/"
-                            mode="cost"
-                          />
-                        }
-                      />
-                      <Route
-                        path="/tile-cost-estimator"
-                        element={
-                          <RedirectToHub to="/tile-calculator/" mode="cost" />
-                        }
-                      />
-                      <Route
-                        path="/tyrolene-estimator"
-                        element={
-                          <RedirectToHub
-                            to="/finish-estimator/"
-                            mode="tyrolene"
-                          />
-                        }
-                      />
-                      <Route
-                        path="/image-estimator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ImageEstimator />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/visual-finishing-estimator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <VisualFinishingEstimator />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/tools/visual-finishing-estimator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <VisualFinishingEstimator />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/smart-calculator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <SmartCalculator />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/structural-calculator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <StructuralCalculator />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/concrete-takeoff-calculator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ConcreteTakeoffPage />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/earthworks-cut-fill"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <EarthworksEstimator />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/roof-framing-calculator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <RoofFramingEstimator />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/foundation-calculator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <FoundationCalculator />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/project-timeline"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ProjectTimeline />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/construction-sequence"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ConstructionSequence />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/build-to-roof-estimator"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <BuildToRoofEstimator />
-                          </Suspense>
-                        }
-                      />
-
-                      {/* Colors workspace */}
-                      <Route
-                        path="/colors"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Colors />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/colors/compare"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <CompareColors />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/colors/paint/:slug"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <PaintColorDetail />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/colors/:slug"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ColorDetail />
-                          </Suspense>
-                        }
-                      />
-
-                      <Route
-                        path="/ai-color-assistant"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <AiColorAssistant />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/color-preview"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ColorPreview />
-                          </Suspense>
-                        }
-                      />
-
-                      {/* Projects workspace */}
-                      <Route
-                        path="/my-projects"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <MyProjects />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/templates"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Templates />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/templates/:slug"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <TemplateDetail />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/my-templates"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <MyTemplates />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/shared/:id"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <SharedProject />
-                          </Suspense>
-                        }
-                      />
-
-                      {/* Dashboard */}
-                      <Route
-                        path="/dashboard"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Dashboard />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/onboarding"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Onboarding />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/profile"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Profile />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/pricing"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Pricing />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/metrics"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Metrics />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/brand-studio"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <BrandStudio />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/document-studio"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <DocumentStudio />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/achievements"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Achievements />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/rewards"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Rewards />
-                          </Suspense>
-                        }
-                      />
-
-                      {/* Contractor Experience */}
-                      <Route
-                        path="/contractor"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ContractorProjects />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/contractor/wizard"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ProjectWizard />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/contractor/projects/:id"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ProjectDashboard />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/contractor/predictive"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <PredictiveAnalytics />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/contractor/iot"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <IotTelemetry />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/contractor/logistics"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <LogisticsBoard />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/contractor/compliance"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ComplianceStandards />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/clients"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ClientManagement />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/analytics"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <EstimateAnalytics />
-                          </Suspense>
-                        }
-                      />
-
-                      <Route
-                        path="/printables"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Printables />
-                          </Suspense>
-                        }
-                      />
-
-                      <Route
-                        path="/unit-converter"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <UnitConverter />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/glossary"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Glossary />
-                          </Suspense>
-                        }
-                      />
-
-                      <Route
-                        path="/prices"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <MaterialPrices />
-                          </Suspense>
-                        }
-                      />
-
-                      {/* Learn workspace */}
-                      <Route
-                        path="/learn"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Learn />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/user-guide"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <UserGuide />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/learn/category/:categorySlug"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <LearnCategory />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/learn/wall-finishing/:marketCode/:articleSlug"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <WallFinishingArticle />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/learn/wall-finishing/:marketCode"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <WallFinishingLibrary />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/learn/library"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <LearnLibrary />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/learn/:articleSlug"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <LearnArticle />
-                          </Suspense>
-                        }
-                      />
-
-                      {/* Account / About / Contact */}
-                      <Route
-                        path="/feedback"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Feedback />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/contact"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Contact />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/partners"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Partners />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/about"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <About />
-                          </Suspense>
-                        }
-                      />
-
-                      {/* Legal pages */}
-                      <Route
-                        path="/privacy-policy"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <PrivacyPolicy />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/data-request"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <DataRequest />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/terms"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Terms />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/cookie-policy"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <CookiePolicy />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/disclaimer"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Disclaimer />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/ai-disclaimer"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <AiDisclaimer />
-                          </Suspense>
-                        }
-                      />
-                      {/* Phase 7, FRELUX AI API docs + key manager */}
-                      <Route
-                        path="/escrow"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <DiasporaEscrow />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/pro-connect/escrow"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <DiasporaEscrow />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/developers/merchant-webhooks"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <MerchantMarketplaceApi />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/marketplace/merchant-api"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <MerchantMarketplaceApi />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/compliance/data-residency"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <DataResidencyCenter />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/tools/offline-sync"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <OfflineSyncHub />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/pro-connect/liquidity"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <MarketplaceSeedingHub />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/developers"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <DeveloperPortal />
-                          </Suspense>
-                        }
-                      />
-
-                      {/* Global 3D map: professionals, open projects, materials */}
-                      <Route
-                        path="/map"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ExploreMap />
-                          </Suspense>
-                        }
-                      />
-
-                      {/* Pro Connect, Professional Network */}
-                      <Route
-                        path="/pro-connect"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ProConnectDirectory />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/pro-connect/register"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ProConnectRegister />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/pro-connect/dashboard"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ProConnectDashboard />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/pro-connect/:slug"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ProConnectProfile />
-                          </Suspense>
-                        }
-                      />
-
-                      {/* Marketplace, wrapped in dedicated MarketplaceLayout */}
-                      <Route
-                        path="/marketplace"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <MarketplaceLayout />
-                          </Suspense>
-                        }
-                      >
-                        <Route index element={<MarketplaceHome />} />
-                        <Route path="post" element={<PostListing />} />
-                        <Route path="my-listings" element={<MyListings />} />
+                      <Route element={<Layout />}>
+                        {/* Home workspace */}
                         <Route
-                          path="category/:categorySlug"
-                          element={<MarketplaceCategoryPage />}
-                        />
-                        <Route
-                          path="sellers/:locationSlug"
-                          element={<MarketplaceLocationPage />}
-                        />
-                        <Route
-                          path=":categorySlug/:locationSlug"
-                          element={<MarketplaceCategoryLocationPage />}
-                        />
-                        <Route path="products/post" element={<PostProduct />} />
-                        <Route path="products/my" element={<MyProducts />} />
-                        <Route
-                          path="supplier-portal"
-                          element={<SupplierPortal />}
-                        />
-                        <Route
-                          path="seller-dashboard"
-                          element={<SellerDashboard />}
-                        />
-                        <Route
-                          path="products/:id"
-                          element={<ProductDetail />}
-                        />
-                        <Route path="products" element={<MarketplaceHome />} />
-                        <Route path="orders/:id" element={<OrderDetail />} />
-                        <Route path=":id" element={<ListingDetail />} />
-                      </Route>
-                      <Route
-                        path="/pro/:categorySlug/:locationSlug"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <ProCategoryLocationPage />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/messages"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Messages />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/messages/:conversationId"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <Messages />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/worker-channels"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <WorkerChannels />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="/worker-channels/:channelSlug"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <WorkerChannels />
-                          </Suspense>
-                        }
-                      />
-                      {/* Public tool/engine pages: moved under the public Layout (2026-10-04)
-                    so they get the Navbar, Footer and site chrome like every other page. */}
-                      <Route
-                        path="/paint-comparison"
-                        element={<PaintComparison />}
-                      />
-                      <Route
-                        path="/surface-assessment"
-                        element={<SurfaceAssessment />}
-                      />
-                      <Route
-                        path="/material-prices"
-                        element={<MaterialPriceTracker />}
-                      />
-                      <Route
-                        path="/maintenance-planner"
-                        element={<MaintenancePlanner />}
-                      />
-                      <Route path="/boq-generator" element={<BoqGenerator />} />
-                      <Route
-                        path="/global-markets"
-                        element={<GlobalMarkets />}
-                      />
-                      <Route
-                        path="/regional-cost-index"
-                        element={<RegionalCostIndex />}
-                      />
-                      <Route
-                        path="/carbon-footprint"
-                        element={<CarbonFootprint />}
-                      />
-                      <Route
-                        path="/cash-flow-timeline"
-                        element={<CashFlowTimeline />}
-                      />
-                      <Route
-                        path="/labour-estimator"
-                        element={<LabourEstimator />}
-                      />
-                      <Route
-                        path="/margin-calculator"
-                        element={<MarginCalculator />}
-                      />
-                      <Route
-                        path="/defect-diagnosis"
-                        element={<DefectDiagnosis />}
-                      />
-                      <Route
-                        path="/estimate-refresh"
-                        element={<EstimateRefresh />}
-                      />
-                      <Route
-                        path="/warranty-certificate"
-                        element={<WarrantyCertificate />}
-                      />
-                      <Route path="/heat-comfort" element={<HeatComfort />} />
-                      <Route
-                        path="/circular-reuse"
-                        element={<CircularReuse />}
-                      />
-                      <Route
-                        path="/contractor-credit"
-                        element={<ContractorCredit />}
-                      />
-                      <Route
-                        path="/solar-pv-estimator"
-                        element={<SolarPvEstimator />}
-                      />
-                      <Route
-                        path="/bim-ifc-import"
-                        element={<BimIfcImport />}
-                      />
-                      <Route
-                        path="/conversational-estimator"
-                        element={<ConversationalEstimator />}
-                      />
-                      <Route path="/field-sync" element={<FieldSync />} />
-                      <Route path="/count-vision" element={<CountVision />} />
-                      <Route
-                        path="/electrical"
-                        element={<ElectricalEstimator />}
-                      />
-                      <Route path="/plumbing" element={<PlumbingEstimator />} />
-                      <Route
-                        path="/waterproofing"
-                        element={<WaterproofingEstimator />}
-                      />
-                      <Route
-                        path="/wall-finish-estimator"
-                        element={<WallFinishEstimator />}
-                      />
-                      <Route
-                        path="/masonry-calculator"
-                        element={
-                          <StandaloneTakeoffPage initialEngine="masonry" />
-                        }
-                      />
-                      <Route
-                        path="/plastering-calculator"
-                        element={
-                          <StandaloneTakeoffPage initialEngine="plastering" />
-                        }
-                      />
-                      <Route
-                        path="/drywall-calculator"
-                        element={
-                          <StandaloneTakeoffPage initialEngine="drywall" />
-                        }
-                      />
-                      <Route
-                        path="/paving-calculator"
-                        element={
-                          <StandaloneTakeoffPage initialEngine="paving" />
-                        }
-                      />
-                      <Route
-                        path="/drainage-calculator"
-                        element={
-                          <StandaloneTakeoffPage initialEngine="drainage" />
-                        }
-                      />
-                      <Route
-                        path="/septic-sizing-calculator"
-                        element={
-                          <StandaloneTakeoffPage initialEngine="septic" />
-                        }
-                      />
-                      <Route
-                        path="/temporary-works-calculator"
-                        element={
-                          <StandaloneTakeoffPage initialEngine="temporary-works" />
-                        }
-                      />
-                      <Route
-                        path="/insulation-calculator"
-                        element={
-                          <StandaloneTakeoffPage initialEngine="insulation" />
-                        }
-                      />
-                      <Route
-                        path="/demolition-calculator"
-                        element={
-                          <StandaloneTakeoffPage initialEngine="demolition" />
-                        }
-                      />
-                      <Route
-                        path="/blueprint-takeoff"
-                        element={<BlueprintTakeoff />}
-                      />
-                      <Route path="/flooring" element={<FlooringEstimator />} />
-                      <Route
-                        path="/increte-flooring-calculator"
-                        element={<IncreteFlooringEstimator />}
-                      />
-                      <Route
-                        path="/reinforcement"
-                        element={<ReinforcementEstimator />}
-                      />
-                      <Route
-                        path="/foundation"
-                        element={<FoundationEstimator />}
-                      />
-                      <Route
-                        path="/doors-windows"
-                        element={<DoorsWindowsEstimator />}
-                      />
-                      <Route
-                        path="/generator"
-                        element={<GeneratorEstimator />}
-                      />
-                      <Route
-                        path="*"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <NotFound />
-                          </Suspense>
-                        }
-                      />
-                    </Route>
-
-                    {/* ─────────────────────────────────────────────────────── */}
-                    {/* AUTH PAGES, standalone, no public Layout or admin chrome */}
-                    {/* ─────────────────────────────────────────────────────── */}
-                    <Route
-                      path="/admin/login"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <AdminLogin />
-                        </Suspense>
-                      }
-                    />
-                    <Route
-                      path="/login"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <Login />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* ─────────────────────────────────────────────────────── */}
-
-                    {/* ─────────────────────────────────────────────────────── */}
-                    {/* ADMIN PANEL, completely separated from public site. */}
-                    {/* Protected by RequireAdmin. No public Layout wrapping. */}
-                    {/* ─────────────────────────────────────────────────────── */}
-                    <Route
-                      path="/admin"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <RequireAdmin>
-                            <ErrorBoundary boundaryName="admin">
-                              <AdminLayout />
-                            </ErrorBoundary>
-                          </RequireAdmin>
-                        </Suspense>
-                      }
-                    >
-                      {/* Dashboard */}
-                      <Route index element={<AdminOverview />} />
-
-                      {/* AI Assistant */}
-                      <Route
-                        path="ai-assistant"
-                        element={<AdminAIAssistant />}
-                      />
-
-                      {/* Content */}
-                      <Route path="learn" element={<AdminLearn />} />
-                      <Route
-                        path="translations"
-                        element={<AdminTranslations />}
-                      />
-                      <Route
-                        path="learn/wall-finishing"
-                        element={<AdminWallFinishingLibrary />}
-                      />
-                      <Route
-                        path="ai-learning"
-                        element={<AdminAiLearningAssistant />}
-                      />
-                      <Route
-                        path="dictionary"
-                        element={<AdminConstructionDictionary />}
-                      />
-                      <Route path="legal" element={<AdminLegal />} />
-                      <Route
-                        path="contact"
-                        element={<AdminContactMessages />}
-                      />
-                      <Route
-                        path="partnership-inquiries"
-                        element={<AdminPartnershipInquiries />}
-                      />
-                      <Route path="feedback" element={<AdminFeedback />} />
-                      <Route
-                        path="price-submissions"
-                        element={<AdminPriceSubmissions />}
-                      />
-
-                      {/* Color Library */}
-                      <Route path="colors" element={<AdminColors />} />
-
-                      {/* Media Library */}
-                      <Route path="media" element={<AdminMedia />} />
-
-                      {/* Calculators */}
-                      <Route
-                        path="estimation-config"
-                        element={<AdminEstimationConfig />}
-                      />
-                      <Route path="templates" element={<AdminTemplates />} />
-                      <Route
-                        path="estimation-products"
-                        element={<AdminEstimationProducts />}
-                      />
-                      <Route
-                        path="maintenance-profiles"
-                        element={<AdminMaintenanceProfiles />}
-                      />
-                      <Route
-                        path="macro-tracker"
-                        element={<AdminMacroTracker />}
-                      />
-                      <Route
-                        path="regional-cost-indices"
-                        element={<AdminRegionalCostIndices />}
-                      />
-                      <Route
-                        path="carbon-factors"
-                        element={<AdminCarbonFactors />}
-                      />
-                      <Route
-                        path="thermal-factors"
-                        element={<AdminThermalFactors />}
-                      />
-                      <Route
-                        path="reuse-factors"
-                        element={<AdminReuseFactors />}
-                      />
-                      <Route
-                        path="credit-profiles"
-                        element={<AdminCreditProfiles />}
-                      />
-                      <Route
-                        path="solar-panels"
-                        element={<AdminSolarPanels />}
-                      />
-                      <Route
-                        path="conversational-packs"
-                        element={<AdminConversationalPacks />}
-                      />
-                      <Route path="field-sync" element={<AdminFieldSync />} />
-                      <Route
-                        path="count-vision"
-                        element={<AdminCountVision />}
-                      />
-                      <Route
-                        path="solar-prices"
-                        element={<AdminSolarPrices />}
-                      />
-                      <Route
-                        path="cash-flow-templates"
-                        element={<AdminCashFlowTemplates />}
-                      />
-                      <Route
-                        path="labour-rates"
-                        element={<AdminLabourRates />}
-                      />
-                      <Route
-                        path="margin-presets"
-                        element={<AdminMarginPresets />}
-                      />
-                      <Route path="defects" element={<AdminDefects />} />
-                      <Route
-                        path="estimation-materials"
-                        element={<AdminEstimationMaterials />}
-                      />
-                      <Route
-                        path="estimation-pricing"
-                        element={<AdminEstimationPricing />}
-                      />
-                      <Route
-                        path="estimation-estimates"
-                        element={<AdminEstimationEstimates />}
-                      />
-                      <Route
-                        path="estimation-audit"
-                        element={<AdminEstimationAudit />}
-                      />
-                      <Route
-                        path="learning-review"
-                        element={<AdminLearningReview />}
-                      />
-                      <Route
-                        path="intelligence-sources"
-                        element={<AdminIntelligenceSources />}
-                      />
-                      <Route
-                        path="intelligence-dashboard"
-                        element={<AdminIntelligenceDashboard />}
-                      />
-                      {/* Phase 7, FRELUX AI API key administration */}
-                      <Route path="api-keys" element={<AdminApiKeys />} />
-                      {/* ARCHIE extension, Owner Social Brand Center */}
-                      <Route
-                        path="social-brand-center"
-                        element={<AdminSocialBrandCenter />}
-                      />
-                      <Route
-                        path="estimation-production"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <AdminEstimationProduction />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="paint-engine-test"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <AdminPaintEngineTest />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="tyrolene-config"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <AdminTyroleneConfig />
-                          </Suspense>
-                        }
-                      />
-                      {/* Roof View imagery provider (Build-to-Roof Estimator) */}
-                      <Route
-                        path="roof-view"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <AdminRoofView />
-                          </Suspense>
-                        }
-                      />
-                      <Route path="paint-types" element={<AdminPaintTypes />} />
-                      <Route
-                        path="screeding"
-                        element={<AdminScreedingMaterials />}
-                      />
-                      <Route
-                        path="pop-materials"
-                        element={<AdminPopMaterials />}
-                      />
-                      <Route
-                        path="tile-materials"
-                        element={<AdminTileMaterials />}
-                      />
-
-                      {/* Pricing */}
-                      <Route path="pricing" element={<AdminPricing />} />
-                      <Route
-                        path="price-updater"
-                        element={<AdminPriceUpdater />}
-                      />
-                      <Route path="price-scan" element={<AdminPriceScan />} />
-                      <Route
-                        path="market-prices"
-                        element={<AdminMarketPrices />}
-                      />
-                      <Route
-                        path="labour-settings"
-                        element={<AdminLabourSettings />}
-                      />
-
-                      {/* AI */}
-                      <Route
-                        path="ai-monetization"
-                        element={<AdminAiMonetization />}
-                      />
-                      <Route path="ai-settings" element={<AdminAiSettings />} />
-                      <Route path="ads" element={<AdminAds />} />
-                      <Route
-                        path="rewarded-access"
-                        element={<AdminRewardedAccess />}
-                      />
-                      <Route path="branding" element={<AdminBranding />} />
-                      <Route
-                        path="header-images"
-                        element={<AdminHeaderImages />}
-                      />
-                      <Route
-                        path="pdf-branding"
-                        element={<AdminPdfBranding />}
-                      />
-
-                      {/* Users */}
-                      <Route path="users" element={<AdminUsers />} />
-
-                      {/* Analytics */}
-                      <Route path="analytics" element={<AdminAnalytics />} />
-                      <Route
-                        path="integrations"
-                        element={<AdminIntegrations />}
-                      />
-
-                      {/* Error Monitor */}
-                      <Route
-                        path="errors"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <AdminErrors />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="system-health"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <SystemHealth />
-                          </Suspense>
-                        }
-                      />
-                      {/* Pro Connect */}
-                      <Route path="pro-connect" element={<AdminProConnect />} />
-                      <Route
-                        path="image-estimation"
-                        element={<AdminImageEstimation />}
-                      />
-                      <Route
-                        path="marketplace"
-                        element={<AdminMarketplace />}
-                      />
-                      <Route path="markets" element={<AdminMarkets />} />
-                      <Route
-                        path="market-intelligence"
-                        element={<AdminMarketIntelligence />}
-                      />
-                      <Route
-                        path="price-pipeline"
-                        element={<AdminPricePipeline />}
-                      />
-                      <Route
-                        path="engine-config"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <AdminEngineConfig />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="seo-location"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <AdminSeoLocation />
-                          </Suspense>
-                        }
-                      />
-                      <Route path="rewards" element={<AdminRewards />} />
-                      <Route path="credits-ads" element={<AdminCreditsAds />} />
-
-                      {/* Contractor Config */}
-                      <Route
-                        path="gallery-moderation"
-                        element={<AdminGallery />}
-                      />
-                      <Route
-                        path="case-studies"
-                        element={<AdminCaseStudies />}
-                      />
-                      <Route
-                        path="testimonials"
-                        element={<AdminTestimonials />}
-                      />
-                      <Route
-                        path="paint-comparison"
-                        element={<AdminPaintComparison />}
-                      />
-                      <Route
-                        path="material-prices"
-                        element={<AdminMaterialPrices />}
-                      />
-                      <Route
-                        path="surface-conditions"
-                        element={<AdminSurfaceConditions />}
-                      />
-                      <Route
-                        path="project-stages"
-                        element={<AdminProjectStages />}
-                      />
-                      <Route
-                        path="material-catalog"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <AdminMaterialCatalog />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="timeline-templates"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <AdminTimelineTemplates />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="quotation-settings"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <AdminQuotationSettings />
-                          </Suspense>
-                        }
-                      />
-
-                      {/* SEO */}
-                      <Route path="seo" element={<AdminSeo />} />
-
-                      {/* System */}
-                      <Route path="typography" element={<AdminTypography />} />
-                      <Route path="settings" element={<AdminSettings />} />
-                      <Route
-                        path="currency"
-                        element={<AdminCurrencySettings />}
-                      />
-
-                      {/* AI Developer Studio (nested) */}
-                      <Route path="studio" element={<StudioLayout />}>
-                        <Route index element={<StudioOverview />} />
-                        {/* Error analysis uses a dedicated component */}
-                        <Route
-                          path="error_analysis"
+                          path="/"
                           element={
                             <Suspense fallback={<PageLoader />}>
-                              <ErrorAnalysis />
+                              <Home />
                             </Suspense>
                           }
                         />
-                        {/* All other tools, StudioDispatcher reads :toolSlug
+                        <Route
+                          path="/start-building"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <StartBuilding />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/construction-tools"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ConstructionTools />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/market/:code"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <MarketLanding />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/market/:code/templates"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <MarketTemplates />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/market/:code/templates/:slug"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <TemplateDetail />
+                            </Suspense>
+                          }
+                        />
+                        {/* 5 Core Pillars Structure (Section 1.B.1 / 2.D.2) */}
+
+                        {/* Pillar 1: Tools & Estimators (/tools/) */}
+                        <Route
+                          path="/tools"
+                          element={
+                            <Navigate to="/construction-tools" replace />
+                          }
+                        />
+                        <Route
+                          path="/tools/:category"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ConstructionTools />
+                            </Suspense>
+                          }
+                        />
+                        {/* Pillar 1 categorized tool subroutes */}
+                        <Route
+                          path="/tools/finishes/paint"
+                          element={<Navigate to="/paint-calculator" replace />}
+                        />
+                        <Route
+                          path="/tools/finishes/tiles"
+                          element={<Navigate to="/tile-calculator" replace />}
+                        />
+                        <Route
+                          path="/tools/finishes/screeding"
+                          element={
+                            <Navigate to="/screeding-calculator" replace />
+                          }
+                        />
+                        <Route
+                          path="/tools/finishes/pop"
+                          element={
+                            <Navigate to="/pop-ceiling-calculator" replace />
+                          }
+                        />
+                        <Route
+                          path="/tools/finishes/flooring"
+                          element={<Navigate to="/flooring" replace />}
+                        />
+                        <Route
+                          path="/tools/finishes/waterproofing"
+                          element={<Navigate to="/waterproofing" replace />}
+                        />
+                        <Route
+                          path="/tools/structure/build-to-roof"
+                          element={
+                            <Navigate to="/build-to-roof-estimator" replace />
+                          }
+                        />
+                        <Route
+                          path="/tools/structure/concrete"
+                          element={
+                            <Navigate to="/structural-calculator" replace />
+                          }
+                        />
+                        <Route
+                          path="/tools/structure/foundation"
+                          element={
+                            <Navigate to="/foundation-calculator" replace />
+                          }
+                        />
+                        <Route
+                          path="/tools/structure/rebar"
+                          element={<Navigate to="/reinforcement" replace />}
+                        />
+                        <Route
+                          path="/tools/services/electrical"
+                          element={<Navigate to="/electrical" replace />}
+                        />
+                        <Route
+                          path="/tools/services/plumbing"
+                          element={<Navigate to="/plumbing" replace />}
+                        />
+                        <Route
+                          path="/tools/services/solar"
+                          element={
+                            <Navigate to="/solar-pv-estimator" replace />
+                          }
+                        />
+                        <Route
+                          path="/tools/services/comfort"
+                          element={<Navigate to="/heat-comfort" replace />}
+                        />
+                        <Route
+                          path="/tools/components/doors-windows"
+                          element={<Navigate to="/doors-windows" replace />}
+                        />
+                        <Route
+                          path="/tools/project/boq"
+                          element={<Navigate to="/boq-generator" replace />}
+                        />
+                        <Route
+                          path="/tools/project/labour"
+                          element={<Navigate to="/labour-estimator" replace />}
+                        />
+                        <Route
+                          path="/tools/project/margin"
+                          element={<Navigate to="/margin-calculator" replace />}
+                        />
+                        <Route
+                          path="/tools/project/timeline"
+                          element={<Navigate to="/project-timeline" replace />}
+                        />
+                        <Route
+                          path="/tools/project/cash-flow"
+                          element={
+                            <Navigate to="/cash-flow-timeline" replace />
+                          }
+                        />
+                        <Route
+                          path="/tools/ai/photo-estimator"
+                          element={<Navigate to="/smart-calculator" replace />}
+                        />
+                        <Route
+                          path="/tools/ai/color-assistant"
+                          element={
+                            <Navigate to="/ai-color-assistant" replace />
+                          }
+                        />
+                        <Route
+                          path="/tools/ai/defects"
+                          element={<Navigate to="/defect-diagnosis" replace />}
+                        />
+
+                        {/* Pillar 2: Prices & Market Intelligence (/prices/) */}
+                        <Route
+                          path="/prices/trends"
+                          element={<Navigate to="/prices" replace />}
+                        />
+                        <Route
+                          path="/prices/regional-indices"
+                          element={
+                            <Navigate to="/regional-cost-index" replace />
+                          }
+                        />
+
+                        {/* Pillar 3: Project Workspace (/projects/) */}
+                        <Route
+                          path="/projects"
+                          element={<Navigate to="/my-projects" replace />}
+                        />
+                        <Route
+                          path="/projects/templates"
+                          element={<Navigate to="/templates" replace />}
+                        />
+                        <Route
+                          path="/projects/:id"
+                          element={<ProjectIdRedirect />}
+                        />
+
+                        {/* Pillar 4: Network & Commerce (/network/) */}
+                        <Route
+                          path="/network"
+                          element={<Navigate to="/pro-connect" replace />}
+                        />
+                        <Route
+                          path="/network/pros"
+                          element={<Navigate to="/pro-connect" replace />}
+                        />
+                        <Route
+                          path="/network/marketplace"
+                          element={<Navigate to="/marketplace" replace />}
+                        />
+
+                        {/* Pillar 5: Knowledge & Enterprise (/learn/) */}
+                        <Route
+                          path="/learn/glossary"
+                          element={<Navigate to="/learn" replace />}
+                        />
+
+                        {/* Legacy path: every internal link, WhatsApp share and
+                        search result pointing at /calculators keeps working. */}
+                        <Route
+                          path="/calculators"
+                          element={
+                            <Navigate to="/construction-tools" replace />
+                          }
+                        />
+
+                        {/* Consolidated calculator hubs */}
+                        <Route
+                          path="/paint-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <PaintingCalculatorHub />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/screeding-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ScreedingCalculatorHub />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/pop-ceiling-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <PopCeilingCalculatorHub />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/tile-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <TileCalculatorHub />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/finish-estimator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <FinishingCalculatorHub />
+                            </Suspense>
+                          }
+                        />
+
+                        {/* 301 redirects from old secondary routes to consolidated hubs */}
+                        <Route
+                          path="/cost-estimator"
+                          element={
+                            <RedirectToHub
+                              to="/paint-calculator/"
+                              mode="cost"
+                            />
+                          }
+                        />
+                        <Route
+                          path="/painting-estimator"
+                          element={
+                            <RedirectToHub
+                              to="/paint-calculator/"
+                              mode="room-estimate"
+                            />
+                          }
+                        />
+                        <Route
+                          path="/screeding-cost-estimator"
+                          element={
+                            <RedirectToHub
+                              to="/screeding-calculator/"
+                              mode="cost"
+                            />
+                          }
+                        />
+                        <Route
+                          path="/pop-ceiling-cost-estimator"
+                          element={
+                            <RedirectToHub
+                              to="/pop-ceiling-calculator/"
+                              mode="cost"
+                            />
+                          }
+                        />
+                        <Route
+                          path="/tile-cost-estimator"
+                          element={
+                            <RedirectToHub to="/tile-calculator/" mode="cost" />
+                          }
+                        />
+                        <Route
+                          path="/tyrolene-estimator"
+                          element={
+                            <RedirectToHub
+                              to="/finish-estimator/"
+                              mode="tyrolene"
+                            />
+                          }
+                        />
+                        <Route
+                          path="/image-estimator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ImageEstimator />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/visual-finishing-estimator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <VisualFinishingEstimator />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/tools/visual-finishing-estimator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <VisualFinishingEstimator />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/smart-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <SmartCalculator />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/structural-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <StructuralCalculator />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/concrete-takeoff-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ConcreteTakeoffPage />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/earthworks-cut-fill"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <EarthworksEstimator />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/roof-framing-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <RoofFramingEstimator />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/foundation-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <FoundationCalculator />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/project-timeline"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProjectTimeline />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/construction-sequence"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ConstructionSequence />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/build-to-roof-estimator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <BuildToRoofEstimator />
+                            </Suspense>
+                          }
+                        />
+
+                        {/* Colors workspace */}
+                        <Route
+                          path="/colors"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Colors />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/colors/compare"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <CompareColors />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/colors/paint/:slug"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <PaintColorDetail />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/colors/:slug"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ColorDetail />
+                            </Suspense>
+                          }
+                        />
+
+                        <Route
+                          path="/ai-color-assistant"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AiColorAssistant />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/color-preview"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ColorPreview />
+                            </Suspense>
+                          }
+                        />
+
+                        {/* Projects workspace */}
+                        <Route
+                          path="/my-projects"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <MyProjects />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/templates"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Templates />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/templates/:slug"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <TemplateDetail />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/my-templates"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <MyTemplates />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/shared/:id"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <SharedProject />
+                            </Suspense>
+                          }
+                        />
+
+                        {/* Dashboard */}
+                        <Route
+                          path="/dashboard"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Dashboard />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/onboarding"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Onboarding />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/profile"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Profile />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/pricing"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Pricing />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/metrics"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Metrics />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/brand-studio"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <BrandStudio />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/document-studio"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <DocumentStudio />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/achievements"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Achievements />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/rewards"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Rewards />
+                            </Suspense>
+                          }
+                        />
+
+                        {/* Contractor Experience */}
+                        <Route
+                          path="/contractor"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ContractorProjects />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/contractor/wizard"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProjectWizard />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/contractor/projects/:id"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProjectDashboard />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/contractor/predictive"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <PredictiveAnalytics />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/contractor/iot"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <IotTelemetry />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/contractor/logistics"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <LogisticsBoard />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/contractor/compliance"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ComplianceStandards />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/clients"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ClientManagement />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/analytics"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <EstimateAnalytics />
+                            </Suspense>
+                          }
+                        />
+
+                        <Route
+                          path="/printables"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Printables />
+                            </Suspense>
+                          }
+                        />
+
+                        <Route
+                          path="/settings/preferences"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProjectSettings />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/unit-converter"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <UnitConverter />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/glossary"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Glossary />
+                            </Suspense>
+                          }
+                        />
+
+                        <Route
+                          path="/prices"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <MaterialPrices />
+                            </Suspense>
+                          }
+                        />
+
+                        {/* Learn workspace */}
+                        <Route
+                          path="/learn"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Learn />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/user-guide"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <UserGuide />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/learn/category/:categorySlug"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <LearnCategory />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/learn/wall-finishing/:marketCode/:articleSlug"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <WallFinishingArticle />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/learn/wall-finishing/:marketCode"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <WallFinishingLibrary />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/learn/library"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <LearnLibrary />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/learn/:articleSlug"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <LearnArticle />
+                            </Suspense>
+                          }
+                        />
+
+                        {/* Account / About / Contact */}
+                        <Route
+                          path="/feedback"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Feedback />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/contact"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Contact />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/partners"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Partners />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/about"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <About />
+                            </Suspense>
+                          }
+                        />
+
+                        {/* Legal pages */}
+                        <Route
+                          path="/privacy-policy"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <PrivacyPolicy />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/data-request"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <DataRequest />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/terms"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Terms />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/cookie-policy"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <CookiePolicy />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/disclaimer"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Disclaimer />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/ai-disclaimer"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AiDisclaimer />
+                            </Suspense>
+                          }
+                        />
+                        {/* Phase 7, FRELUX AI API docs + key manager */}
+                        <Route
+                          path="/escrow"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <DiasporaEscrow />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/pro-connect/escrow"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <DiasporaEscrow />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/developers/merchant-webhooks"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <MerchantMarketplaceApi />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/marketplace/merchant-api"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <MerchantMarketplaceApi />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/compliance/data-residency"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <DataResidencyCenter />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/tools/offline-sync"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <OfflineSyncHub />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/pro-connect/liquidity"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <MarketplaceSeedingHub />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/developers"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <DeveloperPortal />
+                            </Suspense>
+                          }
+                        />
+
+                        {/* Global 3D map: professionals, open projects, materials */}
+                        <Route
+                          path="/map"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ExploreMap />
+                            </Suspense>
+                          }
+                        />
+
+                        {/* Pro Connect, Professional Network */}
+                        <Route
+                          path="/pro-connect"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProConnectDirectory />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/pro-connect/register"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProConnectRegister />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/pro-connect/dashboard"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProConnectDashboard />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/pro-connect/:slug"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProConnectProfile />
+                            </Suspense>
+                          }
+                        />
+
+                        {/* Marketplace, wrapped in dedicated MarketplaceLayout */}
+                        <Route
+                          path="/marketplace"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <MarketplaceLayout />
+                            </Suspense>
+                          }
+                        >
+                          <Route index element={<MarketplaceHome />} />
+                          <Route path="post" element={<PostListing />} />
+                          <Route path="my-listings" element={<MyListings />} />
+                          <Route
+                            path="category/:categorySlug"
+                            element={<MarketplaceCategoryPage />}
+                          />
+                          <Route
+                            path="sellers/:locationSlug"
+                            element={<MarketplaceLocationPage />}
+                          />
+                          <Route
+                            path=":categorySlug/:locationSlug"
+                            element={<MarketplaceCategoryLocationPage />}
+                          />
+                          <Route
+                            path="products/post"
+                            element={<PostProduct />}
+                          />
+                          <Route path="products/my" element={<MyProducts />} />
+                          <Route
+                            path="supplier-portal"
+                            element={<SupplierPortal />}
+                          />
+                          <Route
+                            path="seller-dashboard"
+                            element={<SellerDashboard />}
+                          />
+                          <Route
+                            path="products/:id"
+                            element={<ProductDetail />}
+                          />
+                          <Route
+                            path="products"
+                            element={<MarketplaceHome />}
+                          />
+                          <Route path="orders/:id" element={<OrderDetail />} />
+                          <Route path=":id" element={<ListingDetail />} />
+                        </Route>
+                        <Route
+                          path="/pro/:categorySlug/:locationSlug"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProCategoryLocationPage />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/messages"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Messages />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/messages/:conversationId"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Messages />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/worker-channels"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <WorkerChannels />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/worker-channels/:channelSlug"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <WorkerChannels />
+                            </Suspense>
+                          }
+                        />
+                        {/* Public tool/engine pages: moved under the public Layout (2026-10-04)
+                    so they get the Navbar, Footer and site chrome like every other page. */}
+                        <Route
+                          path="/paint-comparison"
+                          element={<PaintComparison />}
+                        />
+                        <Route
+                          path="/surface-assessment"
+                          element={<SurfaceAssessment />}
+                        />
+                        <Route
+                          path="/material-prices"
+                          element={<MaterialPriceTracker />}
+                        />
+                        <Route
+                          path="/maintenance-planner"
+                          element={<MaintenancePlanner />}
+                        />
+                        <Route
+                          path="/boq-generator"
+                          element={<BoqGenerator />}
+                        />
+                        <Route
+                          path="/global-markets"
+                          element={<GlobalMarkets />}
+                        />
+                        <Route
+                          path="/regional-cost-index"
+                          element={<RegionalCostIndex />}
+                        />
+                        <Route
+                          path="/carbon-footprint"
+                          element={<CarbonFootprint />}
+                        />
+                        <Route
+                          path="/cash-flow-timeline"
+                          element={<CashFlowTimeline />}
+                        />
+                        <Route
+                          path="/labour-estimator"
+                          element={<LabourEstimator />}
+                        />
+                        <Route
+                          path="/margin-calculator"
+                          element={<MarginCalculator />}
+                        />
+                        <Route
+                          path="/defect-diagnosis"
+                          element={<DefectDiagnosis />}
+                        />
+                        <Route
+                          path="/estimate-refresh"
+                          element={<EstimateRefresh />}
+                        />
+                        <Route
+                          path="/warranty-certificate"
+                          element={<WarrantyCertificate />}
+                        />
+                        <Route path="/heat-comfort" element={<HeatComfort />} />
+                        <Route
+                          path="/circular-reuse"
+                          element={<CircularReuse />}
+                        />
+                        <Route
+                          path="/contractor-credit"
+                          element={<ContractorCredit />}
+                        />
+                        <Route
+                          path="/solar-pv-estimator"
+                          element={<SolarPvEstimator />}
+                        />
+                        <Route
+                          path="/bim-ifc-import"
+                          element={<BimIfcImport />}
+                        />
+                        <Route
+                          path="/conversational-estimator"
+                          element={<ConversationalEstimator />}
+                        />
+                        <Route path="/field-sync" element={<FieldSync />} />
+                        <Route path="/count-vision" element={<CountVision />} />
+                        <Route
+                          path="/electrical"
+                          element={<ElectricalEstimator />}
+                        />
+                        <Route
+                          path="/plumbing"
+                          element={<PlumbingEstimator />}
+                        />
+                        <Route
+                          path="/waterproofing"
+                          element={<WaterproofingEstimator />}
+                        />
+                        <Route
+                          path="/wall-finish-estimator"
+                          element={<WallFinishEstimator />}
+                        />
+                        <Route
+                          path="/masonry-calculator"
+                          element={
+                            <StandaloneTakeoffPage initialEngine="masonry" />
+                          }
+                        />
+                        <Route
+                          path="/plastering-calculator"
+                          element={
+                            <StandaloneTakeoffPage initialEngine="plastering" />
+                          }
+                        />
+                        <Route
+                          path="/drywall-calculator"
+                          element={
+                            <StandaloneTakeoffPage initialEngine="drywall" />
+                          }
+                        />
+                        <Route
+                          path="/paving-calculator"
+                          element={
+                            <StandaloneTakeoffPage initialEngine="paving" />
+                          }
+                        />
+                        <Route
+                          path="/drainage-calculator"
+                          element={
+                            <StandaloneTakeoffPage initialEngine="drainage" />
+                          }
+                        />
+                        <Route
+                          path="/septic-sizing-calculator"
+                          element={
+                            <StandaloneTakeoffPage initialEngine="septic" />
+                          }
+                        />
+                        <Route
+                          path="/temporary-works-calculator"
+                          element={
+                            <StandaloneTakeoffPage initialEngine="temporary-works" />
+                          }
+                        />
+                        <Route
+                          path="/insulation-calculator"
+                          element={
+                            <StandaloneTakeoffPage initialEngine="insulation" />
+                          }
+                        />
+                        <Route
+                          path="/demolition-calculator"
+                          element={
+                            <StandaloneTakeoffPage initialEngine="demolition" />
+                          }
+                        />
+                        <Route
+                          path="/blueprint-takeoff"
+                          element={<BlueprintTakeoff />}
+                        />
+                        <Route
+                          path="/flooring"
+                          element={<FlooringEstimator />}
+                        />
+                        <Route
+                          path="/increte-flooring-calculator"
+                          element={<IncreteFlooringEstimator />}
+                        />
+                        <Route
+                          path="/reinforcement"
+                          element={<ReinforcementEstimator />}
+                        />
+                        <Route
+                          path="/foundation"
+                          element={<FoundationEstimator />}
+                        />
+                        <Route
+                          path="/doors-windows"
+                          element={<DoorsWindowsEstimator />}
+                        />
+                        <Route
+                          path="/generator"
+                          element={<GeneratorEstimator />}
+                        />
+                        <Route
+                          path="*"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <NotFound />
+                            </Suspense>
+                          }
+                        />
+                      </Route>
+
+                      {/* ─────────────────────────────────────────────────────── */}
+                      {/* AUTH PAGES, standalone, no public Layout or admin chrome */}
+                      {/* ─────────────────────────────────────────────────────── */}
+                      <Route
+                        path="/admin/login"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <AdminLogin />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/login"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <Login />
+                          </Suspense>
+                        }
+                      />
+
+                      {/* ─────────────────────────────────────────────────────── */}
+
+                      {/* ─────────────────────────────────────────────────────── */}
+                      {/* ADMIN PANEL, completely separated from public site. */}
+                      {/* Protected by RequireAdmin. No public Layout wrapping. */}
+                      {/* ─────────────────────────────────────────────────────── */}
+                      <Route
+                        path="/admin"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <RequireAdmin>
+                              <ErrorBoundary boundaryName="admin">
+                                <AdminLayout />
+                              </ErrorBoundary>
+                            </RequireAdmin>
+                          </Suspense>
+                        }
+                      >
+                        {/* Dashboard */}
+                        <Route index element={<AdminOverview />} />
+
+                        {/* AI Assistant */}
+                        <Route
+                          path="ai-assistant"
+                          element={<AdminAIAssistant />}
+                        />
+
+                        {/* Content */}
+                        <Route path="learn" element={<AdminLearn />} />
+                        <Route
+                          path="translations"
+                          element={<AdminTranslations />}
+                        />
+                        <Route
+                          path="learn/wall-finishing"
+                          element={<AdminWallFinishingLibrary />}
+                        />
+                        <Route
+                          path="ai-learning"
+                          element={<AdminAiLearningAssistant />}
+                        />
+                        <Route
+                          path="dictionary"
+                          element={<AdminConstructionDictionary />}
+                        />
+                        <Route path="legal" element={<AdminLegal />} />
+                        <Route
+                          path="contact"
+                          element={<AdminContactMessages />}
+                        />
+                        <Route
+                          path="partnership-inquiries"
+                          element={<AdminPartnershipInquiries />}
+                        />
+                        <Route path="feedback" element={<AdminFeedback />} />
+                        <Route
+                          path="price-submissions"
+                          element={<AdminPriceSubmissions />}
+                        />
+
+                        {/* Color Library */}
+                        <Route path="colors" element={<AdminColors />} />
+
+                        {/* Media Library */}
+                        <Route path="media" element={<AdminMedia />} />
+
+                        {/* Calculators */}
+                        <Route
+                          path="estimation-config"
+                          element={<AdminEstimationConfig />}
+                        />
+                        <Route path="templates" element={<AdminTemplates />} />
+                        <Route
+                          path="estimation-products"
+                          element={<AdminEstimationProducts />}
+                        />
+                        <Route
+                          path="maintenance-profiles"
+                          element={<AdminMaintenanceProfiles />}
+                        />
+                        <Route
+                          path="macro-tracker"
+                          element={<AdminMacroTracker />}
+                        />
+                        <Route
+                          path="regional-cost-indices"
+                          element={<AdminRegionalCostIndices />}
+                        />
+                        <Route
+                          path="carbon-factors"
+                          element={<AdminCarbonFactors />}
+                        />
+                        <Route
+                          path="thermal-factors"
+                          element={<AdminThermalFactors />}
+                        />
+                        <Route
+                          path="reuse-factors"
+                          element={<AdminReuseFactors />}
+                        />
+                        <Route
+                          path="credit-profiles"
+                          element={<AdminCreditProfiles />}
+                        />
+                        <Route
+                          path="solar-panels"
+                          element={<AdminSolarPanels />}
+                        />
+                        <Route
+                          path="conversational-packs"
+                          element={<AdminConversationalPacks />}
+                        />
+                        <Route path="field-sync" element={<AdminFieldSync />} />
+                        <Route
+                          path="count-vision"
+                          element={<AdminCountVision />}
+                        />
+                        <Route
+                          path="solar-prices"
+                          element={<AdminSolarPrices />}
+                        />
+                        <Route
+                          path="cash-flow-templates"
+                          element={<AdminCashFlowTemplates />}
+                        />
+                        <Route
+                          path="labour-rates"
+                          element={<AdminLabourRates />}
+                        />
+                        <Route
+                          path="margin-presets"
+                          element={<AdminMarginPresets />}
+                        />
+                        <Route path="defects" element={<AdminDefects />} />
+                        <Route
+                          path="estimation-materials"
+                          element={<AdminEstimationMaterials />}
+                        />
+                        <Route
+                          path="estimation-pricing"
+                          element={<AdminEstimationPricing />}
+                        />
+                        <Route
+                          path="estimation-estimates"
+                          element={<AdminEstimationEstimates />}
+                        />
+                        <Route
+                          path="estimation-audit"
+                          element={<AdminEstimationAudit />}
+                        />
+                        <Route
+                          path="learning-review"
+                          element={<AdminLearningReview />}
+                        />
+                        <Route
+                          path="intelligence-sources"
+                          element={<AdminIntelligenceSources />}
+                        />
+                        <Route
+                          path="intelligence-dashboard"
+                          element={<AdminIntelligenceDashboard />}
+                        />
+                        {/* Phase 7, FRELUX AI API key administration */}
+                        <Route path="api-keys" element={<AdminApiKeys />} />
+                        {/* ARCHIE extension, Owner Social Brand Center */}
+                        <Route
+                          path="social-brand-center"
+                          element={<AdminSocialBrandCenter />}
+                        />
+                        <Route
+                          path="estimation-production"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminEstimationProduction />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="paint-engine-test"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminPaintEngineTest />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="tyrolene-config"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminTyroleneConfig />
+                            </Suspense>
+                          }
+                        />
+                        {/* Roof View imagery provider (Build-to-Roof Estimator) */}
+                        <Route
+                          path="roof-view"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminRoofView />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="paint-types"
+                          element={<AdminPaintTypes />}
+                        />
+                        <Route
+                          path="screeding"
+                          element={<AdminScreedingMaterials />}
+                        />
+                        <Route
+                          path="pop-materials"
+                          element={<AdminPopMaterials />}
+                        />
+                        <Route
+                          path="tile-materials"
+                          element={<AdminTileMaterials />}
+                        />
+
+                        {/* Pricing */}
+                        <Route path="pricing" element={<AdminPricing />} />
+                        <Route
+                          path="price-updater"
+                          element={<AdminPriceUpdater />}
+                        />
+                        <Route path="price-scan" element={<AdminPriceScan />} />
+                        <Route
+                          path="market-prices"
+                          element={<AdminMarketPrices />}
+                        />
+                        <Route
+                          path="labour-settings"
+                          element={<AdminLabourSettings />}
+                        />
+
+                        {/* AI */}
+                        <Route
+                          path="ai-monetization"
+                          element={<AdminAiMonetization />}
+                        />
+                        <Route
+                          path="ai-settings"
+                          element={<AdminAiSettings />}
+                        />
+                        <Route path="ads" element={<AdminAds />} />
+                        <Route
+                          path="rewarded-access"
+                          element={<AdminRewardedAccess />}
+                        />
+                        <Route path="branding" element={<AdminBranding />} />
+                        <Route
+                          path="header-images"
+                          element={<AdminHeaderImages />}
+                        />
+                        <Route
+                          path="pdf-branding"
+                          element={<AdminPdfBranding />}
+                        />
+
+                        {/* Users */}
+                        <Route path="users" element={<AdminUsers />} />
+
+                        {/* Analytics */}
+                        <Route path="analytics" element={<AdminAnalytics />} />
+                        <Route
+                          path="integrations"
+                          element={<AdminIntegrations />}
+                        />
+
+                        {/* Error Monitor */}
+                        <Route
+                          path="errors"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminErrors />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="system-health"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <SystemHealth />
+                            </Suspense>
+                          }
+                        />
+                        {/* Pro Connect */}
+                        <Route
+                          path="pro-connect"
+                          element={<AdminProConnect />}
+                        />
+                        <Route
+                          path="image-estimation"
+                          element={<AdminImageEstimation />}
+                        />
+                        <Route
+                          path="marketplace"
+                          element={<AdminMarketplace />}
+                        />
+                        <Route path="markets" element={<AdminMarkets />} />
+                        <Route
+                          path="market-intelligence"
+                          element={<AdminMarketIntelligence />}
+                        />
+                        <Route
+                          path="price-pipeline"
+                          element={<AdminPricePipeline />}
+                        />
+                        <Route
+                          path="engine-config"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminEngineConfig />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="seo-location"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminSeoLocation />
+                            </Suspense>
+                          }
+                        />
+                        <Route path="rewards" element={<AdminRewards />} />
+                        <Route
+                          path="credits-ads"
+                          element={<AdminCreditsAds />}
+                        />
+
+                        {/* Contractor Config */}
+                        <Route
+                          path="gallery-moderation"
+                          element={<AdminGallery />}
+                        />
+                        <Route
+                          path="case-studies"
+                          element={<AdminCaseStudies />}
+                        />
+                        <Route
+                          path="testimonials"
+                          element={<AdminTestimonials />}
+                        />
+                        <Route
+                          path="paint-comparison"
+                          element={<AdminPaintComparison />}
+                        />
+                        <Route
+                          path="material-prices"
+                          element={<AdminMaterialPrices />}
+                        />
+                        <Route
+                          path="surface-conditions"
+                          element={<AdminSurfaceConditions />}
+                        />
+                        <Route
+                          path="project-stages"
+                          element={<AdminProjectStages />}
+                        />
+                        <Route
+                          path="material-catalog"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminMaterialCatalog />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="timeline-templates"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminTimelineTemplates />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="quotation-settings"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminQuotationSettings />
+                            </Suspense>
+                          }
+                        />
+
+                        {/* SEO */}
+                        <Route path="seo" element={<AdminSeo />} />
+
+                        {/* System */}
+                        <Route
+                          path="typography"
+                          element={<AdminTypography />}
+                        />
+                        <Route path="settings" element={<AdminSettings />} />
+                        <Route
+                          path="currency"
+                          element={<AdminCurrencySettings />}
+                        />
+
+                        {/* AI Developer Studio (nested) */}
+                        <Route path="studio" element={<StudioLayout />}>
+                          <Route index element={<StudioOverview />} />
+                          {/* Error analysis uses a dedicated component */}
+                          <Route
+                            path="error_analysis"
+                            element={
+                              <Suspense fallback={<PageLoader />}>
+                                <ErrorAnalysis />
+                              </Suspense>
+                            }
+                          />
+                          {/* All other tools, StudioDispatcher reads :toolSlug
                            and routes to StudioTool (chat/generation) or
                            StudioManagement (plugins/prompts/etc) */}
-                        <Route path=":toolSlug" element={<StudioTool />} />
+                          <Route path=":toolSlug" element={<StudioTool />} />
+                        </Route>
                       </Route>
-                    </Route>
 
-                    <Route
-                      path="/credits"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <CreditsPage />
-                        </Suspense>
-                      }
-                    />
-                    {/* Project intelligence routes */}
-                    <Route path="/gallery" element={<Gallery />} />
-                    <Route path="/case-studies" element={<CaseStudies />} />
-                    <Route
-                      path="/case-studies/:id"
-                      element={<CaseStudyDetail />}
-                    />
-                    <Route
-                      path="/properties"
-                      element={<PropertiesDashboard />}
-                    />
-                    <Route path="/gallery/new" element={<GalleryUpload />} />
-                    <Route
-                      path="/project-workspace"
-                      element={<ProjectWorkspace />}
-                    />
-                    <Route
-                      path="/project-workspace/:id"
-                      element={<ProjectDetail />}
-                    />
-                    <Route
-                      path="/project-workspace/:id/client-estimate/new"
-                      element={<ClientEstimateEditor />}
-                    />
-                    <Route
-                      path="/workspace-settings"
-                      element={<WorkspaceSettings />}
-                    />
-                    <Route
-                      path="/invite/:token"
-                      element={<AcceptInvitation />}
-                    />
+                      <Route
+                        path="/credits"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <CreditsPage />
+                          </Suspense>
+                        }
+                      />
+                      {/* Project intelligence routes */}
+                      <Route path="/gallery" element={<Gallery />} />
+                      <Route path="/case-studies" element={<CaseStudies />} />
+                      <Route
+                        path="/case-studies/:id"
+                        element={<CaseStudyDetail />}
+                      />
+                      <Route
+                        path="/properties"
+                        element={<PropertiesDashboard />}
+                      />
+                      <Route path="/gallery/new" element={<GalleryUpload />} />
+                      <Route
+                        path="/project-workspace"
+                        element={<ProjectWorkspace />}
+                      />
+                      <Route
+                        path="/project-workspace/:id"
+                        element={<ProjectDetail />}
+                      />
+                      <Route
+                        path="/project-workspace/:id/client-estimate/new"
+                        element={<ClientEstimateEditor />}
+                      />
+                      <Route
+                        path="/workspace-settings"
+                        element={<WorkspaceSettings />}
+                      />
+                      <Route
+                        path="/invite/:token"
+                        element={<AcceptInvitation />}
+                      />
 
-                    <Route
-                      path="/estimate/:token"
-                      element={<ClientEstimateView />}
-                    />
-                    {/* Fallback for unmatched admin routes */}
-                    <Route path="/admin/*" element={<NotFound />} />
-                  </LocaleAwareRoutes>
-                </BrowserRouter>
-              </WorkspaceProvider>
-            </CreditsProvider>
-          </ToastProvider>
+                      <Route
+                        path="/estimate/:token"
+                        element={<ClientEstimateView />}
+                      />
+                      {/* Fallback for unmatched admin routes */}
+                      <Route path="/admin/*" element={<NotFound />} />
+                    </LocaleAwareRoutes>
+                  </BrowserRouter>
+                </WorkspaceProvider>
+              </CreditsProvider>
+            </ToastProvider>
+          </GlobalSettingsProvider>
         </MarketProvider>
       </AuthProvider>
     </ErrorBoundary>

@@ -14,6 +14,7 @@ import {
   FileText,
   Gem,
   LayoutDashboard,
+  SlidersHorizontal,
   LogIn,
   LogOut,
   Mail,
@@ -118,6 +119,11 @@ export default function Navbar() {
           icon: ClipboardList,
         },
         { label: "Calculator Templates", to: "/my-templates", icon: FileStack },
+        {
+          label: "Project settings",
+          to: "/settings/preferences",
+          icon: SlidersHorizontal,
+        },
       ],
     },
     {
