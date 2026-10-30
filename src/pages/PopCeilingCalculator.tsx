@@ -85,6 +85,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { tx } from "@/lib/i18n";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 const ADVANCED_FEATURES = [
   "AI-powered project analysis & breakdown",
   "Smart cost optimization recommendations",
@@ -901,6 +902,7 @@ function PopResultCard({
                     compact
                     label="Save to Project Workspace"
                   />
+                  <NearbySuppliersLink material="POP ceiling materials" />
                 </div>
               </>
             )}

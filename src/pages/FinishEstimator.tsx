@@ -69,6 +69,7 @@ import {
   useProjectLocationCurrency,
   type FreluxLocation,
 } from "@/lib/location-intelligence";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 // Default door/window dims now from admin calc rules via useCalcDefaults
 
@@ -805,6 +806,7 @@ export default function FinishEstimator({
                   compact
                   label="Save to Project Workspace"
                 />
+                <NearbySuppliersLink material="wall finishes" />
               </div>
               {/* Material Breakdown */}
               <div className="mt-6 space-y-4">

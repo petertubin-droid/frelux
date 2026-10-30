@@ -95,6 +95,7 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 import EngineerReviewBadge from "@/components/EngineerReviewBadge";
 import { useLanguage } from "@/lib/i18n";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 type Tab = "beam" | "column" | "slab" | "wind" | "seismic" | "bbs" | "concrete";
 
@@ -1974,6 +1975,7 @@ function BeamCalculator() {
               compact
               label="Save to Project Workspace"
             />
+            <NearbySuppliersLink material="structural steel and concrete" />
           </div>
         </ResultCard>
       )}

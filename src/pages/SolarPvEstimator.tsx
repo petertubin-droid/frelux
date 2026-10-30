@@ -40,6 +40,7 @@ import type { SolarPanelModel, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useLanguage } from "@/lib/i18n";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 export default function SolarPvEstimator() {
   const { t } = useLanguage();
@@ -659,6 +660,7 @@ export default function SolarPvEstimator() {
                 compact
                 label="Save to Project"
               />
+              <NearbySuppliersLink material="solar panels" />
               {saveMessage && (
                 <span
                   className={`text-xs ${saveState === "error" ? "text-destructive" : "text-muted-foreground"}`}

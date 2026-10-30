@@ -30,6 +30,7 @@ import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 export default function FoundationCalculator() {
   const { t } = useLanguage();
@@ -527,6 +528,7 @@ export default function FoundationCalculator() {
               compact
               label="Save to Project Workspace"
             />
+            <NearbySuppliersLink material="foundation concrete" />
           </div>
         )}
       </div>

@@ -52,6 +52,7 @@ import type {
   EstimationCalcRule,
   EstimationMaterial,
 } from "@/types/estimation";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 type NumField =
   | "taps"
@@ -653,6 +654,7 @@ export default function PlumbingEstimator() {
                     estimated_price: l.unit_price ?? undefined,
                   }))}
               />
+              <NearbySuppliersLink material="plumbing fittings" />
             </>
           )}
         </div>

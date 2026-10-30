@@ -48,6 +48,7 @@ import type {
 } from "@/types/estimation";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 type FloorType = "laminate" | "vinyl" | "parquet";
 
@@ -504,6 +505,7 @@ export default function FlooringEstimator() {
                     estimated_price: l.unit_price ?? undefined,
                   }))}
               />
+              <NearbySuppliersLink material="floor tiles" />
             </>
           )}
         </div>

@@ -57,10 +57,7 @@ import {
   getBuildingPresets,
   type BuildingPreset,
 } from "@/lib/measurement/building-presets";
-import type {
-  HouseRoomRow,
-  SurfaceRunRow,
-} from "@/types";
+import type { HouseRoomRow, SurfaceRunRow } from "@/types";
 import type {
   EstimationProduct,
   EstimationProductQuality,
@@ -111,6 +108,7 @@ import type {
 } from "@/types/estimation";
 import { RewardedFeatureGate } from "@/components/rewarded/RewardedFeatureGate";
 import { AdvancedCalculator } from "@/components/rewarded/AdvancedCalculator";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 const projectTypes: {
   value: ProjectType;
@@ -567,10 +565,7 @@ export default function PaintCalculator({
       setInput((prev) => {
         const next = { ...prev, projectType: mode };
         if (mode === "house" && !prev.houseRooms) next.houseRooms = [];
-        if (
-          (mode === "exterior" || mode === "fence") &&
-          !prev.surfaceRuns
-        ) {
+        if ((mode === "exterior" || mode === "fence") && !prev.surfaceRuns) {
           next.surfaceRuns = [newSurfaceRunRow(1, mode === "fence")];
         }
         return next;
@@ -649,8 +644,7 @@ export default function PaintCalculator({
         {
           id: `room-${Date.now()}`,
           label:
-            label.trim() ||
-            (count > 1 ? `${count} identical rooms` : "Room"),
+            label.trim() || (count > 1 ? `${count} identical rooms` : "Room"),
           length,
           width,
           quantity: count,
@@ -696,13 +690,11 @@ export default function PaintCalculator({
       if (input.projectType === "house") {
         const rows = input.houseRooms ?? [];
         if (rows.length === 0) {
-          e.houseRooms =
-            "Pick a house type above or add rooms manually";
+          e.houseRooms = "Pick a house type above or add rooms manually";
         } else if (rows.some((r) => r.length <= 0 || r.width <= 0)) {
           e.houseRooms = "Every room needs a length and a width";
         }
-        if (input.wallHeight <= 0)
-          e.wallHeight = "Enter a valid wall height";
+        if (input.wallHeight <= 0) e.wallHeight = "Enter a valid wall height";
       } else if (
         input.projectType === "exterior" ||
         input.projectType === "fence"
@@ -719,10 +711,8 @@ export default function PaintCalculator({
       } else {
         if (input.length <= 0) e.length = "Enter a valid length";
         // Width is optional, no validation needed when blank.
-        if (input.wallHeight <= 0)
-          e.wallHeight = "Enter a valid wall height";
-        if ((input.roomCount ?? 1) < 1)
-          e.roomCount = "Enter at least 1 room";
+        if (input.wallHeight <= 0) e.wallHeight = "Enter a valid wall height";
+        if ((input.roomCount ?? 1) < 1) e.roomCount = "Enter at least 1 room";
       }
     }
     if (s === 3) {
@@ -1263,6 +1253,7 @@ export default function PaintCalculator({
                 })),
               ]}
             />
+            <NearbySuppliersLink material="paint" />
           </div>
         )}
 
@@ -1407,10 +1398,18 @@ function Step2({
   onAddRun: () => void;
   onUpdateRun: (id: string, patch: Partial<SurfaceRunRow>) => void;
   onRemoveRun: (id: string) => void;
-  houseQuickAdd: { length: number; width: number; count: number; label: string };
-  onSetHouseQuickAdd: (
-    q: { length: number; width: number; count: number; label: string },
-  ) => void;
+  houseQuickAdd: {
+    length: number;
+    width: number;
+    count: number;
+    label: string;
+  };
+  onSetHouseQuickAdd: (q: {
+    length: number;
+    width: number;
+    count: number;
+    label: string;
+  }) => void;
   onAddIdenticalHouseRooms: () => void;
 }) {
   const { t } = useLanguage();
@@ -1524,8 +1523,8 @@ function Step2({
                 Include ceiling
               </p>
               <p className="text-xs text-muted-foreground">
-                Adds the ceiling area (length × width) to the paintable
-                surface. Requires width to be entered.
+                Adds the ceiling area (length × width) to the paintable surface.
+                Requires width to be entered.
               </p>
             </div>
           </div>
@@ -1555,17 +1554,13 @@ function Step2({
               }}
               className="input-field"
             >
-              <option value="">
-                Select a house type...
-              </option>
+              <option value="">Select a house type...</option>
               {presets.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.label}
                 </option>
               ))}
-              <option value="custom">
-                Custom — build my own room list
-              </option>
+              <option value="custom">Custom — build my own room list</option>
             </select>
             {errors.houseRooms && (
               <p className="mt-1 text-xs text-destructive">
@@ -1593,9 +1588,7 @@ function Step2({
                 min={0}
                 step="0.01"
                 value={input.wallHeight || ""}
-                onChange={(e) =>
-                  update("wallHeight", Number(e.target.value))
-                }
+                onChange={(e) => update("wallHeight", Number(e.target.value))}
                 className="input-field"
                 placeholder="0.00"
               />
@@ -1675,10 +1668,7 @@ function Step2({
                         placeholder="0"
                       />
                     </Field>
-                    <Field
-                      label="Identical"
-                      hint="e.g. ×3 bedrooms this size"
-                    >
+                    <Field label="Identical" hint="e.g. ×3 bedrooms this size">
                       <input
                         type="number"
                         min={1}
@@ -1686,10 +1676,7 @@ function Step2({
                         value={row.quantity}
                         onChange={(e) =>
                           onUpdateHouseRoom(row.id, {
-                            quantity: Math.max(
-                              1,
-                              Number(e.target.value) || 1,
-                            ),
+                            quantity: Math.max(1, Number(e.target.value) || 1),
                           })
                         }
                         className="input-field"
@@ -2008,7 +1995,6 @@ function Step3({
 }) {
   const [showDoorDims, setShowDoorDims] = useState(false);
   const [showWindowDims, setShowWindowDims] = useState(false);
-
 
   // Resolve the selected quality object from availableQualities + selectedQualityId
   const selectedQuality =

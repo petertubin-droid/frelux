@@ -47,6 +47,7 @@ import type {
   EstimationCalcRule,
   EstimationMaterial,
 } from "@/types/estimation";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 type AreaField =
   | "dpc_run_m"
@@ -444,6 +445,7 @@ export default function WaterproofingEstimator() {
                     estimated_price: l.unit_price ?? undefined,
                   }))}
               />
+              <NearbySuppliersLink material="waterproofing membrane" />
             </>
           )}
         </div>

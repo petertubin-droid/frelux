@@ -58,6 +58,7 @@ import { Button } from "@/components/ui/shadcn/button";
 
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { useLanguage } from "@/lib/i18n";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 interface PassedState {
   surfaceArea?: number;
   grandTotal?: number;
@@ -903,6 +904,7 @@ export default function TileCostEstimator({
                           compact
                           label="Save to Project Workspace"
                         />
+                        <NearbySuppliersLink material="floor tiles" />
                       </div>
 
                       <EngineExplanationPanel

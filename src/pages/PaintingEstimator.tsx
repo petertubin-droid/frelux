@@ -122,6 +122,7 @@ import {
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 // =========================================================
 // Types
 // =========================================================
@@ -2386,6 +2387,7 @@ function EstimateResult({
               compact
               label="Save to Project"
             />
+            <NearbySuppliersLink material="paint" />
             <Button
               variant="ghost"
               onClick={onToggleCalculation}

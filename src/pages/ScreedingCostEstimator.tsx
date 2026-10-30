@@ -66,6 +66,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { getSafeError } from "@/lib/safeError";
 import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 import { useLanguage } from "@/lib/i18n";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 interface PassedState {
   netScreedingArea?: number;
@@ -978,6 +979,7 @@ export default function ScreedingCostEstimator({
                           compact
                           label="Save to Project Workspace"
                         />
+                        <NearbySuppliersLink material="screeding cement" />
                       </div>
                     </>
                   ) : (

@@ -114,6 +114,7 @@ import LabourCostSection, {
 } from "@/components/labour/LabourCostSection";
 import { calculateLabourCost } from "@/lib/labour";
 import { useLanguage } from "@/lib/i18n";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 // =========================================================
 // Constants
 // =========================================================
@@ -1728,6 +1729,7 @@ export default function TyroleneEstimator({
                         compact
                         label="Save to Project Workspace"
                       />
+                      <NearbySuppliersLink material="tyrolene finish" />
                     </div>
                   </div>
                 </div>

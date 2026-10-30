@@ -54,6 +54,7 @@ import type {
   EstimationCalcRule,
   EstimationMaterial,
 } from "@/types/estimation";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 type LenField = "len_12mm_m" | "len_16mm_m" | "len_20mm_m" | "len_25mm_m";
 
@@ -544,6 +545,7 @@ export default function ReinforcementEstimator() {
                     estimated_price: l.unit_price ?? undefined,
                   }))}
               />
+              <NearbySuppliersLink material="reinforcement bars" />
             </>
           )}
         </div>

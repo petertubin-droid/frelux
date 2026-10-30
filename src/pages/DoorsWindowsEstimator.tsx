@@ -53,6 +53,7 @@ import type {
 } from "@/types/estimation";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 type NumField =
   | "flush_doors"
@@ -556,6 +557,7 @@ export default function DoorsWindowsEstimator() {
                     estimated_price: l.unit_price ?? undefined,
                   }))}
               />
+              <NearbySuppliersLink material="doors and windows" />
             </>
           )}
         </div>

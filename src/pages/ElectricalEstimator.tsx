@@ -50,6 +50,7 @@ import type {
   EstimationCalcRule,
   EstimationMaterial,
 } from "@/types/estimation";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 const BUILDING_TYPES = [
   "Residential: flat / bungalow",
@@ -669,6 +670,7 @@ export default function ElectricalEstimator() {
                     estimated_price: l.unit_price ?? undefined,
                   }))}
               />
+              <NearbySuppliersLink material="electrical fittings" />
             </>
           )}
         </div>
