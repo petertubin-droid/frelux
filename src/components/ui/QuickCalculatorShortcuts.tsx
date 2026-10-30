@@ -69,7 +69,7 @@ export default function QuickCalculatorShortcuts() {
               style={{ animationDelay: `${i * 0.06}s` }}
             >
               <div className="flex items-start justify-between">
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/8 text-brand-purple transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-md group-hover:shadow-brand-purple/20">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-brand-purple transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-md group-hover:shadow-brand-purple/20">
                   <s.icon className="h-5 w-5" />
                 </span>
                 {s.badge && (

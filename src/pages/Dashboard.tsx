@@ -76,7 +76,7 @@ const QUICK_ACTIONS = [
     to: "/paint-calculator",
     label: "Paint Calc",
     icon: Calculator,
-    color: "text-brand-purple bg-primary/8",
+    color: "text-brand-purple bg-primary/10",
   },
   {
     to: "/paint-calculator?mode=cost",
@@ -397,7 +397,7 @@ export default function Dashboard() {
                       style={{ animationDelay: `${i * 0.04}s` }}
                     >
                       <div className="flex items-start justify-between">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/8 text-brand-purple">
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                           <FolderOpen className="h-4 w-4" />
                         </span>
                         <span className="text-xs text-muted-foreground">

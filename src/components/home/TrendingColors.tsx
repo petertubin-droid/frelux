@@ -118,7 +118,7 @@ function ColorRow({
   return (
     <div className="animate-fade-in-up">
       <div className="mb-5 flex items-center gap-2.5">
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary/8 text-brand-purple">
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-brand-purple">
           <Icon className="h-5 w-5" />
         </span>
         <h3 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">

@@ -310,7 +310,7 @@ export default function Navbar() {
                                           classNames(
                                             "group flex items-start gap-3 rounded-xl px-3 py-2 transition-all duration-150",
                                             isActive
-                                              ? "bg-primary/8"
+                                              ? "bg-primary/10"
                                               : "hover:bg-primary/5",
                                           )
                                         }
@@ -607,7 +607,7 @@ export default function Navbar() {
                                       : undefined
                                   }
                                   onClick={() => setOpenDropdown(null)}
-                                  className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-primary/8 hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
+                                  className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
                                 >
                                   <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter" />
                                   {t(item.label)}
@@ -736,7 +736,7 @@ export default function Navbar() {
                       className={classNames(
                         "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
                         location.pathname.startsWith(workspace.path)
-                          ? "bg-primary/8 text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                          ? "bg-primary/10 text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
                           : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
                       )}
                     >
@@ -763,7 +763,7 @@ export default function Navbar() {
                                     "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
                                     indent,
                                     isActive
-                                      ? "bg-primary/8 font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                                      ? "bg-primary/10 font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
                                       : "text-muted-foreground hover:bg-muted/50 hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter",
                                   )
                                 }
@@ -837,7 +837,7 @@ export default function Navbar() {
                       classNames(
                         "block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
                         isActive
-                          ? "bg-primary/8 text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                          ? "bg-primary/10 text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
                           : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
                       )
                     }

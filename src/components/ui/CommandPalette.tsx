@@ -437,7 +437,7 @@ function CommandRow({
       className={classNames(
         "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors",
         index === selectedIndex
-          ? "bg-primary/8 dark:bg-primary/15"
+          ? "bg-primary/10 dark:bg-primary/15"
           : "hover:bg-muted/50 dark:hover:bg-white/5",
       )}
     >

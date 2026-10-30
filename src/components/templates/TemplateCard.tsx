@@ -61,7 +61,7 @@ export default function TemplateCard({
     <div className="group relative flex flex-col rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-brand-purple/30 hover:shadow-sm dark:border-white/10 dark:bg-card dark:hover:border-brand-purple/40">
       {/* Top row: badge + favorite */}
       <div className="flex items-start justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
           <Calculator className="h-3 w-3" />
           {calculatorLabel(template.calculator_type)}
         </span>

@@ -26,7 +26,7 @@ const aiTools = [
     description:
       "Photograph a stack of cement bags, blocks, or tiles and Counter-Vision counts what is visible. It says so honestly when a photo cannot be counted.",
     to: "/count-vision/",
-    accent: "text-brand-purple bg-primary/8",
+    accent: "text-brand-purple bg-primary/10",
   },
   {
     icon: MessageSquareText,

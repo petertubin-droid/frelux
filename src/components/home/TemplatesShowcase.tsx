@@ -90,7 +90,7 @@ export default function TemplatesShowcase() {
                   transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               >
-                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/8 text-brand-purple transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-105 dark:bg-primary/15 dark:text-brand-purple-lighter">
+                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-brand-purple transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-105 dark:bg-primary/15 dark:text-brand-purple-lighter">
                   <Icon className="h-5 w-5" />
                 </span>
                 <div>
@@ -111,7 +111,7 @@ export default function TemplatesShowcase() {
           <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-premium dark:border-white/10 dark:bg-card">
             <div className="flex items-center justify-between border-b border-border/50 px-5 py-3.5 dark:border-white/5">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-md bg-primary/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
+                <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
                   <FileText className="h-3 w-3" />
                   {t("Painting")}
                 </span>

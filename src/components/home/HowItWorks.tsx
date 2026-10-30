@@ -10,7 +10,7 @@ const steps = [
     title: "Measure",
     description:
       "Input your room dimensions, wall height, doors, and windows. Just a tape measure, no technical knowledge needed.",
-    accent: "text-brand-purple bg-primary/8",
+    accent: "text-brand-purple bg-primary/10",
     number: "01",
   },
   {

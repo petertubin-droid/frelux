@@ -214,7 +214,7 @@ export default function LearnCategory() {
         {/* Category header banner, premium */}
         <div className="relative mb-12 overflow-hidden rounded-3xl border border-border/80 dark:border-white/10 bg-gradient-to-br from-card via-primary/[0.03] to-primary/[0.06] dark:from-card dark:via-card/50 dark:to-background p-7 sm:p-10">
           <div
-            className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl"
+            className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl"
             aria-hidden="true"
           />
           <div className="relative flex items-center gap-6">

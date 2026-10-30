@@ -52,7 +52,7 @@ export default function MobileBottomNav() {
               <span
                 className={classNames(
                   "relative inline-flex h-6 w-6 items-center justify-center rounded-lg transition-all",
-                  active && "bg-primary/8 dark:bg-primary/15",
+                  active && "bg-primary/10 dark:bg-primary/15",
                 )}
               >
                 <item.icon

@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 // Weather module exports a hook (usePaintingWeather) which requires React rendering context
 // We test the exported types and constants at minimum
 import type { WeatherDay, WeatherData } from "./weather";
+import { conditionFromWmoCode } from "./weather";
 
 describe("weather", () => {
   it("WeatherDay type supports all expected fields", () => {
@@ -32,5 +33,14 @@ describe("weather", () => {
     };
     expect(data.loading).toBe(true);
     expect(data.city).toBe("Lagos");
+  });
+
+  it("maps WMO weather codes onto the app condition names", () => {
+    expect(conditionFromWmoCode(0)).toBe("Clear");
+    expect(conditionFromWmoCode(2)).toBe("Clouds");
+    expect(conditionFromWmoCode(45)).toBe("Mist");
+    expect(conditionFromWmoCode(53)).toBe("Drizzle");
+    expect(conditionFromWmoCode(63)).toBe("Rain");
+    expect(conditionFromWmoCode(95)).toBe("Thunderstorm");
   });
 });

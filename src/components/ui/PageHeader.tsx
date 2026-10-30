@@ -86,7 +86,7 @@ export default function PageHeader({
       {/* Ambient accent orbs - slowly drifting so the header feels alive
           without pulling attention from the content. */}
       <div
-        className="calc-orb animate-float-slow pointer-events-none absolute -right-20 -top-10 h-48 w-48 rounded-full bg-primary/8 blur-3xl"
+        className="calc-orb animate-float-slow pointer-events-none absolute -right-20 -top-10 h-48 w-48 rounded-full bg-primary/10 blur-3xl"
         aria-hidden="true"
       />
       <div

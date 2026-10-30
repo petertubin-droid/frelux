@@ -51,10 +51,8 @@ function conditionIcon(condition: string, className?: string) {
 export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
   const { location } = useWeatherLocation();
   const { marketCode } = useMarket();
-  const { today, days, loading, canWorkToday, workRating } = useWorkWeather(
-    workType,
-    location,
-  );
+  const { today, days, loading, canWorkToday, workRating, source } =
+    useWorkWeather(workType, location);
   const [expanded, setExpanded] = useState(false);
   const workLabel =
     workType === "screeding"
@@ -79,26 +77,26 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
   const ratingConfig = {
     good: {
       Icon: CheckCircle2,
-      color: "text-emerald-600 dark:text-emerald-400",
-      bg: "bg-emerald-50 dark:bg-emerald-950/30",
-      border: "border-emerald-200 dark:border-emerald-800/50",
-      glow: "shadow-emerald-100 dark:shadow-emerald-900/20",
+      color: "text-emerald-700 dark:text-emerald-300",
+      chip: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+      shell:
+        "border-emerald-500/25 bg-gradient-to-br from-emerald-500/[0.10] via-emerald-500/[0.04] to-transparent dark:from-emerald-500/[0.16]",
       label: "Favorable",
     },
     fair: {
       Icon: AlertTriangle,
-      color: "text-amber-700 dark:text-amber-400",
-      bg: "bg-amber-50 dark:bg-amber-950/30",
-      border: "border-amber-200 dark:border-amber-800/50",
-      glow: "shadow-amber-100 dark:shadow-amber-900/20",
+      color: "text-amber-700 dark:text-amber-300",
+      chip: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+      shell:
+        "border-amber-500/25 bg-gradient-to-br from-amber-500/[0.10] via-amber-500/[0.04] to-transparent dark:from-amber-500/[0.16]",
       label: "Marginal",
     },
     poor: {
       Icon: XCircle,
-      color: "text-red-700 dark:text-red-400",
-      bg: "bg-red-50 dark:bg-red-950/30",
-      border: "border-red-200 dark:border-red-800/50",
-      glow: "shadow-red-100 dark:shadow-red-900/20",
+      color: "text-rose-600 dark:text-rose-300",
+      chip: "bg-rose-500/10 text-rose-600 dark:text-rose-300",
+      shell:
+        "border-rose-500/25 bg-gradient-to-br from-rose-500/[0.09] via-rose-500/[0.03] to-transparent dark:from-rose-500/[0.15]",
       label: "Unfavorable",
     },
   };
@@ -109,16 +107,19 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
   return (
     <div
       className={classNames(
-        "mb-4 overflow-hidden rounded-2xl border shadow-sm",
-        config.border,
-        config.bg,
-        config.glow,
+        "mb-4 overflow-hidden rounded-2xl border shadow-card backdrop-blur-xl",
+        config.shell,
       )}
     >
       {/* Header row */}
       <div className="flex items-center gap-3 p-4">
         {/* Weather condition icon badge */}
-        <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/80 shadow-sm dark:bg-white/10">
+        <div
+          className={classNames(
+            "relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset ring-black/[0.04] dark:ring-white/10",
+            config.chip,
+          )}
+        >
           {conditionIcon(
             today.condition,
             "h-6 w-6 text-foreground dark:text-primary-foreground",
@@ -135,11 +136,16 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
                 : `${config.label}, postpone ${workLabel.toLowerCase()}`}
             </span>
           </div>
-          <p className="mt-0.5 flex min-w-0 items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
+          <p className="mt-0.5 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
             <WeatherLocationSelect /> ·{" "}
             <span className="shrink-0">
               {today.dayName} {today.condition}
             </span>
+            {source === "estimated" && (
+              <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground ring-1 ring-inset ring-border">
+                Estimated
+              </span>
+            )}
           </p>
         </div>
 

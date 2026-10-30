@@ -76,7 +76,7 @@ export default function FeaturesSection() {
               style={{ animationDelay: `${i * 0.08}s` }}
             >
               {/* Hover glow */}
-              <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-primary/0 blur-3xl transition-all duration-500 group-hover:bg-primary/8" />
+              <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-primary/0 blur-3xl transition-all duration-500 group-hover:bg-primary/10" />
               <span className="relative inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 transition-all duration-300 group-hover:bg-white/8 group-hover:ring-white/20 group-hover:scale-105">
                 <Icon className="h-6 w-6 text-brand-purple-light" />
               </span>

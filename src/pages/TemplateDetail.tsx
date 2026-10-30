@@ -298,7 +298,7 @@ export default function TemplateDetail() {
 
       {/* Header */}
       <div className="mt-6">
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
           <Calculator aria-hidden="true" className="h-3 w-3" />
           {calcLabel}
         </span>

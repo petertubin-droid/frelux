@@ -268,7 +268,7 @@ export default function Login() {
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-primary/8 blur-[120px]"
+          className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]"
           aria-hidden="true"
         />
         <div className="relative w-full max-w-sm text-center animate-fade-in-up">
@@ -314,7 +314,7 @@ export default function Login() {
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-primary/8 blur-[120px]"
+        className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]"
         aria-hidden="true"
       />
       <div className="relative w-full max-w-[420px] animate-fade-in-up">

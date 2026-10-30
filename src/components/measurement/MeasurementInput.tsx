@@ -16,6 +16,7 @@
  */
 
 import { useState, useId, type ReactNode } from "react";
+import { ValidationNote } from "@/components/measurement/ValidationNote";
 import {
   Plus,
   Trash2,
@@ -363,13 +364,7 @@ function EntryCard({
           </div>
 
           {/* Validation errors */}
-          {errors && errors.length > 0 && (
-            <div className="rounded-md bg-destructive/10 p-3 text-xs text-destructive space-y-1">
-              {errors.map((err, i) => (
-                <p key={i}>⚠ {err}</p>
-              ))}
-            </div>
-          )}
+          {errors && errors.length > 0 && <ValidationNote errors={errors} />}
         </>
       )}
     </div>
@@ -631,15 +626,7 @@ export function ValidationErrors({
 }) {
   if (validation.valid || validation.errors.length === 0) return null;
 
-  return (
-    <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-1">
-      {validation.errors.map((err, i) => (
-        <p key={i} className="text-sm text-destructive">
-          ⚠ {err}
-        </p>
-      ))}
-    </div>
-  );
+  return <ValidationNote errors={validation.errors} />;
 }
 
 // =========================================================

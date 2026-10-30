@@ -8,14 +8,13 @@ import { useState, useEffect } from "react";
 import type { WeatherDay } from "./weather";
 import {
   generateEstimatedWeather,
-  ratePaintingConditions,
-  mapWeatherIcon,
+  fetchForecastDays,
+  type WeatherSource,
 } from "./weather";
 import {
   DEFAULT_WEATHER_LOCATION,
   type WeatherLocation,
 } from "./weather-locations";
-import { resolveClientProviderKey } from "@/lib/integrations/provider-keys";
 
 export type WorkType =
   "painting" | "screeding" | "tiling" | "tyrolene" | "finishing" | "general";
@@ -28,6 +27,8 @@ export interface WorkWeatherData {
   canWorkToday: boolean;
   workRating: "good" | "fair" | "poor";
   workNote: string;
+  /** "estimated" means the seasonal fallback, not a live forecast. */
+  source?: WeatherSource;
 }
 
 /**
@@ -151,29 +152,20 @@ export function useWorkWeather(
         // Yield one tick so consumers can observe the initial loading state
         // before estimated data resolves synchronously.
         await new Promise((resolve) => setTimeout(resolve, 0));
-        // usePaintingWeather is a hook, we can't call it inside a callback.
-        // Instead, replicate the fetch logic minimally.
-        // Env key first; then FRELUX-pasted Integration Center key.
-        const apiKey =
-          import.meta.env.VITE_OPENWEATHER_API_KEY ||
-          (await resolveClientProviderKey("openweather"));
+        // One forecast entry point, shared with the painting scheduler:
+        // OpenWeather when a key exists, otherwise the keyless Open-Meteo feed.
         let days: WeatherDay[] = [];
         let city = location.name;
+        let source: WeatherSource = "live";
 
-        if (!apiKey) {
-          // Fallback: estimated data, replicate the function's behavior
-          // by importing the generator
+        try {
+          const forecast = await fetchForecastDays(location);
+          days = forecast.days;
+          city = forecast.city;
+          source = forecast.source;
+        } catch {
           days = generateEstimatedWeather(location);
-        } else {
-          const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=metric`;
-          const res = await fetch(url);
-          if (res.ok) {
-            const json = await res.json();
-            city = json.city?.name ?? location.name;
-            days = parseForecast(json);
-          } else {
-            days = generateEstimatedWeather(location);
-          }
+          source = "estimated";
         }
 
         if (cancelled) return;
@@ -207,6 +199,7 @@ export function useWorkWeather(
           canWorkToday: rating !== "poor",
           workRating: rating,
           workNote: note,
+          source,
         });
       } catch {
         if (cancelled) return;
@@ -223,6 +216,7 @@ export function useWorkWeather(
           days,
           city: location.name,
           loading: false,
+          source: "estimated",
           canWorkToday: rating !== "poor",
           workRating: rating,
           workNote: getWorkNote(
@@ -245,56 +239,4 @@ export function useWorkWeather(
   }, [workType, location.id, location.lat, location.lon, location.name]);
 
   return data;
-}
-
-
-interface ForecastEntry {
-  main: { temp: number; humidity: number };
-  wind: { speed: number };
-  rain?: { "3h"?: number };
-  dt_txt: string;
-  weather: { main: string; description: string; icon: string }[];
-}
-
-function parseForecast(json: {
-  list: ForecastEntry[];
-  city?: { name?: string };
-}): WeatherDay[] {
-  const days: WeatherDay[] = [];
-  const dayMap = new Map<string, ForecastEntry[]>();
-  for (const item of json.list) {
-    const date = item.dt_txt.split(" ")[0];
-    if (!dayMap.has(date)) dayMap.set(date, []);
-    dayMap.get(date)!.push(item);
-  }
-
-  for (const [date, entries] of Array.from(dayMap.entries()).slice(0, 5)) {
-    const temps = entries.map((e) => e.main.temp);
-    const humidities = entries.map((e) => e.main.humidity);
-    const precip = entries.reduce((sum, e) => sum + (e.rain?.["3h"] ?? 0), 0);
-    const winds = entries.map((e) => e.wind.speed);
-    const midday = entries[Math.floor(entries.length / 2)];
-    const humidity = Math.round(
-      humidities.reduce((a, b) => a + b, 0) / humidities.length,
-    );
-    const windSpeed = Math.round(
-      winds.reduce((a, b) => a + b, 0) / winds.length,
-    );
-    const condition = midday.weather[0].main;
-
-    days.push({
-      date,
-      dayName: new Date(date).toLocaleDateString("en-US", { weekday: "short" }),
-      tempMin: Math.min(...temps),
-      tempMax: Math.max(...temps),
-      humidity,
-      precipitation: Math.round(precip * 10) / 10,
-      windSpeed,
-      condition,
-      icon: mapWeatherIcon(condition),
-      paintRating: ratePaintingConditions(humidity, precip, windSpeed),
-      paintNote: "",
-    });
-  }
-  return days;
 }
