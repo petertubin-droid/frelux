@@ -111,12 +111,12 @@ function rowFrom(
   raw: Record<string, unknown>,
   mapping: FeedMapping,
 ): FeedRow | null {
-  const price = toNumber(pick(raw, mapping.price ?? "price"));
+  const price = cataloguePrice(raw, mapping.price ?? "price");
   if (price === null) return null;
   return {
     price,
     currency:
-      str(pick(raw, mapping.currency ?? "currency")) ??
+      catalogueCurrency(raw, mapping.currency ?? "currency") ??
       mapping.currency_default ??
       null,
     name: str(pick(raw, mapping.name ?? "name")),
@@ -126,6 +126,65 @@ function rowFrom(
     supplier: str(pick(raw, mapping.supplier ?? "supplier")),
     location: str(pick(raw, mapping.location ?? "location")),
   };
+}
+
+/**
+ * Supplier catalogues nest prices one level down: Shopify keeps them in
+ * variants, WooCommerce in a prices object with minor units. Both are expanded
+ * into flat rows so a shop catalogue reads like any other price feed.
+ */
+function expandCatalogueItems(items: unknown[]): unknown[] {
+  const out: unknown[] = [];
+  for (const item of items) {
+    const row = item as Record<string, unknown>;
+    const variants = Array.isArray(row?.variants)
+      ? (row.variants as Record<string, unknown>[])
+      : null;
+    if (variants && variants.length > 0) {
+      for (const variant of variants) {
+        out.push({
+          ...variant,
+          name: [row.title ?? row.name, variant.title]
+            .filter(Boolean)
+            .join(" - "),
+          brand: variant.brand ?? row.vendor,
+          specification: variant.specification ?? variant.title,
+          currency: variant.currency ?? row.currency,
+        });
+      }
+    } else {
+      out.push(row);
+    }
+  }
+  return out;
+}
+
+/** Reads a price from a catalogue object, honouring WooCommerce minor units. */
+function cataloguePrice(
+  raw: Record<string, unknown>,
+  key: string,
+): number | null {
+  const direct = toNumber(pick(raw, key));
+  if (direct !== null) return direct;
+  const prices = raw.prices as Record<string, unknown> | undefined;
+  if (prices && typeof prices === "object") {
+    const minor = Number(prices.currency_minor_unit ?? 2);
+    const value = toNumber(prices.price);
+    if (value !== null) return minor > 0 ? value / Math.pow(10, minor) : value;
+  }
+  return null;
+}
+
+/** Reads the currency a catalogue states next to the price, if any. */
+function catalogueCurrency(
+  raw: Record<string, unknown>,
+  key: string,
+): string | null {
+  const direct = str(pick(raw, key));
+  if (direct) return direct;
+  const prices = raw.prices as Record<string, unknown> | undefined;
+  const nested = prices ? str(prices.currency_code) : null;
+  return nested ?? null;
 }
 
 /** Accepts the common JSON shapes: an array, {items:[...]}, {data:{...}} via mapping.items. */
@@ -164,7 +223,9 @@ export function parseJsonFeed(
     return [];
   }
   const rows: FeedRow[] = [];
-  for (const item of itemList) {
+  // Shopify and WooCommerce keep the price one level down; expand first so a
+  // shop catalogue reads exactly like a flat price feed.
+  for (const item of expandCatalogueItems(itemList)) {
     if (!item || typeof item !== "object") continue;
     const row = rowFrom(item as Record<string, unknown>, mapping);
     if (row && row.price > 0) rows.push(row);
