@@ -36,6 +36,7 @@ import {
 } from "@/components/admin/AdminUi";
 import { Button } from "@/components/ui/shadcn/button";
 import { classNames } from "@/lib/utils";
+import SevenCountryCoverage from "@/components/admin/SevenCountryCoverage";
 
 interface MarketRow {
   market: string;
@@ -332,6 +333,7 @@ export default function AdminMarketPrices() {
 
   return (
     <div className="space-y-6">
+      <SevenCountryCoverage />
       <AdminPageHeader
         title="Market price scanner"
         subtitle="Every market the app serves, priced from its own suppliers. A market is only promoted to the price book when its own observations clear the consensus gate."
