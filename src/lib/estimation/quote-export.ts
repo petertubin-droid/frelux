@@ -45,6 +45,20 @@ export function exportQuoteToDocumentStudio(
   if (opts.warnings && opts.warnings.length > 0) {
     notesParts.push("Notes: " + opts.warnings.join(". "));
   }
+  const display = autoDisplayForReport(opts.totals);
+  if (display) {
+    const headline =
+      display.totals.find((t) => t.strong) ??
+      display.totals[display.totals.length - 1];
+    notesParts.push(
+      `Also in ${display.currency}: ${headline.value}. ${display.rateLine}. ${display.note}${
+        display.fromSnapshot
+          ? " Rates came from a saved snapshot, not a live feed."
+          : ""
+      }`,
+    );
+  }
+
   if (omittedLines > 0)
     notesParts.push(
       `${omittedLines} quote line(s) were excluded because a verified numeric quantity or unit price was unavailable. Review the original estimate.`,

@@ -87,14 +87,34 @@ export function buildQuoteDisplay(params: {
 export function parseMoneyText(text: string): number | null {
   const cleaned = text.replace(/[^0-9.,-]/g, "").trim();
   if (!cleaned) return null;
+
+  const commas = (cleaned.match(/,/g) ?? []).length;
+  const dots = (cleaned.match(/\./g) ?? []).length;
   const lastComma = cleaned.lastIndexOf(",");
   const lastDot = cleaned.lastIndexOf(".");
-  let normalised = cleaned;
-  if (lastComma > lastDot) {
-    normalised = cleaned.replace(/\./g, "").replace(",", ".");
+
+  let normalised: string;
+  if (commas > 0 && dots > 0) {
+    // Both present: whichever comes last is the decimal mark.
+    normalised =
+      lastComma > lastDot
+        ? cleaned.replace(/\./g, "").replace(/,/g, ".")
+        : cleaned.replace(/,/g, "");
+  } else if (commas > 0 || dots > 0) {
+    const separator = commas > 0 ? "," : ".";
+    const occurrences = commas > 0 ? commas : dots;
+    const trailing = cleaned.slice(cleaned.lastIndexOf(separator) + 1);
+    const grouped =
+      occurrences > 1 || (trailing.length === 3 && /^\d{3}$/.test(trailing));
+    // "$1,000" is one thousand, not one. A single separator with three trailing
+    // digits is a thousands group in every money string the reports produce.
+    normalised = grouped
+      ? cleaned.split(separator).join("")
+      : cleaned.replace(separator, ".");
   } else {
-    normalised = cleaned.replace(/,/g, "");
+    normalised = cleaned;
   }
+
   const value = Number(normalised);
   return Number.isFinite(value) ? value : null;
 }
@@ -106,10 +126,11 @@ export function parseMoneyText(text: string): number | null {
  */
 export function autoDisplayForReport(
   totals: readonly { label: string; value: string; strong?: boolean }[],
+  options: { table?: RateTable | null; from?: string; to?: string } = {},
 ): QuoteDisplay | null {
   if (!totals.length) return null;
-  const from = activeCurrencyCode();
-  const to = preferredDisplayCurrency(from);
+  const from = (options.from ?? activeCurrencyCode()).toUpperCase();
+  const to = (options.to ?? preferredDisplayCurrency(from)).toUpperCase();
   if (from === to) return null;
   const parsed: QuotedTotal[] = [];
   for (const total of totals) {
@@ -117,7 +138,7 @@ export function autoDisplayForReport(
     if (amount === null) return null;
     parsed.push({ label: total.label, amount, strong: total.strong });
   }
-  const table = cachedRateTable();
+  const table = options.table ?? cachedRateTable();
   if (!table) return null;
   return buildQuoteDisplay({
     totals: parsed,

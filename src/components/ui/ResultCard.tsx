@@ -12,6 +12,16 @@ import {
 } from "lucide-react";
 import { classNames } from "@/lib/utils";
 import ConvertedTotal from "@/components/ui/ConvertedTotal";
+import {
+  activeCurrencyCode,
+  preferredDisplayCurrency,
+} from "@/lib/currency/active-currency";
+import {
+  convert,
+  describeConversion,
+  formatMoney,
+} from "@/lib/currency/engine";
+import { useRateTable } from "@/lib/currency/use-currency";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   buildCopyText,
@@ -53,6 +63,27 @@ export default function ResultCard({
   children?: ReactNode;
 }) {
   const [copyState, setCopyState] = useState<CopyOutcome | null>(null);
+  const { table } = useRateTable();
+
+  // What was pasted alongside the total earlier must stay usable later, so the
+  // copy carries the converted figure only when a trusted rate is at hand.
+  const conversion = useMemo(() => {
+    if (!table) return null;
+    const from = activeCurrencyCode();
+    const to = preferredDisplayCurrency(from);
+    if (from === to) return null;
+    const result = convert(grandTotal, from, to, table);
+    if (result.result === null) return null;
+    return {
+      amount: formatMoney(result.result, to),
+      currency: to,
+      rateLine: describeConversion(result),
+      note:
+        result.status === "fallback"
+          ? "Converted at a saved rate for comparison. This is not the local price of materials."
+          : "Converted for comparison. This is not the local price of materials.",
+    };
+  }, [table, grandTotal]);
 
   // The same rows the reader sees, in the same order, with the total last.
   const copyBlock = useMemo(
@@ -66,10 +97,11 @@ export default function ResultCard({
           maximumFractionDigits: 0,
         },
       )}`,
+      conversion: conversion ?? undefined,
       sourceUrl:
         typeof window === "undefined" ? undefined : window.location.href,
     }),
-    [title, subtitle, stats, grandTotal, currencySymbol],
+    [title, subtitle, stats, grandTotal, currencySymbol, conversion],
   );
 
   const handleCopy = async () => {

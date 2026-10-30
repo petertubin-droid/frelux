@@ -14,6 +14,16 @@ export interface CopyBlock {
   lines: CopyLine[];
   /** Optional closing line, for example a total with its currency. */
   total?: string;
+  /**
+   * The same total in another currency. Pasted alongside the original, never
+   * instead of it, and always with the rate and its timestamp.
+   */
+  conversion?: {
+    amount: string;
+    currency: string;
+    rateLine: string;
+    note: string;
+  };
   /** Where the estimate came from, so a pasted result stays attributable. */
   sourceUrl?: string;
   note?: string;
@@ -33,6 +43,13 @@ export function buildCopyText(block: CopyBlock): string {
   if (block.total) {
     rows.push("");
     rows.push(block.total);
+  }
+  if (block.conversion) {
+    rows.push("");
+    rows.push(
+      `Also in ${block.conversion.currency}: ${block.conversion.amount}`,
+    );
+    rows.push(`${block.conversion.rateLine}. ${block.conversion.note}`);
   }
   if (block.note) {
     rows.push("");
