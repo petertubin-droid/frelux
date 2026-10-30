@@ -162,7 +162,15 @@ describe("switching units on a real entry", () => {
   });
 
   it("leaves absent fields absent and is a no-op on the same unit", () => {
-    const bare = { length: 4, unit: "meters" as const };
+    const bare: {
+      length: number;
+      width?: number;
+      height?: number;
+      unit: "meters";
+    } = {
+      length: 4,
+      unit: "meters",
+    };
     const switched = convertEntryDimensions(bare, "feet");
     expect(switched.width).toBeUndefined();
     expect(switched.height).toBeUndefined();
