@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { MapPanel } from "@/components/map/MapPanel";
 import {
   Search,
   Plus,
@@ -866,6 +867,17 @@ function ProductsTab(props: {
 }) {
   return (
     <div>
+      {/* Materials and open projects on the map */}
+      <MapPanel
+        layers={["materials", "jobs"]}
+        className="mb-6"
+        height={320}
+        title="What is near you"
+        subtitle="Stock from sellers with a pickup or delivery area, and open projects you can bid on, plotted where they are."
+        nearestCount={3}
+        exploreHref="/map"
+      />
+
       {/* Search bar */}
       <div className="mb-4 flex gap-2">
         <div className="relative flex-1">

@@ -371,6 +371,7 @@ const ProConnectDashboard = lazy(
   () => import("@/pages/pro-connect/ProConnectDashboard"),
 );
 const Messages = lazy(() => import("@/pages/pro-connect/Messages"));
+const ExploreMap = lazy(() => import("@/pages/map/ExploreMap"));
 
 // Marketplace
 const MarketplaceHome = lazy(
@@ -1468,6 +1469,16 @@ export default function App() {
                         element={
                           <Suspense fallback={<PageLoader />}>
                             <DeveloperPortal />
+                          </Suspense>
+                        }
+                      />
+
+                      {/* Global 3D map: professionals, open projects, materials */}
+                      <Route
+                        path="/map"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <ExploreMap />
                           </Suspense>
                         }
                       />

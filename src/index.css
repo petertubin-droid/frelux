@@ -1900,3 +1900,150 @@ h2 {
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
+
+/* =========================================================
+   FRELUX MAP
+   Globe markers and MapLibre controls, styled to match the
+   premium surface language (glass, hairline borders, depth).
+   ========================================================= */
+.frelux-map-pin {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.frelux-map-pin__dot {
+  position: absolute;
+  inset: 5px;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 8px 18px -6px hsl(var(--primary) / 0.85);
+  transition: transform 0.2s ease;
+}
+
+.frelux-map-pin__pulse {
+  position: absolute;
+  inset: 1px;
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--primary) / 0.4);
+  animation: frelux-pin-pulse 2.6s ease-out infinite;
+}
+
+.frelux-map-pin--job .frelux-map-pin__dot {
+  background: #0ea5e9;
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 8px 18px -6px rgba(14, 165, 233, 0.85);
+}
+.frelux-map-pin--job .frelux-map-pin__pulse {
+  border-color: rgba(14, 165, 233, 0.4);
+}
+
+.frelux-map-pin--material .frelux-map-pin__dot {
+  background: #f59e0b;
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 8px 18px -6px rgba(245, 158, 11, 0.85);
+}
+.frelux-map-pin--material .frelux-map-pin__pulse {
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.frelux-map-pin:hover .frelux-map-pin__dot,
+.frelux-map-pin.is-active .frelux-map-pin__dot {
+  transform: scale(1.35);
+}
+
+@keyframes frelux-pin-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.frelux-map-pin .maplibregl-ctrl {
+  display: none;
+}
+
+/* Controls: glass groups instead of MapLibre's default white cards. */
+.frelux-map-surface .maplibregl-ctrl-group {
+  border-radius: 12px;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--card) / 0.85);
+  box-shadow: 0 10px 28px -18px rgba(16, 12, 40, 0.5);
+  backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+
+.frelux-map-surface .maplibregl-ctrl-group button {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+}
+
+.frelux-map-surface .maplibregl-ctrl-group button + button {
+  border-top: 1px solid hsl(var(--border) / 0.5);
+}
+
+.frelux-map-surface .maplibregl-ctrl-group button:hover {
+  background: hsl(var(--muted) / 0.7);
+}
+
+.frelux-map-surface .maplibregl-ctrl button .maplibregl-ctrl-icon {
+  filter: none;
+  opacity: 0.75;
+}
+
+.frelux-map-surface .maplibregl-ctrl-attrib {
+  border-radius: 10px 0 0 0;
+  background: hsl(var(--card) / 0.8);
+  backdrop-filter: blur(10px);
+  font-size: 10px;
+}
+
+.frelux-map-surface .maplibregl-popup-content {
+  border-radius: 14px;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--card) / 0.96);
+  box-shadow: 0 18px 40px -22px rgba(16, 12, 40, 0.6);
+  backdrop-filter: blur(16px);
+  padding: 12px 14px;
+}
+
+.frelux-map-surface .maplibregl-popup-tip {
+  border-top-color: hsl(var(--card) / 0.96);
+}
+
+.dark .frelux-map-surface .maplibregl-ctrl-group,
+.dark .frelux-map-surface .maplibregl-popup-content,
+.dark .frelux-map-surface .maplibregl-ctrl-attrib {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: hsl(var(--card) / 0.9);
+}
+
+.dark .frelux-map-surface .maplibregl-popup-tip {
+  border-top-color: hsl(var(--card) / 0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frelux-map-pin__pulse {
+    animation: none;
+  }
+  .frelux-map-pin__dot {
+    transition: none;
+  }
+}

@@ -3,6 +3,7 @@ import { CheckCircle2, RotateCcw, ArrowRight } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { SaveToProjectButton } from "@/components/calculators";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { formatNumber } from "@/lib/utils";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { Link } from "react-router-dom";
@@ -380,7 +381,8 @@ export default function ScreedingCalculator({
               </Link>
             </div>
 
-            <div className="pt-2 flex justify-center">
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+              <NearbySuppliersLink material="screeding cement" />
               <SaveToProjectButton
                 calculatorType="screeding"
                 calculatorSlug="screeding-calculator"

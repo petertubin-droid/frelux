@@ -28,6 +28,7 @@ import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import _LocationPicker from "@/components/ui/LocationPicker";
 import { useLocation } from "@/lib/location";
+import { MapPanel } from "@/components/map/MapPanel";
 import {
   findNearbyProfessionals,
   type NearbyProfessional,
@@ -495,6 +496,17 @@ export default function ProConnectDirectory() {
           </Link>
         ))}
       </div>
+
+      {/* Where the professionals actually are */}
+      <MapPanel
+        layers={["pros"]}
+        className="mb-6"
+        height={340}
+        title="Professionals near your site"
+        subtitle="Every pin is a verified professional's listed base. Pick a city filter above and the map follows."
+        nearestCount={4}
+        exploreHref="/map"
+      />
 
       {/* Results count */}
       <div className="mb-4 flex items-center justify-between">

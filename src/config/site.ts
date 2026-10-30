@@ -123,6 +123,11 @@ export const navWorkspaces: NavWorkspace[] = [
         description: "Hire verified construction professionals",
       },
       {
+        label: "Explore Map",
+        path: "/map",
+        description: "Professionals, projects and stock on a 3D globe",
+      },
+      {
         label: "Developer API",
         path: "/developers",
         description: "Estimation APIs for developers",
