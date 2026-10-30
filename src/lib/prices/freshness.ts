@@ -137,10 +137,10 @@ export function needsVerification(summary: FreshnessSummary): boolean {
 
 /** The shape fetchMarketPriceBook returns, narrowed to what dating needs. */
 export interface PriceBookLike {
-  byRef: Map<string, number>;
-  asOf: Map<string, string>;
-  stale: Set<string>;
-  verified: Set<string>;
+  byRef?: Map<string, number>;
+  asOf?: Map<string, string>;
+  stale?: Set<string>;
+  verified?: Set<string>;
 }
 
 export interface PriceBookSummary {
@@ -162,14 +162,16 @@ export function summarisePriceBook(
   now: Date = new Date(),
 ): PriceBookSummary {
   const stamps: Date[] = [];
-  book.asOf.forEach((value) => {
+  // Older callers and cached shapes may hand over a partial book. Reading it
+  // defensively keeps a missing stamp map from taking the price list down with it.
+  (book.asOf ?? new Map<string, string>()).forEach((value) => {
     const parsed = new Date(value);
     if (!Number.isNaN(parsed.getTime())) stamps.push(parsed);
   });
 
-  const pricedCount = book.byRef.size;
-  const staleCount = book.stale.size;
-  const verifiedCount = book.verified.size;
+  const pricedCount = book.byRef?.size ?? 0;
+  const staleCount = book.stale?.size ?? 0;
+  const verifiedCount = book.verified?.size ?? 0;
 
   if (pricedCount === 0) {
     return {

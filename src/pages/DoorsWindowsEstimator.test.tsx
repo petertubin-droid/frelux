@@ -176,6 +176,21 @@ describe("DoorsWindowsEstimator", () => {
     ).toBeInTheDocument();
   });
 
+  it("states that its priced materials carry no verification date", async () => {
+    render(
+      <MemoryRouter>
+        <DoorsWindowsEstimator />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole("note")).toBeInTheDocument();
+    });
+    expect(screen.getByRole("note")).toHaveTextContent(
+      /none of them carrying a verification date/i,
+    );
+  });
+
   it("renders doors-windows-price-provenance card when market resolver returns provenance rows", async () => {
     mockDoorsMarketResolution = {
       overrides: {

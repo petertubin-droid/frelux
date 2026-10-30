@@ -34,6 +34,11 @@ import {
   type DoorsWindowsMarketResolution,
 } from "@/lib/estimation/structural-market";
 import { SaveToProjectButton } from "@/components/calculators";
+import PriceFreshnessNotice from "@/components/prices/PriceFreshnessNotice";
+import {
+  summarisePriceBook,
+  type PriceBookSummary,
+} from "@/lib/prices/freshness";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import {
@@ -110,6 +115,9 @@ export default function DoorsWindowsEstimator() {
   });
 
   const [priceMap, setPriceMap] = useState<DoorsWindowsPriceMap>({});
+  const [bookFreshness, setBookFreshness] = useState<PriceBookSummary | null>(
+    null,
+  );
   const [doorsMarket, setDoorsMarket] =
     useState<DoorsWindowsMarketResolution | null>(null);
   const [ruleRows, setRuleRows] = useState<EstimationCalcRule[]>([]);
@@ -123,6 +131,7 @@ export default function DoorsWindowsEstimator() {
         fetchMarketPriceBook(marketCode),
       ]);
       if (!alive) return;
+      setBookFreshness(summarisePriceBook(book));
       const byRef = book.byRef;
       const map: DoorsWindowsPriceMap = {};
       for (const m of (matsRes.data ?? []) as EstimationMaterial[]) {
@@ -403,6 +412,11 @@ export default function DoorsWindowsEstimator() {
       />
 
       <MarketScopeNotice />
+      {bookFreshness && (
+        <div className="mt-4">
+          <PriceFreshnessNotice bookSummary={bookFreshness} className="mt-0" />
+        </div>
+      )}
       {marketCode !== "NG" && (
         <div
           className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"

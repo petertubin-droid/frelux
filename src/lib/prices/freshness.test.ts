@@ -186,6 +186,16 @@ describe("summarisePriceBook", () => {
     expect(priceBookMessage(summary)).toMatch(/cannot be trusted/i);
   });
 
+  it("survives a partial book from an older cache", () => {
+    const partial = { byRef: new Map([["a", 900]]) } as unknown as Parameters<
+      typeof summarisePriceBook
+    >[0];
+    const summary = summarisePriceBook(partial, now);
+    expect(summary.level).toBe("unknown");
+    expect(summary.pricedCount).toBe(1);
+    expect(summary.staleCount).toBe(0);
+  });
+
   it("uses no em dashes", () => {
     const summaries = [
       summarisePriceBook(book(), now),

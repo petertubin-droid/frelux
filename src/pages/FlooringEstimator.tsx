@@ -32,6 +32,11 @@ import {
   SaveToProjectButton,
   CopyResultsButton,
 } from "@/components/calculators";
+import PriceFreshnessNotice from "@/components/prices/PriceFreshnessNotice";
+import {
+  summarisePriceBook,
+  type PriceBookSummary,
+} from "@/lib/prices/freshness";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import {
@@ -98,6 +103,9 @@ export default function FlooringEstimator() {
   });
 
   const [priceMap, setPriceMap] = useState<FlooringPriceMap>({});
+  const [bookFreshness, setBookFreshness] = useState<PriceBookSummary | null>(
+    null,
+  );
   const [ruleRows, setRuleRows] = useState<EstimationCalcRule[]>([]);
 
   useEffect(() => {
@@ -109,6 +117,7 @@ export default function FlooringEstimator() {
         fetchMarketPriceBook(marketCode),
       ]);
       if (!alive) return;
+      setBookFreshness(summarisePriceBook(book));
       const byRef = book.byRef;
       const map: FlooringPriceMap = {};
       for (const m of (matsRes.data ?? []) as EstimationMaterial[]) {
@@ -363,6 +372,11 @@ export default function FlooringEstimator() {
   return (
     <Container>
       <MarketScopeNotice />
+      {bookFreshness && (
+        <div className="mt-4">
+          <PriceFreshnessNotice bookSummary={bookFreshness} className="mt-0" />
+        </div>
+      )}
       <PageHeader
         breadcrumbs={[
           { label: "Home", path: "/" },
