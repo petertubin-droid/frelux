@@ -57,6 +57,8 @@ import type {
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import { WasteFactorControl } from "@/components/calculators/WasteFactorControl";
+import { useWasteBridge } from "@/lib/waste/use-waste-settings";
 
 type FloorType = "laminate" | "vinyl" | "parquet";
 
@@ -136,6 +138,14 @@ export default function FlooringEstimator() {
     [ruleRows],
   );
 
+  // Floor waste comes from the owner's rule unless the visitor chooses one for
+  // flooring materials. The engine applies it once, in calculateFlooring.
+  const sharedWaste = useWasteBridge("flooring", rules.floor_waste_pct);
+  const calcRules = useMemo(
+    () => ({ ...rules, floor_waste_pct: sharedWaste.value }),
+    [rules, sharedWaste.value],
+  );
+
   const input: FlooringInput = useMemo(() => {
     const run = (v: string): number | null => {
       const trimmed = v.trim();
@@ -167,14 +177,14 @@ export default function FlooringEstimator() {
   ]);
 
   const run = useCallback(() => {
-    const res = calculateFlooring(input, rules, priceMap);
+    const res = calculateFlooring(input, calcRules, priceMap);
     setResult(res);
     track("calculator_completed", {
       calculator: "flooring",
       incomplete: res.incomplete,
       lines: res.lines.length,
     });
-  }, [input, rules, priceMap]);
+  }, [input, calcRules, priceMap]);
 
   // Printable professional quote, worldwide-currency formatted.
   const buildQuote = (): Parameters<typeof printQuote>[0] | null => {
@@ -436,6 +446,15 @@ export default function FlooringEstimator() {
             />
             {t("Include adhesive (glue-down installations)")}
           </label>
+        </div>
+        <div className="mt-4">
+          <WasteFactorControl
+            material="flooring"
+            baseQuantity={Number(areaInput) > 0 ? Number(areaInput) : undefined}
+            unit="m²"
+            packageSize={calcRules.laminate_pack_coverage_m2 ?? null}
+            compact
+          />
         </div>
 
         <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>

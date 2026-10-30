@@ -174,6 +174,8 @@ export function startingWastePercent(
   material: WasteMaterialKey,
   pageFallback: number,
 ): number {
+  // The master switch means no allowance anywhere, not just in the control.
+  if (!settings.enabled) return 0;
   const stored = settings.perMaterial[material];
   if (typeof stored === "number" && Number.isFinite(stored))
     return clampWastePercent(stored);

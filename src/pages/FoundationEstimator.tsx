@@ -46,6 +46,8 @@ import {
   type FoundationPriceMap,
   type FoundationResult,
 } from "@/lib/estimation/foundation-engine";
+import { WasteFactorControl } from "@/components/calculators/WasteFactorControl";
+import { useWasteBridge } from "@/lib/waste/use-waste-settings";
 import type {
   EstimationCalcRule,
   EstimationMaterial,
@@ -143,6 +145,14 @@ export default function FoundationEstimator() {
     [ruleRows],
   );
 
+  // Concrete waste comes from the owner's rule unless the visitor chooses one
+  // for cement. The engine applies it once, in calculateFoundation.
+  const sharedWaste = useWasteBridge("cement", rules.concrete_waste_pct);
+  const calcRules = useMemo(
+    () => ({ ...rules, concrete_waste_pct: sharedWaste.value }),
+    [rules, sharedWaste.value],
+  );
+
   const input: FoundationInput = useMemo(() => {
     const run = (v: string): number | null => {
       const trimmed = v.trim();
@@ -165,14 +175,14 @@ export default function FoundationEstimator() {
   }, [fields, labourMode, labourRate]);
 
   const run = useCallback(() => {
-    const res = calculateFoundation(input, rules, priceMap);
+    const res = calculateFoundation(input, calcRules, priceMap);
     setResult(res);
     track("calculator_completed", {
       calculator: "foundation",
       incomplete: res.incomplete,
       lines: res.lines.length,
     });
-  }, [input, rules, priceMap]);
+  }, [input, calcRules, priceMap]);
 
   // Printable professional quote, worldwide-currency formatted.
   const buildQuote = (): Parameters<typeof printQuote>[0] | null => {
@@ -454,6 +464,20 @@ export default function FoundationEstimator() {
           Labour is always separate from material quantities and is never added
           automatically.
         </p>
+
+        <div className="mt-4">
+          <WasteFactorControl
+            material="cement"
+            baseQuantity={
+              Number(fields.concrete_volume_m3) > 0
+                ? Number(fields.concrete_volume_m3)
+                : undefined
+            }
+            unit="m³"
+            packageSize={null}
+            compact
+          />
+        </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <button

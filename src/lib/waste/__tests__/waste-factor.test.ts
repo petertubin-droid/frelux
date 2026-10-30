@@ -210,6 +210,16 @@ describe("settings persistence", () => {
     expect(startingWastePercent(chosen, "tiles", 10)).toBe(10);
   });
 
+  it("gives no allowance anywhere when the master switch is off", () => {
+    const off = {
+      ...defaultWasteSettings(),
+      enabled: false,
+      perMaterial: { paint: 12 as number },
+    };
+    expect(startingWastePercent(off, "paint", 0)).toBe(0);
+    expect(startingWastePercent(off, "flooring", 8)).toBe(0);
+  });
+
   it("falls back to defaults when storage is empty or corrupt", () => {
     expect(
       resolveWastePercent(loadWasteSettings(memoryStorage()), "tiles"),
