@@ -207,6 +207,14 @@ const SupplierPortal = lazy(() => import("@/pages/marketplace/SupplierPortal"));
 const AdminRegionalCostIndices = lazy(
   () => import("@/pages/admin/AdminRegionalCostIndices"),
 );
+const AdminSiteIntelligence = lazy(
+  () => import("@/pages/admin/AdminSiteIntelligence"),
+);
+
+const SiteIntelligence = lazy(
+  () => import("@/pages/SiteIntelligence"),
+);
+
 const AdminPriceIndex = lazy(
   () => import("@/pages/admin/AdminPriceIndex"),
 );
@@ -1712,6 +1720,10 @@ export default function App() {
                         <Route
                           path="/material-advisor"
                           element={<MaterialAdvisor />}
+                        />
+                        <Route
+                          path="/site-intelligence"
+                          element={<SiteIntelligence />}
                         />
                         <Route
                           path="/code-reference"

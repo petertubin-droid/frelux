@@ -2515,6 +2515,12 @@ const routes = [
       "Choose your project location and get construction material guidance for its real climate: rainfall, humidity, UV, coastal exposure and frost, across paints, waterproofing, roofing, tiles, concrete exposure, steel protection, insulation and drainage.",
   },
   {
+    path: "/site-intelligence",
+    title: "Site & Soil Intelligence | FRELUX SMART CALC",
+    description:
+      "Screen a project location for soil classification, groundwater, flood and terrain signals, compare preliminary foundation scenarios on a bearing capacity you supply, and attach geotechnical reports for review. Screening information only, never a foundation design.",
+  },
+  {
     path: "/labour-estimator",
     title: "Labour Estimator | FRELUX SMART CALC",
     description:
