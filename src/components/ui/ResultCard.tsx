@@ -11,6 +11,7 @@ import {
   Check,
 } from "lucide-react";
 import { classNames } from "@/lib/utils";
+import ConvertedTotal from "@/components/ui/ConvertedTotal";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   buildCopyText,
@@ -151,6 +152,7 @@ export default function ResultCard({
               {grandTotal.toLocaleString("en-US", { maximumFractionDigits: 0 })}
             </span>
           </p>
+          <ConvertedTotal amount={grandTotal} />
         </div>
 
         {children}
