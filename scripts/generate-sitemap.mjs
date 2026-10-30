@@ -317,6 +317,7 @@ const routes = [
   { path: "/heat-comfort", priority: "0.9", changefreq: "monthly" },
   { path: "/material-advisor", priority: "0.9", changefreq: "monthly" },
   { path: "/site-intelligence", priority: "0.9", changefreq: "monthly" },
+  { path: "/diaspora-tracker", priority: "0.9", changefreq: "monthly" },
   { path: "/code-reference", priority: "0.9", changefreq: "monthly" },
   { path: "/material-price-index", priority: "0.9", changefreq: "daily" },
   { path: "/labour-estimator", priority: "0.9", changefreq: "monthly" },

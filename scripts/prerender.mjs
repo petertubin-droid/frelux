@@ -2515,6 +2515,12 @@ const routes = [
       "Choose your project location and get construction material guidance for its real climate: rainfall, humidity, UV, coastal exposure and frost, across paints, waterproofing, roofing, tiles, concrete exposure, steel protection, insulation and drainage.",
   },
   {
+    path: "/diaspora-tracker",
+    title: "Diaspora Site Tracker | FRELUX SMART CALC",
+    description:
+      "Monitor a construction project in Nigeria from abroad: daily site reports, owner-approved expenditure, material delivery discrepancies, milestone decisions and private photographic evidence, with role-based access for owners, site managers, contractors and inspectors.",
+  },
+  {
     path: "/site-intelligence",
     title: "Site & Soil Intelligence | FRELUX SMART CALC",
     description:

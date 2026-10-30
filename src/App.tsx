@@ -215,6 +215,12 @@ const SiteIntelligence = lazy(
   () => import("@/pages/SiteIntelligence"),
 );
 
+const DiasporaTracker = lazy(() => import("@/pages/DiasporaTracker"));
+
+const DiasporaProject = lazy(() => import("@/pages/DiasporaProject"));
+
+const DiasporaInvite = lazy(() => import("@/pages/DiasporaInvite"));
+
 const AdminPriceIndex = lazy(
   () => import("@/pages/admin/AdminPriceIndex"),
 );
@@ -1724,6 +1730,18 @@ export default function App() {
                         <Route
                           path="/site-intelligence"
                           element={<SiteIntelligence />}
+                        />
+                        <Route
+                          path="/diaspora-tracker"
+                          element={<DiasporaTracker />}
+                        />
+                        <Route
+                          path="/diaspora-tracker/invite"
+                          element={<DiasporaInvite />}
+                        />
+                        <Route
+                          path="/diaspora-tracker/:projectId"
+                          element={<DiasporaProject />}
                         />
                         <Route
                           path="/code-reference"
