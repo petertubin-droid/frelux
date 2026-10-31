@@ -2,6 +2,7 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
 import { ConcreteTakeoffCalculator } from "@/pages/StructuralCalculator";
+import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
 
 export default function ConcreteTakeoffPage() {
   useSeo({

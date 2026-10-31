@@ -38,6 +38,7 @@ import {
 } from "@/lib/estimation/solar-pv-engine";
 import type { SolarPanelModel, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
@@ -674,6 +675,7 @@ export default function SolarPvEstimator() {
           </div>
         )}
       </div>
+      <CalculatorAdBanner toolKey="solar" className="mt-8" />
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
     </Container>

@@ -82,11 +82,15 @@ export default function SupplierCompare() {
       );
       setLoading(false);
     };
-    if (ids.length > 0) run();
+    if (ids.length > 0) void run();
     else {
       setRows([]);
       setLoading(false);
     }
+    // Stop a slow reply from overwriting the page after it has moved on.
+    return () => {
+      cancelled = true;
+    };
     // ids is derived from the query string; join keeps the dependency stable.
   }, [ids.join(",")]);
 

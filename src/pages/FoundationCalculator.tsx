@@ -32,6 +32,7 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
 
 export default function FoundationCalculator() {
   const { t } = useLanguage();
@@ -561,6 +562,8 @@ export default function FoundationCalculator() {
           </div>
         )}
       </div>
+      <CalculatorAdBanner toolKey="foundation" className="mt-8" />
+
       <RelatedTools
         links={[
           CALC_LINKS.structuralCalc,

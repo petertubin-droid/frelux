@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import AdSlot from "@/components/ui/AdSlot";
+import { ArticleAdCallout } from "@/components/ads/CampaignSlot";
 import CrossPromoSlot from "@/components/houseAds/CrossPromoSlot";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -601,13 +602,25 @@ export default function LearnArticle() {
                       the fifth closing the body below. Placement policy:
                       every unit sits inside real prose, is labelled, and
                       reserves min-height so it cannot shift the layout. */}
+                  {idx === 1 && (
+                    <ArticleAdCallout
+                      position="30"
+                      category={article?.category_slug ?? null}
+                      className="my-10"
+                    />
+                  )}
                   {idx === 2 && contentChunks.length > 3 && (
                     <div className="my-10">
                       <AdSlot slotKey="learn_article_mid_2" />
                     </div>
                   )}
                   {idx === 3 && contentChunks.length > 3 && (
-                    <div className="my-10"></div>
+                    <div className="my-10">
+                      <ArticleAdCallout
+                        position="65"
+                        category={article?.category_slug ?? null}
+                      />
+                    </div>
                   )}
                 </React.Fragment>
               ))}
@@ -620,6 +633,11 @@ export default function LearnArticle() {
                   the AdSense-locked sticky anchor still owns the viewport
                   bottom (owner directive 2026-10-27). */}
               <AdSlot slotKey="learn_in_article" />
+              <ArticleAdCallout
+                position="end"
+                category={article?.category_slug ?? null}
+                className="mt-6"
+              />
             </div>
 
             {/* Bottom in-article inserts */}

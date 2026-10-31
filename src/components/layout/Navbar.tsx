@@ -114,6 +114,11 @@ export default function Navbar() {
         { label: "My Profile", to: "/profile", icon: UserCircle },
         { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
         {
+          label: "Construction intelligence",
+          to: "/intelligence",
+          icon: LayoutDashboard,
+        },
+        {
           label: "Saved Estimates & Projects",
           to: "/my-projects",
           icon: ClipboardList,

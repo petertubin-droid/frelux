@@ -425,6 +425,7 @@ const AdminImageEstimation = lazy(
 );
 const AdminMarketplace = lazy(() => import("@/pages/admin/AdminMarketplace"));
 const AdminSuppliers = lazy(() => import("@/pages/admin/AdminSuppliers"));
+const AdManager = lazy(() => import("@/pages/admin/AdManager"));
 const AdminSeoLocation = lazy(() => import("@/pages/admin/AdminSeoLocation"));
 const AdminRewards = lazy(() => import("@/pages/admin/AdminRewards"));
 const AdminCreditsAds = lazy(() => import("@/pages/admin/AdminCreditsAds"));
@@ -473,6 +474,10 @@ const SupplierWorkspace = lazy(
 const ProcurementHome = lazy(
   () => import("@/pages/procurement/ProcurementHome"),
 );
+const ProjectIntelligence = lazy(
+  () => import("@/pages/intelligence/IntelligenceDashboard"),
+);
+const PlatformAnalytics = lazy(() => import("@/pages/admin/AdminIntelligence"));
 const ProcurementNew = lazy(() => import("@/pages/procurement/ProcurementNew"));
 const ProcurementRequestDetail = lazy(
   () => import("@/pages/procurement/ProcurementRequestDetail"),
@@ -1771,6 +1776,14 @@ export default function App() {
                           }
                         />
                         <Route
+                          path="/intelligence"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProjectIntelligence />
+                            </Suspense>
+                          }
+                        />
+                        <Route
                           path="/procurement/:id"
                           element={
                             <Suspense fallback={<PageLoader />}>
@@ -2247,6 +2260,14 @@ export default function App() {
                         />
                         <Route path="ads" element={<AdminAds />} />
                         <Route
+                          path="ad-manager"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdManager />
+                            </Suspense>
+                          }
+                        />
+                        <Route
                           path="rewarded-access"
                           element={<AdminRewardedAccess />}
                         />
@@ -2305,6 +2326,14 @@ export default function App() {
                           element={
                             <Suspense fallback={<PageLoader />}>
                               <AdminSuppliers />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="intelligence"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <PlatformAnalytics />
                             </Suspense>
                           }
                         />

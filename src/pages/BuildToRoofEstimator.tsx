@@ -89,6 +89,7 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
 
 const PHASES = [
   {
@@ -3816,6 +3817,7 @@ function EstimateResult({
           </Button>
         </div>
       </div>
+      <CalculatorAdBanner toolKey="roofing" className="mt-6" />
     </div>
   );
 }

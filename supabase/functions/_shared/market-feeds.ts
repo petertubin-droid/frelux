@@ -62,7 +62,7 @@ export function toNumber(raw: unknown): number | null {
     return Number.isFinite(raw) && raw > 0 ? raw : null;
   if (raw === null || raw === undefined) return null;
   let text = String(raw)
-    .replace(/[^\d.,\-]/g, "")
+    .replace(/[^\d.,-]/g, "")
     .trim();
   if (!text) return null;
   if (text.includes(",") && text.includes(".")) {

@@ -164,6 +164,7 @@ import { useSeo } from "@/lib/seo";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
+import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
@@ -1317,6 +1318,8 @@ ${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map(
           ]}
         />
       )}
+      <CalculatorAdBanner toolKey="paint" className="mt-8" />
+
       {/* Ad slot, placement "calculator_mid" */}
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       {/* Native banner slot, placement "calculator_native" */}
