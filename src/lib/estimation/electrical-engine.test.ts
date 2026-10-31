@@ -11,8 +11,11 @@ describe("audit fix F7 — voltage drop", () => {
       voltage: 230,
       cross_section_mm2: 4,
     });
-    // I = 10 A; Vd = 2*40*10*0.0172/4 = 3.44 V → 1.496% < 5% → passes
-    expect(v.drop_percent).toBeCloseTo(1.5, 1);
+    // I = 10 A; Vd = 2*40*10*0.0225/4 = 4.5 V → 1.957% < 5% → passes.
+    // The 0.0225 basis is copper at 70 C operating temperature, matching
+    // tabulated voltage drop; the previous 0.0172 was the 20 C value and made
+    // this same cable look 24 percent better than it is in service.
+    expect(v.drop_percent).toBeCloseTo(1.96, 1);
     expect(v.passes).toBe(true);
   });
 

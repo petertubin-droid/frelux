@@ -110,7 +110,10 @@ describe("painting geometry and coverage", () => {
   it("measures an opening", () => {
     // 0.9 x 2.1 = 1.89 m2, twice over = 3.78 m2
     expect(
-      calculateOpeningArea([{ width: 0.9, height: 2.1, quantity: 2 }], "meters"),
+      calculateOpeningArea(
+        [{ width: 0.9, height: 2.1, quantity: 2 }],
+        "meters",
+      ),
     ).toBeCloseTo(3.78, 2);
   });
 });
@@ -182,7 +185,10 @@ describe("electrical voltage drop", () => {
       cross_section_mm2: 4,
       lighting_dominant: false,
     });
-    expect(v.drop_percent).toBeCloseTo(2.44, 1);
+    // I = 5000 / 230 = 21.74 A; Vd = 2 x 30 x 21.74 x 0.0225 / 4 = 7.34 V
+    // which is 3.19 percent of 230 V, inside the 5 percent power limit. The
+    // 0.0225 basis is copper at operating temperature (see COPPER_RESISTIVITY).
+    expect(v.drop_percent).toBeCloseTo(3.19, 1);
     expect(v.passes).toBe(true);
   });
 
@@ -194,8 +200,8 @@ describe("electrical voltage drop", () => {
       cross_section_mm2: 2.5,
       lighting_dominant: true,
     });
-    // 22.43 / 2.5 = 8.97 V = 3.90%
-    expect(v.drop_percent).toBeCloseTo(3.9, 1);
+    // 2 x 30 x 21.74 x 0.0225 / 2.5 = 11.74 V = 5.10%, over the 3% limit.
+    expect(v.drop_percent).toBeCloseTo(5.1, 1);
     expect(v.limit_percent).toBe(3);
     expect(v.passes).toBe(false);
   });
@@ -237,8 +243,7 @@ describe("plumbing material takeoff", () => {
   // with whole-metre purchase rounding: 15.75 -> 16, 26.25 -> 27.
   it("applies pipe waste and rounds purchases up to whole metres", () => {
     const r = calculatePlumbing(input, rules, prices);
-    const qty = (slug: string) =>
-      r.lines.find((l) => l.material_slug === slug);
+    const qty = (slug: string) => r.lines.find((l) => l.material_slug === slug);
     expect(qty("plumb-pipe-cold")?.quantity).toBe(42);
     expect(qty("plumb-pipe-hot")?.quantity).toBe(21);
     expect(qty("plumb-pipe-waste")?.quantity).toBe(16);
@@ -248,14 +253,15 @@ describe("plumbing material takeoff", () => {
   // 8 fixtures x 2 elbows = 16; one valve per tap = 3.
   it("counts fittings from the configured rules", () => {
     const r = calculatePlumbing(input, rules, prices);
-    const qty = (slug: string) =>
-      r.lines.find((l) => l.material_slug === slug);
+    const qty = (slug: string) => r.lines.find((l) => l.material_slug === slug);
     expect(qty("plumb-elbow")?.quantity).toBe(16);
     expect(qty("plumb-valve")?.quantity).toBe(3);
   });
 
   it("leaves the total null rather than guessing a missing price", () => {
-    const r = calculatePlumbing(input, rules, { "plumb-pipe-cold": 1200 } as never);
+    const r = calculatePlumbing(input, rules, {
+      "plumb-pipe-cold": 1200,
+    } as never);
     expect(r.material_subtotal).toBeNull();
     expect(r.grand_total).toBeNull();
     expect(r.incomplete).toBe(true);

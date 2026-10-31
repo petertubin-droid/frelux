@@ -5,6 +5,8 @@ import {
   designFoundation,
 } from "@/lib/engineering/foundation-calculator";
 import { calculateRoofArea } from "@/lib/estimation/build-to-roof-engine";
+import { designBeam } from "@/lib/engineering/structural-calculator";
+import { voltageDropPercent } from "@/lib/estimation/electrical-engine";
 import {
   calculateCeilingArea,
   calculateWallArea,
@@ -328,5 +330,305 @@ describe("margin engine survives a caller with no rule set", () => {
     } as never);
     expect(r.ok).toBe(true);
     closeTo(r.quote_total as number, 1200, 0.01);
+  });
+});
+
+// ── Pad and raft footings ────────────────────────────────────────────────────
+// A pad spreads a column load over square area: side = sqrt(1.1 x load / capacity).
+// Raft spreads every wall load over the whole footprint.
+describe("pad footing design, first principles", () => {
+  const base = {
+    shape: "pad" as const,
+    soil_type: "firm_clay" as const,
+    foundation_depth: 1.2,
+    concrete_grade: "C25",
+    building_length: 10,
+    building_width: 8,
+  };
+
+  it("sizes a square pad from the required area", () => {
+    // 1.10 x 200 kN = 220 kN over 150 kN/m² = 1.4667 m², side = 1.211 m.
+    const r = designFoundation({ ...base, column_load: 200, wall_load: 0 });
+    closeTo(r.area_per_pad as number, 1.69, 0.01); // 1.3 m x 1.3 m after rounding
+    closeTo(r.required_width, 1211, 2);
+    expect(r.recommended_width).toBe(1300); // rounded up to 100 mm
+  });
+
+  it("checks the pressure it will actually apply, not the required one", () => {
+    const r = designFoundation({ ...base, column_load: 200, wall_load: 0 });
+    // 220 kN over the built pad of 1.69 m², not over the theoretical 1.4667 m².
+    closeTo(r.applied_pressure, 220 / 1.69, 0.1);
+    expect(r.bearing_check_pass).toBe(true);
+  });
+
+  it("derives volumes from the pad area and the stated thicknesses", () => {
+    const r = designFoundation({ ...base, column_load: 200, wall_load: 0 });
+    const area = 1.3 * 1.3;
+    closeTo(r.concrete_volume, area * 0.3, 0.06); // 300 mm pad
+    closeTo(r.blinding_volume, area * 0.075, 0.06);
+    closeTo(r.hardcore_volume, area * 0.15, 0.06);
+    closeTo(r.excavation_volume, area * 1.2, 0.06);
+  });
+
+  it("applies the BS 8110 punching shear check at 1.5d from the column face", () => {
+    const r = designFoundation({ ...base, column_load: 200, wall_load: 0 });
+    // d = 300 - 40 cover - 10 half bar = 250 mm
+    // u1 = 4 x (225 + 3 x 250) = 3900 mm
+    // v  = 1.4 x 200 kN / (3900 x 250) = 0.287 N/mm²
+    // v_c = 0.79 x (0.15)^(1/3) x (400/250)^(1/4) / 1.25 = 0.378 N/mm²
+    closeTo(r.punching_shear_stress as number, 0.287, 0.002);
+    closeTo(r.punching_shear_capacity as number, 0.378, 0.005);
+    expect(r.punching_shear_check_pass).toBe(true);
+  });
+
+  it("fails punching shear at 300 kN, which the unfactored capacity hid", () => {
+    // v = 1.4 x 300 kN / (3900 x 250) = 0.431 N/mm², above the 0.378 capacity.
+    // Without the gamma_m divisor the capacity came out at 0.472 and this pad
+    // passed, so the check was 25 percent too generous in the unsafe direction.
+    const r = designFoundation({ ...base, column_load: 300, wall_load: 0 });
+    closeTo(r.punching_shear_stress as number, 0.431, 0.002);
+    expect(r.punching_shear_check_pass).toBe(false);
+    expect(r.warnings.join(" ")).toMatch(/punching shear/i);
+  });
+
+  it("passes a heavier load once the user supplies a wider column", () => {
+    const narrow = designFoundation({
+      ...base,
+      column_load: 300,
+      wall_load: 0,
+    });
+    const wide = designFoundation({
+      ...base,
+      column_load: 300,
+      wall_load: 0,
+      column_width_mm: 450,
+    });
+    // A wider column lengthens the critical perimeter, so a bigger load fits.
+    // Capacity depends only on concrete and depth, so a wider column does not
+    // raise it: it lengthens the critical perimeter and lowers the applied
+    // stress instead. Asserting a capacity rise would have encoded nonsense.
+    expect(wide.punching_shear_stress as number).toBeLessThan(
+      narrow.punching_shear_stress as number,
+    );
+    // u1 for a 450 mm column is 4 x (450 + 750) = 4800 mm, so the stress
+    // falls to 420000 / (4800 x 250) = 0.350 N/mm².
+    closeTo(wide.punching_shear_stress as number, 0.35, 0.002);
+  });
+});
+
+describe("raft foundation, first principles", () => {
+  const raft = {
+    shape: "raft" as const,
+    soil_type: "firm_clay" as const,
+    foundation_depth: 1.2,
+    concrete_grade: "C25",
+    building_length: 10,
+    building_width: 8,
+  };
+
+  it("spreads all wall load over the whole footprint", () => {
+    // Perimeter 36 m at 20 kN/m is 720 kN over 80 m² = 9 kN/m².
+    const r = designFoundation({ ...raft, wall_load: 20 });
+    closeTo(r.applied_pressure, 9, 0.1);
+    expect(r.bearing_check_pass).toBe(true);
+  });
+
+  it("builds the raft at 300 mm over the full area", () => {
+    const r = designFoundation({ ...raft, wall_load: 20 });
+    closeTo(r.concrete_volume, 80 * 0.3, 0.1);
+    closeTo(r.blinding_volume, 80 * 0.075, 0.1);
+    closeTo(r.excavation_volume, 80 * 1.2, 0.1);
+  });
+
+  it("passes 135 kN/m² on firm clay, whose allowable is 150", () => {
+    // 300 kN/m x 36 m = 10,800 kN over 80 m² = 135 kN/m². Correctly a PASS, and
+    // worth pinning: claiming failure here would be its own inaccuracy.
+    const r = designFoundation({ ...raft, wall_load: 300 });
+    closeTo(r.applied_pressure, 135, 0.5);
+    expect(r.bearing_check_pass).toBe(true);
+  });
+
+  it("fails the same 135 kN/m² on loose sand, whose allowable is 100", () => {
+    const r = designFoundation({
+      ...raft,
+      wall_load: 300,
+      soil_type: "loose_sand",
+    });
+    closeTo(r.applied_pressure, 135, 0.5);
+    expect(r.bearing_check_pass).toBe(false);
+    expect(r.warnings.join(" ")).toMatch(/exceeds/i);
+  });
+});
+
+// ── Beam design ──────────────────────────────────────────────────────────────
+describe("beam design, first principles", () => {
+  const beam = {
+    span: 6,
+    beam_type: "suspended_beam" as const,
+    support_condition: "simply_supported" as const,
+    live_load: 10,
+    dead_load: 6,
+    tributary_width: 3,
+    concrete_grade: "C25" as const,
+    steel_grade: "Fe500" as const,
+    cover_mm: 25,
+  };
+
+  it("derives the design moment from a simply supported factored UDL", () => {
+    // M = w L² / 8 for a simply supported span under uniform load, using the
+    // engine's own reported factored load and effective span.
+    const r = designBeam(beam as never);
+    closeTo(
+      r.max_moment,
+      (r.factored_load * r.effective_span * r.effective_span) / 8,
+      Math.max(0.2, r.max_moment * 0.01),
+    );
+  });
+
+  it("derives the design shear as w L / 2 at the support", () => {
+    const r = designBeam(beam as never);
+    closeTo(
+      r.max_shear,
+      (r.factored_load * r.effective_span) / 2,
+      Math.max(0.2, r.max_shear * 0.01),
+    );
+  });
+
+  it("needs at least the steel implied by the moment and a full lever arm", () => {
+    // Independent bracket. For singly reinforced BS 8110 sections the lever arm
+    // z lies between 0.75d and 0.95d, so As = M / (0.87 fy z) must fall between
+    // those two bounds. A section outside the bracket is either unsafe (too
+    // little steel for the moment) or absurdly over-reinforced.
+    const r = designBeam(beam as never);
+    const dEff = r.required_depth - 25 - 10; // cover and half bar
+    const low = (r.max_moment * 1e6) / (0.87 * 500 * 0.95 * dEff);
+    const high = (r.max_moment * 1e6) / (0.87 * 500 * 0.75 * dEff);
+    expect(r.area_steel_required).toBeGreaterThanOrEqual(low * 0.99);
+    expect(r.area_steel_required).toBeLessThanOrEqual(high * 1.01);
+  });
+
+  it("never returns less steel than its own stated minimum", () => {
+    for (const span of [3, 5, 8]) {
+      const r = designBeam({ ...beam, span } as never);
+      expect(r.area_steel_required).toBeGreaterThanOrEqual(r.min_steel_area);
+      expect(r.max_steel_area).toBeGreaterThan(r.min_steel_area);
+      expect(r.required_depth).toBeGreaterThan(0);
+    }
+  });
+
+  it("grows the moment with the square of the span", () => {
+    const short = designBeam({ ...beam, span: 4 } as never);
+    const long = designBeam({ ...beam, span: 8 } as never);
+    // Load also grows with the effective span slightly, so 4x is approximate.
+    const ratio = long.max_moment / short.max_moment;
+    expect(ratio).toBeGreaterThan(3.5);
+    expect(ratio).toBeLessThan(4.6);
+  });
+
+  it("needs more steel for more load, never less", () => {
+    const light = designBeam({ ...beam, live_load: 5 } as never);
+    const heavy = designBeam({ ...beam, live_load: 20 } as never);
+    expect(heavy.area_steel_required).toBeGreaterThan(
+      light.area_steel_required,
+    );
+    expect(heavy.recommended_bar_count).toBeGreaterThanOrEqual(
+      light.recommended_bar_count,
+    );
+  });
+
+  it("reports positive shear capacity and buildable links", () => {
+    const r = designBeam(beam as never);
+    expect(r.shear_capacity).toBeGreaterThan(0);
+    expect(r.link_spacing).toBeGreaterThan(0);
+    expect(r.link_spacing).toBeLessThanOrEqual(300); // BS 8110 maximum
+  });
+});
+
+// ── Electrical voltage drop ──────────────────────────────────────────────────
+// Single-phase two-core copper: drop = 2 x L x I x rho / A, with I = P / V.
+describe("electrical voltage drop, first principles", () => {
+  it("computes the drop for a 2 kW feeder on 2.5 mm² over 20 m at 230 V", () => {
+    // I = 2000 / 230 = 8.696 A; drop = 2 x 20 x 8.696 x 0.0225 / 2.5 = 3.13 V
+    // which is 1.36 percent of 230 V, comfortably inside the 3 percent limit.
+    // 0.0225 is copper at 70 C, the basis of tabulated voltage drop; at the
+    // 20 C value of 0.0172 the same cable would appear 24 percent better.
+    const v = voltageDropPercent({
+      run_m: 20,
+      load_watts: 2000,
+      voltage: 230,
+      cross_section_mm2: 2.5,
+      lighting_dominant: true,
+    });
+    closeTo(v.drop_percent, 1.36, 0.02);
+    expect(v.passes).toBe(true);
+    expect(v.limit_percent).toBe(3);
+  });
+
+  it("fails the same load at 120 V, as the physics requires", () => {
+    // Halving the voltage doubles the current, so the drop doubles. 1 kW over
+    // 25 m on 2.5 mm² at 120 V gives 3.75 V, which is 3.13 percent: over the
+    // 3 percent lighting limit but inside the 5 percent power limit. The engine
+    // must distinguish the two, not use one number.
+    const lighting = voltageDropPercent({
+      run_m: 25,
+      load_watts: 1000,
+      voltage: 120,
+      cross_section_mm2: 2.5,
+      lighting_dominant: true,
+    });
+    const power = voltageDropPercent({
+      run_m: 25,
+      load_watts: 1000,
+      voltage: 120,
+      cross_section_mm2: 2.5,
+      lighting_dominant: false,
+    });
+    closeTo(lighting.drop_percent, 3.13, 0.05);
+    expect(lighting.passes).toBe(false);
+    expect(power.passes).toBe(true);
+  });
+
+  it("doubles the drop when the run doubles", () => {
+    const near = voltageDropPercent({
+      run_m: 10,
+      load_watts: 2000,
+      voltage: 230,
+      cross_section_mm2: 2.5,
+    });
+    const far = voltageDropPercent({
+      run_m: 20,
+      load_watts: 2000,
+      voltage: 230,
+      cross_section_mm2: 2.5,
+    });
+    closeTo(far.drop_percent / near.drop_percent, 2, 0.01);
+  });
+
+  it("halves the drop when the cable cross-section doubles", () => {
+    const thin = voltageDropPercent({
+      run_m: 30,
+      load_watts: 3000,
+      voltage: 230,
+      cross_section_mm2: 2.5,
+    });
+    const thick = voltageDropPercent({
+      run_m: 30,
+      load_watts: 3000,
+      voltage: 230,
+      cross_section_mm2: 5,
+    });
+    closeTo(thin.drop_percent / thick.drop_percent, 2, 0.02);
+  });
+
+  it("refuses to certify a check it could not perform", () => {
+    // A zero run length is not a pass: it is an unanswered question.
+    const v = voltageDropPercent({
+      run_m: 0,
+      load_watts: 2000,
+      voltage: 230,
+      cross_section_mm2: 2.5,
+    });
+    expect(v.passes).toBe(false);
+    expect(v.detail).toMatch(/must all be provided/i);
   });
 });

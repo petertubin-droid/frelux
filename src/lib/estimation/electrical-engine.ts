@@ -117,7 +117,17 @@ export function parseElectricalRules(rows: CalcRuleRow[]): ElectricalRules {
 export const VOLTAGE_DROP_LIMITS = { lighting: 3, power: 5 } as const;
 
 /** Resistivity of annealed copper at 20 degC, ohm·mm2/m. */
-export const COPPER_RESISTIVITY = 0.0172;
+/**
+ * Design resistivity of copper at conductor operating temperature, ohm.mm2/m.
+ *
+ * 0.0172 is copper at 20 C, which is the wrong basis for sizing a cable: a
+ * conductor under load sits near 70 C, where resistance is roughly a third
+ * higher. BS 7671 Appendix 4 tabulated voltage drops are derived at operating
+ * temperature, and a check against the cold value understates the drop by
+ * about 24 percent, in the direction that passes cables that will exceed their
+ * limit in service. 0.0225 is the conventional 70 C design figure.
+ */
+export const COPPER_RESISTIVITY = 0.0225;
 
 export interface VoltageDropCheck {
   /** one-way cable run length in metres */
@@ -170,7 +180,7 @@ export function voltageDropPercent(
     drop_percent: Math.round(drop_percent * 100) / 100,
     limit_percent: limit,
     passes,
-    detail: `Feeder voltage drop = 2 × ${run_m} m × ${Math.round(current * 100) / 100} A × 0.0172 / ${cross_section_mm2} mm2 = ${Math.round(dropV * 100) / 100} V (${Math.round(drop_percent * 100) / 100}% of ${voltage} V; limit ${limit}%).`,
+    detail: `Feeder voltage drop = 2 × ${run_m} m × ${Math.round(current * 100) / 100} A × ${COPPER_RESISTIVITY} / ${cross_section_mm2} mm2 = ${Math.round(dropV * 100) / 100} V (${Math.round(drop_percent * 100) / 100}% of ${voltage} V; limit ${limit}%).`,
   };
 }
 
@@ -309,8 +319,6 @@ function isRun(v: number | null): boolean {
 function money(v: number): number {
   return Math.round(v * 100) / 100;
 }
-
-
 
 // ─────────────────────────────────────────────
 // Engine
@@ -483,13 +491,34 @@ export function calculateElectrical(
 
     // Finding 7: Voltage drop verification on long runs (BS 7671 / NEC)
     if (spec.avgRun && spec.avgRun > 0) {
-      const csa = spec.key === "cable_lighting" ? 1.5 : spec.key === "cable_socket" ? 2.5 : 4.0;
-      const currentA = spec.key === "cable_lighting" ? 6 : spec.key === "cable_socket" ? 13 : 20;
-      const vDrop = (2 * spec.avgRun * currentA * 0.0175) / csa;
-      const vDropPct = (vDrop / 230) * 100;
+      const csa =
+        spec.key === "cable_lighting"
+          ? 1.5
+          : spec.key === "cable_socket"
+            ? 2.5
+            : 4.0;
+      const currentA =
+        spec.key === "cable_lighting"
+          ? 6
+          : spec.key === "cable_socket"
+            ? 13
+            : 20;
+      // One resistivity constant and the caller's nominal voltage. This path
+      // previously hardcoded 0.0175 and 230 V, so in a 120 V market it
+      // overstated voltage drop by roughly 92 percent and raised warnings the
+      // installation did not deserve. International engine, international volts.
+      const vDrop = (2 * spec.avgRun * currentA * COPPER_RESISTIVITY) / csa;
+      // System voltage comes from the caller's feeder check when they stated
+      // one; 230 V is the single-phase default only when nothing was supplied.
+      const statedVoltage = input.feeder_check?.voltage;
+      const systemVoltage =
+        statedVoltage && statedVoltage > 0 ? statedVoltage : 230;
+      const vDropPct = (vDrop / systemVoltage) * 100;
       const limitPct = spec.key === "cable_lighting" ? 3 : 5;
       if (vDropPct > limitPct) {
-        warnings.push(`Voltage drop check: ${spec.label} (${spec.avgRun}m average run) has an estimated voltage drop of ${vDropPct.toFixed(1)}% (exceeds ${limitPct}% standard limit). Consider upsizing cable.`);
+        warnings.push(
+          `Voltage drop check: ${spec.label} (${spec.avgRun}m average run) has an estimated voltage drop of ${vDropPct.toFixed(1)}% (exceeds ${limitPct}% standard limit). Consider upsizing cable.`,
+        );
       }
     }
 

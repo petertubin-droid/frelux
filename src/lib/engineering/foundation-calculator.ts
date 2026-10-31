@@ -219,7 +219,7 @@ export function designFoundation(
     // ── Pad footing (Finding 4: 10% self-weight and punching shear check) ──
     const column_load = input.column_load ?? 200; // default 200 kN
     // 1.10 multiplier covers footing self-weight + overburden.
-    const total_footing_load = 1.10 * column_load;
+    const total_footing_load = 1.1 * column_load;
     const required_area = total_footing_load / allowable_capacity; // m²
     const side = Math.sqrt(required_area) * 1000; // mm (square pad)
     formulas.push(
@@ -263,18 +263,23 @@ export function designFoundation(
     const fcu = fcuFromGrade(input.concrete_grade);
     const ULS_N = 1.4 * column_load * 1000; // N (BS 8110 axial-governed)
     const v_punch = ULS_N / (u1 * pad_d); // N/mm²
-    // v_c with minimum flexural steel 0.15% assumed (BS 8110 Table 3.8)
+    // v_c with minimum flexural steel 0.15% assumed (BS 8110 Table 3.8).
+    // Table 3.8 divides by the concrete material factor gamma_m = 1.25. Leaving
+    // it out overstated capacity by 25 percent, which is the unsafe direction
+    // for a punching check: a pad that should fail would report PASS. The
+    // (400/d) term is capped at 1.0 for depths above 400 mm, as the table states.
     const v_c_punch =
-      0.79 *
-      Math.pow(fcu / 25, 1 / 3) *
-      Math.pow(0.15, 1 / 3) *
-      Math.pow(400 / pad_d, 0.25);
+      (0.79 *
+        Math.pow(fcu / 25, 1 / 3) *
+        Math.pow(0.15, 1 / 3) *
+        (pad_d > 400 ? 1 : Math.pow(400 / pad_d, 0.25))) /
+      1.25; // gamma_m, BS 8110-1 Table 2.2
     const punching_ok = v_punch <= v_c_punch;
     formulas.push(
       `Punching shear: perimeter u1 = 4×(${col_face} + 3×${pad_d}) = ${u1} mm (1.5d from column face, d = ${pad_d} mm)`,
     );
     formulas.push(
-      `Applied v = ${ULS_N.toFixed(0)} / (${u1} × ${pad_d}) = ${v_punch.toFixed(3)} N/mm² vs v_c ≈ ${v_c_punch.toFixed(3)} N/mm² (min steel 0.15% assumed) → ${punching_ok ? "PASS" : "FAIL"}`,
+      `Applied v = ${ULS_N.toFixed(0)} / (${u1} × ${pad_d}) = ${v_punch.toFixed(3)} N/mm² vs v_c ≈ ${v_c_punch.toFixed(3)} N/mm² (min steel 0.15% assumed, gamma_m 1.25 applied) → ${punching_ok ? "PASS" : "FAIL"}`,
     );
     if (!punching_ok) {
       warnings.push(
