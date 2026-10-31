@@ -146,7 +146,7 @@ function SpotlightCard({
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
         <Link
-          to="/faq"
+          to={`/faq/${spotlight.slug}`}
           className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
         >
           All {spotlight.totalQuestions} answers

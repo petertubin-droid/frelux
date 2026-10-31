@@ -18,7 +18,7 @@ import {
   type FaqCategoryId,
 } from "@/config/tool-faqs";
 import { useSeo, useBreadcrumbJsonLd, useFaqJsonLd } from "@/lib/seo";
-import { BookOpen, Calculator } from "lucide-react";
+import { ArrowRight, BookOpen, Calculator } from "lucide-react";
 
 export default function Faq() {
   const all = allToolFaqQuestions();
@@ -94,6 +94,13 @@ export default function Faq() {
                         >
                           <Calculator className="h-4 w-4" aria-hidden="true" />{" "}
                           Open the calculator
+                        </Link>
+                        <Link
+                          to={`/faq/${group.slug}`}
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
+                        >
+                          Read the full guide
+                          <ArrowRight className="h-4 w-4" aria-hidden="true" />
                         </Link>
                       </div>
                       <FaqSection

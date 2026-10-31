@@ -540,6 +540,7 @@ const ConduitWiringEstimator = lazy(
 );
 const SteelBeamEstimator = lazy(() => import("@/pages/SteelBeamEstimator"));
 const Faq = lazy(() => import("@/pages/Faq"));
+const FaqArticle = lazy(() => import("@/pages/FaqArticle"));
 const GeneratorEstimator = lazy(() => import("@/pages/GeneratorEstimator"));
 
 function ScrollToTop() {
@@ -1996,6 +1997,7 @@ export default function App() {
                           element={<DoorsWindowsEstimator />}
                         />
                         <Route path="/faq" element={<Faq />} />
+                        <Route path="/faq/:slug" element={<FaqArticle />} />
                         <Route
                           path="/retaining-wall-calculator"
                           element={<RetainingWallEstimator />}

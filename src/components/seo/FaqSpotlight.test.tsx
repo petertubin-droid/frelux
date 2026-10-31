@@ -62,7 +62,7 @@ describe("FaqSpotlight", () => {
       screen.getByRole("link", {
         name: `All ${group.questions.length} answers`,
       }),
-    ).toHaveAttribute("href", "/faq");
+    ).toHaveAttribute("href", `/faq/${group.slug}`);
   });
 
   it("emits no FAQ markup, because the article owns its own schema", () => {
