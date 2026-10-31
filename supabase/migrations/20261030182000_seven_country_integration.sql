@@ -71,10 +71,12 @@ alter table public.price_scan_sources
   add column if not exists access_notes text,
   add column if not exists reliability_score numeric;
 
-update public.price_scan_sources set source_class = case
-    when source_format in ('product') then 'retail_catalogue'
-    when source_format = 'search' then 'retail_catalogue'
-    else 'retail_catalogue' end
+-- Every source in this table publishes retail catalogues, so the class is the
+-- same no matter what source_format says. Reading the column here would make
+-- this migration depend on 20261030191001 creating it first, which is a later
+-- version: a clean replay fails with SQLSTATE 42703 even though production ran
+-- fine because the column already existed there.
+update public.price_scan_sources set source_class = 'retail_catalogue'
  where source_class is null;
 
 alter table public.price_scan_sources drop constraint if exists pss_source_class_check;

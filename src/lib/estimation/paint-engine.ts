@@ -282,8 +282,6 @@ export function normalizeCoverage(
       // Calibration mode, the coverage value IS the calibration reference
       // The engine uses calibration logic separately
       return coverageValue; // Will be handled by calibration logic
-    case "m2_per_liter":
-      return coverageValue;
     default:
       // An unrecognised unit is not silently treated as metric. Returning the
       // raw number would present a wrong figure as a measured one, so nothing

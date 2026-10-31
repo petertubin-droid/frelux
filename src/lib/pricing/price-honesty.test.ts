@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { PRICE_VERIFICATION_SCANNED_AT } from "@/lib/international/price-verification";
 import {
   coverageFor,
   coverageList,
@@ -46,9 +47,14 @@ describe("price coverage honesty", () => {
   });
 
   it("reports the age of the snapshot in whole days", () => {
-    // Snapshot taken 2026-10-29T09:04Z, so this is not quite two full days.
-    expect(snapshotAgeDays(NOW)).toBe(1);
-    expect(snapshotDate()).toBe("2026-10-29");
+    // price-verification.json is a generated artefact: the scanner rewrites
+    // scanned_at on every run, so assert against the value in the file rather
+    // than a hardcoded date that goes stale the next time it is regenerated.
+    const taken = Date.parse(PRICE_VERIFICATION_SCANNED_AT);
+    expect(snapshotDate()).toBe(PRICE_VERIFICATION_SCANNED_AT.slice(0, 10));
+    expect(snapshotAgeDays(taken)).toBe(0);
+    expect(snapshotAgeDays(taken + 36 * 3_600_000)).toBe(1);
+    expect(snapshotAgeDays(taken + 47 * 3_600_000)).toBe(1);
   });
 
   it("only calls a snapshot stale past its freshness window", () => {
