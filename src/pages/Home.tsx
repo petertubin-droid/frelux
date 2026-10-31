@@ -15,6 +15,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import CrossPromoSlot from "@/components/houseAds/CrossPromoSlot";
 import { RecentlyUsed } from "@/components/ui/RecentlyUsed";
 import MapWeatherBand from "@/components/home/MapWeatherBand";
+import GoogleDataUse from "@/components/home/GoogleDataUse";
 import ProConnectHomeSection from "@/components/pro-connect/ProConnectHomeSection";
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useSeo } from "@/lib/seo";
@@ -203,6 +204,11 @@ export default function Home() {
       {/* How FRELUX Works, 4-step process */}
       <HowItWorks />
 
+      {/* Live, edge to edge: the globe and the measurement converter, both
+          working here rather than described. Sits straight after the story so
+          the first interactive proof is one scroll from the hero. */}
+      <MapWeatherBand />
+
       {/* Native banner slot, placement "home_native" */}
       <AdSlot
         slotKey="home_native"
@@ -216,9 +222,6 @@ export default function Home() {
 
       {/* Who it connects: hire a verified professional */}
       <ProConnectHomeSection />
-
-      {/* Where and when: the globe and the forecast for the site */}
-      <MapWeatherBand />
 
       {/* Marketplace CTA, post a job and get bids */}
       <section
@@ -268,6 +271,10 @@ export default function Home() {
       <Suspense fallback={null}>
         <TestimonialsSection />
       </Suspense>
+
+      {/* What the Google sign-in asks for and why. Sits before the closing CTA
+          because that is where a visitor decides whether to create an account. */}
+      <GoogleDataUse />
 
       {/* Cross-site house promo */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

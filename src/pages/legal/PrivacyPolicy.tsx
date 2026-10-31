@@ -18,7 +18,7 @@ export default function PrivacyPolicy() {
     <LegalLayout
       slug="privacy-policy"
       title={t("Privacy Policy")}
-      updated="2026-09-07"
+      updated="2026-10-31"
       intro={
         <p>
           This privacy policy describes how FRELUX collects, uses, and protects
@@ -41,6 +41,57 @@ export default function PrivacyPolicy() {
               submit the contact form, the information you provide is used
               solely to respond to your inquiry.
             </p>
+          ),
+        },
+        {
+          heading: "Signing in with Google",
+          body: (
+            <>
+              <p>
+                You can use every public calculator and estimator on FRELUX
+                without an account. Creating an account is optional, and you can
+                create one with an email address and password instead of Google.
+              </p>
+              <p>
+                <strong>What we receive.</strong> When you choose Sign in with
+                Google, Google shares your name, your email address and your
+                profile photo with us. We request those three fields and no
+                other Google scope.
+              </p>
+              <p>
+                <strong>Why we ask for them.</strong> Your email identifies your
+                account and is used for sign-in, password recovery and service
+                messages such as estimate or project notifications. Your name
+                and photo appear on estimates and bills of quantities you choose
+                to share with a client or contractor, so they know who prepared
+                the document. Saved estimates, templates and client projects are
+                stored against your account so they are available on any device
+                you sign in from.
+              </p>
+              <p>
+                <strong>What we never access.</strong> Sign in with Google
+                grants no access to Gmail, Google Drive, Google Calendar, Google
+                Contacts, Google Photos, YouTube or any other Google product. We
+                cannot read your messages or files, and we never post, send or
+                change anything in your Google account on your behalf.
+              </p>
+              <p>
+                <strong>How long we keep it.</strong> Your name, email and photo
+                are kept for as long as your account exists. You can delete your
+                account from your account settings, which removes that profile
+                data and your saved projects. You can also revoke FRELUX's
+                access at any time from the{" "}
+                <a
+                  href="https://myaccount.google.com/permissions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
+                  Google account permissions page
+                </a>
+                . Neither action affects estimates you already exported.
+              </p>
+            </>
           ),
         },
         {

@@ -1,6 +1,6 @@
 # FRELUX — Global Expansion & Platform Architecture Handoff
 
-Last updated: October 25, 2026
+Last updated: October 31, 2026
 
 ---
 
@@ -42,6 +42,8 @@ Every agent, developer, and automated pipeline working on FRELUX must strictly o
 ---
 
 ## 1. OPEN UI/UX WORK — VERIFY BEFORE IMPLEMENTING
+
+- **Homepage live band + Google OAuth homepage requirements (2026-10-31):** the homepage now carries the globe and the measurement converter as working, edge to edge widgets (`MapWeatherBand`, placed straight after HowItWorks), each linked to `/map` and `/unit-converter`. The globe sits on its own lazy chunk so maplibre (787 kB, 210 kB gzip) never enters the homepage bundle; Home is 49 kB. Google verification requirements are met in code: custom domain `freluxtools.com` serves the site and `/privacy-policy` without login, and a new `GoogleDataUse` homepage section plus a "Signing in with Google" privacy policy section state exactly what is received (name, email, photo), why, and that no Gmail/Drive/Calendar/Contacts access is requested. Still owner-side: verify the domain in Search Console and point the consent screen homepage and privacy URLs at the same two URLs.
 
 Previously completed interface changes and historical audit metrics have been removed. Treat these as open verification items, not established defects. Preserve the existing mobile action-bar, market-selector, dark-mode, Learn, and differentiated page-header improvements.
 
