@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  canServeProviderAds,
-  onConsentChange,
-} from "@/lib/ad-consent";
+import { canServeProviderAds, onConsentChange } from "@/lib/ad-consent";
 import {
   fetchAdConfig,
   getPlacement,
@@ -11,6 +8,8 @@ import {
 import { MONETAG_TAG_URL, MONETAG_TAG_DOMAIN } from "@/lib/ad-network-formats";
 import { getMonetagPushZone } from "@/lib/monetag-rewarded";
 import { shouldLoadAdSdks } from "@/lib/network";
+import { adsAllowedForViewer } from "@/lib/ad-entitlement";
+import { useAuth } from "@/lib/auth";
 import type { DbAdProvider } from "@/types/database";
 
 /**
@@ -23,12 +22,14 @@ import type { DbAdProvider } from "@/types/database";
  *
  * Gated exactly like every other unit: a real zone must be configured, the
  * "calculator_push" placement must be active in Admin -> Ads, the visitor
- * must have answered the cookie banner with advertising consent, and the
- * network must not be in Save-Data/slow mode. Once per browser session.
+ * must not be a paid subscriber, the visitor must have answered the cookie
+ * banner with advertising consent, and the network must not be in
+ * Save-Data/slow mode. Once per browser session.
  */
 const SESSION_KEY = "frelux_monetag_push_shown";
 
 export function MonetagInPagePush() {
+  const { isPaid, loading: authLoading } = useAuth();
   const [provider, setProvider] = useState<DbAdProvider | null>(null);
   const [enabled, setEnabled] = useState(false);
 
@@ -38,6 +39,13 @@ export function MonetagInPagePush() {
 
     const resolve = () => {
       if (cancelled) return;
+      // Paid subscribers never receive push, and an unresolved entitlement
+      // must not be read as "free" (see ad-entitlement.ts).
+      if (!adsAllowedForViewer({ isPaid, loading: authLoading })) {
+        setEnabled(false);
+        setProvider(null);
+        return;
+      }
       if (!shouldLoadAdSdks() || !canServeProviderAds("monetag")) {
         setEnabled(false);
         return;
@@ -64,7 +72,7 @@ export function MonetagInPagePush() {
       cancelled = true;
       off();
     };
-  }, []);
+  }, [isPaid, authLoading]);
 
   useEffect(() => {
     if (!enabled || !provider) return;

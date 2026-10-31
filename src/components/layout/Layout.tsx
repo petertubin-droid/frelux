@@ -22,6 +22,11 @@ import type { Achievement } from "@/lib/achievements";
 import { getSupabase } from "@/lib/supabase-lazy";
 import { adDebug, instrumentScript } from "@/lib/ad-diagnostics";
 import { useAuth } from "@/lib/auth";
+import {
+  adsAllowedForViewer,
+  hideAdContainers,
+  purgeInjectedAdTags,
+} from "@/lib/ad-entitlement";
 import { useLanguage } from "@/lib/i18n";
 
 // Lazy-loaded below-the-fold components, not visible on first paint
@@ -54,7 +59,7 @@ const AchievementToast = lazy(() =>
 export default function Layout() {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isPaid, loading: authLoading } = useAuth();
   const [maintenance, setMaintenance] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -107,6 +112,12 @@ export default function Layout() {
   // admin guard is belt-and-suspenders.
   useEffect(() => {
     if (window.location.pathname.startsWith("/admin")) return;
+
+    // Entitlement gate: a paid subscriber receives no ad SDK of any kind.
+    // Auth resolves after first paint, so an unresolved state also injects
+    // nothing - otherwise a subscriber gets a popunder during the gap and
+    // the SDK keeps redirecting clicks for the rest of the session.
+    if (!adsAllowedForViewer({ isPaid, loading: authLoading })) return;
 
     // Consent gate (Heartsyncx pattern): no ad script loads before the
     // visitor has made an explicit consent choice. AdSense page-level
@@ -329,12 +340,25 @@ export default function Layout() {
     return () => {
       cancelled = true;
     };
-  }, [consentTick]);
+  }, [consentTick, isPaid, authLoading]);
+
+  // Entitlement enforcement: if the viewer is (or becomes) a paid subscriber
+  // after a tag already went in, remove the tags and hide their containers.
+  // Covers an upgrade in another tab and a slow auth resolve racing the
+  // injection above.
+  useEffect(() => {
+    if (authLoading) return;
+    if (!isPaid) return;
+    purgeInjectedAdTags();
+    hideAdContainers();
+    setAdsterraNative(null);
+  }, [isPaid, authLoading]);
 
   // Adsterra Native Banner (site-wide): load the zone tag after the
   // container div is committed. The tag renders the native unit into
   // the `container-<key>` div rendered above the footer.
   useEffect(() => {
+    if (authLoading || isPaid) return;
     if (!adsterraNative) return;
     const { key, src } = adsterraNative;
     const container = document.getElementById(`container-${key}`);
@@ -351,7 +375,7 @@ export default function Layout() {
     instrumentScript("adsterra", s, `native-sitewide:${key}`);
     document.head.appendChild(s);
     adDebug("adsterra", "native-sitewide:injected", { src });
-  }, [adsterraNative]);
+  }, [adsterraNative, isPaid, authLoading]);
 
   // ── Maintenance mode check: deferred to idle callback to avoid blocking initial render ──
   useEffect(() => {
@@ -537,7 +561,7 @@ export default function Layout() {
       {/* Monetag in-page push: global overlay, one per session, so every
           page keeps its two-unit budget while push still serves sitewide. */}
       <MonetagInPagePush />
-      {adsterraNative && hasAdvertisingConsent() && (
+      {adsterraNative && !isPaid && hasAdvertisingConsent() && (
         <div
           id={`container-${adsterraNative.key}`}
           data-adsterra-native-sitewide="container"

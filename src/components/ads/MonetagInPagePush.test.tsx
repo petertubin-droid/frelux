@@ -20,15 +20,15 @@ const canServeProviderAds = vi.fn();
 const shouldLoadAdSdks = vi.fn();
 
 vi.mock("@/lib/ad-config", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/ad-config")>(
-    "@/lib/ad-config",
-  );
+  const actual =
+    await vi.importActual<typeof import("@/lib/ad-config")>("@/lib/ad-config");
   return { ...actual, fetchAdConfig: () => fetchAdConfig() };
 });
 vi.mock("@/lib/ad-consent", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/ad-consent")>(
-    "@/lib/ad-consent",
-  );
+  const actual =
+    await vi.importActual<typeof import("@/lib/ad-consent")>(
+      "@/lib/ad-consent",
+    );
   return {
     ...actual,
     canServeProviderAds: (slug: string) => canServeProviderAds(slug),
@@ -36,19 +36,25 @@ vi.mock("@/lib/ad-consent", async () => {
   };
 });
 vi.mock("@/lib/network", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/network")>(
-    "@/lib/network",
-  );
+  const actual =
+    await vi.importActual<typeof import("@/lib/network")>("@/lib/network");
   return { ...actual, shouldLoadAdSdks: () => shouldLoadAdSdks() };
 });
+
+const authState = { isPaid: false, loading: false };
+vi.mock("@/lib/auth", () => ({
+  useAuth: () => ({ ...authState }),
+}));
 
 import { MonetagInPagePush } from "./MonetagInPagePush";
 
 const pushScript = () =>
-  document.querySelector('script[data-frelux-monetag-push]');
+  document.querySelector("script[data-frelux-monetag-push]");
 
 describe("MonetagInPagePush", () => {
   beforeEach(() => {
+    authState.isPaid = false;
+    authState.loading = false;
     sessionStorage.clear();
     document.head.innerHTML = "";
     fetchAdConfig.mockResolvedValue({
@@ -83,10 +89,26 @@ describe("MonetagInPagePush", () => {
   it("does nothing when the placement is switched off in admin", async () => {
     fetchAdConfig.mockResolvedValue({
       providers: [monetag],
-      placements: [{ ...placement, display_rules: { mobile: false, desktop: false } }],
+      placements: [
+        { ...placement, display_rules: { mobile: false, desktop: false } },
+      ],
     });
     render(<MonetagInPagePush />);
     await waitFor(() => expect(fetchAdConfig).toHaveBeenCalled());
+    expect(pushScript()).toBeNull();
+  });
+
+  it("injects nothing for a paid subscriber", async () => {
+    authState.isPaid = true;
+    render(<MonetagInPagePush />);
+    await waitFor(() => expect(fetchAdConfig).not.toHaveBeenCalled());
+    expect(pushScript()).toBeNull();
+  });
+
+  it("waits for the entitlement instead of assuming a free viewer", async () => {
+    authState.loading = true;
+    render(<MonetagInPagePush />);
+    await waitFor(() => expect(fetchAdConfig).not.toHaveBeenCalled());
     expect(pushScript()).toBeNull();
   });
 
