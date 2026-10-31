@@ -74,9 +74,9 @@ const report = {
     catalogue: "src/lib/international/bundled-price-books.ts",
     catalogue_rows: materials.length,
     catalogue_version: "production catalog 2026-10-13",
-    pending_migration_rows: pending.map((m) => m.slug),
+    migration_declared_rows: pending.map((m) => m.slug),
     pending_note:
-      "Rows declared in a migration but not yet applied to the database. They are included so this report shows the state after the migration runs, and are listed here so they are never mistaken for live coverage.",
+      "Rows declared in the AU/CA material migration. Included so this report shows mapping against the intended catalogue rather than the older bundled snapshot alone, and listed here so a reader can tell which rows came from the migration. Applied live 2026-10-31: the four slugs below exist in estimation_materials.",
     staged_from: SEED,
     note: "The production estimation_materials table has more rows than this bundled snapshot. A product listed as needing a catalogue row here may already have one there; the mapping rules are the same either way.",
   },
@@ -90,7 +90,7 @@ const report = {
         product: string;
         slug: string;
         score: number;
-        row_state: "bundled" | "pending_migration";
+        row_state: "bundled" | "migration_declared";
       }>;
       needs_catalogue_row: Array<{ product: string; canonical: string }>;
       refused: Array<{ product: string; reason: string }>;
@@ -124,7 +124,7 @@ for (const source of sources) {
       slug: m.material.slug,
       score: m.score,
       row_state: pending.some((p) => p.slug === m.material.slug)
-        ? ("pending_migration" as const)
+        ? ("migration_declared" as const)
         : ("bundled" as const),
     })),
     needs_catalogue_row: needs,

@@ -83,6 +83,11 @@ The two refusals are the point, not a shortfall: a fastener has no material row
 and never will. `supabase/functions/_shared/au-ca-coverage.test.ts` fails if a
 row or an alias is removed.
 
+Both migrations are applied to project `nfgaaohweygwydoelxnf` (2026-10-31) and
+the four rows are confirmed present in `estimation_materials` with units
+attached. They carry no price, so AU and CA still show no local coverage; what
+changed is that an observation can now land, where before it had no target.
+
 **The bottleneck is the material catalogue, not the suppliers.** AU and CA
 material lists are pipes, rebar and a few branded products. A general merchant
 selling lumber and sheet goods has nothing to attach to. Coverage grows by

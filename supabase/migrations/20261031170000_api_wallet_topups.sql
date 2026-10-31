@@ -141,3 +141,15 @@ revoke all on function public.refuse_api_wallet_topup(uuid, text, numeric, text)
   from public, anon, authenticated;
 grant execute on function public.refuse_api_wallet_topup(uuid, text, numeric, text)
   to service_role;
+
+-- ── Table privileges ──────────────────────────────────────
+-- Found while applying this migration: frelux_api_wallets had RLS policies but
+-- no table grants at all, not even SELECT for service_role. Policies only
+-- filter rows that a role is already allowed to touch, so the owner read
+-- policy was unreachable and the Developer Portal could not have displayed a
+-- balance. Same omission would have applied to the new ledger, so both tables
+-- are granted explicitly here.
+grant select on table public.frelux_api_wallets to authenticated;
+grant select on table public.frelux_api_wallet_topups to authenticated;
+grant select, insert, update, delete on table public.frelux_api_wallets to service_role;
+grant select, insert, update, delete on table public.frelux_api_wallet_topups to service_role;
