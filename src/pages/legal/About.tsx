@@ -23,6 +23,9 @@ export default function About() {
         name: "FRELUX",
         url: SITE_URL,
         logo: `${SITE_URL}/logo-mark.png`,
+        image: `${SITE_URL}/social-cover.png`,
+        description:
+          "Construction estimation platform: measurements become material quantities and market prices, with the arithmetic shown.",
         foundingDate: "2025",
         // Served markets reflect the configured international market
         // registry; availability of verified data varies per market and is

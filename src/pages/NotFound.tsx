@@ -24,7 +24,7 @@ export default function NotFound() {
   useSeo({
     title: "Page Not Found, FRELUX",
     description:
-      "The page you are looking for could not be found. Browse our paint calculators, cost estimators, and AI color tools instead.",
+      "The page you are looking for could not be found. Browse our construction calculators, material price records and answered questions instead.",
     canonicalPath: "/404",
     noIndex: true,
   });

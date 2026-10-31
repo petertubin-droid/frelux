@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useSeo, SITE_URL } from "./seo";
 
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+const DEFAULT_OG_IMAGE = `${SITE_URL}/social-cover.png`;
 
 function renderSeo(props: Parameters<typeof useSeo>[0]) {
   return renderHook((p: Parameters<typeof useSeo>[0]) => useSeo(p), {

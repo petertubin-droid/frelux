@@ -40,6 +40,10 @@
   Content-Type: application/manifest+json; charset=utf-8
   Cache-Control: public, max-age=86400
 
+# Social preview card: revalidate hourly so a brand change reaches new shares
+/social-cover.png
+  Cache-Control: public, max-age=3600, must-revalidate
+
 # Static assets: long cache
 /assets/*
   Cache-Control: public, max-age=31536000, immutable

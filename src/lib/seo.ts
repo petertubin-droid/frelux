@@ -21,7 +21,7 @@ export interface SeoMeta {
   alternates?: { hreflang: string; href: string }[];
 }
 
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+const DEFAULT_OG_IMAGE = `${SITE_URL}/social-cover.png`;
 
 function setMeta(attr: "name" | "property", key: string, content: string) {
   let el = document.head.querySelector(

@@ -44,7 +44,7 @@ const normalizeSdUrls = (json) => {
     return `"${SITE_URL}${p.endsWith("/") ? p : `${p}/`}"`;
   });
 };
-const ogImage = `${SITE_URL}/og-image.png`;
+const ogImage = `${SITE_URL}/social-cover.png`;
 
 // ── Route metadata ──────────────────────────────────────────────────
 const routes = [

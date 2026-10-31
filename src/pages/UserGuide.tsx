@@ -40,11 +40,11 @@ export default function UserGuide() {
   useSeo({
     title: "FRELUX User Guide: How to Use Every Calculator and Feature",
     description:
-      "Step by step guide to FRELUX: paint, screeding, tiling and POP ceiling calculators, AI floor plan estimation, saving estimates, PDF export, projects, pricing and regional settings.",
+      "Step by step guide to FRELUX: construction calculators from foundation to roof, plan takeoff, material prices, saved estimates and PDF export, plus how to read the answer pages behind every tool.",
     canonicalPath: "/user-guide",
     ogType: "article",
     keywords:
-      "FRELUX user guide, how to use paint calculator, construction calculator guide, estimate construction materials, market settings",
+      "FRELUX user guide, how to use construction calculators, material takeoff guide, estimate construction costs, material price records, market settings",
     structuredDataArray: [
       {
         "@context": "https://schema.org",

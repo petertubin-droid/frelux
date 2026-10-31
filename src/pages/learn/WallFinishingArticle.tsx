@@ -124,7 +124,7 @@ export default function WallFinishingArticle() {
         publisher: {
           "@type": "Organization",
           name: "FRELUX SMART CALC",
-          logo: { "@type": "ImageObject", url: `${SITE_URL_}/logo.png` },
+          logo: { "@type": "ImageObject", url: `${SITE_URL_}/icon-512.png` },
         },
         datePublished: article.published_at ?? undefined,
         image: article.cover_image_url ? [article.cover_image_url] : undefined,
