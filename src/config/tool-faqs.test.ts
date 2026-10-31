@@ -157,22 +157,25 @@ describe("FAQ wiring", () => {
   });
 });
 
-describe("hub FAQ schema", () => {
+describe("FAQ schema coverage", () => {
   const read = (p: string) => fs.readFileSync(p, "utf-8");
 
-  it("the three finished-trade hubs emit markup from their own copy", () => {
-    const hubs = [
-      "src/pages/PaintingCalculatorHub.tsx",
-      "src/pages/TileCalculatorHub.tsx",
-      "src/pages/PopCeilingCalculatorHub.tsx",
-    ];
-    for (const hub of hubs) {
-      const source = read(hub);
-      expect(source, `${hub} must render through the schema wrapper`).toMatch(
-        /<FaqItemsWithSchema faqs=\{/,
-      );
-      expect(source, `${hub} must not render a bare FaqSection`).not.toMatch(
-        /<FaqSection faqs=\{/,
+  it("every page that shows FAQ accordions also emits FAQPage data", () => {
+    const pages = fs
+      .readdirSync("src/pages")
+      .filter((f) => f.endsWith(".tsx") && !f.includes(".test."))
+      .map((f) => `src/pages/${f}`);
+
+    for (const page of pages) {
+      const source = read(page);
+      const bare = /<FaqSection[\s\S]{0,40}faqs=\{/.test(source);
+      if (!bare) continue;
+      const emits =
+        source.includes("useFaqJsonLd(") ||
+        source.includes("faqSchema(") ||
+        source.includes('"@type": "FAQPage"');
+      expect(emits, `${page} renders questions with no FAQPage markup`).toBe(
+        true,
       );
     }
   });
@@ -184,5 +187,25 @@ describe("hub FAQ schema", () => {
     );
     expect(wrapper).toContain("useFaqJsonLd(faqs)");
     expect(wrapper).toContain("<FaqSection faqs={faqs}");
+  });
+
+  it("the calculator pages converted from JSX answers stay plain text", () => {
+    const converted = [
+      "src/pages/PaintingEstimator.tsx",
+      "src/pages/TileCalculator.tsx",
+      "src/pages/PopCeilingCalculator.tsx",
+      "src/pages/PopCeilingCostEstimator.tsx",
+      "src/pages/TyroleneEstimator.tsx",
+      "src/pages/AiColorAssistant.tsx",
+    ];
+    for (const page of converted) {
+      const source = read(page);
+      expect(source, `${page} must render through the schema wrapper`).toMatch(
+        /<FaqItemsWithSchema\s+faqs=\{/,
+      );
+      expect(source, `${page} still has a JSX answer`).not.toMatch(
+        /answer: \(\s*</,
+      );
+    }
   });
 });

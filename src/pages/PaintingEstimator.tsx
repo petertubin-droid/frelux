@@ -96,11 +96,8 @@ import { trackCalculationWithRewards } from "@/lib/rewards-integration";
 import { trackRecentTool } from "@/lib/smart-defaults";
 import { classNames } from "@/lib/utils";
 
-import {
-  FaqSection,
-  RelatedTools,
-  CALC_LINKS,
-} from "@/components/seo/SeoSections";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { PaintingEstimatorSeo } from "@/components/seo/SeoContent";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -1194,39 +1191,22 @@ export default function PaintingEstimator({
         <>
           <PaintingEstimatorSeo />
 
-          <FaqSection
+          <FaqItemsWithSchema
             faqs={[
               {
                 question: "What is the FRELUX painting estimation methodology?",
-                answer: (
-                  <span>
-                    The FRELUX methodology calculates paint quantity based on
-                    room-by-room dimensions, ceiling area, door and window
-                    deductions, paint quality tiers, colour conditions, and
-                    surface conditions. It uses admin-configured coverage rates
-                    and product prices for accurate estimates.
-                  </span>
-                ),
+                answer:
+                  "The FRELUX methodology calculates paint quantity based on room-by-room dimensions, ceiling area, door and window deductions, paint quality tiers, colour conditions, and surface conditions. It uses admin-configured coverage rates and product prices for accurate estimates.",
               },
               {
                 question: "Can I estimate paint for multiple rooms?",
-                answer: (
-                  <span>
-                    Yes. The Painting Estimator supports multiple rooms. Add
-                    each room with its dimensions and conditions to get a
-                    combined project estimate.
-                  </span>
-                ),
+                answer:
+                  "Yes. The Painting Estimator supports multiple rooms. Add each room with its dimensions and conditions to get a combined project estimate.",
               },
               {
                 question: "Does the Painting Estimator include labour costs?",
-                answer: (
-                  <span>
-                    Yes. The Painting Estimator includes configurable labour
-                    rates alongside material costs for a complete project budget
-                    estimate.
-                  </span>
-                ),
+                answer:
+                  "Yes. The Painting Estimator includes configurable labour rates alongside material costs for a complete project budget estimate.",
               },
             ]}
           />

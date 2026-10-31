@@ -90,11 +90,8 @@ import { trackRecentTool } from "@/lib/smart-defaults";
 import { classNames } from "@/lib/utils";
 import { formatNumber } from "@/lib/utils";
 
-import {
-  FaqSection,
-  RelatedTools,
-  CALC_LINKS,
-} from "@/components/seo/SeoSections";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { TyroleneEstimatorSeo } from "@/components/seo/SeoContent";
 // Engine integration
 import { useEngineFeatures } from "@/lib/measurement";
@@ -1754,39 +1751,22 @@ export default function TyroleneEstimator({
         <>
           <TyroleneEstimatorSeo />
 
-          <FaqSection
+          <FaqItemsWithSchema
             faqs={[
               {
                 question: "What is Tyrolene?",
-                answer: (
-                  <span>
-                    Tyrolene is a textured exterior wall finish made from a
-                    mixture of cement, sand, acrylic bond, and water seal. It
-                    provides weather resistance and a decorative texture to
-                    building exteriors.
-                  </span>
-                ),
+                answer:
+                  "Tyrolene is a textured exterior wall finish made from a mixture of cement, sand, acrylic bond, and water seal. It provides weather resistance and a decorative texture to building exteriors.",
               },
               {
                 question: "How is Tyrolene calculated?",
-                answer: (
-                  <span>
-                    Tyrolene is calculated based on the wall area and the number
-                    of partitions (coats/layers). The estimator uses
-                    partition-based methodology to determine cement, sand,
-                    acrylic bond, water seal, and anti-fungal quantities.
-                  </span>
-                ),
+                answer:
+                  "Tyrolene is calculated based on the wall area and the number of partitions (coats/layers). The estimator uses partition-based methodology to determine cement, sand, acrylic bond, water seal, and anti-fungal quantities.",
               },
               {
                 question: "Is Tyrolene only for exterior walls?",
-                answer: (
-                  <span>
-                    Yes, Tyrolene is designed for exterior surfaces. It provides
-                    weather protection and decorative texture for building
-                    facades.
-                  </span>
-                ),
+                answer:
+                  "Yes, Tyrolene is designed for exterior surfaces. It provides weather protection and decorative texture for building facades.",
               },
             ]}
           />

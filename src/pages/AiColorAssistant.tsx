@@ -44,11 +44,8 @@ import type {
 import type { DbColorCombination, DbPaintColor } from "@/types/database";
 import { trackRecentTool } from "@/lib/smart-defaults";
 
-import {
-  FaqSection,
-  RelatedTools,
-  CALC_LINKS,
-} from "@/components/seo/SeoSections";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { AiColorAssistantSeo } from "@/components/seo/SeoContent";
 import { SITE_URL } from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
@@ -165,37 +162,22 @@ export default function AiColorAssistant() {
         )}
       </div>
       <AiColorAssistantSeo />
-      <FaqSection
+      <FaqItemsWithSchema
         faqs={[
           {
             question: "How does the Smart Color Assistant work?",
-            answer: (
-              <span>
-                Describe your room, lighting, furniture, and the mood you want.
-                The AI analyzes your description and suggests paint colors and
-                combinations that suit your space.
-              </span>
-            ),
+            answer:
+              "Describe your room, lighting, furniture, and the mood you want. The AI analyzes your description and suggests paint colors and combinations that suit your space.",
           },
           {
             question: "Is the Smart Color Assistant free?",
-            answer: (
-              <span>
-                Yes, the Smart Color Assistant is free to use. You can describe
-                your room and get AI-powered color recommendations without
-                signing up.
-              </span>
-            ),
+            answer:
+              "Yes, the Smart Color Assistant is free to use. You can describe your room and get AI-powered color recommendations without signing up.",
           },
           {
             question: "Can I see the recommended colors in the library?",
-            answer: (
-              <span>
-                Yes. Each recommendation includes color names and codes that you
-                can look up in the FRELUX Color Library for detailed views and
-                comparisons.
-              </span>
-            ),
+            answer:
+              "Yes. Each recommendation includes color names and codes that you can look up in the FRELUX Color Library for detailed views and comparisons.",
           },
         ]}
       />

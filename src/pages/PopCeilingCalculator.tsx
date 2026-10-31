@@ -72,11 +72,8 @@ import { trackCalculation } from "@/lib/achievements";
 import { trackCalculationWithRewards } from "@/lib/rewards-integration";
 import { trackRecentTool } from "@/lib/smart-defaults";
 
-import {
-  FaqSection,
-  RelatedTools,
-  CALC_LINKS,
-} from "@/components/seo/SeoSections";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { PopCeilingCalculatorSeo } from "@/components/seo/SeoContent";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
@@ -551,38 +548,23 @@ export default function PopCeilingCalculator({
         <>
           <PopCeilingCalculatorSeo />
 
-          <FaqSection
+          <FaqItemsWithSchema
             faqs={[
               {
                 question: "What is a POP ceiling?",
-                answer: (
-                  <span>
-                    A POP (Plaster of Paris) ceiling is a decorative ceiling
-                    made from gypsum-based plaster. It is popular in Nigerian
-                    homes for creating smooth, sculpted ceiling designs.
-                  </span>
-                ),
+                answer:
+                  "A POP (Plaster of Paris) ceiling is a decorative ceiling made from gypsum-based plaster. It is popular in Nigerian homes for creating smooth, sculpted ceiling designs.",
               },
               {
                 question: "How much POP cement do I need?",
-                answer: (
-                  <span>
-                    POP cement quantity depends on your ceiling area and design
-                    complexity. The calculator estimates material based on room
-                    dimensions and your selected workflow.
-                  </span>
-                ),
+                answer:
+                  "POP cement quantity depends on your ceiling area and design complexity. The calculator estimates material based on room dimensions and your selected workflow.",
               },
               {
                 question:
                   "What is the difference between Nigerian and international POP workflows?",
-                answer: (
-                  <span>
-                    The Nigerian workflow uses specific local materials and
-                    techniques, while the international workflow follows
-                    standard gypsum board methods. The calculator supports both.
-                  </span>
-                ),
+                answer:
+                  "The Nigerian workflow uses specific local materials and techniques, while the international workflow follows standard gypsum board methods. The calculator supports both.",
               },
             ]}
           />

@@ -85,11 +85,8 @@ import { trackCalculation } from "@/lib/achievements";
 import { trackCalculationWithRewards } from "@/lib/rewards-integration";
 import { trackRecentTool } from "@/lib/smart-defaults";
 
-import {
-  FaqSection,
-  RelatedTools,
-  CALC_LINKS,
-} from "@/components/seo/SeoSections";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { TileCalculatorSeo } from "@/components/seo/SeoContent";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
@@ -1141,38 +1138,23 @@ export default function TileCalculator({
         <>
           <TileCalculatorSeo />
 
-          <FaqSection
+          <FaqItemsWithSchema
             faqs={[
               {
                 question: "How do I calculate how many tiles I need?",
-                answer: (
-                  <span>
-                    Measure the area to be tiled and divide by the area of one
-                    tile. Add 10–15% for cuts and breakage. The calculator does
-                    this automatically and also estimates adhesive and grout.
-                  </span>
-                ),
+                answer:
+                  "Measure the area to be tiled and divide by the area of one tile. Add 10–15% for cuts and breakage. The calculator does this automatically and also estimates adhesive and grout.",
               },
               {
                 question: "How much extra tile should I buy?",
-                answer: (
-                  <span>
-                    Buy 10–15% more tiles than the calculated quantity to cover
-                    cuts, breakage, and future repairs. The calculator includes
-                    a waste factor for this.
-                  </span>
-                ),
+                answer:
+                  "Buy 10–15% more tiles than the calculated quantity to cover cuts, breakage, and future repairs. The calculator includes a waste factor for this.",
               },
               {
                 question:
                   "Does the calculator work for both floor and wall tiles?",
-                answer: (
-                  <span>
-                    Yes. Select the surface type (floor or wall) and enter your
-                    dimensions. The calculator adjusts for the different tile
-                    sizes and materials typically used.
-                  </span>
-                ),
+                answer:
+                  "Yes. Select the surface type (floor or wall) and enter your dimensions. The calculator adjusts for the different tile sizes and materials typically used.",
               },
             ]}
           />

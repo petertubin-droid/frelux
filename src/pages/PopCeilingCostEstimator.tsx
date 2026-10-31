@@ -33,11 +33,8 @@ import {
   EngineMaterialSummaryCard,
 } from "@/components/engine";
 
-import {
-  FaqSection,
-  RelatedTools,
-  CALC_LINKS,
-} from "@/components/seo/SeoSections";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { PopCeilingCostEstimatorSeo } from "@/components/seo/SeoContent";
 import LabourCostSection, {
   useLabourConfig,
@@ -752,27 +749,17 @@ export default function PopCeilingCostEstimator({
         <>
           <PopCeilingCostEstimatorSeo />
 
-          <FaqSection
+          <FaqItemsWithSchema
             faqs={[
               {
                 question: "How much does a POP ceiling cost?",
-                answer: (
-                  <span>
-                    POP ceiling cost depends on ceiling area, POP cement price,
-                    mesh, and labour. Enter your ceiling area to get a practical
-                    cost estimate based on real material prices.
-                  </span>
-                ),
+                answer:
+                  "POP ceiling cost depends on ceiling area, POP cement price, mesh, and labour. Enter your ceiling area to get a practical cost estimate based on real material prices.",
               },
               {
                 question: "What materials are needed for a POP ceiling?",
-                answer: (
-                  <span>
-                    Typical materials include POP cement, fibre mesh, bonding
-                    agent, and water. The estimator calculates quantities and
-                    costs based on your ceiling area.
-                  </span>
-                ),
+                answer:
+                  "Typical materials include POP cement, fibre mesh, bonding agent, and water. The estimator calculates quantities and costs based on your ceiling area.",
               },
             ]}
           />
