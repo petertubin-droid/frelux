@@ -1665,6 +1665,14 @@ export interface MasonryCalculationInput {
   openings?: MasonryOpening[];
   mortarMixRatio?: "1:3" | "1:4" | "1:5" | "1:6";
   wastePercent?: number; // default 5%
+  /**
+   * How many leaves the entered wall area represents. The area is always read
+   * as ONE leaf's face, so a UK cavity wall (two leaves) or a Chinese 240 mm
+   * wall (a 115 mm face repeated through the thickness) needs 2. Left unset it
+   * is 1, which keeps every single-leaf market (US CMU, AE block, IN brick)
+   * exactly as it was.
+   */
+  leafCount?: number;
 }
 
 export interface MasonryCalculationResult {
@@ -1674,6 +1682,9 @@ export interface MasonryCalculationResult {
   netWallAreaM2: number;
   unit: MasonryUnitProfile;
   unitsPerM2: number;
+  /** Units per square metre of the entered face, i.e. per leaf. */
+  unitsPerM2Effective: number;
+  leafCount: number;
   unitsRequiredNet: number;
   unitsRequiredGross: number; // rounded up
   mortarVolumeM3Net: number;
@@ -1753,6 +1764,7 @@ export function calculateMasonryTakeoff(
     }
   }
   const netWallAreaM2 = Math.max(0, grossWallAreaM2 - openingsAreaM2);
+  const leafCount = Math.max(1, Math.round(input.leafCount ?? 1));
 
   // Unit face dimensions with joint (convert mm to m)
   const unitLengthM = activeUnit.lengthMm / 1000.0;
@@ -1762,7 +1774,10 @@ export function calculateMasonryTakeoff(
 
   const faceAreaWithJoint = (unitLengthM + jointM) * (unitHeightM + jointM);
   const unitsPerM2 = faceAreaWithJoint > 0 ? 1.0 / faceAreaWithJoint : 0;
-  const unitsRequiredNet = netWallAreaM2 * unitsPerM2;
+  // Every leaf carries the same face count and the same mortar, so the whole
+  // take-off scales with the leaf count rather than silently billing one.
+  const unitsPerM2Effective = unitsPerM2 * leafCount;
+  const unitsRequiredNet = netWallAreaM2 * unitsPerM2Effective;
   const unitsRequiredGross = Math.ceil(
     unitsRequiredNet * (1 + wastePercent / 100.0),
   );
@@ -1778,9 +1793,10 @@ export function calculateMasonryTakeoff(
   if (activeUnit.isHollow) {
     // Face-shell bedding mortar allowance (~0.018 m3 per m2 for 200mm block)
     const factor = (unitWidthM / 0.2) * 0.018;
-    mortarVolumeM3Net = netWallAreaM2 * factor;
+    mortarVolumeM3Net = netWallAreaM2 * factor * leafCount;
   } else {
-    const totalWallVolume = netWallAreaM2 * unitWidthM;
+    // Solid units: one leaf of thickness unitWidthM per leaf.
+    const totalWallVolume = netWallAreaM2 * unitWidthM * leafCount;
     const unitsVolume =
       unitsRequiredNet * (unitLengthM * unitHeightM * unitWidthM);
     mortarVolumeM3Net = Math.max(0, totalWallVolume - unitsVolume);
@@ -1829,6 +1845,8 @@ export function calculateMasonryTakeoff(
     netWallAreaM2: Number(netWallAreaM2.toFixed(2)),
     unit: activeUnit,
     unitsPerM2: Number(unitsPerM2.toFixed(2)),
+    unitsPerM2Effective: Number(unitsPerM2Effective.toFixed(2)),
+    leafCount,
     unitsRequiredNet: Math.round(unitsRequiredNet),
     unitsRequiredGross,
     mortarVolumeM3Net: Number(mortarVolumeM3Net.toFixed(3)),
