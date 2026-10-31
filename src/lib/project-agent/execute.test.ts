@@ -48,6 +48,8 @@ const db: {
   insertError: Record<string, string | null>;
   /** Update returns a row but the change does not stick. */
   silentUpdate: boolean;
+  /** Honour every eq condition on update, not just the first. */
+  strictUpdates: boolean;
 } = {
   tables: {
     project_agent_actions: [],
@@ -71,9 +73,11 @@ const db: {
   rlsBlocked: {},
   insertError: {},
   silentUpdate: false,
+  strictUpdates: false,
 };
 
 function resetDb() {
+  db.strictUpdates = false;
   db.tables.project_agent_actions = [];
   db.tables.project_agent_approvals = [];
   db.tables.project_shopping_list = [
@@ -164,33 +168,41 @@ vi.mock("@/lib/supabase", () => {
         // RLS blocking / silent failures only affect PROJECT data
         // tables, never the agent's own tables.
         let affected: Row | null = null;
+        const conds: Array<[string, unknown]> = [];
+        const apply = () => {
+          if (affected) return;
+          const projectTable = !AGENT_TABLES.includes(table);
+          const rlsBlocked = projectTable && db.rlsBlocked[table];
+          // A silent update FABRICATES a successful result (the
+          // caller sees the row as-if-written) but the stored
+          // row never changes, so verification catches it.
+          const silent = projectTable && db.silentUpdate;
+          if (rlsBlocked) return;
+          rows().forEach((r) => {
+            if (conds.every(([k, v]) => r[k] === v)) {
+              if (silent) {
+                affected = { ...r, ...data };
+              } else {
+                Object.assign(r, data);
+                affected = { ...r };
+              }
+            }
+          });
+        };
         const c: Record<string, unknown> = {
           eq: (col: string, val: unknown) => {
-            const projectTable = !AGENT_TABLES.includes(table);
-            const rlsBlocked = projectTable && db.rlsBlocked[table];
-            // A silent update FABRICATES a successful result (the
-            // caller sees the row as-if-written) but the stored
-            // row never changes, so verification catches it.
-            const silent = projectTable && db.silentUpdate;
-            if (!rlsBlocked) {
-              rows().forEach((r) => {
-                if (r[col] === val) {
-                  if (silent) {
-                    affected = { ...r, ...data };
-                  } else {
-                    Object.assign(r, data);
-                    affected = { ...r };
-                  }
-                }
-              });
-            }
+            conds.push([col, val]);
+            // Default contract: the first eq applies the write at once.
+            // strictUpdates defers to select() so EVERY condition is
+            // honoured, which is what a compare-and-set race needs.
+            if (!db.strictUpdates) apply();
             return c;
           },
           select: () => ({
-            maybeSingle: async () => ({
-              data: copy(affected ?? undefined),
-              error: null,
-            }),
+            maybeSingle: async () => {
+              apply();
+              return { data: copy(affected ?? undefined), error: null };
+            },
           }),
         };
         return c;
@@ -346,6 +358,30 @@ describe("action execution (§Stage 7)", () => {
 
     expect(db.activity.filter((e) => e.kind === "execution").length).toBe(1);
     expect(db.activity.filter((e) => e.kind === "verification").length).toBe(1);
+  });
+
+  it("two simultaneous executions of one action: exactly one writes", async () => {
+    const { id } = seedAction();
+    seedApproval(id);
+    // The claim is a compare-and-set on state, so the fake has to honour
+    // every condition on an update rather than the first one.
+    db.strictUpdates = true;
+
+    const [first, second] = await Promise.all([
+      executeApprovedAction("proj-1", id, NOW),
+      executeApprovedAction("proj-1", id, NOW),
+    ]);
+
+    expect([first, second].filter((r) => r.ok).length).toBe(1);
+    const refused = [first, second].find((r) => !r.ok);
+    expect(refused && !refused.ok ? refused.error.code : null).toBe(
+      "already_claimed",
+    );
+
+    // The loser did not reach project data.
+    expect(projectWrites().length).toBe(1);
+    expect(db.tables.project_shopping_list[0].is_purchased).toBe(true);
+    expect(seededAction()?.state).toBe("verified");
   });
 
   it("is idempotent, an executed action never re-executes", async () => {

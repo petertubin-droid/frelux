@@ -167,6 +167,7 @@ export interface AgentError {
     | "recommendation_not_found"
     | "kind_mismatch"
     | "action_expired"
+    | "already_claimed"
     | "not_found";
   message: string;
 }

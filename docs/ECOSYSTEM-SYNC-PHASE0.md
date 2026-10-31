@@ -241,3 +241,41 @@ read the claim itself, so I can confirm the module exists and is tested but not
 that the approved-to-executing transition is atomic. Phase 1 must settle that
 with a concurrent-request test before any of the other Project Agent work is
 trusted.
+
+## Finding 10, resolved: the execution claim was not atomic
+
+The Phase 0 note said the claim was unverified. It was absent, not merely
+untested.
+
+`persistExecutionState` guarded its update with `.eq("id", action.id)` and
+nothing else. The state machine validated `approved → executed → verified` in
+memory, so two requests arriving at once both read `approved`, both passed every
+check, and both wrote project data. `canTransition` was enforcing the rule in the
+wrong place.
+
+Fixed in the execution layer:
+
+1. A claim step transitions `approved → executed` with the state in the filter,
+   not just the id. The database decides the winner; the loser affects no row
+   and refuses with `already_claimed` before touching project data.
+2. The claim sits after every pre-flight cancellation, because a claimed action
+   may only reach verified or failed, never cancelled. Placing it earlier would
+   have made honest cancellation impossible.
+3. `persistExecutionState` now accepts an action that already holds the claim,
+   since that step is satisfied by construction.
+
+The test harness could not have caught this: its fake client applied an update
+at the first `.eq` and ignored the rest, so a two-condition claim looked like a
+one-condition claim. It now honours every condition in `strictUpdates` mode,
+which is what a compare-and-set test requires, and the existing tests keep the
+first-eq contract they were written against.
+
+Proof rather than assertion: with the claim reverted, the concurrency test fails
+with two successful executions of one action. With the claim in place, exactly
+one succeeds, the other refuses, and exactly one write reaches project data.
+279 project-agent tests pass.
+
+Still open on this item: recovery for an action left in `executed` by a process
+that died mid-write. The state is honest, the action is not stuck, and the next
+run refuses rather than double-writes, but there is no sweep that resolves such
+a row to failed and no test covering that path.

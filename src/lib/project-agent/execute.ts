@@ -144,8 +144,13 @@ async function persistExecutionState(
   // write failures the intermediate 'executed' (attempt began) is
   // validated then collapsed into the persisted terminal state.
   if (to === "verified" || to === "failed") {
-    const viaExecuted = canTransition(action.state, "executed");
-    if (!viaExecuted.allowed) return invalidState(viaExecuted.reason);
+    // An action that already holds the claim (state 'executed') is
+    // mid-flight, so the claim step is already satisfied. Only the
+    // terminal step still needs checking.
+    if (action.state !== "executed") {
+      const viaExecuted = canTransition(action.state, "executed");
+      if (!viaExecuted.allowed) return invalidState(viaExecuted.reason);
+    }
     const final = canTransition("executed", to);
     if (!final.allowed) return invalidState(final.reason);
   } else {
@@ -462,7 +467,7 @@ export async function executeApprovedAction(
   const actionRow = await loadActionRow(actionId);
   if (!actionRow.ok) return actionRow;
   if (!actionRow.data) return notFound("Prepared action not found.");
-  const action = actionRow.data;
+  let action = actionRow.data;
   if (action.project_id !== projectId)
     return notFound("The action belongs to a different project.");
 
@@ -600,6 +605,49 @@ export async function executeApprovedAction(
       `${reason} The action was cancelled, prepare a new one against the current recorded state.`,
     );
   }
+
+  // ---- Atomic claim, exactly once.
+  //
+  // Every request that reaches this line has already READ the action as
+  // 'approved'. Reading is not claiming: two simultaneous requests would
+  // both pass that check and both write. The transition is therefore
+  // conditional on the row still being approved, so the database decides
+  // the winner. The loser affects no row and refuses here, before any
+  // project data is touched.
+  //
+  // The claim happens after every pre-flight cancellation, because a
+  // claimed action may only reach verified or failed, never cancelled.
+  const claim = await supabase
+    .from("project_agent_actions")
+    .update({ state: "executed", updated_at: nowIso })
+    .eq("id", action.id)
+    .eq("state", "approved")
+    .select("id")
+    .maybeSingle();
+  if (claim.error)
+    return persistError("Execution claim failed", claim.error.message);
+  if (!claim.data) {
+    await recordActivity(
+      projectId,
+      {
+        kind: "error",
+        state: "executed",
+        summary: `Execution refused: "${action.what}" was already claimed by another run. Nothing was written.`,
+      },
+      nowIso,
+    );
+    return {
+      ok: false,
+      error: {
+        code: "already_claimed",
+        message:
+          "Another execution of this action is already running or has finished. Nothing was written by this attempt.",
+      },
+    };
+  }
+  // From here the action holds the claim, so the local record must agree
+  // with the database or the terminal transitions below would be refused.
+  action = { ...action, state: "executed" };
 
   // ---- The authoritative write (RLS is the final authority).
   const write = await performWrite(action, nowIso);
