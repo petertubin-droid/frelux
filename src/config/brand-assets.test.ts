@@ -20,7 +20,7 @@ function pngSize(path: string) {
 }
 
 describe("brand assets behind link previews", () => {
-  it("ships a 1200 by 630 social card at both preview URLs", () => {
+  it("serves the approved artwork at both preview URLs", () => {
     for (const path of ["public/social-cover.png", "public/og-image.png"]) {
       expect(existsSync(path), path).toBe(true);
       expect(pngSize(path), path).toEqual({ width: 1200, height: 630 });
@@ -35,7 +35,7 @@ describe("brand assets behind link previews", () => {
     expect(index).toContain(
       'name="twitter:image" content="https://freluxtools.com/social-cover.png"',
     );
-    expect(index).toMatch(/og:image:alt" content="FRELUX logo/);
+    expect(index).toMatch(/og:image:alt" content="FRELUXTOOLS logo/);
     expect(read("src/lib/seo.ts")).toContain("/social-cover.png");
     expect(read("scripts/prerender.mjs")).toContain("/social-cover.png");
   });
