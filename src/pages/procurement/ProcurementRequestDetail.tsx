@@ -65,6 +65,7 @@ export default function ProcurementRequestDetail() {
           description:
             "Compare supplier quotations line by line and award the material request.",
           canonicalPath: `/procurement/${request.id}`,
+          noIndex: true,
         }
       : null,
   );

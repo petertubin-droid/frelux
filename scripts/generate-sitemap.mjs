@@ -312,10 +312,8 @@ const routes = [
   { path: "/boq-studio", priority: "0.9", changefreq: "monthly" },
   { path: "/suppliers", priority: "0.9", changefreq: "daily" },
   { path: "/suppliers/register", priority: "0.6", changefreq: "monthly" },
-  { path: "/suppliers/workspace", priority: "0.4", changefreq: "monthly" },
   { path: "/suppliers/compare", priority: "0.5", changefreq: "weekly" },
   { path: "/procurement", priority: "0.6", changefreq: "weekly" },
-  { path: "/procurement/new", priority: "0.4", changefreq: "monthly" },
   { path: "/cash-flow-timeline", priority: "0.9", changefreq: "monthly" },
   { path: "/circular-reuse", priority: "0.9", changefreq: "monthly" },
   { path: "/contractor-credit", priority: "0.9", changefreq: "monthly" },
@@ -387,6 +385,22 @@ async function fetchLearnRoutes() {
           path: `/learn/category/${c.slug}`,
           priority: "0.6",
           changefreq: "weekly",
+        });
+      }
+    }
+
+    // Active supplier profiles (RLS: public read) — the directory's leaf pages
+    const supplierRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/supplier_profiles?select=public_slug,updated_at&is_active=eq.true&public_slug=not.is.null&order=updated_at.desc&limit=1000`,
+      { headers },
+    );
+    if (supplierRes.ok) {
+      for (const sup of await supplierRes.json()) {
+        routes.push({
+          path: `/suppliers/${sup.public_slug}`,
+          priority: "0.6",
+          changefreq: "weekly",
+          lastmod: sup.updated_at,
         });
       }
     }

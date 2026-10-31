@@ -98,6 +98,7 @@ export default function SupplierWorkspace() {
     description:
       "Manage your supplier catalogue, delivery coverage, verification requests, buyer requests and orders on FRELUX.",
     canonicalPath: "/suppliers/workspace",
+    noIndex: true,
   });
 
   const load = useCallback(async (userId: string) => {

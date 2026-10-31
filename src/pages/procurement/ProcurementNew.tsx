@@ -56,6 +56,7 @@ export default function ProcurementNew() {
     description:
       "Describe the materials you need once and collect quotations from verified-level suppliers in your market.",
     canonicalPath: "/procurement/new",
+    noIndex: true,
   });
 
   useEffect(() => {

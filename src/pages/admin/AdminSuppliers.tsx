@@ -80,6 +80,7 @@ export default function AdminSuppliers() {
     description:
       "Verification review, listing moderation, complaints, placement and marketplace analytics.",
     canonicalPath: "/admin/suppliers",
+    noIndex: true,
   });
 
   const load = useCallback(async () => {
