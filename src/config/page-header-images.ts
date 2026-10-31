@@ -44,6 +44,7 @@ const HEADER_IMAGE_RULES: HeaderImageRule[] = [
     test: /^\/colors|^\/color-preview|^\/ai-color-assistant/,
     image: "/assets/headers/colors.jpg",
   },
+  { test: /^\/faq$/, image: "/assets/headers/learn.jpg" },
   {
     // Specialty takeoffs: retaining wall, steel sections, eaves finishing,
     // conduit runs. Specific routes first, so the broad rules below only

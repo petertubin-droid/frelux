@@ -2484,6 +2484,12 @@ const routes = [
       "Browse every market FRELUX supports: local block and cement standards, electrical and plumbing practice, currencies, and the calculators preconfigured for each country.",
   },
   {
+    path: "/faq",
+    title: "Construction and Material Questions, Answered | FRELUX SMART CALC",
+    description:
+      "Answers to the questions people ask before buying building materials: paint and tile quantities, screed and POP materials, foundation concrete, retaining wall footings, gutters, conduit and steel beam weight.",
+  },
+  {
     path: "/retaining-wall-calculator",
     title: "Retaining Wall Material and Cost Calculator | FRELUX SMART CALC",
     description:

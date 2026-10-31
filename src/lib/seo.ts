@@ -221,6 +221,28 @@ export { SITE_URL };
  * standard site structure for every public page. Matches the JSON-LD
  * breadcrumbs established pages already emit.
  */
+/**
+ * Injects FAQPage structured data built from the same question and answer
+ * strings the page displays. Google requires the markup to match visible
+ * content, so pages must pass the rendered text, never a separate copy.
+ */
+export function useFaqJsonLd(items: { question: string; answer: string }[]) {
+  useEffect(() => {
+    if (items.length === 0) return;
+    setStructuredData("faq-jsonld", {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: items.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: { "@type": "Answer", text: item.answer },
+      })),
+    });
+    return () => removeStructuredData("faq-jsonld");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(items)]);
+}
+
 export function useBreadcrumbJsonLd(
   items: {
     name: string;

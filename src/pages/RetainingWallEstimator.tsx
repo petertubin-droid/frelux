@@ -92,6 +92,7 @@ export default function RetainingWallEstimator() {
       seoTitle="Retaining Wall Material & Cost Calculator | FRELUX"
       seoDescription="Work out footing concrete, blocks, reinforcement and weep holes for a retaining wall from wall length, height and soil type. Soil type widens the recommended footing, and every quantity shows the rule behind it."
       breadcrumbName="Retaining Wall Calculator"
+      faqSlug="retaining-wall-calculator"
       routePath="/retaining-wall-calculator"
       limitations={[
         "This is a material takeoff, not a retaining wall design. Footing width, stem thickness and reinforcement are structural engineering decisions.",

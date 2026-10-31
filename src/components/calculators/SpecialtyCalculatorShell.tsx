@@ -13,6 +13,7 @@ import { AlertTriangle, Calculator, Info, Printer } from "lucide-react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import PriceFreshnessNotice from "@/components/prices/PriceFreshnessNotice";
 import { useMarket } from "@/lib/international/market-context";
@@ -49,6 +50,8 @@ export interface SpecialtyCalculatorShellProps {
   onPriceOverride: (slug: string, value: string) => void;
   bookSummary?: PriceBookSummary | null;
   crossLinks: SpecialtyCrossLink[];
+  /** Registry slug in src/config/tool-faqs.ts; renders the tool's questions. */
+  faqSlug?: string;
   proCallout?: { title: string; body: string; cta: string; to: string };
   quoteTitle: string;
   quoteFooter: string;
@@ -77,6 +80,7 @@ export function SpecialtyCalculatorShell({
   onPriceOverride,
   bookSummary,
   crossLinks,
+  faqSlug,
   proCallout,
   quoteTitle,
   quoteFooter,
@@ -469,6 +473,8 @@ export function SpecialtyCalculatorShell({
             ))}
           </div>
         ) : null}
+
+        {faqSlug ? <ToolFaqs slug={faqSlug} /> : null}
 
         <section
           aria-labelledby={`${calculatorType}-limits`}

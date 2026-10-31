@@ -62,6 +62,7 @@ export default function ConduitWiringEstimator() {
       seoTitle="Electrical Conduit and Wiring Material Estimator | FRELUX"
       seoDescription="Estimate PVC conduit, 1.5 mm and 2.5 mm cable coils, junction boxes, switch plates and sockets from floor area and your lighting and socket point counts."
       breadcrumbName="Conduit and Wiring Estimator"
+      faqSlug="conduit-wiring-estimator"
       routePath="/electrical-conduit-wiring-estimator"
       limitations={[
         "This is a material takeoff, not a circuit design. Circuit sizing, breaker ratings, earthing and volt drop remain the electrician's responsibility.",
