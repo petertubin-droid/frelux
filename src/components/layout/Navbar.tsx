@@ -198,9 +198,10 @@ export default function Navbar() {
       <header
         className={classNames(
           "neon-edge fixed top-0 z-40 w-full transition-all duration-500",
+          "border-b backdrop-blur-xl backdrop-saturate-150",
           scrolled
-            ? "glass-premium border-b border-border/40 shadow-sm dark:border-white/5"
-            : "bg-white/50 backdrop-blur-md border-b border-transparent dark:bg-background/50 dark:border-transparent",
+            ? "border-border/50 bg-background/65 shadow-sm dark:border-white/10 dark:bg-background/60"
+            : "border-transparent bg-background/45 dark:bg-background/35",
         )}
       >
         <nav

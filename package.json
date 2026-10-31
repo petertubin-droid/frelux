@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3000",
-    "build": "vite build && node scripts/prerender.mjs && node scripts/generate-sitemap.mjs",
+    "build": "npm run faqs:prerender && vite build && node scripts/prerender.mjs && node scripts/generate-sitemap.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
@@ -26,8 +26,9 @@
     "i18n:coverage": "node scripts/i18n-coverage-report.mjs",
     "i18n:report": "node scripts/i18n-coverage-report.mjs",
     "faqs:sql": "tsx --tsconfig tsconfig.app.json scripts/generate-tool-faq-sql.ts",
+    "faqs:prerender": "tsx --tsconfig tsconfig.app.json scripts/generate-faq-prerender.ts",
     "faqs:apply": "tsx --tsconfig tsconfig.app.json scripts/apply-tool-faq-sql.ts",
-    "faqs:sync": "npm run faqs:sql && npm run faqs:apply"
+    "faqs:sync": "npm run faqs:sql && npm run faqs:prerender && npm run faqs:apply"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.11",

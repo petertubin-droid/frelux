@@ -187,6 +187,11 @@ export const navWorkspaces: NavWorkspace[] = [
         description: "Guides, tutorials & building knowledge",
       },
       {
+        label: "FAQ Articles",
+        path: "/faq",
+        description: "Every question FRELUX answers, by trade",
+      },
+      {
         label: "Building from Abroad",
         path: "/learn/build-in-nigeria-from-abroad",
         description: "Budget a Nigerian build from the US or UK",

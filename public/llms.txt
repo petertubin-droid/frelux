@@ -1,0 +1,45 @@
+# FRELUX SMART CALC
+
+> FRELUX is a construction material takeoff and cost estimation engine. It turns
+> measured dimensions into material quantities, prices them in the local market,
+> and shows the arithmetic behind every figure. Quantities are deterministic: an
+> AI layer may extract measurements, but it never calculates. Where a price, a tax
+> rate or a design value is not known, the page reports the gap instead of
+> assuming one.
+
+Public origin: https://freluxtools.com
+Languages: English
+Free to use: yes, no sign-up required for calculations.
+
+## Answer pages (prerendered, FAQPage structured data)
+
+- https://freluxtools.com/faq/ - every construction question FRELUX answers, by trade (310 questions across 62 tools)
+- https://freluxtools.com/faq/paint-calculator/ - how much paint and primer a room needs
+- https://freluxtools.com/faq/tile-calculator/ - tiles, adhesive and grout quantities
+- https://freluxtools.com/faq/screeding-calculator/ - screeding material per square metre
+- https://freluxtools.com/faq/pop-ceiling-calculator/ - POP ceiling cost and materials
+- https://freluxtools.com/faq/foundation/ - foundation concrete, footing and blockwork
+- https://freluxtools.com/faq/reinforcement/ - rebar length and weight
+- https://freluxtools.com/faq/blueprint-takeoff/ - quantities read from a plan
+- https://freluxtools.com/faq/boq-generator/ - bill of quantities from measured work
+
+## Core tools
+
+- https://freluxtools.com/calculators/ - the full tool list
+- https://freluxtools.com/construction-tools - construction calculators by discipline
+- https://freluxtools.com/material-prices - recorded material prices with dates and markets
+- https://freluxtools.com/prices - market price intelligence
+- https://freluxtools.com/unit-converter - metric and imperial conversion for site measurements
+
+## Reference
+
+- https://freluxtools.com/learn - guides and building knowledge
+- https://freluxtools.com/glossary - construction and material terms
+- https://freluxtools.com/about - what FRELUX is and who builds it
+- https://freluxtools.com/ai-disclaimer - what the AI features do and do not do
+- https://freluxtools.com/disclaimer - estimates are not professional or engineering advice
+
+## Crawling
+
+- https://freluxtools.com/robots.txt - no crawl restrictions for search or AI crawlers
+- https://freluxtools.com/sitemap.xml - full URL inventory

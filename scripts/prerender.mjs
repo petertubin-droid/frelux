@@ -11,6 +11,7 @@ import { join, dirname } from "path";
 import { seoContentMap } from "./seo-content-map.mjs";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
+import { faqPrerenderRoutes } from "./generated/faq-prerender.mjs";
 import { SITE_URL } from "./lib/site-url.mjs";
 
 const distDir = "dist";
@@ -3458,6 +3459,31 @@ for (const route of routes) {
   ];
 }
 
+// FAQ surfaces (2026-11-01): the hub and all 62 answer pages ship as static
+// HTML carrying the article body and FAQPage data, because most AI crawlers and
+// several search crawlers do not run JavaScript. The payload is generated from
+// the same registries the pages render from, so the static copy cannot drift.
+const faqContentByPath = {};
+for (const faqRoute of faqPrerenderRoutes) {
+  faqContentByPath[faqRoute.path] = faqRoute.content;
+  const existing = routes.find((route) => route.path === faqRoute.path);
+  if (existing) {
+    existing.structuredData = [
+      ...(existing.structuredData ?? []),
+      ...faqRoute.structuredData,
+    ];
+    continue;
+  }
+  routes.push({
+    path: faqRoute.path,
+    title: faqRoute.title,
+    description: faqRoute.description,
+    priority: "0.7",
+    changefreq: "monthly",
+    structuredData: faqRoute.structuredData,
+  });
+}
+
 for (const route of routes) {
   let html = templateHtml;
 
@@ -3587,7 +3613,7 @@ for (const route of routes) {
 
   // Put useful route content directly in the initial DOM so crawlers and users
   // without JavaScript receive the same page content as the prerendered metadata.
-  const pageContent = contentMap[route.path];
+  const pageContent = contentMap[route.path] ?? faqContentByPath[route.path];
   if (pageContent) {
     html = html.replace(
       /(<div id="root">)[\s\S]*(\n\s*<\/div>\s*<\/body>)/,
