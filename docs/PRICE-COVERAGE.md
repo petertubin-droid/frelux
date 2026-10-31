@@ -184,3 +184,35 @@ Three things now enforce this, because one was not enough:
 The bar for adding a slug to that list is strict: it must be a buying convention
 with no counterpart market, not a material we would rather price differently. A
 differently named or differently packed material is a catalogue row to add.
+
+## GB found a real merchant; US is still closed
+
+The viable path is a merchant small enough to expose a machine readable
+catalogue and still sell bagged materials in real local packs. GB now has one.
+
+**Discount Building Supplies** (`discountbuildingsupplies.co.uk`) runs
+WooCommerce with its Store API open: 100 products, 100 priced, 28 of them
+building materials. It sells what the GB book has been faking with FX:
+Mannok Master Grade Cement 25 kg at £6.50, Plastering Sand 20 kg at £2.99 and
+Grano Dust 0-4 mm 20 kg at £2.99. Registered in `price_scan_sources` as an
+`open_api` retail catalogue and its 100 products staged in `catalogue_products`
+as `unmapped`.
+
+Staged is not priced. Mapping and promotion still need the scan run, and one
+source cannot make a price verified, so GB cement stays a reference figure until
+a second merchant corroborates it.
+
+**US** remains closed after twelve candidates. The pattern is consistent and
+worth recording so nobody repeats it:
+
+| Candidate                                                                                     | Result                                           |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Home Depot, Menards, Ace, Zoro                                                                | 403, server-side fetch blocked                   |
+| Cottins Hardware, Sutherlands, True Value, HardwareStore, Kuiken Brothers, McCoy's, 84 Lumber | no machine readable catalogue                    |
+| City Hardware                                                                                 | page loads, no catalogue endpoint                |
+| Lumberjax                                                                                     | WooCommerce, 8 products, none building materials |
+
+US independents publish no product feed and the chains block fetchers. Until a
+US merchant with a real catalogue appears, the US book's cement and aggregate
+rows cannot be corroborated locally. Outreach, or a US supplier whose own
+e-commerce runs on Shopify or WooCommerce, is the only route.
