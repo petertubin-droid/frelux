@@ -238,12 +238,20 @@ export const STRUCTURAL_JURISDICTION_SCOPE: Record<
   CN: {
     code: "CN",
     country: "China",
+    // Verified 2026-10-31 against the announcement's own wording: MOHURD
+    // Announcement 2024 No. 62 (24 April 2024) approved the partial revision,
+    // renamed GB 50010-2010 to GB/T 50010-2010 and moved the effective date to
+    // 1 August 2024. Because the design standard is now a GB/T (recommended)
+    // document, the binding concrete requirements sit in the mandatory
+    // GB 55008-2021 通用规范, which is why both are named here.
     framework:
-      "GB/T 50010-2010, Standard for Design of Concrete Structures (partial revision effective 1 August 2024), alongside mandatory national and local standards",
-    verifiedSource: "http://sczjjgfw.gov.cn/clas/wjhb/jsb/24/jsb202462.html",
-    sourceLabel: "MOHURD Announcement No. 62 (2024)",
+      "GB/T 50010-2010 混凝土结构设计标准 (Standard for Design of Concrete Structures), 2024 partial revision under MOHURD Announcement No. 62 of 24 April 2024, effective 1 August 2024, read together with the mandatory GB 55008-2021 混凝土结构通用规范 (General Code for Concrete Structures, effective 1 April 2022)",
+    verifiedSource:
+      "https://www.mohurd.gov.cn/gongkai/zhengce/zhengcefilelib/202110/20211013_762454.html",
+    sourceLabel:
+      "MOHURD: GB 55008-2021 general code, with Announcement 2024 No. 62",
     localScope:
-      "The announced revision changes the standard designation to GB/T 50010-2010. Verify its current status, mandatory provisions, related standards, and local requirements with the project authority.",
+      "The 2024 revision re-designated GB 50010-2010 as GB/T 50010-2010, so the design standard is now recommended rather than mandatory: the binding requirements are in GB 55008-2021 and in the project's 施工图审查 (construction drawing review) rules. Confirm the applicable edition and any provincial requirements with the project authority.",
     calculationStatus: "reference_only",
   },
   ID: {

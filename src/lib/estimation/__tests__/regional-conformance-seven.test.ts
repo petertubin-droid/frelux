@@ -297,8 +297,21 @@ describe("each of the seven names its own governing document", () => {
     expect(scopeFor("GB").framework).toMatch(/Eurocode/);
   });
 
-  it("China cites GB/T 50010", () => {
-    expect(scopeFor("CN").framework).toMatch(/GB\/?T? ?50010/);
+  it("China names the revised designation, the announcement and the mandatory code", () => {
+    // Verified 2026-10-31 against the announcement's own wording: MOHURD
+    // Announcement 2024 No. 62, dated 24 April 2024, approved the partial
+    // revision, renamed the standard and moved GB 50010-2010 to GB/T
+    // 50010-2010, effective 1 August 2024.
+    const scope = scopeFor("CN");
+    expect(scope.framework).toMatch(/GB\/T 50010-2010/);
+    expect(scope.framework).toMatch(/No\. 62/);
+    expect(scope.framework).toMatch(/1 August 2024/);
+    // The re-designation made the design standard recommended, so the binding
+    // requirements live in the mandatory general code. A Chinese user reading
+    // only GB/T 50010 would think it governs, so it must be named.
+    expect(scope.framework).toMatch(/GB 55008-2021/);
+    expect(scope.localScope).toMatch(/GB 55008-2021/);
+    expect(scope.calculationStatus).toBe("reference_only");
   });
 
   it("Canada cites the National Building Code and CSA A23", () => {
@@ -330,9 +343,12 @@ describe("each of the seven names its own governing document", () => {
     expect(scopeFor("IT").framework).toMatch(/NTC 2018|Norme Tecniche/);
   });
 
-  it("all seven carry a verifiable source, even if one is plain http", () => {
+  it("all seven cite an encrypted, official source", () => {
     for (const market of MARKETS) {
-      expect(scopeFor(market).verifiedSource, market).toMatch(/^https?:\/\//);
+      // China used to cite a provincial mirror over plain http; it now points
+      // at the ministry over https, so no hardened market ships an insecure
+      // citation.
+      expect(scopeFor(market).verifiedSource, market).toMatch(/^https:\/\//);
     }
   });
 });
