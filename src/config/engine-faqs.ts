@@ -1218,6 +1218,406 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       ],
     },
   },
+  {
+    slug: "boq-generator",
+    route: "/boq-generator",
+    name: "BOQ and Quote Generator",
+    category: "commercial",
+    questions: [
+      {
+        q: "Where do the BOQ lines come from?",
+        a: "From estimates you have already saved. The engine assembles them into a bill of quantities, and every line keeps the reference to the estimate and input that produced it.",
+      },
+      {
+        q: "Are contingency and tax added automatically?",
+        a: "Only from configured rules. With no rule set, the quote is produced without those lines and a warning says so. A missing rate is left visible, never filled with a guess.",
+      },
+      {
+        q: "Can I defend a line to a client?",
+        a: "Yes. Each line is replayable back to its source, so a question about a quantity can be answered from the record instead of from memory.",
+      },
+      {
+        q: "Does it replace a quantity surveyor?",
+        a: "No. It assembles and totals what the engines measured. Pricing judgement, preliminaries and commercial strategy stay with you.",
+      },
+      {
+        q: "What if an estimate changes after the quote?",
+        a: "You generate a new quote. The saved bill keeps the state it was built from, so the document stays auditable later.",
+      },
+    ],
+    article: {
+      summary:
+        "Saved estimates assembled into a bill of quantities, with every line traceable.",
+      description:
+        "A bill of quantities builder that works from estimates you have already produced. Lines are assembled, totals follow the configured commercial rules, and each item keeps its source reference so the document can be replayed line by line.",
+      functions: [
+        "Assembles saved estimates into BOQ sections with their quantities and rates.",
+        "Applies contingency and tax only where a configured rule exists.",
+        "Keeps a source reference on every line for audit and dispute.",
+        "Warns and omits the line when a commercial rate is not configured.",
+      ],
+      advantages: [
+        "The quote traces back to the calculations behind it, which ends most arguments early.",
+        "Missing commercial rules show as gaps, so nothing is quietly assumed.",
+        "One document replaces the retyping that introduces most transfer errors.",
+      ],
+      limits: [
+        "It does not price work you have not estimated.",
+        "Preliminaries, overheads and commercial strategy are yours.",
+        "It does not manage variations or post contract valuations.",
+      ],
+    },
+  },
+  {
+    slug: "project-timeline",
+    route: "/project-timeline",
+    name: "Project Timeline",
+    category: "project",
+    questions: [
+      {
+        q: "What does the timeline build from?",
+        a: "Durations and dependencies of the tasks you list. Each task keeps its own length and its predecessors, so a change to one date moves what follows it.",
+      },
+      {
+        q: "Where do durations come from?",
+        a: "From the labour engine, from your own programme, or from the task you enter. The timeline holds the sequence, it does not invent how long a job takes.",
+      },
+      {
+        q: "Can I see the critical path?",
+        a: "The schedule shows which tasks have no float left, so the chain that decides the finish date is visible, not buried in a bar chart.",
+      },
+      {
+        q: "Does it track progress?",
+        a: "It shows planned dates and the effect of changes. Recording what actually happened on site is a progress record, a separate job.",
+      },
+      {
+        q: "What about weather and access?",
+        a: "Those become lost days or longer durations you enter. The tool will not model a rainy season for you.",
+      },
+    ],
+    article: {
+      summary:
+        "A task schedule with dependencies, float and a visible critical path.",
+      description:
+        "A project programme built from tasks, their durations and the links between them. Dates follow the dependencies, float is calculated, and the chain that decides completion is highlighted instead of hidden.",
+      functions: [
+        "Places tasks on a calendar from start dates, durations and dependencies.",
+        "Calculates float and identifies the critical path.",
+        "Moves dependent tasks when an earlier one changes.",
+        "Shows the finish date implied by the schedule you entered.",
+      ],
+      advantages: [
+        "Dependencies make the knock on effect of a delay visible on the day it happens.",
+        "The critical path points at the tasks that actually decide the end date.",
+        "Durations stay your numbers, so the programme reflects your site.",
+      ],
+      limits: [
+        "It does not estimate durations from quantities; the labour engine does that.",
+        "It does not record actual progress or earned value.",
+        "Resource levelling and cost loading are outside it.",
+      ],
+    },
+  },
+  {
+    slug: "construction-sequence",
+    route: "/construction-sequence",
+    name: "Construction Sequence",
+    category: "project",
+    questions: [
+      {
+        q: "What is the construction sequence for?",
+        a: "It sets the order trades follow, which work must finish before the next can start, and where inspection points sit. The order matters as much as the durations.",
+      },
+      {
+        q: "Is the sequence fixed?",
+        a: "It follows the method you are building to. Change the method and the order changes, which is why it is an input, not a rulebook.",
+      },
+      {
+        q: "How does it relate to the timeline?",
+        a: "The sequence decides order, the timeline turns that order into dates. Use them together: sequence first, durations second.",
+      },
+      {
+        q: "Does it include inspections?",
+        a: "It shows where inspection and hold points fall in the order, so a foundation is not covered before it has been seen.",
+      },
+      {
+        q: "Who uses it?",
+        a: "The person coordinating trades on site, and the client who wants to know what happens next and what depends on what.",
+      },
+    ],
+    article: {
+      summary:
+        "The order trades follow, with the hold points that stop work being covered too early.",
+      description:
+        "A sequencing view of a building job. Trades and activities are placed in the order they must happen, with the dependencies that make the order real and the inspection points that decide when the next trade can start.",
+      functions: [
+        "Orders activities from substructure through finishes and handover.",
+        "Shows which work must complete before the next trade starts.",
+        "Marks inspection and hold points in the sequence.",
+        "Links each stage to the tool that measures it.",
+      ],
+      advantages: [
+        "Trade order is explicit, which prevents the rework that comes from finishing too early.",
+        "Hold points are visible, so inspections are planned instead of discovered.",
+        "Each stage points at the estimator that prices it, so sequence and quantities stay together.",
+      ],
+      limits: [
+        "It does not assign durations or dates; the timeline does that.",
+        "It does not replace a method statement or a safety plan.",
+        "It does not manage subcontractor procurement lead times.",
+      ],
+    },
+  },
+  {
+    slug: "maintenance-planner",
+    route: "/maintenance-planner",
+    name: "Maintenance Planner",
+    category: "project",
+    questions: [
+      {
+        q: "Where do service lives come from?",
+        a: "From configured maintenance profiles, each with a source reference. A category without an active profile produces a data requirement warning and a refused schedule, not an assumed interval.",
+      },
+      {
+        q: "What does the planner produce?",
+        a: "A schedule of inspections and renewals across the life of the building, with costs where the profile carries a cost factor.",
+      },
+      {
+        q: "Can I change an interval?",
+        a: "Through configuration, which keeps the source visible. Editing a number on the page would leave no record of where it came from.",
+      },
+      {
+        q: "Is this a condition survey?",
+        a: "No. It plans future work from profiles. What state a building is actually in is a site inspection.",
+      },
+      {
+        q: "Why plan maintenance at all?",
+        a: "Because a roof renewal or a repaint is a cost the owner will meet. Spreading it across the years it accrues is the difference between a funded and an unfunded renewal.",
+      },
+    ],
+    article: {
+      summary:
+        "Inspections and renewals across a building's life, from sourced service life data.",
+      description:
+        "A maintenance schedule for the years after handover. Each element carries an interval and a service life from a configured profile, which turns into planned inspections and renewals with their cost implications.",
+      functions: [
+        "Builds a multi year schedule from element category and profile interval.",
+        "Calculates inspection and renewal dates from the in service date.",
+        "Attaches cost factors where the profile holds one.",
+        "Refuses a category with no active profile and states what is missing.",
+      ],
+      advantages: [
+        "Every interval traces to a stored profile with its own source, so a number can be defended.",
+        "Renewals appear as planned events instead of surprises.",
+        "Missing profiles are declared, which keeps the schedule honest about what it does not cover.",
+      ],
+      limits: [
+        "It does not assess current condition or predict failure.",
+        "It does not schedule reactive repairs.",
+        "Costs reflect configured factors, not live contractor prices.",
+      ],
+    },
+  },
+  {
+    slug: "carbon-footprint",
+    route: "/carbon-footprint",
+    name: "Embodied Carbon Estimator",
+    category: "commercial",
+    questions: [
+      {
+        q: "How is embodied carbon calculated?",
+        a: "Quantity multiplied by a configured carbon factor, summed across the estimate lines. Factors carry a source reference so each figure can be checked.",
+      },
+      {
+        q: "What happens to a line with no factor?",
+        a: "It is excluded and a warning says so. The engine will not invent an emission factor, and an incomplete total is reported as incomplete.",
+      },
+      {
+        q: "Which stages are covered?",
+        a: "What the configured factors cover. If your data is cradle to gate, the result is cradle to gate, and the boundary is stated with the number.",
+      },
+      {
+        q: "Can I compare two specifications?",
+        a: "Yes. Change the materials in the estimate and the carbon total moves, which makes the comparison between two build ups straightforward.",
+      },
+      {
+        q: "Is this a certification?",
+        a: "No. It is an indicative calculation from configured factors. Formal assessment needs a recognised methodology and verified data.",
+      },
+    ],
+    article: {
+      summary:
+        "Kilograms of carbon dioxide equivalent per estimate line, from sourced factors.",
+      description:
+        "An embodied carbon calculation laid over the estimate. Each line's quantity is multiplied by a configured factor, the results are summed, and any line without a factor is named, never estimated.",
+      functions: [
+        "Multiplies quantity by carbon factor for every configured line.",
+        "Sums the result into a total with the system boundary stated.",
+        "Lists the lines excluded for want of a factor.",
+        "Recalculates when the underlying specification changes.",
+      ],
+      advantages: [
+        "Factors carry source references, so a total can survive scrutiny.",
+        "Excluded lines are declared instead of being absorbed as zero.",
+        "Comparing two specifications takes one change and a reload.",
+      ],
+      limits: [
+        "It is not a certified carbon assessment.",
+        "It covers what the factors cover and nothing beyond that boundary.",
+        "Operational energy and end of life emissions need separate data.",
+      ],
+    },
+  },
+  {
+    slug: "circular-reuse",
+    route: "/circular-reuse",
+    name: "Demolition Recovery",
+    category: "commercial",
+    questions: [
+      {
+        q: "What does the recovery tool calculate?",
+        a: "Recovered, reused, recycled and landfilled quantities for a strip out, plus the landfill diversion rate and what the reclaimed material is worth.",
+      },
+      {
+        q: "Where do recovery rates come from?",
+        a: "From configured material reuse factors. A material without a factor is refused with a warning, because an assumed recovery rate is a made up quantity.",
+      },
+      {
+        q: "Why does the split matter?",
+        a: "Reuse, recycling and landfill are three different destinations with three different costs and three different values. One blended rate hides all of them.",
+      },
+      {
+        q: "Can I show a client the diversion rate?",
+        a: "Yes, and it comes out of the quantities, so it is a calculation and not a claim. It is the kind of figure a sustainability submission asks for.",
+      },
+      {
+        q: "Does it handle hazardous material?",
+        a: "No. Contamination, asbestos and special waste need survey and separate handling before any recovery calculation is meaningful.",
+      },
+    ],
+    article: {
+      summary:
+        "Reused, recycled and landfilled quantities with the diversion rate they produce.",
+      description:
+        "A demolition recovery calculation. Materials from a strip out are split by configured reuse factors into recovered, reused, recycled and landfilled quantities, giving a diversion rate and a value for what can be sold on.",
+      functions: [
+        "Applies recovery and reuse factors to each material quantity.",
+        "Splits the result into reuse, recycle and landfill destinations.",
+        "Calculates the landfill diversion rate from those quantities.",
+        "Values reclaimed material from configured figures.",
+      ],
+      advantages: [
+        "Three destinations instead of one blended rate, because the costs follow the destination.",
+        "The diversion rate is derived, so it can be defended in a submission.",
+        "Unconfigured materials are refused, so no plausible recovery share is invented.",
+      ],
+      limits: [
+        "It does not survey for contamination or hazardous materials.",
+        "It does not arrange haulage, processors or buyers.",
+        "Values are configured figures, not live scrap prices.",
+      ],
+    },
+  },
+  {
+    slug: "warranty-certificate",
+    route: "/warranty-certificate",
+    name: "Warranty Certificate",
+    category: "commercial",
+    questions: [
+      {
+        q: "What does a warranty certificate contain?",
+        a: "A frozen snapshot of the estimate: inputs, calculated quantities and per line price snapshots, with a configuration hash computed over the set.",
+      },
+      {
+        q: "Why freeze the configuration?",
+        a: "So a claim made a year later can be replayed against what was actually quoted, not against today's prices or today's settings.",
+      },
+      {
+        q: "What does the hash prove?",
+        a: "That the record has not changed since it was issued. The same estimate always produces the same hash, so tampering shows.",
+      },
+      {
+        q: "Is this a legal warranty?",
+        a: "No. It is an evidence record of what was estimated and priced. Warranty terms themselves are contractual.",
+      },
+      {
+        q: "When should one be issued?",
+        a: "At handover, or whenever a priced scope is agreed. The useful moment is before anyone needs it.",
+      },
+    ],
+    article: {
+      summary:
+        "A frozen, hashed snapshot of an estimate that a claim can be replayed against.",
+      description:
+        "An evidence record, not a contract. It captures the estimate exactly as issued, including inputs, quantities and line prices, then hashes that configuration so a later dispute has a fixed reference point.",
+      functions: [
+        "Freezes inputs, calculated quantities and price snapshots into a certificate.",
+        "Computes a deterministic hash over the frozen configuration.",
+        "Replays the estimate from the snapshot when a dispute arises.",
+        "Shows the configuration the issued price depended on.",
+      ],
+      advantages: [
+        "A claim is answered from the record that produced the price, not from memory.",
+        "The hash makes any later change to the record detectable.",
+        "Price snapshots protect both sides from drift between quote and delivery.",
+      ],
+      limits: [
+        "It is not a legal warranty or contract document.",
+        "It records what was estimated, not what was installed.",
+        "It does not arbitrate a dispute or assign liability.",
+      ],
+    },
+  },
+  {
+    slug: "contractor-credit",
+    route: "/contractor-credit",
+    name: "Contractor Credit Check",
+    category: "commercial",
+    questions: [
+      {
+        q: "How is the credit score calculated?",
+        a: "From verified job statistics: completion, punctuality, error rates and history, combined into a score out of one hundred.",
+      },
+      {
+        q: "What if a contractor has no history?",
+        a: "The score is refused with insufficient verified history. Zero would read as bad, and no record is not a bad record.",
+      },
+      {
+        q: "Where do the statistics come from?",
+        a: "From admin verified records. The engine will not score from self reported numbers, and invalid statistics are rejected, not smoothed over.",
+      },
+      {
+        q: "Who uses the score?",
+        a: "Clients weighing a contractor, and lenders or suppliers considering terms. Both need the same underlying record.",
+      },
+      {
+        q: "Does a low score mean avoid?",
+        a: "No. It describes a record. A new firm with little history scores nothing because it can score nothing, and that is a different statement from a poor record.",
+      },
+    ],
+    article: {
+      summary:
+        "A score out of one hundred from verified job history, refused when there is no history to score.",
+      description:
+        "A trust score built from verified job statistics. Completion rates, punctuality and error records combine into a number a client or a lender can read, and a contractor with no verified work is refused instead of being scored zero.",
+      functions: [
+        "Combines verified completion, punctuality and error statistics into a score.",
+        "Rejects invalid statistics instead of correcting them silently.",
+        "Refuses a score when there is no verified job history.",
+        "Shows the components behind the score.",
+      ],
+      advantages: [
+        "An absent record is distinguished from a bad one, which is the difference between a new firm and a poor one.",
+        "Components are shown, so a score can be discussed instead of simply quoted.",
+        "Only verified records count, which keeps the number meaningful.",
+      ],
+      limits: [
+        "It does not assess financial standing or creditworthiness.",
+        "It does not verify workmanship quality beyond recorded errors.",
+        "It is not a guarantee of performance on a future job.",
+      ],
+    },
+  },
 ];
 
 export const ENGINE_FAQ_GROUPS: ToolFaqGroup[] = ENGINE_FAQ_ENTRIES.map(
