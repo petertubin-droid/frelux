@@ -17,6 +17,7 @@ import {
 } from "@/lib/estimates/pipeline";
 import { isEditable } from "@/lib/estimates/totals";
 import { getSafeError } from "@/lib/safeError";
+import FaqSpotlight from "@/components/seo/FaqSpotlight";
 import type { DbClientEstimate } from "@/types/database";
 import {
   AlertTriangle,
@@ -360,6 +361,10 @@ export default function QuotePipeline() {
               them.
             </p>
           ) : null}
+
+          <div className="mt-10">
+            <FaqSpotlight placement="quotes" seed="quotes-page" />
+          </div>
         </>
       )}
     </div>

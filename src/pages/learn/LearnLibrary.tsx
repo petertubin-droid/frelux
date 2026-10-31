@@ -6,6 +6,7 @@ import ArticleCard from "@/components/learn/ArticleCard";
 import Pagination from "@/components/ui/Pagination";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
+import FaqSpotlight from "@/components/seo/FaqSpotlight";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { useLearnMarketScope } from "@/lib/learn-scope";
@@ -265,6 +266,13 @@ export default function LearnLibrary() {
           </div>
         )}
 
+        <div className="mt-10">
+          <FaqSpotlight
+            placement="learn-library"
+            count={2}
+            seed={`library-${page}`}
+          />
+        </div>
         <div className="mt-10"></div>
       </div>
     </>

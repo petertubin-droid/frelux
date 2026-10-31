@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import AdSlot from "@/components/ui/AdSlot";
 import { ArticleAdCallout } from "@/components/ads/CampaignSlot";
 import CrossPromoSlot from "@/components/houseAds/CrossPromoSlot";
+import FaqSpotlight from "@/components/seo/FaqSpotlight";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -905,6 +906,15 @@ export default function LearnArticle() {
                 </div>
               </section>
             )}
+
+            {/* Internal FAQ referral. The seed keeps an article's referral
+                stable while different articles rotate through the catalogue. */}
+            <div className="mx-auto mt-10 max-w-3xl px-4 sm:px-6">
+              <FaqSpotlight
+                placement="learn-article"
+                seed={articleSlug ?? ""}
+              />
+            </div>
 
             {/* Cross-site house promo, slot 2 of 2 (after all content). */}
             <CrossPromoSlot slotIndex={2} source="learn_article_end" />

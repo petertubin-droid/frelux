@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
+import FaqSpotlight from "@/components/seo/FaqSpotlight";
 import { ArticleMarkdown } from "@/components/learn/ArticleMarkdown";
 import { slugifyHeading } from "@/lib/learn/heading-slug";
 import { Button } from "@/components/ui/shadcn/button";
@@ -837,6 +838,12 @@ export default function WallFinishingArticle() {
                 </div>
               </section>
             )}
+            <div className="mt-10">
+              <FaqSpotlight
+                placement="learn-article"
+                seed={`${articleSlug}-${marketCode}`}
+              />
+            </div>
           </div>
         </div>
       </article>
