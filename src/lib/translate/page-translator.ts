@@ -68,7 +68,14 @@ const SKIP_SELECTOR = [
 
 let activeLang = "en";
 let origTitle: string | null = null;
-let applying = false;
+/**
+ * How many apply/restore passes are currently writing to the DOM. The
+ * MutationObserver ignores its own writes while this is above zero, which is
+ * what stops the translator from retriggering itself on every string it sets.
+ */
+let applyDepth = 0;
+/** A real content change arrived mid-pass and still needs translating. */
+let missedWhileApplying = false;
 let observer: MutationObserver | null = null;
 let reapplyTimer: ReturnType<typeof setTimeout> | null = null;
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
@@ -77,6 +84,23 @@ let persistTimer: ReturnType<typeof setTimeout> | null = null;
 const cache = new Map<string, Map<string, string>>();
 /** lang -> set of translated values (to skip already-translated nodes) */
 const translatedValues = new Map<string, Set<string>>();
+
+/**
+ * `closest()` against a thirteen-selector list, once per text node, was the
+ * other half of the cost of a pass: a full page ran it thousands of times.
+ * Ancestors are memoised for the duration of a pass instead.
+ */
+let SKIP_MEMO = new WeakMap<Element, boolean>();
+
+function isSkippedElement(el: Element | null): boolean {
+  if (!el) return false;
+  const cached = SKIP_MEMO.get(el);
+  if (cached !== undefined) return cached;
+  const skipped =
+    el.matches(SKIP_SELECTOR) || isSkippedElement(el.parentElement);
+  SKIP_MEMO.set(el, skipped);
+  return skipped;
+}
 
 function normalize(text: string): string {
   return text.replace(/\s+/g, " ").trim();
@@ -133,6 +157,24 @@ function isAdminRoute(): boolean {
   return window.location.pathname.startsWith("/admin");
 }
 
+function beginApply(): void {
+  applyDepth += 1;
+  SKIP_MEMO = new WeakMap();
+}
+
+/**
+ * Ends a writing pass. When real content arrived while the pass was running
+ * (a route change, a lazily loaded section), one more debounced pass is queued
+ * so that content is not left in English.
+ */
+function endApply(): void {
+  applyDepth = Math.max(0, applyDepth - 1);
+  if (applyDepth === 0 && missedWhileApplying) {
+    missedWhileApplying = false;
+    reapplyCurrentLanguage();
+  }
+}
+
 /** Collect translatable segments under root. Returns at most MAX_SEGMENTS. */
 function collectSegments(root: ParentNode): Segment[] {
   const segments: Segment[] = [];
@@ -145,12 +187,7 @@ function collectSegments(root: ParentNode): Segment[] {
   while (current && segments.length < MAX_SEGMENTS) {
     const el = current.parentElement;
     const value = normalize(current.nodeValue ?? "");
-    if (
-      el &&
-      value.length > 1 &&
-      hasLetters(value) &&
-      !el.closest(SKIP_SELECTOR)
-    ) {
+    if (el && value.length > 1 && hasLetters(value) && !isSkippedElement(el)) {
       pushText(current, value);
     }
     current = walker.nextNode() as Text | null;
@@ -160,7 +197,7 @@ function collectSegments(root: ParentNode): Segment[] {
     root
       .querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("[placeholder]")
       .forEach((el) => {
-        if (el.closest(SKIP_SELECTOR)) return;
+        if (isSkippedElement(el)) return;
         const value = normalize(el.getAttribute("placeholder") ?? "");
         if (value.length > 1 && hasLetters(value)) {
           segments.push({
@@ -189,11 +226,17 @@ function currentSegmentValue(seg: Segment): string | null {
 }
 
 function setSegmentValue(seg: Segment, value: string): void {
+  // Writing the value that is already there still queues a characterData
+  // mutation and forces a layout pass, so identical writes are skipped. Over a
+  // full page that is hundreds of pointless mutations per pass.
   if (seg.kind === "text") {
-    if (seg.node) seg.node.nodeValue = value;
+    if (seg.node && seg.node.nodeValue !== value) seg.node.nodeValue = value;
   } else if (seg.kind === "attr") {
-    seg.element?.setAttribute(seg.attr ?? "placeholder", value);
-  } else {
+    const attr = seg.attr ?? "placeholder";
+    if (seg.element && seg.element.getAttribute(attr) !== value) {
+      seg.element.setAttribute(attr, value);
+    }
+  } else if (document.title !== value) {
     document.title = value;
   }
 }
@@ -313,7 +356,7 @@ export async function applyPageTranslation(
   targetLang: string,
 ): Promise<boolean> {
   if (isAdminRoute()) return true;
-  applying = true;
+  beginApply();
   try {
     if (activeLang !== "en" && activeLang !== targetLang) {
       restoreOriginalText();
@@ -351,7 +394,7 @@ export async function applyPageTranslation(
     startObserver();
     return ok;
   } finally {
-    applying = false;
+    endApply();
   }
 }
 
@@ -359,21 +402,26 @@ export async function applyPageTranslation(
  * Restore the original English text of the last applied language.
  */
 export function restoreOriginalText(): void {
-  const m = cache.get(activeLang);
-  if (m && m.size > 0) {
-    const reverse = new Map<string, string>();
-    for (const [orig, trans] of m) reverse.set(normalize(trans), orig);
-    for (const seg of collectSegments(document.body)) {
-      const cur = normalize(currentSegmentValue(seg) ?? "");
-      const orig = reverse.get(cur);
-      if (orig) setSegmentValue(seg, orig);
+  beginApply();
+  try {
+    const m = cache.get(activeLang);
+    if (m && m.size > 0) {
+      const reverse = new Map<string, string>();
+      for (const [orig, trans] of m) reverse.set(normalize(trans), orig);
+      for (const seg of collectSegments(document.body)) {
+        const cur = normalize(currentSegmentValue(seg) ?? "");
+        const orig = reverse.get(cur);
+        if (orig) setSegmentValue(seg, orig);
+      }
     }
+    if (origTitle) {
+      document.title = origTitle;
+    }
+  } finally {
+    stopObserver();
+    activeLang = "en";
+    endApply();
   }
-  if (origTitle) {
-    document.title = origTitle;
-  }
-  stopObserver();
-  activeLang = "en";
 }
 
 /** Entry point used by GoogleTranslateSync. "en" restores the original page. */
@@ -387,7 +435,7 @@ export async function setPageLanguage(langCode: string): Promise<boolean> {
 
 /** Debounced re-apply for SPA route changes and async content loads. */
 export function reapplyCurrentLanguage(): void {
-  if (activeLang === "en" || applying) return;
+  if (activeLang === "en" || applyDepth > 0) return;
   if (reapplyTimer) clearTimeout(reapplyTimer);
   reapplyTimer = setTimeout(() => {
     reapplyTimer = null;
@@ -395,9 +443,56 @@ export function reapplyCurrentLanguage(): void {
   }, REAPPLY_DEBOUNCE_MS);
 }
 
+/**
+ * True when at least one mutation record carries text this language has not
+ * translated yet.
+ *
+ * Without this test the observer reacted to everything: its own translation
+ * writes, the pulse animations, hover shadows, router transitions. Each of
+ * those queued a fresh pass that walked up to 1500 text nodes and rewrote them,
+ * which is exactly the stutter people saw while a page was translated. Only
+ * genuinely new, untranslated words are worth a pass now.
+ */
+function hasUntranslatedChange(records: MutationRecord[]): boolean {
+  const seen = translatedValues.get(activeLang);
+  const worthIt = (text: string | null | undefined): boolean => {
+    const value = normalize(text ?? "");
+    if (value.length <= 1 || !hasLetters(value)) return false;
+    return !seen?.has(value);
+  };
+
+  for (const record of records) {
+    if (record.type === "characterData") {
+      if (worthIt(record.target.nodeValue)) return true;
+      continue;
+    }
+    for (const node of Array.from(record.addedNodes)) {
+      if (node.nodeType === 3) {
+        // Text node.
+        if (worthIt(node.nodeValue)) return true;
+      } else if (node.nodeType === 1) {
+        // Element: skip chrome that is never translated anyway.
+        const el = node as Element;
+        if (isSkippedElement(el)) continue;
+        if (worthIt(el.textContent)) return true;
+      }
+    }
+  }
+  return false;
+}
+
 function startObserver(): void {
   if (observer || typeof MutationObserver === "undefined") return;
-  observer = new MutationObserver(() => reapplyCurrentLanguage());
+  observer = new MutationObserver((records) => {
+    // The translator's own writes are not a reason to translate again. If real
+    // content did arrive mid-pass, flag it so one more pass runs at the end.
+    if (applyDepth > 0) {
+      if (hasUntranslatedChange(records)) missedWhileApplying = true;
+      return;
+    }
+    if (!hasUntranslatedChange(records)) return;
+    reapplyCurrentLanguage();
+  });
   observer.observe(document.body, {
     childList: true,
     subtree: true,
@@ -411,6 +506,8 @@ function startObserver(): void {
  */
 export function resetTranslationState(): void {
   activeLang = "en";
+  applyDepth = 0;
+  missedWhileApplying = false;
   origTitle = null;
   cache.clear();
   translatedValues.clear();
