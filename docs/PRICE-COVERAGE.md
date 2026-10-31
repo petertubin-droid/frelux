@@ -53,6 +53,36 @@ off a wrench. The observation was deleted, the row quarantined, and
 `catalogue_title_is_tool()` now guards the write path (migration
 `20261031130000_catalogue_tool_guard.sql`).
 
+### AU and CA: the naming gap is closed (2026-10-31)
+
+Both catalogues were staged and mapped at zero. Two separate causes, both now
+fixed:
+
+1. **Naming.** Supplier rows were scored against catalogue names in a single
+   vocabulary. Australian merchants sell Villaboard and Gyprock, Canadian ones
+   sell Sheetrock and OSB, and none of those words appear in the catalogue.
+   `supabase/functions/_shared/supplier-aliases.ts` rewrites a row into
+   canonical terms before scoring, per market, and `matchMaterials` now takes
+   the market. Catalogue names also lose their `(AU)`/`(CA)` suffix, which no
+   supplier repeats and which alone could block a perfect match.
+2. **Missing rows.** The AU catalogue held paint and rebar, the CA catalogue
+   held gypsum and pipe, and the merchants sell plywood and lumber. Rows for the
+   staged products are declared in
+   `supabase/migrations/20261031180000_au_ca_material_rows.sql`, unpriced on
+   purpose: a merchant listing a product is not a price.
+
+Verified by `scripts/price-scan/au-ca-alias-report.ts`, which writes
+`data/price-scan/au-ca-alias-map.json`:
+
+| Market | Retailer       | Bound           | Refused                                |
+| ------ | -------------- | --------------- | -------------------------------------- |
+| AU     | Plyco          | 3 of 3          | 0                                      |
+| CA     | Handley Lumber | 1 of 1 material | 2 (Construction Screws, Dock Hardware) |
+
+The two refusals are the point, not a shortfall: a fastener has no material row
+and never will. `supabase/functions/_shared/au-ca-coverage.test.ts` fails if a
+row or an alias is removed.
+
 **The bottleneck is the material catalogue, not the suppliers.** AU and CA
 material lists are pipes, rebar and a few branded products. A general merchant
 selling lumber and sheet goods has nothing to attach to. Coverage grows by

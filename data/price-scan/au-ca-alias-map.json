@@ -1,0 +1,70 @@
+{
+  "generated_at": "2026-10-31T10:44:40.725Z",
+  "basis": {
+    "catalogue": "src/lib/international/bundled-price-books.ts",
+    "catalogue_rows": 379,
+    "catalogue_version": "production catalog 2026-10-13",
+    "pending_migration_rows": [
+      "au-hoop-pine-ac-plywood-18mm",
+      "au-hoop-pine-aa-marine-plywood-24mm",
+      "au-premium-birch-plywood-30mm",
+      "ca-treated-lumber-2x6"
+    ],
+    "pending_note": "Rows declared in a migration but not yet applied to the database. They are included so this report shows the state after the migration runs, and are listed here so they are never mistaken for live coverage.",
+    "staged_from": "scripts/price-scan/verified-sources.json",
+    "note": "The production estimation_materials table has more rows than this bundled snapshot. A product listed as needing a catalogue row here may already have one there; the mapping rules are the same either way."
+  },
+  "markets": {
+    "AU": {
+      "retailer": "Plyco",
+      "samples_checked": 3,
+      "staged_products": 133,
+      "matched": [
+        {
+          "product": "Hoop Pine AC Plywood 18mm",
+          "slug": "au-hoop-pine-ac-plywood-18mm",
+          "score": 1,
+          "row_state": "pending_migration"
+        },
+        {
+          "product": "Hoop Pine AA Marine Plywood 24mm",
+          "slug": "au-hoop-pine-aa-marine-plywood-24mm",
+          "score": 1,
+          "row_state": "pending_migration"
+        },
+        {
+          "product": "Premium Birch Plywood 30mm",
+          "slug": "au-premium-birch-plywood-30mm",
+          "score": 1,
+          "row_state": "pending_migration"
+        }
+      ],
+      "needs_catalogue_row": [],
+      "refused": []
+    },
+    "CA": {
+      "retailer": "Handley Lumber",
+      "samples_checked": 3,
+      "staged_products": 250,
+      "matched": [
+        {
+          "product": "Treated Lumber 2x6",
+          "slug": "ca-treated-lumber-2x6",
+          "score": 1,
+          "row_state": "pending_migration"
+        }
+      ],
+      "needs_catalogue_row": [],
+      "refused": [
+        {
+          "product": "Construction Screws",
+          "reason": "not a material (construction screws)"
+        },
+        {
+          "product": "Dock Hardware",
+          "reason": "not a material (hardware)"
+        }
+      ]
+    }
+  }
+}

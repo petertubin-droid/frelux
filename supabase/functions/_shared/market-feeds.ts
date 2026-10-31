@@ -1,3 +1,4 @@
+import { canonicalisePair } from "./supplier-aliases.ts";
 // =========================================================
 // market-feeds — structured price source adapters
 //
@@ -439,18 +440,26 @@ export function matchScore(rowName: string, materialName: string): number {
 }
 
 /** Picks the material a row describes, or nothing. Never a best-guess match:
- *  a row that cannot clear the threshold is dropped rather than mis-priced. */
+ *  a row that cannot clear the threshold is dropped rather than mis-priced.
+ *
+ *  When the market is given, both names are first rewritten through that
+ *  market's supplier aliases (AU "Villaboard" → fibre cement sheet, CA
+ *  "Sheetrock" → plasterboard). Without it a regional catalogue matches
+ *  nothing, which is how the AU and CA feeds sat mapped at zero. */
 export function matchMaterials(
   rows: FeedRow[],
   materials: MaterialRef[],
   threshold = 0.6,
+  market?: string,
 ): MatchedRow[] {
   const out: MatchedRow[] = [];
   for (const row of rows) {
     if (!row.name) continue;
     let best: { material: MaterialRef; score: number } | null = null;
     for (const material of materials) {
-      const score = matchScore(row.name, material.name);
+      const score = market
+        ? aliasMatchScore(row.name, material.name, market)
+        : matchScore(row.name, material.name);
       if (!best || score > best.score) best = { material, score };
     }
     if (best && best.score >= threshold) {
@@ -458,6 +467,28 @@ export function matchMaterials(
     }
   }
   return out;
+}
+
+/** Catalogue names carry a market suffix ("N-grade rebar 20mm x 12m (AU)")
+ *  that no supplier row repeats, so it is removed before scoring. */
+export function stripMarketSuffix(name: string): string {
+  return (name ?? "").replace(/\s*\([A-Z]{2}\)\s*$/, "").trim();
+}
+
+/** Score two names in one market's vocabulary; 0 when either is not a
+ *  material, so a tool can never score against a product name. */
+export function aliasMatchScore(
+  rowName: string,
+  materialName: string,
+  market: string,
+): number {
+  const pair = canonicalisePair(
+    stripMarketSuffix(rowName),
+    stripMarketSuffix(materialName),
+    market,
+  );
+  if (!pair) return 0;
+  return matchScore(pair.row, pair.material);
 }
 
 export interface RobotsRules {

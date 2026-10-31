@@ -386,7 +386,7 @@ async function scanFeedSource(
     source.material_slug && source.material_slug !== "*"
       ? materials.filter((m) => m.slug === source.material_slug)
       : materials;
-  const matched = matchMaterials(rows, catalogue);
+  const matched = matchMaterials(rows, catalogue, 0.6, source.market);
   const observations: ObservationDraft[] = [];
   let rejected = 0;
 
