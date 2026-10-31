@@ -254,3 +254,67 @@ export async function initializeApiPlanCheckout(
   }
   return { authorization_url: data.data.authorization_url };
 }
+
+// ---------------------------------------------------------
+// API wallet (prepaid overage balance)
+//
+// Reads are RLS-scoped to the owner. The balance is money, so it is never
+// derived on the client: the row is the truth and the gateway charges
+// against the same figure.
+// ---------------------------------------------------------
+
+export interface ApiWalletSummary {
+  balance_usd: number;
+  auto_topup_enabled: boolean;
+  auto_topup_threshold_usd: number;
+  auto_topup_amount_usd: number;
+}
+
+export async function getApiWallet(): Promise<ApiWalletSummary | null> {
+  const { data, error } = await supabase
+    .from("frelux_api_wallets")
+    .select(
+      "balance_usd, auto_topup_enabled, auto_topup_threshold_usd, auto_topup_amount_usd",
+    )
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  return {
+    balance_usd: Number(data.balance_usd ?? 0),
+    auto_topup_enabled: Boolean(data.auto_topup_enabled),
+    auto_topup_threshold_usd: Number(data.auto_topup_threshold_usd ?? 0),
+    auto_topup_amount_usd: Number(data.auto_topup_amount_usd ?? 0),
+  };
+}
+
+/**
+ * Open a hosted checkout for a top-up. The amount is only a request: the
+ * server validates it against its own limits and the wallet is credited by
+ * the payment webhook, never by returning from checkout.
+ */
+export async function startWalletTopup(
+  amountUsd: number,
+): Promise<{ authorization_url: string } | { error: string }> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) return { error: "Sign in to top up your wallet." };
+
+  const { data, error: fnError } = await supabase.functions.invoke(
+    "frelix-wallet-topup",
+    { body: { amount_usd: amountUsd } },
+  );
+
+  if (fnError)
+    return { error: fnError.message || "Could not start the top-up." };
+  const url = (data as { authorization_url?: string } | null)
+    ?.authorization_url;
+  if (!url) {
+    return {
+      error:
+        (data as { error?: string } | null)?.error ??
+        "Could not start the top-up.",
+    };
+  }
+  return { authorization_url: url };
+}

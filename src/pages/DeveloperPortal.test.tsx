@@ -19,6 +19,10 @@ const portalClient = vi.hoisted(() => ({
   getUsageSummary: vi.fn(),
   getPlans: vi.fn(),
   initializeApiPlanCheckout: vi.fn(),
+  // The portal renders the API wallet card, so the module mock must carry the
+  // wallet reads it makes.
+  getApiWallet: vi.fn(),
+  startWalletTopup: vi.fn(),
 }));
 
 vi.mock("@/lib/frelix-api/portal-client", () => portalClient);
@@ -62,6 +66,12 @@ function renderPortal() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  portalClient.getApiWallet.mockResolvedValue({
+    balance_usd: 0,
+    auto_topup_enabled: false,
+    auto_topup_threshold_usd: 5,
+    auto_topup_amount_usd: 20,
+  });
   portalClient.getPlans.mockResolvedValue([
     {
       key: "free",

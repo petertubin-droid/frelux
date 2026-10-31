@@ -28,6 +28,7 @@ import {
   AlertTriangle,
   Crown,
 } from "lucide-react";
+import ApiWalletCard from "@/components/frelix-api/ApiWalletCard";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/lib/i18n";
@@ -559,6 +560,11 @@ export default function DeveloperPortal() {
           </>
         )}
       </section>
+
+      {/* ── API wallet: the prepaid balance that absorbs
+          overage beyond a plan allowance. Top-ups open a hosted
+          checkout; the webhook credits the wallet, never this page. */}
+      {user && <ApiWalletCard />}
 
       {/* ── Plans & pricing (Phase 7 §17) ─────────────────────
           Paid plans are self-serve; enterprise/custom is

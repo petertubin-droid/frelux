@@ -38,6 +38,7 @@ import {
   type TokenPackRow,
 } from "../_shared/token-pricing.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+import { decideCredit } from "../_shared/wallet-topup.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Headers":
@@ -174,6 +175,73 @@ serveWithCors(async (req: Request) => {
         received: true,
         credited: true,
         currency: validation.resolution.currency,
+      });
+    }
+
+    // ── API wallet top-up: credit the quoted amount only, idempotent on
+    // tx_ref. A settled figure that disagrees with the quote is recorded as
+    // refused rather than partially credited, and nothing here converts a
+    // charge from another currency. ──
+    if (meta.purpose === "wallet_topup") {
+      const admin = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      );
+      const userId = typeof meta.user_id === "string" ? meta.user_id : null;
+      const txRef =
+        typeof data.tx_ref === "string" && data.tx_ref ? data.tx_ref : null;
+      if (!userId || !txRef) {
+        return json({
+          received: true,
+          credited: false,
+          reason: "MISSING_METADATA",
+        });
+      }
+
+      const decision = decideCredit({
+        expectedUsd: meta.amount_usd,
+        paidAmount: data.amount,
+        paidCurrency: data.currency,
+        expectedCurrency:
+          typeof meta.expected_currency === "string"
+            ? meta.expected_currency
+            : "USD",
+      });
+
+      if (!decision.credit) {
+        // Never 500: the money did move, so the event is acknowledged and the
+        // mismatch is parked for support instead of retried forever.
+        await admin.rpc("refuse_api_wallet_topup", {
+          p_user: userId,
+          p_reference: txRef,
+          p_amount_usd: Number(data.amount) || 0,
+          p_reason: decision.reason,
+        });
+        return json({
+          received: true,
+          credited: false,
+          reason: decision.reason,
+        });
+      }
+
+      const rpc = await admin.rpc("credit_api_wallet_topup", {
+        p_user: userId,
+        p_reference: txRef,
+        p_amount_usd: decision.amountUsd,
+        p_provider: "flutterwave",
+      });
+      if (rpc.error) return json({ error: rpc.error.message }, 500);
+
+      const result = rpc.data as {
+        credited?: boolean;
+        balance_usd?: number;
+        reason?: string;
+      } | null;
+      return json({
+        received: true,
+        credited: result?.credited ?? false,
+        balance_usd: result?.balance_usd ?? null,
+        ...(result?.reason ? { reason: result.reason } : {}),
       });
     }
 
