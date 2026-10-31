@@ -40,6 +40,39 @@ describe("brand assets behind link previews", () => {
     expect(read("scripts/prerender.mjs")).toContain("/social-cover.png");
   });
 
+  it("ships the full icon set at the sizes each surface expects", () => {
+    const expected: Record<string, number> = {
+      "public/icon-512.png": 512,
+      "public/icon-192.png": 192,
+      "public/icon-maskable-512.png": 512,
+      "public/apple-touch-icon.png": 180,
+      "public/favicon-32.png": 32,
+      "public/favicon-16.png": 16,
+      "public/logo-mark.png": 256,
+    };
+    for (const [path, px] of Object.entries(expected)) {
+      expect(existsSync(path), path).toBe(true);
+      expect(pngSize(path), path).toEqual({ width: px, height: px });
+    }
+    expect(existsSync("public/favicon.ico"), "favicon.ico").toBe(true);
+  });
+
+  it("declares the same icons in the manifest and the document head", () => {
+    const manifest = JSON.parse(read("public/manifest.json")) as {
+      icons: { src: string; sizes: string; purpose?: string }[];
+    };
+    for (const icon of manifest.icons) {
+      expect(existsSync(`public${icon.src}`), icon.src).toBe(true);
+      const size = pngSize(`public${icon.src}`);
+      expect(`${size.width}x${size.height}`, icon.src).toBe(icon.sizes);
+    }
+    expect(manifest.icons.some((i) => i.purpose === "maskable")).toBe(true);
+
+    const head = read("index.html");
+    expect(head).toContain('href="/favicon.ico"');
+    expect(head).toContain('sizes="180x180" href="/apple-touch-icon.png"');
+  });
+
   it("declares the organisation logo at its real size", () => {
     const index = read("index.html");
     const logo =
