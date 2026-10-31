@@ -18,6 +18,11 @@ import type {
   EngineQuantityLine,
   EngineResult,
 } from "./types";
+import {
+  auditFinite,
+  normalizeCostSummary,
+  normalizeQuantityLine,
+} from "./precision";
 
 export interface EngineDescriptor {
   /** Stable id. The orchestrator/agents reference engines by this id only. */
@@ -391,7 +396,29 @@ export async function executeEngine(
   const descriptor = REGISTRY.get(engineId);
   if (!descriptor) throw new EngineNotRegisteredError(engineId);
   try {
-    return await descriptor.run(input);
+    const result = await descriptor.run(input);
+    // The precision boundary: an external model will repeat these numbers
+    // verbatim, so float noise and non-finite values stop here rather than
+    // becoming someone's invoice line or a silent zero.
+    if (result.ok) {
+      const { nonFinite } = auditFinite(result.quantities, result.costs);
+      if (nonFinite.length > 0) {
+        return {
+          ...result,
+          ok: false,
+          quantities: [],
+          costs: null,
+          raw: null,
+          error: `Engine "${engineId}" produced a non-finite value (${nonFinite.join(", ")}). Check the inputs: this usually means a zero or negative divisor, such as a tile size or package size that was never supplied.`,
+        };
+      }
+      return {
+        ...result,
+        quantities: result.quantities.map(normalizeQuantityLine),
+        costs: result.costs ? normalizeCostSummary(result.costs) : null,
+      };
+    }
+    return result;
   } catch (error) {
     return {
       ok: false,
