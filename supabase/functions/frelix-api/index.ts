@@ -176,6 +176,59 @@ async function meterAuthFailure(
   errorCode: string,
 ): Promise<void> {
   const url = new URL(req.url);
+
+  // Billing happens here, where metering already is: one place decides what a
+  // request cost, so no endpoint can forget to charge and no endpoint can charge
+  // twice. Rejections are never billed; a retry with the same request id is
+  // refused by the database's unique index rather than charged again.
+  let cost = 0;
+  if (statusCode >= 200 && statusCode < 300) {
+    try {
+      const monthStartIso = new Date(
+        Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1),
+      ).toISOString();
+      const used = await usageCount(key.id, monthStartIso);
+      const { data: planRow } = await svc
+        .from("frelux_api_plans")
+        .select("config")
+        .eq("key", key.plan_key)
+        .maybeSingle();
+      const cfg = (planRow?.config ?? {}) as Record<string, unknown>;
+      const included = Number(cfg.monthlyQuota ?? key.monthly_quota ?? 0) || 0;
+      const gracePercent = Number(cfg.gracePercent ?? 5);
+      const graceAllowance = Math.floor((included * gracePercent) / 100);
+      const isAi = Boolean(opts?.provider);
+      const rate = isAi ? cfg.overagePerAiRequestUsd : cfg.overagePerRequestUsd;
+      if (used >= included && rate != null) {
+        const inGrace = used < included + graceAllowance;
+        const { data: wallet } = await svc
+          .from("frelux_api_wallets")
+          .select("balance_usd")
+          .eq("user_id", key.user_id)
+          .maybeSingle();
+        const balance = Number(wallet?.balance_usd ?? 0) || 0;
+        const chargeable = inGrace
+          ? balance >= Number(rate)
+          : balance >= Number(rate);
+        if (chargeable) {
+          const { data: charged } = await svc.rpc("charge_api_request", {
+            p_api_key_id: key.id,
+            p_user_id: key.user_id,
+            p_request_id: requestId,
+            p_cost_usd: Number(rate),
+            p_allow_wallet: true,
+          });
+          const result = charged as { charged_usd?: number } | null;
+          cost = Number(result?.charged_usd ?? 0);
+        }
+      }
+    } catch (_billingError) {
+      // Billing must never break the caller's request. An unbilled request is a
+      // smaller problem than a failed one, and the usage row still records it.
+      cost = 0;
+    }
+  }
+
   await svc.from("frelux_api_usage").insert({
     api_key_id: null,
     user_id: null,
@@ -188,7 +241,7 @@ async function meterAuthFailure(
     provider: null,
     usage_units: 0,
     billing_unit: "request",
-    cost: 0,
+    cost: opts?.cost ?? 0,
     region: null,
     error_code: errorCode,
   });
@@ -314,67 +367,64 @@ async function authenticate(
     };
   }
 
-  // Daily / monthly quotas (§5, §16)
+  // Daily and monthly windows (§5, §16)
   const dayStart = new Date();
   dayStart.setUTCHours(0, 0, 0, 0);
   const monthStart = new Date(
     Date.UTC(dayStart.getUTCFullYear(), dayStart.getUTCMonth(), 1),
   );
   const daily = await usageCount(key.id, dayStart.toISOString());
-  const dq = evaluateQuota("daily", daily, key.daily_quota);
-  if (!dq.allowed) {
-    await meter(
-      key,
-      requestId,
-      req,
-      429,
-      capability,
-      0,
-      "daily_quota_exceeded",
-      {
-        usageUnits: 0,
-      },
-    );
-    return {
-      denial: json(
-        429,
-        {
-          ...apiError(
-            "daily_quota_exceeded",
-            `Daily quota of ${key.daily_quota} requests exceeded.`,
-            requestId,
-          ),
-          retryAfterSeconds: dq.retryAfterSeconds,
-        },
-        requestId,
-      ),
-    };
-  }
+  // The daily figure is reported through headers and usage, but it is not a
+  // stop: a paying integration must never be cut mid-run by a calendar
+  // boundary. The monthly allowance and its grace band govern billing.
+  void daily;
+
   const monthly = await usageCount(key.id, monthStart.toISOString());
-  const mq = evaluateQuota("monthly", monthly, key.monthly_quota);
-  if (!mq.allowed) {
-    await meter(
-      key,
-      requestId,
-      req,
-      429,
-      capability,
-      0,
-      "monthly_quota_exceeded",
-      {
-        usageUnits: 0,
-      },
-    );
+  const { data: planRow } = await svc
+    .from("frelux_api_plans")
+    .select("config")
+    .eq("key", key.plan_key)
+    .maybeSingle();
+  const planCfg = (planRow?.config ?? {}) as Record<string, unknown>;
+  const included = Number(planCfg.monthlyQuota ?? key.monthly_quota ?? 0) || 0;
+  const gracePercent = Number(planCfg.gracePercent ?? 5);
+  const graceAllowance = Math.floor((included * gracePercent) / 100);
+  const overageRate =
+    planCfg.overagePerRequestUsd == null
+      ? null
+      : Number(planCfg.overagePerRequestUsd);
+
+  const { data: walletRow } = await svc
+    .from("frelux_api_wallets")
+    .select("balance_usd")
+    .eq("user_id", key.user_id)
+    .maybeSingle();
+  const balanceUsd = Number(walletRow?.balance_usd ?? 0) || 0;
+
+  const insideAllowance = monthly < included;
+  const insideGrace = monthly < included + graceAllowance;
+  const canPayOverage =
+    overageRate != null && balanceUsd >= Number(overageRate ?? 0);
+
+  if (!insideAllowance && !insideGrace && !canPayOverage) {
+    await meter(key, requestId, req, 402, capability, 0, "billing_exhausted", {
+      usageUnits: 0,
+    });
     return {
       denial: json(
-        429,
+        402,
         {
           ...apiError(
-            "monthly_quota_exceeded",
-            `Monthly quota of ${key.monthly_quota} requests exceeded.`,
+            "billing_exhausted",
+            `Monthly allowance of ${included} billable requests is used, including the ${gracePercent}% grace band. Raise the plan or top up the prepaid API balance to continue. Requests that returned 4xx or 5xx are never billed.`,
             requestId,
           ),
-          retryAfterSeconds: mq.retryAfterSeconds,
+          included,
+          used: monthly,
+          graceAllowance,
+          balanceUsd,
+          overagePerRequestUsd: overageRate,
+          topUpUrl: "https://freluxtools.com/developer",
         },
         requestId,
       ),
@@ -436,7 +486,13 @@ async function meter(
   capability: string,
   latencyMs: number,
   errorCode?: string,
-  opts?: { provider?: string; usageUnits?: number; region?: string },
+  opts?: {
+    provider?: string;
+    usageUnits?: number;
+    region?: string;
+    /** USD billed for this request. Zero inside the included allowance. */
+    cost?: number;
+  },
 ) {
   const url = new URL(req.url);
   await svc.from("frelux_api_usage").insert({
