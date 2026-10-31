@@ -529,6 +529,16 @@ const FoundationEstimator = lazy(() => import("@/pages/FoundationEstimator"));
 const DoorsWindowsEstimator = lazy(
   () => import("@/pages/DoorsWindowsEstimator"),
 );
+const RetainingWallEstimator = lazy(
+  () => import("@/pages/RetainingWallEstimator"),
+);
+const SoffitGutterEstimator = lazy(
+  () => import("@/pages/SoffitGutterEstimator"),
+);
+const ConduitWiringEstimator = lazy(
+  () => import("@/pages/ConduitWiringEstimator"),
+);
+const SteelBeamEstimator = lazy(() => import("@/pages/SteelBeamEstimator"));
 const GeneratorEstimator = lazy(() => import("@/pages/GeneratorEstimator"));
 
 function ScrollToTop() {
@@ -1983,6 +1993,22 @@ export default function App() {
                         <Route
                           path="/doors-windows"
                           element={<DoorsWindowsEstimator />}
+                        />
+                        <Route
+                          path="/retaining-wall-calculator"
+                          element={<RetainingWallEstimator />}
+                        />
+                        <Route
+                          path="/rainwater-gutter-soffit-cost-estimator"
+                          element={<SoffitGutterEstimator />}
+                        />
+                        <Route
+                          path="/electrical-conduit-wiring-estimator"
+                          element={<ConduitWiringEstimator />}
+                        />
+                        <Route
+                          path="/structural-steel-i-beam-calculator"
+                          element={<SteelBeamEstimator />}
                         />
                         <Route
                           path="/generator"

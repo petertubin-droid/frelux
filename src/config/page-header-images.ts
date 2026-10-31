@@ -45,6 +45,21 @@ const HEADER_IMAGE_RULES: HeaderImageRule[] = [
     image: "/assets/headers/colors.jpg",
   },
   {
+    // Specialty takeoffs: retaining wall, steel sections, eaves finishing,
+    // conduit runs. Specific routes first, so the broad rules below only
+    // catch what these do not.
+    test: /^\/(retaining-wall-calculator|structural-steel-i-beam-calculator)/,
+    image: "/assets/headers/structural.jpg",
+  },
+  {
+    test: /^\/(rainwater-gutter-soffit-cost-estimator)/,
+    image: "/assets/headers/build.jpg",
+  },
+  {
+    test: /^\/(electrical-conduit-wiring-estimator)/,
+    image: "/assets/headers/mep.jpg",
+  },
+  {
     // Structural & foundation: rebar, formwork, defect checks.
     test: /^\/(structural-calculator|foundation|reinforcement|defect-diagnosis)/,
     image: "/assets/headers/structural.jpg",

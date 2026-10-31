@@ -2484,6 +2484,30 @@ const routes = [
       "Browse every market FRELUX supports: local block and cement standards, electrical and plumbing practice, currencies, and the calculators preconfigured for each country.",
   },
   {
+    path: "/retaining-wall-calculator",
+    title: "Retaining Wall Material and Cost Calculator | FRELUX SMART CALC",
+    description:
+      "Size footing concrete, blocks, reinforcement and weep holes for a retaining wall from wall length, height and soil type, with every quantity traced to its rule.",
+  },
+  {
+    path: "/rainwater-gutter-soffit-cost-estimator",
+    title: "Soffit, Fascia and Rainwater Gutter Estimator | FRELUX SMART CALC",
+    description:
+      "Turn the eaves perimeter into fascia, gutter, soffit area, downpipes and brackets, with a cutting allowance and downpipes every 12 metres.",
+  },
+  {
+    path: "/electrical-conduit-wiring-estimator",
+    title: "Electrical Conduit and Wiring Material Estimator | FRELUX SMART CALC",
+    description:
+      "Estimate PVC conduit lengths, 1.5 mm and 2.5 mm cable coils, junction boxes, switch plates and sockets from floor area and point counts.",
+  },
+  {
+    path: "/structural-steel-i-beam-calculator",
+    title: "Structural Steel I-Beam Weight and Cost Calculator | FRELUX SMART CALC",
+    description:
+      "Convert span and steel profile into kilograms and tonnes, then cost them at your own merchant rate per tonne.",
+  },
+  {
     path: "/doors-windows",
     title: "Doors and Windows Estimator | FRELUX SMART CALC",
     description:
