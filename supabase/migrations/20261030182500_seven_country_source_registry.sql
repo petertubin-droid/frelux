@@ -1,4 +1,47 @@
 
+-- Scanner prerequisites, declared here as well as in 20261030182000.
+-- Supabase preview branches keep their database between runs, so a statement
+-- added to an already-recorded migration never reaches them and the branch
+-- stays stuck on whatever it had when that version was recorded. Everything
+-- below is idempotent, so a clean replay sees no-ops and a branch that is
+-- missing these objects gets them before this file reads them.
+alter table if exists public.price_scan_sources
+  add column if not exists source_format text not null default 'product',
+  add column if not exists brand text not null default '',
+  add column if not exists specification text not null default '',
+  add column if not exists measurement_unit text not null default '',
+  add column if not exists supplier_name text,
+  add column if not exists supplier_location text,
+  add column if not exists supplier_contact text,
+  add column if not exists cadence_hours integer not null default 24,
+  add column if not exists next_scan_at timestamptz not null default now(),
+  add column if not exists last_success_at timestamptz,
+  add column if not exists consecutive_failures integer not null default 0,
+  add column if not exists http_etag text,
+  add column if not exists http_last_modified text,
+  add column if not exists robots_allowed boolean,
+  add column if not exists robots_checked_at timestamptz,
+  add column if not exists feed_mapping jsonb,
+  add column if not exists notes text;
+
+create table if not exists public.market_scan_runs (
+  id uuid primary key default gen_random_uuid(),
+  run_id uuid,
+  market text not null,
+  "trigger" text not null default 'cron',
+  status text not null default 'running',
+  sources_total integer not null default 0,
+  sources_scanned integer not null default 0,
+  observations integer not null default 0,
+  updated_prices integer not null default 0,
+  failed_sources integer not null default 0,
+  skipped_not_due integer not null default 0,
+  duration_ms integer,
+  error text,
+  started_at timestamptz not null default now(),
+  finished_at timestamptz
+);
+
 alter table public.price_scan_sources drop constraint if exists price_scan_sources_source_type_check;
 alter table public.price_scan_sources add constraint price_scan_sources_source_type_check
   check (source_type in ('product','search','index'));

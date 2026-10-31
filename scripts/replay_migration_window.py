@@ -59,6 +59,16 @@ def main() -> int:
     ap.add_argument("--start", required=True)
     ap.add_argument("--end", required=True)
     ap.add_argument("--prereq", default="")
+    ap.add_argument(
+        "--extra-file", action="append", default=[],
+        help="extra SQL file included before the window, to seed objects a "
+             "persisted branch already has",
+    )
+    ap.add_argument(
+        "--strip-cols", default="",
+        help="table:col,col;table:col - drop these columns from the seeded copies, "
+             "to reproduce a branch whose database is behind the files",
+    )
     args = ap.parse_args()
 
     files = sorted(glob.glob(os.path.join(ROOT, "supabase/migrations/*.sql")))
@@ -81,9 +91,28 @@ def main() -> int:
     prereq = [t.strip() for t in args.prereq.split(",") if t.strip()]
     parts = ["begin;", f"drop schema if exists {SCHEMA} cascade;", f"create schema {SCHEMA};"]
     for table in prereq:
+        # Views cannot be copied with LIKE; recreate them from their live
+        # definition instead.
         parts.append(
-            f"create table {SCHEMA}.{table} (like public.{table} including all);"
+            f"""do $seed$ declare d text; begin
+  if exists (select 1 from pg_views where schemaname='public' and viewname='{table}') then
+    select pg_get_viewdef('public.{table}'::regclass, true) into d;
+    execute 'create view {SCHEMA}.{table} as ' || d;
+  else
+    execute 'create table {SCHEMA}.{table} (like public.{table} including all)';
+  end if;
+end $seed$;"""
         )
+    for spec in (x.strip() for x in args.strip_cols.split(";")):
+        if not spec:
+            continue
+        table, _, cols = spec.partition(":")
+        for col in (c.strip() for c in cols.split(",") if c.strip()):
+            parts.append(f"alter table {SCHEMA}.{table} drop column if exists {col};")
+    for extra in args.extra_file:
+        with open(extra) as fh:
+            parts.append(f"\n-- ===== seed {os.path.basename(extra)}\n")
+            parts.append(rewrite(fh.read()))
     for path in window:
         with open(path) as fh:
             parts.append(f"\n-- ===== {os.path.basename(path)}\n")
