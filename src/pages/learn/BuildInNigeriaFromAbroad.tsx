@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import DisplayPreferencesBar from "@/components/measurement/DisplayPreferencesBar";
+import PriceCoveragePanel from "@/components/pricing/PriceCoveragePanel";
 import { useSeo } from "@/lib/seo";
 
 /**
@@ -156,6 +157,16 @@ export default function BuildInNigeriaFromAbroad() {
           </p>
         </section>
 
+        <section className="mt-10">
+          <h2 className="text-2xl font-semibold text-foreground">
+            Whose prices you are actually reading
+          </h2>
+          <p className="mb-4 mt-2 leading-relaxed text-muted-foreground">
+            The number in your estimate comes from a price book, and price books
+            are uneven. This is the state of it today, before you trust a total.
+          </p>
+          <PriceCoveragePanel markets={["NG", "US", "GB", "CA", "AU", "AE"]} />
+        </section>
         <h2 className="mt-12 text-2xl font-semibold text-foreground">
           The process, in six steps
         </h2>

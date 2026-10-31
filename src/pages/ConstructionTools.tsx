@@ -279,8 +279,9 @@ export default function ConstructionTools() {
               title={t("Construction Tools")}
             />
             <p className="mt-3 text-muted-foreground dark:text-muted-foreground">
-              {totalTools} tools with verified market prices. Enter what you
-              know, get exact quantities and costs: no guesswork.
+              {totalTools} tools that turn entered dimensions into exact
+              quantities and costs, priced from a local price book where one
+              exists and clearly labelled where it does not.
             </p>
             <div className="mt-4 inline-flex items-center gap-1 rounded-full border border-border bg-card p-1 text-xs dark:border-white/10">
               <span className="pl-2 pr-1 text-muted-foreground">Units:</span>
