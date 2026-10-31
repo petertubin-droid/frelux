@@ -6,6 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AdsterraDirectLink from "@/components/ui/AdsterraDirectLink";
 import { MonetagInPagePush } from "@/components/ads/MonetagInPagePush";
+import { AdPushWorkerGate } from "@/components/ads/AdPushWorkerGate";
 import {
   hasAdvertisingConsent,
   hasAnyConsentChoice,
@@ -561,6 +562,7 @@ export default function Layout() {
       {/* Monetag in-page push: global overlay, one per session, so every
           page keeps its two-unit budget while push still serves sitewide. */}
       <MonetagInPagePush />
+      <AdPushWorkerGate />
       {adsterraNative && !isPaid && hasAdvertisingConsent() && (
         <div
           id={`container-${adsterraNative.key}`}
