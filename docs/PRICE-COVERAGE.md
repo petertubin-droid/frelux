@@ -252,3 +252,43 @@ unit at £1.50 and a 100 mm aerated unit at £2.20 are not interchangeable, and 
 
 Promotion is still blocked on the service-role key. These 357 rows are staged and
 auditable, not yet priced into the book.
+
+### Correcting a price the scan will not touch
+
+The weekly scan is deliberately conservative: a fetched price becomes a
+candidate only when it sits within `SANE_BAND` of the price already in the book.
+GB cement moving from £6.00 to £13.00 is a 117% drift, so the scan classifies it
+`out_of_band` and refuses. That is the right behaviour for a routine refresh and
+the wrong tool for a correction, because the whole problem is that the old
+figure was fabricated. Large corrections therefore need a reviewed write with
+its evidence recorded, not a scan.
+
+Three GB rows were corrected that way on 2026-10-31, each carrying the retailer
+URL and the arithmetic in both `notes` and `price_source`:
+
+| Material          | Was    | Now    | Basis                                           |
+| ----------------- | ------ | ------ | ----------------------------------------------- |
+| `cement-per-bag`  | £6.00  | £13.00 | £6.50 per 25 kg bag, doubled to the 50 kg basis |
+| `sand-per-m3`     | £10.08 | £88.89 | £50 per 900 kg bulk bag at 1600 kg/m³           |
+| `block-per-piece` | £0.38  | £1.50  | 100 mm dense 7.3N unit, £1.50 each              |
+
+The service-role key came from the Management API (`/v1/projects/{ref}/api-keys`)
+rather than a hand-typed secret, so nothing needed storing.
+
+Two defects found while doing it:
+
+1. The classifier read only `notes`, while reviewed corrections wrote their
+   evidence to `price_source`. A corrected row kept its old FX sentence in
+   `notes` and went on being counted as a reference, so the coverage number
+   would not move even after a correct fix. Both columns now count, and the
+   apply path writes both.
+2. `--apply` inserts a new `estimation_prices` row rather than updating the
+   existing one, and there is no unique constraint on (market, ref_id,
+   price_type). A real apply would leave two active prices for one material and
+   nothing would say which wins. Not yet fixed: `sources.json` is empty, so the
+   insert path cannot run today.
+
+Open reconciliation: the book holds 64 active GB material prices and 20 carry an
+FX note, while the scan reports 60 rows at 18 references. Four rows are outside
+the scan's view for a reason not yet established. The corrected three sit in the
+book's own count.

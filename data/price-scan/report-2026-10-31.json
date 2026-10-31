@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-31T12:05:17.023Z",
+  "generated_at": "2026-10-31T12:12:23.142Z",
   "material_prices_active": 1000,
   "materials_active": 634,
   "max_age_days": 45,
@@ -23,9 +23,9 @@
       "stale": 0
     },
     "GB": {
-      "total": 59,
-      "local_verified": 40,
-      "fx_reference": 19,
+      "total": 60,
+      "local_verified": 42,
+      "fx_reference": 18,
       "stale": 0
     },
     "IN": {
@@ -113,9 +113,9 @@
       "stale": 0
     },
     "CN": {
-      "total": 25,
+      "total": 24,
       "local_verified": 4,
-      "fx_reference": 21,
+      "fx_reference": 20,
       "stale": 0
     },
     "SE": {

@@ -69,14 +69,18 @@ const MARKET_CURRENCY = {
 };
 
 const daysAgo = (iso) => Math.round((Date.now() - new Date(iso).getTime()) / 86400000);
-const isFxReference = (notes) => /fx reference/i.test(notes || "");
+// Provenance lives in two columns: the reference seed wrote the sentence into
+// notes, while reviewed corrections record their evidence in price_source. A
+// price is an FX reference if EITHER still says so, otherwise a corrected row
+// keeps being counted as a reference and the coverage number never moves.
+const isFxReference = (...fields) => fields.some((f) => /fx reference/i.test(f || ""));
 
 const main = async () => {
   const doFetch = process.argv.includes("--fetch");
   const doApply = process.argv.includes("--apply");
 
   const prices = await rest(
-    "estimation_prices?select=id,price_type,ref_id,price,currency,effective_date,notes,is_active&price_type=eq.material&is_active=eq.true&limit=5000",
+    "estimation_prices?select=id,price_type,ref_id,price,currency,effective_date,notes,price_source,is_active&price_type=eq.material&is_active=eq.true&limit=5000",
   );
   const materials = await rest("estimation_materials?select=id,slug,name,category&is_active=eq.true&limit=2000");
   const byId = new Map(materials.map((m) => [m.id, m]));
@@ -87,7 +91,7 @@ const main = async () => {
     byCurrency[market] ??= { total: 0, local_verified: 0, fx_reference: 0, stale: 0 };
     byCurrency[market].total += 1;
     const age = daysAgo(row.effective_date || "1970-01-01");
-    if (isFxReference(row.notes)) byCurrency[market].fx_reference += 1;
+    if (isFxReference(row.notes, row.price_source)) byCurrency[market].fx_reference += 1;
     else if (age > MAX_AGE_DAYS) byCurrency[market].stale += 1;
     else byCurrency[market].local_verified += 1;
   }
@@ -158,6 +162,7 @@ const main = async () => {
             currency: candidate.currency,
             effective_date: now,
             notes: `Weekly price-intel scan ${now}: ${candidate.retailer} ${candidate.url} (was ${candidate.current_price}).`,
+            price_source: `Weekly auto-scan ${now}: ${candidate.retailer}, ${candidate.url}, read live.`,
             is_active: true,
           }),
         });
