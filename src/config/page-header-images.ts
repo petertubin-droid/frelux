@@ -313,7 +313,6 @@ export const PAGE_CATALOG: CatalogEntry[] = [
     group: "Calculators",
   },
 
-
   // ── Estimators & AI ─────────────────────────────────────
   {
     path: "/build-to-roof-estimator",
@@ -463,6 +462,7 @@ export const PAGE_CATALOG: CatalogEntry[] = [
     title: "Project Workspace",
     group: "Projects & Account",
   },
+  { path: "/quotes", title: "Quotes", group: "Projects & Account" },
   { path: "/clients", title: "Clients", group: "Projects & Account" },
   { path: "/dashboard", title: "Dashboard", group: "Projects & Account" },
   { path: "/properties", title: "Properties", group: "Projects & Account" },

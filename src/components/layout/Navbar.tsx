@@ -152,6 +152,7 @@ export default function Navbar() {
       section: "Business",
       items: [
         { label: "Contractor Workspace", to: "/contractor", icon: FileStack },
+        { label: "Quotes", to: "/quotes", icon: FileText },
         { label: "Clients", to: "/clients", icon: Users },
         { label: "Analytics", to: "/analytics", icon: BarChart3 },
       ],

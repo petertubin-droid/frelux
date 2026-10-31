@@ -25,6 +25,11 @@ import type {
   DbSurfaceAssessment,
   DbMaterialPriceHistory,
 } from "@/types/database";
+import {
+  computeTotals,
+  editBlockedReason,
+  statusAfterEdit,
+} from "@/lib/estimates/totals";
 
 // ============================================================
 // 1. PROJECT CALCULATIONS
@@ -591,6 +596,131 @@ export async function fetchClientEstimates(
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return (data || []) as DbClientEstimate[];
+}
+
+/**
+ * Every quote the signed in user owns, newest first, for the pipeline view.
+ * Row level security already limits this to their own records; the explicit user
+ * filter keeps that intent visible in the query.
+ */
+export async function fetchMyClientEstimates(): Promise<DbClientEstimate[]> {
+  const { data: auth } = await supabase.auth.getUser();
+  const userId = auth.user?.id;
+  if (!userId) throw new Error("Sign in to see your quotes");
+
+  const { data, error } = await supabase
+    .from("client_estimates")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data || []) as DbClientEstimate[];
+}
+
+export interface UpdateClientEstimateInput extends Partial<
+  Omit<CreateClientEstimateInput, "project_id" | "currency">
+> {
+  currency?: string;
+}
+
+/**
+ * Edit a quote in place. Totals are recomputed from the cost lines the
+ * contractor typed, using the same arithmetic as creation, so an edited quote
+ * can never carry a grand total that its own inputs do not support.
+ *
+ * A quote the client has already answered is refused: approval is a record, and
+ * turning it into something else silently is the one edit that would be
+ * dishonest. A quote they were merely sent goes back to draft for re-sending.
+ */
+export async function updateClientEstimate(
+  id: string,
+  input: UpdateClientEstimateInput,
+): Promise<DbClientEstimate> {
+  const { data: current, error: readError } = await supabase
+    .from("client_estimates")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (readError) throw new Error(readError.message);
+  if (!current) throw new Error("This quote no longer exists");
+
+  const existing = current as DbClientEstimate;
+  const blocked = editBlockedReason(existing.status);
+  if (blocked === "approved") {
+    throw new Error(
+      "This quote has been approved. Create a new quote for further work instead of changing the agreed one.",
+    );
+  }
+
+  const materials = input.materials_cost ?? existing.materials_cost;
+  const labour = input.labour_cost ?? existing.labour_cost;
+  const transport = input.transport_cost ?? existing.transport_cost;
+  const misc = input.misc_cost ?? existing.misc_cost;
+  const markupPercentage =
+    input.markup_percentage ?? existing.markup_percentage;
+  const totals = computeTotals({
+    materials,
+    labour,
+    transport,
+    misc,
+    markupPercentage,
+  });
+
+  const nextStatus = statusAfterEdit(existing.status);
+
+  const { data, error } = await supabase
+    .from("client_estimates")
+    .update({
+      title: input.title ?? existing.title,
+      description:
+        input.description !== undefined
+          ? input.description || null
+          : existing.description,
+      materials_cost: materials,
+      labour_cost: labour,
+      transport_cost: transport,
+      misc_cost: misc,
+      markup_percentage: markupPercentage,
+      markup_amount: totals.markupAmount,
+      grand_total: totals.grandTotal,
+      materials_summary: input.materials_summary ?? existing.materials_summary,
+      validity_days: input.validity_days ?? existing.validity_days,
+      notes: input.notes !== undefined ? input.notes || null : existing.notes,
+      terms_conditions:
+        input.terms_conditions !== undefined
+          ? input.terms_conditions || null
+          : existing.terms_conditions,
+      client_name:
+        input.client_name !== undefined
+          ? input.client_name || null
+          : existing.client_name,
+      client_email:
+        input.client_email !== undefined
+          ? input.client_email || null
+          : existing.client_email,
+      client_phone:
+        input.client_phone !== undefined
+          ? input.client_phone || null
+          : existing.client_phone,
+      status: nextStatus,
+    })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  return data as DbClientEstimate;
+}
+
+export async function fetchClientEstimateById(
+  id: string,
+): Promise<DbClientEstimate | null> {
+  const { data, error } = await supabase
+    .from("client_estimates")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data as DbClientEstimate) ?? null;
 }
 
 export async function shareClientEstimate(id: string): Promise<string> {

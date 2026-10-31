@@ -147,6 +147,7 @@ const FoundationCalculator = lazy(() => import("@/pages/FoundationCalculator"));
 const ProjectTimeline = lazy(() => import("@/pages/ProjectTimeline"));
 const ConstructionSequence = lazy(() => import("@/pages/ConstructionSequence"));
 const ClientManagement = lazy(() => import("@/pages/ClientManagement"));
+const QuotePipeline = lazy(() => import("@/pages/QuotePipeline"));
 const EstimateAnalytics = lazy(() => import("@/pages/EstimateAnalytics"));
 const ColorPreview = lazy(() => import("@/pages/ColorPreview"));
 const StartBuilding = lazy(() => import("@/pages/StartBuilding"));
@@ -1297,6 +1298,14 @@ export default function App() {
                           element={
                             <Suspense fallback={<PageLoader />}>
                               <ClientManagement />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/quotes"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <QuotePipeline />
                             </Suspense>
                           }
                         />
@@ -2500,6 +2509,10 @@ export default function App() {
                       />
                       <Route
                         path="/project-workspace/:id/client-estimate/new"
+                        element={<ClientEstimateEditor />}
+                      />
+                      <Route
+                        path="/project-workspace/:id/client-estimate/:estimateId/edit"
                         element={<ClientEstimateEditor />}
                       />
                       <Route

@@ -17,10 +17,17 @@ import { useToast } from "@/components/ui/Toast";
 import { useSeo } from "@/lib/seo";
 import {
   createClientEstimate,
+  fetchClientEstimateById,
   fetchClientEstimates,
   shareClientEstimate,
+  updateClientEstimate,
   type CreateClientEstimateInput,
 } from "@/lib/project-intelligence";
+import {
+  computeTotals,
+  editBlockedReason,
+  requiresResend,
+} from "@/lib/estimates/totals";
 import { getSupabase } from "@/lib/supabase-lazy";
 import type { DbClientEstimate } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
@@ -35,12 +42,16 @@ const fmt = (v: number, currency = "NGN") =>
 
 export default function ClientEstimateEditor() {
   const { t } = useLanguage();
-  const { id: projectId } = useParams<{ id: string }>();
+  const { id: projectId, estimateId } = useParams<{
+    id: string;
+    estimateId?: string;
+  }>();
+  const isEditing = Boolean(estimateId);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useSeo({
-    title: "Create Client Estimate",
+    title: isEditing ? "Edit Client Estimate" : "Create Client Estimate",
     description: "Create a professional estimate to share with your client.",
     noIndex: true,
   });
@@ -48,6 +59,9 @@ export default function ClientEstimateEditor() {
   const [saving, setSaving] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [existing, setExisting] = useState<DbClientEstimate[]>([]);
+  const [editing, setEditing] = useState<DbClientEstimate | null>(null);
+  const [loadingEstimate, setLoadingEstimate] = useState(isEditing);
+  const [lockedReason, setLockedReason] = useState<string | null>(null);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -96,13 +110,69 @@ export default function ClientEstimateEditor() {
     loadExisting();
   }, [loadExisting]);
 
-  const subtotal =
-    Number(materialsCost) +
-    Number(labourCost) +
-    Number(transportCost) +
-    Number(miscCost);
-  const markupAmount = (subtotal * Number(markupPct)) / 100;
-  const grandTotal = subtotal + markupAmount;
+  // Editing loads the stored quote into the same form the create path uses, so
+  // there is one editor rather than two that can drift apart.
+  useEffect(() => {
+    if (!estimateId) return;
+    let cancelled = false;
+    (async () => {
+      setLoadingEstimate(true);
+      try {
+        const quote = await fetchClientEstimateById(estimateId);
+        if (cancelled) return;
+        if (!quote) {
+          setLockedReason("This quote no longer exists.");
+          return;
+        }
+        const blocked = editBlockedReason(quote.status);
+        if (blocked === "approved") {
+          setEditing(quote);
+          setLockedReason(
+            "This quote has been approved by the client. It stays as the agreed record, so it cannot be edited. Create a new quote for further work.",
+          );
+          return;
+        }
+        setEditing(quote);
+        setTitle(quote.title);
+        setDescription(quote.description ?? "");
+        setMaterialsCost(quote.materials_cost);
+        setLabourCost(quote.labour_cost);
+        setTransportCost(quote.transport_cost);
+        setMiscCost(quote.misc_cost);
+        setMarkupPct(quote.markup_percentage);
+        setValidityDays(quote.validity_days);
+        setNotes(quote.notes ?? "");
+        setTerms(quote.terms_conditions ?? "");
+        setClientName(quote.client_name ?? "");
+        setClientEmail(quote.client_email ?? "");
+        setClientPhone(quote.client_phone ?? "");
+        setProjectCurrency(quote.currency || "NGN");
+        setMaterialsSummary(
+          (quote.materials_summary ?? []).map((row) => ({
+            name: row.name,
+            quantity: row.quantity,
+            unit: row.unit,
+            unitCost: row.unit_price,
+          })),
+        );
+      } catch (e) {
+        if (!cancelled) setLockedReason((e as Error).message);
+      } finally {
+        if (!cancelled) setLoadingEstimate(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [estimateId]);
+
+  const { subtotal, markupAmount, grandTotal } = computeTotals({
+    materials: Number(materialsCost),
+    labour: Number(labourCost),
+    transport: Number(transportCost),
+    misc: Number(miscCost),
+    markupPercentage: Number(markupPct),
+  });
 
   function addMaterialRow() {
     setMaterialsSummary((prev) => [
@@ -159,6 +229,18 @@ export default function ClientEstimateEditor() {
         client_phone: clientPhone.trim() || undefined,
       };
 
+      if (estimateId && editing) {
+        await updateClientEstimate(estimateId, { ...input });
+        toast({
+          title: requiresResend(editing.status)
+            ? "Saved. Send the quote again so the client sees the new figures."
+            : "Quote updated",
+          variant: "success",
+        });
+        navigate("/quotes");
+        return;
+      }
+
       const created = await createClientEstimate(input);
       toast({
         title: draft ? "Estimate saved as draft" : "Estimate created",
@@ -194,8 +276,14 @@ export default function ClientEstimateEditor() {
   return (
     <>
       <PageHeader
-        title={t("Create Client Estimate")}
-        subtitle="Build a professional estimate and share it securely with your client for approval."
+        title={
+          isEditing ? t("Edit Client Estimate") : t("Create Client Estimate")
+        }
+        subtitle={
+          isEditing
+            ? "Change the figures and terms on this quote. Totals are recalculated from the cost lines you enter."
+            : "Build a professional estimate and share it securely with your client for approval."
+        }
       />
 
       <div className="mx-auto max-w-3xl px-4 pb-12 pt-6">
@@ -206,7 +294,47 @@ export default function ClientEstimateEditor() {
           <ArrowLeft className="h-4 w-4" /> {t("Back to Project")}
         </Link>
 
-        {existing.length > 0 && (
+        {loadingEstimate ? (
+          <div className="mb-6 flex items-center gap-2 rounded-xl border bg-card p-6 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            Loading this quote
+          </div>
+        ) : null}
+
+        {lockedReason ? (
+          <div
+            role="alert"
+            className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/30"
+          >
+            <p className="text-sm font-medium text-foreground">
+              {lockedReason}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-3 text-sm">
+              {editing?.share_token ? (
+                <Link
+                  to={`/estimate/${editing.share_token}`}
+                  className="font-medium text-primary hover:underline"
+                >
+                  Open the agreed quote
+                </Link>
+              ) : null}
+              <Link
+                to={`/project-workspace/${projectId}/client-estimate/new`}
+                className="font-medium text-primary hover:underline"
+              >
+                Create a new quote
+              </Link>
+              <Link
+                to="/quotes"
+                className="font-medium text-primary hover:underline"
+              >
+                Back to quotes
+              </Link>
+            </div>
+          </div>
+        ) : null}
+
+        {!isEditing && existing.length > 0 && (
           <div className="mb-6 rounded-xl border bg-card p-4">
             <h3 className="mb-3 text-sm font-medium text-muted-foreground">
               Existing Estimates ({existing.length})
@@ -248,6 +376,14 @@ export default function ClientEstimateEditor() {
             </div>
           </div>
         )}
+
+        {editing && requiresResend(editing.status) ? (
+          <div className="mb-6 rounded-xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+            The client has already received this quote. Saving your changes
+            returns it to draft, so you can send the updated figures rather than
+            leaving them looking at the old ones.
+          </div>
+        ) : null}
 
         {/* Estimate form */}
         <div className="space-y-6">
@@ -562,34 +698,62 @@ export default function ClientEstimateEditor() {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              onClick={() => handleSave(true)}
-              disabled={saving || sharing}
-              className="inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
-            >
-              {saving ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+          {lockedReason ? null : (
+            <div className="flex flex-wrap items-center gap-3">
+              {isEditing ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleSave(true)}
+                    disabled={saving || loadingEstimate}
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    {saving ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4" />
+                    )}
+                    Save changes
+                  </Button>
+                  <Link
+                    to="/quotes"
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground"
+                  >
+                    Cancel
+                  </Link>
+                </>
               ) : (
-                <Save className="h-4 w-4" />
+                <>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleSave(true)}
+                    disabled={saving || sharing}
+                    className="inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
+                  >
+                    {saving ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4" />
+                    )}
+                    Save as Draft
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleSave(false)}
+                    disabled={saving || sharing}
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    {sharing ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                    Create & Share
+                  </Button>
+                </>
               )}
-              Save as Draft
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => handleSave(false)}
-              disabled={saving || sharing}
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
-            >
-              {sharing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
-              Create & Share
-            </Button>
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </>
