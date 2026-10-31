@@ -220,16 +220,17 @@ describe("units a buyer in each market is actually quoted in", () => {
     // Confusing them is a 20% error on anything bought by the gallon.
     const usGallon = VOLUME_TO_L.gal_us;
     expect(usGallon).toBeCloseTo(3.785411784, 9);
-    expect(VOLUME_TO_L.gal_imperial ?? VOLUME_TO_L.gal_imp).toBeGreaterThan(
-      usGallon + 0.7,
-    );
+    const imperialGallon = VOLUME_TO_L.gal_imp;
+    expect(imperialGallon).toBeCloseTo(4.54609, 5);
+    expect(imperialGallon).toBeGreaterThan(usGallon + 0.7);
   });
 
   it("metric markets round-trip without drift", () => {
     expect(convertArea(1, "m2", "ft2")).toBeCloseTo(10.7639, 3);
-    expect(convertArea(convertArea(250, "m2", "ft2"), "ft2", "m2")).toBeCloseTo(
-      250,
-      6,
-    );
+    const toFeet = convertArea(250, "m2", "ft2");
+    expect(toFeet).not.toBeNull();
+    const backToMetres = convertArea(toFeet as number, "ft2", "m2");
+    expect(backToMetres).not.toBeNull();
+    expect(backToMetres as number).toBeCloseTo(250, 6);
   });
 });
