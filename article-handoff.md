@@ -589,3 +589,9 @@ are the expanded registry (verified catalog + researched candidates once reviewe
 29. SG — 11 — 55
 30. TR — 11 — 55
 31. NZ — 9 — 45
+
+## Open decision (2026-10-31): article language for non-anglophone markets
+
+All 235 published wall-finishing articles carry wall_language_code='en', even where the article slot declares another code (de 25, ja 20, fr 20, ar/es/id/it/ko/pt/zh 20 each). The FR drafts in parts25/ were written in FRENCH, which is internally consistent with the fr slots but diverges from the established pattern and may not render if the article route filters on language. Owner decision needed before applying: French text (best for a French reader, unproven rendering) or English text on fr slots (matches all 235 live articles, guaranteed to render). Do not apply the FR migration until that is settled.
+
+Status of parts25/: art1 1211 words, art2 910, art3 970, art4 748, art5 811 (total 4,650). All five need to reach 1,800 before build_fr1.py can run; roughly 4,350 words still to write.
