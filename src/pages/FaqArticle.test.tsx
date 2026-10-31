@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import FaqArticle from "@/pages/FaqArticle";
 import { getFaqArticle } from "@/config/faq-articles";
+import { mergedArticle } from "@/config/faq-longform";
 import { getToolFaqGroup } from "@/config/tool-faqs";
 
 const useFaqJsonLd = vi.fn();
@@ -27,7 +28,10 @@ describe("FaqArticle", () => {
   it("renders all five sections for a real group", () => {
     renderArticle("foundation-calculator");
     const group = getToolFaqGroup("foundation-calculator")!;
-    const article = getFaqArticle("foundation-calculator")!;
+    const article = mergedArticle(
+      "foundation-calculator",
+      getFaqArticle("foundation-calculator")!,
+    );
 
     expect(
       screen.getByRole("heading", { level: 1, name: group.name }),
@@ -42,7 +46,9 @@ describe("FaqArticle", () => {
         screen.getByRole("heading", { level: 2, name: heading }),
       ).toBeInTheDocument();
     }
-    expect(screen.getByText(article.description)).toBeInTheDocument();
+    for (const paragraph of article.description.split("\n\n")) {
+      expect(screen.getByText(paragraph)).toBeInTheDocument();
+    }
     expect(screen.getByText(article.functions[0])).toBeInTheDocument();
     expect(screen.getByText(article.limits[0])).toBeInTheDocument();
     expect(

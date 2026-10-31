@@ -94,7 +94,13 @@ export function faqSeoFor(target: FaqSeoTarget, article: FaqArticle): FaqSeo {
     subject,
     "construction calculator",
     "quantity estimate",
+    "metric and imperial",
     "Nigeria",
+    "Ghana",
+    "Kenya",
+    "South Africa",
+    "United Kingdom",
+    "United States",
   ].join(", ");
 
   return { title, description, keywords };

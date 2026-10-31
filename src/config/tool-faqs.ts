@@ -75,6 +75,10 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
         q: "What is not included in a paint estimate?",
         a: "Labour, masking, sanding, filler and any surface repair are outside the material quantities. The estimate covers paint and primer, so you can take it to the paint shop.",
       },
+      {
+        q: "Does the calculator work in square feet?",
+        a: "Switch the measurement unit and the wall area, coverage and tin sizes all convert together, so a job measured in feet and a specification written in litres still produce one order. Coverage is entered in the unit you work in, so the division stays in one system instead of being converted twice.",
+      },
     ],
   },
   {
@@ -99,6 +103,10 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
         q: "Should I buy exactly the tiles the calculator shows?",
         a: "Keep at least one box back from the order for future repairs: matching a tile dye lot later is not reliable. The waste allowance covers cuts, not a spare box for the future.",
       },
+      {
+        q: "How do I allow for cuts, breakages and spares?",
+        a: "Cuts at edges, breakages in transit and a spare box for future repair are all waste, and waste is a percentage you set. Ten percent is typical for a straight lay, more for a diagonal or herringbone, and it appears as its own line so nobody has to guess how much was allowed.",
+      },
     ],
   },
   {
@@ -119,6 +127,14 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
         q: "Are labour and scaffolding included in a POP ceiling estimate?",
         a: "No. The estimate is materials only: boards, screed, adhesive, tape and fixings. Ceiling labour and any scaffolding are separate costs that vary too much by crew to sit inside a material estimate.",
       },
+      {
+        q: "Can I estimate a POP ceiling by room count instead of area?",
+        a: "A room count alone cannot price a ceiling, because two rooms of the same count can differ by several square metres. Enter each room's length and width and the calculator builds the area from them, so the board, compound and framing depend on.",
+      },
+      {
+        q: "How is the perimeter used in a POP estimate?",
+        a: "Screed, channel and trim follow the perimeter of each room, not its area. The calculator takes the perimeter from the dimensions you enter, so a long narrow room gets the framing it needs even when its area matches a square one.",
+      },
     ],
   },
   {
@@ -138,6 +154,14 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       {
         q: "Does a screeding estimate include the floor finish?",
         a: "No. It covers the screed itself: cement, sand and any additive the mix calls for. Tiles, screed boards or resin finishes are priced by their own calculators.",
+      },
+      {
+        q: "What thickness should I enter for screeding?",
+        a: "Between forty and seventy five millimetres is common for a levelling screed, and thinner for a wearing surface over a sound base. Thickness is an input because the material follows it directly, and the calculator shows the volume it implies so you can check the depth against the specification.",
+      },
+      {
+        q: "Does screeding cover a floor or a wall?",
+        a: "Both, as separate surfaces, because they are measured and ordered separately. Floor screed is usually bought by volume of sand and cement, wall render by area at a stated thickness, and the calculator keeps the two apart so one is not priced at the other's rate.",
       },
     ],
   },
@@ -271,6 +295,14 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
         q: "Why is the cable quantity different from what my electrician measured?",
         a: "Estimates work from allowances per point, while an electrician measures actual routes through ceilings, walls and switch drops. Ceiling height, wall thickness and the route between points all change the real figure.",
       },
+      {
+        q: "How do I count points for a wiring estimate?",
+        a: "Count the points you are actually installing: sockets, switches, light positions and any fixed appliance outlet, each with its own cable run. The calculator converts the count and run lengths into cable, conduit and accessories, so the estimate follows the layout, not a rate per room.",
+      },
+      {
+        q: "Does the cable length include the drop to each point?",
+        a: "Each run is the distance from the distribution board to the point, following the route the cable takes, which includes the drop from ceiling level to a socket. A measured route is what the estimate uses, and an unmeasured run is reported as missing, not estimated.",
+      },
     ],
   },
   {
@@ -290,6 +322,14 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       {
         q: "Are junction boxes and switch plates included?",
         a: "Yes, along with sockets and switches, counted from the number of points you enter. Without a configured price a line shows its quantity and asks you for the price you were quoted, not inventing one.",
+      },
+      {
+        q: "Which conduit types can I estimate?",
+        a: "Surface, concealed and buried runs, in the sizes your market sells. The diameter and length you enter give the conduit, and the box and coupling count follows the points and joints, so accessories are not left to be worked out on site.",
+      },
+      {
+        q: "How much cable goes inside a conduit?",
+        a: "The conduit holds the cable the circuit needs, so cable length follows the same run as the conduit with the number of cores you specify. Where a draw wire or a spare capacity is required, that is a separate item, not extra allowance added to the cable.",
       },
     ],
   },
@@ -338,6 +378,14 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       {
         q: "Which pipe sizes should I choose?",
         a: "Sizes follow the fixtures served and the run length. The estimate prices the sizes you select and shows the quantities, but pressure and flow design for a large building belongs with a plumber or engineer.",
+      },
+      {
+        q: "What does a plumbing estimate include?",
+        a: "Pipe runs measured by length, fittings by count, and the fixtures you install. Each item keeps its own quantity, so a bathroom refit and a whole building can be priced from the same layout with different fixtures.",
+      },
+      {
+        q: "How do I allow for pipe falls and bends?",
+        a: "Falls add length on drainage runs and bends add fittings, so measure the route along its actual line, not in straight lines between fixtures. The estimate uses your measured route, and a route you have not measured is reported as missing.",
       },
     ],
   },

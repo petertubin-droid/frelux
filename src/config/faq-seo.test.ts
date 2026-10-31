@@ -48,7 +48,9 @@ describe("FAQ article SEO metadata", () => {
       expect(row.seo.keywords.toLowerCase(), row.slug).toContain(
         row.seo.title.toLowerCase().split(":")[0].slice(0, 12),
       );
-      expect(row.seo.keywords, row.slug).toContain("Nigeria");
+      expect(row.seo.keywords, row.slug).toContain("metric and imperial");
+      expect(row.seo.keywords, row.slug).toContain("Kenya");
+      expect(row.seo.keywords, row.slug).toContain("United Kingdom");
     }
   });
 });

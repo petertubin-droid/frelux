@@ -13,6 +13,11 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { getFaqArticle, FAQ_ARTICLE_SECTIONS } from "@/config/faq-articles";
+import {
+  longFormFor,
+  mergedArticle,
+  mergedQuestions,
+} from "@/config/faq-longform";
 import { faqSeoFor } from "@/config/faq-seo";
 import { SITE_URL } from "@/lib/site-config";
 import { FAQ_CATEGORIES, getToolFaqGroup } from "@/config/tool-faqs";
@@ -22,7 +27,9 @@ import { ArrowRight, Calculator } from "lucide-react";
 export default function FaqArticle() {
   const { slug = "" } = useParams<{ slug: string }>();
   const group = getToolFaqGroup(slug);
-  const article = getFaqArticle(slug);
+  const shortArticle = getFaqArticle(slug);
+  const article = shortArticle ? mergedArticle(slug, shortArticle) : undefined;
+  const longForm = longFormFor(slug);
   const categoryLabel =
     FAQ_CATEGORIES.find((category) => category.id === group?.category)?.label ??
     null;
@@ -107,6 +114,14 @@ export default function FaqArticle() {
     );
   }
 
+  const sections = [
+    ...FAQ_ARTICLE_SECTIONS.filter((section) => section.key !== "advantages"),
+    ...(longForm
+      ? [{ key: "worked" as const, heading: "A worked example" }]
+      : []),
+    ...FAQ_ARTICLE_SECTIONS.filter((section) => section.key === "advantages"),
+  ];
+
   return (
     <>
       <PageHeader
@@ -137,9 +152,19 @@ export default function FaqArticle() {
             </Link>
           </div>
 
+          <p className="article-body mt-6 border-l-2 border-border pl-4">
+            {group.name} works in any supported market. Bag sizes, tin sizes,
+            coverage rates, currencies and codes come from the market you
+            select, and where a market has no verified figure the tool asks for
+            one instead of falling back to a default.
+          </p>
+
           <div className="mt-9 space-y-9">
-            {FAQ_ARTICLE_SECTIONS.map((section, index) => {
-              const value = article[section.key];
+            {sections.map((section, index) => {
+              const value =
+                section.key === "worked"
+                  ? (longForm?.worked ?? "")
+                  : article[section.key];
               return (
                 <section
                   key={section.key}
@@ -157,7 +182,14 @@ export default function FaqArticle() {
                       {section.heading}
                     </h2>
                     {typeof value === "string" ? (
-                      <p className="article-body mt-2.5">{value}</p>
+                      value.split("\n\n").map((paragraph) => (
+                        <p
+                          key={paragraph.slice(0, 24)}
+                          className="article-body mt-2.5"
+                        >
+                          {paragraph}
+                        </p>
+                      ))
                     ) : (
                       <ul className="mt-3 space-y-2.5">
                         {value.map((item) => (
@@ -181,7 +213,7 @@ export default function FaqArticle() {
         <div className="mx-auto max-w-3xl">
           <FaqItemsWithSchema
             title={`${group.name} questions`}
-            faqs={group.questions.map((question) => ({
+            faqs={mergedQuestions(slug, group.questions).map((question) => ({
               question: question.q,
               answer: question.a,
             }))}
