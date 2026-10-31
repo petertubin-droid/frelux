@@ -145,3 +145,51 @@ calculator pages or all 614 migrations, so the route-to-engine map and the full
 RLS review are not in this document. The nine deliverables the directive lists
 are started here as findings, not finished as maps, and I would rather say so
 than pad them.
+
+## Finding 7: a guest can mint its own AI credit
+
+The seven `anon` EXECUTE grants are on `record_ad_event`,
+`unlock_guest_daily_ai_allowance`, `respond_to_client_estimate`,
+`get_translation_alternates`, `get_published_translations`,
+`get_public_shared_project` and `fetch_shared_estimate`.
+
+**No price, scan, promotion or publication function is reachable by `anon`.**
+That is the finding I most wanted to be able to report, and it is clean.
+
+One of the seven does not hold up. `unlock_guest_daily_ai_allowance`
+(`20261014030000_unpaid_daily_ad_limit_and_guest_ad_unlock.sql`) is
+`SECURITY DEFINER`, callable by `anon`, and its comment says it unlocks one guest
+AI operation "AFTER watching a verified ad". It does not verify anything. The
+caller supplies `p_client_hash`, `p_ad_provider` and `p_ad_event_id` as
+parameters, the function checks only that `client_hash` is non-empty, writes
+`has_ad_credit = true`, and returns `true`.
+
+The guards that do exist are real but insufficient:
+
+- One credit per `client_hash` per day, enforced by a unique index.
+- Blocked once `operations_used >= 1` for that hash.
+
+Both key on `client_hash`, which the caller chooses. An anonymous caller can
+send unlimited distinct hashes and receive unlimited ad credits without an ad,
+which converts to AI spend the platform pays for and nobody recovers.
+
+I have not changed it, because the right fix is a product decision and rule 18
+requires approval for privileged changes. The options:
+
+1. Drop the grant to `anon` and route unlocking through an authenticated edge
+   function that verifies the rewarded ad with the provider before writing.
+   Strongest, and consistent with `verify-rewarded-ad` already existing.
+2. Keep the RPC but require a server-signed ad token, minted by the verify
+   function, in place of caller-supplied provider and event ids.
+3. Derive `client_hash` server-side from something the caller cannot forge and
+   keep the rest as is. Weakest, since it still trusts a client-asserted ad.
+
+Option 1 matches the existing architecture. Until one is chosen, the exposure is
+capped only by how the AI gateway rate-limits itself, which is not a control.
+
+## Corrected Finding 5 note
+
+The crawler concern stands for the market and price functions that rely on
+`getUser` alone, but no crawler is anonymously writable. The honest statement is
+that the scheduled crawlers have no shared authorization mechanism, not that they
+are open.
