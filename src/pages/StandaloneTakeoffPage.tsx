@@ -19,7 +19,9 @@ import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
 import {
   calculateMasonryTakeoff,
+  defaultLeafCountFor,
   resolveMarketMasonryConfig,
+  wallThicknessForLeaves,
   type MasonryCalculationResult,
 } from "@/lib/estimation/masonry-standalone-engine";
 import {
@@ -75,6 +77,22 @@ type Result =
   | InsulationResult
   | DemolitionResult
   | SepticSizingResult;
+const RESULT_LABELS: Record<string, string> = {
+  unitsPerM2: "Units per m² (per leaf)",
+  unitsPerM2Effective: "Units per m² (all leaves)",
+  leafCount: "Wall leaves",
+  grossWallAreaM2: "Gross wall area (m²)",
+  netWallAreaM2: "Net wall area (m²)",
+  openingsAreaM2: "Openings deducted (m²)",
+  mortarVolumeM3Net: "Mortar volume, net (m³)",
+  mortarVolumeM3Gross: "Mortar volume, with waste (m³)",
+  cementBagsRequired: "Cement bags required",
+  cementBagWeightKg: "Cement bag weight (kg)",
+  sandVolumeM3: "Sand volume (m³)",
+  sandWeightTonnes: "Sand weight (t)",
+  waterLiters: "Water (L)",
+};
+
 const ENGINES: { id: Engine; label: string; subtitle: string }[] = [
   { id: "masonry", label: "Masonry", subtitle: "Brick and blockwork" },
   {
@@ -128,6 +146,7 @@ export default function StandaloneTakeoffPage({
     height: "3",
     count: "1",
     waste: "5",
+    leaves: "",
     area: "100",
     thickness: "12",
     paverLength: "200",
@@ -159,6 +178,17 @@ export default function StandaloneTakeoffPage({
     [marketCode],
   );
   const [unitId, setUnitId] = useState("");
+  const activeMasonryUnit =
+    masonryConfig.availableUnits.find(
+      (unit) => unit.id === (unitId || masonryConfig.defaultUnit.id),
+    ) ?? masonryConfig.defaultUnit;
+  // Blank means "use the market's normal build-up": China and the UK default to
+  // two leaves, everywhere else to one.
+  const selectedLeaves = Math.max(
+    1,
+    Math.round(Number(values.leaves) || defaultLeafCountFor(marketCode)),
+  );
+
   useEffect(() => {
     if (searchParams.get("source") !== "blueprint-takeoff") return;
     const marketParam = searchParams.get("market");
@@ -253,6 +283,7 @@ export default function StandaloneTakeoffPage({
           wallCount: number("count", 1),
           selectedUnitId: unitId || undefined,
           wastePercent: number("waste", 5),
+          leafCount: selectedLeaves,
         });
       else if (engine === "plastering")
         next = calculatePlasteringTakeoff({
@@ -423,9 +454,11 @@ export default function StandaloneTakeoffPage({
             key !== "marketCode" && value !== null && value !== undefined,
         )
         .map(([key, value]) => ({
-          label: key
-            .replace(/([A-Z])/g, " $1")
-            .replace(/^./, (s) => s.toUpperCase()),
+          label:
+            RESULT_LABELS[key] ??
+            key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (s) => s.toUpperCase()),
           value:
             typeof value === "object" ? JSON.stringify(value) : String(value),
         }))
@@ -544,6 +577,10 @@ export default function StandaloneTakeoffPage({
                 (code) => {
                   setMarketCode(code);
                   setUnitId("");
+                  // A market change also resets the wall build-up, because the
+                  // normal wall differs: China 240 mm, UK cavity, others single
+                  // leaf.
+                  setValues((current) => ({ ...current, leaves: "" }));
                 },
                 availableMarkets.map((entry) => ({
                   value: entry.country_code,
@@ -560,6 +597,28 @@ export default function StandaloneTakeoffPage({
                     label: unit.name,
                   })),
                 )}
+              {engine === "masonry" &&
+                select(
+                  "Wall build-up",
+                  String(selectedLeaves),
+                  (value) => update("leaves", value),
+                  [1, 2, 3].map((count) => ({
+                    value: String(count),
+                    label: `${count} ${count === 1 ? "leaf" : "leaves"} (${wallThicknessForLeaves(
+                      activeMasonryUnit.widthMm,
+                      activeMasonryUnit.standardJointMm,
+                      count,
+                    ).toFixed(0)} mm)`,
+                  })),
+                )}
+              {engine === "masonry" && (
+                <p className="text-xs text-muted-foreground md:col-span-2">
+                  Each leaf carries its own units, mortar and cement, and the
+                  joints between leaves are counted in the thickness shown.
+                  Leave the unit set to the local brick and the default build-up
+                  gives the wall that market actually lays.
+                </p>
+              )}
               {engine === "masonry" && (
                 <>
                   {field("length", "Wall length")}{" "}

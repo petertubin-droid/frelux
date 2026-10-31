@@ -1709,6 +1709,35 @@ export const MORTAR_PARTS: Record<string, { cement: number; sand: number }> = {
   "1:6": { cement: 1, sand: 6 },
 };
 
+/**
+ * Markets whose ordinary wall is more than one leaf of the default unit.
+ * China builds 240 mm walls from 115 mm bricks (115 + 10 + 115), and a UK
+ * cavity wall is two leaves. Every other market builds single leaf walls from
+ * its default unit, so the default stays 1 there.
+ */
+export const DEFAULT_LEAF_COUNT_BY_MARKET: Record<string, number> = {
+  CN: 2,
+  GB: 2,
+};
+
+export function defaultLeafCountFor(marketCode: string): number {
+  return DEFAULT_LEAF_COUNT_BY_MARKET[marketCode] ?? 1;
+}
+
+/**
+ * Thickness occupied by a build-up: one unit width per leaf plus one joint
+ * between each pair of leaves. This is why a Chinese 240 mm wall is
+ * 115 + 10 + 115, and why a UK brick is 215 mm long (2 x 102.5 + 10).
+ */
+export function wallThicknessForLeaves(
+  unitWidthMm: number,
+  jointMm: number,
+  leaves: number,
+): number {
+  const count = Math.max(1, Math.round(leaves));
+  return count * unitWidthMm + (count - 1) * jointMm;
+}
+
 export function calculateMasonryTakeoff(
   input: MasonryCalculationInput,
 ): MasonryCalculationResult {
