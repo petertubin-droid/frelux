@@ -111,8 +111,12 @@ describe("ApiWalletCard", () => {
           auto_topup_threshold_usd: 5,
         }),
     });
+    // Stored preference, not a working feature: the card must not claim a
+    // charge that no code performs.
     await waitFor(() =>
-      expect(screen.getByText(/Auto top-up adds \$20\.00/i)).toBeTruthy(),
+      expect(screen.getByText(/Auto top-up is requested/i)).toBeTruthy(),
     );
+    expect(screen.getByText(/not active/i)).toBeTruthy();
+    expect(screen.queryByText(/Auto top-up adds/i)).toBeNull();
   });
 });

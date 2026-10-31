@@ -104,10 +104,16 @@ export default function ApiWalletCard({
           </p>
         </div>
         {wallet?.auto_topup_enabled && (
+          // The preference is stored, but nothing charges from it: doing so
+          // needs a saved payment method, and none exists. Saying "auto top-up
+          // adds $20" would describe a behaviour that does not happen, so the
+          // card states the preference and the limit instead of the promise.
           <p className="text-xs text-muted-foreground">
-            Auto top-up adds {formatWalletUsd(wallet.auto_topup_amount_usd)}{" "}
-            when the balance falls below{" "}
-            {formatWalletUsd(wallet.auto_topup_threshold_usd)}.
+            Auto top-up is requested (
+            {formatWalletUsd(wallet.auto_topup_amount_usd)} below{" "}
+            {formatWalletUsd(wallet.auto_topup_threshold_usd)}) but is not
+            active. It needs a saved payment method, and none is stored, so top
+            up here manually.
           </p>
         )}
       </div>
