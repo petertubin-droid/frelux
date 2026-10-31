@@ -6,7 +6,11 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import { BrandingProvider } from "@/lib/branding";
 import { ThemeProvider } from "@/lib/theme";
-import { LanguageProvider } from "@/lib/i18n";
+import {
+  LanguageProvider,
+  detectInitialLanguage,
+  ensureLanguageLoaded,
+} from "@/lib/i18n";
 import { CurrencyProvider } from "@/lib/international/currency-context";
 import { AccessibilityProvider } from "@/lib/accessibility";
 import { Toaster } from "@/components/ui/shadcn/toast";
@@ -16,22 +20,30 @@ import "./index.css";
 // Initialize FRELUX error monitoring, global error listeners
 initErrorMonitor();
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <ThemeProvider>
-      <LanguageProvider>
-        <CurrencyProvider>
-          <AccessibilityProvider>
-            <BrandingProvider>
-              <App />
-              <Toaster />
-            </BrandingProvider>
-          </AccessibilityProvider>
-        </CurrencyProvider>
-      </LanguageProvider>
-    </ThemeProvider>
-  </StrictMode>,
-);
+function mount() {
+  createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+      <ThemeProvider>
+        <LanguageProvider>
+          <CurrencyProvider>
+            <AccessibilityProvider>
+              <BrandingProvider>
+                <App />
+                <Toaster />
+              </BrandingProvider>
+            </AccessibilityProvider>
+          </CurrencyProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </StrictMode>,
+  );
+}
+
+// Machine dictionaries load per language instead of shipping all of them. The
+// visitor's own language is fetched before the first paint, so a /es/ entry page
+// renders in Spanish straight away rather than flashing English. English needs
+// no fetch at all, and a failed fetch still mounts (curated strings render).
+ensureLanguageLoaded(detectInitialLanguage()).finally(mount);
 
 // Register Service Worker for PWA, only in production
 if ("serviceWorker" in navigator && import.meta.env.PROD) {

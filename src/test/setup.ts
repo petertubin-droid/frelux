@@ -1,10 +1,18 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
-import { afterEach, vi } from "vitest";
+import { afterEach, beforeAll, vi } from "vitest";
+import { LANGUAGES, ensureLanguageLoaded } from "@/lib/i18n";
 
 // Auto-cleanup after each test
 afterEach(() => {
   cleanup();
+});
+
+// The app fetches each machine dictionary on demand, but the suite reads the
+// dictionaries directly (coverage, hero copy, prompt copy), so prime them once
+// per test file rather than making every assertion await.
+beforeAll(async () => {
+  await Promise.all(LANGUAGES.map((l) => ensureLanguageLoaded(l.value)));
 });
 
 // Global mock for the Supabase client, prevents real network calls (ENOTFOUND

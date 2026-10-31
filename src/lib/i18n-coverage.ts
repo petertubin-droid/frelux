@@ -119,12 +119,27 @@ export interface LocaleCoverage {
   missing: string[];
 }
 
+/**
+ * The dictionary a visitor actually sees. Machine translations now load on
+ * demand, so runtime `translations` may hold only the curated strings; coverage
+ * is measured against the full set (generated + curated + approved overrides).
+ */
+function effectiveDictionary(language: Language): Record<string, string> {
+  return {
+    ...(GENERATED_DICTIONARIES[language] ?? {}),
+    ...((translations[language] ?? {}) as Record<string, string>),
+    ...((
+      approvedOverrides as unknown as Record<string, Record<string, string>>
+    )[language] ?? {}),
+  };
+}
+
 export function coverageFor(language: Language): LocaleCoverage {
   const total = UI_CATALOG.length;
   if (language === "en") {
     return { language, translated: total, total, percent: 100, missing: [] };
   }
-  const dictionary = (translations[language] ?? {}) as Record<string, string>;
+  const dictionary = effectiveDictionary(language);
   const missing = UI_CATALOG.filter((key) => {
     const value = dictionary[key];
     return !value || value.trim().length === 0;

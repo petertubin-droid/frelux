@@ -1053,10 +1053,17 @@ interface LanguageContextValue {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
+  /**
+   * The language whose machine dictionary is currently merged in, or null while
+   * it is still being fetched. Components rarely need this; it exists so the
+   * provider's value changes when a dictionary lands and the tree re-renders.
+   */
+  loadedLanguage: Language | null;
 }
 
 const LanguageContext = createContext<LanguageContextValue>({
   language: "en",
+  loadedLanguage: "en",
   setLanguage: () => {},
   t: (key: string) => key,
 });
@@ -1067,33 +1074,32 @@ const LanguageContext = createContext<LanguageContextValue>({
  * always wins, so a curated string is never overwritten by the generated file.
  * A missing key falls back to English by returning the key itself.
  */
-import generatedEs from "@/lib/i18n/locales/es.json";
-import generatedFr from "@/lib/i18n/locales/fr.json";
-import generatedDe from "@/lib/i18n/locales/de.json";
-import generatedPt from "@/lib/i18n/locales/pt.json";
-import generatedAr from "@/lib/i18n/locales/ar.json";
-import generatedHi from "@/lib/i18n/locales/hi.json";
-import generatedZh from "@/lib/i18n/locales/zh.json";
-import generatedJa from "@/lib/i18n/locales/ja.json";
-import generatedRu from "@/lib/i18n/locales/ru.json";
-import generatedId from "@/lib/i18n/locales/id.json";
-import generatedSw from "@/lib/i18n/locales/sw.json";
-import generatedNl from "@/lib/i18n/locales/nl.json";
 import approvedOverrides from "@/lib/i18n/overrides.json";
 
-const GENERATED: Partial<Record<Language, Record<string, string>>> = {
-  es: generatedEs,
-  fr: generatedFr,
-  de: generatedDe,
-  pt: generatedPt,
-  ar: generatedAr,
-  hi: generatedHi,
-  zh: generatedZh,
-  ja: generatedJa,
-  ru: generatedRu,
-  id: generatedId,
-  sw: generatedSw,
-  nl: generatedNl,
+/**
+ * Machine translation dictionaries are loaded on demand.
+ *
+ * Each locale file is 200-300 kB of JSON. Importing all twelve up front put
+ * roughly 2.5 MB of dictionary into the app bundle for every visitor, in every
+ * language, whether or not they used one. They are fetched per language now:
+ * an English visitor downloads none of them, and a Spanish visitor downloads
+ * only Spanish.
+ */
+const GENERATED_LOADERS: Partial<
+  Record<Language, () => Promise<{ default: Record<string, string> }>>
+> = {
+  es: () => import("@/lib/i18n/locales/es.json"),
+  fr: () => import("@/lib/i18n/locales/fr.json"),
+  de: () => import("@/lib/i18n/locales/de.json"),
+  pt: () => import("@/lib/i18n/locales/pt.json"),
+  ar: () => import("@/lib/i18n/locales/ar.json"),
+  hi: () => import("@/lib/i18n/locales/hi.json"),
+  zh: () => import("@/lib/i18n/locales/zh.json"),
+  ja: () => import("@/lib/i18n/locales/ja.json"),
+  ru: () => import("@/lib/i18n/locales/ru.json"),
+  id: () => import("@/lib/i18n/locales/id.json"),
+  sw: () => import("@/lib/i18n/locales/sw.json"),
+  nl: () => import("@/lib/i18n/locales/nl.json"),
 };
 
 const OVERRIDES = approvedOverrides as unknown as Record<
@@ -1101,14 +1107,54 @@ const OVERRIDES = approvedOverrides as unknown as Record<
   Record<string, string>
 >;
 
-for (const language of Object.keys(GENERATED) as Language[]) {
+/** Languages whose machine dictionary has been merged in. English needs none. */
+const mergedLanguages = new Set<Language>(["en"]);
+const pendingLoads = new Map<Language, Promise<void>>();
+
+function mergeLanguage(
+  language: Language,
+  generated: Record<string, string>,
+): void {
   const curated = translations[language] as Record<string, string>;
   translations[language] = {
-    ...(GENERATED[language] ?? {}),
+    ...generated,
     ...curated,
     // Human-approved fixes for ambiguous words win over every machine string.
     ...(OVERRIDES[language] ?? {}),
   } as Record<TranslationKey, string>;
+  mergedLanguages.add(language);
+}
+
+/** True once the language can render its full dictionary. */
+export function isLanguageLoaded(language: Language): boolean {
+  return mergedLanguages.has(language);
+}
+
+/**
+ * Loads a language's machine dictionary and merges it with the curated
+ * strings. Safe to call repeatedly; concurrent callers share one request. A
+ * failed chunk is not fatal: the curated strings still render and the visitor
+ * simply sees English where a machine string would have been.
+ */
+export function ensureLanguageLoaded(language: Language): Promise<void> {
+  if (mergedLanguages.has(language)) return Promise.resolve();
+  const pending = pendingLoads.get(language);
+  if (pending) return pending;
+
+  const load = GENERATED_LOADERS[language];
+  if (!load) {
+    mergeLanguage(language, {});
+    return Promise.resolve();
+  }
+
+  const promise = load()
+    .then((mod) => mergeLanguage(language, mod.default ?? {}))
+    .catch(() => mergeLanguage(language, {}))
+    .finally(() => {
+      pendingLoads.delete(language);
+    });
+  pendingLoads.set(language, promise);
+  return promise;
 }
 
 /**
@@ -1132,20 +1178,47 @@ export function tx(key: string, language: Language = activeLanguage): string {
   return dictionary[key] ?? translations.en[key as TranslationKey] ?? key;
 }
 
+/**
+ * The language this visit should start in: a /es/ style URL prefix first, then
+ * a remembered preference, then English. Shared with the entry point so the
+ * dictionary can be fetched before the first paint.
+ */
+export function detectInitialLanguage(): Language {
+  if (typeof window === "undefined") return "en";
+  // A URL locale prefix wins over a stored preference, so crawlable
+  // /es/ etc. entry points always render in their own language.
+  const urlLocale = localeFromPathname(window.location.pathname);
+  if (urlLocale) return urlLocale;
+  const stored = localStorage.getItem("frelux_lang");
+  // A stored value that is no longer a registered language (e.g. a
+  // removed one) falls back to English rather than breaking the app.
+  return LANGUAGES.some((l) => l.value === stored)
+    ? (stored as Language)
+    : "en";
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(() => {
-    if (typeof window === "undefined") return "en";
-    // A URL locale prefix wins over a stored preference, so crawlable
-    // /es/ etc. entry points always render in their own language.
-    const urlLocale = localeFromPathname(window.location.pathname);
-    if (urlLocale) return urlLocale;
-    const stored = localStorage.getItem("frelux_lang");
-    // A stored value that is no longer a registered language (e.g. a
-    // removed one) falls back to English rather than breaking the app.
-    return LANGUAGES.some((l) => l.value === stored)
-      ? (stored as Language)
-      : "en";
-  });
+  const [language, setLanguageState] = useState<Language>(
+    detectInitialLanguage,
+  );
+  // Bumped once a language's dictionary arrives, so the tree re-renders with it.
+  const [loadedLanguage, setLoadedLanguage] = useState<Language | null>(() =>
+    isLanguageLoaded(detectInitialLanguage()) ? detectInitialLanguage() : null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    if (isLanguageLoaded(language)) {
+      setLoadedLanguage(language);
+    } else {
+      void ensureLanguageLoaded(language).then(() => {
+        if (!cancelled) setLoadedLanguage(language);
+      });
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [language]);
 
   useEffect(() => {
     setActiveLanguage(language);
@@ -1182,7 +1255,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider
+      value={{ language, setLanguage, t, loadedLanguage }}
+    >
       <GoogleTranslateSync language={language} />
       {children}
     </LanguageContext.Provider>
