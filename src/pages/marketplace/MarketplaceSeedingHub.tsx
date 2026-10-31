@@ -347,6 +347,7 @@ export default function MarketplaceSeedingHub() {
                 <form onSubmit={handleConciergeSubmit} className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input
+                      aria-label="Your name"
                       type="text"
                       required
                       placeholder={tr("Your Name")}
@@ -355,6 +356,7 @@ export default function MarketplaceSeedingHub() {
                       className="text-xs rounded-md border border-input bg-card px-3 py-2"
                     />
                     <input
+                      aria-label="Contact email"
                       type="email"
                       required
                       placeholder={tr("Contact Email")}
@@ -365,6 +367,7 @@ export default function MarketplaceSeedingHub() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <select
+                      aria-label="Trade category"
                       value={conciergeTrade}
                       onChange={(e) => setConciergeTrade(e.target.value)}
                       className="text-xs rounded-md border border-input bg-card px-3 py-2"
@@ -384,6 +387,7 @@ export default function MarketplaceSeedingHub() {
                     </select>
                     <input
                       type="text"
+                      aria-label="Project budget"
                       placeholder="Budget (e.g. $25,000 USD)"
                       value={conciergeBudget}
                       onChange={(e) => setConciergeBudget(e.target.value)}
@@ -427,6 +431,7 @@ export default function MarketplaceSeedingHub() {
                 <form onSubmit={handleNominationSubmit} className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input
+                      aria-label="Contractor full name"
                       type="text"
                       required
                       placeholder={tr("Contractor's Full Name")}
@@ -435,6 +440,7 @@ export default function MarketplaceSeedingHub() {
                       className="text-xs rounded-md border border-input bg-card px-3 py-2"
                     />
                     <input
+                      aria-label="Contractor phone number"
                       type="tel"
                       required
                       placeholder={tr("Contractor's Phone Number")}
@@ -445,6 +451,7 @@ export default function MarketplaceSeedingHub() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input
+                      aria-label="Town or city"
                       type="text"
                       placeholder={tr("Town / City")}
                       value={nomCity}
@@ -452,6 +459,7 @@ export default function MarketplaceSeedingHub() {
                       className="text-xs rounded-md border border-input bg-card px-3 py-2"
                     />
                     <input
+                      aria-label="Your email"
                       type="email"
                       required
                       placeholder={tr("Your Email (for notification)")}

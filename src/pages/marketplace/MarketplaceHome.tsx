@@ -620,6 +620,7 @@ function JobsTab(props: {
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
           />
           <input
+            aria-label="Search jobs"
             value={props.search}
             onChange={(e) => props.setSearch(e.target.value)}
             placeholder={tx("Search jobs...")}
@@ -644,6 +645,7 @@ function JobsTab(props: {
       {props.showFilters && (
         <div className="mb-4 flex flex-wrap gap-2">
           <select
+            aria-label="Filter by trade"
             value={props.projectType}
             onChange={(e) => props.setProjectType(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -656,6 +658,7 @@ function JobsTab(props: {
             ))}
           </select>
           <select
+            aria-label="Filter by country"
             value={props.country}
             onChange={(e) => props.setCountry(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -672,6 +675,7 @@ function JobsTab(props: {
             ))}
           </select>
           <select
+            aria-label="Filter by state"
             value={props.state}
             onChange={(e) => props.setState(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -888,6 +892,7 @@ function ProductsTab(props: {
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
           />
           <input
+            aria-label="Search products, brands, materials"
             value={props.search}
             onChange={(e) => props.setSearch(e.target.value)}
             placeholder={tx("Search products, brands, materials...")}
@@ -895,6 +900,7 @@ function ProductsTab(props: {
           />
         </div>
         <select
+          aria-label="Sort products"
           value={props.sort}
           onChange={(e) => props.setSort(e.target.value)}
           className="rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -954,6 +960,7 @@ function ProductsTab(props: {
       {props.showFilters && (
         <div className="mb-4 flex flex-wrap gap-2">
           <select
+            aria-label="Filter by condition"
             value={props.condition}
             onChange={(e) => props.setCondition(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -966,6 +973,7 @@ function ProductsTab(props: {
             ))}
           </select>
           <select
+            aria-label="Filter by country"
             value={props.country}
             onChange={(e) => props.setCountry(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -982,6 +990,7 @@ function ProductsTab(props: {
             ))}
           </select>
           <select
+            aria-label="Filter by state"
             value={props.state}
             onChange={(e) => props.setState(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"

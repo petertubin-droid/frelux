@@ -329,6 +329,7 @@ export default function OrderDetail() {
           {showMilestoneForm && (
             <div className="mb-3 flex gap-2">
               <input
+                aria-label="Milestone title"
                 type="text"
                 value={newMilestoneTitle}
                 onChange={(e) => setNewMilestoneTitle(e.target.value)}
@@ -527,6 +528,7 @@ export default function OrderDetail() {
                   ))}
                 </div>
                 <textarea
+                  aria-label="Review comment"
                   value={reviewText}
                   onChange={(e) => setReviewText(e.target.value)}
                   placeholder={t("Share your experience...")}

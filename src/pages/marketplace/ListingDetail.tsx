@@ -413,10 +413,14 @@ export default function ListingDetail() {
               </h3>
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                  <label
+                    htmlFor="bid-price"
+                    className="text-xs font-medium text-muted-foreground dark:text-muted-foreground"
+                  >
                     Your Price ({getCurrencySymbol(listing.currency) || "₦"})
                   </label>
                   <input
+                    id="bid-price"
                     type="number"
                     value={bidPrice}
                     onChange={(e) => setBidPrice(e.target.value)}
@@ -425,10 +429,14 @@ export default function ListingDetail() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                  <label
+                    htmlFor="bid-timeline"
+                    className="text-xs font-medium text-muted-foreground dark:text-muted-foreground"
+                  >
                     {t("Timeline (days)")}
                   </label>
                   <input
+                    id="bid-timeline"
                     type="number"
                     value={bidTimeline}
                     onChange={(e) => setBidTimeline(e.target.value)}
@@ -438,10 +446,14 @@ export default function ListingDetail() {
                 </div>
               </div>
               <div className="mt-3">
-                <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                <label
+                  htmlFor="bid-message"
+                  className="text-xs font-medium text-muted-foreground dark:text-muted-foreground"
+                >
                   {t("Cover Message")}
                 </label>
                 <textarea
+                  id="bid-message"
                   value={bidMessage}
                   onChange={(e) => setBidMessage(e.target.value)}
                   placeholder={t(
