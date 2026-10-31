@@ -1618,6 +1618,705 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       ],
     },
   },
+  {
+    slug: "measurement-converter",
+    route: "/unit-converter",
+    name: "Measurement Converter",
+    category: "commercial",
+    questions: [
+      {
+        q: "Which units does the converter handle?",
+        a: "Length, area, volume, mass and pressure in both metric and imperial, which covers the units on a drawing next to the units on a delivery note.",
+      },
+      {
+        q: "Why does area conversion go wrong so often?",
+        a: "Because the squared factor is squared again. One metre is 3.281 feet, one square metre is 10.764 square feet, and the converter applies the squared factor, not a scaled single length.",
+      },
+      {
+        q: "Can I convert a material quantity?",
+        a: "Yes for the units themselves. Converting tonnes to bags needs the bag weight, and converting litres to gallons depends on which gallon the supplier means, so those stay your input.",
+      },
+      {
+        q: "Does it round the answer?",
+        a: "It shows the converted figure at a working precision and the exact factor used, so a quotation built on it can be traced.",
+      },
+      {
+        q: "Where is it most useful?",
+        a: "At the join between a design in metres and a supplier quoting in feet and inches, which is where most quantity errors start.",
+      },
+    ],
+    article: {
+      summary:
+        "Metric and imperial conversion that shows the factor it applied.",
+      description:
+        "A measurement converter for the units that appear on drawings, delivery notes and quotations. Length, area, volume, mass and pressure convert with the factor stated, and squared and cubed units use the squared and cubed factor instead of a scaled single length.",
+      functions: [
+        "Converts length, area, volume, mass and pressure between metric and imperial units.",
+        "Applies squared and cubed factors for area and volume.",
+        "Shows the exact factor behind each result.",
+        "Keeps a working precision that survives a quotation.",
+      ],
+      advantages: [
+        "The factor is visible, so an error can be found in the arithmetic instead of guessed at.",
+        "Area and volume conversions are handled correctly, which is where most hand conversions fail.",
+        "One tool covers the units a site actually meets in a week.",
+      ],
+      limits: [
+        "It does not convert a material quantity without the unit weight or density.",
+        "It does not decide which gallon or ton a supplier means.",
+        "It does not validate the dimension you type in.",
+      ],
+    },
+  },
+  {
+    slug: "paint-comparison",
+    route: "/paint-comparison",
+    name: "Paint Comparison",
+    category: "finishes",
+    questions: [
+      {
+        q: "What does the paint comparison show?",
+        a: "Products side by side on coverage, price and suitability for the surface you have, so the cost per square metre is visible next to the tin price.",
+      },
+      {
+        q: "Why compare cost per square metre?",
+        a: "Because a cheaper tin with lower coverage can cost more on the wall. Comparing tin prices compares packaging, not paint.",
+      },
+      {
+        q: "Where do the product figures come from?",
+        a: "From the product records behind the estimator. A product without coverage data is listed without it, never filled with an average.",
+      },
+      {
+        q: "Does it tell me which paint to buy?",
+        a: "It ranks the options on the numbers you give it. Suitability for a damp wall or a metal surface is a judgement the comparison informs, not one it makes.",
+      },
+      {
+        q: "Do prices include tax?",
+        a: "No. Tax is not determined here, and each product's price is shown as the supplier states it.",
+      },
+    ],
+    article: {
+      summary:
+        "Two or more paints compared on coverage and cost per square metre, not tin price.",
+      description:
+        "A comparison surface for paint products. Coverage, tin size and price are placed side by side and reduced to a cost per square metre, which is the figure that decides a purchase once a wall area is known.",
+      functions: [
+        "Compares coverage and tin size across selected products.",
+        "Reduces each option to a cost per square metre.",
+        "Shows how much a given wall area requires of each product.",
+        "Leaves products without coverage data visible but unpriced per area.",
+      ],
+      advantages: [
+        "Cost per square metre makes a cheap tin with thin coverage look as expensive as it is.",
+        "The comparison uses the same product data as the estimator, so the two cannot disagree.",
+        "Missing coverage data is shown as a gap instead of an average.",
+      ],
+      limits: [
+        "It does not judge suitability for a particular substrate.",
+        "It does not include tax, labour or preparation.",
+        "It compares only the products loaded in the system.",
+      ],
+    },
+  },
+  {
+    slug: "finish-estimator",
+    route: "/finish-estimator",
+    name: "Finish Comparison",
+    category: "finishes",
+    questions: [
+      {
+        q: "What is being compared here?",
+        a: "Wall finishing options for the same area: paint, screeding, tiling or POP, with the material quantity and cost each one implies.",
+      },
+      {
+        q: "Why compare finishes at all?",
+        a: "Because a client asks what a different finish would cost, and answering from four separate tools takes long enough that the question goes unanswered.",
+      },
+      {
+        q: "Are preparation and labour included?",
+        a: "No. Each option gives its materials from the same area, so the comparison is like for like on materials. Labour follows the method you choose.",
+      },
+      {
+        q: "Does it pick a finish for me?",
+        a: "No. It puts the numbers side by side. Durability, maintenance and appearance decide the choice, and none of those are quantities.",
+      },
+      {
+        q: "Can I compare a partial area?",
+        a: "Yes. Change the area and every option recalculates, which is how a single room and a whole building get answered in the same conversation.",
+      },
+    ],
+    article: {
+      summary:
+        "Paint, screed, tile and POP priced from one wall area so a client can choose.",
+      description:
+        "A finishing options comparison. One wall area is run through each finishing method, giving the quantity of material and the cost each implies, so a specification decision can be made on numbers instead of impressions.",
+      functions: [
+        "Runs the same area through paint, screeding, tiling and POP.",
+        "Reports material quantity and cost per option.",
+        "Recalculates every option when the area changes.",
+        "Keeps the options on the same basis so the comparison holds.",
+      ],
+      advantages: [
+        "One area, several answers, which is the shape of the question a client actually asks.",
+        "Options stay on the same basis, so the cheapest is genuinely cheapest on materials.",
+        "Each option links to its own tool when the detail is needed.",
+      ],
+      limits: [
+        "It compares materials only, not labour or preparation.",
+        "It does not assess durability, maintenance or appearance.",
+        "It does not price a mix of finishes on one elevation.",
+      ],
+    },
+  },
+  {
+    slug: "increte-flooring-calculator",
+    route: "/increte-flooring-calculator",
+    name: "Decorative Concrete Flooring",
+    category: "finishes",
+    questions: [
+      {
+        q: "What does the decorative concrete tool measure?",
+        a: "The topping and sealer for a given floor area, with a separate allowance for borders and stencilled edges where the pattern changes the rate.",
+      },
+      {
+        q: "Why measure topping separately from concrete?",
+        a: "Because a decorative topping is thin and spread over an area, so it is bought by coverage, not by the cubic metre of the slab underneath.",
+      },
+      {
+        q: "How is a border handled?",
+        a: "As its own band with its own width, because a pattern edge consumes material at a different rate from the field.",
+      },
+      {
+        q: "Is the substrate included?",
+        a: "No. The slab, its reinforcement and its finish are separate concrete work. This tool covers what goes on top.",
+      },
+      {
+        q: "Does it allow for waste?",
+        a: "Yes, as a percentage you set, and it is a visible line, not a loading buried in a rate.",
+      },
+    ],
+    article: {
+      summary:
+        "Topping and sealer quantities for a decorative concrete floor, with borders as their own band.",
+      description:
+        "A quantity takeoff for decorative concrete flooring. Floor area and topping coverage give the material, borders and stencilled bands are measured as separate runs, and sealer follows the area it protects.",
+      functions: [
+        "Calculates topping quantity from floor area and coverage rate.",
+        "Measures borders and pattern bands as their own runs.",
+        "Adds sealer from the area it covers.",
+        "Applies your waste percentage as a stated line.",
+      ],
+      advantages: [
+        "Border bands are priced as bands, which is where a decorative floor usually goes over budget.",
+        "Topping is bought by coverage, matching how it is sold.",
+        "The substrate stays out of the number, so the concrete slab is not counted twice.",
+      ],
+      limits: [
+        "It does not design or price the structural slab.",
+        "It does not cover surface preparation or repair of the base.",
+        "Colour, pattern and finish quality are specification choices, not quantities.",
+      ],
+    },
+  },
+  {
+    slug: "wall-finish-estimator",
+    route: "/wall-finish-estimator",
+    name: "Wall Finish Estimator",
+    category: "finishes",
+    questions: [
+      {
+        q: "What does the wall finish estimator cover?",
+        a: "Screeding, skimming and texturing on the wall areas you identify, with the material each method consumes and the thickness it assumes.",
+      },
+      {
+        q: "Why is thickness an input?",
+        a: "Because a twelve millimetre skim and a twenty millimetre render differ by two thirds of the material. Treating thickness as a fixed trade assumption is how depth gets lost from a quotation.",
+      },
+      {
+        q: "Are ceilings included?",
+        a: "Only when you add them as their own surface, since ceilings are coated differently and usually with a different product.",
+      },
+      {
+        q: "Does it account for openings?",
+        a: "Yes. Deduct the doors, windows and vents you list and the areas come out of the wall total instead of being estimated around.",
+      },
+      {
+        q: "What about corner beads and reveals?",
+        a: "They are linear items. The estimator covers surface area, so beads and trims are a separate count.",
+      },
+    ],
+    article: {
+      summary:
+        "Screed, skim and texture quantities from the wall areas you identify, at the thickness you set.",
+      description:
+        "A wall finishing takeoff. Walls, ceilings and openings are measured as separate surfaces, thickness is your input per method, and the material follows from area, depth and the coverage the product provides.",
+      functions: [
+        "Calculates finish material from wall area, method and thickness.",
+        "Treats ceilings as their own surface with their own rate.",
+        "Deducts the openings you list from the total area.",
+        "Prices beads and trims as separate linear items.",
+      ],
+      advantages: [
+        "Thickness is an input, so a deeper render shows up as more material.",
+        "Openings come out of the measurement instead of being guessed around.",
+        "Ceilings are separated, which keeps products and rates from being blended.",
+      ],
+      limits: [
+        "It does not assess the condition or suction of the substrate.",
+        "It does not include scaffolding, access or protection.",
+        "It does not decide the specification, only the quantity it implies.",
+      ],
+    },
+  },
+  {
+    slug: "blueprint-takeoff",
+    route: "/blueprint-takeoff",
+    name: "Blueprint and Plan Takeoff",
+    category: "commercial",
+    questions: [
+      {
+        q: "How does the plan takeoff work?",
+        a: "You take dimensions off a drawing and enter them, and the tool converts them into quantities through the same engines as the calculators. The measuring stays with you, the arithmetic does not.",
+      },
+      {
+        q: "Can it read a PDF for me?",
+        a: "Where extraction is available it proposes figures, and every proposed figure is shown for you to accept or correct. Nothing enters a quantity without your confirmation.",
+      },
+      {
+        q: "Why not measure the drawing automatically?",
+        a: "Because a scale bar, a scan and a revision cloud all look like geometry. An unverified dimension in a takeoff is worse than a missing one.",
+      },
+      {
+        q: "Which quantities does it produce?",
+        a: "Whatever the downstream engine measures: concrete, blockwork, finishes, roofing. Each line keeps the dimension it came from.",
+      },
+      {
+        q: "Is the drawing stored?",
+        a: "Only as part of the estimate you build from it. The takeoff is a record of what you measured, and that record is what answers a client question.",
+      },
+    ],
+    article: {
+      summary:
+        "Dimensions taken off a plan, converted into quantities with every figure traceable.",
+      description:
+        "A plan based takeoff. Dimensions read from a drawing are entered once and converted by the same deterministic engines that power the calculators, with each line keeping the measurement that produced it. Extracted figures are proposals you confirm, not silent inputs.",
+      functions: [
+        "Converts entered plan dimensions into quantities per trade.",
+        "Shows every extracted figure for confirmation before it is used.",
+        "Keeps the source dimension on each takeoff line.",
+        "Feeds the estimate and the bill of quantities downstream.",
+      ],
+      advantages: [
+        "The measurement is yours and the arithmetic is the engine's, which is the split that keeps a takeoff defensible.",
+        "Every line can be traced back to a dimension on a drawing.",
+        "Extraction accelerates entry without ever adding an unconfirmed number.",
+      ],
+      limits: [
+        "It does not measure a drawing automatically without your confirmation.",
+        "It does not check the drawing for completeness or revision.",
+        "It does not design anything from the plan.",
+      ],
+    },
+  },
+  {
+    slug: "material-price-index",
+    route: "/material-price-index",
+    name: "Live Material Price Index",
+    category: "commercial",
+    questions: [
+      {
+        q: "What does the price index show?",
+        a: "How material prices have moved over time by market, as a series, not a single figure, so a quote can be read against the trend it sits in.",
+      },
+      {
+        q: "Where do the prices come from?",
+        a: "From verified price records with their dates and sources. A series without a source is not published.",
+      },
+      {
+        q: "Can I use it to price a job?",
+        a: "It shows the direction and size of movement. A quotation still needs a current supplier figure for the quantity you need.",
+      },
+      {
+        q: "Why does the index matter to a contractor?",
+        a: "Because a fixed price held for three months is exposed to the trend. Seeing the movement makes a validity period a decision, not a habit.",
+      },
+      {
+        q: "Does it cover every material?",
+        a: "It covers what has been recorded. Coverage is stated with the series, and gaps are visible instead of interpolated.",
+      },
+    ],
+    article: {
+      summary:
+        "How material prices have moved by market, from sourced and dated records.",
+      description:
+        "A price movement index. Each material carries a series built from verified, dated price records, so a contractor can see whether the figure in a quotation sits above or below the recent trend and how quickly it is moving.",
+      functions: [
+        "Plots price movement per material over time and by market.",
+        "Shows the date and source behind each recorded price.",
+        "Reports coverage so gaps are visible.",
+        "Compares a quoted figure against the current series.",
+      ],
+      advantages: [
+        "A trend makes a price validity period a decision with evidence behind it.",
+        "Sources and dates travel with each point, so a figure can be checked.",
+        "Missing coverage is shown, not filled by interpolation.",
+      ],
+      limits: [
+        "It is not a live supplier quotation.",
+        "It does not forecast future prices.",
+        "It does not adjust a quotation automatically.",
+      ],
+    },
+  },
+  {
+    slug: "code-reference",
+    route: "/code-reference",
+    name: "International Code Reference",
+    category: "commercial",
+    questions: [
+      {
+        q: "What does the code reference contain?",
+        a: "Reference notes on the standards that govern materials and methods in each market, with the jurisdiction they apply to named on every entry.",
+      },
+      {
+        q: "Is this the standard itself?",
+        a: "No. It is a pointer to the clause that matters, with a summary. The published standard is the authority and the tool says so.",
+      },
+      {
+        q: "Why does jurisdiction matter so much?",
+        a: "Because a mix ratio, a cover to reinforcement or a fall on a roof changes at a border. A note without its jurisdiction is a note you cannot rely on.",
+      },
+      {
+        q: "Does the calculator check compliance?",
+        a: "No. The estimators measure quantities. Compliance is a design and inspection activity, and this reference supports reading a drawing, not certifying it.",
+      },
+      {
+        q: "How current is it?",
+        a: "Each entry carries the edition it refers to, so a superseded standard is visible as superseded instead of quietly wrong.",
+      },
+    ],
+    article: {
+      summary:
+        "Reference notes on the standards behind each method, with jurisdiction and edition stated.",
+      description:
+        "A standards reference indexed by trade and market. Each entry names the jurisdiction, the edition and the clause it summarises, so a specification can be checked against the right document instead of a remembered rule of thumb.",
+      functions: [
+        "Indexes reference notes by trade and jurisdiction.",
+        "Names the edition and clause each note summarises.",
+        "Links a note to the calculator that applies it.",
+        "Flags a superseded edition where one is recorded.",
+      ],
+      advantages: [
+        "Jurisdiction sits on every entry, so a rule is never applied in the wrong country.",
+        "Editions are dated, which keeps a superseded standard visible.",
+        "Notes are tied to the tools that use them, so reading and calculating stay together.",
+      ],
+      limits: [
+        "It summarises standards, it does not replace them.",
+        "It does not certify compliance with any code.",
+        "It does not interpret a standard for a specific design.",
+      ],
+    },
+  },
+  {
+    slug: "material-advisor",
+    route: "/material-advisor",
+    name: "Climate Material Advisor",
+    category: "commercial",
+    questions: [
+      {
+        q: "What does the material advisor do?",
+        a: "It narrows material choices for a climate and exposure, so a specification starts from what suits the conditions instead of from what was last used.",
+      },
+      {
+        q: "What does it base the advice on?",
+        a: "On the climate zone and exposure you select, matched against recorded performance notes, with the reasoning shown instead of a verdict.",
+      },
+      {
+        q: "Does it price anything?",
+        a: "No. It guides selection. Once a material is chosen, the calculators price it with their own inputs.",
+      },
+      {
+        q: "Is this engineering advice?",
+        a: "No. It is a starting point for specification. Structural and waterproofing design decisions remain with the designer.",
+      },
+      {
+        q: "What about availability locally?",
+        a: "Availability changes and is market specific, so the advisor flags suitability and leaves sourcing to you and your supplier.",
+      },
+    ],
+    article: {
+      summary:
+        "Material choices narrowed by climate and exposure, with the reasoning shown.",
+      description:
+        "A specification aid. Climate zone and exposure conditions are matched against recorded material performance, giving a shortlist that suits the conditions with the reasoning visible, so a specification starts from suitability instead of habit.",
+      functions: [
+        "Matches climate zone and exposure to suitable material classes.",
+        "Shows the reasoning behind each suggestion.",
+        "Links a chosen material to the calculator that measures it.",
+        "Keeps unsuitable options visible with the reason they were excluded.",
+      ],
+      advantages: [
+        "Reasoning is shown, so a suggestion can be argued with instead of obeyed.",
+        "A shortlist replaces a blank page at the start of a specification.",
+        "Excluded options stay visible, which is useful when local stock forces a second choice.",
+      ],
+      limits: [
+        "It is not engineering advice and does not design anything.",
+        "It does not check local availability or lead times.",
+        "It does not price the materials it suggests.",
+      ],
+    },
+  },
+  {
+    slug: "regional-cost-index",
+    route: "/regional-cost-index",
+    name: "Regional Cost Index",
+    category: "commercial",
+    questions: [
+      {
+        q: "What does the regional index do?",
+        a: "It expresses how costs differ between locations, so an estimate built for one market can be read against another without pretending the prices are the same.",
+      },
+      {
+        q: "Where do the indexes come from?",
+        a: "From configured regional factors with their basis recorded. A region without a factor stays unpriced instead of taking the default.",
+      },
+      {
+        q: "Does it convert currency too?",
+        a: "Currency and cost level are separate questions. The index handles the cost level; exchange rates are a displayed figure, not a hidden multiplier.",
+      },
+      {
+        q: "Why not just use one national price?",
+        a: "Because transport, labour availability and local materials move a price by a wide margin. A single national figure is accurate nowhere in particular.",
+      },
+      {
+        q: "Can I apply it to a saved estimate?",
+        a: "The factor applies to the estimate it is used with, and the factor is shown so the adjusted figure can be explained.",
+      },
+    ],
+    article: {
+      summary: "How costs differ by location, from recorded regional factors.",
+      description:
+        "A regional cost comparison. Each location carries a factor with its basis recorded, which lets an estimate built in one market be read in another with the adjustment visible instead of buried in new rates.",
+      functions: [
+        "Applies recorded regional factors to an estimate.",
+        "Shows the factor and its basis beside the adjusted figure.",
+        "Keeps currency conversion distinct from cost level adjustment.",
+        "Leaves a region without a configured factor unpriced.",
+      ],
+      advantages: [
+        "The adjustment is stated, so a client can see why a price moved between towns.",
+        "Currency and local cost level stay separate, which prevents double counting.",
+        "A missing region shows as missing instead of inheriting a national default.",
+      ],
+      limits: [
+        "It does not produce local supplier prices.",
+        "It does not handle exchange rate movement or hedging.",
+        "It does not account for site specific access and transport.",
+      ],
+    },
+  },
+  {
+    slug: "defect-diagnosis",
+    route: "/defect-diagnosis",
+    name: "Defect Diagnosis",
+    category: "commercial",
+    questions: [
+      {
+        q: "What does the defect diagnosis do?",
+        a: "It takes the symptoms you describe, such as damp patches, cracking or paint blistering, and lists the causes that commonly produce them, with the checks that separate one from another.",
+      },
+      {
+        q: "Does it tell me what is wrong?",
+        a: "It narrows the field and names the test that settles it. Diagnosis from a description alone is a guess, and the tool is explicit about that.",
+      },
+      {
+        q: "Why give several causes?",
+        a: "Because a damp patch can be a leak, a bridged damp course, condensation or a failed seal. Naming one cause from a sentence is how a remedial job gets done twice.",
+      },
+      {
+        q: "Does it price the repair?",
+        a: "No. It identifies what to check. Once the cause is established, the relevant estimator prices the work.",
+      },
+      {
+        q: "Where does the knowledge come from?",
+        a: "From recorded cause and symptom pairs with their sources, so an entry can be traced to the guidance behind it.",
+      },
+    ],
+    article: {
+      summary:
+        "Symptoms mapped to likely causes, with the check that tells them apart.",
+      description:
+        "A diagnostic aid for building defects. Symptoms are matched against recorded cause and symptom pairs, giving a shortlist of likely causes each paired with the inspection that confirms or eliminates it, so a repair follows a finding, not an assumption.",
+      functions: [
+        "Matches described symptoms to recorded causes.",
+        "Pairs each cause with the check that distinguishes it.",
+        "Links a confirmed cause to the estimator that prices the repair.",
+        "Shows the source behind each recorded entry.",
+      ],
+      advantages: [
+        "A shortlist with tests beats a single confident guess, which is how the same defect gets repaired twice.",
+        "Checks are named, so the next site visit has a purpose.",
+        "Entries trace to a source, so the reasoning can be reviewed.",
+      ],
+      limits: [
+        "It cannot diagnose from a description alone.",
+        "It does not replace a site inspection or a specialist survey.",
+        "It does not price remedial work.",
+      ],
+    },
+  },
+  {
+    slug: "bim-ifc-import",
+    route: "/bim-ifc-import",
+    name: "BIM and IFC Import",
+    category: "commercial",
+    questions: [
+      {
+        q: "What does the IFC import do?",
+        a: "It reads element quantities from an IFC model and maps them to the trade engines, so a model becomes an estimate without retyping dimensions.",
+      },
+      {
+        q: "What happens to elements it cannot map?",
+        a: "They are listed as unmapped with their type and quantity, so a gap in the model is visible instead of silently missing from the total.",
+      },
+      {
+        q: "Are the model quantities trusted directly?",
+        a: "They are shown before use. A model carries its own modelling conventions and errors, so quantities are presented for confirmation and the source element stays attached.",
+      },
+      {
+        q: "Which quantities come through?",
+        a: "Whatever the model states for area, volume and length per element, mapped to the engine that measures that trade. Derived design quantities are not invented.",
+      },
+      {
+        q: "Does it validate the model?",
+        a: "No. It reads what the model says. Model quality and coordination are a design review activity.",
+      },
+    ],
+    article: {
+      summary:
+        "Model element quantities mapped to trade engines, with unmapped elements listed.",
+      description:
+        "An IFC import path into estimating. Element area, volume and length are read from the model, mapped to the engine that measures each trade, and presented with the source element attached, while anything unmapped is listed, not dropped.",
+      functions: [
+        "Reads element quantities from an uploaded IFC model.",
+        "Maps element types to the trade engines that measure them.",
+        "Lists unmapped elements with their type and quantity.",
+        "Keeps the source element reference on each resulting line.",
+      ],
+      advantages: [
+        "Dimensions transfer from model to estimate without retyping.",
+        "Unmapped elements are declared, so a missing trade is noticed before the quote is sent.",
+        "Source references make a model based estimate as auditable as a manual takeoff.",
+      ],
+      limits: [
+        "It does not validate or coordinate the model.",
+        "It does not invent quantities the model does not carry.",
+        "It does not design anything from the geometry it reads.",
+      ],
+    },
+  },
+  {
+    slug: "field-sync",
+    route: "/field-sync",
+    name: "Field Sync",
+    category: "commercial",
+    questions: [
+      {
+        q: "What does field sync do?",
+        a: "It brings measurements and notes recorded on site back into the estimate, so a dimension taken at the wall does not have to be remembered and retyped later.",
+      },
+      {
+        q: "What happens if a sync clashes with a stored figure?",
+        a: "The clash is shown and you choose which value stands. Nothing is overwritten quietly, because the site figure and the drawing figure are both evidence.",
+      },
+      {
+        q: "Does it work offline?",
+        a: "Records can be captured and sent when a connection returns. The state of each record is shown so an unsent measurement is not mistaken for a saved one.",
+      },
+      {
+        q: "Is it a project management tool?",
+        a: "No. It moves measurements and notes between site and estimate. Task tracking and document control are separate.",
+      },
+      {
+        q: "Who can see a synced record?",
+        a: "Whoever has access to the estimate it belongs to, under the same permissions as the rest of the project.",
+      },
+    ],
+    article: {
+      summary:
+        "Site measurements and notes returned to the estimate, with conflicts shown instead of overwritten.",
+      description:
+        "A link between the site and the estimate. Measurements and notes captured on site are returned to the project record, each with its state visible, and a value that disagrees with a stored figure is presented as a choice instead of being resolved silently.",
+      functions: [
+        "Returns site measurements and notes to the estimate they belong to.",
+        "Shows the sync state of every captured record.",
+        "Presents a conflicting value as a decision instead of overwriting.",
+        "Keeps the site record alongside the figure it replaced.",
+      ],
+      advantages: [
+        "Dimensions reach the estimate without a retyping step and its errors.",
+        "Conflicts are explicit, so the drawing and the wall can both be considered.",
+        "Unsent records are visible, which prevents a measurement being lost quietly.",
+      ],
+      limits: [
+        "It is not project management, task tracking or document control.",
+        "It does not resolve a conflict for you.",
+        "It does not validate a measurement against a tolerance.",
+      ],
+    },
+  },
+  {
+    slug: "material-prices",
+    route: "/material-prices",
+    name: "Material Prices",
+    category: "commercial",
+    questions: [
+      {
+        q: "What does the material price page show?",
+        a: "Current recorded prices per material and market, each with the date it was captured and the source it came from.",
+      },
+      {
+        q: "Are these prices guaranteed?",
+        a: "No. They are recorded figures with dates. A supplier quotation for your quantity is the authority, and the page says so.",
+      },
+      {
+        q: "Why does the date matter?",
+        a: "Because a price without a date cannot be judged. A figure from six months ago is history, and showing its date is what stops it being used as current.",
+      },
+      {
+        q: "Can I see where a price came from?",
+        a: "Yes. Each recorded price carries its source reference, so a figure can be checked against the supplier or the survey it came from.",
+      },
+      {
+        q: "How does this relate to the calculators?",
+        a: "The estimators use configured price data. Where a material has no verified price, the calculator asks you to enter one instead of assuming it.",
+      },
+    ],
+    article: {
+      summary:
+        "Recorded material prices by market, each with a date and a source.",
+      description:
+        "A price record, not a price list. Every material carries the figure recorded for it, the date it was captured and the source behind it, so a reader can judge whether the number is current and where it came from.",
+      functions: [
+        "Lists recorded prices per material and market.",
+        "Shows the capture date and source reference beside each price.",
+        "Marks materials with no verified price as unpriced.",
+        "Links a priced material to the calculators that use it.",
+      ],
+      advantages: [
+        "A date on every figure prevents an old price being read as today's.",
+        "Source references make a price checkable.",
+        "Unpriced materials are declared, which keeps a quotation honest.",
+      ],
+      limits: [
+        "It is not a supplier quotation or a commitment to supply.",
+        "It does not include delivery, tax or quantity breaks.",
+        "It does not update itself from a supplier feed.",
+      ],
+    },
+  },
 ];
 
 export const ENGINE_FAQ_GROUPS: ToolFaqGroup[] = ENGINE_FAQ_ENTRIES.map(

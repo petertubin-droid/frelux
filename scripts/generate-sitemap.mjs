@@ -9,10 +9,40 @@
  * env vars), the sitemap falls back to the static route list so the build
  * never breaks.
  */
-import { writeFileSync, mkdirSync } from "fs";
+import { writeFileSync, mkdirSync, readFileSync } from "fs";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { SITE_URL } from "./lib/site-url.mjs";
+
+/**
+ * FAQ article slugs, read from the registries so a new answer page is indexed
+ * the moment it ships without a second list to maintain.
+ */
+function faqArticleRoutes() {
+  const files = [
+    "src/config/tool-faqs.ts",
+    "src/config/engine-faqs.ts",
+  ];
+  const slugs = new Set();
+  for (const file of files) {
+    let source = "";
+    try {
+      source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
+    } catch {
+      continue;
+    }
+    for (const match of source.matchAll(/^\s*slug: "([a-z0-9-]+)",/gm)) {
+      slugs.add(match[1]);
+    }
+  }
+  return [...slugs]
+    .sort()
+    .map((slug) => ({
+      path: `/faq/${slug}`,
+      priority: "0.6",
+      changefreq: "monthly",
+    }));
+}
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -38,6 +68,7 @@ const routes = [
   { path: "/tools/pro", priority: "0.7", changefreq: "monthly" },
   { path: "/feedback", priority: "0.7", changefreq: "monthly" },
   { path: "/faq", priority: "0.9", changefreq: "monthly" },
+  ...faqArticleRoutes(),
   { path: "/data-request", priority: "0.6", changefreq: "yearly" },
   { path: "/start-building", priority: "0.9", changefreq: "weekly" },
   { path: "/paint-calculator", priority: "0.9", changefreq: "monthly" },

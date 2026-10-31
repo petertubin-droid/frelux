@@ -13,6 +13,8 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { getFaqArticle, FAQ_ARTICLE_SECTIONS } from "@/config/faq-articles";
+import { faqSeoFor } from "@/config/faq-seo";
+import { SITE_URL } from "@/lib/site-config";
 import { FAQ_CATEGORIES, getToolFaqGroup } from "@/config/tool-faqs";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { ArrowRight, Calculator } from "lucide-react";
@@ -25,15 +27,56 @@ export default function FaqArticle() {
     FAQ_CATEGORIES.find((category) => category.id === group?.category)?.label ??
     null;
 
-  useSeo({
-    title: group
-      ? `${group.name}: what it calculates and what it leaves out | FRELUX`
-      : "Questions and answers | FRELUX",
-    description: article
-      ? article.summary
-      : "Answers to the questions people ask before buying building materials.",
-    canonicalPath: `/faq/${slug}`,
-  });
+  const seo =
+    group && article
+      ? faqSeoFor(
+          {
+            slug: group.slug,
+            name: group.name,
+            route: group.route,
+            category: group.category,
+          },
+          article,
+        )
+      : null;
+
+  useSeo(
+    seo && group && article
+      ? {
+          title: seo.title,
+          description: seo.description,
+          keywords: seo.keywords,
+          canonicalPath: `/faq/${slug}`,
+          ogType: "article",
+          structuredData: {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: group.name,
+            description: seo.description,
+            abstract: article.summary,
+            articleSection: categoryLabel ?? "Construction",
+            inLanguage: "en",
+            isAccessibleForFree: true,
+            mainEntityOfPage: `${SITE_URL}/faq/${slug}/`,
+            about: {
+              "@type": "Thing",
+              name: `${group.name} quantities and costs`,
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "FRELUX SMART CALC",
+              url: SITE_URL,
+            },
+          },
+        }
+      : {
+          title: "Questions and answers | FRELUX",
+          description:
+            "Answers to the questions people ask before buying building materials.",
+          canonicalPath: `/faq/${slug}`,
+          noIndex: true,
+        },
+  );
   useBreadcrumbJsonLd([
     { name: "Questions and Answers", path: "/faq" },
     ...(group ? [{ name: group.name, path: `/faq/${group.slug}` }] : []),
