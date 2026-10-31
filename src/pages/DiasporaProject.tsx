@@ -52,7 +52,8 @@ import {
   type ProjectRole,
 } from "@/lib/diaspora/permissions";
 
-type Tab = "overview" | "reports" | "expenses" | "materials" | "milestones" | "team";
+type Tab =
+  "overview" | "reports" | "expenses" | "materials" | "milestones" | "team";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "overview", label: "Overview" },
@@ -101,7 +102,7 @@ export default function DiasporaProject() {
     next: "",
   });
   const [expenseForm, setExpenseForm] = useState({
-    category: "Materials",
+    category: "material",
     name: "",
     amount: "",
     recipient: "",
@@ -118,7 +119,10 @@ export default function DiasporaProject() {
     date: new Date().toISOString().slice(0, 10),
     unitPrice: "",
   });
-  const [inviteForm, setInviteForm] = useState({ email: "", role: "site_manager" as ProjectRole });
+  const [inviteForm, setInviteForm] = useState({
+    email: "",
+    role: "site_manager" as ProjectRole,
+  });
   const [inviteLink, setInviteLink] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -146,7 +150,9 @@ export default function DiasporaProject() {
     load();
     // The viewer's own role is derived from the same helper the database uses.
     import("@/lib/supabase").then(async ({ supabase }) => {
-      const { data } = await supabase.rpc("project_role", { p_project: projectId });
+      const { data } = await supabase.rpc("project_role", {
+        p_project: projectId,
+      });
       setMyRole((data as ProjectRole) ?? null);
     });
   }, [load, projectId]);
@@ -159,9 +165,12 @@ export default function DiasporaProject() {
     noIndex: true,
   });
 
-  const projectData = (project?.project_data ?? {}) as Record<string, unknown>;
-  const budget = typeof projectData.budget === "number" ? projectData.budget : null;
-  const currency = typeof projectData.currency === "string" ? projectData.currency : "NGN";
+  const budget =
+    typeof project?.budget === "number" ? (project.budget as number) : null;
+  const currency =
+    typeof project?.currency === "string"
+      ? (project.currency as string)
+      : "NGN";
   const summary = useMemo(
     () => summariseBudget(budget, expenses, currency),
     [budget, expenses, currency],
@@ -172,7 +181,9 @@ export default function DiasporaProject() {
     [expenses],
   );
   const disputed = useMemo(
-    () => stages.filter((s) => (s as { status?: string }).status === "submitted").length,
+    () =>
+      stages.filter((s) => (s as { status?: string }).status === "submitted")
+        .length,
     [stages],
   );
 
@@ -201,8 +212,9 @@ export default function DiasporaProject() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-sm">
         <p>
-          This project is not available to you. If you were invited, ask the owner to check the
-          invitation email used, or to issue a new invitation.
+          This project is not available to you. If you were invited, ask the
+          owner to check the invitation email used, or to issue a new
+          invitation.
         </p>
         <Link to="/diaspora-tracker" className="mt-4 inline-block underline">
           Back to your projects
@@ -254,11 +266,23 @@ export default function DiasporaProject() {
           <div className="space-y-6">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { label: "Budget", value: formatMoney(summary.budget, currency) },
-                { label: "Approved spend", value: formatMoney(summary.approved, currency) },
-                { label: "Pending approval", value: formatMoney(summary.pending, currency) },
                 {
-                  label: summary.variance != null && summary.variance < 0 ? "Over budget" : "Remaining",
+                  label: "Budget",
+                  value: formatMoney(summary.budget, currency),
+                },
+                {
+                  label: "Approved spend",
+                  value: formatMoney(summary.approved, currency),
+                },
+                {
+                  label: "Pending approval",
+                  value: formatMoney(summary.pending, currency),
+                },
+                {
+                  label:
+                    summary.variance != null && summary.variance < 0
+                      ? "Over budget"
+                      : "Remaining",
                   value: formatMoney(
                     summary.variance != null && summary.variance < 0
                       ? Math.abs(summary.variance)
@@ -267,7 +291,10 @@ export default function DiasporaProject() {
                   ),
                 },
               ].map((tile) => (
-                <div key={tile.label} className="rounded-xl border border-border/70 bg-card p-4">
+                <div
+                  key={tile.label}
+                  className="rounded-xl border border-border/70 bg-card p-4"
+                >
                   <p className="text-xs text-muted-foreground">{tile.label}</p>
                   <p className="mt-1 text-lg font-semibold">{tile.value}</p>
                 </div>
@@ -277,8 +304,9 @@ export default function DiasporaProject() {
             {summary.excluded_currencies.length > 0 && (
               <p className="flex items-center gap-2 text-xs text-muted-foreground">
                 <AlertTriangle aria-hidden="true" className="h-3.5 w-3.5" />
-                Expenses in {summary.excluded_currencies.join(", ")} are listed but not added to
-                this total: FRELUX does not invent an exchange rate.
+                Expenses in {summary.excluded_currencies.join(", ")} are listed
+                but not added to this total: FRELUX does not invent an exchange
+                rate.
               </p>
             )}
 
@@ -299,19 +327,26 @@ export default function DiasporaProject() {
 
             <section className="space-y-2">
               <h3 className="flex items-center gap-2 text-sm font-semibold">
-                <Camera aria-hidden="true" className="h-4 w-4" /> Recent evidence
+                <Camera aria-hidden="true" className="h-4 w-4" /> Recent
+                evidence
               </h3>
               {attachments.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No photographs or documents yet.</p>
+                <p className="text-sm text-muted-foreground">
+                  No photographs or documents yet.
+                </p>
               ) : (
                 <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {attachments.slice(0, 8).map((a) => (
-                    <li key={String(a.id)} className="rounded-lg border border-border/70 bg-card p-2">
+                    <li
+                      key={String(a.id)}
+                      className="rounded-lg border border-border/70 bg-card p-2"
+                    >
                       <button
                         className="w-full truncate text-left text-xs underline"
                         onClick={async () => {
-                          const url = await signedEvidenceUrl(String(a.storage_path));
-                          if (url) window.open(url, "_blank", "noopener,noreferrer");
+                          const url = await signedEvidenceUrl(String(a.id));
+                          if (url)
+                            window.open(url, "_blank", "noopener,noreferrer");
                           else setError("That file could not be opened.");
                         }}
                       >
@@ -329,18 +364,30 @@ export default function DiasporaProject() {
 
             <section className="space-y-2">
               <h3 className="flex items-center gap-2 text-sm font-semibold">
-                <ClipboardList aria-hidden="true" className="h-4 w-4" /> Latest site reports
+                <ClipboardList aria-hidden="true" className="h-4 w-4" /> Latest
+                site reports
               </h3>
               {reports.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No daily reports yet.</p>
+                <p className="text-sm text-muted-foreground">
+                  No daily reports yet.
+                </p>
               ) : (
                 <ul className="space-y-2">
                   {reports.slice(0, 3).map((r) => (
-                    <li key={String(r.id)} className="rounded-lg border border-border/70 bg-card p-3 text-sm">
-                      <p className="font-medium">{String(r.log_date)} · {String(r.weather_condition ?? "weather not stated")}</p>
-                      <p className="mt-1 text-muted-foreground">{String(r.work_performed ?? "")}</p>
+                    <li
+                      key={String(r.id)}
+                      className="rounded-lg border border-border/70 bg-card p-3 text-sm"
+                    >
+                      <p className="font-medium">
+                        {String(r.log_date)} ·{" "}
+                        {String(r.weather_condition ?? "weather not stated")}
+                      </p>
+                      <p className="mt-1 text-muted-foreground">
+                        {String(r.work_performed ?? "")}
+                      </p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {String(r.workers_count ?? 0)} workers · reported {new Date(String(r.created_at)).toLocaleString()}
+                        {String(r.workers_count ?? 0)} workers · reported{" "}
+                        {new Date(String(r.created_at)).toLocaleString()}
                       </p>
                     </li>
                   ))}
@@ -356,7 +403,8 @@ export default function DiasporaProject() {
                 {activity.length === 0 && <li>No activity recorded yet.</li>}
                 {activity.slice(0, 12).map((a) => (
                   <li key={String(a.id)}>
-                    {new Date(String(a.created_at)).toLocaleString()} · {String(a.action).replace(/_/g, " ")}
+                    {new Date(String(a.created_at)).toLocaleString()} ·{" "}
+                    {String(a.action).replace(/_/g, " ")}
                   </li>
                 ))}
               </ul>
@@ -373,7 +421,9 @@ export default function DiasporaProject() {
                   <input
                     type="date"
                     value={reportForm.date}
-                    onChange={(e) => setReportForm((f) => ({ ...f, date: e.target.value }))}
+                    onChange={(e) =>
+                      setReportForm((f) => ({ ...f, date: e.target.value }))
+                    }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
                 </label>
@@ -381,7 +431,9 @@ export default function DiasporaProject() {
                   <span className="text-muted-foreground">Weather</span>
                   <input
                     value={reportForm.weather}
-                    onChange={(e) => setReportForm((f) => ({ ...f, weather: e.target.value }))}
+                    onChange={(e) =>
+                      setReportForm((f) => ({ ...f, weather: e.target.value }))
+                    }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
                 </label>
@@ -389,16 +441,22 @@ export default function DiasporaProject() {
                   <span className="text-muted-foreground">Workers present</span>
                   <input
                     value={reportForm.workers}
-                    onChange={(e) => setReportForm((f) => ({ ...f, workers: e.target.value }))}
+                    onChange={(e) =>
+                      setReportForm((f) => ({ ...f, workers: e.target.value }))
+                    }
                     inputMode="numeric"
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
                 </label>
                 <label className="text-xs">
-                  <span className="text-muted-foreground">Next day activities</span>
+                  <span className="text-muted-foreground">
+                    Next day activities
+                  </span>
                   <input
                     value={reportForm.next}
-                    onChange={(e) => setReportForm((f) => ({ ...f, next: e.target.value }))}
+                    onChange={(e) =>
+                      setReportForm((f) => ({ ...f, next: e.target.value }))
+                    }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
                 </label>
@@ -406,16 +464,22 @@ export default function DiasporaProject() {
                   <span className="text-muted-foreground">Work completed</span>
                   <textarea
                     value={reportForm.work}
-                    onChange={(e) => setReportForm((f) => ({ ...f, work: e.target.value }))}
+                    onChange={(e) =>
+                      setReportForm((f) => ({ ...f, work: e.target.value }))
+                    }
                     rows={3}
                     className="mt-1 w-full rounded-md border border-border/70 bg-background p-2 text-sm"
                   />
                 </label>
                 <label className="text-xs sm:col-span-2">
-                  <span className="text-muted-foreground">Delays and issues</span>
+                  <span className="text-muted-foreground">
+                    Delays and issues
+                  </span>
                   <input
                     value={reportForm.delays}
-                    onChange={(e) => setReportForm((f) => ({ ...f, delays: e.target.value }))}
+                    onChange={(e) =>
+                      setReportForm((f) => ({ ...f, delays: e.target.value }))
+                    }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
                 </label>
@@ -438,7 +502,11 @@ export default function DiasporaProject() {
                       )
                     }
                   >
-                    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit daily report"}
+                    {busy ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Submit daily report"
+                    )}
                   </Button>
                 </div>
               </div>
@@ -448,7 +516,10 @@ export default function DiasporaProject() {
 
             <ul className="space-y-2">
               {reports.map((r) => (
-                <li key={String(r.id)} className="rounded-lg border border-border/70 bg-card p-3 text-sm">
+                <li
+                  key={String(r.id)}
+                  className="rounded-lg border border-border/70 bg-card p-3 text-sm"
+                >
                   <div className="flex items-center justify-between">
                     <p className="font-medium">{String(r.log_date)}</p>
                     <span className="text-[11px] text-muted-foreground">
@@ -480,17 +551,23 @@ export default function DiasporaProject() {
                   <span className="text-muted-foreground">Category</span>
                   <select
                     value={expenseForm.category}
-                    onChange={(e) => setExpenseForm((f) => ({ ...f, category: e.target.value }))}
+                    onChange={(e) =>
+                      setExpenseForm((f) => ({
+                        ...f,
+                        category: e.target.value,
+                      }))
+                    }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   >
                     {[
-                      "Materials",
-                      "Labour",
-                      "Transportation",
-                      "Equipment rental",
-                      "Professional fees",
-                      "Contractor payments",
-                      "Miscellaneous",
+                      // Values must match project_expenses_category_check.
+                      "material",
+                      "labour",
+                      "transport",
+                      "equipment",
+                      "professional_fees",
+                      "contractor_payment",
+                      "misc",
                     ].map((c) => (
                       <option key={c} value={c}>
                         {c}
@@ -502,15 +579,21 @@ export default function DiasporaProject() {
                   <span className="text-muted-foreground">Description</span>
                   <input
                     value={expenseForm.name}
-                    onChange={(e) => setExpenseForm((f) => ({ ...f, name: e.target.value }))}
+                    onChange={(e) =>
+                      setExpenseForm((f) => ({ ...f, name: e.target.value }))
+                    }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
                 </label>
                 <label className="text-xs">
-                  <span className="text-muted-foreground">Amount ({currency})</span>
+                  <span className="text-muted-foreground">
+                    Amount ({currency})
+                  </span>
                   <input
                     value={expenseForm.amount}
-                    onChange={(e) => setExpenseForm((f) => ({ ...f, amount: e.target.value }))}
+                    onChange={(e) =>
+                      setExpenseForm((f) => ({ ...f, amount: e.target.value }))
+                    }
                     inputMode="decimal"
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
@@ -519,7 +602,12 @@ export default function DiasporaProject() {
                   <span className="text-muted-foreground">Recipient</span>
                   <input
                     value={expenseForm.recipient}
-                    onChange={(e) => setExpenseForm((f) => ({ ...f, recipient: e.target.value }))}
+                    onChange={(e) =>
+                      setExpenseForm((f) => ({
+                        ...f,
+                        recipient: e.target.value,
+                      }))
+                    }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
                 </label>
@@ -528,13 +616,19 @@ export default function DiasporaProject() {
                   <input
                     type="date"
                     value={expenseForm.date}
-                    onChange={(e) => setExpenseForm((f) => ({ ...f, date: e.target.value }))}
+                    onChange={(e) =>
+                      setExpenseForm((f) => ({ ...f, date: e.target.value }))
+                    }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
                 </label>
                 <div className="flex items-end">
                   <Button
-                    disabled={busy || !expenseForm.name.trim() || !(Number(expenseForm.amount) > 0)}
+                    disabled={
+                      busy ||
+                      !expenseForm.name.trim() ||
+                      !(Number(expenseForm.amount) > 0)
+                    }
                     onClick={() =>
                       act(
                         () =>
@@ -557,7 +651,9 @@ export default function DiasporaProject() {
                 </div>
               </div>
             )}
-            {!can(myRole, "approve_expense") && <Denied permission="approve_expense" />}
+            {!can(myRole, "approve_expense") && (
+              <Denied permission="approve_expense" />
+            )}
 
             <div className="overflow-x-auto rounded-xl border border-border/70">
               <table className="w-full min-w-[720px] text-sm">
@@ -574,7 +670,10 @@ export default function DiasporaProject() {
                 <tbody className="divide-y divide-border/60">
                   {expenses.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-3 py-6 text-center text-muted-foreground">
+                      <td
+                        colSpan={6}
+                        className="px-3 py-6 text-center text-muted-foreground"
+                      >
                         No expenditure recorded yet.
                       </td>
                     </tr>
@@ -585,14 +684,19 @@ export default function DiasporaProject() {
                       <td className="px-3 py-2">
                         {e.name}
                         {e.receipt_path ? (
-                          <span className="ml-2 text-[11px] text-muted-foreground">receipt attached</span>
+                          <span className="ml-2 text-[11px] text-muted-foreground">
+                            receipt attached
+                          </span>
                         ) : null}
                       </td>
                       <td className="px-3 py-2 text-xs">{e.category}</td>
-                      <td className="px-3 py-2">{formatMoney(Number(e.amount), e.currency)}</td>
+                      <td className="px-3 py-2">
+                        {formatMoney(Number(e.amount), e.currency)}
+                      </td>
                       <td className="px-3 py-2 text-xs">{e.status}</td>
                       <td className="px-3 py-2">
-                        {e.status === "submitted" && can(myRole, "approve_expense") ? (
+                        {e.status === "submitted" &&
+                        can(myRole, "approve_expense") ? (
                           <div className="flex gap-1">
                             <Button
                               size="sm"
@@ -600,7 +704,12 @@ export default function DiasporaProject() {
                               disabled={busy}
                               onClick={() =>
                                 act(
-                                  () => decideExpense({ id: e.id, projectId, decision: "approved" }),
+                                  () =>
+                                    decideExpense({
+                                      id: e.id,
+                                      projectId,
+                                      decision: "approved",
+                                    }),
                                   "Expense approved.",
                                 )
                               }
@@ -613,7 +722,12 @@ export default function DiasporaProject() {
                               disabled={busy}
                               onClick={() =>
                                 act(
-                                  () => decideExpense({ id: e.id, projectId, decision: "rejected" }),
+                                  () =>
+                                    decideExpense({
+                                      id: e.id,
+                                      projectId,
+                                      decision: "rejected",
+                                    }),
                                   "Expense rejected.",
                                 )
                               }
@@ -643,7 +757,12 @@ export default function DiasporaProject() {
                   <span className="text-muted-foreground">Material</span>
                   <input
                     value={deliveryForm.description}
-                    onChange={(e) => setDeliveryForm((f) => ({ ...f, description: e.target.value }))}
+                    onChange={(e) =>
+                      setDeliveryForm((f) => ({
+                        ...f,
+                        description: e.target.value,
+                      }))
+                    }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
                 </label>
@@ -651,7 +770,12 @@ export default function DiasporaProject() {
                   <span className="text-muted-foreground">Ordered</span>
                   <input
                     value={deliveryForm.ordered}
-                    onChange={(e) => setDeliveryForm((f) => ({ ...f, ordered: e.target.value }))}
+                    onChange={(e) =>
+                      setDeliveryForm((f) => ({
+                        ...f,
+                        ordered: e.target.value,
+                      }))
+                    }
                     inputMode="decimal"
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
@@ -660,7 +784,12 @@ export default function DiasporaProject() {
                   <span className="text-muted-foreground">Delivered</span>
                   <input
                     value={deliveryForm.delivered}
-                    onChange={(e) => setDeliveryForm((f) => ({ ...f, delivered: e.target.value }))}
+                    onChange={(e) =>
+                      setDeliveryForm((f) => ({
+                        ...f,
+                        delivered: e.target.value,
+                      }))
+                    }
                     inputMode="decimal"
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
@@ -669,7 +798,12 @@ export default function DiasporaProject() {
                   <span className="text-muted-foreground">Accepted</span>
                   <input
                     value={deliveryForm.accepted}
-                    onChange={(e) => setDeliveryForm((f) => ({ ...f, accepted: e.target.value }))}
+                    onChange={(e) =>
+                      setDeliveryForm((f) => ({
+                        ...f,
+                        accepted: e.target.value,
+                      }))
+                    }
                     inputMode="decimal"
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
@@ -678,15 +812,27 @@ export default function DiasporaProject() {
                   <span className="text-muted-foreground">Supplier</span>
                   <input
                     value={deliveryForm.supplier}
-                    onChange={(e) => setDeliveryForm((f) => ({ ...f, supplier: e.target.value }))}
+                    onChange={(e) =>
+                      setDeliveryForm((f) => ({
+                        ...f,
+                        supplier: e.target.value,
+                      }))
+                    }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
                 </label>
                 <label className="text-xs">
-                  <span className="text-muted-foreground">Unit price (optional)</span>
+                  <span className="text-muted-foreground">
+                    Unit price (optional)
+                  </span>
                   <input
                     value={deliveryForm.unitPrice}
-                    onChange={(e) => setDeliveryForm((f) => ({ ...f, unitPrice: e.target.value }))}
+                    onChange={(e) =>
+                      setDeliveryForm((f) => ({
+                        ...f,
+                        unitPrice: e.target.value,
+                      }))
+                    }
                     inputMode="decimal"
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
@@ -701,11 +847,15 @@ export default function DiasporaProject() {
                             projectId,
                             description: deliveryForm.description,
                             quantityOrdered: Number(deliveryForm.ordered) || 0,
-                            quantityDelivered: Number(deliveryForm.delivered) || 0,
-                            quantityAccepted: Number(deliveryForm.accepted) || 0,
+                            quantityDelivered:
+                              Number(deliveryForm.delivered) || 0,
+                            quantityAccepted:
+                              Number(deliveryForm.accepted) || 0,
                             supplier: deliveryForm.supplier,
                             deliveryDate: deliveryForm.date,
-                            unitPrice: deliveryForm.unitPrice ? Number(deliveryForm.unitPrice) : null,
+                            unitPrice: deliveryForm.unitPrice
+                              ? Number(deliveryForm.unitPrice)
+                              : null,
                           }),
                         "Delivery recorded.",
                       )
@@ -731,7 +881,10 @@ export default function DiasporaProject() {
                 <tbody className="divide-y divide-border/60">
                   {deliveries.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-3 py-6 text-center text-muted-foreground">
+                      <td
+                        colSpan={5}
+                        className="px-3 py-6 text-center text-muted-foreground"
+                      >
                         No deliveries recorded yet.
                       </td>
                     </tr>
@@ -747,18 +900,31 @@ export default function DiasporaProject() {
                         <td className="px-3 py-2">
                           {String(d.description)}
                           <span className="block text-[11px] text-muted-foreground">
-                            {String(d.delivery_date)} · {String(d.supplier ?? "supplier not stated")}
+                            {String(d.delivery_date)} ·{" "}
+                            {String(d.supplier ?? "supplier not stated")}
                           </span>
                         </td>
-                        <td className="px-3 py-2">{String(d.quantity_ordered)}</td>
-                        <td className="px-3 py-2">{String(d.quantity_delivered)}</td>
-                        <td className="px-3 py-2">{String(d.quantity_accepted)}</td>
+                        <td className="px-3 py-2">
+                          {String(d.quantity_ordered)}
+                        </td>
+                        <td className="px-3 py-2">
+                          {String(d.quantity_delivered)}
+                        </td>
+                        <td className="px-3 py-2">
+                          {String(d.quantity_accepted)}
+                        </td>
                         <td className="px-3 py-2 text-xs">
                           {check.has_issue ? (
                             <span className="text-amber-700 dark:text-amber-400">
-                              {check.shortfall > 0 ? `${check.shortfall} short` : ""}
-                              {check.shortfall > 0 && check.rejected > 0 ? ", " : ""}
-                              {check.rejected > 0 ? `${check.rejected} rejected` : ""}
+                              {check.shortfall > 0
+                                ? `${check.shortfall} short`
+                                : ""}
+                              {check.shortfall > 0 && check.rejected > 0
+                                ? ", "
+                                : ""}
+                              {check.rejected > 0
+                                ? `${check.rejected} rejected`
+                                : ""}
                             </span>
                           ) : (
                             <span className="text-muted-foreground">None</span>
@@ -781,9 +947,14 @@ export default function DiasporaProject() {
               </li>
             )}
             {stages.map((s) => {
-              const status = String((s as { status?: string }).status ?? "pending");
+              const status = String(
+                (s as { status?: string }).status ?? "pending",
+              );
               return (
-                <li key={String(s.id)} className="rounded-lg border border-border/70 bg-card p-3">
+                <li
+                  key={String(s.id)}
+                  className="rounded-lg border border-border/70 bg-card p-3"
+                >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
                       <p className="font-medium">{String(s.stage_name)}</p>
@@ -792,30 +963,11 @@ export default function DiasporaProject() {
                       </p>
                     </div>
                     <div className="flex gap-1">
-                      {can(myRole, "update_milestone") && status !== "approved" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={busy}
-                          onClick={() =>
-                            act(
-                              () =>
-                                decideMilestone({
-                                  id: String(s.id),
-                                  projectId,
-                                  decision: "submitted",
-                                }),
-                              "Milestone submitted for a decision.",
-                            )
-                          }
-                        >
-                          Mark submitted
-                        </Button>
-                      )}
-                      {can(myRole, "decide_milestone") && status === "submitted" && (
-                        <>
+                      {can(myRole, "update_milestone") &&
+                        status !== "approved" && (
                           <Button
                             size="sm"
+                            variant="outline"
                             disabled={busy}
                             onClick={() =>
                               act(
@@ -823,34 +975,55 @@ export default function DiasporaProject() {
                                   decideMilestone({
                                     id: String(s.id),
                                     projectId,
-                                    decision: "approved",
+                                    decision: "submitted",
                                   }),
-                                "Milestone approved.",
+                                "Milestone submitted for a decision.",
                               )
                             }
                           >
-                            Approve
+                            Mark submitted
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            disabled={busy}
-                            onClick={() =>
-                              act(
-                                () =>
-                                  decideMilestone({
-                                    id: String(s.id),
-                                    projectId,
-                                    decision: "disputed",
-                                  }),
-                                "Milestone disputed.",
-                              )
-                            }
-                          >
-                            Dispute
-                          </Button>
-                        </>
-                      )}
+                        )}
+                      {can(myRole, "decide_milestone") &&
+                        status === "submitted" && (
+                          <>
+                            <Button
+                              size="sm"
+                              disabled={busy}
+                              onClick={() =>
+                                act(
+                                  () =>
+                                    decideMilestone({
+                                      id: String(s.id),
+                                      projectId,
+                                      decision: "approved",
+                                    }),
+                                  "Milestone approved.",
+                                )
+                              }
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              disabled={busy}
+                              onClick={() =>
+                                act(
+                                  () =>
+                                    decideMilestone({
+                                      id: String(s.id),
+                                      projectId,
+                                      decision: "disputed",
+                                    }),
+                                  "Milestone disputed.",
+                                )
+                              }
+                            >
+                              Dispute
+                            </Button>
+                          </>
+                        )}
                     </div>
                   </div>
                 </li>
@@ -858,7 +1031,8 @@ export default function DiasporaProject() {
             })}
             {disputed > 0 && (
               <li className="text-xs text-muted-foreground">
-                {disputed} milestone{disputed === 1 ? "" : "s"} awaiting your decision.
+                {disputed} milestone{disputed === 1 ? "" : "s"} awaiting your
+                decision.
               </li>
             )}
           </ul>
@@ -868,13 +1042,21 @@ export default function DiasporaProject() {
           <div className="space-y-6">
             <ul className="divide-y divide-border/60 overflow-hidden rounded-xl border border-border/70 bg-card">
               {members.length === 0 && (
-                <li className="p-4 text-sm text-muted-foreground">No participants recorded yet.</li>
+                <li className="p-4 text-sm text-muted-foreground">
+                  No participants recorded yet.
+                </li>
               )}
               {members.map((m) => (
-                <li key={String(m.user_id)} className="flex items-center justify-between p-3 text-sm">
-                  <span className="truncate text-xs text-muted-foreground">{String(m.user_id)}</span>
+                <li
+                  key={String(m.user_id)}
+                  className="flex items-center justify-between p-3 text-sm"
+                >
+                  <span className="truncate text-xs text-muted-foreground">
+                    {String(m.user_id)}
+                  </span>
                   <span className="rounded-full border border-border px-2 py-0.5 text-[11px]">
-                    {ROLE_LABELS[String(m.role) as ProjectRole] ?? String(m.role)}
+                    {ROLE_LABELS[String(m.role) as ProjectRole] ??
+                      String(m.role)}
                   </span>
                 </li>
               ))}
@@ -883,19 +1065,28 @@ export default function DiasporaProject() {
             {can(myRole, "invite_participants") ? (
               <div className="grid gap-3 rounded-xl border border-border/70 bg-card p-4 sm:grid-cols-3">
                 <label className="text-xs sm:col-span-2">
-                  <span className="text-muted-foreground">Email of the person you are inviting</span>
+                  <span className="text-muted-foreground">
+                    Email of the person you are inviting
+                  </span>
                   <input
                     value={inviteForm.email}
-                    onChange={(e) => setInviteForm((f) => ({ ...f, email: e.target.value }))}
+                    onChange={(e) =>
+                      setInviteForm((f) => ({ ...f, email: e.target.value }))
+                    }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
                 </label>
                 <label className="text-xs">
-                  <span className="text-muted-foreground">Role on this project</span>
+                  <span className="text-muted-foreground">
+                    Role on this project
+                  </span>
                   <select
                     value={inviteForm.role}
                     onChange={(e) =>
-                      setInviteForm((f) => ({ ...f, role: e.target.value as ProjectRole }))
+                      setInviteForm((f) => ({
+                        ...f,
+                        role: e.target.value as ProjectRole,
+                      }))
                     }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   >
@@ -911,14 +1102,17 @@ export default function DiasporaProject() {
                     onClick={async () => {
                       setBusy(true);
                       setError(null);
-                      const { link, error: inviteError } = await inviteParticipant({
-                        projectId,
-                        email: inviteForm.email,
-                        role: inviteForm.role,
-                      });
+                      const { link, error: inviteError } =
+                        await inviteParticipant({
+                          projectId,
+                          email: inviteForm.email,
+                          role: inviteForm.role,
+                        });
                       setBusy(false);
                       if (inviteError || !link) {
-                        setError(inviteError ?? "The invitation could not be created.");
+                        setError(
+                          inviteError ?? "The invitation could not be created.",
+                        );
                         return;
                       }
                       setInviteLink(link);
@@ -931,8 +1125,8 @@ export default function DiasporaProject() {
                 {inviteLink && (
                   <div className="sm:col-span-3">
                     <p className="text-xs text-muted-foreground">
-                      Share this link privately. It can be used once, by the invited email
-                      address, and expires in 72 hours.
+                      Share this link privately. It can be used once, by the
+                      invited email address, and expires in 72 hours.
                     </p>
                     <code className="mt-1 block overflow-x-auto rounded bg-muted p-2 text-[11px]">
                       {inviteLink}
@@ -949,7 +1143,8 @@ export default function DiasporaProject() {
         {attachments.length > 0 && tab === "overview" && (
           <p className="text-xs text-muted-foreground">
             <Upload aria-hidden="true" className="mr-1 inline h-3 w-3" />
-            Evidence is private. Opening a file generates a link valid for five minutes.
+            Evidence is private. Opening a file generates a link valid for five
+            minutes.
           </p>
         )}
       </div>

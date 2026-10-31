@@ -14,8 +14,14 @@ export interface TrackedProject {
   name: string;
   description: string | null;
   project_type: string | null;
+  building_type: string | null;
   location: Record<string, unknown> | null;
-  project_data: Record<string, unknown> | null;
+  budget: number | null;
+  currency: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  progress_percentage: number | null;
+  status: string | null;
   created_at: string;
   role: ProjectRole | null;
 }
@@ -38,9 +44,12 @@ export async function fetchMyTrackedProjects(): Promise<TrackedProject[]> {
 
   const [owned, memberships] = await Promise.all([
     supabase
-      .from("user_projects")
-      .select("id,name,description,project_type,location,project_data,created_at")
+      .from("contractor_projects")
+      .select(
+        "id,name,description,project_type,building_type,location,budget,currency,start_date,end_date,progress_percentage,status,created_at",
+      )
       .eq("user_id", userId)
+      .eq("diaspora_tracker", true)
       .order("updated_at", { ascending: false }),
     supabase
       .from("project_members")
@@ -58,10 +67,14 @@ export async function fetchMyTrackedProjects(): Promise<TrackedProject[]> {
   if (memberRows.length) {
     const ids = memberRows.map((m) => m.project_id as string);
     const { data: shared } = await supabase
-      .from("user_projects")
-      .select("id,name,description,project_type,location,project_data,created_at")
+      .from("contractor_projects")
+      .select(
+        "id,name,description,project_type,building_type,location,budget,currency,start_date,end_date,progress_percentage,status,created_at",
+      )
       .in("id", ids);
-    const roleById = new Map(memberRows.map((m) => [m.project_id as string, m.role as ProjectRole]));
+    const roleById = new Map(
+      memberRows.map((m) => [m.project_id as string, m.role as ProjectRole]),
+    );
     for (const p of shared ?? []) {
       if (projects.some((existing) => existing.id === p.id)) continue;
       projects.push({
@@ -75,15 +88,23 @@ export async function fetchMyTrackedProjects(): Promise<TrackedProject[]> {
 }
 
 export async function fetchProjectMeta(projectId: string) {
-  const [{ data: project }, { data: stages }, { data: members }] = await Promise.all([
-    supabase.from("user_projects").select("*").eq("id", projectId).maybeSingle(),
-    supabase
-      .from("project_progress_stages")
-      .select("*")
-      .eq("project_id", projectId)
-      .order("sort_order"),
-    supabase.from("project_members").select("user_id,role,status").eq("project_id", projectId),
-  ]);
+  const [{ data: project }, { data: stages }, { data: members }] =
+    await Promise.all([
+      supabase
+        .from("contractor_projects")
+        .select("*")
+        .eq("id", projectId)
+        .maybeSingle(),
+      supabase
+        .from("project_progress_stages")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("sort_order"),
+      supabase
+        .from("project_members")
+        .select("user_id,role,status")
+        .eq("project_id", projectId),
+    ]);
   return { project, stages: stages ?? [], members: members ?? [] };
 }
 
@@ -128,7 +149,12 @@ export async function submitDailyReport(input: DailyReportInput) {
     status: "submitted",
   });
   if (error) return { error: error.message };
-  await logActivity(input.projectId, "daily_report_submitted", "project_site_logs", input.logDate);
+  await logActivity(
+    input.projectId,
+    "daily_report_submitted",
+    "project_site_logs",
+    input.logDate,
+  );
   return {};
 }
 
@@ -172,10 +198,16 @@ export async function submitExpense(input: ExpenseInput) {
     status: "submitted",
   });
   if (error) return { error: error.message };
-  await logActivity(input.projectId, "expense_submitted", "project_expenses", input.name, {
-    amount: input.amount,
-    currency: input.currency,
-  });
+  await logActivity(
+    input.projectId,
+    "expense_submitted",
+    "project_expenses",
+    input.name,
+    {
+      amount: input.amount,
+      currency: input.currency,
+    },
+  );
   return {};
 }
 
@@ -190,7 +222,12 @@ export async function decideExpense(input: {
     .update({ status: input.decision, decision_note: input.note ?? null })
     .eq("id", input.id);
   if (error) return { error: error.message };
-  await logActivity(input.projectId, `expense_${input.decision}`, "project_expenses", input.id);
+  await logActivity(
+    input.projectId,
+    `expense_${input.decision}`,
+    "project_expenses",
+    input.id,
+  );
   return {};
 }
 
@@ -230,7 +267,12 @@ export async function recordDelivery(input: {
     photo_path: input.photoPath ?? null,
   });
   if (error) return { error: error.message };
-  await logActivity(input.projectId, "delivery_recorded", "project_material_deliveries", input.description);
+  await logActivity(
+    input.projectId,
+    "delivery_recorded",
+    "project_material_deliveries",
+    input.description,
+  );
   return {};
 }
 
@@ -260,7 +302,12 @@ export async function decideMilestone(input: {
     .update(payload)
     .eq("id", input.id);
   if (error) return { error: error.message };
-  await logActivity(input.projectId, `milestone_${input.decision}`, "project_progress_stages", input.id);
+  await logActivity(
+    input.projectId,
+    `milestone_${input.decision}`,
+    "project_progress_stages",
+    input.id,
+  );
   return {};
 }
 
@@ -300,7 +347,8 @@ export async function uploadEvidence(input: {
   deviceMeta?: Record<string, unknown>;
 }): Promise<{ attachmentId: string | null; error: string | null }> {
   const userId = await currentUserId();
-  if (!userId) return { attachmentId: null, error: "Sign in to upload evidence." };
+  if (!userId)
+    return { attachmentId: null, error: "Sign in to upload evidence." };
   if (input.file.size > MAX_EVIDENCE_BYTES) {
     return { attachmentId: null, error: "Each file must be 60 MB or smaller." };
   }
@@ -311,11 +359,16 @@ export async function uploadEvidence(input: {
         ? ALLOWED_DOCS
         : [...ALLOWED_IMAGE, ...ALLOWED_VIDEO];
   if (!allowed.includes(input.file.type)) {
-    return { attachmentId: null, error: "That file type is not accepted for this evidence kind." };
+    return {
+      attachmentId: null,
+      error: "That file type is not accepted for this evidence kind.",
+    };
   }
 
   const safeName = input.file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-90);
-  const path = `${userId}/${input.projectId}/${Date.now()}-${safeName}`;
+  // Unguessable folder segment: storage signing is not gated by row policies in
+  // this project, so a path must not be derivable from ids alone.
+  const path = `${userId}/${input.projectId}/${crypto.randomUUID()}-${safeName}`;
   const digest = await sha256Hex(await input.file.arrayBuffer());
 
   const { error: uploadError } = await supabase.storage
@@ -350,17 +403,25 @@ export async function uploadEvidence(input: {
     return { attachmentId: null, error: error.message };
   }
 
-  await logActivity(input.projectId, "evidence_uploaded", "project_attachments", data.id, {
-    kind: input.kind,
-    bytes: input.file.size,
-  });
+  await logActivity(
+    input.projectId,
+    "evidence_uploaded",
+    "project_attachments",
+    data.id,
+    {
+      kind: input.kind,
+      bytes: input.file.size,
+    },
+  );
   return { attachmentId: data.id as string, error: null };
 }
 
 export async function fetchAttachments(projectId: string, limit = 24) {
   const { data, error } = await supabase
     .from("project_attachments")
-    .select("id,file_name,storage_path,mime_type,description,kind,captured_at,gps_lat,gps_lon,deleted_at,created_at")
+    .select(
+      "id,file_name,storage_path,mime_type,description,kind,captured_at,gps_lat,gps_lon,deleted_at,created_at",
+    )
     .eq("project_id", projectId)
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
@@ -368,13 +429,29 @@ export async function fetchAttachments(projectId: string, limit = 24) {
   return error ? [] : (data ?? []);
 }
 
-export async function signedEvidenceUrl(path: string): Promise<string | null> {
-  const { data } = await supabase.storage.from(EVIDENCE_BUCKET).createSignedUrl(path, 300);
-  return data?.signedUrl ?? null;
+/**
+ * Evidence links are issued by the server after it confirms the caller belongs
+ * to the project. Never sign a storage path in the browser: the storage signing
+ * endpoint was observed serving objects to non-members.
+ */
+export async function signedEvidenceUrl(
+  attachmentId: string,
+): Promise<string | null> {
+  const { data, error } = await supabase.functions.invoke(
+    "project-evidence-link",
+    {
+      body: { attachmentId },
+    },
+  );
+  if (error) return null;
+  return (data as { url?: string } | null)?.url ?? null;
 }
 
 /** Soft delete, so the audit trail keeps the record of what existed. */
-export async function removeAttachment(input: { id: string; projectId: string }) {
+export async function removeAttachment(input: {
+  id: string;
+  projectId: string;
+}) {
   const userId = await currentUserId();
   if (!userId) return { error: "Sign in to remove evidence." };
   const { error } = await supabase
@@ -382,7 +459,12 @@ export async function removeAttachment(input: { id: string; projectId: string })
     .update({ deleted_at: new Date().toISOString(), deleted_by: userId })
     .eq("id", input.id);
   if (error) return { error: error.message };
-  await logActivity(input.projectId, "evidence_removed", "project_attachments", input.id);
+  await logActivity(
+    input.projectId,
+    "evidence_removed",
+    "project_attachments",
+    input.id,
+  );
   return {};
 }
 
@@ -397,23 +479,29 @@ export async function createProject(input: {
   location?: { lat: number; lon: number; address?: string } | null;
 }) {
   const userId = await currentUserId();
-  if (!userId) return { projectId: null, error: "Sign in to create a project." };
+  if (!userId)
+    return { projectId: null, error: "Sign in to create a project." };
 
+  // contractor_projects is the canonical project table for the whole project
+  // subsystem (site logs, expenses, milestones, attachments all reference it).
   const { data, error } = await supabase
-    .from("user_projects")
+    .from("contractor_projects")
     .insert({
       user_id: userId,
       name: input.name,
       description: input.description ?? null,
-      project_type: input.projectType,
+      // Tracker projects carry their own type key; the building type is kept
+      // in the column the rest of the platform already uses for it.
+      project_type: "site_tracker",
+      building_type: input.projectType,
       location: input.location ?? null,
-      project_data: {
-        budget: input.budget,
-        currency: input.currency,
-        start_date: input.startDate ?? null,
-        end_date: input.endDate ?? null,
-        tracker: "diaspora",
-      },
+      budget: input.budget,
+      currency: input.currency,
+      start_date: input.startDate ?? null,
+      end_date: input.endDate ?? null,
+      diaspora_tracker: true,
+      // contractor_projects_status_check accepts draft/in_progress/on_hold/completed/archived.
+      status: "in_progress",
     })
     .select("id")
     .single();
@@ -446,11 +534,16 @@ export async function inviteParticipant(input: {
   if (error) return { link: null, error: error.message };
   const token = data as unknown as string;
   const origin = typeof window === "undefined" ? "" : window.location.origin;
-  return { link: `${origin}/diaspora-tracker/invite?token=${token}`, error: null };
+  return {
+    link: `${origin}/diaspora-tracker/invite?token=${token}`,
+    error: null,
+  };
 }
 
 export async function acceptInvitation(token: string) {
-  const { data, error } = await supabase.rpc("accept_project_invitation", { p_token: token });
+  const { data, error } = await supabase.rpc("accept_project_invitation", {
+    p_token: token,
+  });
   if (error) return { projectId: null, error: error.message };
   return { projectId: data as string, error: null };
 }
@@ -458,7 +551,9 @@ export async function acceptInvitation(token: string) {
 export async function fetchPlanLimits() {
   const { data, error } = await supabase
     .from("diaspora_plan_limits")
-    .select("plan_key,display_name,max_projects,max_members_per_project,max_storage_mb,features")
+    .select(
+      "plan_key,display_name,max_projects,max_members_per_project,max_storage_mb,features",
+    )
     .eq("is_active", true)
     .order("max_projects", { nullsFirst: false });
   return error ? [] : (data ?? []);
