@@ -1,6 +1,9 @@
 -- Dedupe batch 2: unique covers for five more articles (photo relevance hand-checked).
 BEGIN;
-ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER wall_source_review_attribution;
+
+ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
+ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
 UPDATE public.learn_articles SET cover_image_url='https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Blue_window_on_lime_plaster_wall%2C_Volakas%2C_Tinos%2C_Greece_julesvernex2.jpg/1280px-Blue_window_on_lime_plaster_wall%2C_Volakas%2C_Tinos%2C_Greece_julesvernex2.jpg' WHERE slug='us-veneer-plaster-skim-installation';
 INSERT INTO public.learn_wall_finishing_sources(topic_id,title,publisher,url,claim_scope,review_status,reviewed_by,reviewed_at)
  SELECT a.wall_topic_id, 'Cover: Blue window on lime plaster wall, Volakas, Tinos, Greece julesvernex2.jpg', 'Jules Verne Times Two (CC BY-SA 4.0)', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Blue_window_on_lime_plaster_wall%2C_Volakas%2C_Tinos%2C_Greece_julesvernex2.jpg/1280px-Blue_window_on_lime_plaster_wall%2C_Volakas%2C_Tinos%2C_Greece_julesvernex2.jpg', 'Cover photograph attribution', 'accepted', coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), now()
@@ -26,5 +29,8 @@ INSERT INTO public.learn_wall_finishing_sources(topic_id,title,publisher,url,cla
  SELECT a.wall_topic_id, 'Cover: Brickwork in Russia. Moscow region. img 02.jpg', 'Dmitry Makeev (CC BY-SA 4.0)', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Brickwork_in_Russia._Moscow_region._img_02.jpg/1280px-Brickwork_in_Russia._Moscow_region._img_02.jpg', 'Cover photograph attribution', 'accepted', coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), now()
  FROM public.learn_articles a WHERE a.slug='us-masonry-veneer-overview'
  AND NOT EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=a.wall_topic_id AND s.url='https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Brickwork_in_Russia._Moscow_region._img_02.jpg/1280px-Brickwork_in_Russia._Moscow_region._img_02.jpg');
-ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER wall_source_review_attribution;
+ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
+ALTER TABLE public.learn_articles ENABLE TRIGGER USER;
+
 COMMIT;

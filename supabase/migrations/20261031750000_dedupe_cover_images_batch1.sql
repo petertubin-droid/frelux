@@ -1,7 +1,10 @@
 -- Dedupe batch 1: unique Wikimedia covers for six articles that shared an image with another market.
 -- cover_image_url and source rows only; no watched columns touched, so published/approved status is preserved.
 BEGIN;
-ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER wall_source_review_attribution;
+
+ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
+ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
 UPDATE public.learn_articles SET cover_image_url='https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Indoor_painting_supplies_%2830185142347%29.jpg/1280px-Indoor_painting_supplies_%2830185142347%29.jpg' WHERE slug='fr-interior-masonry-paint-materials';
 INSERT INTO public.learn_wall_finishing_sources(topic_id,title,publisher,url,claim_scope,review_status,reviewed_by,reviewed_at)
  SELECT a.wall_topic_id, 'Cover: Indoor painting supplies (30185142347).jpg', 'David Mulder (CC BY-SA 2.0)', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Indoor_painting_supplies_%2830185142347%29.jpg/1280px-Indoor_painting_supplies_%2830185142347%29.jpg', 'Cover photograph attribution', 'accepted', coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), now()
@@ -32,5 +35,8 @@ INSERT INTO public.learn_wall_finishing_sources(topic_id,title,publisher,url,cla
  SELECT a.wall_topic_id, 'Cover: 1970''s walk in shower.jpg', 'Atomicdragon136 (CC BY 3.0)', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/1970%27s_walk_in_shower.jpg/1280px-1970%27s_walk_in_shower.jpg', 'Cover photograph attribution', 'accepted', coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), now()
  FROM public.learn_articles a WHERE a.slug='us-wet-area-tile-quality-checks'
  AND NOT EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=a.wall_topic_id AND s.url='https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/1970%27s_walk_in_shower.jpg/1280px-1970%27s_walk_in_shower.jpg');
-ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER wall_source_review_attribution;
+ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
+ALTER TABLE public.learn_articles ENABLE TRIGGER USER;
+
 COMMIT;

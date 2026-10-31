@@ -1,4 +1,8 @@
 BEGIN;
+
+ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
+ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
 INSERT INTO public.learn_wall_finishing_sources(topic_id,title,publisher,url,claim_scope) SELECT t.id,v.title,v.publisher,v.url,v.claim_scope FROM public.learn_wall_finishing_topics t CROSS JOIN (VALUES ('DTU plaques de plâtre','CSTB','https://www.cstb.fr/','Règles de l''art des ouvrages en plaques de plâtre'),('Plaques de plâtre et isolation','FFB','https://www.ffbatiment.fr/','Pratiques professionnelles de plâtrerie et d''isolation'),('Cloisons et doublages','CAPEB','https://www.capeb.fr/','Mise en œuvre des cloisons et doublages'),('Normes NF DTU plâtrerie','AFNOR','https://www.boutique.afnor.org/','Référentiel normatif des ouvrages de plâtrerie')) AS v(title,publisher,url,claim_scope) WHERE t.candidate_key='system:fr-drywall-metal-stud' AND NOT EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=t.id AND s.url=v.url);
 INSERT INTO public.learn_articles(slug,title,excerpt,content,category_slug,wall_market_code,wall_topic_id,wall_article_theme,wall_language_code,status,author,read_time_minutes,cover_image_url,meta_title,meta_description) SELECT a.slug,a.title,a.excerpt,a.content,'surface-preparation',a.market,t.id,a.theme,'fr','draft','FRELUX Learn',a.read_time_minutes,a.cover_url,a.meta_title,a.meta_description FROM (VALUES
   ($a1$fr-drywall-metal-stud-overview$a1$, $b1$Cloison BA13 sur ossature métallique : la paroi intérieure française$b1$, $d1$Cloison BA13 sur ossature métallique en France : épaisseurs, acoustique, charges admissibles, points faibles et critères pour juger un montage.$d1$, 'FR', $w1$# Cloison BA13 sur ossature métallique : la paroi intérieure française
@@ -652,14 +656,12 @@ C'est aussi ce qui détermine la valeur perçue d'un logement, bien au-delà du 
 Reste un dernier conseil, valable pour tous les logements : noter quelque part la date des reprises et la référence de la peinture employée. C'est un geste minuscule, et c'est celui qui permettra, dans dix ans, de reprendre une seule pièce au lieu de repeindre tout un niveau pour retrouver une teinte.$w5$, 8, 'maintenance', $v5$https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Blochets_%C3%A9lectriques_%C3%A0_encastrer.jpg/1280px-Blochets_%C3%A9lectriques_%C3%A0_encastrer.jpg$v5$, $t5$Entretenir et réparer une cloison en plaques de plâtre$t5$, $m5$Reboucher un trou, traiter une fissure, reconstruire un angle et gérer un dégât des eaux : l'entretien d'une cloison plâtre dans un logement français.$m5$)
 ) AS a(slug,title,excerpt,market,content,read_time_minutes,theme,cover_url,meta_title,meta_description) JOIN public.learn_wall_finishing_topics t ON t.market_code=a.market AND t.candidate_key='system:fr-drywall-metal-stud' ON CONFLICT (slug) DO NOTHING;
 UPDATE public.learn_wall_finishing_article_slots sl SET article_id=a.id FROM public.learn_articles a WHERE sl.topic_id=a.wall_topic_id AND sl.theme_key=a.wall_article_theme AND sl.language_code='fr' AND sl.article_id IS NULL AND a.slug LIKE 'fr-drywall-metal-stud-%%';
-ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER wall_source_review_attribution;
 UPDATE public.learn_wall_finishing_sources s SET review_status='accepted', reviewed_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), reviewed_at=now() FROM public.learn_wall_finishing_topics t WHERE s.topic_id=t.id AND t.candidate_key='system:fr-drywall-metal-stud' AND s.review_status='pending';
-ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER wall_source_review_attribution;
-ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
 UPDATE public.learn_wall_finishing_topics t SET verification_status='verified', verified_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), verified_at=now() WHERE t.candidate_key='system:fr-drywall-metal-stud' AND EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=t.id AND s.review_status='accepted');
-ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
 SET CONSTRAINTS ALL IMMEDIATE;
-ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
 UPDATE public.learn_articles SET status='published', editorial_review_status='approved', editorial_reviewed_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), editorial_reviewed_at=now(), published_at=coalesce(published_at, now()) WHERE wall_topic_id=(SELECT id FROM public.learn_wall_finishing_topics WHERE candidate_key='system:fr-drywall-metal-stud') AND slug LIKE 'fr-drywall-metal-stud-%';
+ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
 ALTER TABLE public.learn_articles ENABLE TRIGGER USER;
+
 COMMIT;

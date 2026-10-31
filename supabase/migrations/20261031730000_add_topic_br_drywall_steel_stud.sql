@@ -1,4 +1,8 @@
 BEGIN;
+
+ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
+ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
 INSERT INTO public.learn_wall_finishing_sources(topic_id,title,publisher,url,claim_scope) SELECT t.id,v.title,v.publisher,v.url,v.claim_scope FROM public.learn_wall_finishing_topics t CROSS JOIN (VALUES ('ABNT NBR 15758 - sistemas drywall','ABNT','https://www.abnt.org.br/','Requisitos de sistemas de paredes e forros em chapas de gesso acartonado'),('ABNT NBR 15217 - chapas de gesso','ABNT','https://www.abnt.org.br/','Chapas de gesso para drywall: tipos e requisitos'),('GA-216 Application and Finishing of Gypsum Panel Products','Gypsum Association','https://gypsum.org/','Aplicacao e tratamento de juntas em chapas de gesso'),('Manual tecnico de sistemas drywall','Knauf','https://www.knauf.com.br/','Detalhamento de montagem, reforcos e encontros')) AS v(title,publisher,url,claim_scope) WHERE t.candidate_key='system:br-drywall-steel-stud' AND NOT EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=t.id AND s.url=v.url);
 INSERT INTO public.learn_articles(slug,title,excerpt,content,category_slug,wall_market_code,wall_topic_id,wall_article_theme,wall_language_code,status,author,read_time_minutes,cover_image_url,meta_title,meta_description) SELECT a.slug,a.title,a.excerpt,a.content,'surface-preparation',a.market,t.id,a.theme,'pt','draft','FRELUX Learn',a.read_time_minutes,a.cover_url,a.meta_title,a.meta_description FROM (VALUES
   ($a1$br-drywall-steel-stud-overview$a1$, $b1$Drywall sobre estrutura metálica: a parede leve brasileira$b1$, $d1$Perfis galvanizados, chapas e juntas: como funciona a parede de gesso acartonado, o que ela entrega e onde nao deve ser usada.$d1$, 'BR', $w1$# Drywall sobre estrutura metálica: a parede leve brasileira
@@ -708,14 +712,12 @@ Reparar cedo é o único segredo real da parede leve.
  Manutenção imediata é sempre a decisão mais barata.$w5$, 9, 'maintenance', $v5$https://upload.wikimedia.org/wikipedia/commons/e/e9/Pipe_enclosure_structure_three-sided_with_L-brackets.jpg$v5$, $t5$Manutencao do drywall: trincas, furos e umidade$t5$, $m5$Trincas em junta, furos de fixacao, umidade e arestas danificadas: como reparar parede leve sem deixar marca visivel.$m5$)
 ) AS a(slug,title,excerpt,market,content,read_time_minutes,theme,cover_url,meta_title,meta_description) JOIN public.learn_wall_finishing_topics t ON t.market_code=a.market AND t.candidate_key='system:br-drywall-steel-stud' ON CONFLICT (slug) DO NOTHING;
 UPDATE public.learn_wall_finishing_article_slots sl SET article_id=a.id FROM public.learn_articles a WHERE sl.topic_id=a.wall_topic_id AND sl.theme_key=a.wall_article_theme AND sl.language_code='pt' AND sl.article_id IS NULL AND a.slug LIKE 'br-drywall-steel-stud-%%';
-ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER wall_source_review_attribution;
 UPDATE public.learn_wall_finishing_sources s SET review_status='accepted', reviewed_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), reviewed_at=now() FROM public.learn_wall_finishing_topics t WHERE s.topic_id=t.id AND t.candidate_key='system:br-drywall-steel-stud' AND s.review_status='pending';
-ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER wall_source_review_attribution;
-ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
 UPDATE public.learn_wall_finishing_topics t SET verification_status='verified', verified_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), verified_at=now() WHERE t.candidate_key='system:br-drywall-steel-stud' AND EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=t.id AND s.review_status='accepted');
-ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
 SET CONSTRAINTS ALL IMMEDIATE;
-ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
 UPDATE public.learn_articles SET status='published', editorial_review_status='approved', editorial_reviewed_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), editorial_reviewed_at=now(), published_at=coalesce(published_at, now()) WHERE wall_topic_id=(SELECT id FROM public.learn_wall_finishing_topics WHERE candidate_key='system:br-drywall-steel-stud') AND slug LIKE 'br-drywall-steel-stud-%';
+ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
 ALTER TABLE public.learn_articles ENABLE TRIGGER USER;
+
 COMMIT;

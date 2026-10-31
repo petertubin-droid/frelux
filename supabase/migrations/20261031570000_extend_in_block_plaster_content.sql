@@ -1,6 +1,9 @@
 BEGIN;
-SET CONSTRAINTS ALL IMMEDIATE;
+
+ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
 ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
+SET CONSTRAINTS ALL IMMEDIATE;
 UPDATE public.learn_articles SET content=$c6$# Brick or Block Wall with Cement Plaster: The Indian Standard Wall
 
 A brick or block wall finished with cement-sand plaster is the most common wall in India, and it is a layered system rather than a single thing. The masonry carries and stiffens, the plaster levels and protects, the putty smooths, and the paint provides the surface. Each layer has to do its own job before the next arrives.
@@ -728,5 +731,8 @@ SET status='published', editorial_review_status='approved',
     editorial_reviewed_at=now(), published_at=COALESCE(a.published_at, now())
 FROM public.learn_wall_finishing_topics t
 WHERE a.wall_topic_id=t.id AND t.candidate_key='system:in-brick-block-plaster';
+ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
 ALTER TABLE public.learn_articles ENABLE TRIGGER USER;
+
 COMMIT;

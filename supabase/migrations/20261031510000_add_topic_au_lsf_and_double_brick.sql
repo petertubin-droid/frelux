@@ -9,8 +9,11 @@ values ('0e000000-0000-4000-8000-000000000001', '00000000-0000-0000-0000-0000000
         '{"provider":"system","purpose":"migration attribution"}'::jsonb,
         '{"display_name":"Editorial migrations"}'::jsonb)
 on conflict (id) do nothing;
-
 BEGIN;
+
+ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
+ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
 
 INSERT INTO public.learn_wall_finishing_sources (topic_id, title, publisher, url, claim_scope)
 SELECT t.id, s.title, s.publisher, s.url, s.claim_scope
@@ -1454,7 +1457,6 @@ WHERE sl.topic_id = a.wall_topic_id
   AND sl.language_code = 'en'
   AND sl.article_id IS NULL;
 
-ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER wall_source_review_attribution;
 
 UPDATE public.learn_wall_finishing_sources s
 SET review_status = 'accepted', reviewed_at = now(), reviewed_by = coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid)
@@ -1463,15 +1465,14 @@ WHERE s.topic_id = t.id
   AND t.candidate_key IN ('system:au-light-steel-frame','system:au-double-brick')
   AND s.review_status = 'pending';
 
-ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER wall_source_review_attribution;
 
-ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
 
 UPDATE public.learn_wall_finishing_topics t
 SET verification_status = 'verified', verified_at = now(), verified_by = coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid)
 WHERE t.candidate_key IN ('system:au-light-steel-frame','system:au-double-brick')
   AND EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id = t.id AND s.review_status = 'accepted');
-
+ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER USER;
 ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
+ALTER TABLE public.learn_articles ENABLE TRIGGER USER;
 
 COMMIT;

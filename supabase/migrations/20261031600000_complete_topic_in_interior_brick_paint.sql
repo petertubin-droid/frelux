@@ -1,4 +1,8 @@
 BEGIN;
+
+ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
+ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
 INSERT INTO public.learn_wall_finishing_sources(topic_id,title,publisher,url,claim_scope) SELECT t.id,v.title,v.publisher,v.url,v.claim_scope FROM public.learn_wall_finishing_topics t CROSS JOIN (VALUES ('IS 1661 cement plaster application','Bureau of Indian Standards','https://www.bis.gov.in/','Application of cement plaster finishes and their curing'),('IS 2395 painting of plaster surfaces','Bureau of Indian Standards','https://www.bis.gov.in/','Painting of plaster, masonry and concrete surfaces in Indian practice'),('BMTPC building materials guidance','BMTPC','https://www.bmtpc.org/','Indian building material selection and site practice'),('TERI building performance research','TERI','https://www.teriin.org/','Indian climate, moisture and building envelope performance')) AS v(title,publisher,url,claim_scope) WHERE t.candidate_key='assembly:in-interior-brick-paint' AND NOT EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=t.id AND s.url=v.url);
 INSERT INTO public.learn_articles(slug,title,excerpt,content,category_slug,wall_market_code,wall_topic_id,wall_article_theme,wall_language_code,status,author,read_time_minutes,cover_image_url,meta_title,meta_description) SELECT a.slug,a.title,a.excerpt,a.content,'surface-preparation',a.market,t.id,a.theme,'en','draft','FRELUX Learn',a.read_time_minutes,a.cover_url,a.meta_title,a.meta_description FROM (VALUES
   ($a1$in-interior-brick-paint-overview$a1$, $b1$Interior Brick to Paint in India: What the Four Layers Do$b1$, $d1$An interior brick wall in India finished in four layers. What plaster, putty, primer and paint each do, and why skipping one shows within a season.$d1$, 'IN', $w1$# Interior Brick to Paint in India: What the Four Layers Do
@@ -662,14 +666,12 @@ A washable emulsion holds its appearance longer in wet rooms, and a matt finish 
 Keep the product names and dates with the property papers, and note which rooms were done in which year so a single-room repaint never has to match an unknown batch.$w5$, 8, 'maintenance', $v5$https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Funchal_%28Madeira%2C_Portugal%29%2C_Rua_de_Santa_Maria_176_--_2025_--_0936.jpg/1280px-Funchal_%28Madeira%2C_Portugal%29%2C_Rua_de_Santa_Maria_176_--_2025_--_0936.jpg$v5$, $t5$Maintaining Painted Interior Walls in India$t5$, $m5$Repaint intervals, hairline crack repair, efflorescence and mould. What Indian interiors actually need, and the records that make the next repaint cheaper.$m5$)
 ) AS a(slug,title,excerpt,market,content,read_time_minutes,theme,cover_url,meta_title,meta_description) JOIN public.learn_wall_finishing_topics t ON t.market_code=a.market AND t.candidate_key='assembly:in-interior-brick-paint' ON CONFLICT (slug) DO NOTHING;
 UPDATE public.learn_wall_finishing_article_slots sl SET article_id=a.id FROM public.learn_articles a WHERE sl.topic_id=a.wall_topic_id AND sl.theme_key=a.wall_article_theme AND sl.language_code='en' AND sl.article_id IS NULL AND a.slug LIKE 'in-interior-brick-paint-%';
-ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER wall_source_review_attribution;
 UPDATE public.learn_wall_finishing_sources s SET review_status='accepted', reviewed_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), reviewed_at=now() FROM public.learn_wall_finishing_topics t WHERE s.topic_id=t.id AND t.candidate_key='assembly:in-interior-brick-paint' AND s.review_status='pending';
-ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER wall_source_review_attribution;
-ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
 UPDATE public.learn_wall_finishing_topics t SET verification_status='verified', verified_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), verified_at=now() WHERE t.candidate_key='assembly:in-interior-brick-paint' AND EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=t.id AND s.review_status='accepted');
-ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
 SET CONSTRAINTS ALL IMMEDIATE;
-ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
 UPDATE public.learn_articles SET status='published', editorial_review_status='approved', editorial_reviewed_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), editorial_reviewed_at=now(), published_at=coalesce(published_at, now()) WHERE wall_topic_id=(SELECT id FROM public.learn_wall_finishing_topics WHERE candidate_key='assembly:in-interior-brick-paint') AND slug LIKE 'in-interior-brick-paint-%';
+ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
 ALTER TABLE public.learn_articles ENABLE TRIGGER USER;
+
 COMMIT;

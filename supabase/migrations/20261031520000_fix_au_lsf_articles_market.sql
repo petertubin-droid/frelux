@@ -1,5 +1,9 @@
 BEGIN;
 
+ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
+ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
+
 BEGIN;
 
 INSERT INTO public.learn_wall_finishing_sources (topic_id, title, publisher, url, claim_scope, review_status)
@@ -510,5 +514,8 @@ WHERE sl.topic_id = a.wall_topic_id
   AND sl.theme_key = a.wall_article_theme
   AND sl.language_code = 'en'
   AND sl.article_id IS NULL;
+ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
+ALTER TABLE public.learn_articles ENABLE TRIGGER USER;
 
 COMMIT;

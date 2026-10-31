@@ -1,4 +1,8 @@
 BEGIN;
+
+ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
+ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
 INSERT INTO public.learn_wall_finishing_sources(topic_id,title,publisher,url,claim_scope) SELECT t.id,v.title,v.publisher,v.url,v.claim_scope FROM public.learn_wall_finishing_topics t CROSS JOIN (VALUES ('Enduits de façade','CSTB','https://www.cstb.fr/','Règles de l''art des enduits extérieurs et des ravalements'),('Ravalement et finitions extérieures','FFB','https://www.ffbatiment.fr/','Pratiques professionnelles du ravalement'),('Façades et imperméabilité','CAPEB','https://www.capeb.fr/','Métiers et bonnes pratiques des entreprises de façade'),('Normes NF DTU enduits extérieurs','AFNOR','https://www.boutique.afnor.org/','Référentiel normatif des enduits et revêtements de façade')) AS v(title,publisher,url,claim_scope) WHERE t.candidate_key='assembly:fr-exterior-render-paint' AND NOT EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=t.id AND s.url=v.url);
 INSERT INTO public.learn_articles(slug,title,excerpt,content,category_slug,wall_market_code,wall_topic_id,wall_article_theme,wall_language_code,status,author,read_time_minutes,cover_image_url,meta_title,meta_description) SELECT a.slug,a.title,a.excerpt,a.content,'surface-preparation',a.market,t.id,a.theme,'fr','draft','FRELUX Learn',a.read_time_minutes,a.cover_url,a.meta_title,a.meta_description FROM (VALUES
   ($a1$fr-exterior-render-paint-overview$a1$, $b1$Façade française : enduit et peinture extérieure$b1$, $d1$Enduit, peinture et humidité : comment fonctionne une façade française, quelles finitions existent et ce qui décide vraiment de sa durée de vie.$d1$, 'FR', $w1$# Façade française : enduit et peinture extérieure
@@ -592,14 +596,12 @@ Elle ne coûte jamais cher d'un coup. Elle se nettoie, se surveille, se répare 
 C'est la leçon la plus utile de ce dossier : la qualité d'une façade tient moins au produit qu'à la régularité du regard qu'on lui porte. Un propriétaire qui observe deux fois par an évite presque toutes les dépenses qu'un autre découvrira en une seule fois, au pire moment.$w5$, 8, 'maintenance', $v5$https://upload.wikimedia.org/wikipedia/commons/4/44/Maison%2C_37%2C_rue_Sainte-Ursule%2C_Qu%C3%A9bec_fa%C3%A7ade_11-d.na.civile-87-3198.jpg$v5$, $t5$Entretenir une façade : nettoyage, fissures, reprises$t5$, $m5$Nettoyage par cycles, mousses, efflorescences, fissures et reprises locales : l'entretien qui évite le ravalement complet décidé dans l'urgence.$m5$)
 ) AS a(slug,title,excerpt,market,content,read_time_minutes,theme,cover_url,meta_title,meta_description) JOIN public.learn_wall_finishing_topics t ON t.market_code=a.market AND t.candidate_key='assembly:fr-exterior-render-paint' ON CONFLICT (slug) DO NOTHING;
 UPDATE public.learn_wall_finishing_article_slots sl SET article_id=a.id FROM public.learn_articles a WHERE sl.topic_id=a.wall_topic_id AND sl.theme_key=a.wall_article_theme AND sl.language_code='fr' AND sl.article_id IS NULL AND a.slug LIKE 'fr-exterior-render-paint-%%';
-ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER wall_source_review_attribution;
 UPDATE public.learn_wall_finishing_sources s SET review_status='accepted', reviewed_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), reviewed_at=now() FROM public.learn_wall_finishing_topics t WHERE s.topic_id=t.id AND t.candidate_key='assembly:fr-exterior-render-paint' AND s.review_status='pending';
-ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER wall_source_review_attribution;
-ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
 UPDATE public.learn_wall_finishing_topics t SET verification_status='verified', verified_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), verified_at=now() WHERE t.candidate_key='assembly:fr-exterior-render-paint' AND EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=t.id AND s.review_status='accepted');
-ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
 SET CONSTRAINTS ALL IMMEDIATE;
-ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
 UPDATE public.learn_articles SET status='published', editorial_review_status='approved', editorial_reviewed_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), editorial_reviewed_at=now(), published_at=coalesce(published_at, now()) WHERE wall_topic_id=(SELECT id FROM public.learn_wall_finishing_topics WHERE candidate_key='assembly:fr-exterior-render-paint') AND slug LIKE 'fr-exterior-render-paint-%';
+ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER USER;
+ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
 ALTER TABLE public.learn_articles ENABLE TRIGGER USER;
+
 COMMIT;
