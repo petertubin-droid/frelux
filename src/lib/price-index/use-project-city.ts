@@ -28,14 +28,20 @@ export function useProjectCity(): {
 } {
   const { marketCode } = useMarket();
   const [citySlug, setSlug] = useState<string | null>(() => readProjectCity());
-  const [cities, setCities] = useState<MarketCity[]>(LAUNCH_CITIES as MarketCity[]);
+  const [cities, setCities] = useState<MarketCity[]>(
+    LAUNCH_CITIES as MarketCity[],
+  );
 
   useEffect(() => {
     if (marketCode !== "NG") return;
     let cancelled = false;
-    fetchCities().then((result) => {
-      if (!cancelled && result.cities.length) setCities(result.cities);
-    });
+    fetchCities()
+      .then((result) => {
+        if (!cancelled && result.cities.length) setCities(result.cities);
+      })
+      .catch(() => {
+        /* keep the bundled city list: pricing still works offline */
+      });
     return () => {
       cancelled = true;
     };

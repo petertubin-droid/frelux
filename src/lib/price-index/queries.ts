@@ -6,7 +6,7 @@
  * trail sit server-side where a client cannot skip them.
  */
 
-import { supabase } from "@/lib/supabase";
+import { getSupabase, isSupabaseConfigured } from "@/lib/supabase-lazy";
 import type {
   AuditRow,
   IndexListing,
@@ -18,6 +18,23 @@ import type {
 } from "./types";
 
 export const INDEX_COUNTRY = "NG";
+
+const OFFLINE_ERROR = "The price index needs a database connection.";
+
+/**
+ * The client, or null when there is no configuration. Every reader below
+ * degrades to an empty result with an honest message instead of throwing, so a
+ * page (or a test) without a database renders its empty state rather than
+ * failing outright.
+ */
+async function db() {
+  if (!isSupabaseConfigured) return null;
+  try {
+    return await getSupabase();
+  } catch {
+    return null;
+  }
+}
 
 /** Launch cities, used for prerendering and as a fallback if the query fails. */
 export const LAUNCH_CITIES: { slug: string; name: string; state: string }[] = [
@@ -81,7 +98,12 @@ export const CATEGORY_ORDER = [
   "filler",
 ];
 
-export async function fetchCities(): Promise<{ cities: MarketCity[]; error: string | null }> {
+export async function fetchCities(): Promise<{
+  cities: MarketCity[];
+  error: string | null;
+}> {
+  const supabase = await db();
+  if (!supabase) return { cities: [], error: OFFLINE_ERROR };
   const { data, error } = await supabase
     .from("market_cities")
     .select("slug,country_code,name,state,is_active,sort_order")
@@ -98,6 +120,8 @@ export async function fetchIndexMaterials(options?: {
   search?: string;
   limit?: number;
 }): Promise<{ materials: IndexMaterial[]; error: string | null }> {
+  const supabase = await db();
+  if (!supabase) return { materials: [], error: OFFLINE_ERROR };
   let query = supabase
     .from("estimation_materials")
     .select("id,name,slug,category")
@@ -134,6 +158,8 @@ export async function fetchListings(options?: {
   sinceDays?: number;
   limit?: number;
 }): Promise<{ listings: IndexListing[]; error: string | null }> {
+  const supabase = await db();
+  if (!supabase) return { listings: [], error: OFFLINE_ERROR };
   let query = supabase
     .from("estimation_prices")
     .select(
@@ -162,9 +188,14 @@ export async function fetchListings(options?: {
   if (error) return { listings: [], error: error.message };
 
   const rows = data ?? [];
-  const ids = Array.from(new Set(rows.map((row) => row.ref_id as string).filter(Boolean)));
+  const ids = Array.from(
+    new Set(rows.map((row) => row.ref_id as string).filter(Boolean)),
+  );
 
-  let materials: Record<string, { name: string; slug: string; category: string }> = {};
+  let materials: Record<
+    string,
+    { name: string; slug: string; category: string }
+  > = {};
   if (ids.length) {
     const { data: materialRows } = await supabase
       .from("estimation_materials")
@@ -203,7 +234,8 @@ export async function fetchListings(options?: {
         price_source: (row.price_source as string) ?? null,
         effective_date: (row.effective_date as string) ?? null,
         verified_at: (row.verified_at as string) ?? null,
-        verification_status: (row.verification_status as VerificationStatus) ?? null,
+        verification_status:
+          (row.verification_status as VerificationStatus) ?? null,
         supporting_submissions: Number(row.supporting_submissions ?? 0),
       };
     });
@@ -215,7 +247,12 @@ export async function fetchListings(options?: {
 export async function fetchMaterialHistory(
   materialId: string,
   limit = 60,
-): Promise<{ points: { observed_at: string; price: number; note: string | null }[]; error: string | null }> {
+): Promise<{
+  points: { observed_at: string; price: number; note: string | null }[];
+  error: string | null;
+}> {
+  const supabase = await db();
+  if (!supabase) return { points: [], error: OFFLINE_ERROR };
   const { data, error } = await supabase
     .from("estimation_price_history")
     .select("old_price,new_price,change_reason,created_at")
@@ -241,6 +278,8 @@ export async function fetchPendingSubmissions(): Promise<{
   rows: SubmissionRow[];
   error: string | null;
 }> {
+  const supabase = await db();
+  if (!supabase) return { rows: [], error: OFFLINE_ERROR };
   const { data, error } = await supabase
     .from("price_submissions")
     .select(
@@ -257,6 +296,8 @@ export async function fetchAuditTrail(limit = 100): Promise<{
   rows: AuditRow[];
   error: string | null;
 }> {
+  const supabase = await db();
+  if (!supabase) return { rows: [], error: OFFLINE_ERROR };
   const { data, error } = await supabase
     .from("price_index_audit")
     .select("id,action,entity,entity_id,note,created_at,before,after")
