@@ -156,3 +156,33 @@ describe("FAQ wiring", () => {
     ).toContain("<ToolFaqs slug={faqSlug} />");
   });
 });
+
+describe("hub FAQ schema", () => {
+  const read = (p: string) => fs.readFileSync(p, "utf-8");
+
+  it("the three finished-trade hubs emit markup from their own copy", () => {
+    const hubs = [
+      "src/pages/PaintingCalculatorHub.tsx",
+      "src/pages/TileCalculatorHub.tsx",
+      "src/pages/PopCeilingCalculatorHub.tsx",
+    ];
+    for (const hub of hubs) {
+      const source = read(hub);
+      expect(source, `${hub} must render through the schema wrapper`).toMatch(
+        /<FaqItemsWithSchema faqs=\{/,
+      );
+      expect(source, `${hub} must not render a bare FaqSection`).not.toMatch(
+        /<FaqSection faqs=\{/,
+      );
+    }
+  });
+
+  it("the wrapper pairs the accordion with FAQPage data", () => {
+    const component = read("src/components/seo/ToolFaqs.tsx");
+    const wrapper = component.slice(
+      component.indexOf("export function FaqItemsWithSchema"),
+    );
+    expect(wrapper).toContain("useFaqJsonLd(faqs)");
+    expect(wrapper).toContain("<FaqSection faqs={faqs}");
+  });
+});

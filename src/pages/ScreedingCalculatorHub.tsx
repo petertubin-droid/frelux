@@ -7,11 +7,8 @@ import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { useSeo } from "@/lib/seo";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
-import {
-  FaqSection,
-  RelatedTools,
-  CALC_LINKS,
-} from "@/components/seo/SeoSections";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
 import { SITE_URL } from "@/lib/seo";
@@ -222,7 +219,7 @@ export default function ScreedingCalculatorHub() {
           </p>
         </div>
 
-        <FaqSection faqs={faqs} />
+        <FaqItemsWithSchema faqs={faqs} />
         <RelatedTools
           links={[
             CALC_LINKS.paintCalculator,

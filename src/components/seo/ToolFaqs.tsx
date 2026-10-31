@@ -12,6 +12,25 @@ import { getToolFaqGroup } from "@/config/tool-faqs";
 import { useFaqJsonLd } from "@/lib/seo";
 import { Link } from "react-router-dom";
 
+/**
+ * Same guarantee for a page that owns its copy: renders the accordion from a
+ * plain-string array and emits FAQPage markup from those exact strings.
+ *
+ * Only use this with plain text answers. A JSX answer cannot be serialised
+ * truthfully into JSON-LD, which is why those pages still render FaqSection
+ * alone until their copy is converted.
+ */
+export function FaqItemsWithSchema({
+  faqs,
+  title,
+}: {
+  faqs: { question: string; answer: string }[];
+  title?: string;
+}) {
+  useFaqJsonLd(faqs);
+  return <FaqSection faqs={faqs} title={title} />;
+}
+
 export default function ToolFaqs({
   slug,
   title,

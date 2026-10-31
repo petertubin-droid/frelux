@@ -1,5 +1,4 @@
 import { useState, useEffect, lazy, Suspense } from "react";
-import AdSlot from "@/components/ui/AdSlot";
 import { useSearchParams } from "react-router-dom";
 import CalculatorTabs from "@/components/ui/CalculatorTabs";
 import PageHeader from "@/components/ui/PageHeader";
@@ -10,11 +9,8 @@ import {
   useSeoOfferCurrency,
 } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
-import {
-  FaqSection,
-  RelatedTools,
-  CALC_LINKS,
-} from "@/components/seo/SeoSections";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
 import { SITE_URL } from "@/lib/seo";
@@ -68,8 +64,10 @@ const FAQS = [
 /**
  * Market-aware FAQ copy: non-NG markets see their curated pack term
  * (e.g. "1 gal / 5 gal pail") instead of the Nigerian "bucket" phrasing.
- * The structured-data (JSON-LD) copy keeps the established NG English,
- * which is the site's global SEO language.
+ * The FAQPage structured data is built from these localised strings in
+ * FaqItemsWithSchema, because Google requires the markup to match the text a
+ * visitor sees. The canonical NG wording stays in src/config/tool-faqs.ts for
+ * the /faq index and for pages that do not localise.
  */
 function localizeFaqs(
   faqs: { question: string; answer: string }[],
@@ -265,7 +263,7 @@ export default function PaintingCalculatorHub() {
           </p>
         </div>
 
-        <FaqSection faqs={displayFaqs} />
+        <FaqItemsWithSchema faqs={displayFaqs} />
         <RelatedTools
           links={[
             CALC_LINKS.screedingCalc,
