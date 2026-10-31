@@ -235,6 +235,24 @@ export function calculateTheoreticalLitres(
   return Math.round(((safeArea * safeCoats) / coverageM2PerLiter) * 100) / 100;
 }
 
+/** US liquid gallon in litres (exact). */
+export const LITRES_PER_US_GALLON = 3.785411784;
+
+const KNOWN_COVERAGE_UNITS = [
+  "m2_per_liter",
+  "m2_per_bucket",
+  "ft2_per_liter",
+  "ft2_per_bucket",
+  "ft2_per_gallon",
+  "m2_per_gallon",
+  "frelux_calibration",
+];
+
+/** Whether a stored coverage unit is one this engine can actually convert. */
+export function isKnownCoverageUnit(unit: string | null | undefined): boolean {
+  return Boolean(unit) && KNOWN_COVERAGE_UNITS.includes(String(unit));
+}
+
 export function normalizeCoverage(
   coverageValue: number,
   coverageUnit: string,
@@ -252,12 +270,25 @@ export function normalizeCoverage(
       return coverageValue * SQM_PER_SQFT;
     case "ft2_per_bucket":
       return (coverageValue * SQM_PER_SQFT) / bucket;
+    // The United States quotes wall paint as square feet per gallon (350 to
+    // 400 is typical for interior emulsion). Without this case the value fell
+    // through to the fallback and was read as m2 per litre, which overstates
+    // coverage by roughly forty times and leaves the user short of paint.
+    case "ft2_per_gallon":
+      return (coverageValue * SQM_PER_SQFT) / LITRES_PER_US_GALLON;
+    case "m2_per_gallon":
+      return coverageValue / LITRES_PER_US_GALLON;
     case "frelux_calibration":
       // Calibration mode, the coverage value IS the calibration reference
       // The engine uses calibration logic separately
       return coverageValue; // Will be handled by calibration logic
+    case "m2_per_liter":
+      return coverageValue;
     default:
-      return coverageValue; // Default: assume m²/L
+      // An unrecognised unit is not silently treated as metric. Returning the
+      // raw number would present a wrong figure as a measured one, so nothing
+      // is assumed: the caller gets zero and isKnownCoverageUnit says why.
+      return 0;
   }
 }
 
@@ -274,6 +305,10 @@ export function getCoverageUnitLabel(unit: string): string {
       return "ft² per litre";
     case "ft2_per_bucket":
       return "ft² per 20-L bucket";
+    case "ft2_per_gallon":
+      return "ft² per US gallon";
+    case "m2_per_gallon":
+      return "m² per US gallon";
     case "frelux_calibration":
       return "FRELUX Calibration";
     default:
@@ -286,6 +321,8 @@ export const COVERAGE_UNIT_OPTIONS: { value: CoverageUnit; label: string }[] = [
   { value: "m2_per_bucket", label: "m² per 20-L bucket" },
   { value: "ft2_per_liter", label: "ft² per litre" },
   { value: "ft2_per_bucket", label: "ft² per 20-L bucket" },
+  { value: "ft2_per_gallon", label: "ft² per US gallon" },
+  { value: "m2_per_gallon", label: "m² per US gallon" },
   { value: "frelux_calibration", label: "FRELUX Calibration" },
 ];
 
@@ -883,7 +920,8 @@ export function calculateRoom(
     steps.push({
       label: "Paint Quality & Coverage",
       value: `${config.quality?.name ?? "N/A"}, NOT CONFIGURED`,
-      detail: "FRELUX has not finished configuring coverage before accurate calculation.",
+      detail:
+        "FRELUX has not finished configuring coverage before accurate calculation.",
     });
   } else {
     steps.push({

@@ -121,6 +121,8 @@ const COVERAGE_UNITS = [
   { value: "m2_per_bucket", label: "m² per 20-L bucket" },
   { value: "ft2_per_liter", label: "ft² per litre" },
   { value: "ft2_per_bucket", label: "ft² per 20-L bucket" },
+  { value: "ft2_per_gallon", label: "ft² per US gallon" },
+  { value: "m2_per_gallon", label: "m² per US gallon" },
   { value: "frelux_calibration", label: "FRELUX Calibration" },
 ];
 

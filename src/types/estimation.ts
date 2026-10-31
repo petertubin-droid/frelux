@@ -13,6 +13,8 @@ export type CoverageUnit =
   | "m2_per_bucket"
   | "ft2_per_liter"
   | "ft2_per_bucket"
+  | "ft2_per_gallon"
+  | "m2_per_gallon"
   | "frelux_calibration";
 
 export type CalculationMethod =
@@ -210,7 +212,7 @@ export interface EstimationProductQuality {
   slug: string;
   description: string | null;
   coverage: number | null;
-  coverage_unit: string | null; // m2_per_liter, m2_per_bucket, ft2_per_liter, ft2_per_bucket, frelux_calibration
+  coverage_unit: string | null; // m2_per_liter, m2_per_bucket, ft2_per_liter, ft2_per_bucket, ft2_per_gallon, m2_per_gallon, frelux_calibration
   ceiling_coverage: number | null; // separate ceiling coverage rate
   ceiling_coverage_unit: string | null;
   // ── Material calculation model (Mineral Stone / Stucco engines) ──

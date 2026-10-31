@@ -14,7 +14,8 @@
 export type LengthUnit = "mm" | "cm" | "m" | "km" | "in" | "ft" | "yd" | "mi";
 export type AreaUnit =
   "mm2" | "cm2" | "m2" | "ft2" | "yd2" | "acre" | "hectare";
-export type VolumeUnit = "ml" | "l" | "m3" | "ft3" | "gal_us" | "gal_imp";
+export type VolumeUnit =
+  "ml" | "l" | "m3" | "cm3" | "ft3" | "yd3" | "gal_us" | "gal_imp";
 export type MassUnit = "g" | "kg" | "tonne" | "lb" | "ton_us" | "ton_imp";
 
 export const LENGTH_TO_M: Record<LengthUnit, number> = {
@@ -42,7 +43,11 @@ export const VOLUME_TO_L: Record<VolumeUnit, number> = {
   ml: 0.001,
   l: 1,
   m3: 1000,
+  cm3: 0.001,
   ft3: 28.316846592,
+  // Ready-mix concrete is ordered by the cubic yard in the US, so this unit
+  // has to exist rather than be reached by converting to cubic feet by hand.
+  yd3: 764.554857984,
   gal_us: 3.785411784,
   gal_imp: 4.54609,
 };
@@ -81,7 +86,9 @@ export const VOLUME_LABELS: Record<VolumeUnit, string> = {
   ml: "Millilitres (ml)",
   l: "Litres (L)",
   m3: "Cubic metres (m³)",
+  cm3: "Cubic centimetres (cm³)",
   ft3: "Cubic feet (ft³)",
+  yd3: "Cubic yards (yd³)",
   gal_us: "US gallons",
   gal_imp: "Imperial gallons",
 };
