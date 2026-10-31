@@ -36,6 +36,7 @@ export type FaqCategoryId =
   | "structure"
   | "services"
   | "sitework"
+  | "project"
   | "commercial"
   | "quotes"
   | "platform";
@@ -45,6 +46,7 @@ export const FAQ_CATEGORIES: { id: FaqCategoryId; label: string }[] = [
   { id: "structure", label: "Foundation, roof and structure" },
   { id: "services", label: "Electrical and plumbing" },
   { id: "sitework", label: "Groundwork and site clearance" },
+  { id: "project", label: "Programme, labour and cash flow" },
   { id: "commercial", label: "Costing and commercial control" },
   { id: "quotes", label: "Quotes and client estimates" },
   { id: "platform", label: "Using FRELUX" },

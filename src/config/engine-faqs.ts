@@ -818,6 +818,406 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       ],
     },
   },
+  {
+    slug: "septic-sizing-calculator",
+    route: "/septic-sizing-calculator",
+    name: "Septic and Soakaway Worksheet",
+    category: "services",
+    questions: [
+      {
+        q: "What decides the septic tank size?",
+        a: "Occupants, the design flow per person per day and the retention days you set give the working volume, with a storage allowance for sludge added as its own line.",
+      },
+      {
+        q: "Why do I have to enter the flow rate myself?",
+        a: "Because it is a code and jurisdiction decision, not a physical constant. The engine will not apply one country's figure to another country's project.",
+      },
+      {
+        q: "How is the soakaway sized?",
+        a: "From the accepted soil loading rate per square metre per day and the depth you give, either as base area or sidewall area only, depending on what the ground allows.",
+      },
+      {
+        q: "Does it issue a permit or environmental approval?",
+        a: "No. It is a preliminary quantity worksheet. Permits, setbacks, groundwater separation and environmental sign off sit with your authority and your engineer.",
+      },
+      {
+        q: "Can I work in gallons and feet?",
+        a: "Yes. Both SI and US customary sizing are supported, so the same worksheet serves a metric or an imperial jurisdiction.",
+      },
+    ],
+    article: {
+      summary:
+        "Tank and soakaway volumes from your occupancy, flow and soil figures.",
+      description:
+        "A preliminary septic and soakaway worksheet. Occupancy and design flow give the tank working volume, retention and storage allowances add the sludge space, and the soil loading rate with the soakaway depth gives the absorption area.",
+      functions: [
+        "Calculates working volume from occupants, design flow per person per day and retention days.",
+        "Adds a storage allowance and freeboard percentage as separate labelled additions.",
+        "Sizes the soakaway from the accepted soil loading rate, depth and whether sidewalls count.",
+        "Works in litres and cubic metres or gallons and cubic feet.",
+      ],
+      advantages: [
+        "Flow rate and soil loading stay your inputs, so no country's code is imposed on another's site.",
+        "Storage and freeboard are visible additions rather than padding inside a volume.",
+        "One worksheet serves metric and imperial markets without a conversion sheet alongside it.",
+      ],
+      limits: [
+        "It is not a permit or environmental design: setbacks, groundwater and approvals are excluded.",
+        "It does not test soil or confirm the loading rate it is given.",
+        "Excavation, lining, labour and desludging are separate.",
+      ],
+    },
+  },
+  {
+    slug: "insulation-calculator",
+    route: "/insulation-calculator",
+    name: "Insulation Takeoff",
+    category: "finishes",
+    questions: [
+      {
+        q: "What does the insulation takeoff measure?",
+        a: "Area, layers and thickness for the insulation you are fitting, converted into packs at the coverage the product is sold in, with the waste you allow.",
+      },
+      {
+        q: "Does it calculate thermal performance?",
+        a: "No. It measures quantity. U values, condensation risk and code compliance are a building physics assessment, and the tool says so rather than implying a rating.",
+      },
+      {
+        q: "How do layers affect the order?",
+        a: "Multi layer build ups multiply the area rather than the thickness, because each layer is a separate purchase at the same coverage.",
+      },
+      {
+        q: "Is pack rounding applied?",
+        a: "Yes. Area is divided by the pack coverage you supply and rounded up, since a part pack is still a pack.",
+      },
+      {
+        q: "What about vapour barriers and fixings?",
+        a: "They are separate items. The engine measures insulation only.",
+      },
+    ],
+    article: {
+      summary:
+        "Insulation by pack from the area, layers and thickness you are fitting.",
+      description:
+        "A thermal and acoustic insulation quantity takeoff. The area to be insulated, the number of layers and the product coverage decide the packs, with waste as a visible allowance rather than a hidden loading.",
+      functions: [
+        "Calculates insulated area from the surfaces you enter.",
+        "Multiplies by layers so a two layer build up is ordered as two coverages.",
+        "Divides by the pack coverage you supply and rounds up to whole packs.",
+        "Applies your waste percentage as its own line.",
+      ],
+      advantages: [
+        "Layers are counted properly, which is where multi layer specifications usually under order.",
+        "Pack rounding keeps the order usable at a merchant counter.",
+        "The tool is clear that it measures quantity, not thermal performance.",
+      ],
+      limits: [
+        "It does not calculate U values, dew points or code compliance.",
+        "Vapour barriers, tapes, fixings and trims are separate.",
+        "Labour, access and removal of existing insulation are outside it.",
+      ],
+    },
+  },
+  {
+    slug: "solar-pv-estimator",
+    route: "/solar-pv-estimator",
+    name: "Solar PV Estimator",
+    category: "services",
+    questions: [
+      {
+        q: "How does the solar estimator work?",
+        a: "Two ways. Give it usable roof area and it fits whole panels from the configured panel size, or give it an energy target and it works back through sun hours and system losses to the panels needed.",
+      },
+      {
+        q: "Where do panel and component figures come from?",
+        a: "From configured panel models, component prices and rules. Nothing about wattage, coverage or price is hardcoded into the tool.",
+      },
+      {
+        q: "What if a component has no price?",
+        a: "It is reported as unpriced and left out of the total, rather than given an invented figure. An incomplete price list shows as an incomplete cost.",
+      },
+      {
+        q: "Does it design the array?",
+        a: "It sizes panels, inverter, mounting and cabling quantities from your inputs. String design, shading and structural fixing of the roof remain engineering work.",
+      },
+      {
+        q: "Are sun hours and losses assumed?",
+        a: "They come from configuration, and they are shown in the calculation so you can see what the energy estimate rests on.",
+      },
+    ],
+    article: {
+      summary:
+        "Panels, inverter and mounting from either the roof area you have or the energy you need.",
+      description:
+        "A solar PV material takeoff with two entry points. Roof area fits the panels that physically go on the roof, an energy target works back through sun hours and losses to the kilowatt peak required, and both routes price the system from configured component data.",
+      functions: [
+        "Fits whole panels into usable roof area using the configured panel dimensions.",
+        "Works back from an energy target through sun hours and system losses to panels and kWp.",
+        "Adds inverter, mounting and cabling quantities from the rules that govern them.",
+        "Reports any component without a configured price as unpriced rather than estimating it.",
+      ],
+      advantages: [
+        "Two sizing routes mean a roof limited job and a load limited job are both handled honestly.",
+        "Unpriced components are declared, so a quotation cannot quietly assume a price.",
+        "The energy calculation is shown, so sun hours and losses can be argued with rather than trusted blindly.",
+      ],
+      limits: [
+        "It does not design strings, earthing or roof fixing details.",
+        "It does not assess shading, structural capacity or roof condition.",
+        "Installation labour, permits and utility approvals are separate.",
+      ],
+    },
+  },
+  {
+    slug: "generator",
+    route: "/generator",
+    name: "Backup Power and Generator",
+    category: "services",
+    questions: [
+      {
+        q: "Does the tool size my generator?",
+        a: "No, and it says so. You bring a load assessment and choose the size bracket; the engine measures the materials around that set instead of pretending a kilovolt ampere figure can be derived from a floor area.",
+      },
+      {
+        q: "What does it actually take off?",
+        a: "The changeover arrangement where an automatic transfer switch is included, and the cable for the measured generator to panel run, with the route and waste allowance you set.",
+      },
+      {
+        q: "Why is a blank cable run reported as missing?",
+        a: "Because an unmeasured run cannot produce a cable quantity. A zero is reported as unmeasured or panel mounted, and a blank asks you to measure, rather than producing a plausible number.",
+      },
+      {
+        q: "Are fuel and consumption covered?",
+        a: "No. Fuel sizing, consumption and running cost depend on load profile and are outside this material takeoff.",
+      },
+      {
+        q: "Is the installation checked?",
+        a: "No. Earthing, protection and changeover wiring are electrical design and inspection work.",
+      },
+    ],
+    article: {
+      summary:
+        "Materials around a generator you have sized, with the cable run measured rather than guessed.",
+      description:
+        "A backup power material estimator. You choose the size bracket from your own load assessment, state whether an automatic transfer switch is included, and measure the run to the panel; the engine returns the changeover and cable quantities that follow.",
+      functions: [
+        "Records the generator bracket you selected from your load assessment.",
+        "Adds the transfer switch arrangement where one is included.",
+        "Calculates cable length from the measured run, with a route and waste allowance.",
+        "Reports an unmeasured cable run as missing instead of estimating it.",
+      ],
+      advantages: [
+        "The engine refuses to size a generator, which is the number most likely to be wrong in a cheap estimate.",
+        "Cable follows a measured run, so the longest item on the job is not a guess.",
+        "Changeover scope is explicit, so an ATS is either quoted or visibly absent.",
+      ],
+      limits: [
+        "It does not size generators or produce a load list.",
+        "Earthing, protection settings and inspection certificates are excluded.",
+        "Fuel, installation labour and housing are separate.",
+      ],
+    },
+  },
+  {
+    slug: "heat-comfort",
+    route: "/heat-comfort",
+    name: "Heat and Comfort",
+    category: "services",
+    questions: [
+      {
+        q: "What does the heat and comfort tool compare?",
+        a: "Two finish choices on the same area, using their solar reflectance. It reports the absorbed energy difference per day and the percentage reduction the lighter or darker choice achieves.",
+      },
+      {
+        q: "Where do reflectance figures come from?",
+        a: "From configuration, and they are shown on the page. The tool does not invent a reflectance for a product it does not know.",
+      },
+      {
+        q: "Does it predict indoor temperature?",
+        a: "No. It reports absorbed energy, not room temperature. Ventilation, mass, shading and occupancy all move the outcome and none of them are modelled.",
+      },
+      {
+        q: "Why compare two surfaces instead of one?",
+        a: "Because the useful question is a choice between finishes, and a single figure gives you nothing to compare it with.",
+      },
+      {
+        q: "Does it qualify for any green certification?",
+        a: "No. It is an indicative comparison to support a conversation about specification, not a compliance submission.",
+      },
+    ],
+    article: {
+      summary:
+        "How two finish choices change the solar energy a surface absorbs, side by side.",
+      description:
+        "A comparison tool rather than a single answer. Two surface finishes on the same area are compared through their reflectance, giving the absorbed energy difference per day and the relative reduction, so a specification decision has a number attached to it.",
+      functions: [
+        "Calculates absorbed solar fraction from the reflectance of each finish.",
+        "Computes the daily absorbed energy difference across the area you enter.",
+        "Reports the reduction as a percentage, with a guard against extreme reflectance values.",
+        "Works in square metres or square feet.",
+      ],
+      advantages: [
+        "Frames the question as a choice between two finishes, which is how it arises on a project.",
+        "Reflectance values are visible, so the comparison can be checked against product data.",
+        "States plainly that absorbed energy is not indoor temperature.",
+      ],
+      limits: [
+        "It does not model room temperature, ventilation or thermal mass.",
+        "It does not certify energy performance or green building compliance.",
+        "Reflectance values must come from configured or vendor data.",
+      ],
+    },
+  },
+  {
+    slug: "labour-estimator",
+    route: "/labour-estimator",
+    name: "Labour and Crew Productivity",
+    category: "project",
+    questions: [
+      {
+        q: "How are worker days calculated?",
+        a: "From the quantities in front of you and the productivity rate for each task, converted into worker days, then into a crew duration for the crew size you plan.",
+      },
+      {
+        q: "Where does the site efficiency loss sit?",
+        a: "As its own labelled line, never folded into the base rate. You can see what the base productivity assumes and what the site allowance adds.",
+      },
+      {
+        q: "Why are durations whole days?",
+        a: "Because you cannot schedule part of a working day. Fractions are rounded up so a duration is something a programme can hold.",
+      },
+      {
+        q: "What if a productivity rate is missing?",
+        a: "The task is refused rather than given a guessed rate. A missing rate is an honest gap, and it is shown as one.",
+      },
+      {
+        q: "Does it produce a full programme?",
+        a: "It gives durations per task and per crew. Sequencing those durations into a programme is the project timeline's job.",
+      },
+    ],
+    article: {
+      summary:
+        "Worker days and crew duration per task, with the efficiency loss shown separately.",
+      description:
+        "A labour productivity estimator. Each task's quantity is multiplied by a configured productivity rate to give worker days, then divided across the crew you plan, with a site efficiency allowance carried as a separate line.",
+      functions: [
+        "Converts task quantities into worker days using configured productivity rates.",
+        "Divides worker days by crew size to give a duration in whole working days.",
+        "Carries the site efficiency loss as a separate labelled allowance.",
+        "Refuses a task whose productivity rate is not configured instead of guessing one.",
+      ],
+      advantages: [
+        "The efficiency allowance is visible, so a slow site can be seen rather than absorbed into a rate.",
+        "Whole day durations mean the output can go into a programme without adjustment.",
+        "Missing rates surface as gaps, which keeps the labour estimate honest.",
+      ],
+      limits: [
+        "It does not sequence work or produce a programme.",
+        "Wage rates, overtime and statutory costs are separate from productivity.",
+        "Weather, access constraints and supervision ratios are not modelled.",
+      ],
+    },
+  },
+  {
+    slug: "margin-calculator",
+    route: "/margin-calculator",
+    name: "Margin and Markup Calculator",
+    category: "project",
+    questions: [
+      {
+        q: "What is the difference between margin and markup?",
+        a: "Markup is a percentage on cost; margin is a percentage of the selling price. They are different numbers for the same job, and the tool shows which basis every preset uses rather than leaving you to assume.",
+      },
+      {
+        q: "Why does the basis matter so much?",
+        a: "Because a twenty percent markup is a sixteen point seven percent margin. Confusing the two is how a contractor wins work at a loss.",
+      },
+      {
+        q: "Is tax added automatically?",
+        a: "Only from a configured rule. With no rule, the tool warns and adds no tax line instead of assuming a rate, which keeps the price honest in every jurisdiction.",
+      },
+      {
+        q: "Can I work backwards from a target price?",
+        a: "Yes. Give it the price you want to achieve and it shows the margin and markup that price implies on your cost.",
+      },
+      {
+        q: "Does it include overheads?",
+        a: "Your base cost should. The engine separates cost, margin and tax so each is visible, not blended into one number.",
+      },
+    ],
+    article: {
+      summary:
+        "Client price, profit and tax with the margin or markup basis stated every time.",
+      description:
+        "A pricing calculator that refuses to blur margin and markup. Base cost and a configured preset give the client price, with the basis named on every step and tax added only when a rule exists.",
+      functions: [
+        "Calculates client price from base cost and the margin or markup preset you choose.",
+        "States the basis in use, so the same percentage cannot be read two ways.",
+        "Works backwards from a target price to the margin it implies.",
+        "Adds tax only from a configured rule, and warns when none exists.",
+      ],
+      advantages: [
+        "The margin against markup distinction is explicit instead of a footnote in a conversation.",
+        "Tax honesty means a price is never inflated by an invented rate.",
+        "Each step of the breakdown is shown, so the price can be defended line by line.",
+      ],
+      limits: [
+        "It does not decide what margin your business needs.",
+        "Overheads, financing and risk allowances must already sit in the base cost.",
+        "It is not accounting software and does not post transactions.",
+      ],
+    },
+  },
+  {
+    slug: "cash-flow-timeline",
+    route: "/cash-flow-timeline",
+    name: "Cash-Flow Timeline",
+    category: "project",
+    questions: [
+      {
+        q: "How are payment stages built?",
+        a: "From a milestone template: label, percentage and offset in months, applied to the project value. Dates come from the start date plus each offset, so nothing is invented.",
+      },
+      {
+        q: "What happens if the percentages do not total one hundred?",
+        a: "The template is refused. The engine will not silently normalise the stages or spread the shortfall, because a cash flow that does not add up is worse than no cash flow.",
+      },
+      {
+        q: "Can I model a retention?",
+        a: "If the template carries it as a stage. Retention, mobilisation and completion are all just stages with a share and a timing.",
+      },
+      {
+        q: "Does it track actual payments?",
+        a: "No. It projects the intended schedule from the value and the template. Recording what has actually been received is a separate ledger.",
+      },
+      {
+        q: "Why phase payments at all?",
+        a: "Because a contractor funds materials before being paid. Seeing the money arrive across months is what turns a profitable job into a survivable one.",
+      },
+    ],
+    article: {
+      summary:
+        "A phased payment schedule from the contract value, with stages that must add to one hundred.",
+      description:
+        "A project cash-flow projection. A milestone template, with a share and a month offset for each stage, is applied to the project value to show when money is expected to arrive, and the engine rejects any template that does not total one hundred percent.",
+      functions: [
+        "Applies milestone percentages to the project value to give each stage amount.",
+        "Places stages on a timeline from the project start date and each offset.",
+        "Refuses a template whose percentages do not sum to exactly one hundred.",
+        "Shows the cumulative position month by month.",
+      ],
+      advantages: [
+        "A template that does not reconcile is refused rather than quietly adjusted.",
+        "Cumulative timing shows the funding gap a profitable job can still have.",
+        "Stages are yours to define, so mobilisation and retention are modelled as they really are.",
+      ],
+      limits: [
+        "It does not record received payments or reconcile against a bank account.",
+        "It does not model interest, credit facilities or late payment penalties.",
+        "Cost timing is not included; this is the inflow side of the picture.",
+      ],
+    },
+  },
 ];
 
 export const ENGINE_FAQ_GROUPS: ToolFaqGroup[] = ENGINE_FAQ_ENTRIES.map(

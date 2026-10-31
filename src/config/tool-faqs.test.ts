@@ -96,6 +96,7 @@ describe("tool FAQ registry", () => {
         toolFaqGroupsByCategory("structure").length +
         toolFaqGroupsByCategory("services").length +
         toolFaqGroupsByCategory("sitework").length +
+        toolFaqGroupsByCategory("project").length +
         toolFaqGroupsByCategory("commercial").length +
         toolFaqGroupsByCategory("quotes").length +
         toolFaqGroupsByCategory("platform").length,
