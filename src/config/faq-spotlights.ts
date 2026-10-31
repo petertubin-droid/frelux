@@ -47,6 +47,12 @@ export const FAQ_SPOTLIGHT_PLACEMENTS: FaqSpotlightPlacementConfig[] = [
       { slug: "soffit-gutter-cost-estimator", questionIndexes: [0, 1] },
       { slug: "masonry-calculator", questionIndexes: [0, 2] },
       { slug: "reinforcement", questionIndexes: [0, 1] },
+      { slug: "structural-calculator", questionIndexes: [0, 1] },
+      { slug: "concrete-takeoff-calculator", questionIndexes: [0, 2] },
+      { slug: "earthworks-cut-fill", questionIndexes: [0, 1] },
+      { slug: "roof-framing-calculator", questionIndexes: [0, 1] },
+      { slug: "temporary-works-calculator", questionIndexes: [0, 1] },
+      { slug: "foundation-designer", questionIndexes: [0, 1] },
     ],
   },
   {

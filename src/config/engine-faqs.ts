@@ -518,6 +518,306 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       ],
     },
   },
+  {
+    slug: "structural-calculator",
+    route: "/structural-calculator",
+    name: "Concrete and Structural Takeoff",
+    category: "structure",
+    questions: [
+      {
+        q: "What does the structural takeoff measure?",
+        a: "Concrete for slabs, beams, columns and footings from the dimensions you survey, then the cement, sand and granite that volume needs, alongside reinforcement grouped by bar diameter and length.",
+      },
+      {
+        q: "Where do the dimensions come from?",
+        a: "From you. The engine works only from explicit surveyed dimensions and schedules, because an assumed column size is a guess that ends up in a quote.",
+      },
+      {
+        q: "Is this a structural design?",
+        a: "No. It is an estimating method. Member sizes, reinforcement design and load paths belong to a structural engineer, and the tool says so rather than implying approval.",
+      },
+      {
+        q: "How are the concrete ingredients split?",
+        a: "By the mix ratio you choose, applied to the dry volume, so a stronger mix shows up in the cement line instead of being absorbed into a rate.",
+      },
+      {
+        q: "Can I mix slabs, beams, columns and footings?",
+        a: "Yes, each element type is its own line with its own dimensions and quantity, and the totals roll up by material rather than by element.",
+      },
+    ],
+    article: {
+      summary:
+        "Concrete volumes and reinforcement quantities for the structural elements you survey.",
+      description:
+        "A structural materials takeoff. Slabs, beams, columns and footings are measured from the dimensions you survey, converted into concrete and its ingredients by the mix you intend to use, with reinforcement taken from the bar groups you provide.",
+      functions: [
+        "Calculates concrete volume per element from length, width and depth or section.",
+        "Converts volume into cement bags, sand and granite at the mix ratio you select.",
+        "Totals reinforcement by diameter and bar length so the steel order is a schedule rather than a guess.",
+        "Keeps each element as its own line, so a change to one column does not disturb the slab.",
+      ],
+      advantages: [
+        "Ingredient quantities follow the mix you actually use, which makes a stronger pour visible in the order.",
+        "Element level lines mean a client question about one beam can be answered from the page.",
+        "The tool refuses assumed dimensions, so nothing is invented on a drawing you have not measured.",
+      ],
+      limits: [
+        "It is not structural design and does not size members or reinforcement.",
+        "Formwork, props and temporary works are a separate tool.",
+        "Labour, plant and tax sit outside the quantity, and tax is reported as undetermined.",
+      ],
+    },
+  },
+  {
+    slug: "concrete-takeoff-calculator",
+    route: "/concrete-takeoff-calculator",
+    name: "Concrete Slab Takeoff",
+    category: "structure",
+    questions: [
+      {
+        q: "How is slab concrete calculated?",
+        a: "Length by width by thickness gives the wet volume, which is increased by the waste you allow, then converted to cement, sand and granite by the mix ratio you choose.",
+      },
+      {
+        q: "Why does the thickness matter so much?",
+        a: "Because concrete is priced by volume. Fifty millimetres across a large slab is a significant quantity of cement, so thickness is an input rather than a trade assumption.",
+      },
+      {
+        q: "Does it allow for a poured edge or beam thickening?",
+        a: "Those are separate elements. A slab on its own is one rectangle of thickness; edge beams and thickenings are measured as beams so they are not double counted.",
+      },
+      {
+        q: "Is reinforcement included?",
+        a: "Not in this tool. Bar quantities come from the reinforcement tool, where you give it cutting lengths per diameter from the schedule.",
+      },
+      {
+        q: "Does it check the slab structurally?",
+        a: "No. It measures materials for a thickness you have decided. Span to depth and reinforcement design are engineering decisions.",
+      },
+    ],
+    article: {
+      summary:
+        "A slab volume, its ingredients and the bags behind them, from three dimensions.",
+      description:
+        "A concrete slab takeoff. Length, width and thickness give the volume, the mix ratio gives the ingredients, and the waste allowance gives a purchasable order rather than a theoretical one.",
+      functions: [
+        "Calculates wet volume from the slab dimensions you enter.",
+        "Applies the waste percentage you allow for overfill and uneven substrates.",
+        "Splits the volume by mix ratio into cement bags, sand and granite.",
+        "Shows the dry volume conversion behind each ingredient quantity.",
+      ],
+      advantages: [
+        "The order is expressed in bags and trips, which is how concrete materials are bought.",
+        "Mix ratio is visible, so a change of specification is a change of cost rather than a surprise.",
+        "Waste is a stated line instead of a hidden loading on the rate.",
+      ],
+      limits: [
+        "It does not design the slab or its reinforcement.",
+        "Blinding, hardcore and formwork are separate items.",
+        "Pumping, labour and finishing are outside the takeoff.",
+      ],
+    },
+  },
+  {
+    slug: "earthworks-cut-fill",
+    route: "/earthworks-cut-fill",
+    name: "Earthworks Cut and Fill",
+    category: "structure",
+    questions: [
+      {
+        q: "How are cut and fill volumes calculated?",
+        a: "From the surveyed levels or depths you enter against the areas they apply to, giving cut and fill separately rather than as one net figure.",
+      },
+      {
+        q: "Why separate cut from fill?",
+        a: "Because spoil has to leave the site and fill has to arrive, and neither is free. A net volume hides two movements and two costs.",
+      },
+      {
+        q: "What are the bulking and compaction factors for?",
+        a: "Excavated soil bulks when it is disturbed and compacted fill shrinks, so the engine converts between in situ, loose and compacted states using the factors you set.",
+      },
+      {
+        q: "Can I price the haulage?",
+        a: "The engine gives volumes and trips from the capacity you provide. Haulage rates and disposal charges are yours to add.",
+      },
+      {
+        q: "Is this geotechnical advice?",
+        a: "No. It measures earth from levels you survey. Bearing capacity, slope stability and soil classification are outside the tool.",
+      },
+    ],
+    article: {
+      summary:
+        "Cut and fill volumes kept apart, with the bulking that decides how many trips leave site.",
+      description:
+        "An earthworks estimator. Levels and areas give cut and fill volumes separately, and the bulking and compaction factors convert those volumes into the loose spoil to be removed and the compacted fill to be placed.",
+      functions: [
+        "Calculates cut and fill volume from the areas and depths or levels you enter.",
+        "Converts in situ volume to loose volume with the bulking factor you set.",
+        "Converts fill to compacted volume for the layer depths you are placing.",
+        "Derives load counts from the transport capacity you provide.",
+      ],
+      advantages: [
+        "Spoil and fill are costed as two movements, which is what a site actually pays for.",
+        "Bulking is an explicit assumption you can correct from the first skip or lorry.",
+        "Volumes stay tied to surveyed levels rather than to a guess from a drawing.",
+      ],
+      limits: [
+        "It is not geotechnical advice: bearing capacity and stability are excluded.",
+        "It does not design drainage, retaining structures or ground improvement.",
+        "Plant rates, disposal fees and compaction testing are separate.",
+      ],
+    },
+  },
+  {
+    slug: "roof-framing-calculator",
+    route: "/roof-framing-calculator",
+    name: "Roof Framing and Board Feet",
+    category: "structure",
+    questions: [
+      {
+        q: "What does the roof framing tool measure?",
+        a: "Rafters and purlins from the roof span, pitch and spacing you set, expressed as lengths and as board feet of timber, so the order matches how timber is sold.",
+      },
+      {
+        q: "How does pitch change the quantity?",
+        a: "Rafter length is the slope length, not the plan length, so a steeper roof uses more timber for the same footprint. The engine computes that rather than applying a flat factor.",
+      },
+      {
+        q: "Why board feet as well as linear length?",
+        a: "Because timber merchants price by volume. A rafter schedule in linear metres cannot be ordered; board feet can.",
+      },
+      {
+        q: "Does it size the members?",
+        a: "It gives indicative member checks as a preliminary aid, not a certificate. Span tables and structural design remain the engineer's work.",
+      },
+      {
+        q: "Are roof coverings included?",
+        a: "No. Sheets, tiles and their fixings come from the roof covering side, and the build to roof estimator carries the covering quantity.",
+      },
+    ],
+    article: {
+      summary:
+        "Rafters, purlins and board feet from the span, pitch and spacing you set.",
+      description:
+        "A roof framing takeoff. Span, pitch, spacing and the framing arrangement you describe become rafter and purlin quantities, reported in both linear length and board feet so the timber order is usable.",
+      functions: [
+        "Calculates rafter length from the span and pitch rather than the plan dimension.",
+        "Counts rafters and purlins from the spacing and the run they cover.",
+        "Converts the schedule into board feet so timber can be ordered by volume.",
+        "Reports indicative member figures as a preliminary check, clearly marked as such.",
+      ],
+      advantages: [
+        "Slope length is computed, which is the step most roof quantities get wrong.",
+        "Board feet means the number can be handed to a timber merchant unchanged.",
+        "The framing arrangement is your input, so a hip and a gable are not priced the same.",
+      ],
+      limits: [
+        "It is not a structural design or a certified member sizing.",
+        "Roof coverings, battens and fixings are outside it.",
+        "Access, labour and erection are separate.",
+      ],
+    },
+  },
+  {
+    slug: "temporary-works-calculator",
+    route: "/temporary-works-calculator",
+    name: "Formwork and Temporary Works",
+    category: "structure",
+    questions: [
+      {
+        q: "What does the temporary works tool take off?",
+        a: "Formwork contact areas for slabs, beams, columns and walls, plus the props and scaffold components those areas imply.",
+      },
+      {
+        q: "How are reuse cycles treated?",
+        a: "Formwork is bought once and used several times, so the reuse cycles you enter reduce the quantity of new material rather than inflating it.",
+      },
+      {
+        q: "Why measure contact area instead of volume?",
+        a: "Because formwork is priced by the surface it touches. A beam has three faces to box, a slab has one, and the areas differ completely from the concrete volume.",
+      },
+      {
+        q: "Does it check the falsework?",
+        a: "No. It is a preliminary quantity takeoff. Prop spacing, loading and stability are a temporary works design and an engineer's responsibility.",
+      },
+      {
+        q: "Are scaffold and access included?",
+        a: "The access components the takeoff covers are included as quantities. Hire rates, inspections and certificates are not.",
+      },
+    ],
+    article: {
+      summary:
+        "Formwork areas and the props behind them, reduced by the reuse cycles you plan.",
+      description:
+        "A temporary works takeoff. Each element's contact area is measured, aggregated into formwork quantity, and adjusted by the reuse cycles you intend, alongside the props and access components the work needs.",
+      functions: [
+        "Calculates formwork contact area per element from its dimensions and faces.",
+        "Applies the reuse cycles you enter to give the new material actually required.",
+        "Counts props and access components from the areas they support.",
+        "Keeps element types separate so a beam's three faces are not lost in a slab rate.",
+      ],
+      advantages: [
+        "Reuse is treated as a real multiplier, which is how formwork is actually bought.",
+        "Contact area avoids the common error of pricing formwork from concrete volume.",
+        "Element separation means the boxing for a column is visible next to the slab.",
+      ],
+      limits: [
+        "It is not a temporary works design: prop spacing and stability are excluded.",
+        "It does not issue inspection or handover documentation.",
+        "Hire, transport and labour for erection are outside it.",
+      ],
+    },
+  },
+  {
+    slug: "foundation-designer",
+    route: "/foundation-calculator",
+    name: "Foundation Designer",
+    category: "structure",
+    questions: [
+      {
+        q: "What does the foundation designer produce?",
+        a: "Preliminary strip, pad and raft sizing from an assumed or user entered soil bearing capacity, then the concrete and materials that sizing implies.",
+      },
+      {
+        q: "Where does the bearing capacity come from?",
+        a: "From you, either as an assumed value or from a soil report. The engine will not invent one, because bearing capacity decides the whole footing.",
+      },
+      {
+        q: "Is the sizing certified?",
+        a: "No. It is a preliminary estimate to get quantities moving. A geotechnical investigation and a structural design are required before construction.",
+      },
+      {
+        q: "How does it differ from the foundation calculator?",
+        a: "The foundation material takeoff measures concrete and blocks from dimensions you set. This one proposes the dimensions themselves from the load and the soil, which is why its limits are stricter.",
+      },
+      {
+        q: "Can I override the suggested size?",
+        a: "Yes, and you should when a site investigation says otherwise. The suggested dimensions are a starting point, and the material quantities follow whatever you settle on.",
+      },
+    ],
+    article: {
+      summary:
+        "Preliminary strip, pad and raft sizing from the soil capacity you supply.",
+      description:
+        "A foundation sizing aid. Load and soil bearing capacity give preliminary footing dimensions for strip, pad and raft options, which then drive the concrete and material quantities for the job.",
+      functions: [
+        "Proposes strip, pad and raft sizes from the load and bearing capacity you enter.",
+        "Uses the soil value you supply rather than a default assumption.",
+        "Carries the chosen sizing into concrete volume and its ingredients.",
+        "Leaves the dimensions editable so a soil report can correct the proposal.",
+      ],
+      advantages: [
+        "Sizing starts from the load and the soil, which is the order the physics runs in.",
+        "Every proposed dimension can be overridden and traced, so nothing is locked behind an assumption.",
+        "Quantities follow the size you accept, so a corrected footing does not leave stale numbers.",
+      ],
+      limits: [
+        "It is not a certified geotechnical or structural design, and no code compliance check is performed.",
+        "Settlement, differential movement and reinforcement design are outside it.",
+        "Excavation, dewatering and labour are separate items.",
+      ],
+    },
+  },
 ];
 
 export const ENGINE_FAQ_GROUPS: ToolFaqGroup[] = ENGINE_FAQ_ENTRIES.map(
