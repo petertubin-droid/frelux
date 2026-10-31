@@ -1,7 +1,7 @@
 /**
  * The article body behind each FAQ group.
  *
- * The questions answer one thing at a time, which is what a reader wants when
+ * The questions answer one thing at a time, which a reader wants when
  * they are checking a figure. This is the long form: what the tool is, what it
  * actually calculates, why it is worth using, and what it deliberately refuses
  * to do. Rendered at /faq/:slug next to the group's own questions, so one page
@@ -18,7 +18,7 @@ export interface FaqArticle {
   summary: string;
   /** "What it is" */
   description: string;
-  /** "What it calculates" — three or more concrete steps. */
+  /** "What it calculates": three or more concrete steps. */
   functions: string[];
   /** "Why contractors use it" */
   advantages: string[];
@@ -40,13 +40,13 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     ],
     advantages: [
       "Every litre traces back to a measurement and a stated coverage, so a client can follow the arithmetic.",
-      "Buying by tin rather than by litre stops the quiet shortfall that appears on the second coat.",
+      "Buying by tin, not by litre stops the quiet shortfall that appears on the second coat.",
       "A sound wall that only needs a refresh is not priced as new work, because primer stays optional.",
     ],
     limits: [
       "It does not judge surface condition. Bare plaster and heavy patching need products and quantities you decide.",
-      "It uses the coverage figure you supply rather than guessing a spread rate for a product it has not seen.",
-      "Labour, access equipment and tax are outside it, and tax is reported as undetermined rather than assumed.",
+      "It uses the coverage figure you supply, not guessing a spread rate for a product it has not seen.",
+      "Labour, access equipment and tax are outside it, and tax is reported as undetermined, not assumed.",
     ],
   },
   "tile-calculator": {
@@ -55,13 +55,13 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     description:
       "A tiling quantity estimator built on the area you measure and the tile size you are laying. It counts tiles for that area, adds the waste you allow for cuts, and rounds up to the packs the tiles are sold in.",
     functions: [
-      "Calculates the area to be tiled from the dimensions you enter rather than from a default room.",
+      "Calculates the area to be tiled from the dimensions you enter, not from a default room.",
       "Counts tiles from the area and the tile size, so a change of format changes the count immediately.",
       "Applies the waste percentage you choose for cuts, edges and breakages.",
       "Rounds to whole packs and shows the pack count, which is the number a supplier quotes against.",
     ],
     advantages: [
-      "Waste is a visible line you set rather than a hidden margin added at the counter.",
+      "Waste is a visible line you set, not a hidden margin added at the counter.",
       "Changing tile size re-counts the order in front of the client, which settles the commonest argument.",
       "The pack count is what you actually hand to a merchant, so the estimate survives contact with the shop.",
     ],
@@ -78,7 +78,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
       "A ceiling plaster estimator. It takes the ceiling area and the build up thickness you are working to, then converts that into the plaster and backing material the ceiling consumes, shown as purchasable bags.",
     functions: [
       "Calculates the ceiling area from the dimensions you enter.",
-      "Converts area and thickness into a volume of plaster rather than a flat rate per square metre.",
+      "Converts area and thickness into a volume of plaster, not a flat rate per square metre.",
       "Expresses the result in bags of the size you buy, so the shopping list is usable.",
       "Shows the step by step figures so the volume behind each bag count can be checked.",
     ],
@@ -100,7 +100,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
       "A floor screed estimator. You give it the area and the thickness of the bed you are laying, and the mix you intend to use, and it returns the volume of screed together with the cement and sand that volume needs.",
     functions: [
       "Calculates the screed volume from the floor area and the thickness you enter.",
-      "Splits the volume by the mix ratio you choose rather than assuming one.",
+      "Splits the volume by the mix ratio you choose, not assuming one.",
       "Shows cement as bags of a fixed size and sand as a volume, which are the units both are sold in.",
       "Prints the wet and dry volumes behind the figures so the conversion is visible.",
     ],
@@ -123,7 +123,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     functions: [
       "Calculates footing concrete volume from the length, width and depth you set, including pads where there are pads.",
       "Converts wet concrete volume to cement bags, sand and granite using the mix ratio you choose.",
-      "Counts blocks for the foundation courses rather than for the whole wall above.",
+      "Counts blocks for the foundation courses, not for the whole wall above.",
       "Takes formwork as a contact area, and accepts zero when you are pouring directly against the soil.",
     ],
     advantages: [
@@ -151,7 +151,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     advantages: [
       "The shell is answered as one figure instead of five separate shopping trips.",
       "The eaves perimeter is computed once, so the roof and the gutter band cannot disagree.",
-      "Mix ratios and roof geometry stay visible, which is what a client questions first.",
+      "Mix ratios and roof geometry stay visible, since a client questions those first.",
     ],
     limits: [
       "It stops at the roof covering. Finishes, electrical and plumbing are priced from different quantities.",
@@ -161,7 +161,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
   },
   "retaining-wall-calculator": {
     summary:
-      "The buried footing and the stem, with soil type changing the geometry rather than the opinion.",
+      "The buried footing and the stem, with soil type changing the geometry, not the opinion.",
     description:
       "A retaining wall estimator. Soil pushes sideways, so the buried footing is the part that matters. The tool takes the wall length, height and the soil you are holding back, and returns concrete for the footing, the stem in blocks or poured concrete, reinforcement, and the drainage points along the base.",
     functions: [
@@ -172,7 +172,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     ],
     advantages: [
       "A harder soil condition changes the footing geometry instead of a hidden safety margin.",
-      "The footing width stays on screen, so a site investigation can correct it rather than be ignored.",
+      "The footing width stays on screen, so a site investigation can correct it, not be ignored.",
       "Drainage points are part of the material list, which is the item most often forgotten on site.",
     ],
     limits: [
@@ -193,7 +193,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
       "Runs through the same perimeter helper as the roof engine, so both tools return one number.",
     ],
     advantages: [
-      "A contractor who already ran the roof gets the same perimeter rather than a second, different one.",
+      "A contractor who already ran the roof gets the same perimeter, not a second, different one.",
       "Downpipe spacing stays a decision you make, because rainfall and roof area decide it.",
       "The cutting allowance is a stated line, so the waste is visible instead of being a surprise.",
     ],
@@ -205,7 +205,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
   },
   "steel-beam-calculator": {
     summary:
-      "Span to tonnage, because steel is bought and quoted by mass rather than by length.",
+      "Span to tonnage, because steel is bought and quoted by mass, not by length.",
     description:
       "A steel weight and cost estimator. You pick the profile or the situation it is for, enter the span and the number of beams, and it converts the length into kilograms and tonnes, then into money at the price per tonne you supply.",
     functions: [
@@ -222,7 +222,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     limits: [
       "It is not a structural check. Deflection, buckling and connection design need an engineer.",
       "Connections, base plates, bolts, painting and fire protection are separate purchases.",
-      "Steel price is yours to enter, because there is no verified price book for it in most markets, and tax is reported as undetermined rather than assumed.",
+      "Steel price is yours to enter, because there is no verified price book for it in most markets, and tax is reported as undetermined, not assumed.",
     ],
   },
   "doors-windows": {
@@ -239,19 +239,19 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     advantages: [
       "A blank schedule is reported as missing, so openings are never invented on your behalf.",
       "Hardware is visible as its own quantity, which is where cheap quotes usually hide.",
-      "Counts come from your schedule, so a change of plan is a change of number rather than a re-estimate.",
+      "Counts come from your schedule, so a change of plan is a change of number, not a re-estimate.",
     ],
     limits: [
       "It does not specify sizes, glazing, ironmongery brands or fire ratings.",
       "Installation labour, sealants and finishing are separate items.",
-      "It cannot price a schedule you have not counted, and it says so rather than guessing.",
+      "It cannot price a schedule you have not counted, and it says so, not guessing.",
     ],
   },
   electrical: {
     summary:
       "A wiring material take off that refuses to size a cable category you have not measured.",
     description:
-      "An electrical materials estimator for a building's wiring. Point counts and distribution board counts come from you, and so do the average cable run lengths, because a run length is a site measurement rather than a number a calculator can know.",
+      "An electrical materials estimator for a building's wiring. Point counts and distribution board counts come from you, and so do the average cable run lengths, because a run length is a site measurement, not a number a calculator can know.",
     functions: [
       "Computes each cable category separately from the average run length you measure for it.",
       "Uses switch and distribution board counts you enter to set the accessory quantities.",
@@ -260,7 +260,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     ],
     advantages: [
       "Cable lengths are never invented, which is the failure that makes an electrical quote wrong.",
-      "Circuit grouping comes from stored rules that can be inspected rather than a rule of thumb.",
+      "Circuit grouping comes from stored rules that can be inspected, not a rule of thumb.",
       "Each category is shown with its own steps, so an electrician can check the reel count.",
     ],
     limits: [
@@ -273,7 +273,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     summary:
       "A shopping list for a wiring loop: conduit, wire by the reel, and the boxes that join them.",
     description:
-      "An empirical conduit and wiring estimator. It converts floor area and point counts into the physical materials an installation consumes, using the local trade's own multipliers rather than a circuit schematic.",
+      "An empirical conduit and wiring estimator. It converts floor area and point counts into the physical materials an installation consumes, using the local trade's own multipliers, not a circuit schematic.",
     functions: [
       "Calculates conduit pipe length from the floor area and the trade multiplier you work to.",
       "Divides that length by the standard pipe length sold locally to give the number of pipes to buy.",
@@ -303,9 +303,9 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
       "Counts valves per tap, which is the accessory most often left out of a materials list.",
     ],
     advantages: [
-      "A missing run length leaves the line visibly unsized rather than silently filled with a guess.",
+      "A missing run length leaves the line visibly unsized, not silently filled with a guess.",
       "Categories are sized separately, so a long drainage run does not distort the hot water order.",
-      "Allowances are printed, which makes the fittings count arguable rather than mysterious.",
+      "Allowances are printed, which makes the fittings count arguable, not mysterious.",
     ],
     limits: [
       "It is not plumbing design. Pipe sizing, hydraulic calculations and gradients are outside it.",
@@ -331,7 +331,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     ],
     limits: [
       "It does not send the follow up. It decides which quotes need one and shows them; the message is yours.",
-      "It is not an e-signature or a contract, and approval here records a client's answer rather than a signed agreement.",
+      "It is not an e-signature or a contract, and approval here records a client's answer, not a signed agreement.",
       "It does not take payment or reconcile an invoice.",
     ],
   },
@@ -347,12 +347,12 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
       "Shares a link to the stored quote, which the client can open without an account.",
     ],
     advantages: [
-      "The markup is visible as its own amount, so a client can see what is being added rather than inferring it.",
+      "The markup is visible as its own amount, so a client can see what is being added, not inferring it.",
       "Editing a line changes that line only; it never re-runs a calculation behind your back.",
       "Approval locks the record, which keeps an agreed figure from drifting afterwards.",
     ],
     limits: [
-      "Tax is never applied automatically, and the quote reports it as undetermined rather than guessing a rate.",
+      "Tax is never applied automatically, and the quote reports it as undetermined, not guessing a rate.",
       "Transport is a figure you enter, not a distance calculation.",
       "It does not collect payment, produce a signed contract, or replace your own terms of business.",
     ],
@@ -361,17 +361,17 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     summary:
       "What FRELUX does, how the numbers are produced, and what it will never pretend to know.",
     description:
-      "FRELUX is a construction estimating platform. The quantities come from deterministic engines that show their steps, and AI is restricted to extracting data from documents and photographs rather than deciding quantities.",
+      "FRELUX is a construction estimating platform. The quantities come from deterministic engines that show their steps, and AI is restricted to extracting data from documents and photographs, not deciding quantities.",
     functions: [
       "Runs each discipline through its own engine, from finishes to structure to services, with the arithmetic printed.",
       "Prices materials from verified price books where they exist and asks you to enter prices where they do not.",
       "Reports tax as undetermined instead of applying a jurisdiction's rate on your behalf.",
-      "Runs in a browser on a phone, so a quantity can be checked on site rather than in an office.",
+      "Runs in a browser on a phone, so a quantity can be checked on site, not in an office.",
     ],
     advantages: [
-      "Every figure can be traced to an input and a printed step, which is what makes a quote defensible.",
+      "Every figure can be traced to an input and a printed step, so a quote defensible.",
       "Manual price entry replaces invented fallbacks, so an unpriced market reads as unpriced.",
-      "Estimates are not padded with mock data, so a blank section means missing input rather than fiction.",
+      "Estimates are not padded with mock data, so a blank section means missing input, not fiction.",
     ],
     limits: [
       "It is not a substitute for a structural, electrical or plumbing engineer's design.",

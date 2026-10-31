@@ -94,40 +94,41 @@ export default function FaqArticle() {
             </Link>
           </div>
 
-          <div className="mt-8 space-y-10">
-            {FAQ_ARTICLE_SECTIONS.map((section) => {
+          <div className="mt-9 space-y-9">
+            {FAQ_ARTICLE_SECTIONS.map((section, index) => {
               const value = article[section.key];
               return (
                 <section
                   key={section.key}
                   aria-labelledby={`${section.key}-heading`}
+                  className="grid gap-2 sm:grid-cols-[auto_1fr] sm:gap-x-5"
                 >
-                  <h2
-                    id={`${section.key}-heading`}
-                    className="text-xl font-semibold tracking-tight text-foreground"
-                  >
-                    {section.heading}
-                  </h2>
-                  {typeof value === "string" ? (
-                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                      {value}
-                    </p>
-                  ) : (
-                    <ul className="mt-3 space-y-2.5">
-                      {value.map((item) => (
-                        <li
-                          key={item}
-                          className="flex gap-2.5 text-sm leading-relaxed text-muted-foreground sm:text-base"
-                        >
-                          <span
-                            aria-hidden="true"
-                            className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60"
-                          />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  <span aria-hidden="true" className="faq-marker pt-1.5">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <h2
+                      id={`${section.key}-heading`}
+                      className="article-heading"
+                    >
+                      {section.heading}
+                    </h2>
+                    {typeof value === "string" ? (
+                      <p className="article-body mt-2.5">{value}</p>
+                    ) : (
+                      <ul className="mt-3 space-y-2.5">
+                        {value.map((item) => (
+                          <li key={item} className="article-body flex gap-3">
+                            <span
+                              aria-hidden="true"
+                              className="mt-[0.55rem] h-1 w-3 shrink-0 rounded-full bg-primary/50"
+                            />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </section>
               );
             })}

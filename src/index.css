@@ -491,6 +491,57 @@
   .section-subtitle {
     @apply text-base text-muted-foreground leading-relaxed dark:text-muted-foreground;
   }
+  /* FAQ reading styles: the question sets in the display face, the answer in the
+     reading face with generous leading and hanging punctuation, so a Q&A block
+     reads as editorial copy instead of a form. Numerals stay tabular. */
+  .faq-question {
+    @apply font-display text-foreground dark:text-primary-foreground;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: -0.012em;
+    text-wrap: pretty;
+  }
+  @media (min-width: 640px) {
+    .faq-question {
+      font-size: 1rem;
+    }
+  }
+  .faq-answer {
+    @apply font-sans text-muted-foreground dark:text-muted-foreground;
+    font-size: 0.9375rem;
+    line-height: 1.8;
+    text-wrap: pretty;
+    hanging-punctuation: first allow-end;
+  }
+  .faq-marker {
+    @apply font-display text-primary/70;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+  }
+  /* Article body measure and rhythm for editorial pages such as /faq/:slug. */
+  .article-heading {
+    @apply font-display text-foreground;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .article-body {
+    @apply font-sans text-muted-foreground;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    text-wrap: pretty;
+    hanging-punctuation: first;
+  }
+  @media (min-width: 640px) {
+    .article-body {
+      font-size: 1rem;
+    }
+  }
   /* Premium badge */
   .badge {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium;

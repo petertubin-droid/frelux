@@ -5,11 +5,11 @@
  * five section article body. The copy below is written against each engine's
  * stated inputs and its honesty contract, so nothing here claims coverage the
  * engine does not have. Anything excluded (hydraulic design, permits, hazardous
- * waste, structural design) is named in the limits rather than left to be
+ * waste, structural design) is named in the limits, not left to be
  * discovered later.
  *
  * Split from the main registry purely for file size. Both are merged into the
- * same FAQ index, so a reader sees one catalogue rather than two.
+ * same FAQ index, so a reader sees one catalogue, not two.
  */
 
 import type { FaqCategoryId, ToolFaqGroup } from "@/config/tool-faqs";
@@ -30,7 +30,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "What is the bulking factor for?",
-        a: "It converts a volume in place into the volume a skip has to hold. Rubble, blockwork and concrete do not bulk by the same amount, so the factor is yours to set rather than assumed by the tool.",
+        a: "It converts a volume in place into the volume a skip has to hold. Rubble, blockwork and concrete do not bulk by the same amount, so the factor is yours to set, not assumed by the tool.",
       },
       {
         q: "How many skips will the job need?",
@@ -57,7 +57,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "Totals every element type into one debris volume while keeping the lines visible.",
       ],
       advantages: [
-        "Skip numbers come from measured volumes rather than a guess about how many lorries a job needs.",
+        "Skip numbers come from measured volumes, not a guess about how many lorries a job needs.",
         "The bulking factor is a visible assumption you can correct once you see how the material breaks.",
         "Mixed strip outs stay itemised, so a change to one element does not hide in a bulk figure.",
       ],
@@ -80,7 +80,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "How are pipes counted?",
-        a: "Each run is measured at the length you give it and converted to stock lengths, so the order is in pipes rather than metres. Lengths it cannot size are left visible rather than filled in.",
+        a: "Each run is measured at the length you give it and converted to stock lengths, so the order is in pipes, not metres. Lengths it cannot size are left visible, not filled in.",
       },
       {
         q: "Where do inspection chambers come from?",
@@ -130,15 +130,15 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "Are openings deducted automatically?",
-        a: "Yes, on the widths and heights you enter, with the quantity attached to each opening, so three identical doors are one line rather than three.",
+        a: "Yes, on the widths and heights you enter, with the quantity attached to each opening, so three identical doors are one line, not three.",
       },
       {
         q: "How is framing counted?",
-        a: "From the stud spacing and the wall run, which is why the spacing you choose changes the steel. Tracks follow the run rather than the area.",
+        a: "From the stud spacing and the wall run, which is why the spacing you choose changes the steel. Tracks follow the run, not the area.",
       },
       {
         q: "Are screws and jointing included?",
-        a: "Yes, as their own lines from planning rules, so the fixing count and the compound are visible rather than buried in a board price.",
+        a: "Yes, as their own lines from planning rules, so the fixing count and the compound are visible, not buried in a board price.",
       },
       {
         q: "Does it design the partition?",
@@ -192,7 +192,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "Does it include levelling or underlay preparation?",
-        a: "Underlay is included when you switch it on. Screeding and levelling compounds are separate tools, because they are measured in volume rather than area.",
+        a: "Underlay is included when you switch it on. Screeding and levelling compounds are separate tools, because they are measured in volume, not area.",
       },
     ],
     article: {
@@ -207,7 +207,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "Calculates skirting length from the perimeter, with its own waste line.",
       ],
       advantages: [
-        "Pack rounding means the order matches the shelf rather than a theoretical area.",
+        "Pack rounding means the order matches the shelf, not a theoretical area.",
         "Skirting and underlay are visible items, which is where a flooring quote quietly slips.",
         "Coverage comes from the product being fitted, so changing ranges changes the quantity.",
       ],
@@ -230,7 +230,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "How are openings handled?",
-        a: "Every opening is deducted by width and height with its quantity, so doors, windows and vents come out of the block count rather than being added as an afterthought.",
+        a: "Every opening is deducted by width and height with its quantity, so doors, windows and vents come out of the block count, not added as an afterthought.",
       },
       {
         q: "Does it work outside Nigeria?",
@@ -254,7 +254,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "Counts blocks or bricks from the wall area, the unit size and the joint thickness.",
         "Deducts every opening by width, height and quantity before the material is counted.",
         "Calculates mortar volume from the wall type and joint, then converts it to bags of the local packaging.",
-        "Applies the market's packaging and mortar convention rather than a single country default.",
+        "Applies the market's packaging and mortar convention, not a single country default.",
       ],
       advantages: [
         "A retaining wall and a partition are priced from their own rules, not one blended rate.",
@@ -307,7 +307,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "Returns sand as volume and mass using the bulk density you provide.",
       ],
       advantages: [
-        "Pattern is an input rather than a footnote, which matches what happens on the ground.",
+        "Pattern is an input, not a footnote, which matches what happens on the ground.",
         "Compaction is a stated conversion, not a hidden 20 percent added to every tonne.",
         "Depths stay yours, so a driveway and a footpath are not given the same pavement.",
       ],
@@ -334,7 +334,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "Does thickness really change the quantity that much?",
-        a: "Yes, and that is the point. A 12 mm skim and a 20 mm render differ by two thirds of the material, so thickness is an input rather than a trade assumption.",
+        a: "Yes, and that is where the saving is. A 12 mm skim and a 20 mm render differ by two thirds of the material, so thickness is an input, not a trade assumption.",
       },
       {
         q: "Are beads, scrim and bonding agents included?",
@@ -384,11 +384,11 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "Which diameters are supported?",
-        a: "Eight, ten, twelve, sixteen, twenty, twenty five and thirty two millimetre bars, including links and stirrups, which is what residential and light commercial work actually uses.",
+        a: "Eight, ten, twelve, sixteen, twenty, twenty five and thirty two millimetre bars, including links and stirrups, the sizes residential and light commercial work actually uses.",
       },
       {
         q: "Is binding wire included?",
-        a: "Yes, as kilograms per tonne of bar from the rule the engine applies, so the wire appears as its own line rather than disappearing.",
+        a: "Yes, as kilograms per tonne of bar from the rule the engine applies, so the wire appears as its own line instead of vanishing into the rate.",
       },
       {
         q: "Does it design the reinforcement?",
@@ -407,9 +407,9 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "Shows the unit weight used for each diameter so the tonnage can be checked by hand.",
       ],
       advantages: [
-        "Tonnage is computed from your schedule rather than a rate per cubic metre of concrete.",
+        "Tonnage is computed from your schedule, not from a rate per cubic metre of concrete.",
         "Laps and waste are visible assumptions instead of being buried in the rate.",
-        "The unit weights are printed, which is what makes a tonnage arguable on site.",
+        "The unit weights are printed, so a tonnage arguable on site.",
       ],
       limits: [
         "It does not design reinforcement or verify a schedule against a drawing.",
@@ -430,7 +430,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "How are coats and coverage handled?",
-        a: "Coats per surface and coating coverage per bag are held as rules, so a two coat wet area is priced as two coats rather than one generous one.",
+        a: "Coats per surface and coating coverage per bag are held as rules, so a two coat wet area is priced as two coats, not one generous one.",
       },
       {
         q: "What about membranes and tape?",
@@ -438,7 +438,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "What happens if I leave an area blank?",
-        a: "That surface is left unsized rather than filled with a guess, so an incomplete scope reads as incomplete instead of quietly under quoted.",
+        a: "That surface is left unsized, not filled with a guess, so an incomplete scope reads as incomplete instead of quietly under quoted.",
       },
       {
         q: "Does it guarantee the detail is watertight?",
@@ -457,7 +457,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "Applies tape quantities from the perimeter and overlap you allow.",
       ],
       advantages: [
-        "A wet room and a roof terrace are priced from their own rules rather than one blended figure.",
+        "A wet room and a roof terrace are priced from their own rules, not one blended figure.",
         "Coats are counted, which is where waterproofing budgets usually fall short.",
         "Blank areas stay blank, so missing scope is visible before the quote is sent.",
       ],
@@ -476,7 +476,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
     questions: [
       {
         q: "What makes this different from the paint calculator?",
-        a: "The paint calculator works from area and coverage. This engine works room by room with the product and quality level you select, so coverage comes from the product data rather than a single spread rate.",
+        a: "The paint calculator works from area and coverage. This engine works room by room with the product and quality level you select, so coverage comes from the product data instead of a single spread rate.",
       },
       {
         q: "Why does it show theoretical and practical quantities separately?",
@@ -484,11 +484,11 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "How is the ceiling treated?",
-        a: "As its own surface with the house rule applied, rather than being folded into wall area, because ceilings are coated differently and usually with a different product.",
+        a: "As its own surface with the house rule applied, not folded into wall area, because ceilings are coated differently and usually with a different product.",
       },
       {
         q: "Do colour and surface condition change the quantity?",
-        a: "They raise warnings rather than silently adding percentages. A dark colour over light or bare plaster generates a flag you decide on, and any adjustment you make is recorded without overwriting the original estimate.",
+        a: "They raise warnings, not silently adding percentages. A dark colour over light or bare plaster generates a flag you decide on, and any adjustment you make is recorded without overwriting the original estimate.",
       },
       {
         q: "Where does coverage come from?",
@@ -502,13 +502,13 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "A room based painting estimator. Length, breadth and wall height give the surfaces, the product you select gives the coverage, and the engine returns theoretical and practical quantities side by side so the tin order is never confused with the maths.",
       functions: [
         "Builds wall and ceiling areas from room dimensions, deducting openings.",
-        "Takes coverage from the selected product and quality level rather than a fixed rate.",
+        "Takes coverage from the selected product and quality level, not a fixed rate.",
         "Reports theoretical quantity and practical purchase quantity as separate figures.",
         "Raises warnings for colour and surface conditions, and records any manual adjustment you make.",
       ],
       advantages: [
         "Product data drives coverage, so a premium paint is not estimated like a budget one.",
-        "The tin count is shown next to the litre figure, which is what prevents a mid job shortage.",
+        "The tin count is shown next to the litre figure, so a mid job shortage.",
         "Adjustments are recorded separately, so an experienced judgement never rewrites the base estimate.",
       ],
       limits: [
@@ -534,7 +534,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "Is this a structural design?",
-        a: "No. It is an estimating method. Member sizes, reinforcement design and load paths belong to a structural engineer, and the tool says so rather than implying approval.",
+        a: "No. It is an estimating method. Member sizes, reinforcement design and load paths belong to a structural engineer, and the tool says so. It does not imply approval.",
       },
       {
         q: "How are the concrete ingredients split?",
@@ -542,7 +542,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "Can I mix slabs, beams, columns and footings?",
-        a: "Yes, each element type is its own line with its own dimensions and quantity, and the totals roll up by material rather than by element.",
+        a: "Yes, each element type is its own line with its own dimensions and quantity, and the totals roll up by material, not by element.",
       },
     ],
     article: {
@@ -553,7 +553,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       functions: [
         "Calculates concrete volume per element from length, width and depth or section.",
         "Converts volume into cement bags, sand and granite at the mix ratio you select.",
-        "Totals reinforcement by diameter and bar length so the steel order is a schedule rather than a guess.",
+        "Totals reinforcement by diameter and bar length so the steel order is a schedule, not a guess.",
         "Keeps each element as its own line, so a change to one column does not disturb the slab.",
       ],
       advantages: [
@@ -580,7 +580,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "Why does the thickness matter so much?",
-        a: "Because concrete is priced by volume. Fifty millimetres across a large slab is a significant quantity of cement, so thickness is an input rather than a trade assumption.",
+        a: "Because concrete is priced by volume. Fifty millimetres across a large slab is a significant quantity of cement, so thickness is an input, not a trade assumption.",
       },
       {
         q: "Does it allow for a poured edge or beam thickening?",
@@ -599,7 +599,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       summary:
         "A slab volume, its ingredients and the bags behind them, from three dimensions.",
       description:
-        "A concrete slab takeoff. Length, width and thickness give the volume, the mix ratio gives the ingredients, and the waste allowance gives a purchasable order rather than a theoretical one.",
+        "A concrete slab takeoff. Length, width and thickness give the volume, the mix ratio gives the ingredients, and the waste allowance gives a purchasable order, not a theoretical one.",
       functions: [
         "Calculates wet volume from the slab dimensions you enter.",
         "Applies the waste percentage you allow for overfill and uneven substrates.",
@@ -608,7 +608,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       ],
       advantages: [
         "The order is expressed in bags and trips, which is how concrete materials are bought.",
-        "Mix ratio is visible, so a change of specification is a change of cost rather than a surprise.",
+        "Mix ratio is visible, so a change of specification is a change of cost, not a surprise.",
         "Waste is a stated line instead of a hidden loading on the rate.",
       ],
       limits: [
@@ -626,7 +626,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
     questions: [
       {
         q: "How are cut and fill volumes calculated?",
-        a: "From the surveyed levels or depths you enter against the areas they apply to, giving cut and fill separately rather than as one net figure.",
+        a: "From the surveyed levels or depths you enter against the areas they apply to, giving cut and fill separately, not as one net figure.",
       },
       {
         q: "Why separate cut from fill?",
@@ -657,9 +657,9 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "Derives load counts from the transport capacity you provide.",
       ],
       advantages: [
-        "Spoil and fill are costed as two movements, which is what a site actually pays for.",
+        "Spoil and fill are costed as two movements, the two a site actually pays for.",
         "Bulking is an explicit assumption you can correct from the first skip or lorry.",
-        "Volumes stay tied to surveyed levels rather than to a guess from a drawing.",
+        "Volumes stay tied to surveyed levels, not to a guess from a drawing.",
       ],
       limits: [
         "It is not geotechnical advice: bearing capacity and stability are excluded.",
@@ -680,7 +680,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "How does pitch change the quantity?",
-        a: "Rafter length is the slope length, not the plan length, so a steeper roof uses more timber for the same footprint. The engine computes that rather than applying a flat factor.",
+        a: "Rafter length is the slope length, not the plan length, so a steeper roof uses more timber for the same footprint. The engine computes that instead of applying a flat factor.",
       },
       {
         q: "Why board feet as well as linear length?",
@@ -701,7 +701,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       description:
         "A roof framing takeoff. Span, pitch, spacing and the framing arrangement you describe become rafter and purlin quantities, reported in both linear length and board feet so the timber order is usable.",
       functions: [
-        "Calculates rafter length from the span and pitch rather than the plan dimension.",
+        "Calculates rafter length from the span and pitch, not the plan dimension.",
         "Counts rafters and purlins from the spacing and the run they cover.",
         "Converts the schedule into board feet so timber can be ordered by volume.",
         "Reports indicative member figures as a preliminary check, clearly marked as such.",
@@ -730,7 +730,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "How are reuse cycles treated?",
-        a: "Formwork is bought once and used several times, so the reuse cycles you enter reduce the quantity of new material rather than inflating it.",
+        a: "Formwork is bought once and used several times, so the reuse cycles you enter reduce the quantity of new material instead of inflating it.",
       },
       {
         q: "Why measure contact area instead of volume?",
@@ -802,7 +802,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "A foundation sizing aid. Load and soil bearing capacity give preliminary footing dimensions for strip, pad and raft options, which then drive the concrete and material quantities for the job.",
       functions: [
         "Proposes strip, pad and raft sizes from the load and bearing capacity you enter.",
-        "Uses the soil value you supply rather than a default assumption.",
+        "Uses the soil value you supply, not a default assumption.",
         "Carries the chosen sizing into concrete volume and its ingredients.",
         "Leaves the dimensions editable so a soil report can correct the proposal.",
       ],
@@ -858,7 +858,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       ],
       advantages: [
         "Flow rate and soil loading stay your inputs, so no country's code is imposed on another's site.",
-        "Storage and freeboard are visible additions rather than padding inside a volume.",
+        "Storage and freeboard are visible additions, not padding inside a volume.",
         "One worksheet serves metric and imperial markets without a conversion sheet alongside it.",
       ],
       limits: [
@@ -880,11 +880,11 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "Does it calculate thermal performance?",
-        a: "No. It measures quantity. U values, condensation risk and code compliance are a building physics assessment, and the tool says so rather than implying a rating.",
+        a: "No. It measures quantity. U values, condensation risk and code compliance are a building physics assessment, and the tool says so. It does not imply a rating.",
       },
       {
         q: "How do layers affect the order?",
-        a: "Multi layer build ups multiply the area rather than the thickness, because each layer is a separate purchase at the same coverage.",
+        a: "Multi layer build ups multiply the area, not the thickness, because each layer is a separate purchase at the same coverage.",
       },
       {
         q: "Is pack rounding applied?",
@@ -899,7 +899,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       summary:
         "Insulation by pack from the area, layers and thickness you are fitting.",
       description:
-        "A thermal and acoustic insulation quantity takeoff. The area to be insulated, the number of layers and the product coverage decide the packs, with waste as a visible allowance rather than a hidden loading.",
+        "A thermal and acoustic insulation quantity takeoff. The area to be insulated, the number of layers and the product coverage decide the packs, with waste as a visible allowance, not a hidden loading.",
       functions: [
         "Calculates insulated area from the surfaces you enter.",
         "Multiplies by layers so a two layer build up is ordered as two coverages.",
@@ -934,7 +934,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "What if a component has no price?",
-        a: "It is reported as unpriced and left out of the total, rather than given an invented figure. An incomplete price list shows as an incomplete cost.",
+        a: "It is reported as unpriced and left out of the total, not given an invented figure. An incomplete price list shows as an incomplete cost.",
       },
       {
         q: "Does it design the array?",
@@ -954,12 +954,12 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "Fits whole panels into usable roof area using the configured panel dimensions.",
         "Works back from an energy target through sun hours and system losses to panels and kWp.",
         "Adds inverter, mounting and cabling quantities from the rules that govern them.",
-        "Reports any component without a configured price as unpriced rather than estimating it.",
+        "Reports any component without a configured price as unpriced instead of estimating it.",
       ],
       advantages: [
         "Two sizing routes mean a roof limited job and a load limited job are both handled honestly.",
         "Unpriced components are declared, so a quotation cannot quietly assume a price.",
-        "The energy calculation is shown, so sun hours and losses can be argued with rather than trusted blindly.",
+        "The energy calculation is shown, so sun hours and losses can be argued with, not trusted blindly.",
       ],
       limits: [
         "It does not design strings, earthing or roof fixing details.",
@@ -984,7 +984,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "Why is a blank cable run reported as missing?",
-        a: "Because an unmeasured run cannot produce a cable quantity. A zero is reported as unmeasured or panel mounted, and a blank asks you to measure, rather than producing a plausible number.",
+        a: "Because an unmeasured run cannot produce a cable quantity. A zero is reported as unmeasured or panel mounted, and a blank asks you to measure instead of producing a plausible number.",
       },
       {
         q: "Are fuel and consumption covered?",
@@ -997,7 +997,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
     ],
     article: {
       summary:
-        "Materials around a generator you have sized, with the cable run measured rather than guessed.",
+        "Materials around a generator you have sized, with the cable run measured, not guessed.",
       description:
         "A backup power material estimator. You choose the size bracket from your own load assessment, state whether an automatic transfer switch is included, and measure the run to the panel; the engine returns the changeover and cable quantities that follow.",
       functions: [
@@ -1038,7 +1038,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "Why compare two surfaces instead of one?",
-        a: "Because the useful question is a choice between finishes, and a single figure gives you nothing to compare it with.",
+        a: "Because the question worth asking is a choice between finishes, and a single figure gives you nothing to compare it with.",
       },
       {
         q: "Does it qualify for any green certification?",
@@ -1049,7 +1049,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       summary:
         "How two finish choices change the solar energy a surface absorbs, side by side.",
       description:
-        "A comparison tool rather than a single answer. Two surface finishes on the same area are compared through their reflectance, giving the absorbed energy difference per day and the relative reduction, so a specification decision has a number attached to it.",
+        "A comparison tool, not a single answer. Two surface finishes on the same area are compared through their reflectance, giving the absorbed energy difference per day and the relative reduction, so a specification decision has a number attached to it.",
       functions: [
         "Calculates absorbed solar fraction from the reflectance of each finish.",
         "Computes the daily absorbed energy difference across the area you enter.",
@@ -1088,7 +1088,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "What if a productivity rate is missing?",
-        a: "The task is refused rather than given a guessed rate. A missing rate is an honest gap, and it is shown as one.",
+        a: "The task is refused instead of given a guessed rate. A missing rate is an honest gap, and it is shown as one.",
       },
       {
         q: "Does it produce a full programme?",
@@ -1107,7 +1107,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "Refuses a task whose productivity rate is not configured instead of guessing one.",
       ],
       advantages: [
-        "The efficiency allowance is visible, so a slow site can be seen rather than absorbed into a rate.",
+        "The efficiency allowance is visible, so a slow site can be seen, not absorbed into a rate.",
         "Whole day durations mean the output can go into a programme without adjustment.",
         "Missing rates surface as gaps, which keeps the labour estimate honest.",
       ],
@@ -1126,7 +1126,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
     questions: [
       {
         q: "What is the difference between margin and markup?",
-        a: "Markup is a percentage on cost; margin is a percentage of the selling price. They are different numbers for the same job, and the tool shows which basis every preset uses rather than leaving you to assume.",
+        a: "Markup is a percentage on cost; margin is a percentage of the selling price. They are different numbers for the same job, and the tool shows which basis every preset uses, so you never have to assume one.",
       },
       {
         q: "Why does the basis matter so much?",
@@ -1207,7 +1207,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "Shows the cumulative position month by month.",
       ],
       advantages: [
-        "A template that does not reconcile is refused rather than quietly adjusted.",
+        "A template that does not reconcile is refused, not quietly adjusted.",
         "Cumulative timing shows the funding gap a profitable job can still have.",
         "Stages are yours to define, so mobilisation and retention are modelled as they really are.",
       ],

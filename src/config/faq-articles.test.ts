@@ -87,6 +87,39 @@ describe("FAQ article bodies", () => {
     }
   });
 
+  it("keeps every answer and article free of dashes and stock filler", () => {
+    const banned: [RegExp, string][] = [
+      [/[\u2014\u2013]/, "a long dash"],
+      [/\brather than\b/i, "rather than"],
+      [/\bwhich is what\b/i, "which is what"],
+      [/\bit is worth noting\b/i, "it is worth noting"],
+      [/\bseamless(ly)?\b/i, "seamless"],
+      [/\brobust\b/i, "robust"],
+      [/\bleverage\b/i, "leverage"],
+      [/\bdelve\b/i, "delve"],
+      [/\bin today's\b/i, "in today's"],
+    ];
+    const lines: string[] = [];
+    for (const group of TOOL_FAQS) {
+      for (const question of group.questions)
+        lines.push(question.q, question.a);
+    }
+    for (const article of Object.values(ALL_FAQ_ARTICLES)) {
+      lines.push(
+        article.summary,
+        article.description,
+        ...article.functions,
+        ...article.advantages,
+        ...article.limits,
+      );
+    }
+    for (const line of lines) {
+      for (const [pattern, label] of banned) {
+        expect(pattern.test(line), `${label} in: ${line}`).toBe(false);
+      }
+    }
+  });
+
   it("has no article for an unknown slug", () => {
     expect(getFaqArticle("does-not-exist")).toBeUndefined();
   });

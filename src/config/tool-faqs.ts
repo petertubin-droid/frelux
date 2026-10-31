@@ -1,5 +1,5 @@
 /**
- * Tool FAQ registry — the single source for every on-page question.
+ * Tool FAQ registry: the single source for every on-page question.
  *
  * Two rules keep this honest and useful:
  *
@@ -65,15 +65,15 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       },
       {
         q: "How do I work out how much paint to buy for a room?",
-        a: "Measure the wall area you are painting, subtract the doors and windows you are not painting, then divide by the coverage stated on the tin. The calculator does the subtraction and division for you and rounds up to the tin sizes sold in your market, because paint is bought by the tin rather than the litre.",
+        a: "Measure the wall area you are painting, subtract the doors and windows you are not painting, then divide by the coverage stated on the tin. The calculator does the subtraction and division for you and rounds up to the tin sizes sold in your market, because paint is bought by the tin, not the litre.",
       },
       {
         q: "Does the paint estimate include primer and undercoat?",
-        a: "Primer and undercoat are separate products with their own coverage, so they appear as their own lines with their own quantities rather than being folded into the topcoats. If you are painting over a sound, previously painted wall you can leave them out.",
+        a: "Primer and undercoat are separate products with their own coverage, so they appear as their own lines with their own quantities, not being folded into the topcoats. If you are painting over a sound, previously painted wall you can leave them out.",
       },
       {
         q: "What is not included in a paint estimate?",
-        a: "Labour, masking, sanding, filler and any surface repair are outside the material quantities. The estimate covers paint and primer, which is what you take to the paint shop.",
+        a: "Labour, masking, sanding, filler and any surface repair are outside the material quantities. The estimate covers paint and primer, so you can take it to the paint shop.",
       },
     ],
   },
@@ -113,7 +113,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       },
       {
         q: "Does the POP calculator account for the ceiling design?",
-        a: "A design changes the framing and the number of noggins and trims rather than the board or screed area. The calculator works from area and prints the rule it used, so you can check that figure against your layout drawing before ordering.",
+        a: "A design changes the framing and the number of noggins and trims, not the board or screed area. The calculator works from area and prints the rule it used, so you can check that figure against your layout drawing before ordering.",
       },
       {
         q: "Are labour and scaffolding included in a POP ceiling estimate?",
@@ -153,11 +153,11 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       },
       {
         q: "How many blocks do I need for the foundation?",
-        a: "Block count follows the blocks-per-square-metre rule for the block size you are using, plus the waste allowance. Change the block size and the count changes, because the rule is about coverage rather than a fixed number per metre.",
+        a: "Block count follows the blocks-per-square-metre rule for the block size you are using, plus the waste allowance. Change the block size and the count changes, because the rule is about coverage, not a fixed number per metre.",
       },
       {
         q: "Is this foundation design?",
-        a: "No. It is a material estimate from dimensions you provide. Footing size, depth and reinforcement are structural engineering decisions, and the calculator refers you to an engineer rather than sizing a foundation for you.",
+        a: "No. It is a material estimate from dimensions you provide. Footing size, depth and reinforcement are structural engineering decisions, and the calculator refers you to an engineer, not sizing a foundation for you.",
       },
       {
         q: "Does the foundation estimate include formwork?",
@@ -165,7 +165,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       },
       {
         q: "Does the foundation cost include tax?",
-        a: "No. Tax is not determined by FRELUX: the estimate reports tax as undetermined rather than applying a percentage that may be wrong for your jurisdiction. Add your own VAT or withholding figure afterwards if your contract requires it.",
+        a: "No. Tax is not determined by FRELUX: the estimate reports tax as undetermined, not applying a percentage that may be wrong for your jurisdiction. Add your own VAT or withholding figure afterwards if your contract requires it.",
       },
     ],
   },
@@ -193,7 +193,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       },
       {
         q: "Why does the cement bag count change when I change the mix ratio?",
-        a: "Because the ratio is the calculation rather than a preference. Wet concrete volume is converted to dry volume, split by the mix parts you choose, and cement is expressed in bags of a fixed size, so a 1:2:4 mix and a 1:3:6 mix give different bag counts for the same pour. The breakdown prints the volume behind each figure so you can check the arithmetic.",
+        a: "Because the ratio is the calculation, not a preference. Wet concrete volume is converted to dry volume, split by the mix parts you choose, and cement is expressed in bags of a fixed size, so a 1:2:4 mix and a 1:3:6 mix give different bag counts for the same pour. The breakdown prints the volume behind each figure so you can check the arithmetic.",
       },
     ],
   },
@@ -205,7 +205,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
     questions: [
       {
         q: "How wide should a retaining wall footing be?",
-        a: "Width scales with wall height, and the calculator widens the recommendation for soils that push harder, such as loose sand and wet clay. The recommended width is shown next to the width actually used, and any override you enter is recorded as an override rather than presented as the recommendation.",
+        a: "Width scales with wall height, and the calculator widens the recommendation for soils that push harder, such as loose sand and wet clay. The recommended width is shown next to the width actually used, and any override you enter is recorded as an override, not presented as the recommendation.",
       },
       {
         q: "How many weep holes does a retaining wall need?",
@@ -221,7 +221,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       },
       {
         q: "What happens if I do not know the soil type?",
-        a: "The wall is calculated on the default footing width and the breakdown shows that default, so the figure is traceable rather than quietly conservative. Confirm the soil on site and then override the width, since a wall holding back unknown fill should not be built on a guess.",
+        a: "The wall is calculated on the default footing width and the breakdown shows that default, so the figure is traceable, not quietly conservative. Confirm the soil on site and then override the width, since a wall holding back unknown fill should not be built on a guess.",
       },
     ],
   },
@@ -289,7 +289,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       },
       {
         q: "Are junction boxes and switch plates included?",
-        a: "Yes, along with sockets and switches, counted from the number of points you enter. Without a configured price a line shows its quantity and asks you for the price you were quoted rather than inventing one.",
+        a: "Yes, along with sockets and switches, counted from the number of points you enter. Without a configured price a line shows its quantity and asks you for the price you were quoted, not inventing one.",
       },
     ],
   },
@@ -317,7 +317,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       },
       {
         q: "Does the steel estimate include connections, base plates or fire protection?",
-        a: "No. It prices steel by mass, which is what a fabricator quotes against. Bolts, welded connections, base plates, painting and fire protection are separate items you take from your own fabricator, and none of them are assumed for you.",
+        a: "No. It prices steel by mass, so a fabricator can quote against it. Bolts, welded connections, base plates, painting and fire protection are separate items you take from your own fabricator, and none of them are assumed for you.",
       },
     ],
   },
@@ -349,7 +349,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
     questions: [
       {
         q: "How do I estimate doors and windows for a building?",
-        a: "Count openings by type and size, and the calculator converts that into door leaves, frames, ironmongery and window units with glazing. Openings are the one quantity that comes straight from the drawing rather than from a rule.",
+        a: "Count openings by type and size, and the calculator converts that into door leaves, frames, ironmongery and window units with glazing. Openings are the one quantity that comes straight from the drawing, not from a rule.",
       },
       {
         q: "Are frames and hardware included?",
@@ -365,7 +365,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       },
       {
         q: "How are hinges and locksets handled?",
-        a: "Frames follow the door count at one set per door, and hinges appear as a labelled planning allowance per door rather than a hidden extra. Locksets are included only when you switch them on, so a quote for doors alone is not padded with ironmongery.",
+        a: "Frames follow the door count at one set per door, and hinges appear as a labelled planning allowance per door, not a hidden extra. Locksets are included only when you switch them on, so a quote for doors alone is not padded with ironmongery.",
       },
     ],
   },
@@ -377,7 +377,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
     questions: [
       {
         q: "What do the stages on a quote mean?",
-        a: "Draft is still yours and not shared. Sent means the link has gone to the client, viewed means they opened it, approved is their yes, changes requested is their no with notes, and expired means the validity ran out. The pipeline holds one stage per quote, so the list reads as a pipeline rather than a pile.",
+        a: "Draft is still yours and not shared. Sent means the link has gone to the client, viewed means they opened it, approved is their yes, changes requested is their no with notes, and expired means the validity ran out. The pipeline holds one stage per quote, so the list reads as a pipeline, not a pile.",
       },
       {
         q: "When does a quote expire?",
@@ -417,11 +417,11 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       },
       {
         q: "What does the client see when I share a quote?",
-        a: "A link to the same stored figures, with no account needed. Because the link reads the saved quote rather than a screenshot of it, the numbers the client sees are the numbers you can see.",
+        a: "A link to the same stored figures, with no account needed. Because the link reads the saved quote, not a screenshot of it, the numbers the client sees are the numbers you can see.",
       },
       {
         q: "Are transport and tax added automatically?",
-        a: "Transport is a figure you enter, not one FRELUX derives from distance. Tax is never applied automatically: the quote reports tax as undetermined rather than guessing a rate that may be wrong for the client's jurisdiction.",
+        a: "Transport is a figure you enter, not one FRELUX derives from distance. Tax is never applied automatically: the quote reports tax as undetermined, not guessing a rate that may be wrong for the client's jurisdiction.",
       },
     ],
   },
