@@ -289,6 +289,18 @@ export default function WallFinishingArticle() {
     };
   }, [articleSlug, market]);
 
+  // Keep the document language in step with the article, so a French or
+  // Japanese version is not served inside an English <html lang> shell.
+  useEffect(() => {
+    if (status !== "ready" || !article) return;
+    const code = article.wall_language_code;
+    const previous = document.documentElement.lang;
+    if (code) document.documentElement.lang = code;
+    return () => {
+      document.documentElement.lang = previous;
+    };
+  }, [status, article]);
+
   // Reading progress + active heading tracking (same behavior as LearnArticle)
   useEffect(() => {
     if (status !== "ready") return;
