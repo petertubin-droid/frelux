@@ -7,6 +7,12 @@ import {
 import { calculateRoofArea } from "@/lib/estimation/build-to-roof-engine";
 import { designBeam } from "@/lib/engineering/structural-calculator";
 import { voltageDropPercent } from "@/lib/estimation/electrical-engine";
+import { blocksPerM2 } from "@/lib/estimation/build-to-roof-engine";
+import { applyRegionalCost } from "@/lib/estimation/regional-cost-engine";
+import {
+  calculatePlumbing,
+  parsePlumbingRules,
+} from "@/lib/estimation/plumbing-engine";
 import {
   calculateCeilingArea,
   calculateWallArea,
@@ -630,5 +636,202 @@ describe("electrical voltage drop, first principles", () => {
     });
     expect(v.passes).toBe(false);
     expect(v.detail).toMatch(/must all be provided/i);
+  });
+});
+
+// ── Blockwork quantities ─────────────────────────────────────────────────────
+// A block wall is a module of (block + joint) in both directions, so the rate
+// is 1 / ((L + j)(h + j)). The engine uses a documented 25 mm joint, thicker
+// than a typical 10 mm bed joint, and states why: sandcrete blocks are not
+// dimensionally accurate and the thicker joint matches its foundation course
+// count. Pinned as a convention, not presented as a universal standard.
+describe("blockwork quantities, first principles", () => {
+  it("computes blocks per m² for a 18 x 9 inch block on a 25 mm joint", () => {
+    // module = (0.4572 + 0.025) x (0.2286 + 0.025) = 0.4822 x 0.2536 m²
+    // rate = 1 / 0.12229 = 8.177 blocks/m²
+    closeTo(blocksPerM2(18, 9), 8.18, 0.01);
+  });
+
+  it("gives the joint-free theoretical rate when the joint is zero", () => {
+    // 1 / (0.4572 x 0.2286) = 9.570 blocks/m², which overstates by 17 percent
+    // because it leaves no room for mortar.
+    closeTo(blocksPerM2(18, 9, 0), 9.57, 0.01);
+  });
+
+  it("matches a direct course count for the same wall", () => {
+    // A 10 m x 3 m wall counted course by course must equal area times rate.
+    const rate = blocksPerM2(18, 9);
+    const byCourses = (10 / (18 * 0.0254 + 0.025)) * (3 / (9 * 0.0254 + 0.025));
+    closeTo(10 * 3 * rate, byCourses, 0.01);
+  });
+
+  it("returns zero for an impossible block rather than infinity", () => {
+    expect(blocksPerM2(0, 9)).toBe(0);
+    expect(blocksPerM2(18, 0)).toBe(0);
+    expect(blocksPerM2(-18, 9)).toBe(0);
+  });
+});
+
+// ── Regional cost indices ────────────────────────────────────────────────────
+// Precedence is deliberate: exact state and category, then the state's general
+// index, then a documented national baseline with a warning. The engine never
+// guesses a multiplier for a state it does not have.
+describe("regional cost, first principles and precedence", () => {
+  const index = (state: string, category: string, factor: number) =>
+    ({
+      id: `${state}-${category}`,
+      country: "NG",
+      state,
+      category,
+      cost_factor: factor,
+      description: null,
+      source_reference: "test",
+      effective_date: "2026-01-01",
+      is_active: true,
+      sort_order: 0,
+      created_at: "2026-01-01",
+    }) as never;
+
+  it("applies the configured factor to the base cost", () => {
+    const r = applyRegionalCost({
+      base_cost: 1000,
+      country: "NG",
+      state: "Lagos",
+      category: "residential",
+      indices: [index("Lagos", "residential", 1.25)],
+      rules: [],
+    } as never);
+    expect(r.ok).toBe(true);
+    expect(r.applied_factor).toBe(1.25);
+    closeTo(r.adjusted_cost as number, 1250, 0.01);
+  });
+
+  it("prefers the exact category over the state general index", () => {
+    const r = applyRegionalCost({
+      base_cost: 1000,
+      country: "NG",
+      state: "Lagos",
+      category: "residential",
+      indices: [
+        index("Lagos", "general", 1.25),
+        index("Lagos", "residential", 1.4),
+      ],
+      rules: [],
+    } as never);
+    expect(r.applied_factor).toBe(1.4);
+    closeTo(r.adjusted_cost as number, 1400, 0.01);
+  });
+
+  it("falls back to the state general index when the category is missing", () => {
+    const r = applyRegionalCost({
+      base_cost: 1000,
+      country: "NG",
+      state: "Lagos",
+      category: "industrial",
+      indices: [index("Lagos", "general", 1.2)],
+      rules: [],
+    } as never);
+    expect(r.applied_factor).toBe(1.2);
+  });
+
+  it("states a baseline and warns instead of inventing a state factor", () => {
+    const r = applyRegionalCost({
+      base_cost: 1000,
+      country: "NG",
+      state: "Nowhere",
+      category: "general",
+      indices: [index("Lagos", "general", 1.2)],
+      rules: [],
+    } as never);
+    expect(r.applied_source).toBe("national_baseline");
+    expect(r.warnings.join(" ")).toMatch(/no regional cost index/i);
+    // Whatever the baseline is, it is disclosed and the arithmetic is honest.
+    closeTo(r.adjusted_cost as number, 1000 * (r.applied_factor as number), 1);
+  });
+
+  it("keeps markets apart: a Lagos index never prices a Ghana job", () => {
+    const r = applyRegionalCost({
+      base_cost: 1000,
+      country: "GH",
+      state: "Lagos",
+      category: "general",
+      indices: [index("Lagos", "general", 1.2)],
+      rules: [],
+    } as never);
+    expect(r.applied_source).toBe("national_baseline");
+  });
+
+  it("refuses an index with an unusable factor", () => {
+    const r = applyRegionalCost({
+      base_cost: 1000,
+      country: "NG",
+      state: "Lagos",
+      category: "general",
+      indices: [index("Lagos", "general", 0)],
+      rules: [],
+    } as never);
+    expect(r.warnings.join(" ")).toMatch(/invalid factor|Nothing was applied/i);
+  });
+});
+
+// ── Plumbing runs ────────────────────────────────────────────────────────────
+describe("plumbing runs, first principles", () => {
+  const rules = parsePlumbingRules([]);
+  const input = (cold: number | null, wasteOverride?: number) =>
+    ({
+      taps: 2,
+      wcs: 1,
+      showers: 1,
+      sinks: 1,
+      floor_drains: 1,
+      water_storage_tanks: 1,
+      pumps: 0,
+      cold_run_m: cold,
+      hot_run_m: null,
+      waste_run_m: null,
+      drainage_run_m: null,
+      labour: { mode: "none" },
+    }) as never;
+
+  it("sizes no pipe it was not given a run length for", () => {
+    // Fixtures are countable and may legitimately be sized from counts. Pipe is
+    // not: with every run null, every metre-denominated line must stay unsized
+    // rather than assume a length.
+    const r = calculatePlumbing(input(null), parsePlumbingRules([]), {});
+    const lines = (r.lines ?? []) as {
+      unit: string;
+      quantity: number | null;
+    }[];
+    const pipes = lines.filter((l) => l.unit === "m");
+    expect(pipes.length).toBeGreaterThan(0);
+    expect(pipes.every((l) => l.quantity === null)).toBe(true);
+  });
+
+  it("adds waste to a measured run and rounds up to whole metres", () => {
+    const r = calculatePlumbing(input(10), rules, {});
+    // Must be a metre-denominated pipe line, not a fixture count that happens to
+    // be non-null. Latching onto a tap line here would make this test vacuous.
+    const cold = (
+      r.lines as { key: string; unit: string; quantity: number | null }[]
+    ).find((l) => l.unit === "m" && l.quantity !== null);
+    expect(cold).toBeTruthy();
+    const wastePct = Number(rules.pipe_waste_pct ?? 0);
+    // 10 m plus waste, rounded up to a whole metre, never rounded down.
+    expect(cold!.quantity).toBe(Math.ceil(10 * (1 + wastePct / 100)));
+    expect(Number.isInteger(cold!.quantity)).toBe(true);
+  });
+
+  it("never orders less pipe for a longer run", () => {
+    const short = calculatePlumbing(input(8), rules, {});
+    const long = calculatePlumbing(input(16), rules, {});
+    const pick = (r: unknown) =>
+      (
+        (
+          r as { lines: { unit: string; quantity: number | null }[] }
+        ).lines.find((l) => l.unit === "m" && l.quantity !== null) as {
+          quantity: number;
+        }
+      ).quantity;
+    expect(pick(long)).toBeGreaterThan(pick(short));
   });
 });
