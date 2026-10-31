@@ -2309,6 +2309,30 @@ const routes = [
       "Generate a professional bill of quantities from your FRELUX estimates.",
   },
   {
+    path: "/suppliers",
+    title: "Construction material suppliers and verified prices | FRELUX SMART CALC",
+    description:
+      "Find construction material suppliers by city, category and verification level. Compare specifications, prices and delivery coverage, then request quotations.",
+  },
+  {
+    path: "/suppliers/register",
+    title: "Register a construction material supply business | FRELUX SMART CALC",
+    description:
+      "List your material catalogue, delivery coverage and prices for FRELUX buyers. Registration starts unverified and each level states what was checked.",
+  },
+  {
+    path: "/suppliers/compare",
+    title: "Compare material suppliers and landed prices | FRELUX SMART CALC",
+    description:
+      "Compare supplier prices, specifications and delivery charges. Offers with different specifications are shown separately, never ranked as identical.",
+  },
+  {
+    path: "/procurement",
+    title: "Material requests and supplier quotations | FRELUX SMART CALC",
+    description:
+      "Post a material request, collect supplier quotations, compare them line by line, award the best one and track delivery.",
+  },
+  {
     path: "/boq-studio",
     title: "Bill of Quantities Studio | FRELUX SMART CALC",
     description:

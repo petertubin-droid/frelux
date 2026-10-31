@@ -424,6 +424,7 @@ const AdminImageEstimation = lazy(
   () => import("@/pages/admin/AdminImageEstimation"),
 );
 const AdminMarketplace = lazy(() => import("@/pages/admin/AdminMarketplace"));
+const AdminSuppliers = lazy(() => import("@/pages/admin/AdminSuppliers"));
 const AdminSeoLocation = lazy(() => import("@/pages/admin/AdminSeoLocation"));
 const AdminRewards = lazy(() => import("@/pages/admin/AdminRewards"));
 const AdminCreditsAds = lazy(() => import("@/pages/admin/AdminCreditsAds"));
@@ -456,6 +457,26 @@ const ClientEstimateEditor = lazy(() => import("@/pages/ClientEstimateEditor"));
 const MaterialPriceTracker = lazy(() => import("@/pages/MaterialPriceTracker"));
 const BoqGenerator = lazy(() => import("@/pages/BoqGenerator"));
 const BoqStudio = lazy(() => import("@/pages/BoqStudio"));
+const SupplierDirectory = lazy(
+  () => import("@/pages/suppliers/SupplierDirectory"),
+);
+const SupplierProfilePage = lazy(
+  () => import("@/pages/suppliers/SupplierProfilePage"),
+);
+const SupplierCompare = lazy(() => import("@/pages/suppliers/SupplierCompare"));
+const SupplierRegister = lazy(
+  () => import("@/pages/suppliers/SupplierRegister"),
+);
+const SupplierWorkspace = lazy(
+  () => import("@/pages/suppliers/SupplierWorkspace"),
+);
+const ProcurementHome = lazy(
+  () => import("@/pages/procurement/ProcurementHome"),
+);
+const ProcurementNew = lazy(() => import("@/pages/procurement/ProcurementNew"));
+const ProcurementRequestDetail = lazy(
+  () => import("@/pages/procurement/ProcurementRequestDetail"),
+);
 const GlobalMarkets = lazy(() => import("@/pages/GlobalMarkets"));
 const AdminPricePipeline = lazy(
   () => import("@/pages/admin/AdminPricePipeline"),
@@ -1693,6 +1714,71 @@ export default function App() {
                           }
                         />
                         <Route
+                          path="/suppliers"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <SupplierDirectory />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/suppliers/compare"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <SupplierCompare />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/suppliers/register"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <SupplierRegister />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/suppliers/workspace"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <SupplierWorkspace />
+                            </Suspense>
+                          }
+                        />
+                        {/* Last, so the static supplier routes above win. */}
+                        <Route
+                          path="/suppliers/:slug"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <SupplierProfilePage />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/procurement"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProcurementHome />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/procurement/new"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProcurementNew />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/procurement/:id"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <ProcurementRequestDetail />
+                            </Suspense>
+                          }
+                        />
+                        <Route
                           path="/global-markets"
                           element={<GlobalMarkets />}
                         />
@@ -2213,6 +2299,14 @@ export default function App() {
                         <Route
                           path="marketplace"
                           element={<AdminMarketplace />}
+                        />
+                        <Route
+                          path="suppliers"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminSuppliers />
+                            </Suspense>
+                          }
                         />
                         <Route path="markets" element={<AdminMarkets />} />
                         <Route

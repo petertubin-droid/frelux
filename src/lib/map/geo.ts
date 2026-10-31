@@ -7,13 +7,14 @@
  * rather than inventing pins.
  */
 
-export type MapLayerKind = "pro" | "job" | "material" | "you";
+export type MapLayerKind = "pro" | "job" | "material" | "supplier" | "you";
 
 /** Pin colour per record kind; the same value drives pins and legends. */
 export const MAP_KIND_COLOR: Record<MapLayerKind, string> = {
   pro: "#7c5cff",
   job: "#0ea5e9",
   material: "#f59e0b",
+  supplier: "#0f766e",
   you: "#10b981",
 };
 
@@ -285,6 +286,56 @@ export function pointsFromMaterials(rows: MaterialRow[]): MapPoint[] {
       meta: row.delivery_available ? "Delivers" : price,
       href: `/marketplace/product/${row.id}`,
       kind: "material",
+    });
+  }
+  return points;
+}
+
+export interface SupplierRow {
+  id: string;
+  company_name: string;
+  city: string | null;
+  neighbourhood: string | null;
+  market_code: string;
+  verification_level: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  public_slug: string | null;
+  product_categories: string[] | null;
+}
+
+const SUPPLIER_MAP_LABELS: Record<string, string> = {
+  unverified: "Unverified",
+  identity_checked: "ID checked",
+  documents_reviewed: "Documents reviewed",
+  address_checked: "Address checked",
+  platform_verified: "Platform verified",
+};
+
+/**
+ * Suppliers on the map. A pin appears only where the supplier has a real
+ * coordinate; the badge states the verification level rather than implying
+ * trust, and unverified suppliers are labelled as such.
+ */
+export function pointsFromSuppliers(rows: SupplierRow[]): MapPoint[] {
+  const points: MapPoint[] = [];
+  for (const row of rows) {
+    if (!isValidCoordinate(row.latitude, row.longitude)) continue;
+    const category = row.product_categories?.[0];
+    points.push({
+      id: `supplier:${row.id}`,
+      lat: row.latitude as number,
+      lon: row.longitude as number,
+      title: row.company_name,
+      subtitle:
+        [row.neighbourhood, row.city].filter(Boolean).join(", ") ||
+        row.market_code,
+      meta:
+        SUPPLIER_MAP_LABELS[row.verification_level ?? "unverified"] ?? category,
+      href: row.public_slug
+        ? `/suppliers/${row.public_slug}`
+        : `/suppliers?supplier=${row.id}`,
+      kind: "supplier",
     });
   }
   return points;

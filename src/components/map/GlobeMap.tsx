@@ -71,6 +71,7 @@ const LAYER_NOUN: Record<MapPoint["kind"], string> = {
   pro: "Professional",
   job: "Open project",
   material: "Material",
+  supplier: "Supplier",
   you: "You",
 };
 
@@ -724,7 +725,6 @@ export function GlobeMap({
           </span>
         </div>
       )}
-
 
       {ready && points.length === 0 && (emptyTitle || emptyHint) && (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col gap-1 p-5">

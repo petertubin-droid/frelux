@@ -5,12 +5,13 @@ import {
   pointsFromJobs,
   pointsFromMaterials,
   pointsFromPros,
+  pointsFromSuppliers,
   sortByDistance,
   type MapLayerKind,
   type MapPoint,
 } from "@/lib/map/geo";
 
-export type MapLayer = "pros" | "jobs" | "materials";
+export type MapLayer = "pros" | "jobs" | "materials" | "suppliers";
 
 export const MAP_LAYER_META: Record<
   MapLayer,
@@ -28,6 +29,13 @@ export const MAP_LAYER_META: Record<
     empty:
       "No project has a site location yet. Posted projects appear here once the client sets a location on the job.",
   },
+  suppliers: {
+    label: "Suppliers",
+    blurb:
+      "Verified-level material suppliers, plotted at their trading location",
+    empty:
+      "No supplier has a mapped trading location yet. Suppliers appear here once their city is tracked by the price index or their address is verified.",
+  },
   materials: {
     label: "Materials",
     blurb: "Listed stock and supplies, plotted where the seller is",
@@ -40,12 +48,14 @@ export const LAYER_KIND: Record<MapLayer, MapLayerKind> = {
   pros: "pro",
   jobs: "job",
   materials: "material",
+  suppliers: "supplier",
 };
 
 export const LAYER_COLOR: Record<MapLayer, string> = {
   pros: MAP_KIND_COLOR.pro,
   jobs: MAP_KIND_COLOR.job,
   materials: MAP_KIND_COLOR.material,
+  suppliers: MAP_KIND_COLOR.supplier,
 };
 
 interface LayerState {
@@ -90,6 +100,20 @@ async function loadLayer(layer: MapLayer): Promise<MapPoint[]> {
     if (error) throw error;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return pointsFromJobs((data ?? []) as any);
+  }
+
+  if (layer === "suppliers") {
+    const { data, error } = await supabase
+      .from("supplier_profiles")
+      .select(
+        "id, company_name, city, neighbourhood, market_code, verification_level, latitude, longitude, public_slug, product_categories",
+      )
+      .eq("is_active", true)
+      .not("latitude", "is", null)
+      .not("longitude", "is", null)
+      .limit(PAGE_LIMIT);
+    if (error) throw error;
+    return pointsFromSuppliers(data ?? []);
   }
 
   const { data, error } = await supabase
