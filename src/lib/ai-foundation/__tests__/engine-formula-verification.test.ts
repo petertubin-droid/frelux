@@ -13,6 +13,15 @@ import {
   calculatePlumbing,
   parsePlumbingRules,
 } from "@/lib/estimation/plumbing-engine";
+import { calculatePopCeiling } from "@/lib/pop-tile-calc";
+import {
+  addSixDayWorkweekDays,
+  estimateTimeline,
+} from "@/lib/engineering/timeline-estimator";
+import {
+  calculateScreedingMixSystem,
+  calculateScreedingPutty,
+} from "@/lib/calc";
 import {
   calculateCeilingArea,
   calculateWallArea,
@@ -394,7 +403,7 @@ describe("pad footing design, first principles", () => {
     const r = designFoundation({ ...base, column_load: 300, wall_load: 0 });
     closeTo(r.punching_shear_stress as number, 0.431, 0.002);
     expect(r.punching_shear_check_pass).toBe(false);
-    expect(r.warnings.join(" ")).toMatch(/punching shear/i);
+    expect((r.warnings ?? []).join(" ")).toMatch(/punching shear/i);
   });
 
   it("passes a heavier load once the user supplies a wider column", () => {
@@ -462,7 +471,7 @@ describe("raft foundation, first principles", () => {
     });
     closeTo(r.applied_pressure, 135, 0.5);
     expect(r.bearing_check_pass).toBe(false);
-    expect(r.warnings.join(" ")).toMatch(/exceeds/i);
+    expect((r.warnings ?? []).join(" ")).toMatch(/exceeds/i);
   });
 });
 
@@ -744,7 +753,7 @@ describe("regional cost, first principles and precedence", () => {
       rules: [],
     } as never);
     expect(r.applied_source).toBe("national_baseline");
-    expect(r.warnings.join(" ")).toMatch(/no regional cost index/i);
+    expect((r.warnings ?? []).join(" ")).toMatch(/no regional cost index/i);
     // Whatever the baseline is, it is disclosed and the arithmetic is honest.
     closeTo(r.adjusted_cost as number, 1000 * (r.applied_factor as number), 1);
   });
@@ -770,7 +779,9 @@ describe("regional cost, first principles and precedence", () => {
       indices: [index("Lagos", "general", 0)],
       rules: [],
     } as never);
-    expect(r.warnings.join(" ")).toMatch(/invalid factor|Nothing was applied/i);
+    expect((r.warnings ?? []).join(" ")).toMatch(
+      /invalid factor|Nothing was applied/i,
+    );
   });
 });
 
@@ -833,5 +844,290 @@ describe("plumbing runs, first principles", () => {
         }
       ).quantity;
     expect(pick(long)).toBeGreaterThan(pick(short));
+  });
+});
+
+// ── POP ceiling quantities ───────────────────────────────────────────────────
+// area x (1 + waste) then divide by the material's coverage. Packages are
+// rounded UP, because you cannot buy part of a bag. No coverage means no
+// quantity and a stated warning, never a guess.
+describe("POP ceiling quantities, first principles", () => {
+  const material = (over: Record<string, unknown> = {}) =>
+    ({
+      name: "POP cement",
+      category: "material",
+      // The engine only considers materials belonging to the same workflow
+      // that are active, so a fixture missing these is silently dropped.
+      workflow: "nigeria",
+      is_active: true,
+      sort_order: 0,
+      coverage_rate: 5,
+      coverage_unit: "m2",
+      package_size: 2,
+      unit_price: 1000,
+      is_optional: false,
+      ...over,
+    }) as never;
+
+  const input = {
+    workflow: "nigeria",
+    roomLength: 5,
+    roomWidth: 4,
+    unit: "meters",
+    wasteMargin: 10,
+    includeDecorative: false,
+    includeOptional: false,
+  } as never;
+
+  it("covers 22 m² from a 20 m² room with 10 percent waste", () => {
+    // 5 x 4 = 20 m², +10% = 22 m²; at 5 m² per unit that is 4.4 units, and at
+    // 2 units per package that is 3 packages.
+    const r = calculatePopCeiling(input, [material()], "NGN", "\u20a6");
+    const line = r.materials[0] as unknown as {
+      quantity: number;
+      packagesNeeded: number;
+    };
+    closeTo(line.quantity, 4.4, 0.05);
+    expect(line.packagesNeeded).toBe(3);
+  });
+
+  it("charges only for the packages it says are needed", () => {
+    const r = calculatePopCeiling(input, [material()], "NGN", "\u20a6");
+    // 3 packages at 1000 each, not 4.4 x 1000.
+    closeTo(r.materialCost as number, 3000, 0.01);
+  });
+
+  it("scales linearly with area", () => {
+    const small = calculatePopCeiling(
+      { ...(input as object), roomLength: 5, roomWidth: 2 } as never,
+      [material({ package_size: 0 })],
+      "NGN",
+      "\u20a6",
+    );
+    const large = calculatePopCeiling(
+      { ...(input as object), roomLength: 5, roomWidth: 4 } as never,
+      [material({ package_size: 0 })],
+      "NGN",
+      "\u20a6",
+    );
+    closeTo(
+      (large.materials[0] as unknown as { quantity: number }).quantity /
+        (small.materials[0] as unknown as { quantity: number }).quantity,
+      2,
+      0.01,
+    );
+  });
+
+  it("refuses to price a material with no coverage configured", () => {
+    const r = calculatePopCeiling(
+      input,
+      [material({ coverage_rate: 0 })],
+      "NGN",
+      "\u20a6",
+    );
+    const line = r.materials[0] as unknown as { quantity: number };
+    expect(line.quantity).toBe(0);
+    expect((r.warnings ?? []).join(" ")).toMatch(
+      /coverage rate is not configured/i,
+    );
+  });
+
+  it("excludes an unpriced material from the total instead of costing it at zero", () => {
+    const r = calculatePopCeiling(
+      input,
+      [material({ unit_price: 0 })],
+      "NGN",
+      "\u20a6",
+    );
+    expect((r.warnings ?? []).join(" ")).toMatch(
+      /unit price is not configured/i,
+    );
+    closeTo(r.materialCost as number, 0, 0.01);
+  });
+});
+
+// ── Screeding systems ────────────────────────────────────────────────────────
+describe("screeding quantities, first principles", () => {
+  const config = (over: Record<string, unknown> = {}) =>
+    ({
+      systemType: "putty",
+      defaultCoats: 2,
+      coverageAreaM2: 12,
+      puttyQuantity: 2,
+      puttyName: "Putty",
+      puttyUnit: "bucket",
+      puttyPricePerUnit: 500,
+      wastePercentage: 10,
+      roundingRule: "ceil",
+      paintQuantity: 1,
+      paintName: "Paint",
+      paintUnit: "bucket",
+      paintPricePerUnit: 300,
+      cementQuantity: 2,
+      cementName: "Cement",
+      cementUnit: "bag",
+      cementPricePerUnit: 800,
+      extraEnabled: false,
+      ...over,
+    }) as never;
+
+  it("takes the configured ratio verbatim at the default coat count", () => {
+    // 2 buckets per 12 m² on 24 m² is 4 buckets, before waste.
+    const r = calculateScreedingPutty(24, config(), 2);
+    closeTo(r.putty.baseQuantity as number, 4, 0.001);
+  });
+
+  it("scales the ratio by the coat count relative to the default", () => {
+    // Three coats against a two-coat default is 1.5x, so 4 buckets becomes 6.
+    const r = calculateScreedingPutty(24, config(), 3);
+    closeTo(r.putty.baseQuantity as number, 6, 0.001);
+  });
+
+  it("applies waste once, and rounds the purchase up", () => {
+    // 4 buckets + 10% waste = 4.4, purchased as 5, charged at 500 each.
+    const r = calculateScreedingPutty(24, config(), 2);
+    closeTo(r.putty.wasteQuantity as number, 0.4, 0.001);
+    closeTo(r.putty.finalQuantity as number, 4.4, 0.001);
+    expect(r.putty.purchaseQuantity).toBe(5);
+    closeTo(r.putty.totalCost as number, 2500, 0.01);
+  });
+
+  it("sells whole bags when the rounding rule is ceil", () => {
+    const r = calculateScreedingMixSystem(20, config(), 2);
+    // 20/12 = 1.6667 units x 2 bags = 3.333 bags, +10% = 3.667, bought as 4.
+    closeTo(r.cement.baseQuantity as number, 3.33, 0.01);
+    expect(r.cement.purchaseQuantity).toBe(4);
+  });
+
+  it("does not round when the rule allows fractional quantities", () => {
+    const r = calculateScreedingPutty(24, config({ roundingRule: "none" }), 2);
+    closeTo(r.putty.purchaseQuantity as number, 4.4, 0.001);
+  });
+
+  it("ignores an extra material that is disabled", () => {
+    const r = calculateScreedingMixSystem(
+      20,
+      config({ extraEnabled: false, extraName: "Hardener", extraQuantity: 1 }),
+      2,
+    );
+    expect(r.extra).toBeNull();
+  });
+
+  it("charges nothing it has no price for", () => {
+    const r = calculateScreedingPutty(
+      24,
+      config({ puttyPricePerUnit: null }),
+      2,
+    );
+    expect(r.putty.totalCost).toBeNull();
+  });
+});
+
+// ── Timeline estimator ───────────────────────────────────────────────────────
+// The durations are a documented stage table for a 100 m² bungalow, scaled by
+// area, complexity, workforce and season. The durations themselves are
+// judgement, not code-derived, so these tests pin the arithmetic around them:
+// the totals, the bounds, the monotonicity and the calendar. They do not
+// pretend to certify that 21 days is the right allowance for roofing.
+describe("timeline estimator, arithmetic and calendar", () => {
+  const base = {
+    market_code: "NG",
+    building_type: "bungalow",
+    building_length: 10,
+    building_width: 10,
+    number_of_floors: 1,
+    complexity: "standard",
+    workforce: "medium",
+    season: "dry",
+    foundation_type: "strip",
+    roof_type: "pitched",
+    has_engineer_schedule: false,
+  } as never;
+
+  it("sums its stage durations to the reported total", () => {
+    const r = estimateTimeline(base);
+    const sum = r.stages.reduce((acc, s) => acc + s.estimated_days, 0);
+    expect(r.total_days).toBe(sum);
+  });
+
+  it("keeps every stage between its own minimum and maximum", () => {
+    const r = estimateTimeline(base);
+    for (const s of r.stages) {
+      expect(s.estimated_days).toBeGreaterThanOrEqual(s.min_days);
+      expect(s.estimated_days).toBeLessThanOrEqual(s.max_days);
+    }
+  });
+
+  it("takes longer for a larger building", () => {
+    const small = estimateTimeline({
+      ...(base as object),
+      building_length: 8,
+    } as never);
+    const large = estimateTimeline({
+      ...(base as object),
+      building_length: 20,
+    } as never);
+    expect(large.total_days).toBeGreaterThan(small.total_days);
+  });
+
+  it("clamps the area factor at both ends instead of running away", () => {
+    // 100 m² is the 1.0 base; 1000 m² would be 10x but is clamped to 3x, and a
+    // 20 m² job is held at 0.5x rather than compressing to nothing.
+    const atBase = estimateTimeline(base);
+    const huge = estimateTimeline({
+      ...(base as object),
+      building_length: 100,
+      building_width: 100,
+    } as never);
+    expect(huge.total_days).toBeLessThanOrEqual(atBase.total_days * 3.1);
+  });
+
+  it("adds foundation days only to excavation, and only for raft or pile", () => {
+    const strip = estimateTimeline(base);
+    const raft = estimateTimeline({
+      ...(base as object),
+      foundation_type: "raft",
+    } as never);
+    const pile = estimateTimeline({
+      ...(base as object),
+      foundation_type: "pile",
+    } as never);
+    const dig = (r: unknown) =>
+      (
+        r as { stages: { stage: string; estimated_days: number }[] }
+      ).stages.find((s) => s.stage === "excavation")!.estimated_days;
+    closeTo(dig(raft) - dig(strip), 7, 0.001);
+    closeTo(dig(pile) - dig(strip), 21, 0.001);
+  });
+
+  it("never lengthens a job for a bigger workforce", () => {
+    const thin = estimateTimeline({
+      ...(base as object),
+      workforce: "small",
+    } as never);
+    const full = estimateTimeline({
+      ...(base as object),
+      workforce: "large",
+    } as never);
+    expect(full.total_days).toBeLessThanOrEqual(thin.total_days);
+  });
+
+  it("lands work day counts on working days, never a Sunday", () => {
+    // A six-day week: 7 work days from a Monday is the following Monday,
+    // because the Sunday in between carries no work.
+    const monday = new Date(Date.UTC(2026, 10, 2));
+    expect(addSixDayWorkweekDays(monday, 6).getUTCDay()).toBe(6); // Saturday
+    const nextMonday = addSixDayWorkweekDays(monday, 7);
+    expect(nextMonday.getUTCDay()).toBe(1);
+    expect(nextMonday.getUTCDate()).toBe(9);
+    for (let d = 0; d <= 30; d += 1) {
+      expect(addSixDayWorkweekDays(monday, d).getUTCDay()).not.toBe(0);
+    }
+  });
+
+  it("treats a zero or negative duration as the start date itself", () => {
+    const day = new Date(Date.UTC(2026, 10, 2));
+    expect(addSixDayWorkweekDays(day, 0).getTime()).toBe(day.getTime());
+    expect(addSixDayWorkweekDays(day, -5).getTime()).toBe(day.getTime());
   });
 });
