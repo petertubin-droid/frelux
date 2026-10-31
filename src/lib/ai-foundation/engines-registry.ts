@@ -182,7 +182,51 @@ export function quantityLine(
 
 const REGISTRY = new Map<string, EngineDescriptor>();
 
+/**
+ * A second engine claiming an id that is already taken is refused.
+ *
+ * The registry used to assign unconditionally, so two modules declaring the
+ * same id silently resolved to whichever imported last: the AI layer would
+ * credit one engine while executing another, with no error anywhere. An id
+ * identifies the authoritative implementation of a calculation, and two
+ * candidates for one id is a defect, not a configuration.
+ */
+export class DuplicateEngineIdError extends Error {
+  constructor(
+    public engineId: string,
+    public existingTitle: string,
+    public incomingTitle: string,
+  ) {
+    super(
+      `Engine id '${engineId}' is already registered by "${existingTitle}", so "${incomingTitle}" cannot take it. One id, one authoritative engine: give the new engine its own id, or remove the one it replaces.`,
+    );
+    this.name = "DuplicateEngineIdError";
+  }
+}
+
 export function registerEngine(descriptor: EngineDescriptor): void {
+  const existing = REGISTRY.get(descriptor.id);
+  if (existing) {
+    // Modules re-register their own engines, sometimes on every call, with a
+    // freshly built descriptor each time. Same id, same title and same domain
+    // is that engine registering again: the newer object replaces the older
+    // one quietly, which is what the callers already assume.
+    //
+    // A different title under a taken id is a different engine claiming an
+    // identity it does not own, and that is refused.
+    const sameEngine =
+      existing.title === descriptor.title &&
+      existing.domain === descriptor.domain;
+    if (sameEngine) {
+      REGISTRY.set(descriptor.id, descriptor);
+      return;
+    }
+    throw new DuplicateEngineIdError(
+      descriptor.id,
+      existing.title,
+      descriptor.title,
+    );
+  }
   REGISTRY.set(descriptor.id, descriptor);
 }
 
