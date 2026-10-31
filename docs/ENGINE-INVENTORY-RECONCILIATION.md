@@ -23,13 +23,20 @@ projection of the other.
 
 ## The problem: the AI registry speaks a different language
 
-Only seven ids appear in all three lists:
+Ten ids appear in all three lists:
 
 `build_to_roof`, `electrical`, `margin_calculator`, `plumbing`, `pop_ceiling`,
-`regional_cost`, `roof_geometry`
+`regional_cost`, `roof_geometry`, `foundation`, `doors_windows`,
+`reinforcement`
 
 The other ten registry engines exist under names that appear nowhere in either
 international list:
+
+**Correction, same day.** This document first reported 17 AI engines and seven
+shared ids. Three engines (`foundation`, `doors_windows`, `reinforcement`) are
+registered dynamically rather than through a literal `id:` in
+`engines-*.ts`, so a source-text extraction missed them. The runtime registry is
+the authority and holds 20. The shared set is ten, not seven.
 
 `foundation_calculator`, `painting_project`, `painting_wall_area`,
 `screeding_system`, `sequence_planner`, `structural_calculator`,
