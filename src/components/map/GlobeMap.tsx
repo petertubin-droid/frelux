@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapLibreMap, Marker as MapLibreMarker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
-  AlertTriangle,
   ArrowUpRight,
   Compass,
   Globe2,
@@ -17,6 +16,7 @@ import { classNames } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n";
 import type { MapPoint } from "@/lib/map/geo";
 import { defaultMapOpening } from "@/lib/map/defaults";
+import { Raster2DMap } from "@/components/map/Raster2DMap";
 
 const LIGHT_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 const DARK_STYLE = "https://tiles.openfreemap.org/styles/dark";
@@ -103,6 +103,7 @@ export function GlobeMap({
   const rootRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  const mapLoadedRef = useRef(false);
   const markersRef = useRef<MapLibreMarker[]>([]);
   const { t } = useLanguage();
   // The opening frame follows the visitor, never a fixed head office.
@@ -121,7 +122,7 @@ export function GlobeMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [ready, setReady] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [rasterFallback, setRasterFallback] = useState(false);
   const [view, setView] = useState<ViewState>({
     bearing: 0,
     pitch: 0,
@@ -194,6 +195,7 @@ export function GlobeMap({
     let disposed = false;
     let resizeObserver: ResizeObserver | null = null;
     let themeObserver: MutationObserver | null = null;
+    let fallbackTimer: number | null = null;
 
     (async () => {
       if (!containerRef.current) return;
@@ -201,29 +203,42 @@ export function GlobeMap({
         const maplibregl = (await import("maplibre-gl")).default;
         if (disposed || !containerRef.current) return;
 
-        const map = new maplibregl.Map({
-          container: containerRef.current,
-          style: isDarkTheme() ? DARK_STYLE : LIGHT_STYLE,
-          center: [opening.lon, opening.lat],
-          zoom: opening.zoom,
-          pitch: 0,
-          bearing: 0,
-          antialias: true,
-          attributionControl: false,
-          fadeDuration: 260,
-        });
+        let map: MapLibreMap;
+        try {
+          map = new maplibregl.Map({
+            container: containerRef.current,
+            style: isDarkTheme() ? DARK_STYLE : LIGHT_STYLE,
+            center: [opening.lon, opening.lat],
+            zoom: opening.zoom,
+            pitch: 0,
+            bearing: 0,
+            antialias: true,
+            attributionControl: false,
+            fadeDuration: 260,
+          });
+        } catch {
+          setRasterFallback(true);
+          return;
+        }
         mapRef.current = map;
 
-        // Globe projection ships in the runtime but is missing from the v4
-        // type surface, so it is applied through a narrow cast.
-        (
-          map as unknown as {
-            setProjection: (projection: { type: "globe" }) => void;
+        // If a browser creates WebGL but cannot render the style, switch to
+        // the non-WebGL raster renderer instead of leaving a blank map.
+        fallbackTimer = window.setTimeout(() => {
+          if (!disposed && !map.loaded()) {
+            setRasterFallback(true);
+            map.remove();
+            mapRef.current = null;
           }
-        ).setProjection({ type: "globe" });
+        }, 12000);
+
+        // MapLibre v4 renders the globally navigable Mercator map directly.
+        // Do not call setProjection here: that method is not present in the
+        // pinned v4 runtime and used to force every map into the error state.
 
         map.on("load", () => {
           if (disposed) return;
+          mapLoadedRef.current = true;
           if (showTerrain) {
             try {
               map.addSource("frelux-terrain", {
@@ -238,6 +253,7 @@ export function GlobeMap({
               // Terrain is an enhancement; the globe still works without it.
             }
           }
+          if (fallbackTimer !== null) window.clearTimeout(fallbackTimer);
           setReady(true);
           syncChrome();
         });
@@ -246,7 +262,12 @@ export function GlobeMap({
           map.on(event as "move", syncChrome);
         }
         map.on("error", () => {
-          if (!mapRef.current) setFailed(true);
+          if (!disposed && !mapLoadedRef.current) {
+            setRasterFallback(true);
+            if (fallbackTimer !== null) window.clearTimeout(fallbackTimer);
+            map.remove();
+            mapRef.current = null;
+          }
         });
 
         // Optional coordinate picking: only fires when a parent attaches
@@ -280,18 +301,20 @@ export function GlobeMap({
           attributeFilter: ["class"],
         });
       } catch {
-        if (!disposed) setFailed(true);
+        if (!disposed) setRasterFallback(true);
       }
     })();
 
     return () => {
       disposed = true;
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer);
       resizeObserver?.disconnect();
       themeObserver?.disconnect();
       markersRef.current.forEach((m) => m.remove());
       markersRef.current = [];
       mapRef.current?.remove();
       mapRef.current = null;
+      mapLoadedRef.current = false;
     };
     // The map is created once; props below are applied by other effects.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -487,6 +510,27 @@ export function GlobeMap({
       : `${Math.round(scale.km * 1000)} m`
     : null;
 
+  if (rasterFallback) {
+    return (
+      <Raster2DMap
+        points={points}
+        center={center}
+        zoom={zoom}
+        focus={focus}
+        height={height}
+        className={className}
+        interactive={interactive}
+        onSelect={onSelect}
+        onPickCoordinate={onPickCoordinate}
+        activeId={activeId}
+        label={label}
+        emptyTitle={emptyTitle}
+        emptyHint={emptyHint}
+        notice="2D mode for browser compatibility"
+      />
+    );
+  }
+
   return (
     <div
       ref={rootRef}
@@ -511,7 +555,7 @@ export function GlobeMap({
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-28 frelux-map__fade-bottom" />
 
       {/* Live readout */}
-      {ready && !failed && (
+      {ready && (
         <div className="absolute left-3 top-3 z-20 flex items-center gap-2">
           <span className="frelux-map__pill">
             <span className="frelux-map__live" aria-hidden="true" />
@@ -530,7 +574,7 @@ export function GlobeMap({
       )}
 
       {/* Compass dial + zoom keys */}
-      {ready && !failed && interactive && (
+      {ready && interactive && (
         <div className="absolute right-3 top-3 z-20 flex flex-col items-center gap-2">
           <button
             type="button"
@@ -646,7 +690,7 @@ export function GlobeMap({
       )}
 
       {/* Scale bar + attribution */}
-      {ready && !failed && (
+      {ready && (
         <div className="absolute bottom-3 left-3 z-20 flex items-end gap-3">
           {scaleLabel && (
             <span className="frelux-map__scale">
@@ -681,23 +725,8 @@ export function GlobeMap({
         </div>
       )}
 
-      {failed && (
-        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-2 bg-muted/85 p-6 text-center backdrop-blur">
-          <AlertTriangle
-            className="h-5 w-5 text-amber-500"
-            aria-hidden="true"
-          />
-          <p className="text-sm font-semibold text-foreground">
-            The 3D map needs WebGL
-          </p>
-          <p className="max-w-xs text-xs text-muted-foreground">
-            This browser has hardware acceleration turned off. The list view
-            carries the same records.
-          </p>
-        </div>
-      )}
 
-      {!failed && ready && points.length === 0 && (emptyTitle || emptyHint) && (
+      {ready && points.length === 0 && (emptyTitle || emptyHint) && (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col gap-1 p-5">
           <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <Globe2 className="h-4 w-4 text-primary" aria-hidden="true" />
