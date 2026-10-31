@@ -57,10 +57,6 @@ export interface MarginResult {
 // Helpers
 // ─────────────────────────────────────────────
 
-
-
-
-
 // ─────────────────────────────────────────────
 // Engine
 // ─────────────────────────────────────────────
@@ -114,9 +110,12 @@ export function calculateMargin(input: MarginInput): MarginResult {
     return result;
   }
 
+  // A caller without a rule set (an API request, a fresh install) must get a
+  // stated default, never a TypeError from reading .find on undefined.
+  const rules = Array.isArray(input.rules) ? input.rules : [];
   const decimals = Math.max(
     0,
-    Math.min(6, ruleNumber(input.rules, "rounding_decimals") ?? 2),
+    Math.min(6, ruleNumber(rules, "rounding_decimals") ?? 2),
   );
 
   // ── 2. Deterministic pricing chain - every step labelled with its basis ──
@@ -148,7 +147,7 @@ export function calculateMargin(input: MarginInput): MarginResult {
       : roundTo((profit / cost) * 100, decimals); // margin-on-price expressed as markup
 
   // ── 3. VAT only from a configured rule - never invented ──
-  let vatRate = ruleNumber(input.rules, "vat_rate");
+  let vatRate = ruleNumber(rules, "vat_rate");
   let vatAmount: number | null = null;
   let quoteTotal = subtotal;
 
