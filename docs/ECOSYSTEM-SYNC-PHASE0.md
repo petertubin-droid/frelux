@@ -193,3 +193,51 @@ The crawler concern stands for the market and price functions that rely on
 `getUser` alone, but no crawler is anonymously writable. The honest statement is
 that the scheduled crawlers have no shared authorization mechanism, not that they
 are open.
+
+## Finding 8: the public price endpoints, read properly
+
+`price-index-submit` runs with `verify_jwt = false` and writes through a
+service-role client, which looks alarming until you read what it writes. It
+inserts into `price_submissions` with `status = "pending"`, behind a shared rate
+limiter and a per-day duplicate check. It never touches `estimation_prices`.
+That is a defensible public submission surface.
+
+The question that matters is whether anonymous submissions can reach the price
+book by agreement alone. They cannot, and the reason is worth writing down
+because it is accidental rather than designed.
+
+`apply_community_prices()` gates on `count(distinct s.submitted_by)`, and skips
+the group entirely when that count is zero. The submit function never sets
+`submitted_by`, so every anonymous submission has a null author, the distinct
+count is zero, and the group is skipped before any median is computed. Anonymous
+reports therefore land in the review queue and stop there.
+
+That guard depends on a null staying null. If anyone later backfills
+`submitted_by` with a shared service account to "improve" attribution, two
+colluding submissions would satisfy the consensus rule and publish a price with
+no human in the loop. This deserves a test that asserts anonymous submissions
+never auto-apply, so the invariant is enforced rather than incidental.
+
+## Finding 9: the submit endpoint can mix a market with the wrong currency
+
+`price-index-submit` accepts `market` from the request body, uppercases it, and
+defaults it to `"NG"`, but writes `currency: "NGN"` as a literal. A caller
+posting `market: "GB"` therefore creates a Great British submission denominated
+in naira, in the table that feeds the community price pipeline.
+
+Nothing currently publishes it, because of the null-author skip in Finding 8. So
+this is a latent inconsistency rather than a live wrong price. It is still a
+breach of the rule that a market's prices are never denominated in another
+market's currency, and it is cheap to close: validate the market against the
+supported registry and derive the currency from it, or refuse anything that is
+not NG until per-market submission is designed.
+
+## Finding 10: the Project Agent, partially verified
+
+`src/lib/project-agent/` contains `execute.ts` with dedicated `execute.test.ts`,
+`security.test.ts` and `e2e.test.ts`. Its shape is right: a separate approval
+state, a separate execution step, and tests that target both. I have not yet
+read the claim itself, so I can confirm the module exists and is tested but not
+that the approved-to-executing transition is atomic. Phase 1 must settle that
+with a concurrent-request test before any of the other Project Agent work is
+trusted.
