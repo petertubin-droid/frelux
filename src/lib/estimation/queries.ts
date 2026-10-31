@@ -35,6 +35,7 @@ import type {
   Defect,
   DefectCause,
 } from "@/types/estimation";
+import { isTradeFormValidInMarket } from "@/lib/international/trade-forms";
 
 // =========================================================
 // 1. Units
@@ -377,6 +378,26 @@ export interface MarketPriceBook {
   verified: Set<string>;
 }
 
+/**
+ * Ref_ids whose trade form does not exist in this market.
+ *
+ * A tipper of sand is a Lagos delivery unit. The FX seed copied it into every
+ * market, and the NG reference fallback below would hand it back to a US
+ * visitor even after the local row is gone. Computing the refusal set once per
+ * book keeps both paths honest without a slug join per row.
+ */
+async function refusedTradeFormRefs(market: string): Promise<Set<string>> {
+  const refused = new Set<string>();
+  if (!market || market.trim().toUpperCase() === "NG") return refused;
+  const { data: materials } = await fetchEstimationMaterials(false);
+  for (const material of materials ?? []) {
+    if (!isTradeFormValidInMarket(material.slug, market)) {
+      refused.add(material.id);
+    }
+  }
+  return refused;
+}
+
 export async function fetchMarketPriceBook(
   marketCode: string,
 ): Promise<MarketPriceBook> {
@@ -386,6 +407,7 @@ export async function fetchMarketPriceBook(
   const asOf = new Map<string, string>();
   const stale = new Set<string>();
   const verified = new Set<string>();
+  const refused = await refusedTradeFormRefs(market);
 
   // 0. This market's verification state, so a price can be labelled as verified
   //    locally, last-known-but-stale, or unverified rather than silently shown
@@ -430,6 +452,7 @@ export async function fetchMarketPriceBook(
   if (market !== "NG") {
     const own = await fetchAllPrices(true, market);
     for (const pr of own.data ?? []) {
+      if (refused.has(pr.ref_id)) continue;
       if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
         byRef.set(pr.ref_id, pr.price);
       }
@@ -440,6 +463,8 @@ export async function fetchMarketPriceBook(
   if (market !== "NG") {
     const reference = await fetchAllPrices(true, "NG");
     for (const pr of reference.data ?? []) {
+      // The Nigerian fallback must never reintroduce a Nigerian-only form.
+      if (refused.has(pr.ref_id)) continue;
       if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
         byRef.set(pr.ref_id, pr.price);
         fromReference.add(pr.ref_id);
@@ -502,7 +527,13 @@ export async function fetchAllPrices(
   }
   query = query.order("effective_date", { ascending: false });
   const { data, error } = await query;
-  return { data: (data ?? []) as EstimationPrice[], error };
+  let rows = (data ?? []) as EstimationPrice[];
+  if (market && market.trim().toUpperCase() !== "NG") {
+    // A market view never offers a buying convention that market does not use.
+    const refused = await refusedTradeFormRefs(market);
+    rows = rows.filter((row) => !refused.has(row.ref_id));
+  }
+  return { data: rows, error };
 }
 
 // =========================================================

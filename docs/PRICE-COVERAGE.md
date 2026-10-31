@@ -157,3 +157,30 @@ All seventeen leaders are recorded in `price_scan_sources` with
 `access_status = blocked_or_unavailable` and `is_active = false`, so the outreach
 list lives next to the price book and nobody probes the same dead end twice. The
 same evidence is in `scripts/price-scan/market-leaders.json`.
+
+## Trade forms are market specific
+
+A price is a number attached to a way of buying. Some ways of buying exist in
+one market and nowhere else. The FX reference seed copied every active Nigerian
+material into every other market, which is defensible for materials whose trade
+form is universal (a bag of cement, a cubic metre of sand) and wrong for local
+delivery units.
+
+Two slugs are Nigerian buying conventions with no counterpart elsewhere:
+`sand-per-trip` and `granite-per-trip`, a five-tonne tipper load. Nobody in
+Leeds or Ohio orders a trip of sand, so quoting one is not a local price.
+
+Three things now enforce this, because one was not enough:
+
+1. `src/lib/international/trade-forms.ts` names the forms and answers whether a
+   slug can be priced in a market.
+2. `fetchMarketPriceBook` drops them from both the market's own rows and the
+   Nigerian reference fallback. That fallback mattered: deleting the US row
+   alone would have handed a US visitor the naira tipper price instead.
+3. Migration `20261031140000_deactivate_ng_only_trade_forms` deactivated the 40
+   rows already seeded into other markets, so exports, admin views and any
+   direct reader stop seeing them too. Rows are deactivated, never deleted.
+
+The bar for adding a slug to that list is strict: it must be a buying convention
+with no counterpart market, not a material we would rather price differently. A
+differently named or differently packed material is a catalogue row to add.
