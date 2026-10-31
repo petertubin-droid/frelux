@@ -29,18 +29,28 @@ export interface ToolFaqGroup {
   questions: ToolFaqQuestion[];
 }
 
+import { ENGINE_FAQ_GROUPS } from "@/config/engine-faqs";
+
 export type FaqCategoryId =
-  "finishes" | "structure" | "services" | "quotes" | "platform";
+  | "finishes"
+  | "structure"
+  | "services"
+  | "sitework"
+  | "commercial"
+  | "quotes"
+  | "platform";
 
 export const FAQ_CATEGORIES: { id: FaqCategoryId; label: string }[] = [
   { id: "finishes", label: "Painting, tiling and finishes" },
   { id: "structure", label: "Foundation, roof and structure" },
   { id: "services", label: "Electrical and plumbing" },
+  { id: "sitework", label: "Groundwork and site clearance" },
+  { id: "commercial", label: "Costing and commercial control" },
   { id: "quotes", label: "Quotes and client estimates" },
   { id: "platform", label: "Using FRELUX" },
 ];
 
-export const TOOL_FAQS: ToolFaqGroup[] = [
+const BASE_TOOL_FAQS: ToolFaqGroup[] = [
   {
     slug: "paint-calculator",
     route: "/paint-calculator",
@@ -441,6 +451,15 @@ export const TOOL_FAQS: ToolFaqGroup[] = [
       },
     ],
   },
+];
+
+/**
+ * One catalogue: the original tool groups plus the wider engine family. Kept as
+ * two declarations only because the second file would otherwise be unwieldy.
+ */
+export const TOOL_FAQS: ToolFaqGroup[] = [
+  ...BASE_TOOL_FAQS,
+  ...ENGINE_FAQ_GROUPS,
 ];
 
 const BY_SLUG = new Map(TOOL_FAQS.map((g) => [g.slug, g]));

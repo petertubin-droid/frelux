@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  FAQ_ARTICLES,
+  ALL_FAQ_ARTICLES,
   FAQ_ARTICLE_SECTIONS,
   getFaqArticle,
 } from "@/config/faq-articles";
@@ -14,7 +14,7 @@ describe("FAQ article bodies", () => {
         `${group.slug} has no article body`,
       ).toBeDefined();
     }
-    expect(Object.keys(FAQ_ARTICLES).sort()).toEqual(
+    expect(Object.keys(ALL_FAQ_ARTICLES).sort()).toEqual(
       TOOL_FAQS.map((g) => g.slug).sort(),
     );
   });
@@ -53,7 +53,7 @@ describe("FAQ article bodies", () => {
   it("keeps every line substantial and free of invented prices", () => {
     const pricePattern = /(?:₦|\$|£|€)\s?\d/;
     const taxPattern = /\b\d+(?:\.\d+)?\s?%\s?(?:vat|tax|gst)\b/i;
-    for (const [slug, article] of Object.entries(FAQ_ARTICLES)) {
+    for (const [slug, article] of Object.entries(ALL_FAQ_ARTICLES)) {
       const lines = [
         article.summary,
         article.description,

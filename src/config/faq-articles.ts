@@ -11,6 +11,8 @@
  * or a design claim. If a tool does not price something, the limits say so.
  */
 
+import { ENGINE_FAQ_ARTICLES } from "@/config/engine-faqs";
+
 export interface FaqArticle {
   /** One sentence standfirst under the page title. */
   summary: string;
@@ -379,8 +381,14 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
   },
 };
 
+/** Base tool articles plus the wider engine family, in one lookup. */
+export const ALL_FAQ_ARTICLES: Record<string, FaqArticle> = {
+  ...FAQ_ARTICLES,
+  ...ENGINE_FAQ_ARTICLES,
+};
+
 export function getFaqArticle(slug: string): FaqArticle | undefined {
-  return FAQ_ARTICLES[slug];
+  return ALL_FAQ_ARTICLES[slug];
 }
 
 /** Section headings, in the order the article page renders them. */
