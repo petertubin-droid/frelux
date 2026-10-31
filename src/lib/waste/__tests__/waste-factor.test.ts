@@ -109,7 +109,7 @@ describe("package rounding", () => {
 });
 
 describe("materials", () => {
-  it("covers the eleven requested materials", () => {
+  it("covers the eleven requested materials plus cable and conduit", () => {
     expect(WASTE_MATERIALS.map((m) => m.key)).toEqual([
       "tiles",
       "paint",
@@ -121,6 +121,8 @@ describe("materials", () => {
       "roofing",
       "steel",
       "flooring",
+      "cable",
+      "conduit",
       "plumbing",
     ]);
   });

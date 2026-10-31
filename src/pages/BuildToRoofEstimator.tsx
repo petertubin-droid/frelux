@@ -6,6 +6,9 @@ import React, { useState, useMemo, useCallback, useEffect, useId } from "react";
 import { Link } from "react-router-dom";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { getConstructionTypology } from "@/lib/estimation/construction-typologies";
+import { useWasteSettings } from "@/lib/waste/use-waste-settings";
+import { startingWastePercent } from "@/lib/waste/waste-factor";
+import type { WasteMaterialKey } from "@/lib/waste/waste-factor";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import {
   resolveMarketCement,
@@ -66,6 +69,7 @@ import {
   DEFAULT_WASTAGE,
 } from "@/lib/estimation/build-to-roof-engine";
 import type {
+  WastageConfig,
   BuildToRoofInput,
   BuildToRoofResult,
   BuildingType,
@@ -400,6 +404,18 @@ function RotatingText({
   );
 }
 
+/** Wastage fields that also exist in the shared allowance catalogue. */
+const WASTAGE_TO_MATERIAL: Partial<
+  Record<keyof WastageConfig, WasteMaterialKey>
+> = {
+  cement: "cement",
+  sand: "sand",
+  granite: "granite",
+  timber: "timber",
+  roofing_sheets: "roofing",
+  reinforcement: "steel",
+};
+
 export default function BuildToRoofEstimator() {
   const { t } = useLanguage();
   const { market, marketCode } = useMarket();
@@ -497,6 +513,31 @@ export default function BuildToRoofEstimator() {
     createDefaultRoofGeometry(),
   );
 
+  // Wastage here is per material and long predates the shared allowance. The
+  // six materials present in both follow the shared store, so a choice made in
+  // one calculator holds in the other. Blocks and hardcore have no shared
+  // counterpart and stay as this page configures them.
+  const { settings: wasteSettings, setMaterialPercent } = useWasteSettings();
+  const bridgedWastage = useMemo<WastageConfig>(() => {
+    const shared = (key: WasteMaterialKey, fallback: number) =>
+      startingWastePercent(wasteSettings, key, fallback);
+    return {
+      ...DEFAULT_WASTAGE,
+      cement: shared("cement", DEFAULT_WASTAGE.cement),
+      sand: shared("sand", DEFAULT_WASTAGE.sand),
+      granite: shared("granite", DEFAULT_WASTAGE.granite),
+      timber: shared("timber", DEFAULT_WASTAGE.timber),
+      roofing_sheets: shared("roofing", DEFAULT_WASTAGE.roofing_sheets),
+      reinforcement: shared("steel", DEFAULT_WASTAGE.reinforcement),
+    };
+  }, [wasteSettings]);
+  const setWaste = (key: string, raw: string) => {
+    const value = parseFloat(raw) || 0;
+    update("wastage", { ...input.wastage, [key]: value });
+    const material = WASTAGE_TO_MATERIAL[key as keyof WastageConfig];
+    if (material) setMaterialPercent(material, value);
+  };
+
   const [input, setInput] = useState<BuildToRoofInput>({
     project_name: "",
     location: "",
@@ -535,7 +576,7 @@ export default function BuildToRoofEstimator() {
     roofing_material: "long_span_aluminium",
     structural_members: [],
     has_engineer_schedule: false,
-    wastage: DEFAULT_WASTAGE,
+    wastage: bridgedWastage,
     prices: DEFAULT_PRICES,
     labour: DEFAULT_LABOUR,
     contingency_percent: 5,
@@ -990,7 +1031,7 @@ export default function BuildToRoofEstimator() {
                       roofing_material: "long_span_aluminium",
                       structural_members: [],
                       has_engineer_schedule: false,
-                      wastage: DEFAULT_WASTAGE,
+                      wastage: bridgedWastage,
                       prices: DEFAULT_PRICES,
                       labour: DEFAULT_LABOUR,
                       contingency_percent: 5,
@@ -1802,89 +1843,49 @@ export default function BuildToRoofEstimator() {
                               label="Blocks"
                               unit="%"
                               value={input.wastage.blocks}
-                              onChange={(v) =>
-                                update("wastage", {
-                                  ...input.wastage,
-                                  blocks: parseFloat(v) || 0,
-                                })
-                              }
+                              onChange={(v) => setWaste("blocks", v)}
                             />
                             <Field
                               label="Cement"
                               unit="%"
                               value={input.wastage.cement}
-                              onChange={(v) =>
-                                update("wastage", {
-                                  ...input.wastage,
-                                  cement: parseFloat(v) || 0,
-                                })
-                              }
+                              onChange={(v) => setWaste("cement", v)}
                             />
                             <Field
                               label="Sand"
                               unit="%"
                               value={input.wastage.sand}
-                              onChange={(v) =>
-                                update("wastage", {
-                                  ...input.wastage,
-                                  sand: parseFloat(v) || 0,
-                                })
-                              }
+                              onChange={(v) => setWaste("sand", v)}
                             />
                             <Field
                               label="Granite"
                               unit="%"
                               value={input.wastage.granite}
-                              onChange={(v) =>
-                                update("wastage", {
-                                  ...input.wastage,
-                                  granite: parseFloat(v) || 0,
-                                })
-                              }
+                              onChange={(v) => setWaste("granite", v)}
                             />
                             <Field
                               label="Reinforcement"
                               unit="%"
                               value={input.wastage.reinforcement}
-                              onChange={(v) =>
-                                update("wastage", {
-                                  ...input.wastage,
-                                  reinforcement: parseFloat(v) || 0,
-                                })
-                              }
+                              onChange={(v) => setWaste("reinforcement", v)}
                             />
                             <Field
                               label="Timber"
                               unit="%"
                               value={input.wastage.timber}
-                              onChange={(v) =>
-                                update("wastage", {
-                                  ...input.wastage,
-                                  timber: parseFloat(v) || 0,
-                                })
-                              }
+                              onChange={(v) => setWaste("timber", v)}
                             />
                             <Field
                               label="Roofing sheets"
                               unit="%"
                               value={input.wastage.roofing_sheets}
-                              onChange={(v) =>
-                                update("wastage", {
-                                  ...input.wastage,
-                                  roofing_sheets: parseFloat(v) || 0,
-                                })
-                              }
+                              onChange={(v) => setWaste("roofing_sheets", v)}
                             />
                             <Field
                               label="Hardcore"
                               unit="%"
                               value={input.wastage.hardcore}
-                              onChange={(v) =>
-                                update("wastage", {
-                                  ...input.wastage,
-                                  hardcore: parseFloat(v) || 0,
-                                })
-                              }
+                              onChange={(v) => setWaste("hardcore", v)}
                             />
                           </div>
                         </SectionCard>

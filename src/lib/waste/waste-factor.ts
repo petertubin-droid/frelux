@@ -22,7 +22,9 @@ export type WasteMaterialKey =
   | "roofing"
   | "steel"
   | "flooring"
-  | "plumbing";
+  | "plumbing"
+  | "cable"
+  | "conduit";
 
 export interface WasteMaterial {
   key: WasteMaterialKey;
@@ -93,6 +95,20 @@ export const WASTE_MATERIALS: readonly WasteMaterial[] = [
     label: "Flooring materials",
     defaultPercent: 10,
     reason: "Staggered layout and room-by-room cuts",
+  },
+  {
+    key: "cable",
+    label: "Cable",
+    defaultPercent: 5,
+    reason:
+      "Offcuts at every pull and termination, plus the tail you cannot pull back once it is clipped.",
+  },
+  {
+    key: "conduit",
+    label: "Conduit",
+    defaultPercent: 5,
+    reason:
+      "Bends, cuts and lengths damaged while chasing a wall, none of which can be reused.",
   },
   {
     key: "plumbing",

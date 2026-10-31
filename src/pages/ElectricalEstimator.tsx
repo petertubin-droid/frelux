@@ -44,6 +44,8 @@ import { printQuote } from "@/lib/estimation/quote-export";
 import { shareableFromQuote } from "@/lib/estimate-share-adapter";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
+import { useWasteBridge } from "@/lib/waste/use-waste-settings";
+import { WasteFactorControl } from "@/components/calculators/WasteFactorControl";
 import {
   ELECTRICAL_MATERIAL_SLUGS,
   calculateElectrical,
@@ -231,6 +233,20 @@ export default function ElectricalEstimator() {
     [ruleRows],
   );
 
+  // Cable and conduit carry their own allowances: a reel is cut per pull and a
+  // conduit bend cannot be reused, so one shared percentage would be wrong for
+  // both. Rules stay authoritative until the visitor chooses.
+  const cableWaste = useWasteBridge("cable", rules.cable_waste_pct);
+  const conduitWaste = useWasteBridge("conduit", rules.conduit_waste_pct);
+  const calcRules = useMemo(
+    () => ({
+      ...rules,
+      cable_waste_pct: cableWaste.value,
+      conduit_waste_pct: conduitWaste.value,
+    }),
+    [rules, cableWaste.value, conduitWaste.value],
+  );
+
   const input: ElectricalInput = useMemo(() => {
     const num = (v: string): number => {
       const n = Number(v);
@@ -284,14 +300,14 @@ export default function ElectricalEstimator() {
   }, [buildingType, counts, runs, labourMode, labourRate]);
 
   const run = useCallback(() => {
-    const res = calculateElectrical(input, rules, priceMap);
+    const res = calculateElectrical(input, calcRules, priceMap);
     setResult(res);
     track("calculator_completed", {
       calculator: "electrical",
       incomplete: res.incomplete,
       lines: res.lines.length,
     });
-  }, [input, rules, priceMap]);
+  }, [input, calcRules, priceMap]);
 
   // Printable professional quote, worldwide-currency formatted.
   const buildQuote = (): Parameters<typeof printQuote>[0] | null => {
@@ -638,6 +654,11 @@ export default function ElectricalEstimator() {
           Labour is always separate from material quantities and is never added
           automatically.
         </p>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <WasteFactorControl material="cable" compact />
+          <WasteFactorControl material="conduit" compact />
+        </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <button
