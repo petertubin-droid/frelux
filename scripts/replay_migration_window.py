@@ -90,6 +90,7 @@ def main() -> int:
 
     prereq = [t.strip() for t in args.prereq.split(",") if t.strip()]
     parts = ["begin;", f"drop schema if exists {SCHEMA} cascade;", f"create schema {SCHEMA};"]
+
     for table in prereq:
         # Views cannot be copied with LIKE; recreate them from their live
         # definition instead.
@@ -109,6 +110,23 @@ end $seed$;"""
         table, _, cols = spec.partition(":")
         for col in (c.strip() for c in cols.split(",") if c.strip()):
             parts.append(f"alter table {SCHEMA}.{table} drop column if exists {col};")
+
+    # Triggers are part of a table's behaviour and several migrations disable
+    # one by name, so the seeded copies carry the live triggers across.
+    for table in prereq:
+        parts.append(
+            f"""do $trg$ declare t record; d text; begin
+  if exists (select 1 from pg_tables where schemaname='public' and tablename='{table}') then
+    for t in select tgname from pg_trigger where tgrelid = 'public.{table}'::regclass and not tgisinternal loop
+      d := pg_get_triggerdef((select oid from pg_trigger where tgrelid='public.{table}'::regclass and tgname=t.tgname));
+      d := replace(d, ' ON public.', ' ON {SCHEMA}.');
+      execute d;
+    end loop;
+  end if;
+end $trg$;"""
+        )
+
+
     for extra in args.extra_file:
         with open(extra) as fh:
             parts.append(f"\n-- ===== seed {os.path.basename(extra)}\n")

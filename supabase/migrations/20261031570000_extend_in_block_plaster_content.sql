@@ -724,7 +724,7 @@ Look at the film, not the colour. If it chalks on a cloth, if it has thinned at 
 Touch-ups where furniture has rubbed, a clean of the kitchen wall, and nothing else. If a wall needs more than that within two years, the cause is almost always moisture or a surface that was painted too early, and both are diagnosable from where the failure sits.$c10$ WHERE slug='brick-block-plaster-maintenance';
 UPDATE public.learn_articles a
 SET status='published', editorial_review_status='approved',
-    editorial_reviewed_by='d74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid,
+    editorial_reviewed_by=(select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid),
     editorial_reviewed_at=now(), published_at=COALESCE(a.published_at, now())
 FROM public.learn_wall_finishing_topics t
 WHERE a.wall_topic_id=t.id AND t.candidate_key='system:in-brick-block-plaster';

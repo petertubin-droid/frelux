@@ -1445,7 +1445,7 @@ WHERE sl.topic_id = a.wall_topic_id
 ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER wall_source_review_attribution;
 
 UPDATE public.learn_wall_finishing_sources s
-SET review_status = 'accepted', reviewed_at = now(), reviewed_by = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid
+SET review_status = 'accepted', reviewed_at = now(), reviewed_by = (select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid)
 FROM public.learn_wall_finishing_topics t
 WHERE s.topic_id = t.id
   AND t.candidate_key IN ('system:au-light-steel-frame','system:au-double-brick')
@@ -1456,7 +1456,7 @@ ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER wall_source_revie
 ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
 
 UPDATE public.learn_wall_finishing_topics t
-SET verification_status = 'verified', verified_at = now(), verified_by = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid
+SET verification_status = 'verified', verified_at = now(), verified_by = (select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid)
 WHERE t.candidate_key IN ('system:au-light-steel-frame','system:au-double-brick')
   AND EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id = t.id AND s.review_status = 'accepted');
 
