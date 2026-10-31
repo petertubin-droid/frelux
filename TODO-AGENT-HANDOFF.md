@@ -29,6 +29,7 @@ Every agent, developer, and automated pipeline working on FRELUX must strictly o
      4. `Supabase Preview` (Supabase GitHub App)
    - Supabase Preview replays migrations on a persistent preview branch DB and applies only migrations NEW to the branch. Editing an already-applied migration in place has NO effect there. Always fix with a NEW migration that sorts chronologically where needed.
    - Every migration must be valid against a clean replay: no references to missing tables or columns, no duplicate version prefixes, and idempotent guards (`IF NOT EXISTS`).
+   - **Chain state verified 2026-10-31 (post-pull):** `freluxproject` (nfgaaohweygwydoelxnf) holds 645 ledger rows against 645 repo files, zero gap and zero orphans. 32 versions were registered without re-execution after probing the live schema (tables, 22 functions, constraints, grants, AU/CA material rows, deactivated NG delivery prices, verified catalogue sources) and confirming every object already existed. 11 files across 10 duplicate-prefix groups were renamed to `+1s`/`+2s` versions (commit recorded below) so no prefix repeats. Apply real SQL only for genuinely absent objects; never re-run a migration whose artefacts are already live.
    - Every commit must pass local verification before pushing:
      `npx tsc --noEmit -p tsconfig.json`
      `npx vitest run src/lib/estimation/__tests__`
