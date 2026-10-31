@@ -40,6 +40,8 @@ type WallArticle = {
   wall_topic_id: string;
   wall_language_code: string | null;
   wall_article_theme: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
 };
 
 type WallArticleCard = {
@@ -173,10 +175,14 @@ export default function WallFinishingArticle() {
 
   useSeo({
     title: article
-      ? `${article.title} | ${marketName} | FRELUX`
+      ? article.meta_title
+        ? `${article.meta_title} | FRELUX`
+        : `${article.title} | ${marketName} | FRELUX`
       : "Wall finishing guidance | FRELUX",
     description:
-      article?.excerpt ?? `Reviewed wall finishing guidance for ${marketName}.`,
+      article?.meta_description ??
+      article?.excerpt ??
+      `Reviewed wall finishing guidance for ${marketName}.`,
     canonicalPath,
     ogType: "article",
     ogImage: article?.cover_image_url ?? undefined,
@@ -194,7 +200,7 @@ export default function WallFinishingArticle() {
       const { data, error } = await supabase
         .from("learn_articles")
         .select(
-          "id,slug,title,excerpt,content,author,published_at,read_time_minutes,cover_image_url,wall_market_code,wall_topic_id,wall_language_code,wall_article_theme",
+          "id,slug,title,excerpt,content,author,published_at,read_time_minutes,cover_image_url,wall_market_code,wall_topic_id,wall_language_code,wall_article_theme,meta_title,meta_description",
         )
         .eq("slug", articleSlug)
         .eq("wall_market_code", market!.code)
