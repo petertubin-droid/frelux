@@ -39,6 +39,7 @@ import {
 } from "../_shared/token-pricing.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import { decideCredit } from "../_shared/wallet-topup.ts";
+import { extractCardToken } from "../_shared/card-capture.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Headers":
@@ -237,10 +238,47 @@ serveWithCors(async (req: Request) => {
         balance_usd?: number;
         reason?: string;
       } | null;
+
+      // A settled card payment can yield a reusable token, which is what lets
+      // auto top-up run unattended later. This never affects the credit above:
+      // the money is owed whether or not a token comes back, and a provider
+      // hiccup here must not turn a successful payment into a 500.
+      let cardSaved = false;
+      if (result?.credited && data.id) {
+        try {
+          const verify = await fetch(
+            `https://api.flutterwave.com/v3/transactions/${data.id}/verify`,
+            {
+              headers: {
+                Authorization: `Bearer ${Deno.env.get("FLUTTERWAVE_SECRET_KEY")}`,
+              },
+              signal: AbortSignal.timeout(8_000),
+            },
+          );
+          const captured = extractCardToken(
+            await verify.json().catch(() => null),
+          );
+          if (captured) {
+            const saved = await admin.rpc("register_api_payment_method", {
+              p_user: userId,
+              p_token: captured.token,
+              p_brand: captured.brand,
+              p_last4: captured.last4,
+              p_exp_month: captured.expMonth,
+              p_exp_year: captured.expYear,
+            });
+            cardSaved = !saved.error;
+          }
+        } catch {
+          cardSaved = false;
+        }
+      }
+
       return json({
         received: true,
         credited: result?.credited ?? false,
         balance_usd: result?.balance_usd ?? null,
+        card_saved: cardSaved,
         ...(result?.reason ? { reason: result.reason } : {}),
       });
     }

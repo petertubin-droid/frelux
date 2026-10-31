@@ -60,3 +60,6 @@ verify_jwt = false
 
 [functions.price-index-review]
 verify_jwt = true
+
+[functions.frelix-wallet-autotopup]
+verify_jwt = false

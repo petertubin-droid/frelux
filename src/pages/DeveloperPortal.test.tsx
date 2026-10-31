@@ -23,6 +23,10 @@ const portalClient = vi.hoisted(() => ({
   // wallet reads it makes.
   getApiWallet: vi.fn(),
   startWalletTopup: vi.fn(),
+  // The wallet card embeds the auto top-up panel, which reads saved cards and
+  // writes the preference. No card is saved here, so it offers manual top-up.
+  listApiPaymentMethods: vi.fn(),
+  setApiAutoTopup: vi.fn(),
 }));
 
 vi.mock("@/lib/frelix-api/portal-client", () => portalClient);
@@ -71,7 +75,11 @@ beforeEach(() => {
     auto_topup_enabled: false,
     auto_topup_threshold_usd: 5,
     auto_topup_amount_usd: 20,
+    auto_topup_consent_at: null,
+    auto_topup_disabled_reason: null,
+    auto_topup_card_id: null,
   });
+  portalClient.listApiPaymentMethods.mockResolvedValue([]);
   portalClient.getPlans.mockResolvedValue([
     {
       key: "free",

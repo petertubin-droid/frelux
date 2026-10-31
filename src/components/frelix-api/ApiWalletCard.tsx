@@ -12,6 +12,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, Wallet, Info } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
+import ApiAutoTopupPanel from "@/components/frelix-api/ApiAutoTopupPanel";
 import {
   getApiWallet,
   startWalletTopup,
@@ -103,19 +104,6 @@ export default function ApiWalletCard({
             {loading ? "…" : formatWalletUsd(balance)}
           </p>
         </div>
-        {wallet?.auto_topup_enabled && (
-          // The preference is stored, but nothing charges from it: doing so
-          // needs a saved payment method, and none exists. Saying "auto top-up
-          // adds $20" would describe a behaviour that does not happen, so the
-          // card states the preference and the limit instead of the promise.
-          <p className="text-xs text-muted-foreground">
-            Auto top-up is requested (
-            {formatWalletUsd(wallet.auto_topup_amount_usd)} below{" "}
-            {formatWalletUsd(wallet.auto_topup_threshold_usd)}) but is not
-            active. It needs a saved payment method, and none is stored, so top
-            up here manually.
-          </p>
-        )}
       </div>
 
       {empty && (
@@ -162,6 +150,7 @@ export default function ApiWalletCard({
           top-up, so nothing here can request an amount it will refuse.
         </p>
       </div>
+      <ApiAutoTopupPanel wallet={wallet} onChanged={load} />
     </section>
   );
 }

@@ -5,11 +5,26 @@ import { ToastProvider } from "@/components/ui/Toast";
 import ApiWalletCard from "./ApiWalletCard";
 import type { ApiWalletSummary } from "@/lib/frelix-api/portal-client";
 
+// The card embeds the auto top-up panel, which reads saved cards. No card is
+// saved in these tests, so the panel states that charging is by hand.
+vi.mock("@/lib/frelix-api/portal-client", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/lib/frelix-api/portal-client")>();
+  return {
+    ...actual,
+    listApiPaymentMethods: async () => [],
+    setApiAutoTopup: async () => ({ enabled: false }),
+  };
+});
+
 const wallet = (over: Partial<ApiWalletSummary> = {}): ApiWalletSummary => ({
   balance_usd: 12.5,
   auto_topup_enabled: false,
   auto_topup_threshold_usd: 5,
   auto_topup_amount_usd: 20,
+  auto_topup_consent_at: null,
+  auto_topup_disabled_reason: null,
+  auto_topup_card_id: null,
   ...over,
 });
 
@@ -95,12 +110,16 @@ describe("ApiWalletCard", () => {
     });
   });
 
-  it("states auto top-up only when it is enabled", async () => {
+  it("offers auto top-up as a real control, not a claim", async () => {
     const { unmount } = renderCard({
       loadWallet: async () => wallet({ auto_topup_enabled: false }),
     });
     await waitFor(() => expect(screen.getByText("$12.50")).toBeTruthy());
-    expect(screen.queryByText(/Auto top-up adds/i)).toBeNull();
+    expect(screen.getByText(/^Auto top-up$/)).toBeTruthy();
+    // With no saved card, the panel explains how one gets saved and offers
+    // nothing that would charge.
+    expect(await screen.findByText(/Top up once by card/i)).toBeTruthy();
+    expect(screen.queryByText(/Turn off auto top-up/i)).toBeNull();
     unmount();
 
     renderCard({
@@ -109,14 +128,10 @@ describe("ApiWalletCard", () => {
           auto_topup_enabled: true,
           auto_topup_amount_usd: 20,
           auto_topup_threshold_usd: 5,
+          auto_topup_consent_at: "2026-10-01T00:00:00Z",
         }),
     });
-    // Stored preference, not a working feature: the card must not claim a
-    // charge that no code performs.
-    await waitFor(() =>
-      expect(screen.getByText(/Auto top-up is requested/i)).toBeTruthy(),
-    );
-    expect(screen.getByText(/not active/i)).toBeTruthy();
-    expect(screen.queryByText(/Auto top-up adds/i)).toBeNull();
+    expect(await screen.findByText(/Turn off auto top-up/i)).toBeTruthy();
+    expect(screen.getByText(/falls below/i)).toBeTruthy();
   });
 });

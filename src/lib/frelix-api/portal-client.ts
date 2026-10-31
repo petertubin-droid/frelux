@@ -268,13 +268,25 @@ export interface ApiWalletSummary {
   auto_topup_enabled: boolean;
   auto_topup_threshold_usd: number;
   auto_topup_amount_usd: number;
+  auto_topup_consent_at: string | null;
+  auto_topup_disabled_reason: string | null;
+  auto_topup_card_id: string | null;
+}
+
+export interface ApiPaymentMethod {
+  id: string;
+  brand: string | null;
+  last4: string | null;
+  exp_month: number | null;
+  exp_year: number | null;
+  is_default: boolean;
 }
 
 export async function getApiWallet(): Promise<ApiWalletSummary | null> {
   const { data, error } = await supabase
     .from("frelux_api_wallets")
     .select(
-      "balance_usd, auto_topup_enabled, auto_topup_threshold_usd, auto_topup_amount_usd",
+      "balance_usd, auto_topup_enabled, auto_topup_threshold_usd, auto_topup_amount_usd, auto_topup_consent_at, auto_topup_disabled_reason, auto_topup_card_id",
     )
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -284,7 +296,55 @@ export async function getApiWallet(): Promise<ApiWalletSummary | null> {
     auto_topup_enabled: Boolean(data.auto_topup_enabled),
     auto_topup_threshold_usd: Number(data.auto_topup_threshold_usd ?? 0),
     auto_topup_amount_usd: Number(data.auto_topup_amount_usd ?? 0),
+    auto_topup_consent_at: data.auto_topup_consent_at ?? null,
+    auto_topup_disabled_reason: data.auto_topup_disabled_reason ?? null,
+    auto_topup_card_id: data.auto_topup_card_id ?? null,
   };
+}
+
+/**
+ * Saved cards, as a safe projection. The chargeable token stays server side,
+ * so this returns brand and last four digits only.
+ */
+export async function listApiPaymentMethods(): Promise<ApiPaymentMethod[]> {
+  const { data, error } = await supabase.rpc("api_payment_methods_for_owner");
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as ApiPaymentMethod[]).map((m) => ({
+    id: m.id,
+    brand: m.brand ?? null,
+    last4: m.last4 ?? null,
+    exp_month: m.exp_month === null ? null : Number(m.exp_month),
+    exp_year: m.exp_year === null ? null : Number(m.exp_year),
+    is_default: Boolean(m.is_default),
+  }));
+}
+
+/**
+ * Turn automatic charges on or off. The database refuses this without a saved
+ * card and a consent version, so the browser is not the authority on consent.
+ */
+export async function setApiAutoTopup(input: {
+  enabled: boolean;
+  thresholdUsd?: number;
+  amountUsd?: number;
+  cardId?: string | null;
+  consentVersion?: string;
+}): Promise<{ error: string } | { enabled: boolean; card_last4?: string }> {
+  const { data, error } = await supabase.rpc("set_api_auto_topup", {
+    p_enable: input.enabled,
+    p_threshold_usd: input.thresholdUsd ?? null,
+    p_amount_usd: input.amountUsd ?? null,
+    p_card_id: input.cardId ?? null,
+    p_consent_version: input.consentVersion ?? null,
+  });
+  if (error) return { error: error.message };
+  const result = (data ?? {}) as {
+    error?: string;
+    enabled?: boolean;
+    card_last4?: string;
+  };
+  if (result.error) return { error: result.error };
+  return { enabled: Boolean(result.enabled), card_last4: result.card_last4 };
 }
 
 /**
