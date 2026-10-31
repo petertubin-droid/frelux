@@ -32,6 +32,76 @@ CREATE_RE = re.compile(
     re.I,
 )
 
+CREATE_TABLE_RE = re.compile(
+    r"create\s+table\s+(?:if\s+not\s+exists\s+)?(?:public\.)?\"?([a-z_][a-z0-9_]*)\"?\s*\(",
+    re.I,
+)
+ALTER_TABLE_RE = re.compile(
+    r"alter\s+table\s+(?:if\s+exists\s+)?(?:only\s+)?(?:public\.)?\"?([a-z_][a-z0-9_]*)\"?\s+(.*?);",
+    re.I | re.S,
+)
+ADD_COL_NAME_RE = re.compile(r"\badd\s+(?:column\s+)?(?:if\s+not\s+exists\s+)?\"?([a-z_][a-z0-9_]*)\"?", re.I)
+INSERT_COLS_RE = re.compile(
+    r"insert\s+into\s+(?:public\.)?\"?([a-z_][a-z0-9_]*)\"?\s*\(([^)]*)\)",
+    re.I | re.S,
+)
+UPDATE_SET_RE = re.compile(
+    r"update\s+(?:public\.)?\"?([a-z_][a-z0-9_]*)\"?\s+(?:[a-z]+\s+)?set\s+(.*?)\bwhere\b",
+    re.I | re.S,
+)
+
+
+def table_columns(sql: str) -> dict[str, set[str]]:
+    """Column names each CREATE TABLE in this file defines."""
+    found: dict[str, set[str]] = {}
+    for m in CREATE_TABLE_RE.finditer(sql):
+        name = m.group(1).lower()
+        depth, i = 1, m.end()
+        while i < len(sql) and depth:
+            if sql[i] == "(":
+                depth += 1
+            elif sql[i] == ")":
+                depth -= 1
+            i += 1
+        body = sql[m.end(): i - 1]
+        cols: set[str] = set()
+        depth = 0
+        current = []
+        for ch in body:
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+            if ch == "," and depth == 0:
+                current.append("\n")
+            else:
+                current.append(ch)
+        for line in "".join(current).split("\n"):
+            line = line.strip()
+            if not line:
+                continue
+            first = re.match(r'"?([a-z_][a-z0-9_]*)"?\s+[a-z]', line, re.I)
+            if first and not re.match(r"^(constraint|primary|unique|check|foreign|exclude)\b", line, re.I):
+                cols.add(first.group(1).lower())
+        found[name] = cols
+    return found
+
+
+def added_columns(sql: str) -> dict[str, set[str]]:
+    out: dict[str, set[str]] = {}
+    for m in ALTER_TABLE_RE.finditer(sql):
+        table = m.group(1).lower()
+        body = m.group(2)
+        if "add" not in body.lower():
+            continue
+        for c in ADD_COL_NAME_RE.finditer(body):
+            name = c.group(1).lower()
+            if name in ("constraint", "primary", "unique", "check", "foreign"):
+                continue
+            out.setdefault(table, set()).add(name)
+    return out
+
+
 # Statements that require an already-existing public object.
 REFERENCE_PATTERNS = [
     re.compile(r"alter\s+table\s+(?:if\s+exists\s+)?(?:only\s+)?public\.\"?([a-z_][a-z0-9_]*)\"?", re.I),
@@ -88,22 +158,64 @@ def main() -> int:
     creator: dict[str, str] = {}
     for version, path in files:
         with open(path) as fh:
-            sql = strip_dollar_blocks(strip_comments(fh.read()))
+            raw = strip_comments(fh.read())
+        # Column definitions are read from the RAW text: guarded blocks such as
+        # "do $$ begin if not exists (...) then alter table ... add column"
+        # really do create the column, and dropping dollar blocks would hide it.
+        sql = strip_dollar_blocks(raw)
         for m in CREATE_RE.finditer(sql):
             creator.setdefault(m.group(1).lower(), version)
 
     created: dict[str, str] = {}
+    columns: dict[str, set[str]] = {}
     problems: list[tuple[str, str, str]] = []
 
     for version, path in files:
         with open(path) as fh:
-            sql = strip_dollar_blocks(strip_comments(fh.read()))
+            raw = strip_comments(fh.read())
+        sql = strip_dollar_blocks(raw)
 
         local = {m.group(1).lower() for m in CREATE_RE.finditer(sql)}
         # Objects with no creating migration at all are genuine legacy
         # furniture (created by hand before the chain existed).
         legacy = {name for name in live if name not in creator}
         known = set(created) | legacy | local
+
+        for table, cols in table_columns(raw).items():
+            columns.setdefault(table, set()).update(cols)
+        for table, cols in added_columns(raw).items():
+            columns.setdefault(table, set()).update(cols)
+
+        # Column-level forward references: an INSERT list or UPDATE SET naming a
+        # column that no earlier file defines is the same replay failure as a
+        # missing table, one level down.
+        for m in INSERT_COLS_RE.finditer(sql):
+            table = m.group(1).lower()
+            known_cols = columns.get(table)
+            if not known_cols:
+                continue
+            for item in m.group(2).split(","):
+                col = item.strip().strip('"').lower()
+                if not re.fullmatch(r"[a-z_][a-z0-9_]*", col):
+                    continue
+                if col not in known_cols:
+                    problems.append(
+                        (os.path.basename(path), f"{table}.{col} (insert column)", "not defined by any earlier migration")
+                    )
+        for m in UPDATE_SET_RE.finditer(sql):
+            table = m.group(1).lower()
+            known_cols = columns.get(table)
+            if not known_cols:
+                continue
+            for raw in m.group(2).split(","):
+                col = re.match(r'\s*"?([a-z_][a-z0-9_]*)"?\s*=', raw, re.I)
+                if not col:
+                    continue
+                name = col.group(1).lower()
+                if name not in known_cols and name not in ("set",):
+                    problems.append(
+                        (os.path.basename(path), f"{table}.{name} (update target)", "not defined by any earlier migration")
+                    )
 
         # ARCHIE lives in its own project and its files must not be touched
         # from here (owner instruction), so they are not part of this gate.
