@@ -11,6 +11,38 @@
 -- market's min_agreeing_observations distinct people reported values inside
 -- max_deviation_percent of the group median.
 
+-- ── 0. The report table this file extends ──────────────────────────────────
+-- A preview branch can be cut from a schema snapshot taken before the community
+-- reporting table existed, so a branch that applies only the newer migrations
+-- reached the ALTER below with nothing to alter (SQLSTATE 42P01). The shape is
+-- the one declared in 20261004150000_feedback_and_price_submissions.sql; every
+-- statement is guarded, so on the production book (where the table already
+-- exists, with its rows) this block does nothing at all.
+create table if not exists public.price_submissions (
+  id           uuid primary key default gen_random_uuid(),
+  submitted_by uuid references auth.users(id) on delete set null,
+  market       text not null default 'NG',
+  region       text not null,
+  item_name    text not null,
+  unit         text not null default 'unit',
+  price        numeric not null check (price > 0),
+  currency     text not null default 'NGN',
+  vendor       text,
+  notes        text,
+  status       text not null default 'pending'
+               check (status in ('pending', 'community_verified', 'approved', 'rejected')),
+  match_group  text not null default '',
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+
+create index if not exists price_submissions_group_status_idx
+  on public.price_submissions (match_group, status);
+create index if not exists price_submissions_submitted_by_idx
+  on public.price_submissions (submitted_by, created_at desc);
+
+alter table public.price_submissions enable row level security;
+
 -- ── 1. Report shape ────────────────────────────────────────────────────────
 alter table public.price_submissions
   add column if not exists material_slug text,

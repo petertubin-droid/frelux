@@ -20,18 +20,27 @@ test.describe("Calculators legacy route", () => {
     expect(page.url()).toContain("/construction-tools");
 
     // Card titles from the CONSTRUCTION_TOOLS registry (finishes group).
-    const expectedTools = [
+    // The library pages the registry ten cards at a time, so only the first
+    // ten tools are on the opening page.
+    const firstPageTools = [
       "Paint Calculator",
       "Wall Screeding",
       "Tile Calculator",
-      "Wall Finish Estimator",
     ];
 
-    for (const tool of expectedTools) {
+    for (const tool of firstPageTools) {
       await expect(
         page.getByRole("link", { name: new RegExp(tool) }).first(),
       ).toBeVisible();
     }
+
+    // Wall Finish Estimator is the eleventh tool in registry order, so it is
+    // the first card on page two.
+    await page.goto("/construction-tools?page=2");
+    await page.waitForLoadState("networkidle");
+    await expect(
+      page.getByRole("link", { name: /Wall Finish Estimator/ }).first(),
+    ).toBeVisible();
   });
 
   test("navigates to the paint calculator", async ({ page }) => {
