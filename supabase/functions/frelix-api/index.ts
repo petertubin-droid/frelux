@@ -56,6 +56,7 @@ import {
 } from "./_engines.bundle.js";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
+  attachRateLimitHeaders,
   checkRateLimit,
   getRateLimitKey,
   RATE_LIMITS,
@@ -1676,13 +1677,15 @@ async function handleKeys(
 // ---------------------------------------------------------
 // Router
 // ---------------------------------------------------------
-serveWithCors(async (req: Request) => {
-  // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
-  // (falls back to client IP). OPTIONS preflights are answered at
-  // the CORS boundary and never reach this check.
-  const rl = checkRateLimit(await getRateLimitKey(req), RATE_LIMITS.AI);
-  if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
-
+// Audit fix M-7 (2026-09-11): rate limit this endpoint per user (falls back to
+// client IP). OPTIONS preflights are answered at the CORS boundary and never
+// reach this check.
+//
+// The router is a plain function so the limiter can wrap it rather than sit
+// inside it: every return path then carries the caller's remaining budget, not
+// just the refusal. Previously only the 429 disclosed the limit, so an
+// integrator could only learn it by being turned away mid-batch.
+async function routeRequest(req: Request): Promise<Response> {
   const requestId = crypto.randomUUID();
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
@@ -1766,4 +1769,14 @@ serveWithCors(async (req: Request) => {
       requestId,
     );
   }
+}
+
+serveWithCors(async (req: Request) => {
+  const rl = checkRateLimit(await getRateLimitKey(req), RATE_LIMITS.AI);
+  if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
+  return attachRateLimitHeaders(await routeRequest(req), {
+    maxRequests: RATE_LIMITS.AI.maxRequests,
+    remaining: rl.remaining,
+    resetAt: rl.resetAt,
+  });
 });

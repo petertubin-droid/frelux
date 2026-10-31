@@ -90,6 +90,34 @@ export function rateLimitHeaders(
   };
 }
 
+/**
+ * Put the caller's budget on the response itself.
+ *
+ * A caller that only learns its limit by being refused cannot back off before
+ * it happens, and an integrator cannot see how much headroom a batch has. So
+ * the counts go on successful responses too, not just the 429.
+ *
+ * Header mutation is deliberately attempted rather than assumed: a streamed or
+ * otherwise immutable response cannot take new headers, and a missing header
+ * must never turn a successful call into a failure.
+ */
+export function attachRateLimitHeaders(
+  response: Response,
+  state: { maxRequests: number; remaining: number; resetAt: number },
+): Response {
+  try {
+    response.headers.set("X-RateLimit-Limit", String(state.maxRequests));
+    response.headers.set("X-RateLimit-Remaining", String(state.remaining));
+    response.headers.set(
+      "X-RateLimit-Reset",
+      String(Math.ceil(state.resetAt / 1000)),
+    );
+  } catch {
+    // Immutable or streamed response: leave it exactly as it is.
+  }
+  return response;
+}
+
 export const RATE_LIMITS = {
   PAYMENT: { maxRequests: 10, windowMs: 60_000 },
   AI: { maxRequests: 20, windowMs: 60_000 },
