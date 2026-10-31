@@ -1,0 +1,114 @@
+{
+  "$comment": "Supplier catalogues verified by fetching them, not by assumption. Every entry returned a machine readable product list containing building materials when probed on 2026-10-31. Registration is not trust: the scanner still has to match each product to a material, and one catalogue observation does not become a price until a second witness or an admin approval arrives. Regenerate with scripts/price-scan/probe-catalogues.mjs. Tool nouns are excluded from the building count, because a paint sprayer is not paint.",
+  "probed_at": "2026-10-31T09:50:00.000Z",
+  "probe_method": "GET <base>/products.json?limit=250 (Shopify), then GET <base>/wp-json/wc/store/products?per_page=100 (WooCommerce)",
+  "minimum_building_products": 10,
+  "sources": [
+    {
+      "market": "AU",
+      "retailer": "Plyco",
+      "publisher": "Plyco (AU)",
+      "base_url": "https://plyco.com.au",
+      "catalogue_url": "https://plyco.com.au/products.json?limit=250",
+      "platform": "shopify",
+      "source_class": "retail_catalogue",
+      "source_format": "json",
+      "products": 133,
+      "building_products": 45,
+      "examples": [
+        "Hoop Pine AC Plywood 18mm",
+        "Hoop Pine AA Marine Plywood 24mm",
+        "Premium Birch Plywood 30mm"
+      ],
+      "access_status": "ok",
+      "live_state": "active. Two observations written to market_price_observations for the new AU plywood materials; not promoted to the price book yet because a single catalogue observation is not consensus.",
+      "access_notes": "Timber and sheet goods in AUD. Hedges the Australian gap in panel products."
+    },
+    {
+      "market": "CA",
+      "retailer": "Handley Lumber",
+      "publisher": "Handley Lumber (CA)",
+      "base_url": "https://handleylumber.com",
+      "catalogue_url": "https://handleylumber.com/products.json?limit=250",
+      "platform": "shopify",
+      "source_class": "retail_catalogue",
+      "source_format": "json",
+      "products": 250,
+      "building_products": 55,
+      "examples": [
+        "Treated Lumber 2x6",
+        "Construction Screws",
+        "Dock Hardware"
+      ],
+      "access_status": "ok",
+      "live_state": "active, 250 rows staged, none mapped. Canadian materials are pipes, rebar and gypsum products, so a lumber merchant has nothing to attach to yet.",
+      "access_notes": "Lumber and building supplies in CAD. Needs matching CA material rows before it can price anything."
+    }
+  ],
+  "rejected": [
+    {
+      "base_url": "https://paintaccess.com.au",
+      "market": "AU",
+      "reason": "tools and accessories merchant: sprayers, roller sleeves, hoses and trays. Its paint matches were application tools, so it cannot price paint. Deactivated live."
+    },
+    {
+      "base_url": "https://woodworkers.ie",
+      "market": "IE",
+      "reason": "Ireland is not one of the 32 priced markets, so 458 staged sheet-material rows cannot feed any price book. Deactivated live, rows retained."
+    },
+    {
+      "base_url": "https://bravikon.com",
+      "market": "GB",
+      "reason": "unreachable from the build environment (status 0). The GB book already carries a Bravikon sand price recorded in production, so this is a probe failure rather than a dead source."
+    },
+    {
+      "base_url": "https://insulationsuperstore.co.uk",
+      "market": "GB",
+      "reason": "blocked (403). Server-side fetch refused."
+    },
+    {
+      "base_url": "https://plumbworld.co.uk",
+      "market": "GB",
+      "reason": "blocked (403). Server-side fetch refused."
+    },
+    {
+      "base_url": "https://interceramic.com",
+      "market": "MX",
+      "reason": "no machine readable catalogue on either endpoint. Mexico still has no verified supplier source."
+    },
+    {
+      "base_url": "https://buytiles.ae",
+      "market": "AE",
+      "reason": "unreachable (status 0). The UAE still has no verified supplier source."
+    },
+    {
+      "base_url": "https://tiledepot.co.ke",
+      "market": "KE",
+      "reason": "unreachable (status 0). Kenya still has no verified supplier source."
+    },
+    {
+      "base_url": "https://tiletoria.co.za",
+      "market": "ZA",
+      "reason": "WooCommerce catalogue returns 4 building products, below the 10 product threshold for a usable source."
+    },
+    {
+      "base_url": "https://foursevenfive.ca",
+      "market": "CA",
+      "reason": "84 products but only 3 building matches and no material counterpart; specialist building science supplier."
+    },
+    {
+      "base_url": "https://workerswood.ca",
+      "market": "CA",
+      "reason": "36 products, 1 building match; specialist hardwood supplier, nothing to map."
+    }
+  ],
+  "false_matches_found": [
+    {
+      "market": "CA",
+      "title": "Irwin 18 Inch Pipe Wrench Cast Iron",
+      "was_mapped_to": "ca-pipe-drainage",
+      "why_wrong": "a wrench is a tool; the price would have described PVC drainage pipe",
+      "action": "observation deleted, row quarantined as rejected_tool, and catalogue_title_is_tool() now blocks tool titles at the write boundary (migration 20261031130000)"
+    }
+  ]
+}
