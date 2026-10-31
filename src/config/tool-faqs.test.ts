@@ -95,6 +95,7 @@ describe("tool FAQ registry", () => {
       toolFaqGroupsByCategory("finishes").length +
         toolFaqGroupsByCategory("structure").length +
         toolFaqGroupsByCategory("services").length +
+        toolFaqGroupsByCategory("quotes").length +
         toolFaqGroupsByCategory("platform").length,
     ).toBe(TOOL_FAQS.length);
   });
@@ -207,5 +208,40 @@ describe("FAQ schema coverage", () => {
         /answer: \(\s*</,
       );
     }
+  });
+});
+
+describe("structural and quote coverage", () => {
+  it("gives every structural tool five questions", () => {
+    const structure = toolFaqGroupsByCategory("structure");
+    expect(structure.length).toBeGreaterThanOrEqual(5);
+    for (const group of structure) {
+      expect(
+        group.questions.length,
+        `${group.slug} needs five questions`,
+      ).toBeGreaterThanOrEqual(5);
+    }
+  });
+
+  it("gives each quote engine five questions", () => {
+    const quotes = toolFaqGroupsByCategory("quotes");
+    expect(quotes.map((g) => g.slug).sort()).toEqual([
+      "client-estimate",
+      "quotes",
+    ]);
+    for (const group of quotes) {
+      expect(
+        group.questions.length,
+        `${group.slug} needs five questions`,
+      ).toBeGreaterThanOrEqual(5);
+    }
+  });
+
+  it("keeps the quote answers honest about tax and currency", () => {
+    const quoteCopy = toolFaqGroupsByCategory("quotes")
+      .flatMap((g) => g.questions.map((q) => q.a))
+      .join(" ");
+    expect(quoteCopy).toMatch(/tax as undetermined|tax is never applied/i);
+    expect(quoteCopy).toMatch(/does not convert money/i);
   });
 });
