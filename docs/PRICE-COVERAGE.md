@@ -76,3 +76,49 @@ markets. The source is deactivated with its rows retained.
 5. Re-run the scan and confirm the market's verification snapshot in
    `src/lib/international/price-verification.json` improves. If it does not, the
    coverage claim on the site does not change either.
+
+## The six requested markets, probed on 2026-10-31
+
+Every market leader in China, Canada, Mexico, Australia, the UAE and Italy was
+asked for a machine readable catalogue. Not one obliged.
+
+| Market | Leader            | Answer                                               |
+| ------ | ----------------- | ---------------------------------------------------- |
+| CN     | Alibaba           | no catalogue to a server request                     |
+| CN     | Made-in-China     | 404 on both endpoints                                |
+| CA     | Home Depot Canada | no response to server fetch                          |
+| CA     | Rona              | 403                                                  |
+| CA     | Kent              | 404                                                  |
+| MX     | CEMEX             | 400 to server fetch                                  |
+| MX     | Interceramic      | 404                                                  |
+| AU     | Bunnings          | no response                                          |
+| AU     | Beaumont Tiles    | reachable, but 229 of 231 products are $0.00 samples |
+| AE     | Danube Home       | 404                                                  |
+| AE     | ACE Hardware UAE  | 404                                                  |
+| IT     | Leroy Merlin      | 403                                                  |
+| IT     | Bricocenter       | 403                                                  |
+| IT     | Tecnomat          | 403                                                  |
+| US     | Home Depot        | 404                                                  |
+| US     | Lowe's            | 403                                                  |
+| GB     | Screwfix          | 404                                                  |
+
+The pattern is not bad luck. Large merchants block server-side fetch or run
+platforms with no public product API, while small merchants publish freely. That
+is why coverage grows from mid-size merchants such as Plyco, and why scraping
+leaders will never be the answer here.
+
+What this means per market:
+
+- **AU** gained real plywood prices from Plyco. Beaumont Tiles is a showroom
+  sample catalogue and is deactivated. More merchants like Plyco are the path.
+- **CA** has Handley Lumber staged and waiting. Canada's material list is pipes,
+  rebar and gypsum, so lumber has nowhere to land until CA material rows exist.
+- **MX, AE, CN, IT** have no verified source and no reachable catalogue. Gulf and
+  Italian merchants trade through price lists and distributors, so these are
+  outreach markets. Community price reporting on the material tracker is the only
+  live path in the meantime.
+
+All seventeen leaders are recorded in `price_scan_sources` with
+`access_status = blocked_or_unavailable` and `is_active = false`, so the outreach
+list lives next to the price book and nobody probes the same dead end twice. The
+same evidence is in `scripts/price-scan/market-leaders.json`.
