@@ -28,6 +28,12 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # Supabase Preview replays the chain against an empty database, where a
+      # migration that touches an object created by a later version fails even
+      # though production accepted it. Catch that here instead of on the branch.
+      - name: Migration replay order
+        run: python3 scripts/check-migration-order.py
+
       - name: Unit tests (app)
         run: npx vitest run
 

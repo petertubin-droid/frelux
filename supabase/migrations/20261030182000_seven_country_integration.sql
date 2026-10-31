@@ -128,6 +128,114 @@ drop policy if exists market_index_series_write on public.market_index_series;
 create policy market_index_series_write on public.market_index_series for all to authenticated using (true) with check (true);
 create index if not exists market_index_series_market_period on public.market_index_series (market, period_start desc);
 
+-- ── Tables this migration extends ─────────────────────────
+-- The observation and market price tables are owned by
+-- 20261030191001_market_price_scanner_32, which sorts after this file. Creating
+-- them here with the same definition (IF NOT EXISTS, so that migration's own
+-- CREATE is a no-op) is what makes the statements below valid on a clean
+-- replay: without it the branch dies at "relation does not exist", while
+-- production never noticed because both tables already existed there.
+create table if not exists public.market_price_observations (
+  id uuid primary key default gen_random_uuid(),
+  market text not null,
+  material_slug text not null,
+  material_id uuid references public.estimation_materials (id) on delete set null,
+  brand text not null default '',
+  specification text not null default '',
+  unit text not null default '',
+  price numeric not null check (price > 0),
+  currency text not null,
+  supplier_name text,
+  supplier_location text,
+  source_id uuid references public.price_scan_sources (id) on delete set null,
+  source_url text,
+  source_format text,
+  extraction text,
+  confidence text not null default 'medium'
+    check (confidence in ('high','medium','low')),
+  observed_on date not null default current_date,
+  observed_at timestamptz not null default now(),
+  run_id uuid,
+  is_test boolean not null default false,
+  raw jsonb
+);
+
+create table if not exists public.market_material_prices (
+  id uuid primary key default gen_random_uuid(),
+  market text not null,
+  market_name text,
+  material_id uuid references public.estimation_materials (id) on delete cascade,
+  material_slug text not null,
+  product_name text,
+  category text,
+  brand text not null default '',
+  specification text not null default '',
+  unit text not null default '',
+  currency text,
+  supplier_price numeric,
+  median_price numeric,
+  local_estimate numeric,
+  transport_cost numeric,
+  delivery_cost numeric,
+  frelux_price numeric,
+  current_price numeric,
+  min_observed numeric,
+  max_observed numeric,
+  avg_price numeric,
+  supplier_name text,
+  supplier_location text,
+  source_url text,
+  last_scanned_at timestamptz,
+  last_verified_at timestamptz,
+  previous_price numeric,
+  price_change_percent numeric,
+  confidence_score numeric,
+  verification_status text not null default 'no_data'
+    check (verification_status in ('verified','unverified','stale','no_data')),
+  observations_count integer not null default 0,
+  suppliers_count integer not null default 0,
+  is_test boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (market, material_slug, brand, specification, unit)
+);
+
+create table if not exists public.market_scan_settings (
+  market text primary key
+    references public.market_profiles (country_code)
+    on update cascade on delete cascade,
+  is_enabled boolean not null default true,
+  cadence_hours integer not null default 24 check (cadence_hours between 1 and 720),
+  staleness_days integer not null default 30 check (staleness_days between 1 and 365),
+  max_sources_per_run integer not null default 60
+    check (max_sources_per_run between 1 and 500),
+  alert_threshold_percent numeric not null default 5,
+  transport_percent numeric not null default 0 check (transport_percent >= 0),
+  delivery_percent numeric not null default 0 check (delivery_percent >= 0),
+  last_run_at timestamptz,
+  last_success_at timestamptz,
+  next_run_at timestamptz not null default now(),
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.market_price_alerts (
+  id uuid primary key default gen_random_uuid(),
+  market text not null,
+  material_slug text,
+  kind text not null
+    check (kind in ('increase','decrease','stale','source_failed','no_sources','no_price')),
+  severity text not null default 'info'
+    check (severity in ('info','warning','critical')),
+  message text not null,
+  value numeric,
+  previous_value numeric,
+  acknowledged_at timestamptz,
+  acknowledged_by uuid,
+  created_at timestamptz not null default now()
+);
+
 -- ── International price records ───────────────────────────
 alter table public.market_price_observations
   add column if not exists country_name text,
