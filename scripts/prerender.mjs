@@ -2309,6 +2309,12 @@ const routes = [
       "Generate a professional bill of quantities from your FRELUX estimates.",
   },
   {
+    path: "/boq-studio",
+    title: "Bill of Quantities Studio | FRELUX SMART CALC",
+    description:
+      "Build a structured bill of quantities from your FRELUX calculator results and export it to PDF, Excel or print.",
+  },
+  {
     path: "/brand-studio",
     title: "FRELUX Brand Studio | FRELUX SMART CALC",
     description:

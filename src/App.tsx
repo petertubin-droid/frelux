@@ -181,6 +181,7 @@ const AdminMaterialCatalog = lazy(
 const AdminTimelineTemplates = lazy(
   () => import("@/pages/admin/AdminTimelineTemplates"),
 );
+const AdminBoqTemplates = lazy(() => import("@/pages/admin/AdminBoqTemplates"));
 const AdminQuotationSettings = lazy(
   () => import("@/pages/admin/AdminQuotationSettings"),
 );
@@ -211,9 +212,7 @@ const AdminSiteIntelligence = lazy(
   () => import("@/pages/admin/AdminSiteIntelligence"),
 );
 
-const SiteIntelligence = lazy(
-  () => import("@/pages/SiteIntelligence"),
-);
+const SiteIntelligence = lazy(() => import("@/pages/SiteIntelligence"));
 
 const DiasporaTracker = lazy(() => import("@/pages/DiasporaTracker"));
 
@@ -221,9 +220,7 @@ const DiasporaProject = lazy(() => import("@/pages/DiasporaProject"));
 
 const DiasporaInvite = lazy(() => import("@/pages/DiasporaInvite"));
 
-const AdminPriceIndex = lazy(
-  () => import("@/pages/admin/AdminPriceIndex"),
-);
+const AdminPriceIndex = lazy(() => import("@/pages/admin/AdminPriceIndex"));
 const AdminCodeRegistry = lazy(() => import("@/pages/admin/AdminCodeRegistry"));
 const AdminCarbonFactors = lazy(
   () => import("@/pages/admin/AdminCarbonFactors"),
@@ -458,6 +455,7 @@ const ClientEstimateView = lazy(() => import("@/pages/ClientEstimateView"));
 const ClientEstimateEditor = lazy(() => import("@/pages/ClientEstimateEditor"));
 const MaterialPriceTracker = lazy(() => import("@/pages/MaterialPriceTracker"));
 const BoqGenerator = lazy(() => import("@/pages/BoqGenerator"));
+const BoqStudio = lazy(() => import("@/pages/BoqStudio"));
 const GlobalMarkets = lazy(() => import("@/pages/GlobalMarkets"));
 const AdminPricePipeline = lazy(
   () => import("@/pages/admin/AdminPricePipeline"),
@@ -1687,6 +1685,14 @@ export default function App() {
                           element={<BoqGenerator />}
                         />
                         <Route
+                          path="/boq-studio"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <BoqStudio />
+                            </Suspense>
+                          }
+                        />
+                        <Route
                           path="/global-markets"
                           element={<GlobalMarkets />}
                         />
@@ -2289,6 +2295,14 @@ export default function App() {
                           element={
                             <Suspense fallback={<PageLoader />}>
                               <AdminQuotationSettings />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="boq-templates"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminBoqTemplates />
                             </Suspense>
                           }
                         />

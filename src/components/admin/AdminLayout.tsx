@@ -296,6 +296,11 @@ const navModules: NavModule[] = [
         icon: FileSignature,
       },
       {
+        label: "BOQ Templates",
+        to: "/admin/boq-templates",
+        icon: FileStack,
+      },
+      {
         label: "PDF Branding & Templates",
         to: "/admin/pdf-branding",
         icon: FileText,

@@ -309,6 +309,7 @@ const routes = [
   { path: "/doors-windows", priority: "0.9", changefreq: "monthly" },
   { path: "/generator", priority: "0.9", changefreq: "monthly" },
   { path: "/boq-generator", priority: "0.9", changefreq: "monthly" },
+  { path: "/boq-studio", priority: "0.9", changefreq: "monthly" },
   { path: "/cash-flow-timeline", priority: "0.9", changefreq: "monthly" },
   { path: "/circular-reuse", priority: "0.9", changefreq: "monthly" },
   { path: "/contractor-credit", priority: "0.9", changefreq: "monthly" },
