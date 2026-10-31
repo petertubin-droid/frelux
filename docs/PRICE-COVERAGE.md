@@ -216,3 +216,39 @@ US independents publish no product feed and the chains block fetchers. Until a
 US merchant with a real catalogue appears, the US book's cement and aggregate
 rows cannot be corroborated locally. Outreach, or a US supplier whose own
 e-commerce runs on Shopify or WooCommerce, is the only route.
+
+### The full GB catalogue, and why it matters more than the first page
+
+The Woo store pages at 100 products; `X-WP-Total` says 357. Staging only the
+first page hid the materials that mattered, because aggregates and blocks sit
+deeper in the catalogue. All 357 are now staged and every one is priced.
+
+What it sells, and what the GB reference figures claim for the same thing:
+
+| Item                               | Real price | Derived per book unit    | GB reference now |
+| ---------------------------------- | ---------- | ------------------------ | ---------------- |
+| Mannok cement 25 kg                | £6.50      | £13.00 per 50 kg         | £6.00            |
+| Grit Sand, 900 kg bulk bag         | £50.00     | £88.89/m³ at 1600 kg/m³  | £10.08           |
+| Red Building Sand, 900 kg bulk bag | £50.00     | £88.89/m³ at 1600 kg/m³  | £10.08           |
+| MOT Type 1, 900 kg bulk bag        | £50.00     | £100.00/m³ at 1800 kg/m³ | not priced in GB |
+| Solid Dense 7.3N block, 100 mm     | £1.50      | £1.50 each               | £0.38            |
+| Solid Dense 7.3N block, 140 mm     | £1.80      | £1.80 each               | £0.38            |
+| Fibolite 100 mm                    | £2.00      | £2.00 each               | £0.38            |
+| Thermalite 3.6N 100 mm             | £2.20      | £2.20 each               | £0.38            |
+
+The UK reference book understates sand by roughly 8.8x and blockwork by roughly
+4x. Anyone costing a slab or a wall in GBP today is being given a number that
+cannot buy the material. That is the concrete cost of leaving these rows as
+exchange-rate references, and it is the argument for promoting them.
+
+Density is the one judgement call, so it is stated rather than buried: sand at
+1600 kg/m³ dry and Type 1 at 1800 kg/m³ loose. A half-tonne error in either moves
+the per-m³ figure by about 6%.
+
+Blocks must be mapped by specification, not by the word "block". A 100 mm dense
+unit at £1.50 and a 100 mm aerated unit at £2.20 are not interchangeable, and the
+140 mm unit is a different row again. Mapping the cheapest listing to
+`block-per-piece` would understate every 140 mm wall.
+
+Promotion is still blocked on the service-role key. These 357 rows are staged and
+auditable, not yet priced into the book.
