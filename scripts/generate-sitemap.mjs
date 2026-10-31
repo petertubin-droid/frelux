@@ -20,6 +20,11 @@ const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || "";
 
 const routes = [
+  {
+    path: "/learn/build-in-nigeria-from-abroad",
+    priority: "0.8",
+    changefreq: "monthly",
+  },
   { path: "/map", priority: "0.7", changefreq: "weekly" },
   { path: "/", priority: "1.0", changefreq: "weekly" },
   { path: "/calculators", priority: "0.9", changefreq: "monthly" },

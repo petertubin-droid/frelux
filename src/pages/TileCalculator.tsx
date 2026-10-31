@@ -98,6 +98,7 @@ import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
 import { useWasteSettings } from "@/lib/waste/use-waste-settings";
+import DisplayPreferencesBar from "@/components/measurement/DisplayPreferencesBar";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { tx } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
@@ -559,6 +560,13 @@ export default function TileCalculator({
             <p className="mt-1 text-sm text-muted-foreground">
               One surface, or the floors of a whole house?
             </p>
+            <DisplayPreferencesBar
+              compact
+              className="mt-4 text-left"
+              onSystemChange={(system) =>
+                update("unit", system === "imperial" ? "feet" : "meters")
+              }
+            />
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {(
                 [

@@ -170,6 +170,7 @@ import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
 import { useWasteBridge } from "@/lib/waste/use-waste-settings";
+import DisplayPreferencesBar from "@/components/measurement/DisplayPreferencesBar";
 import { stageStudioImport } from "@/lib/document-studio";
 
 export default function PaintCalculator({
@@ -1140,6 +1141,13 @@ export default function PaintCalculator({
                 currentData={input as unknown as Record<string, unknown>}
               />
             </div>
+            <DisplayPreferencesBar
+              compact
+              className="mb-4"
+              onSystemChange={(system) =>
+                update("unit", system === "imperial" ? "feet" : "meters")
+              }
+            />
             {step === 1 && <Step1 input={input} update={update} />}
             {step === 2 && (
               <Step2

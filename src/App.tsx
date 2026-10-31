@@ -444,6 +444,9 @@ const SellerDashboard = lazy(
 const PaintComparison = lazy(() => import("@/pages/PaintComparison"));
 const Gallery = lazy(() => import("@/pages/Gallery"));
 const CaseStudies = lazy(() => import("@/pages/CaseStudies"));
+const BuildInNigeriaFromAbroad = lazy(
+  () => import("@/pages/learn/BuildInNigeriaFromAbroad"),
+);
 const CaseStudyDetail = lazy(() => import("@/pages/CaseStudyDetail"));
 const PropertiesDashboard = lazy(() => import("@/pages/PropertiesDashboard"));
 const GalleryUpload = lazy(() => import("@/pages/GalleryUpload"));
@@ -2474,6 +2477,10 @@ export default function App() {
                       {/* Project intelligence routes */}
                       <Route path="/gallery" element={<Gallery />} />
                       <Route path="/case-studies" element={<CaseStudies />} />
+                      <Route
+                        path="/learn/build-in-nigeria-from-abroad"
+                        element={<BuildInNigeriaFromAbroad />}
+                      />
                       <Route
                         path="/case-studies/:id"
                         element={<CaseStudyDetail />}

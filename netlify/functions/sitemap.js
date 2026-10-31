@@ -36,6 +36,7 @@ const SITE_URL = (
 // URLs with 6 redirects.
 const STATIC_PATHS = [
   "/",
+  "/learn/build-in-nigeria-from-abroad/",
   "/calculators/",
   "/construction-tools/",
   "/tools/finishes/",

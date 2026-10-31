@@ -48,6 +48,15 @@ const ogImage = `${SITE_URL}/og-image.png`;
 // ── Route metadata ──────────────────────────────────────────────────
 const routes = [
   {
+    path: "/learn/build-in-nigeria-from-abroad",
+    title:
+      "How to Estimate and Budget Construction Costs in Nigeria from the US or UK | FRELUX",
+    description:
+      "A practical process for diaspora builders: measure in feet or metres, price quantities in naira, read costs in USD or GBP without mistaking a conversion for a local price, and send a builder a document.",
+    priority: "0.8",
+    changefreq: "monthly",
+  },
+  {
     path: "/map",
     title:
       "Construction Map: Professionals, Projects and Materials on a Globe | FRELUX",
@@ -2310,13 +2319,15 @@ const routes = [
   },
   {
     path: "/suppliers",
-    title: "Construction material suppliers and verified prices | FRELUX SMART CALC",
+    title:
+      "Construction material suppliers and verified prices | FRELUX SMART CALC",
     description:
       "Find construction material suppliers by city, category and verification level. Compare specifications, prices and delivery coverage, then request quotations.",
   },
   {
     path: "/suppliers/register",
-    title: "Register a construction material supply business | FRELUX SMART CALC",
+    title:
+      "Register a construction material supply business | FRELUX SMART CALC",
     description:
       "List your material catalogue, delivery coverage and prices for FRELUX buyers. Registration starts unverified and each level states what was checked.",
   },
