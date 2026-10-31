@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import FaqArticle from "@/pages/FaqArticle";
 import { getFaqArticle } from "@/config/faq-articles";
 import { mergedArticle } from "@/config/faq-longform";
+import { mergedQuestions } from "@/config/faq-longform";
 import { getToolFaqGroup } from "@/config/tool-faqs";
 
 const useFaqJsonLd = vi.fn();
@@ -65,7 +66,10 @@ describe("FaqArticle", () => {
     renderArticle("steel-beam-calculator");
     const group = getToolFaqGroup("steel-beam-calculator")!;
     expect(useFaqJsonLd).toHaveBeenCalledWith(
-      group.questions.map((q) => ({ question: q.q, answer: q.a })),
+      mergedQuestions(group.slug, group.questions).map((q) => ({
+        question: q.q,
+        answer: q.a,
+      })),
     );
   });
 

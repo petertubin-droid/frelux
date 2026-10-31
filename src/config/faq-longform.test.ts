@@ -12,7 +12,7 @@ import { TOOL_FAQS } from "@/config/tool-faqs";
  * with a long form article before the site is considered finished, so this
  * number only ever falls.
  */
-const SHORT_COPY_BACKLOG = 56;
+const SHORT_COPY_BACKLOG = 0;
 
 const rows = TOOL_FAQS.map((group) => ({
   slug: group.slug,

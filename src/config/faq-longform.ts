@@ -16,7 +16,19 @@
 
 import type { FaqArticle } from "@/config/faq-articles";
 import { FINISHES_LONGFORM } from "@/config/faq-longform/finishes";
+import { COMMERCIAL_LONGFORM } from "@/config/faq-longform/commercial";
+import { COMMERCIAL2_LONGFORM } from "@/config/faq-longform/commercial2";
+import { COMMERCIAL3_LONGFORM } from "@/config/faq-longform/commercial3";
+import { FINISHES2_LONGFORM } from "@/config/faq-longform/finishes2";
+import { FINISHES3_LONGFORM } from "@/config/faq-longform/finishes3";
+import { PROJECT_LONGFORM } from "@/config/faq-longform/project";
+import { PROJECT2_LONGFORM } from "@/config/faq-longform/project2";
+import { QUOTES_LONGFORM } from "@/config/faq-longform/quotes";
+import { SERVICES_LONGFORM } from "@/config/faq-longform/services";
+import { SERVICES2_LONGFORM } from "@/config/faq-longform/services2";
 import { STRUCTURE_LONGFORM } from "@/config/faq-longform/structure";
+import { STRUCTURE2_LONGFORM } from "@/config/faq-longform/structure2";
+import { STRUCTURE3_LONGFORM } from "@/config/faq-longform/structure3";
 
 export interface LongFormArticle {
   /** Introduction, with a blank line between paragraphs. */
@@ -33,6 +45,18 @@ export interface LongFormArticle {
 export const LONG_FORM_ARTICLES: Record<string, LongFormArticle> = {
   ...FINISHES_LONGFORM,
   ...STRUCTURE_LONGFORM,
+  ...STRUCTURE2_LONGFORM,
+  ...STRUCTURE3_LONGFORM,
+  ...SERVICES_LONGFORM,
+  ...QUOTES_LONGFORM,
+  ...SERVICES2_LONGFORM,
+  ...PROJECT_LONGFORM,
+  ...PROJECT2_LONGFORM,
+  ...FINISHES2_LONGFORM,
+  ...FINISHES3_LONGFORM,
+  ...COMMERCIAL_LONGFORM,
+  ...COMMERCIAL2_LONGFORM,
+  ...COMMERCIAL3_LONGFORM,
 };
 
 export function longFormFor(slug: string): LongFormArticle | null {
