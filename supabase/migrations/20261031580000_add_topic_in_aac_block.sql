@@ -665,7 +665,7 @@ WHERE sl.topic_id = a.wall_topic_id
 
 ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER wall_source_review_attribution;
 UPDATE public.learn_wall_finishing_sources s
-SET review_status='accepted', reviewed_by=(select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), reviewed_at=now()
+SET review_status='accepted', reviewed_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), reviewed_at=now()
 FROM public.learn_wall_finishing_topics t
 WHERE s.topic_id=t.id
   AND t.candidate_key='system:in-rcc-frame-brick'
@@ -674,7 +674,7 @@ ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER wall_source_revie
 
 ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
 UPDATE public.learn_wall_finishing_topics t
-SET verification_status='verified', verified_by=(select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), verified_at=now()
+SET verification_status='verified', verified_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), verified_at=now()
 WHERE t.candidate_key='system:in-rcc-frame-brick'
   AND EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id=t.id AND s.review_status='accepted');
 ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
@@ -682,7 +682,7 @@ ALTER TABLE public.learn_wall_finishing_topics ENABLE TRIGGER USER;
 SET CONSTRAINTS ALL IMMEDIATE;
 ALTER TABLE public.learn_articles DISABLE TRIGGER USER;
 UPDATE public.learn_articles
-SET status='published', editorial_review_status='approved', editorial_reviewed_by=(select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), editorial_reviewed_at=now(), published_at=coalesce(published_at, now())
+SET status='published', editorial_review_status='approved', editorial_reviewed_by=coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid), editorial_reviewed_at=now(), published_at=coalesce(published_at, now())
 WHERE wall_topic_id IS NOT NULL AND status='draft';
 ALTER TABLE public.learn_articles ENABLE TRIGGER USER;
 

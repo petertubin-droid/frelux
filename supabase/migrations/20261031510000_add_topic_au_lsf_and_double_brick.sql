@@ -1,3 +1,15 @@
+-- Review attribution needs an account that exists in every environment. The
+-- owner is the real reviewer in production; a fresh database has no auth users
+-- at all, so editorial attribution there goes to this labelled service account
+-- instead of failing the foreign key or claiming a human reviewed it.
+insert into auth.users (id, instance_id, aud, role, email, email_confirmed_at,
+                        created_at, updated_at, raw_app_meta_data, raw_user_meta_data)
+values ('0e000000-0000-4000-8000-000000000001', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+        'editorial-migrations@frelux.invalid', now(), now(), now(),
+        '{"provider":"system","purpose":"migration attribution"}'::jsonb,
+        '{"display_name":"Editorial migrations"}'::jsonb)
+on conflict (id) do nothing;
+
 BEGIN;
 
 INSERT INTO public.learn_wall_finishing_sources (topic_id, title, publisher, url, claim_scope)
@@ -1445,7 +1457,7 @@ WHERE sl.topic_id = a.wall_topic_id
 ALTER TABLE public.learn_wall_finishing_sources DISABLE TRIGGER wall_source_review_attribution;
 
 UPDATE public.learn_wall_finishing_sources s
-SET review_status = 'accepted', reviewed_at = now(), reviewed_by = (select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid)
+SET review_status = 'accepted', reviewed_at = now(), reviewed_by = coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid)
 FROM public.learn_wall_finishing_topics t
 WHERE s.topic_id = t.id
   AND t.candidate_key IN ('system:au-light-steel-frame','system:au-double-brick')
@@ -1456,7 +1468,7 @@ ALTER TABLE public.learn_wall_finishing_sources ENABLE TRIGGER wall_source_revie
 ALTER TABLE public.learn_wall_finishing_topics DISABLE TRIGGER USER;
 
 UPDATE public.learn_wall_finishing_topics t
-SET verification_status = 'verified', verified_at = now(), verified_by = (select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid)
+SET verification_status = 'verified', verified_at = now(), verified_by = coalesce((select id from auth.users where id = 'd74ffbd7-281b-4445-9728-ad87c287e0b9'::uuid), '0e000000-0000-4000-8000-000000000001'::uuid)
 WHERE t.candidate_key IN ('system:au-light-steel-frame','system:au-double-brick')
   AND EXISTS (SELECT 1 FROM public.learn_wall_finishing_sources s WHERE s.topic_id = t.id AND s.review_status = 'accepted');
 
