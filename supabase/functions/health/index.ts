@@ -28,6 +28,39 @@ serveWithCors(async (req: Request) => {
     return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
+  /**
+   * A key this function can authenticate to PostgREST with.
+   *
+   * Supabase issues keys in two shapes now. The newer secret keys live in a JSON
+   * map under SUPABASE_SECRET_KEYS and are opaque strings; the older service role
+   * key is a JWT under SUPABASE_SERVICE_ROLE_KEY. Projects migrated to the new
+   * keys keep the old variable around, but REST rejects the retired value, which
+   * is how this probe spent a while reporting a healthy database as down.
+   *
+   * The secret keys are tried first because they are the ones currently issued,
+   * and the JWT is only sent as a bearer token when it actually is one: a
+   * non-JWT bearer is rejected outright rather than treated as an API key.
+   */
+  function resolveProbeHeaders(): Record<string, string> | null {
+    const raw = Deno.env.get("SUPABASE_SECRET_KEYS");
+    let key = "";
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as Record<string, string>;
+        key = parsed.default ?? Object.values(parsed)[0] ?? "";
+      } catch {
+        // Some deployments store a single key rather than the JSON map.
+        key = raw.trim();
+      }
+    }
+    if (!key) key = (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "").trim();
+    if (!key) return null;
+
+    const headers: Record<string, string> = { apikey: key };
+    if (key.startsWith("eyJ")) headers.Authorization = `Bearer ${key}`;
+    return headers;
+  }
+
   const checks: HealthStatus["checks"] = {
     database: "unknown",
     ai_providers: "unknown",
@@ -38,9 +71,12 @@ serveWithCors(async (req: Request) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    if (supabaseUrl) {
+    // No key at all means this probe cannot answer, which is not the same as a
+    // database being down. Say "unknown" rather than fail a healthy project.
+    const headers = resolveProbeHeaders();
+    if (supabaseUrl && headers) {
       const res = await fetch(`${supabaseUrl}/rest/v1/`, {
-        headers: { apikey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "" },
+        headers,
         signal: AbortSignal.timeout(3000),
       });
       checks.database = res.ok ? "up" : "down";
