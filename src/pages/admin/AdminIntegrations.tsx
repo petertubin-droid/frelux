@@ -589,7 +589,7 @@ export default function AdminIntegrations() {
             >
               search.google.com/search-console
             </a>{" "}
-            and add your property (${SITE_URL.replace("https://", "")})
+            and add your property ({SITE_URL.replace("https://", "")})
           </li>
           <li>2. Choose the "HTML tag" verification method</li>
           <li>
