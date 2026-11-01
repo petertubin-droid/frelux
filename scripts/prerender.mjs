@@ -2509,6 +2509,18 @@ const routes = [
       "Estimate PVC conduit lengths, 1.5 mm and 2.5 mm cable coils, junction boxes, switch plates and sockets from floor area and point counts.",
   },
   {
+    path: "/water-tower-staging-estimator",
+    title: "Overhead Water Tank Staging Estimator | FRELUX SMART CALC",
+    description:
+      "Calculate dead load, wind overturning safety factor, and structural steel or reinforced concrete preliminary BOM for overhead water tank towers.",
+  },
+  {
+    path: "/diaspora-budget-tracker",
+    title: "Diaspora Construction Budget and Inflation Tracker | FRELUX SMART CALC",
+    description:
+      "Track overseas construction funds against local currency inflation, parallel exchange rates, and on-site material deviations.",
+  },
+  {
     path: "/structural-steel-i-beam-calculator",
     title: "Structural Steel I-Beam Weight and Cost Calculator | FRELUX SMART CALC",
     description:

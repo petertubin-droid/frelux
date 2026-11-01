@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   Lock,
   CheckCircle2,
-  AlertCircle,
   DollarSign,
   ArrowRight,
   Camera,
@@ -16,16 +15,14 @@ import {
   Globe2,
   Building2,
   FileCheck2,
-  ExternalLink,
-  ChevronRight,
 } from "lucide-react";
 import {
   DEMO_ESCROW_CONTRACT,
   calculateEscrowSummary,
-  type EscrowMilestone,
 } from "@/lib/payments/diaspora-escrow";
 import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
+import { Link } from "react-router-dom";
 
 export default function DiasporaEscrow() {
   const { t } = useLanguage();
@@ -185,7 +182,136 @@ export default function DiasporaEscrow() {
           </div>
         </div>
 
+                {/* Navigation Tabs */}
+        <div className="flex border-b border-border mb-6 gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveTab("milestones")}
+            className={`pb-3 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
+              activeTab === "milestones"
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <ShieldCheck className="h-4 w-4 text-primary" /> {t("Execution Milestones")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("financial_audit")}
+            className={`pb-3 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
+              activeTab === "financial_audit"
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <DollarSign className="h-4 w-4 text-primary" /> {t("Financial Audit & Inflation")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("forensic_photos")}
+            className={`pb-3 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
+              activeTab === "forensic_photos"
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Camera className="h-4 w-4 text-primary" /> {t("Forensic Site Imagery")}
+          </button>
+        </div>
+
         {/* Main Interface Layout */}
+        {activeTab === "financial_audit" ? (
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-foreground">
+                  Cross-Border Financial Audit & Inflation Protection
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Real-time FX spread tracking, inflation indexing, and material price deviation controls.
+                </p>
+              </div>
+              <Link
+                to="/diaspora-budget-tracker"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all shadow-xs"
+              >
+                Open Full Budget & Inflation Engine <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-xl border border-border bg-muted/20">
+                <span className="text-xs text-muted-foreground block mb-1">Contract Total Funded</span>
+                <span className="text-xl font-bold font-mono text-foreground">
+                  {formatByCode(contract.totalFundedSource, contract.sourceCurrency)}
+                </span>
+                <span className="text-[10px] text-muted-foreground block mt-1">Escrowed foreign currency</span>
+              </div>
+
+              <div className="p-4 rounded-xl border border-border bg-muted/20">
+                <span className="text-xs text-muted-foreground block mb-1">Target Local Payout</span>
+                <span className="text-xl font-bold font-mono text-foreground">
+                  {formatByCode(contract.totalLocalPayout, contract.localCurrency)}
+                </span>
+                <span className="text-[10px] text-emerald-500 font-medium block mt-1">
+                  Guaranteed local conversion
+                </span>
+              </div>
+
+              <div className="p-4 rounded-xl border border-primary/20 bg-primary/5">
+                <span className="text-xs text-primary font-semibold block mb-1">Milestone Status</span>
+                <span className="text-xl font-bold font-mono text-foreground">
+                  {summary.releasedCount} of {summary.milestoneCount} Released
+                </span>
+                <span className="text-[10px] text-muted-foreground block mt-1">
+                  {summary.completionPercentage}% verified project completion
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl border border-dashed border-border text-center space-y-2">
+              <p className="text-xs text-muted-foreground">
+                To simulate compound annual inflation (e.g. 24%/yr) and parallel vs. official market spreads, launch the dedicated Diaspora Tracker.
+              </p>
+              <Link
+                to="/diaspora-budget-tracker"
+                className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+              >
+                Launch Multi-Currency Inflation Calculator →
+              </Link>
+            </div>
+          </div>
+        ) : activeTab === "forensic_photos" ? (
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+            <h3 className="text-lg font-bold text-foreground">
+              All Milestone Forensic Site Photos
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {contract.milestones.flatMap((m) =>
+                m.verificationPhotos.map((photo) => (
+                  <div
+                    key={photo.id}
+                    className="group relative rounded-xl border border-border overflow-hidden bg-muted"
+                  >
+                    <img
+                      src={photo.url}
+                      alt={photo.caption}
+                      className="h-44 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="p-3 bg-card border-t border-border">
+                      <p className="text-xs font-medium text-foreground line-clamp-1">
+                        {photo.caption}
+                      </p>
+                      <span className="text-[10px] text-muted-foreground block">
+                        {m.phaseName} · GPS cleared
+                      </span>
+                    </div>
+                  </div>
+                )),
+              )}
+            </div>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Milestones Navigation List */}
           <div className="space-y-4 lg:col-span-1">
@@ -399,6 +525,7 @@ export default function DiasporaEscrow() {
             </div>
           </div>
         </div>
+        )}
       </Container>
     </div>
   );

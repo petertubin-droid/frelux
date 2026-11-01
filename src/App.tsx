@@ -544,6 +544,12 @@ const SoffitGutterEstimator = lazy(
 const ConduitWiringEstimator = lazy(
   () => import("@/pages/ConduitWiringEstimator"),
 );
+const WaterTowerEstimator = lazy(
+  () => import("@/pages/WaterTowerEstimator"),
+);
+const DiasporaBudgetTracker = lazy(
+  () => import("@/pages/DiasporaBudgetTracker"),
+);
 const SteelBeamEstimator = lazy(() => import("@/pages/SteelBeamEstimator"));
 const Faq = lazy(() => import("@/pages/Faq"));
 const FaqArticle = lazy(() => import("@/pages/FaqArticle"));
@@ -2030,6 +2036,14 @@ export default function App() {
                         <Route
                           path="/electrical-conduit-wiring-estimator"
                           element={<ConduitWiringEstimator />}
+                        />
+                        <Route
+                          path="/water-tower-staging-estimator"
+                          element={<WaterTowerEstimator />}
+                        />
+                        <Route
+                          path="/diaspora-budget-tracker"
+                          element={<DiasporaBudgetTracker />}
                         />
                         <Route
                           path="/structural-steel-i-beam-calculator"
