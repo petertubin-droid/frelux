@@ -76,6 +76,20 @@ mocked engine data: the band's numbers are asserted to equal what
 
 - No version or schema has been declared for any engine. Declaring them is real
   work per engine, not a manifest change.
-- The capability-only list (38 engines with no AI engine behind them) is counted
-  but not yet displayed. Showing 38 rows would swamp the band; it belongs on a
-  dedicated reconciliation screen.
+- Version, input schema and output schema remain undeclared for every engine.
+
+## The reconciliation view
+
+The full list lives on its own tab rather than in the matrix band, because 38
+rows would swamp a summary. `AdminEngineConfig` gained a "Reconciliation" tab
+rendering `AdminEngineReconciliation`, which shows all 58 engines with:
+
+- which registers see each engine, and how many do not
+- whether it is deterministic, or "Not declared"
+- verified market count, or "Not declared"
+- every gap, expandable per engine
+
+Search and an "only engines one register cannot see" filter keep it usable.
+Four render tests assert the row count equals the manifest, that the
+unresolved engines stay visible with their written reason, and that both
+filters work. 509 tests across the admin, engine and admin-page suites pass.

@@ -1,5 +1,6 @@
 import { AdminEngineMatrix } from "@/components/admin/AdminEngineMatrix";
 import { AdminCapabilityAvailability } from "@/components/admin/AdminCapabilityAvailability";
+import { AdminEngineReconciliation } from "@/components/admin/AdminEngineReconciliation";
 /**
  * FRELUX Admin, Engine Configuration Dashboard
  *
@@ -90,7 +91,8 @@ type Tab =
   | "settings"
   | "markets"
   | "matrix"
-  | "availability";
+  | "availability"
+  | "reconciliation";
 
 const TABS: { key: Tab; label: string; icon: typeof Package }[] = [
   { key: "materials", label: "Material Profiles", icon: Package },
@@ -102,6 +104,7 @@ const TABS: { key: Tab; label: string; icon: typeof Package }[] = [
   { key: "markets", label: "Market Activation", icon: Globe },
   { key: "matrix", label: "Engine Matrix (54)", icon: Cpu },
   { key: "availability", label: "Availability", icon: Globe },
+  { key: "reconciliation", label: "Reconciliation", icon: Cpu },
 ];
 
 export default function AdminEngineConfig() {
@@ -154,6 +157,7 @@ export default function AdminEngineConfig() {
       {tab === "markets" && <MarketsTab />}
       {tab === "matrix" && <AdminEngineMatrix />}
       {tab === "availability" && <AdminCapabilityAvailability />}
+      {tab === "reconciliation" && <AdminEngineReconciliation />}
     </div>
   );
 }
