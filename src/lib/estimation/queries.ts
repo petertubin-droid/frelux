@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { invalidatePriceCache } from "@/lib/price-index/cache";
 import { withCalculationAudit } from "@/lib/international/calculation-audit";
 import { cachedConfigFetch } from "@/lib/estimation/offline-cache";
 import type { CountVisionResult } from "@/lib/estimation/count-vision-engine";
@@ -510,6 +511,9 @@ export async function createOrUpdatePrice(data: Partial<EstimationPrice>) {
     .insert({ ...data, is_active: true })
     .select()
     .single();
+
+  // A new price must be visible on the next read, not after the cache expires.
+  if (!error) invalidatePriceCache();
 
   return { data: record as EstimationPrice | null, error };
 }

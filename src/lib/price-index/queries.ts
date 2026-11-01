@@ -17,6 +17,8 @@ import type {
   VerificationStatus,
 } from "./types";
 
+import { invalidatePriceCache, priceCacheKey, withPriceCache } from "./cache";
+
 export const INDEX_COUNTRY = "NG";
 
 const OFFLINE_ERROR = "The price index needs a database connection.";
@@ -152,7 +154,7 @@ export async function fetchIndexMaterials(options?: {
  * Listings for a market. `citySlug` filters to that city; passing null asks for
  * every city, which is what the comparison view needs.
  */
-export async function fetchListings(options?: {
+async function loadListings(options?: {
   citySlug?: string | null;
   materialIds?: string[];
   sinceDays?: number;
@@ -241,6 +243,39 @@ export async function fetchListings(options?: {
     });
 
   return { listings, error: null };
+}
+
+/**
+ * Listings for a market, cached for five minutes and invalidated by every
+ * price write. Errors are never cached: a failed read returns immediately and
+ * the next attempt goes back to the database.
+ */
+export async function fetchListings(options?: {
+  citySlug?: string | null;
+  materialIds?: string[];
+  sinceDays?: number;
+  limit?: number;
+}): Promise<{
+  listings: IndexListing[];
+  error: string | null;
+  cached: boolean;
+  cache_age_ms: number;
+}> {
+  const key = priceCacheKey({
+    r: "listings",
+    m: INDEX_COUNTRY,
+    city: options?.citySlug ?? null,
+    ids: options?.materialIds ?? [],
+    since: options?.sinceDays ?? null,
+    limit: options?.limit ?? 500,
+  });
+  const read = await withPriceCache(key, () => loadListings(options));
+  return {
+    listings: read.value.listings,
+    error: read.value.error,
+    cached: read.source === "cache",
+    cache_age_ms: read.ageMs,
+  };
 }
 
 /** Recorded changes for one material, oldest first. */
