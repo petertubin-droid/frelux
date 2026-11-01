@@ -34,6 +34,12 @@ jobs:
       - name: Migration replay order
         run: python3 scripts/check-migration-order.py
 
+      # CREATE FUNCTION grants EXECUTE to PUBLIC. A later migration that
+      # recreates a hardened function reopens the anonymous path silently,
+      # which is how log_estimation_price_change came back open.
+      - name: Privileged grant locks
+        run: python3 scripts/check-privileged-grants.py
+
       - name: Unit tests (app)
         run: npx vitest run
 

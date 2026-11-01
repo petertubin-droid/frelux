@@ -280,3 +280,71 @@ hash with constant-time compare plus consent gate), `price-index-submit`
 `project-evidence-link` (server-side membership check with 120 second signed
 links). No unauthenticated write path was found beyond the crawl route fixed
 above.
+
+---
+
+## The full anonymous-exposure sweep, 2026-11-01 09:40 to 10:30 UTC
+
+The eleven-function fix above was chosen from a written list. Running the same
+check against the whole catalog instead found the real extent: **85 SECURITY
+DEFINER functions in `public` were executable by anon**, 27 of which write and
+check no identity.
+
+The worst of them, all reachable with the public anon key:
+
+| Function                            | What an anonymous visitor could do               |
+| ----------------------------------- | ------------------------------------------------ |
+| `apply_subscription_purchase`       | grant a paid plan to any user id                 |
+| `credit_token_purchase`             | mint tokens                                      |
+| `award_ad_credits`                  | mint ad credits                                  |
+| `award_offerwall_credits`           | mint offerwall credits                           |
+| `spend_credits` / `redeem_reward`   | move or redeem any balance                       |
+| `refresh_subscription_local_prices` | rewrite subscription prices from a jsonb payload |
+| `unlock_ai_feature_via_ad`          | unlock paid features without an ad               |
+| `api_wallet_for`                    | read any user's wallet                           |
+| `ensure_user_default_workspace`     | create workspaces for any user id                |
+| `diaspora_notify`                   | notify any project                               |
+
+Four migrations were applied and recorded:
+
+1. `20261101040000_privileged_grant_monitor.sql`, records reachable functions
+   hourly into `public.security_grant_findings` (detection only, never mutates
+   grants; an event trigger is impossible because `postgres` is not superuser).
+2. `20261101050000_restrict_privileged_anon_exec.sql`, locks 35 functions to
+   `service_role` and three to `authenticated`, each after confirming it has no
+   client caller.
+3. `20261101060000_refine_grant_monitor.sql`, stops the monitor flagging
+   functions whose body already raises unless the caller is an admin.
+4. `20261101070000_close_guest_credit_task.sql`, removes anon from
+   `complete_credit_task`, which mints credits on a client-supplied user id.
+
+Measured before and after, same query:
+
+| Measure                                 | Before | After |
+| --------------------------------------- | ------ | ----- |
+| SECURITY DEFINER functions anon can run | 85     | 46    |
+| ...that write tables                    | 27     | 3*    |
+| ...that write and check no identity     | 27     | 1     |
+
+\* the three are the public view counters, which are meant to be anonymous.
+
+The remaining 46 are deliberate public surfaces (nearby search, marketplace
+search, shared estimate links, published translations, community size, contact
+form rate limiting) or functions whose body already refuses non-admins.
+
+### CI guard
+
+`scripts/check-privileged-grants.py` runs in CI before the unit tests. It fails
+when a migration recreates a protected function after the migration that locked
+it, which is precisely how `log_estimation_price_change` came back open. Proven
+against a deliberate regression: adding a `create or replace function
+public.spend_credits` after the lock fails the check with the function name and
+both versions.
+
+### Still open
+
+`complete_credit_task` is authenticated-only now but still awards credits for a
+client-supplied `p_user_id`, so a signed-in user can mint for another account.
+The hourly monitor records it as a finding. Closing it means recreating the
+body with an `auth.uid()` check, which changes a working rewards flow and is
+the next security task.
