@@ -216,3 +216,67 @@ Both need the owner's explicit approval to reach production, per rule 18.
 7. Build the market coverage dashboard on measured data, showing 0 verified
    markets until evidence exists.
 8. Pin `search_path` on the 43 unpinned writers in dependency-grouped batches.
+
+---
+
+## Applied and verified, 2026-11-01 09:05 to 09:15 UTC
+
+### Grant migration: applied
+
+`20261101030000_harden_price_writer_grants.sql` was applied to production and
+recorded in `supabase_migrations.schema_migrations`.
+
+Post-condition re-queried, all eleven functions:
+
+| Function                        | anon | authenticated        | service_role |
+| ------------------------------- | ---- | -------------------- | ------------ |
+| `apply_market_material_prices`  | no   | no                   | yes          |
+| `apply_community_prices`        | no   | no                   | yes          |
+| `mark_stale_market_prices`      | no   | no                   | yes          |
+| `dispatch_market_scans`         | no   | no                   | yes          |
+| `close_stale_scan_runs`         | no   | no                   | yes          |
+| `refresh_market_material_price` | no   | no                   | yes          |
+| `log_estimation_price_change`   | no   | no                   | yes          |
+| `store_social_token`            | no   | no                   | yes          |
+| `approve_verification`          | no   | yes (is_admin guard) | yes          |
+| `market_scan_overview`          | no   | yes                  | yes          |
+| `get_price_update_summaries`    | no   | yes                  | yes          |
+
+Violations: 0. Cron still works: `postgres` owns both scan functions and
+retains EXECUTE, and `close-stale-scan-runs` continued to report `succeeded`.
+`price-intel-scan` calls `refresh_market_material_price` with the service client
+and is unaffected.
+
+### Crawl function: deployed and tested
+
+`market-intelligence-crawl` deployed (version 19). `verify_jwt` was set to false
+so the scheduler credential, not a gateway JWT, is the gate, matching the
+pattern `price-intel-scan` already uses. Behaviour:
+
+| Request                         | Result                                                      |
+| ------------------------------- | ----------------------------------------------------------- |
+| `?schedule=true`, no credential | 401 scheduler credential required                           |
+| `?schedule=true`, bogus token   | 401 scheduler credential required                           |
+| `?schedule=true`, valid token   | 200 `{"message":"No sources due for crawling","sources":0}` |
+| admin POST, no session          | 401 (unchanged)                                             |
+
+### New finding: the crawl pipeline has no sources
+
+`public.mi_sources` contains **0 rows**. The scheduled crawl reports "no sources
+due" because nothing is registered, so no market intelligence has ever been
+collected through this path. Combined with the coverage numbers above (15
+observations, 0 verified markets), the crawl engine is structurally complete
+and operationally inert. Registering sources is a data task, not a code task,
+and it has to be done before any market coverage claim is honest.
+
+### Reachability sweep of every open function
+
+73 functions run with `verify_jwt = false`. Each was inspected for its own
+guard. Seven had no `Authorization` header check, and all seven use a different
+correct mechanism: `paystack-webhook` (HMAC signature), `ayet-rewarded-callback`
+(S2S signature), `newsletter-unsubscribe` (signed token), `iot-ingest` (api key
+hash with constant-time compare plus consent gate), `price-index-submit`
+(public submission behind rate limiting), `price-index-api` (public read), and
+`project-evidence-link` (server-side membership check with 120 second signed
+links). No unauthenticated write path was found beyond the crawl route fixed
+above.
