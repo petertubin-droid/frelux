@@ -17,6 +17,8 @@ import ToolFaqs from "@/components/seo/ToolFaqs";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import PriceFreshnessNotice from "@/components/prices/PriceFreshnessNotice";
 import { useMarket } from "@/lib/international/market-context";
+import { useEngineAccess } from "@/lib/use-engine-access";
+import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { formatCurrency } from "@/lib/utils";
@@ -86,6 +88,14 @@ export function SpecialtyCalculatorShell({
   quoteFooter,
 }: SpecialtyCalculatorShellProps) {
   const { market, marketCode } = useMarket();
+  const access = useEngineAccess(routePath);
+  const visibleLines =
+    result && access.limited
+      ? result.lines.slice(0, access.visibleLines)
+      : (result?.lines ?? []);
+  const hiddenLines = access.limited
+    ? access.hiddenLines(result?.lines.length ?? 0)
+    : 0;
   const { symbol: displaySymbol } = useDisplayCurrency();
   const symbol = market?.currencySymbol || displaySymbol || "₦";
   const currencyCode = market?.currencyCode || "NGN";
@@ -99,6 +109,7 @@ export function SpecialtyCalculatorShell({
 
   const exportQuote = () => {
     if (!result?.ok) return;
+    if (!access.canExport) return;
     printQuote(
       {
         title: quoteTitle,
@@ -268,7 +279,7 @@ export function SpecialtyCalculatorShell({
                         </tr>
                       </thead>
                       <tbody>
-                        {result.lines.map((line) => {
+                        {visibleLines.map((line) => {
                           const overrideId = `${calculatorType}-price-${line.key}`;
                           return (
                             <tr
@@ -341,9 +352,19 @@ export function SpecialtyCalculatorShell({
                     </table>
                   </div>
 
+                  {access.limited && access.engine && (
+                    <div className="mt-4">
+                      <EnginePreviewLock
+                        engine={access.engine}
+                        hiddenLines={hiddenLines}
+                      />
+                    </div>
+                  )}
+
                   <div
                     id={totalsId}
                     className="mt-4 space-y-1 border-t pt-4 text-sm"
+                    hidden={access.limited}
                   >
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">
@@ -382,14 +403,20 @@ export function SpecialtyCalculatorShell({
                   </div>
 
                   <div className="mt-4 flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={exportQuote}
-                      className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
-                    >
-                      <Printer className="h-4 w-4" aria-hidden="true" /> Print
-                      or save as PDF
-                    </button>
+                    {access.canExport ? (
+                      <button
+                        type="button"
+                        onClick={exportQuote}
+                        className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                      >
+                        <Printer className="h-4 w-4" aria-hidden="true" /> Print
+                        or save as PDF
+                      </button>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Printing and saving are part of the plan.
+                      </p>
+                    )}
                     <PriceFreshnessNotice
                       bookSummary={bookSummary ?? undefined}
                     />

@@ -9,6 +9,7 @@ import {
 import type { Session, User } from "@supabase/supabase-js";
 import { isSupabaseConfigured, getSupabase } from "@/lib/supabase-lazy";
 import type { DbProfile, DbUserPaidStatus } from "@/types/database";
+import { publishEntitlement } from "@/lib/entitlement-store";
 
 export type AccountType = "client" | "pro_worker";
 
@@ -390,10 +391,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [state],
   );
 
+  // Tell the paywalls what this account is. They read a store rather than the
+  // context so a calculator can render without a provider and still be safe.
+  useEffect(() => {
+    publishEntitlement({ isPaid: state.isPaid, isAdmin: state.isAdmin });
+  }, [state.isPaid, state.isAdmin]);
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
+/**
+ * Same context, but null instead of throwing outside a provider.
+ *
+ * Used by components that can render in isolation (a share bar, a tool shell) so
+ * a missing session degrades to "entitlement unknown" rather than a crash.
+ */
+export function useOptionalAuth(): AuthContextValue | null {
+  return useContext(AuthContext) ?? null;
+}
+
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");

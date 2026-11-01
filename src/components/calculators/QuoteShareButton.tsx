@@ -7,7 +7,13 @@
  * has produced a quote, so an untouched page never shows a share row.
  */
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
-import { shareableFromQuote, type QuotePayloadLike } from "@/lib/estimate-share-adapter";
+import {
+  shareableFromQuote,
+  type QuotePayloadLike,
+} from "@/lib/estimate-share-adapter";
+import { useLocation } from "react-router-dom";
+import { useEngineAccess } from "@/lib/use-engine-access";
+import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 
 interface QuoteShareButtonProps {
   build: () => QuotePayloadLike | null;
@@ -16,7 +22,14 @@ interface QuoteShareButtonProps {
   compact?: boolean;
 }
 
-export function QuoteShareButton({ build, kind, link, compact = true }: QuoteShareButtonProps) {
+export function QuoteShareButton({
+  build,
+  kind,
+  link,
+  compact = true,
+}: QuoteShareButtonProps) {
+  const location = useLocation();
+  const access = useEngineAccess(location.pathname);
   let estimate = null;
   try {
     estimate = shareableFromQuote(build(), { kind, link });
@@ -24,6 +37,11 @@ export function QuoteShareButton({ build, kind, link, compact = true }: QuoteSha
     return null;
   }
   if (!estimate) return null;
+  // Taking the estimate away is a paid action on a gated engine. The numbers are
+  // still on screen; what a plan adds is the shareable, printable document.
+  if (!access.canExport && access.engine) {
+    return <EnginePreviewLock engine={access.engine} hiddenLines={0} />;
+  }
   return <ShareEstimateButton estimate={estimate} compact={compact} />;
 }
 
