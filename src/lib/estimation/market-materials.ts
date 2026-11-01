@@ -11,6 +11,10 @@
 
 import { supabase } from "@/lib/supabase";
 import {
+  classifyEvidence,
+  type EvidenceClass,
+} from "@/lib/price-index/resolver";
+import {
   shouldUseBundledBook,
   bundledRoleMapping,
   bundledMaterialForSlug,
@@ -63,6 +67,29 @@ export interface ResolvedMaterialPrice {
   resolved_market: string;
   material: EstimationMaterial;
   price: EstimationPrice;
+  /**
+   * What kind of number this price is. A role fallback can land on an FX
+   * reference or a seeded baseline, and a calculator must not announce that as
+   * a verified local price.
+   */
+  evidence: EvidenceClass;
+}
+
+/**
+ * One plain sentence per evidence class, for calculator notes. No hedging, no
+ * marketing: each says what the figure is and what it is not.
+ */
+export function evidenceSentence(evidence: EvidenceClass): string {
+  switch (evidence) {
+    case "supplier_verified":
+      return "Verified supplier price.";
+    case "supplier_reported":
+      return "Reported price, not independently verified.";
+    case "macro_reference":
+      return "FX reference band, not a supplier quotation.";
+    case "baseline":
+      return "Seeded baseline with no live source, not a market price.";
+  }
 }
 
 export async function fetchMarketRoleMappings(
@@ -157,6 +184,11 @@ export async function resolveMaterialPriceByRole(
           created_at: resolved.price.effective_date,
           updated_at: resolved.price.effective_date,
         },
+        evidence: classifyEvidence({
+          price_source: resolved.price.price_source ?? null,
+          supplier_name: null,
+          verification_status: null,
+        }),
       };
     }
     return null;
@@ -200,6 +232,9 @@ export async function resolveMaterialPriceByRole(
       resolved_market: candidate,
       material: material as unknown as EstimationMaterial,
       price: price as EstimationPrice,
+      evidence: classifyEvidence(
+        price as Parameters<typeof classifyEvidence>[0],
+      ),
     };
   }
   return null;

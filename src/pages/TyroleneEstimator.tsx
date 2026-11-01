@@ -12,6 +12,7 @@
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
 import { useProjectCity } from "@/lib/price-index/use-project-city";
 import {
+  evidenceSentence,
   resolveMaterialPriceByRole,
   type MaterialRole,
 } from "@/lib/estimation/market-materials";
@@ -406,7 +407,7 @@ export default function TyroleneEstimator({
             priceMap.set(mat.slug, resolved.price);
             setRoleMaterials((prev) => new Map(prev).set(mat.slug, resolved));
             warnings.push(
-              `${mat.name} priced for this market as ${resolved.material.name} (${resolved.resolved_market} market book, verified provenance).`,
+              `${mat.name} priced for this market as ${resolved.material.name} (${resolved.resolved_market} market book). ${evidenceSentence(resolved.evidence)}`,
             );
           } else {
             warnings.push(

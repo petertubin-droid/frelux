@@ -35,6 +35,13 @@ vi.mock("@/lib/queries", () => ({
   }),
 }));
 vi.mock("@/lib/estimation/market-materials", () => ({
+  evidenceSentence: (evidence: string) =>
+    ({
+      supplier_verified: "Verified supplier price.",
+      supplier_reported: "Reported price, not independently verified.",
+      macro_reference: "FX reference band, not a supplier quotation.",
+      baseline: "Seeded baseline with no live source, not a market price.",
+    })[evidence] ?? "Price evidence not recorded.",
   resolveMaterialPriceByRole: vi.fn().mockResolvedValue({
     role: "interior-paint",
     resolved_market: "NG",

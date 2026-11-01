@@ -14,7 +14,10 @@ import {
   withDefaultQuality,
   isDefaultQualityId,
 } from "@/lib/estimation/default-quality";
-import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
+import {
+  evidenceSentence,
+  resolveMaterialPriceByRole,
+} from "@/lib/estimation/market-materials";
 import { useMarket, useLocalTerm } from "@/lib/international/market-context";
 import {
   resolveMarketRoomUnit,
@@ -459,7 +462,7 @@ export default function PaintingEstimator({
                 priceMap.set(q.id, resolved.price);
                 if (resolved.material?.name) {
                   warnings.push(
-                    `${q.name ?? "Paint"} priced for ${marketCode} as ${resolved.material.name} (${resolved.resolved_market} market book).`,
+                    `${q.name ?? "Paint"} priced for ${marketCode} as ${resolved.material.name} (${resolved.resolved_market} market book). ${evidenceSentence(resolved.evidence)}`,
                   );
                 }
               }

@@ -17,6 +17,7 @@ import type { CalcConfig } from "@/lib/calc";
 import type { DbPaintType } from "@/types/database";
 import { fetchPaintTypes } from "@/lib/queries";
 import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
+import { evidenceSentence } from "@/lib/estimation/market-materials";
 import { fetchPackSizeById } from "@/lib/estimation/queries";
 import { useMarket } from "@/lib/international/market-context";
 import { useLanguage } from "@/lib/i18n";
@@ -103,7 +104,7 @@ export default function ConversationalEstimator() {
           // container hint so "how many buckets" answers in local packs.
           config.containerSizes = [packLitres as number];
           setMarketPackNote(
-            `Interior paint priced in this market book (${roleRes!.resolved_market}) — retail pack ${packLitres} L.`,
+            `Interior paint priced in this market book (${roleRes!.resolved_market}), retail pack ${packLitres} L. ${evidenceSentence(roleRes!.evidence)}`,
           );
         } else {
           setMarketPackNote(
