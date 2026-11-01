@@ -59,9 +59,23 @@ instead of being folded into painting and disappearing.
 - the build is deterministic
 - the summary never over-counts the three-way agreement
 
+## Wired into the admin matrix
+
+`AdminEngineMatrix` now opens with a reconciliation band fed by
+`summariseManifest(buildEngineManifest())`. It states how many engines all three
+vocabularies describe, how many only one of them can see, and names the AI
+register's unlinked engines with the note that each carries a written reason
+instead of a guessed mapping. The inventory table below it is unchanged, so the
+screen gained an honest summary without losing the per-market matrix.
+
+Verified by rendering the real component against the real sources, with no
+mocked engine data: the band's numbers are asserted to equal what
+`summariseManifest` returns, so a hard-coded figure would fail.
+
 ## Not done
 
-- `AdminEngineMatrix` still reads `engine-inventory` directly. Wiring it to the
-  manifest is the next increment, and it needs a UI check, not just a unit test.
 - No version or schema has been declared for any engine. Declaring them is real
   work per engine, not a manifest change.
+- The capability-only list (38 engines with no AI engine behind them) is counted
+  but not yet displayed. Showing 38 rows would swamp the band; it belongs on a
+  dedicated reconciliation screen.

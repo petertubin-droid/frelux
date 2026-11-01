@@ -12,6 +12,10 @@ import {
   Cpu,
 } from "lucide-react";
 import {
+  buildEngineManifest,
+  summariseManifest,
+} from "@/lib/ai-foundation/engine-manifest";
+import {
   FULL_ENGINE_INVENTORY,
   ALL_20_MARKETS,
   MARKET_DISPLAY_NAMES,
@@ -79,6 +83,31 @@ export const AdminEngineMatrix: React.FC = () => {
   const [selectedMarket, setSelectedMarket] = useState("ALL");
   const [expandedEngineId, setExpandedEngineId] = useState<string | null>(null);
   const report = useMemo(() => getDiscrepancyReport(), []);
+  const reconciliation = useMemo(() => {
+    const manifest = buildEngineManifest();
+    const summary = summariseManifest(manifest);
+    return {
+      summary,
+      aiOnly: manifest
+        .filter(
+          (m) => m.sources.aiEngineIds.length > 0 && !m.sources.capabilityId,
+        )
+        .map((m) => m.sources.aiEngineIds[0]),
+      capabilityOnly: manifest
+        .filter(
+          (m) => m.sources.capabilityId && m.sources.aiEngineIds.length === 0,
+        )
+        .map((m) => m.sources.capabilityId as string),
+      inventoryOnly: manifest
+        .filter(
+          (m) =>
+            m.sources.inventoryId &&
+            !m.sources.capabilityId &&
+            m.sources.aiEngineIds.length === 0,
+        )
+        .map((m) => m.sources.inventoryId as string),
+    };
+  }, []);
   const categories = useMemo(
     () => Array.from(new Set(FULL_ENGINE_INVENTORY.map((e) => e.category))),
     [],
@@ -102,6 +131,64 @@ export const AdminEngineMatrix: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <div className="rounded-lg border bg-card p-5">
+        <div className="flex items-center gap-2">
+          <Cpu className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold">
+            Reconciliation with the AI and capability registers
+          </h3>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {reconciliation.summary.describedByAllThree} of{" "}
+          {reconciliation.summary.total} engines are described by all three
+          vocabularies. An engine missing from one of them can appear in this
+          matrix without the other layers being able to run it.
+        </p>
+        <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div>
+            <dt className="text-xs text-muted-foreground">All three</dt>
+            <dd className="text-lg font-semibold">
+              {reconciliation.summary.describedByAllThree}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted-foreground">AI register only</dt>
+            <dd className="text-lg font-semibold">
+              {reconciliation.summary.aiOnly}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted-foreground">Capability only</dt>
+            <dd className="text-lg font-semibold">
+              {reconciliation.summary.capabilityOnly}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted-foreground">Inventory only</dt>
+            <dd className="text-lg font-semibold">
+              {reconciliation.summary.inventoryOnly}
+            </dd>
+          </div>
+        </dl>
+        {reconciliation.summary.aiOnly > 0 && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Unlinked in the AI register:{" "}
+            <span className="font-medium text-foreground">
+              {reconciliation.aiOnly.join(", ")}
+            </span>
+            . Each carries a written reason rather than a guessed mapping.
+          </p>
+        )}
+        {reconciliation.summary.inventoryOnly > 0 && (
+          <p className="mt-1 text-xs text-muted-foreground">
+            Inventory only:{" "}
+            <span className="font-medium text-foreground">
+              {reconciliation.inventoryOnly.join(", ")}
+            </span>
+          </p>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Metric
           label="Total Discovered Engines"
