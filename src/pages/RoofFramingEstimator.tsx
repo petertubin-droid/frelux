@@ -1,5 +1,7 @@
 import { useState } from "react";
 import CopyResultsButton from "@/components/calculators/CopyResultsButton";
+import { useEngineAccess } from "@/lib/use-engine-access";
+import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
@@ -106,6 +108,7 @@ const initialDesignForm = (): DesignForm => ({
 
 export default function RoofFramingEstimator() {
   const { t } = useLanguage();
+  const engineAccess = useEngineAccess("/roof-framing-calculator");
   useSeo({
     title: "Roof Framing & Board-Foot Calculator | FRELUX",
     description:
@@ -528,7 +531,10 @@ export default function RoofFramingEstimator() {
                     <h3 className="text-sm font-semibold">
                       {t("Member layout")}
                     </h3>
-                    {result.groups.map((group) => (
+                    {(engineAccess.limited
+                      ? result.groups.slice(0, engineAccess.visibleLines)
+                      : result.groups
+                    ).map((group) => (
                       <div
                         key={group.label}
                         className="rounded-xl border border-border p-3"
@@ -549,6 +555,16 @@ export default function RoofFramingEstimator() {
                       </div>
                     ))}
                   </div>
+                  {engineAccess.limited && engineAccess.engine && (
+                    <div className="mt-4">
+                      <EnginePreviewLock
+                        engine={engineAccess.engine}
+                        hiddenLines={engineAccess.hiddenLines(
+                          result.groups.length,
+                        )}
+                      />
+                    </div>
+                  )}
                   <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-50/50 p-3 text-xs leading-relaxed text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
                     {result.valleyStatus}
                   </div>

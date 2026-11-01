@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import { describe, expect, it } from "vitest";
 import { engineAccessFor } from "@/lib/premium-engine-access";
 import {
@@ -29,7 +30,9 @@ describe("premium engine registry", () => {
   });
 
   it("matches routes with a trailing slash and a query string", () => {
-    expect(isPremiumEngineRoute("/steel-beam-calculator/")).toBe(true);
+    expect(isPremiumEngineRoute("/structural-steel-i-beam-calculator/")).toBe(
+      true,
+    );
     expect(isPremiumEngineRoute("/concrete-takeoff-calculator?x=1")).toBe(true);
     expect(isPremiumEngineRoute("/paint-calculator")).toBe(false);
     expect(premiumEngineFor("/paint-calculator")).toBeNull();
@@ -45,7 +48,7 @@ describe("premium engine registry", () => {
 
 describe("engineAccessFor", () => {
   it("shows a free visitor the preview and no export", () => {
-    const access = engineAccessFor("/steel-beam-calculator", free);
+    const access = engineAccessFor("/structural-steel-i-beam-calculator", free);
     expect(access.engine?.name).toBe("Steel beam sizing");
     expect(access.limited).toBe(true);
     expect(access.visibleLines).toBe(2);
@@ -86,5 +89,31 @@ describe("engineAccessFor", () => {
     });
     expect(access.limited).toBe(false);
     expect(access.canExport).toBe(true);
+  });
+});
+
+describe("registry matches the app", () => {
+  it("gates only routes the router actually serves", () => {
+    const app = readFileSync("src/App.tsx", "utf8");
+    for (const engine of PREMIUM_ENGINES) {
+      expect(app, engine.route).toContain(`path="${engine.route}"`);
+    }
+  });
+
+  it("is wired into the surfaces that render those tools", () => {
+    const wired = [
+      "src/components/calculators/SpecialtyCalculatorShell.tsx",
+      "src/components/calculators/QuoteShareButton.tsx",
+      "src/pages/StructuralCalculator.tsx",
+      "src/pages/FoundationEstimator.tsx",
+      "src/pages/ReinforcementEstimator.tsx",
+      "src/pages/EarthworksEstimator.tsx",
+      "src/pages/RoofFramingEstimator.tsx",
+      "src/pages/BuildToRoofEstimator.tsx",
+      "src/pages/StandaloneTakeoffPage.tsx",
+    ];
+    for (const file of wired) {
+      expect(readFileSync(file, "utf8"), file).toContain("useEngineAccess");
+    }
   });
 });

@@ -329,6 +329,7 @@ export function ConcreteTakeoffCalculator() {
       ]
     : [];
   const takeoffAccess = useEngineAccess("/concrete-takeoff-calculator");
+  const designAccess = useEngineAccess("/structural-calculator");
 
   const buildConcreteQuote = (): QuoteOptions | null => {
     if (!result) return null;
@@ -1674,6 +1675,7 @@ function BarScheduleCalculator() {
 
 function BeamCalculator() {
   const { t } = useLanguage();
+  const designAccess = useEngineAccess("/structural-calculator");
   const [span, setSpan] = useState(4.5);
   const [beamType, setBeamType] = useState<BeamType>("suspended_beam");
   const [support, setSupport] = useState<SupportCondition>("simply_supported");
@@ -1897,7 +1899,7 @@ function BeamCalculator() {
             />
           </div>
 
-          {capacity && (
+          {capacity && !designAccess.limited && (
             <CapacityCheckCard
               capacity={capacity}
               designMoment={result.max_moment}
@@ -1905,6 +1907,11 @@ function BeamCalculator() {
               label={JURISDICTION_CODES[jurisdiction].label}
               bLabel={JURISDICTION_CODES[jurisdiction].governingCode}
             />
+          )}
+          {capacity && designAccess.limited && designAccess.engine && (
+            <div className="mt-4">
+              <EnginePreviewLock engine={designAccess.engine} hiddenLines={1} />
+            </div>
           )}
 
           <div className="grid md:grid-cols-3 gap-3 text-sm">
@@ -2247,6 +2254,7 @@ function ColumnCalculator() {
 
 function SlabCalculator() {
   const { t } = useLanguage();
+  const designAccess = useEngineAccess("/structural-calculator");
   const [spanX, setSpanX] = useState(4.0);
   const [spanY, setSpanY] = useState(6.0);
   const [slabType, setSlabType] = useState<SlabType>("one_way");
@@ -2467,7 +2475,7 @@ function SlabCalculator() {
             />
           </div>
 
-          {capacity && (
+          {capacity && !designAccess.limited && (
             <CapacityCheckCard
               capacity={capacity}
               designMoment={result.max_moment}
@@ -2475,6 +2483,11 @@ function SlabCalculator() {
               label={JURISDICTION_CODES[jurisdiction].label}
               bLabel={JURISDICTION_CODES[jurisdiction].governingCode}
             />
+          )}
+          {capacity && designAccess.limited && designAccess.engine && (
+            <div className="mt-4">
+              <EnginePreviewLock engine={designAccess.engine} hiddenLines={1} />
+            </div>
           )}
 
           <div className="grid md:grid-cols-3 gap-3 text-sm">

@@ -92,6 +92,8 @@ import { trackBuildToRoofRewards } from "@/lib/rewards-integration";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+import { useEngineAccess } from "@/lib/use-engine-access";
+import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { useLanguage } from "@/lib/i18n";
 import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
 
@@ -3091,6 +3093,7 @@ function EstimateResult({
   missingLocalPrices?: string[];
 }) {
   const { t } = useLanguage();
+  const engineAccess = useEngineAccess("/build-to-roof-estimator");
   const confidenceColors: Record<string, string> = {
     high: "bg-green-50 text-green-700 border-green-200",
     moderate: "bg-amber-50 text-amber-700 border-amber-200",
@@ -3500,6 +3503,17 @@ function EstimateResult({
           </div>
         )}
 
+      {engineAccess.limited && engineAccess.engine && (
+        <div className="mt-6">
+          <EnginePreviewLock
+            engine={engineAccess.engine}
+            hiddenLines={engineAccess.hiddenLines(
+              result.stages.reduce((n, stage) => n + stage.materials.length, 0),
+            )}
+          />
+        </div>
+      )}
+
       {/* Detailed Quantities per Stage */}
       {result.stages.map((stage, i) => (
         <details
@@ -3567,7 +3581,10 @@ function EstimateResult({
                     </tr>
                   </thead>
                   <tbody>
-                    {stage.materials.map((m, j) => (
+                    {(engineAccess.limited
+                      ? stage.materials.slice(0, engineAccess.visibleLines)
+                      : stage.materials
+                    ).map((m, j) => (
                       <tr key={j} className="border-b border-border/50">
                         <td className="py-2 text-card-foreground">{m.label}</td>
                         <td className="py-2 text-right text-muted-foreground">
@@ -3738,14 +3755,16 @@ function EstimateResult({
 
         {/* Save to Project Workspace */}
         <div className="flex flex-wrap justify-center gap-3 pt-2">
-          <Button
-            variant="outline"
-            onClick={exportQuote}
-            className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors active:scale-95"
-          >
-            <FileDown className="h-4 w-4" />
-            {t("Export quote (PDF)")}
-          </Button>
+          {engineAccess.canExport && (
+            <Button
+              variant="outline"
+              onClick={exportQuote}
+              className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors active:scale-95"
+            >
+              <FileDown className="h-4 w-4" />
+              {t("Export quote (PDF)")}
+            </Button>
+          )}
           <ShareEstimateButton
             estimate={quoteToShareable(
               quoteOptions(),
@@ -3807,15 +3826,17 @@ function EstimateResult({
           <span className="sm:hidden">{t("Edit")}</span>
         </Button>
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            onClick={exportQuote}
-            className="inline-flex items-center gap-2 rounded-xl border border-border px-3.5 sm:px-4 py-2.5 text-sm font-medium text-card-foreground hover:bg-muted/50 hover:border-border transition-all active:scale-95"
-          >
-            <Printer className="w-4 h-4" />
-            <span className="hidden sm:inline">{t("Print Estimate")}</span>
-            <span className="sm:hidden">{t("Print")}</span>
-          </Button>
+          {engineAccess.canExport && (
+            <Button
+              variant="ghost"
+              onClick={exportQuote}
+              className="inline-flex items-center gap-2 rounded-xl border border-border px-3.5 sm:px-4 py-2.5 text-sm font-medium text-card-foreground hover:bg-muted/50 hover:border-border transition-all active:scale-95"
+            >
+              <Printer className="w-4 h-4" />
+              <span className="hidden sm:inline">{t("Print Estimate")}</span>
+              <span className="sm:hidden">{t("Print")}</span>
+            </Button>
+          )}
         </div>
       </div>
       <CalculatorAdBanner toolKey="roofing" className="mt-6" />

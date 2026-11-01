@@ -33,6 +33,8 @@ import {
   createEstimateItem,
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
+import { useEngineAccess } from "@/lib/use-engine-access";
+import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import {
@@ -74,6 +76,7 @@ function fmtN(v: number | null): string {
 
 export default function FoundationEstimator() {
   const { t } = useLanguage();
+  const engineAccess = useEngineAccess("/foundation-calculator");
   const { code: displayCurrencyCode, symbol: displayCurrencySymbol } =
     useDisplayCurrency();
   const { user } = useAuth();
@@ -495,12 +498,14 @@ export default function FoundationEstimator() {
               >
                 {saving ? "Saving…" : "Save estimate"}
               </button>
-              <button
-                onClick={exportQuote}
-                className="rounded-md border px-4 py-2 text-sm font-medium"
-              >
-                {t("Export quote (PDF)")}
-              </button>
+              {engineAccess.canExport && (
+                <button
+                  onClick={exportQuote}
+                  className="rounded-md border px-4 py-2 text-sm font-medium"
+                >
+                  {t("Export quote (PDF)")}
+                </button>
+              )}
               <QuoteShareButton
                 build={buildQuote}
                 kind="Foundation Estimate"
@@ -621,7 +626,10 @@ export default function FoundationEstimator() {
                 </tr>
               </thead>
               <tbody>
-                {result.lines.map((l) => (
+                {(engineAccess.limited
+                  ? result.lines.slice(0, engineAccess.visibleLines)
+                  : result.lines
+                ).map((l) => (
                   <tr key={l.key} className="border-b last:border-0">
                     <td className="p-3 font-medium">{l.label}</td>
                     <td className="p-3" data-testid={`qty-${l.key}`}>
@@ -652,6 +660,15 @@ export default function FoundationEstimator() {
               </tbody>
             </table>
           </div>
+
+          {engineAccess.limited && engineAccess.engine && (
+            <div className="mb-6">
+              <EnginePreviewLock
+                engine={engineAccess.engine}
+                hiddenLines={engineAccess.hiddenLines(result.lines.length)}
+              />
+            </div>
+          )}
 
           {/* Breakdown */}
           <div className="mb-6 rounded-lg border bg-card p-4">

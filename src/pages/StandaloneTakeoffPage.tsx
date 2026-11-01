@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useMarket } from "@/lib/international/market-context";
 import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
@@ -15,6 +15,8 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
+import { useEngineAccess } from "@/lib/use-engine-access";
+import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
 import {
@@ -134,6 +136,8 @@ export default function StandaloneTakeoffPage({
 }) {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const engineAccess = useEngineAccess(pathname);
   const { market, availableMarkets } = useMarket();
   const [searchParams] = useSearchParams();
   const [bridgeProvenance, setBridgeProvenance] = useState("");
@@ -765,7 +769,10 @@ export default function StandaloneTakeoffPage({
             {result ? (
               <>
                 <div className="divide-y divide-border">
-                  {rows.map((row) => (
+                  {(engineAccess.limited
+                    ? rows.slice(0, engineAccess.visibleLines)
+                    : rows
+                  ).map((row) => (
                     <div
                       key={row.label}
                       className="flex items-start justify-between gap-4 py-3"
@@ -779,6 +786,14 @@ export default function StandaloneTakeoffPage({
                     </div>
                   ))}
                 </div>
+                {engineAccess.limited && engineAccess.engine && (
+                  <div className="mt-5">
+                    <EnginePreviewLock
+                      engine={engineAccess.engine}
+                      hiddenLines={engineAccess.hiddenLines(rows.length)}
+                    />
+                  </div>
+                )}
                 {"packagingEvidence" in result && result.packagingEvidence && (
                   <div className="mt-5 rounded-xl border border-border bg-muted/30 p-4 text-sm">
                     <div className="font-semibold">

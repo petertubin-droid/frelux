@@ -39,7 +39,7 @@ export const PREMIUM_ENGINES: PremiumEngine[] = [
     ],
   },
   {
-    route: "/steel-beam-calculator",
+    route: "/structural-steel-i-beam-calculator",
     name: "Steel beam sizing",
     tier: "structural",
     previewLines: 2,

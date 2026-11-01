@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useEngineAccess } from "@/lib/use-engine-access";
+import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
@@ -24,6 +26,7 @@ const display = (n: number) =>
 
 export default function EarthworksEstimator() {
   const { t } = useLanguage();
+  const engineAccess = useEngineAccess("/earthworks-cut-fill");
   useSeo({
     title: "Earthworks Cut & Fill Estimator | FRELUX",
     description:
@@ -66,6 +69,16 @@ export default function EarthworksEstimator() {
     setErrors(response.errors);
     setResult(response.data);
   };
+  // The summary above the fold is the preview, so it reads from one list.
+  const earthworkRows: Array<[string, number, string]> = result
+    ? [
+        ["Bank cut", result.cutBankM3, "m³"],
+        ["Compacted fill", result.fillCompactedM3, "m³"],
+        ["Loose haul", result.cutLooseM3, "m³"],
+        ["Bank-equivalent fill", result.fillBankEquivalentM3, "m³"],
+      ]
+    : [];
+
   return (
     <>
       <PageHeader
@@ -245,12 +258,10 @@ export default function EarthworksEstimator() {
             {result ? (
               <>
                 <div className="mt-5 grid gap-3">
-                  {[
-                    ["Bank cut", result.cutBankM3, "m³"],
-                    ["Compacted fill", result.fillCompactedM3, "m³"],
-                    ["Loose haul", result.cutLooseM3, "m³"],
-                    ["Bank-equivalent fill", result.fillBankEquivalentM3, "m³"],
-                  ].map(([label, value, unit]) => (
+                  {(engineAccess.limited
+                    ? earthworkRows.slice(0, engineAccess.visibleLines)
+                    : earthworkRows
+                  ).map(([label, value, unit]) => (
                     <div
                       key={String(label)}
                       className="flex items-center justify-between rounded-xl bg-muted/40 p-3"
@@ -264,6 +275,16 @@ export default function EarthworksEstimator() {
                     </div>
                   ))}
                 </div>
+                {engineAccess.limited && engineAccess.engine && (
+                  <div className="mt-4">
+                    <EnginePreviewLock
+                      engine={engineAccess.engine}
+                      hiddenLines={engineAccess.hiddenLines(
+                        earthworkRows.length,
+                      )}
+                    />
+                  </div>
+                )}
                 {result.netBankSurplusM3 !== null && (
                   <div className="mt-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
                     {result.importBankM3 === 0 ? (
