@@ -16,6 +16,10 @@ import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
+import {
+  classifyEvidence,
+  type EvidenceClass,
+} from "@/lib/price-index/resolver";
 
 type Status = "loading" | "ready" | "error";
 
@@ -27,7 +31,27 @@ interface PriceRow {
   currency: string;
   effective_date: string | null;
   price_source: string | null;
+  /** Market this row belongs to, so two markets never look like duplicates. */
+  market: string;
+  /** What kind of evidence the row carries, judged from its own fields. */
+  evidence: EvidenceClass;
 }
+
+/** Badge text for each kind of evidence. Neutral wording, no claims. */
+const EVIDENCE_LABEL: Record<EvidenceClass, string> = {
+  supplier_verified: "Verified",
+  supplier_reported: "Reported",
+  macro_reference: "FX reference",
+  baseline: "Baseline",
+};
+
+const EVIDENCE_NOTE: Record<EvidenceClass, string> = {
+  supplier_verified: "Verified supplier price.",
+  supplier_reported: "Reported price, not independently verified.",
+  macro_reference:
+    "Derived from a macro or FX adjustment, not a supplier quotation.",
+  baseline: "Seeded baseline with no live source behind it.",
+};
 
 interface Movement {
   material_name: string;
@@ -89,7 +113,7 @@ export default function MaterialPrices() {
           supabase
             .from("estimation_prices")
             .select(
-              "ref_id, price, currency, effective_date, price_source, is_active",
+              "ref_id, price, currency, effective_date, price_source, is_active, market, verification_status, supplier_name",
             )
             .eq("price_type", "material")
             .eq("is_active", true),
@@ -126,6 +150,12 @@ export default function MaterialPrices() {
               currency: p.currency ?? "NGN",
               effective_date: p.effective_date ?? null,
               price_source: p.price_source ?? null,
+              market: p.market ?? "NG",
+              evidence: classifyEvidence({
+                price_source: p.price_source ?? null,
+                supplier_name: p.supplier_name ?? null,
+                verification_status: p.verification_status ?? null,
+              }),
             };
           })
           .filter((r) => Number.isFinite(r.price) && r.price > 0)
@@ -260,11 +290,22 @@ export default function MaterialPrices() {
         </div>
 
         {/* Honesty note */}
-        <p className="mb-8 text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground">
-          Every price below was captured from a named retailer scan or
-          admin-verified source, with the date it took effect. Prices vary by
-          region and supplier: treat this as a planning reference, then confirm
-          with your own supplier before buying.
+        <p className="mb-3 text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground">
+          Every row states where its price came from and the date it took
+          effect. Each row is labelled by the strength of its evidence: verified
+          supplier prices, reported market prices, FX reference bands and seeded
+          baselines are different kinds of number. Prices vary by region and
+          supplier, so treat this as a planning reference and confirm with your
+          own supplier before buying.
+        </p>
+        <p className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground dark:text-muted-foreground">
+          <span className="font-semibold">Labels:</span>
+          <span>Verified: a supplier price we have checked</span>
+          <span>Reported: collected, not independently verified</span>
+          <span>
+            FX reference: calculated from a macro rate, not a quotation
+          </span>
+          <span>Baseline: seeded figure with no live source</span>
         </p>
 
         {grouped.length === 0 ? (
@@ -317,7 +358,7 @@ export default function MaterialPrices() {
                               : null;
                           return (
                             <tr
-                              key={`${r.category}-${r.name}`}
+                              key={`${r.category}-${r.name}-${r.market}`}
                               className="border-b border-border/40 last:border-0 dark:border-white/5"
                             >
                               <td className="px-5 py-3.5">
@@ -357,7 +398,26 @@ export default function MaterialPrices() {
                                 </span>
                               </td>
                               <td className="px-5 py-3.5 text-xs text-muted-foreground">
-                                {r.price_source ?? "FRELUX verified"}
+                                <span className="block">
+                                  {r.price_source ?? "Source not recorded"}
+                                </span>
+                                <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                                  <span
+                                    title={EVIDENCE_NOTE[r.evidence]}
+                                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                                      r.evidence === "supplier_verified"
+                                        ? "border-accent-green/40 text-accent-green dark:text-accent-green-light"
+                                        : r.evidence === "supplier_reported"
+                                          ? "border-border text-muted-foreground dark:border-white/15"
+                                          : "border-amber-500/40 text-amber-600 dark:text-amber-400"
+                                    }`}
+                                  >
+                                    {EVIDENCE_LABEL[r.evidence]}
+                                  </span>
+                                  <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                                    {r.market}
+                                  </span>
+                                </span>
                               </td>
                               <td className="whitespace-nowrap px-5 py-3.5 text-xs text-muted-foreground">
                                 {r.effective_date ?? "—"}
