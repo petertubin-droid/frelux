@@ -7,7 +7,9 @@ import { getSupabase } from "@/lib/supabase-lazy";
  * Renders nothing to the DOM, side-effect only.
  *
  * Reads from two sources (integration_settings takes priority over site_settings
- * and static siteConfig):
+ * and static siteConfig). Note that integration_settings is admin-only under
+ * RLS, so for anonymous visitors the site_settings mirror written by
+ * syncToSiteSettings (lib/crm.ts) is what actually supplies these values:
  * 1. integration_settings table (admin Integration Center), primary source
  * 2. site_settings table (legacy FRELUX settingsl), fallback
  * 3. siteConfig (static, from src/config/site.ts), last resort

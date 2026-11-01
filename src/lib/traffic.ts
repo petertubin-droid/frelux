@@ -5,9 +5,10 @@
 // path, the external source, and a coarse device class. No IP addresses, no
 // user identity, no cross-site trails.
 //
-// Google Analytics keeps running separately through gtag. When a GA4
-// measurement ID is configured, the same navigation is also reported to GA4 so
-// the client-side report agrees with the dashboard.
+// Google Analytics runs separately through gtag (see AnalyticsScripts). It is
+// deliberately NOT re-reported from here: GA4 enhanced measurement already
+// sends a page_view on history changes, so forwarding from this module would
+// double count every route change.
 
 import { getSupabase } from "@/lib/supabase-lazy";
 
@@ -135,20 +136,6 @@ export function shouldTrackPath(path: string): boolean {
   );
 }
 
-function reportToGa4(path: string) {
-  if (typeof window === "undefined") return;
-  if (typeof window.gtag !== "function") return;
-  try {
-    window.gtag("event", "page_view", {
-      page_path: path,
-      page_location: window.location.href,
-      page_title: document.title,
-    });
-  } catch {
-    // analytics failure must never affect rendering
-  }
-}
-
 /**
  * Records one page view. Fire and forget: callers never await it and a
  * failure (offline, blocked storage, missing table) is silent.
@@ -161,8 +148,6 @@ export async function trackPageView(path: string): Promise<void> {
   const now = Date.now();
   if (lastTracked.path === path && now - lastTracked.at < 1500) return;
   lastTracked = { path, at: now };
-
-  reportToGa4(path);
 
   try {
     const supabase = await getSupabase();
