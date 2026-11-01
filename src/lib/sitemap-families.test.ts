@@ -160,9 +160,11 @@ describe("sitemap coverage", () => {
     expect(has("/learn/external-render-germany/")).toBe(false);
   });
 
-  it("lists learn articles and paint colors", () => {
+  it("lists learn articles but not unprerendered paint colors", () => {
     expect(has("/learn/secure-attachment/")).toBe(true);
-    expect(has("/colors/paint/ivory/")).toBe(true);
+    // Colour detail pages have no prerendered file, so they serve the home
+    // shell with canonical "/" and must stay out of the sitemap (2026-11-01).
+    expect(has("/colors/paint/ivory/")).toBe(false);
   });
 
   it("emits only canonical absolute URLs with no query strings", () => {

@@ -328,112 +328,37 @@ export const handler = async () => {
               : `/learn/${a.slug}/`,
           ]),
         );
-        for (const t of translations) {
-          const base = englishPathBySlug.get(t.content_key);
-          if (!base) continue;
-          const lastmod =
-            t.published_at && !Number.isNaN(Date.parse(t.published_at))
-              ? new Date(t.published_at).toISOString().slice(0, 10)
-              : today;
-          add(`/${t.locale}${base}`, lastmod, "monthly", "0.5");
-        }
+        // Locale clones are deliberately not emitted: prerender builds one
+        // content-bearing page per route, so /<locale>/<path> serves the English
+        // shell with canonical "/". Listing them advertised byte-identical
+        // duplicates under a second path (150 URLs on 2026-11-01).
+        void englishPathBySlug;
       }
     } catch (err) {
       console.warn("[sitemap] Translations fetch skipped:", err);
     }
   }
 
-  // Dynamic active paint colors
-  if (headers && supabaseUrl) {
-    try {
-      const pcRes = await fetch(
-        `${supabaseUrl}/rest/v1/paint_colors?select=slug,updated_at&is_active=eq.true&order=slug.asc&limit=1000`,
-        { headers },
-      );
-      if (pcRes.ok) {
-        const colors = await pcRes.json();
-        for (const c of colors) {
-          if (!c.slug) continue;
-          const lastmod =
-            c.updated_at && !Number.isNaN(Date.parse(c.updated_at))
-              ? new Date(c.updated_at).toISOString().slice(0, 10)
-              : today;
-          add(`/colors/paint/${c.slug}/`, lastmod, "monthly", "0.6");
-        }
-      }
-    } catch {
-      // Paint colors are additive
-    }
-  }
+  // Paint colour detail pages: not emitted. They are client-rendered only, so
+  // a crawler receives the home shell with canonical "/" (724 such URLs on
+  // 2026-11-01). They return when colour slugs are prerendered.
 
-  // Dynamic published color combinations / palettes
-  if (headers && supabaseUrl) {
-    try {
-      const palRes = await fetch(
-        `${supabaseUrl}/rest/v1/color_combinations?select=slug,updated_at&is_published=eq.true&order=slug.asc&limit=500`,
-        { headers },
-      );
-      if (palRes.ok) {
-        const palettes = await palRes.json();
-        for (const p of palettes) {
-          if (!p.slug) continue;
-          const lastmod =
-            p.updated_at && !Number.isNaN(Date.parse(p.updated_at))
-              ? new Date(p.updated_at).toISOString().slice(0, 10)
-              : today;
-          add(`/colors/${p.slug}/`, lastmod, "monthly", "0.6");
-        }
-      }
-    } catch {
-      // Palettes are additive
-    }
-  }
+  // Colour palettes: not emitted for the same reason as colour pages: no
+  // prerendered file, so the canonical is the home page.
 
-  // Dynamic published calculator templates
-  if (headers && supabaseUrl) {
-    try {
-      const tmplRes = await fetch(
-        `${supabaseUrl}/rest/v1/calculator_templates?select=slug,updated_at&is_published=eq.true&order=slug.asc&limit=500`,
-        { headers },
-      );
-      if (tmplRes.ok) {
-        const tmpls = await tmplRes.json();
-        for (const t of tmpls) {
-          if (!t.slug) continue;
-          const lastmod =
-            t.updated_at && !Number.isNaN(Date.parse(t.updated_at))
-              ? new Date(t.updated_at).toISOString().slice(0, 10)
-              : today;
-          add(`/templates/${t.slug}/`, lastmod, "monthly", "0.6");
-        }
-      }
-    } catch {
-      // Templates are additive
-    }
-  }
+  // Published DB templates: not emitted. Only catalog templates
+  // (scripts/lib/template-catalog.mjs) are prerendered; a DB-only slug serves
+  // the home shell, so listing it advertised a duplicate of the home page.
 
-  // Public template slugs: live DB when reachable, static catalog as fallback,
-  // so the 32-market template family is never empty because a query failed.
+  // Public template slugs come from the prerender catalog only (the static
+  // list above). DB slugs are not merged in: the catalog is the sole source of
+  // /market/<code>/templates/<slug> pages, so a DB-only slug was listed in all
+  // 32 markets and 404ed in every one of them (1,216 dead URLs on 2026-11-01).
   const templateSlugs = new Set(
     STATIC_PATHS.filter((p) => /^\/templates\/[^/]+\/$/.test(p)).map(
       (p) => p.split("/")[2],
     ),
   );
-  if (headers && supabaseUrl) {
-    try {
-      const res = await fetch(
-        `${supabaseUrl}/rest/v1/calculator_templates?select=slug&is_published=eq.true&limit=500`,
-        { headers },
-      );
-      if (res.ok) {
-        for (const t of await res.json()) {
-          if (t.slug) templateSlugs.add(t.slug);
-        }
-      }
-    } catch {
-      // Static fallback already covers the curated catalog.
-    }
-  }
 
   // Market × template pages: every market hub plus every template localized to
   // that market. These are real 200 pages with distinct titles, canonicals and
