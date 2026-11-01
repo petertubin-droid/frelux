@@ -236,14 +236,13 @@ export default function Home() {
           <div className="mx-auto max-w-2xl text-center">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
               <ShoppingBag aria-hidden="true" className="h-3.5 w-3.5" />
-              FRELUX Marketplace · Nigeria Directory
+              {t("FRELUX Marketplace · Global Trade Directory")}
             </div>
             <h2 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
               {t("Post a Job & Get Bids from Verified Pros")}
             </h2>
             <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground sm:text-base">
-              Run a calculation, post it as a job, and receive competitive bids
-              from verified contractors and material suppliers across Nigeria.
+              {t("Run a calculation, post it as a job, and receive competitive bids from verified contractors and material suppliers across supported markets.")}
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link

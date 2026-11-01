@@ -233,7 +233,7 @@ export default function MaterialAdvisor() {
         url: "https://freluxtools.com/material-advisor",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0",  },
         isPartOf: {
           "@type": "WebSite",
           name: "FRELUX SMART CALC",

@@ -684,7 +684,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     title: "Regional Cost Index",
     category: "project",
     icon: Globe,
-    does: "See how construction costs differ by region, starting with Nigeria.",
+    does: "See how construction costs differ across Nigerian states using available regional index data.",
     enters: "Your state and project type.",
     gets: "Local price index to adjust any estimate to your region.",
     to: "/regional-cost-index",

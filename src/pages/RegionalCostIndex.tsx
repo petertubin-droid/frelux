@@ -47,7 +47,7 @@ export default function RegionalCostIndex() {
   useSeo({
     title: "Regional Cost Index: FRELUX",
     description:
-      "Location-adjusted costing: state and regional labour and material cost factors applied to your FRELUX estimates, starting with Nigeria.",
+      "Location-adjusted costing using Nigerian state and regional labour and material cost factors. Coverage is specific to available index data.",
   });
 
   const [indices, setIndices] = useState<RegionalCostIndex[]>([]);

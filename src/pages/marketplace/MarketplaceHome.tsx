@@ -110,7 +110,7 @@ export default function MarketplaceHome() {
     title:
       "FRELUX Marketplace: Construction Jobs, Building Materials & Interior Products",
     description:
-      "Post construction jobs and get bids from verified pros, or buy and sell building materials, painting supplies, and interior design products across Nigeria.",
+      "Post construction jobs and get bids from verified pros, or buy and sell building materials, painting supplies, and interior design products in available locations.",
     canonicalPath: "/marketplace",
     ogType: "website",
     structuredData: {
@@ -118,16 +118,12 @@ export default function MarketplaceHome() {
       "@type": "Marketplace",
       name: "FRELUX Marketplace",
       description:
-        "Post construction jobs and get bids from verified pros, or buy and sell building materials, painting supplies, and interior design products across Nigeria.",
+        "Post construction jobs and get bids from verified pros, or buy and sell building materials, painting supplies, and interior design products in available locations.",
       url: `${SITE_URL}/marketplace`,
       provider: {
         "@type": "Organization",
         name: "FRELUX",
         url: SITE_URL,
-      },
-      areaServed: {
-        "@type": "Country",
-        name: "Nigeria",
       },
     },
   });
@@ -309,7 +305,7 @@ export default function MarketplaceHome() {
                 aria-hidden="true"
                 className="h-3.5 w-3.5 text-brand-purple-lighter"
               />
-              Regional Trade Marketplace · Nigeria
+              {tx("Construction Trade Marketplace")}
             </div>
 
             {/* Tagline words */}
@@ -323,9 +319,9 @@ export default function MarketplaceHome() {
             </div>
 
             <p className="mx-auto max-w-2xl text-sm text-muted-foreground/80 sm:text-base">
-              Nigeria's #1 marketplace for construction materials, professional
-              services, and building projects. Find trusted suppliers, hire
-              verified pros, and get your project done.
+              {tx(
+                "Find construction materials, professional services, and building projects in available locations. Marketplace listings vary by region.",
+              )}
             </p>
 
             {/* Quick action buttons */}

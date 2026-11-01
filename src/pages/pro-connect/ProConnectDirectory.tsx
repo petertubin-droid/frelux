@@ -41,9 +41,9 @@ import { useLanguage } from "@/lib/i18n";
 export default function ProConnectDirectory() {
   const { t } = useLanguage();
   useSeo({
-    title: "FRELUX Pro Connect: Find Construction Professionals in Nigeria",
+    title: "FRELUX Pro Connect: Find Construction Professionals",
     description:
-      "Find verified painters, tilers, screeders, POP installers, contractors, engineers, and other construction professionals across Nigeria.",
+      "Find construction professionals by trade and location. Directory availability varies by market.",
     canonicalPath: "/pro-connect",
     ogType: "website",
     structuredData: {
@@ -51,16 +51,12 @@ export default function ProConnectDirectory() {
       "@type": "Directory",
       name: "FRELUX Pro Connect",
       description:
-        "Find verified painters, tilers, screeders, POP installers, contractors, engineers, and other construction professionals across Nigeria.",
+        "Find construction professionals by trade and location. Directory availability varies by market.",
       url: `${SITE_URL}/pro-connect`,
       provider: {
         "@type": "Organization",
         name: "FRELUX",
         url: SITE_URL,
-      },
-      areaServed: {
-        "@type": "Country",
-        name: "Nigeria",
       },
     },
   });
@@ -255,8 +251,7 @@ export default function ProConnectDirectory() {
           {t("Find Construction Professionals")}
         </h1>
         <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
-          Connect with verified painters, tilers, screeders, POP installers, and
-          more across Nigeria
+          {t("Find construction professionals by trade and location; availability varies by market")}
         </p>
       </div>
 

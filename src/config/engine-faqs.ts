@@ -233,8 +233,8 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         a: "Every opening is deducted by width and height with its quantity, so doors, windows and vents come out of the block count, not added as an afterthought.",
       },
       {
-        q: "Does it work outside Nigeria?",
-        a: "Yes. The engine carries local cement packaging and mortar specifications across the supported markets, and it does not fall back to a single country's packaging when a market is set.",
+        q: "Does it work in different countries and markets?",
+        a: "The engine supports market-specific cement packaging and mortar settings where configured. Confirm the selected market details before relying on an estimate.",
       },
       {
         q: "Are mortar and packaging included?",

@@ -146,10 +146,10 @@ export default function UnitConverter() {
   useSeo({
     title: "Construction Measurement Converter: Plots, Feet, Tonnes to Bags",
     description:
-      "Convert feet to metres, inches to millimetres, plots to square metres, tonnes of sand or granite to cubic metres and bags, and paint litres to 4L, 10L and 20L buckets. A construction converter built for Nigerian sites.",
+      "Convert between metric and imperial construction measurements, including feet, metres, inches, millimetres, area, and material quantities. Local conventions and examples are identified where relevant.",
     canonicalPath: "/unit-converter",
     keywords:
-      "construction measurement converter, feet to metres, inches to millimetres, plot to square metres, tonnes to bags, sand density, paint bucket calculator, Nigeria",
+      "construction measurement converter, feet to metres, inches to millimetres, plot to square metres, tonnes to bags, sand density, paint bucket calculator, metric to imperial construction",
     structuredDataArray: [
       {
         "@context": "https://schema.org",
@@ -164,8 +164,7 @@ export default function UnitConverter() {
           "@context": "https://schema.org",
           "@type": "Offer",
           price: "0",
-          priceCurrency: "NGN",
-        },
+                  },
       },
       {
         "@context": "https://schema.org",

@@ -36,7 +36,7 @@ type LoadState =
 
 export default function MaterialPriceIndex() {
   useSeo({
-    title: "Live Nigerian Material Price Index",
+    title: "Live Material Price Index | FRELUX",
     description:
       "Verified and reported construction material prices across Nigerian cities: cement, reinforcement bars, aggregates, blocks, roofing, tiles, paint and more, with sample sizes and last verification dates shown.",
     canonicalPath: "/material-price-index",
@@ -239,7 +239,7 @@ export default function MaterialPriceIndex() {
     <div className="min-h-screen bg-background">
       <PageHeader
         title="Live Material Price Index"
-        subtitle="Construction material prices across Nigeria, with the evidence behind every number: sample size, source, price basis and last verification date."
+        subtitle="Construction material prices across Nigerian cities, with the evidence behind every number: sample size, source, price basis and last verification date."
       />
 
       <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">

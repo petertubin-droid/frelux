@@ -5,11 +5,9 @@ import { navToolsByCategory } from "./construction-tools";
 export const siteConfig = {
   name: "FRELUX SMART CALC",
   shortName: "FRELUX",
-  // Final worldwide positioning (matches the client-approved hero copy,
-  // 2026-10-06): premium, platform-level, trade-agnostic.
-  tagline: "Every trade. Every market. One construction platform.",
+  tagline: "Construction intelligence for projects across markets.",
   description:
-    "Frelux turns your measurements into exact material quantities and real, market-verified costs, from a single room to an entire building, foundation to roof. Save any calculation as a reusable template, see verified pros, projects and stock on a worldwide 3D map, and check the local forecast before you commit a crew. Free, professional-grade estimation in multiple languages, for builders worldwide.",
+    "FRELUX turns measurements into material quantities and estimates, with market-specific data where available. Save calculations as reusable templates, explore project information, and review the assumptions behind each estimate. Built for construction professionals working across different regions.",
   email: "frenzyanthony39@gmail.com",
   // Verified support contact options and operating response standards
   supportContact: {
@@ -198,7 +196,7 @@ export const navWorkspaces: NavWorkspace[] = [
       {
         label: "Building from Abroad",
         path: "/learn/build-in-nigeria-from-abroad",
-        description: "Budget a Nigerian build from the US or UK",
+        description: "Budget a Nigerian construction project from abroad",
       },
       {
         label: "User Guide",

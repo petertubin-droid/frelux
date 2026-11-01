@@ -288,7 +288,7 @@ const routes = [
         name: "FRELUX Paint Calculator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -349,7 +349,7 @@ const routes = [
         name: "FRELUX Wall Screeding Calculator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -410,7 +410,7 @@ const routes = [
         name: "FRELUX Cost Estimator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -441,7 +441,7 @@ const routes = [
         name: "FRELUX POP Ceiling Calculator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       ,
       {
@@ -506,7 +506,7 @@ const routes = [
         name: "FRELUX Tile Calculator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       ,
       {
@@ -571,7 +571,7 @@ const routes = [
         name: "FRELUX Painting Estimator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       ,
       {
@@ -628,7 +628,7 @@ const routes = [
         name: "FRELUX Screeding Cost Estimator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -665,7 +665,7 @@ const routes = [
         name: "FRELUX POP Ceiling Cost Estimator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -702,7 +702,7 @@ const routes = [
         name: "FRELUX Tile Cost Estimator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -740,7 +740,7 @@ const routes = [
         name: "FRELUX Finish Estimator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -796,7 +796,7 @@ const routes = [
         name: "FRELUX Tyrolene Estimator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -1711,7 +1711,7 @@ const routes = [
         name: "FRELUX Build-to-Roof Estimator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -1775,7 +1775,7 @@ const routes = [
         name: "FRELUX AI Photo Estimator",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -1818,7 +1818,7 @@ const routes = [
         name: "FRELUX Smart Calculator",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -1860,7 +1860,7 @@ const routes = [
         name: "FRELUX Structural Calculator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -1916,7 +1916,7 @@ const routes = [
         name: "FRELUX Foundation Calculator",
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -1980,7 +1980,7 @@ const routes = [
         name: "FRELUX Construction Sequence Planner",
         applicationCategory: "ProjectManagementApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -2022,7 +2022,7 @@ const routes = [
         name: "FRELUX Project Timeline",
         applicationCategory: "ProjectManagementApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0" },
       },
       {
         "@context": "https://schema.org",
@@ -2262,7 +2262,7 @@ const routes = [
     path: "/about",
     title: "About FRELUX SMART CALC",
     description:
-      "Learn about FRELUX, a global construction intelligence and project estimation platform helping homeowners, decorators, and construction professionals across international markets plan projects with confidence.",
+      "Learn about FRELUX, a construction intelligence and project estimation platform designed for international use, with localized settings and market data available where supported.",
     priority: "0.5",
     changefreq: "monthly",
   },
@@ -2482,7 +2482,7 @@ const routes = [
     path: "/global-markets",
     title: "Construction Markets and Regional Standards | FRELUX SMART CALC",
     description:
-      "Browse every market FRELUX supports: local block and cement standards, electrical and plumbing practice, currencies, and the calculators preconfigured for each country.",
+      "Browse FRELUX market profiles, including available local standards, electrical and plumbing practices, currencies, and calculator settings. Coverage varies by market and feature.",
   },
   {
     path: "/faq",
@@ -2570,7 +2570,7 @@ const routes = [
   },
   {
     path: "/material-price-index",
-    title: "Live Nigerian Material Price Index | FRELUX SMART CALC",
+    title: "Live Material Price Index | FRELUX SMART CALC",
     description:
       "Construction material prices across Lagos, Abuja, Port Harcourt, Onitsha, Ibadan, Kano and more, with sample sizes, sources and last verification dates. Figures are published only when at least three independent prices support them.",
   },

@@ -111,7 +111,7 @@ export default function Footer() {
               FRELUX Technologies Ltd.
             </div>
             <p className="mt-1 line-clamp-2 max-w-xs text-xs leading-relaxed text-muted-foreground sm:mt-2 sm:line-clamp-none sm:text-sm">
-              Global construction intelligence, algorithmic quantity takeoff, and localized material benchmarking across 32 international markets.
+              Construction intelligence and quantity takeoff tools for projects across markets, with localized data availability disclosed by location.
             </p>
 
             <div className="mt-3 sm:mt-4">
@@ -137,7 +137,7 @@ export default function Footer() {
 
             <p className="mt-3 hidden flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground sm:flex dark:text-muted-foreground">
               <span className="font-medium text-foreground dark:text-primary-foreground/90">
-                32 markets
+                International market profiles
               </span>
               <span aria-hidden="true">·</span>
               <span>Local currency pricing</span>

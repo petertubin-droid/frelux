@@ -8,7 +8,7 @@ export default function About() {
   useSeo({
     title: "About: FRELUX",
     description:
-      "Learn about FRELUX, a global construction intelligence platform with calculators, saved templates, a worldwide 3D site map and local weather, helping builders in 32 markets plan with confidence.",
+      "Learn about FRELUX, a construction intelligence and estimation platform designed for international use, with localized settings and data availability varying by market.",
     canonicalPath: "/about",
     ogType: "website",
     structuredData: {
@@ -16,7 +16,7 @@ export default function About() {
       "@type": "AboutPage",
       name: "About FRELUX",
       description:
-        "FRELUX is a construction estimation platform helping homeowners, decorators, and contractors plan projects with confidence across 32 markets.",
+        "FRELUX provides construction estimation tools for homeowners, decorators, and contractors. Market-specific data and service availability vary by location.",
       url: `${SITE_URL}/about`,
       mainEntity: {
         "@type": "Organization",
@@ -54,13 +54,12 @@ export default function About() {
       updated="2026-10-30"
       intro={
         <p>
-          FRELUX is a premium construction estimation platform built to help
-          homeowners, decorators, and contractors anywhere in the world plan
-          projects with confidence. Founded in 2025 and based in Nigeria, our
-          tools are priced and calibrated against real market data, they speak
-          multiple languages, and they plot work on a real 3D globe, so the same
-          platform that serves a Lagos site serves a builder in London, Dubai,
-          or São Paulo with equal precision.
+          FRELUX is a construction intelligence and estimation platform built for
+          homeowners, decorators, and contractors working across different
+          markets. Founded in 2025, the platform is designed for international
+          use, with localized settings and market data available where supported.
+          The same estimation workflows can serve projects in different regions,
+          while local pricing, standards, and service availability vary by market.
         </p>
       }
       sections={[
@@ -146,8 +145,7 @@ export default function About() {
               are designed to be clear and practical. The calculation
               methodology works for any project, and market-sensitive data
               (prices, product sizes, standards) is configured and verified
-              market by market, starting with Nigeria and extending across the
-              configured international markets. Each estimate discloses which
+              market by market in locations where data is available. Each estimate discloses which
               market configuration it uses and whether its data is verified or
               user-supplied.
             </p>

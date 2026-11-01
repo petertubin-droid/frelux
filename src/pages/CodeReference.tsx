@@ -68,7 +68,7 @@ export default function CodeReference() {
         url: "https://freluxtools.com/code-reference",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+        offers: { "@type": "Offer", price: "0",  },
         isPartOf: {
           "@type": "WebSite",
           name: "FRELUX SMART CALC",
