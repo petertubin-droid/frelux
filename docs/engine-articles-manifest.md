@@ -1,6 +1,6 @@
 # Engine article content manifest
 
-This manifest documents the 25 Learn articles seeded by `20261031130000_engine_articles_and_faqs.sql`. Each article is tagged `GLOBAL`, uses the existing Learn renderer, and has six structured FAQs. Word counts include headings and the embedded FAQ section. Counts are computed from the exact content strings written by the generator; rerun the validation script when content changes.
+This manifest documents the 25 Learn articles seeded by `20261101210500_engine_articles_and_faqs.sql`. Each article is tagged `GLOBAL`, uses the existing Learn renderer, and has six structured FAQs. Word counts include headings and the embedded FAQ section. Counts are computed from the exact content strings written by the generator; rerun the validation script when content changes.
 
 | Engine family | Count | Minimum words | Articles |
 |---|---:|---:|---|
