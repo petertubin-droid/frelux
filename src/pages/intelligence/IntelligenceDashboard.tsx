@@ -424,7 +424,7 @@ export default function IntelligenceDashboard() {
                 ) : null}
               </ul>
               <Link
-                to="/price-index"
+                to="/material-price-index"
                 className="mt-3 inline-block text-xs font-medium text-primary hover:underline"
               >
                 Open the price index
@@ -461,7 +461,7 @@ export default function IntelligenceDashboard() {
                 ) : null}
               </ul>
               <Link
-                to="/site-tracker"
+                to="/diaspora-tracker"
                 className="mt-3 inline-block text-xs font-medium text-primary hover:underline"
               >
                 Review in the site tracker
@@ -758,7 +758,7 @@ export default function IntelligenceDashboard() {
                     <tr key={row.projectId} className="border-t">
                       <td className="px-3 py-2">
                         <Link
-                          to={`/site-tracker/${row.projectId}`}
+                          to={`/diaspora-tracker/${row.projectId}`}
                           className="font-medium hover:underline"
                         >
                           {row.projectName}

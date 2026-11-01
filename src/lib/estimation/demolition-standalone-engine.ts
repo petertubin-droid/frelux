@@ -1,7 +1,7 @@
 /** Demolition and debris volume takeoff. Permits, hazardous materials and disposal classifications are excluded. */
 export interface DemolitionInput {
   marketCode: string;
-  items: Array<{
+  items?: Array<{
     type: "wall" | "slab" | "floor" | "roof";
     lengthM: number;
     widthM: number;
@@ -23,13 +23,13 @@ export interface DemolitionResult {
 export function calculateDemolitionTakeoff(
   input: DemolitionInput,
 ): DemolitionResult {
-  const inPlaceVolumeM3 = input.items.reduce(
+  const inPlaceVolumeM3 = (input.items ?? []).reduce(
     (sum, item) =>
       sum +
-      Math.max(0, item.lengthM) *
-        Math.max(0, item.widthM) *
-        Math.max(0, item.thicknessM) *
-        Math.max(0, item.quantity ?? 1),
+      Math.max(0, Number(item.lengthM) || 0) *
+        Math.max(0, Number(item.widthM) || 0) *
+        Math.max(0, Number(item.thicknessM) || 0) *
+        Math.max(0, Number(item.quantity ?? 1) || 0),
     0,
   );
   const bulkingFactor = Math.max(1, input.bulkingFactor ?? 1.35);

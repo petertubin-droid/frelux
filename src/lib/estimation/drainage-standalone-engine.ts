@@ -7,7 +7,7 @@ export interface DrainageRun {
 }
 export interface DrainageCalculationInput {
   marketCode: string;
-  runs: DrainageRun[];
+  runs?: DrainageRun[];
   inspectionChambers?: number;
   chambersPerConnection?: number;
   beddingDepthM?: number;
@@ -15,6 +15,8 @@ export interface DrainageCalculationInput {
   beddingWastePercent?: number;
   trenchWidthM?: number;
   trenchDepthM?: number;
+  /** Optional shortcut for excavation volume when no measured runs are supplied. */
+  trenchLengthM?: number;
   manholeCount?: number;
 }
 export interface DrainageCalculationResult {
@@ -38,14 +40,14 @@ export function calculateDrainageTakeoff(
   input: DrainageCalculationInput,
 ): DrainageCalculationResult {
   const marketCode = (input.marketCode || "UNSPECIFIED").toUpperCase();
-  const runs = input.runs.map((r) => {
-    const length = Math.max(0, r.lengthM);
-    const stock = Math.max(0.1, r.pipeStockLengthM ?? 6);
+  const runs = (input.runs ?? []).map((r) => {
+    const length = Math.max(0, Number(r.lengthM) || 0);
+    const stock = Math.max(0.1, Number(r.pipeStockLengthM) || 6);
     return {
       lengthM: Number(length.toFixed(2)),
-      diameterMm: Math.max(0, r.pipeDiameterMm),
-      fallMmPerM: Math.max(0, r.fallMmPerM),
-      fallTotalMm: Number((length * Math.max(0, r.fallMmPerM)).toFixed(0)),
+      diameterMm: Math.max(0, Number(r.pipeDiameterMm) || 0),
+      fallMmPerM: Math.max(0, Number(r.fallMmPerM) || 0),
+      fallTotalMm: Number((length * Math.max(0, Number(r.fallMmPerM) || 0)).toFixed(0)),
       pipePieces: Math.ceil(length / stock),
     };
   });
@@ -56,10 +58,13 @@ export function calculateDrainageTakeoff(
     Math.ceil(
       totalPipeLengthM / Math.max(1, input.chambersPerConnection ?? 30),
     );
-  const trenchWidth = Math.max(0, input.trenchWidthM ?? 0.45);
-  const trenchDepth = Math.max(0, input.trenchDepthM ?? 0.75);
-  const excavationVolume = totalPipeLengthM * trenchWidth * trenchDepth;
-  const beddingDepth = Math.max(0, input.beddingDepthM ?? 0.1);
+  const trenchWidth = Math.max(0, Number(input.trenchWidthM) || 0.45);
+  const trenchDepth = Math.max(0, Number(input.trenchDepthM) || 0.75);
+  const trenchLength = runs.length > 0
+    ? totalPipeLengthM
+    : Math.max(0, Number(input.trenchLengthM) || 0);
+  const excavationVolume = trenchLength * trenchWidth * trenchDepth;
+  const beddingDepth = Math.max(0, Number(input.beddingDepthM) || 0.1);
   const beddingWidth =
     Math.max(0, input.beddingWidthFactor ?? 2) *
     (Math.max(0, ...runs.map((r) => r.diameterMm)) / 1000);

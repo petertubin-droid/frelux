@@ -1743,9 +1743,9 @@ export function calculateMasonryTakeoff(
 ): MasonryCalculationResult {
   const config = resolveMarketMasonryConfig(input.marketCode);
   const wallCount = Math.max(1, input.wallCount ?? 1);
-  const wallLength = Math.max(0, input.wallLengthM);
-  const wallHeight = Math.max(0, input.wallHeightM);
-  const wastePercent = Math.max(0, input.wastePercent ?? 5);
+  const wallLength = Math.max(0, Number(input.wallLengthM) || 0);
+  const wallHeight = Math.max(0, Number(input.wallHeightM) || 0);
+  const wastePercent = Math.max(0, Number(input.wastePercent ?? 5) || 0);
 
   let activeUnit: MasonryUnitProfile = config.defaultUnit;
   if (input.selectedUnitId) {
@@ -1787,9 +1787,9 @@ export function calculateMasonryTakeoff(
   if (input.openings && input.openings.length > 0) {
     for (const op of input.openings) {
       openingsAreaM2 +=
-        Math.max(0, op.widthM) *
-        Math.max(0, op.heightM) *
-        Math.max(1, op.quantity);
+        Math.max(0, Number(op.widthM) || 0) *
+        Math.max(0, Number(op.heightM) || 0) *
+        Math.max(1, Number(op.quantity) || 1);
     }
   }
   const netWallAreaM2 = Math.max(0, grossWallAreaM2 - openingsAreaM2);

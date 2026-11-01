@@ -12,8 +12,10 @@ export interface DrywallOpening {
 
 export interface DrywallCalculationInput {
   marketCode: string;
-  wallLengthM: number;
-  wallHeightM: number;
+  wallLengthM?: number;
+  wallHeightM?: number;
+  /** Optional total gross face area when length/height are not available. */
+  wallAreaM2?: number;
   wallCount?: number;
   openings?: DrywallOpening[];
   boardWidthMm?: number;
@@ -364,16 +366,19 @@ export function calculateDrywallTakeoff(
     tapeMetersPerM2: 1.4,
   };
   const wallCount = Math.max(1, input.wallCount ?? 1);
-  const wallLengthM = Math.max(0, input.wallLengthM);
-  const wallHeightM = Math.max(0, input.wallHeightM);
-  const grossWallAreaM2 = wallLengthM * wallHeightM * wallCount;
+  const wallLengthM = Math.max(0, Number(input.wallLengthM) || 0);
+  const wallHeightM = Math.max(0, Number(input.wallHeightM) || 0);
+  const enteredWallArea = Number(input.wallAreaM2);
+  const grossWallAreaM2 = Number.isFinite(enteredWallArea) && enteredWallArea >= 0
+    ? enteredWallArea
+    : wallLengthM * wallHeightM * wallCount;
 
   const openingsAreaM2 = (input.openings ?? []).reduce(
     (sum, opening) =>
       sum +
-      Math.max(0, opening.widthM) *
-        Math.max(0, opening.heightM) *
-        Math.max(0, opening.quantity),
+      Math.max(0, Number(opening.widthM) || 0) *
+        Math.max(0, Number(opening.heightM) || 0) *
+        Math.max(0, Number(opening.quantity) || 0),
     0,
   );
   const netWallAreaM2 = Math.max(0, grossWallAreaM2 - openingsAreaM2);

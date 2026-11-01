@@ -8,7 +8,7 @@ export interface FormworkElement {
 }
 export interface TemporaryWorksInput {
   marketCode: string;
-  elements: FormworkElement[];
+  elements?: FormworkElement[];
   formworkReuseCycles?: number;
   formworkWastePercent?: number;
   scaffoldRunLengthM?: number;
@@ -35,11 +35,11 @@ export function calculateTemporaryWorksTakeoff(
   input: TemporaryWorksInput,
 ): TemporaryWorksResult {
   const marketCode = (input.marketCode || "UNSPECIFIED").toUpperCase();
-  const contact = input.elements.reduce((total, e) => {
-    const q = Math.max(0, e.quantity ?? 1),
-      l = Math.max(0, e.lengthM),
-      w = Math.max(0, e.widthM),
-      d = Math.max(0, e.depthOrHeightM);
+  const contact = (input.elements ?? []).reduce((total, e) => {
+    const q = Math.max(0, Number(e.quantity ?? 1) || 0),
+      l = Math.max(0, Number(e.lengthM) || 0),
+      w = Math.max(0, Number(e.widthM) || 0),
+      d = Math.max(0, Number(e.depthOrHeightM) || 0);
     const area =
       e.type === "slab"
         ? l * w

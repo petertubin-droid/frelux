@@ -16,6 +16,11 @@ const SentryRoutes = isSentryActive()
  * every existing route matches unchanged - while LanguageProvider
  * (URL locale wins) renders the page in the locale's language.
  */
+function LegacySiteTrackerRedirect() {
+  const { projectId } = useParams();
+  return <Navigate to={`/diaspora-tracker/${projectId}`} replace />;
+}
+
 function LocaleAwareRoutes({ children }: { children: ReactNode }) {
   const location = useLocation();
   const stripped = stripLocaleFromPathname(location.pathname);
@@ -1863,6 +1868,18 @@ export default function App() {
                         <Route
                           path="/site-intelligence"
                           element={<SiteIntelligence />}
+                        />
+                        <Route
+                          path="/price-index"
+                          element={<Navigate to="/material-price-index" replace />}
+                        />
+                        <Route
+                          path="/site-tracker"
+                          element={<Navigate to="/diaspora-tracker" replace />}
+                        />
+                        <Route
+                          path="/site-tracker/:projectId"
+                          element={<LegacySiteTrackerRedirect />}
                         />
                         <Route
                           path="/diaspora-tracker"

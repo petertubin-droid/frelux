@@ -38,21 +38,21 @@ const M2_TO_SQFT = 10.7639;
 export function calculateSepticSizing(
   input: SepticSizingInput,
 ): SepticSizingResult {
-  const occupants = Math.max(0, input.occupants);
-  const flowPerPerson = Math.max(0, input.designFlowLitresPerPersonPerDay);
+  const occupants = Math.max(0, Number(input.occupants) || 0);
+  const flowPerPerson = Math.max(0, Number(input.designFlowLitresPerPersonPerDay) || 0);
   const dailyFlow = occupants * flowPerPerson;
-  const retentionDays = Math.max(0, input.retentionDays);
-  const storageAllowanceDays = Math.max(0, input.storageAllowanceDays ?? 0);
+  const retentionDays = Math.max(0, Number(input.retentionDays) || 0);
+  const storageAllowanceDays = Math.max(0, Number(input.storageAllowanceDays) || 0);
   const tankWorkingVolumeM3 =
     (dailyFlow * (retentionDays + storageAllowanceDays)) / 1000;
-  const freeboardPercent = Math.max(0, input.freeboardPercent ?? 0);
+  const freeboardPercent = Math.max(0, Number(input.freeboardPercent) || 0);
   const tankTotalVolumeM3 = tankWorkingVolumeM3 * (1 + freeboardPercent / 100);
 
-  const soilRate = input.acceptedSoilLoadingRateLitresPerM2PerDay;
+  const soilRate = Number(input.acceptedSoilLoadingRateLitresPerM2PerDay);
   const soakawayRequiredAbsorptionAreaM2 =
-    soilRate && soilRate > 0 ? dailyFlow / soilRate : null;
+    Number.isFinite(soilRate) && soilRate > 0 ? dailyFlow / soilRate : null;
 
-  const depth = Math.max(0, input.soakawayDepthM ?? 0);
+  const depth = Math.max(0, Number(input.soakawayDepthM) || 0);
 
   // Absorption diameter calculation (EPA Onsite Manual / BS 6297 standard):
   // 1. If sidewallOnly = true: Area = pi * D * h => D = Area / (pi * h) (requires depth > 0)

@@ -73,7 +73,9 @@ const validPositive = (n: number | null | undefined): n is number =>
 
 export function calculateIncrete(input: IncreteInput): IncreteResult {
   const warnings: string[] = [];
-  const areaM2 = areaToM2(input.length * input.width, input.areaUnit);
+  const length = Number(input.length) || 0;
+  const width = Number(input.width) || 0;
+  const areaM2 = areaToM2(length * width, input.areaUnit);
   if (!areaM2 || !validPositive(areaM2)) {
     return {
       areaM2: 0, concreteVolumeM3: null, lines: [], materialTotal: null,
@@ -84,7 +86,8 @@ export function calculateIncrete(input: IncreteInput): IncreteResult {
   if (!input.marketCode) warnings.push("Select a market.");
   const thicknessM = input.thickness == null ? null : input.thicknessUnit === "mm" ? input.thickness / 1000 : input.thickness * 0.0254;
   const concreteVolumeM3 = validPositive(thicknessM) ? areaM2 * thicknessM : null;
-  const lines = input.products.map((product): IncreteLineResult => {
+  const products = input.products ?? [];
+  const lines = products.map((product): IncreteLineResult => {
     const specOkay = validPositive(product.coverageM2PerPackage) && Number.isInteger(product.coats) && product.coats > 0 && Number.isFinite(product.wastePercent) && product.wastePercent >= 0 && product.wastePercent <= 100;
     const areaWithWaste = areaM2 * (1 + product.wastePercent / 100);
     const quantity = specOkay ? areaWithWaste * product.coats : null;
@@ -110,7 +113,7 @@ export function calculateIncrete(input: IncreteInput): IncreteResult {
     };
   });
   if (input.thickness !== null && !validPositive(thicknessM)) warnings.push("Concrete volume omitted: thickness must be a positive value.");
-  if (input.products.length === 0) warnings.push("Add a product specification to calculate quantities.");
+  if (products.length === 0) warnings.push("Add a product specification to calculate quantities.");
   const materialTotal = lines.length > 0 && lines.every((line) => line.total !== null)
     ? lines.reduce((sum, line) => sum + line.total!, 0) : null;
   const labourTotal = input.labourRatePerM2 !== null && Number.isFinite(input.labourRatePerM2) && input.labourRatePerM2 >= 0

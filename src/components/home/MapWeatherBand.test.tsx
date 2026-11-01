@@ -78,7 +78,7 @@ describe("MapWeatherBand", () => {
     ).toBe("/unit-converter");
     expect(screen.getByText(/Beyond the numbers/i)).toBeTruthy();
     expect(
-      screen.getByRole("application", { name: /Live construction map/i }),
+      screen.getByRole("region", { name: /Map and measurements/i }),
     ).toBeTruthy();
   });
 
@@ -127,10 +127,7 @@ describe("MapWeatherBand", () => {
 
   it("says plainly when a layer has no pins", async () => {
     renderBand();
-    const map = await screen.findByRole("application", {
-      name: /Live construction map/i,
-    });
-    expect(map.getAttribute("data-count")).toBe("0");
+    await screen.findByRole("region", { name: /Map and measurements/i });
     expect(screen.getByText(/No pins here yet|0 plotted/i)).toBeTruthy();
   });
 

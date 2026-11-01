@@ -258,7 +258,7 @@ export function deriveAlerts(input: AlertInput): AlertItem[] {
         Math.abs(move.changePct) >= input.threshold * 2 ? "warning" : "info",
       title: `${move.materialName} ${up ? "up" : "down"} ${Math.abs(move.changePct).toFixed(1)}%`,
       detail: `${move.city ? `${move.city} market` : "Market index"} moved beyond your ${input.threshold}% threshold.`,
-      href: `/price-index?material=${encodeURIComponent(move.materialSlug)}`,
+      href: `/material-price-index?material=${encodeURIComponent(move.materialSlug)}`,
     });
   }
 
@@ -270,7 +270,7 @@ export function deriveAlerts(input: AlertInput): AlertItem[] {
         severity: "critical",
         title: `${card.name} is over budget`,
         detail: `Approved spending exceeds the budget by ${card.overrun.toLocaleString()} ${card.currency}.`,
-        href: `/site-tracker/${card.id}`,
+        href: `/diaspora-tracker/${card.id}`,
       });
     }
   }
@@ -284,7 +284,7 @@ export function deriveAlerts(input: AlertInput): AlertItem[] {
         severity: "warning",
         title: `${money.length} expense${money.length === 1 ? "" : "s"} awaiting your approval`,
         detail: "Nothing is counted as spent until you approve it.",
-        href: "/site-tracker",
+        href: "/diaspora-tracker",
       });
     }
   }
@@ -300,7 +300,7 @@ export function deriveAlerts(input: AlertInput): AlertItem[] {
         .map((m) => `${m.projectName}: ${m.stageName}`)
         .slice(0, 3)
         .join(", "),
-      href: "/site-tracker",
+      href: "/diaspora-tracker",
     });
   }
 
@@ -311,7 +311,7 @@ export function deriveAlerts(input: AlertInput): AlertItem[] {
       severity: "info",
       title: `${input.reportsCount} new site report${input.reportsCount === 1 ? "" : "s"}`,
       detail: "Daily reports submitted by the site team since your last visit.",
-      href: "/site-tracker",
+      href: "/diaspora-tracker",
     });
   }
 

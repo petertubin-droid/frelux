@@ -1335,7 +1335,7 @@ function calcWalls(input: BuildToRoofInput): StageResult {
   const internalGrossArea = input.internal_wall_length * wallHeight;
 
   // Opening deductions
-  const openingArea = input.openings.reduce(
+  const openingArea = (input.openings ?? []).reduce(
     (sum, o) => sum + o.width * o.height * o.count,
     0,
   );
@@ -1477,7 +1477,7 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
   const materials: MaterialLine[] = [];
   const labour: LabourLine[] = [];
 
-  if (input.structural_members.length === 0) {
+  if ((input.structural_members ?? []).length === 0) {
     return {
       stage: "structural_frame",
       stage_label: "Structural Frame",
@@ -1493,7 +1493,7 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
   let totalConcreteVol = 0;
   let totalFormworkArea = 0;
 
-  for (const member of input.structural_members) {
+  for (const member of input.structural_members ?? []) {
     // FIX: removed redundant if/else, all member types use the same volume formula
     // vol = length × width × depth × quantity
     const vol = member.length * member.width * member.depth * member.quantity;
@@ -1572,7 +1572,7 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
 
   // Reinforcement, split by bar diameter for user-friendly output
   const rebarBreakdown = buildReinforcementBreakdown(
-    input.structural_members,
+    input.structural_members ?? [],
     input.wastage.reinforcement,
     input.prices,
   );
@@ -1977,7 +1977,7 @@ function assessConfidence(input: BuildToRoofInput): {
 } {
   const hasDrawing = !!input.drawing_analysis?.confirmed.building_length;
   const hasStructural =
-    input.has_engineer_schedule && input.structural_members.length > 0;
+    input.has_engineer_schedule && (input.structural_members ?? []).length > 0;
   const hasDimensions = input.building_length > 0 && input.building_width > 0;
 
   if (hasDrawing && hasStructural) {
@@ -2047,12 +2047,12 @@ export function convertBuildToRoofUnits(
   for (const key of UNIT_SCALAR_FIELDS) {
     target[key as string] = (input[key] as number) * factor;
   }
-  converted.openings = input.openings.map((o) => ({
+  converted.openings = (input.openings ?? []).map((o) => ({
     ...o,
     width: o.width * factor,
     height: o.height * factor,
   }));
-  converted.structural_members = input.structural_members.map((m) => ({
+  converted.structural_members = (input.structural_members ?? []).map((m) => ({
     ...m,
     length: m.length * factor,
     width: m.width * factor,
@@ -2142,7 +2142,7 @@ export function validateBuildToRoofInput(rawInput: BuildToRoofInput): string[] {
       errors.push(`Price (${k}) cannot be negative (got ${v})`);
   }
 
-  for (const o of input.openings) {
+  for (const o of input.openings ?? []) {
     if (o.count < 0 || !Number.isInteger(o.count))
       errors.push(
         `Opening "${o.label ?? o.type}" count must be a whole number ≥ 0`,
@@ -2152,7 +2152,7 @@ export function validateBuildToRoofInput(rawInput: BuildToRoofInput): string[] {
       num(`Opening "${o.label ?? o.type}" height`, o.height, 0.1, 20);
     }
   }
-  for (const m of input.structural_members) {
+  for (const m of input.structural_members ?? []) {
     nonNeg(`Structural member "${m.label}" length`, m.length);
     nonNeg(`"${m.label}" width`, m.width);
     nonNeg(`"${m.label}" depth`, m.depth);
@@ -2298,7 +2298,7 @@ export function calculateBuildToRoof(
       "Architectural drawing, no drawing uploaded. Dimensions are user-entered and should be verified against actual plans.",
     );
   }
-  if (input.openings.length === 0) {
+  if ((input.openings ?? []).length === 0) {
     missingInfo.push(
       "Door/window openings not specified, wall quantities include the full gross area with no deductions.",
     );

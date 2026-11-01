@@ -1,3 +1,4 @@
+import AdSlot from "@/components/ui/AdSlot";
 import { stageStudioImport } from "@/lib/document-studio";
 import HeroTitle from "@/components/ui/HeroTitle";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
@@ -94,7 +95,6 @@ import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
-import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
 
 const PHASES = [
@@ -418,7 +418,7 @@ const WASTAGE_TO_MATERIAL: Partial<
   reinforcement: "steel",
 };
 
-export default function BuildToRoofEstimator() {
+export default function BuildToRoofEstimator({ embedded = false }: { embedded?: boolean } = {}) {
   const { t } = useLanguage();
   const { market, marketCode } = useMarket();
   const typology = useMemo(
@@ -1095,6 +1095,7 @@ export default function BuildToRoofEstimator() {
           {result && phase === 4 ? (
             <EstimateResult
               result={result}
+              embedded={embedded}
               missingLocalPrices={missingLocalPrices}
               onBack={() => {
                 setResult(null);
@@ -3087,10 +3088,12 @@ function EstimateResult({
   result,
   onBack,
   missingLocalPrices = [],
+  embedded = false,
 }: {
   result: BuildToRoofResult;
   onBack: () => void;
   missingLocalPrices?: string[];
+  embedded?: boolean;
 }) {
   const { t } = useLanguage();
   const engineAccess = useEngineAccess("/build-to-roof-estimator");
