@@ -553,7 +553,25 @@ for (const m of marketLandingRoutes) {
   }
 }
 
-const allRoutes = [...routes, ...learnRoutes, ...marketTemplateRoutes];
+const manifest = (() => {
+  try {
+    const raw = readFileSync("dist/_prerender-manifest.json", "utf-8");
+    return JSON.parse(raw).paths ?? [];
+  } catch {
+    return [];
+  }
+})();
+
+// The manifest is written by prerender.mjs from the files it actually emitted,
+// so a page that exists but is missing from the curated lists above still gets
+// advertised, and a page the lists mention without a file never does.
+const manifestOnlyRoutes = manifest
+  .filter((p) => !routes.some((r) => r.path === p))
+  .filter((p) => !learnRoutes.some((r) => r.path === p))
+  .filter((p) => !marketTemplateRoutes.some((r) => r.path === p))
+  .map((path) => ({ path, priority: "0.5", changefreq: "monthly" }));
+
+const allRoutes = [...routes, ...learnRoutes, ...marketTemplateRoutes, ...manifestOnlyRoutes];
 
 // Netlify's "pretty URLs" force-redirect every path to its trailing-slash
 // form (301 /calculators -> /calculators/). The sitemap must list the final

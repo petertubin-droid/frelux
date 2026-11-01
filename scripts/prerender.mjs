@@ -6,7 +6,7 @@
  * Usage: node scripts/prerender.mjs
  * Run AFTER `vite build` (reads from dist/).
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "fs";
 import { join, dirname } from "path";
 import { seoContentMap } from "./seo-content-map.mjs";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
@@ -3015,7 +3015,7 @@ async function fetchLearnPages() {
         { headers },
       ),
       fetch(
-        `${SUPABASE_URL}/rest/v1/learn_articles?select=slug,title,excerpt,content,meta_title,meta_description,category_slug,author,read_time_minutes,cover_image_url,published_at,updated_at,wall_market_code&status=eq.published&order=published_at.desc&limit=200`,
+        `${SUPABASE_URL}/rest/v1/learn_articles?select=slug,title,excerpt,content,meta_title,meta_description,category_slug,author,read_time_minutes,cover_image_url,published_at,updated_at,wall_market_code&status=eq.published&order=published_at.desc&limit=1000`,
         { headers },
       ),
     ]);
@@ -3332,6 +3332,174 @@ const { routes: learnDynamicRoutes, content: learnDynamicContent } =
   await fetchLearnPages();
 routes.push(...learnDynamicRoutes);
 const contentMap = { ...seoContentMap, ...learnDynamicContent };
+
+// ── Colour library, palette and template families (2026-11-01) ───────
+// These routes have always existed in the SPA router, but nothing prerendered
+// them. A crawler therefore received the home shell with canonical "/", which
+// is why they could not be advertised in the sitemap and why ~800 pages were
+// unindexable. Each page below is built from the same database row the React
+// page renders, so the static copy cannot drift from the live one, and nothing
+// is invented: only stored fields are published.
+const dbRows = async (table, query) => {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return [];
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+    if (!res.ok) {
+      console.warn(`[prerender] ${table} skipped: HTTP ${res.status}`);
+      return [];
+    }
+    return await res.json();
+  } catch (err) {
+    console.warn(`[prerender] ${table} skipped:`, err.message);
+    return [];
+  }
+};
+
+// Some columns are text[] rather than text; normalise before interpolating.
+const asText = (v) =>
+  Array.isArray(v) ? v.filter(Boolean).join(", ") : v == null ? "" : String(v);
+
+const swatch = (hex, label) =>
+  `<span style="display:inline-block;width:18px;height:18px;border-radius:4px;border:1px solid rgba(0,0,0,.25);background:${escapeHtml(hex || "#fff")};vertical-align:-3px"></span> ${escapeHtml(label || "")}`;
+
+const paintColors = await dbRows(
+  "paint_colors",
+  "select=slug,name,hex_code,rgb_r,rgb_g,rgb_b,hsl_h,hsl_s,hsl_l,recommended_usage,is_interior,is_exterior,finish_compatibility,updated_at&is_active=eq.true&order=slug.asc&limit=1000",
+);
+const colorPalettes = await dbRows(
+  "color_combinations",
+  "select=slug,title,description,style,property_type,recommended_rooms,main_color_name,main_color_code,secondary_color_name,secondary_color_code,accent_color_name,accent_color_code,trim_color_name,trim_color_code,ceiling_color_name,ceiling_color_code,door_color_name,door_color_code,updated_at&is_published=eq.true&order=slug.asc&limit=500",
+);
+const dbTemplates = await dbRows(
+  "calculator_templates",
+  "select=slug,name,description,is_published&is_published=eq.true&order=slug.asc&limit=500",
+);
+
+// Only templates the catalog does not already cover: catalog templates are
+// prerendered (and cross-linked into every market) further down.
+const catalogSlugs = new Set(TEMPLATE_CATALOG.map((t) => t.slug));
+const extraTemplates = dbTemplates.filter(
+  (t) => t.slug && !catalogSlugs.has(t.slug),
+);
+
+const dynamicFamilyRoutes = [];
+const dynamicFamilyContent = {};
+
+for (const c of paintColors) {
+  if (!c.slug || !c.name) continue;
+  const path = `/colors/paint/${c.slug}`;
+  if (routes.some((r) => r.path === path)) continue;
+  const hex = (c.hex_code || "").toUpperCase();
+  const usage = asText(c.recommended_usage).trim();
+  const placement = [
+    c.is_interior ? "interior walls and ceilings" : "",
+    c.is_exterior ? "exterior surfaces" : "",
+  ]
+    .filter(Boolean)
+    .join(" and ");
+  dynamicFamilyRoutes.push({
+    path,
+    title: `${c.name}${hex ? ` (${hex})` : ""} Paint Colour | FRELUX`,
+    description: `${c.name}${hex ? ` ${hex}` : ""} paint colour: HEX, RGB and HSL values,${usage ? ` ${usage.toLowerCase()},` : ""} and where it works best, with FRELUX room-based paint estimating.`,
+    priority: "0.5",
+    changefreq: "monthly",
+  });
+  dynamicFamilyContent[path] =
+    `<main><h1>${escapeHtml(c.name)}${hex ? ` <span style="font-weight:400">(${escapeHtml(hex)})</span>` : ""}</h1>` +
+    `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/colors/">Colour library</a> &rsaquo; ${escapeHtml(c.name)}</nav>` +
+    `<p style="max-width:520px"><span style="display:block;height:120px;border-radius:10px;border:1px solid rgba(0,0,0,.2);background:${escapeHtml(c.hex_code || "#ffffff")}"></span></p>` +
+    `<h2>Colour values</h2><ul>` +
+    (hex ? `<li>HEX: ${escapeHtml(hex)}</li>` : "") +
+    (c.rgb_r !== null && c.rgb_r !== undefined
+      ? `<li>RGB: ${escapeHtml(String(c.rgb_r))}, ${escapeHtml(String(c.rgb_g ?? ""))}, ${escapeHtml(String(c.rgb_b ?? ""))}</li>`
+      : "") +
+    (c.hsl_h !== null && c.hsl_h !== undefined
+      ? `<li>HSL: ${escapeHtml(String(Math.round(c.hsl_h)))}&deg;, ${escapeHtml(String(Math.round(c.hsl_s ?? 0)))}%, ${escapeHtml(String(Math.round(c.hsl_l ?? 0)))}%</li>`
+      : "") +
+    `</ul>` +
+    (usage || placement || c.finish_compatibility
+      ? `<h2>Where ${escapeHtml(c.name)} works best</h2><p>${
+          [
+            usage,
+            placement ? `Suited to ${placement}.` : "",
+            asText(c.finish_compatibility)
+              ? `Compatible finishes: ${asText(c.finish_compatibility)}.`
+              : "",
+          ]
+            .filter(Boolean)
+            .join(" ")
+        }</p>`
+      : "") +
+    `<h2>Estimate paint for ${escapeHtml(c.name)}</h2><p>FRELUX plans paint by room: enter the room dimensions, height and openings, choose the paint quality and coats, and the estimator returns 20-litre buckets to buy. Two coats are standard.</p>` +
+    `<ul><li><a href="/paint-calculator/">Paint calculator</a></li><li><a href="/colors/">Browse the colour library</a></li><li><a href="/colors/compare/">Compare colours</a></li><li><a href="/wall-finish-estimator/">Wall finishing estimator</a></li></ul></main>`;
+}
+
+for (const p of colorPalettes) {
+  if (!p.slug || !p.title) continue;
+  const path = `/colors/${p.slug}`;
+  if (routes.some((r) => r.path === path)) continue;
+  const rows = [
+    ["Main", p.main_color_name, p.main_color_code],
+    ["Secondary", p.secondary_color_name, p.secondary_color_code],
+    ["Accent", p.accent_color_name, p.accent_color_code],
+    ["Trim", p.trim_color_name, p.trim_color_code],
+    ["Ceiling", p.ceiling_color_name, p.ceiling_color_code],
+    ["Door", p.door_color_name, p.door_color_code],
+  ].filter(([, name]) => name);
+  dynamicFamilyRoutes.push({
+    path,
+    title: `${p.title} Paint Colour Palette | FRELUX`,
+    description: `${p.title} colour palette${p.style ? ` in ${p.style}` : ""}${p.property_type ? ` for ${p.property_type}` : ""}: the full colour set with HEX codes.`,
+    priority: "0.5",
+    changefreq: "monthly",
+  });
+  dynamicFamilyContent[path] =
+    `<main><h1>${escapeHtml(p.title)} paint colour palette</h1>` +
+    `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/colors/">Colour library</a> &rsaquo; ${escapeHtml(p.title)}</nav>` +
+    (p.description ? `<p>${escapeHtml(p.description)}</p>` : "") +
+    (asText(p.recommended_rooms)
+      ? `<p>Recommended rooms: ${escapeHtml(asText(p.recommended_rooms))}.</p>`
+      : "") +
+    `<h2>Colours in this palette</h2><ul>` +
+    rows
+      .map(
+        ([role, name, code]) =>
+          `<li>${escapeHtml(role)}: ${swatch(code, name)}${code ? ` &middot; ${escapeHtml(String(code).toUpperCase())}` : ""}</li>`,
+      )
+      .join("") +
+    `</ul><h2>Plan the paint</h2><p>The FRELUX paint estimator works the same way for every colour in the palette: room dimensions, height, openings, paint quality and coats, priced in 20-litre buckets.</p>` +
+    `<ul><li><a href="/paint-calculator/">Paint calculator</a></li><li><a href="/colors/">Colour library</a></li><li><a href="/colors/compare/">Compare colours</a></li></ul></main>`;
+}
+
+for (const t of extraTemplates) {
+  const path = `/templates/${t.slug}`;
+  if (routes.some((r) => r.path === path)) continue;
+  const name = t.name || t.slug.replace(/-/g, " ");
+  dynamicFamilyRoutes.push({
+    path,
+    title: `${name} | FRELUX calculator template`,
+    description: `${name} template for FRELUX estimators: pre-set measurements and finishing scope you can adjust before pricing.`,
+    priority: "0.6",
+    changefreq: "monthly",
+  });
+  dynamicFamilyContent[path] =
+    `<main><h1>${escapeHtml(name)}</h1>` +
+    `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/templates/">Templates</a> &rsaquo; ${escapeHtml(name)}</nav>` +
+    (t.description ? `<p>${escapeHtml(t.description)}</p>` : "") +
+    `<h2>How this template works</h2><p>${escapeHtml(name)} pre-fills the scope for this kind of job so you can go straight to measuring. You still enter the room dimensions and openings, and material rates come from the market you select, so the output reflects local pricing rather than a generic table.</p>` +
+    `<ul><li><a href="/templates/">All templates</a></li><li><a href="/calculators/">All calculators</a></li><li><a href="/market/">Markets</a></li></ul></main>`;
+}
+
+routes.push(...dynamicFamilyRoutes);
+Object.assign(contentMap, dynamicFamilyContent);
+console.log(
+  `[prerender] dynamic families: ${paintColors.length} colours, ${colorPalettes.length} palettes, ${extraTemplates.length} extra templates`,
+);
 
 // Route content goes into #root for crawlers. React replaces it on mount, but
 // until then it renders as bare HTML (no utility classes), which showed up as a
@@ -3743,4 +3911,33 @@ for (const route of routes) {
   console.log("  ✅ /404.html");
 }
 
-console.log(`\n prerendered ${count} routes`);
+// Ground-truth manifest of every static page this build can serve. The sitemap
+// generator reads it so it can never advertise a URL that has no file (the
+// 2026-11-01 audit found 1,216 such URLs live), and never silently omit a page
+// that does have one.
+function collectPrerenderedPaths(dir, prefix = "") {
+  const out = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith("_") || entry.name === "assets") continue;
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...collectPrerenderedPaths(full, `${prefix}/${entry.name}`));
+    } else if (entry.name === "index.html") {
+      out.push(prefix === "" ? "/" : prefix);
+    }
+  }
+  return out;
+}
+const manifestPaths = collectPrerenderedPaths(distDir).sort();
+writeFileSync(
+  join(distDir, "_prerender-manifest.json"),
+  JSON.stringify(
+    { generated_at: new Date().toISOString(), paths: manifestPaths },
+    null,
+    0,
+  ),
+);
+console.log(
+  `\n prerendered ${count} routes`,
+);
+console.log(` manifest: ${manifestPaths.length} static pages`);

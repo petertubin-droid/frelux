@@ -18,6 +18,13 @@ import { join } from "node:path";
 const root = process.cwd();
 const fnSrc = readFileSync(join(root, "netlify/functions/sitemap.js"), "utf8");
 
+describe("sitemap serving path", () => {
+  it("serves the build artifact instead of a runtime-generated sitemap", () => {
+    const toml = readFileSync(join(root, "netlify.toml"), "utf8");
+    expect(toml).not.toContain('to = "/.netlify/functions/sitemap"');
+  });
+});
+
 describe("live sitemap function", () => {
   it("does not emit locale clone URLs that serve the English shell", () => {
     expect(fnSrc).not.toContain("add(`/${t.locale}${base}`");
@@ -59,5 +66,30 @@ describe("build sitemap", () => {
       return !existsSync(join(root, file));
     });
     expect(missing).toEqual([]);
+  });
+
+  it("advertises every page the build actually emitted", () => {
+    const sitemap = join(root, "dist/sitemap.xml");
+    const manifestFile = join(root, "dist/_prerender-manifest.json");
+    if (!existsSync(sitemap) || !existsSync(manifestFile)) return;
+    const locs = new Set(
+      [...readFileSync(sitemap, "utf8").matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+        (m) => m[1].replace("https://freluxtools.com", "").replace(/\/$/, "") || "/",
+      ),
+    );
+    const { paths } = JSON.parse(readFileSync(manifestFile, "utf8"));
+    const unlisted = paths.filter((p: string) => !locs.has(p === "/" ? "/" : p.replace(/\/$/, "")));
+    expect(unlisted).toEqual([]);
+  });
+
+  it("prerenders the colour, palette and template families it advertises", () => {
+    const sitemap = join(root, "dist/sitemap.xml");
+    if (!existsSync(sitemap)) return;
+    const xml = readFileSync(sitemap, "utf8");
+    // Colour pages used to be advertised without a prerendered file, so they
+    // served the home shell. Both halves must now agree.
+    expect(xml).toContain("/colors/paint/");
+    expect(existsSync(join(root, "dist/colors/paint/pure-white/index.html"))).toBe(true);
+    expect(existsSync(join(root, "dist/_prerender-manifest.json"))).toBe(true);
   });
 });

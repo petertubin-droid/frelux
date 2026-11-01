@@ -503,14 +503,14 @@
     Cache-Control = "public, max-age=86400"
 
 
-# Sitemap: dynamic function shadows the stale static public/sitemap.xml
-# (force=true is required because a static file exists at the same path).
-# robots.txt already points crawlers at this URL.
-[[redirects]]
-  from = "/sitemap.xml"
-  to = "/.netlify/functions/sitemap"
-  status = 200
-  force = true
+# Sitemap: served from the build output (dist/sitemap.xml, also mirrored to
+# public/sitemap.xml). The dynamic function used to shadow this path, which
+# meant the advertised URL set was decided at request time by code that had no
+# idea which pages the build had actually emitted. That produced 1,216 404s and
+# ~800 duplicate-home URLs. The generator now reads
+# dist/_prerender-manifest.json, so the sitemap and the prerendered files are
+# produced from the same build and cannot disagree. netlify/functions/sitemap.js
+# is kept for reference but is no longer routed.
 
 # Learn library split: /learn used to host the full paginated article
 # dump; that listing now lives at /learn/library. Forward the old
