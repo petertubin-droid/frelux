@@ -1,12 +1,10 @@
 /** Shared types for the Live Material Price Index. */
 
 export type PriceKind =
-  | "retail"
-  | "wholesale"
-  | "delivery_inclusive"
-  | "ex_depot";
+  "retail" | "wholesale" | "delivery_inclusive" | "ex_depot";
 
-export type VerificationStatus = "verified" | "reported" | "unverified" | "flagged";
+export type VerificationStatus =
+  "verified" | "reported" | "unverified" | "flagged";
 
 export const PRICE_KIND_LABELS: Record<PriceKind, string> = {
   retail: "Retail",
@@ -48,6 +46,12 @@ export type IndexListing = IndexMaterial & {
   market: string;
   city_slug: string | null;
   supplier_name: string | null;
+  /** Brand the price was quoted for, when the source names one. */
+  brand?: string | null;
+  /** Package size as recorded, e.g. "50 kg". Never inferred from sale_unit. */
+  package_size?: string | null;
+  /** Whether the quoted price includes delivery. null when unrecorded. */
+  delivery_included?: boolean | null;
   source_url: string | null;
   price_source: string | null;
   effective_date: string | null;

@@ -72,9 +72,11 @@ export async function resolveCityAwarePriceByRole(
       materialId: base.material.id,
       citySlug,
       listings,
+      market: "NG",
     });
 
-    if (resolved.status !== "ok" || resolved.basis !== "city") return asMarket();
+    if (resolved.status !== "ok" || resolved.basis !== "city")
+      return asMarket();
 
     return {
       ...base,
@@ -85,7 +87,9 @@ export async function resolveCityAwarePriceByRole(
       price_note: [
         `${resolved.sample_size} independent price${resolved.sample_size === 1 ? "" : "s"} in ${citySlug.replace(/-/g, " ")}`,
         resolved.last_observed_at ? `last ${resolved.last_observed_at}` : null,
-        resolved.indicative ? "reported, not independently verified" : "verified",
+        resolved.indicative
+          ? "reported, not independently verified"
+          : "verified",
       ]
         .filter(Boolean)
         .join(", "),
