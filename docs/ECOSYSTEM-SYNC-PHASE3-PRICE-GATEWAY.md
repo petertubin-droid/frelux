@@ -44,56 +44,76 @@ to and does not acquire one.
 
 ## Consumer map
 
-Measured across `src/` at this commit. 27 files mention `estimation_prices`.
-They are not one category, and treating them as one would break things.
+Corrected on 2026-11-01 after measuring actual query sites. The first version of
+this section listed 27 files that "mention `estimation_prices`". Most of them
+only name the table in a comment; they resolve through shared readers and never
+query it. Counting comments as consumers would have sent the migration after the
+wrong files.
 
-### Engine and calculator consumers, to migrate onto the gateway
+Measured `.from("estimation_prices")` call sites in `src/`:
 
-In this order, smallest blast radius first:
+| File                                      | Queries | Role                                                       |
+| ----------------------------------------- | ------- | ---------------------------------------------------------- |
+| `src/lib/estimation/market-materials.ts`  | 1       | the role resolver the gateway wraps                        |
+| `src/lib/estimation/queries.ts`           | 5       | CRUD plus `fetchActivePrice` / `fetchActivePriceForMarket` |
+| `src/lib/estimation/structural-market.ts` | 4       | structural, rebar, plumbing, doors/windows overrides       |
+| `src/lib/price-index/queries.ts`          | 1       | public price index feed                                    |
+| `src/pages/MaterialPrices.tsx`            | 1       | price list surface                                         |
+| `src/pages/admin/*`                       | 12      | pricing admin, scan, submissions, overview                 |
+| `supabase/functions/*`                    | 4 files | edge functions (server side, separate concern)             |
 
-1. `src/lib/estimation/mineral-stone-engine.ts`
-2. `src/lib/estimation/tyrolene-config.ts`
-3. `src/lib/estimation/structural-market.ts`
-4. `src/lib/wallfinishing/prices.ts` (already resolves by role; it should call
-   the gateway so coverage and provenance arrive with the price)
-5. `src/lib/ai-foundation/engine-pricing.ts`
-6. `src/lib/ai-foundation/engines-phase2.ts`
+Files that name the table in prose only, and therefore inherit coordinated
+pricing as soon as their shared reader moves: `mineral-stone-engine.ts`,
+`tyrolene-config.ts`, `wallfinishing/prices.ts`, `ai-foundation/engine-pricing.ts`,
+`ai-foundation/engines-phase2.ts`, `international/capability-registry.ts`, the
+type files, and the tests.
 
-Each has its own tests, so each migration is verifiable on its own.
+### The two axes
 
-### Foundation, not a consumer
+There are two ways the platform asks for a price, and one shape now answers
+both:
 
-- `src/lib/estimation/market-materials.ts` is the resolver the gateway wraps.
-  It stays as it is.
+- **Role axis**, `resolvePrice({ market, role, citySlug? })`. Assembly pricing:
+  own market, inheritance chain, then the bundled book, NG city evidence on top.
+- **Material axis**, `resolveMaterialPrice({ market, refId, priceType? })`.
+  What the structural, rebar, plumbing and doors/windows engines ask. It reads
+  the requested market only, because those engines report an unpriced material
+  instead of borrowing an ancestor's price.
 
-### Stays direct on purpose
+Both return `PriceResolution`, both report coverage and provenance, both refuse
+to invent an amount.
 
-These read or write the table as data, not as a calculation input, and routing
-them through a price resolver would be the wrong shape:
+### Where the migration stands
 
-- `src/lib/estimation/queries.ts` (admin CRUD)
-- `src/lib/estimation/price-scanner.ts` (writes scans)
-- `src/lib/price-index/queries.ts` (public price index feed)
-- `src/components/estimation/PriceSubmissionForm.tsx` (submission)
-- `src/pages/MaterialPrices.tsx` (price list)
-- admin pages: `AdminEstimationPricing`, `AdminPriceUpdater`,
-  `AdminPriceSubmissions`, `AdminPriceScan`, `AdminPricePipeline`,
-  `AdminTyroleneConfig`, `AdminOverview`, `AdminPaintEngineTest`
-- `src/types/*` and test fixtures
+`structural-market.ts` is the next real target: four query sites, existing
+tests for plumbing and doors/windows, and a strict own-market rule the material
+axis already matches exactly. It is not migrated yet because proving it live
+needs readable price rows, and the app's client cannot read them (below).
 
 ## Verification
 
 - `npx vitest run src/lib/pricing`: 66 tests pass, 14 of them new.
 - `npx tsc --noEmit -p tsconfig.app.json`: clean.
-- Live smoke against the app's own data path (bundled book, no DB env in the
-  sandbox): `interior-paint` in NG resolved at NGN 17,000 with coverage `local`;
-  `blockwork` in NG and in an unrecorded market returned `not_priced` with a
-  null amount and the "enter a price to continue" message. No fallback appeared.
+- Live role-axis run on the bundled production book: `interior-paint` in NG
+  resolved at NGN 17,000 with coverage `local`; `blockwork` in NG and in an
+  unrecorded market returned `not_priced` with a null amount and the "enter a
+  price to continue" message.
+
+- Live database check against `freluxproject`: the app client connects
+  (`https://nfgaaohweygwydoelxnf.supabase.co`) and `estimation_prices` returns
+  **0 rows** to it. The stored service credential is a management token
+  (`sbp_…`), not a service-role JWT, so the sandbox cannot read the table with
+  elevated rights either. Every engine exit was measured through this path:
+  rebar, plumbing and doors/windows returned all keys in `unresolved` and no
+  overrides, for US, GH, KE and GB alike.
+  This is what "no verified price book" looks like from inside the product, and
+  it is why the gateway's `not_priced` state matters more than its happy path.
 
 ## Not done yet, stated plainly
 
-- No consumer has been switched over. The gateway is landed and tested, and the
-  six migrations above are the next increments.
+- No consumer has been switched over. `structural-market.ts` is next, once a
+  readable price row exists to prove the swap changed nothing but the
+  provenance.
 - Price book coverage is unchanged: 15 verified markets in the snapshot, three
   markets with local observations in `estimation_prices`. A gateway cannot
   report coverage that does not exist, and does not pretend to.

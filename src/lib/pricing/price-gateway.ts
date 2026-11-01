@@ -28,6 +28,7 @@
 // =========================================================
 
 import type { MaterialRole } from "@/lib/estimation/market-materials";
+import { fetchActivePrice } from "@/lib/estimation/queries";
 import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
 import { coverageFor, type MarketCoverage } from "@/lib/pricing/price-honesty";
 
@@ -227,6 +228,143 @@ export async function resolvePrice(
       : status === "local"
         ? `${request.role} priced from ${requestedMarket} verified prices.`
         : `${request.role} priced from ${requestedMarket}, unverified.`,
+  };
+}
+
+export interface MaterialPriceRequest {
+  /** ISO market code the caller is pricing for. */
+  market: string;
+  /** estimation_materials row the caller already knows. */
+  refId: string;
+  /** Price row kind. Material prices are the default. */
+  priceType?: "material" | "product" | "quality";
+  quantity?: number | null;
+}
+
+/**
+ * Resolve one material's active price, by id.
+ *
+ * The role axis above answers "what does this assembly cost". This axis
+ * answers "what does this material cost", which is what the structural,
+ * plumbing and doors/windows engines ask. They differ in one way that
+ * matters: this reads the requested market ONLY. No inheritance chain,
+ * because those engines report an unpriced material rather than quietly
+ * borrowing an ancestor's price.
+ */
+export async function resolveMaterialPrice(
+  request: MaterialPriceRequest,
+): Promise<PriceResolution> {
+  const requestedMarket = (request.market || "").toUpperCase();
+  const coverage = coverageFor(requestedMarket);
+  const quantity =
+    typeof request.quantity === "number" && Number.isFinite(request.quantity)
+      ? request.quantity
+      : null;
+  const priceType = request.priceType ?? "material";
+
+  const base = {
+    role: priceType as unknown as MaterialRole,
+    requestedMarket,
+    quantity,
+    taxStatus: "tax_not_determined" as const,
+    coverage: coverage
+      ? {
+          marketCode: coverage.marketCode,
+          status: coverage.status,
+          statusLabel: coverage.statusLabel,
+          sentence: coverage.sentence,
+          snapshotStale: coverage.snapshotStale,
+        }
+      : null,
+  };
+
+  if (!requestedMarket || !request.refId) {
+    return {
+      ...base,
+      status: "not_priced",
+      sourcedMarket: null,
+      unitPrice: null,
+      currency: null,
+      total: null,
+      provenance: emptyProvenance(requestedMarket),
+      warnings: [
+        "A market and a material are both required to price this item.",
+      ],
+      message: "Choose a market to price this item.",
+    };
+  }
+
+  const { data, error } = await fetchActivePrice(
+    priceType,
+    request.refId,
+    requestedMarket,
+  );
+
+  if (error || !data) {
+    const warnings: string[] = [];
+    if (error)
+      warnings.push("The price lookup failed, so nothing is reported.");
+    if (coverage) warnings.push(coverage.sentence);
+    return {
+      ...base,
+      status: "not_priced",
+      sourcedMarket: null,
+      unitPrice: null,
+      currency: null,
+      total: null,
+      provenance: {
+        ...emptyProvenance(requestedMarket),
+        priceId: null,
+      },
+      warnings,
+      message: error
+        ? `${priceType} price could not be read for ${requestedMarket}.`
+        : `No ${priceType} price in ${requestedMarket}. Enter a price to continue.`,
+    };
+  }
+
+  const sourcedMarket = (data.market || requestedMarket).toUpperCase();
+  const status: PriceResolutionStatus =
+    coverage?.status === "local" ? "local" : "unverified";
+  const warnings: string[] = [];
+  if (coverage) {
+    warnings.push(coverage.sentence);
+    if (coverage.snapshotStale) {
+      warnings.push("The price verification snapshot is older than 45 days.");
+    }
+  }
+  if (status === "unverified") {
+    warnings.push(
+      `${requestedMarket} has no verified price book, so this is an unverified local price.`,
+    );
+  }
+
+  return {
+    ...base,
+    status,
+    sourcedMarket,
+    unitPrice: data.price,
+    currency: data.currency ?? null,
+    total: quantity === null ? null : round2(data.price * quantity),
+    provenance: {
+      basis: "market",
+      citySamples: null,
+      citySlug: null,
+      indicative: true,
+      priceId: data.id ?? null,
+      materialSlug: null,
+      materialName: null,
+      sourcedMarket,
+      requestedMarket,
+      effectiveDate: data.effective_date ?? null,
+      priceSource: data.price_source ?? null,
+      scanConfidence: data.scan_confidence ?? null,
+    },
+    warnings,
+    message:
+      status === "local"
+        ? `${priceType} priced from ${requestedMarket} verified prices.`
+        : `${priceType} priced from ${requestedMarket}, unverified.`,
   };
 }
 

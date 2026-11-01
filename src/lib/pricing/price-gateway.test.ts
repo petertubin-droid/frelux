@@ -16,8 +16,19 @@ vi.mock("@/lib/price-index/calculator-prices", () => ({
     resolveCityAwarePriceByRole(...args),
 }));
 
-const { resolvePrice, resolvePrices, allPriced, unpricedRoles } =
-  await import("./price-gateway");
+const fetchActivePrice = vi.fn();
+
+vi.mock("@/lib/estimation/queries", () => ({
+  fetchActivePrice: (...args: unknown[]) => fetchActivePrice(...args),
+}));
+
+const {
+  resolvePrice,
+  resolveMaterialPrice,
+  resolvePrices,
+  allPriced,
+  unpricedRoles,
+} = await import("./price-gateway");
 
 const ROLE = "blockwork" as never;
 
@@ -46,6 +57,7 @@ function priceRow(overrides: Record<string, unknown> = {}) {
 
 beforeEach(() => {
   resolveCityAwarePriceByRole.mockReset();
+  fetchActivePrice.mockReset();
 });
 
 describe("resolvePrice", () => {
@@ -189,5 +201,76 @@ describe("batch helpers", () => {
 
   it("treats an empty set as incomplete rather than complete", () => {
     expect(allPriced([])).toBe(false);
+  });
+});
+
+describe("material axis", () => {
+  const row = {
+    id: "pr-1",
+    price: 4200,
+    currency: "USD",
+    market: "US",
+    effective_date: "2026-10-18",
+    price_source: "supplier quote",
+    scan_confidence: "medium",
+  };
+
+  it("prices a known material in its own market", async () => {
+    fetchActivePrice.mockResolvedValue({ data: row, error: null });
+    const result = await resolveMaterialPrice({
+      market: "US",
+      refId: "mat-1",
+    });
+    expect(result.status).toBe("local");
+    expect(result.unitPrice).toBe(4200);
+    expect(result.currency).toBe("USD");
+    expect(result.provenance.priceId).toBe("pr-1");
+    expect(result.provenance.effectiveDate).toBe("2026-10-18");
+  });
+
+  it("asks only for the requested market, never an ancestor", async () => {
+    fetchActivePrice.mockResolvedValue({ data: null, error: null });
+    await resolveMaterialPrice({ market: "ZZ", refId: "mat-1" });
+    expect(fetchActivePrice).toHaveBeenCalledTimes(1);
+    expect(fetchActivePrice).toHaveBeenCalledWith("material", "mat-1", "ZZ");
+  });
+
+  it("reports an unpriced material without inventing a number", async () => {
+    fetchActivePrice.mockResolvedValue({ data: null, error: null });
+    const result = await resolveMaterialPrice({ market: "US", refId: "mat-1" });
+    expect(result.status).toBe("not_priced");
+    expect(result.unitPrice).toBeNull();
+    expect(result.message).toContain("Enter a price");
+  });
+
+  it("distinguishes a failed lookup from a missing price", async () => {
+    fetchActivePrice.mockResolvedValue({
+      data: null,
+      error: { message: "boom" },
+    });
+    const result = await resolveMaterialPrice({ market: "US", refId: "mat-1" });
+    expect(result.status).toBe("not_priced");
+    expect(result.message).toContain("could not be read");
+  });
+
+  it("multiplies only when a quantity is supplied", async () => {
+    fetchActivePrice.mockResolvedValue({ data: row, error: null });
+    const withQty = await resolveMaterialPrice({
+      market: "US",
+      refId: "mat-1",
+      quantity: 2.5,
+    });
+    expect(withQty.total).toBe(10500);
+    const without = await resolveMaterialPrice({
+      market: "US",
+      refId: "mat-1",
+    });
+    expect(without.total).toBeNull();
+  });
+
+  it("keeps tax undetermined on the material axis too", async () => {
+    fetchActivePrice.mockResolvedValue({ data: row, error: null });
+    const result = await resolveMaterialPrice({ market: "US", refId: "mat-1" });
+    expect(result.taxStatus).toBe("tax_not_determined");
   });
 });
