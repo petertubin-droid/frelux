@@ -27,6 +27,15 @@ vi.mock("@/lib/international/market-context", () => ({
 // Capture every AdSlot render so tests can assert policy-relevant props
 // (ad blocks must never be hidden-labeled).
 const adSlotRenders: Array<{ slotKey: string; hideLabel?: boolean }> = [];
+
+// FAQs the page should receive for learn_article_faqs. Empty by default so the
+// existing tests keep exercising an article with no FAQ block.
+const faqFixture: Array<{
+  question: string;
+  answer: string;
+  sort_order: number;
+  is_active: boolean;
+}> = [];
 vi.mock("@/components/ui/AdSlot", () => ({
   default: ({
     slotKey,
@@ -129,7 +138,7 @@ vi.mock("@/lib/supabase", () => {
         if (table === "learn_articles" && isSingle) {
           return { data: article, error: null };
         }
-        if (table === "learn_article_faqs") return { data: [], error: null };
+        if (table === "learn_article_faqs") return { data: faqFixture, error: null };
         if (table === "learn_article_inserts") return { data: [], error: null };
         if (table === "learn_categories") {
           return {
@@ -167,6 +176,7 @@ beforeEach(() => {
   adSlotRenders.length = 0;
   (supabase as unknown as { __marketFilters: string[][] }).__marketFilters = [];
   (supabase as unknown as { __eqMarketArgs: string[] }).__eqMarketArgs = [];
+  faqFixture.length = 0;
   useMarketMock.mockReturnValue({
     market: { countryName: "Nigeria" },
     marketCode: "NG",
@@ -276,5 +286,52 @@ describe("LearnArticle market scoping", () => {
         (supabase as unknown as { __eqMarketArgs: string[] }).__eqMarketArgs,
       ).toEqual(["NG", "NG"]);
     });
+  });
+});
+
+describe("LearnArticle FAQ block", () => {
+  // Six FAQs is the library standard. The visible accordion and the FAQPage
+  // structured data are built from the same rows, so a mismatch between what a
+  // visitor reads and what a crawler is told is the failure this guards.
+  it("renders six questions and matching FAQPage structured data", async () => {
+    for (let i = 1; i <= 6; i += 1) {
+      faqFixture.push({
+        question: `Question ${i} about this article?`,
+        answer: `Answer ${i} restating what the article already says.`,
+        sort_order: i,
+        is_active: true,
+      });
+    }
+
+    const { getByText } = await renderArticle();
+
+    await waitFor(() => {
+      expect(getByText("Frequently Asked Questions")).toBeTruthy();
+    });
+    for (let i = 1; i <= 6; i += 1) {
+      expect(getByText(`Question ${i} about this article?`)).toBeTruthy();
+    }
+
+    const blocks = Array.from(
+      document.querySelectorAll('script[type="application/ld+json"]'),
+    )
+      .map((node) => {
+        try {
+          return JSON.parse(node.textContent ?? "{}");
+        } catch {
+          return null;
+        }
+      })
+      .flat()
+      .filter(Boolean) as Array<Record<string, unknown>>;
+
+    const faqPage = blocks.find((b) => b["@type"] === "FAQPage") as
+      | { mainEntity?: Array<{ name: string }> }
+      | undefined;
+    expect(faqPage).toBeTruthy();
+    expect(faqPage?.mainEntity).toHaveLength(6);
+    expect(faqPage?.mainEntity?.map((q) => q.name)).toEqual(
+      faqFixture.map((f) => f.question),
+    );
   });
 });
