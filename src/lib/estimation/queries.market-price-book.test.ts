@@ -16,6 +16,9 @@ interface PricedRow {
   market: string;
   is_active: boolean;
   effective_date: string;
+  price_source?: string | null;
+  supplier_name?: string | null;
+  verification_status?: string | null;
 }
 
 function rows(...rs: Partial<PricedRow>[]): PricedRow[] {
@@ -26,6 +29,9 @@ function rows(...rs: Partial<PricedRow>[]): PricedRow[] {
     market: r.market ?? "NG",
     is_active: r.is_active ?? true,
     effective_date: r.effective_date ?? "2026-01-01",
+    price_source: r.price_source ?? null,
+    supplier_name: r.supplier_name ?? null,
+    verification_status: r.verification_status ?? null,
   }));
 }
 
@@ -111,5 +117,31 @@ describe("fetchMarketPriceBook", () => {
   it("labour rows never enter the material book", async () => {
     const book = await fetchMarketPriceBook("US");
     expect(book.byRef.get("ref-1")).not.toBe(55);
+  });
+
+  it("records what kind of number each book entry is", async () => {
+    // A row with nothing recorded about its source is unverified evidence, so
+    // it is reported, never a quotation.
+    const book = await fetchMarketPriceBook("US");
+    expect(book.evidence.get("ref-1")).toBe("supplier_reported");
+    expect(book.evidence.get("ref-4")).toBe("supplier_reported");
+  });
+
+  it("separates a verified quotation from an FX reference in the same book", async () => {
+    const verify = [...US_ROWS, ...NG_ROWS];
+    for (const row of verify) {
+      if (row.ref_id === "ref-1" && row.market === "US") {
+        row.verification_status = "verified";
+        row.price_source = "supplier price list";
+        row.supplier_name = "Build Depot";
+      }
+      if (row.ref_id === "ref-2" && row.market === "US") {
+        row.verification_status = "reported";
+        row.price_source = "FX reference from the live NG book";
+      }
+    }
+    const book = await fetchMarketPriceBook("US");
+    expect(book.evidence.get("ref-1")).toBe("supplier_verified");
+    expect(book.evidence.get("ref-2")).toBe("macro_reference");
   });
 });

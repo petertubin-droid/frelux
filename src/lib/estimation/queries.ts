@@ -1,5 +1,9 @@
 import { supabase } from "@/lib/supabase";
 import { invalidatePriceCache } from "@/lib/price-index/cache";
+import {
+  classifyEvidence,
+  type EvidenceClass,
+} from "@/lib/price-index/resolver";
 import { withCalculationAudit } from "@/lib/international/calculation-audit";
 import { cachedConfigFetch } from "@/lib/estimation/offline-cache";
 import type { CountVisionResult } from "@/lib/estimation/count-vision-engine";
@@ -377,6 +381,12 @@ export interface MarketPriceBook {
   stale: Set<string>;
   /** ref_ids whose price carries a recorded market verification */
   verified: Set<string>;
+  /**
+   * ref_id -> what kind of number the price is. A seeded baseline or an FX
+   * reference must never read as a local quotation just because it sits in
+   * the market's own book.
+   */
+  evidence: Map<string, EvidenceClass>;
 }
 
 /**
@@ -408,6 +418,7 @@ export async function fetchMarketPriceBook(
   const asOf = new Map<string, string>();
   const stale = new Set<string>();
   const verified = new Set<string>();
+  const evidence = new Map<string, EvidenceClass>();
   const refused = await refusedTradeFormRefs(market);
 
   // 0. This market's verification state, so a price can be labelled as verified
@@ -456,6 +467,7 @@ export async function fetchMarketPriceBook(
       if (refused.has(pr.ref_id)) continue;
       if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
         byRef.set(pr.ref_id, pr.price);
+        evidence.set(pr.ref_id, classifyEvidence(pr));
       }
     }
   }
@@ -468,6 +480,7 @@ export async function fetchMarketPriceBook(
       if (refused.has(pr.ref_id)) continue;
       if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
         byRef.set(pr.ref_id, pr.price);
+        evidence.set(pr.ref_id, classifyEvidence(pr));
         fromReference.add(pr.ref_id);
       }
     }
@@ -476,11 +489,12 @@ export async function fetchMarketPriceBook(
     for (const pr of reference.data ?? []) {
       if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
         byRef.set(pr.ref_id, pr.price);
+        evidence.set(pr.ref_id, classifyEvidence(pr));
       }
     }
   }
 
-  return { byRef, fromReference, asOf, stale, verified };
+  return { byRef, fromReference, asOf, stale, verified, evidence };
 }
 
 export async function fetchPriceHistory(priceType: string, refId: string) {
