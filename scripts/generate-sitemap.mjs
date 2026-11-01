@@ -380,6 +380,7 @@ const routes = [
   // ── Secondary public pages ──
   { path: "/credits", priority: "0.6", changefreq: "monthly" },
   { path: "/developers", priority: "0.6", changefreq: "monthly" },
+  { path: "/unit-converter", priority: "0.7", changefreq: "monthly" },
   { path: "/global-markets", priority: "0.7", changefreq: "monthly" },
   { path: "/rewards", priority: "0.6", changefreq: "monthly" },
   {

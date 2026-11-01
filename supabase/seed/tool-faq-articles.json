@@ -1275,7 +1275,7 @@
         "a": "Deducted by width and height with their quantity, so doors, windows and vents come out of the unit count rather than being added as an afterthought. An opening is an area, not a count, so a wide low window and a narrow tall one are handled by their dimensions. What is not deducted is the extra cutting and the lintel above, which are separate items you price on their own."
       },
       {
-        "q": "Does it work outside Nigeria?",
+        "q": "Does it work in different countries and markets?",
         "a": "Yes. Cement packaging and mortar specifications come from the market you select, so a fifty kilogramme bag and a twenty five kilogramme bag are both handled, and the engine never falls back to one country's packaging when a market is set. Where the market's specification differs on joint thickness or mix, that is an input you can enter, so the same wall can be priced to a local practice without changing the tool."
       },
       {
@@ -1319,7 +1319,7 @@
       "description": "Masonry is where construction estimating starts, and it is still the discipline most often done by rule of thumb.",
       "keywords": "masonry, brickwork and blockwork, masonry, brickwork and blockwork, structural materials, construction calculator, quantity estimate, metric and imperial, Nigeria, Ghana, Kenya, South Africa, United Kingdom, United States"
     },
-    "word_count": 863,
+    "word_count": 866,
     "source": "longform"
   },
   {
