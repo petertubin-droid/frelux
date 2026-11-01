@@ -86,8 +86,22 @@ serveWithCors(async (req: Request) => {
   try {
     const url = new URL(req.url);
 
-    // Scheduled crawl trigger
+    // Scheduled crawl trigger.
+    //
+    // A public query parameter is not authorisation: this route runs a paid
+    // crawl against third-party sites, so it needs the same credential the
+    // product scanner uses (x-intel-token, held server side in
+    // public.price_intel_tokens) or the service-role bearer a trusted
+    // scheduler sends. No pg_cron job calls this route; the weekly scan goes
+    // to price-intel-scan, so requiring a credential breaks nothing.
     if (url.searchParams.get("schedule") === "true") {
+      const schedulerOk = await isTrustedScheduler(req);
+      if (!schedulerOk) {
+        return jsonResponse(
+          { error: "Unauthorized — scheduler credential required" },
+          401,
+        );
+      }
       return await handleScheduledCrawl();
     }
 
@@ -104,6 +118,37 @@ serveWithCors(async (req: Request) => {
     );
   }
 });
+
+// ============================================================
+// SCHEDULER AUTHORISATION
+// ============================================================
+
+/**
+ * True when the request carries a trusted scheduler credential:
+ *   - the service-role key as a bearer token (what pg_cron sends), or
+ *   - a token registered in public.price_intel_tokens (x-intel-token).
+ *
+ * The token table is read with the service client, so the value is never
+ * exposed to the caller and cannot be enumerated from the anon key.
+ */
+async function isTrustedScheduler(req: Request): Promise<boolean> {
+  const authHeader = req.headers.get("Authorization") ?? "";
+  const bearer = authHeader.startsWith("Bearer ")
+    ? authHeader.slice("Bearer ".length).trim()
+    : "";
+  if (bearer && bearer === SUPABASE_SERVICE_KEY) return true;
+
+  const intelToken = req.headers.get("x-intel-token");
+  if (!intelToken) return false;
+
+  const { data: tokenRow, error } = await supabase
+    .from("price_intel_tokens")
+    .select("token")
+    .eq("token", intelToken)
+    .maybeSingle();
+  if (error) return false;
+  return Boolean(tokenRow);
+}
 
 // ============================================================
 // MANUAL CRAWL (Admin-triggered)
