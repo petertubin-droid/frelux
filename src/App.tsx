@@ -45,6 +45,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
 
 const AnalyticsScripts = lazy(() => import("@/components/AnalyticsScripts"));
+const TrafficTracker = lazy(() => import("@/components/TrafficTracker"));
 const AdBlockNotice = lazy(() =>
   import("@/components/ui/AdBlockNotice").then((m) => ({
     default: m.AdBlockNotice,
@@ -640,6 +641,9 @@ export default function App() {
                   )}
                   <BrowserRouter>
                     <ScrollToTop />
+                    <Suspense fallback={null}>
+                      <TrafficTracker />
+                    </Suspense>
                     <NotificationClickHandler />
                     <Suspense fallback={null}>
                       <FeedbackBanner />

@@ -1,4 +1,5 @@
 import Hero from "@/components/home/Hero";
+import CommunityProof from "@/components/home/CommunityProof";
 import ChooseProject from "@/components/home/ChooseProject";
 import HowItWorks from "@/components/home/HowItWorks";
 const ToolsSection = lazy(() => import("@/components/home/ToolsSection"));
@@ -171,6 +172,9 @@ export default function Home() {
     <>
       {/* What FRELUX is: clear headline + primary CTA */}
       <Hero />
+
+      {/* Real community size. Renders nothing until 100 verified accounts. */}
+      <CommunityProof />
 
       {/* Try it: 6 calculator cards immediately below hero */}
       <section

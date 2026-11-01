@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
@@ -88,6 +88,7 @@ vi.mock("@/lib/supabase", () => {
   }
   const supabase = {
     from: vi.fn(() => chainable),
+    rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
     channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
     removeChannel: vi.fn(),
     auth: {
@@ -131,5 +132,21 @@ describe("AdminAnalytics", () => {
   it("renders without crashing", async () => {
     const { container } = await renderPage();
     expect(container.innerHTML).not.toBe("");
+  });
+
+  it("shows the traffic section and never invents numbers", async () => {
+    await renderPage();
+    expect(await screen.findByText("Active now")).toBeTruthy();
+    expect(screen.getByText("Page views")).toBeTruthy();
+    expect(screen.getByText("Visitors")).toBeTruthy();
+    // No report data from the mocked database means zeros, not sample traffic.
+    expect(screen.getAllByText("0").length).toBeGreaterThan(0);
+  });
+
+  it("tells the admin honestly when GA4 is not configured", async () => {
+    await renderPage();
+    expect(
+      await screen.findByText("No GA4 measurement ID is configured yet."),
+    ).toBeTruthy();
   });
 });
