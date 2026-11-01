@@ -41,6 +41,8 @@ const exploreLinks = [
   { label: "Pro Connect", path: "/pro-connect" },
   { label: "Project Gallery", path: "/gallery" },
   { label: "Case Studies", path: "/case-studies" },
+  { label: "Global Markets", path: "/global-markets" },
+  { label: "Diaspora Escrow", path: "/escrow" },
 ];
 
 const resourcesLinks = [
@@ -51,6 +53,7 @@ const resourcesLinks = [
   { label: "User Guide", path: "/user-guide" },
   { label: "Pricing", path: "/pricing" },
   { label: "Developer API", path: "/developers" },
+  { label: "Merchant API", path: "/developers/merchant-webhooks" },
 ];
 
 const companyLinks = [

@@ -94,6 +94,13 @@ serveWithCors(async (req: Request) => {
       { loc: "/ai-disclaimer", priority: "0.3", changefreq: "yearly" },
       { loc: "/marketplace", priority: "0.8", changefreq: "daily" },
       { loc: "/pro-connect", priority: "0.8", changefreq: "daily" },
+      { loc: "/global-markets", priority: "0.7", changefreq: "monthly" },
+      { loc: "/escrow", priority: "0.6", changefreq: "monthly" },
+      {
+        loc: "/developers/merchant-webhooks",
+        priority: "0.6",
+        changefreq: "monthly",
+      },
       {
         loc: "/build-to-roof-estimator",
         priority: "0.9",

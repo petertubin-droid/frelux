@@ -30,6 +30,7 @@ import { useLanguage } from "@/lib/i18n";
 export default function MerchantMarketplaceApi() {
   const { t } = useLanguage();
   useSeo({
+    canonicalPath: "/developers/merchant-webhooks",
     title: "Global Merchant API & Live Inventory Webhooks | FRELUX",
     description:
       "Connect hardware store inventories (Hornbach, Wickes, Home Depot, Leroy Merlin, Buildzone) directly to FRELUX calculation outputs via live webhooks.",

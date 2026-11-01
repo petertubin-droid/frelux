@@ -71,6 +71,8 @@ const routes = [
   ...faqArticleRoutes(),
   { path: "/data-request", priority: "0.6", changefreq: "yearly" },
   { path: "/start-building", priority: "0.9", changefreq: "weekly" },
+  { path: "/escrow", priority: "0.6", changefreq: "monthly" },
+  { path: "/developers/merchant-webhooks", priority: "0.6", changefreq: "monthly" },
   { path: "/paint-calculator", priority: "0.9", changefreq: "monthly" },
   { path: "/screeding-calculator", priority: "0.9", changefreq: "monthly" },
   { path: "/pop-ceiling-calculator", priority: "0.8", changefreq: "monthly" },

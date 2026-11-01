@@ -27,6 +27,7 @@ import { Link } from "react-router-dom";
 export default function DiasporaEscrow() {
   const { t } = useLanguage();
   useSeo({
+    canonicalPath: "/escrow",
     title: "Cross-Border Diaspora Escrow | FRELUX Global Enterprise",
     description:
       "Milestone-based international construction funding loop. Fund securely in USD/GBP/EUR and release local contractor payouts on verified milestone clearances.",

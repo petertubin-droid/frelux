@@ -159,6 +159,38 @@ const routes = [
       },
     ],
   },
+ {
+    path: '/escrow',
+    title: 'Cross-Border Diaspora Escrow for Construction | FRELUX',
+    description:
+      'How milestone-based escrow works for diaspora-funded builds: funds are held against verified construction stages and released as work is confirmed, with a documented audit trail.',
+    priority: '0.6',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Cross-Border Diaspora Escrow', url: `${SITE_URL}/escrow` },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Pro Connect', item: `${SITE_URL}/pro-connect` },
+        { '@type': 'ListItem', position: 3, name: 'Escrow', item: `${SITE_URL}/escrow` },
+      ]},
+    ],
+  },
+ {
+    path: '/developers/merchant-webhooks',
+    title: 'Merchant API and Live Inventory Webhooks | FRELUX Developers',
+    description:
+      'Connect a merchant catalogue to FRELUX: price and stock feeds, inventory webhook events, and the API surface used to quote construction materials against real supplier data.',
+    priority: '0.6',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'FRELUX Merchant API and Webhooks', url: `${SITE_URL}/developers/merchant-webhooks` },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
+        { '@type': 'ListItem', position: 2, name: 'Developers', item: `${SITE_URL}/developers` },
+        { '@type': 'ListItem', position: 3, name: 'Merchant API', item: `${SITE_URL}/developers/merchant-webhooks` },
+      ]},
+    ],
+  },
   {
     path: "/start-building",
     title: "Start Building: What Are You Building Today? | FRELUX SMART CALC",
