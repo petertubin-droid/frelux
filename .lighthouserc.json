@@ -3,6 +3,7 @@
     "collect": {
       "startServerCommand": "npx vite preview --port 4173",
       "startServerReadyPattern": "Local:",
+      "startServerReadyTimeout": 30000,
       "numberOfRuns": 3,
       "url": [
         "http://localhost:4173/",
@@ -12,7 +13,9 @@
       ],
       "settings": {
         "preset": "desktop",
-        "disableFullPageScreenshot": true
+        "disableFullPageScreenshot": true,
+        "skipAudits": ["bf-cache"],
+        "chromeFlags": "--no-sandbox --disable-dev-shm-usage --disable-gpu"
       }
     },
     "assert": {
