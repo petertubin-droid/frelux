@@ -16,8 +16,7 @@ import {
 import type { CalcConfig } from "@/lib/calc";
 import type { DbPaintType } from "@/types/database";
 import { fetchPaintTypes } from "@/lib/queries";
-import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
-import { evidenceSentence } from "@/lib/estimation/market-materials";
+import { resolvePrice } from "@/lib/pricing/price-gateway";
 import { fetchPackSizeById } from "@/lib/estimation/queries";
 import { useMarket } from "@/lib/international/market-context";
 import { useLanguage } from "@/lib/i18n";
@@ -72,16 +71,19 @@ export default function ConversationalEstimator() {
       try {
         const [typesRes, roleRes] = await Promise.all([
           fetchPaintTypes(),
-          resolveCityAwarePriceByRole("interior-paint", marketCode, citySlug),
+          resolvePrice({
+            market: marketCode,
+            role: "interior-paint" as never,
+            citySlug,
+          }),
         ]);
         if (!alive) return;
         // The price row references its retail pack by id — resolve the
         // litres through the estimation_pack_sizes join.
         let packLitres: number | null = null;
-        if (roleRes?.price?.pack_size_id) {
-          const { data: pack } = await fetchPackSizeById(
-            roleRes.price.pack_size_id,
-          );
+        const packSizeId = roleRes?.provenance?.packSizeId ?? null;
+        if (packSizeId) {
+          const { data: pack } = await fetchPackSizeById(packSizeId);
           const size = pack?.pack_size;
           if (Number.isFinite(size) && (size ?? 0) > 0)
             packLitres = size as number;
@@ -104,7 +106,7 @@ export default function ConversationalEstimator() {
           // container hint so "how many buckets" answers in local packs.
           config.containerSizes = [packLitres as number];
           setMarketPackNote(
-            `Interior paint priced in this market book (${roleRes!.resolved_market}), retail pack ${packLitres} L. ${evidenceSentence(roleRes!.evidence)}`,
+            `${roleRes!.message} Retail pack ${packLitres} L.${roleRes!.warnings.length > 0 ? ` ${roleRes!.warnings.join(" ")}` : ""}`,
           );
         } else {
           setMarketPackNote(

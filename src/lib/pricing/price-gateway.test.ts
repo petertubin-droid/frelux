@@ -274,3 +274,79 @@ describe("material axis", () => {
     expect(result.taxStatus).toBe("tax_not_determined");
   });
 });
+
+// =========================================================
+// Evidence reaches the caller
+//
+// The gateway used to decide "verified" from market coverage alone, so a
+// market with a complete book could present an FX band or a seeded baseline
+// as a verified local price. These pin the rule: coverage says whether the
+// market has a book, the evidence says what the number is.
+// =========================================================
+describe("resolvePrice evidence", () => {
+  it("keeps a baseline out of the verified wording", async () => {
+    resolveCityAwarePriceByRole.mockResolvedValue(
+      priceRow({
+        evidence: "baseline",
+        price: { ...priceRow().price, price_source: "seeded baseline" },
+      }),
+    );
+    const res = await resolvePrice({ market: "NG", role: ROLE });
+    expect(res.provenance.evidence).toBe("baseline");
+    expect(res.message).not.toMatch(/verified supplier prices/);
+    expect(res.message).toMatch(/not a verified supplier price/);
+    expect(res.warnings.join(" ")).toMatch(/seeded baseline/i);
+    expect(res.warnings.join(" ")).toMatch(/ask a supplier/i);
+  });
+
+  it("calls an FX band an order of magnitude, not a quote", async () => {
+    resolveCityAwarePriceByRole.mockResolvedValue(
+      priceRow({
+        evidence: "macro_reference",
+        price: { ...priceRow().price, price_source: "fx reference" },
+      }),
+    );
+    const res = await resolvePrice({ market: "NG", role: ROLE });
+    expect(res.warnings.join(" ")).toMatch(/fx reference band/i);
+    expect(res.warnings.join(" ")).toMatch(/not a quote/i);
+  });
+
+  it("says verified only when a supplier verified it", async () => {
+    resolveCityAwarePriceByRole.mockResolvedValue(
+      priceRow({
+        evidence: "supplier_verified",
+        price: { ...priceRow().price, price_source: "supplier quote" },
+      }),
+    );
+    const res = await resolvePrice({ market: "NG", role: ROLE });
+    expect(res.warnings).toContain("Verified supplier price.");
+    expect(res.message).toMatch(/verified supplier prices/);
+  });
+
+  it("reports no evidence rather than guessing one", async () => {
+    resolveCityAwarePriceByRole.mockResolvedValue(
+      priceRow({ evidence: undefined }),
+    );
+    const res = await resolvePrice({ market: "NG", role: ROLE });
+    expect(res.provenance.evidence).toBeNull();
+    expect(res.message).not.toMatch(/verified supplier prices/);
+  });
+
+  it("carries evidence on the material axis too", async () => {
+    fetchActivePrice.mockResolvedValue({
+      data: {
+        id: "p2",
+        price: 12000,
+        currency: "NGN",
+        market: "NG",
+        effective_date: "2026-10-20",
+        price_source: "fx reference",
+      },
+      error: null,
+    });
+    const res = await resolveMaterialPrice({ market: "NG", refId: "m1" });
+    expect(res.provenance.evidence).toBe("macro_reference");
+    expect(res.message).not.toMatch(/verified supplier prices/);
+    expect(res.warnings.join(" ")).toMatch(/fx reference band/i);
+  });
+});

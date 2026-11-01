@@ -27,7 +27,14 @@
 //   - Tax is always tax_not_determined. There is no default rate.
 // =========================================================
 
-import type { MaterialRole } from "@/lib/estimation/market-materials";
+import {
+  evidenceSentence,
+  type MaterialRole,
+} from "@/lib/estimation/market-materials";
+import {
+  classifyEvidence,
+  type EvidenceClass,
+} from "@/lib/price-index/resolver";
 import { fetchActivePrice } from "@/lib/estimation/queries";
 import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
 import { coverageFor, type MarketCoverage } from "@/lib/pricing/price-honesty";
@@ -76,6 +83,14 @@ export interface PriceProvenance {
   /** Who supplied the price, when the row records it. */
   priceSource: string | null;
   scanConfidence: "low" | "medium" | "high" | null;
+  /** Retail pack the price is quoted for, where the row records one. */
+  packSizeId: string | null;
+  /**
+   * What the number rests on. A row in a market's book can still be an FX
+   * reference or a seeded baseline, and a caller must not present those as a
+   * verified local price.
+   */
+  evidence: EvidenceClass | null;
 }
 
 export interface PriceResolution {
@@ -183,7 +198,21 @@ export async function resolvePrice(
       ? "local"
       : "unverified";
 
+  const evidence: EvidenceClass | null = resolved.evidence ?? null;
+  const verified = evidence === "supplier_verified";
+
   const warnings: string[] = [];
+  if (evidence) warnings.push(evidenceSentence(evidence));
+  if (evidence === "macro_reference") {
+    warnings.push(
+      `The ${requestedMarket} figure is an FX reference band, so treat it as an order of magnitude, not a quote.`,
+    );
+  }
+  if (evidence === "baseline") {
+    warnings.push(
+      `The ${requestedMarket} figure is a seeded baseline. Ask a supplier for a real price before quoting work from it.`,
+    );
+  }
   if (inherited) {
     warnings.push(
       `Price for ${request.role} in ${requestedMarket} is inherited from ${sourcedMarket}.`,
@@ -195,7 +224,7 @@ export async function resolvePrice(
       warnings.push("The price verification snapshot is older than 45 days.");
     }
   }
-  if (status === "unverified" && !inherited) {
+  if (status === "unverified" && !inherited && !evidence) {
     warnings.push(
       `${requestedMarket} has no verified price book, so this is an unverified local price.`,
     );
@@ -221,13 +250,17 @@ export async function resolvePrice(
       effectiveDate: resolved.price.effective_date ?? null,
       priceSource: resolved.price.price_source ?? null,
       scanConfidence: resolved.price.scan_confidence ?? null,
+      packSizeId: resolved.price.pack_size_id ?? null,
+      evidence: resolved.evidence ?? null,
     },
     warnings,
     message: inherited
-      ? `${request.role} priced from ${sourcedMarket} because ${requestedMarket} has no local price.`
-      : status === "local"
-        ? `${request.role} priced from ${requestedMarket} verified prices.`
-        : `${request.role} priced from ${requestedMarket}, unverified.`,
+      ? `${request.role} priced from ${sourcedMarket} because ${requestedMarket} has no local price.${verified ? " Verified supplier price." : ""}`
+      : status === "local" && verified
+        ? `${request.role} priced from ${requestedMarket} verified supplier prices.`
+        : status === "local"
+          ? `${request.role} priced from ${requestedMarket}, but the figure itself is not a verified supplier price.`
+          : `${request.role} priced from ${requestedMarket}, unverified.`,
   };
 }
 
@@ -326,14 +359,35 @@ export async function resolveMaterialPrice(
   const sourcedMarket = (data.market || requestedMarket).toUpperCase();
   const status: PriceResolutionStatus =
     coverage?.status === "local" ? "local" : "unverified";
+  // This axis reads the market's own row, so the class comes from it directly.
+  const evidence = classifyEvidence({
+    price_source: data.price_source ?? null,
+    supplier_name:
+      (data as { supplier_name?: string | null }).supplier_name ?? null,
+    verification_status:
+      (data as { verification_status?: string | null }).verification_status ??
+      null,
+  });
+  const verified = evidence === "supplier_verified";
   const warnings: string[] = [];
+  warnings.push(evidenceSentence(evidence));
+  if (evidence === "macro_reference") {
+    warnings.push(
+      `${requestedMarket} holds an FX reference band here, so treat it as an order of magnitude, not a quote.`,
+    );
+  }
+  if (evidence === "baseline") {
+    warnings.push(
+      `${requestedMarket} holds a seeded baseline here. Ask a supplier for a real price before quoting work from it.`,
+    );
+  }
   if (coverage) {
     warnings.push(coverage.sentence);
     if (coverage.snapshotStale) {
       warnings.push("The price verification snapshot is older than 45 days.");
     }
   }
-  if (status === "unverified") {
+  if (status === "unverified" && evidence === "supplier_verified") {
     warnings.push(
       `${requestedMarket} has no verified price book, so this is an unverified local price.`,
     );
@@ -359,12 +413,17 @@ export async function resolveMaterialPrice(
       effectiveDate: data.effective_date ?? null,
       priceSource: data.price_source ?? null,
       scanConfidence: data.scan_confidence ?? null,
+      packSizeId:
+        (data as { pack_size_id?: string | null }).pack_size_id ?? null,
+      evidence,
     },
     warnings,
     message:
-      status === "local"
-        ? `${priceType} priced from ${requestedMarket} verified prices.`
-        : `${priceType} priced from ${requestedMarket}, unverified.`,
+      status === "local" && verified
+        ? `${priceType} priced from ${requestedMarket} verified supplier prices.`
+        : status === "local"
+          ? `${priceType} priced from ${requestedMarket}, but the figure itself is not a verified supplier price.`
+          : `${priceType} priced from ${requestedMarket}, unverified.`,
   };
 }
 
@@ -413,5 +472,7 @@ function emptyProvenance(requestedMarket: string): PriceProvenance {
     effectiveDate: null,
     priceSource: null,
     scanConfidence: null,
+    packSizeId: null,
+    evidence: null,
   };
 }
