@@ -42,7 +42,19 @@ vi.mock("@/lib/supabase-lazy", () => {
   };
 });
 
-import { fetchAdConfig, clearAdConfigCache } from "./ad-config";
+import {
+  fetchAdConfig,
+  clearAdConfigCache,
+  ADSENSE_ONLY_PLACEMENT_KEYS,
+  CODE_DEFINED_ACTIVE_PLACEMENT_KEYS,
+} from "./ad-config";
+
+// The DB row owns "home_top", so that key is not filled twice: gap-fillers
+// only cover keys the DB did not return.
+const expectedPlacementCount =
+  1 +
+  ADSENSE_ONLY_PLACEMENT_KEYS.length +
+  CODE_DEFINED_ACTIVE_PLACEMENT_KEYS.filter((k) => k !== "home_top").length;
 
 describe("fetchAdConfig stale-while-error", () => {
   beforeEach(() => {
@@ -54,14 +66,12 @@ describe("fetchAdConfig stale-while-error", () => {
 
   it("serves the cached config when a later refresh fails", async () => {
     // Prime the cache with a successful fetch. The DB returns 1 placement;
-    // 5 code-defined AdSense-only placements are merged in (gap-fillers
-    // for keys the DB does not have yet).
+    // code-defined placements are merged in as gap-fillers for keys the DB
+    // does not have yet.
     const good = await fetchAdConfig();
     expect(good.providers).toHaveLength(1);
-    expect(good.placements).toHaveLength(6);
-    expect(
-      good.placements.map((pl) => pl.placement_key),
-    ).toEqual(
+    expect(good.placements).toHaveLength(expectedPlacementCount);
+    expect(good.placements.map((pl) => pl.placement_key)).toEqual(
       expect.arrayContaining([
         "home_top",
         "adsense_footer",
@@ -93,7 +103,7 @@ describe("fetchAdConfig stale-while-error", () => {
     callState.current.placementsError = null;
     const second = await fetchAdConfig(true); // force bypasses the cache
     expect(second.providers).toHaveLength(1);
-    // 1 DB placement + 5 code-defined AdSense-only gap-fillers.
-    expect(second.placements).toHaveLength(6);
+    // 1 DB placement plus the code-defined gap-fillers.
+    expect(second.placements).toHaveLength(expectedPlacementCount);
   });
 });

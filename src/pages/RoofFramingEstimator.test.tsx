@@ -3,6 +3,10 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import RoofFramingEstimator from "./RoofFramingEstimator";
 vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
+// Ad slots in the page call useAuth, which needs the app provider at runtime.
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false, isPaid: false })),
+}));
 
 describe("RoofFramingEstimator page", () => {
   it("requires measured geometry and outputs member/board-foot schedule", () => {
@@ -59,18 +63,30 @@ it("keeps preliminary member checks separate and requires explicit engineer inpu
   fireEvent.click(
     screen.getByRole("button", { name: /Preliminary structural check/i }),
   );
-  fireEvent.change(screen.getByRole("combobox", { name: /Market research context/i }), {
-    target: { value: "NG" },
-  });
-  expect(screen.getByText(/reference\/research context only/i)).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: /National Building Code/i })).toHaveAttribute("href", "https://bend.fmhud.gov.ng/upload/download/25080529456.pdf");
+  fireEvent.change(
+    screen.getByRole("combobox", { name: /Market research context/i }),
+    {
+      target: { value: "NG" },
+    },
+  );
+  expect(
+    screen.getByText(/reference\/research context only/i),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole("link", { name: /National Building Code/i }),
+  ).toHaveAttribute(
+    "href",
+    "https://bend.fmhud.gov.ng/upload/download/25080529456.pdf",
+  );
   fireEvent.click(
     screen.getByRole("button", { name: /Run preliminary member check/i }),
   );
   expect(screen.getByRole("alert")).toHaveTextContent(
     /Clear span must be greater than zero/,
   );
-  expect(screen.getByText(/Jurisdictional structural design is not yet available/)).toBeInTheDocument();
+  expect(
+    screen.getByText(/Jurisdictional structural design is not yet available/),
+  ).toBeInTheDocument();
 
   const values: Record<string, string> = {
     "Clear span (m)": "4",
@@ -100,12 +116,39 @@ it("keeps preliminary member checks separate and requires explicit engineer inpu
 });
 
 it("shows sourced Nigerian roof live-load references separately from total design load", () => {
-  render(<MemoryRouter><RoofFramingEstimator /></MemoryRouter>);
-  fireEvent.click(screen.getByRole("button", { name: /Preliminary structural check/i }));
-  fireEvent.change(screen.getByRole("spinbutton", { name: /Roof rise \(mm per 1 m horizontal\)/i }), { target: { value: "0" } });
-  fireEvent.change(screen.getByRole("spinbutton", { name: /Member tributary loaded area/i }), { target: { value: "500" } });
-  fireEvent.click(screen.getByRole("button", { name: /Look up published live-load reference/i }));
-  expect(screen.getByText(/2 kN\/m² ordinary-roof live load/i)).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: /Table 8.10/i })).toHaveAttribute("href", "https://bend.fmhud.gov.ng/upload/download/25080529456.pdf");
-  expect(screen.getByRole("spinbutton", { name: /Total downward load per plan area/i })).toHaveValue(null);
+  render(
+    <MemoryRouter>
+      <RoofFramingEstimator />
+    </MemoryRouter>,
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: /Preliminary structural check/i }),
+  );
+  fireEvent.change(
+    screen.getByRole("spinbutton", {
+      name: /Roof rise \(mm per 1 m horizontal\)/i,
+    }),
+    { target: { value: "0" } },
+  );
+  fireEvent.change(
+    screen.getByRole("spinbutton", { name: /Member tributary loaded area/i }),
+    { target: { value: "500" } },
+  );
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: /Look up published live-load reference/i,
+    }),
+  );
+  expect(
+    screen.getByText(/2 kN\/m² ordinary-roof live load/i),
+  ).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /Table 8.10/i })).toHaveAttribute(
+    "href",
+    "https://bend.fmhud.gov.ng/upload/download/25080529456.pdf",
+  );
+  expect(
+    screen.getByRole("spinbutton", {
+      name: /Total downward load per plan area/i,
+    }),
+  ).toHaveValue(null);
 });
