@@ -1,6 +1,8 @@
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import { useEngineAccess } from "@/lib/use-engine-access";
+import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { useState, useCallback, useEffect, useMemo, useId } from "react";
 import { useSeo } from "@/lib/seo";
 import {
@@ -303,6 +305,31 @@ export function ConcreteTakeoffCalculator() {
     setErrors(response.errors);
     setResult(response.data);
   };
+  // The schedule is data, not markup, so the preview can show a few lines of the
+  // same list rather than a different one.
+  const takeoffSchedule: Array<[string, string]> = result
+    ? [
+        [
+          `Wet ${result.elementType} volume`,
+          `${result.concreteVolumeM3.toFixed(3)} m³`,
+        ],
+        [
+          "Wet volume with allowance",
+          `${result.volumeWithWasteM3.toFixed(3)} m³`,
+        ],
+        ["Cement", `${result.cementBagsToBuy} whole ${bagMass} kg bags`],
+        ["Sand", `${result.sandM3.toFixed(3)} m³`],
+        ["Coarse aggregate", `${result.aggregateM3.toFixed(3)} m³`],
+        [
+          "Rebar weight",
+          result.rebarWeightKg === null
+            ? "Not calculated: add an engineer's schedule"
+            : `${result.rebarWeightKg.toFixed(2)} kg (${(result.rebarWeightKg / 1000).toFixed(4)} t)`,
+        ],
+      ]
+    : [];
+  const takeoffAccess = useEngineAccess("/concrete-takeoff-calculator");
+
   const buildConcreteQuote = (): QuoteOptions | null => {
     if (!result) return null;
     const lines: QuoteOptions["lines"] = [
@@ -547,25 +574,10 @@ export function ConcreteTakeoffCalculator() {
             <EngineerReviewBadge />
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              [
-                `Wet ${result.elementType} volume`,
-                `${result.concreteVolumeM3.toFixed(3)} m³`,
-              ],
-              [
-                "Wet volume with allowance",
-                `${result.volumeWithWasteM3.toFixed(3)} m³`,
-              ],
-              ["Cement", `${result.cementBagsToBuy} whole ${bagMass} kg bags`],
-              ["Sand", `${result.sandM3.toFixed(3)} m³`],
-              ["Coarse aggregate", `${result.aggregateM3.toFixed(3)} m³`],
-              [
-                "Rebar weight",
-                result.rebarWeightKg === null
-                  ? "Not calculated: add an engineer's schedule"
-                  : `${result.rebarWeightKg.toFixed(2)} kg (${(result.rebarWeightKg / 1000).toFixed(4)} t)`,
-              ],
-            ].map(([label, value]) => (
+            {(takeoffAccess.limited
+              ? takeoffSchedule.slice(0, takeoffAccess.visibleLines)
+              : takeoffSchedule
+            ).map(([label, value]) => (
               <div
                 key={label}
                 className="rounded-xl border border-border bg-card p-4"
@@ -584,14 +596,24 @@ export function ConcreteTakeoffCalculator() {
               <li key={note}>• {note}</li>
             ))}
           </ul>
+          {takeoffAccess.limited && (
+            <div className="mt-4">
+              <EnginePreviewLock
+                engine={takeoffAccess.engine!}
+                hiddenLines={takeoffAccess.hiddenLines(takeoffSchedule.length)}
+              />
+            </div>
+          )}
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={exportConcretePdf}
-              className="btn-secondary text-sm"
-            >
-              {t("Export quote (PDF)")}
-            </button>
+            {takeoffAccess.canExport && (
+              <button
+                type="button"
+                onClick={exportConcretePdf}
+                className="btn-secondary text-sm"
+              >
+                {t("Export quote (PDF)")}
+              </button>
+            )}
             <QuoteShareButton
               build={buildConcreteQuote}
               kind="Concrete Takeoff"
