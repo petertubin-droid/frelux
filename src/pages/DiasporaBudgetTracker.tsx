@@ -120,17 +120,38 @@ export default function DiasporaBudgetTracker() {
   const exportAuditCSV = () => {
     const rows = [
       ["FRELUX Diaspora Escrow Forensic Audit & Inflation Schedule", ""],
-      ["Sponsor Budget", `${result.sponsorBudgetForeign.toLocaleString()} ${sponsorCurrency}`],
-      ["Parallel FX Rate", `1 ${sponsorCurrency} = ${result.parallelExchangeRate} ${localCurrency}`],
-      ["Official FX Rate", `1 ${sponsorCurrency} = ${result.officialExchangeRate} ${localCurrency}`],
+      [
+        "Sponsor Budget",
+        `${result.sponsorBudgetForeign.toLocaleString()} ${sponsorCurrency}`,
+      ],
+      [
+        "Parallel FX Rate",
+        `1 ${sponsorCurrency} = ${result.parallelExchangeRate} ${localCurrency}`,
+      ],
+      [
+        "Official FX Rate",
+        `1 ${sponsorCurrency} = ${result.officialExchangeRate} ${localCurrency}`,
+      ],
       ["Exchange Rate Spread (Gap)", `${result.exchangeRateGapPercent}%`],
       ["Project Timeline", `${timelineMonths} Months`],
       ["Annual Construction Inflation", `${annualInflation}%`],
       ["Inflation Compounding Multiplier", `${result.inflationMultiplier}x`],
-      ["Inflation-Adjusted Target Cost", `${result.inflationAdjustedProjectedForeign.toLocaleString()} ${sponsorCurrency}`],
-      ["Funds Disbursed Overseas", `${result.totalSentForeign.toLocaleString()} ${sponsorCurrency}`],
-      ["On-Site Spend In Local Currency", `${result.totalSpentLocal.toLocaleString()} ${localCurrency}`],
-      ["On-Site Spend Converted to Sponsor Currency", `${result.equivalentSpentForeign.toLocaleString()} ${sponsorCurrency}`],
+      [
+        "Inflation-Adjusted Target Cost",
+        `${result.inflationAdjustedProjectedForeign.toLocaleString()} ${sponsorCurrency}`,
+      ],
+      [
+        "Funds Disbursed Overseas",
+        `${result.totalSentForeign.toLocaleString()} ${sponsorCurrency}`,
+      ],
+      [
+        "On-Site Spend In Local Currency",
+        `${result.totalSpentLocal.toLocaleString()} ${localCurrency}`,
+      ],
+      [
+        "On-Site Spend Converted to Sponsor Currency",
+        `${result.equivalentSpentForeign.toLocaleString()} ${sponsorCurrency}`,
+      ],
       ["Material Variance / Deviation", `${result.materialDeviationPercent}%`],
       ["--- MILESTONES BREAKDOWN ---", ""],
       ["Milestone Name", "Allocated (Foreign)", "Spent (Local)", "Status"],
@@ -149,7 +170,10 @@ export default function DiasporaBudgetTracker() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `diaspora-budget-audit-${sponsorCurrency}-${localCurrency}.csv`);
+    link.setAttribute(
+      "download",
+      `diaspora-budget-audit-${sponsorCurrency}-${localCurrency}.csv`,
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -160,8 +184,8 @@ export default function DiasporaBudgetTracker() {
       <Container>
         <PageHeader
           title="Diaspora Construction Budget & Inflation Tracker"
-          description="Protect cross-border remittances against local currency volatility, black market exchange spreads, and compounding material inflation."
-          badge="Diaspora Escrow Finance"
+          subtitle="Protect cross-border remittances against local currency volatility, black market exchange spreads, and compounding material inflation."
+          eyebrow="Diaspora Escrow Finance"
         />
 
         {/* Top Currency & FX Rate Bar */}
@@ -188,7 +212,9 @@ export default function DiasporaBudgetTracker() {
                 className="w-full text-xl font-bold font-mono bg-transparent border-none focus:outline-hidden"
               />
             </div>
-            <span className="text-[10px] text-muted-foreground">Original foreign allocation</span>
+            <span className="text-[10px] text-muted-foreground">
+              Original foreign allocation
+            </span>
           </div>
 
           <div className="p-4 rounded-xl border border-border bg-card">
@@ -214,7 +240,9 @@ export default function DiasporaBudgetTracker() {
                 className="w-full text-xl font-bold font-mono bg-transparent border-none focus:outline-hidden"
               />
             </div>
-            <span className="text-[10px] text-muted-foreground">Actual contractor liquidity rate</span>
+            <span className="text-[10px] text-muted-foreground">
+              Actual contractor liquidity rate
+            </span>
           </div>
 
           <div className="p-4 rounded-xl border border-border bg-card">
@@ -240,10 +268,12 @@ export default function DiasporaBudgetTracker() {
               Inflation-Adjusted Target
             </span>
             <div className="text-2xl font-bold font-mono text-foreground">
-              {result.inflationAdjustedProjectedForeign.toLocaleString()} {sponsorCurrency}
+              {result.inflationAdjustedProjectedForeign.toLocaleString()}{" "}
+              {sponsorCurrency}
             </div>
             <span className="text-[10px] text-muted-foreground">
-              +{Math.round((result.inflationMultiplier - 1) * 100)}% buffer over {timelineMonths}mo
+              +{Math.round((result.inflationMultiplier - 1) * 100)}% buffer over{" "}
+              {timelineMonths}mo
             </span>
           </div>
         </div>
@@ -302,15 +332,21 @@ export default function DiasporaBudgetTracker() {
               <div className="flex items-center gap-2">
                 {result.isOverBudget ? (
                   <Badge variant="destructive" className="gap-1 text-xs">
-                    <AlertTriangle className="h-3.5 w-3.5" /> High Risk Over-Budget
+                    <AlertTriangle className="h-3.5 w-3.5" /> High Risk
+                    Over-Budget
                   </Badge>
                 ) : (
-                  <Badge variant="default" className="gap-1 text-xs bg-emerald-600 hover:bg-emerald-700">
+                  <Badge
+                    variant="default"
+                    className="gap-1 text-xs bg-emerald-600 hover:bg-emerald-700"
+                  >
                     <CheckCircle2 className="h-3.5 w-3.5" /> Budget On-Track
                   </Badge>
                 )}
                 <span className="text-xs font-mono font-bold">
-                  {result.materialDeviationPercent > 0 ? `+${result.materialDeviationPercent}%` : `${result.materialDeviationPercent}%`}
+                  {result.materialDeviationPercent > 0
+                    ? `+${result.materialDeviationPercent}%`
+                    : `${result.materialDeviationPercent}%`}
                 </span>
               </div>
             </div>
@@ -329,19 +365,30 @@ export default function DiasporaBudgetTracker() {
         <div className="rounded-xl border border-border bg-card p-6 mb-8 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-              <Layers className="h-5 w-5 text-primary" /> Phase Milestones & Local Spend Verification
+              <Layers className="h-5 w-5 text-primary" /> Phase Milestones &
+              Local Spend Verification
             </h3>
-            <Button size="sm" onClick={addMilestone} className="gap-1.5 text-xs">
+            <Button
+              size="sm"
+              onClick={addMilestone}
+              className="gap-1.5 text-xs"
+            >
               <Plus className="h-4 w-4" /> Add Phase
             </Button>
           </div>
 
           <div className="space-y-3">
             {milestones.map((m, idx) => {
-              const spentForeignEquivalent = parallelRate > 0 ? Math.round(m.spentLocal / parallelRate) : 0;
-              const variance = m.allocatedForeign > 0 && m.spentLocal > 0
-                ? Math.round(((spentForeignEquivalent - m.allocatedForeign) / m.allocatedForeign) * 100)
-                : 0;
+              const spentForeignEquivalent =
+                parallelRate > 0 ? Math.round(m.spentLocal / parallelRate) : 0;
+              const variance =
+                m.allocatedForeign > 0 && m.spentLocal > 0
+                  ? Math.round(
+                      ((spentForeignEquivalent - m.allocatedForeign) /
+                        m.allocatedForeign) *
+                        100,
+                    )
+                  : 0;
 
               return (
                 <div
@@ -357,13 +404,17 @@ export default function DiasporaBudgetTracker() {
                       <input
                         type="checkbox"
                         checked={m.completed}
-                        onChange={(e) => updateMilestone(idx, "completed", e.target.checked)}
+                        onChange={(e) =>
+                          updateMilestone(idx, "completed", e.target.checked)
+                        }
                         className="h-4 w-4 rounded accent-primary"
                       />
                       <input
                         type="text"
                         value={m.name}
-                        onChange={(e) => updateMilestone(idx, "name", e.target.value)}
+                        onChange={(e) =>
+                          updateMilestone(idx, "name", e.target.value)
+                        }
                         className="text-sm font-semibold bg-transparent border-none text-foreground focus:outline-hidden"
                       />
                     </div>
@@ -372,7 +423,9 @@ export default function DiasporaBudgetTracker() {
                         variant={m.completed ? "default" : "outline"}
                         className={`text-[10px] ${m.completed ? "bg-emerald-600" : ""}`}
                       >
-                        {m.completed ? "Disbursed / Cleared" : "Pending Inspection"}
+                        {m.completed
+                          ? "Disbursed / Cleared"
+                          : "Pending Inspection"}
                       </Badge>
                       <button
                         type="button"
@@ -392,7 +445,13 @@ export default function DiasporaBudgetTracker() {
                       <input
                         type="number"
                         value={m.allocatedForeign}
-                        onChange={(e) => updateMilestone(idx, "allocatedForeign", Number(e.target.value))}
+                        onChange={(e) =>
+                          updateMilestone(
+                            idx,
+                            "allocatedForeign",
+                            Number(e.target.value),
+                          )
+                        }
                         className="w-full rounded-lg border border-input bg-background px-2.5 py-1.5 font-mono"
                       />
                     </div>
@@ -404,7 +463,13 @@ export default function DiasporaBudgetTracker() {
                       <input
                         type="number"
                         value={m.spentLocal}
-                        onChange={(e) => updateMilestone(idx, "spentLocal", Number(e.target.value))}
+                        onChange={(e) =>
+                          updateMilestone(
+                            idx,
+                            "spentLocal",
+                            Number(e.target.value),
+                          )
+                        }
                         className="w-full rounded-lg border border-input bg-background px-2.5 py-1.5 font-mono"
                       />
                     </div>
@@ -414,7 +479,8 @@ export default function DiasporaBudgetTracker() {
                         Forensic Equiv. ({sponsorCurrency})
                       </span>
                       <div className="font-mono font-semibold text-foreground">
-                        {spentForeignEquivalent.toLocaleString()} {sponsorCurrency}
+                        {spentForeignEquivalent.toLocaleString()}{" "}
+                        {sponsorCurrency}
                         {m.spentLocal > 0 && (
                           <span
                             className={`ml-2 text-[10px] ${

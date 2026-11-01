@@ -12,6 +12,14 @@
  *    tracks budgeted foreign deposit vs local procurement burn.
  */
 
+/** One funded stage of a diaspora build: money allocated abroad, spent locally. */
+export interface DiasporaMilestone {
+  name: string;
+  allocatedForeign: number;
+  spentLocal: number;
+  completed: boolean;
+}
+
 export interface DiasporaBudgetInput {
   sponsorBaseBudgetForeign: number; // e.g. 15000 USD
   sponsorCurrency: string; // e.g. "USD", "GBP", "EUR"
@@ -20,12 +28,7 @@ export interface DiasporaBudgetInput {
   officialExchangeRate?: number; // e.g. 1450 NGN per 1 USD (to quantify bank gap)
   annualInflationRatePercent?: number; // e.g. 24% annual building material inflation
   timelineMonths?: number; // e.g. 6 months forward projection
-  milestones: Array<{
-    name: string;
-    allocatedForeign: number;
-    spentLocal: number;
-    completed: boolean;
-  }>;
+  milestones: DiasporaMilestone[];
 }
 
 export interface DiasporaBudgetSummary {
@@ -81,30 +84,44 @@ export function calculateDiasporaBudgetTracker(
     throw new RangeError("Exchange rate must be a positive number.");
   }
 
-  const totalSentForeign = milestones.reduce((sum, m) => sum + (m.completed ? m.allocatedForeign : 0), 0);
-  const remainingBudgetForeign = Math.max(0, sponsorBaseBudgetForeign - totalSentForeign);
+  const totalSentForeign = milestones.reduce(
+    (sum, m) => sum + (m.completed ? m.allocatedForeign : 0),
+    0,
+  );
+  const remainingBudgetForeign = Math.max(
+    0,
+    sponsorBaseBudgetForeign - totalSentForeign,
+  );
   const totalSpentLocal = milestones.reduce((sum, m) => sum + m.spentLocal, 0);
 
   // Convert spent local back to foreign using parallel market rate
-  const equivalentSpentForeign = Math.round((totalSpentLocal / parallelExchangeRate) * 100) / 100;
+  const equivalentSpentForeign =
+    Math.round((totalSpentLocal / parallelExchangeRate) * 100) / 100;
 
   // Rate gap
   let exchangeRateGapPercent: number | undefined;
   if (officialExchangeRate && officialExchangeRate > 0) {
-    exchangeRateGapPercent = Math.round(((parallelExchangeRate - officialExchangeRate) / officialExchangeRate) * 1000) / 10;
+    exchangeRateGapPercent =
+      Math.round(
+        ((parallelExchangeRate - officialExchangeRate) / officialExchangeRate) *
+          1000,
+      ) / 10;
   }
 
   // Inflation buffer forward projection
   const r = annualInflationRatePercent / 100;
   const timeFactor = timelineMonths / 12;
-  const inflationMultiplier = Math.round(Math.pow(1 + r, timeFactor) * 1000) / 1000;
-  const inflationAdjustedProjectedForeign = Math.round(sponsorBaseBudgetForeign * inflationMultiplier * 100) / 100;
+  const inflationMultiplier =
+    Math.round(Math.pow(1 + r, timeFactor) * 1000) / 1000;
+  const inflationAdjustedProjectedForeign =
+    Math.round(sponsorBaseBudgetForeign * inflationMultiplier * 100) / 100;
 
   // Material deviation: difference between local spend in foreign terms vs foreign allocated for completed work
   const varianceForeign = equivalentSpentForeign - totalSentForeign;
-  const materialDeviationPercent = totalSentForeign > 0
-    ? Math.round((varianceForeign / totalSentForeign) * 1000) / 10
-    : 0;
+  const materialDeviationPercent =
+    totalSentForeign > 0
+      ? Math.round((varianceForeign / totalSentForeign) * 1000) / 10
+      : 0;
 
   const isOverBudget = equivalentSpentForeign > sponsorBaseBudgetForeign;
 
