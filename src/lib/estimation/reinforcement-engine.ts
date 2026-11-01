@@ -1064,3 +1064,13 @@ export function bbsToCsv(schedule: BarBendingSchedule): string {
   }
   return lines.join("\n");
 }
+
+/**
+ * Universal Global Rebar Weight & BBS Calculation (Metric ISO/EN + Imperial ASTM).
+ * Re-exported from universal-construction-math.
+ */
+export {
+  calculateGlobalRebarWeight,
+  type RebarUnitSystem,
+  type RebarWeightResult,
+} from "../globalization/universal-construction-math";

@@ -101,3 +101,16 @@ export function sphericalPolygonAreaMeters(ring: LatLon[]): number {
   total = (total * MEAN_EARTH_RADIUS_M * MEAN_EARTH_RADIUS_M) / 2;
   return Math.abs(total);
 }
+
+/**
+ * Planar Cartesian Coordinate Geometry Area (Shoelace Formula / Surveyor's Formula).
+ *
+ * For local site surveys, CAD plots, and Cartesian grid coordinates (in metres, feet, etc.),
+ * this calculates the exact area of any non-self-intersecting irregular polygon.
+ *
+ * Re-exported from universal-construction-math for seamless geospatial integration.
+ */
+export {
+  calculateIrregularPolygonArea,
+  type CartesianCoordinate,
+} from "../globalization/universal-construction-math";

@@ -70,3 +70,16 @@ export function calculateMasonryTakeoff(input: MasonryTakeoffInput): AuditableCa
   errors, warnings: ["Complex layouts require a detailed validated layout method."],
  };
 }
+
+/**
+ * Universal Concrete Mix & Materials Takeoff by Structural Strength Grade.
+ *
+ * Re-exported from universal-construction-math for global multi-standard takeoffs.
+ */
+export {
+  calculateGlobalConcrete,
+  GLOBAL_CONCRETE_GRADE_MAP,
+  GLOBAL_DRY_SHRINKAGE_FACTOR,
+  GLOBAL_CEMENT_DENSITY_KG_M3,
+  type GlobalConcreteQuantities,
+} from "./universal-construction-math";
