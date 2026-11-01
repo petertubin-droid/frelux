@@ -53,6 +53,8 @@ export interface ManifestEngine {
   } | null;
   portability: string | null;
   pricingDependency: PricingDependency;
+  /** Other display names that resolved to this id. Empty when unique. */
+  aliasedNames?: readonly string[];
   /** Source files the inventory claims, empty when it says nothing. */
   sourceFiles: readonly string[];
   /** Test files known to cover this engine id. */
@@ -119,6 +121,32 @@ export function buildEngineManifest(): ManifestEngine[] {
         if (!existing.sources.aiEngineIds.includes(aiId)) {
           (existing.sources.aiEngineIds as string[]).push(aiId);
         }
+      }
+      // A merge must not lose a source the later entry could see. Anything
+      // that would be silently dropped becomes a conflict instead.
+      if (!existing.sources.capabilityId && partial.sources.capabilityId) {
+        (existing.sources as { capabilityId: string | null }).capabilityId =
+          partial.sources.capabilityId;
+      } else if (
+        existing.sources.capabilityId &&
+        partial.sources.capabilityId &&
+        existing.sources.capabilityId !== partial.sources.capabilityId
+      ) {
+        (existing.gaps as string[]).push(
+          `conflicting capability id: ${existing.sources.capabilityId} vs ${partial.sources.capabilityId}`,
+        );
+      }
+      if (!existing.sources.inventoryId && partial.sources.inventoryId) {
+        (existing.sources as { inventoryId: string | null }).inventoryId =
+          partial.sources.inventoryId;
+      }
+      if (existing.name !== partial.name) {
+        // Two AI engines resolving to one capability is by design, so the
+        // second name is kept rather than dropped or treated as a duplicate.
+        const aliases = ((existing.aliasedNames ?? []) as string[]).slice();
+        if (!aliases.includes(partial.name)) aliases.push(partial.name);
+        (existing as { aliasedNames?: readonly string[] }).aliasedNames =
+          aliases;
       }
       return;
     }
