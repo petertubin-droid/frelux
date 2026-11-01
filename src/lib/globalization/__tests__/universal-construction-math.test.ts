@@ -6,7 +6,7 @@ import {
   GLOBAL_CONCRETE_GRADE_MAP,
   GLOBAL_DRY_SHRINKAGE_FACTOR,
   GLOBAL_CEMENT_DENSITY_KG_M3,
-} from "./universal-construction-math";
+} from "../universal-construction-math";
 
 describe("Universal Global Construction Math & Physics", () => {
   describe("1. Global Bar Bending Schedule (BBS) & Rebar Weight", () => {
@@ -43,9 +43,15 @@ describe("Universal Global Construction Math & Physics", () => {
     });
 
     it("throws RangeError for non-positive lengths or diameters", () => {
-      expect(() => calculateGlobalRebarWeight(12, 0, "metric")).toThrow(RangeError);
-      expect(() => calculateGlobalRebarWeight(0, 10, "metric")).toThrow(RangeError);
-      expect(() => calculateGlobalRebarWeight(4, -5, "imperial")).toThrow(RangeError);
+      expect(() => calculateGlobalRebarWeight(12, 0, "metric")).toThrow(
+        RangeError,
+      );
+      expect(() => calculateGlobalRebarWeight(0, 10, "metric")).toThrow(
+        RangeError,
+      );
+      expect(() => calculateGlobalRebarWeight(4, -5, "imperial")).toThrow(
+        RangeError,
+      );
     });
   });
 
@@ -153,7 +159,12 @@ describe("Universal Global Construction Math & Physics", () => {
     });
 
     it("refuses polygons with fewer than 3 vertices", () => {
-      expect(() => calculateIrregularPolygonArea([[0, 0], [1, 1]])).toThrow(RangeError);
+      expect(() =>
+        calculateIrregularPolygonArea([
+          [0, 0],
+          [1, 1],
+        ]),
+      ).toThrow(RangeError);
     });
 
     it("refuses vertices with non-finite coordinates", () => {
