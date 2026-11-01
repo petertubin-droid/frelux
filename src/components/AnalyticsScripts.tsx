@@ -1,6 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { siteConfig } from "@/config/site";
 import { getSupabase } from "@/lib/supabase-lazy";
+import { applyGoogleConsent, hasConsent } from "@/lib/cookie-consent";
+import {
+  isValidGaMeasurementId,
+  isValidGtmContainerId,
+  isValidMetaPixelId,
+} from "@/lib/analytics-ids";
 
 /**
  * Injects third-party analytics scripts into <head> when configured.
@@ -21,6 +27,10 @@ import { getSupabase } from "@/lib/supabase-lazy";
  * auto-ads from being injected on pages without ad slots (e.g. Rewards, Dashboard).
  */
 export default function AnalyticsScripts() {
+  // Resolved pixel id, kept so a consent grant can inject the pixel without a
+  // second settings round-trip.
+  const pixelIdRef = useRef<string | null>(null);
+
   useEffect(() => {
     // Admin pages are ad-free and analytics-free
     if (window.location.pathname.startsWith("/admin")) return;
@@ -85,22 +95,42 @@ export default function AnalyticsScripts() {
       if (!gaId) gaId = siteConfig.analytics.gaMeasurementId;
       if (!pixelId) pixelId = siteConfig.metaPixel.pixelId;
 
+      // Google Tag Manager container, when configured. It goes in through this
+      // component rather than index.html so admin routes stay untagged and the
+      // consent default is pushed before the container loads.
+      const gtmId = (siteConfig.analytics.gtmContainerId ?? "").trim();
+      const gtmActive = Boolean(gtmId) && isValidGtmContainerId(gtmId);
+      if (gtmId && !gtmActive) {
+        console.error(
+          "AnalyticsScripts: invalid GTM container ID format: injection blocked",
+        );
+      }
+      if (gtmActive && !document.querySelector('script[src*="gtm.js"]')) {
+        injectGtm(gtmId);
+      }
+
       // Inject scripts (deduped)
       if (
         gaId &&
         isValidGaMeasurementId(gaId) &&
-        !document.querySelector('script[src*="googletagmanager"]')
+        !document.querySelector('script[src*="gtag/js"]')
       ) {
-        injectGtag(gaId);
+        // A GTM container has already sent the consent default.
+        injectGtag(gaId, gtmActive ? "" : CONSENT_DEFAULT);
       } else if (gaId && !isValidGaMeasurementId(gaId)) {
         // Invalid format - never injected; surfaced for diagnostics.
         console.error(
           "AnalyticsScripts: invalid GA measurement ID format: injection blocked",
         );
       }
+      if (pixelId && isValidMetaPixelId(pixelId)) pixelIdRef.current = pixelId;
+
+      // The Meta pixel sets advertising cookies, so it waits for an explicit
+      // advertising consent (the consent listener below injects it on grant).
       if (
         pixelId &&
         isValidMetaPixelId(pixelId) &&
+        hasConsent("advertising") &&
         !document.querySelector('script[src*="connect.facebook.net"]')
       ) {
         injectPixel(pixelId);
@@ -117,28 +147,57 @@ export default function AnalyticsScripts() {
     loadAndInject();
   }, []);
 
+  // A visitor who accepts the banner after load gets the pixel immediately,
+  // rather than on their next page view.
+  useEffect(() => {
+    function onConsent() {
+      const pixelId = pixelIdRef.current;
+      if (!pixelId || !hasConsent("advertising")) return;
+      if (document.querySelector('script[src*="connect.facebook.net"]')) return;
+      injectPixel(pixelId);
+    }
+    window.addEventListener("frelux:cookie-consent", onConsent);
+    return () => window.removeEventListener("frelux:cookie-consent", onConsent);
+  }, []);
+
   return null;
 }
 
 // ── Audit M2 fix (2026-09-10): admin-stored analytics IDs are only
 // injected after strict format validation. A compromised settings row
 // can never smuggle script content through the ID fields.
-const GA_MEASUREMENT_ID_RE = /^G-[A-Z0-9]{6,12}$/;
-const META_PIXEL_ID_RE = /^\d{8,25}$/;
 
-function isValidGaMeasurementId(id: string): boolean {
-  return GA_MEASUREMENT_ID_RE.test(id);
+// Consent Mode v2 defaults, denied until the visitor answers the banner
+// (lib/cookie-consent.ts sends the matching update).
+const CONSENT_DEFAULT =
+  "gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});";
+
+function injectGtm(containerId: string) {
+  const inline = document.createElement("script");
+  inline.innerHTML =
+    `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}` +
+    CONSENT_DEFAULT +
+    `gtag('js',new Date());` +
+    `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});` +
+    `var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';` +
+    `j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${containerId}');`;
+  document.head.appendChild(inline);
+  applyGoogleConsent();
 }
 
-function isValidMetaPixelId(id: string): boolean {
-  return META_PIXEL_ID_RE.test(id);
-}
-
-function injectGtag(gaId: string) {
+function injectGtag(gaId: string, consentDefault = CONSENT_DEFAULT) {
   injectScript(`https://www.googletagmanager.com/gtag/js?id=${gaId}`, true);
   const inline = document.createElement("script");
-  inline.innerHTML = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`;
+  // Consent Mode v2 defaults to denied and is lifted only by the visitor's
+  // banner choice (cookie-consent.ts calls gtag('consent','update', ...)).
+  inline.innerHTML =
+    `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}` +
+    consentDefault +
+    `gtag('js',new Date());gtag('config','${gaId}');`;
   document.head.appendChild(inline);
+  // Returning visitors already answered the banner: replay their choice so the
+  // defaults above are lifted without prompting them again.
+  applyGoogleConsent();
 }
 
 function injectPixel(pixelId: string) {

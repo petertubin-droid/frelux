@@ -10,6 +10,14 @@ import {
 
 const insert = vi.fn().mockResolvedValue({ error: null });
 
+// Measurement waits for analytics consent, so every recording test starts from
+// an explicit grant (withdrawConsent clears the banner's stored choice).
+async function grantAnalyticsConsent() {
+  const { acceptAll, withdrawConsent } = await import("@/lib/cookie-consent");
+  withdrawConsent();
+  acceptAll("settings");
+}
+
 vi.mock("@/lib/supabase-lazy", () => ({
   getSupabase: vi.fn(async () => ({ from: () => ({ insert }) })),
   isSupabaseConfigured: true,
@@ -20,6 +28,24 @@ beforeEach(() => {
   sessionStorage.clear();
   insert.mockClear();
   resetTrafficDedupe();
+});
+
+describe("traffic consent gate", () => {
+  it("records nothing while analytics consent is missing", async () => {
+    const { withdrawConsent } = await import("@/lib/cookie-consent");
+    withdrawConsent();
+    await trackPageView("/paint-calculator");
+    expect(insert).not.toHaveBeenCalled();
+    // No visitor or session identifier is minted for a visitor who declined.
+    expect(localStorage.getItem("frelux.vid")).toBeNull();
+    expect(sessionStorage.getItem("frelux.sid")).toBeNull();
+  });
+
+  it("records once the visitor accepts", async () => {
+    await grantAnalyticsConsent();
+    await trackPageView("/paint-calculator");
+    expect(insert).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("traffic privacy rules", () => {
@@ -50,6 +76,11 @@ describe("traffic privacy rules", () => {
 });
 
 describe("trackPageView", () => {
+  beforeEach(async () => {
+    await grantAnalyticsConsent();
+    resetTrafficDedupe();
+  });
+
   it("records one page view with source and device metadata", async () => {
     await trackPageView("/estimators/paint");
     expect(insert).toHaveBeenCalledTimes(1);

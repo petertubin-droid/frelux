@@ -11,6 +11,7 @@
 // double count every route change.
 
 import { getSupabase } from "@/lib/supabase-lazy";
+import { hasConsent } from "@/lib/cookie-consent";
 
 const VISITOR_KEY = "frelux.vid";
 const SESSION_KEY = "frelux.sid";
@@ -18,6 +19,8 @@ const SESSION_SEEN_KEY = "frelux.sid.seen";
 const REFERRER_KEY = "frelux.ref";
 const SESSION_IDLE_MS = 30 * 60 * 1000;
 
+// Measurement waits for analytics consent (lib/cookie-consent.ts). A visitor
+// who declines is never counted, and no visitor id is created for them.
 // Paths that must never be measured: internal tooling, auth hand-offs and
 // account pages are staff or personal surfaces, not site traffic.
 const EXCLUDED_PREFIXES = [
@@ -144,6 +147,7 @@ export async function trackPageView(path: string): Promise<void> {
   if (typeof window === "undefined") return;
   if (privacyBlocked()) return;
   if (!shouldTrackPath(path)) return;
+  if (!hasConsent("analytics")) return;
 
   const now = Date.now();
   if (lastTracked.path === path && now - lastTracked.at < 1500) return;

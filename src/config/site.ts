@@ -33,6 +33,10 @@ export const siteConfig = {
   // Google Analytics, leave empty until ready.
   analytics: {
     gaMeasurementId: "", // e.g. 'G-XXXXXXXXXX'
+    // Google Tag Manager container. The container loads through
+    // AnalyticsScripts (never hardcoded in index.html) so admin surfaces stay
+    // untagged and the consent default is always pushed first.
+    gtmContainerId: "GTM-NLVBFFH7",
   },
 } as const;
 

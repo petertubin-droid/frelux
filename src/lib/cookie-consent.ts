@@ -16,16 +16,16 @@
  *  - Version mismatch → re-show
  */
 
-export type CookieCategory = 'essential' | 'analytics' | 'advertising';
+export type CookieCategory = "essential" | "analytics" | "advertising";
 
 export interface CookieConsent {
   version: number;
   categories: Record<CookieCategory, boolean>;
   timestamp: number; // epoch ms
-  source: 'banner' | 'implicit' | 'settings';
+  source: "banner" | "implicit" | "settings";
 }
 
-const STORAGE_KEY = 'frelux_cookie_consent';
+const STORAGE_KEY = "frelux_cookie_consent";
 const CURRENT_VERSION = 2;
 const CONSENT_EXPIRY_DAYS = 180;
 const CONSENT_EXPIRY_MS = CONSENT_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
@@ -37,21 +37,24 @@ export const COOKIE_CATEGORIES: {
   required: boolean;
 }[] = [
   {
-    key: 'essential',
-    label: 'Essential',
-    description: 'Required for core site functionality, login, preferences, and security. Always on.',
+    key: "essential",
+    label: "Essential",
+    description:
+      "Required for core site functionality, login, preferences, and security. Always on.",
     required: true,
   },
   {
-    key: 'analytics',
-    label: 'Analytics',
-    description: 'Help us understand how the site is used so we can improve it. Anonymous and aggregated.',
+    key: "analytics",
+    label: "Analytics",
+    description:
+      "Help us understand how the site is used so we can improve it. Anonymous and aggregated.",
     required: false,
   },
   {
-    key: 'advertising',
-    label: 'Advertising',
-    description: 'Used to show relevant ads that keep our tools free. Controlled by our ad partners.',
+    key: "advertising",
+    label: "Advertising",
+    description:
+      "Used to show relevant ads that keep our tools free. Controlled by our ad partners.",
     required: false,
   },
 ];
@@ -84,7 +87,7 @@ export function shouldShowBanner(): boolean {
 /** Save consent to localStorage. */
 export function saveConsent(
   categories: Record<CookieCategory, boolean>,
-  source: CookieConsent['source'] = 'banner'
+  source: CookieConsent["source"] = "banner",
 ): CookieConsent {
   const consent: CookieConsent = {
     version: CURRENT_VERSION,
@@ -104,26 +107,86 @@ export function saveConsent(
   }
 
   // Dispatch a custom event so listeners (AnalyticsScripts, etc.) can react
-  window.dispatchEvent(new CustomEvent('frelux:cookie-consent', { detail: consent }));
+  window.dispatchEvent(
+    new CustomEvent("frelux:cookie-consent", { detail: consent }),
+  );
+
+  // Keep Google Consent Mode in step with the choice.
+  applyGoogleConsent(consent.categories);
 
   return consent;
 }
 
 /** Accept all categories. */
-export function acceptAll(source: CookieConsent['source'] = 'banner'): CookieConsent {
-  return saveConsent({ essential: true, analytics: true, advertising: true }, source);
+export function acceptAll(
+  source: CookieConsent["source"] = "banner",
+): CookieConsent {
+  return saveConsent(
+    { essential: true, analytics: true, advertising: true },
+    source,
+  );
 }
 
 /** Reject all non-essential categories. */
-export function rejectAll(source: CookieConsent['source'] = 'banner'): CookieConsent {
-  return saveConsent({ essential: true, analytics: false, advertising: false }, source);
+export function rejectAll(
+  source: CookieConsent["source"] = "banner",
+): CookieConsent {
+  return saveConsent(
+    { essential: true, analytics: false, advertising: false },
+    source,
+  );
 }
 
 /** Check if a specific category is consented. */
 export function hasConsent(category: CookieCategory): boolean {
   const consent = getStoredConsent();
-  if (!consent) return category === 'essential';
+  if (!consent) return category === "essential";
   return consent.categories[category] ?? false;
+}
+
+/** Google Consent Mode v2 signal names we map our categories onto. */
+export type GoogleConsentState = {
+  ad_storage: "granted" | "denied";
+  ad_user_data: "granted" | "denied";
+  ad_personalization: "granted" | "denied";
+  analytics_storage: "granted" | "denied";
+};
+
+/** Translates our two optional categories into Google consent signals. */
+export function googleConsentState(
+  categories: Record<CookieCategory, boolean>,
+): GoogleConsentState {
+  const analytics = categories.analytics ? "granted" : "denied";
+  const advertising = categories.advertising ? "granted" : "denied";
+  return {
+    ad_storage: advertising,
+    ad_user_data: advertising,
+    ad_personalization: advertising,
+    analytics_storage: analytics,
+  };
+}
+
+/**
+ * Sends the visitor's current choice to gtag as a Consent Mode update.
+ *
+ * Safe to call at any time: before the tag loads it is a no-op, and when no
+ * choice has been stored the signal stays denied. Called on every save, on
+ * withdrawal, and once after the tag is injected so returning visitors do not
+ * have to answer the banner again.
+ */
+export function applyGoogleConsent(
+  categories?: Record<CookieCategory, boolean>,
+): void {
+  if (typeof window === "undefined") return;
+  const tag = (window as { gtag?: (...args: unknown[]) => void }).gtag;
+  if (typeof tag !== "function") return;
+  const resolved = categories ??
+    getStoredConsent()?.categories ?? {
+      essential: true,
+      analytics: false,
+      advertising: false,
+    };
+  tag("consent", "update", googleConsentState(resolved));
 }
 
 /** Withdraw consent, clears storage so banner reappears. */
@@ -133,7 +196,8 @@ export function withdrawConsent(): void {
   } catch {
     // ignore
   }
-  window.dispatchEvent(new CustomEvent('frelux:cookie-consent-withdrawn'));
+  window.dispatchEvent(new CustomEvent("frelux:cookie-consent-withdrawn"));
+  applyGoogleConsent({ essential: true, analytics: false, advertising: false });
 }
 
 export { STORAGE_KEY, CURRENT_VERSION, CONSENT_EXPIRY_DAYS };
