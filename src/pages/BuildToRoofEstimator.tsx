@@ -95,7 +95,6 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { useLanguage } from "@/lib/i18n";
-import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
 
 const PHASES = [
   {
@@ -3839,7 +3838,14 @@ function EstimateResult({
           )}
         </div>
       </div>
-      <CalculatorAdBanner toolKey="roofing" className="mt-6" />
+      {!embedded && (
+        <>
+          {/* Ad slot, placement "calculator_mid" */}
+          <AdSlot slotKey="calculator_mid" className="mt-8" />
+          {/* Native banner slot, placement "calculator_native" */}
+          <AdSlot slotKey="calculator_native" className="mt-8" />
+        </>
+      )}
     </div>
   );
 }

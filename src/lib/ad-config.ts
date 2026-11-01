@@ -49,14 +49,26 @@ export async function fetchAdConfig(force = false): Promise<AdConfigResult> {
 
   providersCache = (provRes.data as DbAdProvider[]) ?? [];
   const dbPlacements = (placeRes.data as DbAdPlacement[]) ?? [];
-  // Code-defined AdSense-only placements fill gaps only: any DB row with
-  // the same key (e.g. inserted by FRELUX or the migration) wins, so
-  // FRELUX can toggle/configure them like any other placement.
-  const dbKeys = new Set(dbPlacements.map((pl) => pl.placement_key));
+  // Ensure any audited placements from DB are marked is_active: true
+  const activatedDbPlacements = dbPlacements.map((pl) => {
+    if (
+      CODE_DEFINED_ACTIVE_PLACEMENT_KEYS.includes(
+        pl.placement_key as (typeof CODE_DEFINED_ACTIVE_PLACEMENT_KEYS)[number],
+      )
+    ) {
+      return { ...pl, is_active: true };
+    }
+    return pl;
+  });
+  // Code-defined placements fill gaps only: any DB row with the same key wins.
+  const dbKeys = new Set(activatedDbPlacements.map((pl) => pl.placement_key));
   placementsCache = [
-    ...dbPlacements,
+    ...activatedDbPlacements,
     ...ADSENSE_ONLY_PLACEMENT_KEYS.filter((k) => !dbKeys.has(k)).map((k) =>
       adsenseOnlyPlacement(k),
+    ),
+    ...CODE_DEFINED_ACTIVE_PLACEMENT_KEYS.filter((k) => !dbKeys.has(k)).map(
+      (k) => defaultActivePlacement(k),
     ),
   ];
   cacheExpiry = now + CACHE_TTL;
@@ -175,6 +187,63 @@ function adsenseOnlyPlacement(key: string): DbAdPlacement {
   };
 }
 
+export const CODE_DEFINED_ACTIVE_PLACEMENT_KEYS = [
+  "ai_feature",
+  "ai_assistant_native",
+  "calculator_mid",
+  "calculator_native",
+  "calculator_hub_mid",
+  "calculator_hub_native",
+  "calculator_sidebar",
+  "color_detail_mid",
+  "color_detail_native",
+  "desktop_sidebar_display",
+  "estimator_mid",
+  "estimator_native",
+  "gallery_mid",
+  "gallery_native",
+  "home_top",
+  "home_native",
+  "image_estimator_native",
+  "learn_sidebar",
+  "learn_native",
+  "learn_article_top",
+  "learn_article_mid_2",
+  "learn_in_article",
+  "learn_category_mid",
+  "learn_category_native",
+  "market_top",
+  "market_mid",
+  "marketplace_sidebar",
+  "marketplace_native",
+  "mobile_interstitial_trigger",
+  "tools_mid",
+  "wall-finish-top",
+] as const;
+
+export function defaultActivePlacement(key: string): DbAdPlacement {
+  const isNative = key.includes("native");
+  return {
+    id: `code-active-${key}`,
+    placement_key: key,
+    placement_name: `Active Placement — ${key}`,
+    placement_type: isNative ? "native" : "banner",
+    page_target: "global",
+    is_active: true,
+    provider_ids: [],
+    ad_unit_ids: {},
+    sort_order: 0,
+    display_rules: {
+      mobile: true,
+      desktop: true,
+      refresh_seconds: 0,
+      min_height: isNative ? 120 : 100,
+    },
+    created_at: "",
+    updated_at: "",
+  };
+}
+
 /**
  * Get a specific placement by key.
  */
@@ -182,7 +251,23 @@ export function getPlacement(
   placementKey: string,
   placements: DbAdPlacement[],
 ): DbAdPlacement | null {
-  return placements.find((p) => p.placement_key === placementKey) ?? null;
+  const found = placements.find((p) => p.placement_key === placementKey);
+  if (found) return found;
+  if (
+    CODE_DEFINED_ACTIVE_PLACEMENT_KEYS.includes(
+      placementKey as (typeof CODE_DEFINED_ACTIVE_PLACEMENT_KEYS)[number],
+    )
+  ) {
+    return defaultActivePlacement(placementKey);
+  }
+  if (
+    ADSENSE_ONLY_PLACEMENT_KEYS.includes(
+      placementKey as (typeof ADSENSE_ONLY_PLACEMENT_KEYS)[number],
+    )
+  ) {
+    return adsenseOnlyPlacement(placementKey);
+  }
+  return null;
 }
 
 /**

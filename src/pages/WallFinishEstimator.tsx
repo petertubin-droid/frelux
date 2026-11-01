@@ -519,7 +519,7 @@ export default function WallFinishEstimator() {
         )}
       />
       <Container className="max-w-6xl space-y-8">
-        <AdSlot slotKey="wall-finish-top" />
+        <AdSlot slotKey="calculator_mid" />
 
         <p className="text-sm text-muted-foreground">
           {resolved.profile.flag} Starting from the {resolved.profile.name}{" "}
@@ -1157,6 +1157,7 @@ export default function WallFinishEstimator() {
             </ul>
           </section>
         )}
+        <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
 
       {/* transparency modal */}

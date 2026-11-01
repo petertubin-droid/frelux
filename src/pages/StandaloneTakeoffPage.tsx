@@ -860,6 +860,8 @@ export default function StandaloneTakeoffPage({
           </section>
         </div>
         <AdSlot slotKey="calculator_mid" className="mt-8" />
+        {/* Native banner slot, placement "calculator_native" */}
+        <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
     </div>
   );

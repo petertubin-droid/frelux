@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
+import AdSlot from "@/components/ui/AdSlot";
 import { useMarket } from "@/lib/international/market-context";
 import { useAuth } from "@/lib/auth";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
@@ -604,6 +605,10 @@ export default function IncreteFlooringEstimator() {
             )}
           </section>
         )}
+        {/* Ad slot, placement "calculator_mid" */}
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        {/* Native banner slot, placement "calculator_native" */}
+        <AdSlot slotKey="calculator_native" className="mt-8" />
         <p className="text-xs text-muted-foreground">
           Estimates are planning aids, not installation specifications. Confirm
           substrate condition, product compatibility, local standards, current

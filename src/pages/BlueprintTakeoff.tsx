@@ -17,6 +17,7 @@ import Container from "@/components/ui/Container";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+import AdSlot from "@/components/ui/AdSlot";
 import { useMarket } from "@/lib/international/market-context";
 import {
   buildWorksheetBridgeUrl,
@@ -1082,6 +1083,10 @@ export default function BlueprintTakeoff() {
             </label>
           </aside>
         </div>
+        {/* Ad slot, placement "calculator_mid" */}
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        {/* Native banner slot, placement "calculator_native" */}
+        <AdSlot slotKey="calculator_native" className="mt-8" />
         <EstimateDisclaimer text="Plan scale, scan resolution, drawing distortion, and manual measurement points affect accuracy. Cross-check takeoff quantities against the source drawings and site conditions; this tool does not provide structural design or code-compliance approval." />
       </Container>
     </div>

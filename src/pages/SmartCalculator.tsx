@@ -5,6 +5,7 @@ import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { RewardedFeatureGate } from "@/components/rewarded/RewardedFeatureGate";
 import { AdvancedCalculator } from "@/components/rewarded/AdvancedCalculator";
 import { useLanguage } from "@/lib/i18n";
+import AdSlot from "@/components/ui/AdSlot";
 
 const ADVANCED_FEATURES = [
   "AI-powered estimation for any project type",
@@ -90,6 +91,11 @@ export default function SmartCalculator() {
             />
           )}
         </RewardedFeatureGate>
+
+        {/* Ad slot, placement "calculator_mid" */}
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        {/* Native banner slot, placement "calculator_native" */}
+        <AdSlot slotKey="calculator_native" className="mt-8" />
       </div>
     </>
   );

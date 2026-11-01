@@ -91,7 +91,6 @@ import { printQuote } from "@/lib/estimation/quote-export";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
 import AdSlot from "@/components/ui/AdSlot";
-import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
@@ -1250,7 +1249,7 @@ export default function CostEstimator({
           onClose={() => setPdfGateOpen(false)}
         />
       )}
-      <CalculatorAdBanner toolKey="cost" className="mt-8" />
+      
 
       {/* Ad slot, placement "estimator_mid" */}
       <AdSlot slotKey="estimator_mid" className="mt-8" />

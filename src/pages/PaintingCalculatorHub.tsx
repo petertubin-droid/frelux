@@ -1,3 +1,4 @@
+import AdSlot from "@/components/ui/AdSlot";
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
 import CalculatorTabs from "@/components/ui/CalculatorTabs";
@@ -276,6 +277,10 @@ export default function PaintingCalculatorHub() {
         />
         <RelatedToolsLinks />
 
+        {/* Ad slot, placement "calculator_hub_mid" */}
+        <AdSlot slotKey="calculator_hub_mid" className="mt-8" />
+        {/* Native banner slot, placement "calculator_hub_native" */}
+        <AdSlot slotKey="calculator_hub_native" className="mt-8" />
         <EstimateDisclaimer />
       </section>
     </>

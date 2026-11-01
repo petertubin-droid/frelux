@@ -94,6 +94,7 @@ export default function GlobalMarkets() {
 
       <Container className="mt-8">
         <AdSlot slotKey="calculator_mid" className="mb-8" />
+        <AdSlot slotKey="calculator_native" className="mb-8" />
 
         {ready && (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Cookie, Mail } from "lucide-react";
+import { Cookie, Mail, ShieldCheck } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
 import { siteConfig } from "@/config/site";
@@ -107,21 +107,34 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-x-5 gap-y-2 md:grid-cols-3 md:gap-y-6 lg:grid-cols-6 lg:gap-x-8">
           <div className="col-span-1 md:col-span-3 lg:col-span-2">
             <Logo />
-            <p className="mt-2 line-clamp-2 max-w-xs text-xs leading-relaxed text-muted-foreground sm:mt-3 sm:line-clamp-none sm:text-sm">
-              Plan materials, estimate costs and manage construction projects
-              worldwide: from a single room to an entire building.
+            <div className="mt-2 text-xs font-semibold tracking-wide text-foreground">
+              FRELUX Technologies Ltd.
+            </div>
+            <p className="mt-1 line-clamp-2 max-w-xs text-xs leading-relaxed text-muted-foreground sm:mt-2 sm:line-clamp-none sm:text-sm">
+              Global construction intelligence, algorithmic quantity takeoff, and localized material benchmarking across 32 international markets.
             </p>
+
             <div className="mt-3 sm:mt-4">
               <NewsletterSignup source="footer" />
+              <p className="mt-1 text-[11px] text-muted-foreground/80">
+                Industry intelligence & quarterly material rate reports. No spam.
+              </p>
             </div>
-            <a
-              href={`mailto:${siteConfig.email}`}
-              aria-label="Email us"
-              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-semibold text-brand-purple transition-colors hover:bg-primary/15 dark:bg-primary/15 dark:text-primary-foreground/90 dark:hover:bg-primary/25"
-            >
-              <Mail className="h-4 w-4" />
-              {siteConfig.email}
-            </a>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <a
+                href={`mailto:${siteConfig.email}`}
+                aria-label="Email us"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-brand-purple transition-colors hover:bg-primary/15 dark:bg-primary/15 dark:text-primary-foreground/90 dark:hover:bg-primary/25"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                {siteConfig.email}
+              </a>
+              <span className="text-[11px] text-muted-foreground">
+                Mon–Fri 8am–6pm (WAT) · Replies within 1 business day
+              </span>
+            </div>
+
             <p className="mt-3 hidden flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground sm:flex dark:text-muted-foreground">
               <span className="font-medium text-foreground dark:text-primary-foreground/90">
                 32 markets
@@ -131,6 +144,18 @@ export default function Footer() {
               <span aria-hidden="true">·</span>
               <span>Email support, replies within one business day</span>
             </p>
+
+            {/* Google Publisher & E-E-A-T Quality Indicators */}
+            <div className="mt-3 hidden sm:flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-muted-foreground/85 border-t border-border/40 pt-2.5 dark:border-white/5">
+              <span className="inline-flex items-center gap-1">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>256-Bit TLS Security</span>
+              </span>
+              <span aria-hidden="true">·</span>
+              <span>Google AdSense & AdChoices Compliant</span>
+              <span aria-hidden="true">·</span>
+              <span>ISO & Eurocode Takeoff Logic</span>
+            </div>
           </div>
 
           {groupedColumns.map((column) => (

@@ -32,7 +32,7 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
-import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
+import AdSlot from "@/components/ui/AdSlot";
 
 export default function FoundationCalculator() {
   const { t } = useLanguage();
@@ -562,7 +562,10 @@ export default function FoundationCalculator() {
           </div>
         )}
       </div>
-      <CalculatorAdBanner toolKey="foundation" className="mt-8" />
+      {/* Ad slot, placement "calculator_mid" */}
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      {/* Native banner slot, placement "calculator_native" */}
+      <AdSlot slotKey="calculator_native" className="mt-8" />
 
       <RelatedTools
         links={[
