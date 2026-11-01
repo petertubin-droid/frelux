@@ -67,6 +67,41 @@ const routes = [
     changefreq: "weekly",
   },
   {
+    path: "/market-intelligence",
+    title: "Construction Market Intelligence: Prices, Indices and Listed Companies | FRELUX",
+    description: "FRELUX market intelligence: construction material price indices by market, listed construction companies, and sourced industry news. Every figure carries its publisher and date.",
+  },
+  {
+    path: "/market-intelligence/stocks",
+    title: "Construction Stock Market: Listed Builders and Materials Companies | FRELUX",
+    description: "Track listed construction and infrastructure companies: quotes, daily change, market capitalisation and interactive charts, with the provider and delay shown on every price.",
+  },
+  {
+    path: "/market-intelligence/materials",
+    title: "Construction Material Prices and Official Index Data by Market | FRELUX",
+    description: "Compare construction material prices across markets and follow official producer price indices for cement, steel, timber, paints and plumbing, with publisher attribution and update dates.",
+  },
+  {
+    path: "/market-intelligence/trends",
+    title: "Construction Industry Trends and Index Movements | FRELUX",
+    description: "Follow index movements across cement, steel, timber, paints and plumbing categories, with percentage change, publisher, licence and the period each figure covers.",
+  },
+  {
+    path: "/market-intelligence/investment",
+    title: "Construction Investment Insights and Sector Performance | FRELUX",
+    description: "Construction investment context: listed company performance, sector composition of the tracked universe, funding and consolidation news, and sourced market developments.",
+  },
+  {
+    path: "/market-intelligence/news",
+    title: "Construction Market News with Sources and Dates | FRELUX",
+    description: "Curated construction industry headlines with the publication named and the date shown, organised by market, materials, companies and policy.",
+  },
+  {
+    path: "/market-intelligence/companies",
+    title: "Listed Construction and Building Materials Company Profiles | FRELUX",
+    description: "Profiles of the listed companies tracked on FRELUX: what each one does, where it lists, its sector, and the market data available for it.",
+  },
+  {
     path: "/unit-converter",
     title:
       "Construction Measurement Converter: Feet, Plots, Tonnes and Bags | FRELUX SMART CALC",

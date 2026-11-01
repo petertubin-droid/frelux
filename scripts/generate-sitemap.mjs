@@ -380,6 +380,13 @@ const routes = [
   // ── Secondary public pages ──
   { path: "/credits", priority: "0.6", changefreq: "monthly" },
   { path: "/developers", priority: "0.6", changefreq: "monthly" },
+  { path: "/market-intelligence", priority: "0.8", changefreq: "daily" },
+  { path: "/market-intelligence/stocks", priority: "0.8", changefreq: "daily" },
+  { path: "/market-intelligence/materials", priority: "0.8", changefreq: "weekly" },
+  { path: "/market-intelligence/trends", priority: "0.7", changefreq: "weekly" },
+  { path: "/market-intelligence/investment", priority: "0.6", changefreq: "weekly" },
+  { path: "/market-intelligence/news", priority: "0.6", changefreq: "daily" },
+  { path: "/market-intelligence/companies", priority: "0.6", changefreq: "monthly" },
   { path: "/unit-converter", priority: "0.7", changefreq: "monthly" },
   { path: "/global-markets", priority: "0.7", changefreq: "monthly" },
   { path: "/rewards", priority: "0.6", changefreq: "monthly" },

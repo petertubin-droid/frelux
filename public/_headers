@@ -158,3 +158,9 @@
   X-Robots-Tag: noindex, nofollow
 /nl/*
   X-Robots-Tag: noindex, nofollow
+
+# ── Investor Centre (private, never indexed) ─────────────────────────────
+/investor-centre
+  X-Robots-Tag: noindex, nofollow
+/investor-centre/*
+  X-Robots-Tag: noindex, nofollow

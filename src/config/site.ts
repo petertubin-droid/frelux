@@ -80,6 +80,22 @@ export const navWorkspaces: NavWorkspace[] = [
       })),
     ),
   },
+  // Market Intelligence workspace: the public market data platform. Kept as
+  // its own workspace because it answers a different question from the
+  // calculators (what the market is doing, not what your wall needs).
+  {
+    label: "Market Intelligence",
+    path: "/market-intelligence",
+    children: [
+      { label: "Market Overview", path: "/market-intelligence", description: "Construction markets, materials and listed companies" },
+      { label: "Stock Market", path: "/market-intelligence/stocks", description: "Listed construction and infrastructure companies" },
+      { label: "Materials Market", path: "/market-intelligence/materials", description: "Material prices and official price indices by market" },
+      { label: "Industry Trends", path: "/market-intelligence/trends", description: "Index movements, rankings and sector direction" },
+      { label: "Investment Insights", path: "/market-intelligence/investment", description: "Capital markets context for construction" },
+      { label: "Market News", path: "/market-intelligence/news", description: "Sourced industry headlines" },
+      { label: "Company Profiles", path: "/market-intelligence/companies", description: "Who the listed players are" },
+    ],
+  },
   // Colors & Design workspace (restored 2026-10-04 - these pages were
   // accidentally dropped from the menu during the Construction Tools merge).
   {

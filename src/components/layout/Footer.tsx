@@ -45,8 +45,18 @@ const exploreLinks = [
   { label: "Diaspora Escrow", path: "/escrow" },
 ];
 
+const marketLinks = [
+  { label: "Market Intelligence", path: "/market-intelligence" },
+  { label: "Construction Stocks", path: "/market-intelligence/stocks" },
+  { label: "Material Market Prices", path: "/market-intelligence/materials" },
+  { label: "Industry Trends", path: "/market-intelligence/trends" },
+  { label: "Market News", path: "/market-intelligence/news" },
+  { label: "Company Profiles", path: "/market-intelligence/companies" },
+];
+
 const resourcesLinks = [
   { label: "Learn Hub", path: "/learn" },
+  ...marketLinks,
   { label: "Material Prices", path: "/prices" },
   { label: "Glossary", path: "/glossary" },
   { label: "Free Templates", path: "/printables" },

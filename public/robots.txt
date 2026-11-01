@@ -126,6 +126,7 @@ Disallow: /properties
 Disallow: /metrics
 Disallow: /data-request/resolve
 Disallow: /admin
+Disallow: /investor-centre
 Disallow: /login
 Disallow: /dashboard
 Disallow: /profile

@@ -338,6 +338,7 @@ const AdminMarkets = lazy(() => import("@/pages/admin/AdminMarkets"));
 const AdminMarketIntelligence = lazy(
   () => import("@/pages/admin/AdminMarketIntelligence"),
 );
+const AdminListedMarkets = lazy(() => import("@/pages/admin/AdminListedMarkets"));
 const AdminEngineConfig = lazy(() => import("@/pages/admin/AdminEngineConfig"));
 const AdminAiLearningAssistant = lazy(
   () => import("@/pages/admin/AdminAiLearningAssistant"),
@@ -493,6 +494,16 @@ const ProcurementRequestDetail = lazy(
   () => import("@/pages/procurement/ProcurementRequestDetail"),
 );
 const GlobalMarkets = lazy(() => import("@/pages/GlobalMarkets"));
+const MarketIntelligenceOverview = lazy(() => import("@/pages/market-intelligence/MarketOverview"));
+const MarketIntelligenceStocks = lazy(() => import("@/pages/market-intelligence/StockMarket"));
+const MarketIntelligenceStockDetail = lazy(() => import("@/pages/market-intelligence/StockDetail"));
+const MarketIntelligenceMaterials = lazy(() => import("@/pages/market-intelligence/MaterialsMarket"));
+const MarketIntelligenceTrends = lazy(() => import("@/pages/market-intelligence/IndustryTrends"));
+const MarketIntelligenceInvestment = lazy(() => import("@/pages/market-intelligence/InvestmentInsights"));
+const MarketIntelligenceNews = lazy(() => import("@/pages/market-intelligence/MarketNews"));
+const MarketIntelligenceCompanies = lazy(() => import("@/pages/market-intelligence/Companies"));
+const MarketIntelligenceCompanyProfile = lazy(() => import("@/pages/market-intelligence/CompanyProfile"));
+const InvestorCentre = lazy(() => import("@/pages/market-intelligence/InvestorCentre"));
 const AdminPricePipeline = lazy(
   () => import("@/pages/admin/AdminPricePipeline"),
 );
@@ -1833,6 +1844,50 @@ export default function App() {
                         <Route
                           path="/global-markets"
                           element={<GlobalMarkets />}
+                        />
+                        <Route
+                          path="/market-intelligence"
+                          element={<MarketIntelligenceOverview />}
+                        />
+                        <Route
+                          path="/market-intelligence/stocks"
+                          element={<MarketIntelligenceStocks />}
+                        />
+                        <Route
+                          path="/market-intelligence/stocks/:symbol"
+                          element={<MarketIntelligenceStockDetail />}
+                        />
+                        <Route
+                          path="/market-intelligence/materials"
+                          element={<MarketIntelligenceMaterials />}
+                        />
+                        <Route
+                          path="/market-intelligence/trends"
+                          element={<MarketIntelligenceTrends />}
+                        />
+                        <Route
+                          path="/market-intelligence/investment"
+                          element={<MarketIntelligenceInvestment />}
+                        />
+                        <Route
+                          path="/market-intelligence/news"
+                          element={<MarketIntelligenceNews />}
+                        />
+                        <Route
+                          path="/market-intelligence/companies"
+                          element={<MarketIntelligenceCompanies />}
+                        />
+                        <Route
+                          path="/market-intelligence/companies/:symbol"
+                          element={<MarketIntelligenceCompanyProfile />}
+                        />
+                        <Route
+                          path="/investor-centre"
+                          element={<InvestorCentre />}
+                        />
+                        <Route
+                          path="/admin/listed-markets"
+                          element={<AdminListedMarkets />}
                         />
                         <Route
                           path="/regional-cost-index"
