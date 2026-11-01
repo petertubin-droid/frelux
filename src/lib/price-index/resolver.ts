@@ -113,10 +113,16 @@ function mostRecent(listings: IndexListing[]): IndexListing | undefined {
  * supplier quotation, an FX or indicative band, and a seeded baseline. They
  * must never be presented as the same kind of number.
  */
-type EvidenceClass =
+export type EvidenceClass =
   "supplier_verified" | "supplier_reported" | "macro_reference" | "baseline";
 
-export function classifyEvidence(listing: IndexListing): EvidenceClass {
+export type EvidenceFields = {
+  price_source?: string | null;
+  supplier_name?: string | null;
+  verification_status?: string | null;
+};
+
+export function classifyEvidence(listing: EvidenceFields): EvidenceClass {
   const text =
     `${listing.price_source ?? ""} ${listing.supplier_name ?? ""}`.toLowerCase();
   if (/seeded reference|no retailer link|baseline reference/.test(text)) {

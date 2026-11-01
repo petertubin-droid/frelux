@@ -1,5 +1,10 @@
 import { supabase } from "@/lib/supabase";
 import {
+  classifyEvidence,
+  type EvidenceClass,
+  type EvidenceFields,
+} from "@/lib/price-index/resolver";
+import {
   shouldUseBundledBook,
   bundledCategoryMaterials,
 } from "@/lib/international/bundled-book";
@@ -10,6 +15,31 @@ import {
 // be explicit, volume must be a real volume, else null.
 // =========================================================
 
+/** A row read from estimation_prices, with the provenance columns it carries. */
+export interface StructuralPriceRow extends EvidenceFields {
+  price: number;
+  scan_confidence?: string | null;
+}
+
+/**
+ * What the engine must say about this row's evidence, or null when the row is
+ * a verified supplier quotation and needs no caveat. A seeded baseline or an
+ * FX band must never be presented as a verified anchor.
+ */
+export function evidenceCaveat(row: StructuralPriceRow): string | null {
+  const evidence: EvidenceClass = classifyEvidence(row);
+  if (evidence === "baseline") {
+    return "Seeded baseline with no live source: a placeholder, not a market price.";
+  }
+  if (evidence === "macro_reference") {
+    return "Reference band from a macro or FX adjustment, not a supplier quotation.";
+  }
+  if (evidence === "supplier_reported") {
+    return "Reported price, not independently verified.";
+  }
+  return null;
+}
+
 /** Provenance row for one market-resolved structural price. */
 export interface StructuralPriceProvenance {
   engineKey: string;
@@ -18,6 +48,8 @@ export interface StructuralPriceProvenance {
   materialName: string;
   price: number;
   explanation: string;
+  /** How much the figure deserves to be trusted, judged from its own row. */
+  evidence: EvidenceClass;
 }
 
 /** The Nigerian engine prices cement on a 50 kg bag basis. */
@@ -26,7 +58,7 @@ const NG_CEMENT_BAG_KG = 50;
 /** A material + its active price in one market. */
 interface CategoryPriceResolution {
   material: { id: string; name: string };
-  price: { price: number; scan_confidence?: string | null };
+  price: StructuralPriceRow;
 }
 
 /**
@@ -63,7 +95,9 @@ async function fetchPricedMaterialsInCategory(
   for (const material of (materials ?? []) as { id: string; name: string }[]) {
     const { data: price } = await supabase
       .from("estimation_prices")
-      .select("price, scan_confidence")
+      .select(
+        "price, scan_confidence, price_source, supplier_name, verification_status",
+      )
       .eq("price_type", "material")
       .eq("ref_id", material.id)
       .eq("market", marketCode)
@@ -74,7 +108,7 @@ async function fetchPricedMaterialsInCategory(
     if (price) {
       priced.push({
         material,
-        price: price as { price: number; scan_confidence?: string | null },
+        price: price as StructuralPriceRow,
       });
     }
   }
@@ -186,7 +220,9 @@ export async function resolveMarketRebar(
     }
     const { data: price } = await supabase
       .from("estimation_prices")
-      .select("price, scan_confidence")
+      .select(
+        "price, scan_confidence, price_source, supplier_name, verification_status",
+      )
       .eq("price_type", "material")
       .eq("ref_id", (material as { id: string }).id)
       .eq("market", marketCode)
@@ -198,7 +234,7 @@ export async function resolveMarketRebar(
       result.unresolved.push(engineKey);
       continue;
     }
-    const p = price as { price: number; scan_confidence?: string | null };
+    const p = price as StructuralPriceRow;
     result.overrides[engineKey] = p.price;
     result.provenance.push({
       engineKey,
@@ -206,10 +242,13 @@ export async function resolveMarketRebar(
       bookMarket: marketCode,
       materialName: (material as { name: string }).name,
       price: p.price,
-      explanation:
+      explanation: withCaveat(
         p.scan_confidence === "manual"
           ? `Priced per 12 m stock length from the ${marketCode} book (verified per-tonne anchor, kg/m conversion).`
           : `Indicative per-12 m price from the ${marketCode} book (band midpoint, adjustable) - verify with a local supplier.`,
+        p,
+      ),
+      evidence: classifyEvidence(p),
     });
   }
   return result;
@@ -302,7 +341,9 @@ async function resolvePlumbingSlugGroup(
     }
     const { data: price } = await supabase
       .from("estimation_prices")
-      .select("price, scan_confidence")
+      .select(
+        "price, scan_confidence, price_source, supplier_name, verification_status",
+      )
       .eq("price_type", "material")
       .eq("ref_id", (material as { id: string }).id)
       .eq("market", marketCode)
@@ -314,7 +355,7 @@ async function resolvePlumbingSlugGroup(
       result.unresolved.push(engineKey);
       continue;
     }
-    const p = price as { price: number; scan_confidence?: string | null };
+    const p = price as StructuralPriceRow;
     result.overrides[engineKey] = p.price;
     result.provenance.push({
       engineKey,
@@ -322,6 +363,7 @@ async function resolvePlumbingSlugGroup(
       bookMarket: marketCode,
       materialName: (material as { name: string }).name,
       price: p.price,
+      evidence: classifyEvidence(p),
       explanation:
         p.scan_confidence === "manual"
           ? `Per-${slugInfix === "-pipe-" ? "metre" : "piece"} price from the ${marketCode} book (verified supplier listing; material substitutes the NG default and is named honestly).`
@@ -347,6 +389,11 @@ export interface StructuralMarketPricing {
   unresolved: string[];
 }
 
+function withCaveat(explanation: string, row: StructuralPriceRow): string {
+  const caveat = evidenceCaveat(row);
+  return caveat ? `${explanation} ${caveat}` : explanation;
+}
+
 function provenanceRow(
   engineKey: string,
   marketCode: string,
@@ -359,7 +406,8 @@ function provenanceRow(
     bookMarket: marketCode,
     materialName: resolution.material.name,
     price: resolution.price.price,
-    explanation,
+    explanation: withCaveat(explanation, resolution.price),
+    evidence: classifyEvidence(resolution.price),
   };
 }
 
@@ -565,6 +613,7 @@ export async function resolveMarketDoorsWindows(
       bookMarket: marketCode,
       materialName,
       price: p.price,
+      evidence: classifyEvidence(p),
       explanation:
         p.scan_confidence === "manual"
           ? `Unit price from the ${marketCode} book (${p.price_source || "verified supplier listing"}).`
