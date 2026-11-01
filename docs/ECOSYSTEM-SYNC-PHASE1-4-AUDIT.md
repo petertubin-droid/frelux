@@ -348,3 +348,43 @@ client-supplied `p_user_id`, so a signed-in user can mint for another account.
 The hourly monitor records it as a finding. Closing it means recreating the
 body with an `auth.uid()` check, which changes a working rewards flow and is
 the next security task.
+
+---
+
+## Closing the credit gap, 2026-11-01 10:00 to 10:25 UTC
+
+`complete_credit_task` now credits only the caller. The guard compares
+`p_user_id` with `auth.uid()` and returns `not_authorized` when they differ,
+unless the caller is `service_role`. `search_path` is pinned on the function as
+well.
+
+Verified against production with JWT claims set inside a rolled-back
+transaction, four cases:
+
+| Caller                          | Result           |
+| ------------------------------- | ---------------- |
+| signed in, own user id          | `success: true`  |
+| signed in, another user's id    | `not_authorized` |
+| no session                      | `not_authorized` |
+| service role, another user's id | `success: true`  |
+
+Testing the guard exposed two older defects that made the rewards feature
+unusable, both unrelated to the security work:
+
+1. **Overload collision.** `complete_credit_task`, `award_offerwall_credits` and
+   `redeem_reward` each existed twice with reordered parameters, so PostgREST
+   answered the client call with `PGRST203` and HTTP 300. The rewards UI could
+   never award anything. The duplicate older overloads were dropped after
+   confirming no client, edge or SQL caller.
+2. **Invalid credit type.** `credit_transactions.type` allows only `earn`,
+   `spend` and `admin_adjust`, while `complete_credit_task` and
+   `award_ad_credits` inserted `bonus`, so even a resolved call raised 23514 and
+   rolled back. Both now insert `earn`.
+
+All three functions now resolve cleanly and return `permission denied` to anon
+instead of an ambiguity error.
+
+The monitor marks the finding resolved rather than deleting it:
+`security_grant_findings.resolved_at` is stamped when a later audit no longer
+detects the condition, so the table stays a live list with history. After this
+change the audit inserts 0 new findings and resolves `complete_credit_task`.
