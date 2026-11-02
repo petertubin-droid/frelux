@@ -9,7 +9,8 @@ import {
   type WheelEvent as ReactWheelEvent,
 } from "react";
 import { Link } from "react-router-dom";
-import { cartoTileUrl } from "@/lib/map/cartoTiles";
+import { cartoApiKey, cartoTileUrl } from "@/lib/map/cartoTiles";
+import { resolveClientProviderKey } from "@/lib/integrations/provider-keys";
 import {
   ArrowUpRight,
   Globe2,
@@ -133,6 +134,24 @@ export function Raster2DMap({
     height: typeof height === "number" ? height : 420,
   });
   const [dark, setDark] = useState(isDarkTheme());
+  // CARTO keys are public by design, so the map may own one that the operator
+  // pasted into Admin → Integration Center. Env wins; this only fetches when
+  // the build carried no key.
+  const [cartoKey, setCartoKey] = useState(() => cartoApiKey());
+  useEffect(() => {
+    if (cartoKey) return;
+    let live = true;
+    resolveClientProviderKey("carto")
+      .then((key) => {
+        if (live && key) setCartoKey(key);
+      })
+      .catch(() => {
+        /* no key saved: tiles stay unkeyed, which still draws */
+      });
+    return () => {
+      live = false;
+    };
+  }, [cartoKey]);
   const [fullscreen, setFullscreen] = useState(false);
   const [selected, setSelected] = useState<MapPoint | null>(null);
   const drag = useRef<{
@@ -383,7 +402,7 @@ export function Raster2DMap({
         const sub = ["a", "b", "c", "d"][Math.abs(wrappedX + y) % 4];
         result.push({
           key: `${level}-${x}-${y}`,
-          src: cartoTileUrl(sub, dark ? "dark" : "light", level, wrappedX, y),
+          src: cartoTileUrl(sub, dark ? "dark" : "light", level, wrappedX, y, cartoKey),
           fallback: `https://tile.openstreetmap.org/${level}/${wrappedX}/${y}.png`,
           left: Math.round((x * TILE_SIZE - origin.x) * scale + size.width / 2),
           top: Math.round((y * TILE_SIZE - origin.y) * scale + size.height / 2),
@@ -392,7 +411,7 @@ export function Raster2DMap({
       }
     }
     return result;
-  }, [center.lat, center.lon, zoom, size.width, size.height, dark]);
+  }, [center.lat, center.lon, zoom, size.width, size.height, dark, cartoKey]);
 
   const origin = useMemo(
     () => project(center.lat, center.lon, zoom),

@@ -79,10 +79,10 @@ describe("ProviderKeyCards", () => {
     // resend, web-push-private, open-exchange-rates
     expect(screen.getAllByText("Server-side only").length).toBe(3);
     // openweather, web-push-public
-    expect(screen.getAllByText("Client-safe key").length).toBe(2);
+    expect(screen.getAllByText("Client-safe key").length).toBe(3);
     expect(screen.getByText("Slot ready")).toBeTruthy();
     // resend, openweather, web-push-public, web-push-private
-    expect(screen.getAllByText("Live").length).toBe(4);
+    expect(screen.getAllByText("Live").length).toBe(5);
   });
 
   it("shows masked last4 and Disable for an active stored key, never the raw value", async () => {
@@ -131,7 +131,7 @@ describe("ProviderKeyCards", () => {
     });
     // Empty drafts disable every save button — no provider can fire a save.
     for (const b of btns) expect(b.hasAttribute("disabled")).toBe(true);
-    expect(screen.getAllByText("No key").length).toBe(5);
+    expect(screen.getAllByText("No key").length).toBe(6);
     expect(saveMock).not.toHaveBeenCalled();
   });
 

@@ -52,10 +52,11 @@ beforeEach(() => {
 });
 
 describe("registry", () => {
-  it("covers all five providers with honest consumption states", () => {
+  it("covers all six providers with honest consumption states", () => {
     expect(PROVIDER_REGISTRY.map((p) => p.id)).toEqual([
       "resend",
       "openweather",
+      "carto",
       "web-push-public",
       "web-push-private",
       "open-exchange-rates",
@@ -65,16 +66,19 @@ describe("registry", () => {
     expect(resend?.consumption).toBe("live");
     const oxr = getProviderMeta("open-exchange-rates");
     expect(oxr?.consumption).toBe("slot-ready");
+    const carto = getProviderMeta("carto");
+    expect(carto?.exposure).toBe("client");
+    expect(carto?.consumption).toBe("live");
     // VAPID keys: both halves are live push infrastructure.
     expect(getProviderMeta("web-push-public")?.consumption).toBe("live");
     expect(getProviderMeta("web-push-private")?.consumption).toBe("live");
     expect(getProviderMeta("nope")).toBeUndefined();
   });
 
-  it("marks exactly the client-visible keys (OpenWeather, VAPID public)", () => {
+  it("marks exactly the client-visible keys (OpenWeather, CARTO, VAPID public)", () => {
     for (const p of PROVIDER_REGISTRY) {
       expect(p.exposure === "client").toBe(
-        p.id === "openweather" || p.id === "web-push-public",
+        p.id === "openweather" || p.id === "carto" || p.id === "web-push-public",
       );
     }
   });

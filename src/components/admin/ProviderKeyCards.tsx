@@ -27,6 +27,7 @@ import {
   Loader2,
   Mail,
   Bell,
+  Map as MapIcon,
   RefreshCw,
   Save,
   ArrowLeftRight,
@@ -49,6 +50,7 @@ const ICONS = {
   cloud: Cloud,
   exchange: ArrowLeftRight,
   bell: Bell,
+  map: MapIcon,
 } as const;
 
 type SecretMap = Record<string, IntegrationSecretMeta>;

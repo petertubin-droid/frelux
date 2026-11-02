@@ -38,7 +38,7 @@ export interface ProviderMeta {
   /** Where the operator gets a key. */
   docsUrl: string;
   /** Icon name rendered by FRELUX cards. */
-  icon: "mail" | "cloud" | "exchange" | "bell";
+  icon: "mail" | "cloud" | "exchange" | "bell" | "map";
 }
 
 export const PROVIDER_REGISTRY: readonly ProviderMeta[] = [
@@ -67,6 +67,19 @@ export const PROVIDER_REGISTRY: readonly ProviderMeta[] = [
     envVar: "VITE_OPENWEATHER_API_KEY",
     docsUrl: "https://home.openweathermap.org/api_keys",
     icon: "cloud",
+  },
+  {
+    id: "carto",
+    label: "CARTO basemaps",
+    description:
+      "Raster basemap tiles behind the Explore map and the 2D map panel. A key keeps FRELUX traffic attributed to its own CARTO account instead of the open CDN allowance.",
+    exposure: "client",
+    consumption: "live",
+    consumptionNote:
+      "Client-side: every tile request carries this key when VITE_CARTO_API_KEY is not baked into the build. CARTO basemap keys are public by design, like the OpenWeather appid, because the browser has to present them.",
+    envVar: "VITE_CARTO_API_KEY",
+    docsUrl: "https://app.carto.com/",
+    icon: "map",
   },
   {
     id: "web-push-public",
