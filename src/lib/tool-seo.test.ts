@@ -73,7 +73,7 @@ describe("tool search listings", () => {
       const file = join(dist, tool.path, "index.html");
       if (!existsSync(file)) continue;
       const html = readFileSync(file, "utf-8");
-      const title = (html.match(/<title>([^<]*)<\/title>/) ?? [, ""])[1];
+      const title = html.match(/<title>([^<]*)<\/title>/)?.[1] ?? "";
       expect(title).toBe(toolSeoTitle(tool));
     }
   });
