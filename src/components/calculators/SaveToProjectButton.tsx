@@ -77,6 +77,9 @@ const TYPE_MAP: Record<string, string> = {
   build_to_roof: "build_to_roof",
   structural: "structural",
   foundation: "foundation",
+  safety: "safety",
+  site_safety: "safety",
+  global_site_safety: "safety",
 };
 
 const VALID_TYPES = [
@@ -90,6 +93,7 @@ const VALID_TYPES = [
   "build_to_roof",
   "structural",
   "foundation",
+  "safety",
 ];
 
 // Maps calculator types to valid contractor_projects.project_type values
@@ -104,6 +108,7 @@ const PROJECT_TYPE_MAP: Record<string, DbContractorProject["project_type"]> = {
   build_to_roof: "multi_trade",
   structural: "multi_trade",
   foundation: "multi_trade",
+  safety: "multi_trade",
 };
 
 export default function SaveToProjectButton({

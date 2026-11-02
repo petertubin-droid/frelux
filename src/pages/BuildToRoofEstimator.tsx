@@ -3047,7 +3047,7 @@ export default function BuildToRoofEstimator({ embedded = false }: { embedded?: 
           <RelatedTools
             links={[
               CALC_LINKS.paintCalculator,
-              CALC_LINKS.buildToRoof,
+              CALC_LINKS.siteSafety,
               CALC_LINKS.structuralCalc,
               CALC_LINKS.foundationCalc,
               CALC_LINKS.constructionSeq,

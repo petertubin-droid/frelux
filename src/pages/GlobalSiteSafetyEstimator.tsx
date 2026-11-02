@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { siteUrl } from "@/lib/site-config";
 import {
@@ -8,6 +9,8 @@ import {
 import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
 import ToolFaqs from "@/components/seo/ToolFaqs";
+import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import {
   Card,
   CardContent,
@@ -29,6 +32,7 @@ import {
   Ruler,
   Footprints,
   Shirt,
+  FileSpreadsheet,
 } from "lucide-react";
 
 const num = (value: string, fallback = 0) => {
@@ -147,6 +151,86 @@ export default function GlobalSiteSafetyEstimator() {
       firstAidWorkersPerKit,
       fireExtinguisherCount,
     ],
+  );
+
+  const materialsForSave = useMemo(
+    () => [
+      {
+        name: "Perimeter Warning Signs",
+        category: "Safety",
+        quantity: result.perimeterSigns,
+        unit: "signs",
+      },
+      {
+        name: "Protective Hard Hats",
+        category: "PPE",
+        quantity: result.hardHats,
+        unit: "pieces",
+      },
+      {
+        name: "High-Visibility Safety Vests",
+        category: "PPE",
+        quantity: result.highVisibilityVests,
+        unit: "pieces",
+      },
+      {
+        name: "Safety Boots",
+        category: "PPE",
+        quantity: result.safetyBootPairs,
+        unit: "pairs",
+      },
+      ...(result.fallProtectionUsers > 0
+        ? [
+            {
+              name: "Fall Protection Equipment (Worker Allowance)",
+              category: "Fall Protection",
+              quantity: result.fallProtectionUsers,
+              unit: "people",
+            },
+          ]
+        : []),
+      ...(result.excavationTapeMeters > 0
+        ? [
+            {
+              name: "Excavation Barricade Hazard Tape",
+              category: "Site Caution",
+              quantity: result.excavationTapeMeters,
+              unit: "m",
+            },
+          ]
+        : []),
+      ...(result.excavationSigns > 0
+        ? [
+            {
+              name: "Excavation Warning Signs",
+              category: "Site Caution",
+              quantity: result.excavationSigns,
+              unit: "signs",
+            },
+          ]
+        : []),
+      ...(result.firstAidKits > 0
+        ? [
+            {
+              name: "Industrial First-Aid Kits (Site Planning Allowance)",
+              category: "First Aid & Welfare",
+              quantity: result.firstAidKits,
+              unit: "kits",
+            },
+          ]
+        : []),
+      ...(result.fireExtinguishers > 0
+        ? [
+            {
+              name: "Fire Extinguishers (Site Assessed Quantity)",
+              category: "Fire Safety",
+              quantity: result.fireExtinguishers,
+              unit: "units",
+            },
+          ]
+        : []),
+    ],
+    [result],
   );
 
   const exportCsv = () => {
@@ -425,14 +509,59 @@ export default function GlobalSiteSafetyEstimator() {
                     </Badge>
                     <CardTitle>Safety allocation inventory</CardTitle>
                   </div>
-                  <Button
-                    onClick={exportCsv}
-                    variant="outline"
-                    className="gap-2"
-                  >
-                    <Download className="h-4 w-4" />
-                    Download CSV
-                  </Button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      onClick={exportCsv}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      CSV
+                    </Button>
+                    <SaveToProjectButton
+                      compact
+                      calculatorType="safety"
+                      calculatorSlug="global-site-safety-estimator"
+                      calcTitle="Site Safety & PPE Allocation"
+                      calcData={{
+                        framework,
+                        perimeterMeters,
+                        crewCount,
+                        reservePpe,
+                        signSpacingMeters,
+                        workersAtHeight,
+                        hasFallRisk,
+                        hasExcavation,
+                        excavationPerimeterMeters,
+                        tapeLines,
+                        excavationSignCount,
+                        hasHotWork,
+                        firstAidWorkersPerKit,
+                        fireExtinguisherCount,
+                      }}
+                      resultSummary={{
+                        framework: result.framework.name,
+                        perimeterSigns: result.perimeterSigns,
+                        hardHats: result.hardHats,
+                        highVisibilityVests: result.highVisibilityVests,
+                        safetyBootPairs: result.safetyBootPairs,
+                        fallProtectionUsers: result.fallProtectionUsers,
+                        excavationTapeMeters: result.excavationTapeMeters,
+                        excavationSigns: result.excavationSigns,
+                        firstAidKits: result.firstAidKits,
+                        fireExtinguishers: result.fireExtinguishers,
+                      }}
+                      materials={materialsForSave}
+                      label="Save"
+                    />
+                    <Link to="/boq-studio">
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <FileSpreadsheet className="h-4 w-4" />
+                        BOQ Studio
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
                 <p className="pt-2 text-sm font-medium text-foreground">
                   {result.framework.name}
@@ -519,6 +648,15 @@ export default function GlobalSiteSafetyEstimator() {
             </a>
           </CardContent>
         </Card>
+        <RelatedTools
+          links={[
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.foundationCalc,
+            CALC_LINKS.structuralCalc,
+            CALC_LINKS.constructionSeq,
+            CALC_LINKS.projectTimeline,
+          ]}
+        />
         <ToolFaqs slug="global-site-safety-estimator" />
       </Container>
     </div>
