@@ -9,6 +9,7 @@ import {
   type WheelEvent as ReactWheelEvent,
 } from "react";
 import { Link } from "react-router-dom";
+import { cartoTileUrl } from "@/lib/map/cartoTiles";
 import {
   ArrowUpRight,
   Globe2,
@@ -380,12 +381,9 @@ export function Raster2DMap({
       ) {
         const wrappedX = ((x % world) + world) % world;
         const sub = ["a", "b", "c", "d"][Math.abs(wrappedX + y) % 4];
-        const base = dark
-          ? `https://${sub}.basemaps.cartocdn.com/dark_all`
-          : `https://${sub}.basemaps.cartocdn.com/rastertiles/voyager`;
         result.push({
           key: `${level}-${x}-${y}`,
-          src: `${base}/${level}/${wrappedX}/${y}@2x.png`,
+          src: cartoTileUrl(sub, dark ? "dark" : "light", level, wrappedX, y),
           fallback: `https://tile.openstreetmap.org/${level}/${wrappedX}/${y}.png`,
           left: Math.round((x * TILE_SIZE - origin.x) * scale + size.width / 2),
           top: Math.round((y * TILE_SIZE - origin.y) * scale + size.height / 2),
