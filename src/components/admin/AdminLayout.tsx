@@ -317,6 +317,11 @@ const navModules: NavModule[] = [
         icon: KeyRound,
       },
       { label: "Analytics Dashboard", to: "/admin/analytics", icon: BarChart3 },
+      {
+        label: "Engine Studio",
+        to: "/admin/engine-studio",
+        icon: Cpu,
+      },
     ],
   },
   {

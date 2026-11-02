@@ -312,6 +312,7 @@ const AdminPartnershipInquiries = lazy(
   () => import("@/pages/admin/AdminPartnershipInquiries"),
 );
 const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
+const AdminEngineStudio = lazy(() => import("@/pages/admin/AdminEngineStudio"));
 const AdminSocialBrandCenter = lazy(
   () => import("@/pages/admin/AdminSocialBrandCenter"),
 );
@@ -338,7 +339,9 @@ const AdminMarkets = lazy(() => import("@/pages/admin/AdminMarkets"));
 const AdminMarketIntelligence = lazy(
   () => import("@/pages/admin/AdminMarketIntelligence"),
 );
-const AdminListedMarkets = lazy(() => import("@/pages/admin/AdminListedMarkets"));
+const AdminListedMarkets = lazy(
+  () => import("@/pages/admin/AdminListedMarkets"),
+);
 const SeoPerformance = lazy(() => import("@/pages/admin/SeoPerformance"));
 const AdminEngineConfig = lazy(() => import("@/pages/admin/AdminEngineConfig"));
 const AdminAiLearningAssistant = lazy(
@@ -495,16 +498,36 @@ const ProcurementRequestDetail = lazy(
   () => import("@/pages/procurement/ProcurementRequestDetail"),
 );
 const GlobalMarkets = lazy(() => import("@/pages/GlobalMarkets"));
-const MarketIntelligenceOverview = lazy(() => import("@/pages/market-intelligence/MarketOverview"));
-const MarketIntelligenceStocks = lazy(() => import("@/pages/market-intelligence/StockMarket"));
-const MarketIntelligenceStockDetail = lazy(() => import("@/pages/market-intelligence/StockDetail"));
-const MarketIntelligenceMaterials = lazy(() => import("@/pages/market-intelligence/MaterialsMarket"));
-const MarketIntelligenceTrends = lazy(() => import("@/pages/market-intelligence/IndustryTrends"));
-const MarketIntelligenceInvestment = lazy(() => import("@/pages/market-intelligence/InvestmentInsights"));
-const MarketIntelligenceNews = lazy(() => import("@/pages/market-intelligence/MarketNews"));
-const MarketIntelligenceCompanies = lazy(() => import("@/pages/market-intelligence/Companies"));
-const MarketIntelligenceCompanyProfile = lazy(() => import("@/pages/market-intelligence/CompanyProfile"));
-const InvestorCentre = lazy(() => import("@/pages/market-intelligence/InvestorCentre"));
+const MarketIntelligenceOverview = lazy(
+  () => import("@/pages/market-intelligence/MarketOverview"),
+);
+const MarketIntelligenceStocks = lazy(
+  () => import("@/pages/market-intelligence/StockMarket"),
+);
+const MarketIntelligenceStockDetail = lazy(
+  () => import("@/pages/market-intelligence/StockDetail"),
+);
+const MarketIntelligenceMaterials = lazy(
+  () => import("@/pages/market-intelligence/MaterialsMarket"),
+);
+const MarketIntelligenceTrends = lazy(
+  () => import("@/pages/market-intelligence/IndustryTrends"),
+);
+const MarketIntelligenceInvestment = lazy(
+  () => import("@/pages/market-intelligence/InvestmentInsights"),
+);
+const MarketIntelligenceNews = lazy(
+  () => import("@/pages/market-intelligence/MarketNews"),
+);
+const MarketIntelligenceCompanies = lazy(
+  () => import("@/pages/market-intelligence/Companies"),
+);
+const MarketIntelligenceCompanyProfile = lazy(
+  () => import("@/pages/market-intelligence/CompanyProfile"),
+);
+const InvestorCentre = lazy(
+  () => import("@/pages/market-intelligence/InvestorCentre"),
+);
 const AdminPricePipeline = lazy(
   () => import("@/pages/admin/AdminPricePipeline"),
 );
@@ -556,10 +579,10 @@ const SoffitGutterEstimator = lazy(
 const ConduitWiringEstimator = lazy(
   () => import("@/pages/ConduitWiringEstimator"),
 );
-const WaterTowerEstimator = lazy(
-  () => import("@/pages/WaterTowerEstimator"),
+const WaterTowerEstimator = lazy(() => import("@/pages/WaterTowerEstimator"));
+const GlobalSiteSafetyEstimator = lazy(
+  () => import("@/pages/GlobalSiteSafetyEstimator"),
 );
-const GlobalSiteSafetyEstimator = lazy(() => import("@/pages/GlobalSiteSafetyEstimator"));
 const DiasporaBudgetTracker = lazy(
   () => import("@/pages/DiasporaBudgetTracker"),
 );
@@ -1938,7 +1961,9 @@ export default function App() {
                         />
                         <Route
                           path="/price-index"
-                          element={<Navigate to="/material-price-index" replace />}
+                          element={
+                            <Navigate to="/material-price-index" replace />
+                          }
                         />
                         <Route
                           path="/site-tracker"
@@ -2102,7 +2127,10 @@ export default function App() {
                           path="/water-tower-staging-estimator"
                           element={<WaterTowerEstimator />}
                         />
-                        <Route path="/global-site-safety-estimator" element={<GlobalSiteSafetyEstimator />} />
+                        <Route
+                          path="/global-site-safety-estimator"
+                          element={<GlobalSiteSafetyEstimator />}
+                        />
                         <Route
                           path="/diaspora-budget-tracker"
                           element={<DiasporaBudgetTracker />}
@@ -2425,6 +2453,12 @@ export default function App() {
 
                         {/* Analytics */}
                         <Route path="analytics" element={<AdminAnalytics />} />
+                        {/* Engines: what exists, what runs it, and a runner
+                            for the engines no page calls yet. */}
+                        <Route
+                          path="engine-studio"
+                          element={<AdminEngineStudio />}
+                        />
                         <Route
                           path="integrations"
                           element={<AdminIntegrations />}
