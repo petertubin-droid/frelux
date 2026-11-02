@@ -156,11 +156,8 @@ describe("comprehensive multi-engine edge-case assertions", () => {
   it("plastering engine handles normal, zero, and negative wall areas", () => {
     for (const v of [50, 0, -10]) {
       const res = calculatePlasteringTakeoff({
-        grossWallAreaM2: v,
-        openingsAreaM2: v > 0 ? 5 : 0,
+        surfaceAreaM2: v,
         thicknessMm: 15,
-        includeCeiling: false,
-        ceilingAreaM2: 0,
         mixRatio: "1:4",
         coats: 1,
         wastePercent: 10,
@@ -175,8 +172,7 @@ describe("comprehensive multi-engine edge-case assertions", () => {
       const res = calculatePavingTakeoff({
         areaM2: v,
         paverThicknessMm: 60,
-        sandBedDepthMm: 50,
-        jointSandKgPerM2: 3,
+        beddingDepthMm: 50,
         wastePercent: 5,
         marketCode: "NG",
       });
@@ -186,33 +182,40 @@ describe("comprehensive multi-engine edge-case assertions", () => {
 
   it("steel beam engine handles edge cases", () => {
     for (const v of [4.5, 0, -2]) {
-      const res = calculateSteelBeam({
-        span_m: v,
-        dead_load_kn_m: 10,
-        live_load_kn_m: 15,
-        selected_section_key: "UB_203_133_25",
-        steel_grade: "S275",
-        max_deflection_ratio: 360,
-        marketCode: "NG",
-      });
+      const res = calculateSteelBeam(
+        {
+          profile: "UB_203_133_25",
+          span_m: v,
+          beam_count: 1,
+          price_per_tonne: null,
+          columns_included: false,
+        },
+        {},
+      );
       expect(hasNanOrInf(res)).toEqual([]);
     }
   });
 
   it("retaining wall engine handles edge cases", () => {
     for (const v of [2.5, 0, -1]) {
-      const res = calculateRetainingWall({
-        wall_height_m: v,
-        wall_length_m: 10,
-        wall_type: "cantilever_concrete",
-        stem_thickness_top_m: 0.25,
-        stem_thickness_base_m: 0.35,
-        base_width_m: 1.5,
-        base_thickness_m: 0.35,
-        soil_internal_friction_angle_deg: 30,
-        soil_unit_weight_kn_m3: 18,
-        marketCode: "NG",
-      });
+      const res = calculateRetainingWall(
+        {
+          length_m: 10,
+          height_m: v,
+          soil_type: "wet_clay",
+          stem_type: "concrete",
+        },
+        {
+          footing_width_m: 1.5,
+          footing_thickness_m: 0.35,
+          blocks_per_m2: 11.1,
+          waste_pct: 5,
+          weep_spacing_m: 2,
+          bar_spacing_m: 0.3,
+          stem_thickness_m: 0.3,
+        },
+        {},
+      );
       expect(hasNanOrInf(res)).toEqual([]);
     }
   });
@@ -220,10 +223,10 @@ describe("comprehensive multi-engine edge-case assertions", () => {
   it("margin engine handles edge cases", () => {
     for (const v of [100000, 0, -1000]) {
       const res = calculateMargin({
-        direct_cost: v,
-        markup_percent: 20,
-        tax_percent: 7.5,
-        contingency_percent: 5,
+        base_cost: v,
+        margin_percent: 20,
+        basis: "markup_on_cost",
+        rules: [],
       });
       expect(hasNanOrInf(res)).toEqual([]);
     }
@@ -260,23 +263,23 @@ describe("comprehensive multi-engine edge-case assertions", () => {
     for (const v of [80, 0, -15]) {
       const res = calculateWaterproofing(
         {
-          application: "roof_terrace",
-          system: "torch_on_membrane",
-          area_sqm: v,
-          upstand_linear_m: 20,
-          upstand_height_m: 0.3,
-          primer_coats: 1,
-          substrate_condition: "sound",
+          dpc_run_m: null,
+          dpm_area_m2: null,
+          wet_floor_area_m2: v,
+          wet_wall_area_m2: v,
+          wet_perimeter_m: 12,
+          terrace_area_m2: null,
           labour: { mode: "none" },
         },
         {
-          membrane_overlap_waste_pct: 10,
-          liquid_waste_pct: 5,
-          primer_coverage_sqm_per_litre: 5,
-          gas_cylinders_per_100sqm: 1,
-          protection_board_waste_pct: 5,
-          torch_rolls_per_pallet: 25,
-          primer_pack_size_litres: 20,
+          coating_waste_pct: 10,
+          coats_wet_floor: 2,
+          coats_wet_wall: 2,
+          coats_terrace: 2,
+          cementitious_coverage_m2_per_bag: 5,
+          membrane_roll_coverage_m2: 10,
+          tape_overlap_pct: 10,
+          dpc_overlap_pct: 10,
         },
         {},
       );
@@ -288,19 +291,15 @@ describe("comprehensive multi-engine edge-case assertions", () => {
     for (const v of [30, 0, -5]) {
       const res = calculateSoffitGutter(
         {
-          gutter_length_m: v,
-          soffit_length_m: v,
-          soffit_width_m: 0.6,
-          downpipe_count: 3,
-          downpipe_height_m: 3,
+          mode: "perimeter",
+          perimeter_m: v,
+          overhang_m: 0.3,
+          material: "pvc",
         },
         {
-          gutter_section_length_m: 3,
-          gutter_bracket_spacing_m: 0.6,
-          soffit_panel_length_m: 3,
-          soffit_panel_width_m: 0.3,
-          fascia_board_length_m: 3,
           waste_pct: 10,
+          downpipe_spacing_m: 6,
+          bracket_spacing_m: 0.6,
         },
         {},
       );
@@ -312,15 +311,16 @@ describe("comprehensive multi-engine edge-case assertions", () => {
     for (const v of [50, 0, -10]) {
       const res = calculateConduitWiring(
         {
-          circuit_count: 4,
-          avg_run_length_m: v,
-          conduit_type: "pvc_20mm",
-          cable_spec: "2.5mm_twin_earth",
+          floor_area_m2: v,
+          lighting_points: 4,
+          socket_points: 6,
         },
         {
+          conduit_per_m2: 1.2,
           conduit_length_m: 3,
-          saddle_spacing_m: 1,
-          cable_slack_waste_pct: 10,
+          lighting_cable_per_point_m: 8,
+          socket_cable_per_point_m: 10,
+          junction_per_point: 0.5,
         },
         {},
       );

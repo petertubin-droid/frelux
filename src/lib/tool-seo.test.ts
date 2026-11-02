@@ -9,7 +9,7 @@
 import { describe, it, expect } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-// @ts-expect-error plain ESM shared with the prerenderer
+// Plain ESM shared with the prerenderer.
 import { toolSeoTitle, toolSeoDescription } from "../../scripts/lib/tool-seo.mjs";
 
 type Tool = {
@@ -24,7 +24,7 @@ type Tool = {
   seoDescription?: string;
 };
 
-// @ts-expect-error plain ESM shared with the prerenderer
+// Plain ESM shared with the prerenderer.
 import { loadToolRegistry } from "../../scripts/lib/tool-registry.mjs";
 
 // The registry parser is the same one the prerenderer uses; re-parsing the
