@@ -33,4 +33,17 @@ describe("InteractiveEstimatePreview", () => {
       screen.getByText(/purchase rounded up to full buckets/i),
     ).toBeTruthy();
   });
+
+  it("shows every area in square feet and never in square metres", async () => {
+    const { container } = await renderComp();
+    const text = container.textContent ?? "";
+    expect(text).toMatch(/ft²/);
+    expect(text).not.toMatch(/m²/);
+  });
+
+  it("states the coverage rate in square feet per litre for the customer", async () => {
+    await renderComp();
+    expect(screen.getByText(/ft² per litre per\s+coat/i)).toBeTruthy();
+    expect(screen.queryByText(/internal/i)).toBeNull();
+  });
 });

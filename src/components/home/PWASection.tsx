@@ -204,7 +204,7 @@ export default function PWASection() {
                         14 L
                       </p>
                       <p className="text-[10px] text-primary-foreground/40">
-                        2 buckets · 38 m²
+                        2 buckets · 409 ft²
                       </p>
                     </div>
                   </div>

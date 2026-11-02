@@ -135,7 +135,7 @@ export default function TemplatesShowcase() {
                 <span>·</span>
                 <span>2 buckets</span>
                 <span>·</span>
-                <span>38 m² area</span>
+                <span>409 ft² area</span>
               </div>
             </div>
             <div className="flex items-center gap-2 border-t border-border/50 px-5 py-3 dark:border-white/5">

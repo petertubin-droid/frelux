@@ -18,6 +18,7 @@ import {
 } from "@/lib/calc";
 import type { CalculatorInput } from "@/types";
 import { Button } from "@/components/ui/shadcn/button";
+import { AREA_TO_M2 } from "@/lib/convert/units";
 import { useLanguage } from "@/lib/i18n";
 
 /**
@@ -25,6 +26,14 @@ import { useLanguage } from "@/lib/i18n";
  * Demonstrates how a FRELUX calculation looks using the REAL calculation engine.
  * No fake numbers, everything is computed from calculatePaint().
  */
+
+/**
+ * Customers read areas in square feet: the presets are feet, the painting
+ * estimator asks for feet, and the engine's internal square metres stay behind
+ * the calculation. Nothing on this card shows m².
+ */
+const SQFT_PER_M2 = 1 / AREA_TO_M2.ft2;
+const sqFt = (m2: number): string => String(Math.round(m2 * SQFT_PER_M2));
 
 const presets = [
   {
@@ -252,8 +261,8 @@ export default function InteractiveEstimatePreview() {
                     {t("Coverage rate")}
                   </p>
                   <p className="mt-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                    {DEFAULT_COVERAGE_M2_PER_LITER} m² per litre per coat
-                    (internal)
+                    {sqFt(DEFAULT_COVERAGE_M2_PER_LITER)} ft² per litre per
+                    coat
                   </p>
                 </div>
               </div>
@@ -266,15 +275,16 @@ export default function InteractiveEstimatePreview() {
                     {t("Paintable area")}
                   </p>
                   <p className="mt-2 font-display text-3xl font-bold text-foreground dark:text-primary-foreground">
-                    {animatedValues.area.toFixed(1)}
+                    {sqFt(animatedValues.area)}
                     <span className="text-base font-normal text-muted-foreground">
                       {" "}
-                      m²
+                      ft²
                     </span>
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Wall area: {result.wallArea} m² · Door: {result.doorArea} m²
-                    · Window: {result.windowArea} m²
+                    Wall area: {sqFt(result.wallArea ?? 0)} ft² · Door:{" "}
+                    {sqFt(result.doorArea ?? 0)} ft² · Window: {sqFt(result.windowArea ?? 0)}{" "}
+                    ft²
                   </p>
                 </div>
 
