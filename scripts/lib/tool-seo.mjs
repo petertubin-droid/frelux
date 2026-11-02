@@ -45,14 +45,14 @@ function compose(name, phrase) {
   const brand = `${name} | ${BRAND}`;
   if (!phrase) return brand;
   const withBrand = `${name} – ${phrase} | ${BRAND}`;
-  if (withBrand.length <= 64) return withBrand;
+  if (withBrand.length <= TITLE_MAX) return withBrand;
   const bare = `${name} – ${phrase}`;
   if (bare.length <= TITLE_MAX) return bare;
   return brand;
 }
 
 export function toolSeoTitle(tool) {
-  if (tool.seoTitle) return clamp(tool.seoTitle, 64);
+  if (tool.seoTitle) return clamp(tool.seoTitle, TITLE_MAX);
   const name = tool.title || tool.slug;
   // The registry's `benefit` is already a short, human phrase ("Buckets · Cost ·
   // Project estimate"). Using it keeps the title a complete thought; slicing a

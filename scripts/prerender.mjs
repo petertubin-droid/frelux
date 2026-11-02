@@ -9,7 +9,6 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "fs";
 import { join, dirname } from "path";
 import { seoContentMap } from "./seo-content-map.mjs";
-import { ARTICLE_LISTINGS } from "./seo/article-listings.mjs";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { loadToolRegistry } from "./lib/tool-registry.mjs";
@@ -3340,18 +3339,6 @@ const { routes: learnDynamicRoutes, content: learnDynamicContent } =
 routes.push(...learnDynamicRoutes);
 const contentMap = { ...seoContentMap, ...learnDynamicContent };
 
-// Curated listings for articles that rank but do not get clicked (see
-// scripts/seo/article-listings.mjs: the pages that were 5th-10th with under
-// 2% CTR in the 2-29 October 2026 Search Console export).
-for (const [slug, copy] of Object.entries(ARTICLE_LISTINGS)) {
-  const path = `/learn/${slug}`;
-  const route = routes.find((r) => r.path === path);
-  if (!route) continue;
-  route.title = copy.title;
-  route.description = copy.description;
-}
-
-
 // ── Construction tool pages ─────────────────────────────────────────
 // Titles and descriptions come from the tool registry through one composer, so
 // the listing can only promise what the calculator does. The same module drives
@@ -3802,6 +3789,23 @@ for (const faqRoute of faqPrerenderRoutes) {
     changefreq: "monthly",
     structuredData: faqRoute.structuredData,
   });
+}
+
+// Search results cut a title at roughly 60 characters, so a brand suffix that
+// pushes past that hides the part that earns the click. Only the suffix is
+// shortened, never the subject, and a title with nothing to trim is left alone.
+const TITLE_LIMIT = 62;
+for (const route of routes) {
+  const t = route.title ?? "";
+  if (t.length <= TITLE_LIMIT) continue;
+  const longBrand = " | FRELUX SMART CALC";
+  const shortBrand = " | FRELUX";
+  if (t.endsWith(longBrand)) {
+    const short = `${t.slice(0, -longBrand.length)}${shortBrand}`;
+    route.title = short.length <= TITLE_LIMIT ? short : short.slice(0, -shortBrand.length);
+  } else if (t.endsWith(shortBrand) && t.length - shortBrand.length > 20) {
+    route.title = t.slice(0, -shortBrand.length);
+  }
 }
 
 for (const route of routes) {
