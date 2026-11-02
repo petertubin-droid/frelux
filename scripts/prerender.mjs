@@ -3535,6 +3535,112 @@ const extraTemplates = dbTemplates.filter(
 const dynamicFamilyRoutes = [];
 const dynamicFamilyContent = {};
 
+// Paint colour pages carried a swatch and three values, which left 773 colour
+// URLs under 140 words. The stored numbers are turned here into the questions
+// a decorator or a homeowner actually asks: the undertone, how the shade reads
+// in daylight, the trim and accent colours that sit beside it, the rooms it
+// suits and how far a 20 litre bucket goes. Every figure is derived from the
+// row itself, and the approximations are labelled as approximations.
+const rgbFromRow = (c) => {
+  const raw = (c.hex_code || "").replace("#", "");
+  if (/^[0-9a-fA-F]{6}$/.test(raw)) {
+    return [0, 2, 4].map((i) => parseInt(raw.slice(i, i + 2), 16));
+  }
+  const nums = [c.rgb_r, c.rgb_g, c.rgb_b].map((n) =>
+    n === null || n === undefined ? NaN : Number(n),
+  );
+  return nums.every((n) => Number.isFinite(n)) ? nums : null;
+};
+
+const hslToHex = (h, s, l) => {
+  const hue = ((h % 360) + 360) % 360;
+  const sat = Math.max(0, Math.min(100, s)) / 100;
+  const lig = Math.max(0, Math.min(100, l)) / 100;
+  const k = (n) => (n + hue / 30) % 12;
+  const a = sat * Math.min(lig, 1 - lig);
+  const f = (n) => lig - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return (
+    "#" +
+    [f(0), f(8), f(4)]
+      .map((v) => Math.round(v * 255).toString(16).padStart(2, "0"))
+      .join("")
+      .toUpperCase()
+  );
+};
+
+const hueFamilyOf = (h) => {
+  if (h === null || h === undefined || Number.isNaN(Number(h))) return null;
+  const hue = ((Number(h) % 360) + 360) % 360;
+  if (hue < 15 || hue >= 330) return "red";
+  if (hue < 45) return "terracotta and orange";
+  if (hue < 70) return "ochre and yellow";
+  if (hue < 100) return "yellow green";
+  if (hue < 160) return "green";
+  if (hue < 200) return "teal";
+  if (hue < 250) return "blue";
+  if (hue < 285) return "violet";
+  return "magenta and plum";
+};
+
+const lrvPercent = (rgb) =>
+  rgb
+    ? Math.round(((0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]) / 255) * 100)
+    : null;
+
+const toneWord = (lrv) => {
+  if (lrv === null) return null;
+  if (lrv >= 78) return "light";
+  if (lrv >= 62) return "off white to pale";
+  if (lrv >= 46) return "mid tone";
+  if (lrv >= 30) return "strong mid tone";
+  return "deep";
+};
+
+const roomAdvice = (lrv, warm) => {
+  if (lrv === null) return "Walls take this colour in most rooms; test a patch first, because sheen changes how it reads.";
+  if (lrv >= 78)
+    return "At this lightness it carries a whole room, including a small one, and it is the safer choice for a north facing space that never gets direct sun. It also works on ceilings, where a light tone keeps the ceiling feeling higher.";
+  if (lrv >= 62)
+    return "It suits a full room in good light and a single feature wall in a darker one. Paired with a whiter trim it stays calm; paired with a deeper tone from the same family it lifts the scheme.";
+  if (lrv >= 46)
+    return `It reads as a considered mid tone rather than a neutral, so it suits a living room, a dining room or a bedroom used in the evening. In a ${warm ? "south or west facing" : "north facing"} room expect it to ${warm ? "warm further as the afternoon light comes in" : "cool down noticeably after midday"}.`;
+  if (lrv >= 30)
+    return "Use it on one or two walls, an alcove or the wall behind a bed or a fireplace. All four walls in this depth shrink a room, and the effect is strongest in a space with low ceilings.";
+  return "At this depth it is a feature colour, not a wall colour for a whole room. It works on joinery, a chimney breast, a door or a single panel, and it needs plenty of light around it to show its true hue.";
+};
+
+const sheenAdvice = (usageText) => {
+  const u = (usageText || "").toLowerCase();
+  if (u.includes("exterior") && u.includes("interior"))
+    return "Because it is listed for both inside and out, check the data sheet for the exterior variant before you use it on masonry: exterior grades carry more binder and a different preservative package.";
+  if (u.includes("exterior"))
+    return "On exterior work use the exterior grade of the same colour, with a primer matched to the substrate, and expect the finish to chalk slowly rather than fail suddenly.";
+  return "Inside, a mid sheen on walls is the practical compromise: it wipes clean in a hallway or a kitchen, and it shows fewer marks than matt without the glare of gloss. Ceilings in the same colour want a flat finish, which hides the slight undulation every ceiling has.";
+};
+
+const coverageText = (lrv) => {
+  const bucket = 20;
+  const perLitre = 10;
+  const oneCoat = bucket * perLitre;
+  const twoCoat = oneCoat / 2;
+  const room = 4 * 2.4 * 4 - 4; // 4 x 4 m room, 2.4 m walls, one door deducted
+  return `A 20 litre bucket of emulsion at about ${perLitre} square metres per litre covers roughly ${oneCoat} square metres in one coat, which is about ${twoCoat} square metres at the two coats FRELUX treats as standard. A 4 by 4 metre room with 2.4 metre walls and one door takes about ${room} square metres of wall, so one bucket does that room more than once.${
+    lrv !== null && lrv < 46
+      ? " Deeper colours usually need the extra coat that a lighter tone gets away without, so plan on three coats over a light existing colour."
+      : " Over an existing dark colour, expect an extra coat regardless of how light this shade is."
+  }`;
+};
+
+const colorIndex = paintColors
+  .filter((c) => c.slug && c.name)
+  .map((c) => ({
+    slug: c.slug,
+    name: c.name,
+    hue: Number(c.hsl_h),
+    hex: (c.hex_code || "").toUpperCase(),
+  }))
+  .filter((c) => Number.isFinite(c.hue));
+
 for (const c of paintColors) {
   if (!c.slug || !c.name) continue;
   const path = `/colors/paint/${c.slug}`;
@@ -3546,44 +3652,90 @@ for (const c of paintColors) {
     c.is_exterior ? "exterior surfaces" : "",
   ]
     .filter(Boolean)
-    .join(" and ");
+    .join(" and");
+  const rgb = rgbFromRow(c);
+  const hue = c.hsl_h === null || c.hsl_h === undefined ? null : Number(c.hsl_h);
+  const sat = c.hsl_s === null || c.hsl_s === undefined ? null : Number(c.hsl_s);
+  const lig = c.hsl_l === null || c.hsl_l === undefined ? null : Number(c.hsl_l);
+  const lrv = lrvPercent(rgb);
+  const family = hueFamilyOf(hue);
+  const warm = hue === null ? true : hue < 90 || hue >= 300;
+  const tone = toneWord(lrv);
+  const greyed = sat !== null && sat < 12;
+  const neutralNote =
+    sat === null
+      ? ""
+      : greyed
+        ? "Saturation sits low, so it behaves as a neutral that borrows the cast of the light in the room rather than holding a colour of its own."
+        : sat >= 45
+          ? "Saturation is high, so the colour stays itself even in a poorly lit room, which is why it is often used on joinery and doors rather than on a large wall."
+          : "Saturation is moderate, so it reads as a colour without shouting, and it shifts gently with the light through the day.";
+  const undertone = family
+    ? `${escapeHtml(c.name)} sits in the ${escapeHtml(family)} family${warm ? ", on the warm side of the wheel" : ", on the cool side of the wheel"}${
+        greyed ? " with its chroma knocked back toward grey" : ""
+      }.`
+    : "";
+  const complementHex = hue === null ? null : hslToHex(hue + 180, sat ?? 20, lig ?? 50);
+  const accentHex = hue === null ? null : hslToHex(hue + 30, Math.min(100, (sat ?? 20) + 10), Math.max(18, (lig ?? 50) - 22));
+  const trimHex = hue === null ? null : hslToHex(hue, Math.max(4, Math.min(20, sat ?? 8)), 94);
+  const neighbours = colorIndex
+    .map((o) => ({ ...o, d: Math.abs(((o.hue - (hue ?? 0) + 540) % 360) - 180) }))
+    .filter((o) => o.slug !== c.slug)
+    .sort((a, b) => a.d - b.d)
+    .slice(0, 4);
   dynamicFamilyRoutes.push({
     path,
     title: `${c.name}${hex ? ` (${hex})` : ""} Paint Colour | FRELUX`,
-    description: `${c.name}${hex ? ` ${hex}` : ""} paint colour: HEX, RGB and HSL values,${usage ? ` ${usage.toLowerCase()},` : ""} and where it works best, with FRELUX room-based paint estimating.`,
+    description: `${c.name}${hex ? ` ${hex}` : ""} paint colour: HEX, RGB, HSL and an LRV estimate, the undertone, trim and accent pairings, and the rooms it suits, with FRELUX room based paint estimating.`,
     priority: "0.5",
     changefreq: "monthly",
   });
   dynamicFamilyContent[path] =
     `<main><h1>${escapeHtml(c.name)}${hex ? ` <span style="font-weight:400">(${escapeHtml(hex)})</span>` : ""}</h1>` +
     `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/colors/">Colour library</a> &rsaquo; ${escapeHtml(c.name)}</nav>` +
-    `<p style="max-width:520px"><span style="display:block;height:120px;border-radius:10px;border:1px solid rgba(0,0,0,.2);background:${escapeHtml(c.hex_code || "#ffffff")}"></span></p>` +
-    `<h2>Colour values</h2><ul>` +
+    `<p style="max-width:520px"><span style="display:block;height:140px;border-radius:10px;border:1px solid rgba(0,0,0,.2);background:${escapeHtml(c.hex_code || "#ffffff")}"></span></p>` +
+    (undertone || tone
+      ? `<h2>How ${escapeHtml(c.name)} reads on a wall</h2><p>${undertone}${
+          tone ? ` With an estimated light reflectance value of about ${lrv}, it is a ${escapeHtml(tone)} colour.` : ""
+        } ${neutralNote}</p><p>Light reflectance matters more than the swatch for a wall colour: it decides how bright the room feels and how much of the ceiling bounce comes back into the space. The figure above is worked out from the stored RGB values, so treat it as a close estimate rather than a lab measurement.</p>`
+      : "") +
+    `<h2>The colour values in plain terms</h2><ul>` +
     (hex ? `<li>HEX: ${escapeHtml(hex)}</li>` : "") +
-    (c.rgb_r !== null && c.rgb_r !== undefined
-      ? `<li>RGB: ${escapeHtml(String(c.rgb_r))}, ${escapeHtml(String(c.rgb_g ?? ""))}, ${escapeHtml(String(c.rgb_b ?? ""))}</li>`
-      : "") +
-    (c.hsl_h !== null && c.hsl_h !== undefined
-      ? `<li>HSL: ${escapeHtml(String(Math.round(c.hsl_h)))}&deg;, ${escapeHtml(String(Math.round(c.hsl_s ?? 0)))}%, ${escapeHtml(String(Math.round(c.hsl_l ?? 0)))}%</li>`
-      : "") +
-    `</ul>` +
+    (rgb ? `<li>RGB: ${rgb[0]}, ${rgb[1]}, ${rgb[2]}</li>` : "") +
+    (hue !== null ? `<li>HSL: ${Math.round(hue)}&deg;, ${Math.round(sat ?? 0)}%, ${Math.round(lig ?? 0)}%</li>` : "") +
+    (lrv !== null ? `<li>Estimated LRV: ${lrv} of 100</li>` : "") +
+    `</ul><p>The hue sets the family, the saturation sets how much colour survives the grey, and the lightness sets how much daylight the finished wall throws back. Two colours can share a name and a hue and still behave differently on site if their lightness is a few points apart.</p>` +
+    `<h2>Trim, ceiling and accent pairings</h2><ul>` +
+    (trimHex ? `<li>Trim and woodwork: ${swatch(trimHex, trimHex)}</li>` : "") +
+    (complementHex ? `<li>Complementary accent: ${swatch(complementHex, complementHex)}</li>` : "") +
+    (accentHex ? `<li>Warmer accent from the same family: ${swatch(accentHex, accentHex)}</li>` : "") +
+    `</ul><p>A near white trim keeps the room calm and lets the wall colour do the talking. The complementary accent is the colour opposite ${escapeHtml(c.name)} on the wheel, which is why it works in small amounts: a door edge, a shelf, a single chair. The warmer accent sits a step around the wheel and holds the scheme together without a contrast.</p>` +
+    `<h2>Where it belongs</h2><p>${roomAdvice(lrv, warm)}</p>` +
     (usage || placement || c.finish_compatibility
-      ? `<h2>Where ${escapeHtml(c.name)} works best</h2><p>${
+      ? `<h2>Finish and surface</h2><p>${
           [
             usage,
-            placement ? `Suited to ${placement}.` : "",
-            asText(c.finish_compatibility)
-              ? `Compatible finishes: ${asText(c.finish_compatibility)}.`
-              : "",
+            placement ? `Listed for ${placement}.` : "",
+            asText(c.finish_compatibility) ? `Compatible finishes: ${asText(c.finish_compatibility)}.` : "",
           ]
             .filter(Boolean)
             .join(" ")
-        }</p>`
+        }</p><p>${sheenAdvice(usage)}</p>`
       : "") +
-    `<h2>Estimate paint for ${escapeHtml(c.name)}</h2><p>FRELUX plans paint by room: enter the room dimensions, height and openings, choose the paint quality and coats, and the estimator returns 20-litre buckets to buy. Two coats are standard.</p>` +
-    `<ul><li><a href="/paint-calculator/">Paint calculator</a></li><li><a href="/colors/">Browse the colour library</a></li><li><a href="/colors/compare/">Compare colours</a></li><li><a href="/wall-finish-estimator/">Wall finishing estimator</a></li></ul></main>`;
+    `<h2>How much paint a room needs</h2><p>${coverageText(lrv)}</p>` +
+    `<p>The FRELUX wall finishing estimator does that arithmetic room by room: enter the length, width and height, deduct the doors and windows, choose the quality and the coats, and it returns the 20 litre buckets to buy with the theoretical and practical figure side by side.</p>` +
+    (neighbours.length
+      ? `<h2>Colours close to ${escapeHtml(c.name)}</h2><ul>` +
+        neighbours
+          .map(
+            (n) =>
+              `<li><a href="/colors/paint/${n.slug}/">${escapeHtml(n.name)}</a>${n.hex ? ` ${swatch(n.hex, n.hex)}` : ""}</li>`,
+          )
+          .join("") +
+        `</ul><p>These sit nearest on the hue wheel, so they are the shades to compare against ${escapeHtml(c.name)} when a client wants the same feel a shade lighter or deeper.</p>`
+      : "") +
+    `<h2>Price the job</h2><ul><li><a href="/paint-calculator/">Paint calculator</a></li><li><a href="/colors/">Browse the colour library</a></li><li><a href="/colors/compare/">Compare colours</a></li><li><a href="/wall-finish-estimator/">Wall finishing estimator</a></li></ul></main>`;
 }
-
 for (const p of colorPalettes) {
   if (!p.slug || !p.title) continue;
   const path = `/colors/${p.slug}`;
