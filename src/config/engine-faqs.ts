@@ -1626,7 +1626,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
     questions: [
       {
         q: "Which units does the converter handle?",
-        a: "Length, area, volume, mass and pressure in both metric and imperial, which covers the units on a drawing next to the units on a delivery note.",
+        a: "Length, area, volume and mass units in metric and imperial systems. Pressure and temperature conversions are not part of this converter.",
       },
       {
         q: "Why does area conversion go wrong so often?",
@@ -1638,7 +1638,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "Does it round the answer?",
-        a: "It shows the converted figure at a working precision and the exact factor used, so a quotation built on it can be traced.",
+        a: "The converter returns a numeric result from the configured unit factors and labels any geometry, depth or density assumption. It does not expose a factor readout for every conversion, so verify critical figures against the project specification.",
       },
       {
         q: "Where is it most useful?",
@@ -1647,14 +1647,14 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
     ],
     article: {
       summary:
-        "Metric and imperial conversion that shows the factor it applied.",
+        "Metric and imperial conversion for construction measurements, with cross-dimension assumptions stated.",
       description:
-        "A measurement converter for the units that appear on drawings, delivery notes and quotations. Length, area, volume, mass and pressure convert with the factor stated, and squared and cubed units use the squared and cubed factor instead of a scaled single length.",
+        "A measurement converter for construction drawings, delivery notes and quotations. Length, area, volume and mass use registered metric and imperial unit factors; geometry, depth and density assumptions are identified when dimensions differ.",
       functions: [
-        "Converts length, area, volume, mass and pressure between metric and imperial units.",
-        "Applies squared and cubed factors for area and volume.",
-        "Shows the exact factor behind each result.",
-        "Keeps a working precision that survives a quotation.",
+        "Converts registered length, area, volume and mass units between metric and imperial systems.",
+        "Offers explicit geometry assumptions for eligible length, area and volume pairs.",
+        "Requires a supplied depth or density for conversions that need one.",
+        "Includes construction-focused material, plot and paint bucket tools with editable assumptions.",
       ],
       advantages: [
         "The factor is visible, so an error can be found in the arithmetic instead of guessed at.",

@@ -10,6 +10,7 @@ import {
   feetInchesToMetres,
   findMaterial,
   formatNumber,
+  UNIVERSAL_UNITS,
   massToVolumeM3,
   metresToFeetInches,
   paintBuckets,
@@ -119,6 +120,19 @@ describe("material weight and volume", () => {
 });
 
 describe("paint buckets", () => {
+  it("handles large quantities quickly without changing the exact best plan", () => {
+    const plan = paintBuckets(50_000);
+    expect(plan?.totalLitres).toBe(50_000);
+    expect(plan?.best).toEqual([{ sizeLitres: 20, count: 2500 }]);
+  });
+
+  it("rejects invalid or unsupported-precision bucket inputs", () => {
+    expect(paintBuckets(24, [20, 0, 4])).toBeNull();
+    expect(paintBuckets(24, [20, Number.NaN, 4])).toBeNull();
+    expect(paintBuckets(24, [])).toBeNull();
+    expect(paintBuckets(1, [0.0000001, 1])).toBeNull();
+  });
+
   it("prefers 20 L plus 4 L over two 20 L buckets", () => {
     const plan = paintBuckets(24);
     expect(plan?.totalLitres).toBe(24);
@@ -184,6 +198,22 @@ describe("input handling", () => {
 });
 
 describe("universal conversion across every unit", () => {
+  it("includes every defined core length and volume unit", () => {
+    const ids = new Set(UNIVERSAL_UNITS.map((unit) => unit.id));
+    ["len-mi", "vol-cm3", "vol-yd3"].forEach((id) => {
+      expect(ids.has(id)).toBe(true);
+    });
+    expect(convertUniversal(1, "len-mi", "len-m").value).toBeCloseTo(1609.344, 9);
+    expect(convertUniversal(1, "vol-yd3", "vol-l").value).toBeCloseTo(764.554857984, 9);
+    expect(convertUniversal(1, "vol-cm3", "vol-ml").value).toBeCloseTo(1, 9);
+  });
+
+  it("refuses conversion results outside the finite numeric range", () => {
+    const result = convertUniversal(Number.MAX_VALUE, "len-mi", "len-mm");
+    expect(result.value).toBeNull();
+    expect(result.error).toMatch(/numeric range/i);
+  });
+
   it("converts any length into any other length", () => {
     expect(convertUniversal(12, "len-ft", "len-in").value).toBeCloseTo(144, 9);
     expect(convertUniversal(1, "len-yd", "len-mm").value).toBeCloseTo(914.4, 9);

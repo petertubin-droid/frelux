@@ -191,9 +191,8 @@ export interface PlotSize {
 
 /**
  * Nigerian plot sizes are local conventions, not a legal unit, so they are
- * presets with their real dimensions stated. 60 x 120 ft is the Lagos
- * standard (often quoted as 648 m² after allowance); 50 x 100 ft is the
- * older mainland size.
+ * presets with their real dimensions stated. Plot sizes are market conventions,
+ * not universal or statutory units; verify the actual surveyed boundaries.
  */
 export const PLOT_PRESETS: PlotSize[] = [
   {
@@ -426,60 +425,169 @@ export function paintBuckets(
   litres: number,
   sizes: number[] = [20, 10, 4],
 ): PaintBucketResult | null {
-  if (!Number.isFinite(litres) || litres < 0 || sizes.length === 0) return null;
-  const ordered = [...sizes].sort((a, b) => b - a);
-  const perSize = ordered.map((size) => {
-    const exact = size > 0 ? litres / size : 0;
-    return { sizeLitres: size, exact, toBuy: Math.ceil(exact - 1e-9) };
-  });
+  if (
+    !Number.isFinite(litres) ||
+    litres < 0 ||
+    sizes.length === 0 ||
+    sizes.some((size) => !Number.isFinite(size) || size <= 0)
+  ) {
+    return null;
+  }
 
-  // Search every combination of at most a few buckets per size and keep the
-  // plan with the least waste, then the fewest buckets.
-  let best: BucketPlan[] = [];
+  const ordered = [...new Set(sizes)].sort((a, b) => b - a);
+  const precision = Math.max(
+    decimalPlaces(litres),
+    ...ordered.map(decimalPlaces),
+  );
+  // The integer solver deliberately supports at most microlitre precision.
+  // Reject finer inputs rather than silently rounding a user's bucket sizes.
+  if (precision > 6) return null;
+  const scale = 10 ** precision;
+  if (litres * scale > Number.MAX_SAFE_INTEGER) return null;
+  const integerSizes = ordered.map((size) => Math.round(size * scale));
+  if (integerSizes.some((size) => !Number.isSafeInteger(size) || size <= 0)) {
+    return null;
+  }
+  const divisor = integerSizes.reduce(greatestCommonDivisor);
+  const denominations = integerSizes.map((size) => size / divisor);
+  const target = Math.ceil((litres * scale) / divisor - 1e-9);
+  const largest = denominations[0];
+
+  // Solve the unbounded coin-cover problem by shortest paths over residues
+  // modulo the largest bucket. This finds the exact least litres to buy while
+  // keeping work independent of the requested quantity (unlike recursive
+  // enumeration, which can hang on large orders). Refuse pathological custom
+  // bucket systems rather than freezing the page.
+  const MAX_RESIDUES = 100_000;
+  if (!Number.isSafeInteger(largest) || largest > MAX_RESIDUES) return null;
+
+  const distances = new Float64Array(largest).fill(Number.POSITIVE_INFINITY);
+  const bucketCounts = new Float64Array(largest).fill(Number.POSITIVE_INFINITY);
+  const previousResidue = new Int32Array(largest).fill(-1);
+  const previousSize = new Int32Array(largest).fill(-1);
+  distances[0] = 0;
+  bucketCounts[0] = 0;
+
+  const heap: { residue: number; distance: number; count: number }[] = [];
+  const push = (entry: (typeof heap)[number]) => {
+    heap.push(entry);
+    let index = heap.length - 1;
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2);
+      if (compareHeap(heap[parent], heap[index]) <= 0) break;
+      [heap[parent], heap[index]] = [heap[index], heap[parent]];
+      index = parent;
+    }
+  };
+  const pop = () => {
+    const first = heap[0];
+    const last = heap.pop()!;
+    if (heap.length > 0) {
+      heap[0] = last;
+      let index = 0;
+      while (true) {
+        const left = index * 2 + 1;
+        const right = left + 1;
+        let smallest = index;
+        if (left < heap.length && compareHeap(heap[left], heap[smallest]) < 0)
+          smallest = left;
+        if (right < heap.length && compareHeap(heap[right], heap[smallest]) < 0)
+          smallest = right;
+        if (smallest === index) break;
+        [heap[index], heap[smallest]] = [heap[smallest], heap[index]];
+        index = smallest;
+      }
+    }
+    return first;
+  };
+  const compareHeap = (
+    a: { distance: number; count: number },
+    b: { distance: number; count: number },
+  ) => a.distance - b.distance || a.count - b.count;
+
+  push({ residue: 0, distance: 0, count: 0 });
+  while (heap.length > 0) {
+    const current = pop();
+    if (
+      current.distance !== distances[current.residue] ||
+      current.count !== bucketCounts[current.residue]
+    ) {
+      continue;
+    }
+    for (let sizeIndex = 1; sizeIndex < denominations.length; sizeIndex += 1) {
+      const denomination = denominations[sizeIndex];
+      const residue = (current.residue + denomination) % largest;
+      const distance = current.distance + denomination;
+      const count = current.count + 1;
+      if (
+        distance < distances[residue] ||
+        (distance === distances[residue] && count < bucketCounts[residue])
+      ) {
+        distances[residue] = distance;
+        bucketCounts[residue] = count;
+        previousResidue[residue] = current.residue;
+        previousSize[residue] = sizeIndex;
+        push({ residue, distance, count });
+      }
+    }
+  }
+
+  let bestResidue = -1;
   let bestTotal = Number.POSITIVE_INFINITY;
   let bestCount = Number.POSITIVE_INFINITY;
-  const maxPerSize = Math.ceil(litres / Math.min(...ordered)) + 1;
-
-  const walk = (
-    index: number,
-    remaining: number,
-    plan: BucketPlan[],
-    total: number,
-    count: number,
-  ) => {
-    if (remaining <= 1e-9) {
-      if (
-        total < bestTotal - 1e-9 ||
-        (Math.abs(total - bestTotal) <= 1e-9 && count < bestCount)
-      ) {
-        bestTotal = total;
-        bestCount = count;
-        best = plan.filter((p) => p.count > 0);
-      }
-      return;
+  for (let residue = 0; residue < largest; residue += 1) {
+    const base = distances[residue];
+    if (!Number.isFinite(base)) continue;
+    const total = base + Math.max(0, Math.ceil((target - base) / largest)) * largest;
+    const count = bucketCounts[residue] + Math.max(0, Math.ceil((target - base) / largest));
+    if (total < bestTotal || (total === bestTotal && count < bestCount)) {
+      bestResidue = residue;
+      bestTotal = total;
+      bestCount = count;
     }
-    if (index >= ordered.length) return;
-    const size = ordered[index];
-    for (let n = 0; n <= maxPerSize; n += 1) {
-      const nextTotal = total + n * size;
-      if (nextTotal > bestTotal + 1e-9) break;
-      walk(
-        index + 1,
-        remaining - n * size,
-        n > 0 ? [...plan, { sizeLitres: size, count: n }] : plan,
-        nextTotal,
-        count + n,
-      );
-    }
-  };
+  }
+  if (bestResidue < 0 || !Number.isFinite(bestTotal)) return null;
 
-  walk(0, litres, [], 0, 0);
+  const counts = new Array(ordered.length).fill(0) as number[];
+  let residue = bestResidue;
+  while (residue !== 0) {
+    const sizeIndex = previousSize[residue];
+    const parent = previousResidue[residue];
+    if (sizeIndex < 0 || parent < 0) return null;
+    counts[sizeIndex] += 1;
+    residue = parent;
+  }
+  counts[0] += (bestTotal - distances[bestResidue]) / largest;
+
+  const best = ordered
+    .map((sizeLitres, index) => ({ sizeLitres, count: counts[index] }))
+    .filter((bucket) => bucket.count > 0);
+  const totalLitres = (bestTotal * divisor) / scale;
+  const perSize = ordered.map((sizeLitres) => {
+    const exact = litres / sizeLitres;
+    return { sizeLitres, exact, toBuy: Math.ceil(exact - 1e-9) };
+  });
+
   return {
     best,
-    totalLitres: bestTotal,
-    leftoverLitres: Math.max(0, bestTotal - litres),
+    totalLitres,
+    leftoverLitres: Math.max(0, totalLitres - litres),
     perSize,
   };
+}
+
+function decimalPlaces(value: number): number {
+  const [mantissa, exponentText] = value.toString().toLowerCase().split("e");
+  const fractionDigits = mantissa.split(".")[1]?.length ?? 0;
+  const exponent = Number(exponentText ?? 0);
+  return Math.max(0, fractionDigits - exponent);
+}
+
+function greatestCommonDivisor(a: number, b: number): number {
+  let left = Math.abs(a);
+  let right = Math.abs(b);
+  while (right !== 0) [left, right] = [right, left % right];
+  return left;
 }
 
 // ---------------------------------------------------------------- roofing
@@ -605,6 +713,12 @@ export const UNIVERSAL_UNITS: UniversalUnit[] = [
     dimension: "length",
     factor: LENGTH_TO_M.yd,
   },
+  {
+    id: "len-mi",
+    label: "Miles (mi)",
+    dimension: "length",
+    factor: LENGTH_TO_M.mi,
+  },
 
   {
     id: "area-mm2",
@@ -686,10 +800,22 @@ export const UNIVERSAL_UNITS: UniversalUnit[] = [
     factor: VOLUME_TO_L.m3,
   },
   {
+    id: "vol-cm3",
+    label: "Cubic centimetres (cm³)",
+    dimension: "volume",
+    factor: VOLUME_TO_L.cm3,
+  },
+  {
     id: "vol-ft3",
     label: "Cubic feet (ft³)",
     dimension: "volume",
     factor: VOLUME_TO_L.ft3,
+  },
+  {
+    id: "vol-yd3",
+    label: "Cubic yards (yd³)",
+    dimension: "volume",
+    factor: VOLUME_TO_L.yd3,
   },
   {
     id: "vol-gal-us",
@@ -760,6 +886,17 @@ export interface UniversalResult {
 
 const NO_VALUE = "Enter a number to convert.";
 
+function successfulConversion(value: number, explanation: string): UniversalResult {
+  if (!Number.isFinite(value)) {
+    return {
+      value: null,
+      explanation,
+      error: "The result is outside the supported numeric range.",
+    };
+  }
+  return { value, explanation };
+}
+
 export function convertUniversal(
   amount: number,
   fromId: string,
@@ -782,10 +919,10 @@ export function convertUniversal(
   // Same dimension: one ratio, exact constants, no intermediates to drift.
   if (from.dimension === to.dimension) {
     const value = (amount * from.factor) / to.factor;
-    return {
+    return successfulConversion(
       value,
-      explanation: `1 ${unitShort(from)} = ${formatNumber(from.factor / to.factor, 8)} ${unitShort(to)}`,
-    };
+      `1 ${unitShort(from)} = ${formatNumber(from.factor / to.factor, 8)} ${unitShort(to)}`,
+    );
   }
 
   const pair = [from.dimension, to.dimension].sort().join(">");
@@ -795,36 +932,36 @@ export function convertUniversal(
     if (from.dimension === "length") {
       const sideM = amount * from.factor;
       const value = (sideM * sideM) / to.factor;
-      return {
+      return successfulConversion(
         value,
-        explanation: "Treated as a square: area = length x length.",
-      };
+        "Treated as a square: area = length x length.",
+      );
     }
     const areaM2 = amount * from.factor;
     const sideM = Math.sqrt(areaM2);
     const value = sideM / to.factor;
-    return {
+    return successfulConversion(
       value,
-      explanation: "Treated as a square: length = square root of area.",
-    };
+      "Treated as a square: length = square root of area.",
+    );
   }
 
   if (pair === "length>volume") {
     if (from.dimension === "length") {
       const sideM = amount * from.factor;
       const value = (sideM * sideM * sideM * 1000) / to.factor;
-      return {
+      return successfulConversion(
         value,
-        explanation: "Treated as a cube: volume = length x length x length.",
-      };
+        "Treated as a cube: volume = length x length x length.",
+      );
     }
     const volumeL = amount * from.factor;
     const sideM = Math.cbrt(volumeL / 1000);
     const value = sideM / to.factor;
-    return {
+    return successfulConversion(
       value,
-      explanation: "Treated as a cube: length = cube root of volume.",
-    };
+      "Treated as a cube: length = cube root of volume.",
+    );
   }
 
   if (pair === "area>volume") {
@@ -840,16 +977,16 @@ export function convertUniversal(
     }
     if (from.dimension === "area") {
       const volumeL = amount * from.factor * (depth as number) * 1000;
-      return {
-        value: volumeL / to.factor,
-        explanation: `Volume = area x depth. Depth used: ${formatNumber(depth as number, 3)} m.`,
-      };
+      return successfulConversion(
+        volumeL / to.factor,
+        `Volume = area x depth. Depth used: ${formatNumber(depth as number, 3)} m.`,
+      );
     }
     const areaM2 = (amount * from.factor) / 1000 / (depth as number);
-    return {
-      value: areaM2 / to.factor,
-      explanation: `Area = volume / depth. Depth used: ${formatNumber(depth as number, 3)} m.`,
-    };
+    return successfulConversion(
+      areaM2 / to.factor,
+      `Area = volume / depth. Depth used: ${formatNumber(depth as number, 3)} m.`,
+    );
   }
 
   if (
@@ -879,16 +1016,16 @@ export function convertUniversal(
     }
     if (from.dimension === "volume") {
       const massKg = ((amount * from.factor) / 1000) * (density as number);
-      return {
-        value: massKg / to.factor,
-        explanation: `Weight = volume x density. Density used: ${formatNumber(density as number, 0)} kg/m³.`,
-      };
+      return successfulConversion(
+        massKg / to.factor,
+        `Weight = volume x density. Density used: ${formatNumber(density as number, 0)} kg/m³.`,
+      );
     }
     const volumeL = ((amount * from.factor) / (density as number)) * 1000;
-    return {
-      value: volumeL / to.factor,
-      explanation: `Volume = weight / density. Density used: ${formatNumber(density as number, 0)} kg/m³.`,
-    };
+    return successfulConversion(
+      volumeL / to.factor,
+      `Volume = weight / density. Density used: ${formatNumber(density as number, 0)} kg/m³.`,
+    );
   }
 
   return {

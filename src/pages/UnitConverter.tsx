@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
+import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
@@ -57,11 +58,9 @@ import {
 /**
  * Construction Measurement Converter.
  *
- * Built around the measurements that actually arrive on a Nigerian site: a
- * tape reading in feet and inches, land sold in plots, timber sold in inches,
- * sand sold by the tonne, paint sold in 4 L, 10 L and 20 L buckets. Every
- * conversion runs locally in the browser from exact constants, and every
- * weight-to-volume answer states the density it used.
+ * A construction-focused metric and imperial converter. Local conventions
+ * such as plot dimensions and material planning assumptions are labelled,
+ * editable and never presented as universal standards.
  */
 
 type TabId =
@@ -146,7 +145,7 @@ export default function UnitConverter() {
   useSeo({
     title: "Construction Measurement Converter: Plots, Feet, Tonnes to Bags",
     description:
-      "Convert between metric and imperial construction measurements, including feet, metres, inches, millimetres, area, and material quantities. Local conventions and examples are identified where relevant.",
+      "Convert construction measurements between metric and imperial units: feet, metres, inches, square and cubic units, acres, gallons and tonnes. Regional plot presets and material density assumptions are clearly identified and editable.",
     canonicalPath: "/unit-converter",
     keywords:
       "construction measurement converter, feet to metres, inches to millimetres, plot to square metres, tonnes to bags, sand density, paint bucket calculator, metric to imperial construction",
@@ -166,60 +165,7 @@ export default function UnitConverter() {
           price: "0",
                   },
       },
-      {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: [
-          {
-            "@type": "Question",
-            name: "Can any measurement be converted into any other?",
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: "Yes, within the all-units tab. Length, area, volume and weight are complete against each other. Crossing kinds is allowed only where the arithmetic is honest: a length can be squared into an area or cubed into a volume, an area becomes a volume with a depth, and a volume becomes a weight with a density. Pairs that measure unrelated things are refused with the reason stated.",
-            },
-          },
-          {
-            "@type": "Question",
-            name: "How many square metres is a plot of land in Nigeria?",
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: "It depends on the plot size. A 50 by 100 feet plot is about 464.5 square metres, and a 60 by 120 feet plot is about 668.9 square metres. Plots are local conventions, so measure the actual width and depth rather than assuming.",
-            },
-          },
-          {
-            "@type": "Question",
-            name: "How many cubic metres is a 20 tonne tipper of sharp sand?",
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: "About 12.5 cubic metres at a typical loose density of 1600 kg per cubic metre. Wet or compacted sand is heavier per cubic metre, so treat the figure as an estimate and confirm the density used.",
-            },
-          },
-          {
-            "@type": "Question",
-            name: "How many bags of cement are in a tonne?",
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: "Twenty 50 kg bags make one metric tonne. Only apply that to a material actually sold in 50 kg bags, since a bag of sand or granite is not a standard weight.",
-            },
-          },
-          {
-            "@type": "Question",
-            name: "How many litres is a US gallon compared with an imperial gallon?",
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: "One US gallon is 3.785411784 litres and one imperial gallon is 4.54609 litres. They are not interchangeable, which is why the converter keeps them separate.",
-            },
-          },
-          {
-            "@type": "Question",
-            name: "How do I convert feet to metres for a building measurement?",
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: "Multiply feet by 0.3048. Five feet six inches is 1.6764 metres. The converter also accepts feet and inches together, the way a tape measure reads.",
-            },
-          },
-        ],
-      },
+
     ],
   });
 
@@ -227,9 +173,36 @@ export default function UnitConverter() {
     <div className="pb-16">
       <Container className="pt-10 sm:pt-14">
         <PageHeader
+          eyebrow="Free construction tool"
           title="Construction Measurement Converter"
-          subtitle="Every unit in the tool converts into every other: feet, inches, plots, acres, tonnes, litres, gallons and bags. Same-kind units convert exactly, and crossing kinds shows the square, cube, depth or density it used."
+          subtitle="Convert common metric and imperial measurements for construction, from feet and inches to square metres, cubic yards and tonnes. See the conversion method, and supply depth, density or bag weight when a result depends on it."
+          breadcrumbs={[
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Measurement Converter" },
+          ]}
         />
+
+        <section
+          aria-label="Converter overview"
+          className="mt-5 rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-sm sm:p-6"
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-sm font-semibold text-foreground">
+                One place for site measurements and quantity checks
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                Convert defined units directly. Cross-dimension estimates are
+                labelled as geometry assumptions; material volume needs a
+                density, and a bag count needs the actual bag weight. Plot sizes
+                and material defaults are regional examples, not standards.
+              </p>
+            </div>
+            <span className="inline-flex shrink-0 items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+              Runs in your browser · no account needed
+            </span>
+          </div>
+        </section>
 
         <div
           role="tablist"
@@ -327,6 +300,44 @@ export default function UnitConverter() {
               </li>
             </ul>
           </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-white/15 bg-white/35 px-4 py-2 dark:bg-white/[0.03]">
+          <FaqItemsWithSchema
+            title="Measurement converter FAQs"
+            faqs={[
+              {
+                question: "Which construction units can I convert?",
+                answer:
+                  "The all-units converter covers metric and imperial length, area, volume and mass units, plus clearly labelled plot-size examples. Dedicated tabs also cover feet-and-inches measurements, material density and bag weight, paint buckets, and pitched-roof area.",
+              },
+              {
+                question: "How many square metres are in a plot?",
+                answer:
+                  "A plot is a local land convention, not a fixed international unit. This page includes example presets for 50 × 100 ft, 60 × 120 ft and 100 × 100 ft, calculated from those dimensions. Confirm the actual surveyed plot boundaries before using a preset for purchase, design or legal purposes.",
+              },
+              {
+                question: "Can I convert tonnes of sand into cubic metres?",
+                answer:
+                  "Yes, when a bulk density is supplied. For example, 20 metric tonnes at 1,600 kg/m³ gives 12.5 m³. Density changes with material grading, moisture and compaction, so the example is not a supplier guarantee; inspect or replace the selected density with a project-specific value.",
+              },
+              {
+                question: "Can I convert an area into a volume?",
+                answer:
+                  "Yes, if you provide the layer depth. The calculation is area × depth. A length can also be treated as the side of a square or cube, but the result is explicitly labelled as that geometric assumption rather than a measured shape.",
+              },
+              {
+                question: "Are US and imperial gallons the same?",
+                answer:
+                  "No. One US gallon is exactly 3.785411784 litres, while one imperial gallon is exactly 4.54609 litres. Choose the gallon system stated by the drawing, product or supplier.",
+              },
+              {
+                question: "Does the converter use local prices or save my measurements?",
+                answer:
+                  "No. It performs unit calculations in your browser and does not fetch supplier prices or save the measurements. Material densities, plot presets and bucket sizes are assumptions to verify against the specific market and product.",
+              },
+            ]}
+          />
         </section>
       </Container>
     </div>
