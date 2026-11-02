@@ -14,6 +14,7 @@ import PriceCoveragePanel from "@/components/pricing/PriceCoveragePanel";
 import { useSeo, useBreadcrumbJsonLd, useFaqJsonLd } from "@/lib/seo";
 import { FaqSection } from "@/components/seo/SeoSections";
 import { BUILD_FROM_ABROAD_FAQS } from "@/config/learn-faqs";
+import ArticleToolPromo from "@/components/articles/ArticleToolPromo";
 
 /**
  * The page a diaspora builder lands on after searching how to budget a
@@ -97,7 +98,10 @@ const FAQS = [
 export default function BuildInNigeriaFromAbroad() {
   useBreadcrumbJsonLd([
     { name: "Learn", path: "/learn" },
-    { name: "Building in Nigeria from abroad", path: "/learn/build-in-nigeria-from-abroad" },
+    {
+      name: "Building in Nigeria from abroad",
+      path: "/learn/build-in-nigeria-from-abroad",
+    },
   ]);
   useFaqJsonLd(BUILD_FROM_ABROAD_FAQS);
 
@@ -180,6 +184,8 @@ export default function BuildInNigeriaFromAbroad() {
           </p>
           <PriceCoveragePanel markets={["NG", "US", "GB", "CA", "AU", "AE"]} />
         </section>
+        <ArticleToolPromo category="cost-guides" />
+
         <h2 className="mt-12 text-2xl font-semibold text-foreground">
           The process, in six steps
         </h2>

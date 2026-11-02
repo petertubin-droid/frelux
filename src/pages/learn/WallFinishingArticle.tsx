@@ -19,6 +19,8 @@ import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import FaqSpotlight from "@/components/seo/FaqSpotlight";
 import { ArticleMarkdown } from "@/components/learn/ArticleMarkdown";
+import ArticleToolPromo from "@/components/articles/ArticleToolPromo";
+import ArticleQuickAnswers from "@/components/articles/ArticleQuickAnswers";
 import { slugifyHeading } from "@/lib/learn/heading-slug";
 import { Button } from "@/components/ui/shadcn/button";
 import { WALL_FINISHING_LIBRARY_MARKETS } from "@/lib/wallfinishing/knowledge-library";
@@ -641,6 +643,15 @@ export default function WallFinishingArticle() {
             )}
 
             {/* FAQ Section */}
+            <ArticleToolPromo category="surface-preparation" />
+
+            <ArticleQuickAnswers
+              items={faqs.map((faq) => ({
+                question: faq.question,
+                answer: faq.answer,
+              }))}
+            />
+
             {faqs.length > 0 && (
               <section id="faqs" className="mt-14 scroll-mt-20">
                 <div className="overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-muted/50 to-card p-7 dark:border-white/10 dark:from-card dark:to-background sm:p-9">

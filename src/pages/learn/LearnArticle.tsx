@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import AdSlot from "@/components/ui/AdSlot";
 import { ArticleAdCallout } from "@/components/ads/CampaignSlot";
+import ArticleToolPromo from "@/components/articles/ArticleToolPromo";
+import ArticleQuickAnswers from "@/components/articles/ArticleQuickAnswers";
 import CrossPromoSlot from "@/components/houseAds/CrossPromoSlot";
 import FaqSpotlight from "@/components/seo/FaqSpotlight";
 import { Link, useParams } from "react-router-dom";
@@ -603,6 +605,11 @@ export default function LearnArticle() {
                       the fifth closing the body below. Placement policy:
                       every unit sits inside real prose, is labelled, and
                       reserves min-height so it cannot shift the layout. */}
+                  {idx === 0 && (
+                    <ArticleToolPromo
+                      category={article?.category_slug ?? null}
+                    />
+                  )}
                   {idx === 1 && (
                     <ArticleAdCallout
                       position="30"
@@ -653,6 +660,15 @@ export default function LearnArticle() {
             {/* Cross-site house promo, slot 1 of 2 (mid-article): Heartsyncx
                 (sister site) advertised to learn readers. */}
             <CrossPromoSlot slotIndex={1} source="learn_article_mid" />
+
+            {/* The same questions answered in flow, for readers who stopped
+                reading at the section above rather than at the end. */}
+            <ArticleQuickAnswers
+              items={faqs.map((faq) => ({
+                question: faq.question,
+                answer: faq.answer,
+              }))}
+            />
 
             {/* FAQ Section */}
             {faqs.length > 0 && (

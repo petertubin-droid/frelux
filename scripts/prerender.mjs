@@ -65,10 +65,9 @@ const routes = [
   },
   {
     path: "/map",
-    title:
-      "Construction Map: Professionals, Projects and Materials on a Globe | FRELUX",
+    title: "Construction Map: Pros, Projects, Materials | FRELUX",
     description:
-      "Explore verified construction professionals, open projects and material stock on one 3D globe. Search any place, see real distances from your site, and open a listing details.",
+      "Explore construction professionals, open projects and material stock on one globe. Search any place and see real distances from your site.",
     priority: "0.7",
     changefreq: "weekly",
   },
@@ -109,10 +108,9 @@ const routes = [
   },
   {
     path: "/unit-converter",
-    title:
-      "Construction Measurement Converter: Feet, Plots, Tonnes and Bags | FRELUX SMART CALC",
+    title: "Unit Converter: Feet, Metres, Tonnes, Bags | FRELUX",
     description:
-      "Convert feet to metres, inches to millimetres, plots to square metres, tonnes of sand or granite to cubic metres and bags, and paint litres to 4L, 10L and 20L buckets.",
+      "Convert feet to metres, plots to square metres, tonnes and 50 kg bags, litres and buckets. Every conversion factor is exact and each assumption is stated.",
     priority: "0.8",
     changefreq: "monthly",
   },
