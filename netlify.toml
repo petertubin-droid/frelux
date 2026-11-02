@@ -41,6 +41,16 @@
 
 
 # 301 the legacy *.netlify.app host onto the custom domain.
+# robots.txt on the old host must be served, not redirected. Google treats a
+# cross-host robots.txt redirect as a block, so the legacy site stops being
+# crawlable and Search Console's change-of-address check reports
+# "Couldn't fetch the page" and refuses to proceed.
+[[redirects]]
+  from = "https://freluxtools.netlify.app/robots.txt"
+  to = "/legacy-robots.txt"
+  status = 200
+  force = true
+
 # Must stay FIRST: every other rule runs after host consolidation, otherwise
 # the old host keeps serving a full duplicate copy of the site and splits
 # ranking signals between two origins.
