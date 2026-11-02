@@ -1919,6 +1919,56 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
     },
   },
   {
+    slug: "global-site-safety-estimator",
+    route: "/global-site-safety-estimator",
+    name: "Global Site Safety & PPE Estimator",
+    category: "sitework",
+    questions: [
+      {
+        q: "Does this estimator certify that my site complies with OSHA, HSE or ISO requirements?",
+        a: "No. It produces planning quantities from the assumptions you enter and names relevant framework references. It is not a risk assessment, legal interpretation, safety plan or compliance certificate.",
+      },
+      {
+        q: "Why doesn't the tool automatically use a 6 ft or 2 m fall threshold?",
+        a: "Fall-protection duties depend on the governing jurisdiction, task, exposure and available controls. The familiar figures are not universal triggers, so the estimator asks you to identify fall hazards and enter the workers requiring controls rather than declaring compliance from building height.",
+      },
+      {
+        q: "How are perimeter signs calculated?",
+        a: "The perimeter length is divided by your chosen sign-spacing assumption and rounded up. That is a planning count only; visibility, access points, hazards and local sign rules determine the actual placement.",
+      },
+      {
+        q: "Are first-aid kit ratios regulatory requirements?",
+        a: "No universal worker-per-kit ratio is asserted. The displayed quantity uses the planning allowance you enter; first-aid coverage, kit contents, trained responders and access to medical care must be assessed for the actual site and local rules.",
+      },
+      {
+        q: "What does ISO 7010 contribute?",
+        a: "ISO 7010 specifies registered safety-sign symbols. The selected reference helps identify the sign framework, but local adoption and applicable workplace law still need confirmation. The tool does not reproduce or approve sign artwork.",
+      },
+    ],
+    article: {
+      summary:
+        "A transparent, adjustable inventory for construction-site PPE and safety logistics, with regulatory references kept separate from site-specific judgement.",
+      description:
+        "The Global Site Safety & PPE Estimator converts user-entered crew, perimeter and hazard information into a planning list. OSHA construction, UK HSE/CDM and ISO 7010 references provide context without pretending that one formula can determine whether a real site is safe or legally compliant.",
+      functions: [
+        "Counts perimeter signs from the perimeter and sign-spacing assumption entered by the user.",
+        "Plans basic PPE quantities from the active crew and the reserve allocation selected by the user.",
+        "Adds fall-control worker counts, excavation barrier/sign quantities and hot-work extinguisher quantities only when the corresponding site condition is selected.",
+        "Shows framework references and exports the resulting planning quantities to CSV.",
+      ],
+      advantages: [
+        "Every ratio and count is visible and adjustable rather than presented as an unsupported statutory rule.",
+        "The selected jurisdiction reference is separated from the site hazard assessment, so a label does not masquerade as certification.",
+        "The inventory can be downloaded and reviewed alongside the site-specific safety plan.",
+      ],
+      limits: [
+        "It does not assess hazards, select protective systems, design fall arrest, determine sign placement, or verify training and emergency arrangements.",
+        "It does not interpret local legislation, state-plan rules, CDM duties or ISO adoption for a specific project.",
+        "A competent local safety professional must confirm controls and quantities before procurement or work begins.",
+      ],
+    },
+  },
+  {
     slug: "material-price-index",
     route: "/material-price-index",
     name: "Live Material Price Index",

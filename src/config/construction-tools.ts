@@ -802,6 +802,17 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     navVisible: false,
   },
   {
+    slug: "global-site-safety-estimator",
+    title: "Global Site Safety & PPE Estimator",
+    category: "pro",
+    icon: ShieldCheck,
+    does: "Plan site PPE, warning signs and safety-control quantities with explicit, editable assumptions.",
+    enters: "Site perimeter, crew size, identified hazards and planning quantities.",
+    gets: "A transparent inventory with OSHA, UK HSE/CDM and ISO 7010 references, plus a CSV export.",
+    to: "/global-site-safety-estimator",
+    navVisible: true,
+  },
+  {
     slug: "warranty",
     title: "Warranty Certificate",
     category: "project",

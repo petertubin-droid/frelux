@@ -2588,6 +2588,11 @@ const routes = [
       "Calculate dead load, wind overturning safety factor, and structural steel or reinforced concrete preliminary BOM for overhead water tank towers.",
   },
   {
+    path: "/global-site-safety-estimator",
+    title: "Global Site Safety & PPE Estimator | FRELUX SMART CALC",
+    description: "Plan PPE, site warning signs, excavation barriers and emergency inventory with editable assumptions and OSHA, UK HSE/CDM or ISO 7010 references. Not a compliance certification.",
+  },
+  {
     path: "/diaspora-budget-tracker",
     title: "Diaspora Construction Budget and Inflation Tracker | FRELUX SMART CALC",
     description:

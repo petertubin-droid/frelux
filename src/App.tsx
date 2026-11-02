@@ -559,6 +559,7 @@ const ConduitWiringEstimator = lazy(
 const WaterTowerEstimator = lazy(
   () => import("@/pages/WaterTowerEstimator"),
 );
+const GlobalSiteSafetyEstimator = lazy(() => import("@/pages/GlobalSiteSafetyEstimator"));
 const DiasporaBudgetTracker = lazy(
   () => import("@/pages/DiasporaBudgetTracker"),
 );
@@ -2101,6 +2102,7 @@ export default function App() {
                           path="/water-tower-staging-estimator"
                           element={<WaterTowerEstimator />}
                         />
+                        <Route path="/global-site-safety-estimator" element={<GlobalSiteSafetyEstimator />} />
                         <Route
                           path="/diaspora-budget-tracker"
                           element={<DiasporaBudgetTracker />}

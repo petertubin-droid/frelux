@@ -5477,4 +5477,86 @@ export const faqPrerenderRoutes = [
       }
     ]
   }
+{
+  "path": "/faq/global-site-safety-estimator",
+  "title": "Global Site Safety & PPE Estimator",
+  "description": "The Global Site Safety & PPE Estimator converts user-entered crew, perimeter and hazard information into a planning list.",
+  "content": "<h1>Global Site Safety &amp; PPE Estimator</h1>\n<nav aria-label=\"Breadcrumb\"><a href=\"/\">Home</a> &rsaquo; <a href=\"/faq/\">Questions and Answers</a> &rsaquo; Global Site Safety &amp; PPE Estimator</nav>\n<p>A transparent, adjustable inventory for construction-site PPE and safety logistics, with regulatory references kept separate from site-specific judgement.</p>\n<p>Groundwork and site clearance. 5 questions answered below, each with the arithmetic behind it and the limits of what the tool decides. <a href=\"/global-site-safety-estimator/\">Open the Global Site Safety &amp; PPE Estimator tool</a>.</p>\n<h2>What it is</h2><p>The Global Site Safety &amp; PPE Estimator converts user-entered crew, perimeter and hazard information into a planning list. OSHA construction, UK HSE/CDM and ISO 7010 references provide context without pretending that one formula can determine whether a real site is safe or legally compliant.</p>\n<h2>What it calculates</h2><ul><li>Counts perimeter signs from the perimeter and sign-spacing assumption entered by the user.</li><li>Plans basic PPE quantities from the active crew and the reserve allocation selected by the user.</li><li>Adds fall-control worker counts, excavation barrier/sign quantities and hot-work extinguisher quantities only when the corresponding site condition is selected.</li><li>Shows framework references and exports the resulting planning quantities to CSV.</li></ul>\n<h2>Why contractors use it</h2><ul><li>Every ratio and count is visible and adjustable rather than presented as an unsupported statutory rule.</li><li>The selected jurisdiction reference is separated from the site hazard assessment, so a label does not masquerade as certification.</li><li>The inventory can be downloaded and reviewed alongside the site-specific safety plan.</li></ul>\n<h2>What it leaves out</h2><ul><li>It does not assess hazards, select protective systems, design fall arrest, determine sign placement, or verify training and emergency arrangements.</li><li>It does not interpret local legislation, state-plan rules, CDM duties or ISO adoption for a specific project.</li><li>A competent local safety professional must confirm controls and quantities before procurement or work begins.</li></ul>\n<h2>Frequently asked questions</h2>\n<h3>Does this estimator certify that my site complies with OSHA, HSE or ISO requirements?</h3><p>No. It produces planning quantities from the assumptions you enter and names relevant framework references. It is not a risk assessment, legal interpretation, safety plan or compliance certificate.</p><h3>Why doesn't the tool automatically use a 6 ft or 2 m fall threshold?</h3><p>Fall-protection duties depend on the governing jurisdiction, task, exposure and available controls. The familiar figures are not universal triggers, so the estimator asks you to identify fall hazards and enter the workers requiring controls rather than declaring compliance from building height.</p><h3>How are perimeter signs calculated?</h3><p>The perimeter length is divided by your chosen sign-spacing assumption and rounded up. That is a planning count only; visibility, access points, hazards and local sign rules determine the actual placement.</p><h3>Are first-aid kit ratios regulatory requirements?</h3><p>No universal worker-per-kit ratio is asserted. The displayed quantity uses the planning allowance you enter; first-aid coverage, kit contents, trained responders and access to medical care must be assessed for the actual site and local rules.</p><h3>What does ISO 7010 contribute?</h3><p>ISO 7010 specifies registered safety-sign symbols. The selected reference helps identify the sign framework, but local adoption and applicable workplace law still need confirmation. The tool does not reproduce or approve sign artwork.</p>\n<h2>Keep reading</h2><ul>\n<li><a href=\"/global-site-safety-estimator/\">Global Site Safety &amp; PPE Estimator</a>: run the calculation on your own measurements.</li>\n<li><a href=\"/faq/\">Every construction question FRELUX answers</a>: all 63 answer pages by trade.</li>\n<li><a href=\"/calculators/\">All FRELUX calculators</a>: the full tool list.</li>\n</ul>",
+  "structuredData": [
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "@id": "https://freluxtools.com/faq/global-site-safety-estimator/#faq",
+      "url": "https://freluxtools.com/faq/global-site-safety-estimator/",
+      "name": "Global Site Safety & PPE Estimator",
+      "inLanguage": "en",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does this estimator certify that my site complies with OSHA, HSE or ISO requirements?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. It produces planning quantities from the assumptions you enter and names relevant framework references. It is not a risk assessment, legal interpretation, safety plan or compliance certificate."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why doesn't the tool automatically use a 6 ft or 2 m fall threshold?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Fall-protection duties depend on the governing jurisdiction, task, exposure and available controls. The familiar figures are not universal triggers, so the estimator asks you to identify fall hazards and enter the workers requiring controls rather than declaring compliance from building height."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How are perimeter signs calculated?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The perimeter length is divided by your chosen sign-spacing assumption and rounded up. That is a planning count only; visibility, access points, hazards and local sign rules determine the actual placement."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are first-aid kit ratios regulatory requirements?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No universal worker-per-kit ratio is asserted. The displayed quantity uses the planning allowance you enter; first-aid coverage, kit contents, trained responders and access to medical care must be assessed for the actual site and local rules."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does ISO 7010 contribute?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "ISO 7010 specifies registered safety-sign symbols. The selected reference helps identify the sign framework, but local adoption and applicable workplace law still need confirmation. The tool does not reproduce or approve sign artwork."
+          }
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://freluxtools.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Questions and Answers",
+          "item": "https://freluxtools.com/faq/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Global Site Safety & PPE Estimator",
+          "item": "https://freluxtools.com/faq/global-site-safety-estimator/"
+        }
+      ]
+    }
+  ]
+},
 ];

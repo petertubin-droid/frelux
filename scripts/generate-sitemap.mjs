@@ -349,6 +349,7 @@ const routes = [
   { path: "/rainwater-gutter-soffit-cost-estimator", priority: "0.9", changefreq: "monthly" },
   { path: "/electrical-conduit-wiring-estimator", priority: "0.9", changefreq: "monthly" },
   { path: "/water-tower-staging-estimator", priority: "0.9", changefreq: "monthly" },
+  { path: "/global-site-safety-estimator", priority: "0.9", changefreq: "monthly" },
   { path: "/diaspora-budget-tracker", priority: "0.9", changefreq: "monthly" },
   { path: "/structural-steel-i-beam-calculator", priority: "0.9", changefreq: "monthly" },
   { path: "/doors-windows", priority: "0.9", changefreq: "monthly" },
