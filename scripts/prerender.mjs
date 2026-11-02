@@ -3433,6 +3433,22 @@ const caseStudies = await dbRows(
   "select=id,headline,summary,project_scope,challenges,outcome,materials_used,project_duration,budget,currency,updated_at&is_published=eq.true&order=updated_at.desc&limit=50",
 );
 
+// Glossary: 51 definitions lived only in a client-side fetch, so /glossary/
+// shipped with no H1 and no text. Read once here and render the definitions,
+// grouped the way the page groups them.
+const glossaryTerms = await dbRows(
+  "construction_glossary",
+  "select=term,slug,definition,category&is_active=eq.true&order=category.asc,sort_order.asc&limit=500",
+);
+
+// Price book coverage, used to describe /prices/ honestly. Only counts and
+// category names are read: prices themselves are deliberately left out of the
+// static HTML so a crawler never caches a figure that has since moved.
+const priceMaterials = await dbRows(
+  "estimation_materials",
+  "select=category&limit=2000",
+);
+
 const catalogSlugs = new Set(TEMPLATE_CATALOG.map((t) => t.slug));
 const extraTemplates = dbTemplates.filter(
   (t) => t.slug && !catalogSlugs.has(t.slug),
@@ -3611,6 +3627,64 @@ if (caseStudies.length) {
       `</ul><h2>Estimate your own project</h2><p>The same calculators used in these projects are free and need no account: paint and wall finishes, screeding, POP ceilings, tiling and full build-to-roof costing.</p>` +
       `<ul><li><a href="/paint-calculator/">Paint calculator</a></li><li><a href="/screeding-calculator/">Screeding calculator</a></li><li><a href="/tile-calculator/">Tile calculator</a></li><li><a href="/build-to-roof-estimator/">Build-to-roof estimator</a></li></ul></main>`;
   }
+}
+
+// /glossary body
+if (glossaryTerms.length && !contentMap["/glossary"]) {
+  const label = (c) =>
+    ({ materials: "Materials", finishes: "Finishes", techniques: "Techniques", tools: "Tools", measurement: "Measurement", structure: "Structure", planning: "Planning" })[c] ||
+    String(c || "General").replace(/-/g, " ").replace(/^./, (m) => m.toUpperCase());
+  const byCategory = new Map();
+  for (const t of glossaryTerms) {
+    if (!byCategory.has(t.category)) byCategory.set(t.category, []);
+    byCategory.get(t.category).push(t);
+  }
+  contentMap["/glossary/"] =
+    contentMap["/glossary"] =
+      `<main><h1>Construction glossary: ${glossaryTerms.length} terms explained</h1>` +
+      `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; Glossary</nav>` +
+      `<p>The words used on site and in an estimate, defined plainly. Each entry explains what the term means in practice, so a quotation or a specification stops being ambiguous.</p>` +
+      [...byCategory.entries()]
+        .map(
+          ([cat, terms]) =>
+            `<h2>${label(cat)}</h2><dl>` +
+            terms
+              .map(
+                (t) =>
+                  `<dt id="${escapeHtml(t.slug || "")}">${escapeHtml(t.term || "")}</dt><dd>${escapeHtml(t.definition || "")}</dd>`,
+              )
+              .join("") +
+            `</dl>`,
+        )
+        .join("") +
+      `<h2>Put the terms to work</h2><p>Once the vocabulary is clear, run the numbers: the same definitions are used by the FRELUX calculators when they describe coverage, wastage and coats.</p>` +
+      `<ul><li><a href="/construction-tools/">All construction tools</a></li><li><a href="/calculators/">Calculator library</a></li><li><a href="/prices/">Material price intelligence</a></li><li><a href="/learn/">Guides</a></li></ul></main>`;
+}
+
+// /prices body
+if (priceMaterials.length && !contentMap["/prices"]) {
+  const label = (c) =>
+    String(c || "other")
+      .replace(/[_-]+/g, " ")
+      .replace(/^./, (m) => m.toUpperCase());
+  const counts = new Map();
+  for (const m of priceMaterials) {
+    const k = m.category || "other";
+    counts.set(k, (counts.get(k) || 0) + 1);
+  }
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
+  contentMap["/prices/"] =
+    contentMap["/prices"] =
+      `<main><h1>Material price book</h1>` +
+      `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; Material prices</nav>` +
+      `<p>The FRELUX price book holds ${priceMaterials.length} priced materials across ${counts.size} categories, in the currency of the market you select. Every calculator reads from it, so a quantity and its cost come from the same source.</p>` +
+      `<h2>What is covered</h2><ul>` +
+      top.map(([k, n]) => `<li>${label(k)}: ${n} priced items</li>`).join("") +
+      `</ul>` +
+      `<h2>How a price gets into the book</h2>` +
+      `<p>A price enters only from a configured source for that market and is dated. Where a verified local supplier price exists it is used directly; where it does not, the line is shown as a reference rate rather than presented as a quote. Nothing on this page is an average of unrelated markets.</p>` +
+      `<h2>Using it in an estimate</h2><p>Pick your market in any calculator and the quantities are priced from this book, not from a generic table. Change the market and both the units and the prices change with it.</p>` +
+      `<ul><li><a href="/construction-tools/">All construction tools</a></li><li><a href="/market/">Markets and currencies</a></li><li><a href="/calculators/">Calculator library</a></li><li><a href="/glossary/">Glossary of terms</a></li></ul></main>`;
 }
 
 routes.push(...dynamicFamilyRoutes);

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-02T06:44:50.233Z",
+  "generatedAt": "2026-11-02T06:53:59.410Z",
   "note": "Before/after is diffed from the committed prerender list against the built output. Only pages whose listing copy actually changed are listed.",
   "changedPages": 111,
   "entries": [
