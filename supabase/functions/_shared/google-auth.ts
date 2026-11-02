@@ -19,7 +19,10 @@ const CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET") ?? "";
 const REFRESH_TOKEN = Deno.env.get("GOOGLE_REFRESH_TOKEN") ?? "";
 const STATIC_TOKEN = Deno.env.get("GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN") ?? "";
 
-const SA_JSON = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_JSON") ?? "";
+const SA_JSON =
+  Deno.env.get("GOOGLE_SERVICE_ACCOUNT_JSON") ||
+  Deno.env.get("GOOGLE_APPLICATION_CREDENTIALS") ||
+  "";
 
 let cachedToken: { value: string; expiresAt: number } | null = null;
 let authError = "";
