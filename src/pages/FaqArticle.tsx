@@ -136,7 +136,8 @@ export default function FaqArticle() {
       />
 
       <Container className="pb-16 pt-6">
-        <article className="mx-auto max-w-3xl">
+        <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[minmax(0,1fr)_200px]">
+        <article>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             {categoryLabel && (
               <span className="rounded-full border border-border/70 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
@@ -210,7 +211,41 @@ export default function FaqArticle() {
           </div>
         </article>
 
-        <div className="mx-auto max-w-3xl">
+        <aside className="hidden lg:block" aria-label="On this page">
+          <div className="sticky top-24 rounded-2xl border border-border/70 bg-card p-4 dark:border-white/8">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+              On this page
+            </p>
+            <ol className="mt-3 space-y-2 text-sm">
+              {sections.map((section, index) => (
+                <li key={section.key} className="flex gap-2">
+                  <span
+                    aria-hidden="true"
+                    className="text-xs font-medium text-muted-foreground/70"
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <a
+                    href={`#${section.key}-heading`}
+                    className="text-muted-foreground transition-colors hover:text-primary"
+                  >
+                    {section.heading}
+                  </a>
+                </li>
+              ))}
+            </ol>
+            <a
+              href="#questions"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline"
+            >
+              The questions
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
+          </div>
+        </aside>
+        </div>
+
+        <div id="questions" className="mx-auto max-w-3xl scroll-mt-24">
           <FaqItemsWithSchema
             title={`${group.name} questions`}
             faqs={mergedQuestions(slug, group.questions).map((question) => ({

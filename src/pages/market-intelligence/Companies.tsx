@@ -1,11 +1,18 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAsyncData } from "@/lib/market-intelligence/use-async";
 import { fetchProviderStatus, fetchQuotes, listCompanies } from "@/lib/market-intelligence/data";
 import { SectionHeading } from "@/components/market-intelligence/ui";
+import PageHeader from "@/components/ui/PageHeader";
+import { FaqSection } from "@/components/seo/SeoSections";
+import { MARKET_INTEL_FAQS } from "@/config/market-intelligence-faqs";
 
 export default function Companies() {
+  useBreadcrumbJsonLd([
+    { name: "Market intelligence", path: "/market-intelligence" },
+    { name: "Companies", path: "/market-intelligence/companies" },
+  ]);
   useSeo({
     title: "Listed Construction, Materials and Engineering Companies | FRELUX",
     description:
@@ -38,17 +45,24 @@ export default function Companies() {
   }, [state, sector]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <header className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-wide text-brand-purple">Company Profiles</p>
-        <h1 className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-          Who builds, supplies and engineers
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+    <>
+      <PageHeader
+        variant="data"
+        eyebrow="Market intelligence"
+        title="Company registry"
+        subtitle="Profiles of publicly listed construction, materials, aggregates and engineering companies, with exchange, country and sector reference facts."
+        breadcrumbs={[
+          { label: "Market intelligence", path: "/market-intelligence" },
+          { label: "Companies" }
+        ]}
+      />
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="max-w-3xl">
+        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
           The listed companies behind equipment, aggregates, cement, steel, engineering and building products. Profiles
           carry listing facts only; anything sourced from a market data provider is labelled with its timestamp.
         </p>
-      </header>
+      </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
         {sectors.map((s) => (
@@ -109,5 +123,7 @@ export default function Companies() {
         </p>
       </section>
     </div>
+      <FaqSection faqs={MARKET_INTEL_FAQS.companies} />
+    </>
   );
 }

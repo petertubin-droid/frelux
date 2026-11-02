@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, BarChart3, Building2, Globe2, LineChart as LineIcon } from "lucide-react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAsyncData } from "@/lib/market-intelligence/use-async";
 import {
   fetchProviderStatus,
@@ -10,8 +10,14 @@ import {
 } from "@/lib/market-intelligence/data";
 import PriceChart from "@/components/market-intelligence/PriceChart";
 import { Attribution, ProviderNotice, SectionHeading, StatTile } from "@/components/market-intelligence/ui";
+import PageHeader from "@/components/ui/PageHeader";
+import { FaqSection } from "@/components/seo/SeoSections";
+import { MARKET_INTEL_FAQS } from "@/config/market-intelligence-faqs";
 
 export default function MarketOverview() {
+  useBreadcrumbJsonLd([
+    { name: "Market intelligence", path: "/market-intelligence" },
+  ]);
   useSeo({
     title: "Construction Market Intelligence | FRELUX",
     description:
@@ -72,18 +78,24 @@ export default function MarketOverview() {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <header className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-wide text-brand-purple">Market Intelligence</p>
-        <h1 className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-          Construction market data, with the source attached
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+    <>
+      <PageHeader
+        variant="data"
+        eyebrow="Market intelligence"
+        title="Market intelligence"
+        subtitle="Listed construction companies, official material price indices and industry trends across the markets FRELUX covers, with the source and date shown beside every figure."
+        breadcrumbs={[
+          { label: "Market intelligence" }
+        ]}
+      />
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="max-w-3xl">
+        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
           Listed construction companies, official material price indices and retailer-observed prices in one place.
           Every figure shows where it came from and when it was true, and anything we cannot source is shown as
           unavailable rather than estimated.
         </p>
-      </header>
+      </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile label="Markets covered" value={profiles.length} hint="Country profiles with currency and units" />
@@ -163,5 +175,7 @@ export default function MarketOverview() {
         </div>
       ) : null}
     </div>
+      <FaqSection faqs={MARKET_INTEL_FAQS.overview} />
+    </>
   );
 }

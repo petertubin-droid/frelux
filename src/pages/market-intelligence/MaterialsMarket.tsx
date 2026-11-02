@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAsyncData } from "@/lib/market-intelligence/use-async";
 import { listIndexSeries, listMarketProfiles, listMaterialSamples } from "@/lib/market-intelligence/data";
 import PriceChart from "@/components/market-intelligence/PriceChart";
 import { Attribution, ProviderNotice, SectionHeading } from "@/components/market-intelligence/ui";
+import PageHeader from "@/components/ui/PageHeader";
+import { FaqSection } from "@/components/seo/SeoSections";
+import { MARKET_INTEL_FAQS } from "@/config/market-intelligence-faqs";
 
 const CATEGORY_LABELS: Record<string, string> = {
   cement_concrete: "Cement and concrete",
@@ -25,6 +28,10 @@ function label(category: string): string {
 }
 
 export default function MaterialsMarket() {
+  useBreadcrumbJsonLd([
+    { name: "Market intelligence", path: "/market-intelligence" },
+    { name: "Material prices", path: "/market-intelligence/materials" },
+  ]);
   useSeo({
     title: "Construction Material Prices by Country and Category | FRELUX",
     description:
@@ -87,18 +94,25 @@ export default function MaterialsMarket() {
   const samples = (data?.samples ?? []).filter((s) => market === "all" || s.market === market);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <header className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-wide text-brand-purple">Construction Materials Market</p>
-        <h1 className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-          Material prices, with the publisher named
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+    <>
+      <PageHeader
+        variant="data"
+        eyebrow="Market intelligence"
+        title="Material prices by market"
+        subtitle="Official producer price indices and retailer-observed material prices, filtered by market and category, with the publisher and observation date attached."
+        breadcrumbs={[
+          { label: "Market intelligence", path: "/market-intelligence" },
+          { label: "Material prices" }
+        ]}
+      />
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="max-w-3xl">
+        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
           Two kinds of evidence live here: official producer price indices published by statistical agencies, and
           prices observed on retailer listings. Each row shows which one it is, who published it and when it was true.
           Prices stay in the currency they were quoted in; FRELUX does not invent an exchange rate for them.
         </p>
-      </header>
+      </div>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         <label className="sm:w-56">
@@ -206,5 +220,7 @@ export default function MaterialsMarket() {
         </p>
       </section>
     </div>
+      <FaqSection faqs={MARKET_INTEL_FAQS.materials} />
+    </>
   );
 }

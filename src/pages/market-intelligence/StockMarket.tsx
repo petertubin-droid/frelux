@@ -1,11 +1,14 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, Star } from "lucide-react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAsyncData } from "@/lib/market-intelligence/use-async";
 import { fetchProviderStatus, fetchQuotes, listCompanies, type Quote } from "@/lib/market-intelligence/data";
 import { formatCompactNumber, formatPercent, percentChange } from "@/lib/market-intelligence/chart";
 import { ProviderNotice, SectionHeading } from "@/components/market-intelligence/ui";
+import PageHeader from "@/components/ui/PageHeader";
+import { FaqSection } from "@/components/seo/SeoSections";
+import { MARKET_INTEL_FAQS } from "@/config/market-intelligence-faqs";
 
 const WATCHLIST_KEY = "frelux.mi.watchlist";
 
@@ -20,6 +23,10 @@ function readWatchlist(): string[] {
 }
 
 export default function StockMarket() {
+  useBreadcrumbJsonLd([
+    { name: "Market intelligence", path: "/market-intelligence" },
+    { name: "Listed companies", path: "/market-intelligence/stocks" },
+  ]);
   useSeo({
     title: "Construction Stock Market: Listed Builders & Materials Companies | FRELUX",
     description:
@@ -94,17 +101,24 @@ export default function StockMarket() {
   const compared = compare.map((symbol) => ({ company: companies.find((c) => c.symbol === symbol), quote: quotes.get(symbol) })).filter((r) => r.company);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <header className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-wide text-brand-purple">Stock Market</p>
-        <h1 className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-          Listed construction companies
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+    <>
+      <PageHeader
+        variant="data"
+        eyebrow="Market intelligence"
+        title="Listed construction companies"
+        subtitle="Prices, daily change and market capitalisation for builders, materials producers and engineering firms, filtered by sector and market."
+        breadcrumbs={[
+          { label: "Market intelligence", path: "/market-intelligence" },
+          { label: "Listed companies" }
+        ]}
+      />
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="max-w-3xl">
+        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
           Cement, aggregates, steel, paint, plant hire and engineering issuers. Prices and market capitalisation come
           from a market data provider; company reference data is maintained by FRELUX.
         </p>
-      </header>
+      </div>
 
       {!configured ? (
         <div className="mt-6">
@@ -247,5 +261,7 @@ export default function StockMarket() {
         </p>
       </section>
     </div>
+      <FaqSection faqs={MARKET_INTEL_FAQS.stocks} />
+    </>
   );
 }

@@ -1,11 +1,18 @@
 import { Link } from "react-router-dom";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAsyncData } from "@/lib/market-intelligence/use-async";
 import { fetchProviderStatus, fetchQuotes, listCompanies, listNews } from "@/lib/market-intelligence/data";
 import { formatCompactNumber, formatPercent } from "@/lib/market-intelligence/chart";
 import { ProviderNotice, SectionHeading } from "@/components/market-intelligence/ui";
+import PageHeader from "@/components/ui/PageHeader";
+import { FaqSection } from "@/components/seo/SeoSections";
+import { MARKET_INTEL_FAQS } from "@/config/market-intelligence-faqs";
 
 export default function InvestmentInsights() {
+  useBreadcrumbJsonLd([
+    { name: "Market intelligence", path: "/market-intelligence" },
+    { name: "Investment insights", path: "/market-intelligence/investment" },
+  ]);
   useSeo({
     title: "Construction Investment Insights and Sector Context | FRELUX",
     description:
@@ -54,18 +61,25 @@ export default function InvestmentInsights() {
   });
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <header className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-wide text-brand-purple">Investment Insights</p>
-        <h1 className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-          Sector context, not a tip sheet
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+    <>
+      <PageHeader
+        variant="data"
+        eyebrow="Market intelligence"
+        title="Investment insights"
+        subtitle="How the listed construction universe is composed, what the companies report, and the sector coverage behind it. Information only, never advice."
+        breadcrumbs={[
+          { label: "Market intelligence", path: "/market-intelligence" },
+          { label: "Investment insights" }
+        ]}
+      />
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="max-w-3xl">
+        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
           Who is listed in the construction value chain, how the sector splits by country, and what the companies
           actually report. FRELUX does not publish target prices, does not claim a return and does not hold itself out
           as an adviser. Anything a provider has not supplied is shown as unavailable.
         </p>
-      </header>
+      </div>
 
       <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {Object.entries(bySector).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([sector, count]) => (
@@ -147,5 +161,7 @@ export default function InvestmentInsights() {
         movements do not indicate future performance. Take regulated advice before investing.
       </p>
     </div>
+      <FaqSection faqs={MARKET_INTEL_FAQS.investment} />
+    </>
   );
 }

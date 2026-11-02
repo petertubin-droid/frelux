@@ -20,9 +20,11 @@ Outputs, all in public/:
   favicon-32.png, favicon-16.png        browser tab
   favicon.ico                           16/32/48, for clients that ask for it
   logo-mark.png                         in-app header and document marks
+  logo-mark-light.png                   the same mark on a white plate, for
+                                        dark headers and the entry splash
 """
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
 MASTER = ROOT / "scripts" / "assets" / "brand-icon-master.png"
@@ -34,7 +36,7 @@ WHITE = (255, 255, 255, 255)
 art = Image.open(ART).convert("RGBA")
 
 
-def at(px: int, pad: float = 0.16, background=WHITE) -> Image.Image:
+def at(px: int, pad: float = 0.06, background=WHITE) -> Image.Image:
     """Fit the mark into a square tile on the icon background."""
     canvas = Image.new("RGBA", (px, px), background)
     inner = round(px * (1 - 2 * pad))
@@ -51,18 +53,42 @@ def at(px: int, pad: float = 0.16, background=WHITE) -> Image.Image:
 
 def maskable(px: int) -> Image.Image:
     """Wider safe zone, so an adaptive mask cannot clip the swoosh."""
-    return at(px, pad=0.24)
+    return at(px, pad=0.18)
 
 
 at(512).save(PUBLIC / "icon-512.png", "PNG", optimize=True)
 at(192).save(PUBLIC / "icon-192.png", "PNG", optimize=True)
 maskable(512).save(PUBLIC / "icon-maskable-512.png", "PNG", optimize=True)
 at(180).save(PUBLIC / "apple-touch-icon.png", "PNG", optimize=True)
-at(32).save(PUBLIC / "favicon-32.png", "PNG", optimize=True)
-at(16).save(PUBLIC / "favicon-16.png", "PNG", optimize=True)
-at(256, pad=0.06, background=(0, 0, 0, 0)).save(
+at(32, pad=0.03).save(PUBLIC / "favicon-32.png", "PNG", optimize=True)
+at(16, pad=0.01).save(PUBLIC / "favicon-16.png", "PNG", optimize=True)
+at(256, pad=0.04, background=(0, 0, 0, 0)).save(
     PUBLIC / "logo-mark.png", "PNG", optimize=True
 )
+
+
+def plate(px: int) -> Image.Image:
+    """The mark on a rounded white plate, so it holds up on a dark header.
+
+    The artwork is four colours on white; placed straight on navy the violet
+    house outline disappears. The plate keeps the tile the same shape the
+    header already uses, instead of inventing a second silhouette.
+    """
+    tile = Image.new("RGBA", (px, px), (0, 0, 0, 0))
+    ImageDraw.Draw(tile).rounded_rectangle(
+        (0, 0, px - 1, px - 1), radius=round(px * 0.22), fill=WHITE
+    )
+    inner = round(px * 0.76)
+    ratio = min(inner / art.width, inner / art.height)
+    scaled = art.resize(
+        (max(1, round(art.width * ratio)), max(1, round(art.height * ratio))),
+        Image.LANCZOS,
+    )
+    tile.paste(scaled, ((px - scaled.width) // 2, (px - scaled.height) // 2), scaled)
+    return tile
+
+
+plate(256).save(PUBLIC / "logo-mark-light.png", "PNG", optimize=True)
 
 at(512).save(
     PUBLIC / "favicon.ico",

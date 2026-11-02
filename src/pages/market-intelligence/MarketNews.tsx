@@ -1,12 +1,19 @@
 import { useState } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAsyncData } from "@/lib/market-intelligence/use-async";
 import { listNews } from "@/lib/market-intelligence/data";
 import { ProviderNotice } from "@/components/market-intelligence/ui";
+import PageHeader from "@/components/ui/PageHeader";
+import { FaqSection } from "@/components/seo/SeoSections";
+import { MARKET_INTEL_FAQS } from "@/config/market-intelligence-faqs";
 
 const CATEGORIES = ["all", "industry", "materials", "infrastructure", "companies", "policy"];
 
 export default function MarketNews() {
+  useBreadcrumbJsonLd([
+    { name: "Market intelligence", path: "/market-intelligence" },
+    { name: "Market news", path: "/market-intelligence/news" },
+  ]);
   useSeo({
     title: "Construction and Infrastructure Market News | FRELUX",
     description:
@@ -24,17 +31,24 @@ export default function MarketNews() {
   }, [category]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <header className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-wide text-brand-purple">Market News</p>
-        <h1 className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-          Construction market coverage, attributed
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+    <>
+      <PageHeader
+        variant="data"
+        eyebrow="Market intelligence"
+        title="Market news"
+        subtitle="Attributed construction and infrastructure news: material pricing, programmes, company announcements and policy, each naming its publication and date."
+        breadcrumbs={[
+          { label: "Market intelligence", path: "/market-intelligence" },
+          { label: "Market news" }
+        ]}
+      />
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="max-w-3xl">
+        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
           Each item links to the publication that reported it and shows its date. FRELUX does not rewrite third-party
           reporting or publish unattributed market claims.
         </p>
-      </header>
+      </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
         {CATEGORIES.map((c) => (
@@ -88,5 +102,7 @@ export default function MarketNews() {
         )}
       </div>
     </div>
+      <FaqSection faqs={MARKET_INTEL_FAQS.news} />
+    </>
   );
 }

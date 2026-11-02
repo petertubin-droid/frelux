@@ -11,7 +11,9 @@ import {
 import PageHeader from "@/components/ui/PageHeader";
 import DisplayPreferencesBar from "@/components/measurement/DisplayPreferencesBar";
 import PriceCoveragePanel from "@/components/pricing/PriceCoveragePanel";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd, useFaqJsonLd } from "@/lib/seo";
+import { FaqSection } from "@/components/seo/SeoSections";
+import { BUILD_FROM_ABROAD_FAQS } from "@/config/learn-faqs";
 
 /**
  * The page a diaspora builder lands on after searching how to budget a
@@ -93,6 +95,12 @@ const FAQS = [
 ];
 
 export default function BuildInNigeriaFromAbroad() {
+  useBreadcrumbJsonLd([
+    { name: "Learn", path: "/learn" },
+    { name: "Building in Nigeria from abroad", path: "/learn/build-in-nigeria-from-abroad" },
+  ]);
+  useFaqJsonLd(BUILD_FROM_ABROAD_FAQS);
+
   useSeo({
     title:
       "How to Estimate and Budget Construction Costs in Nigeria from the US or UK | FRELUX",
@@ -129,8 +137,13 @@ export default function BuildInNigeriaFromAbroad() {
   return (
     <div className="min-h-screen">
       <PageHeader
+        eyebrow="Diaspora guide"
         title="Building in Nigeria from abroad"
-        subtitle="How to estimate and budget construction costs from the US, UK or anywhere else"
+        subtitle="How to estimate and budget construction costs from the US, UK or anywhere else, without mistaking a converted figure for a local price."
+        breadcrumbs={[
+          { label: "Learn", path: "/learn" },
+          { label: "Building in Nigeria from abroad" },
+        ]}
       />
 
       <article className="mx-auto max-w-4xl px-4 py-10">
@@ -271,6 +284,10 @@ export default function BuildInNigeriaFromAbroad() {
             </Link>
           </div>
         </div>
+        <FaqSection
+          title="Building in Nigeria from abroad: the questions that decide the budget"
+          faqs={BUILD_FROM_ABROAD_FAQS}
+        />
       </article>
     </div>
   );

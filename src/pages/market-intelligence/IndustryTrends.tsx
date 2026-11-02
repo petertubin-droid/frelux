@@ -1,11 +1,18 @@
 import { useMemo, useState } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAsyncData } from "@/lib/market-intelligence/use-async";
 import { listIndexSeries, listMarketRankings } from "@/lib/market-intelligence/data";
 import PriceChart from "@/components/market-intelligence/PriceChart";
 import { Attribution, ProviderNotice, SectionHeading } from "@/components/market-intelligence/ui";
+import PageHeader from "@/components/ui/PageHeader";
+import { FaqSection } from "@/components/seo/SeoSections";
+import { MARKET_INTEL_FAQS } from "@/config/market-intelligence-faqs";
 
 export default function IndustryTrends() {
+  useBreadcrumbJsonLd([
+    { name: "Market intelligence", path: "/market-intelligence" },
+    { name: "Industry trends", path: "/market-intelligence/trends" },
+  ]);
   useSeo({
     title: "Construction Industry Trends and Market Movement | FRELUX",
     description:
@@ -52,18 +59,25 @@ export default function IndustryTrends() {
   const rankings = state.status === "ready" ? state.data.rankings : [];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <header className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-wide text-brand-purple">Industry Trends</p>
-        <h1 className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-          What the published numbers actually moved
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+    <>
+      <PageHeader
+        variant="data"
+        eyebrow="Market intelligence"
+        title="Industry trends"
+        subtitle="Published index movements by category and market: the direction, the size, the period and the source behind each one."
+        breadcrumbs={[
+          { label: "Market intelligence", path: "/market-intelligence" },
+          { label: "Industry trends" }
+        ]}
+      />
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="max-w-3xl">
+        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
           These are measured changes in official series already stored by FRELUX, ordered by size. A movement describes
           what happened between the first and last published period we hold. It is not a forecast, and it does not
           account for local supplier pricing.
         </p>
-      </header>
+      </div>
 
       <div className="mt-6 sm:w-64">
         <label>
@@ -169,5 +183,7 @@ export default function IndustryTrends() {
         </>
       )}
     </div>
+      <FaqSection faqs={MARKET_INTEL_FAQS.trends} />
+    </>
   );
 }
