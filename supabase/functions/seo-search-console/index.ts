@@ -18,7 +18,44 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 
 const API = "https://www.googleapis.com/webmasters/v3";
-const TOKEN = Deno.env.get("GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN") ?? "";
+const CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID") ?? "";
+const CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET") ?? "";
+const REFRESH_TOKEN = Deno.env.get("GOOGLE_REFRESH_TOKEN") ?? "";
+const STATIC_TOKEN = Deno.env.get("GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN") ?? "";
+
+let cachedToken: { value: string; expiresAt: number } | null = null;
+
+/** Mint an access token per invocation. A refresh token keeps the dashboard
+ *  working past the one hour life of a hand-copied access token; a static
+ *  access token is still honoured so an existing deployment keeps running. */
+async function accessToken(): Promise<string> {
+  if (REFRESH_TOKEN && CLIENT_ID && CLIENT_SECRET) {
+    if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) {
+      return cachedToken.value;
+    }
+    const res = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        refresh_token: REFRESH_TOKEN,
+        grant_type: "refresh_token",
+      }),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      access_token?: string;
+      expires_in?: number;
+    };
+    if (!res.ok || !data.access_token) return "";
+    cachedToken = {
+      value: data.access_token,
+      expiresAt: Date.now() + (data.expires_in ?? 3600) * 1000,
+    };
+    return data.access_token;
+  }
+  return STATIC_TOKEN;
+}
 const PROPERTY = Deno.env.get("GSC_PROPERTY") ?? "https://freluxtools.com/";
 
 type Action = "status" | "query" | "sitemaps";
@@ -37,11 +74,11 @@ const isoDaysAgo = (days: number) => {
   return d.toISOString().slice(0, 10);
 };
 
-async function gsc(path: string, init: RequestInit = {}) {
+async function gsc(token: string, path: string, init: RequestInit = {}) {
   const res = await fetch(`${API}${path}`, {
     ...init,
     headers: {
-      Authorization: `Bearer ${TOKEN}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
       ...(init.headers ?? {}),
     },
@@ -63,7 +100,7 @@ function notConnected(reason: string, extra: Record<string, unknown> = {}) {
       property: PROPERTY,
       reason,
       setup:
-        "Set GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN to an OAuth token for a Google account that owns or has access to the property, then redeploy this function.",
+        "Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and GOOGLE_REFRESH_TOKEN for a Google account that owns or has access to the property, then redeploy this function.",
       ...extra,
     },
     { status: 200 },
@@ -77,12 +114,13 @@ serveWithCors(async (req) => {
     }
     const action: Action = body.action ?? "status";
 
-    if (!TOKEN) return notConnected("no_credential");
+    const token = await accessToken();
+    if (!token) return notConnected("no_credential");
 
     const encoded = encodeURIComponent(PROPERTY);
 
     if (action === "status") {
-      const sites = await gsc("/sites");
+      const sites = await gsc(token, "/sites");
       if (!sites.ok) {
         return notConnected("google_rejected_token", {
           google_status: sites.status,
@@ -106,7 +144,7 @@ serveWithCors(async (req) => {
     }
 
     if (action === "sitemaps") {
-      const res = await gsc(`/sites/${encoded}/sitemaps`);
+      const res = await gsc(token, `/sites/${encoded}/sitemaps`);
       if (!res.ok) {
         return notConnected("google_rejected_request", { google_status: res.status });
       }
@@ -118,7 +156,7 @@ serveWithCors(async (req) => {
     const dimensions = body.dimensions?.length ? body.dimensions : ["query"];
     const rowLimit = Math.min(body.rowLimit ?? 50, 250);
 
-    const res = await gsc(`/sites/${encoded}/searchAnalytics/query`, {
+    const res = await gsc(token, `/sites/${encoded}/searchAnalytics/query`, {
       method: "POST",
       body: JSON.stringify({ startDate, endDate, dimensions, rowLimit }),
     });
