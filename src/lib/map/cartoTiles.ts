@@ -2,9 +2,12 @@
  * CARTO raster basemap URLs.
  *
  * The map renders its own raster tiles rather than a tile library style, and
- * CARTO began requiring an API key for basemap raster traffic. The key is a
- * client-facing value: it ships inside the bundle the browser downloads, which
- * is why it is read from a VITE_ variable and left out of the secret scan.
+ * CARTO now requires a basemap key on every tile URL under basemaps.cartocdn.com;
+ * without one the CDN serves "API KEY REQUIRED" watermark tiles. The parameter
+ * name is `key`. Keys are domain restricted, so the requesting page must send a
+ * Referer for the allowed origin (the map sets referrerPolicy="origin" for that).
+ * The key is a client-facing value by design and is normally read from the
+ * Integration Center rather than the bundle.
  *
  * Without a key the URLs stay exactly as they were, so a build with no key
  * configured still draws the map instead of a blank grid.
@@ -37,5 +40,5 @@ export function cartoTileUrl(
   key: string = cartoApiKey(),
 ): string {
   const base = `https://${subdomain}.basemaps.cartocdn.com/${LAYER_PATH[layer]}/${z}/${x}/${y}@2x.png`;
-  return key ? `${base}?api_key=${encodeURIComponent(key)}` : base;
+  return key ? `${base}?key=${encodeURIComponent(key)}` : base;
 }

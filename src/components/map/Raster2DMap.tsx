@@ -475,6 +475,8 @@ export function Raster2DMap({
       >
         <div className="absolute inset-0 pointer-events-none">
           {tiles.map((tile) => (
+            // CARTO keys are domain restricted: every tile needs a Referer
+            // for the allowed origin, so this image insists on sending one.
             <img
               key={tile.key}
               src={tile.src}
@@ -482,6 +484,7 @@ export function Raster2DMap({
               loading="eager"
               decoding="async"
               draggable={false}
+              referrerPolicy="origin"
               onError={(event) => {
                 if (event.currentTarget.src !== tile.fallback)
                   event.currentTarget.src = tile.fallback;

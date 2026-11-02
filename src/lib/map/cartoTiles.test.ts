@@ -14,7 +14,7 @@ describe("CARTO basemap tiles", () => {
 
   it("attributes keyed traffic to the account", () => {
     vi.stubEnv("VITE_CARTO_API_KEY", "carto-key-123");
-    expect(cartoTileUrl("a", "light", 10, 545, 352)).toBe(`${LIGHT}?api_key=carto-key-123`);
+    expect(cartoTileUrl("a", "light", 10, 545, 352)).toBe(`${LIGHT}?key=carto-key-123`);
   });
 
   it("ignores surrounding whitespace in the configured key", () => {
@@ -24,7 +24,7 @@ describe("CARTO basemap tiles", () => {
 
   it("encodes a key that carries url characters", () => {
     expect(cartoTileUrl("c", "dark", 3, 4, 2, "a b&c")).toBe(
-      "https://c.basemaps.cartocdn.com/dark_all/3/4/2@2x.png?api_key=a%20b%26c",
+      "https://c.basemaps.cartocdn.com/dark_all/3/4/2@2x.png?key=a%20b%26c",
     );
   });
 
