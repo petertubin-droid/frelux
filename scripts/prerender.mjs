@@ -4392,7 +4392,18 @@ const manifestPaths = collectPrerenderedPaths(distDir).sort();
 writeFileSync(
   join(distDir, "_prerender-manifest.json"),
   JSON.stringify(
-    { generated_at: new Date().toISOString(), paths: manifestPaths },
+    {
+      generated_at: new Date().toISOString(),
+      paths: manifestPaths,
+      // What the build had data for. A build with no reachable database emits
+      // only the static routes, so the guards can tell an empty data source
+      // apart from a family that was advertised but never written.
+      families: {
+        colours: paintColors.length,
+        palettes: colorPalettes.length,
+        templates: extraTemplates.length,
+      },
+    },
     null,
     0,
   ),

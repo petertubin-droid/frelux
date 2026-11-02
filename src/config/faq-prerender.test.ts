@@ -36,6 +36,10 @@ function faqPage(route: (typeof faqPrerenderRoutes)[number]) {
     | undefined;
 }
 
+/** The generated pages are HTML, so an ampersand in a tool name arrives escaped. */
+const escapeHtml = (value: string) =>
+  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
 describe("prerendered FAQ surfaces", () => {
   it("covers every FAQ group plus the hub", () => {
     expect(faqPrerenderRoutes.some((r) => r.path === "/faq")).toBe(true);
@@ -67,11 +71,11 @@ describe("prerendered FAQ surfaces", () => {
     for (const route of articleRoutes) {
       const slug = route.path.replace("/faq/", "");
       const group = groups.find((g) => g.slug === slug)!;
-      expect(route.content, slug).toContain(`<h1>${group.name}</h1>`);
+      expect(route.content, slug).toContain(`<h1>${escapeHtml(group.name)}</h1>`);
       expect(route.content, slug).toContain("What it calculates");
       expect(route.content, slug).toContain("What it leaves out");
       expect(route.content, slug).toContain(
-        mergedQuestions(slug, group.questions)[0].a.slice(0, 40),
+        escapeHtml(mergedQuestions(slug, group.questions)[0].a.slice(0, 40)),
       );
       const words = route.content.replace(/<[^>]+>/g, " ").split(/\s+/).length;
       expect(words, slug).toBeGreaterThan(600);

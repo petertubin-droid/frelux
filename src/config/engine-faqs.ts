@@ -1930,7 +1930,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       },
       {
         q: "Why doesn't the tool automatically use a 6 ft or 2 m fall threshold?",
-        a: "Fall-protection duties depend on the governing jurisdiction, task, exposure and available controls. The familiar figures are not universal triggers, so the estimator asks you to identify fall hazards and enter the workers requiring controls rather than declaring compliance from building height.",
+        a: "Fall-protection duties depend on the governing jurisdiction, task, exposure and available controls. The familiar figures are not universal triggers, so the estimator asks you to identify fall hazards and enter the workers requiring controls, and it does not declare compliance from building height.",
       },
       {
         q: "How are perimeter signs calculated?",
@@ -1957,7 +1957,7 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
         "Shows framework references and exports the resulting planning quantities to CSV.",
       ],
       advantages: [
-        "Every ratio and count is visible and adjustable rather than presented as an unsupported statutory rule.",
+        "Every ratio and count is visible and adjustable, and none is presented as an unsupported statutory rule.",
         "The selected jurisdiction reference is separated from the site hazard assessment, so a label does not masquerade as certification.",
         "The inventory can be downloaded and reviewed alongside the site-specific safety plan.",
       ],

@@ -23,7 +23,9 @@ describe("tool FAQ content in the database", () => {
       expect(row.article.functions.length, row.slug).toBeGreaterThanOrEqual(3);
       expect(row.seo.title, row.slug).toBeTruthy();
     }
-    expect(rows.reduce((sum, row) => sum + row.question_count, 0)).toBe(310);
+    expect(rows.reduce((sum, row) => sum + row.question_count, 0)).toBe(
+      TOOL_FAQS.length * 5,
+    );
   });
 
   it("keeps the committed seed identical to the registries", () => {

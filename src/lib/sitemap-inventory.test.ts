@@ -84,12 +84,21 @@ describe("build sitemap", () => {
 
   it("prerenders the colour, palette and template families it advertises", () => {
     const sitemap = join(root, "dist/sitemap.xml");
-    if (!existsSync(sitemap)) return;
+    const manifestFile = join(root, "dist/_prerender-manifest.json");
+    if (!existsSync(sitemap) || !existsSync(manifestFile)) return;
     const xml = readFileSync(sitemap, "utf8");
+    const { families } = JSON.parse(readFileSync(manifestFile, "utf8")) as {
+      families?: { colours: number };
+    };
     // Colour pages used to be advertised without a prerendered file, so they
-    // served the home shell. Both halves must now agree.
+    // served the home shell. Both halves must now agree, in whichever direction
+    // the build had data for: a build with no reachable database has to stay
+    // quiet about the family, and a build with colour rows has to list it.
+    if (!families || families.colours === 0) {
+      expect(xml).not.toContain("/colors/paint/");
+      return;
+    }
     expect(xml).toContain("/colors/paint/");
     expect(existsSync(join(root, "dist/colors/paint/pure-white/index.html"))).toBe(true);
-    expect(existsSync(join(root, "dist/_prerender-manifest.json"))).toBe(true);
   });
 });
