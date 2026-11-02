@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, type FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   AdminHeader,
@@ -8,10 +8,26 @@ import {
 } from "@/components/admin/AdminUi";
 import type { DbProfile, DbUserPaidStatus } from "@/types/database";
 import { classNames } from "@/lib/utils";
-import { Clock, X, Check } from "lucide-react";
+import {
+  Clock,
+  X,
+  Check,
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+  Mail,
+  RefreshCw,
+  Users,
+} from "lucide-react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import AdminPagination from "@/components/admin/AdminPagination";
-import { AdminButton } from "@/components/admin/AdminUi";
+import {
+  AdminButton,
+  AdminInput,
+  AdminField,
+} from "@/components/admin/AdminUi";
+import { AdminModal } from "@/components/admin/AdminModal";
 import { useLanguage } from "@/lib/i18n";
 
 type Status = "loading" | "ready" | "error";
@@ -48,17 +64,34 @@ export default function AdminUsers() {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState("");
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserWithPaid | null>(null);
+  const [form, setForm] = useState({
+    email: "",
+    full_name: "",
+    phone: "",
+    account_type: "client",
+  });
+  const [actionBusy, setActionBusy] = useState(false);
 
   const load = useCallback(async () => {
     setStatus("loading");
-    const [profilesRes, countRes] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .range(page * pageSize, page * pageSize + pageSize - 1),
-      supabase.from("profiles").select("*", { count: "exact", head: true }),
-    ]);
+    let profileQuery = supabase
+      .from("profiles")
+      .select("*", { count: "exact" });
+    const safeSearch = search
+      .trim()
+      .replace(/[%,().]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (safeSearch)
+      profileQuery = profileQuery.or(
+        `email.ilike.%${safeSearch}%,full_name.ilike.%${safeSearch}%`,
+      );
+    const profilesRes = await profileQuery
+      .order("created_at", { ascending: false })
+      .range(page * pageSize, page * pageSize + pageSize - 1);
     const profileError = profilesRes.error;
     const profiles = profilesRes.data;
     if (profileError) {
@@ -68,9 +101,13 @@ export default function AdminUsers() {
     }
 
     // Also load paid statuses, admin can read all (RLS policy added in Phase 2a)
-    const { data: paidData, error: paidError } = await supabase
-      .from("user_paid_status")
-      .select("*");
+    const profileIds = (profiles ?? []).map((profile) => profile.id);
+    const { data: paidData, error: paidError } = profileIds.length
+      ? await supabase
+          .from("user_paid_status")
+          .select("*")
+          .in("user_id", profileIds)
+      : { data: [], error: null };
     // paidError is OK, table might be empty or RLS might not grant admin yet
     const paidMap = new Map<string, DbUserPaidStatus>();
     if (!paidError && paidData) {
@@ -85,9 +122,9 @@ export default function AdminUsers() {
     }));
 
     setUsers(merged);
-    setTotal(countRes.count ?? profiles?.length ?? 0);
+    setTotal(profilesRes.count ?? 0);
     setStatus("ready");
-  }, [page, pageSize]);
+  }, [page, pageSize, search]);
 
   useEffect(() => {
     load();
@@ -157,6 +194,72 @@ export default function AdminUsers() {
     setSaving(false);
   }
 
+  function openCreate() {
+    setEditingUser(null);
+    setForm({ email: "", full_name: "", phone: "", account_type: "client" });
+    setEditorOpen(true);
+  }
+
+  function openEdit(user: UserWithPaid) {
+    setEditingUser(user);
+    setForm({
+      email: user.email ?? "",
+      full_name: user.full_name ?? "",
+      phone: user.phone ?? "",
+      account_type: user.account_type ?? "client",
+    });
+    setEditorOpen(true);
+  }
+
+  async function saveUser(event: FormEvent) {
+    event.preventDefault();
+    setActionBusy(true);
+    setError("");
+    const { data, error: fnError } = await supabase.functions.invoke(
+      "admin-user-management",
+      {
+        body: {
+          action: editingUser ? "update" : "invite",
+          userId: editingUser?.id,
+          ...form,
+        },
+      },
+    );
+    setActionBusy(false);
+    if (fnError || data?.error) {
+      setError(data?.error || fnError?.message || "Could not save user.");
+      return;
+    }
+    setEditorOpen(false);
+    await load();
+  }
+
+  async function deleteUser(user: UserWithPaid) {
+    if (user.role === "admin") {
+      setError("Admin accounts cannot be removed from this screen.");
+      return;
+    }
+    if (
+      !window.confirm(
+        `Permanently delete ${user.email}? This removes the account and may cascade-delete their associated data. This cannot be undone.`,
+      )
+    )
+      return;
+    setActionBusy(true);
+    setError("");
+    const { data, error: fnError } = await supabase.functions.invoke(
+      "admin-user-management",
+      { body: { action: "delete", userId: user.id } },
+    );
+    setActionBusy(false);
+    if (fnError || data?.error) {
+      setError(data?.error || fnError?.message || "Could not delete user.");
+      return;
+    }
+    if (users.length === 1 && page > 0) setPage(page - 1);
+    else await load();
+  }
+
   function startEdit(u: UserWithPaid) {
     setEditingId(u.id);
     setEditPlan(u.paid_status?.plan || "pro");
@@ -192,8 +295,44 @@ export default function AdminUsers() {
     <>
       <AdminHeader
         title={t("User Management")}
-        subtitle={t("View and manage user accounts & subscriptions.")}
+        subtitle={t("Manage user accounts, subscriptions, and access.")}
+        action={
+          <AdminButton onClick={openCreate}>
+            <Plus className="h-4 w-4" /> Invite user
+          </AdminButton>
+        }
       />
+      <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+        <div className="relative max-w-xl">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <AdminInput
+            aria-label="Search users"
+            placeholder="Search by name or email"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(0);
+            }}
+            className="pl-9"
+          />
+        </div>
+        <div className="admin-inset flex items-center gap-2 rounded-xl px-4 py-2 text-sm">
+          <Users aria-hidden="true" className="h-4 w-4 text-primary" />
+          <span className="font-semibold tabular-nums">
+            {total.toLocaleString()}
+          </span>
+          <span className="text-muted-foreground">registered users</span>
+          <AdminButton
+            variant="secondary"
+            onClick={() => void load()}
+            disabled={actionBusy}
+            className="ml-2 px-2 py-1"
+            title="Refresh users"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </AdminButton>
+        </div>
+      </div>
       {error && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}
@@ -205,7 +344,7 @@ export default function AdminUsers() {
             <thead>
               <tr className="border-b border-border dark:border-border border-border">
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
-                  {t("Email")}
+                  {t("User")}
                 </th>
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
                   {t("Role")}
@@ -246,8 +385,13 @@ export default function AdminUsers() {
                       key={u.id}
                       className="border-b border-border/50 last:border-0 dark:border-border"
                     >
-                      <td className="py-3 pr-4 font-medium text-foreground dark:text-primary-foreground">
-                        {u.email}
+                      <td className="py-3 pr-4">
+                        <div className="font-semibold text-foreground">
+                          {u.full_name || "Unnamed user"}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {u.email}
+                        </div>
                       </td>
                       <td className="py-3 pr-4">
                         <span
@@ -354,6 +498,34 @@ export default function AdminUsers() {
                               />
                               {isActive ? "Extend" : "Grant"}
                             </AdminButton>
+                            <AdminButton
+                              variant="secondary"
+                              onClick={() => openEdit(u)}
+                              disabled={actionBusy || u.role === "admin"}
+                              className="px-2.5 py-1.5"
+                              title={
+                                u.role === "admin"
+                                  ? "Admin accounts are protected"
+                                  : "Edit user"
+                              }
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                              <span className="sr-only">Edit user</span>
+                            </AdminButton>
+                            <AdminButton
+                              variant="danger"
+                              onClick={() => void deleteUser(u)}
+                              disabled={actionBusy || u.role === "admin"}
+                              className="px-2.5 py-1.5"
+                              title={
+                                u.role === "admin"
+                                  ? "Admin accounts are protected"
+                                  : "Delete user"
+                              }
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                              <span className="sr-only">Delete user</span>
+                            </AdminButton>
                             {isActive && (
                               <AdminButton
                                 variant="danger"
@@ -375,6 +547,76 @@ export default function AdminUsers() {
           </table>
         </div>
       </AdminCard>
+      <AdminModal
+        open={editorOpen}
+        onClose={() => setEditorOpen(false)}
+        title={editingUser ? "Edit user" : "Invite user"}
+        description="Manage basic user profile details."
+        maxWidth="max-w-xl"
+      >
+        <form onSubmit={saveUser} className="space-y-4">
+          <AdminField
+            label="Email address"
+            hint={
+              editingUser
+                ? "Changing the email updates the account sign-in address."
+                : "The user will receive an invitation email."
+            }
+          >
+            <AdminInput
+              type="email"
+              required
+              autoComplete="email"
+              value={form.email}
+              disabled={!!editingUser}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+          </AdminField>
+          <AdminField label="Full name">
+            <AdminInput
+              value={form.full_name}
+              onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+            />
+          </AdminField>
+          <AdminField label="Phone">
+            <AdminInput
+              type="tel"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            />
+          </AdminField>
+          <AdminField label="Account type">
+            <AdminSelect
+              value={form.account_type}
+              onChange={(e) =>
+                setForm({ ...form, account_type: e.target.value })
+              }
+            >
+              <option value="client">Client</option>
+              <option value="pro_worker">Professional</option>
+            </AdminSelect>
+          </AdminField>
+          <div className="flex justify-end gap-2 pt-2">
+            <AdminButton
+              variant="secondary"
+              onClick={() => setEditorOpen(false)}
+            >
+              Cancel
+            </AdminButton>
+            <AdminButton type="submit" disabled={actionBusy}>
+              {actionBusy ? (
+                "Saving…"
+              ) : editingUser ? (
+                "Save changes"
+              ) : (
+                <>
+                  <Mail className="h-4 w-4" /> Send invite
+                </>
+              )}
+            </AdminButton>
+          </div>
+        </form>
+      </AdminModal>
       <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-900/20 dark:text-blue-300">
         <p className="font-semibold">{t("Subscription Management")}</p>
         <p className="mt-1">

@@ -29,6 +29,7 @@ import {
 } from "@/lib/estimation/count-vision-engine";
 import { getSafeError } from "@/lib/safeError";
 import { AdminHeader, StateMessage } from "@/components/admin/AdminUi";
+import AdminPagination from "@/components/admin/AdminPagination";
 import { useLanguage } from "@/lib/i18n";
 
 const VERDICT_LABEL: Record<CountVisionLogRow["verdict"], string> = {
@@ -57,6 +58,9 @@ export default function AdminCountVision() {
   const [logs, setLogs] = useState<CountVisionLogRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(25);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -65,7 +69,7 @@ export default function AdminCountVision() {
       setError(null);
       const [rulesRes, logsRes] = await Promise.all([
         fetchCountVisionRules(),
-        fetchCountVisionLog(100),
+        fetchCountVisionLog(page, pageSize),
       ]);
       if (!alive) return;
       if (rulesRes.error || logsRes.error) {
@@ -74,13 +78,14 @@ export default function AdminCountVision() {
         if (rulesRes.data)
           setRules(parseCountVisionRules(rulesRes.data as never));
         setLogs(logsRes.data ?? []);
+        setTotal(logsRes.count ?? 0);
       }
       setLoading(false);
     })();
     return () => {
       alive = false;
     };
-  }, []);
+  }, [page, pageSize]);
 
   const byVerdict = logs.reduce<Record<string, number>>((acc, l) => {
     acc[l.verdict] = (acc[l.verdict] ?? 0) + 1;
@@ -245,6 +250,17 @@ export default function AdminCountVision() {
             </div>
           )}
 
+          <AdminPagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            loading={loading}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(0);
+            }}
+          />
           <div className="flex items-start gap-2 rounded-lg border bg-muted/30 p-4 text-xs text-muted-foreground">
             <ScanLine className="mt-0.5 h-4 w-4 shrink-0" />
             <p>

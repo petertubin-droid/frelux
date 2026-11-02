@@ -2003,12 +2003,18 @@ export async function countPhoto(
   return data.result as CountVisionResult;
 }
 
-/** Admin: the recent count requests, newest first. */
-export async function fetchCountVisionLog(limit = 50) {
-  const { data, error } = await supabase
+/** Admin: paged count requests, newest first. */
+export async function fetchCountVisionLog(page = 0, pageSize = 50) {
+  const safePage = Math.max(0, Math.floor(page));
+  const safeSize = Math.max(1, Math.min(100, Math.floor(pageSize)));
+  const { data, count, error } = await supabase
     .from("count_vision_log")
-    .select("*")
+    .select("*", { count: "exact" })
     .order("requested_at", { ascending: false })
-    .limit(limit);
-  return { data: (data ?? []) as CountVisionLogRow[], error };
+    .range(safePage * safeSize, safePage * safeSize + safeSize - 1);
+  return {
+    data: (data ?? []) as CountVisionLogRow[],
+    count: count ?? 0,
+    error,
+  };
 }
