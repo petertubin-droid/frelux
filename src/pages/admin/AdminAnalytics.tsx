@@ -23,10 +23,13 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import Ga4BridgeNotice from "@/components/admin/Ga4BridgeNotice";
 import { useLanguage } from "@/lib/i18n";
 import {
   fetchGa4Configuration,
+  fetchGa4Status,
   fetchGa4Summary,
+  type Ga4Status,
   fetchTrafficReport,
   type Ga4Configuration,
   type Ga4Summary,
@@ -235,6 +238,7 @@ export default function AdminAnalytics() {
   const [trafficError, setTrafficError] = useState<string | null>(null);
   const [ga4, setGa4] = useState<Ga4Configuration | null>(null);
   const [ga4Summary, setGa4Summary] = useState<Ga4Summary | null>(null);
+  const [ga4Status, setGa4Status] = useState<Ga4Status | null>(null);
   const [events, setEvents] = useState<DbAnalyticsEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -273,7 +277,10 @@ export default function AdminAnalytics() {
       const summary = configuration.measurementId
         ? await fetchGa4Summary(days)
         : null;
-      if (active) setGa4Summary(summary);
+      if (!active) return;
+      setGa4Summary(summary);
+      setGa4Status(summary ? null : await fetchGa4Status());
+      if (!active) return;
 
       if (active) setLoading(false);
     }
@@ -469,11 +476,7 @@ export default function AdminAnalytics() {
                           ))}
                         </div>
                       ) : (
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {t(
-                            "GA4 is collecting events. Reading GA4 reports needs the Data API bridge: add GA4_PROPERTY_ID and GA4_SERVICE_ACCOUNT_JSON secrets, then redeploy ga4-report. The traffic numbers above come from this site directly and need no Google credentials.",
-                          )}
-                        </p>
+                        <Ga4BridgeNotice status={ga4Status} />
                       )}
                       <a
                         href="https://analytics.google.com"

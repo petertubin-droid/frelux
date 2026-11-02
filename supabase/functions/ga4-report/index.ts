@@ -4,12 +4,18 @@
 // events, it cannot read reports. Reading traffic therefore needs the GA4 Data
 // API with a service account that has Viewer access to the property.
 //
-// Secrets required (set in Supabase → Edge Functions → Secrets):
-//   GA4_PROPERTY_ID            numeric property id, e.g. 123456789
-//   GA4_SERVICE_ACCOUNT_JSON   full service-account JSON (client_email + private_key)
+// Credentials, resolved in this order:
+//   service account: GA4_SERVICE_ACCOUNT_JSON, then GOOGLE_SERVICE_ACCOUNT_JSON,
+//                    then GOOGLE_APPLICATION_CREDENTIALS. The last two already
+//                    exist for Search Console, so the same key can serve both
+//                    once it is added as a viewer on the GA4 property.
+//   property:        GA4_PROPERTY_ID when set, otherwise discovered through the
+//                    GA4 Admin API from the properties the key can see.
 //
-// Without them the function answers { configured: false } and the dashboard
-// quietly falls back to first-party pageview traffic.
+// When either half is missing the function answers { configured: false } with a
+// status code the dashboard can explain: no_credentials, api_disabled or
+// no_property_access. It never invents numbers, and the dashboard falls back to
+// first-party pageview traffic.
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
@@ -44,13 +50,14 @@ function base64url(input: Uint8Array | string): string {
 async function signJwt(
   clientEmail: string,
   privateKey: string,
+  scope: string = SCOPE,
 ): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const header = base64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
   const claims = base64url(
     JSON.stringify({
       iss: clientEmail,
-      scope: SCOPE,
+      scope,
       aud: "https://oauth2.googleapis.com/token",
       iat: now,
       exp: now + 3600,
@@ -81,11 +88,12 @@ async function signJwt(
 async function accessToken(
   clientEmail: string,
   privateKey: string,
+  scope: string = SCOPE,
 ): Promise<string> {
   if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) {
     return cachedToken.token;
   }
-  const assertion = await signJwt(clientEmail, privateKey);
+  const assertion = await signJwt(clientEmail, privateKey, scope);
   const res = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -166,6 +174,242 @@ async function realtimeUsers(
   return Number(payload.rows?.[0]?.metricValues?.[0]?.value ?? 0);
 }
 
+type Ga4StatusCode =
+  "ready" | "no_credentials" | "api_disabled" | "no_property_access" | "error";
+
+interface Ga4Status {
+  configured: boolean;
+  code: Ga4StatusCode;
+  reason: string;
+  serviceAccount?: string;
+  project?: string;
+  propertyId?: string;
+  propertyName?: string;
+  steps: string[];
+}
+
+const ADMIN_SCOPE = "https://www.googleapis.com/auth/analytics.readonly";
+
+interface ServiceAccount {
+  client_email?: string;
+  private_key?: string;
+  project_id?: string;
+}
+
+/** Reads the first service-account secret that exists, preferring the GA4 one. */
+function resolveServiceAccount(): ServiceAccount | null {
+  const candidates = [
+    "GA4_SERVICE_ACCOUNT_JSON",
+    "GOOGLE_SERVICE_ACCOUNT_JSON",
+    "GOOGLE_APPLICATION_CREDENTIALS",
+  ];
+  for (const name of candidates) {
+    const raw = (Deno.env.get(name) ?? "").trim();
+    if (!raw) continue;
+    try {
+      const parsed = JSON.parse(raw) as ServiceAccount;
+      if (parsed.client_email && parsed.private_key) return parsed;
+    } catch {
+      // A malformed secret is reported as missing credentials, not as a crash.
+    }
+  }
+  return null;
+}
+
+function activationUrl(message: string): string | null {
+  const match = message.match(
+    /https:\/\/console\.developers\.google\.com[^"\s\\]+/,
+  );
+  return match ? match[0].replace(/\\/g, "") : null;
+}
+
+/** Lists the GA4 properties the key can see. Empty when it sees none. */
+async function discoverProperty(
+  token: string,
+): Promise<
+  | { ok: true; id: string; name: string }
+  | { ok: false; code: "api_disabled" | "no_property_access"; reason: string }
+> {
+  const res = await fetch(
+    "https://analyticsadmin.googleapis.com/v1beta/accountSummaries?pageSize=50",
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+  const text = await res.text();
+  if (!res.ok) {
+    if (
+      text.includes("SERVICE_DISABLED") ||
+      text.includes("has not been used in project")
+    ) {
+      return {
+        ok: false,
+        code: "api_disabled",
+        reason:
+          "The GA4 Admin API is disabled on the Google Cloud project that owns the service account.",
+      };
+    }
+    return {
+      ok: false,
+      code: "no_property_access",
+      reason:
+        "Google refused the Admin API call. The service account is probably not a user on any GA4 property.",
+    };
+  }
+  const payload = JSON.parse(text) as {
+    accountSummaries?: {
+      propertySummaries?: { property?: string; displayName?: string }[];
+    }[];
+  };
+  const summaries = (payload.accountSummaries ?? []).flatMap(
+    (account) => account.propertySummaries ?? [],
+  );
+  const first = summaries.find((entry) => entry.property);
+  if (!first?.property) {
+    return {
+      ok: false,
+      code: "no_property_access",
+      reason:
+        "The service account is not a viewer on any GA4 property yet, so there is nothing to report.",
+    };
+  }
+  return {
+    ok: true,
+    id: first.property.replace("properties/", ""),
+    name: first.displayName ?? first.property,
+  };
+}
+
+/** The status the dashboard renders: what works, and the exact missing step. */
+async function readStatus(
+  days: number,
+  runQueries: boolean,
+): Promise<{
+  status: Ga4Status;
+  totals?: Record<string, number>;
+  realtime?: number;
+}> {
+  const account = resolveServiceAccount();
+  if (!account) {
+    return {
+      status: {
+        configured: false,
+        code: "no_credentials",
+        reason:
+          "No service-account JSON is stored, so GA4 reports cannot be read.",
+        steps: [
+          "Create a service account key in Google Cloud with the Analytics Data API enabled.",
+          "Save it as the GA4_SERVICE_ACCOUNT_JSON secret, then run this check again.",
+        ],
+      },
+    };
+  }
+
+  const email = account.client_email;
+  const explicitProperty = (Deno.env.get("GA4_PROPERTY_ID") ?? "").trim();
+  let token: string;
+  try {
+    token = await accessToken(
+      account.client_email!,
+      account.private_key!,
+      ADMIN_SCOPE,
+    );
+  } catch (err) {
+    return {
+      status: {
+        configured: false,
+        code: "error",
+        reason:
+          err instanceof Error ? err.message : "Google token exchange failed",
+        serviceAccount: email,
+        project: account.project_id,
+        propertyId: explicitProperty || undefined,
+        steps: [],
+      },
+    };
+  }
+
+  let propertyId = explicitProperty;
+  let propertyName = explicitProperty ? `properties/${explicitProperty}` : "";
+
+  if (!propertyId) {
+    const discovered = await discoverProperty(token);
+    if (!discovered.ok) {
+      const url = activationUrl(discovered.reason);
+      return {
+        status: {
+          configured: false,
+          code: discovered.code,
+          reason: discovered.reason,
+          serviceAccount: email,
+          project: account.project_id,
+          steps:
+            discovered.code === "api_disabled"
+              ? [
+                  `Enable the Analytics Admin API: https://console.cloud.google.com/apis/library/analyticsadmin.googleapis.com${account.project_id ? `?project=${account.project_id}` : ""}`,
+                  `Enable the Analytics Data API: https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com${account.project_id ? `?project=${account.project_id}` : ""}`,
+                  `Add ${email} as a Viewer on the GA4 property (Google Analytics, Admin, Property access management).`,
+                  "Run this check again in a minute, no redeploy needed.",
+                ]
+              : [
+                  `Add ${email} as a Viewer on the GA4 property in Google Analytics, Admin, Property access management.`,
+                  "Enable the GA4 Admin API on the Google Cloud project that owns the key.",
+                  "Run this check again, no redeploy needed.",
+                ],
+        },
+      };
+    }
+    propertyId = discovered.id;
+    propertyName = discovered.name;
+  }
+
+  if (!runQueries) {
+    return {
+      status: {
+        configured: true,
+        code: "ready",
+        reason: `Reading GA4 property ${propertyName}.`,
+        serviceAccount: email,
+        project: account.project_id,
+        propertyId,
+        propertyName,
+        steps: [],
+      },
+    };
+  }
+
+  try {
+    const [totals, realtime] = await Promise.all([
+      runReport(propertyId!, token, days),
+      realtimeUsers(propertyId!, token),
+    ]);
+    return {
+      status: {
+        configured: true,
+        code: "ready",
+        reason: `Reading GA4 property ${propertyName}.`,
+        serviceAccount: email,
+        project: account.project_id,
+        propertyId,
+        propertyName,
+        steps: [],
+      },
+      totals,
+      realtime,
+    };
+  } catch (err) {
+    return {
+      status: {
+        configured: false,
+        code: "error",
+        reason: err instanceof Error ? err.message : "GA4 request failed",
+        serviceAccount: email,
+        project: account.project_id,
+        propertyId,
+        steps: [],
+      },
+    };
+  }
+}
+
 serveWithCors(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204 });
 
@@ -185,60 +429,28 @@ serveWithCors(async (req: Request): Promise<Response> => {
   if (adminError) return json({ error: "Unauthorized" }, 401);
   if (isAdmin !== true) return json({ error: "Forbidden" }, 403);
 
-  let body: { days?: number } = {};
+  let body: { days?: number; statusOnly?: boolean } = {};
   try {
-    body = (await req.json()) as { days?: number };
+    body = (await req.json()) as { days?: number; statusOnly?: boolean };
   } catch {
     body = {};
   }
   const days = Math.min(90, Math.max(1, Number(body.days) || 7));
+  const statusOnly = body.statusOnly === true;
 
-  const propertyId = (Deno.env.get("GA4_PROPERTY_ID") ?? "").trim();
-  const serviceAccountRaw = Deno.env.get("GA4_SERVICE_ACCOUNT_JSON") ?? "";
+  const { status, totals, realtime } = await readStatus(days, !statusOnly);
 
-  if (!propertyId || !serviceAccountRaw) {
-    return json({
-      configured: false,
-      reason:
-        "Set GA4_PROPERTY_ID and GA4_SERVICE_ACCOUNT_JSON to read GA4 reports.",
-    });
+  if (!status.configured) {
+    return json({ configured: false, propertyId: status.propertyId, status });
   }
 
-  try {
-    const serviceAccount = JSON.parse(serviceAccountRaw) as {
-      client_email?: string;
-      private_key?: string;
-    };
-    if (!serviceAccount.client_email || !serviceAccount.private_key) {
-      return json({
-        configured: false,
-        reason: "Service account JSON incomplete.",
-      });
-    }
-
-    const access = await accessToken(
-      serviceAccount.client_email,
-      serviceAccount.private_key,
-    );
-    const [totals, realtime] = await Promise.all([
-      runReport(propertyId, access, days),
-      realtimeUsers(propertyId, access),
-    ]);
-
-    return json({
-      configured: true,
-      propertyId,
-      periodDays: days,
-      ...totals,
-      realtimeUsers: realtime,
-    });
-  } catch (err) {
-    return json(
-      {
-        configured: true,
-        error: err instanceof Error ? err.message : "GA4 request failed",
-      },
-      502,
-    );
-  }
+  return json({
+    configured: true,
+    propertyId: status.propertyId,
+    propertyName: status.propertyName,
+    periodDays: days,
+    status,
+    ...(totals ?? {}),
+    realtimeUsers: realtime ?? 0,
+  });
 });

@@ -223,3 +223,54 @@ export async function fetchGa4Summary(
     return null;
   }
 }
+
+export interface Ga4Status {
+  configured: boolean;
+  code:
+    | "ready"
+    | "no_credentials"
+    | "api_disabled"
+    | "no_property_access"
+    | "error";
+  reason: string;
+  serviceAccount?: string;
+  propertyId?: string;
+  propertyName?: string;
+  steps: string[];
+}
+
+/**
+ * Why GA4 reporting is or is not available. Unlike fetchGa4Summary this keeps
+ * the reason, so the dashboard can name the exact missing Google step instead
+ * of a generic "not configured" line. Returns null only when the bridge itself
+ * is unreachable or the caller is not an admin.
+ */
+export async function fetchGa4Status(): Promise<Ga4Status | null> {
+  try {
+    const supabase = await getSupabase();
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
+    if (!token) return null;
+
+    const base = (
+      import.meta.env.VITE_SUPABASE_URL as string | undefined
+    )?.replace(/\/$/, "");
+    if (!base) return null;
+
+    const response = await fetch(`${base}/functions/v1/ga4-report`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        apikey: (import.meta.env.VITE_SUPABASE_ANON_KEY as string) ?? "",
+      },
+      body: JSON.stringify({ statusOnly: true }),
+    });
+    if (!response.ok) return null;
+    const payload = (await response.json()) as { status?: Ga4Status };
+    if (!payload.status) return null;
+    return { ...payload.status, steps: payload.status.steps ?? [] };
+  } catch {
+    return null;
+  }
+}
