@@ -3425,6 +3425,14 @@ const dbTemplates = await dbRows(
 
 // Only templates the catalog does not already cover: catalog templates are
 // prerendered (and cross-linked into every market) further down.
+// Case studies: the hub ranks around 6th for 340 impressions a month with no
+// text in the static HTML (the list is fetched in the browser), so a crawler
+// saw an empty page. The published set is read here and written into the page.
+const caseStudies = await dbRows(
+  "case_studies",
+  "select=id,headline,summary,project_scope,budget,currency,updated_at&is_published=eq.true&order=updated_at.desc&limit=50",
+);
+
 const catalogSlugs = new Set(TEMPLATE_CATALOG.map((t) => t.slug));
 const extraTemplates = dbTemplates.filter(
   (t) => t.slug && !catalogSlugs.has(t.slug),
@@ -3536,6 +3544,30 @@ for (const t of extraTemplates) {
     (t.description ? `<p>${escapeHtml(t.description)}</p>` : "") +
     `<h2>How this template works</h2><p>${escapeHtml(name)} pre-fills the scope for this kind of job so you can go straight to measuring. You still enter the room dimensions and openings, and material rates come from the market you select, so the output reflects local pricing rather than a generic table.</p>` +
     `<ul><li><a href="/templates/">All templates</a></li><li><a href="/calculators/">All calculators</a></li><li><a href="/market/">Markets</a></li></ul></main>`;
+}
+
+// /case-studies hub body
+if (caseStudies.length) {
+  const hub = routes.find((r) => r.path === "/case-studies");
+  if (hub && !contentMap["/case-studies"]) {
+    contentMap["/case-studies"] =
+      `<main><h1>Before and after construction case studies</h1>` +
+      `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; Case studies</nav>` +
+      `<p>Walkthroughs of finished projects: what the job started as, what had to be repaired first, the quantities the FRELUX calculators produced and what it cost. Each one shows the scope in real measurements so you can compare it with your own job.</p>` +
+      `<h2>Published case studies</h2><ul>` +
+      caseStudies
+        .map((c) => {
+          const budget = c.budget
+            ? ` Budget: ${escapeHtml(c.currency || "")} ${escapeHtml(String(c.budget))}.`
+            : "";
+          return `<li><a href="/case-studies/${c.id}/">${escapeHtml(c.headline || "Case study")}</a>${
+            c.summary ? `: ${escapeHtml(c.summary)}` : ""
+          }${budget}</li>`;
+        })
+        .join("") +
+      `</ul><h2>Estimate your own project</h2><p>The same calculators used in these projects are free and need no account: paint and wall finishes, screeding, POP ceilings, tiling and full build-to-roof costing.</p>` +
+      `<ul><li><a href="/paint-calculator/">Paint calculator</a></li><li><a href="/screeding-calculator/">Screeding calculator</a></li><li><a href="/tile-calculator/">Tile calculator</a></li><li><a href="/build-to-roof-estimator/">Build-to-roof estimator</a></li></ul></main>`;
+  }
 }
 
 routes.push(...dynamicFamilyRoutes);
