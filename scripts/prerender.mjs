@@ -9,6 +9,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "fs";
 import { join, dirname } from "path";
 import { seoContentMap } from "./seo-content-map.mjs";
+import { ARTICLE_LISTINGS } from "./seo/article-listings.mjs";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { loadToolRegistry } from "./lib/tool-registry.mjs";
@@ -3338,6 +3339,18 @@ const { routes: learnDynamicRoutes, content: learnDynamicContent } =
   await fetchLearnPages();
 routes.push(...learnDynamicRoutes);
 const contentMap = { ...seoContentMap, ...learnDynamicContent };
+
+// Curated listings for articles that rank but do not get clicked (see
+// scripts/seo/article-listings.mjs: the pages that were 5th-10th with under
+// 2% CTR in the 2-29 October 2026 Search Console export).
+for (const [slug, copy] of Object.entries(ARTICLE_LISTINGS)) {
+  const path = `/learn/${slug}`;
+  const route = routes.find((r) => r.path === path);
+  if (!route) continue;
+  route.title = copy.title;
+  route.description = copy.description;
+}
+
 
 // ── Construction tool pages ─────────────────────────────────────────
 // Titles and descriptions come from the tool registry through one composer, so
