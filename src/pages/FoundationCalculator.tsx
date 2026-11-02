@@ -573,7 +573,7 @@ export default function FoundationCalculator() {
           CALC_LINKS.buildToRoof,
           CALC_LINKS.constructionSeq,
           CALC_LINKS.imageEstimator,
-          CALC_LINKS.buildToRoof,
+          CALC_LINKS.siteSafety,
         ]}
       />
       <RelatedToolsLinks />

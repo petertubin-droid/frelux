@@ -75,10 +75,25 @@ export const CALCULATOR_SECTIONS: Record<
     aliases: ["build-to-roof-estimator", "btr-estimator"],
     section: { code: "05", title: "Concrete Works" },
   },
+  safety: {
+    label: "Site Safety & PPE Estimator",
+    aliases: [
+      "global-site-safety-estimator",
+      "site-safety-estimator",
+      "safety-estimator",
+      "ppe-estimator",
+    ],
+    section: { code: "01", title: "Preliminaries" },
+  },
 };
 
 /** Keyword routing inside multi-trade imports such as Build-to-Roof. */
 const KEYWORD_SECTIONS: Array<{ test: RegExp; code: string; title: string }> = [
+  {
+    test: /safety|ppe|hard\s*hat|helmet|high[- ]vis|vest|first\s*aid|extinguisher|barricade|warning\s*sign|fall\s*protection|harness|boot/i,
+    code: "01",
+    title: "Preliminaries",
+  },
   {
     test: /reinforc|rebar|mesh|brc|steel\s*bar|y\d{2}/i,
     code: "06",

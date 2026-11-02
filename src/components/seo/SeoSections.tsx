@@ -240,6 +240,11 @@ const CALC_LINKS = {
     path: "/project-timeline",
     description: "Stage-by-stage construction schedule",
   },
+  siteSafety: {
+    label: "Site Safety & PPE Estimator",
+    path: "/global-site-safety-estimator",
+    description: "Plan site PPE, signs & safety controls",
+  },
   // Templates
   templates: {
     label: "Calculator Templates",

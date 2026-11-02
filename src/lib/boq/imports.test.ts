@@ -103,6 +103,23 @@ describe("previewImport", () => {
     expect(preview.lines.every((l) => l.material_rate === null)).toBe(true);
     expect(preview.warnings.join(" ")).toMatch(/no recorded rate/i);
   });
+
+  it("routes site safety calculations to Section 01 Preliminaries", () => {
+    const preview = previewImport(
+      calcRecord({
+        calculator_slug: "global-site-safety-estimator",
+        materials: [
+          { name: "Perimeter Warning Signs", unit: "signs", quantity: 8 },
+          { name: "Protective Hard Hats", unit: "pieces", quantity: 12 },
+          { name: "High-Visibility Safety Vests", unit: "pieces", quantity: 12 },
+          { name: "First-Aid Kits", unit: "kits", quantity: 2 },
+        ],
+      }),
+    );
+    expect(preview.calculator_key).toBe("safety");
+    expect(preview.lines.every((l) => l.section.code === "01")).toBe(true);
+    expect(preview.lines[0].section.title).toBe("Preliminaries");
+  });
 });
 
 describe("mergeImportedLines", () => {
