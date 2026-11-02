@@ -57,6 +57,7 @@ async function resolveResendKey(): Promise<string | null> {
 }
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { renderEmail } from "../_shared/email/kit.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 
@@ -64,40 +65,43 @@ const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const FROM = "Frelux <noreply@freluxtools.com>";
 const SITE = "https://freluxtools.com";
 
-function htmlEscape(value: string | null): string {
-  return (value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function welcomeHtml(profile: {
+function welcomeContent(profile: {
   email: string;
   full_name: string | null;
   account_type: string | null;
-}): string {
+}): Parameters<typeof renderEmail>[0] {
   const firstName =
     (profile.full_name ?? "").trim().split(/\s+/)[0] ||
     (profile.email.split("@")[0] ?? "there");
   const isPro = profile.account_type === "pro_worker";
-  return [
-    `<p>Hi ${htmlEscape(firstName)},</p>`,
-    "<p>Welcome to Frelux. Your account is ready.</p>",
-    "<p>Frelux is every trade, every cost, one platform: instant construction estimates for painting, tiling, roofing, solar, boreholes and more, with real rates for Nigeria and 40+ countries.</p>",
-    "<p>Here is how to get the most out of it:</p>",
-    "<ul>",
-    `<li><strong>Run your first estimate.</strong> Pick any calculator on the <a href="${SITE}/">home page</a> and get costs in seconds: materials, labour and totals.</li>`,
-    `<li><strong>Learn the trade.</strong> The <a href="${SITE}/learn/">Learn library</a> has practical guides written for real projects, from paint quantities to borehole sizing.</li>`,
-    isPro
-      ? `<li><strong>Build your pro profile.</strong> Pro Connect lets clients find and hire you for jobs in your trade.</li>`
-      : `<li><strong>Find a pro.</strong> Need hands on site? Pro Connect matches you with verified professionals for your project.</li>`,
-    `</ul>`,
-    "<p>Got a question or a project that does not fit a calculator? Reply to the contact page and a human gets back to you.</p>",
-    "<p>Build well,<br>The Frelux team</p>",
-    '<p style="color:#888;font-size:12px;">Frelux: construction estimation, powered by FRELUX PROJECT CALC.</p>',
-    `<p style="color:#888;font-size:12px;">You are receiving this email because you created a Frelux account (${htmlEscape(profile.email)}).</p>`,
-  ].join("\n");
+  return {
+    preheader:
+      "Your Frelux account is ready. Run your first estimate in under a minute.",
+    heading: `Welcome to Frelux, ${firstName}`,
+    paragraphs: [
+      "Your account is ready.",
+      "Frelux is every trade, every cost, one platform: instant construction estimates for painting, tiling, roofing, solar, boreholes and more, with real rates for Nigeria and over 40 countries.",
+      "Three things worth doing first:",
+    ],
+    bullets: [
+      "Run an estimate. Pick any calculator on the home page and get materials, labour and totals in seconds.",
+      "Read the guide. The Learn library explains real quantities, from paint coverage to borehole sizing.",
+      isPro
+        ? "Build your pro profile. Pro Connect lets clients find and hire you for work in your trade."
+        : "Find a pro. Pro Connect matches you with verified professionals for your project.",
+    ],
+    cta: { label: "Start an estimate", href: "https://freluxtools.com/" },
+    links: [
+      { label: "Browse every calculator", href: "https://freluxtools.com/" },
+      {
+        label: "Read the Learn library",
+        href: "https://freluxtools.com/learn/",
+      },
+      { label: "Talk to a human", href: "https://freluxtools.com/contact" },
+    ],
+    note: `You are receiving this because you created a Frelux account (${profile.email}).`,
+    footer: "Frelux, construction estimation for every trade.",
+  };
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -184,7 +188,7 @@ const handler = async (req: Request): Promise<Response> => {
       from: FROM,
       to: [profile.email],
       subject: "Welcome to Frelux",
-      html: welcomeHtml(profile),
+      ...renderEmail(welcomeContent(profile)),
     }),
   });
   if (!response.ok) {

@@ -56,6 +56,7 @@ async function resolveResendKey(): Promise<string | null> {
 }
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { renderEmail } from "../_shared/email/kit.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
@@ -69,37 +70,44 @@ interface ProfileRow {
   created_at: string;
 }
 
-function htmlEscape(value: string | null): string {
-  return (value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function digestHtml(rows: ProfileRow[], totalUsers: number): string {
-  if (rows.length === 0) {
-    return [
-      `<p>No new Frelux registrations in the last 24 hours.</p>`,
-      `<p>Total registered users: <strong>${totalUsers}</strong>.</p>`,
-      '<p style="color:#888;font-size:12px;">Frelux daily signup digest</p>',
-    ].join("\n");
-  }
-  const items = rows
-    .map(
-      (r) =>
-        `<li><strong>${htmlEscape(r.email)}</strong> (${htmlEscape(
-          r.account_type ?? "client",
-        )}) joined ${htmlEscape(
-          new Date(r.created_at).toISOString().slice(0, 16).replace("T", " "),
-        )} UTC</li>`,
-    )
-    .join("\n");
-  return [
-    `<p><strong>${rows.length}</strong> new Frelux registration${rows.length === 1 ? "" : "s"} in the last 24 hours. Total registered users: <strong>${totalUsers}</strong>.</p>`,
-    `<ul>${items}</ul>`,
-    '<p style="color:#888;font-size:12px;">Frelux daily signup digest. Manage notifications in the Supabase secrets (OWNER_NOTIFY_EMAIL / OWNER_NOTIFY_PHONE).</p>',
-  ].join("\n");
+function digestContent(rows: ProfileRow[], totalUsers: number) {
+  const count = rows.length;
+  return {
+    preheader:
+      count === 0
+        ? "No new Frelux registrations in the last 24 hours."
+        : `${count} new Frelux registration${count === 1 ? "" : "s"} in the last 24 hours.`,
+    heading:
+      count === 0
+        ? "No new signups today"
+        : `${count} new signup${count === 1 ? "" : "s"} in the last 24 hours`,
+    paragraphs: [
+      count === 0
+        ? "Quiet day: nobody created a Frelux account in the last 24 hours. This note is sent every day so you always know the site is alive."
+        : `Here ${count === 1 ? "is the account" : "are the accounts"} created in the last 24 hours.`,
+    ],
+    bullets: rows.map(
+      (row) =>
+        `${row.email} (${row.account_type ?? "client"}) joined ${new Date(
+          row.created_at,
+        )
+          .toISOString()
+          .slice(0, 16)
+          .replace("T", " ")} UTC`,
+    ),
+    details: [
+      { label: "New signups, last 24h", value: String(count) },
+      { label: "Total registered users", value: String(totalUsers) },
+    ],
+    links: [
+      {
+        label: "Open the admin analytics",
+        href: "https://freluxtools.com/admin/analytics",
+      },
+    ],
+    note: "Daily digest from Frelux. Recipient address and SMS number are set in the Supabase function secrets.",
+    footer: "Frelux, construction estimation for every trade.",
+  };
 }
 
 /** Format a phone number for the Termii gateway (Nigerian rules,
@@ -193,7 +201,7 @@ const handler = async (req: Request): Promise<Response> => {
           recent.length === 0
             ? "Frelux daily digest: no new signups"
             : `Frelux daily digest: ${recent.length} new signup${recent.length === 1 ? "" : "s"}`,
-        html: digestHtml(recent, totalUsers),
+        ...renderEmail(digestContent(recent, totalUsers)),
       }),
     });
     result.email_sent = res.ok;
