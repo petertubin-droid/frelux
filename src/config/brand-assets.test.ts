@@ -49,6 +49,7 @@ describe("brand assets behind link previews", () => {
       "public/favicon-32.png": 32,
       "public/favicon-16.png": 16,
       "public/logo-mark.png": 256,
+      "public/logo-mark-light.png": 256,
     };
     for (const [path, px] of Object.entries(expected)) {
       expect(existsSync(path), path).toBe(true);

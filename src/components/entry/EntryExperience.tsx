@@ -150,7 +150,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
           {/* Logo mark: the existing FRELUX brand asset */}
           <div className="entry-rise" style={rise(120)}>
             <img
-              src="/logo-mark.png"
+              src="/logo-mark-light.png"
               alt={t("FRELUX SMART CALC")}
               width={64}
               height={64}

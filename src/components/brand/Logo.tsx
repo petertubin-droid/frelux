@@ -31,7 +31,10 @@ export default function Logo({ className, variant = 'full', light = false }: Log
       {logoUrl ? (
         <img src={logoUrl} alt={displayName} aria-hidden="true" width={36} height={36} className="h-9 w-auto shrink-0" />
       ) : (
-        <LogoMark className="h-9 w-auto shrink-0" />
+        <LogoMark
+          className="h-9 w-auto shrink-0"
+          variant={light || theme === "dark" ? "light" : "dark"}
+        />
       )}
       {variant === 'full' && (
         <span className="flex flex-col leading-none">
@@ -47,10 +50,19 @@ export default function Logo({ className, variant = 'full', light = false }: Log
   );
 }
 
-export function LogoMark({ className }: { className?: string }) {
+export function LogoMark({
+  className,
+  variant = "auto",
+}: {
+  className?: string;
+  /** "light" is the white knock-out for dark surfaces. */
+  variant?: "auto" | "light" | "dark";
+}) {
+  const { theme } = useTheme();
+  const light = variant === "light" || (variant === "auto" && theme === "dark");
   return (
     <img
-      src="/logo-mark.png"
+      src={light ? "/logo-mark-light.png" : "/logo-mark.png"}
       alt={`${siteConfig.name} logo`}
       aria-hidden="true"
       width={36}
