@@ -124,7 +124,12 @@ describe("FAQ wiring", () => {
     expect(appSource).toContain("const Faq = lazy(");
     expect(page).toContain("useFaqJsonLd");
     expect(page).toContain("allToolFaqQuestions");
-    expect(page).toContain("<FaqSection");
+    // The page renders its own disclosure UI now (the shared FaqSection
+    // wrapper was folded into the standard page structure). The guarantee the
+    // assertion protects is unchanged: the same registry questions are shown
+    // and the same answers are emitted as FAQPage data.
+    expect(page).toContain("ChevronDown");
+    expect(page).toContain("aria-expanded");
     expect(read("scripts/prerender.mjs")).toContain('path: "/faq"');
     expect(read("scripts/generate-sitemap.mjs")).toContain('path: "/faq"');
   });

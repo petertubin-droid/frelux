@@ -52,12 +52,12 @@ export interface UnitDescriptor {
   si: string;
 }
 
-const METRIC_AREA: AreaUnit[] = ["mm2", "cm2", "m2", "hectare"];
+const METRIC_AREA: AreaUnit[] = ["mm2", "cm2", "m2", "km2", "hectare"];
 const IMPERIAL_AREA: AreaUnit[] = ["ft2", "yd2", "acre"];
-const METRIC_VOLUME: VolumeUnit[] = ["ml", "l", "m3", "cm3"];
+const METRIC_VOLUME: VolumeUnit[] = ["ml", "l", "m3", "cm3", "in3"];
 const IMPERIAL_VOLUME: VolumeUnit[] = ["ft3", "yd3", "gal_us", "gal_imp"];
-const METRIC_MASS: MassUnit[] = ["g", "kg", "tonne"];
-const IMPERIAL_MASS: MassUnit[] = ["lb", "ton_us", "ton_imp"];
+const METRIC_MASS: MassUnit[] = ["mg", "g", "kg", "tonne", "quintal", "bag50"];
+const IMPERIAL_MASS: MassUnit[] = ["lb", "oz", "stone", "ton_us", "ton_imp"];
 
 const AREA_SHORT: Record<AreaUnit, string> = {
   mm2: "mm²",
@@ -67,6 +67,12 @@ const AREA_SHORT: Record<AreaUnit, string> = {
   yd2: "yd²",
   acre: "ac",
   hectare: "ha",
+  km2: "km²",
+  in2: "in²",
+  mi2: "mi²",
+  cent: "cent",
+  guntha: "guntha",
+  marla: "marla",
 };
 
 const VOLUME_SHORT: Record<VolumeUnit, string> = {
@@ -78,6 +84,8 @@ const VOLUME_SHORT: Record<VolumeUnit, string> = {
   yd3: "yd³",
   gal_us: "US gal",
   gal_imp: "imp gal",
+  in3: "in³",
+  barrel_oil: "bbl",
 };
 
 const MASS_SHORT: Record<MassUnit, string> = {
@@ -87,6 +95,11 @@ const MASS_SHORT: Record<MassUnit, string> = {
   lb: "lb",
   ton_us: "US ton",
   ton_imp: "imp ton",
+  mg: "mg",
+  oz: "oz",
+  stone: "st",
+  quintal: "q",
+  bag50: "bag",
 };
 
 const SI_BASE: Record<Dimension, string> = {

@@ -156,6 +156,9 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "The same measurement in metres, square metres, cubic metres or buckets, with the assumptions stated.",
     to: "/unit-converter",
     benefit: "Plots · Tonnes · Buckets",
+    seoTitle: "Unit Converter: Feet, Metres, Tonnes, Bags | FRELUX",
+    seoDescription:
+      "Convert feet to metres, plots to square metres, tonnes and 50 kg bags, litres and buckets. Every conversion factor is exact and each assumption is stated.",
     navVisible: true,
   },
   // ---------------------------------------------------------------- finishes
@@ -195,8 +198,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     to: "/screeding-calculator",
     benefit: "Quantity & cost",
     navVisible: true,
-    seoTitle:
-      "Screeding Calculator – Cement, Sand & Cost | FRELUX",
+    seoTitle: "Screeding Calculator – Cement, Sand & Cost | FRELUX",
     seoDescription:
       "Calculate screeding cement, sand and cost for smooth wall finishes. Enter wall area and thickness or room dimensions to get bags of screeding and a cost estimate.",
   },
@@ -223,8 +225,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     to: "/pop-ceiling-calculator",
     benefit: "Materials & cost",
     navVisible: true,
-    seoTitle:
-      "POP Ceiling Calculator – Cement, Mesh & Cost | FRELUX",
+    seoTitle: "POP Ceiling Calculator – Cement, Mesh & Cost | FRELUX",
     seoDescription:
       "Calculate POP cement, fibreglass mesh and cost for board, cornice or full designs. Enter room dimensions and ceiling design to get materials and a cost estimate.",
   },
@@ -239,8 +240,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     to: "/tile-calculator",
     benefit: "Boxes · Adhesive · Cost",
     navVisible: true,
-    seoTitle:
-      "Tile Calculator – Boxes, Adhesive & Grout | FRELUX",
+    seoTitle: "Tile Calculator – Boxes, Adhesive & Grout | FRELUX",
     seoDescription:
       "Calculate tile quantity, boxes, adhesive and grout for any floor or wall. Enter area, tile size and pattern to get the quantity including cutting waste.",
   },
@@ -302,8 +302,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Net wall area, unit count, mortar, cement and sand quantities.",
     to: "/masonry-calculator",
     navVisible: true,
-    seoTitle:
-      "Blockwork Calculator – Blocks, Mortar & Cost | FRELUX",
+    seoTitle: "Blockwork Calculator – Blocks, Mortar & Cost | FRELUX",
     seoDescription:
       "Calculate blocks, mortar and cost for a wall. Enter wall length, height and block size to get block quantity, mortar bags and a local cost estimate.",
   },
@@ -317,8 +316,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Wet and dry mortar volume, cement bags, sand and indicative labour.",
     to: "/plastering-calculator",
     navVisible: true,
-    seoTitle:
-      "Plastering & Rendering Calculator – Cement & Sand | FRELUX",
+    seoTitle: "Plastering & Rendering Calculator – Cement & Sand | FRELUX",
     seoDescription:
       "Estimate plastering and rendering cement, sand and water for internal or external walls. Enter wall area and coat thickness to get bags and quantities.",
   },
@@ -332,8 +330,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Boards, studs, tracks, screws, tape and compound quantities.",
     to: "/drywall-calculator",
     navVisible: true,
-    seoTitle:
-      "Drywall Calculator – Boards, Studs & Screws | FRELUX",
+    seoTitle: "Drywall Calculator – Boards, Studs & Screws | FRELUX",
     seoDescription:
       "Estimate drywall boards, studs, track, screws and jointing compound. Enter wall or ceiling area to get partition materials and a cost estimate.",
   },
@@ -347,8 +344,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Paver count, sand and aggregate quantities, and edge units.",
     to: "/paving-calculator",
     navVisible: true,
-    seoTitle:
-      "Paving Calculator – Pavers, Sand & Base | FRELUX",
+    seoTitle: "Paving Calculator – Pavers, Sand & Base | FRELUX",
     seoDescription:
       "Calculate paving quantity, sand bedding and base material. Enter paved area and paver size to get paver counts, jointing sand and a cost estimate.",
   },
@@ -362,8 +358,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Pipe lengths, fall, bedding, excavation and indicative chambers.",
     to: "/drainage-calculator",
     navVisible: true,
-    seoTitle:
-      "Drainage Calculator – Pipe, Falls & Trench | FRELUX",
+    seoTitle: "Drainage Calculator – Pipe, Falls & Trench | FRELUX",
     seoDescription:
       "Calculate external drainage pipe lengths, gradients and trench excavation. Enter run length and fall to get pipe, fittings and excavation quantities.",
   },
@@ -400,8 +395,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Gross area, installed volume and pack quantity where entered.",
     to: "/insulation-calculator",
     navVisible: true,
-    seoTitle:
-      "Insulation Calculator – Rolls, Batts & Packs | FRELUX",
+    seoTitle: "Insulation Calculator – Rolls, Batts & Packs | FRELUX",
     seoDescription:
       "Estimate insulation rolls, batts and packs from area and thickness. Enter area, product coverage and cutting allowance to get the quantity to buy.",
   },
@@ -415,8 +409,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "In-place volume, loose debris volume and indicative skip loads.",
     to: "/demolition-calculator",
     navVisible: true,
-    seoTitle:
-      "Demolition Takeoff – Debris Volume & Skip Loads | FRELUX",
+    seoTitle: "Demolition Takeoff – Debris Volume & Skip Loads | FRELUX",
     seoDescription:
       "Estimate demolition debris volume and skip loads before hiring. Enter element dimensions, bulking factor and skip capacity to get in-place and loose volumes.",
   },
@@ -457,8 +450,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Cement bags, sand, granite and required reinforcement.",
     to: "/structural-calculator",
     navVisible: true,
-    seoTitle:
-      "Concrete Calculator – Slabs, Beams & Columns | FRELUX",
+    seoTitle: "Concrete Calculator – Slabs, Beams & Columns | FRELUX",
     seoDescription:
       "Calculate concrete volume, mix ratios and material quantities for slabs, beams, columns and lintels. Enter member sizes to get cement, sand and aggregate.",
   },
@@ -509,8 +501,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Foundation dimensions, excavation, concrete and cost.",
     to: "/foundation-calculator",
     navVisible: true,
-    seoTitle:
-      "Foundation Calculator – Strip, Pad & Raft Sizing | FRELUX",
+    seoTitle: "Foundation Calculator – Strip, Pad & Raft Sizing | FRELUX",
     seoDescription:
       "Size and cost a strip, pad or raft foundation. Enter building dimensions, floors and soil condition to get concrete, mesh and formwork quantities with local prices.",
   },
@@ -543,7 +534,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     category: "structure",
     icon: Droplets,
     does: "Calculate dead load, wind overturning safety, and preliminary steel/concrete bill of materials for overhead water towers.",
-    enters: "Tank capacity, staging elevation height, tower material, and leg spread.",
+    enters:
+      "Tank capacity, staging elevation height, tower material, and leg spread.",
     gets: "Dead load in kN, wind safety factor, steel profile lengths or concrete mix volumes and rebar.",
     to: "/water-tower-staging-estimator",
     navVisible: true,
@@ -554,7 +546,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     category: "project",
     icon: Globe2,
     does: "Track overseas construction funds against local currency inflation, parallel exchange rates, and on-site material deviations.",
-    enters: "Foreign sponsor budget, parallel and official exchange rates, annual inflation %, timeline, and milestone costs.",
+    enters:
+      "Foreign sponsor budget, parallel and official exchange rates, annual inflation %, timeline, and milestone costs.",
     gets: "Exchange rate gap spread, compound inflation multiplier, forward projected target budget, and variance health.",
     to: "/diaspora-budget-tracker",
     navVisible: true,
@@ -807,7 +800,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     category: "pro",
     icon: ShieldCheck,
     does: "Plan site PPE, warning signs and safety-control quantities with explicit, editable assumptions.",
-    enters: "Site perimeter, crew size, identified hazards and planning quantities.",
+    enters:
+      "Site perimeter, crew size, identified hazards and planning quantities.",
     gets: "A transparent inventory with OSHA, UK HSE/CDM and ISO 7010 references, plus a CSV export.",
     to: "/global-site-safety-estimator",
     navVisible: true,

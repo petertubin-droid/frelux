@@ -189,6 +189,11 @@ export default function Home() {
           container so a first-time visitor gets no empty band here. */}
       <RecentlyUsed />
 
+      {/* Map and converter, immediately after the first choice the visitor
+          makes. Both are working tools, so they belong above the storytelling
+          sections rather than below them. */}
+      <MapWeatherBand />
+
       {/* Proof, not promises: live demo with the real calc engine */}
       <Suspense fallback={<SectionSkeleton minHeight={600} />}>
         <InteractiveEstimatePreview />
@@ -207,11 +212,6 @@ export default function Home() {
 
       {/* How FRELUX Works, 4-step process */}
       <HowItWorks />
-
-      {/* Live, edge to edge: the globe and the measurement converter, both
-          working here rather than described. Sits straight after the story so
-          the first interactive proof is one scroll from the hero. */}
-      <MapWeatherBand />
 
       {/* Native banner slot, placement "home_native" */}
       <AdSlot
@@ -242,7 +242,9 @@ export default function Home() {
               {t("Post a Job & Get Bids from Verified Pros")}
             </h2>
             <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground sm:text-base">
-              {t("Run a calculation, post it as a job, and receive competitive bids from verified contractors and material suppliers across supported markets.")}
+              {t(
+                "Run a calculation, post it as a job, and receive competitive bids from verified contractors and material suppliers across supported markets.",
+              )}
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link

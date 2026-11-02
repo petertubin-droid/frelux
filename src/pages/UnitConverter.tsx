@@ -143,9 +143,9 @@ export default function UnitConverter() {
   const [tab, setTab] = useState<TabId>("universal");
 
   useSeo({
-    title: "Construction Measurement Converter: Plots, Feet, Tonnes to Bags",
+    title: "Unit Converter: Feet, Metres, Tonnes, Bags | FRELUX",
     description:
-      "Convert construction measurements between metric and imperial units: feet, metres, inches, square and cubic units, acres, gallons and tonnes. Regional plot presets and material density assumptions are clearly identified and editable.",
+      "Convert feet to metres, plots to square metres, tonnes and 50 kg bags, litres and buckets. Every conversion factor is exact and each assumption is stated.",
     canonicalPath: "/unit-converter",
     keywords:
       "construction measurement converter, feet to metres, inches to millimetres, plot to square metres, tonnes to bags, sand density, paint bucket calculator, metric to imperial construction",
@@ -163,9 +163,8 @@ export default function UnitConverter() {
           "@context": "https://schema.org",
           "@type": "Offer",
           price: "0",
-                  },
+        },
       },
-
     ],
   });
 
@@ -332,7 +331,8 @@ export default function UnitConverter() {
                   "No. One US gallon is exactly 3.785411784 litres, while one imperial gallon is exactly 4.54609 litres. Choose the gallon system stated by the drawing, product or supplier.",
               },
               {
-                question: "Does the converter use local prices or save my measurements?",
+                question:
+                  "Does the converter use local prices or save my measurements?",
                 answer:
                   "No. It performs unit calculations in your browser and does not fetch supplier prices or save the measurements. Material densities, plot presets and bucket sizes are assumptions to verify against the specific market and product.",
               },
@@ -447,6 +447,23 @@ function UniversalPanel() {
           volume and weight convert exactly within themselves, and cross over
           where the arithmetic is honest.
         </p>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {DIMENSION_ORDER.map((dimension) => (
+            <span
+              key={dimension}
+              className="rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground dark:border-white/10"
+            >
+              {DIMENSION_LABELS[dimension]} ·{" "}
+              {
+                UNIVERSAL_UNITS.filter((unit) => unit.dimension === dimension)
+                  .length
+              }
+            </span>
+          ))}
+          <span className="rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground dark:border-white/10">
+            {UNIVERSAL_UNITS.length} units
+          </span>
+        </div>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-end">
           <div>
@@ -563,6 +580,14 @@ function UniversalPanel() {
             },
             { a: "20", f: "mass-tonne", t: "vol-m3", label: "20 t sand to m³" },
             { a: "100", f: "area-m2", t: "area-ft2", label: "100 m² to ft²" },
+            { a: "1", f: "vol-m3", t: "vol-yd3", label: "1 m³ to yd³" },
+            {
+              a: "1",
+              f: "mass-tonne",
+              t: "mass-bag50",
+              label: "1 tonne to 50 kg bags",
+            },
+            { a: "6", f: "len-in", t: "len-cm", label: "6 in to cm" },
           ].map((quick) => (
             <button
               key={quick.label}
@@ -633,6 +658,57 @@ function UniversalPanel() {
           density is only assumed when the pair needs it, and the assumption is
           written above the answer, never hidden.
         </Assumption>
+        <div className="mt-5 rounded-xl border border-border/60 bg-card/60 p-3 dark:border-white/10">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            Common equivalents
+          </p>
+          <div className="mt-2 space-y-0.5">
+            {[
+              { from: "area-m2", to: "area-ft2", amount: "1" },
+              { from: "vol-m3", to: "vol-yd3", amount: "1" },
+              { from: "mass-tonne", to: "mass-bag50", amount: "1" },
+              { from: "area-acre", to: "area-m2", amount: "1" },
+              { from: "len-m", to: "len-ft", amount: "1" },
+              { from: "mass-kg", to: "mass-lb", amount: "1" },
+            ].map((row) => {
+              const fromLabel = findUniversalUnit(row.from)?.label ?? "";
+              const toLabel = findUniversalUnit(row.to)?.label ?? "";
+              const converted = convertUniversal(
+                Number(row.amount),
+                row.from,
+                row.to,
+              );
+              return (
+                <button
+                  key={`${row.from}-${row.to}`}
+                  type="button"
+                  onClick={() => {
+                    setAmount(row.amount);
+                    setFrom(row.from);
+                    setTo(row.to);
+                  }}
+                  className="flex w-full items-baseline justify-between gap-3 rounded-md px-1.5 py-1 text-left transition-colors hover:bg-muted/50 dark:hover:bg-white/5"
+                >
+                  <span className="text-xs text-muted-foreground">
+                    {row.amount} {fromLabel}
+                  </span>
+                  <span className="tabular-nums text-xs font-semibold text-foreground">
+                    {converted.value === null
+                      ? "n/a"
+                      : formatNumber(converted.value)}{" "}
+                    <span className="font-normal text-muted-foreground">
+                      {toLabel}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+            Tap a row to load it above. The 50 kg bag is the common cement bag,
+            not a standard for every material.
+          </p>
+        </div>
         {incompatible && (
           <p className="mt-3 text-xs text-muted-foreground">
             Weight and{" "}

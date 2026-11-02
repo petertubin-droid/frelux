@@ -11,12 +11,57 @@
 // how heavy one bag is, so those helpers require both and never assume.
 // =========================================================
 
-export type LengthUnit = "mm" | "cm" | "m" | "km" | "in" | "ft" | "yd" | "mi";
+export type LengthUnit =
+  | "mm"
+  | "cm"
+  | "m"
+  | "km"
+  | "in"
+  | "ft"
+  | "yd"
+  | "mi"
+  | "mil"
+  | "link"
+  | "chain"
+  | "rod"
+  | "fathom";
 export type AreaUnit =
-  "mm2" | "cm2" | "m2" | "ft2" | "yd2" | "acre" | "hectare";
+  | "mm2"
+  | "cm2"
+  | "m2"
+  | "km2"
+  | "in2"
+  | "ft2"
+  | "yd2"
+  | "acre"
+  | "hectare"
+  | "mi2"
+  | "cent"
+  | "guntha"
+  | "marla";
 export type VolumeUnit =
-  "ml" | "l" | "m3" | "cm3" | "ft3" | "yd3" | "gal_us" | "gal_imp";
-export type MassUnit = "g" | "kg" | "tonne" | "lb" | "ton_us" | "ton_imp";
+  | "ml"
+  | "l"
+  | "m3"
+  | "cm3"
+  | "in3"
+  | "ft3"
+  | "yd3"
+  | "gal_us"
+  | "gal_imp"
+  | "barrel_oil";
+export type MassUnit =
+  | "mg"
+  | "g"
+  | "kg"
+  | "tonne"
+  | "quintal"
+  | "bag50"
+  | "lb"
+  | "oz"
+  | "stone"
+  | "ton_us"
+  | "ton_imp";
 
 export const LENGTH_TO_M: Record<LengthUnit, number> = {
   mm: 0.001,
@@ -27,16 +72,34 @@ export const LENGTH_TO_M: Record<LengthUnit, number> = {
   ft: 0.3048,
   yd: 0.9144,
   mi: 1609.344,
+  // A mil is a thousandth of an inch, the way coating and sheet thickness is
+  // specified. Exact: 0.001 x 0.0254.
+  mil: 0.0000254,
+  // Surveying chain and link, Gunter's measure: 66 ft and 1/100 of a chain.
+  link: 0.201168,
+  chain: 20.1168,
+  // Rod (perch, pole): 16.5 ft.
+  rod: 5.0292,
+  fathom: 1.8288,
 };
 
 export const AREA_TO_M2: Record<AreaUnit, number> = {
   mm2: 0.000001,
   cm2: 0.0001,
   m2: 1,
+  km2: 1000000,
+  in2: 0.00064516,
   ft2: 0.09290304,
   yd2: 0.83612736,
   acre: 4046.8564224,
   hectare: 10000,
+  mi2: 2589988.110336,
+  // Land units still used in South Asia and West Africa, defined against the
+  // acre so they never drift: a cent is 1/100 acre, a guntha 1/40, a marla
+  // 1/160.
+  cent: 40.468564224,
+  guntha: 101.17141056,
+  marla: 25.29285264,
 };
 
 export const VOLUME_TO_L: Record<VolumeUnit, number> = {
@@ -50,13 +113,25 @@ export const VOLUME_TO_L: Record<VolumeUnit, number> = {
   yd3: 764.554857984,
   gal_us: 3.785411784,
   gal_imp: 4.54609,
+  // Cubic inch, exact: 0.0254^3 in litres.
+  in3: 0.016387064,
+  // Oil barrel: 42 US gallons, the only barrel with a single definition.
+  barrel_oil: 158.987294928,
 };
 
 export const MASS_TO_KG: Record<MassUnit, number> = {
+  mg: 0.000001,
   g: 0.001,
   kg: 1,
   tonne: 1000,
+  // Quintal is 100 kg in both the metric and Indian usage.
+  quintal: 100,
+  // A cement bag is a 50 kg product, not a unit in general use. It is offered
+  // because site quantities are asked for in bags, and it is labelled as such.
+  bag50: 50,
   lb: 0.45359237,
+  oz: 0.028349523125,
+  stone: 6.35029318,
   ton_us: 907.18474,
   ton_imp: 1016.0469088,
 };
@@ -70,6 +145,11 @@ export const LENGTH_LABELS: Record<LengthUnit, string> = {
   ft: "Feet (ft)",
   yd: "Yards (yd)",
   mi: "Miles (mi)",
+  mil: "Mils (0.001 in)",
+  link: "Links (survey)",
+  chain: "Chains (66 ft)",
+  rod: "Rods (16.5 ft)",
+  fathom: "Fathoms",
 };
 
 export const AREA_LABELS: Record<AreaUnit, string> = {
@@ -80,6 +160,12 @@ export const AREA_LABELS: Record<AreaUnit, string> = {
   yd2: "Square yards (yd²)",
   acre: "Acres",
   hectare: "Hectares",
+  km2: "Square kilometres (km²)",
+  in2: "Square inches (in²)",
+  mi2: "Square miles (mi²)",
+  cent: "Cents (1/100 acre)",
+  guntha: "Gunthas (1/40 acre)",
+  marla: "Marlas (1/160 acre)",
 };
 
 export const VOLUME_LABELS: Record<VolumeUnit, string> = {
@@ -91,6 +177,8 @@ export const VOLUME_LABELS: Record<VolumeUnit, string> = {
   yd3: "Cubic yards (yd³)",
   gal_us: "US gallons",
   gal_imp: "Imperial gallons",
+  in3: "Cubic inches (in³)",
+  barrel_oil: "Oil barrels (42 US gal)",
 };
 
 export const MASS_LABELS: Record<MassUnit, string> = {
@@ -100,6 +188,11 @@ export const MASS_LABELS: Record<MassUnit, string> = {
   lb: "Pounds (lb)",
   ton_us: "US short tons",
   ton_imp: "Imperial long tons",
+  mg: "Milligrams (mg)",
+  oz: "Ounces (oz)",
+  stone: "Stones (14 lb)",
+  quintal: "Quintals (100 kg)",
+  bag50: "Cement bags (50 kg)",
 };
 
 /**
@@ -538,8 +631,10 @@ export function paintBuckets(
   for (let residue = 0; residue < largest; residue += 1) {
     const base = distances[residue];
     if (!Number.isFinite(base)) continue;
-    const total = base + Math.max(0, Math.ceil((target - base) / largest)) * largest;
-    const count = bucketCounts[residue] + Math.max(0, Math.ceil((target - base) / largest));
+    const total =
+      base + Math.max(0, Math.ceil((target - base) / largest)) * largest;
+    const count =
+      bucketCounts[residue] + Math.max(0, Math.ceil((target - base) / largest));
     if (total < bestTotal || (total === bestTotal && count < bestCount)) {
       bestResidue = residue;
       bestTotal = total;
@@ -861,6 +956,121 @@ export const UNIVERSAL_UNITS: UniversalUnit[] = [
     dimension: "mass",
     factor: MASS_TO_KG.ton_imp,
   },
+  // ---- additional length: sheet, coating and survey measures
+  {
+    id: "len-mil",
+    label: LENGTH_LABELS.mil,
+    dimension: "length",
+    factor: LENGTH_TO_M.mil,
+  },
+  {
+    id: "len-link",
+    label: LENGTH_LABELS.link,
+    dimension: "length",
+    factor: LENGTH_TO_M.link,
+  },
+  {
+    id: "len-chain",
+    label: LENGTH_LABELS.chain,
+    dimension: "length",
+    factor: LENGTH_TO_M.chain,
+  },
+  {
+    id: "len-rod",
+    label: LENGTH_LABELS.rod,
+    dimension: "length",
+    factor: LENGTH_TO_M.rod,
+  },
+  {
+    id: "len-fathom",
+    label: LENGTH_LABELS.fathom,
+    dimension: "length",
+    factor: LENGTH_TO_M.fathom,
+  },
+
+  // ---- additional area: large survey and regional land units
+  {
+    id: "area-in2",
+    label: AREA_LABELS.in2,
+    dimension: "area",
+    factor: AREA_TO_M2.in2,
+  },
+  {
+    id: "area-km2",
+    label: AREA_LABELS.km2,
+    dimension: "area",
+    factor: AREA_TO_M2.km2,
+  },
+  {
+    id: "area-mi2",
+    label: AREA_LABELS.mi2,
+    dimension: "area",
+    factor: AREA_TO_M2.mi2,
+  },
+  {
+    id: "area-cent",
+    label: AREA_LABELS.cent,
+    dimension: "area",
+    factor: AREA_TO_M2.cent,
+  },
+  {
+    id: "area-guntha",
+    label: AREA_LABELS.guntha,
+    dimension: "area",
+    factor: AREA_TO_M2.guntha,
+  },
+  {
+    id: "area-marla",
+    label: AREA_LABELS.marla,
+    dimension: "area",
+    factor: AREA_TO_M2.marla,
+  },
+
+  // ---- additional volume
+  {
+    id: "vol-in3",
+    label: VOLUME_LABELS.in3,
+    dimension: "volume",
+    factor: VOLUME_TO_L.in3,
+  },
+  {
+    id: "vol-barrel-oil",
+    label: VOLUME_LABELS.barrel_oil,
+    dimension: "volume",
+    factor: VOLUME_TO_L.barrel_oil,
+  },
+
+  // ---- additional mass
+  {
+    id: "mass-mg",
+    label: MASS_LABELS.mg,
+    dimension: "mass",
+    factor: MASS_TO_KG.mg,
+  },
+  {
+    id: "mass-oz",
+    label: MASS_LABELS.oz,
+    dimension: "mass",
+    factor: MASS_TO_KG.oz,
+  },
+  {
+    id: "mass-stone",
+    label: MASS_LABELS.stone,
+    dimension: "mass",
+    factor: MASS_TO_KG.stone,
+  },
+  {
+    id: "mass-quintal",
+    label: MASS_LABELS.quintal,
+    dimension: "mass",
+    factor: MASS_TO_KG.quintal,
+  },
+  {
+    id: "mass-bag50",
+    label: MASS_LABELS.bag50,
+    dimension: "mass",
+    factor: MASS_TO_KG.bag50,
+  },
 ];
 
 export function findUniversalUnit(id: string): UniversalUnit | null {
@@ -886,7 +1096,10 @@ export interface UniversalResult {
 
 const NO_VALUE = "Enter a number to convert.";
 
-function successfulConversion(value: number, explanation: string): UniversalResult {
+function successfulConversion(
+  value: number,
+  explanation: string,
+): UniversalResult {
   if (!Number.isFinite(value)) {
     return {
       value: null,

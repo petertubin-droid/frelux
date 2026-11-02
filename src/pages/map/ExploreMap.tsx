@@ -29,10 +29,9 @@ const LAYERS: MapLayer[] = ["pros", "jobs", "materials"];
  */
 export default function ExploreMap() {
   useSeo({
-    title:
-      "Construction Map: Professionals, Projects and Materials on a Globe | FRELUX",
+    title: "Construction Map: Pros, Projects, Materials | FRELUX",
     description:
-      "Explore verified construction professionals, open projects and material stock on one 3D globe. Search any place, see real distances from your site, and open a listing's details. Coverage grows as professionals and sellers publish.",
+      "Explore construction professionals, open projects and material stock on one globe. Search any place and see real distances from your site.",
     canonicalPath: "/map",
     ogType: "website",
     structuredDataArray: [

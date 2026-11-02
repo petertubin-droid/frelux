@@ -141,8 +141,10 @@ export default function MapWeatherBand() {
       </div>
 
       <div className="grid grid-cols-1 border-t border-border/60 lg:grid-cols-2">
+        {/* Converter comes first on phones: it is the widget most visitors
+            came for, and the map below it is a tall block. */}
         {/* Map widget */}
-        <div className="relative border-b border-border/60 lg:border-b-0 lg:border-r">
+        <div className="relative order-2 border-b border-border/60 lg:order-1 lg:border-b-0 lg:border-r">
           <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-4 sm:px-6 lg:px-8">
             <div
               className="flex flex-wrap gap-1.5"
@@ -212,7 +214,7 @@ export default function MapWeatherBand() {
         </div>
 
         {/* Converter widget */}
-        <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <div className="order-1 px-4 py-6 sm:px-6 lg:order-2 lg:px-8 lg:py-8">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div
               className="flex flex-wrap gap-1.5"
