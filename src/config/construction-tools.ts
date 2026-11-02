@@ -134,6 +134,14 @@ export interface Tool {
   featured?: boolean;
   /** Visible on the navbar mega-menu (popular tools only). */
   navVisible?: boolean;
+  /**
+   * Search listing copy, when the registry name is not what people type.
+   * Both fields are optional: without them the listing is composed from `title`,
+   * `benefit` and `does` (see scripts/lib/tool-seo.mjs). Only set them where a
+   * real query term is missing from the name, never to stuff keywords.
+   */
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
 export const CONSTRUCTION_TOOLS: Tool[] = [
@@ -187,6 +195,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     to: "/screeding-calculator",
     benefit: "Quantity & cost",
     navVisible: true,
+    seoTitle:
+      "Screeding Calculator – Cement, Sand & Cost | FRELUX",
+    seoDescription:
+      "Calculate screeding cement, sand and cost for smooth wall finishes. Enter wall area and thickness or room dimensions to get bags of screeding and a cost estimate.",
   },
   {
     slug: "finish",
@@ -211,6 +223,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     to: "/pop-ceiling-calculator",
     benefit: "Materials & cost",
     navVisible: true,
+    seoTitle:
+      "POP Ceiling Calculator – Cement, Mesh & Cost | FRELUX",
+    seoDescription:
+      "Calculate POP cement, fibreglass mesh and cost for board, cornice or full designs. Enter room dimensions and ceiling design to get materials and a cost estimate.",
   },
   {
     slug: "tile",
@@ -223,6 +239,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     to: "/tile-calculator",
     benefit: "Boxes · Adhesive · Cost",
     navVisible: true,
+    seoTitle:
+      "Tile Calculator – Boxes, Adhesive & Grout | FRELUX",
+    seoDescription:
+      "Calculate tile quantity, boxes, adhesive and grout for any floor or wall. Enter area, tile size and pattern to get the quantity including cutting waste.",
   },
   {
     slug: "increte-flooring-calculator",
@@ -282,6 +302,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Net wall area, unit count, mortar, cement and sand quantities.",
     to: "/masonry-calculator",
     navVisible: true,
+    seoTitle:
+      "Blockwork Calculator – Blocks, Mortar & Cost | FRELUX",
+    seoDescription:
+      "Calculate blocks, mortar and cost for a wall. Enter wall length, height and block size to get block quantity, mortar bags and a local cost estimate.",
   },
   {
     slug: "plastering-calculator",
@@ -293,6 +317,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Wet and dry mortar volume, cement bags, sand and indicative labour.",
     to: "/plastering-calculator",
     navVisible: true,
+    seoTitle:
+      "Plastering & Rendering Calculator – Cement & Sand | FRELUX",
+    seoDescription:
+      "Estimate plastering and rendering cement, sand and water for internal or external walls. Enter wall area and coat thickness to get bags and quantities.",
   },
   {
     slug: "drywall-calculator",
@@ -304,6 +332,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Boards, studs, tracks, screws, tape and compound quantities.",
     to: "/drywall-calculator",
     navVisible: true,
+    seoTitle:
+      "Drywall Calculator – Boards, Studs & Screws | FRELUX",
+    seoDescription:
+      "Estimate drywall boards, studs, track, screws and jointing compound. Enter wall or ceiling area to get partition materials and a cost estimate.",
   },
   {
     slug: "paving-calculator",
@@ -315,6 +347,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Paver count, sand and aggregate quantities, and edge units.",
     to: "/paving-calculator",
     navVisible: true,
+    seoTitle:
+      "Paving Calculator – Pavers, Sand & Base | FRELUX",
+    seoDescription:
+      "Calculate paving quantity, sand bedding and base material. Enter paved area and paver size to get paver counts, jointing sand and a cost estimate.",
   },
   {
     slug: "drainage-calculator",
@@ -326,6 +362,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Pipe lengths, fall, bedding, excavation and indicative chambers.",
     to: "/drainage-calculator",
     navVisible: true,
+    seoTitle:
+      "Drainage Calculator – Pipe, Falls & Trench | FRELUX",
+    seoDescription:
+      "Calculate external drainage pipe lengths, gradients and trench excavation. Enter run length and fall to get pipe, fittings and excavation quantities.",
   },
   {
     slug: "septic-sizing-calculator",
@@ -360,6 +400,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Gross area, installed volume and pack quantity where entered.",
     to: "/insulation-calculator",
     navVisible: true,
+    seoTitle:
+      "Insulation Calculator – Rolls, Batts & Packs | FRELUX",
+    seoDescription:
+      "Estimate insulation rolls, batts and packs from area and thickness. Enter area, product coverage and cutting allowance to get the quantity to buy.",
   },
   {
     slug: "demolition-calculator",
@@ -371,6 +415,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "In-place volume, loose debris volume and indicative skip loads.",
     to: "/demolition-calculator",
     navVisible: true,
+    seoTitle:
+      "Demolition Takeoff – Debris Volume & Skip Loads | FRELUX",
+    seoDescription:
+      "Estimate demolition debris volume and skip loads before hiring. Enter element dimensions, bulking factor and skip capacity to get in-place and loose volumes.",
   },
   {
     slug: "blueprint-takeoff",
@@ -409,6 +457,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Cement bags, sand, granite and required reinforcement.",
     to: "/structural-calculator",
     navVisible: true,
+    seoTitle:
+      "Concrete Calculator – Slabs, Beams & Columns | FRELUX",
+    seoDescription:
+      "Calculate concrete volume, mix ratios and material quantities for slabs, beams, columns and lintels. Enter member sizes to get cement, sand and aggregate.",
   },
   {
     slug: "concrete-slab-takeoff",
@@ -457,6 +509,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Foundation dimensions, excavation, concrete and cost.",
     to: "/foundation-calculator",
     navVisible: true,
+    seoTitle:
+      "Foundation Calculator – Strip, Pad & Raft Sizing | FRELUX",
+    seoDescription:
+      "Size and cost a strip, pad or raft foundation. Enter building dimensions, floors and soil condition to get concrete, mesh and formwork quantities with local prices.",
   },
   {
     slug: "retaining-wall",

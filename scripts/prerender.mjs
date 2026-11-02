@@ -11,6 +11,12 @@ import { join, dirname } from "path";
 import { seoContentMap } from "./seo-content-map.mjs";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
+import { loadToolRegistry } from "./lib/tool-registry.mjs";
+import {
+  buildToolContent,
+  toolSeoDescription,
+  toolSeoTitle,
+} from "./lib/tool-seo.mjs";
 import { faqPrerenderRoutes } from "./generated/faq-prerender.mjs";
 import { SITE_URL } from "./lib/site-url.mjs";
 
@@ -3333,6 +3339,43 @@ const { routes: learnDynamicRoutes, content: learnDynamicContent } =
 routes.push(...learnDynamicRoutes);
 const contentMap = { ...seoContentMap, ...learnDynamicContent };
 
+// ── Construction tool pages ─────────────────────────────────────────
+// Titles and descriptions come from the tool registry through one composer, so
+// the listing can only promise what the calculator does. The same module drives
+// the React page, which removes the old drift between the prerendered title and
+// the hydrated one. Body copy is only added where the old content map had
+// nothing, so hand-written pages keep their own text.
+const toolRegistry = loadToolRegistry();
+const toolByPath = new Map(toolRegistry.map((t) => [t.path, t]));
+const toolsByCategory = new Map();
+for (const t of toolRegistry) {
+  if (!toolsByCategory.has(t.category)) toolsByCategory.set(t.category, []);
+  toolsByCategory.get(t.category).push(t);
+}
+for (const tool of toolRegistry) {
+  let route = routes.find((r) => r.path === tool.path);
+  if (!route) {
+    route = {
+      path: tool.path,
+      title: toolSeoTitle(tool),
+      description: toolSeoDescription(tool),
+      priority: "0.8",
+      changefreq: "monthly",
+    };
+    routes.push(route);
+  } else {
+    route.title = toolSeoTitle(tool);
+    route.description = toolSeoDescription(tool);
+  }
+  if (!contentMap[tool.path]) {
+    contentMap[tool.path] = buildToolContent(
+      tool,
+      toolsByCategory.get(tool.category) ?? [],
+    );
+  }
+}
+
+
 // ── Colour library, palette and template families (2026-11-01) ───────
 // These routes have always existed in the SPA router, but nothing prerendered
 // them. A crawler therefore received the home shell with canonical "/", which
@@ -3545,10 +3588,20 @@ for (const m of marketLandingRoutes) {
         href: `${SITE_URL}/market/${mm.code.toLowerCase()}/templates/`,
       })),
     ],
-    title: `Construction Estimate Templates for ${m.countryName} | FRELUX SMART CALC`,
-    description: `Pre-configured paint, screeding, POP ceiling and tile estimate templates for ${m.countryName}. Dimensions in market units and costs in ${m.currency} (${m.currencySymbol}) from live local material prices.`,
+    title: `Estimate Templates – ${m.countryName} | FRELUX`,
+    description: `Paint, screeding, POP ceiling and tile estimate templates for ${m.countryName}, with dimensions in local units and costs in ${m.currency} (${m.currencySymbol}).`.slice(0, 158),
     priority: "0.7",
     changefreq: "weekly",
+    content:
+      `<main><h1>Construction estimate templates for ${m.countryName}</h1>` +
+      `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/market/${m.code.toLowerCase()}/">${m.countryName}</a> &rsaquo; Templates</nav>` +
+      `<p>These templates pre-fill a whole job: room sizes, ceiling heights, openings and coats for the common ${m.countryName} painting, screeding, POP ceiling and tiling scopes. Pick one, adjust what differs on site, and the estimate runs in ${m.currency} (${m.currencySymbol}) with ${m.countryName} material prices.</p>` +
+      `<h2>Templates in this market</h2><ul>` +
+      TEMPLATE_CATALOG.map(
+        (t) => `<li><a href="${hubPath}/${t.slug}/">${t.name}</a>: ${t.description || t.seoDescription || ""}</li>`,
+      ).join("") +
+      `</ul><h2>Before you start</h2><p>Check the room measurements and the number of coats. FRELUX applies two coats as standard, and quantities are shown in the units used on ${m.countryName} sites rather than in a generic metric table.</p>` +
+      `<ul><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market overview</a></li><li><a href="/calculators/">All FRELUX calculators</a></li><li><a href="/prices/">Material price intelligence</a></li></ul></main>`,
     structuredData: [
       {
         "@context": "https://schema.org",
@@ -3588,11 +3641,18 @@ for (const m of marketLandingRoutes) {
           href: `${SITE_URL}/market/${mm.code.toLowerCase()}/templates/${t.slug}/`,
         })),
       ],
-      title: `${t.name} Template for ${m.countryName} (${m.currency}) | FRELUX SMART CALC`,
+      title: `${t.name} Template – ${m.countryName} | FRELUX`,
       description:
-        `Run the ${t.name} template in ${m.countryName}: quantities in market units and costs in ${m.currency} (${m.currencySymbol}), priced from live ${m.countryName} material prices. ${t.seoDescription || t.description || ""}`.trim(),
+        `${t.description || t.seoDescription || t.name}. Run it in ${m.countryName} with ${m.currency} (${m.currencySymbol}) prices from the local material price book.`.slice(0, 158),
       priority: "0.6",
       changefreq: "monthly",
+      content:
+        `<main><h1>${t.name} template for ${m.countryName}</h1>` +
+        `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/market/${m.code.toLowerCase()}/">${m.countryName}</a> &rsaquo; <a href="${hubPath}/">Templates</a> &rsaquo; ${t.name}</nav>` +
+        (t.description ? `<p>${t.description}</p>` : "") +
+        `<h2>What this template sets up</h2><p>${t.name} pre-fills the scope for this kind of ${t.type} job so you start from realistic dimensions instead of a blank form. You still adjust every measurement, opening and coat before the estimate runs.</p>` +
+        `<h2>${m.countryName} units and pricing</h2><p>Quantities follow ${m.countryName} practice and costs are shown in ${m.currency} (${m.currencySymbol}). Where the price book holds a verified local material price it is used directly; otherwise the line is marked as a reference rate.</p>` +
+        `<h2>Run it</h2><ul><li><a href="${hubPath}/">All templates for ${m.countryName}</a></li><li><a href="/templates/${t.slug}/">${t.name} (global version)</a></li><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market page</a></li><li><a href="/calculators/">All FRELUX calculators</a></li></ul></main>`,
       structuredData: [
         {
           "@context": "https://schema.org",
@@ -3860,7 +3920,11 @@ for (const route of routes) {
 
   // Put useful route content directly in the initial DOM so crawlers and users
   // without JavaScript receive the same page content as the prerendered metadata.
-  const pageContent = contentMap[route.path] ?? faqContentByPath[route.path];
+  // route.content covers families whose copy is built inline (market
+  // templates); contentMap covers the curated pages; FAQ bodies are generated
+  // from the article registries.
+  const pageContent =
+    contentMap[route.path] ?? route.content ?? faqContentByPath[route.path];
   if (pageContent) {
     html = html.replace(
       /(<div id="root">)[\s\S]*(\n\s*<\/div>\s*<\/body>)/,

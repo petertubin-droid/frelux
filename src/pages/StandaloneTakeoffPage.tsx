@@ -6,6 +6,8 @@ import Container from "@/components/ui/Container";
 import AdSlot from "@/components/ui/AdSlot";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import { CONSTRUCTION_TOOLS } from "@/config/construction-tools";
+import { toolSeoDescription, toolSeoTitle } from "../../scripts/lib/tool-seo.mjs";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   BrickWall,
@@ -224,9 +226,16 @@ export default function StandaloneTakeoffPage({
     setError("");
   }, [initialEngine]);
 
+  // One composer for the listing copy, shared with the prerenderer so the
+  // static HTML and this hydrated page never advertise different things.
+  const seoTool = CONSTRUCTION_TOOLS.find(
+    (tool) => tool.to.replace(/\/+$/, "") === currentPath,
+  );
   useSeo({
-    title: `${title} Calculator | FRELUX`,
-    description: `${title} construction quantity takeoff calculator with editable measurements and market profile.`,
+    title: seoTool ? toolSeoTitle(seoTool) : `${title} Calculator | FRELUX`,
+    description: seoTool
+      ? toolSeoDescription(seoTool)
+      : `${title} construction quantity takeoff calculator with editable measurements and market profile.`,
     canonicalPath: currentPath,
   });
   useBreadcrumbJsonLd([

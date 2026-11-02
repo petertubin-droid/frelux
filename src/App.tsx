@@ -339,6 +339,7 @@ const AdminMarketIntelligence = lazy(
   () => import("@/pages/admin/AdminMarketIntelligence"),
 );
 const AdminListedMarkets = lazy(() => import("@/pages/admin/AdminListedMarkets"));
+const SeoPerformance = lazy(() => import("@/pages/admin/SeoPerformance"));
 const AdminEngineConfig = lazy(() => import("@/pages/admin/AdminEngineConfig"));
 const AdminAiLearningAssistant = lazy(
   () => import("@/pages/admin/AdminAiLearningAssistant"),
@@ -1888,6 +1889,10 @@ export default function App() {
                         <Route
                           path="/admin/listed-markets"
                           element={<AdminListedMarkets />}
+                        />
+                        <Route
+                          path="/admin/seo-performance"
+                          element={<SeoPerformance />}
                         />
                         <Route
                           path="/regional-cost-index"

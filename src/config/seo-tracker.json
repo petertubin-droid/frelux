@@ -1,0 +1,677 @@
+{
+  "generatedAt": "2026-11-02T06:13:58.317Z",
+  "note": "Before/after is diffed from the committed prerender list against the built output. Only pages whose listing copy actually changed are listed.",
+  "changedPages": 67,
+  "entries": [
+    {
+      "path": "/ai-color-assistant/",
+      "pageType": "tool",
+      "oldTitle": "Smart Color Assistant: AI Paint Color Ideas | FRELUX SMART CALC",
+      "newTitle": "Smart Color Assistant – Get colour scheme advice | FRELUX",
+      "oldDescription": "Get AI-powered paint color recommendations. Describe your room, lighting, and mood to receive personalized color suggestions.",
+      "newDescription": "Get colour scheme advice for your rooms and surfaces. Enter your room type and colour mood. Get recommended FRELUX colour combinations.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/bim-ifc-import/",
+      "pageType": "tool",
+      "oldTitle": "BIM IFC Import | FRELUX SMART CALC",
+      "newTitle": "BIM / IFC Import – Import architectural models | FRELUX",
+      "oldDescription": "Import IFC building models and generate material quantities and cost estimates from your BIM data.",
+      "newDescription": "Import architectural models and extract quantities automatically. Enter an IFC model file from your architect. Get room areas.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/blueprint-takeoff/",
+      "pageType": "tool",
+      "oldTitle": "Blueprint & PDF Plan Takeoff | FRELUX SMART CALC",
+      "newTitle": "Blueprint & PDF Plan Takeoff – Measure linear | FRELUX",
+      "oldDescription": "Calibrate a plan drawing and measure linear, area and counted quantities.",
+      "newDescription": "Measure linear, area and counted quantities from calibrated plan drawings. Enter a PDF or image plan and one known drawing dimension for scale calibration.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/boq-generator/",
+      "pageType": "tool",
+      "oldTitle": "BOQ Generator | FRELUX SMART CALC",
+      "newTitle": "BOQ Generator | FRELUX",
+      "oldDescription": "Generate a professional bill of quantities from your FRELUX estimates.",
+      "newDescription": "Turn your material list into a formal Bill of Quantities. Enter your project scope or an existing estimate.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/build-to-roof-estimator/",
+      "pageType": "tool",
+      "oldTitle": "Build-to-Roof Estimator: Full Construction Cost | FRELUX SMART CALC",
+      "newTitle": "Build-to-Roof Estimator – Foundation to roof | FRELUX",
+      "oldDescription": "Estimate materials and costs for a complete build from foundation to roof. Blocks, cement, sand, granite, roofing, labour, and structural members for building projects.",
+      "newDescription": "Calculate every major material from foundation through roof in one run: blocks, concrete, steel, roofing and more.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/carbon-footprint/",
+      "pageType": "tool",
+      "oldTitle": "Carbon Footprint Calculator | FRELUX SMART CALC",
+      "newTitle": "Embodied Carbon Estimator | FRELUX",
+      "oldDescription": "Estimate the embodied carbon of your construction materials and compare choices.",
+      "newDescription": "Estimate the embodied carbon of your build from verifiable emission factors. Enter your material quantities from a saved estimate.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/cash-flow-timeline/",
+      "pageType": "tool",
+      "oldTitle": "Cash Flow Timeline | FRELUX SMART CALC",
+      "newTitle": "Cash-Flow Timeline – Plan when money comes in | FRELUX",
+      "oldDescription": "Map project payments against construction milestones to see when money is needed.",
+      "newDescription": "Plan when money comes in and goes out across construction stages. Enter project cost, stage schedule and payment terms.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/circular-reuse/",
+      "pageType": "tool",
+      "oldTitle": "Circular Reuse Planner | FRELUX SMART CALC",
+      "newTitle": "Demolition Recovery – Plan a demolition | FRELUX",
+      "oldDescription": "Plan material reuse across projects to cut cost and construction waste.",
+      "newDescription": "Plan a demolition or strip-out: how much material can be recovered, reused or recycled. Enter the materials being removed and their condition.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/code-reference/",
+      "pageType": "tool",
+      "oldTitle": "International Building Code Reference | FRELUX SMART CALC",
+      "newTitle": "International Code Reference – See which building code | FRELUX",
+      "oldDescription": "Select your project country and building type to see the applicable building code, edition and standards for concrete, reinforcement, loads, wind, snow, foundations, durability and materials, with unsupported regulations identified and no cross-country parameter substitution.",
+      "newDescription": "See which building code, edition and technical standards govern a project in any supported country.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/concrete-takeoff-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Concrete Slab Takeoff | FRELUX SMART CALC",
+      "newTitle": "Concrete Slab Takeoff – Free quantity takeoff | FRELUX",
+      "oldDescription": "Estimate concrete slab quantities from measured dimensions, a specified mix ratio and an optional engineer-provided rebar schedule.",
+      "newDescription": "Estimate measured slab concrete volume and material quantities from a specified mix and optional engineer-provided rebar schedule.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/construction-sequence/",
+      "pageType": "tool",
+      "oldTitle": "Construction Sequence Planner | FRELUX SMART CALC",
+      "newTitle": "Construction Sequence | FRELUX",
+      "oldDescription": "Plan your building project step by step. From site clearance to finishing, get a construction timeline with material and labour requirements for each phase.",
+      "newDescription": "See the correct order of construction activities for your project type. Enter project type and scope. Get a step-by-step build sequence guide.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/contractor-credit/",
+      "pageType": "tool",
+      "oldTitle": "Contractor Credit | FRELUX SMART CALC",
+      "newTitle": "Contractor Credit | FRELUX",
+      "oldDescription": "Explore credit options for contractors and material financing for your projects.",
+      "newDescription": "Check and build your contractor credit profile with FRELUX. Enter your project history and trade references.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/conversational-estimator/",
+      "pageType": "tool",
+      "oldTitle": "Conversational Estimator | FRELUX SMART CALC",
+      "newTitle": "Conversational Estimator | FRELUX",
+      "oldDescription": "Describe your project in plain language and get a structured material and cost estimate you can refine.",
+      "newDescription": "Build an estimate step by step by chatting, like WhatsApp. Enter your project details, one message at a time. Get a full estimate assembled from your answers.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/count-vision/",
+      "pageType": "tool",
+      "oldTitle": "Count Vision | FRELUX SMART CALC",
+      "newTitle": "Counter-Vision – Count materials in a photo | FRELUX",
+      "oldDescription": "Count construction objects such as blocks, bags, and tiles from a photo using AI vision, then feed the numbers into estimates.",
+      "newDescription": "Count materials in a photo: cement bags, blocks, tiles and more. Enter a clear photo of the stacked materials.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/defect-diagnosis/",
+      "pageType": "tool",
+      "oldTitle": "Defect Diagnosis | FRELUX SMART CALC",
+      "newTitle": "Defect Diagnosis – Pick the symptom you are seeing | FRELUX",
+      "oldDescription": "Diagnose common construction defects, understand causes, and get remediation guidance.",
+      "newDescription": "Pick the symptom you are seeing and get its root causes with fixes and quantities. Enter the symptom and the affected area. Get ranked root causes.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/demolition-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Demolition & Debris Takeoff | FRELUX SMART CALC",
+      "newTitle": "Demolition Takeoff – Debris Volume & Skip Loads | FRELUX",
+      "oldDescription": "Estimate demolition debris volumes and indicative skip loads.",
+      "newDescription": "Estimate demolition debris volume and skip loads before hiring. Enter element dimensions, bulking factor and skip capacity to get in-place and loose volumes.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/diaspora-budget-tracker/",
+      "pageType": "tool",
+      "oldTitle": "Diaspora Construction Budget and Inflation Tracker | FRELUX SMART CALC",
+      "newTitle": "Diaspora Budget & Inflation Tracker | FRELUX",
+      "oldDescription": "Track overseas construction funds against local currency inflation, parallel exchange rates, and on-site material deviations.",
+      "newDescription": "Track overseas construction funds against local currency inflation, parallel exchange rates, and on-site material deviations.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/doors-windows/",
+      "pageType": "tool",
+      "oldTitle": "Doors and Windows Estimator | FRELUX SMART CALC",
+      "newTitle": "Doors & Windows – Calculate quantities | FRELUX",
+      "oldDescription": "Estimate door and window quantities, hardware, and installation labour.",
+      "newDescription": "Calculate quantities and cost for doors, windows and their frames. Enter count and sizes of doors and windows per type. Get frame.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/drainage-calculator/",
+      "pageType": "tool",
+      "oldTitle": "External Drainage Takeoff | FRELUX SMART CALC",
+      "newTitle": "Drainage Calculator – Pipe, Falls & Trench | FRELUX",
+      "oldDescription": "Estimate drainage pipe, trench and bedding quantities; not a hydraulic design.",
+      "newDescription": "Calculate external drainage pipe lengths, gradients and trench excavation. Enter run length and fall to get pipe, fittings and excavation quantities.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/drywall-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Drywall & Partition Calculator | FRELUX SMART CALC",
+      "newTitle": "Drywall Calculator – Boards, Studs & Screws | FRELUX",
+      "oldDescription": "Estimate drywall boards, framing and jointing material quantities.",
+      "newDescription": "Estimate drywall boards, studs, track, screws and jointing compound. Enter wall or ceiling area to get partition materials and a cost estimate.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/earthworks-cut-fill/",
+      "pageType": "tool",
+      "oldTitle": "Earthworks Cut & Fill Calculator | FRELUX SMART CALC",
+      "newTitle": "Earthworks Cut & Fill | FRELUX",
+      "oldDescription": "Calculate cut, fill and haul quantities from surveyed or designed cross-sections using the average-end-area method.",
+      "newDescription": "Calculate cut, fill and haul quantities from surveyed or designed cross-sections.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/electrical-conduit-wiring-estimator/",
+      "pageType": "tool",
+      "oldTitle": "Electrical Conduit and Wiring Material Estimator | FRELUX SMART CALC",
+      "newTitle": "Conduit & Wiring Loops – Convert floor area | FRELUX",
+      "oldDescription": "Estimate PVC conduit lengths, 1.5 mm and 2.5 mm cable coils, junction boxes, switch plates and sockets from floor area and point counts.",
+      "newDescription": "Convert floor area and point counts into conduit, cable and accessory quantities. Enter floor area, lighting points and socket points. Get conduit lengths.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/electrical/",
+      "pageType": "tool",
+      "oldTitle": "Electrical Estimator | FRELUX SMART CALC",
+      "newTitle": "Electrical Wiring – Calculate wiring | FRELUX",
+      "oldDescription": "Estimate electrical materials, wiring, fittings, and labour for residential and commercial projects.",
+      "newDescription": "Calculate wiring, conduits, sockets, switches and lighting points for a building. Enter number of rooms and points per room.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/estimate-refresh/",
+      "pageType": "tool",
+      "oldTitle": "Estimate Refresh | FRELUX SMART CALC",
+      "newTitle": "Estimate Refresh | FRELUX",
+      "oldDescription": "Reprice saved estimates with current market prices so old numbers stay useful.",
+      "newDescription": "Bring an old estimate up to today's prices. Enter a saved FRELUX estimate. Get the same estimate recalculated with current prices.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/field-sync/",
+      "pageType": "tool",
+      "oldTitle": "Field Sync | FRELUX SMART CALC",
+      "newTitle": "Field Sync – Capture measurements | FRELUX",
+      "oldDescription": "Sync project measurements and estimates between the office and the construction site.",
+      "newDescription": "Capture measurements and site data on site, with or without network. Enter measurements, photos and notes captured on site.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/finish-estimator/",
+      "pageType": "tool",
+      "oldTitle": "Finish Estimator: Painting, Tyrolene & Grafitex | FRELUX SMART CALC",
+      "newTitle": "Finish Comparison – Tyrolene, Grafitex | FRELUX",
+      "oldDescription": "Estimate material quantities and costs for wall finishes: painting, Tyrolene, and Grafitex. Uses real coverage rates and package sizes.",
+      "newDescription": "Compare painting, Tyrolene and Grafitex finishes side by side for the same walls. Enter wall area and the finishes you are considering.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/flooring/",
+      "pageType": "tool",
+      "oldTitle": "Flooring Estimator | FRELUX SMART CALC",
+      "newTitle": "Flooring | FRELUX",
+      "oldDescription": "Estimate flooring materials, quantities, and labour for any room or building.",
+      "newDescription": "Compare and calculate laminate, vinyl and other flooring options. Enter room area and flooring type. Get material packs.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/foundation-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Foundation Calculator: Sizing & Materials | FRELUX SMART CALC",
+      "newTitle": "Foundation Calculator – Strip, Pad & Raft Sizing | FRELUX",
+      "oldDescription": "Calculate foundation sizes and materials for building projects. Strip footing, pad foundation, and raft foundation estimates with soil bearing capacity guidance.",
+      "newDescription": "Size and cost a strip, pad or raft foundation. Enter building dimensions, floors and soil condition to get concrete, mesh and formwork quantities with local",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/foundation/",
+      "pageType": "tool",
+      "oldTitle": "Foundation Estimator | FRELUX SMART CALC",
+      "newTitle": "Foundation Cost Estimate | FRELUX",
+      "oldDescription": "Estimate foundation materials and cost from footings to ground slab, with engineer referral for structural sizing.",
+      "newDescription": "Estimate the full cost of completing your foundation stage. Enter plot size and foundation type.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/generator/",
+      "pageType": "tool",
+      "oldTitle": "Generator Estimator | FRELUX SMART CALC",
+      "newTitle": "Backup Power / Generator – Find the right generator size",
+      "oldDescription": "Size a generator for your load profile and estimate purchase and installation cost.",
+      "newDescription": "Find the right generator size and running cost for your home or site. Enter appliances you need to power and usage hours. Get recommended generator size.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/heat-comfort/",
+      "pageType": "tool",
+      "oldTitle": "Heat and Comfort Analyser | FRELUX SMART CALC",
+      "newTitle": "Heat & Comfort | FRELUX",
+      "oldDescription": "Analyse indoor heat comfort for your building design and material choices.",
+      "newDescription": "Analyse how hot your building will get and what improves comfort. Enter roof, wall and orientation details.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/image-estimator/",
+      "pageType": "tool",
+      "oldTitle": "AI Photo Estimator: Estimate from a Photo | FRELUX SMART CALC",
+      "newTitle": "AI Photo Estimator – AI-powered, Premium | FRELUX",
+      "oldDescription": "Upload a photo of your construction site, room, or building and get an AI-powered material and cost estimate. Visual estimation for painting, tiling, and construction projects.",
+      "newDescription": "Upload a photo of any building and get an instant AI-assisted cost estimate. Premium feature. Enter a photo of the building or project.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/increte-flooring-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Increte Flooring Calculator & Estimator | FRELUX SMART CALC",
+      "newTitle": "Decorative Concrete Flooring – Stamped, Overlay, Sealer | FRELUX",
+      "oldDescription": "Estimate decorative concrete flooring quantities using explicit product coverage, coats, waste, local prices and installation inputs.",
+      "newDescription": "Estimate decorative concrete flooring quantities and costs from product coverage, local prices and project measurements.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/insulation-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Insulation Takeoff Calculator | FRELUX SMART CALC",
+      "newTitle": "Insulation Calculator – Rolls, Batts & Packs | FRELUX",
+      "oldDescription": "Estimate insulation product quantities by area, thickness and coverage.",
+      "newDescription": "Estimate insulation rolls, batts and packs from area and thickness. Enter area, product coverage and cutting allowance to get the quantity to buy.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/labour-estimator/",
+      "pageType": "tool",
+      "oldTitle": "Labour Estimator | FRELUX SMART CALC",
+      "newTitle": "Labour Cost – Calculate labour costs | FRELUX",
+      "oldDescription": "Estimate labour costs by trade and task with configurable rates for your market.",
+      "newDescription": "Calculate labour costs for every trade on your project. Enter project scope and region. Get crew sizes.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/maintenance-planner/",
+      "pageType": "tool",
+      "oldTitle": "Maintenance Planner | FRELUX SMART CALC",
+      "newTitle": "Maintenance Planner | FRELUX",
+      "oldDescription": "Plan building maintenance schedules with cost estimates for each task.",
+      "newDescription": "Plan and cost long-term building maintenance before problems start. Enter building components and their ages.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/margin-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Margin Calculator | FRELUX SMART CALC",
+      "newTitle": "Margin Calculator – Price a job correctly | FRELUX",
+      "oldDescription": "Calculate profit margins on construction quotes with material, labour, and overhead inputs.",
+      "newDescription": "Price a job correctly: add margin, VAT and profit to any cost figure. Enter your cost figure and target margin.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/masonry-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Masonry & Blockwork Calculator | FRELUX SMART CALC",
+      "newTitle": "Blockwork Calculator – Blocks, Mortar & Cost | FRELUX",
+      "oldDescription": "Estimate masonry units and mortar quantities from wall measurements.",
+      "newDescription": "Calculate blocks, mortar and cost for a wall. Enter wall length, height and block size to get block quantity, mortar bags and a local cost estimate.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/material-advisor/",
+      "pageType": "tool",
+      "oldTitle": "Climate-Responsive Material Advisor | FRELUX SMART CALC",
+      "newTitle": "Climate Material Advisor | FRELUX",
+      "oldDescription": "Choose your project location and get construction material guidance for its real climate: rainfall, humidity, UV, coastal exposure and frost, across paints, waterproofing, roofing, tiles, concrete exposure, steel protection, insulation and drainage.",
+      "newDescription": "Match construction materials to your site's real climate: rain, humidity, UV, salt air and frost. Enter project location (search, map pick or coordinates).",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/material-price-index/",
+      "pageType": "tool",
+      "oldTitle": "Live Material Price Index | FRELUX SMART CALC",
+      "newTitle": "Live Material Price Index – Shows verified | FRELUX",
+      "oldDescription": "Construction material prices across Lagos, Abuja, Port Harcourt, Onitsha, Ibadan, Kano and more, with sample sizes, sources and last verification dates. Figures are published only when at least three independent prices support them.",
+      "newDescription": "Shows verified and reported construction material prices across Nigerian cities, with sample size, source and last verification date for every figure.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/material-prices/",
+      "pageType": "tool",
+      "oldTitle": "Material Price Tracker: Live Paint & Building Material Prices | FRELUX SMART CALC",
+      "newTitle": "Material Prices | FRELUX",
+      "oldDescription": "Track live prices of paint, cement, tiles, and building materials across supported markets to keep your estimates accurate.",
+      "newDescription": "Browse current FRELUX material prices for your region. Enter a material name or category. Get up-to-date prices you can use in your own budgets.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/paint-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Paint Calculator: How Much Paint Do I Need? | FRELUX SMART CALC",
+      "newTitle": "Paint Calculator – Buckets, Cost, Project estimate | FRELUX",
+      "oldDescription": "Room-based paint calculator for any project. Enter room dimensions, wall height, doors, and windows to estimate paint quantity in 20-litre buckets using verified coverage rates.",
+      "newDescription": "Calculate the paint buckets, material cost and full project estimate for any room, house, exterior or fence.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/paint-comparison/",
+      "pageType": "tool",
+      "oldTitle": "Paint Comparison Tool: Compare Colours Side by Side | FRELUX SMART CALC",
+      "newTitle": "Paint Comparison | FRELUX",
+      "oldDescription": "Compare paint colours, finishes, and prices side by side to choose the right option for your project.",
+      "newDescription": "Compare paint products head-to-head on coverage, price and suitability for your project. Enter your wall area and the products you want to compare.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/paving-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Paving Takeoff Calculator | FRELUX SMART CALC",
+      "newTitle": "Paving Calculator – Pavers, Sand & Base | FRELUX",
+      "oldDescription": "Estimate pavers, bedding and sub-base quantities for external works.",
+      "newDescription": "Calculate paving quantity, sand bedding and base material. Enter paved area and paver size to get paver counts, jointing sand and a cost estimate.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/plastering-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Plastering & Rendering Calculator | FRELUX SMART CALC",
+      "newTitle": "Plastering & Rendering Calculator – Cement & Sand | FRELUX",
+      "oldDescription": "Estimate plaster and render material quantities from surface area and thickness.",
+      "newDescription": "Estimate plastering and rendering cement, sand and water for internal or external walls. Enter wall area and coat thickness to get bags and quantities.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/plumbing/",
+      "pageType": "tool",
+      "oldTitle": "Plumbing Estimator | FRELUX SMART CALC",
+      "newTitle": "Plumbing – Calculate pipes | FRELUX",
+      "oldDescription": "Estimate plumbing materials, pipes, fittings, and labour for residential and commercial projects.",
+      "newDescription": "Calculate pipes, fittings and sanitary ware for a complete plumbing installation. Enter number of bathrooms, kitchens and water points.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/pop-ceiling-calculator/",
+      "pageType": "tool",
+      "oldTitle": "POP Ceiling Calculator: FRELUX",
+      "newTitle": "POP Ceiling Calculator – Cement, Mesh & Cost | FRELUX",
+      "oldDescription": "Calculate POP ceiling material quantities. Enter room dimensions to estimate POP cement, mesh, and other materials for your ceiling project.",
+      "newDescription": "Calculate POP cement, fibreglass mesh and cost for board, cornice or full designs. Enter room dimensions and ceiling design to get materials and a cost",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/project-timeline/",
+      "pageType": "tool",
+      "oldTitle": "Project Timeline Builder | FRELUX SMART CALC",
+      "newTitle": "Project Timeline | FRELUX",
+      "oldDescription": "Create a construction project timeline with phases, milestones, and material schedules. Track progress from foundation to finishing.",
+      "newDescription": "Build a realistic construction schedule from foundation to finishing. Enter project scope and start date.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/rainwater-gutter-soffit-cost-estimator/",
+      "pageType": "tool",
+      "oldTitle": "Soffit, Fascia and Rainwater Gutter Estimator | FRELUX SMART CALC",
+      "newTitle": "Soffit, Fascia & Gutter | FRELUX",
+      "oldDescription": "Turn the eaves perimeter into fascia, gutter, soffit area, downpipes and brackets, with a cutting allowance and downpipes every 12 metres.",
+      "newDescription": "Turn the eaves perimeter into fascia, gutter and soffit quantities. Enter roof perimeter or building footprint, eaves overhang and soffit material.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/regional-cost-index/",
+      "pageType": "tool",
+      "oldTitle": "Regional Cost Index | FRELUX SMART CALC",
+      "newTitle": "Regional Cost Index | FRELUX",
+      "oldDescription": "Compare construction costs across regions with the FRELUX regional cost index.",
+      "newDescription": "See how construction costs differ across Nigerian states using available regional index data. Enter your state and project type.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/reinforcement/",
+      "pageType": "tool",
+      "oldTitle": "Reinforcement Estimator | FRELUX SMART CALC",
+      "newTitle": "Reinforcement / Steel – Calculate rebar quantities | FRELUX",
+      "oldDescription": "Estimate reinforcement bars, mesh, and accessories for slabs, beams, columns, and foundations.",
+      "newDescription": "Calculate rebar quantities, weights and binding wire for structural elements. Enter element type and dimensions, bar spacing.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/retaining-wall-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Retaining Wall Material and Cost Calculator | FRELUX SMART CALC",
+      "newTitle": "Retaining Wall Calculator – Size a retaining wall footing",
+      "oldDescription": "Size footing concrete, blocks, reinforcement and weep holes for a retaining wall from wall length, height and soil type, with every quantity traced to its rule.",
+      "newDescription": "Size a retaining wall footing, stem, reinforcement and drainage. Enter wall length and height, soil type and stem construction. Get footing concrete.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/roof-framing-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Roof Framing & Board Feet Calculator | FRELUX SMART CALC",
+      "newTitle": "Roof Framing & Board Feet – Lay out timber quantities | FRELUX",
+      "oldDescription": "Calculate timber quantities, member counts, lengths, linear metres and board feet for regular gable and hip roofs.",
+      "newDescription": "Lay out timber quantities for regular rectangular gable or equal-pitch hip roofs.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/screeding-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Wall Screeding Calculator: FRELUX",
+      "newTitle": "Screeding Calculator – Cement, Sand & Cost | FRELUX",
+      "oldDescription": "Calculate wall screeding area in m² and estimate screeding paint (litres) and white cement (kg). Enter room or fence dimensions in feet or metres.",
+      "newDescription": "Calculate screeding cement, sand and cost for smooth wall finishes. Enter wall area and thickness or room dimensions to get bags of screeding and a cost",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/septic-sizing-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Septic & Soakaway Worksheet | FRELUX SMART CALC",
+      "newTitle": "Septic & Soakaway Worksheet | FRELUX",
+      "oldDescription": "Estimate preliminary tank volume and soakaway area from locally approved, user-entered design criteria.",
+      "newDescription": "Calculate preliminary tank volumes and soakaway area from explicit local design inputs.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/smart-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Smart Calculator: AI-Powered Construction Estimator | FRELUX SMART CALC",
+      "newTitle": "Smart Calculator – AI-powered, Free | FRELUX",
+      "oldDescription": "Describe any construction project in plain language and get an AI-powered cost estimate with material quantities, line items, and savings recommendations.",
+      "newDescription": "Describe any construction project in plain language and get an AI-assisted estimate. Enter a sentence like: 3-bedroom bungalow in Abuja, tiling and painting.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/solar-pv-estimator/",
+      "pageType": "tool",
+      "oldTitle": "Solar PV Estimator | FRELUX SMART CALC",
+      "newTitle": "Solar PV Estimator – Panels, Batteries, Cost | FRELUX",
+      "oldDescription": "Size a solar power system, get the bill of materials, and estimate installation cost for your market.",
+      "newDescription": "Size a solar system and calculate panels, batteries and inverter cost. Enter your appliances, daily usage hours and location. Get panel count.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/structural-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Structural Calculator: Beams, Columns & Slabs | FRELUX SMART CALC",
+      "newTitle": "Concrete Calculator – Slabs, Beams & Columns | FRELUX",
+      "oldDescription": "Calculate structural member sizes for building projects. Beam dimensions, column sizing, slab thickness, and reinforcement estimates.",
+      "newDescription": "Calculate concrete volume, mix ratios and material quantities for slabs, beams, columns and lintels. Enter member sizes to get cement, sand and aggregate.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/structural-steel-i-beam-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Structural Steel I-Beam Weight and Cost Calculator | FRELUX SMART CALC",
+      "newTitle": "Steel I-Beam Weight | FRELUX",
+      "oldDescription": "Convert span and steel profile into kilograms and tonnes, then cost them at your own merchant rate per tonne.",
+      "newDescription": "Convert span and profile into kilograms, tonnes and cost. Enter profile, span length, number of beams and your merchant rate per tonne.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/surface-assessment/",
+      "pageType": "tool",
+      "oldTitle": "Surface Assessment Tool: Check Wall Conditions | FRELUX SMART CALC",
+      "newTitle": "Surface Assessment | FRELUX",
+      "oldDescription": "Assess wall and ceiling surface conditions to get accurate paint absorption factors and material estimates.",
+      "newDescription": "Assess a surface condition before painting or screeding so you buy the right prep materials. Enter photos and details of the surface.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/temporary-works-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Formwork & Temporary Works Calculator | FRELUX SMART CALC",
+      "newTitle": "Formwork & Temporary Works | FRELUX",
+      "oldDescription": "Estimate form contact area and simplified temporary works quantities; not a design.",
+      "newDescription": "Estimate geometric form-contact areas and simplified scaffold quantities. Enter element dimensions, scaffold run and working height. Get form-contact area.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/tile-calculator/",
+      "pageType": "tool",
+      "oldTitle": "Tile Calculator: How Many Tiles Do I Need? | FRELUX SMART CALC",
+      "newTitle": "Tile Calculator – Boxes, Adhesive & Grout | FRELUX",
+      "oldDescription": "Free tile calculator. Enter your floor or wall dimensions to calculate tile quantity, adhesive, grout, and layout recommendations.",
+      "newDescription": "Calculate tile quantity, boxes, adhesive and grout for any floor or wall. Enter area, tile size and pattern to get the quantity including cutting waste.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/unit-converter/",
+      "pageType": "tool",
+      "oldTitle": "Construction Measurement Converter: Feet, Plots, Tonnes and Bags | FRELUX SMART CALC",
+      "newTitle": "Measurement Converter – Plots, Tonnes, Buckets | FRELUX",
+      "oldDescription": "Convert feet to metres, inches to millimetres, plots to square metres, tonnes of sand or granite to cubic metres and bags, and paint litres to 4L, 10L and 20L buckets.",
+      "newDescription": "Convert feet, inches, plots, tonnes, litres and bags into the metric units the calculators expect.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/wall-finish-estimator/",
+      "pageType": "tool",
+      "oldTitle": "Wall Finish Estimator | FRELUX SMART CALC",
+      "newTitle": "Wall Finish Estimator | FRELUX",
+      "oldDescription": "Estimate modern wall finish systems including mineral stone and stucco with layers, labour, and quality control.",
+      "newDescription": "Plan walls from structure to the final coat, worldwide: render, plaster, putty, primer and paint in your country's standard sequence.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/warranty-certificate/",
+      "pageType": "tool",
+      "oldTitle": "Warranty Certificate | FRELUX SMART CALC",
+      "newTitle": "Warranty Certificate | FRELUX",
+      "oldDescription": "Generate a professional warranty certificate for completed construction work.",
+      "newDescription": "Issue professional warranty certificates for completed work. Enter project details, scope and warranty period.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/water-tower-staging-estimator/",
+      "pageType": "tool",
+      "oldTitle": "Overhead Water Tank Staging Estimator | FRELUX SMART CALC",
+      "newTitle": "Overhead Water Tank Staging – Calculate dead load | FRELUX",
+      "oldDescription": "Calculate dead load, wind overturning safety factor, and structural steel or reinforced concrete preliminary BOM for overhead water tank towers.",
+      "newDescription": "Calculate dead load, wind overturning safety, and preliminary steel/concrete bill of materials for overhead water towers.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    },
+    {
+      "path": "/waterproofing/",
+      "pageType": "tool",
+      "oldTitle": "Waterproofing Estimator | FRELUX SMART CALC",
+      "newTitle": "Waterproofing – Calculate waterproofing membranes | FRELUX",
+      "oldDescription": "Estimate waterproofing materials for roofs, walls, wet areas, and foundations.",
+      "newDescription": "Calculate waterproofing membranes and coatings for roofs, bathrooms and tanks. Enter area to waterproof and the waterproofing system. Get membrane rolls.",
+      "status": "implemented",
+      "implementedAt": "2026-11-02"
+    }
+  ]
+}
