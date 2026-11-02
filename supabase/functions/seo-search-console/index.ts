@@ -10,52 +10,15 @@
  *    range shown.
  *  - Costs no API call unless asked: the UI passes an action.
  *
- * Credential: GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN, an OAuth access token for an
- * account that has access to the property (webmasters.readonly is enough for
- * everything here).
+ * Credential: resolved by _shared/google-auth.ts from a service account key, an
+ * OAuth refresh token, or a static access token, for an account that can read
+ * the property (webmasters.readonly is enough for everything here).
  */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+import { getGoogleAuth } from "../_shared/google-auth.ts";
 
 const API = "https://www.googleapis.com/webmasters/v3";
-const CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID") ?? "";
-const CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET") ?? "";
-const REFRESH_TOKEN = Deno.env.get("GOOGLE_REFRESH_TOKEN") ?? "";
-const STATIC_TOKEN = Deno.env.get("GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN") ?? "";
-
-let cachedToken: { value: string; expiresAt: number } | null = null;
-
-/** Mint an access token per invocation. A refresh token keeps the dashboard
- *  working past the one hour life of a hand-copied access token; a static
- *  access token is still honoured so an existing deployment keeps running. */
-async function accessToken(): Promise<string> {
-  if (REFRESH_TOKEN && CLIENT_ID && CLIENT_SECRET) {
-    if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) {
-      return cachedToken.value;
-    }
-    const res = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_id: CLIENT_ID,
-        client_secret: CLIENT_SECRET,
-        refresh_token: REFRESH_TOKEN,
-        grant_type: "refresh_token",
-      }),
-    });
-    const data = (await res.json().catch(() => ({}))) as {
-      access_token?: string;
-      expires_in?: number;
-    };
-    if (!res.ok || !data.access_token) return "";
-    cachedToken = {
-      value: data.access_token,
-      expiresAt: Date.now() + (data.expires_in ?? 3600) * 1000,
-    };
-    return data.access_token;
-  }
-  return STATIC_TOKEN;
-}
 const PROPERTY = Deno.env.get("GSC_PROPERTY") ?? "https://freluxtools.com/";
 
 type Action = "status" | "query" | "sitemaps";
@@ -100,7 +63,7 @@ function notConnected(reason: string, extra: Record<string, unknown> = {}) {
       property: PROPERTY,
       reason,
       setup:
-        "Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and GOOGLE_REFRESH_TOKEN for a Google account that owns or has access to the property, then redeploy this function.",
+        "Set GOOGLE_SERVICE_ACCOUNT_JSON to a service account key whose address is a user on the property, or GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and GOOGLE_REFRESH_TOKEN, then redeploy this function.",
       ...extra,
     },
     { status: 200 },
@@ -114,8 +77,10 @@ serveWithCors(async (req) => {
     }
     const action: Action = body.action ?? "status";
 
-    const token = await accessToken();
-    if (!token) return notConnected("no_credential");
+    const { token, error: authError } = await getGoogleAuth();
+    if (!token) {
+      return notConnected("no_credential", authError ? { auth_error: authError } : {});
+    }
 
     const encoded = encodeURIComponent(PROPERTY);
 
