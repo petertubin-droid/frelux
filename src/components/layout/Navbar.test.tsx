@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
 vi.mock("@/lib/auth", () => ({
-  useAuth: vi.fn(() => ({ user: null, loading: false })),
+  useAuth: vi.fn(() => ({ user: null, loading: false, isPaid: false })),
 }));
 
 vi.mock("@/lib/credits", () => ({
@@ -16,15 +16,16 @@ vi.mock("@/lib/credits", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  window.localStorage.clear();
 });
 
-async function renderNavbar() {
+async function renderNavbar(initialEntries = ["/"]) {
   const Navbar = (await import("@/components/layout/Navbar")).default;
   const { CreditsProvider } = await import("@/lib/credits-context");
   const { CurrencyProvider } =
     await import("@/lib/international/currency-context");
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={initialEntries}>
       <ToastProvider>
         <CreditsProvider>
           <CurrencyProvider>
@@ -40,5 +41,11 @@ describe("Navbar", () => {
   it("renders without crashing", async () => {
     const { container } = await renderNavbar();
     expect(container.innerHTML).not.toBe("");
+  });
+
+  it("includes header container for ad-free prompt notices", async () => {
+    const { container } = await renderNavbar();
+    const header = container.querySelector("header");
+    expect(header).not.toBeNull();
   });
 });

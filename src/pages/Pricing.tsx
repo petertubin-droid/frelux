@@ -32,7 +32,6 @@ import {
 import {
   PRICING_PLANS,
   SUBSCRIPTION_CURRENCY,
-  formatUsdPrice,
   planPriceCents,
   yearlySavingPercent,
   type PricingPlan,
@@ -43,7 +42,6 @@ import {
   startSubscriptionCheckout,
   fetchConfiguredGateway,
   gatewaysForMarket,
-  gatewayForMarket,
   currentGatewayRuntimeConfig,
   type PaymentGateway,
 } from "@/lib/payments/gateway";
@@ -687,6 +685,10 @@ export default function Pricing() {
             {t("Frequently Asked Questions")}
           </h2>
           <div className="mt-6 space-y-4">
+            <FaqItem
+              q="Do paid plans remove advertisements across FRELUX?"
+              a="Yes. All paid subscriptions (Pro, Premium, and Enterprise) completely remove third-party and banner advertisements across every tool, calculator, and dashboard."
+            />
             <FaqItem
               q="Can I upgrade or downgrade later?"
               a="Yes. You can switch plans at any time. If you upgrade, you'll only pay the prorated difference. Downgrades take effect at the end of your current billing cycle."

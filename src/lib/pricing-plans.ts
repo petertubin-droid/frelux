@@ -54,6 +54,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     cta: "Start Pro",
     features: [
       "Everything in Free",
+      "100% Ad-Free Experience",
       "Unlimited AI Photo Estimations",
       "Build-to-Roof Cost Estimator",
       "Painting Cost Estimator",

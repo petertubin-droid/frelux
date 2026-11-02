@@ -44,6 +44,7 @@ import { MarketSelector } from "@/components/ui/MarketSelector";
 import { useMarket } from "@/lib/international/market-context";
 import { getMarketNavigationLabel } from "@/lib/globalization/construction-terminology";
 import { Button } from "@/components/ui/shadcn/button";
+import AdFreePromptNotice from "@/components/subscription/AdFreePromptNotice";
 
 export default function Navbar() {
   const { t } = useLanguage();
@@ -691,6 +692,7 @@ export default function Navbar() {
             </Link>
           </div>
         </nav>
+        <AdFreePromptNotice />
       </header>
 
       {/* ===== Mobile drawer, premium collapsible sections ===== */}
