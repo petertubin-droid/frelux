@@ -21,7 +21,7 @@ import {
 import { useAuth } from "@/lib/auth";
 import { useCredits } from "@/lib/credits-context";
 import { useToast } from "@/components/ui/Toast";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import { AchievementBadges } from "@/components/ui/AchievementBadges";
 import { OfferwallAd } from "@/components/rewarded/OfferwallAd";
@@ -75,6 +75,7 @@ const rewardIcon: Record<string, typeof Crown> = {
 
 export default function Rewards() {
   const { t } = useLanguage();
+  useBreadcrumbJsonLd([{ name: "Rewards", path: "/rewards" }]);
   useSeo({
     title: "FRELUX Rewards, Earn Credits & Unlock Features",
     description:

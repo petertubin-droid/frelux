@@ -14,6 +14,7 @@
  */
 import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useBreadcrumbJsonLd } from "@/lib/seo";
 import { getMarketBundle } from "@/lib/international/markets";
 import { useMarket } from "@/lib/international/market-context";
 import AdSlot from "@/components/ui/AdSlot";
@@ -44,6 +45,10 @@ export default function MarketLanding() {
   const { marketCode, setMarket } = useMarket();
 
   const ready = bundle !== null;
+  useBreadcrumbJsonLd([
+    { name: "Markets", path: "/global-markets" },
+    { name: bundle?.masonry.countryName ?? upper, path: `/market/${code}` },
+  ]);
 
   useEffect(() => {
     if (ready && marketCode !== bundle!.code) {

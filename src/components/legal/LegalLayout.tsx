@@ -9,9 +9,21 @@ import {
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { useLegalPage } from "@/lib/useLegalPage";
+import { useBreadcrumbJsonLd } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import Container from "@/components/ui/Container";
 import { useLanguage } from "@/lib/i18n";
+
+/** Public routes, so the crumb points at the indexed URL, not the slug. */
+const LEGAL_PATHS: Record<string, string> = {
+  about: "/about",
+  "privacy-policy": "/privacy-policy",
+  terms: "/terms",
+  "cookie-policy": "/cookie-policy",
+  disclaimer: "/disclaimer",
+  "ai-disclaimer": "/ai-disclaimer",
+  "data-request": "/data-request",
+};
 
 export default function LegalLayout({
   slug,
@@ -28,6 +40,8 @@ export default function LegalLayout({
 }) {
   const { t } = useLanguage();
   const { page, loading } = useLegalPage(slug);
+  // Every legal page is one crumb under the home crumb the layout already shows.
+  useBreadcrumbJsonLd([{ name: title, path: LEGAL_PATHS[slug] ?? `/${slug}` }]);
   const published = Boolean(page);
   const [activeSection, setActiveSection] = useState<string>("");
 

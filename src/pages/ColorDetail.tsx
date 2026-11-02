@@ -8,7 +8,7 @@ import {
   fetchColorCategories,
 } from "@/lib/queries";
 import { logAnalyticsEvent } from "@/lib/queries";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import type { DbColorCombination, DbColorCategory } from "@/types/database";
 import AdSlot from "@/components/ui/AdSlot";
 import NotFound from "@/pages/NotFound";
@@ -26,6 +26,10 @@ export default function ColorDetail() {
   const [categories, setCategories] = useState<DbColorCategory[]>([]);
   const [copied, setCopied] = useState<string | null>(null);
 
+  useBreadcrumbJsonLd([
+      { name: "Color library", path: "/colors" },
+      { name: color?.title ?? "Color combination", path: `/colors/${slug ?? ""}` },
+    ]);
   useSeo({
     title: color ? `${color.title}: Color Combination` : "Color Combination",
     description:

@@ -8,7 +8,7 @@ import {
   type UnlockedAchievement,
   type UsageStats,
 } from "@/lib/achievements";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n";
 
@@ -17,6 +17,7 @@ export default function Achievements() {
   const [unlocked, setUnlocked] = useState<UnlockedAchievement[]>([]);
   const [stats, setStats] = useState<UsageStats | null>(null);
 
+  useBreadcrumbJsonLd([{ name: "Achievements", path: "/achievements" }]);
   useSeo({
     title: "Achievements & Rewards",
     description:

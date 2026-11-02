@@ -22,7 +22,7 @@ import {
   fetchRelationshipOverrides,
   fetchPaintColors,
 } from "@/lib/queries";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import {
   readableTextColor,
@@ -64,6 +64,10 @@ export default function PaintColorDetail() {
   const [copied, setCopied] = useState<string | null>(null);
   const [isFav, setIsFav] = useState(false);
 
+  useBreadcrumbJsonLd([
+      { name: "Color library", path: "/colors" },
+      { name: color?.name ?? "Paint color", path: `/colors/paint/${slug ?? ""}` },
+    ]);
   useSeo({
     title: color ? `${color.name}: Paint Color` : "Paint Color",
     description: color

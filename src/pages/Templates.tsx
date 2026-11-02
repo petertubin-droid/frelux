@@ -11,7 +11,7 @@ import {
   Calculator,
   ChevronRight,
 } from "lucide-react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { getPublicTemplates, calculatorLabel } from "@/lib/templates";
 import type { DbCalculatorTemplate, CalculatorType } from "@/types/database";
 import { classNames } from "@/lib/utils";
@@ -30,6 +30,7 @@ const CATEGORY_TABS: { key: CalculatorType | "all"; label: string }[] = [
 
 export default function Templates() {
   const { t } = useLanguage();
+  useBreadcrumbJsonLd([{ name: "Templates", path: "/templates" }]);
   useSeo({
     title: "Calculator Templates",
     description:
