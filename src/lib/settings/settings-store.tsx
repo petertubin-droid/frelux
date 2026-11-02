@@ -158,11 +158,26 @@ export function GlobalSettingsProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   // A chosen country drives the market, so prices, currencies and copy agree.
+  // Only a stored setting that actually changed may push a market. The first
+  // run counts as a change so a saved country still wins on mount, but after
+  // that the effect stays out of the way: when the market moves first, the
+  // effect below adopts it. Pushing on every run reverted a fresh choice and
+  // made visitors tap the same country twice.
+  const lastSettingsMarket = useRef<string | null>(null);
   useEffect(() => {
-    if (!settings.marketCode || settings.marketCode === marketCode) return;
-    if (pushedMarket.current === settings.marketCode) return;
-    pushedMarket.current = settings.marketCode;
-    void setMarket(settings.marketCode);
+    const settingsMarket = settings.marketCode ?? null;
+    const previous = lastSettingsMarket.current;
+    lastSettingsMarket.current = settingsMarket;
+
+    if (!settingsMarket) return;
+    if (settingsMarket === marketCode) {
+      pushedMarket.current = null;
+      return;
+    }
+    if (settingsMarket === previous) return;
+    if (pushedMarket.current === settingsMarket) return;
+    pushedMarket.current = settingsMarket;
+    void setMarket(settingsMarket);
   }, [settings.marketCode, marketCode, setMarket]);
 
   // Units shown on every calculator come from one place.

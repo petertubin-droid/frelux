@@ -163,6 +163,50 @@ describe("global settings store", () => {
     await waitFor(() => expect(upsert).toHaveBeenCalled());
   });
 
+  it("does not push a stored country over a market the visitor just switched to", async () => {
+    // Guest on Nigeria, then the country is switched on a market-aware page.
+    // The store used to answer with its own stored country, which reverted the
+    // choice and made the same option need a second tap.
+    window.localStorage.setItem(
+      GUEST_SETTINGS_KEY,
+      JSON.stringify({ countryCode: "NG" }),
+    );
+    const view = renderProbe();
+    await waitFor(() =>
+      expect(screen.getByTestId("country")).toHaveTextContent("NG"),
+    );
+    marketState.setMarket.mockClear();
+
+    marketState.marketCode = "US";
+    view.rerender(
+      <GlobalSettingsProvider>
+        <Probe />
+      </GlobalSettingsProvider>,
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId("country")).toHaveTextContent("US"),
+    );
+    expect(marketState.setMarket).not.toHaveBeenCalledWith("NG");
+  });
+
+  it("still pushes a country the visitor chose in settings", async () => {
+    const view = renderProbe();
+    await waitFor(() =>
+      expect(screen.getByTestId("country")).toHaveTextContent("NG"),
+    );
+    marketState.setMarket.mockClear();
+
+    await act(async () => {
+      screen.getByText("save us").click();
+    });
+
+    await waitFor(() =>
+      expect(marketState.setMarket).toHaveBeenCalledWith("US"),
+    );
+    expect(view.getByTestId("country")).toHaveTextContent("US");
+  });
+
   it("migrates guest choices to the account on first sign-in", async () => {
     window.localStorage.setItem(
       GUEST_SETTINGS_KEY,
