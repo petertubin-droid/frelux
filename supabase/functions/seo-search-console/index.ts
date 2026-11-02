@@ -70,8 +70,7 @@ function notConnected(reason: string, extra: Record<string, unknown> = {}) {
   );
 }
 
-Deno.serve(
-  serveWithCors(async (req) => {
+serveWithCors(async (req) => {
     let body: QueryBody = {};
     if (req.method === "POST") {
       body = (await req.json().catch(() => ({}))) as QueryBody;
@@ -165,5 +164,4 @@ Deno.serve(
         position: totals.impressions ? totals.positionWeighted / totals.impressions : 0,
       },
     });
-  }),
-);
+  });
