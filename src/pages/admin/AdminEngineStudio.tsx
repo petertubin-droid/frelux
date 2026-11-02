@@ -33,7 +33,8 @@ import { classNames } from "@/lib/utils";
 
 const STATUS_STYLE: Record<EngineSurfaceStatus, string> = {
   live: "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  duplicated:
+  shared: "border-sky-500/25 bg-sky-500/10 text-sky-700 dark:text-sky-300",
+  divergent:
     "border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300",
   none: "border-destructive/25 bg-destructive/10 text-destructive",
 };
@@ -72,8 +73,8 @@ export default function AdminEngineStudio() {
   const counts = useMemo(
     () => ({
       live: ENGINE_SURFACES.filter((s) => s.status === "live").length,
-      duplicated: ENGINE_SURFACES.filter((s) => s.status === "duplicated")
-        .length,
+      shared: ENGINE_SURFACES.filter((s) => s.status === "shared").length,
+      divergent: ENGINE_SURFACES.filter((s) => s.status === "divergent").length,
       none: ENGINE_SURFACES.filter((s) => s.status === "none").length,
     }),
     [],
@@ -106,11 +107,12 @@ export default function AdminEngineStudio() {
         subtitle="Every registered engine, the page that runs it, and a runner for the ones that have no page yet."
       />
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {(
           [
             ["live", counts.live, "Wired to a page"],
-            ["duplicated", counts.duplicated, "Page exists, engine not called"],
+            ["shared", counts.shared, "Page calls the same function"],
+            ["divergent", counts.divergent, "Different model, same trade"],
             ["none", counts.none, "No UI"],
           ] as const
         ).map(([status, count, label]) => (

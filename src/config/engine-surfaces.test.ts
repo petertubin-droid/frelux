@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { listEngines } from "@/lib/ai-foundation/engines-registry";
 import {
@@ -31,7 +33,11 @@ describe("engine surface manifest", () => {
 
   it("links a route for every engine that claims a page", () => {
     for (const surface of ENGINE_SURFACES) {
-      if (surface.status === "live" || surface.status === "duplicated") {
+      if (
+        surface.status === "live" ||
+        surface.status === "shared" ||
+        surface.status === "divergent"
+      ) {
         expect(surface.route, surface.engineId).toMatch(/^\//);
       }
       if (surface.status === "none") {
@@ -43,7 +49,10 @@ describe("engine surface manifest", () => {
   it("counts every engine exactly once", () => {
     const counts = surfacesByStatus();
     expect(
-      counts.live.length + counts.duplicated.length + counts.none.length,
+      counts.live.length +
+        counts.shared.length +
+        counts.divergent.length +
+        counts.none.length,
     ).toBe(ENGINE_SURFACES.length);
     const ids = ENGINE_SURFACES.map((s) => s.engineId);
     expect(new Set(ids).size).toBe(ids.length);
@@ -52,6 +61,29 @@ describe("engine surface manifest", () => {
   it("keeps engine notes free of em dashes", () => {
     for (const surface of ENGINE_SURFACES) {
       expect(surface.note).not.toMatch(/[—–]/);
+    }
+  });
+
+  it("backs a shared or divergent claim with files it names", () => {
+    const read = (p: string) => readFileSync(join(process.cwd(), p), "utf8");
+    for (const surface of ENGINE_SURFACES) {
+      if (surface.status !== "shared" && surface.status !== "divergent")
+        continue;
+      const evidence = surface.evidence;
+      expect(evidence, surface.engineId).toBeTruthy();
+      const modulePath = `${evidence!.module.replace("@/", "src/")}.ts`;
+      // The arithmetic the engine wraps is really in the module it names.
+      expect(read(modulePath), surface.engineId).toMatch(
+        new RegExp(`function ${evidence!.fn}\\b`),
+      );
+      const page = read(evidence!.page);
+      if (surface.status === "shared") {
+        // A page reaches that module without going through executeEngine.
+        expect(page, surface.engineId).toContain(evidence!.module);
+      } else {
+        // Divergent means the page does not touch the engine's module.
+        expect(page, surface.engineId).not.toContain(evidence!.module);
+      }
     }
   });
 });

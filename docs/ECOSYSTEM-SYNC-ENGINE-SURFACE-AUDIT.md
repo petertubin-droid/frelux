@@ -50,9 +50,10 @@ maths is its own and the engine is never executed.
   cannot be run without inventing its inputs. That is the honest state, and it
   is visible rather than silent.
 
-This does not merge the six duplicated implementations into their engines. That
-is a calculation change, it touches live estimates, and it needs its own phase
-with the price and quantity regressions watched.
+Every shared or divergent entry carries its evidence: the module, the function,
+and the page. A test reads those files and fails when the claim stops being
+true, either because the function moved or because a page stopped importing the
+module. That is what keeps this table from drifting again.
 
 ## Analytics
 

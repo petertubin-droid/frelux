@@ -27,10 +27,20 @@ import {
  * actually use this".
  */
 export type EngineSurfaceStatus =
-  /** A page runs this engine for the user. */
+  /** A page runs this engine's function for the user. */
   | "live"
-  /** A page covers the same question with its own code; the engine is not wired to it. */
-  | "duplicated"
+  /**
+   * The engine wraps a function, and a page calls that same function directly
+   * instead of going through executeEngine. One implementation, two entry
+   * points, so the numbers cannot disagree.
+   */
+  | "shared"
+  /**
+   * The trade is served by a different data model, not a second copy of the
+   * same arithmetic. Rewiring would change outputs, so it needs its own
+   * decision rather than a quiet swap.
+   */
+  | "divergent"
   /** No user-facing entry point exists. */
   | "none";
 
@@ -42,6 +52,8 @@ export interface EngineSurface {
   /** How the surface is labelled in the product. */
   label: string;
   icon: LucideIcon;
+  /** Function and module that carry the arithmetic, for the traced states. */
+  evidence?: { module: string; fn: string; page: string; calledBy: string };
   /** Plain sentence: what runs, or what is missing. */
   note: string;
 }
@@ -137,35 +149,61 @@ export const ENGINE_SURFACES: EngineSurface[] = [
   },
   {
     engineId: "painting_wall_area",
-    status: "duplicated",
+    status: "shared",
     route: "/paint-calculator",
-    label: "Paint Calculator (own wall-area code)",
+    label: "Paint Calculator (shared wall-area code)",
     icon: Paintbrush,
-    note: "The paint calculator computes wall area itself, so the registry engine is never called from the UI.",
+    evidence: {
+      module: "@/lib/estimation/paint-engine",
+      fn: "calculateWallArea",
+      page: "src/pages/PaintCalculator.tsx",
+      calledBy: "calculateRoom in the same module, which PaintCalculator calls",
+    },
+    note: "PaintCalculator calls calculateRoom, which uses the same calculateWallArea this engine wraps. One formula, two entry points.",
   },
   {
     engineId: "painting_project",
-    status: "duplicated",
+    status: "shared",
     route: "/paint-calculator",
-    label: "Paint Calculator (own project code)",
+    label: "Paint Calculator (shared project code)",
     icon: Paintbrush,
-    note: "Project-wide paint planning exists on the page, but through its own logic rather than this engine.",
+    evidence: {
+      module: "@/lib/calc",
+      fn: "calculatePaint",
+      page: "src/pages/PaintCalculator.tsx",
+      calledBy: "called directly by PaintCalculator",
+    },
+    note: "PaintCalculator calls the same calculatePaint this engine wraps, so project planning and the engine cannot disagree.",
   },
   {
     engineId: "screeding_system",
-    status: "duplicated",
+    status: "divergent",
     route: "/screeding-calculator",
-    label: "Screeding Calculator (own mix code)",
+    label: "Screeding system engine (different model)",
     icon: Layers,
-    note: "Screeding bags and mix are worked out by the calculator itself.",
+    evidence: {
+      module: "@/lib/calc",
+      fn: "calculateScreedingSystem",
+      page: "src/pages/ScreedingCalculator.tsx",
+      calledBy:
+        "no page calls it; ScreedingCalculator uses the per-kilogram material model instead",
+    },
+    note: "The engine works in bags per system config. ScreedingCalculator works per kilogram from the material table, where coverage is m2 per kg. Both are correct in their own convention.",
   },
   {
     engineId: "tyrolene_partition_area",
-    status: "duplicated",
+    status: "shared",
     route: "/tyrolene-estimator",
-    label: "Tyrolene Estimator (own area code)",
+    label: "Tyrolene Estimator (shared area code)",
     icon: Layers,
-    note: "Partition area and material for tyrolene, computed outside the engine.",
+    evidence: {
+      module: "@/lib/estimation/tyrolene-engine",
+      fn: "calculatePartitionArea",
+      page: "src/pages/TyroleneEstimator.tsx",
+      calledBy:
+        "calculateTyroleneProject in the same module, which TyroleneEstimator calls",
+    },
+    note: "TyroleneEstimator calls calculateTyroleneProject, which uses this same calculatePartitionArea. One formula, two entry points.",
   },
   {
     engineId: "tyrolene_system",
@@ -177,19 +215,32 @@ export const ENGINE_SURFACES: EngineSurface[] = [
   },
   {
     engineId: "roof_geometry",
-    status: "duplicated",
-    route: "/roof-framing-calculator",
-    label: "Roof Framing Calculator (own geometry)",
+    status: "shared",
+    route: "/build-to-roof-estimator",
+    label: "Build to Roof Estimator (shared roof geometry)",
     icon: Home,
-    note: "Roof area and framing come from the page's own geometry code.",
+    evidence: {
+      module: "@/lib/estimation/build-to-roof-engine",
+      fn: "calculateRoofArea",
+      page: "src/pages/BuildToRoofEstimator.tsx",
+      calledBy:
+        "calculateBuildToRoof in the same module, which BuildToRoofEstimator calls",
+    },
+    note: "BuildToRoofEstimator calls calculateBuildToRoof, which uses this same calculateRoofArea. The roof framing page covers member design instead.",
   },
   {
     engineId: "margin_calculator",
-    status: "duplicated",
+    status: "shared",
     route: "/margin-calculator",
-    label: "Margin Calculator (own margin code)",
+    label: "Margin Calculator (shared margin code)",
     icon: Percent,
-    note: "Margins are computed on the page without calling the engine.",
+    evidence: {
+      module: "@/lib/estimation/margin-engine",
+      fn: "calculateMargin",
+      page: "src/pages/MarginCalculator.tsx",
+      calledBy: "called directly by MarginCalculator",
+    },
+    note: "MarginCalculator calls the same calculateMargin this engine wraps, so the two cannot drift.",
   },
   {
     engineId: "timeline_estimator",
@@ -219,14 +270,16 @@ export function surfacesByStatus(): Record<
 > {
   return {
     live: ENGINE_SURFACES.filter((s) => s.status === "live"),
-    duplicated: ENGINE_SURFACES.filter((s) => s.status === "duplicated"),
+    shared: ENGINE_SURFACES.filter((s) => s.status === "shared"),
+    divergent: ENGINE_SURFACES.filter((s) => s.status === "divergent"),
     none: ENGINE_SURFACES.filter((s) => s.status === "none"),
   };
 }
 
 export const SURFACE_STATUS_LABELS: Record<EngineSurfaceStatus, string> = {
   live: "Wired to a page",
-  duplicated: "Page exists, engine not called",
+  shared: "Same function, page calls it directly",
+  divergent: "Different model, same trade",
   none: "No UI",
 };
 
