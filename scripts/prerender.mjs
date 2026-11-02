@@ -3430,7 +3430,7 @@ const dbTemplates = await dbRows(
 // saw an empty page. The published set is read here and written into the page.
 const caseStudies = await dbRows(
   "case_studies",
-  "select=id,headline,summary,project_scope,budget,currency,updated_at&is_published=eq.true&order=updated_at.desc&limit=50",
+  "select=id,headline,summary,project_scope,challenges,outcome,materials_used,project_duration,budget,currency,updated_at&is_published=eq.true&order=updated_at.desc&limit=50",
 );
 
 const catalogSlugs = new Set(TEMPLATE_CATALOG.map((t) => t.slug));
@@ -3544,6 +3544,49 @@ for (const t of extraTemplates) {
     (t.description ? `<p>${escapeHtml(t.description)}</p>` : "") +
     `<h2>How this template works</h2><p>${escapeHtml(name)} pre-fills the scope for this kind of job so you can go straight to measuring. You still enter the room dimensions and openings, and material rates come from the market you select, so the output reflects local pricing rather than a generic table.</p>` +
     `<ul><li><a href="/templates/">All templates</a></li><li><a href="/calculators/">All calculators</a></li><li><a href="/market/">Markets</a></li></ul></main>`;
+}
+
+// Case study detail pages: the hub links to them, and without a prerendered
+// file every one of those links lands on the 404 catch-all. Each page is built
+// from its own published row, so nothing here is invented.
+for (const c of caseStudies) {
+  const path = `/case-studies/${c.id}`;
+  if (routes.some((r) => r.path === path)) continue;
+  const headline = (c.headline || "Case study").trim();
+  const title =
+    headline.length <= 50 ? `${headline} | FRELUX` : headline.slice(0, 50).replace(/[\s,;:.-]+$/, "");
+  const summary = (c.summary || "").trim();
+  const description = (summary || `${headline}: scope, challenges, materials and outcome.`).slice(0, 158);
+  const section = (heading, body) =>
+    body ? `<h2>${heading}</h2><p>${escapeHtml(String(body))}</p>` : "";
+  const budgetLine = c.budget
+    ? `<li>Budget: ${escapeHtml(String(c.currency || ""))} ${escapeHtml(String(c.budget))}</li>`
+    : "";
+  const durationLine = c.project_duration
+    ? `<li>Duration: ${escapeHtml(String(c.project_duration))}</li>`
+    : "";
+  const materialsLine = c.materials_used
+    ? `<li>Materials: ${escapeHtml(String(c.materials_used))}</li>`
+    : "";
+  routes.push({
+    path,
+    title,
+    description,
+    priority: "0.5",
+    changefreq: "monthly",
+    content:
+      `<main><h1>${escapeHtml(headline)}</h1>` +
+      `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/case-studies/">Case studies</a> &rsaquo; ${escapeHtml(headline)}</nav>` +
+      (summary ? `<p>${escapeHtml(summary)}</p>` : "") +
+      section("Project scope", c.project_scope) +
+      section("What made it difficult", c.challenges) +
+      section("Outcome", c.outcome) +
+      (budgetLine || durationLine || materialsLine
+        ? `<h2>Project facts</h2><ul>${materialsLine}${durationLine}${budgetLine}</ul>`
+        : "") +
+      `<h2>Estimate a similar project</h2><p>The quantities in this project came from the free FRELUX calculators. Start with the tool that matches your scope.</p>` +
+      `<ul><li><a href="/paint-calculator/">Paint calculator</a></li><li><a href="/screeding-calculator/">Screeding calculator</a></li><li><a href="/tile-calculator/">Tile calculator</a></li><li><a href="/pop-ceiling-calculator/">POP ceiling calculator</a></li><li><a href="/case-studies/">All case studies</a></li></ul></main>`,
+  });
 }
 
 // /case-studies hub body

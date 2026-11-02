@@ -1963,7 +1963,721 @@
   to = "/index.html"
   status = 200
 
+
+# ── Client-side application routes ─────────────────────────────────────
+# These screens exist only in the browser bundle. Without an explicit rewrite
+# the catch-all below answers 404, so a hard navigation or a page refresh
+# breaks the app for signed-in users. Real prerendered files still win,
+# because a rewrite is only consulted when no file matches.
+[[redirects]]
+  from = "/tools"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/finishes/paint"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/finishes/tiles"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/finishes/screeding"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/finishes/pop"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/finishes/flooring"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/finishes/waterproofing"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/structure/build-to-roof"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/structure/concrete"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/structure/foundation"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/structure/rebar"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/services/electrical"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/services/plumbing"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/services/solar"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/services/comfort"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/components/doors-windows"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/project/boq"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/project/labour"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/project/margin"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/project/timeline"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/project/cash-flow"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/ai/photo-estimator"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/ai/color-assistant"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/ai/defects"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/prices/trends"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/prices/regional-indices"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/projects"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/projects/templates"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/network"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/network/pros"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/network/marketplace"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn/glossary"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/my-projects"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/my-templates"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/onboarding"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/profile"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/metrics"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/document-studio"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/achievements"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor/wizard"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor/predictive"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor/iot"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor/logistics"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor/compliance"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/clients"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/quotes"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/analytics"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/settings/preferences"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pro-connect/escrow"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/marketplace/merchant-api"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/compliance/data-residency"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/offline-sync"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pro-connect/liquidity"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pro-connect/register"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pro-connect/dashboard"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/messages"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/worker-channels"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/suppliers/workspace"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/procurement/new"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/intelligence"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/investor-centre"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/listed-markets"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/seo-performance"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/price-index"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/site-tracker"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/diaspora-tracker/invite"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/login"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/properties"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/gallery/new"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/project-workspace"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/workspace-settings"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/projects/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/network/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/my-projects/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/my-templates/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/onboarding/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/profile/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/metrics/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/document-studio/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/achievements/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contractor/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/clients/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/quotes/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/analytics/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/messages/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/worker-channels/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/intelligence/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/investor-centre/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/price-index/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/site-tracker/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/login/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/properties/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/project-workspace/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/workspace-settings/*"
+  to = "/index.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/404.html"
   status = 404
+
+# Keep the signed-in surfaces out of the index: they serve the app shell and
+# contain no public content.
+[[headers]]
+  for = "/projects"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/projects/templates"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/my-projects"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/my-templates"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/dashboard"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/onboarding"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/profile"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/metrics"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/document-studio"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/achievements"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/contractor"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/contractor/wizard"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/contractor/predictive"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/contractor/iot"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/contractor/logistics"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/contractor/compliance"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/clients"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/quotes"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/analytics"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/settings/preferences"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/pro-connect/escrow"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/marketplace/merchant-api"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/compliance/data-residency"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/tools/offline-sync"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/pro-connect/liquidity"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/pro-connect/register"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/pro-connect/dashboard"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/messages"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/worker-channels"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/suppliers/workspace"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/procurement/new"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/investor-centre"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/admin/listed-markets"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/admin/seo-performance"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/admin/login"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/admin"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/properties"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/gallery/new"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/project-workspace"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/workspace-settings"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
