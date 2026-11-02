@@ -1,0 +1,752 @@
+// =========================================================
+// Wall Finishing engine tests - the four mandated country
+// cases (NG block+render+paint, US timber+drywall+paint, UK
+// masonry+skim+paint, IN brick+plaster+putty+paint) plus
+// openings, volume mixes, cost, transparency and validation.
+// =========================================================
+
+import { describe, expect, it } from "vitest";
+import type { WallFinProjectSpec, WallSpec } from "@/types/wallfinishing";
+import { getAssembly, getAssembliesForCountry } from "../assemblies";
+import { getWallSystem } from "../wall-systems";
+import { resolveWallFinCountry } from "../resolver";
+import { calculateOpeningAreas } from "../openings";
+import {
+  calculateLayerQuantity,
+  calculateWallAreas,
+  mixComponentQuantity,
+  roundPurchaseQuantity,
+  MORTAR_DRY_FACTOR,
+  CEMENT_BAG_VOLUME_M3,
+} from "../quantity-engine";
+import { calculateLayerCost } from "../cost-engine";
+import { checkCompatibility } from "../compatibility";
+import { resolveAssemblyLayers } from "../assembly-overrides";
+import { buildChecklist } from "../checklists";
+import {
+  estimateWallFinishingProject,
+  type WallFinResolutionContext,
+} from "../index";
+import { WALLFIN_COUNTRY_MAP, WALLFIN_COUNTRY_PROFILES } from "../countries";
+
+// ─── fixtures ───────────────────────────────────
+
+/** One 4 m × 3 m interior wall with a door + window. */
+function testWall(partial?: Partial<WallSpec>): WallSpec {
+  return {
+    id: "w1",
+    label: "Test wall",
+    lengthM: 4,
+    heightM: 3,
+    surface: "interior",
+    wallSystemId: "ng-sandcrete-block",
+    assemblyId: "ng-interior-block-paint",
+    openings: [
+      {
+        id: "d1",
+        type: "door",
+        widthM: 0.9,
+        heightM: 2.1,
+        quantity: 1,
+        revealDepthM: 0,
+        deduct: true,
+      },
+      {
+        id: "win1",
+        type: "window",
+        widthM: 1.2,
+        heightM: 1.2,
+        quantity: 1,
+        revealDepthM: 0,
+        deduct: true,
+      },
+    ],
+    excludedAreaM2: 0,
+    ...partial,
+  };
+}
+
+/** Simple price context: fixed prices per role, all one currency. */
+function priceContext(
+  prices: Record<string, number>,
+  labour: Record<string, number> = {},
+  currency = "USD",
+): WallFinResolutionContext {
+  return {
+    currency,
+    resolvePrice: (role) => ({
+      materialName: `${role}-material`,
+      unitPrice: prices[role] ?? null,
+      packUnits: null,
+      purchaseLabel: null,
+      currency,
+      resolvedMarket: "NG",
+      priceSource: "test",
+      scanSource: null,
+      priceDate: "2026-10-06",
+      isManualPrice: false,
+      unpriced: prices[role] === undefined,
+    }),
+    resolveLabour: (task) =>
+      labour[task] === undefined
+        ? null
+        : {
+            taskKey: task,
+            method: "per-m2",
+            rate: labour[task],
+            currency,
+            outputPerWorkerDay: null,
+            sourceReference: "test",
+            effectiveDate: "2026-10-06",
+            isEstimate: true,
+          },
+  };
+}
+
+// ─── country profiles ───────────────────────────
+
+describe("wall-finishing country profiles", () => {
+  it("covers all thirty-two markets with multiple systems each", () => {
+    expect(WALLFIN_COUNTRY_PROFILES.map((p) => p.code)).toEqual([
+      "NG",
+      "US",
+      "GB",
+      "DE",
+      "IN",
+      "CA",
+      "AU",
+      "JP",
+      "FR",
+      "BR",
+      "SA",
+      "AE",
+      "GH",
+      "KE",
+      "ZA",
+      "CN",
+      "ID",
+      "MX",
+      "KR",
+      "IT",
+      "ET",
+      "EG",
+      "TZ",
+      "CI",
+      "ES",
+      "NL",
+      "PL",
+      "SE",
+      "CH",
+      "SG",
+      "TR",
+      "NZ",
+    ]);
+    for (const p of WALLFIN_COUNTRY_PROFILES) {
+      expect(p.wallSystemIds.length).toBeGreaterThanOrEqual(2);
+      expect(p.templateNotice).toMatch(
+        /not a building code|not a building|building code|pas un DTU|norma tecnica/i,
+      );
+    }
+  });
+
+  it("resolves any worldwide market to a native or inherited template", () => {
+    expect(resolveWallFinCountry("NG").native).toBe(true);
+    // 2026-10-13: GH/KE/ZA were promoted to native profiles.
+    expect(resolveWallFinCountry("GH").native).toBe(true);
+    expect(resolveWallFinCountry("KE").profile.code).toBe("KE");
+    expect(resolveWallFinCountry("ZA").native).toBe(true);
+    // JP/FR/BR/SA/AE also resolve natively now (was: surrogate US/DE/GB).
+    expect(resolveWallFinCountry("JP").profile.code).toBe("JP");
+    expect(resolveWallFinCountry("FR").native).toBe(true);
+    expect(resolveWallFinCountry("BR").native).toBe(true);
+    expect(resolveWallFinCountry("SA").native).toBe(true);
+    expect(resolveWallFinCountry("AE").native).toBe(true);
+    // 2026-10-16 globalization wave: the final 12 markets resolve
+    // natively too, so nothing inherits anymore.
+    const et = resolveWallFinCountry("ET");
+    expect(et.native).toBe(true);
+    expect(et.profile.code).toBe("ET");
+    expect(et.inheritedNotice).toBeNull();
+    const nz = resolveWallFinCountry("NZ");
+    expect(nz.native).toBe(true);
+    expect(nz.profile.code).toBe("NZ");
+    // an unknown future market still inherits the NG reference, reported
+    const xx = resolveWallFinCountry("XX");
+    expect(xx.native).toBe(false);
+    expect(xx.profile.code).toBe("NG");
+    expect(xx.inheritedNotice).toContain("XX");
+  });
+
+  it("every expansion profile references real systems and assemblies", () => {
+    for (const code of ["JP", "FR", "BR", "SA", "AE", "GH", "KE", "ZA"]) {
+      const profile = WALLFIN_COUNTRY_MAP[code];
+      expect(profile, `missing profile ${code}`).toBeDefined();
+      for (const sid of profile.wallSystemIds) {
+        const sys = getWallSystem(sid);
+        expect(sys, `${code} wall system ${sid}`).not.toBeNull();
+        expect(sys?.countryCodes).toContain(code);
+        expect(getAssembly(sys?.interiorFinishAssemblyId ?? "")).not.toBeNull();
+        expect(getAssembly(sys?.exteriorFinishAssemblyId ?? "")).not.toBeNull();
+      }
+      for (const aid of profile.assemblyIds) {
+        expect(getAssembly(aid), `${code} assembly ${aid}`).not.toBeNull();
+      }
+    }
+  });
+
+  it("verified expansion coverages match their documented sources", () => {
+    // ZA: Gyproc RhinoLite datasheet: 2.5 kg/m2 at 2.5 mm -> 10 m2/25 kg bag.
+    const zaSkim = getAssembly("za-interior-skim-paint")?.layers.find(
+      (l) => l.materialRole === "skim-plaster",
+    );
+    expect(zaSkim?.coverageRateM2PerUnit).toBe(16);
+    expect(zaSkim?.unit).toBe("40 kg bag");
+    expect(zaSkim?.note).toMatch(/Gyproc RhinoLite/i);
+    // SA/AE: Knauf MP75 ~8 kg/m2 -> 3.75 m2 per 30 kg bag.
+    for (const id of ["sa-interior-gypsum-paint", "ae-interior-gypsum-paint"]) {
+      const gyp = getAssembly(id)?.layers.find(
+        (l) => l.materialRole === "gypsum-plaster",
+      );
+      expect(gyp?.coverageRateM2PerUnit).toBe(3.75);
+      expect(gyp?.note).toMatch(/Knauf MP75/i);
+    }
+    // BR: Suvinil massa corrida 18 L: up to 75 m2 per package.
+    const brMassa = getAssembly("br-interior-massa-paint")?.layers[0];
+    expect(brMassa?.coverageRateM2PerUnit).toBe(75);
+    expect(brMassa?.note).toMatch(/Suvinil/i);
+    // FR: Prestonett G ~1 kg/m2 -> 5 kg sac = ~5 m2/coat.
+    const frLiss = getAssembly("fr-interior-masonry-paint")?.layers[0];
+    expect(frLiss?.coverageRateM2PerUnit).toBe(5);
+    expect(frLiss?.note).toMatch(/Prestonett/i);
+  });
+
+  it("book-aligned expansion layers carry their derivation; unverified ones stay marked", () => {
+    // JP joint putty: aligned to the verified 16 kg retail box.
+    const jpPutty = getAssembly("jp-interior-gypsum-paint")?.layers.find(
+      (l) => l.materialRole === "joint-filler",
+    );
+    expect(jpPutty?.unit).toBe("box (16 kg)");
+    expect(jpPutty?.coverageRateM2PerUnit).toBe(53.3);
+    expect(jpPutty?.note).toMatch(/verified JP book/i);
+    // GH putty: aligned to the verified 20 kg retail bag.
+    const ghSkim = getAssembliesForCountry("GH")[0]?.layers[0];
+    expect(ghSkim?.unit).toBe("20 kg bag");
+    expect(ghSkim?.coverageRateM2PerUnit).toBe(14.4);
+    expect(ghSkim?.note).toMatch(/scaled linearly/i);
+    // KE putty: verified KE product is the 25 kg bag - layer unchanged.
+    const keSkim = getAssembliesForCountry("KE")[0]?.layers[0];
+    expect(keSkim?.unit).toBe("25 kg bag");
+    expect(keSkim?.coverageRateM2PerUnit).toBe(18);
+    expect(keSkim?.note).toMatch(/Verified KE book/i);
+    // SA/AE MP75 skim: STILL no verified product price -> must say so.
+    for (const code of ["SA", "AE"]) {
+      const skim = getAssembliesForCountry(code)[0]?.layers.find(
+        (l) => l.materialRole === "gypsum-plaster",
+      );
+      expect(skim?.note).toMatch(/product datasheet|verify/i);
+    }
+  });
+});
+
+// ─── areas & openings ───────────────────────────
+
+describe("wall areas", () => {
+  it("computes gross − openings = net and adds reveals", () => {
+    const wall = testWall({
+      openings: [
+        {
+          id: "d1",
+          type: "door",
+          widthM: 0.9,
+          heightM: 2.1,
+          quantity: 1,
+          revealDepthM: 0.15,
+          deduct: true,
+        },
+      ],
+    });
+    const r = calculateWallAreas(wall);
+    expect(r.ok).toBe(true);
+    expect(r.grossAreaM2).toBe(12);
+    // 0.9 × 2.1 = 1.89
+    expect(r.openingAreaM2).toBeCloseTo(1.89, 2);
+    expect(r.netAreaM2).toBeCloseTo(10.11, 2);
+    // perimeter 2 × (0.9 + 2.1) = 6 m × 0.15 m reveal = 0.9 m²
+    expect(r.revealAreaM2).toBeCloseTo(0.9, 2);
+    expect(r.finishingAreaM2).toBeCloseTo(11.01, 2);
+  });
+
+  it("refuses invalid dimensions instead of guessing", () => {
+    const r = calculateWallAreas(testWall({ lengthM: -4 }));
+    expect(r.ok).toBe(false);
+    expect(r.errors[0]).toMatch(/length must be a positive number/);
+  });
+
+  it("warns on malformed openings but keeps the rest", () => {
+    const r = calculateOpeningAreas([
+      {
+        id: "x",
+        type: "custom",
+        widthM: -1,
+        heightM: 2,
+        quantity: 1,
+        revealDepthM: 0,
+        deduct: true,
+      },
+    ]);
+    expect(r.openingAreaM2).toBe(0);
+    expect(r.warnings[0]).toMatch(/invalid dimensions/);
+  });
+});
+
+// ─── the four mandated country cases ────────────
+
+describe("Nigeria: block + render + putty + paint", () => {
+  it("prices render as volumetric cement + sand components", () => {
+    const assembly = getAssembly("ng-interior-block-paint")!;
+    const render = assembly.layers.find((l) => l.id === "ng-int-render")!;
+    const qty = calculateLayerQuantity({
+      layer: render,
+      areaM2: 10,
+      includeOptional: true,
+    });
+    // 10 m² × 0.015 m = 0.15 m³ wet → base stores the DRY volume 0.1995
+    expect(qty.baseQuantity).toBeCloseTo(0.15 * MORTAR_DRY_FACTOR, 3);
+    const comps = mixComponentQuantity(qty.baseQuantity, render.mix!);
+    const cement = comps.find((c) => c.component.role === "concrete-mix")!;
+    const sand = comps.find((c) => c.component.role === "sand")!;
+    // dry 0.1995 m³; cement share 1/5 = 0.0399 m³ ÷ 0.035 = 1.14 bags
+    expect(cement.quantity).toBeCloseTo(
+      (0.15 * MORTAR_DRY_FACTOR * 0.2) / CEMENT_BAG_VOLUME_M3,
+      3,
+    );
+    expect(sand.quantity).toBeCloseTo(0.15 * MORTAR_DRY_FACTOR * 0.8, 3);
+  });
+
+  it("runs the full NG project with prices and labour", async () => {
+    const spec: WallFinProjectSpec = {
+      name: "NG living room",
+      countryCode: "NG",
+      region: "Lagos",
+      buildingType: "residential",
+      rooms: [
+        {
+          id: "r1",
+          name: "Living room",
+          lengthM: 4,
+          widthM: 4,
+          heightM: 3,
+          isWetArea: false,
+          walls: [testWall({ openings: [] })],
+        },
+      ],
+      extraCosts: [],
+      contingencyPercent: 10,
+    };
+    const ctx = priceContext(
+      {
+        "concrete-mix": 9000,
+        sand: 8000,
+        "joint-filler": 7000,
+        sandpaper: 50,
+        primer: 600,
+        "interior-paint": 850,
+      },
+      {
+        wallfin_rendering: 1500,
+        wallfin_putty: 600,
+        wallfin_sanding: 200,
+        wallfin_priming: 300,
+        wallfin_painting: 700,
+      },
+      "NGN",
+    );
+    const result = await estimateWallFinishingProject(spec, ctx);
+    expect(result.ok).toBe(true);
+    expect(result.errors).toHaveLength(0);
+    expect(result.currency).toBe("NGN");
+    expect(result.rooms[0].walls[0].netAreaM2).toBe(12);
+    // 12 × 2 ÷ 10 = 2.4 L base, +10% = 2.64 → purchase 3 L
+    const paint = result.rooms[0].walls[0].layers.find(
+      (l) => l.layerTemplateId === "ng-int-paint",
+    )!;
+    expect(paint.baseQuantity).toBeCloseTo(2.4, 3);
+    expect(paint.purchaseQuantity).toBe(3);
+    expect(result.cost.contingency).toBeGreaterThan(0);
+    expect(result.cost.total).toBeGreaterThan(result.cost.subtotal);
+  });
+});
+
+describe("USA: timber frame + drywall + paint", () => {
+  it("uses tape + compound + primer + paint sequence with US coverages", () => {
+    const assembly = getAssembly("us-interior-drywall-paint")!;
+    expect(assembly.layers.map((l) => l.id)).toEqual([
+      "us-int-tape",
+      "us-int-compound",
+      "us-int-sand",
+      "us-int-primer",
+      "us-int-paint",
+    ]);
+    const paint = assembly.layers.find((l) => l.id === "us-int-paint")!;
+    // 100 m² × 2 ÷ 37 m²/gal = 5.405 gal
+    const qty = calculateLayerQuantity({
+      layer: paint,
+      areaM2: 100,
+      includeOptional: true,
+    });
+    expect(qty.baseQuantity).toBeCloseTo(5.405, 2);
+    expect(qty.purchaseQuantity).toBe(6);
+  });
+
+  it("warns when an interior-only role lands on an exterior wall", () => {
+    const compat = checkCompatibility("interior-paint", "exterior", [
+      "drywall",
+    ]);
+    expect(compat.ok).toBe(false);
+    expect(compat.warnings[0]).toMatch(/interior-only/);
+  });
+});
+
+describe("United Kingdom: masonry + skim plaster + paint", () => {
+  it("skim coverage matches Thistle MultiFinish (10.5 m² per 25 kg bag)", () => {
+    const assembly = getAssembly("gb-interior-block-skim-paint")!;
+    const skim = assembly.layers.find((l) => l.id === "gb-int-skim")!;
+    const qty = calculateLayerQuantity({
+      layer: skim,
+      areaM2: 42,
+      includeOptional: true,
+    });
+    expect(qty.baseQuantity).toBeCloseTo(4, 1); // 42 ÷ 10.5
+    // +12% waste = 4.48 → 5 whole bags
+    expect(qty.purchaseQuantity).toBe(5);
+  });
+
+  it("marks undercoat plaster as optional (plasterer decides)", () => {
+    const assembly = getAssembly("gb-interior-block-skim-paint")!;
+    expect(
+      assembly.layers.find((l) => l.id === "gb-int-undercoat")!.optional,
+    ).toBe(true);
+    expect(assembly.layers.find((l) => l.id === "gb-int-skim")!.optional).toBe(
+      false,
+    );
+  });
+
+  it("supports the UK mist-coat step", () => {
+    const assembly = getAssembly("gb-interior-block-skim-paint")!;
+    const mist = assembly.layers.find((l) => l.id === "gb-int-mist")!;
+    expect(mist.materialRole).toBe("mist-coat");
+  });
+});
+
+describe("India: brick/block + plaster + putty + paint", () => {
+  it("prices Birla putty at 35 m² per 40 kg bag per coat", () => {
+    const assembly = getAssembly("in-interior-brick-paint")!;
+    const putty = assembly.layers.find((l) => l.id === "in-int-putty")!;
+    const qty = calculateLayerQuantity({
+      layer: putty,
+      areaM2: 70,
+      includeOptional: true,
+    });
+    // 70 × 2 ÷ 35 = 4 bags base
+    expect(qty.baseQuantity).toBeCloseTo(4, 3);
+    // +10% waste = 4.4 → 5 whole bags
+    expect(qty.purchaseQuantity).toBe(5);
+  });
+
+  it("runs the full IN project end to end", async () => {
+    const spec: WallFinProjectSpec = {
+      name: "IN bedroom",
+      countryCode: "IN",
+      region: "Mumbai",
+      buildingType: "residential",
+      rooms: [
+        {
+          id: "r1",
+          name: "Bedroom",
+          lengthM: 3.5,
+          widthM: 3,
+          heightM: 3,
+          isWetArea: false,
+          walls: [
+            testWall({
+              wallSystemId: "in-brick-block-plaster",
+              assemblyId: "in-interior-brick-paint",
+              openings: [],
+            }),
+          ],
+        },
+      ],
+      extraCosts: [{ id: "e1", label: "Scaffolding", amount: 2000 }],
+      contingencyPercent: 5,
+    };
+    const ctx = priceContext(
+      {
+        "concrete-mix": 380,
+        sand: 1200,
+        "joint-filler": 720,
+        primer: 137.5,
+        "interior-paint": 95,
+      },
+      {
+        wallfin_rendering: 120,
+        wallfin_putty: 60,
+        wallfin_priming: 25,
+        wallfin_painting: 80,
+      },
+      "INR",
+    );
+    const result = await estimateWallFinishingProject(spec, ctx);
+    expect(result.ok).toBe(true);
+    expect(result.cost.equipment).toBe(2000);
+    expect(result.cost.contingency).toBeGreaterThan(0);
+    // the layer table keeps full transparency
+    const wall = result.rooms[0].walls[0];
+    expect(wall.checklists.length).toBeGreaterThan(0);
+    expect(wall.layers.every((l) => l.steps.length > 0)).toBe(true);
+  });
+});
+
+// ─── cost engine ────────────────────────────────
+
+describe("cost engine", () => {
+  it("computes material + labour with transparency steps", () => {
+    const cost = calculateLayerCost({
+      quantity: 8,
+      purchaseUnit: "litre",
+      price: {
+        materialName: "Emulsion",
+        unitPrice: 10,
+        packUnits: null,
+        purchaseLabel: null,
+        currency: "USD",
+        resolvedMarket: "NG",
+        priceSource: "test",
+        scanSource: null,
+        priceDate: "2026-10-06",
+        isManualPrice: false,
+        unpriced: false,
+      },
+      labour: {
+        taskKey: "wallfin_painting",
+        method: "per-m2",
+        rate: 5,
+        currency: "USD",
+        outputPerWorkerDay: null,
+        sourceReference: "test",
+        effectiveDate: "2026-10-06",
+        isEstimate: true,
+      },
+      areaM2: 36,
+      layerName: "Emulsion",
+    });
+    expect(cost.materialCost).toBe(80);
+    expect(cost.labourCost).toBe(180);
+    expect(cost.errors).toHaveLength(0);
+    expect(cost.labourSteps.some((s) => s.detail.includes("36 m² × 5"))).toBe(
+      true,
+    );
+  });
+
+  it("refuses unpriced layers instead of guessing", () => {
+    const cost = calculateLayerCost({
+      quantity: 2,
+      purchaseUnit: "bag",
+      price: {
+        materialName: null,
+        unitPrice: null,
+        packUnits: null,
+        purchaseLabel: null,
+        currency: "USD",
+        resolvedMarket: null,
+        priceSource: null,
+        scanSource: null,
+        priceDate: null,
+        isManualPrice: false,
+        unpriced: true,
+      },
+      labour: null,
+      areaM2: 10,
+      layerName: "Putty",
+    });
+    expect(cost.materialCost).toBeNull();
+    expect(cost.errors[0]).toMatch(/no verified price/);
+    expect(cost.errors[1]).toMatch(/no labour rate configured/);
+  });
+});
+
+// ─── transparency & rounding ─────────────────────
+
+describe("calculation transparency (prompt example)", () => {
+  it("shows 36 × 2 ÷ 10 = 7.2 L, waste 10% → 7.92 L → purchase 8 L", () => {
+    const assembly = getAssembly("ng-interior-block-paint")!;
+    const paint = assembly.layers.find((l) => l.id === "ng-int-paint")!;
+    const qty = calculateLayerQuantity({
+      layer: paint,
+      areaM2: 36,
+      includeOptional: true,
+    });
+    expect(qty.baseQuantity).toBeCloseTo(7.2, 3);
+    expect(qty.adjustedQuantity).toBeCloseTo(7.92, 2);
+    expect(qty.purchaseQuantity).toBe(8);
+    expect(
+      qty.steps.some((s) => s.detail.includes("36 m² × 2 coats ÷ 10")),
+    ).toBe(true);
+    expect(qty.steps.some((s) => s.label === "Waste allowance")).toBe(true);
+    expect(qty.steps.some((s) => s.label === "Purchase quantity")).toBe(true);
+  });
+});
+
+describe("purchase rounding", () => {
+  it("rounds up per unit family, never under-buys", () => {
+    expect(roundPurchaseQuantity(7.92, "litre")).toBe(8);
+    expect(roundPurchaseQuantity(4.1, "50 kg bag")).toBe(5);
+    expect(roundPurchaseQuantity(2.55, "roll (150 m)")).toBe(3);
+    expect(roundPurchaseQuantity(1.204, "m³")).toBe(1.3);
+  });
+});
+
+// ─── overrides & validation ─────────────────────
+
+describe("manual overrides", () => {
+  it("respects user coverage/coats overrides and flags them", () => {
+    const assembly = getAssembly("ng-interior-block-paint")!;
+    const paint = assembly.layers.find((l) => l.id === "ng-int-paint")!;
+    const qty = calculateLayerQuantity({
+      layer: paint,
+      areaM2: 20,
+      includeOptional: true,
+      overrides: { coverageRateM2PerUnit: 12, coats: 3 },
+    });
+    // 20 × 3 ÷ 12 = 5 L
+    expect(qty.baseQuantity).toBeCloseTo(5, 3);
+    expect(qty.overridden).toContain("coverage");
+    expect(qty.overridden).toContain("coats");
+  });
+
+  it("refuses invalid coverage instead of producing zero silently", () => {
+    const assembly = getAssembly("ng-interior-block-paint")!;
+    const paint = assembly.layers.find((l) => l.id === "ng-int-paint")!;
+    const qty = calculateLayerQuantity({
+      layer: paint,
+      areaM2: 20,
+      includeOptional: true,
+      overrides: { coverageRateM2PerUnit: 0 },
+    });
+    expect(qty.purchaseQuantity).toBe(0);
+    expect(qty.surfaceWarning).toMatch(/coverage rate missing or invalid/);
+  });
+
+  it("refuses thickness outside the valid range", () => {
+    const assembly = getAssembly("ng-interior-block-paint")!;
+    const render = assembly.layers.find((l) => l.id === "ng-int-render")!;
+    const qty = calculateLayerQuantity({
+      layer: render,
+      areaM2: 20,
+      includeOptional: true,
+      overrides: { thicknessMm: 50 },
+    });
+    expect(qty.purchaseQuantity).toBe(0);
+    expect(qty.surfaceWarning).toMatch(/outside the valid range/);
+  });
+});
+
+// ─── wall systems & checklists ───────────────────
+
+describe("wall systems catalogue", () => {
+  it("supports multiple systems per country with substrate tags", () => {
+    const ng = getWallSystem("ng-sandcrete-block")!;
+    expect(ng.substrates).toContain("block");
+    const us = getWallSystem("us-timber-stud-drywall")!;
+    expect(us.substrates).toEqual(["timber", "drywall"]);
+  });
+});
+
+describe("quality checklists", () => {
+  it("builds category-appropriate checklists starting not-started", () => {
+    const assembly = getAssembly("gb-interior-block-skim-paint")!;
+    const skim = assembly.layers.find((l) => l.id === "gb-int-skim")!;
+    const checklist = buildChecklist(skim);
+    expect(checklist.items.every((i) => i.status === "not-started")).toBe(true);
+    expect(checklist.items.some((i) => i.label.includes("Pinholes"))).toBe(
+      true,
+    );
+    const paint = assembly.layers.find((l) => l.id === "gb-int-paint")!;
+    const paintList = buildChecklist(paint);
+    expect(
+      paintList.items.some((i) => i.label.includes("Final inspection")),
+    ).toBe(true);
+  });
+});
+
+// ─── assembly layer add-back / reorder ─────────────
+
+describe("resolveAssemblyLayers: remove, add back, reorder", () => {
+  const assembly = getAssembly("ng-interior-block-paint")!;
+  const ids = () => assembly.layers.map((l) => l.id);
+
+  it("removes and adds a layer back at its template position", () => {
+    const removedId = ids()[1];
+    const removed = resolveAssemblyLayers(assembly, {
+      layers: {},
+      removedLayers: [removedId],
+      addedLayers: [],
+    });
+    expect(removed.layers.map((l) => l.id)).not.toContain(removedId);
+
+    // engine add-back path: the id stays in removedLayers and is
+    // cloned back via addedLayers
+    const restored = resolveAssemblyLayers(assembly, {
+      layers: {},
+      removedLayers: [removedId],
+      addedLayers: [removedId],
+    });
+    expect(restored.layers.map((l) => l.id)).toEqual(ids());
+    expect(restored.warnings).toHaveLength(0);
+  });
+
+  it("reorders layers and flags only displaced ones", () => {
+    const [a, b] = ids();
+    const reordered = resolveAssemblyLayers(assembly, {
+      layers: {},
+      removedLayers: [],
+      addedLayers: [],
+      layerOrder: [b, a],
+    });
+    expect(reordered.layers[0].id).toBe(b);
+    expect(reordered.reorderedIds.has(a)).toBe(true);
+    expect(reordered.reorderedIds.has(b)).toBe(true);
+  });
+
+  it("warns loudly on duplicate adds and unknown ids: never silent", () => {
+    const dup = resolveAssemblyLayers(assembly, {
+      layers: {},
+      removedLayers: [],
+      addedLayers: [ids()[0]],
+    });
+    expect(dup.layers.map((l) => l.id)).toEqual(ids());
+    expect(dup.warnings.some((w) => w.includes("already present"))).toBe(true);
+
+    const unknown = resolveAssemblyLayers(assembly, {
+      layers: {},
+      removedLayers: ["not-a-layer"],
+      addedLayers: [],
+    });
+    expect(unknown.layers.map((l) => l.id)).toEqual(ids());
+    expect(unknown.warnings.some((w) => w.includes("unknown layer"))).toBe(
+      true,
+    );
+  });
+
+  it("keeps unlisted layers in relative order behind listed ones", () => {
+    const [first, , third] = ids();
+    const reordered = resolveAssemblyLayers(assembly, {
+      layers: {},
+      removedLayers: [],
+      addedLayers: [],
+      layerOrder: [third],
+    });
+    expect(reordered.layers[0].id).toBe(third);
+    expect(reordered.layers[1].id).toBe(first);
+    expect(reordered.reorderedIds.has(third)).toBe(true);
+  });
+});

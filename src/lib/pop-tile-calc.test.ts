@@ -1,0 +1,990 @@
+import { describe, it, expect } from "vitest";
+import {
+  calculatePopCeiling,
+  calculatePopEstimate,
+  calculateTile,
+} from "@/lib/pop-tile-calc";
+import type { DbPopMaterial, DbTileMaterial } from "@/types/database";
+import type {
+  PopCalcInput,
+  TileCalcInput,
+  PopCalcResult,
+  PopEstimateResult,
+} from "@/types";
+
+const FT_TO_M = 0.3048;
+
+// =========================================================
+// Realistic Nigerian construction mock data (NGN)
+// =========================================================
+
+function makePopMaterial(
+  overrides: Partial<DbPopMaterial> = {},
+): DbPopMaterial {
+  return {
+    id: "mat-" + Math.random().toString(36).slice(2),
+    workflow: "nigeria",
+    category: "primary",
+    name: "POP Cement",
+    description: null,
+    unit: "bag",
+    coverage_rate: 10,
+    coverage_unit: "m²",
+    package_size: 1,
+    package_unit: "bag",
+    unit_price: 3500,
+    labour_rate_per_sqm: 0,
+    is_optional: false,
+    currency: "NGN",
+    is_active: true,
+    sort_order: 1,
+    created_at: "2025-01-01T00:00:00Z",
+    updated_at: "2025-01-01T00:00:00Z",
+    ...overrides,
+  };
+}
+
+const popMaterials: DbPopMaterial[] = [
+  makePopMaterial({
+    id: "pop-cement",
+    category: "primary",
+    name: "POP Cement",
+    coverage_rate: 10, // 1 bag covers 10 m²
+    package_size: 1,
+    unit_price: 3500,
+    sort_order: 1,
+  }),
+  makePopMaterial({
+    id: "pop-fibre",
+    category: "finishing",
+    name: "Fibre Mesh",
+    coverage_rate: 5,
+    package_size: 1,
+    unit_price: 1500,
+    sort_order: 2,
+  }),
+  makePopMaterial({
+    id: "pop-decorative",
+    category: "decorative",
+    name: "Decorative Cornice",
+    coverage_rate: 4,
+    package_size: 1,
+    unit_price: 5000,
+    is_optional: false,
+    sort_order: 3,
+  }),
+  makePopMaterial({
+    id: "pop-optional-light",
+    category: "finishing",
+    name: "LED Light Fitting",
+    coverage_rate: 2,
+    package_size: 1,
+    unit_price: 8000,
+    is_optional: true,
+    sort_order: 4,
+  }),
+  makePopMaterial({
+    id: "pop-labour",
+    category: "labour",
+    name: "POP Labour",
+    coverage_rate: 0,
+    labour_rate_per_sqm: 1500,
+    sort_order: 5,
+  }),
+  // Inactive material, should always be filtered out
+  makePopMaterial({
+    id: "pop-inactive",
+    category: "primary",
+    name: "Inactive Material",
+    coverage_rate: 10,
+    unit_price: 1000,
+    is_active: false,
+    sort_order: 0,
+  }),
+  // International workflow material, should be filtered out for nigeria workflow
+  makePopMaterial({
+    id: "pop-intl",
+    workflow: "international",
+    category: "primary",
+    name: "International Board",
+    coverage_rate: 8,
+    unit_price: 6000,
+    sort_order: 1,
+  }),
+];
+
+function makeTileMaterial(
+  overrides: Partial<DbTileMaterial> = {},
+): DbTileMaterial {
+  return {
+    id: "tile-mat-" + Math.random().toString(36).slice(2),
+    category: "tile",
+    name: "Porcelain Tile",
+    description: null,
+    unit: "box",
+    coverage_rate: 0,
+    coverage_unit: "m²",
+    package_size: 1,
+    package_unit: "box",
+    unit_price: 0,
+    labour_rate_per_sqm: 0,
+    currency: "NGN",
+    is_active: true,
+    sort_order: 1,
+    created_at: "2025-01-01T00:00:00Z",
+    updated_at: "2025-01-01T00:00:00Z",
+    ...overrides,
+  };
+}
+
+const tileMaterials: DbTileMaterial[] = [
+  makeTileMaterial({ id: "tile-porcelain", name: "Porcelain Tile 600x600" }),
+];
+
+const basePopInput: PopCalcInput = {
+  workflow: "nigeria",
+  roomLength: 6,
+  roomWidth: 4,
+  unit: "meters",
+  wasteMargin: 10,
+  includeDecorative: true,
+  includeOptional: true,
+};
+
+const baseTileInput: TileCalcInput = {
+  surfaceType: "floor",
+  method: "adhesive",
+  length: 5,
+  width: 4,
+  height: 3,
+  tileWidthMm: 600,
+  tileHeightMm: 600,
+  tilesPerBox: 4,
+  tilePricePerBox: 18000,
+  adhesiveCoverageRate: 5, // 1 bag covers 5 m²
+  adhesivePricePerBag: 7000,
+  cementCoverageRate: 5,
+  cementPricePerBag: 4500,
+  cementPackageSize: 1,
+  sandCoverageRate: 5,
+  sandPricePerBag: 3000,
+  sandPackageSize: 1,
+  groutCoverageRate: 10, // 1 kg covers 10 m²
+  groutPricePerKg: 2500,
+  spacerCoverageRate: 50,
+  spacerPricePerPack: 500,
+  spacerPackageSize: 1,
+  wasteMargin: 10,
+  labourRatePerSqm: 0,
+  unit: "meters",
+};
+
+// =========================================================
+// calculatePopCeiling
+// =========================================================
+
+describe("calculatePopCeiling", () => {
+  it("calculates ceiling area as length * width (meters)", () => {
+    const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
+    // 6m x 4m = 24 m²
+    expect(result.ceilingArea).toBeCloseTo(24, 10);
+  });
+
+  it("calculates ceiling area for feet input via conversion", () => {
+    const input: PopCalcInput = {
+      ...basePopInput,
+      roomLength: 20,
+      roomWidth: 16,
+      unit: "feet",
+    };
+    const result = calculatePopCeiling(input, popMaterials, "NGN", "₦");
+    // 20ft x 16ft = (20*0.3048) * (16*0.3048)
+    const expected = 20 * FT_TO_M * (16 * FT_TO_M);
+    expect(result.ceilingArea).toBeCloseTo(expected, 6);
+  });
+
+  it("applies waste margin to compute wasteAmount", () => {
+    const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
+    // ceilingArea = 24, wasteMargin = 10% => wasteAmount = 2.4
+    expect(result.wasteAmount).toBeCloseTo(2.4, 10);
+    // adjusted area = 26.4
+    const adjusted = 24 * 1.1;
+    expect(result.ceilingArea + result.wasteAmount).toBeCloseTo(adjusted, 10);
+  });
+
+  it("filters materials by workflow", () => {
+    const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
+    const names = result.materials.map((m) => m.name);
+    expect(names).not.toContain("International Board");
+  });
+
+  it("filters out inactive materials", () => {
+    const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
+    const names = result.materials.map((m) => m.name);
+    expect(names).not.toContain("Inactive Material");
+  });
+
+  it("excludes decorative materials when includeDecorative=false", () => {
+    const input: PopCalcInput = { ...basePopInput, includeDecorative: false };
+    const result = calculatePopCeiling(input, popMaterials, "NGN", "₦");
+    const names = result.materials.map((m) => m.name);
+    expect(names).not.toContain("Decorative Cornice");
+    // Decorative material is non-optional; with includeDecorative=true it should appear
+    const included = calculatePopCeiling(
+      basePopInput,
+      popMaterials,
+      "NGN",
+      "₦",
+    );
+    expect(included.materials.map((m) => m.name)).toContain(
+      "Decorative Cornice",
+    );
+  });
+
+  it("excludes optional materials when includeOptional=false", () => {
+    const input: PopCalcInput = { ...basePopInput, includeOptional: false };
+    const result = calculatePopCeiling(input, popMaterials, "NGN", "₦");
+    const names = result.materials.map((m) => m.name);
+    expect(names).not.toContain("LED Light Fitting");
+  });
+
+  it("includes optional materials when includeOptional=true", () => {
+    const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
+    const names = result.materials.map((m) => m.name);
+    expect(names).toContain("LED Light Fitting");
+  });
+
+  it("excludes labour category materials from calculation", () => {
+    const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
+    const labourItem = result.materials.find((m) => m.name === "POP Labour");
+    // Labour is excluded, not included in results
+    expect(labourItem).toBeUndefined();
+    // Labour cost is 0
+    expect(result.labourCost).toBe(0);
+  });
+
+  it("uses coverage_rate and package calculations for non-labour materials", () => {
+    const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
+    const cement = result.materials.find((m) => m.name === "POP Cement");
+    expect(cement).toBeDefined();
+    // adjustedArea = 24 * 1.1 = 26.4; coverage 10 m²/bag => quantity 2.64
+    // packagesNeeded = ceil(2.64 / 1) = 3; cost = 3 * 3500 = 10500
+    const adjustedArea = 24 * 1.1;
+    const quantity = adjustedArea / 10;
+    const packagesNeeded = Math.ceil(quantity / 1);
+    expect(cement!.packagesNeeded).toBe(packagesNeeded);
+    expect(cement!.cost).toBe(packagesNeeded * 3500);
+    expect(cement!.quantity).toBeCloseTo(Math.ceil(quantity * 10) / 10, 10);
+  });
+
+  it("handles package_size > 1 correctly for non-labour materials", () => {
+    const materials = [
+      makePopMaterial({
+        id: "bulk-cement",
+        category: "primary",
+        name: "Bulk POP Cement",
+        coverage_rate: 10,
+        package_size: 5, // sold in 5-bag packs
+        unit_price: 15000,
+        sort_order: 1,
+      }),
+      makePopMaterial({
+        id: "labour",
+        category: "labour",
+        name: "Labour",
+        labour_rate_per_sqm: 1000,
+        sort_order: 2,
+      }),
+    ];
+    const result = calculatePopCeiling(basePopInput, materials, "NGN", "₦");
+    const bulk = result.materials.find((m) => m.name === "Bulk POP Cement")!;
+    // adjustedArea = 26.4, quantity = 2.64, packagesNeeded = ceil(2.64 / 5) = 1
+    expect(bulk.packagesNeeded).toBe(1);
+    expect(bulk.cost).toBe(1 * 15000);
+  });
+
+  it("sorts materials by sort_order ascending", () => {
+    const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
+    const orders = result.materials.map((m) => {
+      const mat = popMaterials.find((mm) => mm.name === m.name);
+      return mat ? mat.sort_order : Infinity;
+    });
+    for (let i = 1; i < orders.length; i++) {
+      expect(orders[i]).toBeGreaterThanOrEqual(orders[i - 1]);
+    }
+  });
+
+  it("computes grandTotal = materialCost + labourCost", () => {
+    const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
+    expect(result.grandTotal).toBeCloseTo(
+      result.materialCost + result.labourCost,
+      5,
+    );
+  });
+
+  it("returns currency and currencySymbol as passed", () => {
+    const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
+    expect(result.currency).toBe("NGN");
+    expect(result.currencySymbol).toBe("₦");
+  });
+
+  it("returns no materials when none match workflow", () => {
+    const materials: DbPopMaterial[] = [
+      makePopMaterial({ workflow: "international", id: "intl-only" }),
+    ];
+    const result = calculatePopCeiling(basePopInput, materials, "NGN", "₦");
+    expect(result.materials).toHaveLength(0);
+    expect(result.materialCost).toBe(0);
+    expect(result.labourCost).toBe(0);
+    expect(result.grandTotal).toBe(0);
+  });
+
+  it("handles zero waste margin", () => {
+    const input: PopCalcInput = { ...basePopInput, wasteMargin: 0 };
+    const result = calculatePopCeiling(input, popMaterials, "NGN", "₦");
+    expect(result.wasteAmount).toBe(0);
+    expect(result.ceilingArea).toBeCloseTo(24, 10);
+  });
+});
+
+// =========================================================
+// calculatePopEstimate
+// =========================================================
+
+describe("calculatePopEstimate", () => {
+  it("delegates to calculatePopCeiling and returns identical structure", () => {
+    const ceiling = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
+    const estimate = calculatePopEstimate(
+      basePopInput,
+      popMaterials,
+      "NGN",
+      "₦",
+    );
+    expect(estimate).toEqual(ceiling);
+  });
+
+  it("returns all fields of PopEstimateResult", () => {
+    const estimate = calculatePopEstimate(
+      basePopInput,
+      popMaterials,
+      "NGN",
+      "₦",
+    );
+    const keys: (keyof PopEstimateResult)[] = [
+      "ceilingArea",
+      "materials",
+      "materialCost",
+      "labourCost",
+      "wasteAmount",
+      "grandTotal",
+      "currency",
+      "currencySymbol",
+    ];
+    for (const key of keys) {
+      expect(estimate).toHaveProperty(key);
+    }
+  });
+
+  it("produces same numeric results as calculatePopCeiling", () => {
+    const ceiling = calculatePopCeiling(
+      basePopInput,
+      popMaterials,
+      "NGN",
+      "₦",
+    ) as PopCalcResult;
+    const estimate = calculatePopEstimate(
+      basePopInput,
+      popMaterials,
+      "NGN",
+      "₦",
+    ) as PopEstimateResult;
+    expect(estimate.ceilingArea).toBe(ceiling.ceilingArea);
+    expect(estimate.grandTotal).toBe(ceiling.grandTotal);
+    expect(estimate.materials).toHaveLength(ceiling.materials.length);
+  });
+});
+
+// =========================================================
+// calculateTile
+// =========================================================
+
+describe("calculateTile — identical surfaces (multi-unit)", () => {
+  it("scales area and materials by the surface count", () => {
+    const single = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    const triple = calculateTile(
+      { ...baseTileInput, quantity: 3 },
+      tileMaterials,
+      "NGN",
+      "₦",
+    );
+    expect(triple.surfaceArea).toBeCloseTo(single.surfaceArea * 3, 5);
+    // Identical surfaces are bought as one project: the tile count is
+    // rounded ONCE on the combined area, not per surface.
+    const wasteMult = 1 + (baseTileInput.wasteMargin ?? 0) / 100;
+    const tileAreaM2 = 0.6 * 0.6;
+    expect(triple.tilesNeeded).toBe(
+      Math.ceil((single.surfaceArea * 3 * wasteMult) / tileAreaM2),
+    );
+    expect(triple.tilesNeeded).toBeLessThanOrEqual(single.tilesNeeded * 3);
+    // Consumables round ONCE on the combined project area (14 bags for
+    // 3 surfaces beats 3 × 5 = 15 per-surface rounding).
+    expect(triple.adhesiveNeeded).toBe(
+      Math.ceil(
+        (single.surfaceArea * 3 * wasteMult) / baseTileInput.adhesiveCoverageRate,
+      ),
+    );
+    expect(triple.adhesiveNeeded).toBeLessThanOrEqual(
+      single.adhesiveNeeded * 3,
+    );
+    expect(triple.groutNeeded).toBe(
+      Math.ceil(
+        (single.surfaceArea * 3 * wasteMult) / baseTileInput.groutCoverageRate,
+      ),
+    );
+  });
+
+  it("defaults to one surface and floors bad values safely", () => {
+    const one = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    expect(
+      calculateTile({ ...baseTileInput }, tileMaterials, "NGN", "₦").surfaceArea,
+    ).toBe(one.surfaceArea);
+    expect(
+      calculateTile(
+        { ...baseTileInput, quantity: 0 },
+        tileMaterials,
+        "NGN",
+        "₦",
+      ).surfaceArea,
+    ).toBe(one.surfaceArea);
+    expect(
+      calculateTile(
+        { ...baseTileInput, quantity: 2.7 },
+        tileMaterials,
+        "NGN",
+        "₦",
+      ).surfaceArea,
+    ).toBeCloseTo(one.surfaceArea * 3, 5); // rounds 2.7 → 3
+  });
+});
+
+describe("calculateTile", () => {
+  it("calculates floor surface area as length * width", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    // 5m x 4m = 20 m²
+    expect(result.surfaceArea).toBeCloseTo(20, 10);
+  });
+
+  it("calculates wall surface area as length * height", () => {
+    const input: TileCalcInput = {
+      ...baseTileInput,
+      surfaceType: "wall",
+      length: 4,
+      height: 3,
+    };
+    const result = calculateTile(input, tileMaterials, "NGN", "₦");
+    // 4m x 3m = 12 m²
+    expect(result.surfaceArea).toBeCloseTo(12, 10);
+  });
+
+  it("applies waste margin to compute wasteAmount", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    // surfaceArea = 20, waste 10% => wasteAmount = 2
+    expect(result.wasteAmount).toBeCloseTo(2, 10);
+  });
+
+  it("computes tile area from mm dimensions (600x600mm = 0.36 m²)", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    expect(result.tileArea).toBeCloseTo(0.36, 10);
+  });
+
+  it("computes tilesNeeded = ceil(adjustedArea / tileArea)", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    // adjustedArea = 20 * 1.1 = 22; tileArea = 0.36 => ceil(22 / 0.36) = ceil(61.11) = 62
+    const expected = Math.ceil((20 * 1.1) / 0.36);
+    expect(result.tilesNeeded).toBe(expected);
+    expect(result.tilesNeeded).toBe(62);
+  });
+
+  it("computes boxesNeeded = ceil(tilesNeeded / tilesPerBox)", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    // tilesNeeded = 62, tilesPerBox = 4 => ceil(62/4) = 16
+    const expected = Math.ceil(62 / 4);
+    expect(result.boxesNeeded).toBe(expected);
+    expect(result.boxesNeeded).toBe(16);
+  });
+
+  it("computes tileCost = boxesNeeded * tilePricePerBox", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    expect(result.tileCost).toBe(
+      result.boxesNeeded * baseTileInput.tilePricePerBox,
+    );
+  });
+
+  it("computes adhesiveNeeded with coverage rate", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    // adjustedArea = 22, coverage 5 m²/bag => 4.4 bags => ceil => 5
+    expect(result.adhesiveNeeded).toBe(Math.ceil(22 / 5));
+    expect(result.adhesiveNeeded).toBe(5);
+  });
+
+  it("computes adhesiveCost = ceil(adhesiveNeeded) * adhesivePricePerBag", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    expect(result.adhesiveCost).toBe(
+      result.adhesiveNeeded * baseTileInput.adhesivePricePerBag,
+    );
+  });
+
+  it("computes groutNeeded with coverage rate", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    // adjustedArea = 22, coverage 10 m²/kg => 2.2 kg => ceil => 3
+    expect(result.groutNeeded).toBe(Math.ceil(22 / 10));
+    expect(result.groutNeeded).toBe(3);
+  });
+
+  it("computes groutCost = ceil(groutNeeded) * groutPricePerKg", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    expect(result.groutCost).toBe(
+      result.groutNeeded * baseTileInput.groutPricePerKg,
+    );
+  });
+
+  it("computes materialCost = tileCost + adhesiveCost + groutCost", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    expect(result.materialCost).toBeCloseTo(
+      result.tileCost +
+        result.adhesiveCost +
+        result.cementCost +
+        result.sandCost +
+        result.groutCost +
+        result.spacerCost,
+      5,
+    );
+  });
+
+  it("labourCost is 0 (labour not included)", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    expect(result.labourCost).toBe(0);
+  });
+
+  it("computes grandTotal = materialCost (no labour)", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    expect(result.grandTotal).toBeCloseTo(result.materialCost, 5);
+  });
+
+  it("returns currency and currencySymbol as passed", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    expect(result.currency).toBe("NGN");
+    expect(result.currencySymbol).toBe("₦");
+  });
+
+  // ---- Edge cases ----
+
+  it("edge case: tileArea = 0 returns tilesNeeded = 0", () => {
+    const input: TileCalcInput = {
+      ...baseTileInput,
+      tileWidthMm: 0,
+      tileHeightMm: 600,
+    };
+    const result = calculateTile(input, tileMaterials, "NGN", "₦");
+    expect(result.tileArea).toBe(0);
+    expect(result.tilesNeeded).toBe(0);
+    expect(result.boxesNeeded).toBe(0);
+  });
+
+  it("edge case: tilesPerBox = 0 returns boxesNeeded = tilesNeeded", () => {
+    const input: TileCalcInput = { ...baseTileInput, tilesPerBox: 0 };
+    const result = calculateTile(input, tileMaterials, "NGN", "₦");
+    expect(result.boxesNeeded).toBe(result.tilesNeeded);
+    expect(result.boxesNeeded).toBe(62);
+  });
+
+  it("edge case: adhesiveCoverageRate = 0 returns adhesiveNeeded = 0 and adhesiveCost = 0", () => {
+    const input: TileCalcInput = { ...baseTileInput, adhesiveCoverageRate: 0 };
+    const result = calculateTile(input, tileMaterials, "NGN", "₦");
+    expect(result.adhesiveNeeded).toBe(0);
+    expect(result.adhesiveCost).toBe(0);
+  });
+
+  it("edge case: groutCoverageRate = 0 returns groutNeeded = 0 and groutCost = 0", () => {
+    const input: TileCalcInput = { ...baseTileInput, groutCoverageRate: 0 };
+    const result = calculateTile(input, tileMaterials, "NGN", "₦");
+    expect(result.groutNeeded).toBe(0);
+    expect(result.groutCost).toBe(0);
+  });
+
+  // ---- Unit conversion ----
+
+  it("converts feet to meters for floor surface", () => {
+    const input: TileCalcInput = {
+      ...baseTileInput,
+      surfaceType: "floor",
+      length: 16.4042, // ~5 meters
+      width: 13.1234, // ~4 meters
+      unit: "feet",
+    };
+    const result = calculateTile(input, tileMaterials, "NGN", "₦");
+    const expected = 16.4042 * FT_TO_M * (13.1234 * FT_TO_M);
+    expect(result.surfaceArea).toBeCloseTo(expected, 4);
+  });
+
+  it("converts feet to meters for wall surface", () => {
+    const input: TileCalcInput = {
+      ...baseTileInput,
+      surfaceType: "wall",
+      length: 13.1234, // ~4 meters
+      height: 9.8425, // ~3 meters
+      width: 0,
+      unit: "feet",
+    };
+    const result = calculateTile(input, tileMaterials, "NGN", "₦");
+    const expected = 13.1234 * FT_TO_M * (9.8425 * FT_TO_M);
+    expect(result.surfaceArea).toBeCloseTo(expected, 4);
+  });
+
+  it("uses meters directly when unit is meters", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    expect(result.surfaceArea).toBeCloseTo(20, 10);
+  });
+
+  // ---- Combined realistic Nigerian scenario ----
+
+  it("matches a full hand-computed Nigerian scenario", () => {
+    // Floor: 5m x 4m, 600x600 tiles, 4 per box, ₦18,000/box
+    // 10% waste, adhesive 5 m²/bag @ ₦7,000, grout 10 m²/kg @ ₦2,500
+    // spacers 50 m²/pack @ ₦500, labour ₦2,000/m²
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+
+    const surfaceArea = 20;
+    const adjustedArea = 22;
+    const tileArea = 0.36;
+    const tilesNeeded = Math.ceil(adjustedArea / tileArea); // 62
+    const boxesNeeded = Math.ceil(tilesNeeded / 4); // 16
+    const tileCost = boxesNeeded * 18000; // 288,000
+    const adhesiveNeeded = Math.ceil(adjustedArea / 5); // 5
+    const adhesiveCost = adhesiveNeeded * 7000; // 35,000
+    const groutNeeded = Math.ceil(adjustedArea / 10); // 3
+    const groutCost = groutNeeded * 2500; // 7,500
+    const spacerNeeded = Math.ceil(adjustedArea / 50); // 1
+    const spacerCost = spacerNeeded * 500; // 500
+    const materialCost = tileCost + adhesiveCost + groutCost + spacerCost; // 331,000
+    const labourCost = 0; // Labour not included
+    const grandTotal = materialCost; // 331,000
+
+    expect(result.surfaceArea).toBeCloseTo(surfaceArea, 10);
+    expect(result.tileArea).toBeCloseTo(tileArea, 10);
+    expect(result.tilesNeeded).toBe(tilesNeeded);
+    expect(result.boxesNeeded).toBe(boxesNeeded);
+    expect(result.tileCost).toBe(tileCost);
+    expect(result.adhesiveNeeded).toBe(adhesiveNeeded);
+    expect(result.adhesiveCost).toBe(adhesiveCost);
+    expect(result.groutNeeded).toBe(groutNeeded);
+    expect(result.groutCost).toBe(groutCost);
+    expect(result.spacerNeeded).toBe(spacerNeeded);
+    expect(result.spacerCost).toBe(spacerCost);
+    expect(result.materialCost).toBe(materialCost);
+    expect(result.labourCost).toBe(labourCost);
+    expect(result.grandTotal).toBe(grandTotal);
+  });
+});
+
+// =========================================================
+// Waste margin edge case tests
+// =========================================================
+
+describe("Waste margin clamping", () => {
+  it("should clamp negative waste margin to 0 for POP", () => {
+    const input: PopCalcInput = {
+      roomLength: 4,
+      roomWidth: 4,
+      wasteMargin: -10, // negative, should be clamped to 0
+      workflow: "nigeria",
+      includeDecorative: false,
+      includeOptional: false,
+      unit: "meters",
+    };
+    const materials: DbPopMaterial[] = [
+      {
+        id: "m1",
+        workflow: "nigeria",
+        category: "primary",
+        name: "POP Powder",
+        description: null,
+        coverage_rate: 2,
+        coverage_unit: "m²/kg",
+        package_size: 5,
+        package_unit: "kg",
+        unit_price: 3000,
+        currency: "NGN",
+        labour_rate_per_sqm: 0,
+        is_optional: false,
+        is_active: true,
+        sort_order: 1,
+        created_at: "",
+        updated_at: "",
+        unit: "kg",
+      },
+    ];
+    const result = calculatePopCeiling(input, materials, "NGN", "₦");
+    // With 0% waste: area = 16, adjusted = 16
+    // quantity = 16/2 = 8, packages = ceil(8/5) = 2, cost = 6000
+    expect(result.ceilingArea).toBe(16);
+    expect(result.wasteAmount).toBe(0); // no waste applied
+  });
+
+  it("should clamp waste margin > 100 to 100 for POP", () => {
+    const input: PopCalcInput = {
+      roomLength: 4,
+      roomWidth: 4,
+      wasteMargin: 200, // > 100, should be clamped to 100
+      workflow: "nigeria",
+      includeDecorative: false,
+      includeOptional: false,
+      unit: "meters",
+    };
+    const materials: DbPopMaterial[] = [
+      {
+        id: "m1",
+        workflow: "nigeria",
+        category: "primary",
+        name: "POP Powder",
+        description: null,
+        coverage_rate: 2,
+        coverage_unit: "m²/kg",
+        package_size: 5,
+        package_unit: "kg",
+        unit_price: 3000,
+        currency: "NGN",
+        labour_rate_per_sqm: 0,
+        is_optional: false,
+        is_active: true,
+        sort_order: 1,
+        created_at: "",
+        updated_at: "",
+        unit: "kg",
+      },
+    ];
+    const result = calculatePopCeiling(input, materials, "NGN", "₦");
+    // With 100% waste: area = 16, adjusted = 32
+    // quantity = 32/2 = 16, packages = ceil(16/5) = 4, cost = 12000
+    expect(result.wasteAmount).toBe(16); // 32 - 16 = 16
+  });
+
+  it("should clamp negative waste margin to 0 for Tile", () => {
+    const input: TileCalcInput = {
+      surfaceType: "floor",
+      length: 3,
+      width: 4,
+      height: 0,
+      unit: "meters",
+      tileWidthMm: 600,
+      tileHeightMm: 600,
+      tilesPerBox: 4,
+      tilePricePerBox: 5000,
+      method: "adhesive",
+      adhesiveCoverageRate: 5,
+      adhesivePricePerBag: 3000,
+      cementCoverageRate: 0,
+      cementPackageSize: 0,
+      cementPricePerBag: 0,
+      sandCoverageRate: 0,
+      sandPackageSize: 0,
+      sandPricePerBag: 0,
+      groutCoverageRate: 5,
+      groutPricePerKg: 1000,
+      spacerCoverageRate: 0,
+      spacerPackageSize: 0,
+      spacerPricePerPack: 0,
+      wasteMargin: -20, // negative, should be clamped to 0
+      labourRatePerSqm: 0,
+    };
+    const materials: DbTileMaterial[] = [];
+    const result = calculateTile(input, materials, "NGN", "₦");
+    // With 0% waste: area = 12
+    expect(result.surfaceArea).toBe(12);
+    expect(result.wasteAmount).toBe(0);
+  });
+});
+
+// =========================================================
+// AUDIT FIX: missing coverage rates / prices must warn, never silently zero
+// =========================================================
+
+describe("AUDIT FIX: POP missing-configuration warnings", () => {
+  it("warns when a POP material has no coverage rate (quantity and cost excluded)", () => {
+    const mats = [
+      makePopMaterial({
+        id: "pop-nc",
+        name: "Unconfigured POP",
+        coverage_rate: 0,
+      }),
+    ];
+    const result = calculatePopCeiling(basePopInput, mats, "NGN", "₦");
+    expect(
+      result.materials.find((m) => m.name === "Unconfigured POP")
+        ?.packagesNeeded,
+    ).toBe(0);
+    expect(result.warnings).toBeDefined();
+    expect(
+      result.warnings!.some((w) =>
+        w.includes("Coverage rate is not configured for 'Unconfigured POP'"),
+      ),
+    ).toBe(true);
+  });
+
+  it("warns when a POP material has no unit price (cost silently zero)", () => {
+    const mats = [
+      makePopMaterial({ id: "pop-np", name: "No Price POP", unit_price: 0 }),
+    ];
+    const result = calculatePopCeiling(basePopInput, mats, "NGN", "₦");
+    expect(
+      result.warnings!.some((w) =>
+        w.includes("Unit price is not configured for 'No Price POP'"),
+      ),
+    ).toBe(true);
+  });
+
+  it("produces no warnings when all POP materials are configured", () => {
+    const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
+    expect(result.warnings ?? []).toHaveLength(0);
+  });
+});
+
+describe("AUDIT FIX: Tile missing-configuration warnings", () => {
+  it("warns when adhesive coverage rate is not configured (adhesive method)", () => {
+    const result = calculateTile(
+      { ...baseTileInput, adhesiveCoverageRate: 0 },
+      tileMaterials,
+      "NGN",
+      "₦",
+    );
+    expect(result.adhesiveCost).toBe(0);
+    expect(result.warnings).toBeDefined();
+    expect(
+      result.warnings!.some((w) =>
+        w.includes("Adhesive coverage rate is not configured"),
+      ),
+    ).toBe(true);
+  });
+
+  it("warns when traditional-method cement coverage rate is not configured", () => {
+    const result = calculateTile(
+      { ...baseTileInput, method: "traditional", cementCoverageRate: 0 },
+      tileMaterials,
+      "NGN",
+      "₦",
+    );
+    expect(
+      result.warnings!.some((w) =>
+        w.includes("Cement coverage rate is not configured"),
+      ),
+    ).toBe(true);
+  });
+
+  it("warns when grout coverage rate is not configured", () => {
+    const result = calculateTile(
+      { ...baseTileInput, groutCoverageRate: 0 },
+      tileMaterials,
+      "NGN",
+      "₦",
+    );
+    expect(
+      result.warnings!.some((w) =>
+        w.includes("Grout coverage rate is not configured"),
+      ),
+    ).toBe(true);
+  });
+
+  it("produces no warnings when tile configuration is complete", () => {
+    const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
+    expect(result.warnings ?? []).toHaveLength(0);
+  });
+});
+
+// ── Audit fix F6 (2026-10-26): rigorous grout + adhesive notch math ──
+
+describe("audit fix F6 — tile grout joint-volume formula & adhesive notch table", () => {
+  const base = {
+    surfaceType: "floor" as const,
+    method: "adhesive" as const,
+    length: 4,
+    width: 3,
+    height: 0,
+    tileWidthMm: 600,
+    tileHeightMm: 600,
+    tilesPerBox: 4,
+    tilePricePerBox: 25000,
+    adhesiveCoverageRate: 0,
+    adhesivePricePerBag: 8000,
+    cementCoverageRate: 0,
+    cementPricePerBag: 0,
+    cementPackageSize: 1,
+    sandCoverageRate: 0,
+    sandPricePerBag: 0,
+    sandPackageSize: 1,
+    groutCoverageRate: 0,
+    groutPricePerKg: 1500,
+    spacerCoverageRate: 0,
+    spacerPricePerPack: 0,
+    spacerPackageSize: 1,
+    wasteMargin: 0,
+    labourRatePerSqm: 0,
+    unit: "meters" as const,
+  };
+
+  it("large tiles use little grout: 600x600x10 @3mm ≈ 0.18 kg/m2", () => {
+    const r = calculateTile(
+      {
+        ...base,
+        tileThicknessMm: 10,
+        jointWidthMm: 3,
+      },
+      [],
+      "NGN",
+      "₦",
+    );
+    // 12 m2 * ~0.18 kg/m2 = ~2.16 kg, rounded up to whole kg = 3
+    expect(r.groutNeeded).toBe(3);
+  });
+
+  it("small tiles use far more grout: 100x100x6 @3mm ≈ 0.65 kg/m2", () => {
+    const r = calculateTile(
+      {
+        ...base,
+        tileWidthMm: 100,
+        tileHeightMm: 100,
+        tileThicknessMm: 6,
+        jointWidthMm: 3,
+      },
+      [],
+      "NGN",
+      "₦",
+    );
+    expect(r.groutNeeded).toBeGreaterThan(6.5);
+    expect(r.groutNeeded).toBeLessThan(9);
+  });
+
+  it("falls back to the flat coverage rate when geometry is absent", () => {
+    const r = calculateTile(
+      {
+        ...base,
+        groutCoverageRate: 6, // 6 m2 per kg
+      },
+      [],
+      "NGN",
+      "₦",
+    );
+    expect(r.groutNeeded).toBeCloseTo(12 / 6, 5);
+  });
+
+  it("adhesive notch table drives consumption when no coverage rate is set", () => {
+    const thin = calculateTile({ ...base, adhesiveNotchMm: 4 }, [], "NGN", "₦");
+    const standard = calculateTile(
+      { ...base, adhesiveNotchMm: 6 },
+      [],
+      "NGN",
+      "₦",
+    );
+    expect(thin.adhesiveNeeded).toBe(Math.ceil(12 * 2.75));
+    expect(standard.adhesiveNeeded).toBe(Math.ceil(12 * 4.25));
+  });
+});

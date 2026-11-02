@@ -1,0 +1,206 @@
+# robots.txt for FRELUX
+# https://freluxtools.com
+# Public pages are crawlable. Admin, auth, and API routes are excluded.
+
+User-agent: *
+Allow: /
+
+# Pillar 1: Tools & Estimators
+Allow: /construction-tools
+Allow: /calculators
+Allow: /tools/
+Allow: /start-building
+Allow: /paint-calculator
+Allow: /screeding-calculator
+Allow: /pop-ceiling-calculator
+Allow: /tile-calculator
+Allow: /finish-estimator
+Allow: /build-to-roof-estimator
+Allow: /structural-calculator
+Allow: /masonry-calculator
+Allow: /plastering-calculator
+Allow: /drywall-calculator
+Allow: /paving-calculator
+Allow: /drainage-calculator
+Allow: /septic-sizing-calculator
+Allow: /temporary-works-calculator
+Allow: /insulation-calculator
+Allow: /demolition-calculator
+Allow: /blueprint-takeoff
+Allow: /concrete-takeoff-calculator
+Allow: /earthworks-cut-fill
+Allow: /roof-framing-calculator
+Allow: /foundation-calculator
+Allow: /project-timeline
+Allow: /construction-sequence
+Allow: /image-estimator
+Allow: /smart-calculator
+Allow: /conversational-estimator
+Allow: /bim-ifc-import
+Allow: /solar-pv-estimator
+Allow: /field-sync
+Allow: /count-vision
+Allow: /electrical
+Allow: /plumbing
+Allow: /waterproofing
+Allow: /wall-finish-estimator
+Allow: /flooring
+Allow: /increte-flooring-calculator
+Allow: /reinforcement
+Allow: /foundation
+Allow: /doors-windows
+Allow: /generator
+Allow: /boq-generator
+Allow: /cash-flow-timeline
+Allow: /circular-reuse
+Allow: /contractor-credit
+Allow: /defect-diagnosis
+Allow: /estimate-refresh
+Allow: /heat-comfort
+Allow: /labour-estimator
+Allow: /maintenance-planner
+Allow: /margin-calculator
+Allow: /regional-cost-index
+Allow: /warranty-certificate
+Allow: /carbon-footprint
+Allow: /brand-studio
+Allow: /visual-finishing-estimator
+
+# Pillar 2: Prices & Market Intelligence
+Allow: /prices
+Allow: /material-prices
+Allow: /market/
+
+# Pillar 3: Colors & Design
+Allow: /colors
+Allow: /colors/compare
+Allow: /colors/paint/
+Allow: /colors/
+Allow: /ai-color-assistant
+Allow: /paint-comparison
+
+# Pillar 4: Marketplace & Pro Connect
+Allow: /marketplace
+Allow: /marketplace/category/
+Allow: /marketplace/sellers/
+Allow: /marketplace/products
+Allow: /marketplace/products/
+Allow: /pro-connect
+Allow: /pro-connect/
+Allow: /pro/
+
+# Pillar 5: Knowledge, Templates & Resources
+Allow: /learn
+Allow: /faq
+Allow: /faq/
+Allow: /learn/category/
+Allow: /learn/library
+Allow: /learn/
+Allow: /templates
+Allow: /templates/
+Allow: /glossary
+Allow: /printables
+Allow: /user-guide
+Allow: /case-studies
+Allow: /gallery
+Allow: /surface-assessment
+
+# Company & Legal
+Allow: /about
+Allow: /contact
+Allow: /pricing
+Allow: /partners
+Allow: /credits
+Allow: /developers
+Allow: /rewards
+Allow: /feedback
+Allow: /data-request
+Allow: /privacy-policy
+Allow: /terms
+Allow: /cookie-policy
+Allow: /disclaimer
+Allow: /ai-disclaimer
+
+# Disallow private/auth/admin routes
+Disallow: /properties
+Disallow: /metrics
+Disallow: /data-request/resolve
+Disallow: /admin
+Disallow: /investor-centre
+Disallow: /login
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /achievements
+Disallow: /color-preview
+Disallow: /my-projects
+Disallow: /my-templates
+Disallow: /shared/
+Disallow: /gallery/new
+Disallow: /project-workspace
+Disallow: /estimate/
+Disallow: /marketplace/post
+Disallow: /marketplace/products/post
+Disallow: /marketplace/products/my
+Disallow: /marketplace/my-listings
+Disallow: /marketplace/orders/
+Disallow: /pro-connect/register
+Disallow: /pro-connect/dashboard
+Disallow: /messages
+Disallow: /contractor
+Disallow: /worker-channels
+Disallow: /clients
+Disallow: /onboarding
+Disallow: /analytics
+
+# AI crawlers and answer engines: no restrictions, no crawl delay.
+# The FAQ hub and its 62 answer pages are prerendered static HTML with FAQPage
+# structured data, so they can be read without executing JavaScript.
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-User
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: anthropic-ai
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Applebot
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+User-agent: Amazonbot
+Allow: /
+User-agent: CCBot
+Allow: /
+User-agent: Bytespider
+Allow: /
+User-agent: meta-externalagent
+Allow: /
+User-agent: cohere-ai
+Allow: /
+User-agent: Diffbot
+Allow: /
+User-agent: YouBot
+Allow: /
+User-agent: DuckAssistBot
+Allow: /
+User-agent: MistralAI-User
+Allow: /
+User-agent: Grok
+Allow: /
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://freluxtools.com/sitemap.xml

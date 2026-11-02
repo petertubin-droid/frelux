@@ -1,0 +1,74 @@
+[
+ {
+  "market": "US",
+  "material_slug": "us-quikrete-concrete-80lb",
+  "retailer": "Home Depot",
+  "label": "Quikrete 80 lb Concrete Mix",
+  "product_url": "https://www.homedepot.com/p/Quikrete-80-lb-Concrete-Mix-110180/100450509",
+  "expected_unit": "bag",
+  "currency": "USD"
+ },
+ {
+  "market": "US",
+  "material_slug": "us-thompsons-waterseal",
+  "retailer": "Walmart",
+  "label": "Thompson's WaterSeal Multi-Surface Waterproofer, Clear, 1 Gallon",
+  "product_url": "https://www.walmart.com/ip/Thompson-s-WaterSeal-Multi-Surface-Waterproofer-Clear-1-Gallon/17171429",
+  "expected_unit": "gallon",
+  "currency": "USD"
+ },
+ {
+  "market": "US",
+  "material_slug": "us-behr-premium-plus-interior",
+  "retailer": "Home Depot",
+  "label": "Behr Premium Plus Interior Satin Enamel",
+  "product_url": "https://www.homedepot.com/p/BEHR-PREMIUM-PLUS-5-gal-500E-3-Rain-Washed-Satin-Enamel-Low-Odor-Interior-Paint-Primer-705005/204882761",
+  "expected_unit": "gallon",
+  "currency": "USD"
+ },
+ {
+  "market": "US",
+  "material_slug": "us-sand-50lb",
+  "retailer": "Ace Hardware",
+  "label": "Quikrete All-Purpose Sand 50 lb (Mfr# 115253)",
+  "product_url": "https://www.acehardware.com/departments/building-supplies/concrete-cement-and-masonry/sand-and-gravel/5419056",
+  "expected_unit": "50 lb bag",
+  "currency": "USD"
+ },
+ {
+  "market": "US",
+  "material_slug": "us-concrobium-mold-control",
+  "retailer": "Home Depot",
+  "label": "Concrobium 1 gal Mold Control Jug (025001)",
+  "product_url": "https://www.homedepot.com/p/Concrobium-1-gal-Mold-Control-Jug-025001/100654369",
+  "expected_unit": "gallon",
+  "currency": "USD"
+ },
+ {
+  "market": "US",
+  "material_slug": "us-concrobium-mold-control",
+  "retailer": "Zoro",
+  "label": "Concrobium Mold Control 1 gal Jug (Zoro 25001CAL)",
+  "product_url": "https://www.zoro.com/concrobium-mold-control-1-gal-jug/i_G4941883/",
+  "expected_unit": "gallon",
+  "currency": "USD"
+ },
+ {
+  "market": "US",
+  "material_slug": "us-kilz-2-primer",
+  "retailer": "Ace Hardware",
+  "label": "KILZ 2 All-Purpose Primer 1 gal White (Mfr# 20041)",
+  "product_url": "https://www.acehardware.com/departments/paint-and-supplies/primers/primers/17937",
+  "expected_unit": "gallon",
+  "currency": "USD"
+ },
+ {
+  "market": "US",
+  "material_slug": "us-dap-amp-caulk",
+  "retailer": "Thomas Do it Center",
+  "label": "DAP AMP 9 oz All-Weather Window/Door/Siding Sealant, White",
+  "product_url": "https://www.thomasdoit.com/sealant/polymer-sealant",
+  "expected_unit": "9 oz tube",
+  "currency": "USD"
+ }
+]

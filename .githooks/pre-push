@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# FRELUX pre-push hook — runs tests before allowing push to main
+# Bypass with: git push --no-verify
+
+echo "🔍 Running pre-push checks..."
+
+# Run build verification
+echo "  → Building project..."
+npm run build > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "❌ Build failed — push aborted. Fix build errors before pushing."
+  echo "   Bypass with: git push --no-verify"
+  exit 1
+fi
+
+# Run tests
+echo "  → Running test suite..."
+npx vitest run --reporter=dot > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed — push aborted. Fix failing tests before pushing."
+  echo "   Bypass with: git push --no-verify"
+  exit 1
+fi
+
+echo "✅ Pre-push checks passed — proceeding with push."

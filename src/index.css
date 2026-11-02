@@ -1,0 +1,2417 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================
+   PREMIUM DESIGN SYSTEM, FRELUX
+   Refined, sophisticated, high-end SaaS aesthetic
+   ========================================================= */
+
+/* Brand color CSS variables - set by BrandingProvider from site_branding table.
+   Stored as space-separated RGB channels for Tailwind alpha support.
+   Defaults match the original hardcoded Tailwind values. */
+:root {
+  --brand-primary: 109 40 217; /* #6D28D9 */
+  --brand-secondary: 10 10 26; /* #0A0A1A */
+  --brand-accent: 249 115 22; /* #F97316 */
+}
+/* shadcn/ui semantic tokens - mapped to FRELUX brand system.
+   HSL channels for hsl(var(--token) / <alpha>) support.
+   Primary/ring/accent mirror the brand colors (updated dynamically by BrandingProvider). */
+:root {
+  --background: 0 0% 100%; /* white */
+  --background-mid: 0 0% 97%; /* off-white, elevated sticky surfaces */
+  --foreground: 240 10% 9%; /* neutral-900 */
+  --card: 0 0% 100%; /* white */
+  --card-foreground: 240 10% 9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 9%;
+  --primary: 258 74% 48%; /* #6D28D9 brand-purple */
+  --primary-foreground: 0 0% 100%; /* white */
+  --primary-light: 258 74% 62%; /* #9B6CF2, lighter purple */
+  --primary-lighter: 258 80% 75%; /* #C4A6F8, lightest purple */
+  --secondary: 240 5% 96%; /* neutral-100 */
+  --secondary-foreground: 240 10% 9%;
+  --muted: 240 5% 96%; /* neutral-100 */
+  --muted-foreground: 240 8% 47%; /* neutral-500 */
+  --accent: 240 5% 96%;
+  --accent-foreground: 240 10% 9%;
+  --destructive: 0 72% 51%; /* red-600 */
+  --destructive-foreground: 0 0% 100%;
+  --border: 240 6% 90%; /* neutral-200 */
+  --input: 240 6% 90%;
+  --ring: 258 74% 48%; /* brand-purple */
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: 240 44% 7%; /* #0A0A1A brand-navy */
+  --background-mid: 240 44% 10%; /* navy, elevated sticky surfaces */
+  --foreground: 0 0% 100%; /* white */
+  --card: 240 42% 12%; /* #12122A navy-mid */
+  --card-foreground: 0 0% 100%;
+  --popover: 240 42% 12%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 258 74% 58%; /* lighter purple for dark bg */
+  --primary-foreground: 0 0% 100%;
+  --primary-light: 258 74% 68%; /* even lighter for dark bg gradients */
+  --primary-lighter: 258 80% 80%; /* lightest purple for dark bg */
+  --secondary: 240 28% 23%; /* #2A2A4A navy-soft */
+  --secondary-foreground: 0 0% 100%;
+  --muted: 240 28% 23%; /* navy-soft */
+  --muted-foreground: 0 0% 90%; /* near-white: secondary copy stays readable */
+  --accent: 240 28% 23%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 63% 40%; /* darker red for dark */
+  --destructive-foreground: 0 0% 100%;
+  --border: 240 5% 18%; /* dark gray border */
+  --input: 240 5% 18%;
+  --ring: 258 74% 58%;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* `clip` (not `hidden`) - `overflow-x: hidden` on html/body makes EVERY
+       descendant `position: sticky` element treat html/body as its
+       scrolling ancestor (per spec, any overflow value other than
+       `visible` on ANY axis does this), which breaks/misplaces sticky
+       positioning site-wide (18 pages use `sticky top-*`, e.g. the AI
+       Color Assistant's recommendation card, calculator sidebars, FAQ
+       tabs). `clip` still prevents horizontal bleed/scroll but does NOT
+       establish a scroll container, so sticky stays anchored to the
+       viewport as intended. Root-caused 2026-09-15 from an owner report
+       of overlapping/cropped text on mobile. */
+    overflow-x: clip;
+    /* Reserve the scrollbar's width up front so toggling body scroll-lock
+       (mobile nav drawer, admin sidebar: see overflow-y toggles below)
+       never causes a horizontal layout shift when the scrollbar
+       appears/disappears. */
+    scrollbar-gutter: stable;
+    width: 100%;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    overflow-x: clip;
+    width: 100%;
+    max-width: 100vw;
+    font-feature-settings: "cv01", "cv03", "cv04", "ss01";
+  }
+  * {
+    @apply box-border;
+    hyphens: none;
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+  }
+  /* Premium focus indicators */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    @apply outline-none ring-2 ring-ring/30 ring-offset-2 rounded-md;
+  }
+  /* Better heading rendering */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply tracking-tight;
+  }
+  /* Premium selection */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.15);
+    color: hsl(var(--primary));
+  }
+  .dark ::selection {
+    background-color: hsl(var(--primary) / 0.25);
+    color: hsl(var(--foreground));
+  }
+
+  /* =========================================================
+     DARK MODE GLOBAL OVERRIDES
+     =========================================================
+     Many components throughout FRELUX use hardcoded Tailwind
+     neutral/gray color utilities (text-neutral-900, bg-white,
+     border-neutral-200, etc.) without accompanying dark: variants.
+     In Dark Mode this produces black/dark text on dark backgrounds
+     and invisible borders.
+
+     Rather than editing 1 800+ individual lines across 50+ files,
+     these base-layer rules remap the most common offenders to the
+     semantic theme tokens (defined in :root / .dark above) when
+     .dark is active on the <html> element.
+
+     Because this lives in @layer base, any explicit dark: utility
+     on the same element (e.g. dark:text-white) still wins -
+     @layer utilities has higher cascade priority than @layer base.
+     So existing dark: variants are NOT overridden; only elements
+     that forgot the dark: variant are fixed.
+     ========================================================= */
+
+  /* --- Text colors --- */
+  .dark .text-neutral-900 {
+    color: hsl(var(--foreground));
+  }
+  .dark .text-neutral-800 {
+    color: hsl(var(--foreground));
+  }
+  .dark .text-neutral-700 {
+    color: hsl(var(--card-foreground));
+  }
+  .dark .text-neutral-600 {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-neutral-500 {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-neutral-400 {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-neutral-300 {
+    color: hsl(var(--muted-foreground));
+  }
+
+  .dark .text-gray-900 {
+    color: hsl(var(--foreground));
+  }
+  .dark .text-gray-800 {
+    color: hsl(var(--foreground));
+  }
+  .dark .text-gray-700 {
+    color: hsl(var(--card-foreground));
+  }
+  .dark .text-gray-600 {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-gray-500 {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-gray-400 {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* --- Background colors --- */
+  .dark .bg-white {
+    background-color: hsl(var(--card));
+  }
+  .dark .bg-neutral-50 {
+    background-color: hsl(var(--muted));
+  }
+  .dark .bg-neutral-100 {
+    background-color: hsl(var(--muted));
+  }
+  .dark .bg-neutral-200 {
+    background-color: hsl(var(--secondary));
+  }
+  .dark .bg-gray-50 {
+    background-color: hsl(var(--muted));
+  }
+  .dark .bg-gray-100 {
+    background-color: hsl(var(--muted));
+  }
+  .dark .bg-gray-200 {
+    background-color: hsl(var(--secondary));
+  }
+
+  /* --- Border colors --- */
+  .dark .border-neutral-100 {
+    border-color: hsl(var(--border));
+  }
+  .dark .border-neutral-200 {
+    border-color: hsl(var(--border));
+  }
+  .dark .border-neutral-300 {
+    border-color: hsl(var(--border));
+  }
+  .dark .border-neutral-400 {
+    border-color: hsl(var(--border));
+  }
+  .dark .border-gray-200 {
+    border-color: hsl(var(--border));
+  }
+  .dark .border-gray-300 {
+    border-color: hsl(var(--border));
+  }
+  .dark .border-gray-400 {
+    border-color: hsl(var(--border));
+  }
+
+  /* --- Placeholder text --- */
+  .dark .placeholder-neutral-400::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .placeholder-neutral-500::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .placeholder\:text-neutral-400::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .placeholder\:text-neutral-500::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .placeholder\:text-neutral-300::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .placeholder\:text-gray-400::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .placeholder\:text-gray-500::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* --- Ring / divide --- */
+  .dark .divide-neutral-200 > * + * {
+    border-color: hsl(var(--border));
+  }
+  .dark .divide-gray-200 > * + * {
+    border-color: hsl(var(--border));
+  }
+  .dark .ring-neutral-200 {
+    --tw-ring-color: hsl(var(--border));
+  }
+  .dark .ring-gray-200 {
+    --tw-ring-color: hsl(var(--border));
+  }
+
+  /* --- Table header / cell text that uses neutral classes --- */
+  .dark .text-neutral-900,
+  .dark .text-neutral-800,
+  .dark .text-gray-900,
+  .dark .text-gray-800 {
+    color: hsl(var(--foreground));
+  }
+
+  /* --- Brand navy text (text-brand-navy) that's dark on light,
+         needs to be light on dark --- */
+  .dark .text-brand-navy {
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .font-display {
+    font-family: '"Plus Jakarta Sans"', Inter, system-ui, sans-serif;
+  }
+  /* Screen reader only */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .sr-only-focusable:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* Premium grid pattern - more subtle */
+  .bg-grid {
+    background-image:
+      linear-gradient(
+        to right,
+        rgb(var(--brand-primary) / 0.03) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        rgb(var(--brand-primary) / 0.03) 1px,
+        transparent 1px
+      );
+    background-size: 56px 56px;
+  }
+  .bg-grid-dark {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  /* Dotted pattern - subtle */
+  .bg-dots {
+    background-image: radial-gradient(
+      circle,
+      rgb(var(--brand-primary) / 0.06) 1px,
+      transparent 1px
+    );
+    background-size: 28px 28px;
+  }
+  /* Gradient text - refined */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-light via-card to-primary-light bg-clip-text text-transparent;
+  }
+  .text-gradient-purple {
+    @apply bg-gradient-to-r from-primary via-primary-light to-primary-light bg-clip-text text-transparent;
+  }
+
+  /* Premium mesh gradient background */
+  .bg-mesh {
+    background-color: rgb(var(--brand-secondary));
+    background-image:
+      radial-gradient(
+        at 20% 15%,
+        rgb(var(--brand-primary) / 0.25) 0px,
+        transparent 50%
+      ),
+      radial-gradient(
+        at 80% 70%,
+        rgba(139, 92, 246, 0.15) 0px,
+        transparent 50%
+      ),
+      radial-gradient(at 50% 100%, rgba(76, 29, 149, 0.2) 0px, transparent 50%);
+  }
+
+  /* Glassmorphism */
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 dark:bg-white/5 dark:border-white/10;
+  }
+  .glass-dark {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+  /* Premium glass - opaque enough that scrolled content never bleeds
+     through the fixed navbar/tab bars. Dark styling is built in
+     (dark: variants can't be applied to component classes). */
+  .glass-premium {
+    @apply bg-white/85 backdrop-blur-xl border border-white/20;
+  }
+  .dark .glass-premium {
+    @apply bg-[#0A0A1A]/90 border-white/10;
+  }
+
+  /* Smooth scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(161, 161, 170, 0.3) transparent;
+  }
+
+  /* Staggered animation delays */
+  .stagger-1 {
+    animation-delay: 0.05s;
+  }
+  .stagger-2 {
+    animation-delay: 0.1s;
+  }
+  .stagger-3 {
+    animation-delay: 0.15s;
+  }
+  .stagger-4 {
+    animation-delay: 0.2s;
+  }
+  .stagger-5 {
+    animation-delay: 0.25s;
+  }
+  .stagger-6 {
+    animation-delay: 0.3s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+  /* Primary button - premium, refined */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold text-sm rounded-lg shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2;
+  }
+  /* Secondary button - clean white with subtle border */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-card text-card-foreground border border-border font-semibold text-sm rounded-lg hover:bg-muted hover:border-input active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 dark:bg-card dark:text-card-foreground dark:border-white/10 dark:hover:bg-muted dark:hover:border-white/20;
+  }
+  /* Outline button - brand accent */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-transparent text-primary border border-primary/30 font-semibold text-sm rounded-lg hover:bg-primary hover:text-primary-foreground hover:border-primary active:scale-[0.98] transition-all duration-200;
+  }
+  /* Ghost button - minimal */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-transparent text-muted-foreground font-medium text-sm rounded-lg hover:bg-muted hover:text-foreground active:scale-[0.98] transition-all duration-200 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-foreground;
+  }
+  /* Input field - premium, refined */
+  .input-field {
+    @apply w-full px-3.5 py-2.5 text-sm bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-primary transition-all duration-200 dark:bg-card dark:text-card-foreground dark:border-white/10 dark:placeholder:text-muted-foreground;
+  }
+  /* Premium card - layered shadow, subtle border */
+  .card {
+    @apply bg-card border border-border/60 rounded-xl shadow-card dark:bg-card dark:border-white/5;
+  }
+  /* Premium card - elevated */
+  .card-elevated {
+    @apply bg-card border border-border/40 rounded-2xl shadow-premium dark:bg-card dark:border-white/10;
+  }
+  /* Admin surfaces, the same glass and depth language as the marketing
+     pages, tuned for dense management screens. */
+  .admin-surface {
+    @apply bg-card/80 border border-border/60 rounded-2xl shadow-card backdrop-blur-xl transition-all duration-300 dark:bg-card/70 dark:border-white/10;
+  }
+  .admin-surface-hover {
+    @apply hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-premium;
+  }
+  .admin-inset {
+    @apply bg-muted/40 border border-border/50 rounded-xl dark:bg-white/[0.03] dark:border-white/5;
+  }
+  .admin-eyebrow {
+    @apply text-[11px] font-bold uppercase tracking-[0.18em] text-primary/80;
+  }
+  .admin-divider {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-border to-transparent dark:via-white/10;
+  }
+  /* Section label - premium eyebrow */
+  .section-label {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary;
+  }
+  .section-title {
+    @apply font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-[1.15] tracking-tight dark:text-foreground;
+  }
+  .section-subtitle {
+    @apply text-base text-muted-foreground leading-relaxed dark:text-muted-foreground;
+  }
+  /* FAQ reading styles: the question sets in the display face, the answer in the
+     reading face with generous leading and hanging punctuation, so a Q&A block
+     reads as editorial copy instead of a form. Numerals stay tabular. */
+  .faq-question {
+    @apply font-display text-foreground dark:text-primary-foreground;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: -0.012em;
+    text-wrap: pretty;
+  }
+  @media (min-width: 640px) {
+    .faq-question {
+      font-size: 1rem;
+    }
+  }
+  .faq-answer {
+    @apply font-sans text-muted-foreground dark:text-muted-foreground;
+    font-size: 0.9375rem;
+    line-height: 1.8;
+    text-wrap: pretty;
+    hanging-punctuation: first allow-end;
+  }
+  .faq-marker {
+    @apply font-display text-primary/70;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+  }
+  /* Article body measure and rhythm for editorial pages such as /faq/:slug. */
+  .article-heading {
+    @apply font-display text-foreground;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .article-body {
+    @apply font-sans text-muted-foreground;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    text-wrap: pretty;
+    hanging-punctuation: first;
+  }
+  @media (min-width: 640px) {
+    .article-body {
+      font-size: 1rem;
+    }
+  }
+  /* Premium badge */
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  /* Stat card - for results and dashboards */
+  .stat-card {
+    @apply rounded-xl border border-border bg-muted/50 p-4 transition-all duration-300 dark:border-white/5 dark:bg-white/5;
+  }
+  .stat-card-highlight {
+    @apply rounded-xl border border-primary/30 bg-primary/5 p-4 transition-all duration-300 dark:border-primary/40 dark:bg-primary/10;
+  }
+}
+
+/* =========================================================
+   DARK MODE SAFETY NET
+   Remaps hardcoded light-mode Tailwind utility classes to
+   semantic dark values. Placed in @layer components so that
+   explicit dark: utility variants (in @layer utilities) always
+   override these. This fixes hundreds of elements that use
+   text-neutral-900, bg-white, etc. without dark: variants.
+   ========================================================= */
+@layer components {
+  /* --- Text colors: dark text → light text in dark mode --- */
+  .dark .text-neutral-900 {
+    color: hsl(var(--foreground));
+  }
+  .dark .text-neutral-800 {
+    color: hsl(var(--foreground));
+  }
+  .dark .text-neutral-700 {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-neutral-600 {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-neutral-500 {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-neutral-400 {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* --- Background colors: white/light bg → dark bg in dark mode --- */
+  .dark .bg-white {
+    background-color: hsl(var(--card));
+  }
+  .dark .bg-white\/60 {
+    background-color: hsl(var(--card) / 0.6);
+  }
+  .dark .bg-white\/70 {
+    background-color: hsl(var(--card) / 0.7);
+  }
+  .dark .bg-white\/80 {
+    background-color: hsl(var(--card) / 0.8);
+  }
+  .dark .bg-white\/90 {
+    background-color: hsl(var(--card) / 0.9);
+  }
+  .dark .bg-white\/95 {
+    background-color: hsl(var(--card) / 0.95);
+  }
+  .dark .bg-neutral-50 {
+    background-color: hsl(var(--muted));
+  }
+  .dark .bg-neutral-100 {
+    background-color: hsl(var(--muted));
+  }
+  .dark .bg-neutral-200 {
+    background-color: hsl(var(--secondary));
+  }
+  .dark .bg-neutral-300 {
+    background-color: hsl(var(--secondary));
+  }
+
+  /* --- Border colors: light borders → dark borders in dark mode --- */
+  .dark .border-neutral-200 {
+    border-color: hsl(var(--border));
+  }
+  .dark .border-neutral-300 {
+    border-color: hsl(var(--border));
+  }
+  .dark .border-neutral-100 {
+    border-color: hsl(var(--border));
+  }
+
+  /* --- Hover states that use light-mode colors --- */
+  .dark .hover\:text-neutral-900:hover {
+    color: hsl(var(--foreground));
+  }
+  .dark .hover\:bg-neutral-50:hover {
+    background-color: hsl(var(--muted));
+  }
+  .dark .hover\:bg-neutral-100:hover {
+    background-color: hsl(var(--muted));
+  }
+
+  /* --- Placeholder text --- */
+  .dark .placeholder\:neutral-400::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .placeholder\:gray-400::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .placeholder\:gray-500::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* --- Ring offset for focus states --- */
+  .dark .ring-offset-2 {
+    --tw-ring-offset-color: hsl(var(--background));
+  }
+
+  /* --- Gray-* equivalents (Tailwind gray ≈ neutral) --- */
+  .dark .text-gray-900 {
+    color: hsl(var(--foreground));
+  }
+  .dark .text-gray-800 {
+    color: hsl(var(--foreground));
+  }
+  .dark .text-gray-700 {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-gray-600 {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-gray-500 {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-gray-400 {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .text-gray-300 {
+    color: hsl(var(--border));
+  }
+
+  .dark .bg-gray-50 {
+    background-color: hsl(var(--muted));
+  }
+  .dark .bg-gray-100 {
+    background-color: hsl(var(--muted));
+  }
+  .dark .bg-gray-200 {
+    background-color: hsl(var(--secondary));
+  }
+  .dark .bg-gray-300 {
+    background-color: hsl(var(--secondary));
+  }
+  .dark .bg-gray-400 {
+    background-color: hsl(var(--secondary));
+  }
+  .dark .bg-gray-800 {
+    background-color: hsl(var(--card));
+  }
+  .dark .bg-gray-900 {
+    background-color: hsl(var(--background));
+  }
+
+  .dark .border-gray-100 {
+    border-color: hsl(var(--border));
+  }
+  .dark .border-gray-200 {
+    border-color: hsl(var(--border));
+  }
+  .dark .border-gray-300 {
+    border-color: hsl(var(--border));
+  }
+
+  .dark .hover\:text-gray-900:hover {
+    color: hsl(var(--foreground));
+  }
+  .dark .hover\:text-gray-700:hover {
+    color: hsl(var(--muted-foreground));
+  }
+  .dark .hover\:bg-gray-50:hover {
+    background-color: hsl(var(--muted));
+  }
+  .dark .hover\:bg-gray-100:hover {
+    background-color: hsl(var(--muted));
+  }
+
+  /* --- Divide (table row separators) --- */
+  .dark .divide-neutral-100 > * + * {
+    border-color: hsl(var(--border));
+  }
+  .dark .divide-neutral-200 > * + * {
+    border-color: hsl(var(--border));
+  }
+  .dark .divide-gray-100 > * + * {
+    border-color: hsl(var(--border));
+  }
+  .dark .divide-gray-200 > * + * {
+    border-color: hsl(var(--border));
+  }
+
+  /* --- Gradient stops using light colors --- */
+  .dark .from-white {
+    --tw-gradient-from: hsl(var(--card));
+  }
+  .dark .to-white {
+    --tw-gradient-to: hsl(var(--card));
+  }
+  .dark .from-neutral-50 {
+    --tw-gradient-from: hsl(var(--muted));
+  }
+  .dark .to-neutral-50 {
+    --tw-gradient-to: hsl(var(--muted));
+  }
+  .dark .from-neutral-100 {
+    --tw-gradient-from: hsl(var(--muted));
+  }
+  .dark .to-neutral-100 {
+    --tw-gradient-to: hsl(var(--muted));
+  }
+  .dark .from-gray-50 {
+    --tw-gradient-from: hsl(var(--muted));
+  }
+  .dark .to-gray-50 {
+    --tw-gradient-to: hsl(var(--muted));
+  }
+  .dark .from-gray-100 {
+    --tw-gradient-from: hsl(var(--muted));
+  }
+  .dark .to-gray-100 {
+    --tw-gradient-to: hsl(var(--muted));
+  }
+
+  /* --- from-/to- color text that should adapt --- */
+  .dark .from-neutral-900 {
+    --tw-gradient-from: hsl(var(--background));
+  }
+  .dark .to-neutral-900 {
+    --tw-gradient-to: hsl(var(--background));
+  }
+  .dark .from-gray-900 {
+    --tw-gradient-from: hsl(var(--background));
+  }
+  .dark .to-gray-900 {
+    --tw-gradient-to: hsl(var(--background));
+  }
+}
+
+/* =========================================================
+   Refined Dark Mode, Professional, premium
+   ========================================================= */
+
+.dark body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* .dark .card handled by shadcn CSS variables */
+
+/* Scrollbar - dark */
+.dark ::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Glass dark variants */
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .dark .card,
+  .dark .btn-primary,
+  .dark .btn-secondary,
+  .dark .input-field {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   Additional Dark Mode Enhancements
+   ========================================================= */
+
+/* Dark mode grid pattern - visible on dark backgrounds */
+.dark .bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* Dark mode dots pattern */
+.dark .bg-dots {
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.04) 1px,
+    transparent 1px
+  );
+  background-size: 28px 28px;
+}
+
+/* Dark mode badge */
+.dark .badge {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
+/* Dark mode card-hover lift */
+.dark .card-hover:hover {
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.2);
+  border-color: hsl(var(--primary) / 0.2);
+}
+
+/* Dark mode glow hover */
+.dark .glow-hover:hover {
+  box-shadow:
+    0 0 0 1px hsl(var(--primary) / 0.15),
+    0 12px 40px hsl(var(--primary) / 0.15);
+}
+
+/* Dark mode gradient border */
+.dark .gradient-border {
+  background-color: hsl(var(--card));
+}
+
+/* Dark mode shimmer overlay */
+.dark .shimmer-overlay::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.06),
+    transparent
+  );
+}
+
+/* Respect reduced motion - disable theme transitions */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* ============================================================
+   AdSense Compliance Styles
+   Ensures ads are visually separated from content per Google
+   AdSense placement policies.
+   ============================================================ */
+
+/* The wrapper around every rendered ad */
+.frelux-ad-unit {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Ensure AdSense ins elements have minimum height to prevent layout shift */
+.frelux-ad-unit .adsbygoogle {
+  min-height: 90px;
+}
+
+/* Dark mode - lighter borders for visibility */
+@media (prefers-color-scheme: dark) {
+  .frelux-ad-unit {
+    border-top-color: rgba(255, 255, 255, 0.08);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* Prevent ads from overlapping with navigation or interactive elements */
+.frelux-ad-unit + .frelux-ad-unit {
+  margin-top: 2rem;
+}
+
+/* =========================================================
+   ACCESSIBILITY MODES, triggered by AccessibilityToggle
+   Classes are toggled on <html> by the AccessibilityProvider.
+   ========================================================= */
+
+/* ── High Contrast ── */
+.accessibility-mode {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
+  --primary: 258 100% 30%;
+  --primary-foreground: 0 0% 100%;
+  --muted: 0 0% 90%;
+  --muted-foreground: 0 0% 20%;
+  --border: 0 0% 0%;
+  --input: 0 0% 0%;
+  --ring: 258 100% 30%;
+}
+
+.dark.accessibility-mode {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 100%;
+  --popover: 0 0% 5%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 258 100% 65%;
+  --primary-foreground: 0 0% 0%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 85%;
+  --border: 0 0% 100%;
+  --input: 0 0% 100%;
+  --ring: 258 100% 65%;
+}
+
+.accessibility-mode * {
+  border-color: hsl(var(--border)) !important;
+}
+
+.accessibility-mode a,
+.accessibility-mode button {
+  outline: 1px solid transparent;
+}
+
+.accessibility-mode a:focus-visible,
+.accessibility-mode button:focus-visible {
+  outline: 2px solid hsl(var(--primary)) !important;
+  outline-offset: 2px;
+}
+
+/* ── Larger Text ── */
+.large-text {
+  font-size: 118%;
+}
+
+.large-text h1 {
+  font-size: 2.5rem;
+}
+.large-text h2 {
+  font-size: 2rem;
+}
+.large-text h3 {
+  font-size: 1.625rem;
+}
+.large-text h4 {
+  font-size: 1.375rem;
+}
+.large-text p,
+.large-text li,
+.large-text span,
+.large-text label,
+.large-text button,
+.large-text input,
+.large-text select,
+.large-text textarea,
+.large-text td,
+.large-text th {
+  font-size: 1.0625rem;
+}
+
+/* ── Reduced Motion ── */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* =========================================================
+   Premium hero motion: slow ambient drift for decorative orbs
+   and a shimmering accent line. Purely decorative; the global
+   prefers-reduced-motion guard above collapses these to a
+   single frame.
+   ========================================================= */
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(10px, -16px, 0);
+  }
+}
+.animate-float-slow {
+  animation: hero-float 9s ease-in-out infinite;
+}
+.animate-float-slower {
+  animation: hero-float 14s ease-in-out infinite reverse;
+}
+
+/* A 1px top accent line whose highlight slowly sweeps across,
+   like light travelling along the edge of glass. */
+@keyframes hero-line-sweep {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+.hero-shimmer-line {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(139 92 246 / 0.35) 30%,
+    rgb(6 182 212 / 0.45) 50%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: hero-line-sweep 4s linear infinite;
+}
+
+/* =========================================================
+   ENTRY EXPERIENCE (first-visit welcome overlay)
+   Fast, restrained staged animations. Reduced motion collapses
+   everything to an instant appearance / plain fade.
+   ========================================================= */
+@keyframes entry-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.entry-rise {
+  animation: entry-rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes entry-leave-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+}
+.entry-leave {
+  animation: entry-leave-out 0.46s ease both;
+  pointer-events: none;
+}
+.entry-leave .entry-rise {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entry-rise {
+    animation-duration: 0.01s;
+    animation-delay: 0s !important;
+  }
+  .entry-leave {
+    animation-duration: 0.01s;
+  }
+}
+
+/* ==========================================================================
+   Google Translate (international edition)
+   The widget is driven programmatically from the LanguageSwitcher, so its
+   own banner, tooltip and bottom frame are hidden; attribution lives in
+   the site's language UI ("translated via Google Translate").
+   ========================================================================== */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-ftab-frame.skiptranslate,
+.goog-te-balloon-frame,
+#goog-gt-tt {
+  display: none !important;
+}
+
+/* Google pushes the page down ~40px when it shows its banner; with the
+   banner hidden we must cancel that inline shift. */
+body {
+  top: 0 !important;
+}
+
+/* Never let GT styles bleed into our chrome. */
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FRELUX NEON EDGE LIGHTING SYSTEM
+   Dark mode is the primary FRELUX visual identity. This system provides
+   one coherent lighting language across every surface:
+     .neon-edge       → animated RGB edge light for PRIMARY surfaces
+                        (navbar, dialogs, drawers, mobile nav). Edge-only
+                        via a mask: a thin illuminated border, never a
+                        glowing sticker.
+     .neon-edge-soft  → static soft edge illumination for SECONDARY
+                        surfaces (footers, section panels).
+     Global rules below give every card, popover, primary button and
+     form control a calibrated edge treatment without per-file patches.
+   Light mode is untouched: everything is scoped to .dark.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@property --neon-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+:root {
+  --neon-speed: 16s; /* slow, architectural: precision, not a gaming rig */
+}
+
+/* Animated edge light, primary surfaces. Active in BOTH themes:
+   dark mode is the primary identity, light mode gets the same edge
+   language at daylight intensity.
+   NEVER set `position` on .neon-edge itself: this stylesheet is
+   unlayered author CSS, which beats Tailwind's layered utilities no
+   matter the specificity. A `position: relative` here silently
+   overrode Tailwind's `.fixed` and detached the top and bottom bars
+   from the viewport (they only appeared at the very bottom/top of the
+   page). Every host must carry its own positioning (fixed/sticky/
+   absolute/relative), which all current hosts do. */
+.neon-edge {
+  isolation: isolate;
+}
+.neon-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--neon-angle),
+    rgb(var(--brand-primary) / 0.85),
+    rgb(167 139 250 / 0.65),
+    rgb(56 189 248 / 0.6),
+    rgb(139 92 246 / 0.7),
+    rgb(var(--brand-primary) / 0.85)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: neon-edge-spin var(--neon-speed) linear infinite;
+  pointer-events: none;
+}
+/* Edge glow: daylight-calibrated in light mode, deeper in dark mode */
+.neon-edge::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  box-shadow:
+    0 0 16px -10px rgb(var(--brand-primary) / 0.35),
+    0 0 12px -10px rgb(56 189 248 / 0.25);
+  pointer-events: none;
+}
+.dark .neon-edge::after {
+  box-shadow:
+    0 0 28px -12px rgb(var(--brand-primary) / 0.5),
+    0 0 20px -12px rgb(56 189 248 / 0.3);
+}
+@keyframes neon-edge-spin {
+  to {
+    --neon-angle: 360deg;
+  }
+}
+
+/* Static soft edge illumination, secondary surfaces (both themes) */
+.neon-edge-soft {
+  box-shadow:
+    0 0 0 1px rgb(var(--brand-primary) / 0.08),
+    0 0 18px -12px rgb(var(--brand-primary) / 0.22);
+}
+.dark .neon-edge-soft {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.03),
+    inset 0 1px 0 rgb(255 255 255 / 0.04),
+    0 0 18px -12px rgb(var(--brand-primary) / 0.35);
+}
+
+/* Global surface illumination: every card and popover surface gets a
+   subtle illuminated edge. Static shadow: no GPU cost. */
+.bg-card,
+.bg-popover {
+  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.04);
+}
+.dark .bg-card,
+.dark .bg-popover {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.03),
+    inset 0 1px 0 rgb(255 255 255 / 0.03);
+}
+
+/* Primary CTA surfaces: brand edge glow that intensifies on interaction */
+.dark .bg-primary {
+  box-shadow:
+    0 0 0 1px rgb(var(--brand-primary) / 0.4),
+    0 0 20px -8px rgb(var(--brand-primary) / 0.45);
+  transition: box-shadow 0.25s ease;
+}
+.dark .bg-primary:hover,
+.dark .bg-primary:focus-visible {
+  box-shadow:
+    0 0 0 1px rgb(var(--brand-primary) / 0.6),
+    0 0 30px -8px rgb(var(--brand-primary) / 0.6);
+}
+
+/* Success and destructive feedback surfaces keep their semantic edge */
+.dark .bg-emerald-600 {
+  box-shadow: 0 0 20px -8px rgb(16 185 129 / 0.45);
+}
+.dark .bg-destructive {
+  box-shadow: 0 0 20px -8px rgb(244 63 94 / 0.45);
+}
+
+/* Table boundaries: one thin illuminated hairline */
+.dark table {
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.03);
+}
+.dark thead th {
+  box-shadow: inset 0 -1px 0 0 rgb(255 255 255 / 0.04);
+}
+
+/* Reduced motion: keep the static edge, stop the animation */
+@media (prefers-reduced-motion: reduce) {
+  .neon-edge::before {
+    animation: none;
+  }
+}
+/* ═══════════════════════════════════════════════════════════════════
+   SITE-WIDE EDGE EXPANSION - "leave no edge behind"
+   The viewport frame completes the four screen edges; the surface
+   rules below extend the lighting language to every remaining
+   component edge: form controls, tabs, badges, toasts, muted
+   surfaces, code and blockquotes - in BOTH themes, daylight-
+   calibrated in light, deeper in dark.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Viewport frame: one slow conic edge light around the whole screen.
+   Sits under the navbar (z-40) and bottom nav (z-30) so the chrome's
+   own neon edges remain the primary light at top and bottom. */
+.neon-frame {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+}
+.neon-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--neon-angle),
+    rgb(var(--brand-primary) / 0.55),
+    rgb(167 139 250 / 0.4),
+    rgb(56 189 248 / 0.35),
+    rgb(139 92 246 / 0.45),
+    rgb(var(--brand-primary) / 0.55)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: neon-edge-spin var(--neon-speed) linear infinite;
+  pointer-events: none;
+}
+.dark .neon-frame::before {
+  background: conic-gradient(
+    from var(--neon-angle),
+    rgb(var(--brand-primary) / 0.8),
+    rgb(167 139 250 / 0.6),
+    rgb(56 189 248 / 0.55),
+    rgb(139 92 246 / 0.65),
+    rgb(var(--brand-primary) / 0.8)
+  );
+}
+/* Soft inward glow spilling from the screen walls */
+.neon-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 2px 0 14px -10px rgb(var(--brand-primary) / 0.14),
+    inset -2px 0 14px -10px rgb(56 189 248 / 0.1),
+    inset 0 2px 14px -10px rgb(var(--brand-primary) / 0.12),
+    inset 0 -2px 14px -10px rgb(56 189 248 / 0.1);
+  pointer-events: none;
+}
+.dark .neon-frame::after {
+  box-shadow:
+    inset 3px 0 22px -12px rgb(var(--brand-primary) / 0.28),
+    inset -3px 0 22px -12px rgb(56 189 248 / 0.2),
+    inset 0 3px 22px -12px rgb(var(--brand-primary) / 0.24),
+    inset 0 -3px 22px -12px rgb(56 189 248 / 0.2);
+}
+@media print {
+  .neon-frame {
+    display: none;
+  }
+}
+
+/* Form controls: every input, textarea and select gets an illuminated
+   edge hairline. Focus intensifies the BORDER itself (never
+   box-shadow, which belongs to Tailwind's focus ring) so the two
+   systems compose cleanly. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+textarea,
+select,
+.border-input {
+  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.05);
+}
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.dark textarea,
+.dark select,
+.dark .border-input {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.05),
+    inset 0 1px 0 rgb(255 255 255 / 0.02);
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+input:not([type="checkbox"]):not([type="radio"]):not(
+    [type="file"]
+  ):focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible,
+.border-input:focus,
+.border-input:focus-visible {
+  border-color: rgb(var(--brand-primary) / 0.55);
+}
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+.dark
+  input:not([type="checkbox"]):not([type="radio"]):not(
+    [type="file"]
+  ):focus-visible,
+.dark textarea:focus,
+.dark textarea:focus-visible,
+.dark select:focus,
+.dark select:focus-visible,
+.dark .border-input:focus,
+.dark .border-input:focus-visible {
+  border-color: rgb(var(--brand-primary) / 0.7);
+}
+
+/* Active tab surface: brand hairline + faint glow, the "lit panel" feel */
+.dark [role="tab"][data-state="active"] {
+  box-shadow:
+    0 0 0 1px rgb(var(--brand-primary) / 0.25),
+    0 0 16px -10px rgb(var(--brand-primary) / 0.3);
+}
+[role="tab"][data-state="active"] {
+  box-shadow:
+    0 0 0 1px rgb(var(--brand-primary) / 0.12),
+    0 0 12px -10px rgb(var(--brand-primary) / 0.18);
+}
+
+/* Toasts: illuminated edge on every notification surface */
+.dark .toast,
+.dark [data-sonner-toast] {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.04),
+    0 0 20px -12px rgb(var(--brand-primary) / 0.4);
+}
+.toast,
+[data-sonner-toast] {
+  box-shadow:
+    0 0 0 1px rgb(15 23 42 / 0.04),
+    0 0 16px -12px rgb(var(--brand-primary) / 0.25);
+}
+
+/* Muted and secondary surfaces: subtle illuminated hairline so every
+   panel edge reads as lit, never flat */
+.dark .bg-muted,
+.dark .bg-secondary,
+.dark .bg-accent {
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.03);
+}
+.bg-muted,
+.bg-secondary {
+  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.025);
+}
+
+/* Badges: chip edges pick up the light */
+.dark .bg-secondary {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.05),
+    0 0 12px -10px rgb(var(--brand-primary) / 0.3);
+}
+
+/* Primary surfaces in light mode: the same brand edge glow the dark
+   theme has, at daylight intensity */
+.bg-primary {
+  box-shadow:
+    0 0 0 1px rgb(var(--brand-primary) / 0.25),
+    0 0 16px -10px rgb(var(--brand-primary) / 0.3);
+  transition: box-shadow 0.25s ease;
+}
+.bg-primary:hover,
+.bg-primary:focus-visible {
+  box-shadow:
+    0 0 0 1px rgb(var(--brand-primary) / 0.45),
+    0 0 24px -10px rgb(var(--brand-primary) / 0.4);
+}
+
+/* Semantic feedback edges in light mode (parity with dark rules) */
+.bg-emerald-600 {
+  box-shadow: 0 0 16px -10px rgb(16 185 129 / 0.35);
+}
+.bg-destructive {
+  box-shadow: 0 0 16px -10px rgb(244 63 94 / 0.35);
+}
+
+/* Code, pre and blockquote: illuminated boundaries for long-form edges */
+.dark pre,
+.dark code,
+.dark blockquote {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.04),
+    0 0 18px -14px rgb(var(--brand-primary) / 0.3);
+}
+pre,
+blockquote {
+  box-shadow:
+    0 0 0 1px rgb(15 23 42 / 0.04),
+    0 0 14px -14px rgb(var(--brand-primary) / 0.2);
+}
+
+/* Horizontal rules: brand-tinted hairline edges in dark */
+.dark hr,
+.dark .bg-border {
+  box-shadow: 0 0 8px -6px rgb(var(--brand-primary) / 0.25);
+}
+
+/* Table boundaries in light mode (parity with dark) */
+table {
+  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.03);
+}
+thead th {
+  box-shadow: inset 0 -1px 0 0 rgb(15 23 42 / 0.04);
+}
+
+/* Reduced motion: static frame, no spin */
+@media (prefers-reduced-motion: reduce) {
+  .neon-frame::before {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   Printable template sheets (/templates): when body[data-printing]
+   is set, print ONLY the chosen sheet and hide everything else.
+   ============================================================ */
+@media print {
+  body[data-printing] * {
+    visibility: hidden !important;
+  }
+  body[data-printing="quote-comparison"] [data-sheet="quote-comparison"],
+  body[data-printing="quote-comparison"] [data-sheet="quote-comparison"] *,
+  body[data-printing="paint-schedule"] [data-sheet="paint-schedule"],
+  body[data-printing="paint-schedule"] [data-sheet="paint-schedule"] *,
+  body[data-printing="material-checklist"] [data-sheet="material-checklist"],
+  body[data-printing="material-checklist"] [data-sheet="material-checklist"] * {
+    visibility: visible !important;
+  }
+  body[data-printing] [data-sheet] {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* =========================================================
+   Readable text on every box and field (theme-automatic)
+   ---------------------------------------------------------
+   Rule: black text on white/light boxes, white text on dark boxes,
+   switching automatically with the theme.
+
+   Problem this fixes: form fields and pale tinted result boxes
+   (bg-blue-50, bg-amber-50, ...) did not follow the theme. In dark
+   mode a field kept the browser's pale default fill while its text
+   turned white (white on white), and tinted boxes stayed pale with
+   low-contrast coloured text.
+
+   All rules live in @layer base so any explicit utility on an element
+   (bg-*, text-*, dark:*) still wins; only elements that forgot a
+   colour are corrected.
+   ========================================================= */
+@layer base {
+  /* ---- Form fields ---- */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(
+      [type="file"]
+    ):not([type="color"]):not([type="submit"]):not([type="button"]):not(
+      [type="hidden"]
+    ),
+  textarea,
+  select {
+    background-color: #ffffff;
+    color: #000000;
+  }
+  .dark
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(
+      [type="file"]
+    ):not([type="color"]):not([type="submit"]):not([type="button"]):not(
+      [type="hidden"]
+    ),
+  .dark textarea,
+  .dark select {
+    background-color: hsl(var(--card));
+    color: #ffffff;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #6b7280;
+    opacity: 1;
+  }
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+  }
+  select option {
+    background-color: #ffffff;
+    color: #000000;
+  }
+  .dark select option {
+    background-color: hsl(var(--card));
+    color: #ffffff;
+  }
+  input:disabled,
+  textarea:disabled,
+  select:disabled {
+    opacity: 0.7;
+  }
+  /* Stop the browser painting its own pale autofill over dark fields */
+  .dark input:-webkit-autofill,
+  .dark textarea:-webkit-autofill,
+  .dark select:-webkit-autofill {
+    -webkit-text-fill-color: #ffffff;
+    box-shadow: 0 0 0 1000px hsl(var(--card)) inset;
+  }
+
+  /* ---- Light tinted boxes: black text in light mode ----
+     Scoped by :root:not(.dark) (simple, widely supported) rather than
+     :not(.dark *). */
+  :root:not(.dark)
+    :is(
+      .bg-blue-50,
+      .bg-green-50,
+      .bg-emerald-50,
+      .bg-amber-50,
+      .bg-yellow-50,
+      .bg-orange-50,
+      .bg-red-50,
+      .bg-purple-50,
+      .bg-indigo-50,
+      .bg-sky-50,
+      .bg-teal-50,
+      .bg-rose-50,
+      .bg-pink-50,
+      .bg-violet-50
+    ),
+  :root:not(.dark)
+    :is(
+      .bg-blue-50,
+      .bg-green-50,
+      .bg-emerald-50,
+      .bg-amber-50,
+      .bg-yellow-50,
+      .bg-orange-50,
+      .bg-red-50,
+      .bg-purple-50,
+      .bg-indigo-50,
+      .bg-sky-50,
+      .bg-teal-50,
+      .bg-rose-50,
+      .bg-pink-50,
+      .bg-violet-50
+    )
+    :is(
+      p,
+      li,
+      span,
+      div,
+      td,
+      th,
+      label,
+      strong,
+      em,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6
+    ):not([class*="bg-"]) {
+    color: #000000;
+  }
+
+  /* ---- Tinted boxes in dark mode: dark surface, white text ---- */
+  .dark
+    :is(
+      .bg-blue-50,
+      .bg-green-50,
+      .bg-emerald-50,
+      .bg-amber-50,
+      .bg-yellow-50,
+      .bg-orange-50,
+      .bg-red-50,
+      .bg-purple-50,
+      .bg-indigo-50,
+      .bg-sky-50,
+      .bg-teal-50,
+      .bg-rose-50,
+      .bg-pink-50,
+      .bg-violet-50,
+      .bg-blue-100,
+      .bg-green-100,
+      .bg-amber-100,
+      .bg-red-100
+    ) {
+    background-color: hsl(var(--card));
+  }
+  .dark
+    :is(
+      .bg-blue-50,
+      .bg-green-50,
+      .bg-emerald-50,
+      .bg-amber-50,
+      .bg-yellow-50,
+      .bg-orange-50,
+      .bg-red-50,
+      .bg-purple-50,
+      .bg-indigo-50,
+      .bg-sky-50,
+      .bg-teal-50,
+      .bg-rose-50,
+      .bg-pink-50,
+      .bg-violet-50,
+      .bg-blue-100,
+      .bg-green-100,
+      .bg-amber-100,
+      .bg-red-100
+    )
+    :is(
+      p,
+      li,
+      span,
+      div,
+      td,
+      th,
+      label,
+      strong,
+      em,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      a
+    ):not([class*="bg-"]) {
+    color: #ffffff;
+  }
+  .dark
+    :is(
+      .bg-blue-50,
+      .bg-green-50,
+      .bg-emerald-50,
+      .bg-amber-50,
+      .bg-yellow-50,
+      .bg-orange-50,
+      .bg-red-50,
+      .bg-purple-50,
+      .bg-indigo-50,
+      .bg-sky-50,
+      .bg-teal-50,
+      .bg-rose-50,
+      .bg-pink-50,
+      .bg-violet-50
+    ) {
+    color: #ffffff;
+  }
+}
+
+/* Prerendered crawlable markup sits in #root until React mounts. It carries no
+   utility classes, so cover it with a branded shield during boot instead of
+   letting a wall of raw text flash on reload. Plain CSS only: this must paint
+   even if Tailwind's utilities have not applied yet. */
+.frelux-prerender {
+  position: relative;
+}
+
+.frelux-prerender__shield {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+  background-color: hsl(var(--background));
+  animation: frelux-shield-lift 0.4s ease 8s forwards;
+}
+
+.frelux-prerender__mark {
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.frelux-prerender__bar {
+  position: relative;
+  width: 88px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background-color: hsl(var(--muted-foreground) / 0.18);
+}
+
+.frelux-prerender__bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 45%;
+  border-radius: inherit;
+  background-color: hsl(var(--primary));
+  animation: frelux-shield-sweep 1.1s ease-in-out infinite;
+}
+
+@keyframes frelux-shield-sweep {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(240%);
+  }
+}
+
+@keyframes frelux-shield-lift {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frelux-prerender__bar::after {
+    animation: none;
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   Reading typography: every text on the site is white on dark surfaces.
+
+   Hierarchy is carried by family, size, weight and tracking, never by
+   dropping opacity low enough to look grey. These rules sit outside
+   @layer so they win over Tailwind utilities without !important.
+   ========================================================================== */
+
+body {
+  color: hsl(var(--foreground));
+  font-feature-settings:
+    "cv02" 1,
+    "cv03" 1,
+    "cv04" 1,
+    "cv11" 1;
+}
+
+/* Any dimmed text utility is lifted back to a readable white. This catches
+   muted-foreground/40 style variants used across older components. */
+.dark [class*="text-muted-foreground/"],
+.dark [class*="text-foreground/"],
+.dark [class*="text-white/"],
+.dark [class*="text-card-foreground/"],
+.dark [class*="text-popover-foreground/"],
+.dark [class*="text-neutral-3"],
+.dark [class*="text-neutral-4"],
+.dark [class*="text-neutral-5"],
+.dark [class*="text-gray-3"],
+.dark [class*="text-gray-4"],
+.dark [class*="text-gray-5"],
+.dark [class*="text-slate-3"],
+.dark [class*="text-slate-4"],
+.dark [class*="text-zinc-3"],
+.dark [class*="text-zinc-4"] {
+  color: hsl(0 0% 92%);
+}
+
+/* Long-form reading surface */
+.dark .prose :where(p, li, dd, dt, td, th, figcaption, blockquote, strong, em) {
+  color: hsl(0 0% 100%);
+}
+
+.dark .prose :where(p) {
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  letter-spacing: -0.002em;
+}
+
+.dark .prose :where(li) {
+  line-height: 1.8;
+}
+
+.dark .prose :where(h2, h3, h4) {
+  font-family: var(--font-headings, "Plus Jakarta Sans"), system-ui, sans-serif;
+  color: hsl(0 0% 100%);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.dark .prose :where(a) {
+  color: hsl(var(--primary-lighter));
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.dark .prose :where(strong) {
+  font-weight: 600;
+}
+
+.dark .prose :where(blockquote) {
+  border-left: 2px solid hsl(var(--primary) / 0.65);
+  background: hsl(0 0% 100% / 0.05);
+  border-radius: 0.625rem;
+  padding: 0.85rem 1.25rem;
+  font-style: normal;
+}
+
+.dark .prose :where(code):not(pre code) {
+  background: hsl(0 0% 100% / 0.12);
+  color: hsl(0 0% 100%);
+  border-radius: 0.375rem;
+  padding: 0.12em 0.4em;
+  font-size: 0.9em;
+}
+
+.dark .prose :where(pre) {
+  background: hsl(0 0% 100% / 0.07);
+  border: 1px solid hsl(0 0% 100% / 0.14);
+  color: hsl(0 0% 100%);
+}
+
+.dark .prose :where(pre code) {
+  color: hsl(0 0% 100%);
+}
+
+.dark .prose :where(hr) {
+  border-color: hsl(0 0% 100% / 0.16);
+}
+
+.dark .prose :where(thead th) {
+  color: hsl(0 0% 100%);
+  border-bottom: 1px solid hsl(0 0% 100% / 0.22);
+}
+
+.dark .prose :where(tbody td) {
+  color: hsl(0 0% 100%);
+  border-bottom: 1px solid hsl(0 0% 100% / 0.1);
+}
+
+.dark .prose :where(ul > li)::marker,
+.dark .prose :where(ol > li)::marker {
+  color: hsl(var(--primary-lighter));
+}
+
+/* Premium type details, both themes */
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+.font-display,
+h1,
+h2 {
+  font-variant-ligatures: common-ligatures;
+}
+
+[data-price],
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================
+   FRELUX MAP
+   One design language across the globe: glass chrome, a
+   compass dial, soft-shadowed pins and a themed record card.
+   ========================================================= */
+.frelux-map canvas {
+  outline: none;
+}
+
+/* Depth wash so pins and chrome stay legible over imagery. */
+.frelux-map__vignette {
+  background: radial-gradient(
+    120% 90% at 50% 40%,
+    transparent 55%,
+    hsl(var(--background) / 0.22) 100%
+  );
+}
+
+.frelux-map__fade-top {
+  background: linear-gradient(
+    to bottom,
+    hsl(var(--background) / 0.55),
+    transparent
+  );
+}
+
+.frelux-map__fade-bottom {
+  background: linear-gradient(
+    to top,
+    hsl(var(--background) / 0.72),
+    transparent
+  );
+}
+
+/* Glass pill used for the live readout. */
+.frelux-map__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border) / 0.55);
+  background: hsl(var(--card) / 0.72);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  box-shadow: 0 10px 26px -20px rgba(16, 12, 40, 0.65);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+
+.frelux-map__live {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.16);
+}
+
+.frelux-map__live::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--primary) / 0.5);
+  animation: frelux-live 2.8s ease-out infinite;
+}
+
+@keyframes frelux-live {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.85;
+  }
+  75% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Compass dial: a real instrument, not a map widget. */
+.frelux-map__dial {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: radial-gradient(
+    circle at 50% 28%,
+    hsl(var(--card) / 0.95),
+    hsl(var(--card) / 0.62)
+  );
+  box-shadow:
+    0 14px 34px -24px rgba(16, 12, 40, 0.85),
+    inset 0 1px 0 hsl(0 0% 100% / 0.4);
+  backdrop-filter: blur(16px) saturate(150%);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease;
+}
+
+.frelux-map__dial:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 18px 40px -24px rgba(16, 12, 40, 0.9),
+    inset 0 1px 0 hsl(0 0% 100% / 0.45);
+}
+
+.frelux-map__dial:active {
+  transform: scale(0.96);
+}
+
+.frelux-map__dial:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.frelux-map__needle {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transition: transform 0.18s linear;
+}
+
+.frelux-map__needle-north,
+.frelux-map__needle-south {
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 0;
+  translate: -50% 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+
+.frelux-map__needle-north {
+  top: 8px;
+  border-bottom: 13px solid hsl(var(--primary));
+}
+
+.frelux-map__needle-south {
+  bottom: 8px;
+  border-top: 11px solid hsl(var(--muted-foreground) / 0.42);
+}
+
+.frelux-map__dial-letter {
+  position: relative;
+  z-index: 1;
+  margin-top: 3px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: hsl(var(--foreground) / 0.55);
+}
+
+.frelux-map__tilt {
+  position: absolute;
+  bottom: -7px;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--card) / 0.9);
+  padding: 0 5px;
+  font-size: 9px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--muted-foreground));
+  backdrop-filter: blur(8px);
+}
+
+.frelux-map__keys {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid hsl(var(--border) / 0.55);
+  background: hsl(var(--card) / 0.72);
+  box-shadow: 0 12px 30px -22px rgba(16, 12, 40, 0.7);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+
+.frelux-map__key {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 32px;
+  color: hsl(var(--foreground) / 0.8);
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.frelux-map__key:hover {
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+}
+
+.frelux-map__key:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: -2px;
+}
+
+.frelux-map__key-divider {
+  height: 1px;
+  background: hsl(var(--border) / 0.5);
+}
+
+/* Pins: a teardrop with a halo, label on hover or focus. */
+.frelux-pin {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  --pin: hsl(var(--primary));
+}
+
+.frelux-pin--pro {
+  --pin: #7c5cff;
+}
+
+.frelux-pin--job {
+  --pin: #0ea5e9;
+}
+
+.frelux-pin--material {
+  --pin: #f59e0b;
+}
+
+.frelux-pin--you {
+  --pin: #10b981;
+}
+
+.frelux-pin__halo {
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--pin) 30%, transparent) 0%,
+    transparent 70%
+  );
+  opacity: 0.55;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.frelux-pin:hover .frelux-pin__halo,
+.frelux-pin.is-active .frelux-pin__halo {
+  opacity: 0.95;
+  transform: scale(1.25);
+}
+
+.frelux-pin__core {
+  position: absolute;
+  inset: 3px;
+  border-radius: 9999px;
+  background: var(--pin);
+  border: 2px solid hsl(var(--background));
+  box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--pin) 75%, transparent);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.frelux-pin:hover .frelux-pin__core,
+.frelux-pin.is-active .frelux-pin__core {
+  transform: scale(1.15);
+}
+
+.frelux-pin__glyph {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: hsl(0 0% 100% / 0.92);
+}
+
+.frelux-pin__label {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  translate: -50% 4px;
+  max-width: 168px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 8px;
+  border: 1px solid hsl(var(--border) / 0.55);
+  background: hsl(var(--card) / 0.92);
+  padding: 3px 8px;
+  font-size: 10.5px;
+  font-weight: 650;
+  color: hsl(var(--foreground));
+  box-shadow: 0 10px 24px -16px rgba(16, 12, 40, 0.7);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    translate 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.frelux-pin:hover .frelux-pin__label,
+.frelux-pin:focus-visible .frelux-pin__label {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.frelux-pin.is-active .frelux-pin__label {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.frelux-pin:focus-visible {
+  outline: none;
+}
+
+.frelux-pin:focus-visible .frelux-pin__core {
+  box-shadow:
+    0 0 0 3px hsl(var(--background)),
+    0 0 0 5px hsl(var(--ring));
+}
+
+/* Record card anchored to a pin. */
+.frelux-map__card {
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--card) / 0.96);
+  padding: 12px 14px;
+  box-shadow: 0 24px 50px -28px rgba(16, 12, 40, 0.7);
+  backdrop-filter: blur(18px) saturate(150%);
+}
+
+.frelux-map__card::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 9px;
+  height: 9px;
+  translate: -50% 0;
+  rotate: 45deg;
+  border-right: 1px solid hsl(var(--border) / 0.6);
+  border-bottom: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--card) / 0.96);
+}
+
+.frelux-map__card-kind {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.frelux-map__card-close {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  color: hsl(var(--muted-foreground));
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.frelux-map__card-close:hover {
+  background: hsl(var(--muted) / 0.8);
+  color: hsl(var(--foreground));
+}
+
+/* Scale bar and credit line. */
+.frelux-map__scale {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: hsl(var(--foreground) / 0.75);
+  text-shadow: 0 1px 2px hsl(var(--background) / 0.6);
+}
+
+.frelux-map__scale-bar {
+  display: block;
+  height: 5px;
+  border: 1px solid hsl(var(--foreground) / 0.55);
+  border-top: 0;
+  border-radius: 0 0 2px 2px;
+}
+
+.frelux-map__credit {
+  font-size: 9.5px;
+  color: hsl(var(--muted-foreground) / 0.85);
+  text-shadow: 0 1px 2px hsl(var(--background) / 0.6);
+}
+
+.dark .frelux-map__pill,
+.dark .frelux-map__keys,
+.dark .frelux-map__card,
+.dark .frelux-pin__label,
+.dark .frelux-map__dial {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .frelux-map__vignette {
+  background: radial-gradient(
+    120% 90% at 50% 40%,
+    transparent 50%,
+    rgba(4, 4, 10, 0.55) 100%
+  );
+}
+
+.dark .frelux-map__core,
+.dark .frelux-pin__core {
+  border-color: rgba(8, 8, 14, 0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frelux-map__live::after,
+  .frelux-pin__halo,
+  .frelux-pin__core,
+  .frelux-pin__label,
+  .frelux-map__needle,
+  .frelux-map__dial {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Gentle entrance so the globe settles into the page. */
+.frelux-map--enter {
+  animation: frelux-map-enter 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes frelux-map-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.994);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frelux-map--enter {
+    animation: none;
+  }
+}

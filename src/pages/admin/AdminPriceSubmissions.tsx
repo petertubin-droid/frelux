@@ -1,0 +1,365 @@
+import { useEffect, useState } from "react";
+import {
+  CheckCircle2,
+  ClipboardList,
+  RefreshCw,
+  Sparkles,
+  XCircle,
+} from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import {
+  AdminHeader,
+  AdminButton,
+  StateMessage,
+} from "@/components/admin/AdminUi";
+import AdminPagination from "@/components/admin/AdminPagination";
+import { classNames } from "@/lib/utils";
+
+interface SubmissionRow {
+  id: string;
+  market: string;
+  region: string;
+  item_name: string;
+  unit: string;
+  price: number;
+  currency: string;
+  vendor: string | null;
+  status: string;
+  created_at: string;
+  material_slug: string | null;
+  verification_count: number | null;
+  applied_price: number | null;
+  applied_at: string | null;
+  source_url: string | null;
+}
+
+interface MaterialOption {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+import { getCountryCurrency } from "@/lib/international/countries";
+import { useLanguage } from "@/lib/i18n";
+
+const STATUS_TABS = [
+  "pending",
+  "community_verified",
+  "approved",
+  "rejected",
+  "all",
+];
+
+export default function AdminPriceSubmissions() {
+  const { t } = useLanguage();
+  const [rows, setRows] = useState<SubmissionRow[]>([]);
+  const [materials, setMaterials] = useState<MaterialOption[]>([]);
+  const [materialPick, setMaterialPick] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState("pending");
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  // Server-side pagination - submissions grow with every contribution.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
+
+  const load = async (status: string) => {
+    setLoading(true);
+    setError(null);
+    let q = supabase
+      .from("price_submissions")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .range(page * pageSize, page * pageSize + pageSize - 1);
+    let c = supabase
+      .from("price_submissions")
+      .select("*", { count: "exact", head: true });
+    if (status !== "all") {
+      q = q.eq("status", status);
+      c = c.eq("status", status);
+    }
+    const [{ data, error: err }, { count }] = await Promise.all([q, c]);
+    if (err) setError(err.message);
+    setRows((data as SubmissionRow[]) ?? []);
+    setTotal(count ?? 0);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    void load(tab);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, page, pageSize]);
+  useEffect(() => {
+    setPage(0);
+  }, [tab]);
+
+  useEffect(() => {
+    void (async () => {
+      const { data } = await supabase
+        .from("estimation_materials")
+        .select("id, name, slug")
+        .eq("is_active", true)
+        .order("name");
+      setMaterials((data as MaterialOption[]) ?? []);
+    })();
+  }, []);
+
+  const setStatus = async (id: string, status: string) => {
+    setBusyId(id);
+    const { error: err } = await supabase
+      .from("price_submissions")
+      .update({ status })
+      .eq("id", id);
+    setBusyId(null);
+    if (err) {
+      setError(err.message);
+      return;
+    }
+    setRows((prev) => prev.filter((r) => r.id !== id || tab === "all"));
+  };
+
+  /**
+   * Apply every group that already meets its market's agreement rule.
+   * Usually unnecessary because a report triggers this itself, but it lets the
+   * admin sweep the queue after a rule change.
+   */
+  const runVerification = async () => {
+    setBusyId("verify-all");
+    const { data, error: err } = await supabase.rpc(
+      "apply_community_prices",
+      {},
+    );
+    setBusyId(null);
+    if (err) {
+      setError(err.message);
+      return;
+    }
+    const applied = typeof data === "number" ? data : 0;
+    setNotice(
+      applied > 0
+        ? `${applied} ${applied === 1 ? "price" : "prices"} updated from agreed reports.`
+        : "No group has enough agreeing reports yet.",
+    );
+    void load(tab);
+  };
+
+  /** Approve AND copy the community price into the price book. */
+  const promote = async (row: SubmissionRow) => {
+    const refId = materialPick[row.id];
+    if (!refId) {
+      setError(`Pick the price-book item for "${row.item_name}" first.`);
+      return;
+    }
+    setBusyId(row.id);
+    const { data: inserted, error: priceErr } = await supabase
+      .from("estimation_prices")
+      .insert({
+        price_type: "material",
+        ref_id: refId,
+        price: row.price,
+        currency: getCountryCurrency(row.market),
+        market: row.market,
+        notes: `From community price report (${row.region}${row.vendor ? `, ${row.vendor}` : ""}).`,
+        price_source: row.vendor
+          ? `community report: ${row.vendor}`
+          : "community report",
+        origin: "community",
+        scan_confidence: "manual",
+        last_scanned_at: new Date().toISOString(),
+      })
+      .select("id")
+      .maybeSingle();
+    if (priceErr) {
+      setBusyId(null);
+      setError(priceErr.message);
+      return;
+    }
+    await supabase
+      .from("price_submissions")
+      .update({
+        status: "approved",
+        material_slug:
+          row.material_slug ??
+          materials.find((m) => m.id === refId)?.slug ??
+          null,
+        applied_price: row.price,
+        applied_price_id: inserted?.id ?? null,
+        applied_at: new Date().toISOString(),
+      })
+      .eq("id", row.id);
+    setRows((prev) => prev.filter((r) => r.id !== row.id || tab === "all"));
+    setBusyId(null);
+  };
+
+  return (
+    <div>
+      <AdminHeader
+        title={t("Community Price Submissions")}
+        subtitle="Local prices reported by users. Built-in materials update automatically once the market's agreeing-report rule is met; the rest wait for a mapping here."
+      />
+
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <AdminButton
+          variant="secondary"
+          disabled={busyId === "verify-all"}
+          onClick={() => void runVerification()}
+        >
+          <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+          {t("Apply agreed reports")}
+        </AdminButton>
+        {notice && (
+          <span className="text-xs text-muted-foreground">{notice}</span>
+        )}
+      </div>
+
+      <div className="mb-4 flex flex-wrap gap-2">
+        {STATUS_TABS.map((s) => (
+          <button
+            key={s}
+            onClick={() => setTab(s)}
+            className={classNames(
+              "rounded-full px-3 py-1.5 text-xs font-medium capitalize transition-colors",
+              tab === s
+                ? "bg-primary text-primary-foreground"
+                : "border border-border text-muted-foreground hover:bg-accent",
+            )}
+          >
+            {s.replace("_", " ")}
+          </button>
+        ))}
+      </div>
+
+      {loading && (
+        <StateMessage
+          type="loading"
+          title={t("Loading")}
+          message="Loading submissions…"
+        />
+      )}
+      {error && (
+        <StateMessage type="error" title={t("Error")} message={error} />
+      )}
+      {!loading && !error && rows.length === 0 && (
+        <StateMessage
+          type="empty"
+          title={t("Nothing here")}
+          message="No submissions in this view."
+        />
+      )}
+
+      <div className="mt-4 space-y-3">
+        {rows.map((r) => (
+          <div
+            key={r.id}
+            className={classNames(
+              "rounded-xl border bg-card p-4",
+              r.status === "community_verified"
+                ? "border-primary/40"
+                : "border-border",
+            )}
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium text-card-foreground">
+                {r.item_name}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {r.region} · {r.market} · {Number(r.price).toLocaleString()}{" "}
+                {r.currency} / {r.unit}
+              </span>
+              {r.vendor && (
+                <span className="text-xs text-muted-foreground/70">
+                  vendor: {r.vendor}
+                </span>
+              )}
+              {r.material_slug && (
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                  {r.material_slug}
+                </span>
+              )}
+              {r.applied_price != null && (
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                  {t("book")} {Number(r.applied_price).toLocaleString()}
+                </span>
+              )}
+              {r.source_url && (
+                <a
+                  href={r.source_url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-[11px] text-primary underline-offset-2 hover:underline"
+                >
+                  {t("source")}
+                </a>
+              )}
+              {r.status === "community_verified" && (
+                <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                  <Sparkles className="h-3 w-3" /> {t("Consensus")}
+                </span>
+              )}
+              <span className="ml-auto text-[11px] text-muted-foreground">
+                {new Date(r.created_at).toLocaleString()}
+              </span>
+            </div>
+
+            {r.status === "pending" || r.status === "community_verified" ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <select
+                  value={
+                    materialPick[r.id] ??
+                    materials.find((m) => m.slug === r.material_slug)?.id ??
+                    ""
+                  }
+                  onChange={(e) =>
+                    setMaterialPick((prev) => ({
+                      ...prev,
+                      [r.id]: e.target.value,
+                    }))
+                  }
+                  className="rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+                >
+                  <option value="">Map to price-book item…</option>
+                  {materials.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+                <AdminButton
+                  disabled={busyId === r.id}
+                  onClick={() => void promote(r)}
+                >
+                  <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
+                  {t("Approve into price book")}
+                </AdminButton>
+                <AdminButton
+                  variant="secondary"
+                  disabled={busyId === r.id}
+                  onClick={() => void setStatus(r.id, "rejected")}
+                >
+                  <XCircle className="mr-1.5 h-3.5 w-3.5" /> {t("Reject")}
+                </AdminButton>
+              </div>
+            ) : (
+              <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                <ClipboardList className="h-3.5 w-3.5" /> {r.status}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <AdminPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        loading={loading}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(0);
+        }}
+      />
+    </div>
+  );
+}

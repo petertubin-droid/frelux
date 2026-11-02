@@ -1,0 +1,380 @@
+// =========================================================
+// FRELUX PHASE 7, DEVELOPER PORTAL CLIENT (in-app)
+//
+// Key management for the Developer Portal and FRELUX API
+// keys page. Uses the SAME §3 key contract as the gateway:
+// crypto-random 32-char FLX- keys, SHA-256 hash stored, raw key
+// returned to the caller exactly once.
+//
+// All queries go through the user-scoped Supabase client and
+// are protected by RLS:
+//   frelux_api_keys  , owner_all + admin policies
+//   frelux_api_usage , owner_read + admin_read
+//   frelux_api_plans , authenticated read + admin manage
+//
+// key_hash is NEVER selected for display anywhere.
+// =========================================================
+
+import { supabase } from "@/lib/supabase";
+import {
+  generateFreluxApiKey,
+  hashApiKey,
+  apiKeyDisplayPrefix,
+} from "@/lib/frelix-api/key-format";
+
+export interface ApiKeyRow {
+  id: string;
+  name: string;
+  key_prefix: string;
+  status: string;
+  permissions: string[];
+  plan_key: string;
+  rate_limit_per_minute: number;
+  daily_quota: number;
+  monthly_quota: number;
+  expires_at: string | null;
+  last_used_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiKeyPlan {
+  key: string;
+  name: string;
+  config: Record<string, unknown> | null;
+  active: boolean;
+  sort_order: number;
+}
+
+export interface UsageSummary {
+  today: number;
+  thisMonth: number;
+  perKeyThisMonth: Record<string, number>;
+  recentStatusCodes: Record<string, number>;
+}
+
+export interface CreatedKey {
+  row: ApiKeyRow;
+  /** Shown exactly once, never stored raw, never retrievable again. */
+  rawKey: string;
+}
+
+const KEY_COLUMNS =
+  "id,name,key_prefix,status,permissions,plan_key,rate_limit_per_minute,daily_quota,monthly_quota,expires_at,last_used_at,created_at,updated_at";
+
+export async function listApiKeys(): Promise<ApiKeyRow[]> {
+  const { data, error } = await supabase
+    .from("frelux_api_keys")
+    .select(KEY_COLUMNS)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r) => ({
+    ...r,
+    permissions: Array.isArray(r.permissions) ? r.permissions : [],
+  }));
+}
+
+export async function createApiKey(
+  name: string,
+  plan_key = "free",
+  permissions: string[] = ["*"],
+): Promise<CreatedKey> {
+  const trimmed = name.trim();
+  if (trimmed.length < 1 || trimmed.length > 100) {
+    throw new Error("Key name must be 1–100 characters.");
+  }
+  const rawKey = generateFreluxApiKey(); // §3 contract, same as the gateway
+  const keyHash = await hashApiKey(rawKey); // WebCrypto, raw key never stored
+  const { data, error } = await supabase
+    .from("frelux_api_keys")
+    .insert({
+      name: trimmed,
+      key_prefix: apiKeyDisplayPrefix(rawKey),
+      key_hash: keyHash,
+      permissions,
+      plan_key,
+    })
+    .select(KEY_COLUMNS)
+    .single();
+  if (error || !data) throw new Error(error?.message ?? "Key creation failed.");
+  return {
+    row: {
+      ...data,
+      permissions: Array.isArray(data.permissions) ? data.permissions : [],
+    },
+    rawKey,
+  };
+}
+
+export async function revokeApiKey(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("frelux_api_keys")
+    .update({ status: "revoked" })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function restoreApiKey(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("frelux_api_keys")
+    .update({ status: "active" })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function rotateApiKey(id: string): Promise<CreatedKey> {
+  const rawKey = generateFreluxApiKey();
+  const keyHash = await hashApiKey(rawKey);
+  const { data, error } = await supabase
+    .from("frelux_api_keys")
+    .update({
+      key_hash: keyHash,
+      key_prefix: apiKeyDisplayPrefix(rawKey),
+      status: "active",
+    })
+    .eq("id", id)
+    .select(KEY_COLUMNS)
+    .single();
+  if (error || !data) throw new Error(error?.message ?? "Rotation failed.");
+  return {
+    row: {
+      ...data,
+      permissions: Array.isArray(data.permissions) ? data.permissions : [],
+    },
+    rawKey,
+  };
+}
+
+export async function updateApiKeyLimits(
+  id: string,
+  patch: Partial<
+    Pick<
+      ApiKeyRow,
+      | "name"
+      | "plan_key"
+      | "rate_limit_per_minute"
+      | "daily_quota"
+      | "monthly_quota"
+      | "expires_at"
+      | "permissions"
+    >
+  >,
+): Promise<void> {
+  const { error } = await supabase
+    .from("frelux_api_keys")
+    .update(patch)
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function getUsageSummary(): Promise<UsageSummary> {
+  const monthStart = new Date();
+  monthStart.setUTCHours(0, 0, 0, 0);
+  monthStart.setUTCDate(1);
+  const dayStart = new Date();
+  dayStart.setUTCHours(0, 0, 0, 0);
+
+  const { data, error } = await supabase
+    .from("frelux_api_usage")
+    .select("api_key_id,status_code,created_at")
+    .gte("created_at", monthStart.toISOString())
+    .order("created_at", { ascending: false })
+    .limit(2000);
+  if (error) throw new Error(error.message);
+
+  const perKeyThisMonth: Record<string, number> = {};
+  const recentStatusCodes: Record<string, number> = {};
+  let today = 0;
+  for (const row of data ?? []) {
+    perKeyThisMonth[row.api_key_id] =
+      (perKeyThisMonth[row.api_key_id] ?? 0) + 1;
+    recentStatusCodes[String(row.status_code)] =
+      (recentStatusCodes[String(row.status_code)] ?? 0) + 1;
+    if (new Date(row.created_at) >= dayStart) today += 1;
+  }
+  return {
+    today,
+    thisMonth: data?.length ?? 0,
+    perKeyThisMonth,
+    recentStatusCodes,
+  };
+}
+
+export async function getPlans(): Promise<ApiKeyPlan[]> {
+  const { data, error } = await supabase
+    .from("frelux_api_plans")
+    .select("key,name,config,active,sort_order")
+    .eq("active", true)
+    .order("sort_order");
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+// =========================================================
+// Phase 7 §17, API plan purchase
+//
+// The plan price is ALWAYS resolved server-side from
+// frelux_api_plans by the paystack-checkout edge function; the
+// client cannot influence it. The entitlement itself is granted
+// ONLY by the signed payment webhook (reference-idempotent) :
+// this call merely starts a payment session.
+// =========================================================
+export async function initializeApiPlanCheckout(
+  planKey: string,
+): Promise<{ authorization_url: string } | { error: string }> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) {
+    return { error: "Sign in to purchase an API plan." };
+  }
+
+  const { data, error: fnError } = await supabase.functions.invoke(
+    "paystack-checkout",
+    {
+      body: {
+        purpose: "api_plan",
+        plan: planKey,
+        user_id: session.user.id,
+        email: session.user.email,
+        callback_url: `${window.location.origin}/developers?plan_purchase=verify&plan=${planKey}`,
+      },
+    },
+  );
+
+  if (fnError) {
+    return { error: fnError.message || "Could not start checkout." };
+  }
+  if (!data?.data?.authorization_url) {
+    return {
+      error:
+        (data as { error?: string })?.error ??
+        "Checkout is unavailable for this plan.",
+    };
+  }
+  return { authorization_url: data.data.authorization_url };
+}
+
+// ---------------------------------------------------------
+// API wallet (prepaid overage balance)
+//
+// Reads are RLS-scoped to the owner. The balance is money, so it is never
+// derived on the client: the row is the truth and the gateway charges
+// against the same figure.
+// ---------------------------------------------------------
+
+export interface ApiWalletSummary {
+  balance_usd: number;
+  auto_topup_enabled: boolean;
+  auto_topup_threshold_usd: number;
+  auto_topup_amount_usd: number;
+  auto_topup_consent_at: string | null;
+  auto_topup_disabled_reason: string | null;
+  auto_topup_card_id: string | null;
+}
+
+export interface ApiPaymentMethod {
+  id: string;
+  brand: string | null;
+  last4: string | null;
+  exp_month: number | null;
+  exp_year: number | null;
+  is_default: boolean;
+}
+
+export async function getApiWallet(): Promise<ApiWalletSummary | null> {
+  const { data, error } = await supabase
+    .from("frelux_api_wallets")
+    .select(
+      "balance_usd, auto_topup_enabled, auto_topup_threshold_usd, auto_topup_amount_usd, auto_topup_consent_at, auto_topup_disabled_reason, auto_topup_card_id",
+    )
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  return {
+    balance_usd: Number(data.balance_usd ?? 0),
+    auto_topup_enabled: Boolean(data.auto_topup_enabled),
+    auto_topup_threshold_usd: Number(data.auto_topup_threshold_usd ?? 0),
+    auto_topup_amount_usd: Number(data.auto_topup_amount_usd ?? 0),
+    auto_topup_consent_at: data.auto_topup_consent_at ?? null,
+    auto_topup_disabled_reason: data.auto_topup_disabled_reason ?? null,
+    auto_topup_card_id: data.auto_topup_card_id ?? null,
+  };
+}
+
+/**
+ * Saved cards, as a safe projection. The chargeable token stays server side,
+ * so this returns brand and last four digits only.
+ */
+export async function listApiPaymentMethods(): Promise<ApiPaymentMethod[]> {
+  const { data, error } = await supabase.rpc("api_payment_methods_for_owner");
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as ApiPaymentMethod[]).map((m) => ({
+    id: m.id,
+    brand: m.brand ?? null,
+    last4: m.last4 ?? null,
+    exp_month: m.exp_month === null ? null : Number(m.exp_month),
+    exp_year: m.exp_year === null ? null : Number(m.exp_year),
+    is_default: Boolean(m.is_default),
+  }));
+}
+
+/**
+ * Turn automatic charges on or off. The database refuses this without a saved
+ * card and a consent version, so the browser is not the authority on consent.
+ */
+export async function setApiAutoTopup(input: {
+  enabled: boolean;
+  thresholdUsd?: number;
+  amountUsd?: number;
+  cardId?: string | null;
+  consentVersion?: string;
+}): Promise<{ error: string } | { enabled: boolean; card_last4?: string }> {
+  const { data, error } = await supabase.rpc("set_api_auto_topup", {
+    p_enable: input.enabled,
+    p_threshold_usd: input.thresholdUsd ?? null,
+    p_amount_usd: input.amountUsd ?? null,
+    p_card_id: input.cardId ?? null,
+    p_consent_version: input.consentVersion ?? null,
+  });
+  if (error) return { error: error.message };
+  const result = (data ?? {}) as {
+    error?: string;
+    enabled?: boolean;
+    card_last4?: string;
+  };
+  if (result.error) return { error: result.error };
+  return { enabled: Boolean(result.enabled), card_last4: result.card_last4 };
+}
+
+/**
+ * Open a hosted checkout for a top-up. The amount is only a request: the
+ * server validates it against its own limits and the wallet is credited by
+ * the payment webhook, never by returning from checkout.
+ */
+export async function startWalletTopup(
+  amountUsd: number,
+): Promise<{ authorization_url: string } | { error: string }> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) return { error: "Sign in to top up your wallet." };
+
+  const { data, error: fnError } = await supabase.functions.invoke(
+    "frelix-wallet-topup",
+    { body: { amount_usd: amountUsd } },
+  );
+
+  if (fnError)
+    return { error: fnError.message || "Could not start the top-up." };
+  const url = (data as { authorization_url?: string } | null)
+    ?.authorization_url;
+  if (!url) {
+    return {
+      error:
+        (data as { error?: string } | null)?.error ??
+        "Could not start the top-up.",
+    };
+  }
+  return { authorization_url: url };
+}

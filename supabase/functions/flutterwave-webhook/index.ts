@@ -1,0 +1,394 @@
+// =========================================================
+// Flutterwave Webhook — Auto-activate subscriptions on payment events
+//
+// Flutterwave sends a POST to this endpoint when payment events occur.
+// Configure the webhook URL + secret hash in the Flutterwave dashboard:
+//   Settings → Webhooks
+//   URL:  https://<your-project>.supabase.co/functions/v1/flutterwave-webhook
+//   Hash: a strong random string, also set as the FLW_SECRET_HASH
+//         Supabase secret (Flutterwave sends it back in the
+//         `verif-hash` header on every event)
+//
+// Safety rules (mirroring paystack-webhook):
+//  - Every request MUST carry the correct `verif-hash` header;
+//    unsigned or wrongly-signed events are rejected with 401.
+//  - Subscription activation requires the paid amount to match the
+//    canonical server-side price from subscription_plan_prices
+//    (audit H1 fix, 2026-09-10).
+//  - Activation is an idempotent upsert keyed by user_id.
+//
+// Required env:
+// - FLW_SECRET_HASH
+// - SUPABASE_URL
+// - SUPABASE_SERVICE_ROLE_KEY
+// =========================================================
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  constantTimeEqual,
+  validateQuotedCharge,
+  validateSubscriptionCharge,
+  validateSubscriptionPayment,
+} from "../_shared/subscription-pricing.ts";
+import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
+import {
+  configAsPack,
+  pickPack,
+  validatePackPayment,
+  type TokenPackRow,
+} from "../_shared/token-pricing.ts";
+import { serveWithCors } from "../_shared/serve.ts";
+import { decideCredit } from "../_shared/wallet-topup.ts";
+import { extractCardToken } from "../_shared/card-capture.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, verif-hash",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+const PLAN_DURATIONS_DAYS: Record<string, number> = {
+  monthly: 30,
+  yearly: 365,
+};
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+serveWithCors(async (req: Request) => {
+  if (req.method === "OPTIONS")
+    return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
+
+  try {
+    // Verify the secret hash BEFORE reading the body.
+    const secretHash = Deno.env.get("FLW_SECRET_HASH");
+    const receivedHash = req.headers.get("verif-hash");
+    if (
+      !secretHash ||
+      !receivedHash ||
+      !constantTimeEqual(secretHash, receivedHash)
+    ) {
+      return json({ error: "Invalid signature" }, 401);
+    }
+
+    const body = await req.json();
+    const event = body?.event;
+    const data = body?.data;
+
+    // Only successful card charges activate a subscription.
+    if (event !== "charge.completed" || !data) {
+      return json({ received: true, skipped: true });
+    }
+    if (data.status !== "successful") {
+      return json({ received: true, status: data.status });
+    }
+
+    const meta = data.meta ?? {};
+
+    // ── Token purchase branch: validate against canonical per-currency
+    // pricing, then credit idempotently (keyed by tx_ref). ──
+    if (meta.purpose === "token_purchase") {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const admin = createClient(supabaseUrl, serviceRoleKey);
+
+      // Packs (2026-10-16): bundle identified by meta.pack_id, priced
+      // server-side. Echoed meta is advisory only.
+      const { data: packRows, error: packsError } = await admin
+        .from("token_purchase_packs")
+        .select("id, key, name, token_amount, price_kobo, is_enabled");
+      let packs: TokenPackRow[] = (packRows ?? []) as TokenPackRow[];
+      if (packsError || packs.length === 0) {
+        const { data: tokenConfig, error: configError } = await admin
+          .from("token_purchase_config")
+          .select("token_amount, price_kobo, is_enabled")
+          .eq("id", 1)
+          .maybeSingle();
+        if (configError || !tokenConfig) {
+          return json({
+            received: true,
+            credited: false,
+            reason: "TOKENS_NOT_CONFIGURED",
+          });
+        }
+        packs = [configAsPack(tokenConfig)];
+      }
+      const { data: priceRows, error: priceRowsError } = await admin
+        .from("token_purchase_prices")
+        .select("pack_id, currency_code, price_minor, is_active");
+      if (priceRowsError) {
+        return json({ error: "Token pricing unavailable" }, 500);
+      }
+
+      const userId = meta.user_id as string | undefined;
+      const txRef = (typeof data.tx_ref === "string" && data.tx_ref) || null;
+      if (!userId || !txRef) {
+        return json({
+          received: true,
+          credited: false,
+          reason: "MISSING_METADATA",
+        });
+      }
+
+      const pack = pickPack(packs, meta.pack_id as number | undefined);
+      if (!pack) {
+        return json({
+          received: true,
+          credited: false,
+          reason: "TOKENS_NOT_CONFIGURED",
+        });
+      }
+
+      const validation = validatePackPayment({
+        pack,
+        priceRows: priceRows ?? [],
+        currency: String(data.currency ?? ""),
+        amountPaidMajor: Number(data.amount),
+      });
+      if (!validation.ok) {
+        // Never 500 — a mismatched/unknown amount is a rejected event,
+        // acknowledged so Flutterwave does not retry it forever.
+        return json({
+          received: true,
+          credited: false,
+          reason: validation.reason,
+        });
+      }
+
+      const rpc = await admin.rpc("credit_token_purchase", {
+        p_user_id: userId,
+        p_reference: txRef,
+        p_tokens: validation.resolution.tokens,
+        p_amount_kobo: validation.resolution.priceMinor,
+        p_metadata: { source: "flutterwave", purpose: "token_purchase" },
+        p_currency: validation.resolution.currency,
+        p_gateway: "flutterwave",
+      });
+      if (rpc.error) {
+        return json({ error: rpc.error.message }, 500);
+      }
+      return json({
+        received: true,
+        credited: true,
+        currency: validation.resolution.currency,
+      });
+    }
+
+    // ── API wallet top-up: credit the quoted amount only, idempotent on
+    // tx_ref. A settled figure that disagrees with the quote is recorded as
+    // refused rather than partially credited, and nothing here converts a
+    // charge from another currency. ──
+    if (meta.purpose === "wallet_topup") {
+      const admin = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      );
+      const userId = typeof meta.user_id === "string" ? meta.user_id : null;
+      const txRef =
+        typeof data.tx_ref === "string" && data.tx_ref ? data.tx_ref : null;
+      if (!userId || !txRef) {
+        return json({
+          received: true,
+          credited: false,
+          reason: "MISSING_METADATA",
+        });
+      }
+
+      const decision = decideCredit({
+        expectedUsd: meta.amount_usd,
+        paidAmount: data.amount,
+        paidCurrency: data.currency,
+        expectedCurrency:
+          typeof meta.expected_currency === "string"
+            ? meta.expected_currency
+            : "USD",
+      });
+
+      if (!decision.credit) {
+        // Never 500: the money did move, so the event is acknowledged and the
+        // mismatch is parked for support instead of retried forever.
+        await admin.rpc("refuse_api_wallet_topup", {
+          p_user: userId,
+          p_reference: txRef,
+          p_amount_usd: Number(data.amount) || 0,
+          p_reason: decision.reason,
+        });
+        return json({
+          received: true,
+          credited: false,
+          reason: decision.reason,
+        });
+      }
+
+      const rpc = await admin.rpc("credit_api_wallet_topup", {
+        p_user: userId,
+        p_reference: txRef,
+        p_amount_usd: decision.amountUsd,
+        p_provider: "flutterwave",
+      });
+      if (rpc.error) return json({ error: rpc.error.message }, 500);
+
+      const result = rpc.data as {
+        credited?: boolean;
+        balance_usd?: number;
+        reason?: string;
+      } | null;
+
+      // A settled card payment can yield a reusable token, which is what lets
+      // auto top-up run unattended later. This never affects the credit above:
+      // the money is owed whether or not a token comes back, and a provider
+      // hiccup here must not turn a successful payment into a 500.
+      let cardSaved = false;
+      if (result?.credited && data.id) {
+        try {
+          const verify = await fetch(
+            `https://api.flutterwave.com/v3/transactions/${data.id}/verify`,
+            {
+              headers: {
+                Authorization: `Bearer ${Deno.env.get("FLUTTERWAVE_SECRET_KEY")}`,
+              },
+              signal: AbortSignal.timeout(8_000),
+            },
+          );
+          const captured = extractCardToken(
+            await verify.json().catch(() => null),
+          );
+          if (captured) {
+            const saved = await admin.rpc("register_api_payment_method", {
+              p_user: userId,
+              p_token: captured.token,
+              p_brand: captured.brand,
+              p_last4: captured.last4,
+              p_exp_month: captured.expMonth,
+              p_exp_year: captured.expYear,
+            });
+            cardSaved = !saved.error;
+          }
+        } catch {
+          cardSaved = false;
+        }
+      }
+
+      return json({
+        received: true,
+        credited: result?.credited ?? false,
+        balance_usd: result?.balance_usd ?? null,
+        card_saved: cardSaved,
+        ...(result?.reason ? { reason: result.reason } : {}),
+      });
+    }
+
+    const plan = meta.plan as string | undefined;
+    const billingCycle =
+      (meta.billing_cycle as "monthly" | "yearly" | undefined) ?? "monthly";
+    const userId = meta.user_id as string | undefined;
+
+    if (!plan || !userId) {
+      return json({ error: "Missing plan or user_id" }, 400);
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // The amount PAID must equal the canonical server-side price
+    // before a subscription is activated. A signed ₦1 charge must
+    // never activate a paid plan. Flutterwave reports major units;
+    // the canonical rows are in kobo.
+    const { data: priceRows, error: priceError } = await supabase
+      .from("subscription_plan_prices")
+      .select("plan, billing_cycle, price_minor, price_kobo, currency, active");
+    if (priceError) {
+      return json({ error: "Plan pricing unavailable" }, 500);
+    }
+
+    const txCurrency = (data as { currency?: string }).currency ?? "USD";
+    const amountMinor = Math.round(Number(data.amount) * 100);
+    const amountKobo = amountMinor;
+    // Flutterwave reports the charged currency; a dollar subscription must
+    // match the dollar price exactly. Legacy naira checkouts fall back to
+    // the naira row so in-flight payments still settle.
+    const chargedCurrency = String(txCurrency ?? "USD").toUpperCase();
+    // A local-currency charge is validated against the quote recorded at
+    // checkout, which holds the exact currency and amount the visitor saw.
+    const { data: quoteRows } = await supabase
+      .from("subscription_checkout_quotes")
+      .select(
+        "reference, plan, billing_cycle, base_currency, base_minor, charge_currency, charge_minor, expires_at",
+      )
+      .eq("reference", String(data.tx_ref ?? ""))
+      .limit(1);
+    const quote = (quoteRows ?? [])[0] ?? null;
+
+    const usdValidation = validateSubscriptionCharge({
+      rows: priceRows ?? [],
+      plan,
+      billingCycle,
+      currency: "USD",
+      chargedMinor: amountMinor,
+    });
+    const legacyValidation =
+      chargedCurrency === "NGN"
+        ? validateSubscriptionPayment({
+            rows: priceRows ?? [],
+            plan,
+            billingCycle,
+            transactionAmountKobo: amountKobo,
+          })
+        : ({ ok: false, reason: "AMOUNT_MISMATCH" } as const);
+    const validation = quote
+      ? validateQuotedCharge(quote, {
+          plan,
+          billingCycle,
+          chargedMinor: amountMinor,
+          chargedCurrency,
+        })
+      : usdValidation.ok
+        ? usdValidation
+        : legacyValidation;
+    if (!validation.ok) {
+      // Never 500 — a mismatched/unknown amount is a rejected event,
+      // acknowledged so Flutterwave does not retry it forever.
+      return json({
+        received: true,
+        activated: false,
+        reason: validation.reason,
+      });
+    }
+
+    const days = PLAN_DURATIONS_DAYS[billingCycle] ?? 30;
+
+    // Audit fix (2026-10-09): idempotent per tx_ref via the
+    // subscription_purchases ledger — a retried webhook event with
+    // the same tx_ref no longer re-extends paid_until.
+    const activation = await applySubscriptionPurchase(supabase, {
+      userId,
+      provider: "flutterwave",
+      reference: data.tx_ref as string,
+      plan,
+      billingCycle,
+      amountKobo: amountMinor,
+      currency: chargedCurrency,
+      days,
+      providerCustomerId: data.customer?.email || null,
+    });
+
+    if (!activation.ok) {
+      return json({ error: activation.error }, 500);
+    }
+
+    return json({
+      received: true,
+      activated: true,
+      already_activated: activation.result.alreadyApplied,
+      plan,
+    });
+  } catch (error) {
+    return json({ error: (error as Error).message }, 500);
+  }
+});

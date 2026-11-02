@@ -1,0 +1,208 @@
+{
+  "$comment": "Market leaders probed on 2026-10-31 and the answer each one gave. These are recorded so the outreach list is explicit and nobody probes the same dead end twice. None of these carry a price today. A leader is listed here even when it fails, because knowing that Home Depot returns 404 and Lowe's returns 403 is the finding.",
+  "probed_at": "2026-10-31T10:00:00.000Z",
+  "probe_method": "GET <base>/products.json, then <base>/wp-json/wc/store/products",
+  "summary": "Of 17 market leaders across CN, CA, MX, AU, AE, IT, US and GB, none exposes a fetchable product catalogue. Large merchants either block server-side requests or run platforms with no public product API. Coverage in these markets cannot come from scraping leaders.",
+  "markets": [
+    {
+      "market": "CN",
+      "country": "China",
+      "leaders": [
+        {
+          "name": "Alibaba",
+          "url": "https://alibaba.com",
+          "status": "unreachable",
+          "note": "returns HTTP 200 to a browser but no catalogue to a server request"
+        },
+        {
+          "name": "Made-in-China",
+          "url": "https://made-in-china.com",
+          "status": "no_catalogue",
+          "note": "404 on both catalogue endpoints"
+        },
+        {
+          "name": "Global Sources",
+          "url": "https://globalsources.com",
+          "status": "not_probed",
+          "note": "same class as the two above; expect the same answer"
+        }
+      ],
+      "path_forward": "China needs export-facing merchants on Shopify, or a distributor relationship. Public marketplaces will not yield a fetchable price list."
+    },
+    {
+      "market": "CA",
+      "country": "Canada",
+      "leaders": [
+        {
+          "name": "Home Depot Canada",
+          "url": "https://homedepot.ca",
+          "status": "unreachable",
+          "note": "no response to server fetch"
+        },
+        {
+          "name": "Rona",
+          "url": "https://rona.ca",
+          "status": "blocked",
+          "note": "403 to server-side fetch; no catalogue reachable"
+        },
+        {
+          "name": "Kent Building Supplies",
+          "url": "https://kent.ca",
+          "status": "no_catalogue",
+          "note": "404 on both endpoints"
+        }
+      ],
+      "path_forward": "Handley Lumber is already staged for CA. What CA needs is material rows for lumber and sheet goods so those 250 staged products have somewhere to land."
+    },
+    {
+      "market": "MX",
+      "country": "Mexico",
+      "leaders": [
+        {
+          "name": "CEMEX",
+          "url": "https://cemex.com",
+          "status": "unreachable",
+          "note": "CEMEX Supply storefront returned 400 to server fetch"
+        },
+        {
+          "name": "Truper",
+          "url": "https://truper.com",
+          "status": "no_catalogue",
+          "note": "404; also a tools manufacturer rather than a material merchant"
+        },
+        {
+          "name": "Interceramic",
+          "url": "https://interceramic.com",
+          "status": "no_catalogue",
+          "note": "404 to server-side fetch; no catalogue reachable"
+        }
+      ],
+      "path_forward": "Mexico has no verified source. Community reporting on the material tracker is the only live path until a Mexican merchant is found or approached."
+    },
+    {
+      "market": "AU",
+      "country": "Australia",
+      "leaders": [
+        {
+          "name": "Bunnings",
+          "url": "https://bunnings.com.au",
+          "status": "unreachable",
+          "note": "no response to server fetch"
+        },
+        {
+          "name": "Beaumont Tiles",
+          "url": "https://beaumont-tiles.com.au",
+          "status": "sample_catalogue",
+          "note": "231 staged rows, 229 of them $0.00 samples, 2 real prices. Deactivated as a price source."
+        },
+        {
+          "name": "Plyco",
+          "url": "https://plyco.com.au",
+          "status": "ok",
+          "note": "the only usable AU source: timber and panel goods, 2 observations written"
+        }
+      ],
+      "path_forward": "AU needs more mid-size merchants like Plyco, and AU material rows for tiles and sheet goods."
+    },
+    {
+      "market": "AE",
+      "country": "United Arab Emirates",
+      "leaders": [
+        {
+          "name": "Danube Home",
+          "url": "https://danubehome.com",
+          "status": "no_catalogue",
+          "note": "404 on both endpoints"
+        },
+        {
+          "name": "ACE Hardware UAE",
+          "url": "https://aceuae.com",
+          "status": "no_catalogue",
+          "note": "404 to server-side fetch; no catalogue reachable"
+        },
+        {
+          "name": "Buildex",
+          "url": "https://buildex.ae",
+          "status": "no_catalogue",
+          "note": "404 to server-side fetch; no catalogue reachable"
+        }
+      ],
+      "path_forward": "No UAE source. Gulf merchants typically trade through WhatsApp and price lists rather than web catalogues, so this is an outreach market, not a scraping one."
+    },
+    {
+      "market": "IT",
+      "country": "Italy",
+      "leaders": [
+        {
+          "name": "Leroy Merlin Italia",
+          "url": "https://leroymerlin.it",
+          "status": "blocked",
+          "note": "403 to server-side fetch; no catalogue reachable"
+        },
+        {
+          "name": "Bricocenter",
+          "url": "https://bricocenter.it",
+          "status": "blocked",
+          "note": "403 to server-side fetch; no catalogue reachable"
+        },
+        {
+          "name": "Tecnomat",
+          "url": "https://tecnomat.it",
+          "status": "blocked",
+          "note": "403 to server-side fetch; no catalogue reachable"
+        }
+      ],
+      "path_forward": "Italy blocks uniformly. Italian tile and ceramics producers sell through distributors, so a wholesale relationship is the realistic route."
+    },
+    {
+      "market": "US",
+      "country": "United States",
+      "leaders": [
+        {
+          "name": "Home Depot",
+          "url": "https://homedepot.com",
+          "status": "no_catalogue",
+          "note": "404 on both endpoints"
+        },
+        {
+          "name": "Lowe's",
+          "url": "https://lowes.com",
+          "status": "blocked",
+          "note": "403 to server-side fetch; no catalogue reachable"
+        },
+        {
+          "name": "Build.com",
+          "url": "https://build.com",
+          "status": "no_catalogue",
+          "note": "404 to server-side fetch; no catalogue reachable"
+        }
+      ],
+      "path_forward": "The US book is already 55 of 71 local. Remaining gaps are branded items, not whole categories."
+    },
+    {
+      "market": "GB",
+      "country": "United Kingdom",
+      "leaders": [
+        {
+          "name": "Screwfix",
+          "url": "https://screwfix.com",
+          "status": "no_catalogue",
+          "note": "404 to server-side fetch; no catalogue reachable"
+        },
+        {
+          "name": "Wickes",
+          "url": "https://wickes.co.uk",
+          "status": "unreachable",
+          "note": "no catalogue to server fetch"
+        },
+        {
+          "name": "Insulation Superstore",
+          "url": "https://insulationsuperstore.co.uk",
+          "status": "blocked",
+          "note": "403 to server-side fetch; no catalogue reachable"
+        }
+      ],
+      "path_forward": "Bravikon already supplies the GB sand price. Further GB coverage needs mid-size merchants."
+    }
+  ]
+}

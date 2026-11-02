@@ -1,0 +1,68 @@
+# Counter-Vision photo counting — anonymous visitors allowed;
+# the function accepts an optional user token for logging and
+# rate limiting but never requires login.
+[functions.count-vision]
+verify_jwt = false
+
+[functions.flutterwave-checkout]
+verify_jwt = false
+
+[functions.paystack-checkout]
+verify_jwt = false
+
+[functions.paystack-verify]
+verify_jwt = false
+
+[functions.paystack-webhook]
+verify_jwt = false
+
+[functions.pdf-studio-export]
+verify_jwt = true
+
+[functions.ai-admin-assistant]
+verify_jwt = true
+
+[functions.ai-building-estimation]
+verify_jwt = false
+
+[functions.ai-construction-extraction]
+verify_jwt = false
+
+[functions.support-chat]
+# Site support widget — anonymous visitors allowed; the function
+# rate-limits per clientId and never touches account data.
+verify_jwt = false
+
+[functions.subscribe-newsletter]
+verify_jwt = false
+
+[functions.newsletter-unsubscribe]
+verify_jwt = false
+
+[functions.price-digest]
+verify_jwt = false
+
+# ayeT S2S callback is authenticated by its provider HMAC header, not Supabase JWT.
+[functions.ayet-rewarded-callback]
+verify_jwt = false
+# ayeT session management requires an authenticated user JWT.
+[functions.create-ayet-rewarded-session]
+verify_jwt = true
+
+[functions.verify-ayet-rewarded-session]
+verify_jwt = true
+
+[functions.price-index-submit]
+verify_jwt = false
+
+[functions.price-index-api]
+verify_jwt = false
+
+[functions.price-index-review]
+verify_jwt = true
+
+[functions.frelix-wallet-autotopup]
+verify_jwt = false
+
+[functions.admin-user-management]
+verify_jwt = true

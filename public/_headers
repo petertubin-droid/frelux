@@ -1,0 +1,166 @@
+# Netlify _headers file: security + SEO headers for FRELUX
+
+# Security headers for all routes
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(self), interest-cohort=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-XSS-Protection: 1; mode=block
+  X-DNS-Prefetch-Control: on
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://www.googletagmanager.com https://*.sentry.io https://*.sentry-cdn.com https://connect.facebook.net https://pagead2.googlesyndication.com https://contextual.media.net https://m.servedby-buysellads.com https://cdn.taboola.com https://widgets.outbrain.com https://*.profitabledisplaynetwork.com https://*.highperformanceformat.com https://*.highrevenueformat.com https://*.profitablecpmrate.com https://*.profitableratecpmnetwork.com https://*.adsterrapremium.com https://assets.revcontent.com https://serve.monumetric.com https://cdn.snigelweb.com https://srv.carbonads.net https://media.ethicalads.io https://c.amazon-adsystem.com https://cdn.yllix.net https://*.monetag.com https://propropsl.com https://quge5.com https://*.quge5.com https://omg10.com https://*.omg10.com https://cdn.ayet.io https://6opo.com https://n6wxm.com https://*.n6wxm.com https://vaimucuvikuwu.net https://5gvci.com https://*.5gvci.com https://tpc.googlesyndication.com https://www.googletagservices.com https://highperformanceformat.com https://highrevenueformat.com https://openairtowhardworking.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://translate.googleapis.com https://www.gstatic.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://cdn.ayet.io https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://nominatim.openstreetmap.org https://*.supabase.co https://*.sentry.io https://*.sentry-cdn.com wss://*.supabase.co https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://api.openweathermap.org https://api.paystack.co https://quge5.com https://*.quge5.com https://omg10.com https://*.omg10.com https://6opo.com https://n6wxm.com https://*.n6wxm.com https://vaimucuvikuwu.net https://5gvci.com https://*.5gvci.com https://e2ertt.com https://pagead2.googlesyndication.com https://tpc.googlesyndication.com https://googleads.g.doubleclick.net https://*.highperformanceformat.com https://*.highrevenueformat.com https://*.profitablecpmrate.com https://*.profitableratecpmnetwork.com https://*.adsterrapremium.com https://highrevenueformat.com https://openairtowhardworking.com https://*.openairtowhardworking.com https://*.profitabledisplaynetwork.com; frame-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self' https://paystack.com https://standard.paystack.co
+
+# FAQ hub and answer pages: indexable by every crawler, including AI answer
+# engines, with no snippet or preview limit applied.
+/faq
+  X-Robots-Tag: all, max-snippet:-1, max-image-preview:large, max-video-preview:-1
+  Cache-Control: public, max-age=600, must-revalidate
+
+/faq/*
+  X-Robots-Tag: all, max-snippet:-1, max-image-preview:large, max-video-preview:-1
+  Cache-Control: public, max-age=600, must-revalidate
+
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+# SEO files: short cache with revalidation (crawlers need fresh data)
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/robots.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/manifest.json
+  Content-Type: application/manifest+json; charset=utf-8
+  Cache-Control: public, max-age=86400
+
+# Social preview card: revalidate hourly so a brand change reaches new shares
+/social-cover.png
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# Static assets: long cache
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML files: short cache with revalidation
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Service worker: no cache
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Ad network push worker. Revalidated on every request so a replacement worker
+# reaches a device that still holds the superseded one.
+/sw4.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+# ── Locale URL noindex (i18n batch, 2026-10-23) ─────────────────────────
+# Locale-prefixed URLs (/es/..., /fr/...) now serve 200 (URL-durable,
+# see netlify.toml). They render the same underlying English content in
+# the client's language (dictionary chrome + Google Translate), so they
+# must NEVER enter the index: X-Robots-Tag is stronger than the old
+# canonical-only approach that produced Search Console's "duplicate,
+# Google chose different canonical" reports. seo.ts also sets noindex
+# client-side as defense in depth.
+
+/fr
+  X-Robots-Tag: noindex, nofollow
+/fr/*
+  X-Robots-Tag: noindex, nofollow
+
+/de
+  X-Robots-Tag: noindex, nofollow
+/de/*
+  X-Robots-Tag: noindex, nofollow
+
+/pt
+  X-Robots-Tag: noindex, nofollow
+/pt/*
+  X-Robots-Tag: noindex, nofollow
+
+/ru
+  X-Robots-Tag: noindex, nofollow
+/ru/*
+  X-Robots-Tag: noindex, nofollow
+
+/id
+  X-Robots-Tag: noindex, nofollow
+/id/*
+  X-Robots-Tag: noindex, nofollow
+
+/sw
+  X-Robots-Tag: noindex, nofollow
+/sw/*
+  X-Robots-Tag: noindex, nofollow
+
+/ar
+  X-Robots-Tag: noindex, nofollow
+/ar/*
+  X-Robots-Tag: noindex, nofollow
+
+/hi
+  X-Robots-Tag: noindex, nofollow
+/hi/*
+  X-Robots-Tag: noindex, nofollow
+
+/zh
+  X-Robots-Tag: noindex, nofollow
+/zh/*
+  X-Robots-Tag: noindex, nofollow
+
+# ── Private route noindex (robots.txt parity, 2026-10-23) ─────────────
+# robots.txt disallows these routes, but robots.txt is only a request —
+# the URLs were still indexable 200s with the generic shell. A server-
+# side X-Robots-Tag guarantees they never enter the index even if a
+# crawler ignores robots.txt. The routes stay functional for users.
+/admin*
+  X-Robots-Tag: noindex, nofollow
+/login*
+  X-Robots-Tag: noindex, nofollow
+/dashboard*
+  X-Robots-Tag: noindex, nofollow
+/profile*
+  X-Robots-Tag: noindex, nofollow
+/metrics*
+  X-Robots-Tag: noindex, nofollow
+/properties*
+  X-Robots-Tag: noindex, nofollow
+/achievements*
+  X-Robots-Tag: noindex, nofollow
+/my-projects*
+  X-Robots-Tag: noindex, nofollow
+/my-templates*
+  X-Robots-Tag: noindex, nofollow
+/project-workspace*
+  X-Robots-Tag: noindex, nofollow
+/color-preview*
+  X-Robots-Tag: noindex, nofollow
+/shared/*
+  X-Robots-Tag: noindex, nofollow
+/gallery/new*
+  X-Robots-Tag: noindex, nofollow
+/data-request/resolve*
+  X-Robots-Tag: noindex, nofollow
+
+/ja
+  X-Robots-Tag: noindex, nofollow
+/ja/*
+  X-Robots-Tag: noindex, nofollow
+
+/nl
+  X-Robots-Tag: noindex, nofollow
+/nl/*
+  X-Robots-Tag: noindex, nofollow
+
+# ── Investor Centre (private, never indexed) ─────────────────────────────
+/investor-centre
+  X-Robots-Tag: noindex, nofollow
+/investor-centre/*
+  X-Robots-Tag: noindex, nofollow

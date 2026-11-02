@@ -1,0 +1,1057 @@
+import {
+  useEffect,
+  useRef,
+  useState,
+  isValidElement,
+  cloneElement,
+  type ReactNode,
+} from "react";
+import { Link } from "react-router-dom";
+import { useMarket } from "@/lib/international/market-context";
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
+import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
+import {
+  RotateCcw,
+  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Globe,
+  MapPin,
+} from "lucide-react";
+import PageHeader from "@/components/ui/PageHeader";
+import { calculatePopCeiling } from "@/lib/pop-tile-calc";
+import { track } from "@/lib/analytics";
+import {
+  logAnalyticsEvent,
+  fetchPopMaterials,
+  fetchPopWorkflows,
+  fetchSiteSettings,
+  saveUserProject,
+} from "@/lib/queries";
+import { SaveToProjectButton } from "@/components/calculators";
+import {
+  formatNumber,
+  formatCurrency,
+  classNames,
+  unitShortLabel,
+} from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { useSeo } from "@/lib/seo";
+import { useCalcDefaults } from "@/lib/use-calc-defaults";
+import { RewardedFeatureGate } from "@/components/rewarded/RewardedFeatureGate";
+import { AdvancedCalculator } from "@/components/rewarded/AdvancedCalculator";
+import {
+  HowCalculatedSection,
+  EstimateDisclaimer,
+  ReportCalculationIssue,
+} from "@/components/calculators";
+import CalculatorNearMe from "@/components/calculators/CalculatorNearMe";
+import { saveEstimateHistory } from "@/lib/crm";
+import ProConnectCTA from "@/components/pro-connect/ProConnectCTA";
+// Engine integration
+import { useEngineFeatures } from "@/lib/measurement";
+import {
+  EngineConfidenceBadge,
+  EngineConfidenceDetail,
+  EngineExplanationPanel,
+  EngineAlreadyHaveInput,
+  EngineWasteSelector,
+  EngineMaterialSummaryCard,
+} from "@/components/engine";
+import type { PopCalcInput, PopCalcResult, Unit } from "@/types";
+import type {
+  DbPopMaterial,
+  DbPopWorkflow,
+  DbSiteSettings,
+} from "@/types/database";
+import { useTemplateLoader } from "@/lib/useTemplateLoader";
+import SaveTemplateButton from "@/components/templates/SaveTemplateButton";
+import LoadTemplateButton from "@/components/templates/LoadTemplateButton";
+import { trackCalculation } from "@/lib/achievements";
+import { trackCalculationWithRewards } from "@/lib/rewards-integration";
+import { trackRecentTool } from "@/lib/smart-defaults";
+
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
+import { PopCeilingCalculatorSeo } from "@/components/seo/SeoContent";
+import { monitoredCalc } from "@/lib/calculator-monitor";
+import AdSlot from "@/components/ui/AdSlot";
+import { SITE_URL } from "@/lib/seo";
+import { Button } from "@/components/ui/shadcn/button";
+import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
+import { useWasteBridge } from "@/lib/waste/use-waste-settings";
+import UnitToggle from "@/components/measurement/UnitToggle";
+import { tx } from "@/lib/i18n";
+import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+const ADVANCED_FEATURES = [
+  "AI-powered project analysis & breakdown",
+  "Smart cost optimization recommendations",
+  "Labour, transport & markup cost adjuster",
+  "Multiple waste percentage scenarios",
+  "Profit and tax/VAT calculator",
+  "Ask AI: get expert answers about your POP ceiling project",
+  "Save estimates and export professional PDF quotations",
+  "AI recommendations for reducing waste",
+];
+
+export default function PopCeilingCalculator({
+  embedded = false,
+}: { embedded?: boolean } = {}) {
+  const { defaults: calcDefaults } = useCalcDefaults("pop_ceiling");
+  const seoOfferCurrency = useSeoOfferCurrency();
+  useSeo(
+    !embedded
+      ? {
+          title: "POP Ceiling Calculator: How Much POP Cement Do I Need?",
+          description:
+            "Free POP ceiling calculator. Enter your room dimensions to calculate ceiling area, material quantities, and labour for Nigerian and international POP ceiling workflows.",
+          canonicalPath: "/pop-ceiling-calculator",
+          ogType: "website",
+          keywords:
+            "POP ceiling calculator, plaster of paris, POP cement, ceiling design, POP ceiling material",
+          structuredDataArray: [
+            {
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "FRELUX POP Ceiling Calculator",
+              applicationCategory: "CalculatorApplication",
+              operatingSystem: "Web",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: seoOfferCurrency,
+              },
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: SITE_URL,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "POP Ceiling Calculator",
+                  item: `${SITE_URL}/pop-ceiling-calculator`,
+                },
+              ],
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "What is a POP ceiling?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "A POP (Plaster of Paris) ceiling is a decorative ceiling made from gypsum-based plaster, popular in many homes.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "How much POP cement do I need?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "POP cement quantity depends on ceiling area and design complexity. Use the calculator for an accurate estimate.",
+                  },
+                },
+              ],
+            },
+          ],
+        }
+      : null,
+  );
+
+  const { user } = useAuth();
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    trackRecentTool(
+      "/pop-ceiling-calculator",
+      "POP Ceiling Calculator",
+      "Grid3x3",
+    );
+    return () => {
+      mountedRef.current = false;
+    };
+  });
+  const [materials, setMaterials] = useState<DbPopMaterial[]>([]);
+  const [workflows, setWorkflows] = useState<DbPopWorkflow[]>([]);
+  const [settings, setSettings] = useState<DbSiteSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [result, setResult] = useState<PopCalcResult | null>(null);
+  // Engine features
+  const engine = useEngineFeatures({ calculatorType: "pop_ceiling" });
+  const [alreadyHave, setAlreadyHave] = useState(0);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");
+
+  const { market } = useMarket();
+  // The shared allowance seeds this margin and remembers what the visitor
+  // chooses here. The engine still applies it once, inside the calculation.
+  const sharedWaste = useWasteBridge("screeding", 10);
+  const [input, setInput] = useState<PopCalcInput>({
+    workflow: "nigeria",
+    roomLength: 0,
+    roomWidth: 0,
+    unit: resolveMarketRoomUnit(market, "meters"),
+    wasteMargin: sharedWaste.value,
+    includeDecorative: false,
+    includeOptional: false,
+  });
+  // First-visit market detection can resolve after first render: sync the
+  // pristine input's unit to the market default without touching edits.
+  const appliedRoomUnitRef = useRef(resolveMarketRoomUnit(market, "meters"));
+  useEffect(() => {
+    const roomUnit = resolveMarketRoomUnit(market, "meters");
+    if (roomUnit === appliedRoomUnitRef.current) return;
+    const previous = appliedRoomUnitRef.current;
+    appliedRoomUnitRef.current = roomUnit;
+    setInput((s) => (s.unit === previous ? { ...s, unit: roomUnit } : s));
+  }, [market]);
+
+  const { templateData: loadedTemplate } = useTemplateLoader();
+  useEffect(() => {
+    if (loadedTemplate?.input_data) {
+      setInput(loadedTemplate.input_data as unknown as PopCalcInput);
+    }
+  }, [loadedTemplate]);
+
+  const currencySymbol = settings?.default_currency_symbol ?? "₦";
+  const currency = settings?.default_currency ?? "NGN";
+
+  useEffect(() => {
+    async function load() {
+      const [matRes, wfRes, settingsRes] = await Promise.all([
+        fetchPopMaterials(),
+        fetchPopWorkflows(),
+        fetchSiteSettings(),
+      ]);
+      setMaterials(matRes.data);
+      setWorkflows(wfRes.data);
+      setSettings(settingsRes.data);
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  function update<K extends keyof PopCalcInput>(
+    key: K,
+    value: PopCalcInput[K],
+  ) {
+    setInput((prev) => ({ ...prev, [key]: value }));
+    setErrors((e) => ({ ...e, [key]: "" }));
+  }
+
+  function compute() {
+    const e: Record<string, string> = {};
+    if (input.roomLength <= 0) e.roomLength = "Enter a valid length";
+    if (input.roomWidth <= 0) e.roomWidth = "Enter a valid width";
+    setErrors(e);
+    if (Object.keys(e).length > 0) return;
+
+    const r = monitoredCalc("POP Ceiling Calculator", () =>
+      calculatePopCeiling(input, materials, currency, currencySymbol),
+    );
+    trackCalculation("pop");
+    trackCalculationWithRewards("pop", "POP Ceiling Calculator");
+    setResult(r);
+    track("pop_ceiling_calculated", {
+      workflow: input.workflow,
+      area: r.ceilingArea,
+    });
+    void saveEstimateHistory(user?.id ?? null, {
+      calculator_type: "pop",
+      project_name: `POP Ceiling: ${input.workflow}`,
+      input_data: input as unknown as Record<string, unknown>,
+      result_data: r as unknown as Record<string, unknown>,
+    }).catch(() => {});
+    logAnalyticsEvent("pop_ceiling_calculated", {
+      workflow: input.workflow,
+      area: r.ceilingArea,
+    });
+  }
+
+  function startOver() {
+    setResult(null);
+    setInput({ ...input, roomLength: 0, roomWidth: 0 });
+  }
+
+  async function handleSave() {
+    if (!user || !result) return;
+    setSaving(true);
+    const { error } = await saveUserProject(
+      "POP Ceiling Calculation",
+      "pop_ceiling",
+      {
+        ...input,
+        result,
+      },
+    );
+    setSaveMsg(error ? `Save failed: ${error}` : "Saved to your projects");
+    setSaving(false);
+    setTimeout(() => setSaveMsg(""), 3000);
+  }
+
+  if (loading) {
+    return (
+      <>
+        {!embedded && (
+          <PageHeader
+            eyebrow="Calculate"
+            title={tx("POP Ceiling Calculator")}
+            subtitle={tx("Calculate POP ceiling materials and quantities.")}
+            breadcrumbs={[
+              { label: "Home", path: "/" },
+              { label: "Calculators", path: "/calculators" },
+              { label: "POP Ceiling Calculator" },
+            ]}
+          />
+        )}
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-muted-foreground">
+          <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
+          Loading…
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      {!embedded && (
+        <PageHeader
+          eyebrow="Calculate"
+          title={tx("POP Ceiling Calculator")}
+          subtitle="Calculate ceiling area, material quantities, and labour for your POP ceiling project."
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Calculators", path: "/calculators" },
+            { label: "POP Ceiling Calculator" },
+          ]}
+        />
+      )}
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <LoadTemplateButton
+          calculatorType="pop"
+          onLoad={(t) => setInput(t.input_data as unknown as PopCalcInput)}
+        />
+        <SaveTemplateButton
+          calculatorType="pop"
+          inputData={input as unknown as Record<string, unknown>}
+          defaultName={`${input.roomLength}×${input.roomWidth} POP`}
+        />
+      </div>
+      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        {!result && (
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+            {/* Workflow selection */}
+            <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
+              {tx("Choose workflow")}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {tx("Select the POP ceiling method that matches your region.")}
+            </p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {workflows.map((wf) => {
+                const selected = input.workflow === wf.workflow_type;
+                const Icon = wf.workflow_type === "nigeria" ? MapPin : Globe;
+                return (
+                  <Button
+                    variant="ghost"
+                    key={wf.id}
+                    type="button"
+                    onClick={() => update("workflow", wf.workflow_type)}
+                    className={
+                      "select-card flex h-auto items-start gap-3 rounded-xl border p-4 text-left " +
+                      (selected
+                        ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
+                        : "border-border")
+                    }
+                  >
+                    <span
+                      className={
+                        "inline-flex h-10 w-10 items-center justify-center rounded-lg " +
+                        (selected
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground")
+                      }
+                    >
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-foreground dark:text-primary-foreground">
+                        {wf.name}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {wf.description}
+                      </span>
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
+
+            {/* Unit toggle */}
+            <div className="mt-6">
+              <div className="inline-flex rounded-lg border border-border p-1">
+                <UnitToggle
+                  value={input.unit}
+                  onChange={(u) => update("unit", u)}
+                />
+              </div>
+            </div>
+
+            {/* Dimensions */}
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <Field
+                label="Room length"
+                suffix={unitShortLabel(input.unit)}
+                error={errors.roomLength}
+              >
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={input.roomLength || ""}
+                  onChange={(e) => update("roomLength", Number(e.target.value))}
+                  className="input-field"
+                  placeholder="0.00"
+                />
+              </Field>
+              <Field
+                label="Room width"
+                suffix={unitShortLabel(input.unit)}
+                error={errors.roomWidth}
+              >
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={input.roomWidth || ""}
+                  onChange={(e) => update("roomWidth", Number(e.target.value))}
+                  className="input-field"
+                  placeholder="0.00"
+                />
+              </Field>
+            </div>
+
+            {/* Options */}
+            <div className="mt-6 space-y-3">
+              <Toggle
+                checked={input.includeDecorative}
+                onChange={(v) => update("includeDecorative", v)}
+                label="Include decorative components"
+                hint="Cornices, ceiling roses, light troughs, LED channels, access panels"
+              />
+              <Toggle
+                checked={input.includeOptional}
+                onChange={(v) => update("includeOptional", v)}
+                label="Include optional items"
+                hint="Scaffolding, electrician, PVC panels, and other optional materials"
+              />
+            </div>
+
+            {/* Waste margin */}
+            <div className="mt-6">
+              <span className="block text-sm font-semibold text-card-foreground">
+                {tx("Waste / safety margin")}
+              </span>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Extra material added to account for spillage and uneven
+                application.
+              </p>
+              <WasteMarginControl
+                value={input.wasteMargin}
+                onChange={(w) => {
+                  update("wasteMargin", w);
+                  sharedWaste.setValue(w);
+                }}
+                options={[0, 5, 10, 15, 20]}
+              />
+            </div>
+
+            {Object.keys(errors).length > 0 && (
+              <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <AlertCircle
+                  aria-hidden="true"
+                  className="mt-0.5 h-4 w-4 shrink-0"
+                />
+                <p>{tx("Please fix the errors above before calculating.")}</p>
+              </div>
+            )}
+
+            <Button
+              variant="default"
+              type="button"
+              onClick={compute}
+              className="btn-glow mt-6 w-full sm:w-auto"
+            >
+              {tx("Calculate POP Ceiling")}
+              <ArrowRight aria-hidden="true" className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
+        {result && (
+          <PopResultCard
+            result={result}
+            input={input}
+            currencySymbol={currencySymbol}
+            onAgain={() => setResult(null)}
+            onStartOver={startOver}
+            calcDefaults={{
+              howCalculatedText:
+                (calcDefaults.howCalculatedText as string) || "",
+              estimateDisclaimer: calcDefaults.estimateDisclaimer,
+            }}
+            user={user}
+            onSave={handleSave}
+            saving={saving}
+            saveMsg={saveMsg}
+            engine={engine}
+            alreadyHave={alreadyHave}
+            onAlreadyHaveChange={setAlreadyHave}
+          />
+        )}
+
+        {result && (
+          <RewardedFeatureGate
+            toolKey="advanced_calculator"
+            featureName="AI Advanced Calculator"
+            features={ADVANCED_FEATURES}
+          >
+            {(access) => (
+              <AdvancedCalculator
+                toolKey="pop"
+                toolLabel="POP Ceiling Calculator"
+                contextSummary={`POP Ceiling Calculator Results:
+- Ceiling area: ${formatNumber(result.ceilingArea)} m²
+- Materials: ${result.materials.map((m) => `${m.name}: ${m.quantity}${m.unit} (${m.packagesNeeded} packs) = ${result.currencySymbol}${formatNumber(m.cost)}`).join("\n- ")}
+- Material cost: ${result.currencySymbol}${formatNumber(result.materialCost)}
+- Labour: ${result.currencySymbol}${formatNumber(result.labourCost)}
+- Waste: ${result.currencySymbol}${formatNumber(result.wasteAmount)}
+- Grand total: ${result.currencySymbol}${formatNumber(result.grandTotal)}`}
+                clientHash={access.clientHash}
+              />
+            )}
+          </RewardedFeatureGate>
+        )}
+      </div>
+
+      {!embedded && (
+        <>
+          <PopCeilingCalculatorSeo />
+
+          <FaqItemsWithSchema
+            faqs={[
+              {
+                question: "What is a POP ceiling?",
+                answer:
+                  "A POP (Plaster of Paris) ceiling is a decorative ceiling made from gypsum-based plaster. It is used for creating smooth, sculpted ceiling designs, with construction methods and materials varying by market.",
+              },
+              {
+                question: "How much POP cement do I need?",
+                answer:
+                  "POP cement quantity depends on your ceiling area and design complexity. The calculator estimates material based on room dimensions and your selected workflow.",
+              },
+              {
+                question:
+                  "What is the difference between Nigerian and international POP workflows?",
+                answer:
+                  "The Nigerian workflow uses specific local materials and techniques, while the international workflow follows standard gypsum board methods. The calculator supports both.",
+              },
+            ]}
+          />
+
+          <RelatedTools
+            links={[
+              CALC_LINKS.popCeilingCalc,
+              CALC_LINKS.paintCalculator,
+              CALC_LINKS.screedingCalc,
+              CALC_LINKS.tileCalc,
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.imageEstimator,
+            ]}
+          />
+          <ProConnectCTA calculatorType="pop-ceiling" />
+        </>
+      )}
+      {/* Ad slot, placement "calculator_mid" */}
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      {/* Native banner slot, placement "calculator_native" */}
+      <AdSlot slotKey="calculator_native" className="mt-8" />
+    </>
+  );
+}
+
+function PopResultCard({
+  result,
+  input,
+  currencySymbol,
+  onAgain,
+  onStartOver,
+  user,
+  onSave,
+  saving,
+  saveMsg,
+  calcDefaults,
+  engine,
+  alreadyHave,
+  onAlreadyHaveChange,
+}: {
+  result: PopCalcResult;
+  input: PopCalcInput;
+  currencySymbol: string;
+  onAgain: () => void;
+  onStartOver: () => void;
+  user: { email?: string } | null;
+  onSave: () => void;
+  saving: boolean;
+  saveMsg: string;
+  calcDefaults: { howCalculatedText: string; estimateDisclaimer: string };
+  engine: ReturnType<typeof useEngineFeatures>;
+  alreadyHave: number;
+  onAlreadyHaveChange: (n: number) => void;
+}) {
+  const grouped = result.materials.reduce<
+    Record<string, typeof result.materials>
+  >((acc, m) => {
+    (acc[m.category] ??= []).push(m);
+    return acc;
+  }, {});
+
+  const categoryLabels: Record<string, string> = {
+    primary: "Primary Materials",
+    finishing: "Finishing Materials",
+    decorative: "Decorative Components",
+    framework: "Framework",
+    ceiling_boards: "Ceiling Boards",
+    fasteners: "Fasteners",
+    labour: "Labour",
+  };
+
+  return (
+    <div className="mt-8 card overflow-hidden dark:border-white/5">
+      <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground sm:p-8">
+        <div className="flex items-center gap-2 text-accent-green">
+          <CheckCircle2 className="h-5 w-5" />
+          <span className="text-sm font-semibold uppercase tracking-widest">
+            {tx("Your POP Ceiling Estimate")}
+          </span>
+        </div>
+        <p className="mt-3 text-sm text-primary-foreground/60">
+          {input.workflow === "nigeria" ? "Nigeria" : "International"} workflow
+          · {input.wasteMargin}% waste margin
+        </p>
+        <p className="calc-result mt-1 text-4xl font-bold sm:text-5xl">
+          {formatNumber(result.ceilingArea)} m²
+        </p>
+        <p className="mt-1 text-sm text-primary-foreground/60">ceiling area</p>
+      </div>
+
+      <div className="p-6 sm:p-8">
+        {Object.entries(grouped).map(([cat, items]) => (
+          <div key={cat} className="mb-6">
+            <h3 className="mb-2 text-sm font-bold uppercase tracking-widest text-muted-foreground">
+              {categoryLabels[cat] ?? cat}
+            </h3>
+            <div className="space-y-2">
+              {items.map((m, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between rounded-lg border border-border p-3"
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+                      {m.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatNumber(m.quantity)} {m.unit} · {m.packagesNeeded}{" "}
+                      package(s)
+                    </p>
+                  </div>
+                  <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                    {formatCurrency(m.cost, currencySymbol)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <div className="mt-4 space-y-2 rounded-lg bg-muted/50 p-4">
+          <Row
+            label="Material cost"
+            value={formatCurrency(result.materialCost, currencySymbol)}
+          />
+          <Row
+            label="Labour cost"
+            value={formatCurrency(result.labourCost, currencySymbol)}
+          />
+          <Row
+            label="Waste allowance"
+            value={`${formatNumber(result.wasteAmount)} m²`}
+          />
+          <div className="border-t border-border pt-2">
+            <Row
+              label="Grand total"
+              value={formatCurrency(result.grandTotal, currencySymbol)}
+              strong
+            />
+          </div>
+        </div>
+
+        {saveMsg && <p className="mt-3 text-sm text-brand-purple">{saveMsg}</p>}
+
+        {/* ── Engine Features (Additive) ── */}
+        <div className="mt-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <EngineConfidenceBadge
+              result={engine.assessConfidence({
+                ruleValid: true,
+                inputComplete: true,
+                materialSpecComplete: result.materials.length > 0,
+                marketPriceAvailable: result.materialCost > 0,
+                sourceReliability: "verified",
+                productMatched: result.materials.some(
+                  (m) => m.packagesNeeded > 0,
+                ),
+              })}
+            />
+          </div>
+
+          <EngineAlreadyHaveInput
+            required={result.materials.reduce(
+              (sum, m) => sum + m.packagesNeeded,
+              0,
+            )}
+            alreadyHave={alreadyHave}
+            onAlreadyHaveChange={onAlreadyHaveChange}
+            unit="packages"
+          />
+
+          <EngineWasteSelector
+            resolution={engine.wasteResolution}
+            userWaste={engine.userWaste}
+            onUserWasteChange={engine.setUserWaste}
+          />
+
+          <EngineExplanationPanel
+            result={engine.buildExplanation({
+              subject: "POP Ceiling Calculation",
+              resultSummary: `${formatNumber(result.ceilingArea)} m² ceiling area, ${formatCurrency(result.grandTotal, currencySymbol)} total`,
+              steps: [
+                {
+                  description: "Ceiling area",
+                  value: `${formatNumber(result.ceilingArea)} m²`,
+                },
+                {
+                  description: "Waste allowance",
+                  value: `${formatNumber(result.wasteAmount)} m²`,
+                },
+                {
+                  description: "Material cost",
+                  value: formatCurrency(result.materialCost, currencySymbol),
+                },
+                {
+                  description: "Labour cost",
+                  value: formatCurrency(result.labourCost, currencySymbol),
+                },
+                {
+                  description: "Grand total",
+                  value: formatCurrency(result.grandTotal, currencySymbol),
+                },
+              ],
+              notes: [
+                `Workflow: ${input.workflow}`,
+                `Waste margin: ${input.wasteMargin}%`,
+              ],
+            })}
+          />
+
+          <EngineConfidenceDetail
+            result={engine.assessConfidence({
+              ruleValid: true,
+              inputComplete: true,
+              materialSpecComplete: result.materials.length > 0,
+              marketPriceAvailable: result.materialCost > 0,
+              sourceReliability: "verified",
+              productMatched: result.materials.some(
+                (m) => m.packagesNeeded > 0,
+              ),
+            })}
+          />
+
+          <EngineMaterialSummaryCard
+            summary={engine.buildMaterialSummary(
+              result.materials.map((m, i) => ({
+                materialId: `pop-mat-${i}`,
+                productName: m.name,
+                totalQuantity: m.packagesNeeded,
+                quantityUnit: "packages",
+                spaceIds: ["ceiling"],
+              })),
+            )}
+          />
+        </div>
+
+        <HowCalculatedSection
+          methodologyText={(calcDefaults.howCalculatedText as string) || ""}
+          assumptions={[
+            {
+              label: "Ceiling area",
+              value: `${formatNumber(result.ceilingArea)} m²`,
+            },
+            { label: "Waste margin", value: `${input.wasteMargin}%` },
+            { label: "Workflow", value: input.workflow },
+          ]}
+        />
+        <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+        <ReportCalculationIssue
+          calculatorType="pop_ceiling"
+          userInput={{
+            roomLength: input.roomLength,
+            roomWidth: input.roomWidth,
+            unit: input.unit,
+            wasteMargin: input.wasteMargin,
+            workflow: input.workflow,
+          }}
+          actualResult={{
+            ceilingArea: result.ceilingArea,
+            materialCost: result.materialCost,
+            grandTotal: result.grandTotal,
+          }}
+        />
+
+        {/* Post as Job CTA */}
+        <div className="mt-4 rounded-xl border border-brand-purple/20 bg-primary/5 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                Need a pro for this POP ceiling?
+              </p>
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                Post this estimate as a job and get bids from verified pros near
+                you.
+              </p>
+            </div>
+            <a
+              href={`/marketplace/post/?project_type=pop_ceiling&budget_min=${Math.round(result.grandTotal * 0.9)}&budget_max=${Math.round(result.grandTotal * 1.2)}&title=POP Ceiling Installation, ${result.ceilingArea.toFixed(1)} m²`}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 whitespace-nowrap"
+            >
+              {tx("Post as Job")}
+            </a>
+          </div>
+        </div>
+
+        {/* Find Near Me */}
+        <div className="mt-4">
+          <CalculatorNearMe
+            tradeSlug="pop_ceiling"
+            materialName="POP ceiling materials"
+            projectType="pop_ceiling"
+          />
+        </div>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={onAgain}
+            className="btn-secondary"
+          >
+            <RotateCcw aria-hidden="true" className="h-4 w-4" />{" "}
+            {tx("Calculate Again")}
+          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            {user && (
+              <>
+                <Button
+                  variant="secondary"
+                  type="button"
+                  onClick={onSave}
+                  disabled={saving}
+                  className="disabled:opacity-50"
+                >
+                  {saving ? "Saving…" : "Save to Projects"}
+                </Button>
+                <div className="mt-3 flex justify-center">
+                  <SaveToProjectButton
+                    calculatorType="pop_ceiling"
+                    calculatorSlug="pop-ceiling-calculator"
+                    calcTitle="POP Ceiling Calculation"
+                    calcData={{ ...input, ...result }}
+                    resultSummary={result as unknown as Record<string, unknown>}
+                    compact
+                    label="Save to Project Workspace"
+                  />
+                  <NearbySuppliersLink material="POP ceiling materials" />
+                </div>
+              </>
+            )}
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={onStartOver}
+              className="btn-secondary"
+            >
+              {tx("Start Over")}
+            </Button>
+            <Link
+              to="/pop-ceiling-calculator/?mode=cost"
+              state={{
+                ceilingArea: result.ceilingArea,
+                workflow: input.workflow,
+                grandTotal: result.grandTotal,
+              }}
+              className="btn-primary"
+            >
+              Continue to Cost Estimate{" "}
+              <ArrowRight aria-hidden="true" className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Toggle({
+  checked,
+  onChange,
+  label,
+  hint,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+  hint?: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-border p-4">
+      {/* Plain <button>, not shadcn's <Button variant="ghost">, whose
+          hover state gets "stuck" on touch devices after a tap until the
+          next tap elsewhere, masking the checked-state color change. */}
+      <button
+        type="button"
+        role="switch"
+        onClick={() => onChange(!checked)}
+        className={
+          "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-0 p-0 transition-colors " +
+          (checked ? "bg-accent-green" : "bg-muted")
+        }
+        aria-checked={checked}
+      >
+        <span
+          className={
+            "inline-block h-4 w-4 translate-x-0.5 rounded-full bg-card shadow transition-transform dark:bg-card " +
+            (checked ? "translate-x-4" : "")
+          }
+        />
+      </button>
+      <div>
+        <p className="text-sm font-semibold text-card-foreground">{label}</p>
+        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      </div>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  suffix,
+  hint,
+  error,
+  children,
+}: {
+  label: string;
+  suffix?: string;
+  hint?: string;
+  error?: string;
+  children: ReactNode;
+}) {
+  const errorId = `${label.toLowerCase().replace(/\s+/g, "-")}-error`;
+  const decoratedChildren = isValidElement(children)
+    ? cloneElement(children, {
+        "aria-invalid": error ? true : undefined,
+        "aria-describedby": error ? errorId : undefined,
+      } as Record<string, unknown>)
+    : children;
+  return (
+    <label className="block">
+      <span className="block text-sm font-semibold text-card-foreground">
+        {label}
+      </span>
+      {hint && (
+        <span className="mt-0.5 block text-xs text-muted-foreground">
+          {hint}
+        </span>
+      )}
+      <div
+        className={classNames(
+          "relative mt-1.5",
+          error &&
+            "[&_.input-field]:border-red-400 [&_.input-field]:focus:border-red-500 [&_.input-field]:focus:ring-red-300/40 dark:[&_.input-field]:border-red-500/60 dark:[&_.input-field]:focus:border-red-400",
+        )}
+      >
+        {decoratedChildren}
+        {suffix && (
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+            {suffix}
+          </span>
+        )}
+      </div>
+      {error && (
+        <span
+          id={errorId}
+          role="alert"
+          className="mt-1 flex items-center gap-1 text-xs text-red-600"
+        >
+          <AlertCircle aria-hidden="true" className="h-3 w-3 shrink-0" />
+          {error}
+        </span>
+      )}
+    </label>
+  );
+}
+
+function Row({
+  label,
+  value,
+  strong,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <span
+        className={
+          "text-sm " +
+          (strong
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-muted-foreground dark:text-muted-foreground")
+        }
+      >
+        {label}
+      </span>
+      <span
+        className={
+          "text-sm " +
+          (strong
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-card-foreground dark:text-muted-foreground/60")
+        }
+      >
+        {value}
+      </span>
+    </div>
+  );
+}

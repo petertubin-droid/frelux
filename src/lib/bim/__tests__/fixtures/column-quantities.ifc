@@ -1,0 +1,17 @@
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION((''),'2;1');
+FILE_NAME('column-quantities.ifc','2026-10-27T00:00:00',(''),(''),'','','');
+FILE_SCHEMA(('IFC4'));
+ENDSEC;
+DATA;
+#1=IFCPROJECT('0xSSckdqT7nOQm4eDCu0SW',$,'P',$,$,$,$,$,$);
+#2=IFCCOLUMN('2XAKEYK0zDwQgCf$QnrOia',$,$,'Col-A',$,$,$,$);
+#3=IFCCOLUMN('2XAKEYK0zDwQgCf$QnrOib',$,$,'Col-B',$,$,$,$);
+#4=IFCELEMENTQUANTITY('1mAbcdefgHiJkLmNoPqrsT',$,$,'BaseQuantities',$,(#5,#6,#7));
+#5=IFCQUANTITYVOLUME('NetVolume',$,$,2.4);
+#6=IFCQUANTITYAREA('NetArea',$,$,8.2);
+#7=IFCQUANTITYLENGTH('NetLength',$,$,3.6);
+#8=IFCRELDEFINESBYPROPERTIES('3AbcdefgHiJkLmNoPqrstU',$,$,$,(#2,#3),#4);
+ENDSEC;
+END-ISO-10303-21;

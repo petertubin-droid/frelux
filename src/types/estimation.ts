@@ -1,0 +1,719 @@
+// FRELUX Phase 1 Estimation Engine Types
+// Database Row Types (mirroring supabase/migrations/20260818000000_phase1_estimation_engine.sql)
+// and Calculation Engine Supporting Types
+
+// =========================================================
+// Supporting Types for Calculation Engine
+// =========================================================
+
+// Calculation method types
+// Coverage unit types for the paint calculation engine
+export type CoverageUnit =
+  | "m2_per_liter"
+  | "m2_per_bucket"
+  | "ft2_per_liter"
+  | "ft2_per_bucket"
+  | "ft2_per_gallon"
+  | "m2_per_gallon"
+  | "frelux_calibration";
+
+export type CalculationMethod =
+  | "room_based"
+  | "partition_based"
+  | "area_based"
+  | "material_based"
+  | "fixed_quantity"
+  | "custom";
+
+// Material calculation model for packaged construction products
+// (Mineral Stone, Stucco and similar engines).
+//   coverage_based  : Model A - required packages = area × coats ÷ coverage (m²/package)
+//   mass_per_area   : Model B - required kg = area × coats × consumption (kg/m²), then ÷ package kg
+//   volume_per_area : Model C - required L  = area × coats × consumption (L/m²), then ÷ package L
+export type MineralStoneCalculationModel =
+  "coverage_based" | "mass_per_area" | "volume_per_area";
+
+// Estimate status
+export type EstimateStatus =
+  | "draft"
+  | "calculated"
+  | "adjusted"
+  | "saved"
+  | "shared"
+  | "completed"
+  | "cancelled";
+
+// Rule status (distinguishes verified FRELUX rules from admin-configured ones)
+export type RuleStatus =
+  | "verified_frelux"
+  | "admin_configured"
+  | "calculated"
+  | "manual_adjustment"
+  | "negotiated";
+
+// Price snapshot, stored on each estimate line item
+export interface PriceSnapshot {
+  price_type: "product" | "quality" | "material";
+  ref_id: string;
+  ref_name: string;
+  unit_price: number;
+  currency: string;
+  pack_size: number | null;
+  pack_unit: string | null;
+  effective_date: string;
+  price_id: string;
+}
+
+// Opening dimensions (doors/windows)
+export interface OpeningInput {
+  quantity: number;
+  width: number;
+  height: number;
+}
+
+// Coat configuration
+export interface CoatConfig {
+  standard_coats: number;
+  selected_coats: number;
+  additional_coats: number;
+  reason: string | null;
+}
+
+// Ceiling configuration
+export interface CeilingConfig {
+  include_ceiling: boolean;
+  ceiling_paint_type: string | null;
+  ceiling_quality_id: string | null;
+  ceiling_colour: string;
+  use_default_colour: boolean;
+}
+
+// Validation result
+export interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+// Pack rounding result
+export interface PackRoundingResult {
+  theoretical_quantity: number;
+  practical_purchase_quantity: number;
+  pack_size: number;
+  pack_count: number;
+  leftover_quantity: number;
+  rounding_rule: string;
+}
+
+// Estimate input (base, calculators extend this)
+export interface EstimateInputBase {
+  calculator_type: string;
+  project_description: string;
+  currency: string;
+  user_id: string | null;
+  client_hash: string | null;
+}
+
+// Estimate line item (for creating estimates)
+export interface EstimateLineItemInput {
+  item_name: string;
+  item_type: "product" | "material" | "primer" | "sealer" | "labour" | "other";
+  product_id?: string | null;
+  quality_level_id?: string | null;
+  material_id?: string | null;
+  quantity_required: number;
+  practical_purchase_qty: number;
+  unit: string;
+  pack_size?: number | null;
+  unit_price: number;
+  total_price: number;
+  price_snapshot: PriceSnapshot;
+  calculation_source: "calculated" | "manual" | "adjusted" | "negotiated";
+  notes?: string;
+}
+
+// Adjustment input
+export interface AdjustmentInput {
+  estimate_id: string;
+  item_id?: string | null;
+  field_name: string;
+  original_value: unknown;
+  adjusted_value: unknown;
+  reason: string;
+}
+
+// Audit log input
+export interface AuditLogInput {
+  entity_type: string;
+  entity_id?: string | null;
+  action:
+    | "create"
+    | "update"
+    | "delete"
+    | "activate"
+    | "deactivate"
+    | "price_change"
+    | "adjust";
+  old_value?: unknown;
+  new_value?: unknown;
+}
+
+// =========================================================
+// Database Entity Row Interfaces (15 Tables)
+// =========================================================
+
+// 1. estimation_units table
+export interface EstimationUnit {
+  id: string;
+  name: string;
+  symbol: string;
+  category: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 2. estimation_products table
+export interface EstimationProduct {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  description: string | null;
+  product_type: string;
+  calculation_method: CalculationMethod | string;
+  standard_pack_size: number | null;
+  pack_unit_id: string | null;
+  recommended_surface: string | null;
+  finish: string | null;
+  texture: string | null;
+  gloss_level: string | null;
+  durability: string | null;
+  colour_compatibility: string | null;
+  paint_compatibility: string | null;
+  has_quality_levels: boolean;
+  // Optional for backwards compatibility with pre-Phase-3 fixtures/rows;
+  // present on all rows after the Phase 3 migration (nullable columns).
+  brand?: string | null;
+  product_notes?: string | null;
+  technical_spec?: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 3. estimation_product_quality table
+export interface EstimationProductQuality {
+  id: string;
+  product_id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  coverage: number | null;
+  coverage_unit: string | null; // m2_per_liter, m2_per_bucket, ft2_per_liter, ft2_per_bucket, ft2_per_gallon, m2_per_gallon, frelux_calibration
+  ceiling_coverage: number | null; // separate ceiling coverage rate
+  ceiling_coverage_unit: string | null;
+  // ── Material calculation model (Mineral Stone / Stucco engines) ──
+  // Mineral Stone / Stucco engine fields (Phase 3). Optional for backwards
+  // compatibility; present on all rows after the migration (nullable columns).
+  calculation_model?: MineralStoneCalculationModel | string | null;
+  coverage_min?: number | null; // Model A: m² per package, light end of range
+  coverage_max?: number | null; // Model A: m² per package, heavy end of range
+  consumption_min?: number | null; // Model B/C: consumption_unit per m² per coat, min
+  consumption_max?: number | null; // Model B/C: consumption_unit per m² per coat, max
+  consumption_unit?: string | null; // kg_per_m2 | litre_per_m2 (verified units only)
+  default_coats?: number | null; // configured coats/layers; null = not configured
+  waste_percentage?: number | null; // configured waste %; null = not configured
+  finish: string | null;
+  texture: string | null;
+  gloss_level: string | null;
+  shine_level: string | null;
+  durability: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 4. estimation_materials table
+export interface EstimationMaterial {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  description: string | null;
+  unit_id: string | null;
+  pack_size: number | null;
+  pack_unit_id: string | null;
+  supplier: string | null;
+  notes: string | null;
+  effective_date: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 5. estimation_pack_sizes table
+export interface EstimationPackSize {
+  id: string;
+  ref_type: "product" | "material" | "quality";
+  ref_id: string;
+  pack_size: number;
+  pack_unit_id: string | null;
+  purchase_rule: string;
+  min_quantity: number;
+  rounding_rule: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 6. estimation_prices table
+export interface EstimationPrice {
+  id: string;
+  price_type: "product" | "quality" | "material";
+  ref_id: string;
+  price: number;
+  currency: string;
+  market?: string;
+  pack_size_id: string | null;
+  effective_date: string;
+  /** provenance: who/what supplied this price (retailer, catalog...) */
+  price_source?: string | null;
+  /** provenance: URL the price was scanned from, when applicable */
+  scan_source?: string | null;
+  /** provenance: scan confidence when the price came from a scan */
+  scan_confidence?: "low" | "medium" | "high" | null;
+  /** provenance: when the source was last scanned */
+  last_scanned_at?: string | null;
+  notes: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// 7. estimation_price_history table
+export interface EstimationPriceHistory {
+  id: string;
+  price_type: "product" | "quality" | "material";
+  ref_id: string;
+  old_price: number | null;
+  new_price: number;
+  currency: string;
+  changed_by: string | null;
+  change_reason: string | null;
+  created_at: string;
+}
+
+// 8. estimation_calc_rules table
+export interface EstimationCalcRule {
+  id: string;
+  rule_key: string;
+  calculator_type: string | null;
+  rule_value: Record<string, unknown>;
+  rule_status: RuleStatus;
+  description: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// 9. estimation_calc_versions table
+export interface EstimationCalcVersion {
+  id: string;
+  calculator_type: string;
+  version_number: number;
+  version_label: string | null;
+  description: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// 10. estimation_estimates table
+export interface EstimationEstimate {
+  id: string;
+  estimate_ref: string;
+  user_id: string | null;
+  client_hash: string | null;
+  calculator_type: string;
+  project_description: string | null;
+  inputs: Record<string, unknown>;
+  calculation_method: CalculationMethod | string;
+  calc_version_id: string | null;
+  calculated_quantities: Record<string, unknown>;
+  total_material_cost: number;
+  currency: string;
+  labour_status: "not_included" | "negotiated_separately" | "included";
+  warnings: unknown[];
+  recommendations: unknown[];
+  notes: string | null;
+  status: EstimateStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+// 11. estimation_estimate_items table
+export interface EstimationEstimateItem {
+  id: string;
+  estimate_id: string;
+  item_name: string;
+  item_type: "product" | "material" | "primer" | "sealer" | "labour" | "other";
+  product_id: string | null;
+  quality_level_id: string | null;
+  material_id: string | null;
+  quantity_required: number;
+  practical_purchase_qty: number;
+  unit: string;
+  pack_size: number | null;
+  unit_price: number;
+  total_price: number;
+  price_snapshot: PriceSnapshot | Record<string, unknown>;
+  calculation_source: "calculated" | "manual" | "adjusted" | "negotiated";
+  adjustment_status: "none" | "adjusted" | "pending_review";
+  notes: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 12. estimation_adjustments table
+export interface EstimationAdjustment {
+  id: string;
+  estimate_id: string;
+  item_id: string | null;
+  field_name: string;
+  original_value: unknown;
+  adjusted_value: unknown;
+  reason: string;
+  adjusted_by: string | null;
+  created_at: string;
+}
+
+// 13. estimation_audit_log table
+export interface EstimationAuditLog {
+  id: string;
+  entity_type: string;
+  entity_id: string | null;
+  action:
+    | "create"
+    | "update"
+    | "delete"
+    | "activate"
+    | "deactivate"
+    | "price_change"
+    | "adjust";
+  old_value: unknown;
+  new_value: unknown;
+  changed_by: string | null;
+  created_at: string;
+}
+
+// 14. estimation_colour_conditions table
+export interface EstimationColourCondition {
+  id: string;
+  condition_key: string;
+  name: string;
+  description: string | null;
+  requires_warning: boolean;
+  min_coats_override: number | null; // 2 = standard, 3 = colour transition
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 15. estimation_surface_conditions table
+export interface EstimationSurfaceCondition {
+  id: string;
+  condition_key: string;
+  name: string;
+  description: string | null;
+  requires_preparation: boolean;
+  primer_recommended: boolean;
+  coverage_adjustment_factor: number | null; // 1.0 = full, 0.85 = 15% less coverage
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 20. maintenance_profiles table (Maintenance Schedule Engine)
+export interface MaintenanceProfile {
+  id: string;
+  finish_category: string;
+  surface_type: string;
+  service_life_min_years: number | string;
+  service_life_max_years: number | string;
+  maintenance_interval_min_years: number | string | null;
+  maintenance_interval_max_years: number | string | null;
+  inspection_interval_years: number | string | null;
+  maintenance_cost_factor: number | string;
+  replacement_cost_factor: number | string;
+  description: string | null;
+  source_reference: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 21. maintenance_plans table (saved schedule + snapshot)
+export interface MaintenancePlan {
+  id: string;
+  user_id: string | null;
+  estimate_ref: string;
+  finish_category: string;
+  surface_type: string;
+  initial_cost: number | string | null;
+  currency: string | null;
+  install_date: string;
+  horizon_years: number | string;
+  profile_id: string | null;
+  profile_snapshot: Record<string, unknown>;
+  schedule: Record<string, unknown>;
+  warnings: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+// 22. boq_quotes table (BOQ / Quote Generator Engine)
+export interface BoqQuote {
+  id: string;
+  user_id: string | null;
+  quote_ref: string;
+  /** Current version stamp; every save increments and snapshots into boq_quote_revisions. */
+  revision?: number;
+  title: string;
+  client_name: string;
+  client_contact: string | null;
+  project_location: string | null;
+  currency: string;
+  status: "draft" | "sent" | "accepted" | "rejected";
+  items: Record<string, unknown>[];
+  totals: Record<string, unknown>;
+  rates_snapshot: Record<string, unknown>;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// 23. regional_cost_indices table (Regional Cost Index Engine)
+export interface RegionalCostIndex {
+  id: string;
+  /** ISO 3166-1 alpha-2 market this index belongs to. Defaults to "NG". */
+  country?: string | null;
+  state: string;
+  category: string;
+  cost_factor: number;
+  description: string | null;
+  source_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 24. carbon_factors table (Embodied Carbon Engine)
+// thermal_finish_factors table (Heat Comfort Engine)
+// solar_panel_models table (Solar/PV Estimator)
+export interface SolarPanelModel {
+  id: string;
+  model_name: string;
+  watt_peak: number;
+  length_m: number;
+  width_m: number;
+  unit_price_naira: number | null;
+  description: string | null;
+  source_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// solar_component_prices table (Solar/PV Estimator)
+export interface SolarComponentPrice {
+  id: string;
+  component_key: string;
+  component_label: string | null;
+  unit: string;
+  price_naira: number;
+  description: string | null;
+  source_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// contractor_credit_profiles table (Contractor Credit-Score Engine)
+export interface ContractorCreditProfile {
+  id: string;
+  contractor_name: string;
+  registration_number: string | null;
+  verified_jobs: number;
+  on_time_jobs: number;
+  dispute_count: number;
+  avg_estimate_error_pct: number;
+  description: string | null;
+  verification_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// material_reuse_factors table (Circular/Reuse Engine)
+export interface MaterialReuseFactor {
+  id: string;
+  category: string;
+  category_label: string | null;
+  unit: string;
+  recovery_rate: number;
+  reuse_fraction: number;
+  recycle_fraction: number;
+  unit_value_naira: number | null;
+  description: string | null;
+  source_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ThermalFinishFactor {
+  id: string;
+  surface_type: "roof" | "wall";
+  category: string;
+  category_label: string | null;
+  solar_reflectance: number;
+  description: string | null;
+  source_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CarbonFactor {
+  id: string;
+  category: string;
+  category_label: string | null;
+  unit: string;
+  kg_co2e_per_unit: number;
+  description: string | null;
+  source_reference: string;
+  /** RICS/EN 15978 lifecycle module (A1–A3, A4, B1…C4, D); null = product stage assumed. */
+  module_stage?: string | null;
+  /** EC3/OpenEPD declaration id when this factor was sourced from an EPD. */
+  epd_id?: string | null;
+  /** Plant name for plant-specific EPD factors. */
+  epd_plant?: string | null;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 25. cash_flow_templates table (Cash-Flow Timeline Engine)
+export interface CashFlowMilestone {
+  label: string;
+  percent: number;
+  offset_months: number;
+}
+
+export interface CashFlowTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  milestones: CashFlowMilestone[];
+  is_default: boolean;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 27. labour_rates table (Labour & Crew Engine)
+export interface LabourRate {
+  id: string;
+  task_key: string;
+  task_label: string | null;
+  unit: string;
+  output_per_worker_day: number;
+  description: string | null;
+  source_reference: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 28. margin_presets table (Margin Engine)
+export interface MarginPreset {
+  id: string;
+  name: string;
+  basis: "markup_on_cost" | "margin_on_price";
+  margin_percent: number;
+  description: string | null;
+  is_default: boolean;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 29. defects + defect_causes tables (Defect Diagnosis Engine)
+export interface Defect {
+  id: string;
+  symptom_key: string;
+  symptom_label: string;
+  description: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DefectCause {
+  id: string;
+  defect_id: string;
+  cause_key: string;
+  cause_label: string;
+  root_cause: string;
+  severity: "low" | "medium" | "high";
+  fix_summary: string;
+  fix_material: string | null;
+  fix_consumption_per_sqm: number | null;
+  fix_unit: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 23b. boq_quote_revisions table (Wave 1.2 — editable BOQ revision history)
+export interface BoqRevision {
+  id: string;
+  quote_id: string;
+  user_id: string | null;
+  version: number;
+  quote_ref: string;
+  items: Record<string, unknown>[];
+  totals: Record<string, unknown>;
+  rates_snapshot: Record<string, unknown>;
+  note: string | null;
+  created_at: string;
+}

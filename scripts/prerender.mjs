@@ -3014,6 +3014,11 @@ async function fetchLearnPages() {
     Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
   };
   const learnRoutes = [];
+  // Article bodies carry their own markdown H1 for the title. Each page injects
+  // exactly one H1, so every body H1 is demoted to H2 (315 pages previously
+  // shipped two H1s with the same text).
+  const demoteH1 = (md) => String(md || "").replace(/^#[ \t]+/gm, "## ");
+
   const learnContent = {};
   // Hoisted so the wall-finishing market hubs below can read them even when
   // the Learn tables are unreachable (local dev, rate limits).
@@ -3187,8 +3192,8 @@ async function fetchLearnPages() {
             },
           ],
         });
-        const altLocales = INDEXABLE_LOCALES.filter((l) =>
-          trByLocaleKey.has(`${l}:${a.slug}`),
+        const altLocales = (a.wall_market_code ? [] : INDEXABLE_LOCALES).filter(
+          (l) => trByLocaleKey.has(`${l}:${a.slug}`),
         );
         if (altLocales.length) {
           learnRoutes[learnRoutes.length - 1].alternates = [
@@ -3201,11 +3206,14 @@ async function fetchLearnPages() {
           ];
         }
 
+        // Market-tagged articles are localised by definition: their body is
+        // already written for one market, so a /es/ or /fr/ copy would be a
+        // duplicate with the wrong language. Emit them once, at articlePath.
         // One localized page per launched locale. A published translation is
         // indexable in its own language; without one the page still works for
         // readers (same English body) but stays noindex and canonical to the
         // English URL, so it can never compete with it.
-        for (const locale of INDEXABLE_LOCALES) {
+        for (const locale of a.wall_market_code ? [] : INDEXABLE_LOCALES) {
           const t = trByLocaleKey.get(`${locale}:${a.slug}`);
           const altSet = t
             ? [
@@ -3256,14 +3264,79 @@ async function fetchLearnPages() {
               : undefined,
           });
           const localizedBody = t && t.body_md ? t.body_md : a.content || "";
-          learnContent[`/${locale}/learn/${a.slug}`] =
-            `<div lang="${locale}"><h1>${escapeHtml((t && t.title) || a.title)}</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a> &rsaquo; ${escapeHtml((t && t.title) || a.title)}</nav>${markdownToHtml(localizedBody)}</div>`;
+          const localizedBodySafe = demoteH1(localizedBody);
+          learnContent[`/${locale}${articlePath}`] =
+            `<div lang="${locale}"><h1>${escapeHtml((t && t.title) || a.title)}</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a> &rsaquo; ${escapeHtml((t && t.title) || a.title)}</nav>${markdownToHtml(localizedBodySafe)}</div>`;
         }
 
-        const bodyHtml = markdownToHtml(a.content || "");
-        learnContent[`/learn/${a.slug}`] =
-          `<h1>${escapeHtml(a.title)}</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a>${cat ? ` &rsaquo; <a href="/learn/category/${cat.slug}">${escapeHtml(cat.name)}</a>` : ""} &rsaquo; ${escapeHtml(a.title)}</nav>${bodyHtml}`;
+        const bodySource = demoteH1(a.content);
+        const bodyHtml = markdownToHtml(bodySource);
+        // Related guides give every article a second crawl path from the hub
+        // and from its siblings. Wall-finishing articles are excluded because
+        // their canonical URL lives on the market path, not /learn/<slug>.
+        const relPool = arts.filter(
+          (r) => r.slug !== a.slug && !r.wall_market_code,
+        );
+        const related = [
+          ...relPool.filter((r) => r.category_slug === a.category_slug),
+          ...relPool.filter((r) => r.category_slug !== a.category_slug),
+        ].slice(0, 6);
+        const relatedHtml = related.length
+          ? `<nav aria-label="Related guides"><h2>Related guides</h2><ul>${related
+              .map(
+                (r) =>
+                  `<li><a href="/learn/${r.slug}">${escapeHtml(r.title)}</a></li>`,
+              )
+              .join("")}</ul></nav>`
+          : "";
+        learnContent[articlePath] =
+          `<h1>${escapeHtml(a.title)}</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a>${cat ? ` &rsaquo; <a href="/learn/category/${cat.slug}">${escapeHtml(cat.name)}</a>` : ""} &rsaquo; ${escapeHtml(a.title)}</nav>${bodyHtml}${relatedHtml}`;
       }
+      // The /learn hub was a 120 word shell with no crawlable article links.
+      // Give it real content: what the library is for, the categories with
+      // counts, and the most recent guides.
+      const hubCats = cats
+        .map((c) => {
+          const n = arts.filter((a) => a.category_slug === c.slug).length;
+          return `<li><a href="/learn/category/${c.slug}">${escapeHtml(c.name)}</a> (${n} guides)${c.description ? `: ${escapeHtml(String(c.description).slice(0, 140))}` : ""}</li>`;
+        })
+        .join("");
+      const hubRecent = arts
+        .filter((a) => !a.wall_market_code)
+        .slice(0, 40)
+        .map(
+          (a) =>
+            `<li><a href="/learn/${a.slug}">${escapeHtml(a.title)}</a>${a.excerpt ? `: ${escapeHtml(String(a.excerpt).slice(0, 140))}` : ""}</li>`,
+        )
+        .join("");
+      // The library page is the complete index: every published guide grouped
+      // by category, so no article depends on a single crawl path.
+      const libSections = cats
+        .map((c) => {
+          const items = arts
+            .filter((a) => a.category_slug === c.slug && !a.wall_market_code)
+            .map(
+              (a) =>
+                `<li><a href="/learn/${a.slug}">${escapeHtml(a.title)}</a></li>`,
+            )
+            .join("");
+          return items
+            ? `<h2>${escapeHtml(c.name)}</h2><ul>${items}</ul>`
+            : "";
+        })
+        .join("");
+      const libTotal = arts.filter((a) => !a.wall_market_code).length;
+      learnContent["/learn/library"] =
+        `<h1>All Guides: The Complete FRELUX Learn Library</h1>` +
+        `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a> &rsaquo; Library</nav>` +
+        `<p>Every published guide in one place: ${libTotal} articles on painting, screeding, plastering, drywall, structural work, measurement, pricing and project management. Each one works through real quantities and real costs rather than general advice, and each links to the calculators that will do the arithmetic for you.</p>` +
+        `<p>New here? Start with the <a href="/learn/">Learn hub</a> for the latest guides, or browse the categories below.</p>` +
+        libSections;
+      learnContent["/learn"] =
+        `<h1>FRELUX Learn: construction and painting guides</h1>` +
+        `<p>Measured, practical guides for people who price and build work. Every article works through the quantities, the specification and the cost, written for contractors, site managers and owners who need a number they can defend rather than a rough idea.</p>` +
+        (hubCats ? `<h2>Browse by category</h2><ul>${hubCats}</ul>` : "") +
+        (hubRecent ? `<h2>Latest guides</h2><ul>${hubRecent}</ul>` : "");
       console.log(
         `  ✅ Learn: ${learnRoutes.length} dynamic pages (${arts.length} articles, ${cats.length} categories)`,
       );

@@ -1,0 +1,5 @@
+{
+  "$comment": "Retailer sources the weekly scan may fetch. A source is usable only when it has a real product URL; the scan reports gaps instead of inventing prices. Populate as retailers are registered per market.",
+  "version": 1,
+  "sources": []
+}

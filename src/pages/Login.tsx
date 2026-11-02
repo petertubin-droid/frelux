@@ -1,0 +1,634 @@
+import { useState, useEffect } from "react";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  LogIn,
+  AlertCircle,
+  Lock,
+  Mail,
+  UserPlus,
+  KeyRound,
+  CheckCircle2,
+  ArrowLeft,
+  User,
+  HardHat,
+  Loader2,
+  Eye,
+  EyeOff,
+  Check,
+} from "lucide-react";
+import { useAuth, type AccountType } from "@/lib/auth";
+import { getSafeAuthRedirect } from "@/lib/auth-redirect";
+
+import Logo from "@/components/brand/Logo";
+import { useSeo } from "@/lib/seo";
+import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
+import { useLanguage } from "@/lib/i18n";
+
+type Mode = "signin" | "signup" | "reset";
+
+function GoogleIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      aria-hidden="true"
+    >
+      <path
+        fill="#4285F4"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+      />
+    </svg>
+  );
+}
+
+export default function Login() {
+  const { t } = useLanguage();
+  const { signIn, signUp, resetPassword, signInWithGoogle, user, configured } =
+    useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = getSafeAuthRedirect(searchParams.get("redirect"));
+
+  const [mode, setMode] = useState<Mode>("signin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [accountType, setAccountType] = useState<AccountType>("client");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [oauthProfileProcessing, setOauthProfileProcessing] = useState(false);
+  const [oauthProfileError, setOauthProfileError] = useState<string | null>(
+    null,
+  );
+  const [info, setInfo] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(false);
+
+  // Returning visitors who asked to be remembered get the address prefilled.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("frelux_remember_email");
+      if (saved) {
+        setEmail(saved);
+        setRemember(true);
+      }
+    } catch {
+      /* storage unavailable */
+    }
+  }, []);
+
+  useSeo({
+    title: "Sign In or Create Account",
+    description: "Sign in to your FRELUX account or create a new one.",
+    canonicalPath: "/login",
+    noIndex: true,
+  });
+
+  async function completePendingOAuthProfile() {
+    const pending = localStorage.getItem("frelux_pending_account_type");
+    if (!pending || (pending !== "client" && pending !== "pro_worker") || !user)
+      return;
+    setOauthProfileProcessing(true);
+    setOauthProfileError(null);
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      const { data: updated, error } = await supabase
+        .from("profiles")
+        .update({ account_type: pending })
+        .eq("id", user.id)
+        .select("id")
+        .maybeSingle();
+      if (error) throw error;
+      if (!updated) {
+        const { error: ensureError } = await supabase.rpc(
+          "ensure_own_profile",
+          {
+            requested_account_type: pending,
+          },
+        );
+        if (ensureError) throw ensureError;
+      }
+      localStorage.removeItem("frelux_pending_account_type");
+      setAccountType(pending);
+      setShowSuccess(true);
+    } catch (err) {
+      if (import.meta.env.DEV)
+        console.error("OAuth profile setup failed:", err);
+      setOauthProfileError(
+        "You’re signed in, but account setup could not finish. Retry setup before continuing.",
+      );
+    } finally {
+      setOauthProfileProcessing(false);
+    }
+  }
+
+  const hasPendingOAuthProfile =
+    user !== null &&
+    typeof window !== "undefined" &&
+    window.localStorage.getItem("frelux_pending_account_type") !== null;
+
+  useEffect(() => {
+    if (user && localStorage.getItem("frelux_pending_account_type")) {
+      void completePendingOAuthProfile();
+    }
+  }, [user]);
+
+  if (
+    user &&
+    !showSuccess &&
+    !hasPendingOAuthProfile &&
+    !oauthProfileProcessing
+  ) {
+    return <Navigate to={redirectTo} replace />;
+  }
+
+  if (user && (oauthProfileProcessing || oauthProfileError)) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4 text-center">
+        {oauthProfileProcessing ? (
+          <Loader2
+            className="h-8 w-8 animate-spin text-primary"
+            aria-label={t("Finishing account setup")}
+          />
+        ) : (
+          <AlertCircle
+            className="h-8 w-8 text-destructive"
+            aria-hidden="true"
+          />
+        )}
+        <h1 className="text-xl font-semibold text-foreground">
+          {t("Finish setting up your account")}
+        </h1>
+        <p className="max-w-md text-sm text-muted-foreground">
+          {oauthProfileError ?? "Applying your selected account type securely…"}
+        </p>
+        {oauthProfileError && (
+          <Button
+            type="button"
+            onClick={() => void completePendingOAuthProfile()}
+          >
+            {t("Retry account setup")}
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setInfo(null);
+    setLoading(true);
+
+    if (mode === "reset") {
+      const { error } = await resetPassword(email.trim());
+      setLoading(false);
+      if (error) {
+        setError(error);
+        return;
+      }
+      setInfo(
+        "Password reset instructions have been sent to your email if an account exists for it.",
+      );
+      return;
+    }
+
+    if (mode === "signup") {
+      const result = await signUp(email.trim(), password, accountType);
+      setLoading(false);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      if (result.needsConfirmation) {
+        setInfo(
+          "Account created. Check your email to confirm your address, then sign in.",
+        );
+        setMode("signin");
+        setPassword("");
+      } else {
+        setShowSuccess(true);
+        const postSignupRedirect =
+          accountType === "pro_worker"
+            ? "/pro-connect/register"
+            : "/onboarding";
+        setTimeout(() => navigate(postSignupRedirect), 2500);
+      }
+      return;
+    }
+
+    const { error } = await signIn(email.trim(), password);
+    setLoading(false);
+    if (error) {
+      setError(error);
+      return;
+    }
+    try {
+      if (remember) localStorage.setItem("frelux_remember_email", email.trim());
+      else localStorage.removeItem("frelux_remember_email");
+    } catch {
+      /* storage unavailable */
+    }
+    navigate(redirectTo);
+  }
+
+  async function handleGoogleSignIn() {
+    setError(null);
+    setGoogleLoading(true);
+    const { error } = await signInWithGoogle(
+      mode === "signup" ? accountType : undefined,
+    );
+    if (error) {
+      setError(error);
+      setGoogleLoading(false);
+    }
+  }
+
+  if (showSuccess) {
+    return (
+      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-muted/50 px-4 py-10 dark:bg-background">
+        <div
+          className="pointer-events-none absolute inset-0 bg-grid"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]"
+          aria-hidden="true"
+        />
+        <div className="relative w-full max-w-sm text-center animate-fade-in-up">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-500/15">
+            <CheckCircle2 className="h-10 w-10 text-emerald-500 dark:text-emerald-400" />
+          </div>
+          <h1 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
+            Account Created Successfully!
+          </h1>
+          <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground">
+            Welcome to FRELUX. Your{" "}
+            <span className="font-semibold text-brand-purple dark:text-brand-purple-lighter">
+              {accountType === "pro_worker" ? "Worker" : "Client"}
+            </span>{" "}
+            account is ready.
+          </p>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <Loader2 className="h-8 w-8 animate-spin text-brand-purple dark:text-brand-purple-lighter" />
+            <p className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              {t("Redirecting to your dashboard...")}
+            </p>
+          </div>
+          <div className="mt-8">
+            <Link
+              to={redirectTo}
+              className="text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
+            >
+              {t("Click here if not redirected")}
+            </Link>
+          </div>
+          <div className="mt-8 flex justify-center">
+            <Logo />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-muted/50 px-4 py-10 dark:bg-background">
+      <div
+        className="pointer-events-none absolute inset-0 bg-grid"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]"
+        aria-hidden="true"
+      />
+      <div className="relative w-full max-w-[420px] animate-fade-in-up">
+        <div className="mb-7 flex justify-center">
+          <Logo />
+        </div>
+        <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-6 shadow-premium backdrop-blur-xl transition-all duration-300 sm:p-8 dark:border-white/10 dark:bg-card/70">
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/50 to-transparent"
+            aria-hidden="true"
+          />
+          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground dark:text-primary-foreground">
+            {mode === "signin"
+              ? "Sign in"
+              : mode === "signup"
+                ? "Create account"
+                : "Reset password"}
+          </h1>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
+            {mode === "signin"
+              ? "Sign in to access your projects, saved estimates, and AI features."
+              : mode === "signup"
+                ? "Create an account to save estimates and access premium features."
+                : "Enter your email and we will send you reset instructions."}
+          </p>
+          {!configured && (
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-xs text-card-foreground dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+              <p>
+                {t(
+                  "Authentication is not configured. Please check back later.",
+                )}
+              </p>
+            </div>
+          )}
+          {info && (
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-card-foreground dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+              <p>{info}</p>
+            </div>
+          )}
+          {mode === "signup" && (
+            <div className="mt-5">
+              <span className="block text-sm font-semibold text-card-foreground dark:text-foreground">
+                {t("Account type")}
+              </span>
+              <div className="mt-2 grid grid-cols-2 gap-3">
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={() => setAccountType("client")}
+                  className={classNames(
+                    "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
+                    accountType === "client"
+                      ? "border-brand-purple bg-primary/5 dark:border-brand-purple-lighter dark:bg-primary/15"
+                      : "border-border bg-card hover:border-border dark:border-white/10 dark:bg-background dark:hover:border-white/20",
+                  )}
+                >
+                  <User
+                    className={classNames(
+                      "h-6 w-6",
+                      accountType === "client"
+                        ? "text-brand-purple dark:text-brand-purple-lighter"
+                        : "text-muted-foreground dark:text-muted-foreground",
+                    )}
+                  />
+                  <div className="text-center">
+                    <p
+                      className={classNames(
+                        "text-sm font-bold",
+                        accountType === "client"
+                          ? "text-brand-purple dark:text-brand-purple-lighter"
+                          : "text-card-foreground dark:text-foreground",
+                      )}
+                    >
+                      {t("Client")}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">
+                      {t("Estimate and save projects")}
+                    </p>
+                  </div>
+                </Button>
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={() => setAccountType("pro_worker")}
+                  className={classNames(
+                    "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
+                    accountType === "pro_worker"
+                      ? "border-brand-purple bg-primary/5 dark:border-brand-purple-lighter dark:bg-primary/15"
+                      : "border-border bg-card hover:border-border dark:border-white/10 dark:bg-background dark:hover:border-white/20",
+                  )}
+                >
+                  <HardHat
+                    className={classNames(
+                      "h-6 w-6",
+                      accountType === "pro_worker"
+                        ? "text-brand-purple dark:text-brand-purple-lighter"
+                        : "text-muted-foreground dark:text-muted-foreground",
+                    )}
+                  />
+                  <div className="text-center">
+                    <p
+                      className={classNames(
+                        "text-sm font-bold",
+                        accountType === "pro_worker"
+                          ? "text-brand-purple dark:text-brand-purple-lighter"
+                          : "text-card-foreground dark:text-foreground",
+                      )}
+                    >
+                      {t("Worker")}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">
+                      {t("Offer your services")}
+                    </p>
+                  </div>
+                </Button>
+              </div>
+            </div>
+          )}
+          {mode !== "reset" && (
+            <div>
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={googleLoading || !configured}
+                className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-card-foreground shadow-sm transition-all hover:bg-muted/50 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed dark:border-white/10 dark:bg-background dark:text-foreground dark:hover:bg-white/5"
+              >
+                <GoogleIcon />
+                {googleLoading ? "Connecting..." : "Continue with Google"}
+              </Button>
+              <div className="my-5 flex items-center gap-3">
+                <div className="h-px flex-1 bg-muted dark:bg-white/10" />
+                <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                  or
+                </span>
+                <div className="h-px flex-1 bg-muted dark:bg-white/10" />
+              </div>
+            </div>
+          )}
+          <form onSubmit={onSubmit} className="space-y-4" noValidate>
+            <label className="block">
+              <span className="block text-sm font-semibold text-card-foreground dark:text-foreground">
+                {t("Email")}
+              </span>
+              <div className="relative mt-1.5">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input-field pl-9"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  required
+                />
+              </div>
+            </label>
+            {mode !== "reset" && (
+              <label className="block">
+                <span className="block text-sm font-semibold text-card-foreground dark:text-foreground">
+                  {t("Password")}
+                </span>
+                <div className="relative mt-1.5">
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input-field pl-9 pr-11"
+                    placeholder="Enter your password"
+                    autoComplete={
+                      mode === "signin" ? "current-password" : "new-password"
+                    }
+                    minLength={6}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    aria-pressed={showPassword}
+                    className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-foreground"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </label>
+            )}
+            {mode === "signin" && (
+              <div className="flex items-center justify-between gap-3 pt-1">
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={remember}
+                  onClick={() => setRemember((v) => !v)}
+                  className="group flex items-center gap-2.5 text-sm font-medium text-card-foreground transition-colors dark:text-foreground"
+                >
+                  <span
+                    className={classNames(
+                      "flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border transition-all duration-200",
+                      remember
+                        ? "border-brand-purple bg-brand-purple text-white shadow-[0_0_0_3px_rgba(139,92,246,0.15)]"
+                        : "border-border bg-card group-hover:border-brand-purple/60 dark:border-white/20 dark:bg-background",
+                    )}
+                  >
+                    {remember && <Check className="h-3 w-3" strokeWidth={3} />}
+                  </span>
+                  {t("Remember me")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("reset");
+                    setError(null);
+                    setInfo(null);
+                  }}
+                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+                >
+                  {t("Forgot password?")}
+                </button>
+              </div>
+            )}
+            {error && (
+              <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <p>{error}</p>
+              </div>
+            )}
+            <Button
+              variant="default"
+              type="submit"
+              disabled={loading || !configured}
+              className="press-scale w-full disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {mode === "signin" ? (
+                <LogIn className="h-4 w-4" />
+              ) : mode === "signup" ? (
+                <UserPlus className="h-4 w-4" />
+              ) : (
+                <KeyRound className="h-4 w-4" />
+              )}
+              {loading
+                ? "Please wait..."
+                : mode === "signin"
+                  ? "Sign in"
+                  : mode === "signup"
+                    ? "Create account"
+                    : "Send reset link"}
+            </Button>
+            <div className="flex flex-col items-center gap-2 text-xs">
+              {mode === "signin" && (
+                <div className="flex flex-col items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={() => {
+                      setMode("signup");
+                      setError(null);
+                      setInfo(null);
+                    }}
+                    className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
+                  >
+                    Need an account? Sign up
+                  </Button>
+                </div>
+              )}
+              {mode === "signup" && (
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={() => {
+                    setMode("signin");
+                    setError(null);
+                    setInfo(null);
+                  }}
+                  className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
+                >
+                  Already have an account? Sign in
+                </Button>
+              )}
+              {mode === "reset" && (
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={() => {
+                    setMode("signin");
+                    setError(null);
+                    setInfo(null);
+                  }}
+                  className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
+                >
+                  {t("Back to sign in")}
+                </Button>
+              )}
+            </div>
+          </form>
+        </div>
+        <p className="mt-6 text-center text-xs text-muted-foreground dark:text-muted-foreground">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 hover:text-brand-purple dark:hover:text-brand-purple-lighter"
+          >
+            <ArrowLeft className="h-3 w-3" /> {t("Back to website")}
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,1456 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false, isPaid: false })),
+}));
+
+const logAdEvent = vi.fn();
+
+vi.mock("@/lib/ad-config", async () => {
+  const actual =
+    await vi.importActual<Record<string, unknown>>("@/lib/ad-config");
+  return {
+    ...actual,
+    fetchAdConfig: vi.fn(),
+    getProvidersForPlacement: vi.fn(),
+    getAdUnitId: vi.fn(() => null),
+    shouldDisplayPlacement: vi.fn(() => true),
+    logAdEvent: (...args: unknown[]) => logAdEvent(...args),
+  };
+});
+
+vi.mock("@/lib/supabase-lazy", () => ({
+  getSupabase: vi.fn(() => ({
+    from: vi.fn(() => ({
+      insert: vi.fn().mockResolvedValue({ error: null }),
+      // Legacy AdSense fallback read (site_settings): resolves empty so
+      // tests that fall through every provider stay hermetic.
+      select: vi.fn(() => ({
+        limit: vi.fn(() => ({
+          maybeSingle: vi.fn().mockResolvedValue({ data: null }),
+        })),
+      })),
+    })),
+  })),
+}));
+
+beforeEach(async () => {
+  vi.clearAllMocks();
+  // Per-page ad server state (banner cap counter, native zone
+  // reservation) is module-global and shared across tests in this file -
+  // without this reset one test's reservation bleeds into the next and
+  // native-key tests resolve "none" spuriously.
+  const { resetAdsterraPageStateForTests } =
+    await import("@/components/ui/adsterra");
+  resetAdsterraPageStateForTests();
+  // Ad serving is consent-gated (Heartsyncx pattern, see ad-consent.ts):
+  // grant full consent so every test exercises the serving path.
+  const { acceptAll, withdrawConsent } = await import("@/lib/cookie-consent");
+  withdrawConsent();
+  acceptAll("settings");
+  // Reset the auth mock, individual tests may override isPaid
+  const { useAuth } = await import("@/lib/auth");
+  vi.mocked(useAuth).mockReturnValue({
+    user: null,
+    loading: false,
+    isPaid: false,
+  } as never);
+  // Clean out any scripts injected by previous renders
+  document.head
+    .querySelectorAll("script[data-zone], script[src*='quge5.com']")
+    .forEach((el) => el.remove());
+  // Clear the per-session impression dedup so each test logs fresh impressions
+  try {
+    sessionStorage.clear();
+  } catch {
+    // private mode, ignore
+  }
+});
+
+function makeMonetagProvider(settings: Record<string, unknown> = {}) {
+  return {
+    id: "prov-monetag",
+    name: "Monetag",
+    slug: "monetag",
+    provider_type: "display",
+    is_active: true,
+    priority: 1,
+    credentials: { zone_id: "1234567" },
+    settings,
+    is_system: true,
+    created_at: "",
+    updated_at: "",
+  } as never;
+}
+
+async function renderAdSlot(props: Record<string, unknown> = {}) {
+  const AdSlot = (await import("@/components/ui/AdSlot")).default;
+  return render(
+    <MemoryRouter>
+      <AdSlot slotKey="test-slot" {...props} />
+    </MemoryRouter>,
+  );
+}
+
+describe("AdSlot", () => {
+  it("renders null for paid users", async () => {
+    const { useAuth } = await import("@/lib/auth");
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      loading: false,
+      isPaid: true,
+    } as never);
+    const { container } = await renderAdSlot();
+    expect(container.innerHTML).toBe("");
+  });
+
+  it("auto-fills an unmapped slot from AdSense publisher_id when no unit ID is configured", async () => {
+    const provider = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: {
+        publisher_id: "ca-pub-1234567890123456",
+      },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsense"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const { container } = await renderAdSlot();
+
+    await waitFor(() => {
+      const ins = container.querySelector("ins.adsbygoogle");
+      expect(ins).not.toBeNull();
+      expect(ins!.getAttribute("data-ad-client")).toBe(
+        "ca-pub-1234567890123456",
+      );
+      expect(ins!.getAttribute("data-ad-format")).toBe("auto");
+    });
+    // Honest impressions: a publisher-only unit has no fill guarantee,
+    // so the impression is deferred to the no-fill watcher and logged
+    // only when Google actually fills the unit. Resolve alone is not an
+    // impression (the old eager log counted ads that never displayed).
+    expect(logAdEvent).not.toHaveBeenCalled();
+  });
+
+  it("auto-fills an unmapped slot from the provider's default display unit (AdSense primary)", async () => {
+    // Owner directive 2026-10-08: per-slot mapping is optional. One
+    // AdSense display unit pasted as default_display_unit_id must fill
+    // every unmapped display placement automatically.
+    const provider = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: {
+        publisher_id: "ca-pub-1234567890123456",
+        default_display_unit_id: "9876543210",
+      },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsense"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const { container } = await renderAdSlot();
+
+    await waitFor(() => {
+      const ins = container.querySelector("ins.adsbygoogle");
+      expect(ins).not.toBeNull();
+      expect(ins!.getAttribute("data-ad-slot")).toBe("9876543210");
+    });
+    expect(logAdEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_type: "impression",
+        provider_id: "prov-adsense",
+        placement_key: "test-slot",
+      }),
+    );
+  });
+
+  it("never auto-fills rewarded placements with a display default unit", async () => {
+    const provider = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: {
+        publisher_id: "ca-pub-1234567890123456",
+        default_display_unit_id: "9876543210",
+      },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "rewarded",
+          is_active: true,
+          provider_ids: ["prov-adsense"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const { container } = await renderAdSlot();
+
+    // No adsbygoogle <ins> may appear for a rewarded placement.
+    await waitFor(() => {
+      expect(container.querySelector("ins.adsbygoogle")).toBeNull();
+    });
+  });
+
+  it("renders null for Monetag without per-placement ad unit ID (global tag handles it)", async () => {
+    const provider = {
+    id: "prov-adsense",
+    name: "Google AdSense",
+    slug: "google_adsense",
+    provider_type: "display",
+    is_active: true,
+    priority: 1,
+    credentials: { publisher_id: "ca-pub-1234567890123456" },
+    settings: {},
+    is_system: true,
+    created_at: "",
+    updated_at: "",
+  } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-monetag"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const { container } = await renderAdSlot();
+
+    // Monetag with no per-placement ad unit ID renders nothing :
+    // the global tag.min.js in Layout.tsx handles Monetag display ads.
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-ad-provider="monetag"]'),
+      ).toBeNull();
+    });
+  });
+
+  it("renders Monetag container when per-placement ad unit ID is configured", async () => {
+    const provider = makeMonetagProvider();
+    const adConfig = await import("@/lib/ad-config");
+    // Override getAdUnitId to return the per-placement zone for this provider
+    vi.mocked(adConfig.getAdUnitId).mockReturnValue("zone-999");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-monetag"],
+          ad_unit_ids: { "prov-monetag": "zone-999" },
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const { container } = await renderAdSlot();
+
+    // Monetag container renders with the per-placement zone ID
+    await waitFor(() => {
+      const el = container.querySelector('[data-ad-provider="monetag"]');
+      expect(el).not.toBeNull();
+      expect(el?.getAttribute("data-zone")).toBe("zone-999");
+    });
+    // Tag script injected
+    await waitFor(() => {
+      expect(
+        document.head.querySelector('script[src*="quge5.com"]'),
+      ).not.toBeNull();
+    });
+    // Impression logged
+    expect(logAdEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_type: "impression" }),
+    );
+  });
+
+  it("renders Monetag Native Banner container when native_banner_zone_id is configured", async () => {
+    const provider = {
+      ...(makeMonetagProvider() as unknown as Record<string, unknown>),
+      credentials: { zone_id: "1234567", native_banner_zone_id: "7654321" },
+    } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.getAdUnitId).mockReturnValue(null);
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-monetag"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const { container } = await renderAdSlot();
+
+    // In-page container renders with the native zone, and the SDK tag is
+    // injected with that zone (not the site-wide display zone).
+    await waitFor(() => {
+      const el = container.querySelector('[data-ad-provider="monetag"]');
+      expect(el).not.toBeNull();
+      expect(el?.getAttribute("data-zone")).toBe("7654321");
+    });
+    await waitFor(() => {
+      const tag = document.head.querySelector('script[src*="quge5.com"]');
+      expect(tag).not.toBeNull();
+      expect(tag?.getAttribute("data-zone")).toBe("7654321");
+    });
+    expect(logAdEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_type: "impression" }),
+    );
+  });
+
+  it("skips display-disabled providers: no render, no impression, no reserved zone", async () => {
+    // A display-disabled provider must never claim a slot. The old
+    // behavior (resolve, hide, still log the impression) blocked the
+    // fallback chain and inflated impression analytics with ads that
+    // never rendered.
+    resetAdsterraPageStateForTests();
+    const provider = makeAdsterraProvider(
+      { key: "2fc239403361cb893fa79b52b1d98332" },
+      { display_ads_enabled: false },
+    ) as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const { container } = await renderAdSlot();
+    // Let the async resolution settle before asserting absence
+    await new Promise((r) => setTimeout(r, 25));
+
+    // Nothing renders: the slot settles to "none" (hidden reserved-zone
+    // placeholder), no impression is logged, and no ad container or
+    // third-party script is injected.
+    expect(logAdEvent).not.toHaveBeenCalled();
+    expect(container.querySelector('[data-ad-provider="adsterra"]')).toBeNull();
+    expect(container.querySelector('[data-ad-provider="monetag"]')).toBeNull();
+    expect(document.head.querySelector('script[src*="quge5.com"]')).toBeNull();
+  });
+
+  it("falls through a display-disabled provider to the next enabled provider", async () => {
+    // Regression: a disabled Adsterra used to claim every slot and
+    // block Monetag from ever filling it. The chain must now skip it
+    // and let Monetag render its native banner instead.
+    resetAdsterraPageStateForTests();
+    const adsterra = makeAdsterraProvider(
+      { key: "2fc239403361cb893fa79b52b1d98332" },
+      { display_ads_enabled: false },
+    ) as never;
+    const monetag = {
+      id: "prov-monetag",
+      name: "Monetag",
+      slug: "monetag",
+      provider_type: "display",
+      is_active: true,
+      priority: 2,
+      credentials: { zone_id: "1234567", native_banner_zone_id: "7654321" },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsterra, monetag],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsterra", "prov-monetag"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([
+      adsterra,
+      monetag,
+    ]);
+
+    const { container } = await renderAdSlot();
+
+    // Monetag fills the slot Adsterra abandoned
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-ad-provider="monetag"]'),
+      ).not.toBeNull();
+    });
+    // Adsterra never claimed it: no reserved zone, no banner container
+    expect(
+      container.querySelector('[data-ad-reserved="test-slot"]'),
+    ).toBeNull();
+    expect(container.querySelector('[data-ad-provider="adsterra"]')).toBeNull();
+  });
+
+  it("prefers a real Adsterra per-placement zone over AdSense publisher-only fill", async () => {
+    // Regression (owner-reported 2026-10-27, ads stopped displaying):
+    // the pub-only AdSense fallback used to claim EVERY mixed slot
+    // first, and while AdSense was pending approval Google no-filled
+    // everything, so configured Adsterra zones never rendered.
+    const adsense = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: { publisher_id: "ca-pub-1234567890123456" },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adsterra = makeAdsterraProvider(
+      { key: "2fc239403361cb893fa79b52b1d98332" },
+      { display_ads_enabled: true },
+    );
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsense, adsterra],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsense", "prov-adsterra"],
+          ad_unit_ids: { "prov-adsterra": "2fc239403361cb893fa79b52b1d98332" },
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([
+      adsense,
+      adsterra,
+    ]);
+
+    const { container } = await renderAdSlot();
+
+    // The Adsterra banner zone must claim the slot (real configured unit),
+    // NOT the empty-unit AdSense publisher-only fallback.
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-ad-provider="adsterra"]'),
+      ).not.toBeNull();
+    });
+    expect(container.querySelector("ins.adsbygoogle")).toBeNull();
+  });
+
+  it("collapses a pub-only unit to the hidden placeholder when Google reports unfilled", async () => {
+    // Post-reorder, a pub-only AdSense unit only resolves when nothing
+    // else in the chain can fill the slot. When Google then marks the
+    // ins data-ad-status="unfilled" the open chain re-resolves without
+    // AdSense: with no fallback left the slot collapses to the hidden
+    // "Ad placement zone" placeholder instead of leaving an empty
+    // labeled box on the page (the old behavior visitors saw as
+    // broken ads).
+    const adsense = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: { publisher_id: "ca-pub-1234567890123456" },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    // Adsterra is in the chain but has no usable credentials, so passes
+    // 1-3 skip it and the pub-only AdSense fallback claims the slot.
+    const adsterra = makeAdsterraProvider({}, {});
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsense, adsterra],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsense", "prov-adsterra"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([
+      adsense,
+      adsterra,
+    ]);
+
+    const { container } = await renderAdSlot();
+
+    let ins: Element | null = null;
+    await waitFor(() => {
+      ins = container.querySelector("ins.adsbygoogle");
+      expect(ins).not.toBeNull();
+    });
+    // ...then Google reports the no-fill.
+    ins!.setAttribute("data-ad-status", "unfilled");
+
+    // Open chain: re-resolve without AdSense. Adsterra still cannot
+    // fill (no credentials) so the slot collapses to the hidden
+    // placeholder - no ins, no empty labeled box.
+    await waitFor(() => {
+      expect(container.querySelector("ins.adsbygoogle")).toBeNull();
+      expect(
+        container.querySelector("[data-ad-reserved='test-slot']"),
+      ).not.toBeNull();
+    });
+  });
+
+  it("never cascades a providerSlug-locked AdSense slot away from AdSense", async () => {
+    // Owner directive 2026-10-10: AdSense-dedicated slots stay AdSense
+    // even on a no-fill, they must never fall back to other networks.
+    const adsense = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: { publisher_id: "ca-pub-1234567890123456" },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsense],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: [],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([adsense]);
+
+    const { container } = await renderAdSlot({
+      providerSlug: "google_adsense",
+    });
+
+    let ins: Element | null = null;
+    await waitFor(() => {
+      ins = container.querySelector("ins.adsbygoogle");
+      expect(ins).not.toBeNull();
+    });
+    ins!.setAttribute("data-ad-status", "unfilled");
+    // Give the watcher a beat: the ins must stay put (never cascades
+    // away from AdSense) but the wrapper must collapse - no empty
+    // "Advertisement" strip while the account is pending approval
+    // (owner-reported 2026-10-27: the sticky bottom bar showed with
+    // no ad inside).
+    await waitFor(() => {
+      const wrapper = container.querySelector(".frelux-ad-unit");
+      expect(wrapper).not.toBeNull();
+      expect((wrapper as HTMLElement).style.display).toBe("none");
+    });
+    expect(container.querySelector("ins.adsbygoogle")).not.toBeNull();
+    // The wrapper collapse is what keeps an empty slot from reserving
+    // visual space in the page flow.
+  });
+
+  it("keeps a locked AdSense slot expanded when Google actually fills", async () => {
+    const adsense = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: { publisher_id: "ca-pub-1234567890123456" },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsense],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: [],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([adsense]);
+
+    const { container } = await renderAdSlot({
+      providerSlug: "google_adsense",
+    });
+
+    let ins: Element | null = null;
+    await waitFor(() => {
+      ins = container.querySelector("ins.adsbygoogle");
+      expect(ins).not.toBeNull();
+    });
+    // Google serves a real ad: the slot must stay visible.
+    ins!.setAttribute("data-ad-status", "filled");
+    await new Promise((r) => setTimeout(r, 250));
+    const wrapper = container.querySelector(".frelux-ad-unit") as HTMLElement;
+    expect(wrapper.style.display).not.toBe("none");
+  });
+});
+
+// ── Adsterra banner integration ──────────────────────────────────────
+
+function makeAdsterraProvider(
+  credentials: Record<string, unknown> = {},
+  settings: Record<string, unknown> = {},
+) {
+  return {
+    id: "prov-adsterra",
+    name: "Adsterra",
+    slug: "adsterra",
+    provider_type: "display",
+    is_active: true,
+    priority: 11,
+    credentials,
+    settings,
+    is_system: true,
+    created_at: "",
+    updated_at: "",
+  } as never;
+}
+
+import {
+  extractAdsterraZoneKey,
+  getAdsterraServeDomain,
+  resolveAdsterraSize,
+  renderAdsterraBanner,
+  renderAdsterraNativeBanner,
+  resetAdsterraPageStateForTests,
+} from "@/components/ui/adsterra";
+
+describe("Adsterra helpers", () => {
+  beforeEach(() => resetAdsterraPageStateForTests());
+
+  const prov = makeAdsterraProvider();
+
+  it("defaults the serve domain to highperformanceformat.com", () => {
+    expect(getAdsterraServeDomain(prov)).toBe("www.highperformanceformat.com");
+  });
+
+  it("uses a valid configured serve domain", () => {
+    const p = makeAdsterraProvider({
+      serve_domain: "pl12345678.profitabledisplaynetwork.com",
+    });
+    expect(getAdsterraServeDomain(p)).toBe(
+      "pl12345678.profitabledisplaynetwork.com",
+    );
+  });
+
+  it("picks the first valid hostname from a comma-separated value", () => {
+    const p = makeAdsterraProvider({
+      serve_domain:
+        "www.highperformanceformat.com,https://pl31194884.profitableratecpmnetwork.com",
+    });
+    expect(getAdsterraServeDomain(p)).toBe("www.highperformanceformat.com");
+  });
+
+  it("rejects non-hostname serve domains (injection safety)", () => {
+    const p = makeAdsterraProvider({ serve_domain: "https://evil.example/x" });
+    expect(getAdsterraServeDomain(p)).toBe("www.highperformanceformat.com");
+  });
+
+  it("extracts a bare 32-hex zone key unchanged", () => {
+    expect(extractAdsterraZoneKey("2fc239403361cb893fa79b52b1d98332")).toBe(
+      "2fc239403361cb893fa79b52b1d98332",
+    );
+  });
+
+  it("extracts the zone key from a pasted dashboard snippet", () => {
+    const snippet =
+      '<script async="async" data-cfasync="false" src="https://pl31194884.profitableratecpmnetwork.com/60c8524034bf047ff03e21ffec6aa01b/invoke.js"></script> <div id="container-60c8524034bf047ff03e21ffec6aa01b"></div>';
+    expect(extractAdsterraZoneKey(snippet)).toBe(
+      "60c8524034bf047ff03e21ffec6aa01b",
+    );
+  });
+
+  it("returns empty for garbage / empty unit values", () => {
+    expect(extractAdsterraZoneKey("")).toBe("");
+    expect(extractAdsterraZoneKey(null)).toBe("");
+    expect(extractAdsterraZoneKey("not-a-key")).toBe("");
+    expect(extractAdsterraZoneKey("<script>alert(1)</script>")).toBe("");
+  });
+
+  it("sizes sidebars 300x250, bottoms 728x90 desktop / 320x50 mobile", () => {
+    expect(resolveAdsterraSize(prov, "home_sidebar")).toEqual({
+      width: 300,
+      height: 250,
+    });
+    Object.defineProperty(window, "innerWidth", {
+      value: 1200,
+      configurable: true,
+    });
+    expect(resolveAdsterraSize(prov, "calculator_bottom")).toEqual({
+      width: 728,
+      height: 90,
+    });
+    Object.defineProperty(window, "innerWidth", {
+      value: 390,
+      configurable: true,
+    });
+    expect(resolveAdsterraSize(prov, "calculator_bottom")).toEqual({
+      width: 320,
+      height: 50,
+    });
+    expect(resolveAdsterraSize(prov, "learn_in_article")).toEqual({
+      width: 300,
+      height: 250,
+    });
+  });
+
+  it("honours a per-placement banner_sizes override", () => {
+    const p = makeAdsterraProvider(
+      {},
+      {
+        banner_sizes: { home_sidebar: "160x600" },
+      },
+    );
+    expect(resolveAdsterraSize(p, "home_sidebar")).toEqual({
+      width: 160,
+      height: 600,
+    });
+    expect(resolveAdsterraSize(p, "other_slot")).toEqual({
+      width: 300,
+      height: 250,
+    });
+  });
+
+  it("honours a zone-wide banner_sizes.default override", () => {
+    // One Adsterra zone has one fixed size; requesting a different
+    // size silently never fills. The admin can pin the zone's real
+    // size once via banner_sizes.default instead of per-slot entries.
+    const p = makeAdsterraProvider({}, { banner_sizes: { default: "728x90" } });
+    expect(resolveAdsterraSize(p, "home_mid")).toEqual({
+      width: 728,
+      height: 90,
+    });
+    expect(resolveAdsterraSize(p, "calculator_bottom")).toEqual({
+      width: 728,
+      height: 90,
+    });
+    // Per-slot entries still win over the zone-wide default
+    const q = makeAdsterraProvider(
+      {},
+      { banner_sizes: { default: "728x90", home_sidebar: "160x600" } },
+    );
+    expect(resolveAdsterraSize(q, "home_sidebar")).toEqual({
+      width: 160,
+      height: 600,
+    });
+    expect(resolveAdsterraSize(q, "home_mid")).toEqual({
+      width: 728,
+      height: 90,
+    });
+  });
+});
+
+describe("AdSlot, Adsterra rendering", () => {
+  beforeEach(async () => {
+    resetAdsterraPageStateForTests();
+    // mockReturnValue from earlier tests survives clearAllMocks, reset it
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.getAdUnitId).mockReturnValue(null);
+  });
+
+  it("renders the adsterra container and calls the banner injector with the resolved size", async () => {
+    const provider = makeAdsterraProvider({ key: "a".repeat(32) });
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    // Spy the injector, appending a real srcdoc iframe makes happy-dom
+    // attempt an async page load that surfaces as an unhandled rejection
+    // in unrelated test files. The injector itself is unit-tested below
+    // against a detached container (no document connection, no page load).
+    const AdSlotModule = await import("@/components/ui/adsterra");
+    const injectSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderBanner")
+      .mockImplementation(() => {});
+
+    const { container } = await renderAdSlot();
+
+    await waitFor(() => {
+      const slot = container.querySelector('[data-ad-provider="adsterra"]');
+      expect(slot).not.toBeNull();
+      expect(slot!.getAttribute("data-ad-zone")).toBe("a".repeat(32));
+      expect(injectSpy).toHaveBeenCalled();
+      const calls = injectSpy.mock.calls;
+      const arg = calls[calls.length - 1][2];
+      expect(arg).toEqual({ key: "a".repeat(32), slotKey: "test-slot" });
+    });
+    injectSpy.mockRestore();
+  });
+
+  it("never reserves display_rules.min_height on the wrapper (content-driven sizing)", async () => {
+    // 2026-09-25 policy change: reserved heights created the "big blank
+    // area under the ad" bug (a 250px reservation under a 90px creative).
+    // The wrapper must be content-driven regardless of what min_height
+    // says; the served creative determines the slot height.
+    const provider = makeAdsterraProvider({ key: "a".repeat(32) });
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: {},
+          display_rules: {
+            mobile: true,
+            desktop: true,
+            refresh_seconds: 0,
+            min_height: 250,
+          },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const AdSlotModule = await import("@/components/ui/adsterra");
+    const injectSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderBanner")
+      .mockImplementation(() => {});
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      const wrapper = container.querySelector(".frelux-ad-unit");
+      expect(wrapper).not.toBeNull();
+      expect((wrapper as HTMLElement).style.minHeight).toBe("");
+    });
+    injectSpy.mockRestore();
+  });
+
+  it("does not reserve height when min_height is absent or zero", async () => {
+    const provider = makeAdsterraProvider({ key: "a".repeat(32) });
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true, min_height: 0 },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const AdSlotModule = await import("@/components/ui/adsterra");
+    const injectSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderBanner")
+      .mockImplementation(() => {});
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      const wrapper = container.querySelector(".frelux-ad-unit");
+      expect(wrapper).not.toBeNull();
+      expect((wrapper as HTMLElement).style.minHeight).toBe("");
+    });
+    injectSpy.mockRestore();
+  });
+
+  it("builds the official atOptions/invoke.js srcdoc (captured, never connected)", () => {
+    const host = document.createElement("div");
+    // happy-dom refuses to attach srcdoc iframes, capture instead of connect
+    const appended: unknown[] = [];
+    (host as unknown as Record<string, unknown>).appendChild = (c: unknown) => {
+      appended.push(c);
+      return c;
+    };
+    const provider = makeAdsterraProvider({ key: "a".repeat(32) });
+    renderAdsterraBanner(host as unknown as HTMLElement, provider, {
+      key: "a".repeat(32),
+      slotKey: "home_sidebar",
+    });
+    expect(appended).toHaveLength(1);
+    const iframe = appended[0] as HTMLIFrameElement;
+    expect(iframe.getAttribute("srcdoc")).toContain("atOptions");
+    expect(iframe.getAttribute("srcdoc")).toContain(
+      `'key' : '${"a".repeat(32)}'`,
+    );
+    expect(iframe.getAttribute("srcdoc")).toContain("'format' : 'iframe'");
+    expect(iframe.getAttribute("srcdoc")).toContain("'height' : 250");
+    expect(iframe.getAttribute("srcdoc")).toContain("'width' : 300");
+    expect(iframe.getAttribute("srcdoc")).toContain(
+      `https://www.highperformanceformat.com/${"a".repeat(32)}/invoke.js`,
+    );
+    // injection safety, key never lands outside the hex-guarded srcdoc
+    expect(iframe.getAttribute("srcdoc")).not.toContain("evil");
+  });
+
+  it("refuses non-hex zone keys (injection safety)", () => {
+    const host = document.createElement("div");
+    const appended: unknown[] = [];
+    (host as unknown as Record<string, unknown>).appendChild = (c: unknown) => {
+      appended.push(c);
+      return c;
+    };
+    const provider = makeAdsterraProvider({ key: "evil<script>" });
+    renderAdsterraBanner(host as unknown as HTMLElement, provider, {
+      key: "evil<script>",
+      slotKey: "home_sidebar",
+    });
+    expect(appended).toHaveLength(0); // guard rejects before any iframe is built
+  });
+
+  it("serves the native banner from the zone's own snippet host, not the generic serve domain", () => {
+    const nativeKey = "d".repeat(32);
+    const provider = makeAdsterraProvider({
+      key: "a".repeat(32),
+      serve_domain: "www.highrevenueformat.com",
+      native_banner_key: `https://pl31194884.profitableratecpmnetwork.com/${nativeKey}/invoke.js`,
+    });
+    const host = document.createElement("div");
+    const appended: unknown[] = [];
+    (host as unknown as Record<string, unknown>).appendChild = (c: unknown) => {
+      appended.push(c);
+      return c;
+    };
+    renderAdsterraNativeBanner(host as unknown as HTMLElement, provider, {
+      key: nativeKey,
+      slotKey: "test-slot",
+    });
+    // The invoke.js branch appends the zone's container div
+    // FIRST, then the script (Adsterra's own snippet order).
+    expect(appended).toHaveLength(2);
+    const div = appended[0] as HTMLDivElement;
+    expect(div.id).toBe(`container-${nativeKey}`);
+    const script = appended[1] as HTMLScriptElement;
+    expect(script.getAttribute("src")).toBe(
+      `https://pl31194884.profitableratecpmnetwork.com/${nativeKey}/invoke.js`,
+    );
+  });
+
+  it("skips the sitewide native zone in-slot and falls through to Monetag's native zone", async () => {
+    const nativeKey = "b".repeat(32);
+    const adsterra = makeAdsterraProvider(
+      {
+        key: "a".repeat(32),
+        native_banner_key: nativeKey,
+      },
+      { native_banner_sitewide: true },
+    );
+    const monetag = makeMonetagProvider({ display_ads_enabled: true });
+    (monetag as { credentials: Record<string, unknown> }).credentials = {
+      zone_id: "1234567",
+      native_banner_zone_id: "275352",
+    };
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsterra, monetag],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "native",
+          name: "Test",
+          page_target: "all",
+          position: "content",
+          is_active: true,
+          provider_ids: ["prov-adsterra", "prov-monetag"],
+          ad_unit_ids: { "prov-adsterra": nativeKey },
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([
+      adsterra,
+      monetag,
+    ]);
+    // The adsterra placement unit IS the sitewide native zone key;
+    // monetag has no per-placement unit on this slot.
+    vi.mocked(adConfig.getAdUnitId).mockImplementation(
+      (_placement: unknown, providerId: string) =>
+        providerId === "prov-adsterra" ? nativeKey : "",
+    );
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      const slot = container.querySelector('[data-ad-provider="monetag"]');
+      expect(slot).not.toBeNull();
+    });
+    // Adsterra never rendered: the sitewide container owns the native zone
+    expect(container.querySelector('[data-ad-provider="adsterra"]')).toBeNull();
+    const monetagSlot = container.querySelector(
+      '[data-ad-provider="monetag"]',
+    ) as HTMLElement;
+    expect(monetagSlot.getAttribute("data-zone")).toBe("275352");
+  });
+
+  it("keeps a non-native placement with Adsterra when its per-placement unit is the sitewide native key - it renders the banner zone instead of an empty Monetag fallback box", async () => {
+    // Live regression (frelux learn article, 2026-09): learn_article_top is
+    // an in_article placement mapped to the Adsterra native zone key while
+    // native_banner_sitewide is on. The resolver used to skip Adsterra
+    // entirely for such slots, so the slot fell through to Monetag's
+    // MultiTag container and rendered a 32px empty "Advertisement" box
+    // while the Adsterra banner zone could have filled it. Non-native
+    // placements must fall back to the banner zone and render a real ad.
+    const bannerKey = "a".repeat(32);
+    const nativeKey = "b".repeat(32);
+    const adsterra = makeAdsterraProvider(
+      {
+        key: bannerKey,
+        native_banner_key: nativeKey,
+      },
+      { native_banner_sitewide: true },
+    );
+    const monetag = makeMonetagProvider();
+    (monetag as { credentials: Record<string, unknown> }).credentials = {
+      zone_id: "1234567",
+      native_banner_zone_id: "275352",
+    };
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsterra, monetag],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "in_article",
+          name: "Test",
+          page_target: "all",
+          position: "content",
+          is_active: true,
+          provider_ids: ["prov-adsterra", "prov-monetag"],
+          ad_unit_ids: { "prov-adsterra": nativeKey },
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([
+      adsterra,
+      monetag,
+    ]);
+    vi.mocked(adConfig.getAdUnitId).mockImplementation(
+      (_placement: unknown, providerId: string) =>
+        providerId === "prov-adsterra" ? nativeKey : "",
+    );
+
+    const AdSlotModule = await import("@/components/ui/adsterra");
+    const bannerSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderBanner")
+      .mockImplementation(() => {});
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-ad-provider="adsterra"]'),
+      ).not.toBeNull();
+    });
+    // Monetag never claimed the slot.
+    expect(container.querySelector('[data-ad-provider="monetag"]')).toBeNull();
+    // And the banner zone (not the native key) was rendered.
+    expect(bannerSpy).toHaveBeenCalledTimes(1);
+    expect(bannerSpy.mock.calls[0][2]).toEqual({
+      key: bannerKey,
+      slotKey: "test-slot",
+    });
+    bannerSpy.mockRestore();
+  });
+
+  it("renders nothing in-slot when Monetag's native banner zone is the MultiTag zone (it can never fill a container)", async () => {
+    // Live regression (frelux learn article, 2026-09): seven fallback slots
+    // resolved Monetag's native_banner_zone_id = 275352 - which is the
+    // SAME zone as the MultiTag zone_id, an overlay-only zone. Each slot
+    // rendered a 32px labeled box with zero creative. A native zone equal
+    // to the MultiTag zone must resolve "none" (hidden) instead.
+    const monetag = makeMonetagProvider();
+    (monetag as { credentials: Record<string, unknown> }).credentials = {
+      zone_id: "275352",
+      native_banner_zone_id: "275352",
+    };
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [monetag],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          name: "Test",
+          page_target: "all",
+          position: "content",
+          is_active: true,
+          provider_ids: ["prov-monetag"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([monetag]);
+    vi.mocked(adConfig.getAdUnitId).mockReturnValue("");
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      // "none" resolves to the hidden ad-placement-zone div, never a
+      // visible labeled Monetag container.
+      expect(
+        container.querySelector('[data-ad-reserved="test-slot"]'),
+      ).not.toBeNull();
+    });
+    expect(container.querySelector('[data-ad-provider="monetag"]')).toBeNull();
+    // And no visible "Advertisement" label may render for it.
+    expect(container.textContent).not.toContain("Advertisement");
+  });
+
+  it("routes slots to the native renderer when the resolved key matches the native credential", async () => {
+    const nativeKey = "b".repeat(32);
+    const provider = makeAdsterraProvider({
+      key: "a".repeat(32),
+      native_banner_key: nativeKey,
+    });
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          name: "Test",
+          page_target: "all",
+          position: "content",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: { "prov-adsterra": nativeKey },
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+    // The placement maps this provider to the native zone key
+    vi.mocked(adConfig.getAdUnitId).mockReturnValue(nativeKey);
+
+    const AdSlotModule = await import("@/components/ui/adsterra");
+    const nativeSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderNativeBanner")
+      .mockImplementation(() => {});
+    const bannerSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderBanner")
+      .mockImplementation(() => {});
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      const slot = container.querySelector('[data-ad-provider="adsterra"]');
+      expect(slot).not.toBeNull();
+    });
+    expect(nativeSpy).toHaveBeenCalledTimes(1);
+    expect(bannerSpy).not.toHaveBeenCalled();
+    expect(nativeSpy.mock.calls[0][2]).toEqual({
+      key: nativeKey,
+      slotKey: "test-slot",
+    });
+    nativeSpy.mockRestore();
+    bannerSpy.mockRestore();
+  });
+
+  it("only the first of several same-page native slots renders the native zone; later ones fall through instead of resolving an empty label", async () => {
+    // Adsterra's Native Banner zone has exactly one fillable container per
+    // page (invoke.js/native.js are generated per zone key). Every "native"
+    // placement on a page previously resolved the SAME global
+    // native_banner_key, so N native slots on one article all "resolved"
+    // successfully and rendered N "Advertisement" labels while the ad
+    // network could only ever fill one of them. Reported live: ~9 native
+    // slots on one article, exactly 1 real ad rendered.
+    const nativeKey = "c".repeat(32);
+    const provider = makeAdsterraProvider({
+      key: "a".repeat(32),
+      native_banner_key: nativeKey,
+    });
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-a",
+          placement_key: "slot-a",
+          placement_type: "native",
+          name: "Slot A",
+          page_target: "all",
+          position: "content",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: { "prov-adsterra": nativeKey },
+          display_rules: { mobile: true, desktop: true },
+        },
+        {
+          id: "pl-b",
+          placement_key: "slot-b",
+          placement_type: "native",
+          name: "Slot B",
+          page_target: "all",
+          position: "content",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: { "prov-adsterra": nativeKey },
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+    vi.mocked(adConfig.getAdUnitId).mockReturnValue(nativeKey);
+
+    const AdSlotModule = await import("@/components/ui/adsterra");
+    const nativeSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderNativeBanner")
+      .mockImplementation(() => {});
+
+    const AdSlot = (await import("@/components/ui/AdSlot")).default;
+    const { container: containerA } = render(
+      <MemoryRouter>
+        <AdSlot slotKey="slot-a" />
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        containerA.querySelector('[data-ad-provider="adsterra"]'),
+      ).not.toBeNull();
+    });
+
+    const { container: containerB } = render(
+      <MemoryRouter>
+        <AdSlot slotKey="slot-b" />
+      </MemoryRouter>,
+    );
+    // Second slot on the same page must not render the label/wrapper at
+    // all - the zone can't fill it, so nothing should show, not an empty
+    // "Advertisement" box.
+    await waitFor(() => {
+      expect(containerB.innerHTML).toBe("");
+    });
+
+    expect(nativeSpy).toHaveBeenCalledTimes(1);
+    expect(nativeSpy.mock.calls[0][2]).toEqual({
+      key: nativeKey,
+      slotKey: "slot-a",
+    });
+    nativeSpy.mockRestore();
+  });
+
+  it("injects native.js into the slot container (captured, never connected)", () => {
+    const host = document.createElement("div");
+    const appended: unknown[] = [];
+    (host as unknown as Record<string, unknown>).appendChild = (c: unknown) => {
+      appended.push(c);
+      return c;
+    };
+    const provider = makeAdsterraProvider({
+      native_banner_key: "b".repeat(32),
+    });
+    renderAdsterraNativeBanner(host as unknown as HTMLElement, provider, {
+      key: "b".repeat(32),
+      slotKey: "home_sidebar",
+    });
+    expect(appended).toHaveLength(1);
+    const script = appended[0] as HTMLScriptElement;
+    expect(script.getAttribute("src")).toBe(
+      `https://www.highperformanceformat.com/${"b".repeat(32)}/native.js`,
+    );
+    expect(script.getAttribute("data-cfasync")).toBe("false");
+    expect(script.getAttribute("data-adsterra-native")).toBe("true");
+    // invalid key → no injection at all
+    const host2 = document.createElement("div");
+    const appended2: unknown[] = [];
+    (host2 as unknown as Record<string, unknown>).appendChild = (
+      c: unknown,
+    ) => {
+      appended2.push(c);
+      return c;
+    };
+    renderAdsterraNativeBanner(host2 as unknown as HTMLElement, provider, {
+      key: "evil<script>",
+      slotKey: "home_sidebar",
+    });
+    expect(appended2).toHaveLength(0);
+  });
+
+  it("renders nothing without a zone key (stays dormant until Admin adds it)", async () => {
+    const provider = makeAdsterraProvider({ key: "" });
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-ad-provider="adsterra"]'),
+      ).toBeNull();
+    });
+  });
+});
+
+describe("empty slots stay silent (owner report 2026-10-29)", () => {
+  const provider = makeMonetagProvider();
+  const placement = {
+    id: "pl-1",
+    placement_key: "test-slot",
+    placement_type: "banner",
+    is_active: true,
+    provider_ids: ["prov-adsense"],
+    ad_unit_ids: {},
+    display_rules: { mobile: true, desktop: true },
+  } as never;
+
+  async function mountWithAds() {
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [placement],
+    } as never);
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+    return renderAdSlot();
+  }
+
+  it("prints no Advertisement label while the slot is empty", async () => {
+    const { container } = await mountWithAds();
+    // Whether the slot renders nothing or an unfilled container, the label
+    // must never appear on its own.
+    const adConfig = await import("@/lib/ad-config");
+    await waitFor(() => expect(adConfig.fetchAdConfig).toHaveBeenCalled());
+    expect(container.textContent).not.toContain("Advertisement");
+    expect(container.querySelector(".ad-label-subtle")).toBeNull();
+    expect(container.querySelector('[data-ad-filled="true"]')).toBeNull();
+  });
+
+});
