@@ -72,20 +72,21 @@ export function toolSeoTitle(tool) {
   return compose(name, phrase.length >= 14 && phrase.length <= 34 ? phrase : "");
 }
 
+const finish = (text) => (/[.!?]$/.test(text) ? text : `${text}.`);
+
 export function toolSeoDescription(tool) {
-  if (tool.seoDescription) return clamp(tool.seoDescription, DESC_MAX);
+  if (tool.seoDescription) return finish(clamp(tool.seoDescription, DESC_MAX));
   const outcome = stripTrailingVerb(tool.does);
   const inputs = stripTrailingVerb(tool.enters);
   const outputs = firstClause(stripTrailingVerb(tool.gets));
 
-  const full = `${outcome}. Enter ${lowerFirst(inputs)}. Get ${lowerFirst(outputs)}.`;
+  const full = finish(`${outcome}. Enter ${lowerFirst(inputs)}. Get ${lowerFirst(outputs)}`);
   if (full.length <= DESC_MAX) return full;
 
-  const withoutOutputs = `${outcome}. Enter ${lowerFirst(inputs)}.`;
+  const withoutOutputs = finish(`${outcome}. Enter ${lowerFirst(inputs)}`);
   if (withoutOutputs.length <= DESC_MAX) return withoutOutputs;
 
-  const clause = clamp(`${outcome}.`, DESC_MAX);
-  return clause.length >= 70 ? clause : clamp(outcome, DESC_MAX);
+  return finish(clamp(outcome, DESC_MAX - 1));
 }
 
 function lowerFirst(sentence) {

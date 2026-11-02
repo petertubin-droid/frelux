@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-02T06:13:58.317Z",
+  "generatedAt": "2026-11-02T06:16:32.209Z",
   "note": "Before/after is diffed from the committed prerender list against the built output. Only pages whose listing copy actually changed are listed.",
   "changedPages": 67,
   "entries": [
@@ -279,7 +279,7 @@
       "oldTitle": "Foundation Calculator: Sizing & Materials | FRELUX SMART CALC",
       "newTitle": "Foundation Calculator – Strip, Pad & Raft Sizing | FRELUX",
       "oldDescription": "Calculate foundation sizes and materials for building projects. Strip footing, pad foundation, and raft foundation estimates with soil bearing capacity guidance.",
-      "newDescription": "Size and cost a strip, pad or raft foundation. Enter building dimensions, floors and soil condition to get concrete, mesh and formwork quantities with local",
+      "newDescription": "Size and cost a strip, pad or raft foundation. Enter building dimensions, floors and soil condition to get concrete, mesh and formwork quantities with local.",
       "status": "implemented",
       "implementedAt": "2026-11-02"
     },
@@ -469,7 +469,7 @@
       "oldTitle": "POP Ceiling Calculator: FRELUX",
       "newTitle": "POP Ceiling Calculator – Cement, Mesh & Cost | FRELUX",
       "oldDescription": "Calculate POP ceiling material quantities. Enter room dimensions to estimate POP cement, mesh, and other materials for your ceiling project.",
-      "newDescription": "Calculate POP cement, fibreglass mesh and cost for board, cornice or full designs. Enter room dimensions and ceiling design to get materials and a cost",
+      "newDescription": "Calculate POP cement, fibreglass mesh and cost for board, cornice or full designs. Enter room dimensions and ceiling design to get materials and a cost.",
       "status": "implemented",
       "implementedAt": "2026-11-02"
     },
@@ -539,7 +539,7 @@
       "oldTitle": "Wall Screeding Calculator: FRELUX",
       "newTitle": "Screeding Calculator – Cement, Sand & Cost | FRELUX",
       "oldDescription": "Calculate wall screeding area in m² and estimate screeding paint (litres) and white cement (kg). Enter room or fence dimensions in feet or metres.",
-      "newDescription": "Calculate screeding cement, sand and cost for smooth wall finishes. Enter wall area and thickness or room dimensions to get bags of screeding and a cost",
+      "newDescription": "Calculate screeding cement, sand and cost for smooth wall finishes. Enter wall area and thickness or room dimensions to get bags of screeding and a cost.",
       "status": "implemented",
       "implementedAt": "2026-11-02"
     },
