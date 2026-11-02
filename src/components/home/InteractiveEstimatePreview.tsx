@@ -255,9 +255,6 @@ export default function InteractiveEstimatePreview() {
                     {DEFAULT_COVERAGE_M2_PER_LITER} m² per litre per coat
                     (internal)
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {t("Configurable from admin settings")}
-                  </p>
                 </div>
               </div>
 
