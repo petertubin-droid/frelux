@@ -82,6 +82,8 @@ export interface PriceProvenance {
   effectiveDate: string | null;
   /** Who supplied the price, when the row records it. */
   priceSource: string | null;
+  /** Scanner or feed that filed the price, when the row records one. */
+  scanSource: string | null;
   scanConfidence: "low" | "medium" | "high" | null;
   /** Retail pack the price is quoted for, where the row records one. */
   packSizeId: string | null;
@@ -249,6 +251,7 @@ export async function resolvePrice(
       requestedMarket,
       effectiveDate: resolved.price.effective_date ?? null,
       priceSource: resolved.price.price_source ?? null,
+      scanSource: resolved.price.scan_source ?? null,
       scanConfidence: resolved.price.scan_confidence ?? null,
       packSizeId: resolved.price.pack_size_id ?? null,
       evidence: resolved.evidence ?? null,

@@ -7,17 +7,18 @@
 // without a verified price resolves to null - the engine then
 // reports the missing price instead of inventing one.
 //
-// Mirrors the manual calculator pages (PaintCalculator,
-// TyroleneEstimator, ScreedingCostEstimator) and the wall
-// finishing estimator: same tables, same roles, same
-// provenance. Never a second opinion.
+// Resolves through the price gateway, so an engine and a manual
+// calculator answer with the same number, the same inheritance rule and
+// the same coverage sentence. The scanner feeds that gateway through the
+// market price book; nothing here reads a price table directly.
 // =========================================================
 
 import type { MaterialRole } from "@/lib/estimation/market-materials";
+import { fetchMarketRoleMappings } from "@/lib/estimation/market-materials";
 import {
-  fetchMarketRoleMappings,
-  resolveMaterialPriceByRole,
-} from "@/lib/estimation/market-materials";
+  resolvePrice,
+  type PriceResolution,
+} from "@/lib/pricing/price-gateway";
 import { parsePackUnits } from "@/lib/wallfinishing/prices";
 
 export interface EngineResolvedPrice {
@@ -34,6 +35,16 @@ export interface EngineResolvedPrice {
   priceSource: string | null;
   scanSource: string | null;
   priceDate: string | null;
+  /** local | unverified | inherited, exactly as the gateway classified it. */
+  status?: PriceResolution["status"];
+  /** Coverage of the requested market, when a snapshot exists. */
+  coverageStatus?: string | null;
+  /** The honest sentence that belongs beside the number. */
+  coverageSentence?: string | null;
+  /** One line the UI can show without rewording it. */
+  message?: string;
+  /** Never a defaulted rate. */
+  taxStatus?: PriceResolution["taxStatus"];
 }
 
 /**
@@ -45,25 +56,43 @@ export async function resolveEnginePrice(
   role: MaterialRole,
   marketCode: string,
   fallbackCurrency: string,
+  options: { citySlug?: string | null } = {},
 ): Promise<EngineResolvedPrice | null> {
-  const resolved = await resolveMaterialPriceByRole(role, marketCode);
-  if (!resolved) return null;
+  // One resolver for engines and calculators alike. The gateway reports
+  // not_priced instead of inventing a number, so a null here always means
+  // the market genuinely has no price for this role.
+  const resolution: PriceResolution = await resolvePrice({
+    role,
+    market: marketCode,
+    citySlug: options.citySlug ?? null,
+  });
+  if (resolution.unitPrice === null) return null;
 
-  // Pack size: the resolved market's own mapping label ('20L', 'bag'...).
-  const mappings = await fetchMarketRoleMappings(resolved.resolved_market);
+  const sourcedMarket =
+    resolution.provenance.sourcedMarket ??
+    resolution.sourcedMarket ??
+    marketCode;
+
+  // Pack size: the sourced market's own mapping label ('20L', 'bag'...).
+  const mappings = await fetchMarketRoleMappings(sourcedMarket);
   const label = mappings.find((m) => m.role === role)?.unit_label ?? null;
 
   return {
     role,
-    materialName: resolved.material.name,
-    unitPrice: Number(resolved.price.price),
+    materialName: resolution.provenance.materialName ?? role,
+    unitPrice: resolution.unitPrice,
     packUnits: parsePackUnits(label),
     purchaseLabel: label,
-    currency: resolved.price.currency ?? fallbackCurrency,
-    resolvedMarket: resolved.resolved_market,
-    priceSource: resolved.price.price_source ?? null,
-    scanSource: resolved.price.scan_source ?? null,
-    priceDate: resolved.price.effective_date ?? null,
+    currency: resolution.currency ?? fallbackCurrency,
+    resolvedMarket: sourcedMarket,
+    priceSource: resolution.provenance.priceSource,
+    scanSource: resolution.provenance.scanSource,
+    priceDate: resolution.provenance.effectiveDate,
+    status: resolution.status,
+    coverageStatus: resolution.coverage?.status ?? null,
+    coverageSentence: resolution.coverage?.sentence ?? null,
+    message: resolution.message,
+    taxStatus: resolution.taxStatus,
   };
 }
 

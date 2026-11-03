@@ -159,6 +159,18 @@ export default function AdminMarketPrices() {
   const [selected, setSelected] = useState<string | null>(null);
   const [materials, setMaterials] = useState<MaterialRow[]>([]);
   const [sources, setSources] = useState<SourceRow[]>([]);
+  // Prices and sources are one picture: every price row carries the number of
+  // scanner sources configured for that material in that market, so a figure
+  // with nothing behind it is visible instead of implied.
+  const sourcesByMaterial = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const source of sources) {
+      if (!source.is_active) continue;
+      const key = source.material_slug;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return counts;
+  }, [sources]);
   const [alerts, setAlerts] = useState<AlertRow[]>([]);
   const [detailLoading, setDetailLoading] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -659,6 +671,7 @@ export default function AdminMarketPrices() {
                       <thead>
                         <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
                           <th className="px-3 py-2 font-medium">Material</th>
+                          <th className="px-3 py-2 font-medium">Source</th>
                           <th className="px-3 py-2 font-medium">Supplier</th>
                           <th className="px-3 py-2 font-medium">Median</th>
                           <th className="px-3 py-2 font-medium">Range</th>
@@ -682,6 +695,25 @@ export default function AdminMarketPrices() {
                                 {[row.brand, row.specification, row.unit]
                                   .filter(Boolean)
                                   .join(" · ") || row.material_slug}
+                              </div>
+                            </td>
+                            <td className="px-3 py-2.5">
+                              <span
+                                className={classNames(
+                                  "inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium",
+                                  row.last_scanned_at
+                                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                                    : "bg-muted text-muted-foreground",
+                                )}
+                              >
+                                {row.last_scanned_at ? "Scanned" : "Price book"}
+                              </span>
+                              <div className="mt-1 text-xs text-muted-foreground">
+                                {sourcesByMaterial.get(row.material_slug) ?? 0}{" "}
+                                {(sourcesByMaterial.get(row.material_slug) ??
+                                  0) === 1
+                                  ? "source"
+                                  : "sources"}
                               </div>
                             </td>
                             <td className="px-3 py-2.5 text-muted-foreground">

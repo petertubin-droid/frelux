@@ -2,8 +2,10 @@
 // MARKET-AWARE ENGINE PRICING TESTS
 //
 // Pins the wiring contract for the AI registry engines:
-//   * shared helpers resolve roles with provenance and price
-//     purchase packs, never inventing a price
+//   * engines resolve roles through the price gateway, the same
+//     resolver the manual calculators use, so the scanner's output
+//     reaches both by one path
+//   * purchase packs are rounded whole and no price is invented
 //   * painting_project prices paint + primer by role with the
 //     local brand name when a marketCode is given; without a
 //     market costs stay null (manual-calculator behavior)
@@ -15,42 +17,21 @@
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-// ── Mock the price book BEFORE importing the engines ──
-const resolveMaterialPriceByRole = vi.fn();
+// ── Mock the price gateway BEFORE importing the engines ──
+// Engines no longer read a price table themselves. They ask the same
+// gateway the manual calculators use, so this mock is the contract.
+const resolvePrice = vi.fn();
 const fetchMarketRoleMappings = vi.fn();
+vi.mock("@/lib/pricing/price-gateway", () => ({
+  resolvePrice: (...args: unknown[]) => resolvePrice(...(args as [])),
+}));
 vi.mock("@/lib/estimation/market-materials", () => ({
-  resolveMaterialPriceByRole: (...args: unknown[]) =>
-    resolveMaterialPriceByRole(...(args as [])),
   fetchMarketRoleMappings: (...args: unknown[]) =>
     fetchMarketRoleMappings(...(args as [])),
 }));
 
 vi.mock("@/lib/supabase", () => ({
-  supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              eq: vi.fn(() => ({
-                order: vi.fn(() => ({
-                  limit: vi.fn(() => ({
-                    maybeSingle: vi.fn(async () => ({ data: null })),
-                  })),
-                })),
-                maybeSingle: vi.fn(async () => ({ data: null })),
-              })),
-              order: vi.fn(() => ({
-                limit: vi.fn(() => ({ data: [] })),
-              })),
-            })),
-            maybeSingle: vi.fn(async () => ({ data: null })),
-          })),
-          maybeSingle: vi.fn(async () => ({ data: null })),
-        })),
-      })),
-    })),
-  },
+  supabase: { from: vi.fn() },
 }));
 
 import {
@@ -60,27 +41,52 @@ import {
 } from "@/lib/ai-foundation/engine-pricing";
 
 const US_PAINT = {
-  material: { id: "m1", name: "KILZ 2 All-Purpose Interior Paint" },
-  price: {
-    price: 42.99,
-    currency: "USD",
-    price_source: "Home Depot scan",
-    scan_source: "homedepot.com",
-    effective_date: "2026-10-01",
+  status: "local" as const,
+  role: "interior-paint" as const,
+  requestedMarket: "US",
+  sourcedMarket: "US",
+  unitPrice: 42.99,
+  currency: "USD",
+  quantity: null,
+  total: null,
+  taxStatus: "tax_not_determined" as const,
+  coverage: {
+    marketCode: "US",
+    status: "verified",
+    statusLabel: "Verified",
+    sentence: "US prices come from verified supplier scans.",
+    snapshotStale: false,
   },
-  resolved_market: "US",
-  role: "interior-paint",
+  provenance: {
+    basis: "market" as const,
+    citySamples: null,
+    citySlug: null,
+    indicative: false,
+    priceId: "p1",
+    materialSlug: "us-kilz-interior-paint",
+    materialName: "KILZ 2 All-Purpose Interior Paint",
+    sourcedMarket: "US",
+    requestedMarket: "US",
+    effectiveDate: "2026-10-01",
+    priceSource: "Home Depot scan",
+    scanSource: "homedepot.com",
+    scanConfidence: "high" as const,
+    packSizeId: "1 gal",
+    evidence: "supplier" as const,
+  },
+  warnings: [],
+  message: "interior-paint priced from US verified supplier prices.",
 };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  resolveMaterialPriceByRole.mockReset();
+  resolvePrice.mockReset();
   fetchMarketRoleMappings.mockReset();
 });
 
 describe("resolveEnginePrice", () => {
-  it("resolves a role with full provenance", async () => {
-    resolveMaterialPriceByRole.mockResolvedValue(US_PAINT);
+  it("resolves a role through the gateway with full provenance", async () => {
+    resolvePrice.mockResolvedValue(US_PAINT);
     fetchMarketRoleMappings.mockResolvedValue([
       { role: "interior-paint", unit_label: "1 gallon" },
     ]);
@@ -93,12 +99,44 @@ describe("resolveEnginePrice", () => {
     // A gallon label resolves to 3.785 L per pack.
     expect(resolved!.packUnits).toBe(3.785);
     expect(resolved!.priceSource).toBe("Home Depot scan");
+    // The gateway's classification travels with the number.
+    expect(resolved!.status).toBe("local");
+    expect(resolved!.coverageStatus).toBe("verified");
+    expect(resolved!.message).toBe(US_PAINT.message);
+    // The engine used the one resolver, not a private table read.
+    expect(resolvePrice).toHaveBeenCalledWith({
+      role: "interior-paint",
+      market: "US",
+      citySlug: null,
+    });
   });
 
-  it("returns null when the market has no verified price: never guesses", async () => {
-    resolveMaterialPriceByRole.mockResolvedValue(null);
+  it("passes a city through to the gateway for city-aware evidence", async () => {
+    resolvePrice.mockResolvedValue(US_PAINT);
+    fetchMarketRoleMappings.mockResolvedValue([]);
+    await resolveEnginePrice("interior-paint", "NG", "NGN", {
+      citySlug: "lagos",
+    });
+    expect(resolvePrice).toHaveBeenCalledWith({
+      role: "interior-paint",
+      market: "NG",
+      citySlug: "lagos",
+    });
+  });
+
+  it("returns null when the market has no price: never guesses", async () => {
+    resolvePrice.mockResolvedValue({
+      ...US_PAINT,
+      status: "not_priced",
+      unitPrice: null,
+      currency: null,
+      sourcedMarket: null,
+      message: "No price for interior-paint in IN. Enter a price to continue.",
+    });
     const resolved = await resolveEnginePrice("interior-paint", "IN", "NGN");
     expect(resolved).toBeNull();
+    // No mapping lookup happens for a price that does not exist.
+    expect(fetchMarketRoleMappings).not.toHaveBeenCalled();
   });
 });
 
