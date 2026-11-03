@@ -67,12 +67,13 @@ export default function Hero() {
   const { branding } = useBranding();
   const { t } = useLanguage();
 
-  // ── Derive image metadata from branding ──
+  // ── Derive image metadata from branding with local premium active-site fallback ──
   const heroImageUrl =
     branding?.hero_image_url ||
-    "https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg?auto=compress&cs=tinysrgb&w=900";
+    "/assets/construction-site.jpg";
   const heroImageAlt =
-    branding?.hero_image_alt || "Painter rolling fresh color onto a wall";
+    branding?.hero_image_alt ||
+    "Active multistory construction site at dusk with engineers, tower crane, and illuminated framework";
 
   return (
     <section
@@ -251,15 +252,24 @@ export default function Hero() {
           className="relative hidden lg:block animate-fade-in-up"
           style={{ animationDelay: "0.15s" }}
         >
+          {/* Ambient twilight glow inspired by FRELUX brand twilight/amber palette */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -inset-6 -z-10 rounded-3xl opacity-75 blur-2xl transition-opacity"
+            style={{
+              background:
+                "radial-gradient(circle at 75% 25%, rgba(109, 40, 217, 0.45), transparent 60%), radial-gradient(circle at 25% 85%, rgba(249, 115, 22, 0.35), transparent 55%)",
+            }}
+          />
           <div className="relative mx-auto max-w-md">
             {/* Main image */}
-            <div className="relative overflow-hidden rounded-2xl shadow-premium-lg ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.02]">
+            <div className="relative overflow-hidden rounded-2xl shadow-premium-lg ring-1 ring-white/15 transition-transform duration-500 hover:scale-[1.02] bg-slate-950/60">
               <img
                 src={heroImageUrl}
                 alt={heroImageAlt}
                 className="aspect-[4/5] w-full object-cover"
                 loading="eager"
-                fetchPriority="high"
+                {...({ fetchpriority: "high" } as Record<string, string>)}
                 decoding="async"
                 width={960}
                 height={1200}
@@ -271,16 +281,18 @@ export default function Hero() {
                   }
                 }}
               />
-              {/* Gradient overlay for depth */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent" />
+              {/* Top & bottom twilight gradients for seamless hero blend */}
+              <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-background/20 pointer-events-none" />
+              {/* Subtle amber light reflection across the base */}
+              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-amber-500/10 via-purple-900/10 to-transparent pointer-events-none" />
               {/* Image caption overlay */}
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg bg-black/30 px-3 py-2 backdrop-blur-sm">
-                <p className="text-xs font-medium text-primary-foreground/80">
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg bg-black/40 px-3 py-2 backdrop-blur-md ring-1 ring-white/10">
+                <p className="text-xs font-medium text-primary-foreground/90 truncate mr-2">
                   {heroImageAlt}
                 </p>
                 <span
                   id="hero-image-caption"
-                  className="text-[10px] font-medium text-primary-foreground/70"
+                  className="text-[10px] font-mono font-medium text-primary-foreground/70 shrink-0"
                 />
               </div>
             </div>
