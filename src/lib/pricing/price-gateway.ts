@@ -415,6 +415,7 @@ export async function resolveMaterialPrice(
       requestedMarket,
       effectiveDate: data.effective_date ?? null,
       priceSource: data.price_source ?? null,
+      scanSource: null,
       scanConfidence: data.scan_confidence ?? null,
       packSizeId:
         (data as { pack_size_id?: string | null }).pack_size_id ?? null,
@@ -474,6 +475,7 @@ function emptyProvenance(requestedMarket: string): PriceProvenance {
     requestedMarket,
     effectiveDate: null,
     priceSource: null,
+    scanSource: null,
     scanConfidence: null,
     packSizeId: null,
     evidence: null,
