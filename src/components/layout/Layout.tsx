@@ -241,6 +241,13 @@ export default function Layout() {
       }
       if (cancelled) return;
 
+      // The tag is already in the served HTML (index.html) and boots paused.
+      // Clearing the flag is what lets a consented, non-paid visitor receive
+      // auto ads; a subscriber or an unanswered visit stays paused.
+      const adQueue = (window.adsbygoogle = window.adsbygoogle ?? []) as
+        unknown[] | (unknown[] & { pauseAdRequests?: number });
+      (adQueue as unknown[] & { pauseAdRequests?: number }).pauseAdRequests = 0;
+
       // AdSense page-level ads, inject once, never remove.
       // (Any explicit consent choice suffices; the in-slot units in
       // AdSlot additionally push NPA when advertising is not granted.)
