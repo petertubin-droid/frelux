@@ -54,7 +54,8 @@ function ToolPanel({
         <h3 className="text-base font-semibold tracking-tight text-foreground dark:text-primary-foreground">
           {name}
           <span className="ml-2 text-xs font-medium text-muted-foreground">
-            {questions.length} {questions.length === 1 ? "question" : "questions"}
+            {questions.length}{" "}
+            {questions.length === 1 ? "question" : "questions"}
           </span>
         </h3>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -84,9 +85,15 @@ function ToolPanel({
                 type="button"
                 aria-expanded={isOpen}
                 onClick={() => setOpen(isOpen ? null : index)}
-                className="flex w-full items-start justify-between gap-4 px-5 py-3.5 text-left transition-colors hover:bg-muted/40"
+                className="flex w-full items-start gap-3 px-4 py-4 text-left transition-colors hover:bg-muted/40 sm:px-5"
               >
-                <span className="text-sm font-medium text-foreground dark:text-primary-foreground">
+                <span
+                  className="mt-0.5 w-5 shrink-0 text-[11px] font-semibold tabular-nums text-primary/70"
+                  aria-hidden="true"
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="min-w-0 flex-1 text-[15px] font-semibold leading-snug text-foreground dark:text-primary-foreground">
                   {item.q}
                 </span>
                 <ChevronDown
@@ -95,9 +102,11 @@ function ToolPanel({
                 />
               </button>
               {isOpen && (
-                <p className="px-5 pb-4 text-sm leading-relaxed text-muted-foreground">
-                  {item.a}
-                </p>
+                <div className="px-4 pb-5 sm:px-5 sm:pl-12">
+                  <p className="max-w-[68ch] text-[15px] leading-[1.75] text-muted-foreground">
+                    {item.a}
+                  </p>
+                </div>
               )}
             </li>
           );
@@ -275,8 +284,12 @@ export default function Faq() {
             </nav>
 
             {searching && (
-              <p className="mt-4 text-xs text-muted-foreground" aria-live="polite">
-                {shownQuestions} of {all.length} questions match “{query.trim()}”.
+              <p
+                className="mt-4 text-xs text-muted-foreground"
+                aria-live="polite"
+              >
+                {shownQuestions} of {all.length} questions match “{query.trim()}
+                ”.
               </p>
             )}
           </aside>
