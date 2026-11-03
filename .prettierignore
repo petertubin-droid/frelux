@@ -1,0 +1,6 @@
+# The app shell is hand formatted on purpose: the SEO suite asserts exact
+# one-line meta tags, and prettier wraps them, which fails CI.
+index.html
+dist
+coverage
+node_modules
