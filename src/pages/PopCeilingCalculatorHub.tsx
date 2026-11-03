@@ -173,7 +173,7 @@ export default function PopCeilingCalculatorHub() {
       </div>
 
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-        <div className="prose prose-neutral max-w-none dark:prose-invert">
+        <div className="prose prose-neutral max-w-none break-words prose-p:max-w-[68ch] prose-p:leading-[1.75] prose-li:leading-[1.75] prose-headings:text-balance dark:prose-invert">
           <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
             {t("About the FRELUX POP Ceiling Calculator")}
           </h2>

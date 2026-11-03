@@ -37,24 +37,28 @@ export function FaqSection({
               variant="ghost"
               type="button"
               onClick={() => setOpenIndex(openIndex === i ? null : i)}
-              className="flex w-full items-start justify-between gap-4 px-5 py-4 text-left"
+              className="flex h-auto w-full items-start justify-between gap-3 rounded-xl px-4 py-4 text-left sm:px-5"
               aria-expanded={openIndex === i}
             >
-              <span className="flex min-w-0 items-baseline gap-3">
+              <span className="flex min-w-0 flex-1 items-baseline gap-3">
                 <span aria-hidden="true" className="faq-marker shrink-0">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span className="faq-question">{faq.question}</span>
+                <span className="faq-question min-w-0 break-words">
+                  {faq.question}
+                </span>
               </span>
               <ChevronDown
-                className={`mt-0.5 h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
+                className={`mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
                   openIndex === i ? "rotate-180" : ""
                 }`}
               />
             </Button>
             {openIndex === i && (
-              <div className="pb-5 pl-5 pr-5 sm:pl-[3.35rem]">
-                <p className="faq-answer">{faq.answer}</p>
+              <div className="px-4 pb-5 sm:px-5 sm:pl-[3.35rem]">
+                <div className="faq-answer max-w-[68ch] break-words">
+                  {faq.answer}
+                </div>
               </div>
             )}
           </div>

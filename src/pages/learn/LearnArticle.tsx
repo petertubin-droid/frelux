@@ -751,26 +751,30 @@ export default function LearnArticle() {
               </div>
             </div>
 
-            {/* Prev/Next navigation */}
+            {/* Prev/Next navigation. Stacked on phones so each destination
+                gets a full width row and a readable title, side by side from
+                the sm breakpoint up. */}
             {(prevArticle || nextArticle) && (
-              <nav className="mt-12 grid gap-4 border-t border-border pt-8 sm:grid-cols-2 dark:border-white/10">
+              <nav
+                aria-label="More guides"
+                className="mt-12 grid gap-3 border-t border-border pt-8 sm:grid-cols-2 sm:gap-4 dark:border-white/10"
+              >
                 {prevArticle ? (
                   <Link
                     to={`/learn/${prevArticle.slug}/`}
-                    className="group flex items-center gap-4 rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
+                    className="group flex items-center gap-3 rounded-xl border border-border/80 bg-card p-4 transition-colors hover:border-brand-purple/40 sm:p-5 dark:border-white/8"
                   >
-                    <ArrowLeft
-                      aria-hidden="true"
-                      className="h-5 w-5 shrink-0 text-muted-foreground transition-colors group-hover:text-brand-purple"
-                    />
-                    <div className="min-w-0">
-                      <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        Previous
+                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-muted/40 text-muted-foreground transition-colors group-hover:border-brand-purple/40 group-hover:text-brand-purple">
+                      <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                        Previous guide
                       </span>
-                      <p className="mt-1 truncate text-sm font-bold text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
+                      <span className="mt-1 block text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
                         {prevArticle.title}
-                      </p>
-                    </div>
+                      </span>
+                    </span>
                   </Link>
                 ) : (
                   <div className="hidden sm:block" />
@@ -778,20 +782,19 @@ export default function LearnArticle() {
                 {nextArticle ? (
                   <Link
                     to={`/learn/${nextArticle.slug}/`}
-                    className="group flex items-center justify-end gap-4 rounded-2xl border border-border/80 bg-card p-5 text-right shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
+                    className="group flex items-center gap-3 rounded-xl border border-border/80 bg-card p-4 transition-colors hover:border-brand-purple/40 sm:p-5 dark:border-white/8"
                   >
-                    <div className="min-w-0">
-                      <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        Next
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                        Next guide
                       </span>
-                      <p className="mt-1 truncate text-sm font-bold text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
+                      <span className="mt-1 block text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
                         {nextArticle.title}
-                      </p>
-                    </div>
-                    <ArrowRight
-                      aria-hidden="true"
-                      className="h-5 w-5 shrink-0 text-muted-foreground transition-colors group-hover:text-brand-purple"
-                    />
+                      </span>
+                    </span>
+                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-muted/40 text-muted-foreground transition-colors group-hover:border-brand-purple/40 group-hover:text-brand-purple">
+                      <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                    </span>
                   </Link>
                 ) : (
                   <div className="hidden sm:block" />
