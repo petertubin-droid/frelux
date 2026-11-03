@@ -1,28 +1,37 @@
 /**
- * Reaps the ad network's retired push workers.
+ * Keeps the ad network's push worker in line with the viewer's entitlement.
  *
- * A push worker is a separate script with its own lifetime. Once a browser
- * registers one it keeps running, and keeps receiving the network's pushes,
- * long after the page that registered it has gone. The workers FRELUX used to
- * carry were issued for the previous site address and an old zone, so they must
- * go: they serve nothing here and their pushes point at a domain we no longer
- * run.
+ * The worker is a separate script with its own lifetime: once a browser
+ * registers it, it keeps running (and keeps receiving the network's pushes)
+ * whether or not the page that registered it is still open, and whatever the
+ * visitor's plan says. That makes it the one ad surface a page cannot switch
+ * off by not rendering a tag.
  *
- * Reaping only touches those known paths. The app's own workers (`/sw.js` and
- * `/sw-push.js`) are never affected.
+ * So it is enforced instead. A paid subscriber, or anyone whose entitlement is
+ * still unresolved, has the worker unregistered. A free visitor with
+ * advertising consent keeps it, because the network's own tag registers it and
+ * a push worker that exists for push is not our script to install.
+ *
+ * Only the push worker is touched. The app's own workers are never affected.
  */
 
+/** Path of the ad network push worker currently issued to this zone. */
+export const AD_PUSH_WORKER_PATH = "/sw4.js";
+
 /**
- * Push worker paths issued by the ad network under the old site address.
- * Every one of them is retired; a browser that still holds one has it removed
- * on the next load.
+ * Paths of superseded ad network workers. Browsers keep these alive long after
+ * the network replaces them, so they are removed wherever they are found.
  */
-export const RETIRED_AD_WORKER_PATHS: readonly string[] = [
+export const STALE_AD_WORKER_PATHS: readonly string[] = [
   "/sw1.js",
   "/sw2.js",
   "/sw3.js",
-  "/sw4.js",
 ];
+
+export interface AdWorkerOptions {
+  /** May this viewer receive advertising at all (entitlement + consent)? */
+  adsAllowed: boolean;
+}
 
 function pathOf(scriptURL: string): string | null {
   try {
@@ -33,13 +42,15 @@ function pathOf(scriptURL: string): string | null {
 }
 
 /**
- * Unregister every retired ad push worker found in this browser.
+ * Unregister the ad push worker when the viewer may not see ads, and clear any
+ * superseded worker either way. Returns the number of registrations removed.
  *
- * Safe to call repeatedly and on every load: it only acts when a registration
- * exists. Resolves to the number of registrations removed, and 0 in an
- * environment without service workers.
+ * Safe to call repeatedly and on every entitlement change; it only acts when a
+ * registration exists. Resolves to 0 in an environment without workers.
  */
-export async function syncAdPushWorker(): Promise<number> {
+export async function syncAdPushWorker({
+  adsAllowed,
+}: AdWorkerOptions): Promise<number> {
   if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) {
     return 0;
   }
@@ -60,13 +71,17 @@ export async function syncAdPushWorker(): Promise<number> {
       "";
     const path = pathOf(scriptURL);
     if (!path) continue;
-    if (!RETIRED_AD_WORKER_PATHS.includes(path)) continue;
 
-    try {
-      const unregistered = await registration.unregister();
-      if (unregistered) removed += 1;
-    } catch {
-      // Detached or already gone; nothing to report.
+    const isLiveAdWorker = path === AD_PUSH_WORKER_PATH && adsAllowed;
+    if (isLiveAdWorker) continue;
+
+    if (path === AD_PUSH_WORKER_PATH || STALE_AD_WORKER_PATHS.includes(path)) {
+      try {
+        const unregistered = await registration.unregister();
+        if (unregistered) removed += 1;
+      } catch {
+        // Detached or already gone; nothing to report.
+      }
     }
   }
   return removed;

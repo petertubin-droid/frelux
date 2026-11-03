@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { RETIRED_AD_WORKER_PATHS, syncAdPushWorker } from "@/lib/ad-worker";
+import {
+  AD_PUSH_WORKER_PATH,
+  STALE_AD_WORKER_PATHS,
+  syncAdPushWorker,
+} from "@/lib/ad-worker";
 
 const ORIGIN = "https://freluxtools.com";
 
@@ -26,7 +30,7 @@ function installWorkers(paths: string[]): FakeRegistration[] {
   return regs;
 }
 
-describe("retired ad push workers", () => {
+describe("ad push worker gate", () => {
   beforeEach(() => {
     Object.defineProperty(navigator, "serviceWorker", {
       configurable: true,
@@ -41,52 +45,43 @@ describe("retired ad push workers", () => {
     });
   });
 
-  it("removes a worker issued for the previous site address", async () => {
-    const regs = installWorkers(["/sw4.js", "/sw.js", "/sw-push.js"]);
-    const removed = await syncAdPushWorker();
+  it("unregisters the worker for a paid subscriber", async () => {
+    const regs = installWorkers([AD_PUSH_WORKER_PATH, "/sw.js"]);
+    const removed = await syncAdPushWorker({ adsAllowed: false });
 
     expect(regs[0].unregister).toHaveBeenCalledTimes(1);
-    // Our own two workers are never touched.
+    // Our own precache worker is never touched.
     expect(regs[1].unregister).not.toHaveBeenCalled();
-    expect(regs[2].unregister).not.toHaveBeenCalled();
     expect(removed).toBe(1);
   });
 
-  it("clears every path the network has issued over time", async () => {
-    const regs = installWorkers([...RETIRED_AD_WORKER_PATHS]);
-    const removed = await syncAdPushWorker();
+  it("leaves the worker alone for a consented free visitor", async () => {
+    const regs = installWorkers([AD_PUSH_WORKER_PATH]);
+    const removed = await syncAdPushWorker({ adsAllowed: true });
 
-    expect(removed).toBe(RETIRED_AD_WORKER_PATHS.length);
-    for (const reg of regs) expect(reg.unregister).toHaveBeenCalledTimes(1);
+    expect(regs[0].unregister).not.toHaveBeenCalled();
+    expect(removed).toBe(0);
   });
 
-  it("leaves a browser with no retired workers alone", async () => {
-    const regs = installWorkers(["/sw.js", "/sw-push.js"]);
-    await expect(syncAdPushWorker()).resolves.toBe(0);
-    for (const reg of regs) expect(reg.unregister).not.toHaveBeenCalled();
+  it("clears a superseded worker even when ads are allowed", async () => {
+    const regs = installWorkers([
+      STALE_AD_WORKER_PATHS[0],
+      AD_PUSH_WORKER_PATH,
+    ]);
+    await syncAdPushWorker({ adsAllowed: true });
+
+    expect(regs[0].unregister).toHaveBeenCalledTimes(1);
+    expect(regs[1].unregister).not.toHaveBeenCalled();
   });
 
   it("does nothing in a browser without service workers", async () => {
-    await expect(syncAdPushWorker()).resolves.toBe(0);
+    await expect(syncAdPushWorker({ adsAllowed: false })).resolves.toBe(0);
   });
 
   it("survives a registration that refuses to unregister", async () => {
-    installWorkers(["/sw4.js"]);
-    const regs = await navigator.serviceWorker.getRegistrations();
-    void regs;
-    const fake = navigator.serviceWorker as unknown as {
-      getRegistrations: () => Promise<
-        { active: { scriptURL: string }; unregister: () => Promise<boolean> }[]
-      >;
-    };
-    fake.getRegistrations = async () => [
-      {
-        active: { scriptURL: `${ORIGIN}/sw4.js` },
-        unregister: async () => {
-          throw new Error("detached");
-        },
-      },
-    ];
-    await expect(syncAdPushWorker()).resolves.toBe(0);
+    const regs = installWorkers([AD_PUSH_WORKER_PATH]);
+    regs[0].unregister.mockRejectedValueOnce(new Error("detached"));
+
+    await expect(syncAdPushWorker({ adsAllowed: false })).resolves.toBe(0);
   });
 });
