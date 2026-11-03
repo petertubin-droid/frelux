@@ -8,6 +8,7 @@ import {
   shouldUseBundledBook,
   bundledCategoryMaterials,
 } from "@/lib/international/bundled-book";
+import { fetchInheritanceChain } from "@/lib/estimation/market-materials";
 
 // =========================================================
 // Single-material resolutions shared by other structural pages
@@ -328,48 +329,93 @@ async function resolvePlumbingSlugGroup(
 ): Promise<void> {
   for (const engineKey of engineKeys) {
     const suffix = engineKey.replace(enginePrefix, "");
-    const slug = `${marketCode.toLowerCase()}${slugInfix}${suffix}`;
-    const { data: material } = await supabase
-      .from("estimation_materials")
-      .select("id, name")
-      .eq("slug", slug)
-      .eq("is_active", true)
-      .maybeSingle();
-    if (!material) {
+    const found = await resolveSlugAcrossChain(
+      (market) => `${market.toLowerCase()}${slugInfix}${suffix}`,
+      marketCode,
+    );
+    if (!found) {
       result.unresolved.push(engineKey);
       continue;
     }
+    const p = found.price;
+    const basis = marketBasisLabel(found.sourcedMarket, marketCode);
+    const per = slugInfix === "-pipe-" ? "metre" : "piece";
+    result.overrides[engineKey] = p.price;
+    result.provenance.push({
+      engineKey,
+      resolved: true,
+      bookMarket: found.sourcedMarket,
+      materialName: found.material.name,
+      price: p.price,
+      evidence: classifyEvidence(p),
+      explanation:
+        p.scan_confidence === "manual"
+          ? `Per-${per} price from the ${basis} book (verified supplier listing; material substitutes the NG default and is named honestly).`
+          : `Indicative per-${per} price from the ${basis} book (adjustable) - verify with a local supplier.`,
+    });
+  }
+}
+
+/**
+ * Walk the market's inheritance chain for a slug-priced engine key.
+ *
+ * These resolvers used to read the requested market only, so a market whose
+ * prices are inherited reported the item as unresolved while the painting and
+ * screeding calculators priced the same market from its parent. That is two
+ * answers to one question. The chain is the same one the role resolvers use:
+ * the market itself, then each ancestor, then whatever the profile names.
+ *
+ * The sourced market is returned with the row, so the caller can say the price
+ * came from a parent market rather than presenting it as local.
+ */
+async function resolveSlugAcrossChain(
+  buildSlug: (market: string) => string,
+  marketCode: string,
+): Promise<{
+  material: { id: string; name: string };
+  price: StructuralPriceRow;
+  sourcedMarket: string;
+} | null> {
+  const chain = await fetchInheritanceChain(marketCode);
+  for (const candidate of chain) {
+    const { data: material } = await supabase
+      .from("estimation_materials")
+      .select("id, name")
+      .eq("slug", buildSlug(candidate))
+      .eq("is_active", true)
+      .maybeSingle();
+    if (!material) continue;
+    const materialRow = material as { id: string; name: string };
     const { data: price } = await supabase
       .from("estimation_prices")
       .select(
         "price, scan_confidence, price_source, supplier_name, verification_status",
       )
       .eq("price_type", "material")
-      .eq("ref_id", (material as { id: string }).id)
-      .eq("market", marketCode)
+      .eq("ref_id", materialRow.id)
+      .eq("market", candidate)
       .eq("is_active", true)
       .order("effective_date", { ascending: false })
       .limit(1)
       .maybeSingle();
-    if (!price) {
-      result.unresolved.push(engineKey);
-      continue;
-    }
-    const p = price as StructuralPriceRow;
-    result.overrides[engineKey] = p.price;
-    result.provenance.push({
-      engineKey,
-      resolved: true,
-      bookMarket: marketCode,
-      materialName: (material as { name: string }).name,
-      price: p.price,
-      evidence: classifyEvidence(p),
-      explanation:
-        p.scan_confidence === "manual"
-          ? `Per-${slugInfix === "-pipe-" ? "metre" : "piece"} price from the ${marketCode} book (verified supplier listing; material substitutes the NG default and is named honestly).`
-          : `Indicative per-${slugInfix === "-pipe-" ? "metre" : "piece"} price from the ${marketCode} book (adjustable) - verify with a local supplier.`,
-    });
+    if (!price) continue;
+    return {
+      material: materialRow,
+      price: price as StructuralPriceRow,
+      sourcedMarket: candidate,
+    };
   }
+  return null;
+}
+
+/** How a resolver should name the market a price came from. */
+function marketBasisLabel(
+  sourcedMarket: string,
+  requestedMarket: string,
+): string {
+  return sourcedMarket === requestedMarket
+    ? requestedMarket
+    : `${sourcedMarket}, inherited by ${requestedMarket}`;
 }
 
 // =========================================================
@@ -551,23 +597,19 @@ export async function resolveMarketDoorsWindows(
   if (!marketCode || marketCode === "NG") return result;
 
   for (const engineKey of DOORS_WINDOWS_ENGINE_KEYS) {
-    // 1. Check for market-scoped material slug first (e.g. "us-door-flush")
-    const marketSlug = `${marketCode.toLowerCase()}-${engineKey}`;
-    let materialId: string | null = null;
-    let materialName: string | null = null;
+    // 1. The market's own slug, then each ancestor's, so an inherited market
+    // resolves the same price the rest of the platform shows instead of
+    // reading as unpriced.
+    const found = await resolveSlugAcrossChain(
+      (market) => `${market.toLowerCase()}-${engineKey}`,
+      marketCode,
+    );
 
-    const { data: marketMaterial } = await supabase
-      .from("estimation_materials")
-      .select("id, name")
-      .eq("slug", marketSlug)
-      .eq("is_active", true)
-      .maybeSingle();
-
-    if (marketMaterial) {
-      materialId = (marketMaterial as { id: string; name: string }).id;
-      materialName = (marketMaterial as { id: string; name: string }).name;
-    } else {
-      // 2. Check for shared engine slug (e.g. "door-flush")
+    // 2. A shared engine slug only applies inside the requested market: it is
+    // the NG-basis row, and borrowing it for a market that names no ancestor
+    // would be the silent fallback this resolver exists to avoid.
+    let shared: { materialId: string; materialName: string } | null = null;
+    if (!found) {
       const { data: sharedMaterial } = await supabase
         .from("estimation_materials")
         .select("id, name")
@@ -575,49 +617,58 @@ export async function resolveMarketDoorsWindows(
         .eq("is_active", true)
         .maybeSingle();
       if (sharedMaterial) {
-        materialId = (sharedMaterial as { id: string; name: string }).id;
-        materialName = (sharedMaterial as { id: string; name: string }).name;
+        shared = {
+          materialId: (sharedMaterial as { id: string }).id,
+          materialName: (sharedMaterial as { name: string }).name,
+        };
       }
     }
 
-    if (!materialId || !materialName) {
+    if (!found && !shared) {
       result.unresolved.push(engineKey);
       continue;
     }
 
-    const { data: price } = await supabase
-      .from("estimation_prices")
-      .select("price, scan_confidence, price_source")
-      .eq("price_type", "material")
-      .eq("ref_id", materialId)
-      .eq("market", marketCode)
-      .eq("is_active", true)
-      .order("effective_date", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (!price) {
-      result.unresolved.push(engineKey);
-      continue;
+    let p: StructuralPriceRow;
+    let materialName: string;
+    let basis: string;
+    if (found) {
+      p = found.price;
+      materialName = found.material.name;
+      basis = marketBasisLabel(found.sourcedMarket, marketCode);
+    } else {
+      const { data: price } = await supabase
+        .from("estimation_prices")
+        .select("price, scan_confidence, price_source")
+        .eq("price_type", "material")
+        .eq("ref_id", shared!.materialId)
+        .eq("market", marketCode)
+        .eq("is_active", true)
+        .order("effective_date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!price) {
+        result.unresolved.push(engineKey);
+        continue;
+      }
+      p = price as StructuralPriceRow;
+      materialName = shared!.materialName;
+      basis = marketCode;
     }
 
-    const p = price as {
-      price: number;
-      scan_confidence?: string | null;
-      price_source?: string | null;
-    };
     result.overrides[engineKey] = p.price;
     result.provenance.push({
       engineKey,
       resolved: true,
-      bookMarket: marketCode,
+      bookMarket:
+        basis === marketCode ? marketCode : basis.split(", inherited")[0],
       materialName,
       price: p.price,
       evidence: classifyEvidence(p),
       explanation:
         p.scan_confidence === "manual"
-          ? `Unit price from the ${marketCode} book (${p.price_source || "verified supplier listing"}).`
-          : `Indicative price from the ${marketCode} book (adjustable) - verify with a local supplier.`,
+          ? `Unit price from the ${basis} book (${p.price_source || "verified supplier listing"}).`
+          : `Indicative price from the ${basis} book (adjustable) - verify with a local supplier.`,
     });
   }
 
