@@ -7,6 +7,8 @@ import {
   matchesContext,
   pickCampaign,
   safeDestination,
+  __resetSlotOrdinals,
+  nextSlotOrdinal,
   selectCampaigns,
   summariseEvents,
   validateCampaign,
@@ -392,5 +394,74 @@ describe("admin validation", () => {
     expect(
       validateCampaign({ ...draft, headline: "x".repeat(100) }),
     ).toHaveLength(1);
+  });
+});
+
+describe("one campaign per page slot", () => {
+  const article = (id: string, priority: number): Campaign =>
+    campaign({
+      id,
+      slug: id,
+      priority,
+      weight: 1,
+      placements: [
+        PLACEMENTS.article30,
+        PLACEMENTS.article65,
+        PLACEMENTS.articleEnd,
+      ],
+      target_tools: [],
+      target_categories: [],
+    });
+
+  const pool = [
+    article("boq", 90),
+    article("roof", 88),
+    article("paint", 86),
+    article("tile", 84),
+  ];
+
+  const context = (placement: string) => ({
+    placement,
+    marketCode: "NG",
+    device: "mobile" as const,
+  });
+
+  it("shows the best campaign in the first slot on a page", () => {
+    const first = pickCampaign(pool, context(PLACEMENTS.article30), {
+      seed: "s",
+      ordinal: 0,
+    });
+    expect(first?.slug).toBe("boq");
+  });
+
+  it("moves down the list for the next slot instead of repeating", () => {
+    const slots = [0, 1, 2].map(
+      (ordinal) =>
+        pickCampaign(pool, context(PLACEMENTS.article65), {
+          seed: "s",
+          ordinal,
+        })?.slug,
+    );
+    expect(new Set(slots).size).toBe(3);
+    expect(slots[0]).not.toBe(slots[1]);
+    expect(slots[1]).not.toBe(slots[2]);
+  });
+
+  it("wraps around when a page has more slots than campaigns", () => {
+    const slots = [0, 1, 2, 3, 4].map(
+      (ordinal) =>
+        pickCampaign(pool, context(PLACEMENTS.articleEnd), {
+          seed: "s",
+          ordinal,
+        })?.slug,
+    );
+    expect(slots[4]).toBe(slots[0]);
+  });
+
+  it("hands each slot on a page its own ordinal", () => {
+    __resetSlotOrdinals();
+    expect([0, 1, 2].map(() => nextSlotOrdinal())).toEqual([0, 1, 2]);
+    __resetSlotOrdinals();
+    expect(nextSlotOrdinal()).toBe(0);
   });
 });

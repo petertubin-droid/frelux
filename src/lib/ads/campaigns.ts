@@ -186,7 +186,7 @@ function seedBucket(seed: string): number {
 export function selectCampaigns(
   campaigns: Campaign[],
   context: SlotContext,
-  options?: { seed?: string; limit?: number; now?: Date },
+  options?: { seed?: string; limit?: number; now?: Date; ordinal?: number },
 ): Campaign[] {
   const now = options?.now ?? new Date();
   const bucket = seedBucket(options?.seed ?? "anon");
@@ -215,18 +215,60 @@ export function selectCampaigns(
     rotated.push(...group.slice(offset), ...group.slice(0, offset));
   }
 
-  return options?.limit ? rotated.slice(0, options.limit) : rotated;
+  // Second and later slots on a page move down the same list, so a page with
+  // three units shows three different promotions instead of three copies.
+  const ordinal = options?.ordinal ?? 0;
+  const shifted =
+    ordinal > 0 && rotated.length > 1
+      ? [
+          ...rotated.slice(ordinal % rotated.length),
+          ...rotated.slice(0, ordinal % rotated.length),
+        ]
+      : rotated;
+
+  return options?.limit ? shifted.slice(0, options.limit) : shifted;
 }
 
 /** One campaign per slot, or null so the slot renders nothing. */
 export function pickCampaign(
   campaigns: Campaign[],
   context: SlotContext,
-  options?: { seed?: string; now?: Date },
+  options?: { seed?: string; now?: Date; ordinal?: number },
 ): Campaign | null {
   return (
     selectCampaigns(campaigns, context, { ...options, limit: 1 })[0] ?? null
   );
+}
+
+// ── Page slot ordinals ──────────────────────────────────────────────
+// Two units on the same page must never show the same promotion. Each slot
+// reserves the next ordinal for the page it mounts on, and the picker shifts
+// the eligible list by that ordinal, so the article's second callout shows the
+// next campaign in line instead of a copy of the first.
+
+const slotOrdinals = new Map<string, number>();
+
+function ordinalPageKey(): string {
+  if (typeof window === "undefined") return "__prerender__";
+  const path = window.location.pathname.replace(/\/+$/, "");
+  return path === "" ? "/" : path;
+}
+
+/** Reserve the next campaign slot ordinal for the current page. */
+export function nextSlotOrdinal(): number {
+  const key = ordinalPageKey();
+  const used = slotOrdinals.get(key) ?? 0;
+  slotOrdinals.set(key, used + 1);
+  if (slotOrdinals.size > 40) {
+    const oldest = slotOrdinals.keys().next();
+    if (!oldest.done) slotOrdinals.delete(oldest.value);
+  }
+  return used;
+}
+
+/** Test helper: forget reserved ordinals between renders. */
+export function __resetSlotOrdinals(): void {
+  slotOrdinals.clear();
 }
 
 // ── Loading ─────────────────────────────────────────────────────────

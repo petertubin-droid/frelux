@@ -22,6 +22,7 @@ import {
   PLACEMENTS,
   deviceFromWidth,
   loadCampaigns,
+  nextSlotOrdinal,
   pickCampaign,
   recordCampaignEvent,
   type Campaign,
@@ -67,6 +68,9 @@ export function CampaignSlot({
   const marketCode = useMarket()?.marketCode ?? "ALL";
   const frameRef = useRef<HTMLDivElement | null>(null);
   const impressionSent = useRef(false);
+  // Which unit on this page this is (0, 1, 2 ...), so two slots in one article
+  // never resolve to the same campaign.
+  const [slotOrdinal] = useState<number>(() => nextSlotOrdinal());
 
   useEffect(() => {
     let active = true;
@@ -89,10 +93,11 @@ export function CampaignSlot({
                 typeof window === "undefined"
                   ? "server"
                   : (window.sessionStorage.getItem("frelux_ad_seed") ?? "anon"),
+              ordinal: slotOrdinal,
             },
           )
         : null,
-    [campaigns, placement, toolKey, category, marketCode, device],
+    [campaigns, placement, toolKey, category, marketCode, device, slotOrdinal],
   );
 
   // Count the impression only once the unit has been on screen for a moment.

@@ -42,6 +42,12 @@ function toolsFor(category: string | null | undefined): Tool[] {
     .filter((tool): tool is Tool => Boolean(tool));
 }
 
+/**
+ * One restrained unit in the shape publishers use for display inventory: a
+ * single line of disclosure, one headline, one sentence of proof, one action,
+ * and the related tools as plain links underneath. No nested cards, no second
+ * call to action competing with the first.
+ */
 export default function ArticleToolPromo({
   category,
   heading = "Put this article into numbers",
@@ -54,67 +60,75 @@ export default function ArticleToolPromo({
   const tools = toolsFor(category);
   if (tools.length === 0) return null;
   const [primary, ...rest] = tools;
+  const PrimaryIcon = primary.icon;
 
   return (
     <section
       aria-label="Calculators for this topic"
-      className="my-10 rounded-2xl border border-border bg-card p-5 sm:p-6"
+      className="my-10 overflow-hidden rounded-xl border border-border bg-card"
     >
-      <div className="flex items-start gap-3">
-        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-          <Calculator
-            className="h-4.5 w-4.5 text-brand-purple"
+      <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-6">
+        <div className="flex min-w-0 items-start gap-3.5">
+          <span
             aria-hidden="true"
-          />
-        </span>
-        <div className="min-w-0">
-          <h2 className="font-display text-base font-bold text-foreground sm:text-lg">
-            {heading}
-          </h2>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            {intro}
-          </p>
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/40"
+          >
+            <PrimaryIcon className="h-5 w-5 text-brand-purple" />
+          </span>
+          <div className="min-w-0">
+            <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+              <Calculator className="h-3 w-3" aria-hidden="true" />
+              FRELUX tool
+            </p>
+            <h2 className="mt-1 font-display text-base font-bold leading-snug text-foreground sm:text-[17px]">
+              {heading}
+            </h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+              {intro}
+            </p>
+            <Link
+              to={primary.to}
+              className="mt-2 inline-block text-sm font-semibold text-foreground underline-offset-2 hover:underline focus-visible:underline"
+            >
+              {primary.title}
+            </Link>
+            {primary.benefit ? (
+              <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
+                {primary.benefit}
+              </p>
+            ) : null}
+          </div>
         </div>
+
+        <Link
+          to={primary.to}
+          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          Open calculator
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </Link>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        {[primary, ...rest].map((tool, index) => {
-          const Icon = tool.icon;
-          return (
+      {rest.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border bg-muted/20 px-5 py-3 sm:px-6">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            Also for this topic
+          </span>
+          {rest.map((tool) => (
             <Link
               key={tool.slug}
               to={tool.to}
-              className={
-                index === 0
-                  ? "group flex flex-col justify-between rounded-xl border border-primary/25 bg-primary/5 p-4 transition-colors hover:bg-primary/10"
-                  : "group flex flex-col justify-between rounded-xl border border-border bg-muted/30 p-4 transition-colors hover:bg-muted/60"
-              }
+              className="group inline-flex items-center gap-1 text-[13px] font-medium text-foreground transition-colors hover:text-brand-purple"
             >
-              <div>
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-card">
-                  <Icon
-                    className="h-4 w-4 text-brand-purple"
-                    aria-hidden="true"
-                  />
-                </span>
-                <p className="mt-3 text-sm font-semibold text-foreground">
-                  {tool.title}
-                </p>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  {tool.benefit}
-                </p>
-              </div>
-              <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple">
-                Open calculator
-                <ArrowRight
-                  className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                  aria-hidden="true"
-                />
-              </span>
+              {tool.title}
+              <ArrowRight
+                className="h-3 w-3 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
             </Link>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }
