@@ -8,6 +8,7 @@ Allow: /
 # Pillar 1: Tools & Estimators
 Allow: /construction-tools
 Allow: /calculators
+Allow: /building-types
 Allow: /tools/
 Allow: /start-building
 Allow: /paint-calculator

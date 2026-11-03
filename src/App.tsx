@@ -380,6 +380,8 @@ const AdminTemplates = lazy(() => import("@/pages/admin/AdminTemplates"));
 const AdminIntegrations = lazy(() => import("@/pages/admin/AdminIntegrations"));
 const Templates = lazy(() => import("@/pages/Templates"));
 const TemplateDetail = lazy(() => import("@/pages/TemplateDetail"));
+const BuildingTypes = lazy(() => import("@/pages/BuildingTypes"));
+const BuildingTypeDetail = lazy(() => import("@/pages/BuildingTypeDetail"));
 const MarketTemplates = lazy(() => import("@/pages/MarketTemplates"));
 const MyTemplates = lazy(() => import("@/pages/MyTemplates"));
 const StudioLayout = lazy(() => import("@/components/studio/StudioLayout"));
@@ -1197,6 +1199,22 @@ export default function App() {
                           element={
                             <Suspense fallback={<PageLoader />}>
                               <Templates />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/building-types"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <BuildingTypes />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/building-types/:slug"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <BuildingTypeDetail />
                             </Suspense>
                           }
                         />

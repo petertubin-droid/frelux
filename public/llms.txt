@@ -30,6 +30,7 @@ Free to use: yes, no sign-up required for calculations.
 - https://freluxtools.com/material-prices - recorded material prices with dates and markets
 - https://freluxtools.com/prices - market price intelligence
 - https://freluxtools.com/unit-converter - metric and imperial conversion for site measurements
+- https://freluxtools.com/building-types/ - building types with room schedules, floor and wall areas
 
 ## Reference
 

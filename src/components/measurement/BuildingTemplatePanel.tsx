@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useMemo, useState } from "react";
 import {
   defaultPresetUnit,
@@ -98,12 +99,20 @@ export function BuildingTemplatePanel({
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      <label
-        htmlFor="finish-building-type"
-        className="mb-1 block text-sm font-semibold text-foreground"
-      >
-        Building type (optional)
-      </label>
+      <div className="mb-1 flex items-baseline justify-between gap-2">
+        <label
+          htmlFor="finish-building-type"
+          className="block text-sm font-semibold text-foreground"
+        >
+          Building type (optional)
+        </label>
+        <Link
+          to="/building-types"
+          className="text-xs font-medium text-primary underline-offset-2 hover:underline"
+        >
+          Room schedules
+        </Link>
+      </div>
       <select
         id="finish-building-type"
         className="input-field"

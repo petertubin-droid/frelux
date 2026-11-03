@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Paintbrush } from "lucide-react";
 import type { LoaderConfig } from "@/types/database";
+import { LogoMark } from "@/components/brand/Logo";
 
 /** Loader styles selectable from Admin Settings (loader_config.style). */
 export const LOADER_STYLE_VALUES = [
@@ -492,12 +493,11 @@ export default function BrandedLoader() {
                     }}
                   />
                 ) : (
-                  <span
-                    className="font-black text-brand-purple dark:text-brand-purple-lighter"
-                    style={{ fontSize: size * 0.2 }}
-                  >
-                    F
-                  </span>
+                  <LogoMark
+                    variant="auto"
+                    size={Math.round(size * 0.36)}
+                    className="object-contain"
+                  />
                 )}
               </div>
             </div>

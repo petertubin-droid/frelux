@@ -1044,3 +1044,112 @@ export function presetWallAreaM2(preset: BuildingPreset): number {
     return total + perimeter * height * room.quantity;
   }, 0);
 }
+
+/** Look one building type up by its stable key (also the public slug). */
+export function findBuildingTypeProgramme(
+  key: string,
+): BuildingTypeProgramme | undefined {
+  return BUILDING_TYPE_CATALOGUE.find((programme) => programme.key === key);
+}
+
+/** Every building type slug, in catalogue order. */
+export function buildingTypeSlugs(): string[] {
+  return BUILDING_TYPE_CATALOGUE.map((programme) => programme.key);
+}
+
+/** Net internal floor area of a catalogue building type, in m². */
+export function buildingTypeFloorAreaM2(
+  programme: BuildingTypeProgramme,
+): number {
+  return programme.rooms.reduce(
+    (total, room) => total + room.l * room.w * Math.max(1, room.quantity ?? 1),
+    0,
+  );
+}
+
+/**
+ * Gross wall area of a catalogue building type, in m²: each room's perimeter
+ * times the programme wall height. Opening deductions belong to the
+ * calculator, so a template and a hand-entered room share one engine.
+ */
+export function buildingTypeWallAreaM2(
+  programme: BuildingTypeProgramme,
+): number {
+  return programme.rooms.reduce((total, room) => {
+    const perimeter = 2 * (room.l + room.w);
+    return (
+      total +
+      perimeter * programme.wallHeightM * Math.max(1, room.quantity ?? 1)
+    );
+  }, 0);
+}
+
+/**
+ * Joins whole sentences up to a description budget. A search engine shows a
+ * truncated sentence badly, so never cut one in half: add sentences while they
+ * fit and stop.
+ */
+const fitMetaDescription = (
+  sentences: Array<string | undefined>,
+  limit = 160,
+): string => {
+  const clean = sentences
+    .map((sentence) => (sentence ?? "").replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .map((sentence) => (/[.!?]$/.test(sentence) ? sentence : `${sentence}.`));
+  let out = "";
+  for (const sentence of clean) {
+    const next = out ? `${out} ${sentence}` : sentence;
+    if (next.length > limit && out) break;
+    out = next;
+  }
+  return out;
+};
+
+export interface BuildingTypeSummary {
+  key: string;
+  path: string;
+  label: string;
+  title: string;
+  description: string;
+  floorAreaM2: number;
+  wallAreaM2: number;
+  /** Rooms once duplicates are counted, e.g. three bedrooms = 3 spaces. */
+  spaces: number;
+  roomTypes: number;
+}
+
+/**
+ * Everything a building type page and its prerendered metadata need, composed
+ * once so the page, the build payload and the sitemap cannot disagree.
+ */
+export function buildingTypeProgrammeSummary(
+  key: string,
+): BuildingTypeSummary | null {
+  const programme = findBuildingTypeProgramme(key);
+  if (!programme) return null;
+  const floorAreaM2 = buildingTypeFloorAreaM2(programme);
+  const wallAreaM2 = buildingTypeWallAreaM2(programme);
+  const spaces = programme.rooms.reduce(
+    (total, room) => total + Math.max(1, room.quantity ?? 1),
+    0,
+  );
+  return {
+    key: programme.key,
+    path: `/building-types/${programme.key}`,
+    label: programme.label,
+    title: `${programme.label} Room Sizes, Floor Area and Wall Area | FRELUX`,
+    description: fitMetaDescription([
+      `${programme.label}: ${programme.description.toLowerCase()}`,
+      `About ${Math.round(floorAreaM2)} m² of floor and ${Math.round(
+        wallAreaM2,
+      )} m² of wall to finish`,
+      `Room schedule with length, width and height for every space`,
+      `Estimate paint, screeding, tiles and finishes`,
+    ]),
+    floorAreaM2,
+    wallAreaM2,
+    spaces,
+    roomTypes: programme.rooms.length,
+  };
+}

@@ -743,6 +743,7 @@ export default function Navbar() {
             <div className="mt-2 grid grid-cols-2 gap-2">
               {[
                 { label: "Unit Converter", to: "/unit-converter" },
+                { label: "Building types", to: "/building-types" },
                 { label: "Explore Map", to: "/map" },
                 { label: "Price book", to: "/prices" },
                 { label: "All tools", to: "/construction-tools" },

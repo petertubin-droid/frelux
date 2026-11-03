@@ -18,6 +18,7 @@ import {
   toolSeoTitle,
 } from "./lib/tool-seo.mjs";
 import { faqPrerenderRoutes } from "./generated/faq-prerender.mjs";
+import { buildingTypeRoutes } from "./generated/building-types.mjs";
 import { SITE_URL } from "./lib/site-url.mjs";
 
 const distDir = "dist";
@@ -3413,6 +3414,10 @@ async function fetchLearnPages() {
 const { routes: learnDynamicRoutes, content: learnDynamicContent } =
   await fetchLearnPages();
 routes.push(...learnDynamicRoutes);
+// Building type library: the hub plus one page per type, generated from the
+// same catalogue the calculators compile, so a page cannot describe a schedule
+// the engine does not have.
+routes.push(...buildingTypeRoutes);
 const contentMap = { ...seoContentMap, ...learnDynamicContent };
 
 // ── Construction tool pages ─────────────────────────────────────────
@@ -3916,6 +3921,49 @@ if (priceMaterials.length && !contentMap["/prices"]) {
 }
 
 routes.push(...dynamicFamilyRoutes);
+
+// ── Template page metadata ─────────────────────────────────────────
+// A template page is a real page with real dimensions, so its metadata says
+// what the template sets up and what it produces. The hand-written one-liners
+// ("Calculate paint needed for a standard living room") told a search engine
+// nothing it could not read from the title.
+const TEMPLATE_TYPE_LABEL = {
+  paint: "Paint",
+  tile: "Tile",
+  screeding: "Screeding",
+  pop: "POP Ceiling",
+};
+
+const fitDescription = (sentences, limit = 158) => {
+  const clean = sentences
+    .map((sentence) => String(sentence || "").replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .map((sentence) => (/[.!?]$/.test(sentence) ? sentence : `${sentence}.`));
+  let out = "";
+  for (const sentence of clean) {
+    const next = out ? `${out} ${sentence}` : sentence;
+    if (next.length > limit && out) break;
+    out = next;
+  }
+  return out;
+};
+
+for (const route of routes) {
+  const match = /^\/templates\/([^/]+)$/.exec(route.path);
+  if (!match) continue;
+  const template = TEMPLATE_CATALOG.find((t) => t.slug === match[1]);
+  if (!template) continue;
+  const typeLabel = TEMPLATE_TYPE_LABEL[template.type] ?? template.type;
+  route.title =
+    route.title && route.title.includes(template.name)
+      ? route.title
+      : `${template.name} ${typeLabel} Calculator Template | FRELUX`;
+  route.description = fitDescription([
+    template.description || template.seoDescription,
+    `Open the ${typeLabel.toLowerCase()} template to set rooms and openings`,
+    `Prices come from the current market book`,
+  ]);
+}
 Object.assign(contentMap, dynamicFamilyContent);
 console.log(
   `[prerender] dynamic families: ${paintColors.length} colours, ${colorPalettes.length} palettes, ${extraTemplates.length} extra templates`,
