@@ -16,6 +16,7 @@ import {
 import { join, dirname } from "path";
 import { seoContentMap } from "./seo-content-map.mjs";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
+import { marketHreflang } from "./lib/market-hreflang.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { loadToolRegistry } from "./lib/tool-registry.mjs";
 import {
@@ -4095,10 +4096,20 @@ console.log(
 // flash of raw text on every reload. The shield is a plain-CSS branded cover
 // that keeps that markup out of sight while the app boots, and lifts by itself
 // after a few seconds so non-JavaScript visitors still reach the content.
+const marketHubNav =
+  `<nav aria-label="Market template hubs"><h2>Estimate templates by market</h2><ul>` +
+  marketLandingRoutes
+    .map(
+      (m) =>
+        `<li><a href="/market/${m.code.toLowerCase()}/templates">${escapeHtml(m.countryName)} estimates</a></li>`,
+    )
+    .join("") +
+  `</ul></nav>`;
+
 const prerenderShell = (inner) =>
   `<div class="frelux-prerender"><div class="frelux-prerender__shield" aria-hidden="true">` +
   `<span class="frelux-prerender__mark">FRELUX SMART CALC</span>` +
-  `<span class="frelux-prerender__bar"></span></div>${inner}</div>`;
+  `<span class="frelux-prerender__bar"></span></div>${inner}${marketHubNav}</div>`;
 
 // ── Prerender ──────────────────────────────────────────────────────
 const templatePath = join(distDir, "index.html");
@@ -4130,7 +4141,7 @@ for (const m of marketLandingRoutes) {
     alternates: [
       { hreflang: "x-default", href: `${SITE_URL}/templates/` },
       ...marketLandingRoutes.map((mm) => ({
-        hreflang: mm.code.toLowerCase(),
+        hreflang: marketHreflang(mm.code),
         href: `${SITE_URL}/market/${mm.code.toLowerCase()}/templates/`,
       })),
     ],
@@ -4188,7 +4199,7 @@ for (const m of marketLandingRoutes) {
       alternates: [
         { hreflang: "x-default", href: `${SITE_URL}/templates/${t.slug}/` },
         ...marketLandingRoutes.map((mm) => ({
-          hreflang: mm.code.toLowerCase(),
+          hreflang: marketHreflang(mm.code),
           href: `${SITE_URL}/market/${mm.code.toLowerCase()}/templates/${t.slug}/`,
         })),
       ],
@@ -4314,7 +4325,7 @@ for (const route of routes) {
   route.alternates = [
     { hreflang: "x-default", href: `${SITE_URL}${route.path}/` },
     ...marketLandingRoutes.map((mm) => ({
-      hreflang: mm.code.toLowerCase(),
+      hreflang: marketHreflang(mm.code),
       href: `${SITE_URL}/market/${mm.code.toLowerCase()}/templates/${m[1]}/`,
     })),
   ];

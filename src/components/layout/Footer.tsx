@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useMarket } from "@/lib/international/market-context";
 import { useLanguage } from "@/lib/i18n";
 import { getMarketNavigationLabel } from "@/lib/globalization/construction-terminology";
+import {
+  listTemplateMarkets,
+  marketTemplatesPath,
+} from "@/lib/templates-market";
 
 // Colors, services and showcase merged into one column; duplicate links
 // (Pricing, Project Gallery) removed so each destination appears once.
@@ -82,6 +86,15 @@ const legalLinks = [
   { label: "AI Disclaimer", path: "/ai-disclaimer" },
 ];
 
+// Market template hubs. These are the crawl paths to the per-country pages:
+// without them the /market/... hubs exist only in the sitemap, so Google has
+// no link signal saying which country each one serves. The prerenderer emits
+// the same list from the same market data, so static and rendered agree.
+const marketHubLinks = listTemplateMarkets().map((m) => ({
+  label: `${m.country_name} estimates`,
+  path: marketTemplatesPath(m.country_code),
+}));
+
 export default function Footer() {
   const { marketCode } = useMarket();
   const marketCalculateLinks = calculateLinks.map((link) => ({
@@ -97,6 +110,7 @@ export default function Footer() {
     },
     { title: "Explore", links: [...exploreLinks, ...companyLinks] },
     { title: "Resources", links: resourcesLinks },
+    { title: "Markets", links: marketHubLinks },
     { title: "Legal", links: legalLinks },
   ];
 
@@ -124,13 +138,16 @@ export default function Footer() {
               FRELUX Technologies Ltd.
             </div>
             <p className="mt-1 line-clamp-2 max-w-xs text-xs leading-relaxed text-muted-foreground sm:mt-2 sm:line-clamp-none sm:text-sm">
-              Construction intelligence and quantity takeoff tools for projects across markets, with localized data availability disclosed by location.
+              Construction intelligence and quantity takeoff tools for projects
+              across markets, with localized data availability disclosed by
+              location.
             </p>
 
             <div className="mt-3 sm:mt-4">
               <NewsletterSignup source="footer" />
               <p className="mt-1 text-[11px] text-muted-foreground/80">
-                Industry intelligence & quarterly material rate reports. No spam.
+                Industry intelligence & quarterly material rate reports. No
+                spam.
               </p>
             </div>
 

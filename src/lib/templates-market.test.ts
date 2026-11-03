@@ -107,9 +107,12 @@ describe("market template SEO", () => {
   it("every market alternate resolves to that market's template URL", () => {
     for (const a of templateMarketAlternates(SOURCE.slug)) {
       if (a.hreflang === "x-default") continue;
-      expect(a.href).toContain(
-        `/market/${a.hreflang}/templates/${SOURCE.slug}/`,
-      );
+      // hreflang is language-REGION (en-NG). A bare country code is not a
+      // valid hreflang: "us" is no language at all and "ng" means Ndonga, so
+      // Google ignored every alternate we used to emit.
+      expect(a.hreflang).toMatch(/^[a-z]{2}-[A-Z]{2}$/);
+      const country = a.hreflang.split("-")[1].toLowerCase();
+      expect(a.href).toContain(`/market/${country}/templates/${SOURCE.slug}/`);
     }
   });
 });

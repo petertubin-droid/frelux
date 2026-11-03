@@ -137,9 +137,14 @@ describe("convertTemplateInputForUnit", () => {
 });
 
 describe("describeTemplateForMarket", () => {
-  it("keeps the Nigerian qualifier for NG visitors", () => {
+  it("describes the plan in local units without a country qualifier", () => {
+    // The shared template copy is market-neutral on purpose: this string is the
+    // x-default description the whole world sees, and naming Nigeria there made
+    // every market-less page read as a Nigerian page to search engines. The
+    // market pages name their own country in the heading and title.
     const d = describeTemplateForMarket(paint, ctx("NG"));
-    expect(d).toMatch(/Nigerian living room/);
+    expect(d).toMatch(/living room/);
+    expect(d).not.toMatch(/Nigerian/);
     expect(d).toMatch(/4 × 5 m/);
   });
   it("drops the Nigerian qualifier and shows feet for US visitors", () => {

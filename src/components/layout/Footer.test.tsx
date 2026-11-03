@@ -61,16 +61,22 @@ describe("Footer theme + mobile compaction", () => {
     expect(inner?.className).toContain("relative");
   });
 
-  it("shows all four link groups with no disclosure controls", () => {
+  it("shows every link group with no disclosure controls", () => {
     const { container } = renderComponent();
     // Owner report 2026-10-29: the dropdown footer looked unprofessional.
     expect(
       container.querySelectorAll("footer nav button[aria-expanded]").length,
     ).toBe(0);
-    const titles = Array.from(
-      container.querySelectorAll("footer nav h3"),
-    ).map((h) => h.textContent);
-    expect(titles).toEqual(["Calculators", "Explore", "Resources", "Legal"]);
+    const titles = Array.from(container.querySelectorAll("footer nav h3")).map(
+      (h) => h.textContent,
+    );
+    expect(titles).toEqual([
+      "Calculators",
+      "Explore",
+      "Resources",
+      "Markets",
+      "Legal",
+    ]);
   });
 
   it("renders every footer link without needing a tap", () => {
@@ -78,7 +84,7 @@ describe("Footer theme + mobile compaction", () => {
     const lists = Array.from(
       container.querySelectorAll<HTMLUListElement>("footer nav ul"),
     );
-    expect(lists.length).toBe(4);
+    expect(lists.length).toBe(5);
     for (const list of lists) {
       expect(list.className).not.toContain("hidden");
       expect(within(list).getAllByRole("link").length).toBeGreaterThan(0);
@@ -93,7 +99,7 @@ describe("Footer theme + mobile compaction", () => {
   it("keeps the ungrouped footer short on phones", () => {
     const { container } = renderComponent();
     const navs = Array.from(container.querySelectorAll("footer nav"));
-    expect(navs.length).toBe(4);
+    expect(navs.length).toBe(5);
     // Sections stack full width on phones so long groups can flow into two
     // columns, then join the desktop grid from md up.
     const grid = container.querySelector("footer nav")?.closest("div");

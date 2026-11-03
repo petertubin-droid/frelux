@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { marketTemplatesPath } from "@/lib/templates-market";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import Container from "@/components/ui/Container";
@@ -179,7 +182,15 @@ export default function GlobalMarkets() {
                     </div>
                   </dl>
 
-                  <div className="mt-4 border-t pt-3">
+                  <Link
+                    to={marketTemplatesPath(m.country_code)}
+                    className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-purple hover:underline dark:text-brand-purple-lighter"
+                  >
+                    {t("Estimate templates for")} {m.country_name}
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </Link>
+
+                  <div className="mt-3 border-t pt-3">
                     <p className="text-xs text-muted-foreground">
                       {level === 0 ? (
                         <>

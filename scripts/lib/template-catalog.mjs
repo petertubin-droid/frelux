@@ -6,7 +6,7 @@ export const TEMPLATE_CATALOG = [
     "slug": "standard-living-room-painting",
     "name": "Standard Living Room",
     "type": "paint",
-    "description": "Typical Nigerian living room: 4m x 5m, 3m ceiling, 2 coats, 1 door, 2 windows.",
+    "description": "Typical living room: 4m x 5m, 3m ceiling, 2 coats, 1 door, 2 windows.",
     "seoDescription": "Calculate paint needed for a standard living room with this FRELUX template."
   },
   {

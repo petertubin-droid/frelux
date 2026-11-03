@@ -41,7 +41,20 @@ describe("GlobalMarkets page (static)", () => {
     for (const m of BUILTIN_MARKET_PROFILES) {
       const card = screen.getByTestId(`market-card-${m.country_code}`);
       expect(card).toBeTruthy();
-      expect(within(card).getByText(new RegExp(m.country_name))).toBeTruthy();
+      // The country now appears twice: the card heading and the anchor to
+      // that market's template hub.
+      expect(
+        within(card).getAllByText(new RegExp(m.country_name)).length,
+      ).toBeGreaterThan(0);
+      expect(
+        within(card)
+          .getAllByRole("link")
+          .some(
+            (a) =>
+              a.getAttribute("href") ===
+              `/market/${m.country_code.toLowerCase()}/templates`,
+          ),
+      ).toBe(true);
     }
     expect(screen.getAllByText(/NGN \(₦\)/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/USD \(\$\)/).length).toBeGreaterThan(0);

@@ -16,6 +16,7 @@
  *
  * The generic /templates/<slug> page stays the x-default member.
  */
+import { marketHreflang } from "../../scripts/lib/market-hreflang.mjs";
 import type {
   MarketProfile,
   PreferredAreaUnit,
@@ -95,7 +96,7 @@ export function templateMarketAlternates(
   slug: string,
 ): { hreflang: string; href: string }[] {
   const alternates = listTemplateMarkets().map((p) => ({
-    hreflang: p.country_code.toLowerCase(),
+    hreflang: marketHreflang(p.country_code),
     href: `${SITE_URL}${marketTemplatePath(p.country_code, slug)}/`,
   }));
   alternates.push({
@@ -141,7 +142,7 @@ export function buildMarketTemplatesHubSeo(profile: MarketProfile): {
 } {
   const country = profile.country_name;
   const alternates = listTemplateMarkets().map((p) => ({
-    hreflang: p.country_code.toLowerCase(),
+    hreflang: marketHreflang(p.country_code),
     href: `${SITE_URL}${marketTemplatesPath(p.country_code)}/`,
   }));
   alternates.push({ hreflang: "x-default", href: `${SITE_URL}/templates/` });
