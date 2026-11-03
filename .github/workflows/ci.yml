@@ -11,7 +11,11 @@ jobs:
     name: Type Check & Test
     runs-on: ubuntu-latest
     env:
-      NODE_OPTIONS: --max-old-space-size=4096
+      # The type checker alone needs more than 4 GB on this project: with the
+      # test files in the program it walks the whole app and the run of
+      # 2026-11-02 died with "Reached heap limit" (exit 134) rather than a type
+      # error. 6 GB keeps it inside the runner's RAM with room for the suite.
+      NODE_OPTIONS: --max-old-space-size=6144
     steps:
       - uses: actions/checkout@v4
 
