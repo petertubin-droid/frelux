@@ -51,9 +51,9 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {
     // Reap service workers this app no longer uses. Browsers keep them alive
     // long after the registering code is gone, and a stale ad-network worker
-    // keeps serving its old zone on a device that has moved on. Our own /app-sw.js
-    // and the ad network's current /sw4.js are kept; anything else goes, which
-    // is what removes a superseded worker from visitors who already have it.
+    // keeps serving its old zone on a device that has moved on. Our own
+    // /app-sw.js and /sw-push.js, and the ad network's /sw.js, are kept;
+    // anything else goes, which is what removes a superseded worker.
     navigator.serviceWorker
       .getRegistrations()
       .then((regs) => {
