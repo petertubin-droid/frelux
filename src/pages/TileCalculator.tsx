@@ -1171,7 +1171,6 @@ export default function TileCalculator({
           <ProConnectCTA calculatorType="tile" />
         </>
       )}
-      
 
       {/* Ad slot, placement "calculator_mid" */}
       <AdSlot slotKey="calculator_mid" className="mt-8" />
@@ -1800,7 +1799,7 @@ function TileHouseEditor({
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <Field label="Floor length" suffix={unitShort}>
                   <input
                     type="number"
@@ -1825,6 +1824,19 @@ function TileHouseEditor({
                     }
                     className="input-field"
                     placeholder="0"
+                  />
+                </Field>
+                <Field label="Wall height" suffix={unitShort}>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.1"
+                    value={row.height ?? ""}
+                    onChange={(e) =>
+                      onUpdateRoom(row.id, { height: Number(e.target.value) })
+                    }
+                    className="input-field"
+                    placeholder="Project"
                   />
                 </Field>
                 <Field label="Identical" hint="e.g. ×3 bedrooms this size">

@@ -23,11 +23,13 @@
  *   largest homes (~214 m² avg).
  */
 
+import type { CalculatorContext } from "./units";
 import type { MeasurementProject, SpaceType } from "./types";
+import { createMeasurementEntry, createMeasurementGroup } from "./factory";
 import {
-  createMeasurementEntry,
-  createMeasurementGroup,
-} from "./factory";
+  fillWithCatalogue,
+  type ProfileScale,
+} from "./building-type-catalogue";
 
 // =========================================================
 // Types
@@ -42,6 +44,8 @@ export interface PresetRoom {
   lengthM: number;
   /** Canonical width in metres. */
   widthM: number;
+  /** Wall height in metres for this room. Falls back to the preset height. */
+  heightM?: number;
   /** Number of identical rooms of this size. */
   quantity: number;
   /** Default door count for opening deductions. */
@@ -62,6 +66,10 @@ export interface BuildingPreset {
   bedrooms: number;
   /** Default wall height in metres. */
   wallHeightM: number;
+  /** False for non-residential buildings (shops, offices, schools...). */
+  residential?: boolean;
+  /** Picker grouping; hand-written presets are residential. */
+  category?: import("./building-type-catalogue").BuildingCategory;
   /** Room set. */
   rooms: PresetRoom[];
 }
@@ -90,6 +98,8 @@ export interface RoomDraft {
   label: string;
   length: number;
   width: number;
+  /** Wall height for this room, in the draft's display unit. */
+  height: number;
   quantity: number;
   doors: number;
   windows: number;
@@ -114,8 +124,16 @@ function room(
     lengthM,
     widthM,
     quantity: opts.quantity ?? 1,
-    doors: opts.doors ?? (spaceType === "corridor" || spaceType === "staircase" ? 0 : 1),
-    windows: opts.windows ?? (spaceType === "bathroom" || spaceType === "toilet" || spaceType === "store" ? 1 : 1),
+    doors:
+      opts.doors ??
+      (spaceType === "corridor" || spaceType === "staircase" ? 0 : 1),
+    windows:
+      opts.windows ??
+      (spaceType === "bathroom" ||
+      spaceType === "toilet" ||
+      spaceType === "store"
+        ? 1
+        : 1),
   };
 }
 
@@ -1180,20 +1198,234 @@ const SOUTHEAST_ASIA: BuildingPreset[] = [
 // Market → profile mapping (all 32 FRELUX markets)
 // =========================================================
 
+// =========================================================
+// Range completion — every market offers 20 building types
+// =========================================================
+
+/**
+ * How each housing profile scales the shared building programmes. A courtyard
+ * house in Lagos is drawn larger than a Tokyo flat; the plans are the same, the
+ * numbers differ. One row per profile, no per-country copies.
+ */
+const PROFILE_SCALE: Record<HousingProfileId, ProfileScale> = {
+  west_africa: {
+    bedroom: 1.0,
+    living: 1.0,
+    kitchen: 1.0,
+    wet: 1.0,
+    service: 1.0,
+    commercial: 1.0,
+    wallHeight: 1.0,
+  },
+  east_africa: {
+    bedroom: 0.95,
+    living: 0.95,
+    kitchen: 0.95,
+    wet: 0.95,
+    service: 0.95,
+    commercial: 0.95,
+    wallHeight: 0.97,
+  },
+  north_africa: {
+    bedroom: 0.95,
+    living: 1.0,
+    kitchen: 0.95,
+    wet: 0.9,
+    service: 0.95,
+    commercial: 1.0,
+    wallHeight: 1.0,
+  },
+  southern_africa: {
+    bedroom: 0.95,
+    living: 0.95,
+    kitchen: 0.95,
+    wet: 0.9,
+    service: 0.95,
+    commercial: 1.0,
+    wallHeight: 0.9,
+  },
+  gulf: {
+    bedroom: 1.05,
+    living: 1.1,
+    kitchen: 1.0,
+    wet: 1.0,
+    service: 1.05,
+    commercial: 1.1,
+    wallHeight: 1.07,
+  },
+  north_america: {
+    bedroom: 1.15,
+    living: 1.2,
+    kitchen: 1.15,
+    wet: 1.05,
+    service: 1.15,
+    commercial: 1.15,
+    wallHeight: 0.9,
+  },
+  britain: {
+    bedroom: 0.9,
+    living: 0.9,
+    kitchen: 0.9,
+    wet: 0.85,
+    service: 0.9,
+    commercial: 0.95,
+    wallHeight: 0.83,
+  },
+  oceania: {
+    bedroom: 1.05,
+    living: 1.1,
+    kitchen: 1.05,
+    wet: 1.0,
+    service: 1.05,
+    commercial: 1.05,
+    wallHeight: 0.85,
+  },
+  south_asia: {
+    bedroom: 0.85,
+    living: 0.85,
+    kitchen: 0.85,
+    wet: 0.85,
+    service: 0.85,
+    commercial: 0.9,
+    wallHeight: 1.0,
+  },
+  east_asia: {
+    bedroom: 0.8,
+    living: 0.8,
+    kitchen: 0.85,
+    wet: 0.8,
+    service: 0.8,
+    commercial: 0.85,
+    wallHeight: 0.87,
+  },
+  europe: {
+    bedroom: 0.95,
+    living: 0.95,
+    kitchen: 0.95,
+    wet: 0.9,
+    service: 0.95,
+    commercial: 1.0,
+    wallHeight: 0.87,
+  },
+  latam: {
+    bedroom: 0.9,
+    living: 0.9,
+    kitchen: 0.9,
+    wet: 0.9,
+    service: 0.9,
+    commercial: 0.95,
+    wallHeight: 0.9,
+  },
+  southeast_asia: {
+    bedroom: 0.85,
+    living: 0.85,
+    kitchen: 0.85,
+    wet: 0.85,
+    service: 0.85,
+    commercial: 0.9,
+    wallHeight: 0.9,
+  },
+};
+
+/** Id prefix per profile, matching the hand-written presets above. */
+const PROFILE_ID_PREFIX: Record<HousingProfileId, string> = {
+  west_africa: "wa",
+  east_africa: "ea",
+  north_africa: "na",
+  southern_africa: "sa",
+  gulf: "gulf",
+  north_america: "nam",
+  britain: "uk",
+  oceania: "oce",
+  south_asia: "in",
+  east_asia: "ase",
+  europe: "eu",
+  latam: "la",
+  southeast_asia: "se",
+};
+
+/** Building types offered per market: the 5 to 6 tuned presets plus the rest. */
+const BUILDING_TYPES_PER_MARKET = 45;
+
 const HOUSING_PROFILE_TABLE: Record<HousingProfileId, BuildingPreset[]> = {
-  west_africa: WEST_AFRICA,
-  east_africa: EAST_AFRICA,
-  north_africa: NORTH_AFRICA,
-  southern_africa: SOUTHERN_AFRICA,
-  gulf: GULF,
-  north_america: NORTH_AMERICA,
-  britain: BRITAIN,
-  oceania: OCEANIA,
-  south_asia: SOUTH_ASIA,
-  east_asia: EAST_ASIA,
-  europe: EUROPE,
-  latam: LATAM,
-  southeast_asia: SOUTHEAST_ASIA,
+  west_africa: fillWithCatalogue(
+    WEST_AFRICA,
+    PROFILE_SCALE.west_africa,
+    PROFILE_ID_PREFIX.west_africa,
+    BUILDING_TYPES_PER_MARKET,
+  ),
+  east_africa: fillWithCatalogue(
+    EAST_AFRICA,
+    PROFILE_SCALE.east_africa,
+    PROFILE_ID_PREFIX.east_africa,
+    BUILDING_TYPES_PER_MARKET,
+  ),
+  north_africa: fillWithCatalogue(
+    NORTH_AFRICA,
+    PROFILE_SCALE.north_africa,
+    PROFILE_ID_PREFIX.north_africa,
+    BUILDING_TYPES_PER_MARKET,
+  ),
+  southern_africa: fillWithCatalogue(
+    SOUTHERN_AFRICA,
+    PROFILE_SCALE.southern_africa,
+    PROFILE_ID_PREFIX.southern_africa,
+    BUILDING_TYPES_PER_MARKET,
+  ),
+  gulf: fillWithCatalogue(
+    GULF,
+    PROFILE_SCALE.gulf,
+    PROFILE_ID_PREFIX.gulf,
+    BUILDING_TYPES_PER_MARKET,
+  ),
+  north_america: fillWithCatalogue(
+    NORTH_AMERICA,
+    PROFILE_SCALE.north_america,
+    PROFILE_ID_PREFIX.north_america,
+    BUILDING_TYPES_PER_MARKET,
+  ),
+  britain: fillWithCatalogue(
+    BRITAIN,
+    PROFILE_SCALE.britain,
+    PROFILE_ID_PREFIX.britain,
+    BUILDING_TYPES_PER_MARKET,
+  ),
+  oceania: fillWithCatalogue(
+    OCEANIA,
+    PROFILE_SCALE.oceania,
+    PROFILE_ID_PREFIX.oceania,
+    BUILDING_TYPES_PER_MARKET,
+  ),
+  south_asia: fillWithCatalogue(
+    SOUTH_ASIA,
+    PROFILE_SCALE.south_asia,
+    PROFILE_ID_PREFIX.south_asia,
+    BUILDING_TYPES_PER_MARKET,
+  ),
+  east_asia: fillWithCatalogue(
+    EAST_ASIA,
+    PROFILE_SCALE.east_asia,
+    PROFILE_ID_PREFIX.east_asia,
+    BUILDING_TYPES_PER_MARKET,
+  ),
+  europe: fillWithCatalogue(
+    EUROPE,
+    PROFILE_SCALE.europe,
+    PROFILE_ID_PREFIX.europe,
+    BUILDING_TYPES_PER_MARKET,
+  ),
+  latam: fillWithCatalogue(
+    LATAM,
+    PROFILE_SCALE.latam,
+    PROFILE_ID_PREFIX.latam,
+    BUILDING_TYPES_PER_MARKET,
+  ),
+  southeast_asia: fillWithCatalogue(
+    SOUTHEAST_ASIA,
+    PROFILE_SCALE.southeast_asia,
+    PROFILE_ID_PREFIX.southeast_asia,
+    BUILDING_TYPES_PER_MARKET,
+  ),
 };
 
 export const HOUSING_PROFILE_BY_MARKET: Record<string, HousingProfileId> = {
@@ -1239,7 +1471,9 @@ export const IMPERIAL_ROOM_MARKETS = new Set(["US", "CA", "NG", "IN"]);
 /**
  * All 32 approved FRELUX market codes served by this module.
  */
-export const PRESET_MARKET_CODES: string[] = Object.keys(HOUSING_PROFILE_BY_MARKET);
+export const PRESET_MARKET_CODES: string[] = Object.keys(
+  HOUSING_PROFILE_BY_MARKET,
+);
 
 // =========================================================
 // Public API
@@ -1250,8 +1484,11 @@ export const PRESET_MARKET_CODES: string[] = Object.keys(HOUSING_PROFILE_BY_MARK
  * West Africa profile (the platform's reference market) so the UI is
  * never empty.
  */
-export function getBuildingPresets(marketCode: string | undefined | null): BuildingPreset[] {
-  const profileId = HOUSING_PROFILE_BY_MARKET[(marketCode ?? "NG").toUpperCase()];
+export function getBuildingPresets(
+  marketCode: string | undefined | null,
+): BuildingPreset[] {
+  const profileId =
+    HOUSING_PROFILE_BY_MARKET[(marketCode ?? "NG").toUpperCase()];
   return HOUSING_PROFILE_TABLE[profileId ?? "west_africa"];
 }
 
@@ -1267,10 +1504,7 @@ export function findBuildingPreset(
  * Convert a canonical metre dimension to the display unit, rounded to a
  * friendly precision (metres → 2dp; feet → 1dp, e.g. 12.0 ft not 12.14).
  */
-export function displayDimension(
-  metres: number,
-  unit: RoomUnitChoice,
-): number {
+export function displayDimension(metres: number, unit: RoomUnitChoice): number {
   if (unit === "feet") {
     return Math.round(metres * M_TO_FT * 10) / 10;
   }
@@ -1292,6 +1526,7 @@ export function presetToRoomDrafts(
     label: r.label,
     length: displayDimension(r.lengthM, unit),
     width: displayDimension(r.widthM, unit),
+    height: displayDimension(r.heightM ?? preset.wallHeightM, unit),
     quantity: r.quantity,
     doors: r.doors,
     windows: r.windows,
@@ -1301,7 +1536,10 @@ export function presetToRoomDrafts(
 /**
  * The preset's default wall height in the requested unit.
  */
-export function presetWallHeight(preset: BuildingPreset, unit: RoomUnitChoice): number {
+export function presetWallHeight(
+  preset: BuildingPreset,
+  unit: RoomUnitChoice,
+): number {
   return displayDimension(preset.wallHeightM, unit);
 }
 
@@ -1310,7 +1548,9 @@ export function presetWallHeight(preset: BuildingPreset, unit: RoomUnitChoice): 
  * get feet, everyone else metres. (Pages already have their own unit
  * selector; this only seeds the preset values consistently with it.)
  */
-export function defaultPresetUnit(marketCode: string | undefined | null): RoomUnitChoice {
+export function defaultPresetUnit(
+  marketCode: string | undefined | null,
+): RoomUnitChoice {
   return IMPERIAL_ROOM_MARKETS.has((marketCode ?? "NG").toUpperCase())
     ? "feet"
     : "meters";
@@ -1336,20 +1576,27 @@ export function seedProjectWithPreset(
   project: MeasurementProject,
   marketCode: string | undefined | null,
   presetId: string,
+  context?: CalculatorContext,
 ): MeasurementProject {
   const preset = findBuildingPreset(marketCode, presetId);
   if (!preset) return project;
 
   const unitChoice = defaultPresetUnit(marketCode);
   const drafts = presetToRoomDrafts(preset, unitChoice);
+  // Which face of the room this calculator prices. Seeding it keeps the
+  // length, width and height inputs on every preset room instead of collapsing
+  // an applied template to a single length box.
+  const surface: "wall" | "floor" = context === "painting" ? "wall" : "floor";
   const groups = drafts.map((d) =>
     createMeasurementGroup(
       d.label,
       createMeasurementEntry({
         unit: unitChoice === "feet" ? "feet" : "meters",
         spaceType: d.spaceType,
+        surfaceType: surface,
         length: d.length,
         width: d.width,
+        height: d.height,
         quantity: d.quantity,
         doors: d.doors,
         windows: d.windows,

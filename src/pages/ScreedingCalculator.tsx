@@ -271,7 +271,7 @@ export default function ScreedingCalculator({
               onRemoveMeasurement={removeMeasurement}
               marketCode={marketCode}
               onApplyPreset={(presetId) =>
-                applyBuildingPreset(marketCode, presetId)
+                applyBuildingPreset(marketCode, presetId, "screeding")
               }
             >
               {project.projectMode === "fence" && (

@@ -1325,7 +1325,6 @@ ${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map(
           ]}
         />
       )}
-      
 
       {/* Ad slot, placement "calculator_mid" */}
       <AdSlot slotKey="calculator_mid" className="mt-8" />
@@ -1664,7 +1663,7 @@ function Step2({
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-6">
                     <Field label="Length" suffix={unitLabel}>
                       <input
                         type="number"
@@ -1693,6 +1692,21 @@ function Step2({
                         }
                         className="input-field"
                         placeholder="0"
+                      />
+                    </Field>
+                    <Field label="Height" suffix={unitLabel}>
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.1"
+                        value={row.height ?? ""}
+                        onChange={(e) =>
+                          onUpdateHouseRoom(row.id, {
+                            height: Number(e.target.value),
+                          })
+                        }
+                        className="input-field"
+                        placeholder="Project"
                       />
                     </Field>
                     <Field label="Identical" hint="e.g. ×3 bedrooms this size">

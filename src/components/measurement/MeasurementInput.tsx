@@ -45,6 +45,10 @@ import {
 } from "@/lib/measurement";
 import { convertEntryDimensions } from "@/lib/measurement/unit-sync";
 import {
+  groupBuildingPresets,
+  presetFloorAreaM2,
+} from "@/lib/measurement/building-type-catalogue";
+import {
   getBuildingPresets,
   type BuildingPreset,
 } from "@/lib/measurement/building-presets";
@@ -675,20 +679,21 @@ function BuildingPresetSelect({
         <option value="">
           {t("Select a house type to load its rooms...")}
         </option>
-        {presets.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.label}
-          </option>
+        {groupBuildingPresets(presets).map((group) => (
+          <optgroup key={group.category} label={group.label}>
+            {group.presets.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label} · {p.rooms.length} room types ·{" "}
+                {Math.round(presetFloorAreaM2(p))} m²
+              </option>
+            ))}
+          </optgroup>
         ))}
       </select>
       <p className="mt-1 text-xs text-muted-foreground">
-        Loads a full room breakdown (bedrooms, living room, kitchen, toilets &
-        baths...) that you can edit. Common in your market:{" "}
-        {presets
-          .slice(0, 3)
-          .map((p) => p.label)
-          .join(", ")}
-        .
+        Loads a full room schedule you can edit: every room keeps its own
+        length, width, height and count. {presets.length} building types are
+        available in your market, residential and commercial.
       </p>
     </div>
   );

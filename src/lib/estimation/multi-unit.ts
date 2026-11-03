@@ -83,7 +83,9 @@ function toEngineOpenings(
 // =========================================================
 
 /** Base engine fields shared by every unit of a project. */
-function baseRoomFields(input: CalculatorInput): Pick<
+function baseRoomFields(
+  input: CalculatorInput,
+): Pick<
   PaintEngineRoomInput,
   | "unit"
   | "product_id"
@@ -113,7 +115,9 @@ function baseRoomFields(input: CalculatorInput): Pick<
  * of length L is encoded as length L/2 + width 0, giving exactly
  * 2 × (L/2) × H = L × H — one face, with openings deducted per run.
  */
-export function expandEngineRooms(input: CalculatorInput): PaintEngineRoomInput[] {
+export function expandEngineRooms(
+  input: CalculatorInput,
+): PaintEngineRoomInput[] {
   const base = baseRoomFields(input);
   const rooms: PaintEngineRoomInput[] = [];
 
@@ -127,7 +131,7 @@ export function expandEngineRooms(input: CalculatorInput): PaintEngineRoomInput[
           room_name: row.label,
           length: row.length,
           width: row.width,
-          height: input.wallHeight,
+          height: row.height && row.height > 0 ? row.height : input.wallHeight,
           unit: input.unit,
           doors: toEngineOpenings(row.doors, input.doorDims, input.unit),
           windows: toEngineOpenings(row.windows, input.windowDims, input.unit),
@@ -332,8 +336,7 @@ export function aggregateEngineRooms(
   const practicalCeilingBuckets = roomResults.some((r) => r.ceiling_area_m2 > 0)
     ? roundUpToBuckets(theoreticalCeiling, packSize, rule)
     : 0;
-  const practicalTotalBuckets =
-    practicalWallBuckets + practicalCeilingBuckets;
+  const practicalTotalBuckets = practicalWallBuckets + practicalCeilingBuckets;
   const practicalTotalLitres = practicalTotalBuckets * packSize;
 
   const unitPrice = roomResults[0].unit_price;
@@ -343,16 +346,13 @@ export function aggregateEngineRooms(
   const primerLitres = sum((r) => r.primer_litres);
   const primerBuckets = roundUpToBuckets(primerLitres, packSize, rule);
   const primerUnitPrice =
-    roomResults.find((r) => r.primer_buckets > 0 && r.primer_cost > 0) ??
-    null;
+    roomResults.find((r) => r.primer_buckets > 0 && r.primer_cost > 0) ?? null;
   const primerPricePerBucket = primerUnitPrice
     ? primerUnitPrice.primer_cost / primerUnitPrice.primer_buckets
     : 0;
   const primerCost = primerPricePerBucket * primerBuckets;
 
-  const warnings = [
-    ...new Set(roomResults.flatMap((r) => r.warnings)),
-  ];
+  const warnings = [...new Set(roomResults.flatMap((r) => r.warnings))];
   const recommendations = [
     ...new Set(roomResults.flatMap((r) => r.recommendations)),
   ];
@@ -418,7 +418,8 @@ export function aggregateCalculatorResults(
   const count = Math.max(0, Math.ceil(adjustedLiters / size));
   const containers =
     count > 0 ? [{ size, count }] : first.recommendedContainers;
-  const totalRecommendedLiters = count > 0 ? size * count : first.totalRecommendedLiters;
+  const totalRecommendedLiters =
+    count > 0 ? size * count : first.totalRecommendedLiters;
 
   const primerLiters = sum((r) => r.primerLiters);
   const primerSize = first.primerContainers[0]?.size ?? size;
@@ -442,7 +443,8 @@ export function aggregateCalculatorResults(
     leftoverLiters: Math.max(0, totalRecommendedLiters - adjustedLiters),
     primerLiters,
     primerContainers,
-    primerTotalLiters: primerCount > 0 ? primerSize * primerCount : first.primerTotalLiters,
+    primerTotalLiters:
+      primerCount > 0 ? primerSize * primerCount : first.primerTotalLiters,
     heightWarning: results.find((r) => r.heightWarning)?.heightWarning ?? null,
     primerRecommended: results.some((r) => r.primerRecommended),
   };
@@ -473,6 +475,7 @@ export function houseRowsFromPreset(
       label: d.label,
       length: d.length,
       width: d.width,
+      height: d.height,
       quantity: d.quantity,
       doors: d.doors,
       windows: d.windows,
@@ -482,7 +485,10 @@ export function houseRowsFromPreset(
 }
 
 /** A fresh, empty run row for exterior / fence mode. */
-export function newSurfaceRunRow(index: number, isFence: boolean): SurfaceRunRow {
+export function newSurfaceRunRow(
+  index: number,
+  isFence: boolean,
+): SurfaceRunRow {
   return {
     id: `run-${Date.now()}-${index}`,
     label: isFence ? `Fence Section ${index}` : `Wall Run ${index}`,

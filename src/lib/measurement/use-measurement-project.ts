@@ -14,16 +14,16 @@
  * Auto-creates a default section so entries can be added immediately.
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from "react";
 import type {
   MeasurementProject,
   MeasurementSection,
   MeasurementEntry,
   MeasurementProjectResult,
-} from './types';
-import type { ValidationResult } from './validation';
-import type { CalculatorContext, LengthUnit } from './units';
-import { getAllowedUnits } from './units';
+} from "./types";
+import type { ValidationResult } from "./validation";
+import type { CalculatorContext, LengthUnit } from "./units";
+import { getAllowedUnits } from "./units";
 import {
   createMeasurementProject,
   createMeasurementSection,
@@ -31,13 +31,13 @@ import {
   createMeasurementEntry,
   calculateMeasurementProject,
   validateMeasurementProject,
-} from './index';
-import { seedProjectWithPreset } from './building-presets';
+} from "./index";
+import { seedProjectWithPreset } from "./building-presets";
 
 export interface UseMeasurementProjectOptions {
   calculatorContext: CalculatorContext;
   preferredUnit?: LengthUnit;
-  projectMode?: MeasurementProject['projectMode'];
+  projectMode?: MeasurementProject["projectMode"];
   /** Default section label (defaults to "Measurements") */
   defaultSectionLabel?: string;
 }
@@ -50,26 +50,41 @@ export interface UseMeasurementProjectReturn {
   addSection: (label: string) => string;
   removeSection: (sectionId: string) => void;
   // Group/entry management
-  addEntry: (sectionId: string, label: string, entry: Partial<MeasurementEntry>) => void;
+  addEntry: (
+    sectionId: string,
+    label: string,
+    entry: Partial<MeasurementEntry>,
+  ) => void;
   /** Simplified addEntry, adds to the first/active section automatically */
   addMeasurement: (label: string, entry: Partial<MeasurementEntry>) => void;
-  updateEntry: (sectionId: string, groupId: string, updates: Partial<MeasurementEntry>) => void;
+  updateEntry: (
+    sectionId: string,
+    groupId: string,
+    updates: Partial<MeasurementEntry>,
+  ) => void;
   /** Simplified update, finds the entry in any section */
-  updateMeasurement: (groupId: string, updates: Partial<MeasurementEntry>) => void;
+  updateMeasurement: (
+    groupId: string,
+    updates: Partial<MeasurementEntry>,
+  ) => void;
   removeEntry: (sectionId: string, groupId: string) => void;
   /** Simplified remove, finds the entry in any section */
   removeMeasurement: (groupId: string) => void;
   // Project management
-  setProjectMode: (mode: MeasurementProject['projectMode']) => void;
+  setProjectMode: (mode: MeasurementProject["projectMode"]) => void;
   setPreferredUnit: (unit: LengthUnit) => void;
   // Calculation
   calculate: () => MeasurementProjectResult;
   // Reset
   reset: () => void;
   // Reset with a new mode
-  resetWithMode: (mode: MeasurementProject['projectMode']) => void;
+  resetWithMode: (mode: MeasurementProject["projectMode"]) => void;
   // Seed the house/building section from a market building preset
-  applyBuildingPreset: (marketCode: string, presetId: string) => void;
+  applyBuildingPreset: (
+    marketCode: string,
+    presetId: string,
+    context?: CalculatorContext,
+  ) => void;
   // Allowed units for this context
   allowedUnits: LengthUnit[];
   // The active section (first section, auto-created)
@@ -82,8 +97,8 @@ export function useMeasurementProject(
   const {
     calculatorContext,
     preferredUnit,
-    projectMode = 'single_room',
-    defaultSectionLabel = 'Measurements',
+    projectMode = "single_room",
+    defaultSectionLabel = "Measurements",
   } = options;
 
   const [project, setProject] = useState<MeasurementProject>(() => {
@@ -95,9 +110,15 @@ export function useMeasurementProject(
   });
   const [result, setResult] = useState<MeasurementProjectResult | null>(null);
 
-  const allowedUnits = useMemo(() => getAllowedUnits(calculatorContext), [calculatorContext]);
+  const allowedUnits = useMemo(
+    () => getAllowedUnits(calculatorContext),
+    [calculatorContext],
+  );
 
-  const validation = useMemo(() => validateMeasurementProject(project), [project]);
+  const validation = useMemo(
+    () => validateMeasurementProject(project),
+    [project],
+  );
 
   const activeSection = project.sections[0];
 
@@ -172,7 +193,11 @@ export function useMeasurementProject(
   );
 
   const updateEntry = useCallback(
-    (sectionId: string, groupId: string, updates: Partial<MeasurementEntry>) => {
+    (
+      sectionId: string,
+      groupId: string,
+      updates: Partial<MeasurementEntry>,
+    ) => {
       setProject((prev) => ({
         ...prev,
         sections: prev.sections.map((s) => {
@@ -232,9 +257,12 @@ export function useMeasurementProject(
     }));
   }, []);
 
-  const setProjectMode = useCallback((mode: MeasurementProject['projectMode']) => {
-    setProject((prev) => ({ ...prev, projectMode: mode }));
-  }, []);
+  const setProjectMode = useCallback(
+    (mode: MeasurementProject["projectMode"]) => {
+      setProject((prev) => ({ ...prev, projectMode: mode }));
+    },
+    [],
+  );
 
   const setPreferredUnit = useCallback((unit: LengthUnit) => {
     setProject((prev) => ({ ...prev, preferredUnit: unit }));
@@ -255,16 +283,16 @@ export function useMeasurementProject(
   }, [calculatorContext, preferredUnit, projectMode, defaultSectionLabel]);
 
   const resetWithMode = useCallback(
-    (mode: MeasurementProject['projectMode']) => {
+    (mode: MeasurementProject["projectMode"]) => {
       const p = createMeasurementProject(calculatorContext, preferredUnit);
       p.projectMode = mode;
       const sectionLabel =
-        mode === 'fence'
-          ? 'Fence Dimensions'
-          : mode === 'house_building'
-            ? 'Building Spaces'
-            : mode === 'exterior'
-              ? 'Exterior Surfaces'
+        mode === "fence"
+          ? "Fence Dimensions"
+          : mode === "house_building"
+            ? "Building Spaces"
+            : mode === "exterior"
+              ? "Exterior Surfaces"
               : defaultSectionLabel;
       p.sections = [createMeasurementSection(sectionLabel)];
       setProject(p);
@@ -279,8 +307,10 @@ export function useMeasurementProject(
    * into the project as an editable room breakdown.
    */
   const applyBuildingPreset = useCallback(
-    (marketCode: string, presetId: string) => {
-      setProject((prev) => seedProjectWithPreset(prev, marketCode, presetId));
+    (marketCode: string, presetId: string, context?: CalculatorContext) => {
+      setProject((prev) =>
+        seedProjectWithPreset(prev, marketCode, presetId, context),
+      );
       setResult(null);
     },
     [],

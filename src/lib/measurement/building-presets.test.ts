@@ -15,22 +15,56 @@ import { APPROVED_MARKET_CODES } from "@/lib/international/countries";
 import { SPACE_TYPE_LABELS } from "./types";
 
 const ALL_32_MARKETS = [
-  "NG", "GH", "CI", "KE", "TZ", "ET", "EG", "ZA", "AE", "SA",
-  "US", "CA", "GB", "AU", "NZ", "IN", "CN", "JP", "KR", "SG",
-  "DE", "FR", "ES", "IT", "NL", "PL", "SE", "CH", "TR", "BR",
-  "MX", "ID",
+  "NG",
+  "GH",
+  "CI",
+  "KE",
+  "TZ",
+  "ET",
+  "EG",
+  "ZA",
+  "AE",
+  "SA",
+  "US",
+  "CA",
+  "GB",
+  "AU",
+  "NZ",
+  "IN",
+  "CN",
+  "JP",
+  "KR",
+  "SG",
+  "DE",
+  "FR",
+  "ES",
+  "IT",
+  "NL",
+  "PL",
+  "SE",
+  "CH",
+  "TR",
+  "BR",
+  "MX",
+  "ID",
 ];
 
 describe("building presets — market coverage", () => {
   it("covers every approved FRELUX market (all 32)", () => {
     expect(PRESET_MARKET_CODES.length).toBe(32);
     for (const code of ALL_32_MARKETS) {
-      expect(HOUSING_PROFILE_BY_MARKET[code], `missing profile for ${code}`).toBeDefined();
+      expect(
+        HOUSING_PROFILE_BY_MARKET[code],
+        `missing profile for ${code}`,
+      ).toBeDefined();
     }
     // Approved platform markets that this module is not the source of truth
     // for (if any) must not silently pass through unhandled.
     for (const code of APPROVED_MARKET_CODES) {
-      expect(HOUSING_PROFILE_BY_MARKET[code], `approved market ${code} has no housing profile`).toBeDefined();
+      expect(
+        HOUSING_PROFILE_BY_MARKET[code],
+        `approved market ${code} has no housing profile`,
+      ).toBeDefined();
     }
   });
 
@@ -41,25 +75,78 @@ describe("building presets — market coverage", () => {
       for (const p of presets) {
         expect(p.id).toBeTruthy();
         expect(p.label).toBeTruthy();
-        expect(p.bedrooms).toBeGreaterThanOrEqual(1);
+        // Non-residential types (shops, offices, schools) carry 0 bedrooms.
+        expect(p.bedrooms).toBeGreaterThanOrEqual(0);
         expect(p.rooms.length).toBeGreaterThan(0);
         expect(p.wallHeightM).toBeGreaterThan(2);
       }
     }
   });
 
-
-  it("offers at least 5 house types in every market (owner directive)", () => {
+  it("offers 20 or more building types in every market (owner directive)", () => {
     for (const code of ALL_32_MARKETS) {
       const presets = getBuildingPresets(code);
-      expect(presets.length, `${code} has only ${presets.length} presets`).toBeGreaterThanOrEqual(5);
+      expect(
+        presets.length,
+        `${code} has only ${presets.length} presets`,
+      ).toBeGreaterThanOrEqual(20);
+    }
+  });
+
+  it("covers residential and commercial buildings in every market", () => {
+    for (const code of ALL_32_MARKETS) {
+      const presets = getBuildingPresets(code);
+      const categories = new Set(
+        presets.map((p) => p.category ?? "residential"),
+      );
+      for (const needed of [
+        "residential",
+        "commercial",
+        "institutional",
+        "industrial",
+      ] as const) {
+        expect(
+          categories.has(needed),
+          `${code} has no ${needed} building type`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("carries length, width and height on every room of every type", () => {
+    for (const code of ALL_32_MARKETS) {
+      for (const preset of getBuildingPresets(code)) {
+        expect(preset.wallHeightM, `${preset.id} wall height`).toBeGreaterThan(
+          2,
+        );
+        for (const room of preset.rooms) {
+          expect(
+            room.lengthM,
+            `${preset.id} / ${room.label} length`,
+          ).toBeGreaterThan(0);
+          expect(
+            room.widthM,
+            `${preset.id} / ${room.label} width`,
+          ).toBeGreaterThan(0);
+          expect(
+            room.heightM ?? preset.wallHeightM,
+            `${preset.id} / ${room.label} height`,
+          ).toBeGreaterThan(2);
+          expect(
+            room.quantity,
+            `${preset.id} / ${room.label} quantity`,
+          ).toBeGreaterThanOrEqual(1);
+        }
+      }
     }
   });
 
   it("has unique preset ids within each market", () => {
     for (const code of ALL_32_MARKETS) {
       const ids = getBuildingPresets(code).map((p) => p.id);
-      expect(new Set(ids).size, `${code} has duplicate preset ids`).toBe(ids.length);
+      expect(new Set(ids).size, `${code} has duplicate preset ids`).toBe(
+        ids.length,
+      );
     }
   });
 
@@ -239,7 +326,9 @@ describe("seedProjectWithPreset", () => {
 
   it("seeds the GB semi-detached in metres", () => {
     const seeded = seedProjectWithPreset(project, "GB", "uk-3br-semi");
-    const main = seeded.sections[0].groups.find((g) => g.label === "Main Bedroom")!;
+    const main = seeded.sections[0].groups.find(
+      (g) => g.label === "Main Bedroom",
+    )!;
     expect(main.entry.unit).toBe("meters");
     expect(main.entry.length).toBeCloseTo(3.5, 1);
   });
@@ -258,5 +347,51 @@ describe("seedProjectWithPreset", () => {
 
   it("returns the project untouched for an unknown preset", () => {
     expect(seedProjectWithPreset(project, "NG", "nope")).toBe(project);
+  });
+});
+
+describe("applied building templates — three editable dimensions", () => {
+  function seededEntry(
+    code: string,
+    presetId: string,
+    context?: "painting" | "screeding" | "tiling",
+  ) {
+    const project = seedProjectWithPreset(
+      {
+        projectMode: "house_building",
+        sections: [],
+        calculatorContext: context ?? "screeding",
+      } as never,
+      code,
+      presetId,
+      context,
+    );
+    return project.sections[0].groups[0].entry;
+  }
+
+  it("seeds length, width and height onto every room", () => {
+    const entry = seededEntry("NG", "wa-3br-bungalow", "screeding");
+    expect(entry.length).toBeGreaterThan(0);
+    expect(entry.width).toBeGreaterThan(0);
+    expect(entry.height).toBeGreaterThan(2);
+  });
+
+  it("seeds the surface this calculator measures, so all dimension inputs show", () => {
+    expect(seededEntry("NG", "wa-3br-bungalow", "screeding").surfaceType).toBe(
+      "floor",
+    );
+    expect(seededEntry("NG", "wa-3br-bungalow", "tiling").surfaceType).toBe(
+      "floor",
+    );
+    expect(seededEntry("NG", "wa-3br-bungalow", "painting").surfaceType).toBe(
+      "wall",
+    );
+  });
+
+  it("carries the same three dimensions from the room draft", () => {
+    const preset = findBuildingPreset("NG", "wa-3br-bungalow")!;
+    const drafts = presetToRoomDrafts(preset, "feet");
+    expect(drafts[0].length).toBeGreaterThan(drafts[0].width);
+    expect(drafts[0].height).toBeCloseTo(presetWallHeight(preset, "feet"), 5);
   });
 });

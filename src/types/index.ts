@@ -33,6 +33,8 @@ export interface HouseRoomRow {
   label: string;
   length: number;
   width: number;
+  /** Wall height for this room. Falls back to the project wall height. */
+  height?: number;
   quantity: number; // identical rooms of this size
   doors: number;
   windows: number;

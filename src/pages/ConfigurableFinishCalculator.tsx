@@ -31,6 +31,7 @@ import LabourCostSection, {
 } from "@/components/labour/LabourCostSection";
 import { useMarket } from "@/lib/international/market-context";
 import { resolveMarketAreaUnit } from "@/lib/international/room-unit-defaults";
+import { BuildingTemplatePanel } from "@/components/measurement/BuildingTemplatePanel";
 import { useCurrencySymbol } from "@/lib/international";
 import { calculateLabourCost } from "@/lib/labour";
 import PageHeader from "@/components/ui/PageHeader";
@@ -529,6 +530,19 @@ export default function ConfigurableFinishCalculator({
                     )}
                   </select>
                 </label>
+
+                <BuildingTemplatePanel
+                  marketCode={marketCode}
+                  surface="wall"
+                  onChange={(areaM2) => {
+                    // Template area replaces the manual figure in m²; the unit
+                    // selector stays available for anyone measuring by hand.
+                    setArea(
+                      areaM2 > 0 ? String(Math.round(areaM2 * 100) / 100) : "",
+                    );
+                    setAreaUnit("m2");
+                  }}
+                />
 
                 <div className="grid grid-cols-[1fr_auto] gap-3">
                   <label className="grid gap-1 text-sm font-medium">
