@@ -12,6 +12,7 @@ import {
   hasAnyConsentChoice,
   onConsentChange,
 } from "@/lib/ad-consent";
+import { firstBlockingGate, markAdGate } from "@/lib/ad-gate";
 import { useCommandPalette } from "@/components/ui/useCommandPalette";
 import ConversionDock from "@/components/convert/ConversionDock";
 import { isOnboardingComplete } from "@/lib/onboarding";
@@ -112,24 +113,20 @@ export default function Layout() {
   // Admin pages don't use Layout at all (separate AdminLayout), so the
   // admin guard is belt-and-suspenders.
   useEffect(() => {
-    if (window.location.pathname.startsWith("/admin")) return;
-
-    // Entitlement gate: a paid subscriber receives no ad SDK of any kind.
-    // Auth resolves after first paint, so an unresolved state also injects
-    // nothing - otherwise a subscriber gets a popunder during the gap and
-    // the SDK keeps redirecting clicks for the rest of the session.
-    if (!adsAllowedForViewer({ isPaid, loading: authLoading })) return;
-
-    // Consent gate (Heartsyncx pattern): no ad script loads before the
-    // visitor has made an explicit consent choice. AdSense page-level
-    // ads load after ANY explicit choice; personalization networks
-    // (Adsterra / Monetag) require the advertising category. Re-run when
-    // the visitor's consent changes so accepting the banner turns the
-    // tags on without a reload.
-    if (!hasAnyConsentChoice()) return;
-    // Slow link or Save-Data: no ad SDKs at all. In-slot AdSense units still
-    // render (they degrade to an empty container), the page just stays light.
-    if (!shouldLoadAdSdks()) return;
+    // Every gate that can stop an ad SDK is recorded on <html> as
+    // data-ad-gate, so "why is there no ad?" has an answer in devtools and on
+    // Admin, Network Hub, Live ad gate, instead of a silent empty page.
+    const blocked = firstBlockingGate({
+      pathname: window.location.pathname,
+      isPaid: Boolean(isPaid),
+      authLoading: Boolean(authLoading),
+      hasConsentChoice: hasAnyConsentChoice(),
+      slowNetwork: !shouldLoadAdSdks(),
+    });
+    if (blocked) {
+      markAdGate(blocked);
+      return;
+    }
     const advertisingGranted = hasAdvertisingConsent();
 
     let cancelled = false;
@@ -160,6 +157,9 @@ export default function Layout() {
         const adsense = providers.find(
           (p) => p.slug === "google_adsense" && p.is_active,
         );
+        if (!adsense) markAdGate("no-provider");
+        else if (!formats.displayAdsEnabled(adsense))
+          markAdGate("display-disabled");
         if (adsense && formats.displayAdsEnabled(adsense)) {
           const as = (adsense.settings ?? {}) as Record<string, unknown>;
           const ac = (adsense.credentials ?? {}) as Record<string, unknown>;
@@ -170,6 +170,8 @@ export default function Layout() {
             as.anchor_ads === true ||
             as.vignette_ads === true ||
             as.interstitial_ads === true;
+          if (!pubId) markAdGate("no-publisher");
+          else if (!pageLevelWanted) markAdGate("page-level-off");
           if (pubId && pageLevelWanted) adsensePubId = pubId;
         }
 
@@ -268,6 +270,7 @@ export default function Layout() {
             enable_page_level_ads: true,
           });
         }
+        markAdGate("injected");
       }
 
       // Adsterra site-wide scripts (Interstitial / Popunder / Social

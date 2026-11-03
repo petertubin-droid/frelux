@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import AdGateReadout from "@/components/admin/AdGateReadout";
 import { Save, Loader2, Radio, RefreshCw, Activity, Wand2 } from "lucide-react";
 import {
   AdminCard,
@@ -611,6 +612,7 @@ export default function NetworkHub() {
 
   return (
     <div className="space-y-5">
+      <AdGateReadout />
       {/* Top Networks Hub bar (Heartsyncx layout) */}
       <HubCard
         title={tr("Ad Network Hub")}
