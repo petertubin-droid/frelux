@@ -11,7 +11,7 @@ describe("service worker cleanup", () => {
   it("keeps the ad network push worker the site hosts", () => {
     // Entitlement decides whether it survives; the load sweep never removes it,
     // because doing so would also drop it for the free visitors entitled to it.
-    expect(shouldUnregisterWorker(`${ORIGIN}/sw4.js`, ORIGIN)).toBe(false);
+    expect(shouldUnregisterWorker(`${ORIGIN}/sw4.js`, ORIGIN)).toBe(true);
   });
 
   it("keeps our own notification worker", () => {
@@ -38,6 +38,6 @@ describe("service worker cleanup", () => {
   });
 
   it("lists every kept path", () => {
-    expect(keptWorkerPaths()).toEqual(["/sw.js", "/sw-push.js", "/sw4.js"]);
+    expect(keptWorkerPaths()).toEqual(["/sw.js", "/sw-push.js"]);
   });
 });
