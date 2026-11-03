@@ -16,7 +16,7 @@
  */
 
 /** Path of the ad network push worker currently issued to this zone. */
-export const AD_PUSH_WORKER_PATH = "/sw4.js";
+export const AD_PUSH_WORKER_PATH = "/sw.js";
 
 /**
  * Paths of superseded ad network workers. Browsers keep these alive long after
@@ -26,6 +26,7 @@ export const STALE_AD_WORKER_PATHS: readonly string[] = [
   "/sw1.js",
   "/sw2.js",
   "/sw3.js",
+  "/sw4.js",
 ];
 
 export interface AdWorkerOptions {

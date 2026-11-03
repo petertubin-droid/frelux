@@ -52,13 +52,11 @@
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 
-# Service worker: no cache
+# Service workers: no cache
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate
 
-# Ad network push worker. Revalidated on every request so a replacement worker
-# reaches a device that still holds the superseded one.
-/sw4.js
+/app-sw.js
   Cache-Control: public, max-age=0, must-revalidate
 
 # ── Locale URL noindex (i18n batch, 2026-10-23) ─────────────────────────

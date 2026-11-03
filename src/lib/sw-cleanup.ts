@@ -9,9 +9,9 @@
 
 /**
  * Workers the site hosts and intends to keep:
- *  - `/sw.js`       our own Workbox precache worker, built from sw-template.js
+ *  - `/app-sw.js`   our own Workbox precache worker, built from sw-template.js
  *  - `/sw-push.js`  our own notification worker
- *  - `/sw4.js`      the ad network's push worker. Whether a viewer should be
+ *  - `/sw.js`       the ad network's push worker. Whether a viewer should be
  *                   running it depends on their plan, so the load-time sweep
  *                   leaves it to the entitlement gate (lib/ad-worker.ts), which
  *                   unregisters it for paid and unresolved viewers.
@@ -20,9 +20,9 @@
  * lib/ad-worker.ts, so the next load clears the old one on every device.
  */
 export const KEPT_WORKER_PATHS: readonly string[] = [
+  "/app-sw.js",
   "/sw.js",
   "/sw-push.js",
-  "/sw4.js",
 ];
 
 /**

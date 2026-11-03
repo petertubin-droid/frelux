@@ -46,7 +46,7 @@ describe("ad push worker gate", () => {
   });
 
   it("unregisters the worker for a paid subscriber", async () => {
-    const regs = installWorkers([AD_PUSH_WORKER_PATH, "/sw.js"]);
+    const regs = installWorkers([AD_PUSH_WORKER_PATH, "/app-sw.js"]);
     const removed = await syncAdPushWorker({ adsAllowed: false });
 
     expect(regs[0].unregister).toHaveBeenCalledTimes(1);
