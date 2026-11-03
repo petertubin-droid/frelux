@@ -740,6 +740,21 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     navVisible: false,
   },
   {
+    slug: "quote-check",
+    title: "Quote Check",
+    category: "project",
+    icon: ClipboardCheck,
+    does: "Check a contractor or supplier quote line by line against the market price book.",
+    enters:
+      "Each quoted item, the quantity, the unit and the rate you were given.",
+    gets: "The lines that sit above market, by how much, and the lines that cannot be judged for lack of a reference price.",
+    seoTitle: "Contractor Quote Check Against Market Prices | FRELUX",
+    seoDescription:
+      "Check a contractor quote against the market price book line by line. See which lines sit above market and which have no reference price.",
+    to: "/quote-check",
+    navVisible: false,
+  },
+  {
     slug: "cash-flow",
     title: "Cash-Flow Timeline",
     category: "project",

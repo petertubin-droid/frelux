@@ -539,6 +539,7 @@ const CarbonFootprint = lazy(() => import("@/pages/CarbonFootprint"));
 const CashFlowTimeline = lazy(() => import("@/pages/CashFlowTimeline"));
 const LabourEstimator = lazy(() => import("@/pages/LabourEstimator"));
 const MarginCalculator = lazy(() => import("@/pages/MarginCalculator"));
+const QuoteCheck = lazy(() => import("@/pages/QuoteCheck"));
 const DefectDiagnosis = lazy(() => import("@/pages/DefectDiagnosis"));
 const EstimateRefresh = lazy(() => import("@/pages/EstimateRefresh"));
 const WarrantyCertificate = lazy(() => import("@/pages/WarrantyCertificate"));
@@ -1956,6 +1957,7 @@ export default function App() {
                           path="/margin-calculator"
                           element={<MarginCalculator />}
                         />
+                        <Route path="/quote-check" element={<QuoteCheck />} />
                         <Route
                           path="/defect-diagnosis"
                           element={<DefectDiagnosis />}

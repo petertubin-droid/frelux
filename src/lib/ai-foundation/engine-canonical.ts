@@ -44,6 +44,7 @@ export interface CanonicalEngineLink {
 export const UNRESOLVED_ENGINE_IDS = [
   "painting_wall_area",
   "timeline_estimator",
+  "quote_check",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
@@ -171,6 +172,12 @@ export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
     canonicalId: null,
     confidence: "unresolved",
     note: "No counterpart found in the capability registry or the engine inventory. It may be a capability the international lists never modelled.",
+  },
+  {
+    aiEngineId: "quote_check",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "The registry judges a third party quote against the price book. The international capability lists have no matching id, so no mapping is claimed.",
   },
 ];
 

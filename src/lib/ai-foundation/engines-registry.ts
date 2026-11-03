@@ -476,6 +476,59 @@ export async function executeEngine(
   }
 }
 
+// ── Quote Check: a quote measured against the price book ──
+//
+// The reference prices are supplied by the caller, because only the page
+// knows which market the user is in and which price row resolved. The
+// engine owns the comparison arithmetic and nothing else.
+registerEngine({
+  id: "quote_check",
+  domain: "cost",
+  title: "FRELUX Quote Check Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX Quote Check engine",
+  async run(rawInput) {
+    const { checkQuote } = await import("@/lib/estimation/quote-check-engine");
+    const input = (rawInput ?? {}) as {
+      lines?: Parameters<typeof checkQuote>[0];
+      fairBandFraction?: number;
+    };
+    const result = checkQuote(input.lines ?? [], {
+      fairBandFraction: input.fairBandFraction,
+    });
+    const quantities: EngineQuantityLine[] = result.lines
+      .filter((line) => line.quantity > 0)
+      .map((line) =>
+        quantityLine(
+          `${line.description} (${line.status})`,
+          line.quantity,
+          line.unit || "unit",
+        ),
+      );
+    const costLines: Array<{ label: string; amount: number }> = [
+      { label: "Quoted total", amount: result.quotedTotal },
+      {
+        label: "Comparable lines at market",
+        amount: result.comparableReferenceTotal,
+      },
+      { label: "Above market", amount: result.overpricedAmount },
+    ];
+    return {
+      ok: true,
+      engine: "quote_check",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: normalizeCostSummary({
+        total: result.comparableQuotedTotal,
+        currency: "quote",
+        lines: costLines,
+        regionalDataAvailable: false,
+      }),
+      raw: result,
+    };
+  },
+});
+
 // Register the Phase-2 engines AFTER the registry map exists.
 // (Import alone would hoist above the REGISTRY declaration, TDZ.)
 import { registerPhase2Engines } from "./engines-phase2";

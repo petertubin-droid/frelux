@@ -6,7 +6,13 @@
  * Usage: node scripts/prerender.mjs
  * Run AFTER `vite build` (reads from dist/).
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "fs";
+import {
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  existsSync,
+  readdirSync,
+} from "fs";
 import { join, dirname } from "path";
 import { seoContentMap } from "./seo-content-map.mjs";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
@@ -74,38 +80,49 @@ const routes = [
   },
   {
     path: "/market-intelligence",
-    title: "Construction Market Intelligence: Prices, Indices and Listed Companies | FRELUX",
-    description: "FRELUX market intelligence: construction material price indices by market, listed construction companies, and sourced industry news. Every figure carries its publisher and date.",
+    title:
+      "Construction Market Intelligence: Prices, Indices and Listed Companies | FRELUX",
+    description:
+      "FRELUX market intelligence: construction material price indices by market, listed construction companies, and sourced industry news. Every figure carries its publisher and date.",
   },
   {
     path: "/market-intelligence/stocks",
-    title: "Construction Stock Market: Listed Builders and Materials Companies | FRELUX",
-    description: "Track listed construction and infrastructure companies: quotes, daily change, market capitalisation and interactive charts, with the provider and delay shown on every price.",
+    title:
+      "Construction Stock Market: Listed Builders and Materials Companies | FRELUX",
+    description:
+      "Track listed construction and infrastructure companies: quotes, daily change, market capitalisation and interactive charts, with the provider and delay shown on every price.",
   },
   {
     path: "/market-intelligence/materials",
-    title: "Construction Material Prices and Official Index Data by Market | FRELUX",
-    description: "Compare construction material prices across markets and follow official producer price indices for cement, steel, timber, paints and plumbing, with publisher attribution and update dates.",
+    title:
+      "Construction Material Prices and Official Index Data by Market | FRELUX",
+    description:
+      "Compare construction material prices across markets and follow official producer price indices for cement, steel, timber, paints and plumbing, with publisher attribution and update dates.",
   },
   {
     path: "/market-intelligence/trends",
     title: "Construction Industry Trends and Index Movements | FRELUX",
-    description: "Follow index movements across cement, steel, timber, paints and plumbing categories, with percentage change, publisher, licence and the period each figure covers.",
+    description:
+      "Follow index movements across cement, steel, timber, paints and plumbing categories, with percentage change, publisher, licence and the period each figure covers.",
   },
   {
     path: "/market-intelligence/investment",
     title: "Construction Investment Insights and Sector Performance | FRELUX",
-    description: "Construction investment context: listed company performance, sector composition of the tracked universe, funding and consolidation news, and sourced market developments.",
+    description:
+      "Construction investment context: listed company performance, sector composition of the tracked universe, funding and consolidation news, and sourced market developments.",
   },
   {
     path: "/market-intelligence/news",
     title: "Construction Market News with Sources and Dates | FRELUX",
-    description: "Curated construction industry headlines with the publication named and the date shown, organised by market, materials, companies and policy.",
+    description:
+      "Curated construction industry headlines with the publication named and the date shown, organised by market, materials, companies and policy.",
   },
   {
     path: "/market-intelligence/companies",
-    title: "Listed Construction and Building Materials Company Profiles | FRELUX",
-    description: "Profiles of the listed companies tracked on FRELUX: what each one does, where it lists, its sector, and the market data available for it.",
+    title:
+      "Listed Construction and Building Materials Company Profiles | FRELUX",
+    description:
+      "Profiles of the listed companies tracked on FRELUX: what each one does, where it lists, its sector, and the market data available for it.",
   },
   {
     path: "/unit-converter",
@@ -199,36 +216,84 @@ const routes = [
       },
     ],
   },
- {
-    path: '/escrow',
-    title: 'Cross-Border Diaspora Escrow for Construction | FRELUX',
+  {
+    path: "/escrow",
+    title: "Cross-Border Diaspora Escrow for Construction | FRELUX",
     description:
-      'How milestone-based escrow works for diaspora-funded builds: funds are held against verified construction stages and released as work is confirmed, with a documented audit trail.',
-    priority: '0.6',
-    changefreq: 'monthly',
+      "How milestone-based escrow works for diaspora-funded builds: funds are held against verified construction stages and released as work is confirmed, with a documented audit trail.",
+    priority: "0.6",
+    changefreq: "monthly",
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Cross-Border Diaspora Escrow', url: `${SITE_URL}/escrow` },
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
-        { '@type': 'ListItem', position: 2, name: 'Pro Connect', item: `${SITE_URL}/pro-connect` },
-        { '@type': 'ListItem', position: 3, name: 'Escrow', item: `${SITE_URL}/escrow` },
-      ]},
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "Cross-Border Diaspora Escrow",
+        url: `${SITE_URL}/escrow`,
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${SITE_URL}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Pro Connect",
+            item: `${SITE_URL}/pro-connect`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Escrow",
+            item: `${SITE_URL}/escrow`,
+          },
+        ],
+      },
     ],
   },
- {
-    path: '/developers/merchant-webhooks',
-    title: 'Merchant API and Live Inventory Webhooks | FRELUX Developers',
+  {
+    path: "/developers/merchant-webhooks",
+    title: "Merchant API and Live Inventory Webhooks | FRELUX Developers",
     description:
-      'Connect a merchant catalogue to FRELUX: price and stock feeds, inventory webhook events, and the API surface used to quote construction materials against real supplier data.',
-    priority: '0.6',
-    changefreq: 'monthly',
+      "Connect a merchant catalogue to FRELUX: price and stock feeds, inventory webhook events, and the API surface used to quote construction materials against real supplier data.",
+    priority: "0.6",
+    changefreq: "monthly",
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'FRELUX Merchant API and Webhooks', url: `${SITE_URL}/developers/merchant-webhooks` },
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}` },
-        { '@type': 'ListItem', position: 2, name: 'Developers', item: `${SITE_URL}/developers` },
-        { '@type': 'ListItem', position: 3, name: 'Merchant API', item: `${SITE_URL}/developers/merchant-webhooks` },
-      ]},
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "FRELUX Merchant API and Webhooks",
+        url: `${SITE_URL}/developers/merchant-webhooks`,
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${SITE_URL}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Developers",
+            item: `${SITE_URL}/developers`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Merchant API",
+            item: `${SITE_URL}/developers/merchant-webhooks`,
+          },
+        ],
+      },
     ],
   },
   {
@@ -2576,7 +2641,8 @@ const routes = [
   },
   {
     path: "/electrical-conduit-wiring-estimator",
-    title: "Electrical Conduit and Wiring Material Estimator | FRELUX SMART CALC",
+    title:
+      "Electrical Conduit and Wiring Material Estimator | FRELUX SMART CALC",
     description:
       "Estimate PVC conduit lengths, 1.5 mm and 2.5 mm cable coils, junction boxes, switch plates and sockets from floor area and point counts.",
   },
@@ -2589,17 +2655,20 @@ const routes = [
   {
     path: "/global-site-safety-estimator",
     title: "Global Site Safety & PPE Estimator | FRELUX SMART CALC",
-    description: "Plan PPE, site warning signs, excavation barriers and emergency inventory with editable assumptions and OSHA, UK HSE/CDM or ISO 7010 references. Not a compliance certification.",
+    description:
+      "Plan PPE, site warning signs, excavation barriers and emergency inventory with editable assumptions and OSHA, UK HSE/CDM or ISO 7010 references. Not a compliance certification.",
   },
   {
     path: "/diaspora-budget-tracker",
-    title: "Diaspora Construction Budget and Inflation Tracker | FRELUX SMART CALC",
+    title:
+      "Diaspora Construction Budget and Inflation Tracker | FRELUX SMART CALC",
     description:
       "Track overseas construction funds against local currency inflation, parallel exchange rates, and on-site material deviations.",
   },
   {
     path: "/structural-steel-i-beam-calculator",
-    title: "Structural Steel I-Beam Weight and Cost Calculator | FRELUX SMART CALC",
+    title:
+      "Structural Steel I-Beam Weight and Cost Calculator | FRELUX SMART CALC",
     description:
       "Convert span and steel profile into kilograms and tonnes, then cost them at your own merchant rate per tonne.",
   },
@@ -2710,6 +2779,12 @@ const routes = [
     title: "Margin Calculator | FRELUX SMART CALC",
     description:
       "Calculate profit margins on construction quotes with material, labour, and overhead inputs.",
+  },
+  {
+    path: "/quote-check",
+    title: "Contractor Quote Check Against Market Prices | FRELUX",
+    description:
+      "Check a contractor or supplier quote line by line against the market price book, and see which lines are above market and which have no reference price.",
   },
   {
     path: "/plumbing",
@@ -3319,9 +3394,7 @@ async function fetchLearnPages() {
                 `<li><a href="/learn/${a.slug}">${escapeHtml(a.title)}</a></li>`,
             )
             .join("");
-          return items
-            ? `<h2>${escapeHtml(c.name)}</h2><ul>${items}</ul>`
-            : "";
+          return items ? `<h2>${escapeHtml(c.name)}</h2><ul>${items}</ul>` : "";
         })
         .join("");
       const libTotal = arts.filter((a) => !a.wall_market_code).length;
@@ -3456,7 +3529,6 @@ for (const tool of toolRegistry) {
   }
 }
 
-
 // ── Colour library, palette and template families (2026-11-01) ───────
 // These routes have always existed in the SPA router, but nothing prerendered
 // them. A crawler therefore received the home shell with canonical "/", which
@@ -3561,11 +3633,16 @@ const hslToHex = (h, s, l) => {
   const lig = Math.max(0, Math.min(100, l)) / 100;
   const k = (n) => (n + hue / 30) % 12;
   const a = sat * Math.min(lig, 1 - lig);
-  const f = (n) => lig - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  const f = (n) =>
+    lig - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
   return (
     "#" +
     [f(0), f(8), f(4)]
-      .map((v) => Math.round(v * 255).toString(16).padStart(2, "0"))
+      .map((v) =>
+        Math.round(v * 255)
+          .toString(16)
+          .padStart(2, "0"),
+      )
       .join("")
       .toUpperCase()
   );
@@ -3587,7 +3664,9 @@ const hueFamilyOf = (h) => {
 
 const lrvPercent = (rgb) =>
   rgb
-    ? Math.round(((0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]) / 255) * 100)
+    ? Math.round(
+        ((0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]) / 255) * 100,
+      )
     : null;
 
 const toneWord = (lrv) => {
@@ -3600,7 +3679,8 @@ const toneWord = (lrv) => {
 };
 
 const roomAdvice = (lrv, warm) => {
-  if (lrv === null) return "Walls take this colour in most rooms; test a patch first, because sheen changes how it reads.";
+  if (lrv === null)
+    return "Walls take this colour in most rooms; test a patch first, because sheen changes how it reads.";
   if (lrv >= 78)
     return "At this lightness it carries a whole room, including a small one, and it is the safer choice for a north facing space that never gets direct sun. It also works on ceilings, where a light tone keeps the ceiling feeling higher.";
   if (lrv >= 62)
@@ -3657,9 +3737,12 @@ for (const c of paintColors) {
     .filter(Boolean)
     .join(" and");
   const rgb = rgbFromRow(c);
-  const hue = c.hsl_h === null || c.hsl_h === undefined ? null : Number(c.hsl_h);
-  const sat = c.hsl_s === null || c.hsl_s === undefined ? null : Number(c.hsl_s);
-  const lig = c.hsl_l === null || c.hsl_l === undefined ? null : Number(c.hsl_l);
+  const hue =
+    c.hsl_h === null || c.hsl_h === undefined ? null : Number(c.hsl_h);
+  const sat =
+    c.hsl_s === null || c.hsl_s === undefined ? null : Number(c.hsl_s);
+  const lig =
+    c.hsl_l === null || c.hsl_l === undefined ? null : Number(c.hsl_l);
   const lrv = lrvPercent(rgb);
   const family = hueFamilyOf(hue);
   const warm = hue === null ? true : hue < 90 || hue >= 300;
@@ -3678,11 +3761,25 @@ for (const c of paintColors) {
         greyed ? " with its chroma knocked back toward grey" : ""
       }.`
     : "";
-  const complementHex = hue === null ? null : hslToHex(hue + 180, sat ?? 20, lig ?? 50);
-  const accentHex = hue === null ? null : hslToHex(hue + 30, Math.min(100, (sat ?? 20) + 10), Math.max(18, (lig ?? 50) - 22));
-  const trimHex = hue === null ? null : hslToHex(hue, Math.max(4, Math.min(20, sat ?? 8)), 94);
+  const complementHex =
+    hue === null ? null : hslToHex(hue + 180, sat ?? 20, lig ?? 50);
+  const accentHex =
+    hue === null
+      ? null
+      : hslToHex(
+          hue + 30,
+          Math.min(100, (sat ?? 20) + 10),
+          Math.max(18, (lig ?? 50) - 22),
+        );
+  const trimHex =
+    hue === null
+      ? null
+      : hslToHex(hue, Math.max(4, Math.min(20, sat ?? 8)), 94);
   const neighbours = colorIndex
-    .map((o) => ({ ...o, d: Math.abs(((o.hue - (hue ?? 0) + 540) % 360) - 180) }))
+    .map((o) => ({
+      ...o,
+      d: Math.abs(((o.hue - (hue ?? 0) + 540) % 360) - 180),
+    }))
     .filter((o) => o.slug !== c.slug)
     .sort((a, b) => a.d - b.d)
     .slice(0, 4);
@@ -3699,31 +3796,39 @@ for (const c of paintColors) {
     `<p style="max-width:520px"><span style="display:block;height:140px;border-radius:10px;border:1px solid rgba(0,0,0,.2);background:${escapeHtml(c.hex_code || "#ffffff")}"></span></p>` +
     (undertone || tone
       ? `<h2>How ${escapeHtml(c.name)} reads on a wall</h2><p>${undertone}${
-          tone ? ` With an estimated light reflectance value of about ${lrv}, it is a ${escapeHtml(tone)} colour.` : ""
+          tone
+            ? ` With an estimated light reflectance value of about ${lrv}, it is a ${escapeHtml(tone)} colour.`
+            : ""
         } ${neutralNote}</p><p>Light reflectance matters more than the swatch for a wall colour: it decides how bright the room feels and how much of the ceiling bounce comes back into the space. The figure above is worked out from the stored RGB values, so treat it as a close estimate rather than a lab measurement.</p>`
       : "") +
     `<h2>The colour values in plain terms</h2><ul>` +
     (hex ? `<li>HEX: ${escapeHtml(hex)}</li>` : "") +
     (rgb ? `<li>RGB: ${rgb[0]}, ${rgb[1]}, ${rgb[2]}</li>` : "") +
-    (hue !== null ? `<li>HSL: ${Math.round(hue)}&deg;, ${Math.round(sat ?? 0)}%, ${Math.round(lig ?? 0)}%</li>` : "") +
+    (hue !== null
+      ? `<li>HSL: ${Math.round(hue)}&deg;, ${Math.round(sat ?? 0)}%, ${Math.round(lig ?? 0)}%</li>`
+      : "") +
     (lrv !== null ? `<li>Estimated LRV: ${lrv} of 100</li>` : "") +
     `</ul><p>The hue sets the family, the saturation sets how much colour survives the grey, and the lightness sets how much daylight the finished wall throws back. Two colours can share a name and a hue and still behave differently on site if their lightness is a few points apart.</p>` +
     `<h2>Trim, ceiling and accent pairings</h2><ul>` +
     (trimHex ? `<li>Trim and woodwork: ${swatch(trimHex, trimHex)}</li>` : "") +
-    (complementHex ? `<li>Complementary accent: ${swatch(complementHex, complementHex)}</li>` : "") +
-    (accentHex ? `<li>Warmer accent from the same family: ${swatch(accentHex, accentHex)}</li>` : "") +
+    (complementHex
+      ? `<li>Complementary accent: ${swatch(complementHex, complementHex)}</li>`
+      : "") +
+    (accentHex
+      ? `<li>Warmer accent from the same family: ${swatch(accentHex, accentHex)}</li>`
+      : "") +
     `</ul><p>A near white trim keeps the room calm and lets the wall colour do the talking. The complementary accent is the colour opposite ${escapeHtml(c.name)} on the wheel, which is why it works in small amounts: a door edge, a shelf, a single chair. The warmer accent sits a step around the wheel and holds the scheme together without a contrast.</p>` +
     `<h2>Where it belongs</h2><p>${roomAdvice(lrv, warm)}</p>` +
     (usage || placement || c.finish_compatibility
-      ? `<h2>Finish and surface</h2><p>${
-          [
-            usage,
-            placement ? `Listed for ${placement}.` : "",
-            asText(c.finish_compatibility) ? `Compatible finishes: ${asText(c.finish_compatibility)}.` : "",
-          ]
-            .filter(Boolean)
-            .join(" ")
-        }</p><p>${sheenAdvice(usage)}</p>`
+      ? `<h2>Finish and surface</h2><p>${[
+          usage,
+          placement ? `Listed for ${placement}.` : "",
+          asText(c.finish_compatibility)
+            ? `Compatible finishes: ${asText(c.finish_compatibility)}.`
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}</p><p>${sheenAdvice(usage)}</p>`
       : "") +
     `<h2>How much paint a room needs</h2><p>${coverageText(lrv)}</p>` +
     `<p>The FRELUX wall finishing estimator does that arithmetic room by room: enter the length, width and height, deduct the doors and windows, choose the quality and the coats, and it returns the 20 litre buckets to buy with the theoretical and practical figure side by side.</p>` +
@@ -3803,9 +3908,13 @@ for (const c of caseStudies) {
   if (routes.some((r) => r.path === path)) continue;
   const headline = (c.headline || "Case study").trim();
   const title =
-    headline.length <= 50 ? `${headline} | FRELUX` : headline.slice(0, 50).replace(/[\s,;:.-]+$/, "");
+    headline.length <= 50
+      ? `${headline} | FRELUX`
+      : headline.slice(0, 50).replace(/[\s,;:.-]+$/, "");
   const summary = (c.summary || "").trim();
-  const description = (summary || `${headline}: scope, challenges, materials and outcome.`).slice(0, 158);
+  const description = (
+    summary || `${headline}: scope, challenges, materials and outcome.`
+  ).slice(0, 158);
   const section = (heading, body) =>
     body ? `<h2>${heading}</h2><p>${escapeHtml(String(body))}</p>` : "";
   const budgetLine = c.budget
@@ -3865,33 +3974,42 @@ if (caseStudies.length) {
 // /glossary body
 if (glossaryTerms.length && !contentMap["/glossary"]) {
   const label = (c) =>
-    ({ materials: "Materials", finishes: "Finishes", techniques: "Techniques", tools: "Tools", measurement: "Measurement", structure: "Structure", planning: "Planning" })[c] ||
-    String(c || "General").replace(/-/g, " ").replace(/^./, (m) => m.toUpperCase());
+    ({
+      materials: "Materials",
+      finishes: "Finishes",
+      techniques: "Techniques",
+      tools: "Tools",
+      measurement: "Measurement",
+      structure: "Structure",
+      planning: "Planning",
+    })[c] ||
+    String(c || "General")
+      .replace(/-/g, " ")
+      .replace(/^./, (m) => m.toUpperCase());
   const byCategory = new Map();
   for (const t of glossaryTerms) {
     if (!byCategory.has(t.category)) byCategory.set(t.category, []);
     byCategory.get(t.category).push(t);
   }
-  contentMap["/glossary/"] =
-    contentMap["/glossary"] =
-      `<main><h1>Construction glossary: ${glossaryTerms.length} terms explained</h1>` +
-      `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; Glossary</nav>` +
-      `<p>The words used on site and in an estimate, defined plainly. Each entry explains what the term means in practice, so a quotation or a specification stops being ambiguous.</p>` +
-      [...byCategory.entries()]
-        .map(
-          ([cat, terms]) =>
-            `<h2>${label(cat)}</h2><dl>` +
-            terms
-              .map(
-                (t) =>
-                  `<dt id="${escapeHtml(t.slug || "")}">${escapeHtml(t.term || "")}</dt><dd>${escapeHtml(t.definition || "")}</dd>`,
-              )
-              .join("") +
-            `</dl>`,
-        )
-        .join("") +
-      `<h2>Put the terms to work</h2><p>Once the vocabulary is clear, run the numbers: the same definitions are used by the FRELUX calculators when they describe coverage, wastage and coats.</p>` +
-      `<ul><li><a href="/construction-tools/">All construction tools</a></li><li><a href="/calculators/">Calculator library</a></li><li><a href="/prices/">Material price intelligence</a></li><li><a href="/learn/">Guides</a></li></ul></main>`;
+  contentMap["/glossary/"] = contentMap["/glossary"] =
+    `<main><h1>Construction glossary: ${glossaryTerms.length} terms explained</h1>` +
+    `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; Glossary</nav>` +
+    `<p>The words used on site and in an estimate, defined plainly. Each entry explains what the term means in practice, so a quotation or a specification stops being ambiguous.</p>` +
+    [...byCategory.entries()]
+      .map(
+        ([cat, terms]) =>
+          `<h2>${label(cat)}</h2><dl>` +
+          terms
+            .map(
+              (t) =>
+                `<dt id="${escapeHtml(t.slug || "")}">${escapeHtml(t.term || "")}</dt><dd>${escapeHtml(t.definition || "")}</dd>`,
+            )
+            .join("") +
+          `</dl>`,
+      )
+      .join("") +
+    `<h2>Put the terms to work</h2><p>Once the vocabulary is clear, run the numbers: the same definitions are used by the FRELUX calculators when they describe coverage, wastage and coats.</p>` +
+    `<ul><li><a href="/construction-tools/">All construction tools</a></li><li><a href="/calculators/">Calculator library</a></li><li><a href="/prices/">Material price intelligence</a></li><li><a href="/learn/">Guides</a></li></ul></main>`;
 }
 
 // /prices body
@@ -3906,18 +4024,17 @@ if (priceMaterials.length && !contentMap["/prices"]) {
     counts.set(k, (counts.get(k) || 0) + 1);
   }
   const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
-  contentMap["/prices/"] =
-    contentMap["/prices"] =
-      `<main><h1>Material price book</h1>` +
-      `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; Material prices</nav>` +
-      `<p>The FRELUX price book holds ${priceMaterials.length} priced materials across ${counts.size} categories, in the currency of the market you select. Every calculator reads from it, so a quantity and its cost come from the same source.</p>` +
-      `<h2>What is covered</h2><ul>` +
-      top.map(([k, n]) => `<li>${label(k)}: ${n} priced items</li>`).join("") +
-      `</ul>` +
-      `<h2>How a price gets into the book</h2>` +
-      `<p>A price enters only from a configured source for that market and is dated. Where a verified local supplier price exists it is used directly; where it does not, the line is shown as a reference rate rather than presented as a quote. Nothing on this page is an average of unrelated markets.</p>` +
-      `<h2>Using it in an estimate</h2><p>Pick your market in any calculator and the quantities are priced from this book, not from a generic table. Change the market and both the units and the prices change with it.</p>` +
-      `<ul><li><a href="/construction-tools/">All construction tools</a></li><li><a href="/market/">Markets and currencies</a></li><li><a href="/calculators/">Calculator library</a></li><li><a href="/glossary/">Glossary of terms</a></li></ul></main>`;
+  contentMap["/prices/"] = contentMap["/prices"] =
+    `<main><h1>Material price book</h1>` +
+    `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; Material prices</nav>` +
+    `<p>The FRELUX price book holds ${priceMaterials.length} priced materials across ${counts.size} categories, in the currency of the market you select. Every calculator reads from it, so a quantity and its cost come from the same source.</p>` +
+    `<h2>What is covered</h2><ul>` +
+    top.map(([k, n]) => `<li>${label(k)}: ${n} priced items</li>`).join("") +
+    `</ul>` +
+    `<h2>How a price gets into the book</h2>` +
+    `<p>A price enters only from a configured source for that market and is dated. Where a verified local supplier price exists it is used directly; where it does not, the line is shown as a reference rate rather than presented as a quote. Nothing on this page is an average of unrelated markets.</p>` +
+    `<h2>Using it in an estimate</h2><p>Pick your market in any calculator and the quantities are priced from this book, not from a generic table. Change the market and both the units and the prices change with it.</p>` +
+    `<ul><li><a href="/construction-tools/">All construction tools</a></li><li><a href="/market/">Markets and currencies</a></li><li><a href="/calculators/">Calculator library</a></li><li><a href="/glossary/">Glossary of terms</a></li></ul></main>`;
 }
 
 routes.push(...dynamicFamilyRoutes);
@@ -3936,7 +4053,11 @@ const TEMPLATE_TYPE_LABEL = {
 
 const fitDescription = (sentences, limit = 158) => {
   const clean = sentences
-    .map((sentence) => String(sentence || "").replace(/\s+/g, " ").trim())
+    .map((sentence) =>
+      String(sentence || "")
+        .replace(/\s+/g, " ")
+        .trim(),
+    )
     .filter(Boolean)
     .map((sentence) => (/[.!?]$/.test(sentence) ? sentence : `${sentence}.`));
   let out = "";
@@ -4014,7 +4135,11 @@ for (const m of marketLandingRoutes) {
       })),
     ],
     title: `Estimate Templates – ${m.countryName} | FRELUX`,
-    description: `Paint, screeding, POP ceiling and tile estimate templates for ${m.countryName}, with dimensions in local units and costs in ${m.currency} (${m.currencySymbol}).`.slice(0, 158),
+    description:
+      `Paint, screeding, POP ceiling and tile estimate templates for ${m.countryName}, with dimensions in local units and costs in ${m.currency} (${m.currencySymbol}).`.slice(
+        0,
+        158,
+      ),
     priority: "0.7",
     changefreq: "weekly",
     content:
@@ -4023,7 +4148,8 @@ for (const m of marketLandingRoutes) {
       `<p>These templates pre-fill a whole job: room sizes, ceiling heights, openings and coats for the common ${m.countryName} painting, screeding, POP ceiling and tiling scopes. Pick one, adjust what differs on site, and the estimate runs in ${m.currency} (${m.currencySymbol}) with ${m.countryName} material prices.</p>` +
       `<h2>Templates in this market</h2><ul>` +
       TEMPLATE_CATALOG.map(
-        (t) => `<li><a href="${hubPath}/${t.slug}/">${t.name}</a>: ${t.description || t.seoDescription || ""}</li>`,
+        (t) =>
+          `<li><a href="${hubPath}/${t.slug}/">${t.name}</a>: ${t.description || t.seoDescription || ""}</li>`,
       ).join("") +
       `</ul><h2>Before you start</h2><p>Check the room measurements and the number of coats. FRELUX applies two coats as standard, and quantities are shown in the units used on ${m.countryName} sites rather than in a generic metric table.</p>` +
       `<ul><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market overview</a></li><li><a href="/calculators/">All FRELUX calculators</a></li><li><a href="/prices/">Material price intelligence</a></li></ul></main>`,
@@ -4068,7 +4194,10 @@ for (const m of marketLandingRoutes) {
       ],
       title: `${t.name} Template – ${m.countryName} | FRELUX`,
       description:
-        `${t.description || t.seoDescription || t.name}. Run it in ${m.countryName} with ${m.currency} (${m.currencySymbol}) prices from the local material price book.`.slice(0, 158),
+        `${t.description || t.seoDescription || t.name}. Run it in ${m.countryName} with ${m.currency} (${m.currencySymbol}) prices from the local material price book.`.slice(
+          0,
+          158,
+        ),
       priority: "0.6",
       changefreq: "monthly",
       content:
@@ -4227,7 +4356,8 @@ for (const route of routes) {
   const shortBrand = " | FRELUX";
   if (t.endsWith(longBrand)) {
     const short = `${t.slice(0, -longBrand.length)}${shortBrand}`;
-    route.title = short.length <= TITLE_LIMIT ? short : short.slice(0, -shortBrand.length);
+    route.title =
+      short.length <= TITLE_LIMIT ? short : short.slice(0, -shortBrand.length);
   } else if (t.endsWith(shortBrand) && t.length - shortBrand.length > 20) {
     route.title = t.slice(0, -shortBrand.length);
   }
@@ -4454,7 +4584,5 @@ writeFileSync(
     0,
   ),
 );
-console.log(
-  `\n prerendered ${count} routes`,
-);
+console.log(`\n prerendered ${count} routes`);
 console.log(` manifest: ${manifestPaths.length} static pages`);

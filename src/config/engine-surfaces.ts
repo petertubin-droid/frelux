@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Building2,
+  ClipboardCheck,
   Calculator,
   CalendarDays,
   Coins,
@@ -249,6 +250,14 @@ export const ENGINE_SURFACES: EngineSurface[] = [
     label: "Project Timeline (separate logic)",
     icon: CalendarDays,
     note: "A timeline page exists, but its maths is its own and the engine is never executed.",
+  },
+  {
+    engineId: "quote_check",
+    status: "live",
+    route: "/quote-check",
+    label: "Quote Check",
+    icon: ClipboardCheck,
+    note: "QuoteCheckPage runs checkQuote on every keystroke. Reference rates come from the market price book, and a line with no rate is never given a verdict.",
   },
   {
     engineId: "sequence_planner",

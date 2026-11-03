@@ -19,10 +19,7 @@ import { SITE_URL } from "./lib/site-url.mjs";
  * the moment it ships without a second list to maintain.
  */
 function faqArticleRoutes() {
-  const files = [
-    "src/config/tool-faqs.ts",
-    "src/config/engine-faqs.ts",
-  ];
+  const files = ["src/config/tool-faqs.ts", "src/config/engine-faqs.ts"];
   const slugs = new Set();
   for (const file of files) {
     let source = "";
@@ -35,13 +32,11 @@ function faqArticleRoutes() {
       slugs.add(match[1]);
     }
   }
-  return [...slugs]
-    .sort()
-    .map((slug) => ({
-      path: `/faq/${slug}`,
-      priority: "0.6",
-      changefreq: "monthly",
-    }));
+  return [...slugs].sort().map((slug) => ({
+    path: `/faq/${slug}`,
+    priority: "0.6",
+    changefreq: "monthly",
+  }));
 }
 
 const today = new Date().toISOString().split("T")[0];
@@ -72,7 +67,11 @@ const routes = [
   { path: "/data-request", priority: "0.6", changefreq: "yearly" },
   { path: "/start-building", priority: "0.9", changefreq: "weekly" },
   { path: "/escrow", priority: "0.6", changefreq: "monthly" },
-  { path: "/developers/merchant-webhooks", priority: "0.6", changefreq: "monthly" },
+  {
+    path: "/developers/merchant-webhooks",
+    priority: "0.6",
+    changefreq: "monthly",
+  },
   { path: "/paint-calculator", priority: "0.9", changefreq: "monthly" },
   { path: "/screeding-calculator", priority: "0.9", changefreq: "monthly" },
   { path: "/pop-ceiling-calculator", priority: "0.8", changefreq: "monthly" },
@@ -345,13 +344,37 @@ const routes = [
   { path: "/flooring", priority: "0.9", changefreq: "monthly" },
   { path: "/reinforcement", priority: "0.9", changefreq: "monthly" },
   { path: "/foundation", priority: "0.9", changefreq: "monthly" },
-  { path: "/retaining-wall-calculator", priority: "0.9", changefreq: "monthly" },
-  { path: "/rainwater-gutter-soffit-cost-estimator", priority: "0.9", changefreq: "monthly" },
-  { path: "/electrical-conduit-wiring-estimator", priority: "0.9", changefreq: "monthly" },
-  { path: "/water-tower-staging-estimator", priority: "0.9", changefreq: "monthly" },
-  { path: "/global-site-safety-estimator", priority: "0.9", changefreq: "monthly" },
+  {
+    path: "/retaining-wall-calculator",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
+  {
+    path: "/rainwater-gutter-soffit-cost-estimator",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
+  {
+    path: "/electrical-conduit-wiring-estimator",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
+  {
+    path: "/water-tower-staging-estimator",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
+  {
+    path: "/global-site-safety-estimator",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
   { path: "/diaspora-budget-tracker", priority: "0.9", changefreq: "monthly" },
-  { path: "/structural-steel-i-beam-calculator", priority: "0.9", changefreq: "monthly" },
+  {
+    path: "/structural-steel-i-beam-calculator",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
   { path: "/doors-windows", priority: "0.9", changefreq: "monthly" },
   { path: "/generator", priority: "0.9", changefreq: "monthly" },
   { path: "/boq-generator", priority: "0.9", changefreq: "monthly" },
@@ -374,6 +397,7 @@ const routes = [
   { path: "/labour-estimator", priority: "0.9", changefreq: "monthly" },
   { path: "/maintenance-planner", priority: "0.9", changefreq: "monthly" },
   { path: "/margin-calculator", priority: "0.9", changefreq: "monthly" },
+  { path: "/quote-check", priority: "0.9", changefreq: "monthly" },
   { path: "/regional-cost-index", priority: "0.9", changefreq: "monthly" },
   { path: "/warranty-certificate", priority: "0.9", changefreq: "monthly" },
   { path: "/carbon-footprint", priority: "0.9", changefreq: "monthly" },
@@ -383,11 +407,27 @@ const routes = [
   { path: "/developers", priority: "0.6", changefreq: "monthly" },
   { path: "/market-intelligence", priority: "0.8", changefreq: "daily" },
   { path: "/market-intelligence/stocks", priority: "0.8", changefreq: "daily" },
-  { path: "/market-intelligence/materials", priority: "0.8", changefreq: "weekly" },
-  { path: "/market-intelligence/trends", priority: "0.7", changefreq: "weekly" },
-  { path: "/market-intelligence/investment", priority: "0.6", changefreq: "weekly" },
+  {
+    path: "/market-intelligence/materials",
+    priority: "0.8",
+    changefreq: "weekly",
+  },
+  {
+    path: "/market-intelligence/trends",
+    priority: "0.7",
+    changefreq: "weekly",
+  },
+  {
+    path: "/market-intelligence/investment",
+    priority: "0.6",
+    changefreq: "weekly",
+  },
   { path: "/market-intelligence/news", priority: "0.6", changefreq: "daily" },
-  { path: "/market-intelligence/companies", priority: "0.6", changefreq: "monthly" },
+  {
+    path: "/market-intelligence/companies",
+    priority: "0.6",
+    changefreq: "monthly",
+  },
   { path: "/unit-converter", priority: "0.7", changefreq: "monthly" },
   { path: "/global-markets", priority: "0.7", changefreq: "monthly" },
   { path: "/rewards", priority: "0.6", changefreq: "monthly" },
@@ -572,7 +612,12 @@ const manifestOnlyRoutes = manifest
   .filter((p) => !marketTemplateRoutes.some((r) => r.path === p))
   .map((path) => ({ path, priority: "0.5", changefreq: "monthly" }));
 
-const allRoutes = [...routes, ...learnRoutes, ...marketTemplateRoutes, ...manifestOnlyRoutes];
+const allRoutes = [
+  ...routes,
+  ...learnRoutes,
+  ...marketTemplateRoutes,
+  ...manifestOnlyRoutes,
+];
 
 // Netlify's "pretty URLs" force-redirect every path to its trailing-slash
 // form (301 /calculators -> /calculators/). The sitemap must list the final
