@@ -210,6 +210,35 @@ export async function fetchEstimationMaterials(activeOnly: boolean = false) {
   );
 }
 
+/**
+ * Which of these materials actually carry an active price in a market.
+ *
+ * Reading the price book here is selection, not pricing: the figures shown to
+ * a customer still come through the price gateway, with its provenance and
+ * honesty checks. Without this, a panel that wants "products people can buy
+ * here" would have to price every material in a category to find the few that
+ * are priced.
+ */
+export async function fetchPricedMaterialIds(
+  market: string,
+  materialIds: readonly string[],
+): Promise<Set<string>> {
+  if (materialIds.length === 0) return new Set();
+  const { data, error } = await supabase
+    .from("estimation_prices")
+    .select("ref_id")
+    .eq("market", market.toUpperCase())
+    .eq("is_active", true)
+    .eq("price_type", "material")
+    .in("ref_id", materialIds as string[]);
+  if (error) return new Set();
+  return new Set(
+    (data ?? [])
+      .map((row) => (row as { ref_id?: string | null }).ref_id)
+      .filter((id): id is string => Boolean(id)),
+  );
+}
+
 export async function createEstimationMaterial(
   data: Partial<EstimationMaterial>,
 ) {

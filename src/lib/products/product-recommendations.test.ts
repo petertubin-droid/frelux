@@ -2,14 +2,25 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const fetchEstimationMaterials = vi.fn();
 const resolveMaterialPrice = vi.fn();
+const resolvePrice = vi.fn();
+const fetchMarketRoleMappings = vi.fn();
+const fetchPricedMaterialIds = vi.fn();
 
 vi.mock("@/lib/estimation/queries", () => ({
   fetchEstimationMaterials: (...args: unknown[]) =>
     fetchEstimationMaterials(...args),
+  fetchPricedMaterialIds: (...args: unknown[]) =>
+    fetchPricedMaterialIds(...args),
 }));
 
 vi.mock("@/lib/pricing/price-gateway", () => ({
   resolveMaterialPrice: (...args: unknown[]) => resolveMaterialPrice(...args),
+  resolvePrice: (...args: unknown[]) => resolvePrice(...args),
+}));
+
+vi.mock("@/lib/estimation/market-materials", () => ({
+  fetchMarketRoleMappings: (...args: unknown[]) =>
+    fetchMarketRoleMappings(...args),
 }));
 
 import {
@@ -45,8 +56,20 @@ describe("product recommendations", () => {
     clearRecommendationCache();
     fetchEstimationMaterials.mockReset();
     resolveMaterialPrice.mockReset();
+    resolvePrice.mockReset();
+    fetchMarketRoleMappings.mockReset();
+    fetchPricedMaterialIds.mockReset();
+    fetchPricedMaterialIds.mockImplementation(
+      async (_market: string, ids: readonly string[]) => new Set(ids),
+    );
     fetchEstimationMaterials.mockResolvedValue({ data: [], error: null });
     resolveMaterialPrice.mockResolvedValue(unpriced());
+    resolvePrice.mockResolvedValue({
+      unitPrice: null,
+      currency: null,
+      provenance: { effectiveDate: null, priceSource: null },
+    });
+    fetchMarketRoleMappings.mockResolvedValue([]);
   });
 
   it("falls back to the curated catalogue when the market book has no product rows", async () => {
@@ -121,6 +144,7 @@ describe("product recommendations", () => {
       data: [material("m2", "Zinsser Bullseye 123 1L (AT)")],
       error: null,
     });
+    fetchPricedMaterialIds.mockResolvedValue(new Set(["m2"]));
 
     const { items } = await loadProductRecommendations({
       category: "paint",
@@ -129,6 +153,24 @@ describe("product recommendations", () => {
     });
 
     expect(items.some((i) => i.name.includes("Zinsser"))).toBe(false);
+  });
+
+  it("only considers materials the market actually prices", async () => {
+    fetchEstimationMaterials.mockResolvedValue({
+      data: [material("a1", "Cement (NG)"), material("a2", "Cement (AT)")],
+      error: null,
+    });
+    fetchPricedMaterialIds.mockResolvedValue(new Set(["a1"]));
+    resolveMaterialPrice.mockResolvedValue(priced(15500, "NGN", "NG survey"));
+
+    const { items } = await loadProductRecommendations({
+      category: "paint",
+      market: "NG",
+      limit: 6,
+    });
+
+    const fromBook = items.filter((i) => i.origin === "market-book");
+    expect(fromBook.map((i) => i.name)).toEqual(["Cement (NG)"]);
   });
 
   it("does not price products from a category the page did not ask for", async () => {
@@ -157,6 +199,54 @@ describe("product recommendations", () => {
 
     expect(items.length).toBeGreaterThan(0);
     expect(error).toBeTruthy();
+  });
+
+  it("falls back to the market's role prices when the category has no product rows", async () => {
+    fetchMarketRoleMappings.mockResolvedValue([
+      {
+        market: "NG",
+        role: "waterproofer",
+        material_slug: "ng-waterproofer",
+        display_name: "Waterproofer, 20 kg",
+        unit_label: "20 kg pail",
+        notes: "Cementitious waterproofer for wet areas.",
+      },
+    ]);
+    resolvePrice.mockResolvedValue({
+      unitPrice: 24500,
+      currency: "NGN",
+      provenance: { effectiveDate: "2026-10-30", priceSource: "NG survey" },
+    });
+
+    const { items, error } = await loadProductRecommendations({
+      category: "waterproofing",
+      market: "NG",
+      limit: 3,
+    });
+
+    expect(error).toBeNull();
+    expect(items[0].name).toBe("Waterproofer, 20 kg");
+    expect(items[0].detail).toBe("20 kg pail");
+    expect(items[0].price?.low).toBe(24500);
+    expect(items[0].price?.currency).toBe("NGN");
+    expect(items[0].source.retrieved).toBe("2026-10-30");
+  });
+
+  it("keeps role prices out when the market has no mapping for the role", async () => {
+    fetchMarketRoleMappings.mockResolvedValue([]);
+    resolvePrice.mockResolvedValue({
+      unitPrice: 24500,
+      currency: "NGN",
+      provenance: { effectiveDate: "2026-10-30", priceSource: "NG survey" },
+    });
+
+    const { items } = await loadProductRecommendations({
+      category: "waterproofing",
+      market: "NG",
+      limit: 3,
+    });
+
+    expect(items).toEqual([]);
   });
 
   it("caches per market and category so a page does not reprice on every render", async () => {
