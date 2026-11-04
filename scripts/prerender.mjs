@@ -19,7 +19,10 @@ import { marketLandingRoutes } from "./market-landing-data.mjs";
 import { marketHreflang } from "./lib/market-hreflang.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { loadToolRegistry } from "./lib/tool-registry.mjs";
-import { buildToolsDirectoryContent } from "./lib/tools-directory-content.mjs";
+import {
+  buildToolsDirectoryContent,
+  buildToolPageContent,
+} from "./lib/tools-directory-content.mjs";
 import {
   buildToolContent,
   toolSeoDescription,
@@ -3186,8 +3189,35 @@ async function fetchLearnPages() {
               `<li><a href="/learn/${a.slug}">${escapeHtml(a.title)}</a>${a.excerpt ? `: ${escapeHtml(a.excerpt.slice(0, 140))}` : ""}</li>`,
           )
           .join("");
+        // An active category with no published article yet is not a dead end:
+        // say so plainly and route the reader to the categories that do have
+        // guides, with their real counts. No placeholder article is invented.
+        const siblings = cats
+          .filter((other) => other.slug !== c.slug)
+          .map((other) => ({
+            name: other.name,
+            slug: other.slug,
+            count: arts.filter((a) => a.category_slug === other.slug).length,
+          }))
+          .filter((other) => other.count > 0)
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 8);
+        const siblingList = siblings
+          .map(
+            (other) =>
+              `<li><a href="/learn/category/${other.slug}">${escapeHtml(other.name)}</a>: ${other.count} published ${
+                other.count === 1 ? "guide" : "guides"
+              }</li>`,
+          )
+          .join("");
+        const emptyBody =
+          `<p>No guide has been published in this category yet. Everything below is already written and published, and the calculators cover the same work.</p>` +
+          (siblingList
+            ? `<h2>Categories with published guides</h2><ul>${siblingList}</ul>`
+            : "") +
+          `<p><a href="/construction-tools">Browse the calculators</a> &middot; <a href="/learn">Back to the Learn hub</a> &middot; <a href="/faq">Read the most asked questions</a></p>`;
         learnContent[`/learn/category/${c.slug}`] =
-          `<h1>${escapeHtml(c.name)} Guides</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a> &rsaquo; ${escapeHtml(c.name)}</nav>${c.description ? `<p>${escapeHtml(c.description)}</p>` : ""}${listing ? `<h2>Articles in this category</h2><ul>${listing}</ul>` : "<p>New guides are coming soon to this category.</p>"}`;
+          `<h1>${escapeHtml(c.name)} Guides</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a> &rsaquo; ${escapeHtml(c.name)}</nav>${c.description ? `<p>${escapeHtml(c.description)}</p>` : ""}${listing ? `<h2>Articles in this category</h2><ul>${listing}</ul>` : emptyBody}`;
       }
 
       // Article pages — /learn/{slug}
@@ -4107,6 +4137,11 @@ const marketHubNav =
     .join("") +
   `</ul></nav>`;
 
+// Below this many words of real body copy, a tool page is rebuilt from its
+// registry entry. The theoretical shell text (market hubs, breadcrumb) is not
+// counted, so this measures content rather than chrome.
+const TOOL_BODY_MIN_WORDS = 150;
+
 const prerenderShell = (inner) =>
   `<div class="frelux-prerender"><div class="frelux-prerender__shield" aria-hidden="true">` +
   `<span class="frelux-prerender__mark">FRELUX SMART CALC</span>` +
@@ -4373,6 +4408,32 @@ for (const route of routes) {
   } else if (t.endsWith(shortBrand) && t.length - shortBrand.length > 20) {
     route.title = t.slice(0, -shortBrand.length);
   }
+}
+
+// Tool pages whose static body is a sentence and no links. Anything under the
+// threshold is rebuilt from the registry (the same strings the page renders)
+// plus real internal links: its guide, its sibling tools and the directory.
+// A page that already carries a real body is left alone.
+{
+  const faqSlugs = Object.keys(contentMap)
+    .filter((key) => key.startsWith("/faq/"))
+    .map((key) => key.slice("/faq/".length).replace(/\/$/, ""));
+  const detailPages = buildToolPageContent(loadToolRegistry(), { faqSlugs });
+  const wordCount = (html) =>
+    String(html)
+      .replace(/<[^>]+>/g, " ")
+      .split(/\s+/)
+      .filter(Boolean).length;
+  let rebuilt = 0;
+  for (const [path, entry] of Object.entries(detailPages)) {
+    const existing = contentMap[path];
+    if (wordCount(existing ?? "") >= TOOL_BODY_MIN_WORDS) continue;
+    contentMap[path] = entry.html;
+    rebuilt += 1;
+  }
+  console.log(
+    `[prerender] tool bodies rebuilt from registry: ${rebuilt} pages under ${TOOL_BODY_MIN_WORDS} words`,
+  );
 }
 
 // Tool directory pages: the registry is the only honest source for what each

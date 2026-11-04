@@ -133,3 +133,58 @@ export function buildToolsDirectoryContent(registry) {
 
   return out;
 }
+
+/**
+ * Body HTML for one tool's own page.
+ *
+ * Used only where the existing static body is thin (see scripts/prerender.mjs):
+ * a tool page that ships a sentence and no links is a dead end for a crawler.
+ * Everything below is the registry's own description of the tool plus real
+ * internal links to its guide, its siblings and the directory.
+ */
+export function buildToolPageContent(registry, { faqSlugs = [] } = {}) {
+  const tools = (Array.isArray(registry) ? registry : []).filter((t) => t && t.path && t.title);
+  if (tools.length === 0) return {};
+  const byCategory = new Map();
+  for (const tool of tools) {
+    if (!tool.category) continue;
+    if (!byCategory.has(tool.category)) byCategory.set(tool.category, []);
+    byCategory.get(tool.category).push(tool);
+  }
+  const faq = new Set(faqSlugs);
+  const out = {};
+
+  for (const tool of tools) {
+    const label = CATEGORY_LABELS[tool.category] ?? tool.category ?? "Tool";
+    const categoryPath = CATEGORY_PATHS[tool.category];
+    const siblings = (byCategory.get(tool.category) ?? []).filter((t) => t.path !== tool.path);
+    const slug = tool.path.replace(/^\//, "");
+    const hasGuide = faq.has(slug);
+
+    out[tool.path] = {
+      title: tool.title,
+      html:
+        `<h1>${escapeHtml(tool.title)}</h1>` +
+        `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/construction-tools">Construction tools</a> &rsaquo; ` +
+        (categoryPath
+          ? `<a href="${categoryPath}">${escapeHtml(label)}</a>`
+          : escapeHtml(label)) +
+        ` &rsaquo; ${escapeHtml(tool.title)}</nav>` +
+        (tool.does ? `<p>${escapeHtml(tool.does)}</p>` : "") +
+        (tool.enters ? `<h2>What you enter</h2><p>${escapeHtml(tool.enters)}</p>` : "") +
+        (tool.gets ? `<h2>What you get</h2><p>${escapeHtml(tool.gets)}</p>` : "") +
+        (siblings.length
+          ? `<h2>Other ${escapeHtml(label.toLowerCase())} tools</h2><ul>${siblings
+              .slice(0, 6)
+              .map((s) => `<li><a href="${escapeHtml(s.path)}">${escapeHtml(s.title)}</a>${s.does ? `: ${escapeHtml(s.does)}` : ""}</li>`)
+              .join("")}</ul>`
+          : "") +
+        (hasGuide
+          ? `<p><a href="/faq/${slug}/">Read the full guide to ${escapeHtml(tool.title.toLowerCase())}</a></p>`
+          : "") +
+        `<p><a href="/construction-tools/">Every FRELUX construction tool</a></p>`,
+    };
+  }
+
+  return out;
+}
