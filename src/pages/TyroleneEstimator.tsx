@@ -89,7 +89,11 @@ import { trackCalculation } from "@/lib/achievements";
 import { trackCalculationWithRewards } from "@/lib/rewards-integration";
 import { trackRecentTool } from "@/lib/smart-defaults";
 import { classNames } from "@/lib/utils";
-import { formatNumber } from "@/lib/utils";
+import { formatNumber, unitShortLabel, unitToMeters } from "@/lib/utils";
+import {
+  resolveMarketRoomUnit,
+  type RoomUnit,
+} from "@/lib/international/room-unit-defaults";
 
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
@@ -187,7 +191,7 @@ export default function TyroleneEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { t } = useLanguage();
-  const { marketCode } = useMarket();
+  const { market, marketCode } = useMarket();
   const { citySlug } = useProjectCity();
   const { defaults: calcDefaults } = useCalcDefaults("tyrolene");
   // Regional data flow: project location -> market profile -> currency.
@@ -306,6 +310,12 @@ export default function TyroleneEstimator({
   >("unknown");
   const [inputMode, setInputMode] = useState<"standard" | "actual">("standard");
   const [standardCount, setStandardCount] = useState<number>(4);
+  // Actual partition dimensions are entered in the visitor's unit and
+  // converted to metres once, before the engine runs. Without this the page
+  // read a 10 ft partition as 10 m and over-ordered every tyrolene material.
+  const [dimUnit, setDimUnit] = useState<RoomUnit>(() =>
+    resolveMarketRoomUnit(market, "meters"),
+  );
   const [partitionTypes, setPartitionTypes] = useState<PartitionTypeInput[]>([
     { id: "pt1", label: "Partition Type 1", quantity: 10, width: 3, height: 3 },
   ]);
@@ -495,7 +505,14 @@ export default function TyroleneEstimator({
 
     try {
       const input: TyroleneProjectInput = {
-        partition_types: inputMode === "actual" ? partitionTypes : [],
+        partition_types:
+          inputMode === "actual"
+            ? partitionTypes.map((pt) => ({
+                ...pt,
+                width: unitToMeters(pt.width, dimUnit),
+                height: unitToMeters(pt.height, dimUnit),
+              }))
+            : [],
         standard_partition_count:
           inputMode === "standard" ? standardCount : null,
         currency,
@@ -534,6 +551,7 @@ export default function TyroleneEstimator({
   }, [
     inputMode,
     partitionTypes,
+    dimUnit,
     standardCount,
     projectDescription,
     customerLocation,
@@ -1016,6 +1034,29 @@ export default function TyroleneEstimator({
                 </p>
               )}
 
+              <div
+                role="group"
+                aria-label={t("Measurement unit")}
+                className="flex w-fit overflow-hidden rounded-md border border-border"
+              >
+                {(["meters", "feet"] as const).map((u) => (
+                  <button
+                    key={u}
+                    type="button"
+                    aria-pressed={dimUnit === u}
+                    onClick={() => setDimUnit(u)}
+                    className={classNames(
+                      "px-3 py-1.5 text-xs font-medium transition-colors",
+                      dimUnit === u
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted",
+                    )}
+                  >
+                    {u === "meters" ? t("Metres") : t("Feet")}
+                  </button>
+                ))}
+              </div>
+
               {partitionTypes.map((pt, _idx) => (
                 <div
                   key={pt.id}
@@ -1063,7 +1104,7 @@ export default function TyroleneEstimator({
                         className="block text-xs text-muted-foreground mb-1"
                         htmlFor={`partition-width-${pt.id}`}
                       >
-                        {t("Width (m)")}
+                        {t("Width")} ({unitShortLabel(dimUnit)})
                       </label>
                       <input
                         id={`partition-width-${pt.id}`}
@@ -1086,7 +1127,7 @@ export default function TyroleneEstimator({
                         className="block text-xs text-muted-foreground mb-1"
                         htmlFor={`partition-height-${pt.id}`}
                       >
-                        {t("Height (m)")}
+                        {t("Height")} ({unitShortLabel(dimUnit)})
                       </label>
                       <input
                         id={`partition-height-${pt.id}`}
@@ -1106,7 +1147,13 @@ export default function TyroleneEstimator({
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Area: {(pt.quantity * pt.width * pt.height).toFixed(2)}m²
+                    Area:{" "}
+                    {(
+                      pt.quantity *
+                      unitToMeters(pt.width, dimUnit) *
+                      unitToMeters(pt.height, dimUnit)
+                    ).toFixed(2)}
+                    m²
                   </p>
                 </div>
               ))}

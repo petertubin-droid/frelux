@@ -14,10 +14,15 @@
 
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
 import { useProjectCity } from "@/lib/price-index/use-project-city";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { useMarket } from "@/lib/international/market-context";
+import {
+  resolveMarketRoomUnit,
+  type RoomUnit,
+} from "@/lib/international/room-unit-defaults";
+import { unitShortLabel, unitToMeters } from "@/lib/utils";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
@@ -122,13 +127,20 @@ interface SavedWallFinData {
   savedAt: string;
 }
 
-function makeRoom(name: string): DraftRoom {
+/**
+ * Defaults are the same physical room in either unit: 4.0 x 3.5 x 3.0 m, or
+ * 13.1 x 11.5 x 9.8 ft. The field names keep the "M" suffix for storage
+ * compatibility, but the value is always in the page's current unit and is
+ * converted to metres once, in buildSpec.
+ */
+function makeRoom(name: string, unit: RoomUnit = "meters"): DraftRoom {
+  const metric = unit === "meters";
   return {
     id: uid(),
     name,
-    lengthM: "4",
-    widthM: "3.5",
-    heightM: "3",
+    lengthM: metric ? "4" : "13.1",
+    widthM: metric ? "3.5" : "11.5",
+    heightM: metric ? "3" : "9.8",
     isWetArea: false,
     exteriorWalls: 1,
     doors: 1,
@@ -152,12 +164,30 @@ export default function WallFinishEstimator() {
       "Plan walls from structure to finish anywhere in the world: pick your country's construction method, add rooms and openings, and get layer-by-layer material quantities, labour and costs with full calculation transparency.",
   });
 
-  const { marketCode } = useMarket();
+  const { market, marketCode } = useMarket();
   const { citySlug } = useProjectCity();
   const [country, setCountry] = useState(marketCode);
   const [buildingType, setBuildingType] = useState("residential");
   const [region, setRegion] = useState("");
-  const [rooms, setRooms] = useState<DraftRoom[]>([makeRoom("Living room")]);
+  const [unit, setUnit] = useState<RoomUnit>(() =>
+    resolveMarketRoomUnit(market, "meters"),
+  );
+  const [rooms, setRooms] = useState<DraftRoom[]>([
+    makeRoom("Living room", resolveMarketRoomUnit(market, "meters")),
+  ]);
+  // A market change re-bases the page unit, but never overrides a dimension
+  // list the visitor already edited: only a pristine single default room is
+  // replaced, exactly like the paint calculator.
+  const appliedUnitRef = useRef<RoomUnit>(
+    resolveMarketRoomUnit(market, "meters"),
+  );
+  useEffect(() => {
+    const next = resolveMarketRoomUnit(market, "meters");
+    if (next === appliedUnitRef.current) return;
+    appliedUnitRef.current = next;
+    setUnit(next);
+    setRooms((rs) => (rs.length === 1 ? [makeRoom(rs[0].name, next)] : rs));
+  }, [market]);
   const [contingency, setContingency] = useState(10);
   const [equipmentCost, setEquipmentCost] = useState("");
   const [overrides, setOverrides] = useState<WallOverridesByWall>({});
@@ -252,9 +282,10 @@ export default function WallFinishEstimator() {
   /* build the calculation spec from the draft rooms */
   const buildSpec = useCallback((): WallFinProjectSpec => {
     const specRooms: RoomSpec[] = rooms.map((r, ri) => {
-      const L = n(r.lengthM);
-      const W = n(r.widthM);
-      const H = n(r.heightM);
+      // Entered in the page unit; the engine works in metres only.
+      const L = unitToMeters(n(r.lengthM), unit);
+      const W = unitToMeters(n(r.widthM), unit);
+      const H = unitToMeters(n(r.heightM), unit);
       const doors = makeOpenings("door", r.doors);
       const windows = makeOpenings("window", r.windows);
       const wallDefs: {
@@ -335,6 +366,7 @@ export default function WallFinishEstimator() {
     };
   }, [
     rooms,
+    unit,
     region,
     buildingType,
     contingency,
@@ -603,15 +635,41 @@ export default function WallFinishEstimator() {
         <section className="card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">2. Rooms</h2>
-            <button
-              type="button"
-              onClick={() =>
-                setRooms((rs) => [...rs, makeRoom(`Room ${rs.length + 1}`)])
-              }
-              className="btn-secondary text-sm"
-            >
-              + Add room
-            </button>
+            <div className="flex items-center gap-2">
+              <div
+                role="group"
+                aria-label={t("Measurement unit")}
+                className="flex overflow-hidden rounded-md border border-input"
+              >
+                {(["meters", "feet"] as const).map((u) => (
+                  <button
+                    key={u}
+                    type="button"
+                    aria-pressed={unit === u}
+                    onClick={() => setUnit(u)}
+                    className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                      unit === u
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-transparent text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {u === "meters" ? t("Metres") : t("Feet")}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setRooms((rs) => [
+                    ...rs,
+                    makeRoom(`Room ${rs.length + 1}`, unit),
+                  ])
+                }
+                className="btn-secondary text-sm"
+              >
+                + Add room
+              </button>
+            </div>
           </div>
           {rooms.map((r, i) => (
             <div
@@ -642,10 +700,10 @@ export default function WallFinishEstimator() {
                   <label key={f} className="space-y-1">
                     <span className="text-[11px] uppercase text-muted-foreground">
                       {f === "lengthM"
-                        ? "Length (m)"
+                        ? `Length (${unitShortLabel(unit)})`
                         : f === "widthM"
-                          ? "Width (m)"
-                          : "Height (m)"}
+                          ? `Width (${unitShortLabel(unit)})`
+                          : `Height (${unitShortLabel(unit)})`}
                     </span>
                     <input
                       type="number"
