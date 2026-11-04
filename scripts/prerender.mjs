@@ -26,6 +26,7 @@ import {
   renderTilePriceFacts,
 } from "./lib/tile-price-facts.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
+import { renderTemplateInputs } from "./lib/template-input-summary.mjs";
 import { loadToolRegistry } from "./lib/tool-registry.mjs";
 import {
   buildToolsDirectoryContent,
@@ -4126,6 +4127,52 @@ for (const route of routes) {
   ]);
 }
 Object.assign(contentMap, dynamicFamilyContent);
+
+// Below this many words of real body copy, a tool page is rebuilt from its
+// registry entry. The theoretical shell text (market hubs, breadcrumb) is not
+// counted, so this measures content rather than chrome.
+const TOOL_BODY_MIN_WORDS = 150;
+
+// Global template pages carried the generated family blurb only: a name and one
+// sentence, so all 40 read alike. Anything under the tool threshold is rebuilt
+// with the template's real stored configuration and links to its type's
+// siblings and to the market versions of itself.
+{
+  const wordCount = (html) =>
+    String(html ?? "")
+      .replace(/<[^>]+>/g, " ")
+      .split(/\s+/)
+      .filter(Boolean).length;
+  let rebuilt = 0;
+  for (const t of TEMPLATE_CATALOG) {
+    const path = `/templates/${t.slug}`;
+    if (wordCount(contentMap[path]) >= TOOL_BODY_MIN_WORDS) continue;
+    const siblings = TEMPLATE_CATALOG.filter(
+      (o) => o.type === t.type && o.slug !== t.slug,
+    );
+    contentMap[path] =
+      `<h1>${t.name} template</h1>` +
+      `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/templates">Templates</a> &rsaquo; ${t.name}</nav>` +
+      (t.description ? `<p>${t.description}</p>` : "") +
+      renderTemplateInputs(t, "meters") +
+      `<h2>What the estimate gives you</h2><p>The ${TEMPLATE_TYPE_LABEL[t.type] ?? t.type} calculator runs these settings through the deterministic engine for that discipline: measured quantities first, then the material and labour lines the quantities imply, priced from the market book for your currency. Nothing in the estimate is guessed by an AI.</p>` +
+      (siblings.length
+        ? `<h2>Other ${(TEMPLATE_TYPE_LABEL[t.type] ?? t.type).toLowerCase()} templates</h2><ul>${siblings
+            .slice(0, 8)
+            .map(
+              (o) =>
+                `<li><a href="/templates/${o.slug}">${o.name}</a>${o.description ? `: ${o.description}` : ""}</li>`,
+            )
+            .join("")}</ul>`
+        : "") +
+      `<p><a href="/global-markets">Run this template in your market</a> &middot; <a href="/templates">All templates</a></p>`;
+    rebuilt += 1;
+  }
+  console.log(
+    `[prerender] template bodies rebuilt from stored inputs: ${rebuilt} pages`,
+  );
+}
+
 console.log(
   `[prerender] dynamic families: ${paintColors.length} colours, ${colorPalettes.length} palettes, ${extraTemplates.length} extra templates`,
 );
@@ -4144,11 +4191,6 @@ const marketHubNav =
     )
     .join("") +
   `</ul></nav>`;
-
-// Below this many words of real body copy, a tool page is rebuilt from its
-// registry entry. The theoretical shell text (market hubs, breadcrumb) is not
-// counted, so this measures content rather than chrome.
-const TOOL_BODY_MIN_WORDS = 150;
 
 const prerenderShell = (inner) =>
   `<div class="frelux-prerender"><div class="frelux-prerender__shield" aria-hidden="true">` +
@@ -4281,6 +4323,7 @@ for (const m of marketLandingRoutes) {
         `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/market/${m.code.toLowerCase()}/">${m.countryName}</a> &rsaquo; <a href="${hubPath}/">Templates</a> &rsaquo; ${t.name}</nav>` +
         (t.description ? `<p>${t.description}</p>` : "") +
         `<h2>What this template sets up</h2><p>${t.name} pre-fills the scope for this kind of ${t.type} job so you start from realistic dimensions instead of a blank form. You still adjust every measurement, opening and coat before the estimate runs.</p>` +
+        renderTemplateInputs(t, m.code === "US" ? "feet" : "meters") +
         `<h2>${m.countryName} units and pricing</h2><p>Quantities follow ${m.countryName} practice and costs are shown in ${m.currency} (${m.currencySymbol}). Where the price book holds a verified local material price it is used directly; otherwise the line is marked as a reference rate.</p>` +
         templatePriceSection(m, t) +
         `<h2>Run it</h2><ul><li><a href="${hubPath}/">All templates for ${m.countryName}</a></li><li><a href="/templates/${t.slug}/">${t.name} (global version)</a></li><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market page</a></li><li><a href="/calculators/">All FRELUX calculators</a></li></ul></main>`,
