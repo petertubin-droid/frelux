@@ -15,6 +15,7 @@ import {
   Save,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { useToast } from "@/components/ui/Toast";
 import { calculateEstimatedTotal } from "@/lib/calc";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
@@ -1264,6 +1265,8 @@ export default function CostEstimator({
       )}
 
       {/* Ad slot, placement "estimator_mid" */}
+      <RecommendedProducts category="paint" />
+
       <AdSlot slotKey="estimator_mid" className="mt-8" />
       {/* Native banner slot, placement "estimator_native" */}
       <AdSlot slotKey="estimator_native" className="mt-8" />

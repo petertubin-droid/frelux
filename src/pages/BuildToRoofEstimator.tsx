@@ -1,4 +1,5 @@
 import AdSlot from "@/components/ui/AdSlot";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { stageStudioImport } from "@/lib/document-studio";
 import HeroTitle from "@/components/ui/HeroTitle";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
@@ -418,7 +419,9 @@ const WASTAGE_TO_MATERIAL: Partial<
   reinforcement: "steel",
 };
 
-export default function BuildToRoofEstimator({ embedded = false }: { embedded?: boolean } = {}) {
+export default function BuildToRoofEstimator({
+  embedded = false,
+}: { embedded?: boolean } = {}) {
   const { t } = useLanguage();
   const { market, marketCode } = useMarket();
   const typology = useMemo(
@@ -3843,6 +3846,8 @@ function EstimateResult({
         </div>
       </div>
       {/* Ad slot, placement "calculator_mid" */}
+      <RecommendedProducts category="roofing" />
+
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />

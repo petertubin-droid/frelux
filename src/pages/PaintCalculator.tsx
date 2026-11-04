@@ -31,6 +31,7 @@ import {
   Trash2,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import MultiStepProgress from "@/components/ui/MultiStepProgress";
 import TemplatePicker from "@/components/ui/TemplatePicker";
@@ -1327,6 +1328,8 @@ ${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map(
       )}
 
       {/* Ad slot, placement "calculator_mid" */}
+      <RecommendedProducts category="paint" />
+
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />

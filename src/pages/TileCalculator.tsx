@@ -23,6 +23,7 @@ import {
   Home,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { calculateTile } from "@/lib/pop-tile-calc";
 import {
@@ -1934,6 +1935,8 @@ function TileHouseEditor({
           </div>
         </div>
       </div>
+
+      <RecommendedProducts category="flooring" />
 
       <p className="mt-4 text-xs text-muted-foreground">
         Whole-house mode tiles every room's floor. For bathroom or kitchen wall
