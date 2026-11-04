@@ -27,6 +27,7 @@ import {
 } from "./lib/tile-price-facts.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { renderTemplateInputs } from "./lib/template-input-summary.mjs";
+import { legalPageContent } from "./lib/legal-page-content.mjs";
 import { loadToolRegistry } from "./lib/tool-registry.mjs";
 import {
   buildToolsDirectoryContent,
@@ -4204,6 +4205,11 @@ for (const route of routes) {
   ]);
 }
 Object.assign(contentMap, dynamicFamilyContent);
+
+// Legal, company and account pages: their real text lives in React components, so
+// the served HTML carried a one-line stub. These bodies summarise the same
+// document and list its real section headings; the full text still renders.
+Object.assign(contentMap, legalPageContent);
 
 // Below this many words of real body copy, a tool page is rebuilt from its
 // registry entry. The theoretical shell text (market hubs, breadcrumb) is not
