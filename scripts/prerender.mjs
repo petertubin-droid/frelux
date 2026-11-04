@@ -3615,7 +3615,7 @@ const colorPalettes = await dbRows(
 );
 const dbTemplates = await dbRows(
   "calculator_templates",
-  "select=slug,name,description,is_published&is_published=eq.true&order=slug.asc&limit=500",
+  "select=slug,name,description,is_published,calculator_type,input_data&is_published=eq.true&order=slug.asc&limit=500",
 );
 
 // Only templates the catalog does not already cover: catalog templates are
@@ -4016,6 +4016,32 @@ for (const t of extraTemplates) {
     `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/templates/">Templates</a> &rsaquo; ${escapeHtml(name)}</nav>` +
     (t.description ? `<p>${escapeHtml(t.description)}</p>` : "") +
     `<h2>How this template works</h2><p>${escapeHtml(name)} pre-fills the scope for this kind of job so you can go straight to measuring. You still enter the room dimensions and openings, and material rates come from the market you select, so the output reflects local pricing rather than a generic table.</p>` +
+    renderTemplateInputs(
+      {
+        type: t.calculator_type ?? "",
+        inputs: t.input_data && typeof t.input_data === "object" ? t.input_data : {},
+      },
+      "meters",
+    ) +
+    (() => {
+      const siblings = dbTemplates
+        .filter(
+          (o) =>
+            o.slug &&
+            o.slug !== t.slug &&
+            o.calculator_type &&
+            o.calculator_type === t.calculator_type,
+        )
+        .slice(0, 8);
+      if (siblings.length === 0) return "";
+      return (
+        `<h2>Other ${escapeHtml(String(t.calculator_type).toLowerCase())} templates</h2><ul>` +
+        siblings
+          .map((o) => `<li><a href="/templates/${o.slug}">${escapeHtml(o.name || o.slug)}</a></li>`)
+          .join("") +
+        `</ul>`
+      );
+    })() +
     `<ul><li><a href="/templates/">All templates</a></li><li><a href="/calculators/">All calculators</a></li><li><a href="/market/">Markets</a></li></ul></main>`;
 }
 
