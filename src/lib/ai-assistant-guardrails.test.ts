@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 /**
@@ -70,5 +70,48 @@ describe("project assistant", () => {
   it("does not assume a Nigerian market in its review prompt", () => {
     expect(fn).not.toContain("a Nigerian construction estimation platform");
     expect(fn).not.toContain("this project type in Nigeria");
+  });
+});
+
+describe("retired brand in assistant prompts", () => {
+  it("no assistant tells the model to call itself PAINT CALC", () => {
+    const walk = (dir: string): string[] => {
+      const out: string[] = [];
+      for (const entry of readdirSync(join(process.cwd(), dir), {
+        withFileTypes: true,
+      })) {
+        const rel = `${dir}/${entry.name}`;
+        if (entry.isDirectory()) out.push(...walk(rel));
+        else if (entry.name.endsWith(".ts")) out.push(rel);
+      }
+      return out;
+    };
+    const offenders = walk("supabase/functions").filter((f) =>
+      read(f).includes("FRELUX PAINT CALC"),
+    );
+    expect(offenders).toEqual([]);
+  });
+});
+
+describe("learning assistant", () => {
+  const fn = read("supabase/functions/ai-learn-assistant/index.ts");
+
+  it("forbids stating technical constants and prices as fact", () => {
+    expect(fn).toContain("Never state a technical figure as fact");
+    expect(fn).toContain("Never quote a price");
+    expect(fn).toContain("Do not assume the country");
+  });
+});
+
+describe("colour consultant", () => {
+  const fn = read("supabase/functions/ai-color-consult/index.ts");
+
+  it("normalises or refuses a colour without a usable hex", () => {
+    expect(fn).toContain("function normalizeHex");
+    expect(fn).toContain("INVALID_HEX");
+  });
+
+  it("does not let the model quote prices or imply stock", () => {
+    expect(fn).toContain("Never quote a price");
   });
 });

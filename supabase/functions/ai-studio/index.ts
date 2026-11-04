@@ -128,7 +128,7 @@ function _isProtectedFile(fileName: string): boolean {
 }
 
 const TOOL_SYSTEM_PROMPTS: Record<string, string> = {
-  chat: "You are an expert AI development assistant for the FRELUX PAINT CALC platform. You help with React, TypeScript, Tailwind CSS, Supabase, and general web development questions. Provide clear, actionable answers with code examples when relevant.",
+  chat: "You are an expert AI development assistant for the FRELUX platform. You help with React, TypeScript, Tailwind CSS, Supabase, and general web development questions. Provide clear, actionable answers with code examples when relevant.",
   page_builder:
     "You are an expert React page builder. Generate complete, production-ready React page components using TypeScript, Tailwind CSS, and lucide-react icons. Always include: proper imports, TypeScript types, responsive design, loading/error states, SEO meta tags, and clean component structure. Use the @/ path alias for imports.",
   crud_generator:

@@ -161,7 +161,7 @@ async function callGemini(
   return text;
 }
 
-const ASK_SYSTEM_PROMPT = `You are the FRELUX PAINT CALC learning assistant. You help users with questions about painting, POP ceiling installation, tile installation, color selection, and paint products.
+const ASK_SYSTEM_PROMPT = `You are the FRELUX learning assistant. You help users with questions about painting, POP ceiling installation, tile installation, color selection, and paint products.
 
 Your job:
 - Answer questions clearly and practically
@@ -170,11 +170,17 @@ Your job:
 - Be specific and actionable, avoid generic advice
 - If a question is outside the scope of painting, POP ceiling, tiles, or home improvement, politely redirect
 
+Precision rules:
+- Never state a technical figure as fact unless the knowledge base below contains it: coverage per litre, blocks per square metre, bags per cubic metre, mix ratios, waste allowances, cable or pipe sizes.
+- Never quote a price or a cost per unit, in any currency. Prices differ by market and change.
+- Never invent a standard, code or clause number. If it is not in the knowledge base, say you cannot confirm it.
+- Do not assume the country. If the answer depends on local methods or units, ask where the work is.
+
 Knowledge base context from the website:
 
 {{KNOWLEDGE_BASE}}
 
-When the knowledge base has relevant content, cite it. When it doesn't, provide general expert guidance.
+When the knowledge base has relevant content, cite it. When it doesn't, say what you can confirm and point to the calculator that computes the number.
 
 Formatting (mandatory): the answer renders as plain text in a chat bubble. No markdown at all — never write **bold**, *italic*, # headings, or backticks. Use "- " for list items. Never use em dashes (—) or en dashes (–); use a comma, colon, or plain hyphen instead.`;
 
@@ -281,7 +287,7 @@ serveWithCors(async (req: Request) => {
         break;
       }
       case "generate_article": {
-        systemPrompt = `You are a professional content writer for FRELUX PAINT CALC. Generate a complete, well-structured article in Markdown format.
+        systemPrompt = `You are a professional content writer for FRELUX. Generate a complete, well-structured article in Markdown format.
 
 Article type: ${body.articleType ?? "painting guide"}
 Topic: ${body.topic ?? ""}
@@ -300,18 +306,18 @@ Write in clear, accessible language. Use bullet points and numbered lists where 
         break;
       }
       case "expand_outline": {
-        systemPrompt = `You are a content editor for FRELUX PAINT CALC. Expand the given outline into a detailed, well-structured article in Markdown format. Add practical examples, step-by-step instructions, and expert tips.`;
+        systemPrompt = `You are a content editor for FRELUX. Expand the given outline into a detailed, well-structured article in Markdown format. Add practical examples, step-by-step instructions, and expert tips.`;
         userPrompt = `Expand this outline into a full article:\n\n${body.content ?? ""}`;
         break;
       }
       case "rewrite":
       case "improve": {
-        systemPrompt = `You are a content editor for FRELUX PAINT CALC. Rewrite and improve the given content for clarity, grammar, readability, and flow. Keep the same meaning but enhance the writing quality. Return Markdown format.`;
+        systemPrompt = `You are a content editor for FRELUX. Rewrite and improve the given content for clarity, grammar, readability, and flow. Keep the same meaning but enhance the writing quality. Return Markdown format.`;
         userPrompt = `Improve this content:\n\n${body.content ?? ""}`;
         break;
       }
       case "seo_optimize": {
-        systemPrompt = `You are an SEO expert for FRELUX PAINT CALC. Analyze the given content and provide:
+        systemPrompt = `You are an SEO expert for FRELUX. Analyze the given content and provide:
 1. An optimized meta title (50-60 characters)
 2. An optimized meta description (150-160 characters)
 3. Target keyword suggestions (5-10 keywords)
@@ -324,7 +330,7 @@ Return as JSON: {"metaTitle": "...", "metaDescription": "...", "keywords": [...]
         break;
       }
       case "generate_faq": {
-        systemPrompt = `You are a content writer for FRELUX PAINT CALC. Generate 5-7 relevant FAQ items about the given topic. Each FAQ should have a question and a clear, practical answer. Return as Markdown with ## Q: ... and A: ... format.`;
+        systemPrompt = `You are a content writer for FRELUX. Generate 5-7 relevant FAQ items about the given topic. Each FAQ should have a question and a clear, practical answer. Return as Markdown with ## Q: ... and A: ... format.`;
         userPrompt = `Generate FAQs about: ${body.topic ?? body.content ?? ""}`;
         break;
       }
@@ -344,12 +350,12 @@ Return as JSON: {"metaTitle": "...", "metaDescription": "...", "keywords": [...]
         break;
       }
       case "tutorial_steps": {
-        systemPrompt = `You are a DIY tutorial writer for FRELUX PAINT CALC. Generate detailed step-by-step tutorial instructions in Markdown format. Include materials needed, preparation, steps, and safety tips.`;
+        systemPrompt = `You are a DIY tutorial writer for FRELUX. Generate detailed step-by-step tutorial instructions in Markdown format. Include materials needed, preparation, steps, and safety tips.`;
         userPrompt = `Generate a step-by-step tutorial for: ${body.topic ?? body.content ?? ""}`;
         break;
       }
       case "comparison": {
-        systemPrompt = `You are a product reviewer for FRELUX PAINT CALC. Generate a comparison article in Markdown format with a table comparing the key features, pros, and cons of the products or methods mentioned.`;
+        systemPrompt = `You are a product reviewer for FRELUX. Generate a comparison article in Markdown format with a table comparing the key features, pros, and cons of the products or methods mentioned.`;
         userPrompt = `Compare: ${body.topic ?? body.content ?? ""}`;
         break;
       }
@@ -380,7 +386,7 @@ Return as JSON: {"metaTitle": "...", "metaDescription": "...", "keywords": [...]
           : insertType === "stat_highlight"
             ? `Return 1-3 lines. Each line MUST be exactly: <big number or short stat> | <one-line explanation>. The pipe character separates the stat from its label. No markdown.`
             : `Return a single short paragraph of 2-3 sentences. No markdown, no headings, no quotes.`;
-        systemPrompt = `You are a professional content editor for FRELUX PAINT CALC (painting, POP ceiling, tiles, and home improvement). Draft an in-article insert card of type "${insertType}".
+        systemPrompt = `You are a professional content editor for FRELUX (painting, POP ceiling, tiles, and home improvement). Draft an in-article insert card of type "${insertType}".
 
 Rules:
 - Base every statement ONLY on the article content provided. Do not invent facts, prices, or statistics.

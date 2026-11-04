@@ -44,6 +44,26 @@ interface SiteAiConfig {
   ai_admin_override: boolean;
 }
 
+/**
+ * Accepts "#a1b2c3", "a1b2c3", "#ABC" and returns "#A1B2C3". Returns null for
+ * anything that is not a hex colour, so the caller can refuse it.
+ */
+function normalizeHex(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const raw = value.trim().replace(/^#/, "");
+  if (/^[0-9a-f]{3}$/i.test(raw)) {
+    return (
+      "#" +
+      raw
+        .split("")
+        .map((c) => c + c)
+        .join("")
+    ).toUpperCase();
+  }
+  if (/^[0-9a-f]{6}$/i.test(raw)) return ("#" + raw).toUpperCase();
+  return null;
+}
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -284,7 +304,7 @@ async function logRequest(
   });
 }
 
-const SYSTEM_PROMPT = `You are a professional interior color consultant for a paint company called FRELUX PAINT CALC.
+const SYSTEM_PROMPT = `You are a professional interior color consultant for a paint company called FRELUX.
 You help users choose paint colors for their spaces.
 
 Your job:
@@ -300,6 +320,8 @@ Rules:
 - Consider lighting, room size, existing furniture, and desired mood.
 - Only recommend colors that work well together.
 - Every hex code must be a valid 6-digit hexadecimal starting with #.
+- Never quote a price, a product code, a stock level or a "best seller" claim. Shade names are descriptions, not catalogue references: say "a warm mid grey" rather than implying a specific SKU is in stock.
+- If a colour would not be available in paint form at a sensible price, do not recommend it.
 
 You MUST respond with ONLY a valid JSON object matching this exact TypeScript type, no markdown, no explanation outside the JSON:
 
@@ -424,6 +446,19 @@ async function callGemini(
     parsed.colors.length === 0
   ) {
     throw new Error("INVALID_STRUCTURE:AI response missing colors array");
+  }
+
+  // A model can return "grey" or "#12345" where a hex belongs, and the swatch
+  // then renders as nothing at all. Coerce what is coercible and refuse the
+  // rest rather than shipping a palette that cannot be painted.
+  for (const colour of parsed.colors) {
+    const normalized = normalizeHex(colour?.hex);
+    if (!normalized) {
+      throw new Error(
+        "INVALID_HEX:AI returned a colour without a usable hex code",
+      );
+    }
+    colour.hex = normalized;
   }
 
   return parsed;
