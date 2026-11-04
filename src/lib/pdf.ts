@@ -21,6 +21,7 @@ import {
   applyJspdfHeader,
   applyJspdfFooter,
 } from "@/lib/pdf-branding";
+import { saveSealedPdf } from "@/lib/pdf-seal";
 
 const PDF_LOCALE_BY_SYMBOL: Record<string, string> = {
   "\u20A6": "en-NG", // Naira
@@ -325,7 +326,13 @@ export async function generateQuotationPDF(
     );
   }
 
-  doc.save(`Quotation_${quotation.quotation_number}.pdf`);
+  // Sealed on the way out: the download is encrypted and its permissions deny
+  // editing, so the file a client receives is the record, not a draft.
+  await saveSealedPdf(doc, `Quotation_${quotation.quotation_number}.pdf`, {
+    title: `Quotation ${quotation.quotation_number}`,
+    subject: project.name,
+    reference: quotation.quotation_number,
+  });
 }
 
 // ============================================================
@@ -499,5 +506,9 @@ export async function generateShoppingListPDF(
     );
   }
 
-  doc.save(`ShoppingList_${project.name.replace(/\s+/g, "_")}.pdf`);
+  await saveSealedPdf(
+    doc,
+    `ShoppingList_${project.name.replace(/\s+/g, "_")}.pdf`,
+    { title: `Shopping list ${project.name}`, subject: project.name },
+  );
 }

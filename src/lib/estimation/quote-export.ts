@@ -472,6 +472,11 @@ export function buildQuoteHtml(opts: QuoteOptions): string {
  * Open the browser print dialog with the quote. If popups are
  * blocked, download a printable HTML file instead.
  */
+/**
+ * Print a quotation through the browser. The resulting file comes from the
+ * print dialog, not from FRELUX, so it is not sealed: downloads that must be
+ * unalterable go through `@/lib/pdf-seal` (`downloadEstimatePdf` and friends).
+ */
 export function printQuote(opts: QuoteOptions, downloadName: string): void {
   const html = buildQuoteHtml(opts);
   const w = window.open("", "_blank", "width=900,height=720");

@@ -11,6 +11,7 @@
 import { formatByCode } from "@/lib/international/currency-format";
 import type { StandardBoqDocument } from "@/lib/finance/boq-standard";
 import { documentStatusLabel } from "./compile";
+import { saveSealedPdf } from "@/lib/pdf-seal";
 import type { BoqStudioDocument } from "./types";
 
 const BRAND = { r: 15, g: 23, b: 42 };
@@ -364,5 +365,9 @@ export async function downloadBoqPdf(
   const safe = (studio.reference || studio.title || "boq")
     .replace(/[^a-z0-9-_]+/gi, "-")
     .replace(/^-+|-+$/g, "");
-  doc.save(`${safe || "boq"}-R${studio.revision}.pdf`);
+  await saveSealedPdf(doc, `${safe || "boq"}-R${studio.revision}.pdf`, {
+    title: `BOQ ${studio.reference || studio.title}`,
+    subject: `Revision ${studio.revision}`,
+    reference: studio.reference,
+  });
 }

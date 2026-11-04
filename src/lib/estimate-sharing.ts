@@ -30,6 +30,7 @@ import {
   applyJspdfHeader,
   applyJspdfFooter,
 } from "@/lib/pdf-branding";
+import { saveSealedPdf, sealPdf } from "@/lib/pdf-seal";
 
 // ─────────────────────────────────────────────
 // Shareable estimate model
@@ -69,7 +70,9 @@ export interface ShareableEstimate {
 // WhatsApp text
 // ─────────────────────────────────────────────
 
-export function buildEstimateWhatsAppMessage(estimate: ShareableEstimate): string {
+export function buildEstimateWhatsAppMessage(
+  estimate: ShareableEstimate,
+): string {
   const lines: string[] = [];
   lines.push(`🏗️ *FRELUX ${estimate.kind}*`);
   if (estimate.title) lines.push(`*Project:* ${estimate.title}`);
@@ -109,16 +112,24 @@ export function buildEstimateWhatsAppMessage(estimate: ShareableEstimate): strin
   if (estimate.totals.length > 0) lines.push("");
 
   for (const note of estimate.notes ?? []) lines.push(`⚠️ ${note}`);
-  lines.push("_Estimate only. Actual amounts may vary by surface, location and market prices._");
+  lines.push(
+    "_Estimate only. Actual amounts may vary by surface, location and market prices._",
+  );
   lines.push("");
-  const link = estimate.link.startsWith("http") ? estimate.link : `${SITE_URL}${estimate.link}`;
+  const link = estimate.link.startsWith("http")
+    ? estimate.link
+    : `${SITE_URL}${estimate.link}`;
   lines.push(`🔗 ${link}`);
   return lines.join("\n");
 }
 
 export function shareEstimateOnWhatsApp(estimate: ShareableEstimate): void {
   const message = encodeURIComponent(buildEstimateWhatsAppMessage(estimate));
-  window.open(`https://wa.me/?text=${message}`, "_blank", "noopener,noreferrer");
+  window.open(
+    `https://wa.me/?text=${message}`,
+    "_blank",
+    "noopener,noreferrer",
+  );
   trackShare();
 }
 
@@ -130,7 +141,9 @@ export function buildEstimatePlainText(estimate: ShareableEstimate): string {
     .replace(/_([^_]*)_/g, "$1");
 }
 
-export async function copyEstimateSummary(estimate: ShareableEstimate): Promise<boolean> {
+export async function copyEstimateSummary(
+  estimate: ShareableEstimate,
+): Promise<boolean> {
   const text = buildEstimatePlainText(estimate);
   try {
     await navigator.clipboard.writeText(text);
@@ -155,7 +168,9 @@ function estimateFileName(estimate: ShareableEstimate): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
-  const stamp = (estimate.generatedAt ? new Date(estimate.generatedAt) : new Date())
+  const stamp = (
+    estimate.generatedAt ? new Date(estimate.generatedAt) : new Date()
+  )
     .toISOString()
     .slice(0, 10);
   return `Frelux_${slug || "Estimate"}_${stamp}`;
@@ -179,7 +194,11 @@ export async function buildEstimatePdfDoc(
   const inkHex = (hex: string) => {
     const m = /^#?([0-9a-f]{6})$/i.exec(hex ?? "");
     if (!m) return;
-    ink(parseInt(m[1].slice(0, 2), 16), parseInt(m[1].slice(2, 4), 16), parseInt(m[1].slice(4, 6), 16));
+    ink(
+      parseInt(m[1].slice(0, 2), 16),
+      parseInt(m[1].slice(2, 4), 16),
+      parseInt(m[1].slice(4, 6), 16),
+    );
   };
 
   applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
@@ -196,11 +215,19 @@ export async function buildEstimatePdfDoc(
   doc.setFont("helvetica", "normal");
   ink(110, 110, 115);
   const generated = estimate.generatedAt
-    ? new Date(estimate.generatedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })
-    : new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+    ? new Date(estimate.generatedAt).toLocaleString("en-GB", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+    : new Date().toLocaleString("en-GB", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
   doc.text(`Generated ${generated}`, margin, y);
   if (estimate.reference) {
-    doc.text(`Ref: ${estimate.reference}`, pageWidth - margin, y, { align: "right" });
+    doc.text(`Ref: ${estimate.reference}`, pageWidth - margin, y, {
+      align: "right",
+    });
   }
   y += 8;
 
@@ -331,13 +358,24 @@ export async function buildEstimatePdfDoc(
 
   // ── QR code back to the calculator ──
   try {
-    const link = estimate.link.startsWith("http") ? estimate.link : `${SITE_URL}${estimate.link}`;
+    const link = estimate.link.startsWith("http")
+      ? estimate.link
+      : `${SITE_URL}${estimate.link}`;
     const qrDataUrl = await QRCode.toDataURL(link, { width: 160, margin: 1 });
-    doc.addImage(qrDataUrl, "PNG", pageWidth - margin - 22, pageHeight - 42, 22, 22);
+    doc.addImage(
+      qrDataUrl,
+      "PNG",
+      pageWidth - margin - 22,
+      pageHeight - 42,
+      22,
+      22,
+    );
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
     ink(150, 150, 150);
-    doc.text("Open calculator", pageWidth - margin - 11, pageHeight - 17, { align: "center" });
+    doc.text("Open calculator", pageWidth - margin - 11, pageHeight - 17, {
+      align: "center",
+    });
   } catch {
     /* QR is a nicety: the estimate ships without it rather than failing the export. */
   }
@@ -353,7 +391,11 @@ export async function downloadEstimatePdf(
 ): Promise<void> {
   const doc = await buildEstimatePdfDoc(estimate, options);
   const name = options.fileName ?? estimateFileName(estimate);
-  doc.save(`${name}.pdf`);
+  await saveSealedPdf(doc, `${name}.pdf`, {
+    title: estimate.title || name,
+    subject: estimate.kind,
+    reference: name,
+  });
 }
 
 /** Build the PDF and open it in a new tab (for print/preview). */
@@ -363,7 +405,18 @@ export async function openEstimatePdf(
 ): Promise<void> {
   const doc = await buildEstimatePdfDoc(estimate, options);
   const name = options.fileName ?? estimateFileName(estimate);
-  doc.output("dataurlnewwindow", { filename: `${name}.pdf` });
+  // The preview is the same sealed file the download produces, so what a user
+  // sees before sharing is exactly what the recipient receives.
+  const sealed = await sealPdf(new Uint8Array(doc.output("arraybuffer")), {
+    title: estimate.title || name,
+    subject: estimate.kind,
+    reference: name,
+  });
+  const url = URL.createObjectURL(
+    new Blob([sealed as BlobPart], { type: "application/pdf" }),
+  );
+  window.open(url, "_blank", "noopener,noreferrer");
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 // ─────────────────────────────────────────────
@@ -386,13 +439,23 @@ export function quoteToShareable(
   return {
     kind: kind ?? opts.title.replace(/^FRELUX\s+/i, ""),
     title: opts.subtitle || null,
-    summaryLines: (opts.metaRows ?? []).map(([label, value]) => ({ label, value })),
+    summaryLines: (opts.metaRows ?? []).map(([label, value]) => ({
+      label,
+      value,
+    })),
     lineItems: opts.lines.map((l) => ({
       description: l.detail ? `${l.label} (${l.detail})` : l.label,
-      quantity: l.quantity && l.unit && l.unit !== "included" ? `${l.quantity} ${l.unit}` : l.quantity || null,
+      quantity:
+        l.quantity && l.unit && l.unit !== "included"
+          ? `${l.quantity} ${l.unit}`
+          : l.quantity || null,
       amount: l.line_total ?? null,
     })),
-    totals: opts.totals.map((t) => ({ label: t.label, value: t.value, emphasized: t.strong })),
+    totals: opts.totals.map((t) => ({
+      label: t.label,
+      value: t.value,
+      emphasized: t.strong,
+    })),
     notes: opts.warnings ?? [],
     link,
     generatedAt: new Date().toISOString(),

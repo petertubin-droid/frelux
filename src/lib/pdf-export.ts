@@ -1,5 +1,11 @@
 /**
- * PDF Quote Export Utility
+ * Printable quote (paint cost estimator).
+ *
+ * This builds an HTML document and opens the browser's print dialog. The PDF a
+ * visitor saves from that dialog is produced by their browser, so it cannot be
+ * sealed: use `@/lib/pdf-seal` (via the quotation, BOQ and estimate exporters)
+ * for any file FRELUX itself hands out.
+ *
  * Generates a printable HTML document and opens the browser's print dialog.
  * The user can save as PDF from the print dialog, no external library needed.
  *
