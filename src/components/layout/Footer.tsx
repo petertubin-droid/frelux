@@ -1,7 +1,7 @@
+import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Cookie, Mail, ShieldCheck } from "lucide-react";
 import Logo from "@/components/brand/Logo";
-import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
 import { siteConfig } from "@/config/site";
 import { withdrawConsent } from "@/lib/cookie-consent";
 import BrandBackdrop from "@/components/ui/BrandBackdrop";
@@ -9,6 +9,12 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useMarket } from "@/lib/international/market-context";
 import { useLanguage } from "@/lib/i18n";
 import { getMarketNavigationLabel } from "@/lib/globalization/construction-terminology";
+
+// The newsletter form talks to an edge function, so it is fetched only when a
+// reader actually scrolls as far as the footer.
+const NewsletterSignup = lazy(
+  () => import("@/components/newsletter/NewsletterSignup"),
+);
 import {
   listTemplateMarkets,
   marketTemplatesPath,
@@ -144,7 +150,9 @@ export default function Footer() {
             </p>
 
             <div className="mt-3 sm:mt-4">
-              <NewsletterSignup source="footer" />
+              <Suspense fallback={null}>
+                <NewsletterSignup source="footer" />
+              </Suspense>
               <p className="mt-1 text-[11px] text-muted-foreground/80">
                 Industry intelligence & quarterly material rate reports. No
                 spam.

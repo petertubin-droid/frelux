@@ -289,7 +289,7 @@ export async function generateStudioPdf(
     body: { name: safeText(name, 100), config },
   });
   if (error) {
-    const { getFunctionErrorMessage } = await import("@/lib/supabase");
+    const { getFunctionErrorMessage } = await import("@/lib/supabase-lazy");
     throw new Error(await getFunctionErrorMessage(error));
   }
   if (!data || typeof data.url !== "string") {
@@ -319,7 +319,7 @@ export async function downloadStudioDocument(id: string): Promise<void> {
     body: { action: "download", documentId: id },
   });
   if (error) {
-    const { getFunctionErrorMessage } = await import("@/lib/supabase");
+    const { getFunctionErrorMessage } = await import("@/lib/supabase-lazy");
     throw new Error(await getFunctionErrorMessage(error));
   }
   if (!data || typeof data.url !== "string")

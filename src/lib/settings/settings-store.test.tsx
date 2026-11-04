@@ -26,6 +26,18 @@ vi.mock("@/lib/supabase", () => ({
   },
 }));
 
+// The client is created on demand now, so the module under test asks the
+// lazy loader for it instead of reading a module level export.
+vi.mock("@/lib/supabase-lazy", () => ({
+  isSupabaseConfigured: true,
+  getSupabase: async () => ({
+    from: () => ({
+      select: () => ({ eq: () => ({ maybeSingle: async () => selectRow }) }),
+      upsert: (...args: unknown[]) => upsert(...(args as [])),
+    }),
+  }),
+}));
+
 import {
   GlobalSettingsProvider,
   GUEST_SETTINGS_KEY,

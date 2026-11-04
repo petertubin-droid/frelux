@@ -80,7 +80,15 @@ export default defineConfig({
         },
         // The module preload polyfill is a request of its own for browsers that
         // all support modulepreload natively now.
-        modulePreload: { polyfill: false },
+        modulePreload: {
+          polyfill: false,
+          // The Supabase client is only reached through a dynamic import, but
+          // Vite was still adding it to the entry's preload list, so every
+          // visitor downloaded 200 KB of client code before the first screen
+          // and most of them never sign in. Let it arrive when it is used.
+          resolveDependencies: (_filename, deps) =>
+            deps.filter((dep) => !dep.includes("supabase-vendor")),
+        },
         // Use content-based hashing for long-term caching
         chunkFileNames: "assets/js/[name]-[hash].js",
         entryFileNames: "assets/js/[name]-[hash].js",

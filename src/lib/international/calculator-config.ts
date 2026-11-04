@@ -19,7 +19,7 @@
  * Existing calculators that don't use this service are unaffected.
  */
 
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase-lazy";
 import type {
   MarketCalculatorConfig,
   MarketCalculatorType,
@@ -29,6 +29,10 @@ import {
   resolveCapability,
   type AvailabilityResolution,
 } from "./capability-registry";
+
+// The Supabase client is created on first query rather than at import time, so
+// the shell bundle does not carry it before the first screen is painted.
+const db = () => getSupabase();
 
 export type { AvailabilityState } from "./capability-registry";
 
@@ -52,7 +56,9 @@ export async function fetchCalculatorConfigs(
   const cached = configCache.get(marketCode);
   if (cached) return cached;
 
-  const { data, error } = await supabase
+  const { data, error } = await (
+    await db()
+  )
     .from("market_calculator_config")
     .select("*")
     .eq("market_code", marketCode);

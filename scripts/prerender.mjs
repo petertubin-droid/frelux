@@ -4368,6 +4368,17 @@ if (!existsSync(templatePath)) {
 }
 
 let templateHtml = readFileSync(templatePath, "utf-8");
+
+// The Supabase client is reached only through a dynamic import, but the bundler
+// still lists it in the entry's preload graph. Every visitor was therefore
+// downloading 200 KB of client code before the first screen, and most visitors
+// never sign in. Drop the hint: the module still loads the moment auth asks for
+// it, just not before the page can be read. Same edit reaches the home page
+// because every route is written from this template.
+templateHtml = templateHtml.replace(
+  /\s*<link[^>]*rel="modulepreload"[^>]*href="[^"]*supabase-vendor[^"]*"[^>]*>/g,
+  "",
+);
 // Remove the old generic no-JavaScript fallback; route content is injected into #root.
 templateHtml = templateHtml.replace(/<noscript>[\s\S]*?<\/noscript>/, "");
 // Normalize URLs inside the template's own static JSON-LD blocks (index.html

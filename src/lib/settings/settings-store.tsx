@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase-lazy";
 import { useAuth } from "@/lib/auth";
 import { useMarket } from "@/lib/international/market-context";
 import { setStoredUnitSystem } from "@/lib/international/units-display";
@@ -124,6 +124,7 @@ export function GlobalSettingsProvider({ children }: { children: ReactNode }) {
     }
     setIsLoading(true);
     (async () => {
+      const supabase = await getSupabase();
       try {
         const { data, error } = await supabase
           .from(TABLE)
@@ -207,6 +208,7 @@ export function GlobalSettingsProvider({ children }: { children: ReactNode }) {
 
   const save = useCallback(
     async (patch: SettingsOverrides) => {
+      const supabase = await getSupabase();
       const merged = sanitizeOverrides({ ...overrides, ...patch });
       setOverrides(merged);
       writeStoredOverrides(merged);
@@ -231,6 +233,7 @@ export function GlobalSettingsProvider({ children }: { children: ReactNode }) {
 
   const reset = useCallback(
     async (field?: keyof SettingsOverrides) => {
+      const supabase = await getSupabase();
       const next: SettingsOverrides = { ...overrides };
       if (field) {
         delete next[field];

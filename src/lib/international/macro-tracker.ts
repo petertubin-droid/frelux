@@ -6,13 +6,17 @@
  * applies rule-based elasticity adjustments to baseline construction estimates.
  */
 
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase-lazy";
 import type {
   MacroIndicator,
   MacroElasticityRule,
   MacroAdjustmentResult,
   CommodityCategory,
 } from "@/types/hybrid-pricing";
+
+// The Supabase client is created on first query rather than at import time, so
+// the shell bundle does not carry it before the first screen is painted.
+const db = () => getSupabase();
 
 export const DEFAULT_MACRO_INDICATORS: Record<string, MacroIndicator[]> = {
   KE: [
@@ -387,7 +391,9 @@ export async function fetchMarketMacroIndicators(
   marketCode: string,
 ): Promise<MacroIndicator[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (
+      await db()
+    )
       .from("macro_economic_indicators")
       .select("*")
       .eq("market_code", marketCode.toUpperCase());
@@ -395,8 +401,13 @@ export async function fetchMarketMacroIndicators(
     if (error || !data) return [];
     const now = Date.now();
     return (data as MacroIndicator[]).filter((indicator) => {
-      const timestamp = Date.parse(indicator.published_at || indicator.last_synced_at || "");
-      return Number.isFinite(timestamp) && now - timestamp <= 90 * 24 * 60 * 60 * 1000;
+      const timestamp = Date.parse(
+        indicator.published_at || indicator.last_synced_at || "",
+      );
+      return (
+        Number.isFinite(timestamp) &&
+        now - timestamp <= 90 * 24 * 60 * 60 * 1000
+      );
     });
   } catch {
     return [];
@@ -410,7 +421,9 @@ export async function fetchMarketElasticityRules(
   marketCode: string,
 ): Promise<MacroElasticityRule[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (
+      await db()
+    )
       .from("macro_elasticity_rules")
       .select("*")
       .or(`market_code.eq.${marketCode.toUpperCase()},market_code.eq.*`)

@@ -7,13 +7,17 @@
  * self-heals platform estimates by updating market benchmarks.
  */
 
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase-lazy";
 import type {
   CrowdsourcedExpenseSubmission,
   CrowdsourcedMarketBenchmark,
   ExpenseCrowdsourceInput,
   QuorumStatus,
 } from "@/types/hybrid-pricing";
+
+// The Supabase client is created on first query rather than at import time, so
+// the shell bundle does not carry it before the first screen is painted.
+const db = () => getSupabase();
 
 export const DEFAULT_QUORUM_THRESHOLD = 10;
 export const DEFAULT_AGGREGATION_WINDOW_DAYS = 30;
@@ -213,7 +217,7 @@ export async function fetchCrowdsourcedBenchmark(params: {
   const normSlug = params.materialSlug.toLowerCase().trim();
 
   try {
-    let query = supabase
+    let query = (await db())
       .from("crowdsourced_market_benchmarks")
       .select("*")
       .eq("market_code", normMkt)
@@ -269,7 +273,11 @@ export async function recordExpenseCrowdsourceSubmission(
   };
 
   try {
-    await supabase.from("crowdsourced_material_expenses").insert([submission]);
+    await (
+      await db()
+    )
+      .from("crowdsourced_material_expenses")
+      .insert([submission]);
   } catch {
     // Non-blocking submission
   }

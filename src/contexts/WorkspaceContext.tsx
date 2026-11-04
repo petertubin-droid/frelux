@@ -13,12 +13,12 @@ import type {
   WorkspaceRole,
   WorkspaceRoleDetails,
 } from "@/types/workspace";
-import {
-  listUserWorkspaces,
-  listWorkspaceMembers,
-  createWorkspace as apiCreateWorkspace,
-} from "@/lib/workspace/workspace-service";
 import { hasPermission } from "@/types/workspace";
+
+// The workspace service talks to the database directly, so it is loaded when a
+// signed in user actually needs workspaces instead of being shipped to every
+// visitor in the shell bundle.
+const workspaceService = () => import("@/lib/workspace/workspace-service");
 
 interface WorkspaceContextValue {
   activeWorkspace: Workspace | null;
@@ -71,6 +71,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
     setLoading(true);
     setError(null);
     try {
+      const { listUserWorkspaces } = await workspaceService();
       const { data, error: wsError } = await listUserWorkspaces();
       if (wsError) {
         setError(wsError);
@@ -90,6 +91,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
         const fallbackName = user.user_metadata?.full_name
           ? `${user.user_metadata.full_name}'s Workspace`
           : "My Enterprise Workspace";
+        const { createWorkspace: apiCreateWorkspace } =
+          await workspaceService();
         const { data: newWs } = await apiCreateWorkspace(fallbackName);
         if (newWs) {
           setWorkspaces([newWs]);
@@ -111,6 +114,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
       setMembers([]);
       return;
     }
+    const { listWorkspaceMembers } = await workspaceService();
     const { data } = await listWorkspaceMembers(activeWorkspace.id);
     setMembers(data);
   }, [activeWorkspace]);
@@ -136,6 +140,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const createWorkspace = useCallback(
     async (name: string): Promise<Workspace | null> => {
+      const { createWorkspace: apiCreateWorkspace } = await workspaceService();
       const { data, error: createErr } = await apiCreateWorkspace(name);
       if (createErr || !data) {
         setError(createErr || "Failed to create workspace");

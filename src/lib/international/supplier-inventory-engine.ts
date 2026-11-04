@@ -6,12 +6,16 @@
  * calculator uses the most local, real-time available market data.
  */
 
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase-lazy";
 import type {
   SupplierProfile,
   SupplierInventoryItem,
   SupplierOffer,
 } from "@/types/hybrid-pricing";
+
+// The Supabase client is created on first query rather than at import time, so
+// the shell bundle does not carry it before the first screen is painted.
+const db = () => getSupabase();
 
 export const SAMPLE_SUPPLIER_PROFILES: SupplierProfile[] = [
   {
@@ -294,7 +298,9 @@ export async function fetchSupplierProfiles(
   marketCode: string,
 ): Promise<SupplierProfile[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (
+      await db()
+    )
       .from("supplier_profiles")
       .select("*")
       .eq("market_code", marketCode.toUpperCase())
@@ -320,7 +326,7 @@ export async function fetchVerifiedSupplierOffers(params: {
   minQty?: number;
 }): Promise<SupplierInventoryItem[]> {
   try {
-    let query = supabase
+    let query = (await db())
       .from("supplier_inventory_items")
       .select("*, supplier:supplier_profiles!inner(*)")
       .eq("market_code", params.marketCode.toUpperCase())
@@ -446,7 +452,9 @@ export async function saveSupplierProfile(
     is_active: true,
   };
 
-  const existing = await supabase
+  const existing = await (
+    await db()
+  )
     .from("supplier_profiles")
     .select("id")
     .eq("user_id", profile.user_id)
@@ -455,11 +463,25 @@ export async function saveSupplierProfile(
   if (existing.error) throw new Error(existing.error.message);
 
   const write = existing.data
-    ? await supabase.from("supplier_profiles").update(payload).eq("id", existing.data.id).select().single()
-    : await supabase.from("supplier_profiles").insert(payload).select().single();
+    ? await (
+        await db()
+      )
+        .from("supplier_profiles")
+        .update(payload)
+        .eq("id", existing.data.id)
+        .select()
+        .single()
+    : await (
+        await db()
+      )
+        .from("supplier_profiles")
+        .insert(payload)
+        .select()
+        .single();
   const { data, error } = write;
 
-  if (error || !data) throw new Error(error?.message || "Supplier profile was not saved.");
+  if (error || !data)
+    throw new Error(error?.message || "Supplier profile was not saved.");
 
   return data as SupplierProfile;
 }
@@ -507,17 +529,47 @@ export async function saveSupplierInventoryItem(
 
   let write;
   if (item.id) {
-    write = await supabase.from("supplier_inventory_items").update(payload).eq("id", item.id).eq("supplier_id", item.supplier_id).select("*, supplier:supplier_profiles(*)").single();
+    write = await (
+      await db()
+    )
+      .from("supplier_inventory_items")
+      .update(payload)
+      .eq("id", item.id)
+      .eq("supplier_id", item.supplier_id)
+      .select("*, supplier:supplier_profiles(*)")
+      .single();
   } else {
-    const existing = await supabase.from("supplier_inventory_items").select("id").eq("supplier_id", item.supplier_id).eq("material_slug", item.material_slug).maybeSingle();
+    const existing = await (
+      await db()
+    )
+      .from("supplier_inventory_items")
+      .select("id")
+      .eq("supplier_id", item.supplier_id)
+      .eq("material_slug", item.material_slug)
+      .maybeSingle();
     if (existing.error) throw new Error(existing.error.message);
     write = existing.data
-      ? await supabase.from("supplier_inventory_items").update(payload).eq("id", existing.data.id).eq("supplier_id", item.supplier_id).select("*, supplier:supplier_profiles(*)").single()
-      : await supabase.from("supplier_inventory_items").insert(payload).select("*, supplier:supplier_profiles(*)").single();
+      ? await (
+          await db()
+        )
+          .from("supplier_inventory_items")
+          .update(payload)
+          .eq("id", existing.data.id)
+          .eq("supplier_id", item.supplier_id)
+          .select("*, supplier:supplier_profiles(*)")
+          .single()
+      : await (
+          await db()
+        )
+          .from("supplier_inventory_items")
+          .insert(payload)
+          .select("*, supplier:supplier_profiles(*)")
+          .single();
   }
   const { data, error } = write;
 
-  if (error || !data) throw new Error(error?.message || "Supplier inventory was not saved.");
+  if (error || !data)
+    throw new Error(error?.message || "Supplier inventory was not saved.");
 
   return data as SupplierInventoryItem;
 }
@@ -544,7 +596,9 @@ export async function fetchSupplierOffersForMaterial(params: {
 }): Promise<SupplierOfferCardData[]> {
   const { marketCode, materialSlug, quantity = 1 } = params;
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (
+      await db()
+    )
       .from("supplier_inventory_items")
       .select("*, supplier:supplier_profiles!inner(*)")
       .eq("market_code", marketCode.toUpperCase())
@@ -556,14 +610,21 @@ export async function fetchSupplierOffersForMaterial(params: {
       .order("unit_price", { ascending: true });
     if (error || !data) return [];
     const now = Date.now();
-    return (data as unknown as (SupplierInventoryItem & { supplier?: SupplierProfile })[])
+    return (
+      data as unknown as (SupplierInventoryItem & {
+        supplier?: SupplierProfile;
+      })[]
+    )
       .filter((item) => {
         const updatedAt = Date.parse(item.last_updated_at || "");
-        return item.market_code?.toUpperCase() === marketCode.toUpperCase()
-          && item.supplier?.market_code?.toUpperCase() === marketCode.toUpperCase()
-          && item.supplier?.is_verified === true
-          && Number.isFinite(updatedAt)
-          && now - updatedAt <= 30 * 24 * 60 * 60 * 1000;
+        return (
+          item.market_code?.toUpperCase() === marketCode.toUpperCase() &&
+          item.supplier?.market_code?.toUpperCase() ===
+            marketCode.toUpperCase() &&
+          item.supplier?.is_verified === true &&
+          Number.isFinite(updatedAt) &&
+          now - updatedAt <= 30 * 24 * 60 * 60 * 1000
+        );
       })
       .map((item) => {
         const discount = calculateBulkSupplierDiscount(item, quantity);

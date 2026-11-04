@@ -9,7 +9,7 @@
  * This module fetches the current active price for a given market + product/material.
  */
 
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase-lazy";
 import type { MarketPricing } from "@/types/international";
 
 // ============================================================
@@ -33,7 +33,9 @@ export async function fetchCurrentPrice(
   const cacheKey = `${marketCode}:${productId}`;
   if (priceCache.has(cacheKey)) return priceCache.get(cacheKey) ?? null;
 
-  const { data, error } = await supabase
+  const { data, error } = await (
+    await db()
+  )
     .from("market_pricing")
     .select("*")
     .eq("market_code", marketCode)
@@ -64,7 +66,7 @@ export async function fetchMarketPrices(
   marketCode: string,
   priceType?: "product" | "material" | "labour" | "quality_level",
 ): Promise<MarketPricing[]> {
-  let query = supabase
+  let query = (await db())
     .from("market_pricing")
     .select("*")
     .eq("market_code", marketCode)
@@ -94,7 +96,7 @@ export async function fetchMarketProducts(
   marketCode: string,
   calculatorType?: MarketCalculatorType,
 ): Promise<MarketProduct[]> {
-  const query = supabase
+  const query = (await db())
     .from("market_products")
     .select("*")
     .eq("market_code", marketCode)
@@ -175,6 +177,10 @@ import {
   type ResolveHybridPriceParams,
 } from "./hybrid-pricing-engine";
 import type { HybridPriceResolution } from "@/types/hybrid-pricing";
+
+// The Supabase client is created on first query rather than at import time, so
+// the shell bundle does not carry it before the first screen is painted.
+const db = () => getSupabase();
 
 /**
  * Resolve price using the hybrid pricing cascade (Supplier -> Crowdsource -> Macro -> Baseline).

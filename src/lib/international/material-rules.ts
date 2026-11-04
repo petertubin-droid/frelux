@@ -13,8 +13,15 @@
  * It does NOT contain calculation logic, it resolves configuration.
  */
 
-import { supabase } from '@/lib/supabase';
-import type { MarketMaterialRule, MarketCalculatorType } from '@/types/international';
+import { getSupabase } from "@/lib/supabase-lazy";
+import type {
+  MarketMaterialRule,
+  MarketCalculatorType,
+} from "@/types/international";
+
+// The Supabase client is created on first query rather than at import time, so
+// the shell bundle does not carry it before the first screen is painted.
+const db = () => getSupabase();
 
 // ============================================================
 // CACHE, rules are cached per market+calculator for the session
@@ -42,13 +49,15 @@ export async function fetchMaterialRules(
   const cached = ruleCache.get(key);
   if (cached) return cached;
 
-  const { data, error } = await supabase
-    .from('market_material_rules')
-    .select('*')
-    .eq('market_code', marketCode)
-    .eq('calculator_type', calculatorType)
-    .eq('is_active', true)
-    .is('effective_to', null);
+  const { data, error } = await (
+    await db()
+  )
+    .from("market_material_rules")
+    .select("*")
+    .eq("market_code", marketCode)
+    .eq("calculator_type", calculatorType)
+    .eq("is_active", true)
+    .is("effective_to", null);
 
   if (error || !data) return new Map();
 
@@ -125,7 +134,12 @@ export async function resolveAllRules(
 
 export async function preloadMaterialRules(marketCode: string): Promise<void> {
   const calculators: MarketCalculatorType[] = [
-    'painting', 'screeding', 'pop_ceiling', 'tile', 'tyrolene', 'grafitex',
+    "painting",
+    "screeding",
+    "pop_ceiling",
+    "tile",
+    "tyrolene",
+    "grafitex",
   ];
   await Promise.all(calculators.map((c) => fetchMaterialRules(marketCode, c)));
 }
