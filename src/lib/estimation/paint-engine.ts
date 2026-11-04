@@ -28,6 +28,10 @@ import type {
   CoverageUnit,
   OpeningInput,
 } from "@/types/estimation";
+import {
+  marketSellsPaintByGallon,
+  resolvePaintPackLitres,
+} from "./paint-packaging";
 import type { Unit } from "@/types";
 import { feetToMeters, unitToMeters } from "@/lib/utils";
 
@@ -59,6 +63,11 @@ export interface PaintEngineRoomInput {
 
 export interface PaintEngineConfig {
   product: EstimationProduct | null;
+  /**
+   * Visitor's market. Only used to resolve packaging: a market that sells
+   * paint by the US gallon must not be quoted a 20 litre bucket.
+   */
+  marketCode?: string | null;
   quality: EstimationProductQuality | null;
   price: EstimationPrice | null;
   primer_price?: EstimationPrice | null;
@@ -442,9 +451,15 @@ export function calculateTradeOpeningDeduction(
 export function getPackSizeLitres(
   product: EstimationProduct | null,
   packSizeRule: EstimationCalcRule | null,
+  marketCode?: string | null,
 ): number {
   if (product?.standard_pack_size && product.standard_pack_size > 0)
     return product.standard_pack_size;
+  // The bucket rule is a single global row written as 20 litres, which is a
+  // Nigerian shelf fact. In a market that sells gallons it must not win, or a
+  // US customer is quoted a container that does not exist there.
+  if (marketSellsPaintByGallon(marketCode))
+    return resolvePaintPackLitres(marketCode);
   if (packSizeRule?.rule_value) {
     const litres = (packSizeRule.rule_value as Record<string, unknown>).litres;
     if (typeof litres === "number" && litres > 0) return litres;
@@ -900,7 +915,11 @@ export function calculateRoom(
 
   const coverage = config.quality?.coverage ?? null;
   const coverageUnit = config.quality?.coverage_unit ?? "m2_per_liter";
-  const packSizeLitres = getPackSizeLitres(config.product, config.packSizeRule);
+  const packSizeLitres = getPackSizeLitres(
+    config.product,
+    config.packSizeRule,
+    config.marketCode,
+  );
 
   steps.push({
     label: "Bucket Size",

@@ -8,8 +8,17 @@
  * this bridge can be removed.
  */
 
-import type { CalculatorInput, CalculatorResult, ContainerRecommendation, SurfaceCondition } from '@/types';
-import { type PaintEngineRoomInput, type PaintEngineConfig, type PaintEngineRoomResult } from './paint-engine';
+import type {
+  CalculatorInput,
+  CalculatorResult,
+  ContainerRecommendation,
+  SurfaceCondition,
+} from "@/types";
+import {
+  type PaintEngineRoomInput,
+  type PaintEngineConfig,
+  type PaintEngineRoomResult,
+} from "./paint-engine";
 import type {
   EstimationProduct,
   EstimationProductQuality,
@@ -18,7 +27,7 @@ import type {
   EstimationColourCondition,
   EstimationSurfaceCondition,
   OpeningInput,
-} from '@/types/estimation';
+} from "@/types/estimation";
 
 /**
  * Converts a PaintEngineRoomResult back to the old CalculatorResult format
@@ -26,15 +35,22 @@ import type {
  */
 export function engineResultToCalculatorResult(
   result: PaintEngineRoomResult,
-  input: CalculatorInput
+  input: CalculatorInput,
 ): CalculatorResult {
-  const containers: ContainerRecommendation[] = result.practical_total_buckets > 0
-    ? [{ size: result.pack_size_litres, count: result.practical_total_buckets }]
-    : [];
+  const containers: ContainerRecommendation[] =
+    result.practical_total_buckets > 0
+      ? [
+          {
+            size: result.pack_size_litres,
+            count: result.practical_total_buckets,
+          },
+        ]
+      : [];
 
-  const primerContainers: ContainerRecommendation[] = result.primer_buckets > 0
-    ? [{ size: result.pack_size_litres, count: result.primer_buckets }]
-    : [];
+  const primerContainers: ContainerRecommendation[] =
+    result.primer_buckets > 0
+      ? [{ size: result.pack_size_litres, count: result.primer_buckets }]
+      : [];
 
   return {
     projectType: input.projectType,
@@ -48,7 +64,8 @@ export function engineResultToCalculatorResult(
     paintType: input.paintType,
     coverageRate: result.coverage_rate ?? 0,
     baseCoverageRate: result.coverage_rate ?? 0,
-    surfaceCondition: (result.surface_condition?.condition_key ?? 'smooth') as SurfaceCondition,
+    surfaceCondition: (result.surface_condition?.condition_key ??
+      "smooth") as SurfaceCondition,
     surfaceConditionFactor: result.surface_factor,
     paintRequiredLiters: result.theoretical_total_litres,
     wasteMargin: input.wasteMargin,
@@ -60,7 +77,9 @@ export function engineResultToCalculatorResult(
     primerContainers,
     primerTotalLiters: result.primer_buckets * result.pack_size_litres,
     heightWarning: result.height_warning,
-    colorWarning: result.colour_condition?.requires_warning ? result.colour_condition.name : null,
+    colorWarning: result.colour_condition?.requires_warning
+      ? result.colour_condition.name
+      : null,
     primerRecommended: result.primer_recommended,
   };
 }
@@ -83,23 +102,26 @@ export function createEngineConfig(
     colourConditions?: EstimationColourCondition[];
     surfaceConditions?: EstimationSurfaceCondition[];
     calcVersionId?: string | null;
-  }
+    marketCode?: string | null;
+  },
 ): PaintEngineConfig {
   const calcRules = dbData.calcRules ?? new Map();
   return {
     product: dbData.product ?? null,
+    marketCode: dbData.marketCode ?? null,
     quality: dbData.quality ?? null,
     price: dbData.price ?? null,
     primer_price: null,
-    ceilingRule: calcRules.get('ceiling_quantity_per_room') ?? null,
-    ceilingCoverageRule: calcRules.get('ceiling_coverage_rate') ?? null,
-    packSizeRule: calcRules.get('pack_size_bucket_litres') ?? null,
-    roundingRule: calcRules.get('purchase_rounding_rule') ?? null,
-    standardHeightRule: calcRules.get('standard_room_height') ?? null,
-    heightAdjustmentRule: calcRules.get('height_adjustment_rule') ?? null,
-    openingDeductionRule: calcRules.get('opening_deduction_rule') ?? null,
-    coatCountRule: calcRules.get('standard_coat_count') ?? null,
-    calibrationReferencesRule: calcRules.get('frelux_calibration_references') ?? null,
+    ceilingRule: calcRules.get("ceiling_quantity_per_room") ?? null,
+    ceilingCoverageRule: calcRules.get("ceiling_coverage_rate") ?? null,
+    packSizeRule: calcRules.get("pack_size_bucket_litres") ?? null,
+    roundingRule: calcRules.get("purchase_rounding_rule") ?? null,
+    standardHeightRule: calcRules.get("standard_room_height") ?? null,
+    heightAdjustmentRule: calcRules.get("height_adjustment_rule") ?? null,
+    openingDeductionRule: calcRules.get("opening_deduction_rule") ?? null,
+    coatCountRule: calcRules.get("standard_coat_count") ?? null,
+    calibrationReferencesRule:
+      calcRules.get("frelux_calibration_references") ?? null,
     colourConditions: dbData.colourConditions ?? [],
     surfaceConditions: dbData.surfaceConditions ?? [],
     calcVersionId: dbData.calcVersionId ?? null,
@@ -109,17 +131,33 @@ export function createEngineConfig(
 /**
  * Converts old CalculatorInput to PaintEngineRoomInput
  */
-export function calculatorInputToEngineInput(input: CalculatorInput): PaintEngineRoomInput {
-  const doors: OpeningInput[] = input.doors > 0
-    ? [{ quantity: input.doors, width: input.doorDims.width, height: input.doorDims.height }]
-    : [];
-  const windows: OpeningInput[] = input.windows > 0
-    ? [{ quantity: input.windows, width: input.windowDims.width, height: input.windowDims.height }]
-    : [];
+export function calculatorInputToEngineInput(
+  input: CalculatorInput,
+): PaintEngineRoomInput {
+  const doors: OpeningInput[] =
+    input.doors > 0
+      ? [
+          {
+            quantity: input.doors,
+            width: input.doorDims.width,
+            height: input.doorDims.height,
+          },
+        ]
+      : [];
+  const windows: OpeningInput[] =
+    input.windows > 0
+      ? [
+          {
+            quantity: input.windows,
+            width: input.windowDims.width,
+            height: input.windowDims.height,
+          },
+        ]
+      : [];
 
   return {
-    room_id: 'room-1',
-    room_name: 'Room',
+    room_id: "room-1",
+    room_name: "Room",
     length: input.length,
     width: input.width,
     height: input.wallHeight,
@@ -129,12 +167,12 @@ export function calculatorInputToEngineInput(input: CalculatorInput): PaintEngin
     doors_unknown: false,
     windows_unknown: false,
     product_id: input.paintType,
-    quality_id: '', // Will be set by caller
+    quality_id: "", // Will be set by caller
     coats: input.coats,
     include_ceiling: input.includeCeiling,
-    ceiling_colour: 'white',
-    surface_condition_key: (input.surfaceCondition ?? 'smooth') as string,
-    colour_condition_key: (input.colorCondition ?? 'same_or_light') as string,
+    ceiling_colour: "white",
+    surface_condition_key: (input.surfaceCondition ?? "smooth") as string,
+    colour_condition_key: (input.colorCondition ?? "same_or_light") as string,
     include_primer: input.includePrimer ?? false,
   };
 }

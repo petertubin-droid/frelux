@@ -6,6 +6,10 @@ import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { useMarket, useLocalTerm } from "@/lib/international/market-context";
 import { useLanguage } from "@/lib/i18n";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
+import {
+  paintPackLabel,
+  paintPackNoun,
+} from "@/lib/estimation/paint-packaging";
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import {
   useEffect,
@@ -823,6 +827,7 @@ export default function PaintCalculator({
 
       const engineConfig: PaintEngineConfig = {
         product: matchedProduct,
+        marketCode,
         quality: matchedQuality,
         price: price,
         primer_price: null,
@@ -1022,13 +1027,13 @@ export default function PaintCalculator({
     if (!result) return;
     const materials = [
       ...result.recommendedContainers.map((container) => ({
-        label: `Paint ${container.size} L container`,
+        label: `Paint ${paintPackLabel(container.size, marketCode)} ${paintPackNoun(container.size, marketCode)}`,
         quantity: container.count,
         unit: "container",
         unitPrice: 0,
       })),
       ...result.primerContainers.map((container) => ({
-        label: `Primer ${container.size} L container`,
+        label: `Primer ${paintPackLabel(container.size, marketCode)} ${paintPackNoun(container.size, marketCode)}`,
         quantity: container.count,
         unit: "container",
         unitPrice: 0,
@@ -1266,13 +1271,13 @@ export default function PaintCalculator({
               }}
               materials={[
                 ...result.recommendedContainers.map((c) => ({
-                  name: `${c.size}L Container`,
+                  name: `${paintPackLabel(c.size, marketCode)} paint ${paintPackNoun(c.size, marketCode)}`,
                   category: "paint",
                   quantity: c.count,
                   unit: "containers",
                 })),
                 ...result.primerContainers.map((c) => ({
-                  name: `${c.size}L Primer`,
+                  name: `${paintPackLabel(c.size, marketCode)} primer ${paintPackNoun(c.size, marketCode)}`,
                   category: "primer",
                   quantity: c.count,
                   unit: "containers",
@@ -1303,10 +1308,10 @@ export default function PaintCalculator({
 - Surface condition: ${result.surfaceCondition}
 - Coverage rate: ${formatNumber(result.coverageRate, 1)} m²/L per coat
 - Paint required: ${formatNumber(result.adjustedLiters)}L (adjusted for ${input.wasteMargin}% waste)
-- Recommended containers: ${result.recommendedContainers.map((c) => `${c.count} × ${c.size}L`).join(", ")}
+- Recommended containers: ${result.recommendedContainers.map((c) => `${c.count} × ${paintPackLabel(c.size, marketCode)}`).join(", ")}
 - Total recommended: ${formatNumber(result.totalRecommendedLiters)}L
 - Leftover: ${formatNumber(result.leftoverLiters)}L
-${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map((c) => `${c.count} × ${c.size}L`).join(", ")} (${formatNumber(result.primerTotalLiters)}L)` : "- Primer: none needed"}
+${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map((c) => `${c.count} × ${paintPackLabel(c.size, marketCode)}`).join(", ")} (${formatNumber(result.primerTotalLiters)}L)` : "- Primer: none needed"}
 - Waste margin: ${input.wasteMargin}%`}
                 clientHash={access.clientHash}
               />
@@ -2437,6 +2442,7 @@ function ResultCard({
   calcDefaults: CalcDefaults;
 }) {
   const { t } = useLanguage();
+  const { marketCode } = useMarket();
   // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
   // established "buckets" phrasing unchanged.
   const localTerm = useLocalTerm();
@@ -2577,12 +2583,13 @@ function ResultCard({
                 key={i}
                 className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 px-3 py-1.5 text-sm font-semibold text-foreground dark:text-primary-foreground"
               >
-                {c.count} × {c.size} L bucket
+                {c.count} × {paintPackLabel(c.size, marketCode)}{" "}
+                {paintPackNoun(c.size, marketCode)}
               </span>
             ))}
             <span className="rounded-lg border border-brand-purple/20 bg-primary/5 px-3 py-1.5 text-sm font-semibold text-brand-purple">
-              {result.primerContainers.reduce((s, c) => s + c.count, 0)} buckets
-              needed
+              {result.primerContainers.reduce((s, c) => s + c.count, 0)}{" "}
+              {bucketNoun} needed
             </span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -2602,7 +2609,8 @@ function ResultCard({
               key={i}
               className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 px-3 py-1.5 text-sm font-semibold text-foreground dark:text-primary-foreground"
             >
-              {c.count} × {c.size} L bucket
+              {c.count} × {paintPackLabel(c.size, marketCode)}{" "}
+              {paintPackNoun(c.size, marketCode)}
             </span>
           ))}
         </div>
