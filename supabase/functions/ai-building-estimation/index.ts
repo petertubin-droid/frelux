@@ -46,6 +46,8 @@ interface EstimationRequest {
   clientHash?: string;
   projectName?: string;
   location?: string;
+  /** ISO 2-letter market whose price book should price the takeoff. */
+  market?: string;
 }
 
 interface SiteEstimationConfig {
@@ -413,7 +415,8 @@ const DEFAULT_PRICES = {
   dpm_per_m2: 1500,
   formwork_per_m2: 5500,
   price_date: new Date().toISOString().split("T")[0],
-  price_source: "FRELUX default — Nigerian market (auto-updated)",
+  price_source:
+    "FRELUX default price book, Nigeria, indicative and undated for this market",
 };
 
 const DEFAULT_LABOUR = {
@@ -732,8 +735,36 @@ serveWithCors(async (req: Request) => {
     // Read body once (req.json() can only be called once)
     const body = (await req.json()) as EstimationRequest;
 
+    /**
+     * The only price book in this function is the Nigerian one, and it used to
+     * be applied to every visitor because the market was never read. A
+     * contractor outside Nigeria therefore received naira costs that looked
+     * like local ones. Quantities are still worth extracting for any market,
+     * so the request is refused with the reason rather than silently priced.
+     */
+    const statedMarket = String(body.market ?? "")
+      .trim()
+      .toUpperCase();
+    if (statedMarket && statedMarket !== "NG") {
+      return jsonResponse(
+        {
+          error:
+            "Photo estimation cannot price this market: only the Nigerian price book is configured here. Run the takeoff through the build-to-roof estimator for " +
+            statedMarket +
+            " so local prices and units are used.",
+          code: "PRICE_NOT_DETERMINED",
+          market: statedMarket,
+        },
+        422,
+      );
+    }
+
     // ── Centralized FRELUX AI Gateway & Rewarded Access Gate ──
-    const gateway = new AiGateway(supabaseUrl, supabaseServiceKey, supabaseAnonKey);
+    const gateway = new AiGateway(
+      supabaseUrl,
+      supabaseServiceKey,
+      supabaseAnonKey,
+    );
     let gatewayAuth;
     try {
       gatewayAuth = await gateway.checkAndReserve(req, {

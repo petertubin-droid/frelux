@@ -96,17 +96,19 @@ function buildReviewPrompt(
   projectData: ProjectAssistantRequest["projectData"],
 ): string {
   const rooms = projectData.rooms ?? [];
+  const currencySymbol =
+    projectData.currency_symbol ?? projectData.currency ?? "";
   const roomSummary =
     rooms.length > 0
       ? rooms
           .map(
             (r) =>
-              `- ${r.name} (${r.calculation_type}): ${r.surface_area}m², materials: ₦${r.material_cost?.toLocaleString()}, labour: ₦${r.labour_cost?.toLocaleString()}`,
+              `- ${r.name} (${r.calculation_type}): ${r.surface_area}m², materials: ${currencySymbol}${r.material_cost?.toLocaleString()}, labour: ${currencySymbol}${r.labour_cost?.toLocaleString()}`,
           )
           .join("\n")
       : "No rooms configured yet.";
 
-  return `You are an expert construction estimator and project consultant for FRELUX, a Nigerian construction estimation platform. 
+  return `You are an expert construction estimator and project consultant for FRELUX, a construction estimation platform used across many markets. Write for the project's own market and currency (${projectData.currency || "as shown in the costs"}), not for Nigeria by default. 
 Analyze this construction project and provide a professional review.
 
 PROJECT DETAILS:
@@ -131,10 +133,10 @@ Provide a JSON response with these fields:
   "strengths": ["List of things done well"],
   "weaknesses": ["List of potential issues or risks"],
   "missingMaterials": ["Any materials that seem missing for this type of project"],
-  "costAnalysis": "Analysis of whether costs seem reasonable for this project type in Nigeria",
+  "costAnalysis": "Analysis of whether costs seem reasonable for this project type and market",
   "recommendations": ["Specific actionable recommendations to improve the project"],
   "estimatedDurationNote": "Note about the timeline if the project has duration data",
-  "industryStandards": ["Relevant Nigerian construction industry standards to consider"],
+  "industryStandards": ["Relevant construction standards for this project's market, only where you are certain of them"],
   "bestPractices": ["Best practices for this type of work"]
 }`;
 }
@@ -149,12 +151,12 @@ function buildOptimizePrompt(
       ? rooms
           .map(
             (r) =>
-              `- ${r.name} (${r.calculation_type}): ${r.surface_area}m², materials: ₦${r.material_cost?.toLocaleString()}, labour: ₦${r.labour_cost?.toLocaleString()}`,
+              `- ${r.name} (${r.calculation_type}): ${r.surface_area}m², materials: ${currencySymbol}${r.material_cost?.toLocaleString()}, labour: ${currencySymbol}${r.labour_cost?.toLocaleString()}`,
           )
           .join("\n")
       : "No rooms configured.";
 
-  return `You are an expert construction cost optimizer for FRELUX, a Nigerian construction estimation platform.
+  return `You are an expert construction cost optimizer for FRELUX, a construction estimation platform used across many markets. Work in the project's own currency and market (${projectData.currency || "as shown in the costs"}).
 The user wants to: "${target}"
 
 CURRENT PROJECT:
