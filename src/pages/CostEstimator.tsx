@@ -424,26 +424,39 @@ export default function CostEstimator({
     shareCostEstimateOnWhatsApp({ result, input, paintTypeName });
   }
 
-  function handlePdfExport() {
+  async function handlePdfExport() {
     if (!result) return;
     // Paid subscribers bypass the gate
     if (isPaid || pdfUnlocked) {
-      exportPdfQuote({
-        result,
-        input,
-        paintTypeName:
-          passed.paintTypeName ?? input.paintProductName ?? "Paint",
-        company: settings
-          ? {
-              name: settings.site_name,
-              phone: settings.whatsapp_number,
-              email: settings.contact_email,
-              address: undefined,
-            }
-          : undefined,
-      });
-      // Session-scoped: reset unlock after use
-      setPdfUnlocked(false);
+      try {
+        await exportPdfQuote({
+          result,
+          input,
+          paintTypeName:
+            passed.paintTypeName ?? input.paintProductName ?? "Paint",
+          company: settings
+            ? {
+                name: settings.site_name,
+                phone: settings.whatsapp_number,
+                email: settings.contact_email,
+                address: undefined,
+              }
+            : undefined,
+        });
+        // Session-scoped: reset unlock after use
+        setPdfUnlocked(false);
+      } catch (error) {
+        // A failed seal saves nothing, so say so rather than leave the user
+        // waiting for a file that will never arrive.
+        toast({
+          title: "The quotation could not be exported",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Please try again in a moment.",
+          type: "error",
+        });
+      }
     } else {
       setPdfGateOpen(true);
     }
@@ -1122,7 +1135,7 @@ export default function CostEstimator({
                     <Button
                       variant="ghost"
                       type="button"
-                      onClick={handlePdfExport}
+                      onClick={() => void handlePdfExport()}
                       className="flex flex-col items-center gap-1.5 rounded-lg bg-primary/10 p-3 text-center transition-all hover:bg-primary/20"
                     >
                       <FileText className="h-5 w-5 text-brand-purple" />
@@ -1244,12 +1257,11 @@ export default function CostEstimator({
           onUnlock={() => {
             setPdfUnlocked(true);
             setPdfGateOpen(false);
-            handlePdfExport();
+            void handlePdfExport();
           }}
           onClose={() => setPdfGateOpen(false)}
         />
       )}
-      
 
       {/* Ad slot, placement "estimator_mid" */}
       <AdSlot slotKey="estimator_mid" className="mt-8" />

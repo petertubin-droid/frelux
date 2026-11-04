@@ -1,18 +1,34 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { exportPdfQuote } from "@/lib/pdf-export";
+import { describe, expect, it, vi } from "vitest";
+import {
+  buildQuotePdfDoc,
+  buildQuotePayload,
+  buildQuoteRows,
+  exportPdfQuote,
+  quoteReference,
+} from "@/lib/pdf-export";
 import type { CostEstimateResult, CostEstimateInput } from "@/types";
 
-// Mock window.open and document methods
-const mockWrite = vi.fn();
-const mockClose = vi.fn();
-const mockOpen = vi.fn(() => ({
-  document: { write: mockWrite, close: mockClose, open: vi.fn() },
-  focus: vi.fn(),
-  print: vi.fn(),
-  close: vi.fn(),
-}));
+// The export is a sealed file now, so the tests read the bytes rather than
+// HTML. The money and quantities come from the engine result; nothing here
+// recomputes them.
 
-Object.defineProperty(window, "open", { value: mockOpen, writable: true });
+if (
+  typeof (Promise as unknown as { withResolvers?: unknown }).withResolvers !==
+  "function"
+) {
+  (Promise as unknown as { withResolvers: unknown }).withResolvers =
+    function () {
+      const box = {} as {
+        resolve: (value: unknown) => void;
+        reject: (reason: unknown) => void;
+      };
+      const promise = new Promise((res, rej) => {
+        box.resolve = res;
+        box.reject = rej;
+      });
+      return { promise, ...box };
+    };
+}
 
 function makeInput(
   overrides: Partial<CostEstimateInput> = {},
@@ -75,125 +91,51 @@ function makeResult(
   };
 }
 
-describe("exportPdfQuote", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+async function readAsClient(bytes: Uint8Array) {
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const pdf = await pdfjs.getDocument({
+    data: bytes.slice(),
+    disableFontFace: true,
+    useSystemFonts: true,
+  }).promise;
+  const pages: string[] = [];
+  for (let index = 1; index <= pdf.numPages; index += 1) {
+    const page = await pdf.getPage(index);
+    const content = await page.getTextContent();
+    pages.push(
+      content.items.map((item) => ("str" in item ? item.str : "")).join(" "),
+    );
+  }
+  // pdf.js splits some figures into one glyph per item; join the pieces so the
+  // assertions read like the document a client sees.
+  const text = pages.join(" ");
+  // pdf.js splits figures into one glyph per item; the compact form joins them
+  // back so money can be compared as a client sees it.
+  return { numPages: pdf.numPages, text, compact: text.replace(/\s+/g, "") };
+}
+
+describe("buildQuoteRows", () => {
+  it("lists every charge the engine produced, with its quantity", () => {
+    const rows = buildQuoteRows(makeResult(), makeInput(), "Premium Paint");
+
+    expect(rows.map((row) => row.label)).toEqual([
+      "Paint (Premium Paint)",
+      "Primer",
+      "Filler",
+      "Putty",
+      "Sandpaper",
+      "Brushes",
+      "Rollers",
+      "Labour",
+    ]);
+    expect(rows[0].quantity).toBe("3 container(s)");
+    expect(rows[0].amount).toContain("15,000");
+    expect(rows[rows.length - 1].quantity).toBe("50 m²");
   });
 
-  it("opens a new window and writes HTML content", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium Paint",
-    });
-    expect(mockOpen).toHaveBeenCalled();
-    expect(mockWrite).toHaveBeenCalled();
-  });
-
-  it("never shows legacy FRELUXTOOLS brand; resolves to FRELUX SMART CALC", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium Paint",
-      company: {
-        name: "FRELUXTOOLS",
-        phone: "2349063612439",
-        email: "frenzyanthony39@gmail.com",
-      },
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).not.toContain("FRELUXTOOLS");
-    expect(html).toContain("FRELUX SMART CALC");
-  });
-
-  it("keeps a non-legacy company name untouched", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium Paint",
-      company: { name: "Tubin Construction Ltd" },
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("Tubin Construction Ltd");
-  });
-
-  it("generates HTML containing QUOTATION heading", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium Paint",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("QUOTATION");
-  });
-
-  it("includes reference number starting with FRELUX-", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium Paint",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toMatch(/FRELUX-\d{8}/);
-  });
-
-  it("includes project type and paint type", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput({ projectType: "exterior" }),
-      paintTypeName: "Weather Shield",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("exterior");
-    expect(html).toContain("Weather Shield");
-  });
-
-  it("includes paintable area", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput({ paintableArea: 75.5 }),
-      paintTypeName: "Premium",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("75.5");
-    expect(html).toContain("m²");
-  });
-
-  it("includes paint row when paintCost > 0", () => {
-    exportPdfQuote({
-      result: makeResult({ paintCost: 15000, paintContainerCount: 3 }),
-      input: makeInput(),
-      paintTypeName: "Premium",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("Paint (Premium)");
-    expect(html).toContain("3 container(s)");
-  });
-
-  it("includes primer row when primerCost > 0", () => {
-    exportPdfQuote({
-      result: makeResult({ primerCost: 4000 }),
-      input: makeInput(),
-      paintTypeName: "Premium",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("Primer");
-  });
-
-  it("includes labour row when laborCost > 0", () => {
-    exportPdfQuote({
-      result: makeResult({ laborCost: 15000 }),
-      input: makeInput({ paintableArea: 50 }),
-      paintTypeName: "Premium",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("Labour");
-    expect(html).toContain("50 m²");
-  });
-
-  it("omits rows when costs are zero", () => {
-    exportPdfQuote({
-      result: makeResult({
+  it("drops charges the engine did not bill", () => {
+    const rows = buildQuoteRows(
+      makeResult({
         primerCost: 0,
         fillerCost: 0,
         puttyCost: 0,
@@ -201,176 +143,158 @@ describe("exportPdfQuote", () => {
         brushesCost: 0,
         rollersCost: 0,
         otherMaterialsCost: 0,
-        laborCost: 0,
       }),
-      input: makeInput(),
-      paintTypeName: "Premium",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).not.toContain("Primer");
-    expect(html).not.toContain("Filler");
-    expect(html).not.toContain("Labour");
-  });
+      makeInput(),
+      "Emulsion",
+    );
 
-  it("includes grand total", () => {
-    exportPdfQuote({
-      result: makeResult({ total: 40800 }),
-      input: makeInput(),
-      paintTypeName: "Premium",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("Grand Total");
-    expect(html).toMatch(/₦[\d,.]+/);
-  });
-
-  it("uses company name when no branding", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium",
-      company: { name: "Acme Construction" },
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("Acme Construction");
-  });
-
-  it("uses FRELUX SMART CALC as default brand name", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("FRELUX SMART CALC");
-  });
-
-  it("includes company contact info when provided", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium",
-      company: {
-        name: "Acme",
-        phone: "+123",
-        email: "a@b.com",
-        address: "123 St",
-      },
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("+123");
-    expect(html).toContain("a@b.com");
-    expect(html).toContain("123 St");
-  });
-
-  it("includes terms when provided", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium",
-      terms: "Payment due within 30 days.",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("Payment due within 30 days.");
-  });
-
-  it("uses primary color from branding when provided", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium",
-      branding: {
-        source: "user_premium",
-        brandName: "CustomBrand",
-        tagline: null,
-        email: null,
-        phone: null,
-        address: null,
-        whatsapp: null,
-        website: null,
-        logoUrl: null,
-        primaryColor: "#FF0000",
-        secondaryColor: "#000",
-        accentColor: "#000",
-        watermark: {
-          enabled: false,
-          opacity: 0,
-          scale: 0,
-          position: "center",
-          diagonal: false,
-        },
-        templateConfig: null,
-        logoPlacement: "top-left",
-        templateId: null,
-        profileId: null,
-        unlockId: null,
-      },
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("#FF0000");
-    expect(html).toContain("CustomBrand");
-  });
-
-  it("escapes HTML in company name to prevent XSS", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium",
-      company: { name: "<script>alert(1)</script>" },
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).not.toContain("<script>alert(1)</script>");
-    expect(html).toContain("&lt;script&gt;");
-  });
-
-  it("includes FRELUX footer with SITE_URL link", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("FRELUX SMART CALC");
-  });
-
-  it("calls document.close after write", () => {
-    exportPdfQuote({
-      result: makeResult(),
-      input: makeInput(),
-      paintTypeName: "Premium",
-    });
-    expect(mockWrite).toHaveBeenCalled();
-    expect(mockClose).toHaveBeenCalled();
-  });
-
-  it("handles all material rows when all costs > 0", () => {
-    exportPdfQuote({
-      result: makeResult({
-        paintCost: 100,
-        primerCost: 50,
-        fillerCost: 30,
-        puttyCost: 20,
-        sandpaperCost: 10,
-        brushesCost: 15,
-        rollersCost: 12,
-        otherMaterialsCost: 8,
-        laborCost: 200,
-      }),
-      input: makeInput(),
-      paintTypeName: "Test",
-    });
-    const html = mockWrite.mock.calls[0][0] as string;
-    [
-      "Paint (Test)",
-      "Primer",
-      "Filler",
-      "Putty",
-      "Sandpaper",
-      "Brushes",
-      "Rollers",
-      "Other materials",
+    expect(rows.map((row) => row.label)).toEqual([
+      "Paint (Emulsion)",
       "Labour",
-    ].forEach((label) => {
-      expect(html).toContain(label);
-    });
+    ]);
+  });
+
+  it("falls back to litres when the paint was not sold in containers", () => {
+    const rows = buildQuoteRows(
+      makeResult({ paintContainerCount: 0 }),
+      makeInput({ paintLiters: 7.5 }),
+      "Emulsion",
+    );
+
+    expect(rows[0].quantity).toBe("7.5 L");
+  });
+});
+
+describe("buildQuotePayload", () => {
+  it("splits materials and labour and marks the grand total", () => {
+    const payload = buildQuotePayload(
+      {
+        result: makeResult(),
+        input: makeInput(),
+        paintTypeName: "Premium Paint",
+      },
+      "FRELUX-12345678",
+    );
+
+    expect(payload.totals?.map((total) => total.label)).toEqual([
+      "Materials",
+      "Labour",
+      "Grand Total",
+    ]);
+    expect(payload.totals?.[payload.totals.length - 1]?.strong).toBe(true);
+    // 40800 total minus 15000 labour, as the page shows it.
+    expect(payload.totals?.[0].value).toContain("25,800");
+    expect(payload.title).toBe("Quotation FRELUX-12345678");
+  });
+
+  it("omits the labour line when no labour was charged", () => {
+    const payload = buildQuotePayload(
+      {
+        result: makeResult({ laborCost: 0, total: 25800 }),
+        input: makeInput(),
+        paintTypeName: "Premium Paint",
+      },
+      "FRELUX-12345678",
+    );
+
+    expect(payload.totals?.map((total) => total.label)).toEqual([
+      "Materials",
+      "Grand Total",
+    ]);
+  });
+
+  it("carries the terms through as a note instead of dropping them", () => {
+    const payload = buildQuotePayload(
+      {
+        result: makeResult(),
+        input: makeInput(),
+        paintTypeName: "Premium Paint",
+        terms: "50% deposit before work begins.",
+      },
+      "FRELUX-12345678",
+    );
+
+    expect(payload.warnings?.[0]).toContain("50% deposit before work begins.");
+  });
+});
+
+describe("quoteReference", () => {
+  it("is stable for a given moment and differs between them", () => {
+    const first = quoteReference(new Date("2026-11-04T10:00:00Z"));
+    const same = quoteReference(new Date("2026-11-04T10:00:00Z"));
+    const later = quoteReference(new Date("2026-11-04T10:00:01Z"));
+
+    expect(first).toBe(same);
+    expect(first).not.toBe(later);
+    expect(first).toMatch(/^FRELUX-\d{8}$/);
+  });
+});
+
+describe("the quotation PDF", () => {
+  it("renders the figures the estimator produced", async () => {
+    const doc = await buildQuotePdfDoc(
+      {
+        result: makeResult(),
+        input: makeInput(),
+        paintTypeName: "Premium Paint",
+        terms: "50% deposit before work begins.",
+      },
+      "FRELUX-12345678",
+    );
+    const { text, compact } = await readAsClient(
+      new Uint8Array(doc.output("arraybuffer")),
+    );
+
+    expect(text).toContain("FRELUX-12345678");
+    expect(text).toContain("Premium Paint");
+    expect(text).toContain("Grand Total");
+    expect(compact).toContain("40,800");
+    expect(text).toContain("50% deposit");
+  });
+
+  it("exports a sealed file and saves nothing else", async () => {
+    const clicked: string[] = [];
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(function (this: HTMLAnchorElement) {
+        clicked.push(this.download);
+      });
+
+    try {
+      await exportPdfQuote({
+        result: makeResult(),
+        input: makeInput(),
+        paintTypeName: "Premium Paint",
+      });
+    } finally {
+      click.mockRestore();
+    }
+
+    expect(clicked).toHaveLength(1);
+    expect(clicked[0]).toMatch(/^frelux-quotation-frelux-\d{8}\.pdf$/);
+  });
+
+  it("refuses to render an empty quotation", async () => {
+    await expect(
+      buildQuotePdfDoc(
+        {
+          result: makeResult({
+            paintCost: 0,
+            primerCost: 0,
+            fillerCost: 0,
+            puttyCost: 0,
+            sandpaperCost: 0,
+            brushesCost: 0,
+            rollersCost: 0,
+            otherMaterialsCost: 0,
+            laborCost: 0,
+            total: 0,
+          }),
+          input: makeInput(),
+          paintTypeName: "Premium Paint",
+        },
+        "FRELUX-12345678",
+      ),
+    ).rejects.toThrow(/nothing to put on this quotation/i);
   });
 });
