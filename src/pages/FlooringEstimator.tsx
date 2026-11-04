@@ -14,6 +14,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
@@ -574,6 +575,8 @@ export default function FlooringEstimator() {
           </p>
         )}
       </div>
+
+      <RecommendedProducts category="flooring" />
 
       <AdSlot slotKey="calculator_mid" className="mt-8" />
 

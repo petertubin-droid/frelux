@@ -25,6 +25,7 @@ import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import {
   fetchSolarPanelModels,
   fetchSolarComponentPrices,
@@ -676,6 +677,8 @@ export default function SolarPvEstimator() {
         )}
       </div>
       <CalculatorAdBanner toolKey="solar" className="mt-8" />
+      <RecommendedProducts category="electrical" />
+
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
     </Container>

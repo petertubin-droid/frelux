@@ -14,6 +14,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
 import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
@@ -723,6 +724,8 @@ export default function ElectricalEstimator() {
       </div>
 
       <CalculatorAdBanner toolKey="electrical" className="mt-8" />
+
+      <RecommendedProducts category="electrical" />
 
       <AdSlot slotKey="calculator_mid" className="mt-8" />
 

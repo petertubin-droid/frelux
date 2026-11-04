@@ -3,6 +3,7 @@ import { useEngineAccess } from "@/lib/use-engine-access";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { useSeo } from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
@@ -344,6 +345,8 @@ export default function EarthworksEstimator() {
         </div>
 
         {/* Ad slot, placement "calculator_mid" */}
+        <RecommendedProducts category="aggregate" />
+
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />

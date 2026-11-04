@@ -1,5 +1,6 @@
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { useSeo } from "@/lib/seo";
 import { ConcreteTakeoffCalculator } from "@/pages/StructuralCalculator";
 import AdSlot from "@/components/ui/AdSlot";
@@ -27,6 +28,8 @@ export default function ConcreteTakeoffPage() {
       <Container className="py-8 sm:py-10">
         <ConcreteTakeoffCalculator />
         {/* Ad slot, placement "calculator_mid" */}
+        <RecommendedProducts category="cement" />
+
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />

@@ -14,6 +14,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useMarket } from "@/lib/international/market-context";
@@ -550,6 +551,8 @@ export default function FoundationEstimator() {
           </p>
         )}
       </div>
+
+      <RecommendedProducts category="cement" />
 
       <AdSlot slotKey="calculator_mid" className="mt-8" />
 

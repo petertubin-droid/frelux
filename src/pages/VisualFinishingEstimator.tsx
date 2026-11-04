@@ -4,6 +4,7 @@ import { useSeo } from "@/lib/seo";
 import { VisualFinishingEstimator } from "@/components/estimation/VisualFinishingEstimator";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import AdSlot from "@/components/ui/AdSlot";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 
 export default function VisualFinishingEstimatorPage() {
   useSeo({
@@ -32,6 +33,8 @@ export default function VisualFinishingEstimatorPage() {
         <VisualFinishingEstimator />
 
         {/* Ad slot, placement "calculator_mid" */}
+        <RecommendedProducts category="paint" />
+
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />

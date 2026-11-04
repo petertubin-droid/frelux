@@ -90,6 +90,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
@@ -235,10 +236,12 @@ export default function StructuralCalculator() {
           </div>
         </div>
       </div>
-    {/* Ad slot, placement "calculator_mid" */}
-        <AdSlot slotKey="calculator_mid" className="mt-8" />
-        {/* Native banner slot, placement "calculator_native" */}
-        <AdSlot slotKey="calculator_native" className="mt-8" />
+      {/* Ad slot, placement "calculator_mid" */}
+      <RecommendedProducts category="cement" />
+
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      {/* Native banner slot, placement "calculator_native" */}
+      <AdSlot slotKey="calculator_native" className="mt-8" />
     </SubscriptionGate>
   );
 }

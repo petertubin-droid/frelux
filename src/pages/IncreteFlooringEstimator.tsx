@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import AdSlot from "@/components/ui/AdSlot";
 import { useMarket } from "@/lib/international/market-context";
@@ -606,6 +607,8 @@ export default function IncreteFlooringEstimator() {
           </section>
         )}
         {/* Ad slot, placement "calculator_mid" */}
+        <RecommendedProducts category="flooring" />
+
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />

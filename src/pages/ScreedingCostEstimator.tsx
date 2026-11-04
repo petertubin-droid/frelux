@@ -17,6 +17,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { calculateScreedingSystem, dbToSystemConfig } from "@/lib/calc";
 import { calculateLabourCost } from "@/lib/labour";
 import {
@@ -34,9 +35,7 @@ import { formatCurrency, formatNumber } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 import { logAnalyticsEvent, fetchScreedingSystemConfig } from "@/lib/queries";
 import { useMarket, useLocalTerm } from "@/lib/international/market-context";
-import {
-  type MaterialRole,
-} from "@/lib/estimation/market-materials";
+import { type MaterialRole } from "@/lib/estimation/market-materials";
 import type {
   ScreedingSystemConfig,
   ScreedingSystemResult,
@@ -1072,6 +1071,8 @@ export default function ScreedingCostEstimator({
         />
       )}
       {/* Ad slot, placement "calculator_mid" */}
+      <RecommendedProducts category="plaster" />
+
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />

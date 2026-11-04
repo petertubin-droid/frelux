@@ -20,6 +20,7 @@ import {
   MapPin,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { calculatePopCeiling } from "@/lib/pop-tile-calc";
 import { track } from "@/lib/analytics";
 import {
@@ -583,6 +584,8 @@ export default function PopCeilingCalculator({
         </>
       )}
       {/* Ad slot, placement "calculator_mid" */}
+      <RecommendedProducts category="plaster" />
+
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />
