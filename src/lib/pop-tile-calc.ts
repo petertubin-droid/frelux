@@ -185,14 +185,34 @@ export function calculateTile(
   }
 
   // --- Sharp sand (only when method === 'traditional') ---
+  // Sand is not sold in bags in most markets: it arrives by the trip, the bulk
+  // bag or the cubic metre and is measured on site by wheelbarrow or head pan.
+  // The bed volume is the deterministic quantity (area x bed depth, sand being
+  // four fifths of a 1:4 mortar bed by volume), and the purchase unit only
+  // decides how that volume is counted and priced.
   let sandNeeded = 0;
   let sandCost = 0;
+  let sandVolumeM3 = 0;
   if (input.method === "traditional") {
-    const sandQty =
-      input.sandCoverageRate > 0 ? adjustedArea / input.sandCoverageRate : 0;
-    const sandPkgSize = input.sandPackageSize > 0 ? input.sandPackageSize : 1;
-    sandNeeded = Math.ceil(sandQty / sandPkgSize);
-    sandCost = sandNeeded * input.sandPricePerBag;
+    const unitM3 =
+      input.sandUnitCubicMetres && input.sandUnitCubicMetres > 0
+        ? input.sandUnitCubicMetres
+        : 0;
+    const bedMm =
+      input.bedThicknessMm && input.bedThicknessMm > 0
+        ? input.bedThicknessMm
+        : 0;
+    if (unitM3 > 0 && bedMm > 0) {
+      sandVolumeM3 = adjustedArea * (bedMm / 1000) * (4 / 5);
+      sandNeeded = Math.ceil(sandVolumeM3 / unitM3);
+      sandCost = sandNeeded * input.sandPricePerBag;
+    } else {
+      const sandQty =
+        input.sandCoverageRate > 0 ? adjustedArea / input.sandCoverageRate : 0;
+      const sandPkgSize = input.sandPackageSize > 0 ? input.sandPackageSize : 1;
+      sandNeeded = Math.ceil(sandQty / sandPkgSize);
+      sandCost = sandNeeded * input.sandPricePerBag;
+    }
   }
 
   // --- Grout (always needed) ---
@@ -279,6 +299,7 @@ export function calculateTile(
     cementCost,
     sandNeeded,
     sandCost,
+    sandVolumeM3,
     groutNeeded: Math.ceil(groutNeeded),
     groutCost,
     spacerNeeded,

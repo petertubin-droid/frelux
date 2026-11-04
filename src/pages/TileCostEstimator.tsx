@@ -247,7 +247,12 @@ export default function TileCostEstimator({
     cementPricePerBag: passed.input?.cementPricePerBag ?? 3500,
     cementPackageSize: passed.input?.cementPackageSize ?? 50,
     sandCoverageRate: passed.input?.sandCoverageRate ?? 0.04,
-    sandPricePerBag: passed.input?.sandPricePerBag ?? 1500,
+    // No fallback price: sand is either priced by the user or by the book.
+    sandPricePerBag: passed.input?.sandPricePerBag ?? 0,
+    sandUnitCubicMetres: passed.input?.sandUnitCubicMetres,
+    sandUnitKey: passed.input?.sandUnitKey,
+    sandUnitLabel: passed.input?.sandUnitLabel,
+    bedThicknessMm: passed.input?.bedThicknessMm,
     sandPackageSize: passed.input?.sandPackageSize ?? 25,
     spacerCoverageRate: passed.input?.spacerCoverageRate ?? 10,
     spacerPricePerPack: passed.input?.spacerPricePerPack ?? 500,

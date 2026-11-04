@@ -9,6 +9,20 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import { useMarket } from "@/lib/international/market-context";
+import { MaterialPriceField } from "@/components/pricing/MaterialPriceField";
+import { SandQuantityHint } from "@/components/pricing/SandQuantityHint";
+import {
+  bookUnitMatches,
+  defaultSandUnit,
+  findSandUnit,
+  measureInSiteUnits,
+  sandUnitOptions,
+  unitsToBuy,
+} from "@/config/aggregate-units";
+import {
+  FRELUX_PRICE_NOTICE,
+  type PriceSource,
+} from "@/lib/pricing/material-price-source";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import {
@@ -229,24 +243,84 @@ export default function TileCalculator({
     tileWidthMm: 300,
     tileHeightMm: 300,
     tilesPerBox: 11,
-    tilePricePerBox: 12000,
+    // Prices start empty on purpose. A calculator must never ship its own
+    // material price: the user either accepts the FRELUX figure (labelled
+    // indicative) or types the price they were quoted.
+    tilePricePerBox: 0,
     adhesiveCoverageRate: 5,
-    adhesivePricePerBag: 4500,
+    adhesivePricePerBag: 0,
     cementCoverageRate: 5,
-    cementPricePerBag: 4500,
+    cementPricePerBag: 0,
     cementPackageSize: 1,
     sandCoverageRate: 5,
-    sandPricePerBag: 3000,
+    sandPricePerBag: 0,
     sandPackageSize: 1,
+    sandUnitKey: defaultSandUnit(market.marketCode).key,
+    sandUnitLabel: defaultSandUnit(market.marketCode).label,
+    sandUnitCubicMetres: defaultSandUnit(market.marketCode).cubicMetres,
+    bedThicknessMm: 25,
     groutCoverageRate: 20,
-    groutPricePerKg: 1500,
+    groutPricePerKg: 0,
     spacerCoverageRate: 50,
-    spacerPricePerPack: 500,
+    spacerPricePerPack: 0,
     spacerPackageSize: 1,
     wasteMargin: sharedWastePercentFor("tiles"),
     labourRatePerSqm: 2000,
     unit: resolveMarketRoomUnit(market, "meters"),
   });
+  // Every material price carries its source. "frelux" means the figure in
+  // the price book, which is indicative until verified; "custom" means the
+  // number the user typed. The engine only ever sees one number per material.
+  type PriceKey = "tile" | "adhesive" | "cement" | "sand" | "grout" | "spacer";
+  const PRICE_FIELD: Record<PriceKey, keyof TileCalcInput> = {
+    tile: "tilePricePerBox",
+    adhesive: "adhesivePricePerBag",
+    cement: "cementPricePerBag",
+    sand: "sandPricePerBag",
+    grout: "groutPricePerKg",
+    spacer: "spacerPricePerPack",
+  };
+  const [sandBook, setSandBook] = useState<{
+    price: number | null;
+    unit: string | null;
+  }>({ price: null, unit: null });
+  const [freluxPrices, setFreluxPrices] = useState<
+    Record<PriceKey, number | null>
+  >({
+    tile: null,
+    adhesive: null,
+    cement: null,
+    sand: null,
+    grout: null,
+    spacer: null,
+  });
+  const [priceSources, setPriceSources] = useState<
+    Record<PriceKey, PriceSource>
+  >({
+    tile: "frelux",
+    adhesive: "frelux",
+    cement: "frelux",
+    sand: "frelux",
+    grout: "frelux",
+    spacer: "frelux",
+  });
+  const setPriceSource = (key: PriceKey, source: PriceSource) => {
+    setPriceSources((prev) => ({ ...prev, [key]: source }));
+    // Switching to FRELUX restores the book figure. Switching to custom
+    // clears it, so a typed price is always the user's own and never a book
+    // price wearing a custom label.
+    update(
+      PRICE_FIELD[key],
+      (source === "frelux" ? (freluxPrices[key] ?? 0) : 0) as never,
+    );
+  };
+  const customPrice = (key: PriceKey) =>
+    priceSources[key] === "custom"
+      ? Number(input[PRICE_FIELD[key]] ?? 0)
+      : null;
+  const setCustomPrice = (key: PriceKey, value: number | null) =>
+    update(PRICE_FIELD[key], (value ?? 0) as never);
+
   // First-visit market detection can resolve after first render: sync the
   // pristine input's unit to the market default without touching edits.
   const appliedRoomUnitRef = useRef(resolveMarketRoomUnit(market, "meters"));
@@ -256,6 +330,22 @@ export default function TileCalculator({
     const previous = appliedRoomUnitRef.current;
     appliedRoomUnitRef.current = roomUnit;
     setInput((s) => (s.unit === previous ? { ...s, unit: roomUnit } : s));
+  }, [market]);
+
+  // The purchase unit for sand is market specific: a trip in Nigeria, a bulk
+  // bag in the United Kingdom, a cubic yard in the United States.
+  useEffect(() => {
+    const unit = defaultSandUnit(market.marketCode);
+    setInput((prev) =>
+      prev.sandUnitLabel
+        ? prev
+        : {
+            ...prev,
+            sandUnitKey: unit.key,
+            sandUnitLabel: unit.label,
+            sandUnitCubicMetres: unit.cubicMetres,
+          },
+    );
   }, [market]);
 
   const { templateData: loadedTemplate } = useTemplateLoader();
@@ -275,6 +365,28 @@ export default function TileCalculator({
       setTileSizes(sizesRes.data);
       setTileMaterials(matRes.data);
       setSettings(settingsRes.data);
+
+      // Remember what the price book holds for this market. These figures are
+      // the FRELUX side of the choice, and they are shown as indicative, never
+      // as a supplier quote.
+      const bookPrice = (category: string) => {
+        const row = matRes.data.find((m) => m.category === category);
+        const price = row ? Number(row.unit_price) : NaN;
+        return Number.isFinite(price) && price > 0 ? price : null;
+      };
+      const sandRow = matRes.data.find((m) => m.category === "sand");
+      setSandBook({
+        price: bookPrice("sand"),
+        unit: sandRow?.unit ?? null,
+      });
+      setFreluxPrices({
+        tile: null,
+        adhesive: bookPrice("adhesive"),
+        cement: bookPrice("cement"),
+        sand: null,
+        grout: bookPrice("grout"),
+        spacer: bookPrice("spacer"),
+      });
 
       // Auto-fill material prices from seeded data
       const adhesive = matRes.data.find((m) => m.category === "adhesive");
@@ -332,6 +444,18 @@ export default function TileCalculator({
     }
     load();
   }, []);
+
+  const sandUnit = findSandUnit(
+    market.marketCode,
+    input.sandUnitKey,
+    input.sandUnitLabel,
+  );
+  const sandUnitOptionsForMarket = sandUnitOptions(market.marketCode);
+  // A "per bag" sand price cannot stand in for a trip, so the book figure is
+  // only offered when it is quoted in the unit being bought.
+  const freluxSandPrice = bookUnitMatches(sandUnit.key, sandBook.unit)
+    ? sandBook.price
+    : null;
 
   function update<K extends keyof TileCalcInput>(
     key: K,
@@ -928,21 +1052,29 @@ export default function TileCalculator({
               </div>
             </div>
 
+            <div
+              role="note"
+              className="mt-6 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
+            >
+              <span className="font-semibold">Prices are yours to set. </span>
+              {FRELUX_PRICE_NOTICE}
+            </div>
+
             {/* Material inputs based on method */}
             {input.method === "adhesive" && (
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <Field label={`Adhesive price per bag (${currencySymbol})`}>
-                  <input
-                    type="number"
-                    min={0}
-                    value={input.adhesivePricePerBag || ""}
-                    onChange={(e) =>
-                      update("adhesivePricePerBag", Number(e.target.value))
-                    }
-                    className="input-field"
-                    placeholder="0"
-                  />
-                </Field>
+                <MaterialPriceField
+                  label="Tile adhesive"
+                  unitLabel="per bag"
+                  currencySymbol={currencySymbol}
+                  source={priceSources.adhesive}
+                  onSourceChange={(source) =>
+                    setPriceSource("adhesive", source)
+                  }
+                  customValue={customPrice("adhesive")}
+                  onCustomChange={(value) => setCustomPrice("adhesive", value)}
+                  freluxValue={freluxPrices.adhesive}
+                />
                 <Field label="Adhesive coverage (m²/bag)">
                   <input
                     type="number"
@@ -960,69 +1092,145 @@ export default function TileCalculator({
             )}
 
             {input.method === "traditional" && (
-              <div className="mt-6 rounded-lg border border-primary/20 bg-primary/5 p-4">
+              <div className="mt-6 space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
                 <p className="text-xs font-semibold text-muted-foreground">
-                  Cement &amp; sharp sand, configured in Admin
+                  Cement and sharp sand
                 </p>
-                <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
-                  <ConfigItem
-                    label="Cement price"
-                    value={`${formatCurrency(input.cementPricePerBag, currencySymbol)}/bag`}
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <MaterialPriceField
+                    label="Cement"
+                    unitLabel="per bag"
+                    currencySymbol={currencySymbol}
+                    source={priceSources.cement}
+                    onSourceChange={(source) =>
+                      setPriceSource("cement", source)
+                    }
+                    customValue={customPrice("cement")}
+                    onCustomChange={(value) => setCustomPrice("cement", value)}
+                    freluxValue={freluxPrices.cement}
                   />
-                  <ConfigItem
-                    label="Cement coverage"
-                    value={`${formatNumber(input.cementCoverageRate)} m²/bag`}
-                  />
-                  <ConfigItem
-                    label="Sand price"
-                    value={`${formatCurrency(input.sandPricePerBag, currencySymbol)}/bag`}
-                  />
-                  <ConfigItem
-                    label="Sand coverage"
-                    value={`${formatNumber(input.sandCoverageRate)} m²/bag`}
-                  />
+                  <Field label="Cement coverage (m² per bag)">
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.1"
+                      value={input.cementCoverageRate || ""}
+                      onChange={(e) =>
+                        update("cementCoverageRate", Number(e.target.value))
+                      }
+                      className="input-field"
+                      placeholder="0"
+                    />
+                  </Field>
                 </div>
-                <p className="mt-2 text-[11px] text-muted-foreground">
-                  These rates are set by the site admin under Tile Materials and
-                  can&apos;t be changed here.
-                </p>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Sand is bought by">
+                    <select
+                      className="input-field"
+                      value={sandUnit.label}
+                      onChange={(e) => {
+                        const chosen = sandUnitOptionsForMarket.find(
+                          (unit) => unit.label === e.target.value,
+                        );
+                        if (!chosen) return;
+                        setInput((prev) => ({
+                          ...prev,
+                          sandUnitKey: chosen.key,
+                          sandUnitLabel: chosen.label,
+                          sandUnitCubicMetres: chosen.cubicMetres,
+                        }));
+                      }}
+                    >
+                      {sandUnitOptionsForMarket.map((unit) => (
+                        <option key={unit.label} value={unit.label}>
+                          {unit.label}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="Mortar bed depth (mm)">
+                    <input
+                      type="number"
+                      min={0}
+                      step="1"
+                      value={input.bedThicknessMm ?? 25}
+                      onChange={(e) =>
+                        update("bedThicknessMm", Number(e.target.value))
+                      }
+                      className="input-field"
+                      placeholder="25"
+                    />
+                  </Field>
+                </div>
+
+                <MaterialPriceField
+                  label={`Sharp sand (${sandUnit.label.toLowerCase()})`}
+                  unitLabel="per unit"
+                  currencySymbol={currencySymbol}
+                  source={priceSources.sand}
+                  onSourceChange={(source) => setPriceSource("sand", source)}
+                  customValue={customPrice("sand")}
+                  onCustomChange={(value) => setCustomPrice("sand", value)}
+                  freluxValue={freluxSandPrice}
+                  hint={`${sandUnit.note} One ${sandUnit.label.toLowerCase()} is about ${sandUnit.cubicMetres} m³.`}
+                />
+                <SandQuantityHint
+                  volume={
+                    input.length * input.width > 0
+                      ? ((input.length *
+                          input.width *
+                          (input.bedThicknessMm ?? 25)) /
+                          1000) *
+                        0.8 *
+                        (1 + input.wasteMargin / 100)
+                      : 0
+                  }
+                  unit={sandUnit}
+                  market={market.marketCode}
+                />
               </div>
             )}
 
-            {/* Grout (admin-configured) + Spacers (always shown) */}
-            <div className="mt-6 rounded-lg border border-primary/20 bg-primary/5 p-4">
-              <p className="text-xs font-semibold text-muted-foreground">
-                {tx("Grout, configured in Admin")}
-              </p>
-              <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
-                <ConfigItem
-                  label="Grout price"
-                  value={`${formatCurrency(input.groutPricePerKg, currencySymbol)}/kg`}
-                />
-                <ConfigItem
-                  label="Grout coverage"
-                  value={`${formatNumber(input.groutCoverageRate)} m²/kg`}
-                />
-              </div>
-              <p className="mt-2 text-[11px] text-muted-foreground">
-                This rate is set by the site admin under Tile Materials and
-                can&apos;t be changed here.
-              </p>
-            </div>
-
+            {/* Grout + spacers: prices come from the book or from the user */}
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <Field label={`Tile spacers price per pack (${currencySymbol})`}>
+              <MaterialPriceField
+                label="Grout"
+                unitLabel="per kg"
+                currencySymbol={currencySymbol}
+                source={priceSources.grout}
+                onSourceChange={(source) => setPriceSource("grout", source)}
+                customValue={customPrice("grout")}
+                onCustomChange={(value) => setCustomPrice("grout", value)}
+                freluxValue={freluxPrices.grout}
+              />
+              <Field label="Grout coverage (m² per kg)">
                 <input
                   type="number"
                   min={0}
-                  value={input.spacerPricePerPack || ""}
+                  step="0.1"
+                  value={input.groutCoverageRate || ""}
                   onChange={(e) =>
-                    update("spacerPricePerPack", Number(e.target.value))
+                    update("groutCoverageRate", Number(e.target.value))
                   }
                   className="input-field"
                   placeholder="0"
                 />
               </Field>
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <MaterialPriceField
+                label="Tile spacers"
+                unitLabel="per pack"
+                currencySymbol={currencySymbol}
+                source={priceSources.spacer}
+                onSourceChange={(source) => setPriceSource("spacer", source)}
+                customValue={customPrice("spacer")}
+                onCustomChange={(value) => setCustomPrice("spacer", value)}
+                freluxValue={freluxPrices.spacer}
+              />
               <Field label="Spacer coverage (m²/pack)">
                 <input
                   type="number"

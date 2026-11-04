@@ -381,8 +381,20 @@ export interface TileCalcInput {
   cementPackageSize: number;
   // Sharp sand (used when method === 'traditional')
   sandCoverageRate: number;
+  /** Price of one purchase unit, not necessarily a bag: a trip, a bulk bag. */
   sandPricePerBag: number;
   sandPackageSize: number;
+  /**
+   * Cubic metres in the purchase unit the sand is priced in, e.g. 6.25 for a
+   * ten tonne tipper trip. When present with bedThicknessMm, sand is costed
+   * from the mortar bed volume instead of a bag coverage rate.
+   */
+  sandUnitCubicMetres?: number;
+  /** Site label of that unit, kept so a saved estimate can show "3 trips". */
+  sandUnitKey?: string;
+  sandUnitLabel?: string;
+  /** Mortar bed depth under the tiles, in millimetres. */
+  bedThicknessMm?: number;
   // Grout (always needed)
   groutCoverageRate: number;
   groutPricePerKg: number;
@@ -418,6 +430,8 @@ export interface TileCalcResult {
   cementCost: number;
   sandNeeded: number;
   sandCost: number;
+  /** Sand volume the bed needs in cubic metres, when the bed depth is known. */
+  sandVolumeM3?: number;
   groutNeeded: number;
   groutCost: number;
   spacerNeeded: number;
