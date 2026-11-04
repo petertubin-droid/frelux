@@ -26,6 +26,14 @@ import {
   renderTilePriceFacts,
 } from "./lib/tile-price-facts.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
+import {
+  colourFaq,
+  colourFaqJsonLd,
+  colourSeo,
+  mixRecipe,
+  recipeCaveat,
+  recipeSentence,
+} from "./lib/color-mixing.mjs";
 import { renderTemplateInputs } from "./lib/template-input-summary.mjs";
 import { legalPageContent } from "./lib/legal-page-content.mjs";
 import { repairInternalLinks } from "./lib/internal-link-repair.mjs";
@@ -3767,6 +3775,45 @@ const colorIndex = paintColors
   }))
   .filter((c) => Number.isFinite(c.hue));
 
+// The tint build and the questions are computed from the stored HEX value by
+// scripts/lib/color-mixing.mjs, the same module the React page uses, so the
+// static copy and the live page cannot disagree. The build is labelled as a
+// tint proportion for a machine or a test pot, never as a factory formula.
+const mixContent = (c) => {
+  const recipe = mixRecipe(c.hex_code);
+  if (!recipe) return "";
+  const rows = recipe.components
+    .map(
+      (component) =>
+        `<li>${swatch(component.hex, component.name)}: ${component.millilitresPerLitre} ml per litre of mixed paint</li>`,
+    )
+    .join("");
+  return (
+    `<h2>What to mix to get ${escapeHtml(c.name)}</h2>` +
+    `<p>${escapeHtml(recipeSentence(c.name, recipe))}</p>` +
+    `<ul>${rows}</ul>` +
+    `<p>${escapeHtml(recipeCaveat(recipe))}</p>`
+  );
+};
+
+const faqContent = (c) => {
+  const faq = colourFaq(c.name, c.hex_code);
+  if (!faq.length) return "";
+  const schema = colourFaqJsonLd(faq);
+  return (
+    `<h2>Questions about ${escapeHtml(c.name)}</h2>` +
+    faq
+      .map(
+        (entry) =>
+          `<h3>${escapeHtml(entry.question)}</h3><p>${escapeHtml(entry.answer)}</p>`,
+      )
+      .join("") +
+    (schema
+      ? `<script type="application/ld+json">${JSON.stringify(schema)}</script>`
+      : "")
+  );
+};
+
 for (const c of paintColors) {
   if (!c.slug || !c.name) continue;
   const path = `/colors/paint/${c.slug}`;
@@ -3828,8 +3875,8 @@ for (const c of paintColors) {
     .slice(0, 4);
   dynamicFamilyRoutes.push({
     path,
-    title: `${c.name}${hex ? ` (${hex})` : ""} Paint Colour | FRELUX`,
-    description: `${c.name}${hex ? ` ${hex}` : ""} paint colour: HEX, RGB, HSL and an LRV estimate, the undertone, trim and accent pairings, and the rooms it suits, with FRELUX room based paint estimating.`,
+    title: colourSeo(c.name, c.hex_code).title,
+    description: colourSeo(c.name, c.hex_code).description,
     priority: "0.5",
     changefreq: "monthly",
   });
@@ -3885,6 +3932,8 @@ for (const c of paintColors) {
           .join("") +
         `</ul><p>These sit nearest on the hue wheel, so they are the shades to compare against ${escapeHtml(c.name)} when a client wants the same feel a shade lighter or deeper.</p>`
       : "") +
+    (mixContent(c) || "") +
+    (faqContent(c) || "") +
     `<h2>Price the job</h2><ul><li><a href="/paint-calculator/">Paint calculator</a></li><li><a href="/colors/">Browse the colour library</a></li><li><a href="/colors/compare/">Compare colours</a></li><li><a href="/wall-finish-estimator/">Wall finishing estimator</a></li></ul></main>`;
 }
 // Palette pages list their colours by name and hex only, which left them as

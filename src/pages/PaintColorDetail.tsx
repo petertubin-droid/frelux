@@ -1,6 +1,6 @@
 import HeroTitle from "@/components/ui/HeroTitle";
 import { SITE_URL } from "@/lib/site-config";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -23,6 +23,15 @@ import {
   fetchPaintColors,
 } from "@/lib/queries";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import {
+  colourDescription,
+  colourFaq,
+  colourFaqJsonLd,
+  colourSeo,
+  mixRecipe,
+  recipeCaveat,
+  recipeSentence,
+} from "../../scripts/lib/color-mixing.mjs";
 import { useAuth } from "@/lib/auth";
 import {
   readableTextColor,
@@ -64,15 +73,33 @@ export default function PaintColorDetail() {
   const [copied, setCopied] = useState<string | null>(null);
   const [isFav, setIsFav] = useState(false);
 
+  // Everything below is computed from the stored HEX value, so the page says
+  // the same thing the prerendered copy says, and a new colour needs no data
+  // beyond the colour itself.
+  const mix = useMemo(
+    () => (color?.hex_code ? mixRecipe(color.hex_code) : null),
+    [color?.hex_code],
+  );
+  const faq = useMemo(
+    () => (color ? colourFaq(color.name, color.hex_code) : []),
+    [color],
+  );
+
   useBreadcrumbJsonLd([
-      { name: "Color library", path: "/colors" },
-      { name: color?.name ?? "Paint color", path: `/colors/paint/${slug ?? ""}` },
-    ]);
+    { name: "Color library", path: "/colors" },
+    { name: color?.name ?? "Paint color", path: `/colors/paint/${slug ?? ""}` },
+  ]);
+  const pageSeo = useMemo(
+    () => (color ? colourSeo(color.name, color.hex_code) : null),
+    [color],
+  );
+  const faqSchema = useMemo(() => colourFaqJsonLd(faq), [faq]);
+
   useSeo({
-    title: color ? `${color.name}: Paint Color` : "Paint Color",
-    description: color
-      ? `${color.name} (${color.hex_code}). RGB, HSL values, recommended usage, and compatible finishes for this professional paint color.`
-      : "View this professional paint color with full color codes and recommendations.",
+    title: pageSeo?.title ?? "Paint color",
+    description:
+      pageSeo?.description ??
+      "View this professional paint color with full color codes and recommendations.",
     canonicalPath: color ? `/colors/paint/${color.slug}` : "/colors",
     ogType: "article",
     noIndex: !color,
@@ -95,6 +122,7 @@ export default function PaintColorDetail() {
           },
         }
       : undefined,
+    structuredDataArray: faqSchema ? [faqSchema] : undefined,
   });
 
   useEffect(() => {
@@ -358,6 +386,76 @@ export default function PaintColorDetail() {
           </div>
         </div>
       </div>
+
+      {/* Mix build: the tinters that reproduce the stored shade */}
+      {mix && (
+        <section className="mt-12" aria-labelledby="mix-heading">
+          <h2
+            id="mix-heading"
+            className="text-xl font-bold text-foreground dark:text-primary-foreground"
+          >
+            What to mix to get {color.name}
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm text-muted-foreground">
+            {recipeSentence(color.name, mix)}{" "}
+            {colourDescription(color.name, color.hex_code)}
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {mix.components.map(
+              (component: {
+                key: string;
+                name: string;
+                hex: string;
+                millilitresPerLitre: number;
+              }) => (
+                <div
+                  key={component.key}
+                  className="rounded-lg border border-border bg-card p-4"
+                >
+                  <div
+                    className="h-10 w-full rounded-md border border-border"
+                    style={{ background: component.hex }}
+                    aria-hidden="true"
+                  />
+                  <p className="mt-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
+                    {component.name}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {component.millilitresPerLitre} ml per litre of mixed paint.
+                  </p>
+                </div>
+              ),
+            )}
+          </div>
+          <p className="mt-4 max-w-3xl text-xs text-muted-foreground">
+            {recipeCaveat(mix)}
+          </p>
+        </section>
+      )}
+
+      {/* Questions the colour page answers from its own values */}
+      {faq.length > 0 && (
+        <section className="mt-12" aria-labelledby="faq-heading">
+          <h2
+            id="faq-heading"
+            className="text-xl font-bold text-foreground dark:text-primary-foreground"
+          >
+            Questions about {color.name}
+          </h2>
+          <dl className="mt-4 space-y-4">
+            {faq.map((entry: { question: string; answer: string }) => (
+              <div key={entry.question}>
+                <dt className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+                  {entry.question}
+                </dt>
+                <dd className="mt-1 max-w-3xl text-sm text-muted-foreground">
+                  {entry.answer}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
 
       {/* Related colors */}
       {related.length > 0 && (
