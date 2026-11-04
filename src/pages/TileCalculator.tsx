@@ -321,6 +321,20 @@ export default function TileCalculator({
   const setCustomPrice = (key: PriceKey, value: number | null) =>
     update(PRICE_FIELD[key], (value ?? 0) as never);
 
+  // Tile sizes are stored in millimetres, the unit the quantity engine uses.
+  // Imperial markets buy tiles by the inch (12x24, 6x6), so the fields show and
+  // accept inches there and convert once on the way in.
+  const [sizeUnit, setSizeUnit] = useState<"mm" | "in">(() =>
+    resolveMarketRoomUnit(market, "meters") === "feet" ? "in" : "mm",
+  );
+  const mmToSize = (mm: number) =>
+    sizeUnit === "mm" ? mm : Math.round((mm / 25.4) * 10) / 10;
+  const sizeToMm = (value: number) =>
+    sizeUnit === "mm" ? Math.round(value) : Math.round(value * 25.4);
+  const tileSizeLabel = `${mmToSize(input.tileWidthMm)}×${mmToSize(
+    input.tileHeightMm,
+  )}${sizeUnit === "mm" ? "mm" : "in"}`;
+
   // First-visit market detection can resolve after first render: sync the
   // pristine input's unit to the market default without touching edits.
   const appliedRoomUnitRef = useRef(resolveMarketRoomUnit(market, "meters"));
@@ -938,25 +952,58 @@ export default function TileCalculator({
                   ))}
                 </select>
               </Field>
+              <div
+                role="group"
+                aria-label="Tile size unit"
+                className="mt-4 flex w-fit overflow-hidden rounded-md border border-input"
+              >
+                {(["mm", "in"] as const).map((u) => (
+                  <button
+                    key={u}
+                    type="button"
+                    aria-pressed={sizeUnit === u}
+                    onClick={() => setSizeUnit(u)}
+                    className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                      sizeUnit === u
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-transparent text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {u === "mm" ? "mm" : "inch"}
+                  </button>
+                ))}
+              </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <Field label="Tile width (mm)">
+                <Field
+                  label={`Tile width (${sizeUnit === "mm" ? "mm" : "in"})`}
+                >
                   <input
                     type="number"
-                    min={1}
-                    value={input.tileWidthMm}
+                    min={sizeUnit === "mm" ? 1 : 0.1}
+                    step={sizeUnit === "mm" ? 1 : 0.5}
+                    value={mmToSize(input.tileWidthMm)}
                     onChange={(e) =>
-                      update("tileWidthMm", Number(e.target.value))
+                      update(
+                        "tileWidthMm",
+                        Math.max(1, sizeToMm(Number(e.target.value))),
+                      )
                     }
                     className="input-field"
                   />
                 </Field>
-                <Field label="Tile height (mm)">
+                <Field
+                  label={`Tile height (${sizeUnit === "mm" ? "mm" : "in"})`}
+                >
                   <input
                     type="number"
-                    min={1}
-                    value={input.tileHeightMm}
+                    min={sizeUnit === "mm" ? 1 : 0.1}
+                    step={sizeUnit === "mm" ? 1 : 0.5}
+                    value={mmToSize(input.tileHeightMm)}
                     onChange={(e) =>
-                      update("tileHeightMm", Number(e.target.value))
+                      update(
+                        "tileHeightMm",
+                        Math.max(1, sizeToMm(Number(e.target.value))),
+                      )
                     }
                     className="input-field"
                   />
@@ -1290,6 +1337,7 @@ export default function TileCalculator({
           <TileResultCard
             result={result}
             input={input}
+            tileSizeLabel={tileSizeLabel}
             currencySymbol={currencySymbol}
             onAgain={() => setResult(null)}
             onStartOver={startOver}
@@ -1322,7 +1370,7 @@ export default function TileCalculator({
 - Surface type: ${input.surfaceType}
 - Method: ${input.method}
 - Surface area: ${formatNumber(result.surfaceArea)} m²
-- Tile size: ${input.tileWidthMm}×${input.tileHeightMm}mm
+- Tile size: ${tileSizeLabel}
 - Tiles needed: ${result.tilesNeeded}
 - Boxes needed: ${result.boxesNeeded}
 - Tile cost: ${result.currencySymbol}${formatNumber(result.tileCost)}
@@ -1403,6 +1451,7 @@ function TileResultCard({
   engine,
   alreadyHave,
   onAlreadyHaveChange,
+  tileSizeLabel,
 }: {
   result: TileCalcResult;
   input: TileCalcInput;
@@ -1417,6 +1466,7 @@ function TileResultCard({
   engine: ReturnType<typeof useEngineFeatures>;
   alreadyHave: number;
   onAlreadyHaveChange: (n: number) => void;
+  tileSizeLabel: string;
 }) {
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5">
@@ -1429,8 +1479,7 @@ function TileResultCard({
         </div>
         <p className="mt-3 text-sm text-primary-foreground/60">
           {input.surfaceType === "floor" ? "Floor" : "Wall"} tiling ·{" "}
-          {input.tileWidthMm}×{input.tileHeightMm}mm · {input.wasteMargin}%
-          waste
+          {tileSizeLabel} · {input.wasteMargin}% waste
         </p>
         <p className="calc-result mt-1 text-4xl font-bold sm:text-5xl">
           {result.boxesNeeded} box(es)
@@ -1665,7 +1714,7 @@ function TileResultCard({
           { label: "Surface type", value: input.surfaceType },
           {
             label: "Tile size",
-            value: `${input.tileWidthMm}×${input.tileHeightMm}mm`,
+            value: tileSizeLabel,
           },
           { label: "Waste margin", value: `${input.wasteMargin}%` },
           { label: "Method", value: input.method },

@@ -213,3 +213,32 @@ describe("finishes pages convert at the calculator boundary", () => {
     expect(unitToMeters(12, "feet")).toBeCloseTo(3.6576, 10);
   });
 });
+
+describe("tile sizes accept imperial input", () => {
+  const src = readFileSync(
+    join(process.cwd(), "src/pages/TileCalculator.tsx"),
+    "utf8",
+  );
+
+  it("converts inches to the millimetres the engine uses", () => {
+    expect(src).toContain(
+      'const [sizeUnit, setSizeUnit] = useState<"mm" | "in">',
+    );
+    expect(src).toContain("Math.round(value * 25.4)");
+    expect(src).toContain("Math.round((mm / 25.4) * 10) / 10");
+  });
+
+  it("shows the size in the visitor's unit in results and assumptions", () => {
+    expect(src).toContain("tileSizeLabel");
+    expect(src).not.toContain("${input.tileWidthMm}×${input.tileHeightMm}mm");
+  });
+
+  it("a 12 x 24 inch tile is a 305 x 610 mm tile", () => {
+    const toMm = (inches: number) => Math.round(inches * 25.4);
+    expect(toMm(12)).toBe(305);
+    expect(toMm(24)).toBe(610);
+    // and the same tile reads back as its inch label
+    expect(Math.round((305 / 25.4) * 10) / 10).toBe(12);
+    expect(Math.round((610 / 25.4) * 10) / 10).toBe(24);
+  });
+});
