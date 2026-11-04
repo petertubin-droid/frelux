@@ -20,6 +20,7 @@ import type { DbCalculatorTemplate } from "@/types/database";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { useMarket } from "@/lib/international/market-context";
+import MarketPriceFacts from "@/components/templates/MarketPriceFacts";
 import {
   describeTemplateForMarket,
   templateSummaryForMarket,
@@ -366,6 +367,16 @@ export default function TemplateDetail() {
           ))}
         </dl>
       </div>
+
+      {/* Stored unit prices for this market. The prerendered page carries the
+          same table, rendered at build time from the same tables. */}
+      {routeMarketProfile && (
+        <MarketPriceFacts
+          marketCode={routeMarketProfile.country_code}
+          templateType={template.calculator_type}
+          countryName={routeMarketProfile.country_name}
+        />
+      )}
 
       {/* How it works explanation */}
       <div className="prose prose-sm mt-6 max-w-none dark:prose-invert">

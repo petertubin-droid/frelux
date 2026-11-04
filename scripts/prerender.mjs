@@ -17,6 +17,10 @@ import { join, dirname } from "path";
 import { seoContentMap } from "./seo-content-map.mjs";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
 import { marketHreflang } from "./lib/market-hreflang.mjs";
+import {
+  loadMarketPriceFacts,
+  renderPriceFacts,
+} from "./lib/market-price-facts.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { loadToolRegistry } from "./lib/tool-registry.mjs";
 import {
@@ -4166,6 +4170,23 @@ templateHtml = templateHtml.replace(
 );
 let count = 0;
 
+// Real per-market material prices for the template pages. Loaded once: the
+// market template loop below writes 1,280 pages from the same three tables.
+const marketPriceFacts = await loadMarketPriceFacts();
+let priceFactPages = 0;
+
+const templatePriceSection = (market, template) => {
+  const html = renderPriceFacts(
+    marketPriceFacts,
+    market.code,
+    template.type,
+    market.countryName,
+    market.currency,
+  );
+  if (html) priceFactPages += 1;
+  return html;
+};
+
 // ── Market × template pages (32 markets × curated templates) ────────
 // Mirrors src/lib/templates-market.ts: every market gets a template hub and
 // one page per curated template, each with its own canonical and hreflang
@@ -4253,6 +4274,7 @@ for (const m of marketLandingRoutes) {
         (t.description ? `<p>${t.description}</p>` : "") +
         `<h2>What this template sets up</h2><p>${t.name} pre-fills the scope for this kind of ${t.type} job so you start from realistic dimensions instead of a blank form. You still adjust every measurement, opening and coat before the estimate runs.</p>` +
         `<h2>${m.countryName} units and pricing</h2><p>Quantities follow ${m.countryName} practice and costs are shown in ${m.currency} (${m.currencySymbol}). Where the price book holds a verified local material price it is used directly; otherwise the line is marked as a reference rate.</p>` +
+        templatePriceSection(m, t) +
         `<h2>Run it</h2><ul><li><a href="${hubPath}/">All templates for ${m.countryName}</a></li><li><a href="/templates/${t.slug}/">${t.name} (global version)</a></li><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market page</a></li><li><a href="/calculators/">All FRELUX calculators</a></li></ul></main>`,
       structuredData: [
         {
@@ -4292,6 +4314,10 @@ for (const m of marketLandingRoutes) {
     });
   }
 }
+
+console.log(
+  `[prerender] market template pages carrying stored local prices: ${priceFactPages}`,
+);
 
 // ── Market landing pages (Phase 3 globalization, 2026-10-27) ────────
 // One data-addressable SEO lander per market, built from the same
