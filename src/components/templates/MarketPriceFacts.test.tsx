@@ -4,6 +4,12 @@ import { render, screen, waitFor } from "@testing-library/react";
 const fetchMarketRoleMappings = vi.fn();
 const resolveMaterialPriceByRole = vi.fn();
 
+const bundledTileMaterials = vi.fn();
+
+vi.mock("@/lib/international/bundled-book", () => ({
+  bundledTileMaterials: (...args: unknown[]) => bundledTileMaterials(...args),
+}));
+
 vi.mock("@/lib/estimation/market-materials", () => ({
   fetchMarketRoleMappings: (...args: unknown[]) =>
     fetchMarketRoleMappings(...args),
@@ -88,10 +94,63 @@ describe("MarketPriceFacts", () => {
     const { container } = render(
       <MarketPriceFacts
         marketCode="NG"
-        templateType="tile"
+        templateType="build_to_roof"
         countryName="Nigeria"
       />,
     );
     expect(container.innerHTML).toBe("");
+  });
+});
+
+describe("MarketPriceFacts (tiles)", () => {
+  it("shows the market's own tile material rows", async () => {
+    vi.mocked(bundledTileMaterials).mockResolvedValue({
+      data: [
+        {
+          id: "t1",
+          name: "VersaBond Thin-Set Mortar",
+          unit: "bag",
+          package_size: 50,
+          package_unit: "lb",
+          coverage_rate: 5,
+          coverage_unit: "m2",
+          unit_price: 25,
+          currency: "USD",
+        },
+      ],
+      error: null,
+    } as never);
+
+    render(
+      <MarketPriceFacts
+        marketCode="US"
+        templateType="tile"
+        countryName="United States"
+      />,
+    );
+
+    expect(await screen.findByText(/VersaBond/)).toBeTruthy();
+    expect(screen.getByText(/USD 25/)).toBeTruthy();
+  });
+
+  it("says so plainly when the market has no tile rows", async () => {
+    vi.mocked(bundledTileMaterials).mockResolvedValue({
+      data: [],
+      error: null,
+    } as never);
+
+    render(
+      <MarketPriceFacts
+        marketCode="TZ"
+        templateType="tile"
+        countryName="Tanzania"
+      />,
+    );
+
+    expect(
+      await screen.findByText(
+        /No tile material row is configured for this market/i,
+      ),
+    ).toBeTruthy();
   });
 });

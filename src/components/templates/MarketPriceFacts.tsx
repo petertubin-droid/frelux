@@ -6,6 +6,8 @@ import {
   evidenceSentence,
   type ResolvedMaterialPrice,
 } from "@/lib/estimation/market-materials";
+import { bundledTileMaterials } from "@/lib/international/bundled-book";
+import type { DbTileMaterial } from "@/types/database";
 import {
   ROLES_BY_TYPE,
   ROLE_LABELS,
@@ -41,9 +43,28 @@ export default function MarketPriceFacts({
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
+  const [tileRows, setTileRows] = useState<DbTileMaterial[] | null>(null);
+  const isTile = templateType === "tile";
 
   useEffect(() => {
     let cancelled = false;
+    if (isTile) {
+      // Tiles are priced from the tile catalog, not estimation_prices, and the
+      // catalog refuses to substitute Nigeria for an unconfigured market.
+      (async () => {
+        try {
+          const { data } = await bundledTileMaterials(undefined, marketCode);
+          if (cancelled) return;
+          setTileRows(data);
+          setStatus("ready");
+        } catch {
+          if (!cancelled) setStatus("error");
+        }
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }
     if (roles.length === 0) {
       setStatus("ready");
       setRows([]);
@@ -78,9 +99,9 @@ export default function MarketPriceFacts({
     return () => {
       cancelled = true;
     };
-  }, [marketCode, roles]);
+  }, [marketCode, roles, isTile]);
 
-  if (roles.length === 0) return null;
+  if (!isTile && roles.length === 0) return null;
 
   return (
     <section
@@ -107,7 +128,69 @@ export default function MarketPriceFacts({
         </p>
       )}
 
-      {status === "ready" && rows && rows.length === 0 && (
+      {status === "ready" && isTile && tileRows && tileRows.length === 0 && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {t(
+            "No tile material row is configured for this market. The tiling calculator asks for your own adhesive and grout prices instead of substituting another country's, and the estimate labels every line as entered rather than observed.",
+          )}
+        </p>
+      )}
+
+      {status === "ready" && isTile && tileRows && tileRows.length > 0 && (
+        <>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t(
+              "Adhesive and grout prices the tiling calculator uses here, with the coverage each pack is expected to give. Tiles themselves are priced from the size and grade you enter.",
+            )}
+          </p>
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-border/60 text-[11px] uppercase tracking-wider text-muted-foreground dark:border-white/10">
+                  <th scope="col" className="py-1.5 pr-3 font-medium">
+                    {t("Material")}
+                  </th>
+                  <th scope="col" className="py-1.5 pr-3 font-medium">
+                    {t("Coverage")}
+                  </th>
+                  <th scope="col" className="py-1.5 font-medium">
+                    {t("Unit price")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {tileRows.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="border-b border-border/40 last:border-0 dark:border-white/5"
+                  >
+                    <th scope="row" className="py-2 pr-3 font-medium">
+                      {row.name}
+                      <span className="block text-xs font-normal text-muted-foreground">
+                        {row.package_size != null
+                          ? `${row.package_size} ${row.package_unit ?? row.unit ?? ""}`.trim()
+                          : row.unit}
+                      </span>
+                    </th>
+                    <td className="py-2 pr-3 text-xs text-muted-foreground">
+                      {row.coverage_rate != null && row.coverage_unit
+                        ? `${row.coverage_rate} ${row.coverage_unit}`
+                        : t("Not stored")}
+                    </td>
+                    <td className="py-2">
+                      {row.unit_price != null
+                        ? `${row.currency} ${Number(row.unit_price).toLocaleString("en-US", { maximumFractionDigits: 2 })}`
+                        : t("Not stored")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {status === "ready" && !isTile && rows && rows.length === 0 && (
         <p className="mt-2 text-xs text-muted-foreground">
           {t(
             "The price book holds no verified row for the materials this template consumes in this market. Those lines are marked as a reference rate in the estimate rather than filled from another country.",
@@ -115,7 +198,7 @@ export default function MarketPriceFacts({
         </p>
       )}
 
-      {status === "ready" && rows && rows.length > 0 && (
+      {status === "ready" && !isTile && rows && rows.length > 0 && (
         <>
           <p className="mt-1 text-xs text-muted-foreground">
             {t(

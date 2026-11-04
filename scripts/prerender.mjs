@@ -21,6 +21,10 @@ import {
   loadMarketPriceFacts,
   renderPriceFacts,
 } from "./lib/market-price-facts.mjs";
+import {
+  loadTileMaterialFacts,
+  renderTilePriceFacts,
+} from "./lib/tile-price-facts.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { loadToolRegistry } from "./lib/tool-registry.mjs";
 import {
@@ -4173,16 +4177,20 @@ let count = 0;
 // Real per-market material prices for the template pages. Loaded once: the
 // market template loop below writes 1,280 pages from the same three tables.
 const marketPriceFacts = await loadMarketPriceFacts();
+const tileMaterialFacts = loadTileMaterialFacts();
 let priceFactPages = 0;
 
 const templatePriceSection = (market, template) => {
-  const html = renderPriceFacts(
-    marketPriceFacts,
-    market.code,
-    template.type,
-    market.countryName,
-    market.currency,
-  );
+  const html =
+    template.type === "tile"
+      ? renderTilePriceFacts(tileMaterialFacts, market.code, market.countryName)
+      : renderPriceFacts(
+          marketPriceFacts,
+          market.code,
+          template.type,
+          market.countryName,
+          market.currency,
+        );
   if (html) priceFactPages += 1;
   return html;
 };
