@@ -34,9 +34,13 @@ function extractPrerenderStaticPaths(src: string): string[] {
 
 function extractSeoMapKeys(src: string): string[] {
   const keys: string[] = [];
-  const re = /^\s*'([^']+)':/gm;
+  // Accept either quote style: the map is prettier-formatted with double
+  // quotes today, and older branches used single quotes. Matching only one
+  // style made every key look missing and failed this test for the wrong
+  // reason.
+  const re = /^\s*(["'])([^"']+)\1\s*:/gm;
   let m: RegExpExecArray | null;
-  while ((m = re.exec(src)) !== null) keys.push(m[1]);
+  while ((m = re.exec(src)) !== null) keys.push(m[2]);
   return keys;
 }
 

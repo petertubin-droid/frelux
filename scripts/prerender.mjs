@@ -19,6 +19,7 @@ import { marketLandingRoutes } from "./market-landing-data.mjs";
 import { marketHreflang } from "./lib/market-hreflang.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { loadToolRegistry } from "./lib/tool-registry.mjs";
+import { buildToolsDirectoryContent } from "./lib/tools-directory-content.mjs";
 import {
   buildToolContent,
   toolSeoDescription,
@@ -4371,6 +4372,30 @@ for (const route of routes) {
       short.length <= TITLE_LIMIT ? short : short.slice(0, -shortBrand.length);
   } else if (t.endsWith(shortBrand) && t.length - shortBrand.length > 20) {
     route.title = t.slice(0, -shortBrand.length);
+  }
+}
+
+// Tool directory pages: the registry is the only honest source for what each
+// tool does, so the category and directory bodies are generated from it rather
+// than from a hand-written blurb that can drift from the calculators.
+{
+  const toolPages = buildToolsDirectoryContent(loadToolRegistry());
+  for (const route of routes) {
+    const entry = toolPages[route.path];
+    if (entry) {
+      route.content = entry.html;
+      // The generated directory body replaces the generic one-sentence blurb:
+      // it lists the real tools with their real inputs and outputs.
+      contentMap[route.path] = entry.html;
+      console.log(
+        `[prerender] tool directory body for ${route.path}: ${
+          entry.html
+            .replace(/<[^>]+>/g, " ")
+            .split(/\s+/)
+            .filter(Boolean).length
+        } words`,
+      );
+    }
   }
 }
 
