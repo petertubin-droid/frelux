@@ -8,7 +8,6 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-// @ts-expect-error: plain ESM build helper, no type declarations
 import { repairInternalLinks } from "../../scripts/lib/internal-link-repair.mjs";
 
 // The repair pass is the thing that keeps translated article bodies from
