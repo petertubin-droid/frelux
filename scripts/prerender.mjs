@@ -28,6 +28,7 @@ import {
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { renderTemplateInputs } from "./lib/template-input-summary.mjs";
 import { legalPageContent } from "./lib/legal-page-content.mjs";
+import { repairInternalLinks } from "./lib/internal-link-repair.mjs";
 import { loadToolRegistry } from "./lib/tool-registry.mjs";
 import {
   buildToolsDirectoryContent,
@@ -4019,7 +4020,8 @@ for (const t of extraTemplates) {
     renderTemplateInputs(
       {
         type: t.calculator_type ?? "",
-        inputs: t.input_data && typeof t.input_data === "object" ? t.input_data : {},
+        inputs:
+          t.input_data && typeof t.input_data === "object" ? t.input_data : {},
       },
       "meters",
     ) +
@@ -4037,7 +4039,10 @@ for (const t of extraTemplates) {
       return (
         `<h2>Other ${escapeHtml(String(t.calculator_type).toLowerCase())} templates</h2><ul>` +
         siblings
-          .map((o) => `<li><a href="/templates/${o.slug}">${escapeHtml(o.name || o.slug)}</a></li>`)
+          .map(
+            (o) =>
+              `<li><a href="/templates/${o.slug}">${escapeHtml(o.name || o.slug)}</a></li>`,
+          )
           .join("") +
         `</ul>`
       );
@@ -4869,3 +4874,21 @@ writeFileSync(
 );
 console.log(`\n prerendered ${count} routes`);
 console.log(` manifest: ${manifestPaths.length} static pages`);
+
+// ── Internal link repair ──────────────────────────────────────────────────────
+// Spanish articles were machine-translated, and the translator translated their
+// link targets as well: a body points at /aprender/como-calcular-las-cantidades
+// when the real page is /es/learn/<english-slug>. The served pages therefore
+// linked at 404s.
+//
+// This pass runs last, over what was actually written. For every internal link
+// whose target does not exist it tries, in order:
+//   1. the anchor text against the real article titles (the translator kept the
+//      titles intact, so "cómo planificar su proyecto de construcción hasta el
+//      techo" resolves to the article that carries that heading);
+//   2. a small alias table for translated calculator names;
+//   3. the nearest existing ancestor of the path (…/learn/x -> …/learn).
+// Anything still unresolved is left alone and reported, never silently pointed
+// at the home page.
+
+repairInternalLinks(distDir);
