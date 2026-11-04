@@ -376,11 +376,14 @@ describe("pad footing design, first principles", () => {
     expect(r.bearing_check_pass).toBe(true);
   });
 
-  it("derives volumes from the pad area and the stated thicknesses", () => {
+  it("derives volumes from the pad area and the depth it was sized to", () => {
     const r = designFoundation({ ...base, column_load: 200, wall_load: 0 });
     const area = 1.3 * 1.3;
-    closeTo(r.concrete_volume, area * 0.3, 0.06); // 300 mm pad
-    closeTo(r.blinding_volume, area * 0.075, 0.06);
+    const thickness = (r.pad_thickness_mm as number) / 1000;
+    expect(thickness).toBeGreaterThanOrEqual(0.3);
+    closeTo(r.concrete_volume, area * thickness, 0.06);
+    // Blinding is laid 100 mm proud on every side, so it is not the pad area.
+    closeTo(r.blinding_volume, Math.pow(1.3 + 0.2, 2) * 0.075, 0.06);
     closeTo(r.hardcore_volume, area * 0.15, 0.06);
     closeTo(r.excavation_volume, area * 1.2, 0.06);
   });
@@ -396,14 +399,26 @@ describe("pad footing design, first principles", () => {
     expect(r.punching_shear_check_pass).toBe(true);
   });
 
-  it("fails punching shear at 300 kN, which the unfactored capacity hid", () => {
-    // v = 1.4 x 300 kN / (3900 x 250) = 0.431 N/mm², above the 0.378 capacity.
-    // Without the gamma_m divisor the capacity came out at 0.472 and this pad
-    // passed, so the check was 25 percent too generous in the unsafe direction.
+  it("deepens the pad until punching shear passes, and reports that depth", () => {
+    // At the old fixed 300 mm the applied stress was 0.431 against a 0.378
+    // capacity, so the pad failed and the page only warned. The depth now grows
+    // in 50 mm steps until the check passes, and the reported stress is
+    // recomputed at that depth: v = 1.4 N / (u1 x d) with d = t - 50.
     const r = designFoundation({ ...base, column_load: 300, wall_load: 0 });
-    closeTo(r.punching_shear_stress as number, 0.431, 0.002);
-    expect(r.punching_shear_check_pass).toBe(false);
-    expect((r.warnings ?? []).join(" ")).toMatch(/punching shear/i);
+    const d = (r.pad_thickness_mm as number) - 50;
+    const u1 = 4 * (225 + 3 * d);
+    closeTo(
+      r.punching_shear_stress as number,
+      (1.4 * 300 * 1000) / (u1 * d),
+      0.002,
+    );
+    expect(r.punching_shear_check_pass).toBe(true);
+    expect(r.pad_thickness_mm as number).toBeGreaterThan(300);
+    closeTo(
+      r.concrete_volume,
+      (r.area_per_pad as number) * ((r.pad_thickness_mm as number) / 1000),
+      0.06,
+    );
   });
 
   it("passes a heavier load once the user supplies a wider column", () => {
@@ -418,16 +433,20 @@ describe("pad footing design, first principles", () => {
       wall_load: 0,
       column_width_mm: 450,
     });
-    // A wider column lengthens the critical perimeter, so a bigger load fits.
-    // Capacity depends only on concrete and depth, so a wider column does not
-    // raise it: it lengthens the critical perimeter and lowers the applied
-    // stress instead. Asserting a capacity rise would have encoded nonsense.
-    expect(wide.punching_shear_stress as number).toBeLessThan(
-      narrow.punching_shear_stress as number,
+    // A wider column lengthens the critical perimeter, so it needs a shallower
+    // pad for the same load. Both pass, and neither is deeper than the narrow
+    // one at the same load.
+    expect(wide.punching_shear_check_pass).toBe(true);
+    expect(wide.pad_thickness_mm as number).toBeLessThanOrEqual(
+      narrow.pad_thickness_mm as number,
     );
-    // u1 for a 450 mm column is 4 x (450 + 750) = 4800 mm, so the stress
-    // falls to 420000 / (4800 x 250) = 0.350 N/mm².
-    closeTo(wide.punching_shear_stress as number, 0.35, 0.002);
+    const wideD = (wide.pad_thickness_mm as number) - 50;
+    const wideU1 = 4 * (450 + 3 * wideD);
+    closeTo(
+      wide.punching_shear_stress as number,
+      (1.4 * 300 * 1000) / (wideU1 * wideD),
+      0.002,
+    );
   });
 });
 

@@ -996,16 +996,33 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
     `Steel ratio = ${final_steel.toFixed(0)} / ${gross_area} × 100 = ${steel_ratio.toFixed(2)}%`,
   );
 
-  // Select bars
-  let bestDiameter = 16;
-  let bestCount = Math.max(4, Math.ceil(final_steel / barArea(16)));
-  for (const d of BAR_DIAMETERS) {
-    const count = Math.max(4, Math.ceil(final_steel / barArea(d)));
-    if (count >= 4 && count <= 12) {
+  // Select bars.
+  // Practical column rules: a main bar is never thinner than 12 mm (BS 8110
+  // cl. 3.12.5, and anything smaller buckles in a cage), and bars are arranged
+  // symmetrically, so the count is one of 4, 6, 8, 10 or 12. The old loop
+  // started at 10 mm and accepted any count, which produced schemes like nine
+  // 10 mm bars that no detailer would draw.
+  const COLUMN_BAR_DIAMETERS = [12, 16, 20, 25, 32];
+  const COLUMN_BAR_COUNTS = [4, 6, 8, 10, 12];
+  let bestDiameter = COLUMN_BAR_DIAMETERS[0];
+  let bestCount = 4;
+  let foundScheme = false;
+  for (const d of COLUMN_BAR_DIAMETERS) {
+    const needed = Math.ceil(final_steel / barArea(d));
+    const count = COLUMN_BAR_COUNTS.find((c) => c >= Math.max(4, needed));
+    if (count !== undefined) {
       bestDiameter = d;
       bestCount = count;
+      foundScheme = true;
       break;
     }
+  }
+  if (!foundScheme) {
+    bestDiameter = COLUMN_BAR_DIAMETERS[COLUMN_BAR_DIAMETERS.length - 1];
+    bestCount = 12;
+    warnings.push(
+      `Required steel (${final_steel.toFixed(0)} mm²) exceeds twelve 32 mm bars. Increase the column section rather than crowding the cage.`,
+    );
   }
 
   // Links
@@ -1274,7 +1291,6 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
   };
 }
 
-
 // ============================================================
 // PHASE 1: MULTI-CODE SHEAR CAPACITY & STRENGTH ENGINE
 // Supports: Eurocode 2 (EN 1992-1-1), ACI 318-19, BS 8110, IS 456
@@ -1317,12 +1333,14 @@ export function computeDesignShearCapacity(
     // With f_c in MPa: 0.17 * sqrt(fck)
     const lambda = 1.0; // normal weight concrete
     const fc = fckOrFcuMpa;
-    vcMpa = 0.17 * lambda * Math.sqrt(fc) + (sigma_cp / 6);
-    explanation = `ACI 318-19: V_c = (0.17 * sqrt(${fc.toFixed(1)} MPa) + ${(sigma_cp/6).toFixed(2)}) * ${bw} * ${d} = ${(vcMpa * bw * d / 1000).toFixed(1)} kN`;
+    vcMpa = 0.17 * lambda * Math.sqrt(fc) + sigma_cp / 6;
+    explanation = `ACI 318-19: V_c = (0.17 * sqrt(${fc.toFixed(1)} MPa) + ${(sigma_cp / 6).toFixed(2)}) * ${bw} * ${d} = ${((vcMpa * bw * d) / 1000).toFixed(1)} kN`;
   } else if (standard === "is_456") {
     // IS 456:2000 Table 19 approximation for tau_c
     const pt = rho_l * 100;
-    vcMpa = 0.85 * Math.sqrt(0.8 * fckOrFcuMpa) * (Math.sqrt(1 + 5 * pt) - 1) / (6 * pt || 1);
+    vcMpa =
+      (0.85 * Math.sqrt(0.8 * fckOrFcuMpa) * (Math.sqrt(1 + 5 * pt) - 1)) /
+      (6 * pt || 1);
     vcMpa = Math.max(0.28, Math.min(1.2, vcMpa));
     explanation = `IS 456:2000 Table 19: tau_c = ${vcMpa.toFixed(2)} N/mm² (Pt = ${pt.toFixed(2)}%)`;
   } else {
@@ -1338,7 +1356,7 @@ export function computeDesignShearCapacity(
 
   const vcCapacityKn = Math.round(((vcMpa * bw * d) / 1000) * 10) / 10;
   // Maximum link spacing per code: 0.75d (BS/ACI/EC2) up to 300mm
-  const minLinkSpacingMm = Math.min(300, Math.round(0.75 * d / 25) * 25);
+  const minLinkSpacingMm = Math.min(300, Math.round((0.75 * d) / 25) * 25);
 
   return {
     standard,
@@ -1469,7 +1487,6 @@ export function jurisdictionStandard(
 ): ConcreteStandardCode {
   return JURISDICTION_CODES[code]?.standard ?? "eurocode_bs";
 }
-
 
 /** Mean tensile strength per EC2 Table 3.1, MPa. */
 export function ec2MeanTensileStrength(fck: number): number {

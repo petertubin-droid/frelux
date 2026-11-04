@@ -414,6 +414,14 @@ export default function FoundationCalculator() {
                 { label: "Concrete", value: `${result.concrete_volume} m³` },
                 { label: "Blinding", value: `${result.blinding_volume} m³` },
                 { label: "Hardcore", value: `${result.hardcore_volume} m³` },
+                ...(result.pad_thickness_mm
+                  ? [
+                      {
+                        label: "Pad depth",
+                        value: `${result.pad_thickness_mm} mm (sized to punching shear)`,
+                      },
+                    ]
+                  : []),
               ].map((item) => (
                 <div
                   key={item.label}

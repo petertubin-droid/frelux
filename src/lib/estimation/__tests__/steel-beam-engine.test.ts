@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  BEARING_ALLOWANCE_M,
   calculateSteelBeam,
   OPEN_SPAN_LIMIT_M,
   STEEL_PROFILE_BY_KEY,
@@ -17,11 +18,22 @@ const base: SteelBeamInput = {
 };
 
 describe("steel mass", () => {
+  it("adds a bearing allowance to the clear span", () => {
+    const oneBeam = steelMassKg({
+      ...base,
+      span_m: 10,
+      beam_count: 1,
+      profile: "ipe_200",
+    }) as number;
+    expect(oneBeam).toBeCloseTo((10 + BEARING_ALLOWANCE_M) * 22.4, 2);
+  });
+
   it("uses the published nominal mass per metre", () => {
     expect(STEEL_PROFILE_BY_KEY.ipe_150.kg_per_m).toBe(14);
     expect(STEEL_PROFILE_BY_KEY.ipe_200.kg_per_m).toBe(22.4);
     expect(STEEL_PROFILE_BY_KEY.ub_203_133_30.kg_per_m).toBe(30);
-    expect(steelMassKg(base)).toBe(268.8);
+    // 6 m clear span plus 300 mm of bearings, two beams, 22.4 kg/m.
+    expect(steelMassKg(base)).toBe(282.24);
   });
 
   it("returns null for a profile it does not carry", () => {
@@ -38,15 +50,15 @@ describe("steel mass", () => {
 describe("steel cost", () => {
   it("converts mass to tonnes and prices them at the buyer's rate", () => {
     const r = calculateSteelBeam(base, {});
-    expect(r.lines[0].quantity).toBe(0.2688);
+    expect(r.lines[0].quantity).toBe(0.2822);
     expect(r.lines[0].unit_price).toBe(1_500_000);
-    expect(r.lines[0].line_total).toBe(403200);
-    expect(r.grand_total).toBe(403200);
+    expect(r.lines[0].line_total).toBe(423300);
+    expect(r.grand_total).toBe(423300);
   });
 
   it("shows the mass and no money when the rate is missing", () => {
     const r = calculateSteelBeam({ ...base, price_per_tonne: null }, {});
-    expect(r.lines[0].quantity).toBe(0.2688);
+    expect(r.lines[0].quantity).toBe(0.2822);
     expect(r.lines[0].line_total).toBeNull();
     expect(r.grand_total).toBeNull();
     expect(r.incomplete).toBe(true);
@@ -58,7 +70,7 @@ describe("steel cost", () => {
       { ...base, price_per_tonne: null },
       { "steel-section-per-tonne": 1_200_000 },
     );
-    expect(r.grand_total).toBe(Math.round(0.2688 * 1_200_000 * 100) / 100);
+    expect(r.grand_total).toBe(Math.round(0.2822 * 1_200_000 * 100) / 100);
   });
 
   it("raises the deflection warning past the open span limit", () => {

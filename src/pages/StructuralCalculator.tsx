@@ -1685,6 +1685,17 @@ function BeamCalculator() {
   const { t } = useLanguage();
   const designAccess = useEngineAccess("/structural-calculator");
   const [span, setSpan] = useState(4.5);
+  // Lengths are entered in the unit the market actually uses. A US engineer
+  // typing 16 into a field labelled metres would have designed a 16 m beam.
+  const { preferredLengthUnit } = useMarket();
+  const [lengthUnit, setLengthUnit] = useState<"m" | "ft">(
+    preferredLengthUnit === "meters" ? "m" : "ft",
+  );
+  useEffect(() => {
+    setLengthUnit(preferredLengthUnit === "meters" ? "m" : "ft");
+  }, [preferredLengthUnit]);
+  const toMetres = (value: number) =>
+    lengthUnit === "ft" ? value * 0.3048 : value;
   const [beamType, setBeamType] = useState<BeamType>("suspended_beam");
   const [support, setSupport] = useState<SupportCondition>("simply_supported");
   const [liveLoad, setLiveLoad] = useState(2.0);
@@ -1726,12 +1737,12 @@ function BeamCalculator() {
 
   const calculate = useCallback(() => {
     const input: BeamDesignInput = {
-      span,
+      span: toMetres(span),
       beam_type: beamType,
       support_condition: support,
       live_load: liveLoad,
       dead_load: deadLoad,
-      tributary_width: tribWidth,
+      tributary_width: toMetres(tribWidth),
       concrete_grade: concreteGrade,
       steel_grade: steelGrade,
       cover_mm: cover,
@@ -1776,6 +1787,7 @@ function BeamCalculator() {
     cover,
     market.marketCode,
     jurisdiction,
+    lengthUnit,
   ]);
 
   if (!result) {
@@ -1787,7 +1799,7 @@ function BeamCalculator() {
       <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
         <InputGrid>
           <NumInput
-            label="Span (m)"
+            label={`Span (${lengthUnit})`}
             value={span}
             onChange={setSpan}
             step="0.1"
@@ -1836,7 +1848,7 @@ function BeamCalculator() {
             step="0.5"
           />
           <NumInput
-            label="Tributary width (m)"
+            label={`Tributary width (${lengthUnit})`}
             value={tribWidth}
             onChange={setTribWidth}
             step="0.5"
@@ -2036,8 +2048,12 @@ function ColumnCalculator() {
   const { t } = useLanguage();
   const [axialLoad, setAxialLoad] = useState(200);
   const [height, setHeight] = useState(3.0);
+  const [columnLengthUnit, setColumnLengthUnit] = useState<"m" | "ft">("m");
 
-  const { market } = useMarket();
+  const { market, preferredLengthUnit: columnLengthUnitPref } = useMarket();
+  useEffect(() => {
+    setColumnLengthUnit(columnLengthUnitPref === "meters" ? "m" : "ft");
+  }, [columnLengthUnitPref]);
   const concreteStandard = useMemo(
     () => getConcreteStandardForMarket(market.marketCode),
     [market.marketCode],
@@ -2065,7 +2081,7 @@ function ColumnCalculator() {
   const calculate = useCallback(() => {
     const input: ColumnDesignInput = {
       axial_load: axialLoad,
-      height,
+      height: columnLengthUnit === "ft" ? height * 0.3048 : height,
       concrete_grade: concreteGrade,
       steel_grade: steelGrade,
       cover_mm: cover,
@@ -2091,7 +2107,7 @@ function ColumnCalculator() {
             step="10"
           />
           <NumInput
-            label="Height (m)"
+            label={`Height (${columnLengthUnit})`}
             value={height}
             onChange={setHeight}
             step="0.1"

@@ -58,6 +58,7 @@ export interface FoundationDesignResult {
   required_length?: number; // mm (pad only)
   recommended_length?: number; // mm
   area_per_pad?: number; // m² (pad only)
+  pad_thickness_mm?: number; // mm (pad only, sized against punching shear)
   excavation_volume: number; // m³
   concrete_volume: number; // m³
   blinding_volume: number; // m³ (75mm blinding)
@@ -241,12 +242,10 @@ export function designFoundation(
       `Margin over allowable = ${allowable_capacity.toFixed(0)} / ${check_pressure.toFixed(1)} = ${actual_fos.toFixed(2)} (>= 1.0 required)`,
     );
 
-    // Volumes (single pad)
-    const pad_thickness_mm = 300;
-    const excavation_volume = actual_area * input.foundation_depth;
-    const concrete_volume = actual_area * (pad_thickness_mm / 1000);
-    const blinding_volume = actual_area * 0.075;
-    const hardcore_volume = actual_area * 0.15;
+    // Blinding is laid 100 mm beyond the pad on every side, so it is counted
+    // on the projected footprint. Using the pad area alone under-ordered it.
+    const blinding_area = Math.pow(recommended_side / 1000 + 0.2, 2);
+    const blinding_volume = blinding_area * 0.075;
 
     if (recommended_side > 2000) {
       warnings.push(
@@ -258,34 +257,65 @@ export function designFoundation(
     // from the column face (BS 8110 3.7.7.6 simplified). Pad thickness is
     // 300mm → effective depth d = 300 − 40 cover − 10 (bar/2) = 250mm.
     const col_face = input.column_width_mm ?? 225;
-    const pad_d = 300 - 40 - 10;
-    const u1 = 4 * (col_face + 3 * pad_d); // critical perimeter, mm
     const fcu = fcuFromGrade(input.concrete_grade);
     const ULS_N = 1.4 * column_load * 1000; // N (BS 8110 axial-governed)
-    const v_punch = ULS_N / (u1 * pad_d); // N/mm²
+
     // v_c with minimum flexural steel 0.15% assumed (BS 8110 Table 3.8).
     // Table 3.8 divides by the concrete material factor gamma_m = 1.25. Leaving
     // it out overstated capacity by 25 percent, which is the unsafe direction
     // for a punching check: a pad that should fail would report PASS. The
     // (400/d) term is capped at 1.0 for depths above 400 mm, as the table states.
-    const v_c_punch =
-      (0.79 *
-        Math.pow(fcu / 25, 1 / 3) *
-        Math.pow(0.15, 1 / 3) *
-        (pad_d > 400 ? 1 : Math.pow(400 / pad_d, 0.25))) /
-      1.25; // gamma_m, BS 8110-1 Table 2.2
-    const punching_ok = v_punch <= v_c_punch;
+    const punchingStress = (thicknessMm: number) => {
+      const d = thicknessMm - 40 - 10; // 40 cover, 10 half a 20 mm bar
+      const perimeter = 4 * (col_face + 3 * d);
+      const applied = ULS_N / (perimeter * d);
+      const capacity =
+        (0.79 *
+          Math.pow(fcu / 25, 1 / 3) *
+          Math.pow(0.15, 1 / 3) *
+          (pad_depth_for_capacity(d) > 400 ? 1 : Math.pow(400 / d, 0.25))) /
+        1.25;
+      return { d, perimeter, applied, capacity, ok: applied <= capacity };
+    };
+    function pad_depth_for_capacity(d: number) {
+      return d;
+    }
+
+    // A fixed 300 mm pad was reported as failing punching shear for ordinary
+    // column loads and then left to the reader to fix. The depth is now sized:
+    // step up in 50 mm increments until the check passes, and say so.
+    let pad_thickness_mm = 300;
+    let punching = punchingStress(pad_thickness_mm);
+    while (!punching.ok && pad_thickness_mm < 900) {
+      pad_thickness_mm += 50;
+      punching = punchingStress(pad_thickness_mm);
+    }
+    const {
+      d: pad_d,
+      perimeter: u1,
+      applied: v_punch,
+      capacity: v_c_punch,
+    } = punching;
+    const punching_ok = punching.ok;
+
     formulas.push(
       `Punching shear: perimeter u1 = 4×(${col_face} + 3×${pad_d}) = ${u1} mm (1.5d from column face, d = ${pad_d} mm)`,
     );
     formulas.push(
       `Applied v = ${ULS_N.toFixed(0)} / (${u1} × ${pad_d}) = ${v_punch.toFixed(3)} N/mm² vs v_c ≈ ${v_c_punch.toFixed(3)} N/mm² (min steel 0.15% assumed, gamma_m 1.25 applied) → ${punching_ok ? "PASS" : "FAIL"}`,
     );
+    formulas.push(
+      `Pad depth sized to ${pad_thickness_mm} mm (300 mm steps of 50 mm) so the punching check is satisfied.`,
+    );
     if (!punching_ok) {
       warnings.push(
-        `Punching shear exceeds concrete capacity (v = ${v_punch.toFixed(3)} > v_c ≈ ${v_c_punch.toFixed(3)} N/mm²). Increase the pad depth (currently 300mm) rather than relying on flexural steel alone.`,
+        `Punching shear still exceeds concrete capacity at ${pad_thickness_mm} mm depth (v = ${v_punch.toFixed(3)} > v_c ≈ ${v_c_punch.toFixed(3)} N/mm²). Use a pile cap or a thicker, specifically designed footing.`,
       );
     }
+    const excavation_volume = actual_area * input.foundation_depth;
+    const concrete_volume = actual_area * (pad_thickness_mm / 1000);
+    const hardcore_volume = actual_area * 0.15;
+
     if (allowable_capacity < 100) {
       warnings.push(
         `Soil bearing capacity is critically low (${allowable_capacity.toFixed(0)} kN/m²). Consult geotechnical specialist for raft or bored pile foundation.`,
@@ -302,6 +332,7 @@ export function designFoundation(
       required_length: Math.ceil(side),
       recommended_length: recommended_side,
       area_per_pad: Math.round(actual_area * 1000) / 1000,
+      pad_thickness_mm,
       excavation_volume: Math.round(excavation_volume * 10) / 10,
       concrete_volume: Math.round(concrete_volume * 10) / 10,
       blinding_volume: Math.round(blinding_volume * 10) / 10,

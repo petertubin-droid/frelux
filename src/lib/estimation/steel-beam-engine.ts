@@ -83,10 +83,18 @@ export interface SteelBeamInput {
   columns_included: boolean;
 }
 
+/**
+ * A beam is cut longer than the clear span: each end sits on a bearing, 150 mm
+ * being the usual minimum. The old mass used the clear span alone, so a beam
+ * ordered from it came up short on site and understated the tonnage.
+ */
+export const BEARING_ALLOWANCE_M = 0.3;
+
 export function steelMassKg(input: SteelBeamInput): number | null {
   const profile = STEEL_PROFILE_BY_KEY[input.profile];
   if (!profile) return null;
-  return money(input.span_m * input.beam_count * profile.kg_per_m);
+  const cutLength = input.span_m + BEARING_ALLOWANCE_M;
+  return money(cutLength * input.beam_count * profile.kg_per_m);
 }
 
 export function calculateSteelBeam(

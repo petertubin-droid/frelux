@@ -56,6 +56,11 @@ export const DEFAULT_RETAINING_WALL_RULES: RetainingWallRules = {
   stem_thickness_m: 0.15,
 };
 
+/** Working space each side of the footing, for the dig and the formwork. */
+export const TRENCH_WORKING_SPACE_M = 0.3;
+/** Blinding under the footing, which the trench must also accommodate. */
+export const BLINDING_DEPTH_M = 0.1;
+
 export function parseRetainingWallRules(
   rows: CalcRuleLike[],
 ): RetainingWallRules {
@@ -135,7 +140,15 @@ export function retainingWallGeometry(
     footing_width_m: money(width),
     footing_factor: factor,
     footing_overridden: width !== recommended,
-    excavation_m3: money(input.length_m * width * rules.footing_thickness_m),
+    // Excavation is not the concrete box: a trench is dug with working space
+    // on both faces and deep enough for the 100 mm blinding under the footing.
+    // Reporting the concrete volume as the excavation under-ordered the dig by
+    // roughly 40 percent.
+    excavation_m3: money(
+      input.length_m *
+        (width + 2 * TRENCH_WORKING_SPACE_M) *
+        (rules.footing_thickness_m + BLINDING_DEPTH_M),
+    ),
     footing_concrete_m3: money(footingConcrete),
     stem_concrete_m3: money(stemConcrete),
     concrete_m3: money(footingConcrete + stemConcrete),
