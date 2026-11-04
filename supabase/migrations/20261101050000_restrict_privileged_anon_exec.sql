@@ -73,7 +73,6 @@ DECLARE
     'classify_catalogue_backlog',
     'process_catalogue_responses',
     'recompute_source_reliability',
-    'reset_catalogue_suggestions',
     'mark_observation_outliers',
     -- billing and delivery reads that expose another user's data
     'charge_api_request',

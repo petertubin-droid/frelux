@@ -62,7 +62,6 @@ PROTECTED = [
     "classify_catalogue_backlog",
     "process_catalogue_responses",
     "recompute_source_reliability",
-    "reset_catalogue_suggestions",
     "mark_observation_outliers",
     "charge_api_request",
     "consume_reward_grant",
