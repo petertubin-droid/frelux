@@ -1,0 +1,159 @@
+/**
+ * Heavy calculator verification against hand calculations.
+ *
+ * Every figure below was worked out independently from the code under test,
+ * from the published formula or table, and is written out in the comment so a
+ * reviewer can check the arithmetic without running anything.
+ */
+import { describe, expect, it } from "vitest";
+import {
+  designBeam,
+  designSlab,
+} from "@/lib/engineering/structural-calculator";
+import { calculateMasonryTakeoff } from "@/lib/estimation/masonry-standalone-engine";
+
+const beamBase = {
+  span: 6,
+  beam_type: "suspended_beam" as const,
+  support_condition: "simply_supported" as const,
+  live_load: 10,
+  dead_load: 12,
+  tributary_width: 3,
+  concrete_grade: "C25/30",
+  steel_grade: "Fe500",
+  cover_mm: 25,
+  market_code: "GB",
+};
+
+describe("beam design, hand calculation", () => {
+  it("matches the worked example end to end", () => {
+    const r = designBeam(beamBase as never);
+    // UB: w = 1.4 x (12 x 3) + 1.6 x (10 x 3) = 50.4 + 48 = 98.4 kN/m
+    expect(r.design_load).toBeCloseTo(98.4, 1);
+    // Effective span = clear span + d. Preliminary d = span/12 = 500 mm,
+    // d_eff = 475 mm, so Le = 6 + 0.475 = 6.475 m (BS 8110 cl 3.4.1.1).
+    expect(r.effective_span).toBeCloseTo(6.475, 2);
+    // M = wL²/8 = 98.4 x 41.9256 / 8 = 515.68 kN·m
+    expect(r.max_moment).toBeCloseTo(515.68, 1);
+    // V = wL/2 = 98.4 x 6.475 / 2 = 318.57 kN
+    expect(r.max_shear).toBeCloseTo(318.57, 1);
+    // d for K = 0.156: sqrt(515.68e6 / (0.156 x 30 x 200)) = 742 mm, plus
+    // cover 25 and half a 25 mm bar gives 792, rounded to 800 mm overall.
+    expect(r.recommended_width).toBe(200);
+    expect(r.recommended_depth).toBe(800);
+    // z = 0.777d = 577 mm, As = 515.68e6 / (0.87 x 500 x 577) = 2056 mm²
+    expect(r.area_steel_required).toBeCloseTo(2056, -1);
+  });
+
+  it("never falls below a width two bars and two links can fit in", () => {
+    // The GB profile's 100 mm wall width must not become a beam width.
+    const r = designBeam({ ...beamBase, market_code: "GB" } as never);
+    expect(r.recommended_width).toBeGreaterThanOrEqual(200);
+  });
+
+  it("designs links when the concrete capacity is exceeded", () => {
+    const r = designBeam(beamBase as never);
+    expect(r.shear_links_required).toBe(true);
+    expect(r.shear_check_pass).toBe(false);
+    // Asv/sv = (318.57 - Vc) / (0.95 x 500 x 742); Y10 two-leg Asv = 157 mm².
+    // The spacing must be no wider than 0.75d and must carry the excess.
+    // V_s = 0.95 fy Asv d / sv, with Asv = two Y10 legs = 157 mm².
+    const vsKN = (0.95 * 500 * (2 * 78.54) * 742) / r.link_spacing / 1000;
+    expect(vsKN + r.shear_capacity).toBeGreaterThanOrEqual(r.max_shear * 0.99);
+    expect(r.link_spacing).toBeLessThanOrEqual(
+      Math.floor((0.75 * 743) / 25) * 25,
+    );
+  });
+});
+
+describe("two-way slab, BS 8110 Table 3.14", () => {
+  it("uses the table coefficients and designs both directions", () => {
+    const r = designSlab({
+      span_x: 4,
+      span_y: 5,
+      slab_type: "two_way",
+      support_condition: "simply_supported",
+      live_load: 1.5,
+      dead_load: 1.2,
+      concrete_grade: "C25/30",
+      steel_grade: "Fe500",
+      cover_mm: 25,
+    } as never);
+    // Thickness is sized so L/d <= 26: d = 4000/26 = 154, +25 cover +10 = 189,
+    // rounded up in 25 mm steps = 200 mm. Self weight 0.2 x 24 = 4.8 kN/m².
+    expect(r.recommended_thickness).toBe(200);
+    // w = 1.4 x (4.8 + 1.2) + 1.6 x 1.5 = 8.4 + 2.4 = 10.8 kN/m²
+    expect(r.total_load).toBeCloseTo(10.8, 1);
+    // ly/lx = 1.25, interpolating Table 3.14: asx = 0.0885, asy = 0.057.
+    // Msx = 0.0885 x 10.8 x 16 = 15.29, Msy = 0.057 x 10.8 x 16 = 9.85.
+    expect(r.moment_short_span).toBeCloseTo(15.29, 1);
+    expect(r.moment_long_span).toBeCloseTo(9.85, 1);
+    // d = 200 - 25 - 10 = 165, z = 0.87d = 143.6.
+    // Asx = 15.29e6 / (0.87 x 500 x 143.6) = 245 mm²/m.
+    expect(r.steel_area_required).toBeCloseTo(245, -1);
+    expect(r.steel_area_secondary).toBeGreaterThan(0);
+    expect(r.steel_area_secondary as number).toBeLessThan(
+      r.steel_area_required,
+    );
+    expect(r.deflection_check_pass).toBe(true);
+  });
+
+  it("keeps the one-way path unchanged", () => {
+    const r = designSlab({
+      span_x: 4,
+      span_y: 9,
+      slab_type: "one_way",
+      support_condition: "simply_supported",
+      live_load: 1.5,
+      dead_load: 1.2,
+      concrete_grade: "C25/30",
+      steel_grade: "Fe500",
+      cover_mm: 25,
+    } as never);
+    expect(r.moment_long_span).toBeUndefined();
+    expect(r.steel_area_secondary).toBeUndefined();
+  });
+});
+
+describe("masonry, published blocks per square metre", () => {
+  const cases: Array<[string, number, string]> = [
+    ["NG", 9.13, "450x225 with 12 mm joints: 1/(0.462 x 0.237)"],
+    ["GB", 59.26, "215x65 with 10 mm joints: 1/(0.225 x 0.075)"],
+    ["US", 12.09, "397x194 with 9.5 mm joints: 1/(0.4065 x 0.2035)"],
+    ["DE", 49.38, "240x71 with 10 mm joints: 1/(0.25 x 0.081)"],
+    ["AU", 48.45, "230x76 with 10 mm joints: 1/(0.24 x 0.086)"],
+  ];
+  for (const [market, perM2, basis] of cases) {
+    it(`${market} matches ${basis}`, () => {
+      const r = calculateMasonryTakeoff({
+        marketCode: market,
+        wallLengthM: 10,
+        wallHeightM: 10,
+        wallCount: 1,
+        wastePercent: 0,
+      } as never);
+      expect(Number(r.unitsPerM2.toFixed(2))).toBeCloseTo(perM2, 1);
+      // Unit quantities round up, so allow the one-unit ceiling difference.
+      expect(r.unitsRequiredGross).toBeGreaterThanOrEqual(
+        Math.round(100 * perM2),
+      );
+      expect(r.unitsRequiredGross).toBeLessThanOrEqual(
+        Math.ceil(100 * perM2) + 1,
+      );
+    });
+  }
+
+  it("converts mortar volume to cement bags at the market bag weight", () => {
+    const r = calculateMasonryTakeoff({
+      marketCode: "GB",
+      wallLengthM: 10,
+      wallHeightM: 10,
+      wallCount: 1,
+      wastePercent: 5,
+    } as never);
+    // Gross dry mortar 2.46 m³ at 1:4 gives 0.492 m³ of cement, 708 kg, which
+    // is 29 bags of 25 kg.
+    expect(r.cementBagWeightKg).toBe(25);
+    expect(r.cementBagsRequired).toBe(29);
+  });
+});

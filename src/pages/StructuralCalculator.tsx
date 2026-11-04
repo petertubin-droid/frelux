@@ -1901,7 +1901,7 @@ function BeamCalculator() {
             />
             <StatBox
               label="Links"
-              value={`Y${result.link_diameter} @ ${result.link_spacing}mm`}
+              value={`Y${result.link_diameter} @ ${result.link_spacing}mm${result.shear_links_required ? " (designed for shear)" : " (nominal)"}`}
               unit=""
             />
           </div>
@@ -2475,7 +2475,7 @@ function SlabCalculator() {
               unit="mm"
             />
             <StatBox
-              label="Main Bars"
+              label="Short-span Bars"
               value={`Y${result.recommended_bar_diameter} @ ${result.recommended_bar_spacing}mm c/c`}
               unit=""
             />
@@ -2484,6 +2484,13 @@ function SlabCalculator() {
               value={`${result.total_load}`}
               unit="kN/m²"
             />
+            {result.recommended_bar_spacing_secondary ? (
+              <StatBox
+                label="Long-span Bars"
+                value={`Y${result.recommended_bar_diameter} @ ${result.recommended_bar_spacing_secondary}mm c/c`}
+                unit=""
+              />
+            ) : null}
           </div>
 
           <div className="grid md:grid-cols-2 gap-4 mb-4">
@@ -2525,9 +2532,21 @@ function SlabCalculator() {
             />
             <DetailItem label="Max shear" value={`${result.max_shear} kN/m`} />
             <DetailItem
-              label="Steel area"
+              label="Steel area (short span)"
               value={`${result.steel_area_required} mm²/m`}
             />
+            {result.steel_area_secondary ? (
+              <DetailItem
+                label="Steel area (long span)"
+                value={`${result.steel_area_secondary} mm²/m`}
+              />
+            ) : null}
+            {result.moment_long_span ? (
+              <DetailItem
+                label="Long-span moment"
+                value={`${result.moment_long_span} kN·m/m`}
+              />
+            ) : null}
             <DetailItem
               label="Required thickness"
               value={`${result.required_thickness} mm`}

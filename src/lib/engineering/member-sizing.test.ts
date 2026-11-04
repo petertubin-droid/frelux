@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { resolveMemberSizing } from "../engineering/member-sizing";
-import { designBeam, designColumn, type BeamDesignInput, type ColumnDesignInput } from "../engineering/structural-calculator";
+import {
+  designBeam,
+  designColumn,
+  type BeamDesignInput,
+  type ColumnDesignInput,
+} from "../engineering/structural-calculator";
 
 const beam: BeamDesignInput = {
   span: 4.5,
@@ -21,18 +26,24 @@ describe("market-scoped member sizing", () => {
     expect(r.warnings.some((w) => w.includes("not yet verified"))).toBe(false);
   });
 
-  it("verified markets use their standard wall unit width", () => {
+  it("verified markets use their wall unit width when it can hold a beam", () => {
     const us = designBeam({ ...beam, market_code: "US" });
     expect(us.required_width).toBe(203);
-    const gb = designBeam({ ...beam, market_code: "GB" });
-    expect(gb.required_width).toBe(100);
     const in_ = designBeam({ ...beam, market_code: "IN" });
     expect(in_.required_width).toBe(230);
+
+    // GB's 100 mm inner leaf is a masonry dimension: two bars, two links and
+    // cover do not fit, so the 200 mm practical floor applies and says why.
+    const gb = designBeam({ ...beam, market_code: "GB" });
+    expect(gb.required_width).toBe(200);
+    expect(gb.warnings.some((w) => w.includes("masonry dimension"))).toBe(true);
   });
 
   it("frame markets disclose engineer-determined width", () => {
     const au = designBeam({ ...beam, market_code: "AU" });
-    expect(au.warnings.some((w) => w.includes("engineer-determined"))).toBe(true);
+    expect(au.warnings.some((w) => w.includes("engineer-determined"))).toBe(
+      true,
+    );
     expect(au.warnings.some((w) => w.includes("not yet verified"))).toBe(false);
   });
 
@@ -42,26 +53,41 @@ describe("market-scoped member sizing", () => {
     expect(pl.warnings.some((w) => w.includes("9-inch"))).toBe(false);
   });
 
-  it("expansion markets (batch 2026-10-14) use their verified wall unit widths", () => {
+  it("expansion markets use verified wall widths where they suit a beam", () => {
     const fr = designBeam({ ...beam, market_code: "FR" });
     expect(fr.required_width).toBe(200); // parpaing 20cm
     expect(fr.warnings.some((w) => w.includes("not yet verified"))).toBe(false);
     const mx = designBeam({ ...beam, market_code: "MX" });
-    expect(mx.required_width).toBe(150); // block de concreto 15cm
+    expect(mx.required_width).toBe(200); // 15 cm block wall is not a beam width
+    expect(mx.warnings.some((w) => w.includes("masonry dimension"))).toBe(true);
     const cn = designBeam({ ...beam, market_code: "CN" });
     expect(cn.required_width).toBe(240); // 砖混 brick-concrete 240mm
     const ke = designBeam({ ...beam, market_code: "KE" });
     expect(ke.required_width).toBe(225); // 9x9 Ndarugo stone
     const ca = designBeam({ ...beam, market_code: "CA" });
-    expect(ca.warnings.some((w) => w.includes("engineer-determined"))).toBe(true);
+    expect(ca.warnings.some((w) => w.includes("engineer-determined"))).toBe(
+      true,
+    );
   });
 
   it("NG ground beam warning preserved; other markets get generic code note", () => {
     const shallow = { ...beam, span: 1.5, dead_load: 2, live_load: 1 };
-    const ngGb = designBeam({ ...shallow, beam_type: "ground_beam", market_code: "NG" });
-    expect(ngGb.warnings.some((w) => w.includes("Nigerian practice"))).toBe(true);
-    const usGb = designBeam({ ...beam, beam_type: "ground_beam", market_code: "US" });
-    expect(usGb.warnings.some((w) => w.includes("local structural codes"))).toBe(true);
+    const ngGb = designBeam({
+      ...shallow,
+      beam_type: "ground_beam",
+      market_code: "NG",
+    });
+    expect(ngGb.warnings.some((w) => w.includes("Nigerian practice"))).toBe(
+      true,
+    );
+    const usGb = designBeam({
+      ...beam,
+      beam_type: "ground_beam",
+      market_code: "US",
+    });
+    expect(
+      usGb.warnings.some((w) => w.includes("local structural codes")),
+    ).toBe(true);
   });
 
   it("column minimum is market-scoped", () => {
@@ -78,7 +104,9 @@ describe("market-scoped member sizing", () => {
     const ng = designColumn(col);
     expect(ng.warnings.some((w) => w.includes("225mm"))).toBe(true);
     const au = designColumn({ ...col, market_code: "AU" });
-    expect(au.warnings.some((w) => w.includes("engineer-determined"))).toBe(true);
+    expect(au.warnings.some((w) => w.includes("engineer-determined"))).toBe(
+      true,
+    );
     const pl = designColumn({ ...col, market_code: "PL" });
     expect(pl.warnings.some((w) => w.includes("not yet verified"))).toBe(true);
     const frCol = designColumn({ ...col, market_code: "FR" });

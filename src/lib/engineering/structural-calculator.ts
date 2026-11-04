@@ -105,6 +105,8 @@ export interface BeamDesignResult {
   link_spacing: number; // mm
   shear_capacity: number; // kN
   shear_check_pass: boolean;
+  /** True when links, not the concrete, carry part of the shear. */
+  shear_links_required?: boolean;
   deflection_check_pass: boolean;
   span_to_depth_ratio: number;
   /** Jurisdictional code mode only: the governing code actually used. */
@@ -176,8 +178,16 @@ export interface SlabDesignResult {
   max_moment: number; // kN·m/m
   max_shear: number; // kN/m
   steel_area_required: number; // mm²/m
+  /** Short-span moment actually designed for, kN·m/m. */
+  moment_short_span?: number;
+  /** Long-span moment for two-way panels, kN·m/m. */
+  moment_long_span?: number;
+  /** Steel required in the long direction of a two-way panel, mm²/m. */
+  steel_area_secondary?: number;
   recommended_bar_diameter: number; // mm
   recommended_bar_spacing: number; // mm
+  /** Long-direction bar spacing for two-way panels, mm. */
+  recommended_bar_spacing_secondary?: number;
   link_check: string;
   span_to_depth_ratio: number;
   deflection_check_pass: boolean;
@@ -648,7 +658,25 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   const ms: MemberSizingProfile = resolveMemberSizing(
     input.market_code ?? "NG",
   );
-  const assumed_width = input.existing_width ?? ms.beamWidthMm ?? 200;
+  // A reinforced concrete beam has to be wide enough for two bars, two links
+  // and the cover. Wall-unit widths below that (the GB profile carried 100 mm,
+  // BR 90 mm) produced a 1,100 mm deep beam with a failing shear capacity, so
+  // the practical floor is applied and the reason is stated.
+  const MIN_PRACTICAL_BEAM_WIDTH_MM = 200;
+  const marketBeamWidth =
+    ms.beamWidthMm !== null && ms.beamWidthMm >= MIN_PRACTICAL_BEAM_WIDTH_MM
+      ? ms.beamWidthMm
+      : MIN_PRACTICAL_BEAM_WIDTH_MM;
+  if (
+    !input.existing_width &&
+    ms.beamWidthMm !== null &&
+    ms.beamWidthMm < MIN_PRACTICAL_BEAM_WIDTH_MM
+  ) {
+    warnings.push(
+      `The ${ms.marketCode} wall width (${ms.beamWidthMm} mm) is a masonry dimension, not a beam width. A ${MIN_PRACTICAL_BEAM_WIDTH_MM} mm beam is assumed so two bars, links and cover fit. Enter your own width to override.`,
+    );
+  }
+  const assumed_width = input.existing_width ?? marketBeamWidth;
   if (!input.existing_width && ms.beamWidthMm === null) {
     warnings.push(ms.beamWidthBasis);
     if (!ms.verified)
@@ -788,15 +816,20 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     );
   }
 
-  // Shear check
+  // Shear check. BS 8110-1 Table 3.8: vc carries gamma_m = 1.25, the steel
+  // term is capped at 2 percent, and (400/d)^0.25 is capped at 1.0 above
+  // 400 mm. Leaving out the gamma_m divisor overstated capacity by 25 percent,
+  // which is the unsafe direction: a beam that needs links reported PASS.
+  const vcSteelPct = Math.min(
+    (100 * provided_As) / (assumed_width * required_depth_eff),
+    2,
+  );
+  const vcDepthCap = Math.min(required_depth_eff, 400);
   const vc =
-    0.79 *
+    (0.79 / 1.25) *
     Math.pow(fcu / 25, 1 / 3) *
-    Math.pow(
-      (100 * provided_As) / (assumed_width * required_depth_eff),
-      1 / 3,
-    ) *
-    (400 / required_depth_eff) ** 0.25;
+    Math.pow(vcSteelPct, 1 / 3) *
+    Math.pow(400 / vcDepthCap, 0.25);
   const shear_capacity = (vc * assumed_width * required_depth_eff) / 1000; // kN
   const shear_check_pass = shear_capacity >= max_shear;
   formulas.push(
@@ -814,8 +847,39 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   const recommended_width = assumed_width;
 
   // Links
+  // BS 8110-1 Cl 3.4.5.3: where the applied shear exceeds the concrete
+  // capacity, links carry the difference, Asv/sv >= (V - Vc) / (0.95 fy d).
+  // The old output named a maximum spacing and left the reader to work out
+  // whether links were even needed.
   const link_diameter = bestDiameter >= 20 ? 10 : 8;
-  const link_spacing = Math.min(300, 0.75 * required_depth_eff);
+  const maxLinkSpacing = Math.min(300, 0.75 * required_depth_eff);
+  const shearExcessKN = max_shear - shear_capacity;
+  const shearLinksRequired = shearExcessKN > 0;
+  let designedLinkSpacing = maxLinkSpacing;
+  if (shearLinksRequired) {
+    // Two legs per link.
+    const asv = 2 * barArea(link_diameter);
+    const requiredAsvPerSv =
+      (shearExcessKN * 1000) / (0.95 * fy * required_depth_eff);
+    designedLinkSpacing = Math.min(maxLinkSpacing, asv / requiredAsvPerSv);
+    formulas.push(
+      `Shear links: Asv/sv = ${(shearExcessKN * 1000).toFixed(0)} / (0.95 × ${fy} × ${required_depth_eff.toFixed(0)}) = ${requiredAsvPerSv.toFixed(3)} mm²/mm; Y${link_diameter} two-leg links (Asv = ${asv.toFixed(0)} mm²) at ${Math.floor(designedLinkSpacing / 25) * 25} mm c/c`,
+    );
+  } else {
+    formulas.push(
+      `Shear links: concrete alone carries ${shear_capacity.toFixed(1)} kN ≥ ${max_shear.toFixed(1)} kN, so nominal Y${link_diameter} links at ${Math.floor(maxLinkSpacing / 25) * 25} mm c/c (0.75d, BS 8110-1 Cl 3.4.5.1)`,
+    );
+  }
+  const link_spacing = Math.max(75, Math.floor(designedLinkSpacing / 25) * 25);
+  // Maximum shear stress the section can take at all: min(0.8 sqrt(fcu), 5) MPa.
+  const maxShearStress = Math.min(0.8 * Math.sqrt(fcu), 5);
+  const appliedShearStress =
+    (max_shear * 1000) / (assumed_width * required_depth_eff);
+  if (appliedShearStress > maxShearStress) {
+    warnings.push(
+      `Applied shear stress ${appliedShearStress.toFixed(2)} N/mm² exceeds the ${maxShearStress.toFixed(2)} N/mm² section limit (BS 8110-1 Cl 3.4.5.2). Increase the section; links alone cannot fix this.`,
+    );
+  }
 
   // Beam-type specific warnings
   if (input.beam_type === "ground_beam") {
@@ -854,6 +918,7 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     link_spacing: Math.round(link_spacing),
     shear_capacity: Math.round(shear_capacity * 10) / 10,
     shear_check_pass,
+    shear_links_required: shearLinksRequired,
     deflection_check_pass,
     span_to_depth_ratio: Math.round(span_to_depth * 10) / 10,
     ...(beamJurisdiction
@@ -1124,7 +1189,24 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
     );
   }
 
-  const required_thickness = Math.ceil(min_thickness);
+  // The thickness has to satisfy the span/depth limit as well as the minimum
+  // thickness rule. Those two disagreed: a 4 m two-way panel was sized to
+  // span/28 and then immediately failed the L/d check the same panel is
+  // reported against. Size to whichever is deeper so the answer is consistent.
+  const basicRatioForSizing =
+    input.support_condition === "cantilever"
+      ? 7
+      : input.support_condition === "continuous"
+        ? 32
+        : is_two_way
+          ? 26
+          : 20;
+  const shortSpanForSizing = Math.min(input.span_x, input.span_y);
+  const deflectionDepth =
+    (shortSpanForSizing * 1000) / basicRatioForSizing + input.cover_mm + 10;
+  const required_thickness = Math.ceil(
+    Math.max(min_thickness, deflectionDepth),
+  );
   const recommended_thickness =
     input.existing_thickness ?? roundUpTo25(required_thickness);
 
@@ -1167,11 +1249,61 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
       break;
   }
 
-  const max_moment = momentCoeff * total_load * input.span_x * input.span_x;
-  const max_shear = (total_load * input.span_x) / 2;
+  // Two-way panels carry load in both directions, so dividing wL² by 8 (a
+  // one-way coefficient) over-designed the steel by up to a factor of two and
+  // never produced long-direction steel at all. BS 8110-1 Table 3.14 gives
+  // moment coefficients against ly/lx; they are interpolated here.
+  const twoWayCoefficients: Array<[number, number, number]> = [
+    [1.0, 0.062, 0.062],
+    [1.1, 0.074, 0.061],
+    [1.2, 0.084, 0.059],
+    [1.3, 0.093, 0.055],
+    [1.4, 0.099, 0.051],
+    [1.5, 0.104, 0.046],
+    [1.75, 0.113, 0.037],
+    [2.0, 0.118, 0.029],
+  ];
+  const shortSpan = Math.min(input.span_x, input.span_y);
+  const longSpan = Math.max(input.span_x, input.span_y);
+  const panelRatio = longSpan / shortSpan;
+  let alphaShort = momentCoeff;
+  let alphaLong = 0;
+  if (is_two_way) {
+    const clamped = Math.min(2, Math.max(1, panelRatio));
+    let lower = twoWayCoefficients[0];
+    let upper = twoWayCoefficients[twoWayCoefficients.length - 1];
+    for (let i = 0; i < twoWayCoefficients.length - 1; i += 1) {
+      if (
+        clamped >= twoWayCoefficients[i][0] &&
+        clamped <= twoWayCoefficients[i + 1][0]
+      ) {
+        lower = twoWayCoefficients[i];
+        upper = twoWayCoefficients[i + 1];
+        break;
+      }
+    }
+    const span = upper[0] - lower[0];
+    const t = span === 0 ? 0 : (clamped - lower[0]) / span;
+    alphaShort = lower[1] + t * (upper[1] - lower[1]);
+    alphaLong = lower[2] + t * (upper[2] - lower[2]);
+    formulas.push(
+      `Two-way panel, ly/lx = ${panelRatio.toFixed(2)}: αsx = ${alphaShort.toFixed(3)}, αsy = ${alphaLong.toFixed(3)} (BS 8110-1 Table 3.14, simply supported panel, interpolated)`,
+    );
+  }
+
+  const max_moment = alphaShort * total_load * shortSpan * shortSpan;
+  const longSpanMoment = is_two_way
+    ? alphaLong * total_load * shortSpan * shortSpan
+    : 0;
+  const max_shear = (total_load * shortSpan) / 2;
   formulas.push(
-    `Max moment = ${momentCoeff.toFixed(4)} × ${total_load.toFixed(1)} × ${input.span_x}² = ${max_moment.toFixed(2)} kN·m/m`,
+    `Max moment = ${alphaShort.toFixed(4)} × ${total_load.toFixed(1)} × ${shortSpan}² = ${max_moment.toFixed(2)} kN·m/m (short span)`,
   );
+  if (is_two_way) {
+    formulas.push(
+      `Long-span moment = ${alphaLong.toFixed(4)} × ${total_load.toFixed(1)} × ${shortSpan}² = ${longSpanMoment.toFixed(2)} kN·m/m`,
+    );
+  }
   formulas.push(
     `Max shear = ${total_load.toFixed(1)} × ${input.span_x} / 2 = ${max_shear.toFixed(2)} kN/m`,
   );
@@ -1195,6 +1327,9 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
       `Min steel (${JURISDICTION_CODES[slabJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} × 1000 × ${eff_depth.toFixed(0)} = ${min_As.toFixed(0)} mm²/m`,
     );
   }
+  const longDirectionAs = is_two_way
+    ? Math.max((longSpanMoment * 1e6) / (0.87 * fy * z), min_As)
+    : 0;
   const final_As = Math.max(As, min_As);
   formulas.push(
     `Steel area = ${(max_moment * 1e6).toFixed(0)} / (0.87 × ${fy} × ${z}) = ${As.toFixed(0)} mm²/m`,
@@ -1218,16 +1353,20 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
   }
   bestSpacing = Math.min(300, Math.max(75, roundUpTo25(bestSpacing)));
 
+  // Long-direction steel uses the same bar size at the spacing it needs.
+  const secondarySpacing = is_two_way
+    ? Math.min(
+        300,
+        Math.max(
+          75,
+          roundUpTo25((1000 * barArea(bestDiameter)) / longDirectionAs),
+        ),
+      )
+    : 0;
+
   // Deflection check
-  const span_to_depth = (input.span_x * 1000) / eff_depth;
-  const basicRatio =
-    input.support_condition === "cantilever"
-      ? 7
-      : input.support_condition === "continuous"
-        ? 32
-        : input.slab_type === "two_way"
-          ? 36
-          : 20;
+  const span_to_depth = (shortSpan * 1000) / eff_depth;
+  const basicRatio = basicRatioForSizing;
   const deflection_check_pass = span_to_depth <= basicRatio;
 
   formulas.push(
@@ -1235,11 +1374,15 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
   );
 
   // Shear check
+  // BS 8110-1 Table 3.8, with gamma_m = 1.25, the 2 percent steel cap and the
+  // 400 mm depth cap. The uncorrected version overstated shear capacity.
+  const slabSteelPct = Math.min((100 * final_As) / (1000 * eff_depth), 2);
+  const slabDepthCap = Math.min(eff_depth, 400);
   const vc =
-    0.79 *
+    (0.79 / 1.25) *
     Math.pow(fcu / 25, 1 / 3) *
-    Math.pow((100 * final_As) / (1000 * eff_depth), 1 / 3) *
-    Math.pow(400 / eff_depth, 0.25);
+    Math.pow(slabSteelPct, 1 / 3) *
+    Math.pow(400 / slabDepthCap, 0.25);
   const shear_capacity = (vc * 1000 * eff_depth) / 1000;
   const shear_link_note =
     shear_capacity >= max_shear
@@ -1272,6 +1415,14 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
     max_moment: Math.round(max_moment * 100) / 100,
     max_shear: Math.round(max_shear * 100) / 100,
     steel_area_required: Math.ceil(final_As),
+    moment_short_span: Math.round(max_moment * 100) / 100,
+    ...(is_two_way
+      ? {
+          moment_long_span: Math.round(longSpanMoment * 100) / 100,
+          steel_area_secondary: Math.ceil(longDirectionAs),
+          recommended_bar_spacing_secondary: secondarySpacing,
+        }
+      : {}),
     ...(slabJurisdiction
       ? {
           jurisdiction_code: slabJurisdiction,
