@@ -24,6 +24,9 @@ import {
 } from "@/lib/estimation/structural-market";
 import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 import { useSeo } from "@/lib/seo";
+import AnimatedBuildSequence from "@/components/tools/AnimatedBuildSequence";
+import { REBAR_CAGE_SEQUENCE } from "@/lib/estimation/build-sequence";
+import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
@@ -135,7 +138,20 @@ export default function ReinforcementEstimator() {
     title:
       "Reinforcement Estimator: Rebar Lengths, Tonnage & Binding Wire | FRELUX",
     description:
-      "Deterministic reinforcement material estimation: enter your bar schedule cutting lengths per diameter and get whole 12 m stock lengths, BS 4449 tonnage and binding wire with the lap allowance and every step shown. Estimation only: it does not design reinforcement.",
+      "Deterministic reinforcement material estimation: enter your bar schedule cutting lengths per diameter and get whole 12 m stock lengths, BS 4449 tonnage and binding wire with the lap allowance and every step shown, plus a step by step animated cage build sequence. Estimation only: it does not design reinforcement.",
+    structuredData: buildSequenceHowTo({
+      name: "Build a reinforcement cage",
+      description:
+        "Read the bar schedule, cut and bend, place the main bars, tie the links, set the cover with spacers, then inspect before the pour.",
+      steps: REBAR_CAGE_SEQUENCE,
+      path: "/reinforcement",
+      supply: [
+        "Main bars to the scheduled diameters",
+        "Links and binding wire",
+        "Cover spacers",
+      ],
+      tool: ["Bar bender", "Cutting tools", "Tape measure", "Cover gauge"],
+    }),
   });
 
   const [priceMap, setPriceMap] = useState<ReinforcementPriceMap>({});
@@ -759,6 +775,28 @@ export default function ReinforcementEstimator() {
       <AdSlot slotKey="calculator_native" className="mt-8" />
 
       {/* How it works */}
+      <section className="mt-10 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+        <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
+          Build sequence
+        </p>
+        <h2 className="mt-2 text-lg font-semibold">
+          How a reinforcement cage is built
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Bar sizes, lengths and spacing come from the engineer&apos;s schedule,
+          never from this tool. This is the order the cage is assembled and
+          checked on site.
+        </p>
+        <div className="mt-4">
+          <AnimatedBuildSequence
+            steps={REBAR_CAGE_SEQUENCE}
+            kind="cage"
+            title="Reinforcement cage build sequence"
+            caption="Main bars, links at the scheduled pitch, spacers holding the cover."
+          />
+        </div>
+      </section>
+
       <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
         <h2 className="mb-2 font-semibold">{t("How this estimator works")}</h2>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">

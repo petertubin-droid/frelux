@@ -239,3 +239,186 @@ export const ROOF_TRUSS_SEQUENCE: BuildStep[] = [
       "Laps consistent, fixings on the crest or pan as specified, ridge sealed.",
   },
 ];
+
+/** Paving strata, bottom to top, used by the paving diagram. */
+export const PAVING_LAYERS = [
+  { id: "subgrade", label: "Compacted subgrade", thickness: "150 mm" },
+  { id: "sub-base", label: "Sub-base", thickness: "100 mm" },
+  { id: "bedding", label: "Bedding sand", thickness: "30-50 mm" },
+  { id: "pavers", label: "Pavers", thickness: "60-80 mm" },
+  { id: "jointing", label: "Jointing sand", thickness: "brushed in" },
+];
+
+export const PAVING_SEQUENCE: BuildStep[] = [
+  {
+    id: "subgrade",
+    title: "Strip and compact the subgrade",
+    detail:
+      "Remove topsoil and soft spots, then compact the formation until it is firm and falls away from the building.",
+    check: "No soft spots and water runs off, not into, the paving.",
+  },
+  {
+    id: "sub-base",
+    title: "Lay and compact the sub-base",
+    detail:
+      "Spread the sub-base in layers no deeper than 100 mm and compact each layer before the next goes down.",
+    check: "Level within 10 mm over a 3 m straight edge.",
+  },
+  {
+    id: "bedding",
+    title: "Screed the bedding sand",
+    detail:
+      "Lay a screeded bedding layer at a consistent thickness so every paver beds down evenly rather than rocking.",
+    check: "Bedding never used to correct a bad sub-base.",
+  },
+  {
+    id: "pavers",
+    title: "Lay the pavers",
+    detail:
+      "Lay from a fixed string line and work off the laid course, keeping joints even and cutting against edges.",
+    check: "Joints even, bond followed, cuts at edges only.",
+  },
+  {
+    id: "jointing",
+    title: "Brush in jointing sand and compact",
+    detail:
+      "Brush dry jointing sand into the joints, then plate compact so the sand is drawn in and the pavers interlock.",
+    check: "Joints full, surface flush, no lipping between pavers.",
+  },
+];
+
+export const MASONRY_COURSE_SEQUENCE: BuildStep[] = [
+  {
+    id: "set-out",
+    title: "Set out the wall and the first course",
+    detail:
+      "Mark the wall line, set the corners to a square, then lay the first course dry to check the bond before any mortar is mixed.",
+    check: "Diagonals equal and the bond closes without a cut at the corner.",
+  },
+  {
+    id: "foundation",
+    title: "Build off a level foundation",
+    detail:
+      "The first course beds onto a foundation that is level and cured, because every course above it inherits any error in that line.",
+    check: "Foundation level within 10 mm over the wall length.",
+  },
+  {
+    id: "mortar",
+    title: "Bed each course on a full mortar joint",
+    detail:
+      "Spread a full bed joint, never a furrowed or spot bed, so the load is carried evenly along the wall rather than at points.",
+    check: "Joint thickness consistent and fully filled.",
+  },
+  {
+    id: "courses",
+    title: "Build up course by course, staggered",
+    detail:
+      "Run each course staggered against the one below so vertical joints never line up, which is what gives a block wall its strength.",
+    check: "No continuous vertical joint over the wall height.",
+  },
+  {
+    id: "openings",
+    title: "Form openings and add reinforcement",
+    detail:
+      "Hold window and door openings to width with a level, and place bed-joint reinforcement or lintels where the opening weakens the wall.",
+    check: "Openings plumb and lintels bearing at both ends.",
+  },
+  {
+    id: "cure",
+    title: "Protect and cure the wall",
+    detail:
+      "Keep the wall damp and shaded for at least three days and keep scaffolding loads off the green mortar.",
+    check: "No cracking along bed joints or at corners.",
+  },
+];
+
+export const REBAR_CAGE_SEQUENCE: BuildStep[] = [
+  {
+    id: "schedule",
+    title: "Read the bar schedule",
+    detail:
+      "Every bar size, length and shape comes from the engineer's schedule. This tool reports weight only when a schedule was entered.",
+    check: "Bar marks and lengths match the drawing revision on site.",
+  },
+  {
+    id: "bend",
+    title: "Cut and bend to the schedule",
+    detail:
+      "Cut and bend main bars and links to the stated dimensions, keeping the bend diameter the code requires for that bar size.",
+    check: "Bends not cracked and hooks the correct length.",
+  },
+  {
+    id: "verticals",
+    title: "Place the main bars",
+    detail:
+      "Set the main bars at the correct spacing and lap them as scheduled, tying them so they hold position while links are added.",
+    check: "Spacing even and laps staggered, not all at one level.",
+  },
+  {
+    id: "links",
+    title: "Tie the links",
+    detail:
+      "Space links at the scheduled pitch, closer together near supports where shear is highest, with the hooks alternating.",
+    check: "Pitch as scheduled and every link tied, not loose.",
+  },
+  {
+    id: "cover",
+    title: "Set cover with spacers",
+    detail:
+      "Fix spacers so the steel sits inside the concrete with the cover the exposure condition needs, not resting on the formwork.",
+    check: "Cover gauged at several points along the member.",
+  },
+  {
+    id: "inspect",
+    title: "Inspect before the pour",
+    detail:
+      "Check bar sizes, counts, spacing, laps and cover against the schedule and record what was checked before concrete goes in.",
+    check: "Signed off before the pour, with no bars cut after inspection.",
+  },
+];
+
+/** Slab build-up, shared by the takeoff diagram and its HowTo schema. */
+export const SLAB_BUILD_SEQUENCE: BuildStep[] = [
+  {
+    id: "set-out",
+    title: "Set out and level the area",
+    detail:
+      "Mark the slab outline and transfer the finished floor level from a single datum before any excavation starts.",
+    check: "Diagonals equal and the level taken from one datum.",
+  },
+  {
+    id: "subgrade",
+    title: "Excavate and compact the subgrade",
+    detail:
+      "Strip topsoil, cut to formation level, then compact in layers until the surface is firm and uniform.",
+    check: "No soft spots and no ponding after rain.",
+  },
+  {
+    id: "blinding",
+    title: "Blind the surface",
+    detail:
+      "Lay and compact a thin blinding layer so the slab sits on a clean, level bed and any membrane is not punctured.",
+    check: "Level within 10 mm and free of loose stones.",
+  },
+  {
+    id: "rebar",
+    title: "Place the mesh or bars",
+    detail:
+      "Set the reinforcement on chairs so it finishes inside the slab, with laps tied and cover maintained.",
+    check: "Cover maintained and chairs not walked out of place.",
+  },
+  {
+    id: "concrete",
+    title: "Place and finish the concrete",
+    detail:
+      "Place the mixed concrete in one continuous run, screed to level, then trowel the finish the floor needs.",
+    check: "No cold joints and curing started before it dries.",
+  },
+  {
+    id: "cure",
+    title: "Cure before loading",
+    detail:
+      "Keep the slab damp or covered for at least seven days and keep site traffic off until it has taken load.",
+    check: "No cracking at re-entrant corners or over service trenches.",
+  },
+];

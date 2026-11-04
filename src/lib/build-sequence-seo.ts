@@ -59,48 +59,4 @@ export function buildSequenceHowTo({
 export const DIAGRAM_COPY =
   "Includes a step by step animated build sequence showing the order the work happens on site.";
 
-/** Slab build-up, used for the concrete takeoff's HowTo schema. */
-export const SLAB_HOW_TO_STEPS: BuildStep[] = [
-  {
-    id: "set-out",
-    title: "Set out and level the area",
-    detail:
-      "Mark the slab outline and transfer the finished floor level from a single datum before any excavation starts.",
-    check: "Diagonals equal and the level taken from one datum.",
-  },
-  {
-    id: "subgrade",
-    title: "Excavate and compact the subgrade",
-    detail:
-      "Strip topsoil, cut to formation level, then compact in layers until the surface is firm and uniform.",
-    check: "No soft spots and no ponding after rain.",
-  },
-  {
-    id: "blinding",
-    title: "Blind the surface",
-    detail:
-      "Lay and compact a thin blinding layer so the slab sits on a clean, level bed and any membrane is not punctured.",
-    check: "Level within 10 mm and free of loose stones.",
-  },
-  {
-    id: "rebar",
-    title: "Place the mesh or bars",
-    detail:
-      "Set the reinforcement on chairs so it finishes inside the slab, with laps tied and cover maintained.",
-    check: "Cover maintained and chairs not walked out of place.",
-  },
-  {
-    id: "concrete",
-    title: "Place and finish the concrete",
-    detail:
-      "Place the mixed concrete in one continuous run, screed to level, then trowel the finish the floor needs.",
-    check: "No cold joints and curing started before it dries.",
-  },
-  {
-    id: "cure",
-    title: "Cure before loading",
-    detail:
-      "Keep the slab damp or covered for at least seven days and keep site traffic off until it has taken load.",
-    check: "No cracking at re-entrant corners or over service trenches.",
-  },
-];
+export { SLAB_BUILD_SEQUENCE as SLAB_HOW_TO_STEPS } from "@/lib/estimation/build-sequence";

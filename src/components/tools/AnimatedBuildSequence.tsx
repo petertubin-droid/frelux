@@ -18,7 +18,7 @@ export interface BuildStep {
   quantity?: string;
 }
 
-export type BuildKind = "member" | "layers" | "truss";
+export type BuildKind = "member" | "layers" | "truss" | "courses" | "cage";
 
 interface Props {
   steps: BuildStep[];
@@ -387,6 +387,133 @@ export default function AnimatedBuildSequence({
     </g>
   );
 
+  // ── blockwork drawing ──
+  // Running bond: every course is offset half a block, which is the point the
+  // sequence makes. Courses appear one at a time from the foundation up.
+  const renderCourses = () => {
+    const courseHeight = 139 / 6;
+    const courseIds = [
+      "foundation",
+      "mortar",
+      "courses",
+      "courses",
+      "courses",
+      "cure",
+    ];
+    return (
+      <g>
+        <rect
+          x="24"
+          y="176"
+          width="212"
+          height="14"
+          className={`fill-zinc-500 ${show(reached("foundation"))}`}
+        />
+        {Array.from({ length: 6 }).map((_, row) => {
+          const y = 176 - (row + 1) * courseHeight;
+          const offset = row % 2 === 0 ? 0 : 24;
+          return (
+            <g key={row} className={show(reached(courseIds[row]))}>
+              {[0, 1, 2, 3, 4].map((col) => {
+                const x = 30 + offset + col * 40;
+                if (x > 210) return null;
+                const width = Math.min(38, 232 - x);
+                return (
+                  <rect
+                    key={col}
+                    x={x}
+                    y={y + 1}
+                    width={width}
+                    height={courseHeight - 2}
+                    className={
+                      row >= 4
+                        ? "fill-zinc-400/80 stroke-zinc-600/50"
+                        : "fill-zinc-300/85 stroke-zinc-500/45"
+                    }
+                    strokeWidth="0.8"
+                  />
+                );
+              })}
+            </g>
+          );
+        })}
+        {/* mortar joint called out on the step that explains it */}
+        <g className={show(reached("mortar"))}>
+          <line
+            x1="30"
+            y1="168"
+            x2="230"
+            y2="168"
+            className="stroke-amber-500"
+            strokeWidth="1.4"
+            strokeDasharray="4 2"
+          />
+        </g>
+      </g>
+    );
+  };
+
+  // ── rebar cage drawing ──
+  // Four main bars with links; the schedule step lights the bar marks, the
+  // placing step the verticals, the tying step the links, cover the spacers.
+  const renderCage = () => (
+    <g>
+      <g className={show(reached("verticals"))}>
+        {[64, 100, 160, 196].map((x) => (
+          <line
+            key={x}
+            x1={x}
+            y1="52"
+            x2={x}
+            y2="180"
+            className="stroke-zinc-600"
+            strokeWidth="2"
+          />
+        ))}
+      </g>
+      <g className={show(reached("links"))}>
+        {[62, 86, 110, 134, 158].map((y) => (
+          <rect
+            key={y}
+            x="60"
+            y={y}
+            width="140"
+            height="6"
+            className="fill-none stroke-zinc-500"
+            strokeWidth="1.2"
+          />
+        ))}
+      </g>
+      <g className={show(reached("cover"))}>
+        {[
+          [56, 176],
+          [204, 176],
+          [56, 56],
+          [204, 56],
+        ].map(([x, y]) => (
+          <circle
+            key={`${x}-${y}`}
+            cx={x}
+            cy={y}
+            r="3"
+            className="fill-amber-500"
+          />
+        ))}
+      </g>
+      <g className={show(reached("bend"))}>
+        <path
+          d="M120 44 h24 v14"
+          className="fill-none stroke-zinc-500"
+          strokeWidth="1.4"
+          strokeDasharray="3 2"
+        />
+        <text x="150" y="42" fontSize="7" className="fill-zinc-600">
+          bend per schedule
+        </text>
+      </g>
+    </g>
+  );
+
   const active = steps[index];
 
   return (
@@ -403,7 +530,11 @@ export default function AnimatedBuildSequence({
               ? renderLayers()
               : kind === "truss"
                 ? renderTruss()
-                : renderMember()}
+                : kind === "courses"
+                  ? renderCourses()
+                  : kind === "cage"
+                    ? renderCage()
+                    : renderMember()}
             <line
               x1="16"
               y1="190"

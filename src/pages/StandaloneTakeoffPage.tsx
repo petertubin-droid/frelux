@@ -6,8 +6,18 @@ import Container from "@/components/ui/Container";
 import AdSlot from "@/components/ui/AdSlot";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import AnimatedBuildSequence from "@/components/tools/AnimatedBuildSequence";
+import {
+  MASONRY_COURSE_SEQUENCE,
+  PAVING_LAYERS,
+  PAVING_SEQUENCE,
+} from "@/lib/estimation/build-sequence";
+import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
 import { CONSTRUCTION_TOOLS } from "@/config/construction-tools";
-import { toolSeoDescription, toolSeoTitle } from "../../scripts/lib/tool-seo.mjs";
+import {
+  toolSeoDescription,
+  toolSeoTitle,
+} from "../../scripts/lib/tool-seo.mjs";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   BrickWall,
@@ -237,6 +247,39 @@ export default function StandaloneTakeoffPage({
       ? toolSeoDescription(seoTool)
       : `${title} construction quantity takeoff calculator with editable measurements and market profile.`,
     canonicalPath: currentPath,
+    structuredData:
+      engine === "masonry"
+        ? buildSequenceHowTo({
+            name: "Build a sandcrete block wall",
+            description:
+              "Set out, build off a level foundation, bed each course on a full mortar joint, stagger the courses, form openings, then cure.",
+            steps: MASONRY_COURSE_SEQUENCE,
+            path: currentPath,
+            totalTime: "P3D",
+            supply: ["Sandcrete blocks", "Cement and sharp sand for mortar"],
+            tool: ["Spirit level", "String line", "Bricklayer's trowel"],
+          })
+        : engine === "paving"
+          ? buildSequenceHowTo({
+              name: "Lay block paving",
+              description:
+                "Compact the subgrade, lay and compact the sub-base, screed the bedding sand, lay the pavers, then brush in jointing sand.",
+              steps: PAVING_SEQUENCE,
+              path: currentPath,
+              totalTime: "P2D",
+              supply: [
+                "Pavers",
+                "Sub-base material",
+                "Bedding and jointing sand",
+              ],
+              tool: [
+                "Plate compactor",
+                "Rubber mallet",
+                "String line",
+                "Screed rail",
+              ],
+            })
+          : undefined,
   });
   useBreadcrumbJsonLd([
     { name: "Home", path: "/" },
@@ -871,6 +914,51 @@ export default function StandaloneTakeoffPage({
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />
+
+        {engine === "masonry" && (
+          <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+            <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
+              Build sequence
+            </p>
+            <h2 className="mt-2 text-lg font-semibold">How the wall goes up</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Each course is staggered against the one below, so vertical joints
+              never line up. Tap a step to see what happens on site and what to
+              check before moving on.
+            </p>
+            <div className="mt-4">
+              <AnimatedBuildSequence
+                steps={MASONRY_COURSE_SEQUENCE}
+                kind="courses"
+                title="Blockwork build sequence"
+                caption="Running bond: every course offset half a block, bed joint in mortar."
+              />
+            </div>
+          </section>
+        )}
+        {engine === "paving" && (
+          <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+            <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
+              Build sequence
+            </p>
+            <h2 className="mt-2 text-lg font-semibold">
+              How paving is laid, layer by layer
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              The bedding layer levels the pavers. It is never used to correct a
+              sub-base that was not compacted.
+            </p>
+            <div className="mt-4">
+              <AnimatedBuildSequence
+                steps={PAVING_SEQUENCE}
+                kind="layers"
+                layers={PAVING_LAYERS}
+                title="Paving layer build-up"
+                caption="Subgrade, sub-base, bedding sand, pavers, jointing sand."
+              />
+            </div>
+          </section>
+        )}
       </Container>
     </div>
   );
