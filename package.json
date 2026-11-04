@@ -27,6 +27,7 @@
     "i18n:report": "node scripts/i18n-coverage-report.mjs",
     "faqs:sql": "tsx --tsconfig tsconfig.app.json scripts/generate-tool-faq-sql.ts",
     "faqs:prerender": "tsx --tsconfig tsconfig.app.json scripts/generate-faq-prerender.ts",
+    "perf:budget": "node scripts/perf-budget.mjs",
     "sequences:prerender": "tsx --tsconfig tsconfig.app.json scripts/generate-sequence-prerender.ts",
     "faqs:apply": "tsx --tsconfig tsconfig.app.json scripts/apply-tool-faq-sql.ts",
     "faqs:sync": "npm run faqs:sql && npm run faqs:prerender && npm run faqs:apply",

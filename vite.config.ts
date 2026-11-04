@@ -60,9 +60,27 @@ export default defineConfig({
           if (id.includes("@supabase")) {
             return "supabase-vendor";
           }
-          // Don't force lucide-react into one chunk — let Vite tree-shake
-          // icons so only the ~20 used on the critical path land in the main bundle.
+          // Icons and UI primitives used to land as one file each: 71
+          // modulepreload requests before hydration, and a request is the
+          // expensive part on a weak signal, not the bytes. Group the libraries
+          // the shell always needs. Tree shaking still runs, and the heavy
+          // optional libraries (MapLibre, web-ifc, jsPDF, Recharts) stay in
+          // their own lazily imported chunks and are not pulled in here.
+          if (id.includes("lucide-react")) {
+            return "icons-vendor";
+          }
+          if (
+            id.includes("@radix-ui") ||
+            id.includes("@floating-ui") ||
+            id.includes("class-variance-authority") ||
+            id.includes("tailwind-merge")
+          ) {
+            return "ui-vendor";
+          }
         },
+        // The module preload polyfill is a request of its own for browsers that
+        // all support modulepreload natively now.
+        modulePreload: { polyfill: false },
         // Use content-based hashing for long-term caching
         chunkFileNames: "assets/js/[name]-[hash].js",
         entryFileNames: "assets/js/[name]-[hash].js",
