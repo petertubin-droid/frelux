@@ -140,6 +140,27 @@ export interface VoltageDropCheck {
   cross_section_mm2: number;
   /** true when the run mainly serves lighting (3% limit instead of 5%) */
   lighting_dominant?: boolean;
+  /**
+   * Supply arrangement. A balanced three-phase feeder carries the same total
+   * power at 1/sqrt(3) of the single-phase current, so its drop is half the
+   * two-wire figure for the same load. Treating every 400 V feeder as a
+   * two-wire circuit overstated the drop of three-phase runs by about 15
+   * percent and flagged healthy installations as failures.
+   */
+  system?: SupplySystem;
+  /**
+   * Power factor of the load. Unity is only right for resistive loads; a motor
+   * at 0.8 draws 25 percent more current and drops 25 percent more volts.
+   */
+  power_factor?: number;
+}
+
+export type SupplySystem = "single" | "three";
+
+/** Sensible ceiling for a power factor entered by hand. */
+function normPowerFactor(value: number | undefined): number {
+  if (value === undefined || !Number.isFinite(value) || value <= 0) return 1;
+  return Math.min(1, Math.max(0.1, value));
 }
 
 export interface VoltageDropVerdict {
@@ -172,15 +193,171 @@ export function voltageDropPercent(
         "Voltage drop not checked: run length, load, voltage and cable cross-section must all be provided.",
     };
   }
-  const current = load_watts / voltage; // A, unity pf
-  const dropV = (2 * run_m * current * COPPER_RESISTIVITY) / cross_section_mm2;
+  const system: SupplySystem = check.system === "three" ? "three" : "single";
+  const pf = normPowerFactor(check.power_factor);
+  const current =
+    system === "three"
+      ? load_watts / (Math.sqrt(3) * voltage * pf)
+      : load_watts / (voltage * pf);
+  // Two loaded conductors give 2 L I rho / A; a balanced three-phase line
+  // gives sqrt(3) L I_L rho / A, which collapses to half the two-wire result
+  // because I_L is itself 1/sqrt(3) of the single-phase current.
+  const loopFactor = system === "three" ? Math.sqrt(3) : 2;
+  const dropV =
+    (loopFactor * run_m * current * COPPER_RESISTIVITY) / cross_section_mm2;
   const drop_percent = (dropV / voltage) * 100;
   const passes = drop_percent <= limit;
+  const phaseLabel = system === "three" ? "three-phase" : "single-phase";
   return {
     drop_percent: Math.round(drop_percent * 100) / 100,
     limit_percent: limit,
     passes,
-    detail: `Feeder voltage drop = 2 × ${run_m} m × ${Math.round(current * 100) / 100} A × ${COPPER_RESISTIVITY} / ${cross_section_mm2} mm2 = ${Math.round(dropV * 100) / 100} V (${Math.round(drop_percent * 100) / 100}% of ${voltage} V; limit ${limit}%).`,
+    detail: `Feeder voltage drop (${phaseLabel}) = ${loopFactor === 2 ? "2" : "√3"} × ${run_m} m × ${Math.round(current * 100) / 100} A × ${COPPER_RESISTIVITY} / ${cross_section_mm2} mm² = ${Math.round(dropV * 100) / 100} V (${Math.round(drop_percent * 100) / 100}% of ${voltage} V; limit ${limit}%, power factor ${pf}).`,
+  };
+}
+
+/**
+ * Current-carrying capacity of copper conductors, in amperes, for the
+ * commonest domestic and light-commercial installation method: non-armoured
+ * multicore cable clipped direct, or in a conduit on a wall (BS 7671 Table 4D5,
+ * 70 C thermoplastic, two loaded conductors).
+ *
+ * These are tabulated values, not a calculation. Grouping, ambient temperature,
+ * thermal insulation and protective-device type each derate them, so a cable
+ * picked here is a floor, not a design.
+ */
+export const COPPER_AMPACITY_A: ReadonlyArray<readonly [number, number]> = [
+  [1.5, 19.5],
+  [2.5, 27],
+  [4, 36],
+  [6, 46],
+  [10, 63],
+  [16, 85],
+  [25, 112],
+  [35, 138],
+  [50, 168],
+  [70, 213],
+  [95, 258],
+];
+
+export interface CableSizingRequest {
+  load_watts: number;
+  voltage: number;
+  run_m: number;
+  system?: SupplySystem;
+  power_factor?: number;
+  lighting_dominant?: boolean;
+  /** Design current already known, e.g. from a diversity calculation. */
+  design_current_a?: number;
+}
+
+export interface CableSizingVerdict {
+  feasible: boolean;
+  cross_section_mm2: number | null;
+  design_current_a: number;
+  ampacity_a: number | null;
+  drop_percent: number | null;
+  limit_percent: number;
+  /** Why the chosen size was needed, or what blocked every size. */
+  reason: string;
+  attempt: Array<{
+    cross_section_mm2: number;
+    ampacity_a: number;
+    drop_percent: number;
+    passes_ampacity: boolean;
+    passes_drop: boolean;
+  }>;
+}
+
+/**
+ * Smallest standard copper conductor that satisfies both the tabulated
+ * ampacity and the 3%/5% voltage-drop limit for the supplied run.
+ *
+ * Both checks are applied to every candidate size and reported, so a user can
+ * see which one forced the answer instead of taking a number on trust. When no
+ * tabulated size passes, the result says so rather than rounding up silently:
+ * a long run at high load needs a design, not a bigger guess.
+ */
+export function minimumCableSize(
+  request: CableSizingRequest,
+): CableSizingVerdict {
+  const limit =
+    request.lighting_dominant === true
+      ? VOLTAGE_DROP_LIMITS.lighting
+      : VOLTAGE_DROP_LIMITS.power;
+  const system: SupplySystem = request.system === "three" ? "three" : "single";
+  const pf = normPowerFactor(request.power_factor);
+
+  const stated = request.design_current_a;
+  const design =
+    stated !== undefined && Number.isFinite(stated) && stated > 0
+      ? stated
+      : request.voltage > 0
+        ? system === "three"
+          ? request.load_watts / (Math.sqrt(3) * request.voltage * pf)
+          : request.load_watts / (request.voltage * pf)
+        : 0;
+
+  const attempt = COPPER_AMPACITY_A.map(([csa, ampacity]) => {
+    const drop = voltageDropPercent({
+      run_m: request.run_m,
+      load_watts: request.load_watts,
+      voltage: request.voltage,
+      cross_section_mm2: csa,
+      lighting_dominant: request.lighting_dominant,
+      system,
+      power_factor: pf,
+    });
+    return {
+      cross_section_mm2: csa,
+      ampacity_a: ampacity,
+      drop_percent: drop.drop_percent,
+      passes_ampacity: design > 0 && ampacity >= design,
+      passes_drop: drop.passes,
+    };
+  });
+
+  if (!(design > 0) || !(request.run_m > 0) || !(request.voltage > 0)) {
+    return {
+      feasible: false,
+      cross_section_mm2: null,
+      design_current_a: Math.round(design * 100) / 100,
+      ampacity_a: null,
+      drop_percent: null,
+      limit_percent: limit,
+      reason:
+        "Cable size not determined: load, run length and system voltage must all be provided.",
+      attempt,
+    };
+  }
+
+  const chosen = attempt.find((a) => a.passes_ampacity && a.passes_drop);
+  if (!chosen) {
+    const largest = attempt[attempt.length - 1];
+    return {
+      feasible: false,
+      cross_section_mm2: null,
+      design_current_a: Math.round(design * 100) / 100,
+      ampacity_a: largest.ampacity_a,
+      drop_percent: largest.drop_percent,
+      limit_percent: limit,
+      reason: `No tabulated size up to ${largest.cross_section_mm2} mm² satisfies both ampacity and the ${limit}% drop limit for ${Math.round(design * 100) / 100} A over ${request.run_m} m. Move the distribution point closer, split the load, or have the run designed.`,
+      attempt,
+    };
+  }
+
+  const forced = chosen.passes_ampacity
+    ? `voltage drop over ${request.run_m} m`
+    : "current-carrying capacity";
+  return {
+    feasible: true,
+    cross_section_mm2: chosen.cross_section_mm2,
+    design_current_a: Math.round(design * 100) / 100,
+    ampacity_a: chosen.ampacity_a,
+    drop_percent: chosen.drop_percent,
+    limit_percent: limit,
+    reason: `${chosen.cross_section_mm2} mm² carries ${chosen.ampacity_a} A (design ${Math.round(design * 100) / 100} A) and drops ${chosen.drop_percent}% against a ${limit}% limit; ${forced} set the size.`,
+    attempt,
   };
 }
 

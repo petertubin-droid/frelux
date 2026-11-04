@@ -32,6 +32,7 @@ import {
   createEstimateItem,
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
+import CableSizingCheck from "@/components/calculators/CableSizingCheck";
 import PriceFreshnessNotice from "@/components/prices/PriceFreshnessNotice";
 import {
   summarisePriceBook,
@@ -917,6 +918,8 @@ export default function ElectricalEstimator() {
           </div>
         </>
       )}
+
+      <CableSizingCheck />
 
       <AdSlot slotKey="calculator_native" className="mt-8" />
 
