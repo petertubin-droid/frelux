@@ -93,6 +93,23 @@ describe("verified product catalogue", () => {
     }
   });
 
+  it("covers more than one market, each in its own currency", () => {
+    const markets = new Set(VERIFIED_PRODUCTS.map((p) => p.market));
+    expect(markets.size).toBeGreaterThanOrEqual(4);
+    for (const market of ["NG", "GB", "KE", "ZA"]) {
+      expect(markets.has(market)).toBe(true);
+    }
+    const currencyFor: Record<string, string> = {
+      NG: "NGN",
+      GB: "GBP",
+      KE: "KES",
+      ZA: "ZAR",
+    };
+    for (const product of VERIFIED_PRODUCTS) {
+      expect(product.currency).toBe(currencyFor[product.market]);
+    }
+  });
+
   it("filters by category and market without leaking another market", () => {
     const nigerianPaint = verifiedProductsFor("paint", "ng");
     expect(nigerianPaint.length).toBeGreaterThan(0);

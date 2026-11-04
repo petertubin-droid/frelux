@@ -40,14 +40,38 @@ const CATEGORY_NOUN: Record<string, string> = {
   sealant: "sealant",
 };
 
+function amountText(
+  value: number,
+  currency: string,
+  symbol: string,
+  marketCurrency: string,
+): string {
+  if (!currency || currency === marketCurrency) {
+    return formatCurrency(value, symbol);
+  }
+  // A figure priced in another currency keeps its own code rather than
+  // borrowing the market's symbol and reading as a local price.
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${currency} ${Math.round(value).toLocaleString()}`;
+  }
+}
+
 function priceText(
   product: ProductRecommendation,
   symbol: string,
+  marketCurrency: string,
 ): string | null {
   if (!product.price) return null;
-  const low = formatCurrency(product.price.low, symbol);
-  if (product.price.high === null) return low;
-  return `${low} to ${formatCurrency(product.price.high, symbol)}`;
+  const { low, high, currency } = product.price;
+  const lowText = amountText(low, currency, symbol, marketCurrency);
+  if (high === null) return lowText;
+  return `${lowText} to ${amountText(high, currency, symbol, marketCurrency)}`;
 }
 
 function specText(product: ProductRecommendation): string[] {
@@ -172,7 +196,11 @@ export default function RecommendedProducts({
 
       <ul className="mt-4 grid gap-3 sm:grid-cols-2">
         {items.map((product) => {
-          const price = priceText(product, market.currencySymbol);
+          const price = priceText(
+            product,
+            market.currencySymbol,
+            market.currencyCode,
+          );
           const specs = specText(product);
           return (
             <li

@@ -249,6 +249,38 @@ describe("product recommendations", () => {
     expect(items).toEqual([]);
   });
 
+  it("returns each market's own catalogue, priced in its own currency", async () => {
+    const expectations: Array<[string, string, string]> = [
+      ["GB", "GBP", "Dulux Trade Vinyl Matt"],
+      ["KE", "KES", "Crown Silk Vinyl Emulsion"],
+      ["ZA", "ZAR", "Plascon Double Velvet"],
+    ];
+
+    for (const [market, currency, name] of expectations) {
+      clearRecommendationCache();
+      const { items } = await loadProductRecommendations({
+        category: "paint",
+        market,
+        limit: 4,
+      });
+      const curated = items.filter((i) => i.origin === "curated");
+      expect(curated.length).toBeGreaterThan(0);
+      expect(curated[0].name).toBe(name);
+      expect(curated[0].price?.currency).toBe(currency);
+      expect(curated.every((i) => i.price?.currency === currency)).toBe(true);
+    }
+  });
+
+  it("never shows a Nigerian brand in another market", async () => {
+    const { items } = await loadProductRecommendations({
+      category: "paint",
+      market: "GB",
+      limit: 6,
+    });
+    expect(items.some((i) => i.name.includes("Luxol"))).toBe(false);
+    expect(items.some((i) => i.name.includes("Superstar"))).toBe(false);
+  });
+
   it("caches per market and category so a page does not reprice on every render", async () => {
     await loadProductRecommendations({ category: "paint", market: "NG" });
     await loadProductRecommendations({ category: "paint", market: "NG" });

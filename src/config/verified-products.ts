@@ -183,6 +183,89 @@ export const VERIFIED_PRODUCTS: readonly VerifiedProduct[] = [
     caveat:
       "Coverage read from the manufacturer's published product data. No published naira pack price, so this line carries no figure here.",
   },
+  {
+    id: "gb-dulux-trade-vinyl-matt-7-5l",
+    market: "GB",
+    currency: "GBP",
+    brand: "Dulux",
+    line: "Dulux Trade Vinyl Matt",
+    category: "paint",
+    finish: "matt",
+    coveragePerLitre: 17,
+    coats: 2,
+    packs: [{ size: 7.5, unit: "L", priceLow: 34.49, priceHigh: 34.49 }],
+    summary:
+      "High opacity matt emulsion for interior walls and ceilings, water based, the trade standard for a two coat repaint.",
+    sourceUrl:
+      "https://www.brewers.co.uk/search?q=dulux%20trade%20vinyl%20matt",
+    sourceName: "Brewers Decorator Centres, Dulux Trade Vinyl Matt results",
+    retrieved: "2026-11-04",
+    coverageSourceUrl:
+      "https://www.duluxtradepaintexpert.co.uk/en/products/dulux-trade-vinyl-matt/cccId_1091317",
+    caveat:
+      "Price is the store's Pure Brilliant White 7.5 L pack, VAT included. The same search lists 1 L tinted at £24.49 and 2.5 L white at £30.98, so tinted colours cost more than the figure here.",
+  },
+  {
+    id: "gb-dulux-trade-diamond-matt-2-5l",
+    market: "GB",
+    currency: "GBP",
+    brand: "Dulux",
+    line: "Dulux Trade Diamond Matt",
+    category: "paint",
+    finish: "matt",
+    coveragePerLitre: null,
+    coats: null,
+    packs: [{ size: 2.5, unit: "L", priceLow: 66.98, priceHigh: 66.98 }],
+    summary:
+      "Scrubbable matt for hallways, kitchens and other rooms that get washed down.",
+    sourceUrl:
+      "https://www.brewers.co.uk/search?q=dulux%20trade%20vinyl%20matt",
+    sourceName: "Brewers Decorator Centres, Dulux Trade Vinyl Matt results",
+    retrieved: "2026-11-04",
+    caveat:
+      "The store page publishes the price but not a coverage rate for this line, so none is quoted here.",
+  },
+  {
+    id: "ke-crown-silk-vinyl-emulsion-20l",
+    market: "KE",
+    currency: "KES",
+    brand: "Crown",
+    line: "Crown Silk Vinyl Emulsion",
+    category: "paint",
+    finish: "silk",
+    coveragePerLitre: 10,
+    coats: 2,
+    packs: [{ size: 20, unit: "L", priceLow: 14500, priceHigh: 14500 }],
+    summary:
+      "Washable silk emulsion for interior walls, sold in 20 L for full rooms and offices.",
+    sourceUrl: "https://aliglaziers.co.ke/crown-silk-vinyl-emulsion-20l-cream",
+    sourceName: "Ali Glaziers Ltd, Crown Silk Vinyl Emulsion 20 L",
+    retrieved: "2026-11-04",
+    coverageSourceUrl:
+      "https://aliglaziers.co.ke/crown-silk-vinyl-emulsion-20l-cream",
+    caveat:
+      "The shop states 10 to 12 m² per litre per coat; the conservative end is used here. Brilliant white, soft white and cream are all listed at KES 14,500, and tinted shades are priced after colour selection.",
+  },
+  {
+    id: "za-plascon-double-velvet-20l",
+    market: "ZA",
+    currency: "ZAR",
+    brand: "Plascon",
+    line: "Plascon Double Velvet",
+    category: "paint",
+    finish: "matt",
+    coveragePerLitre: null,
+    coats: null,
+    packs: [{ size: 20, unit: "L", priceLow: 2390, priceHigh: 3200 }],
+    summary:
+      "Low sheen interior wall paint, tintable, washable, for living areas and bedrooms.",
+    sourceUrl:
+      "https://diysavoy.co.za/product/plascon-double-velvet-deep-base-20l/",
+    sourceName: "DIY Savoy, Plascon Double Velvet 20 L",
+    retrieved: "2026-11-04",
+    caveat:
+      "The range covers the pastel base at R2,390 and the deep base at R3,200, so the figure depends on how deep the chosen colour is. No coverage rate is published on the page.",
+  },
 ];
 
 /** Products for one category, in one market, in catalogue order. */
