@@ -361,6 +361,79 @@ export function minimumCableSize(
   };
 }
 
+/** Standard miniature circuit breaker ratings, amperes. */
+export const STANDARD_MCB_RATINGS_A: ReadonlyArray<number> = [
+  6, 10, 16, 20, 25, 32, 40, 50, 63, 80, 100,
+];
+
+export interface BreakerRequest {
+  design_current_a: number;
+  /** Tabulated capacity of the cable the breaker protects, if known. */
+  cable_ampacity_a?: number | null;
+  ratings?: ReadonlyArray<number>;
+}
+
+export interface BreakerVerdict {
+  rating_a: number | null;
+  design_current_a: number;
+  cable_ampacity_a: number | null;
+  complies: boolean;
+  reason: string;
+}
+
+/**
+ * Protective device rating for a circuit, against the rule that the device
+ * rating sits at or above the design current and at or below the cable's
+ * capacity (Ib <= In <= Iz).
+ *
+ * Without the second half of that rule people pick the breaker that stops the
+ * tripping, which is exactly how a cable ends up protected only by luck.
+ */
+export function selectBreaker(request: BreakerRequest): BreakerVerdict {
+  const ratings = request.ratings ?? STANDARD_MCB_RATINGS_A;
+  const ib = Number(request.design_current_a);
+  const iz =
+    request.cable_ampacity_a === undefined || request.cable_ampacity_a === null
+      ? null
+      : Number(request.cable_ampacity_a);
+
+  if (!(ib > 0)) {
+    return {
+      rating_a: null,
+      design_current_a: 0,
+      cable_ampacity_a: iz,
+      complies: false,
+      reason: "Breaker not selected: a design current above zero is required.",
+    };
+  }
+
+  const candidates = ratings.filter((r) => r >= ib && (iz === null || r <= iz));
+  if (candidates.length === 0) {
+    const overIz = ratings.some((r) => r >= ib);
+    return {
+      rating_a: null,
+      design_current_a: Math.round(ib * 100) / 100,
+      cable_ampacity_a: iz,
+      complies: false,
+      reason: overIz
+        ? `No standard rating up to ${iz} A cable capacity covers a ${Math.round(ib * 100) / 100} A design current: the cable has to be larger before any breaker protects it properly.`
+        : `The design current of ${Math.round(ib * 100) / 100} A exceeds every standard rating listed; this circuit needs a different distribution design.`,
+    };
+  }
+
+  const rating = candidates[0];
+  return {
+    rating_a: rating,
+    design_current_a: Math.round(ib * 100) / 100,
+    cable_ampacity_a: iz,
+    complies: true,
+    reason:
+      iz === null
+        ? `${rating} A covers the ${Math.round(ib * 100) / 100} A design current. Cable capacity was not supplied, so the upper half of the rule was not checked.`
+        : `${rating} A sits above the ${Math.round(ib * 100) / 100} A design current and at or below the ${iz} A cable capacity.`,
+  };
+}
+
 export interface ElectricalLabourInput {
   mode: "none" | "per_point" | "lump_sum";
   /** Naira per point - required when mode is 'per_point' */

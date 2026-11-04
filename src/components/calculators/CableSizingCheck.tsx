@@ -3,6 +3,7 @@ import { Ruler } from "lucide-react";
 import {
   COPPER_AMPACITY_A,
   minimumCableSize,
+  selectBreaker,
   voltageDropPercent,
   type SupplySystem,
 } from "@/lib/estimation/electrical-engine";
@@ -188,6 +189,26 @@ export default function CableSizingCheck() {
             </span>{" "}
             <span className="text-muted-foreground">
               of {parsed.volts} V against a {drop.limit_percent}% limit
+            </span>
+          </p>
+        )}
+        {sizing && sizing.feasible && (
+          <p>
+            <span className="font-medium">
+              Suggested breaker:{" "}
+              {selectBreaker({
+                design_current_a: sizing.design_current_a,
+                cable_ampacity_a: sizing.ampacity_a,
+              }).rating_a ?? "none"}{" "}
+              A
+            </span>{" "}
+            <span className="text-muted-foreground">
+              {
+                selectBreaker({
+                  design_current_a: sizing.design_current_a,
+                  cable_ampacity_a: sizing.ampacity_a,
+                }).reason
+              }
             </span>
           </p>
         )}

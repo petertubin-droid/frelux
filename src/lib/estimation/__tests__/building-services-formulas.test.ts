@@ -3,8 +3,10 @@ import {
   COPPER_AMPACITY_A,
   COPPER_RESISTIVITY,
   minimumCableSize,
+  selectBreaker,
   voltageDropPercent,
 } from "../electrical-engine";
+import { designFlow, requiredBoreMm, sizePipe } from "../pipe-sizing-engine";
 import { calculateDrainageTakeoff } from "../drainage-standalone-engine";
 
 /**
@@ -178,5 +180,75 @@ describe("drainage takeoff", () => {
     });
     // 0.75 cover + 0.11 pipe + 0.1 bedding = 0.96 m deep, 0.71 m wide
     expect(result.excavationVolumeM3).toBeCloseTo(10 * 0.71 * 0.96, 1);
+  });
+});
+
+describe("pipe sizing by velocity", () => {
+  it("requires the bore that holds the velocity limit", () => {
+    // 0.3 l/s at 1.5 m/s needs 15.96 mm of bore, so 15 mm copper fails.
+    expect(requiredBoreMm(0.3, 1.5)).toBe(15.96);
+    const verdict = sizePipe({ flow_lps: 0.3, velocity_limit_mps: 1.5 });
+    expect(verdict.chosen?.label).toBe("22 mm copper");
+    expect(verdict.velocity_mps).toBeCloseTo(0.94, 1);
+    const fifteen = verdict.candidates.find((c) => c.label === "15 mm copper")!;
+    expect(fifteen.passes).toBe(false);
+  });
+
+  it("moves up a size for hot water at the quieter limit", () => {
+    const cold = sizePipe({ flow_lps: 0.3, velocity_limit_mps: 1.5 });
+    const hot = sizePipe({ flow_lps: 0.3, velocity_limit_mps: 1.0 });
+    expect(hot.chosen!.inner_mm).toBeGreaterThanOrEqual(cold.chosen!.inner_mm);
+  });
+
+  it("refuses rather than under-sizing an impossible flow", () => {
+    const verdict = sizePipe({ flow_lps: 8, velocity_limit_mps: 1.5 });
+    expect(verdict.feasible).toBe(false);
+    expect(verdict.chosen).toBeNull();
+    expect(verdict.reason).toContain("cannot be carried");
+  });
+
+  it("multiplies outlet flows and applies only the factor given", () => {
+    const demand = designFlow({
+      outlets: [
+        { label: "basin tap", flow_lpm: 6, count: 4 },
+        { label: "shower", flow_lpm: 9, count: 2 },
+      ],
+      simultaneity_factor: 0.5,
+    });
+    expect(demand.connected_lpm).toBe(42);
+    expect(demand.design_lps).toBeCloseTo(0.35, 2);
+  });
+
+  it("ignores blank outlet rows instead of counting them as zero flow", () => {
+    const demand = designFlow({
+      outlets: [
+        { label: "basin tap", flow_lpm: 6, count: 2 },
+        { label: "empty", flow_lpm: 0, count: 0 },
+      ],
+      simultaneity_factor: 1,
+    });
+    expect(demand.connected_lpm).toBe(12);
+    expect(demand.detail).not.toContain("empty");
+  });
+});
+
+describe("breaker selection", () => {
+  it("picks the smallest rating at or above the design current", () => {
+    const v = selectBreaker({ design_current_a: 21.7, cable_ampacity_a: 27 });
+    expect(v.rating_a).toBe(25);
+    expect(v.complies).toBe(true);
+  });
+
+  it("refuses a breaker larger than the cable can carry", () => {
+    const v = selectBreaker({ design_current_a: 26, cable_ampacity_a: 27 });
+    expect(v.rating_a).toBeNull();
+    expect(v.complies).toBe(false);
+    expect(v.reason).toContain("cable has to be larger");
+  });
+
+  it("says plainly when cable capacity was not supplied", () => {
+    const v = selectBreaker({ design_current_a: 12 });
+    expect(v.rating_a).toBe(16);
+    expect(v.reason).toContain("was not checked");
   });
 });

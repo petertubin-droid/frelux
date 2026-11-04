@@ -34,6 +34,7 @@ import {
   createEstimateItem,
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
+import PipeSizingPanel from "@/components/calculators/PipeSizingPanel";
 import { useEstimatorDraft } from "@/hooks/useEstimatorDraft";
 import { CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
@@ -842,6 +843,8 @@ export default function PlumbingEstimator() {
           </div>
         </>
       )}
+
+      <PipeSizingPanel />
 
       <AdSlot slotKey="calculator_native" className="mt-8" />
 
