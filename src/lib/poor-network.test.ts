@@ -11,13 +11,17 @@ import { join } from "node:path";
 const read = (path: string) => readFileSync(join(process.cwd(), path), "utf-8");
 
 describe("poor network behaviour", () => {
-  it("attaches the ad script only after first paint or first interaction", () => {
+  it("loads the ad script without blocking the first paint", () => {
     const html = read("index.html");
-    expect(html).not.toMatch(
-      /<script[^>]*async[^>]*adsbygoogle\.js[^>]*><\/script>/,
+    // The loader is in the served source because AdSense will not verify the
+    // site without it. It still has to stay off the critical path, so it is
+    // async and the request pause is bootstrapped before it appears.
+    const tag = html.match(/<script[^>]*adsbygoogle\.js[^>]*><\/script>/)?.[0];
+    expect(tag).toBeTruthy();
+    expect(tag).toContain("async");
+    expect(html.indexOf("pauseAdRequests = 1")).toBeLessThan(
+      html.indexOf("adsbygoogle.js?client="),
     );
-    expect(html).toContain("requestIdleCallback(loadAds");
-    expect(html).toContain('"pointerdown"');
   });
 
   it("serves the hero as a srcset of WebP candidates", () => {
