@@ -68,20 +68,37 @@ self.addEventListener('fetch', (event) => {
   // Skip admin routes - always fetch fresh
   if (url.pathname.startsWith('/admin')) return;
 
-  // Navigation requests - network-first with cache fallback
+  // Navigation requests - cache first, refresh in the background.
+  // On a poor connection the network-first version left the user staring at
+  // nothing for however long the request took. Serving the cached page and
+  // revalidating behind it means a repeat visit paints immediately; the next
+  // visit already has the update.
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const clone = response.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, clone));
-          return response;
-        })
-        .catch(() => {
-          return caches
-            .match(request)
-            .then((cached) => cached || caches.match('/index.html'));
-        })
+      (async () => {
+        const cache = await caches.open(RUNTIME_CACHE);
+        const cached = await cache.match(request);
+        const network = fetch(request)
+          .then((response) => {
+            if (response && response.ok) cache.put(request, response.clone());
+            return response;
+          })
+          .catch(() => null);
+        if (cached) {
+          event.waitUntil(network);
+          return cached;
+        }
+        const fresh = await network;
+        if (fresh) return fresh;
+        return (
+          (await caches.match('/index.html')) ||
+          (await caches.match('/')) ||
+          new Response(
+            '<!doctype html><meta charset="utf-8"><title>FRELUX is offline</title><p>You are offline. Reconnect and reload to use the calculators.',
+            { headers: { 'Content-Type': 'text/html; charset=utf-8' }, status: 503 },
+          )
+        );
+      })(),
     );
     return;
   }

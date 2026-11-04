@@ -69,8 +69,7 @@ export default function Hero() {
 
   // ── Derive image metadata from branding with local premium active-site fallback ──
   const heroImageUrl =
-    branding?.hero_image_url ||
-    "/assets/construction-site.jpg";
+    branding?.hero_image_url || "/assets/construction-site.jpg";
   const heroImageAlt =
     branding?.hero_image_alt ||
     "Active multistory construction site at dusk with engineers, tower crane, and illuminated framework";
@@ -265,7 +264,17 @@ export default function Hero() {
             {/* Main image */}
             <div className="relative overflow-hidden rounded-2xl shadow-premium-lg ring-1 ring-white/15 transition-transform duration-500 hover:scale-[1.02] bg-slate-950/60">
               <img
-                src={heroImageUrl}
+                src={
+                  branding?.hero_image_url
+                    ? heroImageUrl
+                    : "/assets/construction-site-900.webp"
+                }
+                srcSet={
+                  branding?.hero_image_url
+                    ? undefined
+                    : "/assets/construction-site-900.webp 900w, /assets/construction-site-1400.webp 1400w"
+                }
+                sizes="(max-width: 640px) 100vw, 520px"
                 alt={heroImageAlt}
                 className="aspect-[4/5] w-full object-cover"
                 loading="eager"
