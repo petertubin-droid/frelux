@@ -23,15 +23,9 @@ import {
   TANK_SIZE_PRESETS,
 } from "@/lib/estimation/water-tower-staging-engine";
 import WaterTowerInstallationSequence from "@/components/tools/WaterTowerInstallationSequence";
+import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
 
 export default function WaterTowerEstimator() {
-  useSeo({
-    title: "Overhead Water Tank Staging & Tower Estimator | FRELUX",
-    description:
-      "Structural physics calculations, dead loads, wind safety factors, and material Bill of Materials (BOM) for elevated steel and concrete water tank towers.",
-    canonicalPath: "/water-tower-staging-estimator",
-  });
-
   const [tankVolume, setTankVolume] = useState<number>(5000);
   const [height, setHeight] = useState<number>(6);
   const [material, setMaterial] = useState<"steel" | "concrete">("steel");
@@ -43,6 +37,33 @@ export default function WaterTowerEstimator() {
       constructionMaterial: material,
     });
   }, [tankVolume, height, material]);
+
+  useSeo({
+    title: "Overhead Water Tank Staging & Tower Estimator | FRELUX",
+    description:
+      "Dead load, wind overturning factor, pad footing sizes and leg sections for elevated steel or concrete water tank towers, with a material bill of quantities and a step by step animated build sequence of the eight site steps.",
+    canonicalPath: "/water-tower-staging-estimator",
+    structuredData: buildSequenceHowTo({
+      name: "Build an overhead water tank staging",
+      description:
+        "Set out and pour the pad footings, build the legs, brace the frame, deck the platform, land the tank and fill test it.",
+      steps: result.installationSteps,
+      path: "/water-tower-staging-estimator",
+      totalTime: "P2D",
+      supply: [
+        "Cement, sand and granite for the pad and leg concrete",
+        "Y16 main bars and Y8 links, or structural steel legs and angle iron",
+        "Timber joists and platform boards",
+        "Tank, riser pipe, overflow and fittings",
+      ],
+      tool: [
+        "Excavation tools",
+        "Concrete mixer",
+        "Spirit level",
+        "Wrench set",
+      ],
+    }),
+  });
 
   const exportCsv = () => {
     const rows: string[][] = [

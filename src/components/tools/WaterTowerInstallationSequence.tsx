@@ -303,7 +303,7 @@ export default function WaterTowerInstallationSequence({
         <div className="min-w-0">
           <ol className="space-y-1.5" aria-live="polite">
             {steps.map((step, i) => (
-              <li key={step.id}>
+              <li key={step.id} id={`build-step-${i + 1}`}>
                 <button
                   type="button"
                   onClick={() => go(i)}
@@ -319,8 +319,12 @@ export default function WaterTowerInstallationSequence({
                   <span className="font-semibold text-foreground">
                     {i + 1}. {step.title}
                   </span>
-                  {i === index && (
-                    <span className="mt-1 block space-y-1">
+                  {
+                    <span
+                      className={
+                        i === index ? "mt-1 block space-y-1" : "sr-only"
+                      }
+                    >
                       <span className="block text-foreground">
                         {step.detail}
                       </span>
@@ -328,7 +332,7 @@ export default function WaterTowerInstallationSequence({
                         Check before moving on: {step.check}
                       </span>
                     </span>
-                  )}
+                  }
                 </button>
               </li>
             ))}

@@ -9,6 +9,7 @@ import { useSeo } from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
 import AnimatedBuildSequence from "@/components/tools/AnimatedBuildSequence";
 import { ROOF_TRUSS_SEQUENCE } from "@/lib/estimation/build-sequence";
+import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import {
   getRoofMarketEvidence,
@@ -116,7 +117,26 @@ export default function RoofFramingEstimator() {
   useSeo({
     title: "Roof Framing & Board-Foot Calculator | FRELUX",
     description:
-      "Calculate common, jack, hip, and ridge member layouts, lengths, linear metres and board feet for a measured rectangular gable or hip roof.",
+      "Calculate common, jack, hip and ridge member layouts, lengths, linear metres and board feet for a measured gable or hip roof, with a step by step animated roof build sequence.",
+    structuredData: buildSequenceHowTo({
+      name: "Frame and sheet a gable roof",
+      description:
+        "Fix the wall plate, erect and brace the trusses, fix the purlins, brace the roof plane, then sheet and finish.",
+      steps: ROOF_TRUSS_SEQUENCE,
+      path: "/roof-framing-calculator",
+      totalTime: "P3D",
+      supply: [
+        "Wall plate, trusses and purlins",
+        "Bracing timber or steel",
+        "Roofing sheets, ridge capping and fixings",
+      ],
+      tool: [
+        "Spirit level",
+        "Drill or impact driver",
+        "Ladder or scaffold",
+        "String line",
+      ],
+    }),
   });
   const [form, setForm] = useState(initialForm);
   const [result, setResult] = useState<RoofFramingResult | null>(null);

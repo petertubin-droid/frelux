@@ -424,7 +424,7 @@ export default function AnimatedBuildSequence({
         <div className="min-w-0">
           <ol className="space-y-1.5" aria-live="polite">
             {steps.map((step, i) => (
-              <li key={step.id}>
+              <li key={step.id} id={`build-step-${i + 1}`}>
                 <button
                   type="button"
                   onClick={() => go(i)}
@@ -447,8 +447,15 @@ export default function AnimatedBuildSequence({
                       </span>
                     )}
                   </span>
-                  {i === index && (
-                    <span className="mt-1 block space-y-1">
+                  {
+                    // The full text of every step stays in the DOM. Only the
+                    // active step is visible, but a crawler or screen reader
+                    // still gets the whole method, not just the current frame.
+                    <span
+                      className={
+                        i === index ? "mt-1 block space-y-1" : "sr-only"
+                      }
+                    >
                       <span className="block text-foreground">
                         {step.detail}
                       </span>
@@ -458,7 +465,7 @@ export default function AnimatedBuildSequence({
                         </span>
                       )}
                     </span>
-                  )}
+                  }
                 </button>
               </li>
             ))}

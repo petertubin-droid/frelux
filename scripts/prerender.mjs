@@ -2674,7 +2674,7 @@ const routes = [
     path: "/water-tower-staging-estimator",
     title: "Overhead Water Tank Staging Estimator | FRELUX SMART CALC",
     description:
-      "Calculate dead load, wind overturning safety factor, and structural steel or reinforced concrete preliminary BOM for overhead water tank towers.",
+      "Calculate dead load, wind overturning safety factor and a preliminary steel or concrete bill of quantities for overhead water tank towers, with pad footing sizes and a step by step animated build sequence.",
   },
   {
     path: "/global-site-safety-estimator",
