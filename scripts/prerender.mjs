@@ -3885,6 +3885,66 @@ for (const c of paintColors) {
       : "") +
     `<h2>Price the job</h2><ul><li><a href="/paint-calculator/">Paint calculator</a></li><li><a href="/colors/">Browse the colour library</a></li><li><a href="/colors/compare/">Compare colours</a></li><li><a href="/wall-finish-estimator/">Wall finishing estimator</a></li></ul></main>`;
 }
+// Palette pages list their colours by name and hex only, which left them as
+// near-empty swatch lists. Each colour in a palette usually exists in the colour
+// library, so the page can state its RGB, HSL, where it may be used and how it
+// should be finished, and link to the colour page itself.
+const normaliseHex = (value) =>
+  value ? String(value).trim().toUpperCase().replace(/^#/, "") : "";
+
+const colourByHex = new Map();
+const colourByName = new Map();
+for (const c of paintColors) {
+  if (!c.slug) continue;
+  const hex = normaliseHex(c.hex_code);
+  if (hex) colourByHex.set(hex, c);
+  if (c.name) colourByName.set(String(c.name).trim().toLowerCase(), c);
+}
+
+// A palette row is matched by its own hex. A name is only accepted when that
+// colour's stored hex is the same, so a palette cannot borrow another shade's
+// RGB just because the names overlap.
+const findPaletteColour = (name, code) => {
+  const hex = normaliseHex(code);
+  if (hex) return colourByHex.get(hex) ?? null;
+  const byName = name
+    ? colourByName.get(String(name).trim().toLowerCase())
+    : null;
+  return byName && normaliseHex(byName.hex_code) === hex ? byName : null;
+};
+
+const paletteColourFacts = (colour) => {
+  if (!colour) return "";
+  const facts = [];
+  const rgb = rgbFromRow(colour);
+  if (rgb) facts.push(`RGB ${rgb}`);
+  if (
+    colour.hsl_h !== null &&
+    colour.hsl_h !== undefined &&
+    colour.hsl_s !== null &&
+    colour.hsl_s !== undefined &&
+    colour.hsl_l !== null &&
+    colour.hsl_l !== undefined
+  ) {
+    const round1 = (v) => Math.round(Number(v) * 10) / 10;
+    facts.push(
+      `HSL ${round1(colour.hsl_h)}, ${round1(colour.hsl_s)}%, ${round1(colour.hsl_l)}%`,
+    );
+  }
+  const placement = [
+    colour.is_interior ? "interior walls and ceilings" : "",
+    colour.is_exterior ? "exterior surfaces" : "",
+  ]
+    .filter(Boolean)
+    .join(" and ");
+  if (placement) facts.push(`for ${placement}`);
+  const usage = asText(colour.recommended_usage).trim();
+  if (usage) facts.push(usage);
+  const finishes = asText(colour.finish_compatibility).trim();
+  if (finishes) facts.push(`finishes ${finishes}`);
+  return facts.join("; ");
+};
+
 for (const p of colorPalettes) {
   if (!p.slug || !p.title) continue;
   const path = `/colors/${p.slug}`;
@@ -3911,14 +3971,31 @@ for (const p of colorPalettes) {
     (asText(p.recommended_rooms)
       ? `<p>Recommended rooms: ${escapeHtml(asText(p.recommended_rooms))}.</p>`
       : "") +
-    `<h2>Colours in this palette</h2><ul>` +
+    `<h2>Colours in this palette</h2><table><caption>${escapeHtml(p.title)} colour set</caption>` +
+    `<thead><tr><th scope="col">Role</th><th scope="col">Colour</th><th scope="col">Hex</th><th scope="col">Details</th></tr></thead><tbody>` +
     rows
-      .map(
-        ([role, name, code]) =>
-          `<li>${escapeHtml(role)}: ${swatch(code, name)}${code ? ` &middot; ${escapeHtml(String(code).toUpperCase())}` : ""}</li>`,
-      )
+      .map(([role, name, code]) => {
+        const colour = findPaletteColour(name, code);
+        // swatch() escapes its label, so the link is added outside it.
+        const cell =
+          swatch(code, name) +
+          (colour
+            ? ` <a href="/colors/paint/${colour.slug}">Colour page</a>`
+            : "");
+        const facts = paletteColourFacts(colour);
+        return (
+          `<tr><th scope="row">${escapeHtml(role)}</th>` +
+          `<td>${cell}</td>` +
+          `<td>${code ? escapeHtml(String(code).toUpperCase()) : "&mdash;"}</td>` +
+          `<td>${facts || "Not in the colour library yet"}</td></tr>`
+        );
+      })
       .join("") +
-    `</ul><h2>Plan the paint</h2><p>The FRELUX paint estimator works the same way for every colour in the palette: room dimensions, height, openings, paint quality and coats, priced in 20-litre buckets.</p>` +
+    `</tbody></table>` +
+    (p.style || p.property_type
+      ? `<p>This set is filed as ${escapeHtml([p.style, p.property_type].filter(Boolean).join(" for "))}, so it is chosen for the way that room type is usually lit rather than for a single feature wall.</p>`
+      : "") +
+    `<h2>Plan the paint</h2><p>The FRELUX paint estimator works the same way for every colour in the palette: room dimensions, height, openings, paint quality and coats, priced in 20-litre buckets.</p>` +
     `<ul><li><a href="/paint-calculator/">Paint calculator</a></li><li><a href="/colors/">Colour library</a></li><li><a href="/colors/compare/">Compare colours</a></li></ul></main>`;
 }
 
