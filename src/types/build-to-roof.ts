@@ -155,6 +155,12 @@ export interface BuildToRoofInput {
 
   // Sand filling (under ground floor slab)
   sand_filling_thickness?: number; // meters, default 0.05 (50mm)
+  /**
+   * Internal blockwork walls get their own excavation, blinding, footing
+   * concrete and blockwork to DPC, as they do on site. Set false only when the
+   * internal walls are known to sit on the ground slab.
+   */
+  include_internal_footings?: boolean; // default true
 
   // Contingency
   contingency_percent: number; // e.g. 5 means 5%

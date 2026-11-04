@@ -669,15 +669,14 @@ describe("electrical voltage drop, first principles", () => {
 
 // ── Blockwork quantities ─────────────────────────────────────────────────────
 // A block wall is a module of (block + joint) in both directions, so the rate
-// is 1 / ((L + j)(h + j)). The engine uses a documented 25 mm joint, thicker
-// than a typical 10 mm bed joint, and states why: sandcrete blocks are not
-// dimensionally accurate and the thicker joint matches its foundation course
-// count. Pinned as a convention, not presented as a universal standard.
+// is 1 / ((L + j)(h + j)). The engine uses a 12 mm joint, the site standard for
+// sandcrete blockwork, and every calculator in the app reads the same constant
+// so a wall priced in one tool matches the same wall in another.
 describe("blockwork quantities, first principles", () => {
-  it("computes blocks per m² for a 18 x 9 inch block on a 25 mm joint", () => {
-    // module = (0.4572 + 0.025) x (0.2286 + 0.025) = 0.4822 x 0.2536 m²
-    // rate = 1 / 0.12229 = 8.177 blocks/m²
-    closeTo(blocksPerM2(18, 9), 8.18, 0.01);
+  it("computes blocks per m² for a 18 x 9 inch block on a 12 mm joint", () => {
+    // module = (0.4572 + 0.012) x (0.2286 + 0.012) = 0.4692 x 0.2406 m²
+    // rate = 1 / 0.112904 = 8.858 blocks/m²
+    closeTo(blocksPerM2(18, 9), 8.86, 0.01);
   });
 
   it("gives the joint-free theoretical rate when the joint is zero", () => {
@@ -689,7 +688,7 @@ describe("blockwork quantities, first principles", () => {
   it("matches a direct course count for the same wall", () => {
     // A 10 m x 3 m wall counted course by course must equal area times rate.
     const rate = blocksPerM2(18, 9);
-    const byCourses = (10 / (18 * 0.0254 + 0.025)) * (3 / (9 * 0.0254 + 0.025));
+    const byCourses = (10 / (18 * 0.0254 + 0.012)) * (3 / (9 * 0.0254 + 0.012));
     closeTo(10 * 3 * rate, byCourses, 0.01);
   });
 

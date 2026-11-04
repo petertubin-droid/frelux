@@ -52,8 +52,11 @@ export const DRY_WET_RATIO = 1.54;
 // Dry-to-wet mortar volume ratio (1.33, standard)
 export const MORTAR_DRY_WET_RATIO = 1.33;
 
-// Mortar joint thickness (m), used for course height calculations
-export const MORTAR_JOINT_THICKNESS = 0.025; // 25mm
+// Mortar joint thickness (m), used for course height calculations.
+// 12 mm matches the masonry engine and ordinary blocklaying practice; the old
+// 25 mm value understated blocks per m² by about 11 percent and contradicted
+// the masonry calculator on the same wall.
+export const MORTAR_JOINT_THICKNESS = 0.012;
 
 // Standard hook length for stirrups = 10 × bar_diameter
 export const STIRRUP_HOOK_MULTIPLIER = 10;
@@ -67,10 +70,52 @@ export const SHEET_COVERAGE: Record<RoofingMaterial, number> = {
   custom: 1.5, // fallback
 };
 
+/**
+ * Roofing material names arrive from three places (the page, the AI defaults,
+ * saved projects) and two spellings were in circulation: "long_span_aluminium"
+ * and "long-span_aluminium". An unknown value silently fell through to the
+ * custom sheet coverage, so the same building could get different sheet counts
+ * depending on where the input came from. Names are normalised here instead.
+ */
+export function normalizeRoofingMaterial(
+  value: string | undefined,
+): RoofingMaterial {
+  const key = (value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[-\s]+/g, "_");
+  if (
+    key === "long_span_aluminium" ||
+    key === "longspan" ||
+    key === "longspan_aluminium"
+  )
+    return "long_span_aluminium";
+  if (key === "stone_coated" || key === "stonecoated") return "stone_coated";
+  if (key === "gi_sheet" || key === "gi" || key === "corrugated")
+    return "gi_sheet";
+  if (key === "shingle" || key === "shingles") return "shingle";
+  return "custom";
+}
+
+/**
+ * Effective cover width of a long-span aluminium sheet, in metres.
+ * A 1.0 m nominal sheet laps 0.1 m, so consecutive sheets cover 0.9 m. Long
+ * span is ordered by the metre and cut to the slope length, which is why a
+ * fixed m² per piece cannot describe it: a 1.5 m² "sheet" gave 134 pieces for
+ * a 200 m² roof where 36 cut sheets do the job.
+ */
+export const LONG_SPAN_COVER_WIDTH_M = 0.9;
+
 // Roofing screws per sheet (approximate)
 export const SCREWS_PER_SHEET = 10;
 
-// Purlin rows per roof slope
+// Purlin spacing along the slope (m). A 0.5 mm long-span sheet needs support
+// at about 1.0 m, so a fixed four rows over a 6 m slope (2.06 m apart) left the
+// sheets unsupported.
+export const PURLIN_SPACING_M = 1.0;
+
+// Purlin rows per roof slope when no slope length is known (kept for callers
+// that only want a nominal count).
 export const PURLIN_ROWS_PER_SLOPE = 4;
 
 // Rafter spacing (m)
@@ -539,8 +584,10 @@ export function roofingSheetsCount(
 /**
  * Get sheet coverage based on roofing material type.
  */
-export function getSheetCoverage(material: RoofingMaterial): number {
-  return SHEET_COVERAGE[material] ?? SHEET_COVERAGE.custom;
+export function getSheetCoverage(material: RoofingMaterial | string): number {
+  return (
+    SHEET_COVERAGE[normalizeRoofingMaterial(material)] ?? SHEET_COVERAGE.custom
+  );
 }
 
 // ── Ridge length ──
@@ -637,7 +684,11 @@ export function estimateTimberMeters(
     const slopeLength = eaveWidth / Math.cos(pitchRad);
     const rafterCount = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
     const rafterTotalM = rafterCount * slopeLength; // ONE plane
-    const purlinTotalM = PURLIN_ROWS_PER_SLOPE * eaveLength; // ONE plane
+    const monoPurlinRows = Math.max(
+      2,
+      Math.ceil(slopeLength / PURLIN_SPACING_M),
+    );
+    const purlinTotalM = monoPurlinRows * eaveLength; // ONE plane
     return round(rafterTotalM + purlinTotalM);
   }
 
@@ -668,7 +719,8 @@ export function estimateTimberMeters(
     // Gable (and custom): 2 planes, rafters at spacing along the eave length
     const rafterCount = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
     rafterTotalM = rafterCount * 2 * slopeLength; // both slopes
-    purlinTotalM = PURLIN_ROWS_PER_SLOPE * 2 * eaveLength;
+    const purlinRows = Math.max(2, Math.ceil(slopeLength / PURLIN_SPACING_M));
+    purlinTotalM = purlinRows * 2 * eaveLength;
   }
 
   return round(rafterTotalM + purlinTotalM);
@@ -886,13 +938,21 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
   );
 
   // 3. Blinding concrete
-  const blindingVol = footprintArea * input.blinding_thickness;
+  // Blinding is poured under the strip footing, so it follows the trench with
+  // the standard 100 mm projection each side. Charging it over the whole
+  // footprint put 11.25 m³ of concrete under a 150 m² bungalow where 3.3 m³
+  // belongs in the ground.
+  const BLINDING_PROJECTION_M = 0.1;
+  const blindingWidth = input.foundation_width + 2 * BLINDING_PROJECTION_M;
+  const blindingArea = perimeter * blindingWidth;
+  const blindingVol = blindingArea * input.blinding_thickness;
   quantities.push(
     qtyLine(
       "Blinding concrete volume",
-      "Footprint area × Blinding thickness",
+      "Perimeter × (Footing width + 2 × 100 mm projection) × Blinding thickness",
       {
-        footprint_area: footprintArea,
+        perimeter,
+        blinding_width: round(blindingWidth),
         blinding_thickness: input.blinding_thickness,
       },
       blindingVol,
@@ -1083,18 +1143,22 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
     ),
   );
 
-  // 8. Backfilling, FIX: added backfilling (excavated soil returned into trench)
-  // Blinding sits over the full footprint (inside the walls), not inside the
-  // trench, so the only trench volume occupied is the footing concrete itself.
-  const backfillVol = Math.max(0, excavationVol - foundationConcreteVol);
+  // 8. Backfilling (excavated soil returned into the trench)
+  // Both the blinding and the footing sit inside the trench, so both displace
+  // soil. Subtracting only the concrete overstated the backfill.
+  const backfillVol = Math.max(
+    0,
+    excavationVol - foundationConcreteVol - blindingVol,
+  );
   if (backfillVol > 0) {
     quantities.push(
       qtyLine(
         "Backfilling volume",
-        "Excavation vol − Foundation concrete",
+        "Excavation vol − Foundation concrete − Blinding",
         {
           excavation: excavationVol,
           foundation_concrete: foundationConcreteVol,
+          blinding: round(blindingVol),
         },
         backfillVol,
         "m³",
@@ -1136,16 +1200,123 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
     );
   }
 
+  // 10a. Internal load-bearing wall foundation
+  // Internal walls are blockwork, so they need the same detail: excavation,
+  // blinding, footing concrete and blockwork to DPC. The old model built only
+  // the external perimeter while the DPC line already crossed the internal
+  // walls, leaving the internal blockwork without a foundation under it.
+  const includeInternalFooting =
+    input.include_internal_footings !== false && input.internal_wall_length > 0;
+  const internalFootingWidth = Math.min(
+    input.foundation_width,
+    Math.max(0.45, input.internal_wall_thickness + 0.3),
+  );
+  const internalExcavationVol = includeInternalFooting
+    ? input.internal_wall_length * internalFootingWidth * input.foundation_depth
+    : 0;
+  const internalBlindingVol = includeInternalFooting
+    ? input.internal_wall_length *
+      (internalFootingWidth + 2 * BLINDING_PROJECTION_M) *
+      input.blinding_thickness
+    : 0;
+  const internalFoundationConcreteVol = includeInternalFooting
+    ? input.internal_wall_length *
+      internalFootingWidth *
+      input.footing_thickness
+    : 0;
+  if (includeInternalFooting) {
+    quantities.push(
+      qtyLine(
+        "Internal wall footing excavation",
+        "Internal wall length × Internal footing width × Trench depth",
+        {
+          internal_length: input.internal_wall_length,
+          footing_width: round(internalFootingWidth),
+          trench_depth: input.foundation_depth,
+        },
+        internalExcavationVol,
+        "m³",
+        0,
+      ),
+    );
+    quantities.push(
+      qtyLine(
+        "Internal wall footing concrete",
+        "Internal wall length × Internal footing width × Footing thickness",
+        {
+          internal_length: input.internal_wall_length,
+          footing_width: round(internalFootingWidth),
+          footing_thickness: input.footing_thickness,
+        },
+        internalFoundationConcreteVol,
+        "m³",
+        input.wastage.cement,
+      ),
+    );
+    const internalBlindingMats = concreteToMaterials(
+      internalBlindingVol,
+      input.concrete_mix_cement,
+      input.concrete_mix_sand,
+      input.concrete_mix_granite,
+    );
+    const internalFoundMats = concreteToMaterials(
+      internalFoundationConcreteVol,
+      input.concrete_mix_cement,
+      input.concrete_mix_sand,
+      input.concrete_mix_granite,
+    );
+    materials.push(
+      matLine(
+        "Cement (internal footing)",
+        "bags",
+        internalFoundMats.cement_bags + internalBlindingMats.cement_bags,
+        input.wastage.cement,
+        input.prices.cement_per_bag,
+        input.prices.price_source,
+      ),
+    );
+    materials.push(
+      matLineTrips(
+        "Sand (internal footing)",
+        internalFoundMats.sand_m3 + internalBlindingMats.sand_m3,
+        input.wastage.sand,
+        input.prices.sand_per_trip,
+        input.prices.sand_per_m3,
+        input.prices.price_source,
+      ),
+    );
+    materials.push(
+      matLineTrips(
+        "Granite (internal footing)",
+        internalFoundMats.granite_m3 + internalBlindingMats.granite_m3,
+        input.wastage.granite,
+        input.prices.granite_per_trip,
+        input.prices.granite_per_m3,
+        input.prices.price_source,
+      ),
+    );
+    labour.push(
+      labLine(
+        "Internal footing labour",
+        "m³",
+        internalExcavationVol + internalFoundationConcreteVol,
+        input.labour.excavation_per_m3,
+      ),
+    );
+  }
+
   // 10. Foundation blockwork (up to DPC), FIX: includes mortar joints in height
   const courseHeight = input.block_height * 0.0254 + MORTAR_JOINT_THICKNESS; // block (inches→m) + mortar joint
   const foundationBlockHeight = courseHeight * FOUNDATION_COURSES;
-  const foundationWallArea = perimeter * foundationBlockHeight;
+  const foundationLength =
+    perimeter + (includeInternalFooting ? input.internal_wall_length : 0);
+  const foundationWallArea = foundationLength * foundationBlockHeight;
   const blocksPerM2Val = blocksPerM2(input.block_length, input.block_height);
   const foundationBlocks = foundationWallArea * blocksPerM2Val;
   quantities.push(
     qtyLine(
       "Foundation blocks",
-      "Foundation wall area × Blocks per m²",
+      "Foundation wall area (external + internal) × Blocks per m²",
       {
         wall_area: foundationWallArea,
         blocks_per_m2: blocksPerM2Val,
@@ -1692,13 +1863,55 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
     ),
   );
 
-  // FIX: sheet coverage varies by roofing material
-  const sheetCoverage = getSheetCoverage(input.roofing_material);
-  const sheetCount = roofingSheetsCount(roofArea, sheetCoverage);
+  // Sheet count. Fixed-panel materials (GI, stone coated, shingle) are counted
+  // by area because a panel is a fixed size. Long-span aluminium is not: it is
+  // ordered by the metre and cut to the slope length, so the count is the
+  // number of 0.9 m cover widths across each slope. Counting it by a 1.5 m²
+  // "sheet" gave 134 pieces for a 200 m² roof where 36 cut sheets cover it.
+  const pitchRad = (input.roof_pitch_degrees * Math.PI) / 180;
+  const eaveLength = input.building_length + 2 * input.roof_overhang;
+  const eaveWidth = input.building_width + 2 * input.roof_overhang;
+  const roofingMaterial = normalizeRoofingMaterial(input.roofing_material);
+  const isLongSpan = roofingMaterial === "long_span_aluminium";
+  let slopeLengthForSheets = 0;
+  let sheetCount: number;
+  let sheetCoverage: number;
+  if (isLongSpan && input.roof_type !== "flat") {
+    const acrossSlope =
+      input.roof_type === "mono_pitch" ? eaveWidth : eaveWidth / 2;
+    slopeLengthForSheets = acrossSlope / Math.cos(pitchRad);
+    const sheetsPerSlope = Math.ceil(eaveLength / LONG_SPAN_COVER_WIDTH_M);
+    const hipEndSheets =
+      input.roof_type === "hip"
+        ? 2 * Math.ceil(eaveWidth / 2 / LONG_SPAN_COVER_WIDTH_M)
+        : 0;
+    const slopeCount = input.roof_type === "mono_pitch" ? 1 : 2;
+    sheetCount = slopeCount * sheetsPerSlope + hipEndSheets;
+    sheetCoverage = LONG_SPAN_COVER_WIDTH_M * slopeLengthForSheets;
+    quantities.push(
+      qtyLine(
+        "Sheet linear metres",
+        "Sheets × Slope length (eave to ridge, includes overhang)",
+        {
+          sheets: sheetCount,
+          slope_length: round(slopeLengthForSheets),
+          cover_width: LONG_SPAN_COVER_WIDTH_M,
+        },
+        round(sheetCount * slopeLengthForSheets),
+        "m",
+        0,
+      ),
+    );
+  } else {
+    sheetCoverage = getSheetCoverage(roofingMaterial);
+    sheetCount = roofingSheetsCount(roofArea, sheetCoverage);
+  }
   quantities.push(
     qtyLine(
       "Roofing sheets",
-      `ceil(Roof area / ${sheetCoverage}m² per sheet), ${input.roofing_material}`,
+      isLongSpan
+        ? `ceil(Slope width / ${LONG_SPAN_COVER_WIDTH_M}m cover) per slope, cut to ${round(slopeLengthForSheets)} m, ${input.roofing_material}`
+        : `ceil(Roof area / ${sheetCoverage}m² per sheet), ${input.roofing_material}`,
       {
         roof_area: roofArea,
         coverage: sheetCoverage,
@@ -1712,17 +1925,30 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
   // Purchase quantity: wastage is applied to the MEASURED AREA first, then
   // ONE purchase rounding to whole sheets (ceil(count × 1.05) would compound
   // two roundings and over-order).
-  const purchaseSheets = Math.ceil(
-    applyWastage(roofArea, input.wastage.roofing_sheets) / sheetCoverage,
-  );
+  const purchaseSheets = isLongSpan
+    ? Math.ceil(sheetCount * (1 + input.wastage.roofing_sheets / 100))
+    : Math.ceil(
+        applyWastage(roofArea, input.wastage.roofing_sheets) / sheetCoverage,
+      );
+  // The sheet price is quoted per piece for a known sheet area, so it is
+  // converted to a price per m² of sheet and applied to the area actually
+  // ordered. That keeps a user-entered sheet price meaningful whether the
+  // sheets are 1.5 m² panels or 6 m long-span lengths.
+  const referenceSheetArea = getSheetCoverage(roofingMaterial);
+  const pricePerM2 = input.prices.roofing_sheet_per_piece / referenceSheetArea;
+  const purchasedArea = purchaseSheets * sheetCoverage;
   materials.push({
     label: "Roofing sheets",
     unit: "pcs",
     base_quantity: round(sheetCount),
     wastage_percent: input.wastage.roofing_sheets,
     final_quantity: purchaseSheets,
-    unit_price: input.prices.roofing_sheet_per_piece,
-    total_cost: round(purchaseSheets * input.prices.roofing_sheet_per_piece),
+    unit_price: round(
+      purchasedArea / purchaseSheets > 0
+        ? (purchasedArea * pricePerM2) / purchaseSheets
+        : input.prices.roofing_sheet_per_piece,
+    ),
+    total_cost: round(purchasedArea * pricePerM2),
     price_source: input.prices.price_source,
   });
 
@@ -2175,9 +2401,29 @@ export function calculateBuildToRoof(
       ? convertBuildToRoofUnits(input, M_PER_FT)
       : input;
 
+  // Wastage, prices and labour rates are optional on the type, and the AI
+  // layer's smart defaults omit all three, which used to throw on
+  // `input.wastage.blocks` before a single quantity was calculated. Missing
+  // groups fall back to the documented defaults and every applied default is
+  // listed in the result's assumptions.
+  const appliedDefaults: string[] = [];
+  if (!input_m.wastage) appliedDefaults.push("wastage allowances");
+  if (!input_m.prices) appliedDefaults.push("material prices");
+  if (!input_m.labour) appliedDefaults.push("labour rates");
+  const withDefaults: BuildToRoofInput = {
+    ...input_m,
+    // input_m is metric by construction, and the validator converts ft input
+    // to metric itself. Leaving the flag as "ft" here converted the values a
+    // second time and rejected a perfectly good imperial estimate.
+    measurement_unit: "m",
+    wastage: { ...DEFAULT_WASTAGE, ...(input_m.wastage ?? {}) },
+    prices: { ...DEFAULT_PRICES, ...(input_m.prices ?? {}) },
+    labour: { ...DEFAULT_LABOUR, ...(input_m.labour ?? {}) },
+  };
+
   // Invalid input must never produce an apparently-valid construction
   // estimate, reject explicitly.
-  const validationErrors = validateBuildToRoofInput(input);
+  const validationErrors = validateBuildToRoofInput(withDefaults);
   if (validationErrors.length > 0) {
     throw new Error(
       `Build-to-Roof input is invalid: ${validationErrors.join("; ")}`,
@@ -2185,30 +2431,31 @@ export function calculateBuildToRoof(
   }
 
   const stages: StageResult[] = [];
+  const normalized = withDefaults;
 
-  const includeFoundation = input_m.included_stages?.foundation !== false;
-  const includeWalls = input_m.included_stages?.walls !== false;
-  const includeRoof = input_m.included_stages?.roof !== false;
+  const includeFoundation = normalized.included_stages?.foundation !== false;
+  const includeWalls = normalized.included_stages?.walls !== false;
+  const includeRoof = normalized.included_stages?.roof !== false;
 
   if (includeFoundation) {
-    stages.push(calcSiteAndFoundation(input_m));
-    stages.push(calcGroundFloor(input_m));
+    stages.push(calcSiteAndFoundation(normalized));
+    stages.push(calcGroundFloor(normalized));
   }
   if (includeWalls) {
-    stages.push(calcWalls(input_m));
-    stages.push(calcStructuralFrame(input_m));
+    stages.push(calcWalls(normalized));
+    stages.push(calcStructuralFrame(normalized));
   }
   if (includeRoof) {
-    stages.push(calcRoofing(input_m));
+    stages.push(calcRoofing(normalized));
   }
 
   // Fallback to all stages if all toggles were disabled
   if (stages.length === 0) {
-    stages.push(calcSiteAndFoundation(input_m));
-    stages.push(calcGroundFloor(input_m));
-    stages.push(calcWalls(input_m));
-    stages.push(calcStructuralFrame(input_m));
-    stages.push(calcRoofing(input_m));
+    stages.push(calcSiteAndFoundation(normalized));
+    stages.push(calcGroundFloor(normalized));
+    stages.push(calcWalls(normalized));
+    stages.push(calcStructuralFrame(normalized));
+    stages.push(calcRoofing(normalized));
   }
 
   const shoppingList = consolidateMaterials(stages);
@@ -2226,15 +2473,15 @@ export function calculateBuildToRoof(
 
   // Role-based labour total (daily/contract rates)
   const roleLabourTotal =
-    input.labour.bricklayer_per_day * input.labour.bricklayer_days +
-    input.labour.foreman_per_day * input.labour.foreman_days +
-    input.labour.supervisor_per_day * input.labour.supervisor_days +
-    input.labour.carpenter_per_day * input.labour.carpenter_days +
-    input.labour.concrete_labourer_per_day *
-      input.labour.concrete_labourer_days +
-    (input.labour.contractor_fee_type === "contract"
-      ? input.labour.contractor_fee
-      : input.labour.contractor_fee * input.labour.contractor_days);
+    normalized.labour.bricklayer_per_day * normalized.labour.bricklayer_days +
+    normalized.labour.foreman_per_day * normalized.labour.foreman_days +
+    normalized.labour.supervisor_per_day * normalized.labour.supervisor_days +
+    normalized.labour.carpenter_per_day * normalized.labour.carpenter_days +
+    normalized.labour.concrete_labourer_per_day *
+      normalized.labour.concrete_labourer_days +
+    (normalized.labour.contractor_fee_type === "contract"
+      ? normalized.labour.contractor_fee
+      : normalized.labour.contractor_fee * normalized.labour.contractor_days);
 
   const labourTotal = taskLabourTotal + roleLabourTotal;
 
@@ -2250,7 +2497,7 @@ export function calculateBuildToRoof(
   }, 0);
 
   const contingency =
-    (materialsTotal + labourTotal) * (input.contingency_percent / 100);
+    (materialsTotal + labourTotal) * (normalized.contingency_percent / 100);
   const grandTotal = materialsTotal + labourTotal + contingency;
 
   const confidence = assessConfidence(input);
@@ -2269,7 +2516,7 @@ export function calculateBuildToRoof(
     `Foundation blockwork: ${FOUNDATION_COURSES} courses (including mortar joints)`,
     `Dry/wet concrete ratio: ${DRY_WET_RATIO}`,
     `Dry/wet mortar ratio: ${MORTAR_DRY_WET_RATIO}`,
-    `Prices as of: ${input.prices.price_date} (${input.prices.price_source})`,
+    `Prices as of: ${normalized.prices.price_date} (${normalized.prices.price_source})`,
   ];
 
   const limitations: string[] = [
@@ -2312,9 +2559,9 @@ export function calculateBuildToRoof(
     // Use the METRIC input, in ft mode the raw values are feet and must not
     // be reported as m².
     total_floor_area: round(
-      input_m.building_length *
-        input_m.building_width *
-        input_m.number_of_floors,
+      normalized.building_length *
+        normalized.building_width *
+        normalized.number_of_floors,
     ),
     construction_stage:
       "SITE → FOUNDATION → GROUND FLOOR → WALLS → STRUCTURAL FRAME → ROOF → READY FOR FINISHING",
@@ -2332,15 +2579,15 @@ export function calculateBuildToRoof(
     assumptions,
     limitations,
     missing_info: missingInfo,
-    price_date: input.prices.price_date,
-    price_source: input.prices.price_source,
+    price_date: normalized.prices.price_date,
+    price_source: normalized.prices.price_source,
     price_age_days: Math.floor(
-      (Date.now() - new Date(input.prices.price_date).getTime()) /
+      (Date.now() - new Date(normalized.prices.price_date).getTime()) /
         (1000 * 60 * 60 * 24),
     ),
     price_stale:
       Math.floor(
-        (Date.now() - new Date(input.prices.price_date).getTime()) /
+        (Date.now() - new Date(normalized.prices.price_date).getTime()) /
           (1000 * 60 * 60 * 24),
       ) > 30,
   };

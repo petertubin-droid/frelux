@@ -106,13 +106,15 @@ describe("mortarToMaterials", () => {
 describe("blocksPerM2", () => {
   it("calculates for standard 18×9 inch block including mortar joints", () => {
     const result = blocksPerM2(18, 9);
-    const joint = 0.025; // MORTAR_JOINT_THICKNESS
+    // 450 x 225 mm block laid with a 12 mm joint:
+    // (0.4572 + 0.012) x (0.2286 + 0.012) = 0.112904 m² -> 8.86 blocks/m²
+    const joint = 0.012; // MORTAR_JOINT_THICKNESS
     const moduleArea = (18 * 0.0254 + joint) * (9 * 0.0254 + joint);
     expect(result).toBeCloseTo(1 / moduleArea, 4);
-    expect(result).toBeCloseTo(8.1771, 3);
+    expect(result).toBeCloseTo(8.8582, 3);
   });
   it("matches a direct course count on a real wall (consistency)", () => {
-    const joint = 0.025;
+    const joint = 0.012;
     const P = 10 * (0.4572 + joint); // 10 whole blocks per course, m
     const H = 10 * (0.2286 + joint); // 10 whole courses, m
     const blocksByCount = 10 * 10;
@@ -253,7 +255,10 @@ describe("estimateTimberMeters", () => {
     const slopeLen = eaveW / 2 / Math.cos((30 * Math.PI) / 180);
     const rafterCount = Math.ceil(eaveL / 0.9) + 1; // 14
     const rafterTotal = rafterCount * 2 * slopeLen;
-    const purlinTotal = 4 * 2 * eaveL;
+    // Purlins sit on a 1.0 m gauge up the slope: ceil(5.31 / 1.0) = 6 rows a
+    // slope, so 6 x 2 x 11.2. A fixed 4 rows put them 2.05 m apart.
+    const purlinRows = Math.ceil(slopeLen / 1.0);
+    const purlinTotal = purlinRows * 2 * eaveL;
     expect(result).toBeCloseTo(rafterTotal + purlinTotal, 1);
   });
   it("mono-pitch: ONE plane, full-width rafters, single-slope purlins", () => {
@@ -262,7 +267,8 @@ describe("estimateTimberMeters", () => {
       eaveW = 9.2;
     const slopeLen = eaveW / Math.cos((30 * Math.PI) / 180);
     const rafterCount = Math.ceil(eaveL / 0.9) + 1;
-    const expected = rafterCount * slopeLen + 4 * eaveL; // NOT 2 planes
+    const purlinRows = Math.ceil(slopeLen / 1.0);
+    const expected = rafterCount * slopeLen + purlinRows * eaveL; // NOT 2 planes
     expect(result).toBeCloseTo(expected, 1);
   });
   it("mono-pitch purlins are not double-counted", () => {
@@ -467,8 +473,9 @@ describe("calculateBuildToRoof (audit regression)", () => {
     const backfill = result.stages
       .flatMap((s) => s.quantities)
       .find((q) => q.label === "Backfilling volume");
-    // Excavation 2(10+8)×0.6×0.9 = 19.44; footing concrete 36×0.6×0.225 = 4.86
-    expect(backfill?.base_quantity).toBeCloseTo(19.44 - 4.86, 2); // 14.58
+    // Excavation 2(10+8)×0.6×0.9 = 19.44; footing concrete 36×0.6×0.225 = 4.86;
+    // blinding 36 × (0.6 + 2 × 0.1) × 0.05 = 1.44. Both sit inside the trench.
+    expect(backfill?.base_quantity).toBeCloseTo(19.44 - 4.86 - 1.44, 2);
   });
 
   it("reports total floor area in m² even when the input is in feet", () => {
@@ -486,14 +493,17 @@ describe("calculateBuildToRoof (audit regression)", () => {
       if (line.unit === "pcs")
         expect(Number.isInteger(line.total_quantity)).toBe(true);
     }
-    // Sheets: ceil(area × 1.05 / 1.5). Area = (10+1.2)(8+1.2)/cos30 = 118.98
+    // Long span is counted by cover width, not by a 1.5 m² panel:
+    // ceil(11.2 / 0.9) = 13 sheets a slope, 26 both slopes, x1.05 -> 28.
     const sheets = result.stages
       .flatMap((s) => s.materials)
       .find((m) => m.label === "Roofing sheets");
-    expect(sheets?.final_quantity).toBe(Math.ceil((118.9803 * 1.05) / 1.5)); // 84
-    // and the cost is based on the PURCHASE quantity
+    expect(sheets?.final_quantity).toBe(28);
+    // Cost follows the area actually ordered: 28 sheets x 0.9 m cover x
+    // 5.3116 m slope = 133.85 m², priced per m² from the panel price.
+    const slopeLen = 9.2 / 2 / Math.cos((30 * Math.PI) / 180);
     expect(sheets?.total_cost).toBeCloseTo(
-      84 * DEFAULT_PRICES.roofing_sheet_per_piece,
+      28 * 0.9 * slopeLen * (DEFAULT_PRICES.roofing_sheet_per_piece / 1.5),
       0,
     );
   });

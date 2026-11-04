@@ -3,7 +3,12 @@ import { useSeo } from "@/lib/seo";
 import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
 import { Button } from "@/components/ui/shadcn/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/shadcn/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/shadcn/card";
 import { Badge } from "@/components/ui/shadcn/badge";
 import {
   Download,
@@ -17,102 +22,7 @@ import {
   calculateWaterTowerStaging,
   TANK_SIZE_PRESETS,
 } from "@/lib/estimation/water-tower-staging-engine";
-
-function TowerDiagram({
-  height,
-  material,
-  volume,
-}: {
-  height: number;
-  material: "steel" | "concrete";
-  volume: number;
-}) {
-  // Tower coordinates in SVG space
-  const topY = 40;
-  const bottomY = 220;
-  const towerHeightPx = bottomY - topY;
-  const leftX = 75;
-  const rightX = 185;
-  const tierCount = Math.max(1, Math.round(height / 3));
-  const beamColor = material === "steel" ? "#0284c7" : "#64748b";
-
-  return (
-    <svg
-      viewBox="0 0 260 250"
-      className="w-full max-w-[340px] mx-auto drop-shadow-sm select-none"
-      role="img"
-      aria-label={`${height} meter ${material} water tank tower with ${tierCount}-tier diagonal X-bracing`}
-    >
-      <defs>
-        <linearGradient id="tankFill" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#38bdf8" />
-          <stop offset="100%" stopColor="#0284c7" />
-        </linearGradient>
-        <pattern id="gridPattern" width="10" height="10" patternUnits="userSpaceOnUse">
-          <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#e2e8f0" strokeWidth="0.5" />
-        </pattern>
-      </defs>
-
-      {/* Ground plane */}
-      <line x1="20" y1={bottomY} x2="240" y2={bottomY} stroke="#94a3b8" strokeWidth="2" strokeDasharray="4 3" />
-      <text x="240" y={bottomY + 14} textAnchor="end" fill="#94a3b8" fontSize="10">Ground (0.0m)</text>
-
-      {/* 4 Vertical Pillars (2 front, 2 back with 3D offset) */}
-      {/* Back legs */}
-      <line x1={leftX + 12} y1={topY + 12} x2={leftX + 12} y2={bottomY} stroke={beamColor} strokeWidth="3" opacity="0.4" />
-      <line x1={rightX - 12} y1={topY + 12} x2={rightX - 12} y2={bottomY} stroke={beamColor} strokeWidth="3" opacity="0.4" />
-
-      {/* Front legs */}
-      <line x1={leftX} y1={topY} x2={leftX} y2={bottomY} stroke={beamColor} strokeWidth={material === "steel" ? "5" : "7"} strokeLinecap="round" />
-      <line x1={rightX} y1={topY} x2={rightX} y2={bottomY} stroke={beamColor} strokeWidth={material === "steel" ? "5" : "7"} strokeLinecap="round" />
-
-      {/* Footing pads */}
-      <rect x={leftX - 8} y={bottomY - 4} width="16" height="8" rx="2" fill="#475569" />
-      <rect x={rightX - 8} y={bottomY - 4} width="16" height="8" rx="2" fill="#475569" />
-
-      {/* Dynamic X-Bracing Tiers */}
-      {Array.from({ length: tierCount }, (_, i) => {
-        const yStart = topY + (towerHeightPx / tierCount) * i;
-        const yEnd = topY + (towerHeightPx / tierCount) * (i + 1);
-
-        return (
-          <g key={i}>
-            {/* Horizontal tie beam */}
-            <line x1={leftX} y1={yEnd} x2={rightX} y2={yEnd} stroke={beamColor} strokeWidth="3" />
-            {/* Diagonal X-Braces */}
-            <line x1={leftX} y1={yStart} x2={rightX} y2={yEnd} stroke="#f59e0b" strokeWidth="2.5" strokeDasharray={material === "concrete" ? "3 3" : undefined} />
-            <line x1={rightX} y1={yStart} x2={leftX} y2={yEnd} stroke="#f59e0b" strokeWidth="2.5" strokeDasharray={material === "concrete" ? "3 3" : undefined} />
-            {/* Connection nodes */}
-            <circle cx={leftX} cy={yStart} r="3" fill="#ef4444" />
-            <circle cx={rightX} cy={yStart} r="3" fill="#ef4444" />
-            <circle cx={leftX} cy={yEnd} r="3" fill="#ef4444" />
-            <circle cx={rightX} cy={yEnd} r="3" fill="#ef4444" />
-          </g>
-        );
-      })}
-
-      {/* Top Platform Plate */}
-      <rect x={leftX - 16} y={topY - 6} width={rightX - leftX + 32} height="8" rx="2" fill="#334155" />
-      <text x="130" y={topY - 1} textAnchor="middle" fill="#f8fafc" fontSize="8" fontWeight="bold">
-        TIMBER DECK PLATFORM
-      </text>
-
-      {/* Water Tank Vessel */}
-      <rect x={leftX - 10} y={topY - 34} width={rightX - leftX + 20} height="28" rx="4" fill="url(#tankFill)" stroke="#0369a1" strokeWidth="2" />
-      <text x="130" y={topY - 16} textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">
-        {volume.toLocaleString()} L TANK
-      </text>
-
-      {/* Height Dimension Indicator */}
-      <line x1="38" y1={topY} x2="38" y2={bottomY} stroke="#0284c7" strokeWidth="1.5" />
-      <line x1="33" y1={topY} x2="43" y2={topY} stroke="#0284c7" strokeWidth="1.5" />
-      <line x1="33" y1={bottomY} x2="43" y2={bottomY} stroke="#0284c7" strokeWidth="1.5" />
-      <text x="32" y={(topY + bottomY) / 2} textAnchor="end" fill="#0284c7" fontSize="11" fontWeight="bold">
-        {height}m
-      </text>
-    </svg>
-  );
-}
+import WaterTowerInstallationSequence from "@/components/tools/WaterTowerInstallationSequence";
 
 export default function WaterTowerEstimator() {
   useSeo({
@@ -139,26 +49,74 @@ export default function WaterTowerEstimator() {
       ["FRELUX Overhead Water Tank Staging Takeoff", ""],
       ["Tank Volume (Liters)", String(tankVolume)],
       ["Tower Elevation Height (m)", String(height)],
-      ["Structural Material", material === "steel" ? "Structural Steel" : "Reinforced Concrete"],
+      [
+        "Structural Material",
+        material === "steel" ? "Structural Steel" : "Reinforced Concrete",
+      ],
       ["Dead Load Total (kg)", String(result.deadLoadTotalKg)],
       ["Dead Load Total (Tons)", (result.deadLoadTotalKg / 1000).toFixed(2)],
-      ["Lateral / Wind Safety Multiplier", `${result.lateralSafetyFactor}x`],
+      [
+        "Wind Overturning Safety Factor",
+        String(result.overturningSafetyFactor),
+      ],
+      ["Wind Force (kN)", String(result.windForceKn)],
+      ["Base Width (m)", String(result.baseSizeMeters)],
+      [
+        "Pad Footing Size (m)",
+        `${result.footing.padSizeMeters} x ${result.footing.padSizeMeters} x ${result.footing.padThicknessMm}mm`,
+      ],
+      ["Load per Leg (kN)", String(result.footing.serviceLoadPerLegKn)],
+      ["Leg Section", result.legDesign.sectionLabel],
+      [
+        "Leg Utilisation",
+        `${(result.legDesign.utilisation * 100).toFixed(0)}%`,
+      ],
       ["Structural Design Load (kN)", String(result.designLoadKn)],
       ["--- MATERIAL BILL OF QUANTITIES ---", ""],
     ];
 
     if (material === "steel") {
-      rows.push(["Vertical H-Beam Structural Posts (linear meters)", String(result.structuralBOM.structuralHBeamsMeters)]);
-      rows.push(["Angle Iron Diagonal X-Bracing (meters)", String(result.structuralBOM.angleIronBracingMeters)]);
-      rows.push(["2x6 Hardwood Timber Platform Boards (pieces)", String(result.structuralBOM.timberPlatform2x6Pieces)]);
+      rows.push([
+        "Vertical H-Beam Structural Posts (linear meters)",
+        String(result.structuralBOM.structuralHBeamsMeters),
+      ]);
+      rows.push([
+        "Angle Iron Diagonal X-Bracing (meters)",
+        String(result.structuralBOM.angleIronBracingMeters),
+      ]);
+      rows.push([
+        "2x6 Hardwood Timber Platform Boards (pieces)",
+        String(result.structuralBOM.timberPlatform2x6Pieces),
+      ]);
     } else {
-      rows.push(["Concrete Volume 1:2:4 Mix (m3)", String(result.structuralBOM.concreteVolumeM3)]);
-      rows.push(["Cement 50kg Bags", String(result.structuralBOM.cementBags50kg)]);
-      rows.push(["Clean Sharp Sand (m3)", String(result.structuralBOM.sandCubicMeters)]);
-      rows.push(["Granite / Gravel (m3)", String(result.structuralBOM.gravelCubicMeters)]);
-      rows.push(["Vertical Y16 High-Yield Rebar (12m commercial lengths)", String(result.structuralBOM.verticalRebarY16Lengths)]);
-      rows.push(["Y8 Stirrups / Links (12m commercial lengths)", String(result.structuralBOM.stirrupsRebarY8Lengths)]);
-      rows.push(["2x6 Timber Platform Base Boards (pieces)", String(result.structuralBOM.timberPlatform2x6PiecesConcrete)]);
+      rows.push([
+        "Concrete Volume 1:2:4 Mix (m3)",
+        String(result.structuralBOM.concreteVolumeM3),
+      ]);
+      rows.push([
+        "Cement 50kg Bags",
+        String(result.structuralBOM.cementBags50kg),
+      ]);
+      rows.push([
+        "Clean Sharp Sand (m3)",
+        String(result.structuralBOM.sandCubicMeters),
+      ]);
+      rows.push([
+        "Granite / Gravel (m3)",
+        String(result.structuralBOM.gravelCubicMeters),
+      ]);
+      rows.push([
+        "Vertical Y16 High-Yield Rebar (12m commercial lengths)",
+        String(result.structuralBOM.verticalRebarY16Lengths),
+      ]);
+      rows.push([
+        "Y8 Stirrups / Links (12m commercial lengths)",
+        String(result.structuralBOM.stirrupsRebarY8Lengths),
+      ]);
+      rows.push([
+        "2x6 Timber Platform Base Boards (pieces)",
+        String(result.structuralBOM.timberPlatform2x6PiecesConcrete),
+      ]);
     }
 
     rows.push([
@@ -166,12 +124,17 @@ export default function WaterTowerEstimator() {
       "Preliminary material takeoff only. Elevation above 3m creates concentrated high dead loads and lateral wind overturning moments. A licensed structural engineer must review and approve foundations, column capacity, and connection details.",
     ]);
 
-    const csvContent = rows.map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csvContent = rows
+      .map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(","))
+      .join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `frelux-water-tower-${tankVolume}L-${height}m-${material}.csv`);
+    link.setAttribute(
+      "download",
+      `frelux-water-tower-${tankVolume}L-${height}m-${material}.csv`,
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -204,7 +167,10 @@ export default function WaterTowerEstimator() {
               <CardContent className="space-y-6">
                 {/* Tank Size Dropdown */}
                 <div className="space-y-2">
-                  <label htmlFor="tank-preset" className="text-sm font-medium text-foreground flex items-center justify-between">
+                  <label
+                    htmlFor="tank-preset"
+                    className="text-sm font-medium text-foreground flex items-center justify-between"
+                  >
                     <span>Tank Capacity</span>
                     <Badge variant="outline" className="text-xs font-mono">
                       {tankVolume.toLocaleString()} Liters
@@ -227,10 +193,15 @@ export default function WaterTowerEstimator() {
                 {/* Tower Height Slider */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="tower-height" className="text-sm font-medium text-foreground">
+                    <label
+                      htmlFor="tower-height"
+                      className="text-sm font-medium text-foreground"
+                    >
                       Tower Elevation Height
                     </label>
-                    <span className="text-sm font-bold text-primary">{height} Meters</span>
+                    <span className="text-sm font-bold text-primary">
+                      {height} Meters
+                    </span>
                   </div>
                   <input
                     id="tower-height"
@@ -251,7 +222,9 @@ export default function WaterTowerEstimator() {
 
                 {/* Support Material Toggle */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">Construction Material</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Construction Material
+                  </label>
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       type="button"
@@ -264,7 +237,9 @@ export default function WaterTowerEstimator() {
                     >
                       <Layers className="h-5 w-5 mb-1 text-primary" />
                       <span className="text-xs">Structural Steel</span>
-                      <span className="text-[10px] text-muted-foreground">H-Beams + Angle Braces</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        H-Beams + Angle Braces
+                      </span>
                     </button>
                     <button
                       type="button"
@@ -277,7 +252,9 @@ export default function WaterTowerEstimator() {
                     >
                       <Building2 className="h-5 w-5 mb-1 text-primary" />
                       <span className="text-xs">Reinforced Concrete</span>
-                      <span className="text-[10px] text-muted-foreground">4x 230mm Columns</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        4x 230mm Columns
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -288,7 +265,11 @@ export default function WaterTowerEstimator() {
                     <ShieldAlert className="h-4 w-4" /> Preliminary Takeoff Only
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    A {tankVolume.toLocaleString()}L tank places over {(result.deadLoadTotalKg / 1000).toFixed(1)} tons of dead load overhead. A licensed structural engineer must approve the foundation pad and soil bearing capacity before erection.
+                    A {tankVolume.toLocaleString()}L tank places over{" "}
+                    {(result.deadLoadTotalKg / 1000).toFixed(1)} tons of dead
+                    load overhead. A licensed structural engineer must approve
+                    the foundation pad and soil bearing capacity before
+                    erection.
                   </p>
                 </div>
               </CardContent>
@@ -297,40 +278,40 @@ export default function WaterTowerEstimator() {
 
           {/* Visual Anchor & Structural Physics Output */}
           <div className="lg:col-span-7 space-y-6">
-            {/* Visual 3D Wireframe Render Card */}
+            {/* Animated installation sequence */}
             <Card className="border-border overflow-hidden bg-card shadow-sm">
               <CardHeader className="border-b border-border/50 bg-muted/20 pb-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-primary" /> Dynamic Tower Wireframe & Welding Points
+                    <Building2 className="h-4 w-4 text-primary" /> How the
+                    staging is built, step by step
                   </CardTitle>
-                  <Badge variant="secondary" className="text-xs font-mono">
-                    {Math.max(1, Math.round(height / 3))} Bracing Tiers
+                  <Badge
+                    variant="secondary"
+                    className="text-xs font-mono shrink-0"
+                  >
+                    {Math.max(1, Math.round(height / 3))} bracing tiers
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="pt-6">
-                <TowerDiagram height={height} material={material} volume={tankVolume} />
-                <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground border-t border-border/50 pt-3">
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-primary" /> Vertical Columns
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-amber-500" /> X-Brace Welding
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-red-500" /> Structural Joint Node
-                  </span>
-                </div>
+              <CardContent className="pt-5">
+                <WaterTowerInstallationSequence
+                  steps={result.installationSteps}
+                  material={material}
+                  heightMeters={height}
+                  hasFootings={result.footing.padSizeMeters > 0}
+                />
               </CardContent>
             </Card>
 
-            {/* Load Capacity Metrics */}
+            {/* Load and stability metrics */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <Card className="border-border p-4 bg-card">
-                <span className="text-xs text-muted-foreground block">Dead Load (Water + Tank)</span>
+                <span className="text-xs text-muted-foreground block">
+                  Dead Load (Water + Tank + Deck)
+                </span>
                 <span className="text-xl font-bold text-foreground mt-1 block">
-                  {(result.deadLoadTotalKg / 1000).toFixed(2)} Tons
+                  {(result.deadLoadTotalKg / 1000).toFixed(2)} t
                 </span>
                 <span className="text-[11px] text-muted-foreground font-mono">
                   {result.deadLoadTotalKg.toLocaleString()} kg
@@ -338,29 +319,111 @@ export default function WaterTowerEstimator() {
               </Card>
 
               <Card className="border-border p-4 bg-card">
-                <span className="text-xs text-muted-foreground block">Lateral Wind Factor</span>
-                <span className="text-xl font-bold text-foreground mt-1 block">
-                  {result.lateralSafetyFactor}x
+                <span className="text-xs text-muted-foreground block">
+                  Wind Overturning Factor
                 </span>
-                <span className="text-[11px] text-muted-foreground">Global cross-bracing rule</span>
+                <span
+                  className={`text-xl font-bold mt-1 block ${
+                    result.overturningSafetyFactor >= 1.5
+                      ? "text-foreground"
+                      : "text-destructive"
+                  }`}
+                >
+                  {result.overturningSafetyFactor}
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  {result.windForceKn} kN wind, 1.5 required
+                </span>
               </Card>
 
               <Card className="border-border p-4 bg-card col-span-2 sm:col-span-1">
-                <span className="text-xs text-muted-foreground block">Design Load Capacity</span>
+                <span className="text-xs text-muted-foreground block">
+                  Design Load
+                </span>
                 <span className="text-xl font-bold text-primary mt-1 block">
                   {result.designLoadKn} kN
                 </span>
-                <span className="text-[11px] text-muted-foreground font-mono">Ultimate structural load</span>
+                <span className="text-[11px] text-muted-foreground font-mono">
+                  {result.footing.serviceLoadPerLegKn} kN worst leg
+                </span>
               </Card>
             </div>
+
+            {/* Footing and leg design */}
+            <Card className="border-border shadow-sm">
+              <CardHeader className="border-b border-border/50 pb-3">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <Layers className="h-4 w-4 text-primary" /> Foundation and leg
+                  design
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4 space-y-2 text-sm">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-muted-foreground">Pad footings</span>
+                  <span className="font-mono text-foreground">
+                    {result.footing.legs} x {result.footing.padSizeMeters} x{" "}
+                    {result.footing.padSizeMeters} m x{" "}
+                    {result.footing.padThicknessMm} mm
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-muted-foreground">Leg section</span>
+                  <span className="font-mono text-foreground text-right">
+                    {result.legDesign.sectionLabel}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-muted-foreground">Utilisation</span>
+                  <span
+                    className={`font-mono ${
+                      result.legDesign.pass
+                        ? "text-foreground"
+                        : "text-destructive"
+                    }`}
+                  >
+                    {(result.legDesign.utilisation * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground pt-1">
+                  Governing check: {result.legDesign.governingCheck}
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  Base {result.baseSizeMeters} m square, tank{" "}
+                  {result.tankDiameterMeters} m diameter, deck weight{" "}
+                  {result.deckWeightKg} kg.
+                </p>
+              </CardContent>
+            </Card>
+
+            {result.warnings.length > 0 && (
+              <Card className="border-amber-300/60 bg-amber-50/40 dark:bg-amber-950/10 shadow-sm">
+                <CardContent className="pt-4 space-y-2">
+                  {result.warnings.map((w) => (
+                    <p
+                      key={w}
+                      className="text-xs text-foreground flex items-start gap-2"
+                    >
+                      <ShieldAlert className="h-3.5 w-3.5 mt-0.5 shrink-0 text-amber-600" />
+                      <span>{w}</span>
+                    </p>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Output BOM Schedule */}
             <Card className="border-border shadow-sm">
               <CardHeader className="border-b border-border/50 flex flex-row items-center justify-between pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Droplets className="h-4 w-4 text-primary" /> Structural Bill of Materials (BOM)
+                  <Droplets className="h-4 w-4 text-primary" /> Structural Bill
+                  of Materials (BOM)
                 </CardTitle>
-                <Button size="sm" variant="outline" onClick={exportCsv} className="h-8 gap-1.5 text-xs">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={exportCsv}
+                  className="h-8 gap-1.5 text-xs"
+                >
                   <Download className="h-3.5 w-3.5" /> Export Schedule
                 </Button>
               </CardHeader>
@@ -369,40 +432,58 @@ export default function WaterTowerEstimator() {
                   <>
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/50">
                       <div>
-                        <div className="text-sm font-medium text-foreground">Vertical Stand Pillars</div>
-                        <div className="text-xs text-muted-foreground">4x Structural Steel H-Beams / Heavy SHS</div>
+                        <div className="text-sm font-medium text-foreground">
+                          Vertical Stand Pillars
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          4x Structural Steel H-Beams / Heavy SHS
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.structuralHBeamsMeters} m
                         </div>
-                        <div className="text-[10px] text-muted-foreground">4 lengths @ {height}m</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          4 lengths @ {height}m
+                        </div>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/50">
                       <div>
-                        <div className="text-sm font-medium text-foreground">Cross-Bracing Angle Iron</div>
-                        <div className="text-xs text-muted-foreground">Heavy-gauge diagonal X-braces & horizontal ties</div>
+                        <div className="text-sm font-medium text-foreground">
+                          Cross-Bracing Angle Iron
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Heavy-gauge diagonal X-braces & horizontal ties
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.angleIronBracingMeters} m
                         </div>
-                        <div className="text-[10px] text-muted-foreground">Across {Math.max(1, Math.round(height / 3))} tiers</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          Across {Math.max(1, Math.round(height / 3))} tiers
+                        </div>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/50">
                       <div>
-                        <div className="text-sm font-medium text-foreground">Plank Platform Base</div>
-                        <div className="text-xs text-muted-foreground">2x6 Structural Hardwood Timber boards</div>
+                        <div className="text-sm font-medium text-foreground">
+                          Plank Platform Base
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          2x6 Structural Hardwood Timber boards
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.timberPlatform2x6Pieces} Pieces
                         </div>
-                        <div className="text-[10px] text-muted-foreground">Even weight distribution</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          Even weight distribution
+                        </div>
                       </div>
                     </div>
                   </>
@@ -410,77 +491,114 @@ export default function WaterTowerEstimator() {
                   <>
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/50">
                       <div>
-                        <div className="text-sm font-medium text-foreground">Reinforced Concrete Volume</div>
-                        <div className="text-xs text-muted-foreground">4x 230x230mm Columns (1:2:4 Grade C15/M15)</div>
+                        <div className="text-sm font-medium text-foreground">
+                          Reinforced Concrete Volume
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          4x 230x230mm Columns (1:2:4 Grade C15/M15)
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.concreteVolumeM3} m³
                         </div>
-                        <div className="text-[10px] text-muted-foreground">Cast-in-place columns</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          Cast-in-place columns
+                        </div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-3 gap-2">
                       <div className="p-2.5 rounded-lg bg-muted/30 border border-border/50 text-center">
-                        <span className="text-[11px] text-muted-foreground block">Cement</span>
+                        <span className="text-[11px] text-muted-foreground block">
+                          Cement
+                        </span>
                         <span className="text-sm font-bold text-foreground font-mono">
                           {result.structuralBOM.cementBags50kg} Bags
                         </span>
-                        <span className="text-[10px] text-muted-foreground">50kg bags</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          50kg bags
+                        </span>
                       </div>
                       <div className="p-2.5 rounded-lg bg-muted/30 border border-border/50 text-center">
-                        <span className="text-[11px] text-muted-foreground block">Sharp Sand</span>
+                        <span className="text-[11px] text-muted-foreground block">
+                          Sharp Sand
+                        </span>
                         <span className="text-sm font-bold text-foreground font-mono">
                           {result.structuralBOM.sandCubicMeters} m³
                         </span>
-                        <span className="text-[10px] text-muted-foreground">Clean washed</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          Clean washed
+                        </span>
                       </div>
                       <div className="p-2.5 rounded-lg bg-muted/30 border border-border/50 text-center">
-                        <span className="text-[11px] text-muted-foreground block">Granite</span>
+                        <span className="text-[11px] text-muted-foreground block">
+                          Granite
+                        </span>
                         <span className="text-sm font-bold text-foreground font-mono">
                           {result.structuralBOM.gravelCubicMeters} m³
                         </span>
-                        <span className="text-[10px] text-muted-foreground">3/4" aggregate</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          3/4" aggregate
+                        </span>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/50">
                       <div>
-                        <div className="text-sm font-medium text-foreground">Vertical Rebar (16mm Y16)</div>
-                        <div className="text-xs text-muted-foreground">4 bars per pillar × 4 pillars</div>
+                        <div className="text-sm font-medium text-foreground">
+                          Vertical Rebar (16mm Y16)
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          4 bars per pillar × 4 pillars
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.verticalRebarY16Lengths} Lengths
                         </div>
-                        <div className="text-[10px] text-muted-foreground">Standard 12m commercial bars</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          Standard 12m commercial bars
+                        </div>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/50">
                       <div>
-                        <div className="text-sm font-medium text-foreground">Column Stirrups / Links (8mm Y8)</div>
-                        <div className="text-xs text-muted-foreground">Tied at 200mm centers</div>
+                        <div className="text-sm font-medium text-foreground">
+                          Column Stirrups / Links (8mm Y8)
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Tied at 200mm centers
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.stirrupsRebarY8Lengths} Lengths
                         </div>
-                        <div className="text-[10px] text-muted-foreground">Standard 12m commercial bars</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          Standard 12m commercial bars
+                        </div>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/50">
                       <div>
-                        <div className="text-sm font-medium text-foreground">Platform Timber Decking</div>
-                        <div className="text-xs text-muted-foreground">2x6 Structural Hardwood boards</div>
+                        <div className="text-sm font-medium text-foreground">
+                          Platform Timber Decking
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          2x6 Structural Hardwood boards
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-base font-bold text-foreground font-mono">
-                          {result.structuralBOM.timberPlatform2x6PiecesConcrete} Pieces
+                          {result.structuralBOM.timberPlatform2x6PiecesConcrete}{" "}
+                          Pieces
                         </div>
-                        <div className="text-[10px] text-muted-foreground">Tank platform base</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          Tank platform base
+                        </div>
                       </div>
                     </div>
                   </>

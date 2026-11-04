@@ -146,7 +146,7 @@ export function defaultBuildToRoofInput(): BuildToRoofInputLike {
     roof_type: "gable",
     roof_pitch_degrees: 25,
     roof_overhang: 0.6,
-    roofing_material: "long-span_aluminium",
+    roofing_material: "long_span_aluminium",
     structural_members: [],
     has_engineer_schedule: false,
     contingency_percent: 5,

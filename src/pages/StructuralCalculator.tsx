@@ -2,6 +2,11 @@ import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useEngineAccess } from "@/lib/use-engine-access";
+import AnimatedBuildSequence from "@/components/tools/AnimatedBuildSequence";
+import {
+  SLAB_LAYERS,
+  concreteElementSequence,
+} from "@/lib/estimation/build-sequence";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { useState, useCallback, useEffect, useMemo, useId } from "react";
 import { useSeo } from "@/lib/seo";
@@ -265,6 +270,13 @@ export function ConcreteTakeoffCalculator() {
     Array<{ label: string; diameterMm: string; count: string; lengthM: string }>
   >([]);
   const [result, setResult] = useState<ConcreteTakeoffResult | null>(null);
+  // Metres as the engine received them, so the build sequence quotes the same
+  // dimensions the takeoff used rather than the raw text in the inputs.
+  const [metricDims, setMetricDims] = useState<{
+    l: number;
+    w: number;
+    d: number;
+  } | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const { market, preferredLengthUnit } = useMarket();
   const [dimensionUnit, setDimensionUnit] =
@@ -312,6 +324,11 @@ export function ConcreteTakeoffCalculator() {
     });
     setErrors(response.errors);
     setResult(response.data);
+    setMetricDims({
+      l: lengthParsed.millimeters / 1000,
+      w: widthParsed.millimeters / 1000,
+      d: depthParsed.millimeters / 1000,
+    });
   };
   // The schedule is data, not markup, so the preview can show a few lines of the
   // same list rather than a different one.
@@ -336,6 +353,23 @@ export function ConcreteTakeoffCalculator() {
         ],
       ]
     : [];
+  // The sequence is text plus engine quantities: no number is invented here.
+  const buildSteps = result
+    ? concreteElementSequence({
+        elementType: result.elementType as
+          "slab" | "beam" | "column" | "footing",
+        volumeM3: result.concreteVolumeM3,
+        volumeWithWasteM3: result.volumeWithWasteM3,
+        cementBags: result.cementBagsToBuy,
+        sandM3: result.sandM3,
+        aggregateM3: result.aggregateM3,
+        rebarKg: result.rebarWeightKg,
+        lengthM: metricDims?.l ?? 0,
+        widthM: metricDims?.w ?? 0,
+        depthM: metricDims?.d ?? 0,
+      })
+    : [];
+
   const takeoffAccess = useEngineAccess("/concrete-takeoff-calculator");
   const designAccess = useEngineAccess("/structural-calculator");
 
@@ -574,6 +608,33 @@ export function ConcreteTakeoffCalculator() {
           </div>
         )}
       </div>
+      {result && buildSteps.length > 0 && (
+        <div className="card-elevated p-5 sm:p-7">
+          <div className="mb-4">
+            <h3 className="font-semibold">
+              How a {result.elementType} is built
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              The order the work actually happens in, with the quantities this
+              takeoff produced.
+            </p>
+          </div>
+          <AnimatedBuildSequence
+            steps={buildSteps}
+            kind={result.elementType === "slab" ? "layers" : "member"}
+            member={
+              result.elementType as "slab" | "beam" | "column" | "footing"
+            }
+            layers={result.elementType === "slab" ? SLAB_LAYERS : undefined}
+            title={`How a ${result.elementType} is built`}
+            caption={
+              result.elementType === "slab"
+                ? "Layer order under a ground slab: subgrade, blinding, then the reinforced slab."
+                : "Section through the element: support, reinforcement, formwork, concrete."
+            }
+          />
+        </div>
+      )}
       {result && (
         <div className="card-elevated p-5 sm:p-7">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">

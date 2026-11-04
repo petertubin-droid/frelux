@@ -7,6 +7,8 @@ import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { useSeo } from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
+import AnimatedBuildSequence from "@/components/tools/AnimatedBuildSequence";
+import { ROOF_TRUSS_SEQUENCE } from "@/lib/estimation/build-sequence";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import {
   getRoofMarketEvidence,
@@ -266,324 +268,349 @@ export default function RoofFramingEstimator() {
           </button>
         </div>
         {mode === "takeoff" ? (
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(330px,.8fr)]">
-            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
-              <h2 className="text-xl font-bold">{t("Roof geometry")}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Use measured wall dimensions and choose a simple rectangular
-                roof type.
-              </p>
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-1 text-sm font-medium">
-                  {t("Roof type")}
-                  <select
-                    className={inputClass}
-                    value={form.roofType}
-                    onChange={(e) =>
-                      update("roofType", e.target.value as Form["roofType"])
-                    }
-                  >
-                    <option value="gable">{t("Gable")}</option>
-                    <option value="hip">{t("Equal-pitch hip")}</option>
-                  </select>
-                </label>
-                {(
-                  [
-                    ["lengthM", "Building length (m)"],
-                    ["widthM", "Building width (m)"],
-                    ["pitchRisePer12", "Roof pitch (rise per 12 horizontal)"],
-                    ["overhangM", "Eave overhang (m)"],
-                    ["spacingM", "Maximum rafter spacing (m)"],
-                  ] as const
-                ).map(([key, label]) => (
-                  <label key={key} className="grid gap-1 text-sm font-medium">
-                    {label}
-                    <input
-                      aria-label={label}
+          <>
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(330px,.8fr)]">
+              <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+                <h2 className="text-xl font-bold">{t("Roof geometry")}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Use measured wall dimensions and choose a simple rectangular
+                  roof type.
+                </p>
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  <label className="grid gap-1 text-sm font-medium">
+                    {t("Roof type")}
+                    <select
                       className={inputClass}
-                      type="number"
-                      min="0"
-                      step="any"
-                      value={form[key]}
-                      onChange={(e) => update(key, e.target.value)}
-                      placeholder={t("Enter measured/specification value")}
-                    />
+                      value={form.roofType}
+                      onChange={(e) =>
+                        update("roofType", e.target.value as Form["roofType"])
+                      }
+                    >
+                      <option value="gable">{t("Gable")}</option>
+                      <option value="hip">{t("Equal-pitch hip")}</option>
+                    </select>
                   </label>
-                ))}
-              </div>
-              <h3 className="mt-7 text-base font-semibold">
-                {t("Timber sections")}
-              </h3>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Enter actual section dimensions in inches. Board feet are
-                calculated only from these inputs.
-              </p>
-              <div className="mt-3 grid gap-3">
-                {(
-                  Object.keys(form.sections) as Array<keyof Form["sections"]>
-                ).map((key) => (
-                  <div
-                    key={key}
-                    className="grid grid-cols-[1fr_1fr_1fr] items-end gap-2 rounded-xl bg-muted/35 p-3"
-                  >
-                    <p className="pb-2 text-sm font-medium capitalize">
-                      {key === "common"
-                        ? "Common rafters"
-                        : key === "jack"
-                          ? "Jack rafters"
-                          : key === "hip"
-                            ? "Hip rafters"
-                            : "Ridge member"}
+                  {(
+                    [
+                      ["lengthM", "Building length (m)"],
+                      ["widthM", "Building width (m)"],
+                      ["pitchRisePer12", "Roof pitch (rise per 12 horizontal)"],
+                      ["overhangM", "Eave overhang (m)"],
+                      ["spacingM", "Maximum rafter spacing (m)"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <label key={key} className="grid gap-1 text-sm font-medium">
+                      {label}
+                      <input
+                        aria-label={label}
+                        className={inputClass}
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={form[key]}
+                        onChange={(e) => update(key, e.target.value)}
+                        placeholder={t("Enter measured/specification value")}
+                      />
+                    </label>
+                  ))}
+                </div>
+                <h3 className="mt-7 text-base font-semibold">
+                  {t("Timber sections")}
+                </h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Enter actual section dimensions in inches. Board feet are
+                  calculated only from these inputs.
+                </p>
+                <div className="mt-3 grid gap-3">
+                  {(
+                    Object.keys(form.sections) as Array<keyof Form["sections"]>
+                  ).map((key) => (
+                    <div
+                      key={key}
+                      className="grid grid-cols-[1fr_1fr_1fr] items-end gap-2 rounded-xl bg-muted/35 p-3"
+                    >
+                      <p className="pb-2 text-sm font-medium capitalize">
+                        {key === "common"
+                          ? "Common rafters"
+                          : key === "jack"
+                            ? "Jack rafters"
+                            : key === "hip"
+                              ? "Hip rafters"
+                              : "Ridge member"}
+                      </p>
+                      {(["widthIn", "depthIn"] as const).map((dimension) => (
+                        <label
+                          key={dimension}
+                          className="grid gap-1 text-xs text-muted-foreground"
+                        >
+                          {dimension === "widthIn"
+                            ? "Width (in)"
+                            : "Depth (in)"}
+                          <input
+                            aria-label={`${key} ${dimension}`}
+                            className={inputClass}
+                            type="number"
+                            min="0"
+                            step="any"
+                            value={form.sections[key][dimension]}
+                            onChange={(e) =>
+                              update("sections", {
+                                ...form.sections,
+                                [key]: {
+                                  ...form.sections[key],
+                                  [dimension]: e.target.value,
+                                },
+                              })
+                            }
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-semibold">
+                      {t("Additional measured members")}
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Add purlins, ties, trimmers or valley members only from a
+                      measured drawing or engineer schedule.
                     </p>
-                    {(["widthIn", "depthIn"] as const).map((dimension) => (
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addExtra}
+                    className="rounded-lg border border-border px-3 py-2 text-sm font-semibold"
+                  >
+                    + Add schedule row
+                  </button>
+                </div>
+                {form.extra.map((member, index) => (
+                  <div
+                    key={index}
+                    className="mt-3 grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-5"
+                  >
+                    {(
+                      [
+                        ["label", "Member label"],
+                        ["count", "Count"],
+                        ["lengthM", "Length (m)"],
+                        ["widthIn", "Width (in)"],
+                        ["depthIn", "Depth (in)"],
+                      ] as const
+                    ).map(([key, label]) => (
                       <label
-                        key={dimension}
-                        className="grid gap-1 text-xs text-muted-foreground"
+                        key={key}
+                        className="grid gap-1 text-xs font-medium text-muted-foreground"
                       >
-                        {dimension === "widthIn" ? "Width (in)" : "Depth (in)"}
+                        {label}
                         <input
-                          aria-label={`${key} ${dimension}`}
                           className={inputClass}
-                          type="number"
-                          min="0"
+                          type={key === "label" ? "text" : "number"}
+                          min={
+                            key === "count" ||
+                            key === "lengthM" ||
+                            key === "widthIn" ||
+                            key === "depthIn"
+                              ? "0"
+                              : undefined
+                          }
                           step="any"
-                          value={form.sections[key][dimension]}
+                          value={member[key]}
                           onChange={(e) =>
-                            update("sections", {
-                              ...form.sections,
-                              [key]: {
-                                ...form.sections[key],
-                                [dimension]: e.target.value,
-                              },
-                            })
+                            update(
+                              "extra",
+                              form.extra.map((row, i) =>
+                                i === index
+                                  ? { ...row, [key]: e.target.value }
+                                  : row,
+                              ),
+                            )
                           }
                         />
                       </label>
                     ))}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        update(
+                          "extra",
+                          form.extra.filter((_, i) => i !== index),
+                        )
+                      }
+                      className="text-left text-xs text-destructive"
+                    >
+                      {t("Remove schedule row")}
+                    </button>
                   </div>
                 ))}
-              </div>
-              <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h3 className="text-base font-semibold">
-                    {t("Additional measured members")}
-                  </h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Add purlins, ties, trimmers or valley members only from a
-                    measured drawing or engineer schedule.
-                  </p>
-                </div>
                 <button
                   type="button"
-                  onClick={addExtra}
-                  className="rounded-lg border border-border px-3 py-2 text-sm font-semibold"
+                  onClick={run}
+                  className="mt-6 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
                 >
-                  + Add schedule row
+                  {t("Calculate framing takeoff")}
                 </button>
-              </div>
-              {form.extra.map((member, index) => (
-                <div
-                  key={index}
-                  className="mt-3 grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-5"
-                >
-                  {(
-                    [
-                      ["label", "Member label"],
-                      ["count", "Count"],
-                      ["lengthM", "Length (m)"],
-                      ["widthIn", "Width (in)"],
-                      ["depthIn", "Depth (in)"],
-                    ] as const
-                  ).map(([key, label]) => (
-                    <label
-                      key={key}
-                      className="grid gap-1 text-xs font-medium text-muted-foreground"
-                    >
-                      {label}
-                      <input
-                        className={inputClass}
-                        type={key === "label" ? "text" : "number"}
-                        min={
-                          key === "count" ||
-                          key === "lengthM" ||
-                          key === "widthIn" ||
-                          key === "depthIn"
-                            ? "0"
-                            : undefined
-                        }
-                        step="any"
-                        value={member[key]}
-                        onChange={(e) =>
-                          update(
-                            "extra",
-                            form.extra.map((row, i) =>
-                              i === index
-                                ? { ...row, [key]: e.target.value }
-                                : row,
-                            ),
-                          )
-                        }
-                      />
-                    </label>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      update(
-                        "extra",
-                        form.extra.filter((_, i) => i !== index),
-                      )
-                    }
-                    className="text-left text-xs text-destructive"
+                {errors.length > 0 && (
+                  <div
+                    role="alert"
+                    className="mt-4 rounded-xl border border-amber-400/50 bg-amber-50/60 p-4 text-sm text-amber-900 dark:bg-amber-950/20 dark:text-amber-200"
                   >
-                    {t("Remove schedule row")}
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={run}
-                className="mt-6 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
-              >
-                {t("Calculate framing takeoff")}
-              </button>
-              {errors.length > 0 && (
-                <div
-                  role="alert"
-                  className="mt-4 rounded-xl border border-amber-400/50 bg-amber-50/60 p-4 text-sm text-amber-900 dark:bg-amber-950/20 dark:text-amber-200"
-                >
-                  {errors.map((error) => (
-                    <p key={error}>{error}</p>
-                  ))}
-                </div>
-              )}
-            </section>
-            <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
-              <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
-                {t("Quantity schedule")}
-              </p>
-              <h2 className="mt-2 text-xl font-bold">{t("Timber report")}</h2>
-              {result ? (
-                <>
-                  <div className="mt-4">
-                    <CopyResultsButton
-                      block={{
-                        title: "Roof framing schedule",
-                        lines: [
-                          {
-                            label: "Total board feet",
-                            value: `${format(result.totalBoardFeet)} BF`,
-                          },
-                          {
-                            label: "Total linear timber",
-                            value: `${format(result.totalLinearM)} m`,
-                          },
-                          {
-                            label: "Ridge length",
-                            value: `${format(result.ridgeLengthM)} m`,
-                          },
-                          {
-                            label: "Roof rise",
-                            value: `${format(result.roofRiseM)} m`,
-                          },
-                        ],
-                        note: "Timber quantities only. Prices and fixings are not included in this schedule.",
-                        sourceUrl:
-                          typeof window === "undefined"
-                            ? undefined
-                            : window.location.href,
-                      }}
-                    />
+                    {errors.map((error) => (
+                      <p key={error}>{error}</p>
+                    ))}
                   </div>
-                  <div className="mt-5 grid grid-cols-2 gap-3">
-                    <div className="rounded-xl bg-primary/5 p-4">
-                      <p className="text-xs text-muted-foreground">
-                        {t("Total board feet")}
-                      </p>
-                      <p className="mt-1 text-2xl font-bold">
-                        {format(result.totalBoardFeet)} BF
-                      </p>
+                )}
+              </section>
+              <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+                <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
+                  {t("Quantity schedule")}
+                </p>
+                <h2 className="mt-2 text-xl font-bold">{t("Timber report")}</h2>
+                {result ? (
+                  <>
+                    <div className="mt-4">
+                      <CopyResultsButton
+                        block={{
+                          title: "Roof framing schedule",
+                          lines: [
+                            {
+                              label: "Total board feet",
+                              value: `${format(result.totalBoardFeet)} BF`,
+                            },
+                            {
+                              label: "Total linear timber",
+                              value: `${format(result.totalLinearM)} m`,
+                            },
+                            {
+                              label: "Ridge length",
+                              value: `${format(result.ridgeLengthM)} m`,
+                            },
+                            {
+                              label: "Roof rise",
+                              value: `${format(result.roofRiseM)} m`,
+                            },
+                          ],
+                          note: "Timber quantities only. Prices and fixings are not included in this schedule.",
+                          sourceUrl:
+                            typeof window === "undefined"
+                              ? undefined
+                              : window.location.href,
+                        }}
+                      />
                     </div>
-                    <div className="rounded-xl bg-muted/40 p-4">
-                      <p className="text-xs text-muted-foreground">
-                        {t("Total linear timber")}
-                      </p>
-                      <p className="mt-1 text-2xl font-bold">
-                        {format(result.totalLinearM)} m
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-muted/40 p-4">
-                      <p className="text-xs text-muted-foreground">
-                        {t("Ridge length")}
-                      </p>
-                      <p className="mt-1 text-xl font-bold">
-                        {format(result.ridgeLengthM)} m
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-muted/40 p-4">
-                      <p className="text-xs text-muted-foreground">
-                        {t("Roof rise")}
-                      </p>
-                      <p className="mt-1 text-xl font-bold">
-                        {format(result.roofRiseM)} m
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-5 space-y-2">
-                    <h3 className="text-sm font-semibold">
-                      {t("Member layout")}
-                    </h3>
-                    {(engineAccess.limited
-                      ? result.groups.slice(0, engineAccess.visibleLines)
-                      : result.groups
-                    ).map((group) => (
-                      <div
-                        key={group.label}
-                        className="rounded-xl border border-border p-3"
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <b className="text-sm">{group.label}</b>
-                          <span className="text-sm">
-                            {group.count} × {format(group.lengthM)} m
-                          </span>
-                        </div>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {group.layout}
+                    <div className="mt-5 grid grid-cols-2 gap-3">
+                      <div className="rounded-xl bg-primary/5 p-4">
+                        <p className="text-xs text-muted-foreground">
+                          {t("Total board feet")}
                         </p>
-                        <p className="mt-1 text-xs font-medium">
-                          Section {group.widthIn}″ × {group.depthIn}″ ·{" "}
-                          {format(group.boardFeet)} BF
+                        <p className="mt-1 text-2xl font-bold">
+                          {format(result.totalBoardFeet)} BF
                         </p>
                       </div>
-                    ))}
-                  </div>
-                  {engineAccess.limited && engineAccess.engine && (
-                    <div className="mt-4">
-                      <EnginePreviewLock
-                        engine={engineAccess.engine}
-                        hiddenLines={engineAccess.hiddenLines(
-                          result.groups.length,
-                        )}
-                      />
+                      <div className="rounded-xl bg-muted/40 p-4">
+                        <p className="text-xs text-muted-foreground">
+                          {t("Total linear timber")}
+                        </p>
+                        <p className="mt-1 text-2xl font-bold">
+                          {format(result.totalLinearM)} m
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-muted/40 p-4">
+                        <p className="text-xs text-muted-foreground">
+                          {t("Ridge length")}
+                        </p>
+                        <p className="mt-1 text-xl font-bold">
+                          {format(result.ridgeLengthM)} m
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-muted/40 p-4">
+                        <p className="text-xs text-muted-foreground">
+                          {t("Roof rise")}
+                        </p>
+                        <p className="mt-1 text-xl font-bold">
+                          {format(result.roofRiseM)} m
+                        </p>
+                      </div>
                     </div>
-                  )}
-                  <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-50/50 p-3 text-xs leading-relaxed text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
-                    {result.valleyStatus}
-                  </div>
-                  <ul className="mt-5 space-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
-                    {result.assumptions.map((note) => (
-                      <li key={note}>• {note}</li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <p className="mt-5 rounded-xl bg-muted/40 p-4 text-sm text-muted-foreground">
-                  Enter measured roof geometry and section sizes. A schedule row
-                  is available for measured purlins and valleys.
-                </p>
-              )}
-            </aside>
-          </div>
+                    <div className="mt-5 space-y-2">
+                      <h3 className="text-sm font-semibold">
+                        {t("Member layout")}
+                      </h3>
+                      {(engineAccess.limited
+                        ? result.groups.slice(0, engineAccess.visibleLines)
+                        : result.groups
+                      ).map((group) => (
+                        <div
+                          key={group.label}
+                          className="rounded-xl border border-border p-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <b className="text-sm">{group.label}</b>
+                            <span className="text-sm">
+                              {group.count} × {format(group.lengthM)} m
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {group.layout}
+                          </p>
+                          <p className="mt-1 text-xs font-medium">
+                            Section {group.widthIn}″ × {group.depthIn}″ ·{" "}
+                            {format(group.boardFeet)} BF
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                    {engineAccess.limited && engineAccess.engine && (
+                      <div className="mt-4">
+                        <EnginePreviewLock
+                          engine={engineAccess.engine}
+                          hiddenLines={engineAccess.hiddenLines(
+                            result.groups.length,
+                          )}
+                        />
+                      </div>
+                    )}
+                    <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-50/50 p-3 text-xs leading-relaxed text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
+                      {result.valleyStatus}
+                    </div>
+                    <ul className="mt-5 space-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
+                      {result.assumptions.map((note) => (
+                        <li key={note}>• {note}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p className="mt-5 rounded-xl bg-muted/40 p-4 text-sm text-muted-foreground">
+                    Enter measured roof geometry and section sizes. A schedule
+                    row is available for measured purlins and valleys.
+                  </p>
+                )}
+              </aside>
+            </div>
+            <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+              <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
+                Build sequence
+              </p>
+              <h2 className="mt-2 text-lg font-semibold">
+                How the roof goes up
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                The framing this schedule covers, in the order it is fixed on
+                site. Bracing comes before sheeting: it is what holds the
+                trusses upright.
+              </p>
+              <div className="mt-4">
+                <AnimatedBuildSequence
+                  steps={ROOF_TRUSS_SEQUENCE}
+                  kind="truss"
+                  title="Roof framing build sequence"
+                  caption="Half-section through a truss: wall plate, truss, purlins, bracing, sheeting."
+                />
+              </div>
+            </section>
+          </>
         ) : (
           <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(330px,.9fr)]">
             <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
