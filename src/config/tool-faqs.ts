@@ -503,6 +503,37 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
   },
 ];
 
+const BLINDS_FAQ_GROUPS: ToolFaqGroup[] = [
+  {
+    slug: "window-blinds",
+    route: "/window-blind-calculator",
+    name: "Window Blinds",
+    category: "finishes",
+    questions: [
+      {
+        q: "How is a window blind priced per window and per square metre?",
+        a: "Both rules apply. The calculator prices the measured opening at the market rate per square metre, then lifts the result to the minimum charge per window when the opening is small, because the same headrail, brackets, cutting and visit go into a small window as a large one.",
+      },
+      {
+        q: "Why does a small window cost almost as much as a large one?",
+        a: "Because the minimum charge takes over. A quarter of the fabric still needs the same hardware and the same fitter, so below a certain size the price stops following the area. The page shows when the minimum applied, so the figure is explained instead of argued about.",
+      },
+      {
+        q: "What measurements do I need before ordering blinds?",
+        a: "The finished opening: width across the reveal and the drop from head to sill, in the same unit. Measure every window instead of assuming they match, and decide the control side and whether the blind fits inside the reveal or over it.",
+      },
+      {
+        q: "What changes the price between blind types?",
+        a: "The waste allowance and the minimum first, then grade. Folded fabric is cut with more spare than a rigid slat, and premium prints sell at a large multiple of standard stock. The calculator applies grade as a multiplier on the rate and never on the minimum.",
+      },
+      {
+        q: "Can I price blinds outside Nigeria?",
+        a: "Yes. Measurement, waste, minimum charge and fitting are the same everywhere. Where a market has no verified price band the calculator asks for the rate you were quoted and prices the schedule with the same rules instead of converting another country's figures.",
+      },
+    ],
+  },
+];
+
 const WATER_FAQ_GROUPS: ToolFaqGroup[] = [
   {
     slug: "borehole-water-system",
@@ -542,6 +573,7 @@ export const TOOL_FAQS: ToolFaqGroup[] = [
   ...BASE_TOOL_FAQS,
   ...ENGINE_FAQ_GROUPS,
   ...WATER_FAQ_GROUPS,
+  ...BLINDS_FAQ_GROUPS,
 ];
 
 const BY_SLUG = new Map(TOOL_FAQS.map((g) => [g.slug, g]));

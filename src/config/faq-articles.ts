@@ -51,6 +51,30 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     ],
   },
 
+  "window-blinds": {
+    summary:
+      "Prices a schedule of window blinds per window and per square metre, with the minimum charge and the waste allowance shown.",
+    description:
+      "Blinds are sold on two rules at once: a rate per square metre and a minimum charge per window that overrides it on small openings. Add the fabric that is cut away to clear the hardware and line up a pattern, and the rate on the shop wall stops predicting the invoice. The calculator prices each opening from its measured width and drop, applies the type's waste allowance, lifts the result to the market minimum, then totals the schedule.",
+    functions: [
+      "Converts the measured opening, in feet or metres, into square metres before any price is applied.",
+      "Applies the waste allowance for that blind type, larger for folded fabric than for rigid slats.",
+      "Prices the window from the market rate, then lifts it to the minimum charge per window when the opening is small.",
+      "Multiplies by the count on each row and adds fitting, extras and the grade the job is specified in.",
+      "Totals the schedule and reports a blended rate per square metre alongside the individual window prices.",
+    ],
+    advantages: [
+      "The result is per window, which is how the customer signs off, and per square metre, which is how the shop buys.",
+      "Every row shows the charged area, the rate and whether the minimum applied, so a quote can be defended line by line.",
+      "The same schedule works in any market once a local rate is entered, because the arithmetic never changes.",
+    ],
+    limits: [
+      "Rates come from the market book, not from this article; where a market has no verified band the calculator asks for a rate.",
+      "Motors, cassette headrails and taking down old blinds are added only when you supply the figure.",
+      "Tax is never assumed, and installation is a per window figure and not a surveyed labour rate.",
+    ],
+  },
+
   "paint-calculator": {
     summary:
       "Turns room measurements into the paint a repaint actually consumes, coat by coat.",
