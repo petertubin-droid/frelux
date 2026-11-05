@@ -54,6 +54,7 @@ const routes = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
   { path: "/calculators", priority: "0.9", changefreq: "monthly" },
   { path: "/construction-tools", priority: "0.9", changefreq: "weekly" },
+  { path: "/fence-block-calculator", priority: "0.9", changefreq: "monthly" },
   { path: "/tools/finishes", priority: "0.8", changefreq: "monthly" },
   { path: "/tools/structure", priority: "0.8", changefreq: "monthly" },
   { path: "/tools/services", priority: "0.8", changefreq: "monthly" },

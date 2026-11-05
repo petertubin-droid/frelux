@@ -146,6 +146,7 @@ const VisualFinishingEstimator = lazy(
 );
 const StructuralCalculator = lazy(() => import("@/pages/StructuralCalculator"));
 const ConcreteTakeoffPage = lazy(() => import("@/pages/ConcreteTakeoffPage"));
+const FenceBlockCalculator = lazy(() => import("@/pages/FenceBlockCalculator"));
 const EarthworksEstimator = lazy(() => import("@/pages/EarthworksEstimator"));
 const RoofFramingEstimator = lazy(() => import("@/pages/RoofFramingEstimator"));
 const SmartCalculator = lazy(() => import("@/pages/SmartCalculator"));
@@ -1078,6 +1079,14 @@ export default function App() {
                           element={
                             <Suspense fallback={<PageLoader />}>
                               <StructuralCalculator />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/fence-block-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <FenceBlockCalculator />
                             </Suspense>
                           }
                         />

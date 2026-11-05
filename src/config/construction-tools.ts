@@ -163,6 +163,23 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
   },
   // ---------------------------------------------------------------- finishes
   {
+    slug: "fence-block",
+    title: "Fence Block Calculator",
+    category: "structure",
+    icon: BrickWall,
+    does: "Work out the blocks, cement and sand a perimeter fence needs from the plot size, the coaches high and the block size.",
+    enters:
+      "The plot or site size, how many coaches high the wall is, and whether you are building with a 9 inch or 6 inch block.",
+    gets: "Blocks with a breakage allowance, 50 kg bags of cement, and sharp sand in cubic metres, tipper trips, barrows and head pans.",
+    to: "/fence-block-calculator",
+    benefit: "Coaches · Trips · Blocks",
+    seoTitle:
+      "Fence Block Calculator: Coaches, Blocks, Cement and Sand | FRELUX",
+    seoDescription:
+      "Calculate blocks, cement bags and trips of sharp sand for a perimeter fence. Enter the plot size, the coaches high and the block size for a Nigeria aware quantity take off.",
+    navVisible: true,
+  },
+  {
     slug: "paint",
     title: "Paint Calculator",
     category: "finishes",
