@@ -15,6 +15,8 @@ import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { useMarket } from "@/lib/international/market-context";
 import { getCurrencySymbol } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
 
 const NIGERIAN_STATES = [
   "Lagos",
@@ -141,26 +143,24 @@ export default function PostListing() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/50 dark:bg-background">
-      <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/marketplace")}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
-        >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to
-          Marketplace
-        </Button>
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: tr("Marketplace"), path: "/marketplace" },
+          { label: tr("Post a Job") },
+        ]}
+        eyebrow={tr("Marketplace")}
+        title={tr("Post a Job")}
+        subtitle={tr(
+          "Describe your project and get bids from verified professionals.",
+        )}
+        backTo="/marketplace"
+        backLabel={tr("Marketplace")}
+      />
 
-        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          {tr("Post a Job")}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-          {tr(
-            "Describe your project and get bids from verified professionals.",
-          )}
-        </p>
-
+      <Container className="max-w-2xl pb-12 pt-6">
         {estimateRef && (
           <div className="mt-4 flex items-center gap-2 rounded-lg bg-primary/5 border border-brand-purple/20 p-3 text-sm text-brand-purple">
             <Info aria-hidden="true" className="h-4 w-4 shrink-0" />
@@ -406,7 +406,7 @@ export default function PostListing() {
             </Link>
           </div>
         )}
-      </div>
-    </div>
+      </Container>
+    </>
   );
 }

@@ -12,6 +12,8 @@ import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
 
 const STATUS_COLORS: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -79,26 +81,28 @@ export default function MyListings() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/50 dark:bg-background">
-      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-              {t("My Listings")}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-              {listings.length} {listings.length === 1 ? "listing" : "listings"}{" "}
-              total
-            </p>
-          </div>
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: t("Marketplace"), path: "/marketplace" },
+          { label: t("My Listings") },
+        ]}
+        eyebrow={t("Marketplace")}
+        title={t("My Listings")}
+        subtitle={`${listings.length} ${listings.length === 1 ? "listing" : "listings"} total`}
+        actions={
           <Link
             to="/marketplace/post/"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
             <Plus aria-hidden="true" className="h-4 w-4" /> {t("New Job")}
           </Link>
-        </div>
+        }
+      />
 
+      <Container className="max-w-4xl pb-12 pt-6">
         {listings.length === 0 ? (
           <div className="mt-8 flex flex-col items-center justify-center rounded-xl border border-border bg-card p-12 text-center dark:border-white/5 dark:bg-card">
             <p className="text-sm text-muted-foreground dark:text-muted-foreground">
@@ -205,7 +209,7 @@ export default function MyListings() {
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </Container>
+    </>
   );
 }

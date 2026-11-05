@@ -17,6 +17,8 @@ import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
 
 export default function MyProducts() {
   const { t } = useLanguage();
@@ -92,161 +94,167 @@ export default function MyProducts() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
-      {actionError && (
-        <div
-          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-          role="alert"
-        >
-          {actionError}
-        </div>
-      )}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-            {t("My Products")}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("Manage your product listings on the marketplace.")}
-          </p>
-        </div>
-        <Link
-          to="/marketplace/products/post/"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-        >
-          <Plus aria-hidden="true" className="h-4 w-4" /> {t("Sell Product")}
-        </Link>
-      </div>
-
-      {/* Filter tabs */}
-      <div className="mb-4 flex gap-1">
-        {(["all", "active", "paused", "sold"] as const).map((f) => (
-          <Button
-            variant="ghost"
-            key={f}
-            onClick={() => setFilter(f)}
-            className={classNames(
-              "rounded-lg px-3 py-2 text-sm font-medium capitalize",
-              filter === f
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
-            )}
-          >
-            {f} ({products.filter((p) => f === "all" || p.status === f).length})
-          </Button>
-        ))}
-      </div>
-
-      {filtered.length === 0 ? (
-        <div className="py-12 text-center">
-          <Store className="mx-auto h-10 w-10 text-muted-foreground/80" />
-          <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
-            {t("No products yet")}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("Start selling building materials and interior products.")}
-          </p>
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: t("Marketplace"), path: "/marketplace" },
+          { label: t("My Products") },
+        ]}
+        eyebrow={t("Marketplace")}
+        title={t("My Products")}
+        subtitle={t("Manage your product listings on the marketplace.")}
+        actions={
           <Link
             to="/marketplace/products/post/"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
-            <Plus aria-hidden="true" className="h-4 w-4" /> Post Your First
-            Product
+            <Plus aria-hidden="true" className="h-4 w-4" /> {t("Sell Product")}
           </Link>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map((product) => (
-            <div
-              key={product.id}
-              className="flex items-center gap-4 rounded-xl border border-border p-4 dark:border-white/10"
+        }
+      />
+
+      <Container className="max-w-5xl pb-12 pt-6">
+        {actionError && (
+          <div
+            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            role="alert"
+          >
+            {actionError}
+          </div>
+        )}
+        {/* Filter tabs */}
+        <div className="mb-4 flex gap-1">
+          {(["all", "active", "paused", "sold"] as const).map((f) => (
+            <Button
+              variant="ghost"
+              key={f}
+              onClick={() => setFilter(f)}
+              className={classNames(
+                "rounded-lg px-3 py-2 text-sm font-medium capitalize",
+                filter === f
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
+              )}
             >
-              {/* Image */}
-              <Link
-                to={`/marketplace/products/${product.id}/`}
-                className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted dark:bg-white/5"
-              >
-                {product.images.length > 0 ? (
-                  <img
-                    src={
-                      product.images[product.primary_image_idx] ||
-                      product.images[0]
-                    }
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-muted-foreground/80">
-                    <Store className="h-6 w-6" />
-                  </div>
-                )}
-              </Link>
-
-              {/* Info */}
-              <div className="min-w-0 flex-1">
-                <Link
-                  to={`/marketplace/products/${product.id}/`}
-                  className="truncate text-sm font-medium text-foreground dark:text-primary-foreground hover:text-brand-purple"
-                >
-                  {product.title}
-                </Link>
-                <p className="mt-0.5 text-sm font-bold text-brand-purple">
-                  {formatPrice(product.price, product.currency)}
-                </p>
-                <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                  <span
-                    className={classNames(
-                      "rounded-md px-1.5 py-0.5 font-medium",
-                      product.status === "active"
-                        ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"
-                        : product.status === "sold"
-                          ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10"
-                          : "bg-muted text-muted-foreground dark:bg-white/5",
-                    )}
-                  >
-                    {PRODUCT_STATUS_LABELS[product.status]}
-                  </span>
-                  <span>{PRODUCT_CONDITION_LABELS[product.condition]}</span>
-                  <span>· {product.view_count} views</span>
-                  <span>· {product.inquiry_count} inquiries</span>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  onClick={() => toggleStatus(product.id, product.status)}
-                  className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-brand-purple dark:hover:bg-white/5"
-                  title={product.status === "active" ? "Pause" : "Activate"}
-                >
-                  {product.status === "active" ? (
-                    <EyeOff aria-hidden="true" className="h-4 w-4" />
-                  ) : (
-                    <Eye aria-hidden="true" className="h-4 w-4" />
-                  )}
-                </Button>
-                <Link
-                  to={`/marketplace/products/${product.id}/`}
-                  className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-brand-purple dark:hover:bg-white/5"
-                  title={t("View")}
-                >
-                  <Eye aria-hidden="true" className="h-4 w-4" />
-                </Link>
-                <Button
-                  variant="ghost"
-                  onClick={() => handleDelete(product.id)}
-                  className="rounded p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"
-                  title={t("Delete")}
-                >
-                  <Trash2 aria-hidden="true" className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+              {f} (
+              {products.filter((p) => f === "all" || p.status === f).length})
+            </Button>
           ))}
         </div>
-      )}
-    </div>
+
+        {filtered.length === 0 ? (
+          <div className="py-12 text-center">
+            <Store className="mx-auto h-10 w-10 text-muted-foreground/80" />
+            <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
+              {t("No products yet")}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("Start selling building materials and interior products.")}
+            </p>
+            <Link
+              to="/marketplace/products/post/"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            >
+              <Plus aria-hidden="true" className="h-4 w-4" /> Post Your First
+              Product
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filtered.map((product) => (
+              <div
+                key={product.id}
+                className="flex items-center gap-4 rounded-xl border border-border p-4 dark:border-white/10"
+              >
+                {/* Image */}
+                <Link
+                  to={`/marketplace/products/${product.id}/`}
+                  className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted dark:bg-white/5"
+                >
+                  {product.images.length > 0 ? (
+                    <img
+                      src={
+                        product.images[product.primary_image_idx] ||
+                        product.images[0]
+                      }
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-muted-foreground/80">
+                      <Store className="h-6 w-6" />
+                    </div>
+                  )}
+                </Link>
+
+                {/* Info */}
+                <div className="min-w-0 flex-1">
+                  <Link
+                    to={`/marketplace/products/${product.id}/`}
+                    className="truncate text-sm font-medium text-foreground dark:text-primary-foreground hover:text-brand-purple"
+                  >
+                    {product.title}
+                  </Link>
+                  <p className="mt-0.5 text-sm font-bold text-brand-purple">
+                    {formatPrice(product.price, product.currency)}
+                  </p>
+                  <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                    <span
+                      className={classNames(
+                        "rounded-md px-1.5 py-0.5 font-medium",
+                        product.status === "active"
+                          ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"
+                          : product.status === "sold"
+                            ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10"
+                            : "bg-muted text-muted-foreground dark:bg-white/5",
+                      )}
+                    >
+                      {PRODUCT_STATUS_LABELS[product.status]}
+                    </span>
+                    <span>{PRODUCT_CONDITION_LABELS[product.condition]}</span>
+                    <span>· {product.view_count} views</span>
+                    <span>· {product.inquiry_count} inquiries</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    onClick={() => toggleStatus(product.id, product.status)}
+                    className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-brand-purple dark:hover:bg-white/5"
+                    title={product.status === "active" ? "Pause" : "Activate"}
+                  >
+                    {product.status === "active" ? (
+                      <EyeOff aria-hidden="true" className="h-4 w-4" />
+                    ) : (
+                      <Eye aria-hidden="true" className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Link
+                    to={`/marketplace/products/${product.id}/`}
+                    className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-brand-purple dark:hover:bg-white/5"
+                    title={t("View")}
+                  >
+                    <Eye aria-hidden="true" className="h-4 w-4" />
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleDelete(product.id)}
+                    className="rounded p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"
+                    title={t("Delete")}
+                  >
+                    <Trash2 aria-hidden="true" className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Container>
+    </>
   );
 }
 
