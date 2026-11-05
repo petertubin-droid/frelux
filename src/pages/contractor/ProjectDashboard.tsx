@@ -105,6 +105,8 @@ import { Button } from "@/components/ui/shadcn/button";
 import { WorkflowTab } from "./WorkflowTab";
 import { OperationsTab } from "./OperationsTab";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
 
 // ============================================================
 // CONSTANTS & HELPERS
@@ -1050,317 +1052,311 @@ export default function ProjectDashboard() {
 
   return (
     <>
-      <div className="min-h-screen bg-muted/50 pb-12">
-        {/* ── Header ── */}
-        <div className="sticky top-16 z-20 border-b border-border bg-background/90 backdrop-blur-md">
-          <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate(-1)}
-                  className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-card-foreground"
-                >
-                  <ArrowLeft aria-hidden="true" className="h-5 w-5" />
-                </Button>
-                <div>
-                  <h1 className="text-xl font-bold text-foreground sm:text-2xl">
-                    {project.name}
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    {prettify(project.project_type)} ·{" "}
-                    {prettify(project.status)} ·{" "}
-                    {prettify(project.finish_quality)}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  onClick={doRecalculate}
-                  disabled={actionLoading}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
-                >
-                  <TrendingUp aria-hidden="true" className="h-4 w-4" />{" "}
-                  Recalculate
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() =>
-                    createProjectVersion(id!, "Manual version snapshot")
-                  }
-                  disabled={actionLoading}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
-                >
-                  <Save aria-hidden="true" className="h-4 w-4" />{" "}
-                  {tr("Snapshot")}
-                </Button>
-              </div>
-            </div>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: tr("Projects"), path: "/contractor/projects/" },
+          { label: project.name },
+        ]}
+        eyebrow="FRELUX Contractor"
+        title={project.name}
+        subtitle={`${prettify(project.project_type)} · ${prettify(project.status)} · ${prettify(project.finish_quality)}`}
+        backTo="/contractor/projects/"
+        backLabel={tr("Projects")}
+        actions={
+          <>
+            <Button
+              variant="ghost"
+              onClick={doRecalculate}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
+            >
+              <TrendingUp aria-hidden="true" className="h-4 w-4" />{" "}
+              {tr("Recalculate")}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() =>
+                createProjectVersion(id!, "Manual version snapshot")
+              }
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
+            >
+              <Save aria-hidden="true" className="h-4 w-4" /> {tr("Snapshot")}
+            </Button>
+          </>
+        }
+      />
 
-            {/* Tab navigation */}
-            <nav className="mt-4 flex gap-1 overflow-x-auto pb-1">
-              {TABS.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.key;
-                return (
-                  <Button
-                    variant="ghost"
-                    key={tab.key}
-                    onClick={() => setActiveTab(tab.key)}
-                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                      isActive
-                        ? "bg-violet-600 text-primary-foreground"
-                        : "text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    <Icon aria-hidden="true" className="h-4 w-4" />
-                    {tab.label}
-                  </Button>
-                );
-              })}
-            </nav>
+      {/* ── Tabs ── */}
+      <div className="sticky top-16 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <Container className="max-w-7xl">
+          <nav
+            aria-label={tr("Project sections")}
+            className="flex gap-1 overflow-x-auto py-2"
+          >
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.key;
+              return (
+                <Button
+                  variant="ghost"
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  <Icon aria-hidden="true" className="h-4 w-4" />
+                  {tab.label}
+                </Button>
+              );
+            })}
+          </nav>
+        </Container>
+      </div>
+
+      {/* ── Error banner ── */}
+      {error && (
+        <div className="mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
+            <span className="flex-1">{error}</span>
+            <Button
+              variant="ghost"
+              onClick={() => setError(null)}
+              className="text-amber-600 hover:text-amber-800"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
         </div>
+      )}
 
-        {/* ── Error banner ── */}
-        {error && (
-          <div className="mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
-              <span className="flex-1">{error}</span>
-              <Button
-                variant="ghost"
-                onClick={() => setError(null)}
-                className="text-amber-600 hover:text-amber-800"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+      {/* ── Tab content ── */}
+      <div className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
+        {activeTab === "overview" && (
+          <OverviewTab
+            totalMaterialCost={totalMaterialCost}
+            totalLabourCost={totalLabourCost}
+            totalProjectCost={totalProjectCost}
+            estimatedDuration={estimatedDuration}
+            progress={progress}
+            roomCount={rooms.length}
+            labourCount={labourPlan.length}
+            shoppingItemCount={shoppingList.length}
+            quotationCount={quotations.length}
+            timelinePhaseCount={timeline.length}
+            completedPhases={completedPhases}
+            project={project}
+          />
         )}
 
-        {/* ── Tab content ── */}
-        <div className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
-          {activeTab === "overview" && (
-            <OverviewTab
-              totalMaterialCost={totalMaterialCost}
-              totalLabourCost={totalLabourCost}
-              totalProjectCost={totalProjectCost}
-              estimatedDuration={estimatedDuration}
-              progress={progress}
-              roomCount={rooms.length}
-              labourCount={labourPlan.length}
-              shoppingItemCount={shoppingList.length}
-              quotationCount={quotations.length}
-              timelinePhaseCount={timeline.length}
-              completedPhases={completedPhases}
-              project={project}
-            />
-          )}
+        {activeTab === "site" && <SiteTab projectId={project.id} />}
 
-          {activeTab === "site" && <SiteTab projectId={project.id} />}
+        {activeTab === "rooms" && (
+          <RoomsTab
+            rooms={rooms}
+            showRoomForm={showRoomForm}
+            roomForm={roomForm}
+            setRoomForm={setRoomForm}
+            editingRoomId={editingRoomId}
+            actionLoading={actionLoading}
+            onShowForm={() => {
+              setEditingRoomId(null);
+              setRoomForm(emptyRoomForm);
+              setShowRoomForm(true);
+            }}
+            onCancelForm={() => {
+              setShowRoomForm(false);
+              setEditingRoomId(null);
+              setRoomForm(emptyRoomForm);
+            }}
+            onSubmit={handleRoomSubmit}
+            onEdit={handleEditRoom}
+            onDelete={handleDeleteRoom}
+            currencySymbol={project.currency_symbol}
 
-          {activeTab === "rooms" && (
-            <RoomsTab
-              rooms={rooms}
-              showRoomForm={showRoomForm}
-              roomForm={roomForm}
-              setRoomForm={setRoomForm}
-              editingRoomId={editingRoomId}
-              actionLoading={actionLoading}
-              onShowForm={() => {
-                setEditingRoomId(null);
-                setRoomForm(emptyRoomForm);
-                setShowRoomForm(true);
-              }}
-              onCancelForm={() => {
-                setShowRoomForm(false);
-                setEditingRoomId(null);
-                setRoomForm(emptyRoomForm);
-              }}
-              onSubmit={handleRoomSubmit}
-              onEdit={handleEditRoom}
-              onDelete={handleDeleteRoom}
-              currencySymbol={project.currency_symbol}
+            currency={project.currency}
+          />
+        )}
 
-              currency={project.currency}
-            />
-          )}
+        {activeTab === "labour" && (
+          <LabourTab
+            labourPlan={labourPlan}
+            showLabourForm={showLabourForm}
+            labourForm={labourForm}
+            setLabourForm={setLabourForm}
+            editingLabourId={editingLabourId}
+            actionLoading={actionLoading}
+            onShowForm={() => {
+              setEditingLabourId(null);
+              setLabourForm(emptyLabourForm);
+              setShowLabourForm(true);
+            }}
+            onCancelForm={() => {
+              setShowLabourForm(false);
+              setEditingLabourId(null);
+              setLabourForm(emptyLabourForm);
+            }}
+            onSubmit={handleLabourSubmit}
+            onEdit={handleEditLabour}
+            onDelete={handleDeleteLabour}
+            currencySymbol={project.currency_symbol}
 
-          {activeTab === "labour" && (
-            <LabourTab
-              labourPlan={labourPlan}
-              showLabourForm={showLabourForm}
-              labourForm={labourForm}
-              setLabourForm={setLabourForm}
-              editingLabourId={editingLabourId}
-              actionLoading={actionLoading}
-              onShowForm={() => {
-                setEditingLabourId(null);
-                setLabourForm(emptyLabourForm);
-                setShowLabourForm(true);
-              }}
-              onCancelForm={() => {
-                setShowLabourForm(false);
-                setEditingLabourId(null);
-                setLabourForm(emptyLabourForm);
-              }}
-              onSubmit={handleLabourSubmit}
-              onEdit={handleEditLabour}
-              onDelete={handleDeleteLabour}
-              currencySymbol={project.currency_symbol}
+            currency={project.currency}
+          />
+        )}
 
-              currency={project.currency}
-            />
-          )}
+        {activeTab === "shopping" && (
+          <ShoppingTab
+            shoppingList={shoppingList}
+            shoppingTotal={shoppingTotal}
+            shoppingPurchased={shoppingPurchased}
+            actionLoading={actionLoading}
+            onGenerate={handleGenerateShoppingList}
+            onTogglePurchased={handleTogglePurchased}
+            onPrint={handlePrintShoppingList}
+            onDownloadPDF={handleDownloadShoppingPDF}
+            onShareWhatsApp={handleShareWhatsApp}
+            currencySymbol={project.currency_symbol}
 
-          {activeTab === "shopping" && (
-            <ShoppingTab
-              shoppingList={shoppingList}
-              shoppingTotal={shoppingTotal}
-              shoppingPurchased={shoppingPurchased}
-              actionLoading={actionLoading}
-              onGenerate={handleGenerateShoppingList}
-              onTogglePurchased={handleTogglePurchased}
-              onPrint={handlePrintShoppingList}
-              onDownloadPDF={handleDownloadShoppingPDF}
-              onShareWhatsApp={handleShareWhatsApp}
-              currencySymbol={project.currency_symbol}
+            currency={project.currency}
+          />
+        )}
 
-              currency={project.currency}
-            />
-          )}
-
-          {activeTab === "expenses" && (
-            <ExpensesTab
-              expenses={expenses}
-              variance={budgetVariance}
-              currency={project.currency}
-              showForm={showExpenseForm}
-              editingId={editingExpenseId}
-              form={expenseForm}
-              saving={expenseSaving}
-              actionLoading={actionLoading}
-              onFormChange={setExpenseForm}
-              onShowFormChange={(show) => {
-                setShowExpenseForm(show);
-                if (!show) {
-                  setExpenseForm(emptyExpenseForm);
-                  setEditingExpenseId(null);
-                }
-              }}
-              onSubmit={handleExpenseSubmit}
-              onEdit={handleEditExpense}
-              onDelete={handleDeleteExpense}
-              marketCode={
-                typeof (project as unknown as Record<string, unknown>)
-                  .country_code === "string"
-                  ? ((project as unknown as Record<string, unknown>)
-                      .country_code as string)
-                  : "KE"
+        {activeTab === "expenses" && (
+          <ExpensesTab
+            expenses={expenses}
+            variance={budgetVariance}
+            currency={project.currency}
+            showForm={showExpenseForm}
+            editingId={editingExpenseId}
+            form={expenseForm}
+            saving={expenseSaving}
+            actionLoading={actionLoading}
+            onFormChange={setExpenseForm}
+            onShowFormChange={(show) => {
+              setShowExpenseForm(show);
+              if (!show) {
+                setExpenseForm(emptyExpenseForm);
+                setEditingExpenseId(null);
               }
-              projectCity={
-                typeof (project as unknown as Record<string, unknown>)
-                  .location === "string"
-                  ? ((project as unknown as Record<string, unknown>)
-                      .location as string)
-                  : undefined
-              }
-              crowdsourceOptIn={crowdsourceOptIn}
-              onToggleCrowdsourceOptIn={setCrowdsourceOptIn}
-            />
-          )}
+            }}
+            onSubmit={handleExpenseSubmit}
+            onEdit={handleEditExpense}
+            onDelete={handleDeleteExpense}
+            marketCode={
+              typeof (project as unknown as Record<string, unknown>)
+                .country_code === "string"
+                ? ((project as unknown as Record<string, unknown>)
+                    .country_code as string)
+                : "KE"
+            }
+            projectCity={
+              typeof (project as unknown as Record<string, unknown>)
+                .location === "string"
+                ? ((project as unknown as Record<string, unknown>)
+                    .location as string)
+                : undefined
+            }
+            crowdsourceOptIn={crowdsourceOptIn}
+            onToggleCrowdsourceOptIn={setCrowdsourceOptIn}
+          />
+        )}
 
-          {activeTab === "workflows" && (
-            <WorkflowTab projectId={project.id} currency={project.currency} />
-          )}
+        {activeTab === "workflows" && (
+          <WorkflowTab projectId={project.id} currency={project.currency} />
+        )}
 
-          {activeTab === "quotation" && (
-            <QuotationTab
-              quotations={quotations}
-              quotMarkup={quotMarkup}
-              quotProfit={quotProfit}
-              quotTax={quotTax}
-              quotTransport={quotTransport}
-              quotMisc={quotMisc}
-              setQuotMarkup={setQuotMarkup}
-              setQuotProfit={setQuotProfit}
-              setQuotTax={setQuotTax}
-              setQuotTransport={setQuotTransport}
-              setQuotMisc={setQuotMisc}
-              actionLoading={actionLoading}
-              onGenerate={handleGenerateQuotation}
-              onDownloadPDF={handleDownloadQuotationPDF}
-              onSend={handleSendQuotation}
-              currencySymbol={project.currency_symbol}
+        {activeTab === "quotation" && (
+          <QuotationTab
+            quotations={quotations}
+            quotMarkup={quotMarkup}
+            quotProfit={quotProfit}
+            quotTax={quotTax}
+            quotTransport={quotTransport}
+            quotMisc={quotMisc}
+            setQuotMarkup={setQuotMarkup}
+            setQuotProfit={setQuotProfit}
+            setQuotTax={setQuotTax}
+            setQuotTransport={setQuotTransport}
+            setQuotMisc={setQuotMisc}
+            actionLoading={actionLoading}
+            onGenerate={handleGenerateQuotation}
+            onDownloadPDF={handleDownloadQuotationPDF}
+            onSend={handleSendQuotation}
+            currencySymbol={project.currency_symbol}
 
-              currency={project.currency}
-            />
-          )}
+            currency={project.currency}
+          />
+        )}
 
-          {activeTab === "timeline" && (
-            <TimelineTab
-              timeline={timeline}
-              maxTimelineDay={maxTimelineDay}
-              completedPhases={completedPhases}
-              actionLoading={actionLoading}
-              onGenerate={handleGenerateTimeline}
-              onMarkComplete={handleMarkPhaseComplete}
-            />
-          )}
+        {activeTab === "timeline" && (
+          <TimelineTab
+            timeline={timeline}
+            maxTimelineDay={maxTimelineDay}
+            completedPhases={completedPhases}
+            actionLoading={actionLoading}
+            onGenerate={handleGenerateTimeline}
+            onMarkComplete={handleMarkPhaseComplete}
+          />
+        )}
 
-          {activeTab === "operations" && (
-            <OperationsTab
-              project={project}
-              quotations={quotations}
-              timeline={timeline}
-              onNavigateTab={(tab) => setActiveTab(tab)}
-            />
-          )}
+        {activeTab === "operations" && (
+          <OperationsTab
+            project={project}
+            quotations={quotations}
+            timeline={timeline}
+            onNavigateTab={(tab) => setActiveTab(tab)}
+          />
+        )}
 
-          {activeTab === "notes" && (
-            <NotesTab
-              notes={notes}
-              setNotes={setNotes}
-              notesDirty={notesDirty}
-              setNotesDirty={setNotesDirty}
-              actionLoading={actionLoading}
-              onSave={handleSaveNotes}
-              attachments={attachments}
-              onFileChange={handleFileChange}
-              onDeleteAttachment={handleDeleteAttachment}
-            />
-          )}
-          {activeTab === "ai" && (
-            <AiProjectPanel
-              projectData={{
-                name: project.name,
-                project_type: project.project_type,
-                building_type: project.building_type,
-                finish_quality: project.finish_quality,
-                budget_level: project.budget_level,
-                status: project.status,
-                rooms: rooms.map((r) => ({
-                  name: r.name,
-                  calculation_type: r.calculation_type,
-                  surface_area:
-                    ((r.calculation_result as Record<string, unknown>)
-                      ?.totalArea as number) ?? 0,
-                  material_cost: r.material_cost ?? 0,
-                  labour_cost: r.labour_cost ?? 0,
-                  input_data: r.calculation_input,
-                })),
-                total_material_cost: project.total_material_cost,
-                total_labour_cost: project.total_labour_cost,
-                total_project_cost: project.total_project_cost,
-                currency: project.currency,
-                currency_symbol: project.currency_symbol,
-                notes: project.notes ?? undefined,
-              }}
-            />
-          )}
-        </div>
+        {activeTab === "notes" && (
+          <NotesTab
+            notes={notes}
+            setNotes={setNotes}
+            notesDirty={notesDirty}
+            setNotesDirty={setNotesDirty}
+            actionLoading={actionLoading}
+            onSave={handleSaveNotes}
+            attachments={attachments}
+            onFileChange={handleFileChange}
+            onDeleteAttachment={handleDeleteAttachment}
+          />
+        )}
+        {activeTab === "ai" && (
+          <AiProjectPanel
+            projectData={{
+              name: project.name,
+              project_type: project.project_type,
+              building_type: project.building_type,
+              finish_quality: project.finish_quality,
+              budget_level: project.budget_level,
+              status: project.status,
+              rooms: rooms.map((r) => ({
+                name: r.name,
+                calculation_type: r.calculation_type,
+                surface_area:
+                  ((r.calculation_result as Record<string, unknown>)
+                    ?.totalArea as number) ?? 0,
+                material_cost: r.material_cost ?? 0,
+                labour_cost: r.labour_cost ?? 0,
+                input_data: r.calculation_input,
+              })),
+              total_material_cost: project.total_material_cost,
+              total_labour_cost: project.total_labour_cost,
+              total_project_cost: project.total_project_cost,
+              currency: project.currency,
+              currency_symbol: project.currency_symbol,
+              notes: project.notes ?? undefined,
+            }}
+          />
+        )}
       </div>
       {pdfGateOpen && (
         <PremiumFeatureGate

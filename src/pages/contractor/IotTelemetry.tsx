@@ -49,6 +49,8 @@ import { useSeo } from "@/lib/seo";
 import { Loader2, Radio, Plus, ShieldCheck, X, Copy } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
 
 type FreshKey = { deviceId: string; apiKey: string } | null;
 
@@ -195,479 +197,488 @@ export default function IotTelemetry() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <div className="flex items-center gap-3">
-        <Radio className="size-7 text-primary" aria-hidden />
-        <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">
-            IoT &amp; Telematics
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Consent-gated, key-authenticated device ingestion with strict signal
-            validation.
-          </p>
-        </div>
-      </div>
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: tr("IoT & Telematics") },
+        ]}
+        eyebrow="FRELUX Contractor"
+        title={tr("IoT & Telematics")}
+        subtitle={tr(
+          "Consent gated, key authenticated device ingestion with strict signal validation.",
+        )}
+      />
 
-      {error && (
-        <div
-          role="alert"
-          className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-        >
-          {error}
-        </div>
-      )}
-
-      {freshKey && (
-        <div className="mt-6 rounded-2xl border border-primary/40 bg-primary/5 p-5">
-          <div className="flex items-center gap-2 font-semibold">
-            <ShieldCheck className="size-5 text-primary" aria-hidden />
-            Device API key — shown once, never stored in plaintext
+      <Container className="max-w-6xl pb-12 pt-8">
+        {error && (
+          <div
+            role="alert"
+            className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
+            {error}
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <code className="flex-1 overflow-x-auto rounded-lg bg-muted px-3 py-2 text-xs">
-              {freshKey.apiKey}
-            </code>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                void navigator.clipboard?.writeText(freshKey.apiKey)
-              }
-              aria-label={tr("Copy device API key")}
-            >
-              <Copy className="size-4" aria-hidden /> {tr("Copy")}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setFreshKey(null)}
-              aria-label={tr("Dismiss key")}
-            >
-              <X className="size-4" aria-hidden /> {tr("Done")}
-            </Button>
+        )}
+
+        {freshKey && (
+          <div className="mt-6 rounded-2xl border border-primary/40 bg-primary/5 p-5">
+            <div className="flex items-center gap-2 font-semibold">
+              <ShieldCheck className="size-5 text-primary" aria-hidden />
+              Device API key — shown once, never stored in plaintext
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <code className="flex-1 overflow-x-auto rounded-lg bg-muted px-3 py-2 text-xs">
+                {freshKey.apiKey}
+              </code>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  void navigator.clipboard?.writeText(freshKey.apiKey)
+                }
+                aria-label={tr("Copy device API key")}
+              >
+                <Copy className="size-4" aria-hidden /> {tr("Copy")}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setFreshKey(null)}
+                aria-label={tr("Dismiss key")}
+              >
+                <X className="size-4" aria-hidden /> {tr("Done")}
+              </Button>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              POST readings to the ingest endpoint as{" "}
+              <code>{`{ "device_id": "${freshKey.deviceId}", "api_key": "<key>", "readings": [{ "metric", "value", "unit", "recorded_at" }] }`}</code>
+              . The key is stored only as a SHA-256 hash; if you lose it,
+              register a replacement device.
+            </p>
           </div>
-          <p className="mt-3 text-xs text-muted-foreground">
-            POST readings to the ingest endpoint as{" "}
-            <code>{`{ "device_id": "${freshKey.deviceId}", "api_key": "<key>", "readings": [{ "metric", "value", "unit", "recorded_at" }] }`}</code>
-            . The key is stored only as a SHA-256 hash; if you lose it, register
-            a replacement device.
-          </p>
-        </div>
-      )}
+        )}
 
-      <section className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-sm">
-        <h2 className="text-lg font-bold">{tr("Verified provider catalog")}</h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {IOT_CONNECTOR_DISCLOSURE}
-        </p>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-          {IOT_PROVIDER_REGISTRY.map((p) => (
-            <li key={p.id} className="rounded-xl border border-border p-3">
-              <p className="text-sm font-semibold">
-                {p.name}
-                <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
-                  {p.deviceType.replace(/_/g, " ")}
-                </span>
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {p.capabilities}
-              </p>
-              <p className="mt-1 text-[10px] text-muted-foreground">
-                Verified {p.verifiedDate} from{" "}
-                <a
-                  className="underline"
-                  href={p.sourceUrl}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  {new URL(p.sourceUrl).hostname}
-                </a>
-              </p>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
-        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <h2 className="flex items-center gap-2 text-lg font-bold">
-            <Plus className="size-5 text-primary" aria-hidden />{" "}
-            {tr("Register device")}
+        <section className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h2 className="text-lg font-bold">
+            {tr("Verified provider catalog")}
           </h2>
-          <form className="mt-4 space-y-3" onSubmit={submit}>
-            <label className="grid gap-1 text-xs font-medium">
-              {tr("Device name")}
-              <input
-                className={inputClass}
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder={tr("Pour 12 — maturity sensor")}
-              />
-            </label>
-            <label className="grid gap-1 text-xs font-medium">
-              {tr("Device type")}
-              <select
-                className={inputClass}
-                value={form.device_type}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    device_type: e.target.value as DeviceType,
-                  })
-                }
-              >
-                {DEVICE_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {DEVICE_TYPE_LABELS[t]}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-1 text-xs font-medium">
-              {tr("Market")}
-              <select
-                className={inputClass}
-                value={form.market_code}
-                onChange={(e) =>
-                  setForm({ ...form, market_code: e.target.value })
-                }
-              >
-                {MARKET_CODES.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-1 text-xs font-medium">
-              {tr("Provider (optional)")}
-              <input
-                className={inputClass}
-                value={form.provider}
-                onChange={(e) => setForm({ ...form, provider: e.target.value })}
-                placeholder={tr("Sensor vendor / fleet operator")}
-              />
-            </label>
-            <label className="grid gap-1 text-xs font-medium">
-              {tr("Consent scope")}
-              <input
-                className={inputClass}
-                value={form.consent_scope}
-                onChange={(e) =>
-                  setForm({ ...form, consent_scope: e.target.value })
-                }
-                placeholder={tr(
-                  "What this device collects, e.g. in-place concrete temperature",
-                )}
-              />
-            </label>
-            <Button type="submit" disabled={busy} className="w-full">
-              {busy ? (
-                <Loader2 className="size-4 animate-spin" aria-hidden />
-              ) : (
-                "Register device"
-              )}
-            </Button>
-          </form>
-          <p className="mt-4 text-xs text-muted-foreground">
-            Registration records your explicit consent for the stated scope.
-            Devices without recorded consent are refused at ingestion, and
-            telemetry rows are written only by the validated ingest endpoint.
+          <p className="mt-1 text-xs text-muted-foreground">
+            {IOT_CONNECTOR_DISCLOSURE}
           </p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {IOT_PROVIDER_REGISTRY.map((p) => (
+              <li key={p.id} className="rounded-xl border border-border p-3">
+                <p className="text-sm font-semibold">
+                  {p.name}
+                  <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
+                    {p.deviceType.replace(/_/g, " ")}
+                  </span>
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {p.capabilities}
+                </p>
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  Verified {p.verifiedDate} from{" "}
+                  <a
+                    className="underline"
+                    href={p.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    {new URL(p.sourceUrl).hostname}
+                  </a>
+                </p>
+              </li>
+            ))}
+          </ul>
         </section>
 
-        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <h2 className="text-lg font-bold">{tr("Your devices")}</h2>
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <Loader2
-                className="size-6 animate-spin text-muted-foreground"
-                aria-hidden
-              />
-            </div>
-          ) : devices.length === 0 ? (
-            <p className="mt-4 text-sm text-muted-foreground">
-              No devices registered yet. Registered devices appear here with
-              their consent status and latest telemetry.
-            </p>
-          ) : (
-            <ul className="mt-4 space-y-3">
-              {devices.map((d) => (
-                <li
-                  key={d.id}
-                  className="rounded-xl border border-border p-4 transition-colors"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <p className="font-semibold">{d.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {DEVICE_TYPE_LABELS[d.device_type as DeviceType] ??
-                          d.device_type}
-                        {" · "}
-                        {d.market_code}
-                        {d.provider ? ` · ${d.provider}` : ""}
-                      </p>
-                    </div>
-                    <span
-                      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        d.status === "active"
-                          ? "bg-primary/10 text-primary"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {d.status}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {d.consent_granted_at ? (
-                      <>
-                        <ShieldCheck
-                          className="mr-1 inline size-3.5 text-primary"
-                          aria-hidden
-                        />
-                        Consent recorded
-                        {d.consent_scope ? `: ${d.consent_scope}` : ""}
-                      </>
-                    ) : (
-                      "No consent recorded — ingestion refused"
-                    )}
-                    {d.last_seen_at &&
-                      ` · last seen ${new Date(d.last_seen_at).toLocaleString()}`}
-                    {` · retention ${d.retention_days} days`}
-                  </p>
-                  {(() => {
-                    const rp = resolveProviderDisclosure(d.provider);
-                    return rp.provider ? (
-                      <p className="mt-2 rounded-lg bg-muted px-2 py-1 text-xs text-muted-foreground">
-                        {rp.disclosure}
-                      </p>
-                    ) : null;
-                  })()}
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => void loadTelemetry(d.id)}
-                    >
-                      {tr("View telemetry")}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={async () => {
-                        await setDeviceStatus(
-                          d.id,
-                          d.status === "active" ? "paused" : "active",
-                        );
-                        await refresh();
-                      }}
-                    >
-                      {d.status === "active" ? "Pause" : "Activate"}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="text-destructive"
-                      onClick={async () => {
-                        await deleteDevice(d.id);
-                        if (selectedDevice === d.id) {
-                          setSelectedDevice(null);
-                          setTelemetry([]);
-                        }
-                        await refresh();
-                      }}
-                    >
-                      {tr("Delete")}
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {selectedDevice && (
-            <div className="mt-6">
-              {(() => {
-                const device = devices.find((d) => d.id === selectedDevice);
-                const type = device?.device_type as DeviceType | undefined;
-                const safety = device
-                  ? evaluateSafetyAlerts({
-                      deviceType: type ?? "generic_telemetry",
-                      marketCode: device.market_code,
-                      telemetry,
-                      thresholds: safetyThresholds,
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+          <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <h2 className="flex items-center gap-2 text-lg font-bold">
+              <Plus className="size-5 text-primary" aria-hidden />{" "}
+              {tr("Register device")}
+            </h2>
+            <form className="mt-4 space-y-3" onSubmit={submit}>
+              <label className="grid gap-1 text-xs font-medium">
+                {tr("Device name")}
+                <input
+                  className={inputClass}
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder={tr("Pour 12 — maturity sensor")}
+                />
+              </label>
+              <label className="grid gap-1 text-xs font-medium">
+                {tr("Device type")}
+                <select
+                  className={inputClass}
+                  value={form.device_type}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      device_type: e.target.value as DeviceType,
                     })
-                  : [];
-                return safety.length > 0 ? (
-                  <div className="mb-5 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
-                    <h3 className="text-sm font-bold">{tr("Safety alerts")}</h3>
-                    {safety.map((v) =>
-                      v.verdict === "alert" &&
-                      v.alerts &&
-                      v.alerts.length > 0 ? (
-                        v.alerts.map((a) => (
-                          <p
-                            key={a.thresholdId}
-                            className="mt-2 text-sm font-semibold text-destructive"
-                          >
-                            {a.metric}: latest {a.latestValue} {a.thresholdUnit}{" "}
-                            at {new Date(a.latestAt).toLocaleString()} breaches
-                            the reviewed{" "}
-                            {a.direction === "above" ? "maximum" : "minimum"}{" "}
-                            {a.thresholdValue} {a.thresholdUnit} (worst{" "}
-                            {a.worstValue}, {a.breachCount} reading
-                            {a.breachCount > 1 ? "s" : ""}). Basis: {a.basis}.
-                            Reviewed by {a.reviewerName}
-                            {a.reviewedAt
-                              ? ` on ${new Date(a.reviewedAt).toLocaleDateString()}`
-                              : ""}
-                            .{a.disclosure}
-                          </p>
-                        ))
+                  }
+                >
+                  {DEVICE_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {DEVICE_TYPE_LABELS[t]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-1 text-xs font-medium">
+                {tr("Market")}
+                <select
+                  className={inputClass}
+                  value={form.market_code}
+                  onChange={(e) =>
+                    setForm({ ...form, market_code: e.target.value })
+                  }
+                >
+                  {MARKET_CODES.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-1 text-xs font-medium">
+                {tr("Provider (optional)")}
+                <input
+                  className={inputClass}
+                  value={form.provider}
+                  onChange={(e) =>
+                    setForm({ ...form, provider: e.target.value })
+                  }
+                  placeholder={tr("Sensor vendor / fleet operator")}
+                />
+              </label>
+              <label className="grid gap-1 text-xs font-medium">
+                {tr("Consent scope")}
+                <input
+                  className={inputClass}
+                  value={form.consent_scope}
+                  onChange={(e) =>
+                    setForm({ ...form, consent_scope: e.target.value })
+                  }
+                  placeholder={tr(
+                    "What this device collects, e.g. in-place concrete temperature",
+                  )}
+                />
+              </label>
+              <Button type="submit" disabled={busy} className="w-full">
+                {busy ? (
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                ) : (
+                  "Register device"
+                )}
+              </Button>
+            </form>
+            <p className="mt-4 text-xs text-muted-foreground">
+              Registration records your explicit consent for the stated scope.
+              Devices without recorded consent are refused at ingestion, and
+              telemetry rows are written only by the validated ingest endpoint.
+            </p>
+          </section>
+
+          <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <h2 className="text-lg font-bold">{tr("Your devices")}</h2>
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <Loader2
+                  className="size-6 animate-spin text-muted-foreground"
+                  aria-hidden
+                />
+              </div>
+            ) : devices.length === 0 ? (
+              <p className="mt-4 text-sm text-muted-foreground">
+                No devices registered yet. Registered devices appear here with
+                their consent status and latest telemetry.
+              </p>
+            ) : (
+              <ul className="mt-4 space-y-3">
+                {devices.map((d) => (
+                  <li
+                    key={d.id}
+                    className="rounded-xl border border-border p-4 transition-colors"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <p className="font-semibold">{d.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {DEVICE_TYPE_LABELS[d.device_type as DeviceType] ??
+                            d.device_type}
+                          {" · "}
+                          {d.market_code}
+                          {d.provider ? ` · ${d.provider}` : ""}
+                        </p>
+                      </div>
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          d.status === "active"
+                            ? "bg-primary/10 text-primary"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {d.status}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {d.consent_granted_at ? (
+                        <>
+                          <ShieldCheck
+                            className="mr-1 inline size-3.5 text-primary"
+                            aria-hidden
+                          />
+                          Consent recorded
+                          {d.consent_scope ? `: ${d.consent_scope}` : ""}
+                        </>
                       ) : (
-                        <p
-                          key={v.metric}
-                          className="mt-2 text-xs text-muted-foreground"
-                        >
-                          {v.metric}: {v.disclosure}
+                        "No consent recorded — ingestion refused"
+                      )}
+                      {d.last_seen_at &&
+                        ` · last seen ${new Date(d.last_seen_at).toLocaleString()}`}
+                      {` · retention ${d.retention_days} days`}
+                    </p>
+                    {(() => {
+                      const rp = resolveProviderDisclosure(d.provider);
+                      return rp.provider ? (
+                        <p className="mt-2 rounded-lg bg-muted px-2 py-1 text-xs text-muted-foreground">
+                          {rp.disclosure}
                         </p>
-                      ),
-                    )}
-                  </div>
-                ) : null;
-              })()}
-              {(() => {
-                const device = devices.find((d) => d.id === selectedDevice);
-                const type = device?.device_type as DeviceType | undefined;
-                const maturity =
-                  type === "concrete_maturity_sensor"
-                    ? computeNurseSaulMaturity(telemetry)
-                    : null;
-                const conditions =
-                  type === "weather_station"
-                    ? classifySiteConditions(telemetry)
-                    : null;
-                return (
-                  <div className="mb-5 rounded-xl border border-border bg-muted/40 p-4">
-                    <h3 className="text-sm font-bold">
-                      {tr("Derived project state")}
-                    </h3>
-                    {maturity?.status === "computed" ? (
-                      <>
-                        <p className="mt-2 text-sm">
-                          Nurse-Saul maturity index:{" "}
-                          <strong>
-                            {maturity.totalMaturityIndex.toFixed(0)} °C·h
-                          </strong>{" "}
-                          (≈ {maturity.equivalentAgeHours20C.toFixed(1)} h at 20
-                          °C, across {maturity.segments.length} segment
-                          {maturity.segments.length > 1 ? "s" : ""} from{" "}
-                          {maturity.readingCount} valid readings)
+                      ) : null;
+                    })()}
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void loadTelemetry(d.id)}
+                      >
+                        {tr("View telemetry")}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          await setDeviceStatus(
+                            d.id,
+                            d.status === "active" ? "paused" : "active",
+                          );
+                          await refresh();
+                        }}
+                      >
+                        {d.status === "active" ? "Pause" : "Activate"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive"
+                        onClick={async () => {
+                          await deleteDevice(d.id);
+                          if (selectedDevice === d.id) {
+                            setSelectedDevice(null);
+                            setTelemetry([]);
+                          }
+                          await refresh();
+                        }}
+                      >
+                        {tr("Delete")}
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {selectedDevice && (
+              <div className="mt-6">
+                {(() => {
+                  const device = devices.find((d) => d.id === selectedDevice);
+                  const type = device?.device_type as DeviceType | undefined;
+                  const safety = device
+                    ? evaluateSafetyAlerts({
+                        deviceType: type ?? "generic_telemetry",
+                        marketCode: device.market_code,
+                        telemetry,
+                        thresholds: safetyThresholds,
+                      })
+                    : [];
+                  return safety.length > 0 ? (
+                    <div className="mb-5 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
+                      <h3 className="text-sm font-bold">
+                        {tr("Safety alerts")}
+                      </h3>
+                      {safety.map((v) =>
+                        v.verdict === "alert" &&
+                        v.alerts &&
+                        v.alerts.length > 0 ? (
+                          v.alerts.map((a) => (
+                            <p
+                              key={a.thresholdId}
+                              className="mt-2 text-sm font-semibold text-destructive"
+                            >
+                              {a.metric}: latest {a.latestValue}{" "}
+                              {a.thresholdUnit} at{" "}
+                              {new Date(a.latestAt).toLocaleString()} breaches
+                              the reviewed{" "}
+                              {a.direction === "above" ? "maximum" : "minimum"}{" "}
+                              {a.thresholdValue} {a.thresholdUnit} (worst{" "}
+                              {a.worstValue}, {a.breachCount} reading
+                              {a.breachCount > 1 ? "s" : ""}). Basis: {a.basis}.
+                              Reviewed by {a.reviewerName}
+                              {a.reviewedAt
+                                ? ` on ${new Date(a.reviewedAt).toLocaleDateString()}`
+                                : ""}
+                              .{a.disclosure}
+                            </p>
+                          ))
+                        ) : (
+                          <p
+                            key={v.metric}
+                            className="mt-2 text-xs text-muted-foreground"
+                          >
+                            {v.metric}: {v.disclosure}
+                          </p>
+                        ),
+                      )}
+                    </div>
+                  ) : null;
+                })()}
+                {(() => {
+                  const device = devices.find((d) => d.id === selectedDevice);
+                  const type = device?.device_type as DeviceType | undefined;
+                  const maturity =
+                    type === "concrete_maturity_sensor"
+                      ? computeNurseSaulMaturity(telemetry)
+                      : null;
+                  const conditions =
+                    type === "weather_station"
+                      ? classifySiteConditions(telemetry)
+                      : null;
+                  return (
+                    <div className="mb-5 rounded-xl border border-border bg-muted/40 p-4">
+                      <h3 className="text-sm font-bold">
+                        {tr("Derived project state")}
+                      </h3>
+                      {maturity?.status === "computed" ? (
+                        <>
+                          <p className="mt-2 text-sm">
+                            Nurse-Saul maturity index:{" "}
+                            <strong>
+                              {maturity.totalMaturityIndex.toFixed(0)} °C·h
+                            </strong>{" "}
+                            (≈ {maturity.equivalentAgeHours20C.toFixed(1)} h at
+                            20 °C, across {maturity.segments.length} segment
+                            {maturity.segments.length > 1 ? "s" : ""} from{" "}
+                            {maturity.readingCount} valid readings)
+                          </p>
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            {maturity.disclosure}
+                          </p>
+                        </>
+                      ) : maturity?.status === "refused" ? (
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          {maturity.reason}
                         </p>
+                      ) : null}
+                      {conditions && (
+                        <>
+                          <p className="mt-2 text-sm">
+                            Site conditions: <strong>{conditions.label}</strong>
+                            {conditions.asOf &&
+                              ` as of ${new Date(conditions.asOf).toLocaleString()}`}
+                          </p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Basis: {conditions.basis} — {conditions.disclosure}
+                          </p>
+                        </>
+                      )}
+                      {type === "vibration_monitor" && (
                         <p className="mt-2 text-xs text-muted-foreground">
-                          {maturity.disclosure}
-                        </p>
-                      </>
-                    ) : maturity?.status === "refused" ? (
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {maturity.reason}
-                      </p>
-                    ) : null}
-                    {conditions && (
-                      <>
-                        <p className="mt-2 text-sm">
-                          Site conditions: <strong>{conditions.label}</strong>
-                          {conditions.asOf &&
-                            ` as of ${new Date(conditions.asOf).toLocaleString()}`}
-                        </p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Basis: {conditions.basis} — {conditions.disclosure}
-                        </p>
-                      </>
-                    )}
-                    {type === "vibration_monitor" && (
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        {VIBRATION_EVIDENCE_DISCLOSURE}
-                      </p>
-                    )}
-                    {!maturity &&
-                      !conditions &&
-                      type !== "vibration_monitor" && (
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          {tr(
-                            "No state mapping is derived for this device type yet.",
-                          )}
+                          {VIBRATION_EVIDENCE_DISCLOSURE}
                         </p>
                       )}
+                      {!maturity &&
+                        !conditions &&
+                        type !== "vibration_monitor" && (
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            {tr(
+                              "No state mapping is derived for this device type yet.",
+                            )}
+                          </p>
+                        )}
+                    </div>
+                  );
+                })()}
+                <h3 className="font-semibold">{tr("Telemetry")}</h3>
+                {telemetryLoading ? (
+                  <div className="flex justify-center py-6">
+                    <Loader2
+                      className="size-5 animate-spin text-muted-foreground"
+                      aria-hidden
+                    />
                   </div>
-                );
-              })()}
-              <h3 className="font-semibold">{tr("Telemetry")}</h3>
-              {telemetryLoading ? (
-                <div className="flex justify-center py-6">
-                  <Loader2
-                    className="size-5 animate-spin text-muted-foreground"
-                    aria-hidden
-                  />
-                </div>
-              ) : telemetry.length === 0 ? (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {tr("No validated readings stored for this device yet.")}
-                </p>
-              ) : (
-                <div className="mt-3 overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead className="text-muted-foreground">
-                      <tr>
-                        <th className="py-1.5 pr-4">{tr("Recorded")}</th>
-                        <th className="py-1.5 pr-4">{tr("Metric")}</th>
-                        <th className="py-1.5 pr-4">{tr("Value")}</th>
-                        <th className="py-1.5 pr-4">{tr("Quality")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {telemetry.slice(0, 50).map((t) => (
-                        <tr key={t.id} className="border-t border-border">
-                          <td className="py-1.5 pr-4">
-                            {new Date(t.recorded_at).toLocaleString()}
-                          </td>
-                          <td className="py-1.5 pr-4">{t.metric}</td>
-                          <td className="py-1.5 pr-4">
-                            {t.value} {t.unit}
-                          </td>
-                          <td className="py-1.5 pr-4">
-                            <span
-                              className={`rounded-full px-2 py-0.5 ${
-                                t.quality_flag === "valid"
-                                  ? "bg-primary/10 text-primary"
-                                  : "bg-destructive/10 text-destructive"
-                              }`}
-                              title={t.notes ?? undefined}
-                            >
-                              {t.quality_flag}
-                            </span>
-                          </td>
+                ) : telemetry.length === 0 ? (
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {tr("No validated readings stored for this device yet.")}
+                  </p>
+                ) : (
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="text-muted-foreground">
+                        <tr>
+                          <th className="py-1.5 pr-4">{tr("Recorded")}</th>
+                          <th className="py-1.5 pr-4">{tr("Metric")}</th>
+                          <th className="py-1.5 pr-4">{tr("Value")}</th>
+                          <th className="py-1.5 pr-4">{tr("Quality")}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  {telemetry.length > 50 && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      Showing the latest 50 of {telemetry.length} readings.
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-      </div>
-    </div>
+                      </thead>
+                      <tbody>
+                        {telemetry.slice(0, 50).map((t) => (
+                          <tr key={t.id} className="border-t border-border">
+                            <td className="py-1.5 pr-4">
+                              {new Date(t.recorded_at).toLocaleString()}
+                            </td>
+                            <td className="py-1.5 pr-4">{t.metric}</td>
+                            <td className="py-1.5 pr-4">
+                              {t.value} {t.unit}
+                            </td>
+                            <td className="py-1.5 pr-4">
+                              <span
+                                className={`rounded-full px-2 py-0.5 ${
+                                  t.quality_flag === "valid"
+                                    ? "bg-primary/10 text-primary"
+                                    : "bg-destructive/10 text-destructive"
+                                }`}
+                                title={t.notes ?? undefined}
+                              >
+                                {t.quality_flag}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {telemetry.length > 50 && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Showing the latest 50 of {telemetry.length} readings.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+        </div>
+      </Container>
+    </>
   );
 }

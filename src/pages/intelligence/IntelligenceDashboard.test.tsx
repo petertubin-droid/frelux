@@ -132,7 +132,12 @@ describe("construction intelligence dashboard", () => {
         <IntelligenceDashboard />
       </MemoryRouter>,
     );
-    expect(await screen.findByText("Homeowner workspace")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /Homeowner workspace/,
+      }),
+    ).toBeInTheDocument();
     expect(await screen.findByText("Lekki duplex")).toBeInTheDocument();
     expect(await screen.findByText(/Approved spend/i)).toBeInTheDocument();
   });
@@ -143,7 +148,10 @@ describe("construction intelligence dashboard", () => {
         <IntelligenceDashboard />
       </MemoryRouter>,
     );
-    await screen.findByText("Homeowner workspace");
+    await screen.findByRole("heading", {
+      level: 1,
+      name: /Homeowner workspace/,
+    });
     expect(
       screen.getByRole("link", { name: "Cost intelligence" }),
     ).toBeInTheDocument();
@@ -158,7 +166,10 @@ describe("construction intelligence dashboard", () => {
         <IntelligenceDashboard />
       </MemoryRouter>,
     );
-    await screen.findByText("Homeowner workspace");
+    await screen.findByRole("heading", {
+      level: 1,
+      name: /Homeowner workspace/,
+    });
     expect(
       screen.getByRole("button", { name: "Contractor" }),
     ).toBeInTheDocument();

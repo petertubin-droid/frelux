@@ -30,6 +30,8 @@ import { useSeo } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
 
 // ============================================================
 // Constants
@@ -269,29 +271,22 @@ export default function ContractorProjects() {
   // ============================================================
 
   return (
-    <div className="min-h-screen bg-muted/50">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* ---------- Header ---------- */}
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              {t("Projects")}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t("Manage your contractor estimation projects")}
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={() => navigate("/contractor/wizard/")}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-background px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-card-foreground/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          >
-            <Plus className="h-4 w-4" />
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[{ label: "Home", path: "/" }, { label: "Projects" }]}
+        eyebrow="FRELUX Contractor"
+        title={t("Projects")}
+        subtitle={t("Manage your contractor estimation projects")}
+        actions={
+          <Button type="button" onClick={() => navigate("/contractor/wizard/")}>
+            <Plus className="h-4 w-4" aria-hidden="true" />
             {t("New Project")}
           </Button>
-        </div>
+        }
+      />
 
+      <Container className="max-w-7xl pb-12 pt-6">
         {/* ---------- Error banner ---------- */}
         {error && (
           <div className="mb-6 flex items-start justify-between gap-4 rounded-lg border border-red-200 bg-red-50 p-4">
@@ -399,7 +394,7 @@ export default function ContractorProjects() {
             </div>
           </>
         )}
-      </div>
+      </Container>
 
       {/* Delete confirmation modal */}
       {confirmDeleteId && !busyId && (
@@ -438,7 +433,7 @@ export default function ContractorProjects() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
@@ -707,12 +702,7 @@ function EmptyState({ hasActiveFilters, onCreate, onReset }: EmptyStateProps) {
             {t("Clear filters")}
           </Button>
         ) : null}
-        <Button
-          variant="ghost"
-          type="button"
-          onClick={onCreate}
-          className="inline-flex items-center gap-2 rounded-lg bg-background px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-card-foreground/90"
-        >
+        <Button type="button" onClick={onCreate}>
           <Plus className="h-4 w-4" />
           {t("Create your first project")}
         </Button>
