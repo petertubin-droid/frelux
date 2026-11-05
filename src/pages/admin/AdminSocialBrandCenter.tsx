@@ -16,6 +16,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
+  KeyRound,
   Link2,
   Loader2,
   RefreshCw,
@@ -39,6 +40,14 @@ import {
   type SocialAnalysisRow,
 } from "@/lib/social/social-client";
 import {
+  CREDENTIAL_PLATFORMS,
+  listPlatformCredentials,
+  savePlatformCredentials,
+  removePlatformCredentials,
+  type CredentialPlatform,
+  type PlatformCredentialRow,
+} from "@/lib/social/platform-credentials";
+import {
   listSocialPlatforms,
   TOKEN_GOVERNANCE,
   type SocialPlatformDescriptor,
@@ -54,6 +63,76 @@ export default function AdminSocialBrandCenter() {
   const [permissionsFor, setPermissionsFor] = useState<SocialAccountRow | null>(
     null,
   );
+  const [credentials, setCredentials] = useState<
+    Record<string, PlatformCredentialRow>
+  >({});
+  const [credentialForm, setCredentialForm] = useState<{
+    platform: string;
+    clientId: string;
+    clientSecret: string;
+  } | null>(null);
+
+  const refreshCredentials = useCallback(async () => {
+    setCredentials(await listPlatformCredentials());
+  }, []);
+
+  useEffect(() => {
+    void refreshCredentials();
+  }, [refreshCredentials]);
+
+  const saveCredentials = async (p: CredentialPlatform) => {
+    if (!credentialForm || credentialForm.platform !== p.platform) return;
+    setBusy(`cred:${p.platform}`);
+    const res = await savePlatformCredentials({
+      platform: p.platform,
+      clientId: credentialForm.clientId,
+      clientSecret: credentialForm.clientSecret,
+      label: p.label,
+    });
+    setBusy(null);
+    if (!res.ok) {
+      toast.error("Credentials not saved", res.error ?? "Check the values.");
+      return;
+    }
+    setCredentialForm(null);
+    toast.success(
+      "Credentials saved",
+      `${p.label} can now start an authorization.`,
+    );
+    await refreshCredentials();
+  };
+
+  const dropCredentials = async (p: CredentialPlatform) => {
+    setBusy(`cred:${p.platform}`);
+    const res = await removePlatformCredentials(p.platform);
+    setBusy(null);
+    if (!res.ok) {
+      toast.error("Credentials not removed", res.error ?? "Try again.");
+      return;
+    }
+    toast.success(
+      "Credentials removed",
+      `${p.label} authorizations will now be refused.`,
+    );
+    await refreshCredentials();
+  };
+
+  const verifyCredentials = async (p: CredentialPlatform) => {
+    setBusy(`verify:${p.platform}`);
+    const res = await getSocialAuthorizeUrl(p.platform);
+    setBusy(null);
+    if (!res.ok) {
+      toast.error(
+        "Connector refused the authorization",
+        res.error ?? "The platform is not configured.",
+      );
+      return;
+    }
+    toast.success(
+      "Connector accepted the credentials",
+      `${p.label} authorization URL built.`,
+    );
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -154,6 +233,141 @@ export default function AdminSocialBrandCenter() {
         ARCHIE may access only the accounts you explicitly connect and authorize
         here.
       </div>
+
+      <section className="rounded-lg border border-input bg-card">
+        <div className="border-b border-input p-4">
+          <div className="flex items-center gap-2 font-medium text-foreground">
+            <KeyRound className="h-4 w-4" /> Platform credentials
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            The app credentials each platform issues. A platform without them
+            cannot start an authorization, so the connector refuses rather than
+            guessing. The secret is stored server side and never shown again.
+          </p>
+        </div>
+        <div className="divide-y divide-input">
+          {CREDENTIAL_PLATFORMS.map((p) => {
+            const row = credentials[p.platform];
+            const ready = row?.status === "active";
+            const editing = credentialForm?.platform === p.platform;
+            return (
+              <div key={p.platform} className="p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-medium text-foreground">
+                      {p.label}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {ready
+                        ? `Secret ending ${row?.keyLast4 ?? "----"}${
+                            row?.updatedAt
+                              ? `, updated ${new Date(row.updatedAt).toLocaleDateString()}`
+                              : ""
+                          }`
+                        : "No credentials saved"}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={
+                        ready
+                          ? "rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary"
+                          : "rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                      }
+                    >
+                      {ready ? "Configured" : "Not configured"}
+                    </span>
+                    <button
+                      onClick={() =>
+                        setCredentialForm(
+                          editing
+                            ? null
+                            : {
+                                platform: p.platform,
+                                clientId: "",
+                                clientSecret: "",
+                              },
+                        )
+                      }
+                      className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-sm"
+                    >
+                      {editing ? "Cancel" : ready ? "Replace keys" : "Add keys"}
+                    </button>
+                    {ready && (
+                      <button
+                        onClick={() => void dropCredentials(p)}
+                        disabled={busy === `cred:${p.platform}`}
+                        className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-sm disabled:opacity-60"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" /> Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {editing && credentialForm && (
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <label className="space-y-1 text-xs">
+                      <span className="text-muted-foreground">{p.idLabel}</span>
+                      <input
+                        value={credentialForm.clientId}
+                        onChange={(e) =>
+                          setCredentialForm({
+                            ...credentialForm,
+                            clientId: e.target.value,
+                          })
+                        }
+                        autoComplete="off"
+                        spellCheck={false}
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      />
+                    </label>
+                    <label className="space-y-1 text-xs">
+                      <span className="text-muted-foreground">
+                        {p.secretLabel}
+                      </span>
+                      <input
+                        type="password"
+                        value={credentialForm.clientSecret}
+                        onChange={(e) =>
+                          setCredentialForm({
+                            ...credentialForm,
+                            clientSecret: e.target.value,
+                          })
+                        }
+                        autoComplete="new-password"
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      />
+                    </label>
+                    <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
+                      <button
+                        onClick={() => void saveCredentials(p)}
+                        disabled={busy === `cred:${p.platform}`}
+                        className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-60"
+                      >
+                        {busy === `cred:${p.platform}` ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : null}
+                        Save keys
+                      </button>
+                      <button
+                        onClick={() => void verifyCredentials(p)}
+                        disabled={busy === `verify:${p.platform}`}
+                        className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-sm disabled:opacity-60"
+                      >
+                        Test connection
+                      </button>
+                      <span className="text-xs text-muted-foreground">
+                        {p.where}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {loading ? (
         <div className="flex items-center gap-2 text-muted-foreground">
