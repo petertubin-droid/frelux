@@ -43,6 +43,7 @@ import {
   CREDENTIAL_PLATFORMS,
   listPlatformCredentials,
   savePlatformCredentials,
+  connectorPlatformStatus,
   removePlatformCredentials,
   type CredentialPlatform,
   type PlatformCredentialRow,
@@ -71,9 +72,17 @@ export default function AdminSocialBrandCenter() {
     clientId: string;
     clientSecret: string;
   } | null>(null);
+  const [connector, setConnector] = useState<
+    Record<string, { configured: boolean; source: string }>
+  >({});
 
   const refreshCredentials = useCallback(async () => {
-    setCredentials(await listPlatformCredentials());
+    const [rows, status] = await Promise.all([
+      listPlatformCredentials(),
+      connectorPlatformStatus(),
+    ]);
+    setCredentials(rows);
+    setConnector(status);
   }, []);
 
   useEffect(() => {
@@ -248,7 +257,11 @@ export default function AdminSocialBrandCenter() {
         <div className="divide-y divide-input">
           {CREDENTIAL_PLATFORMS.map((p) => {
             const row = credentials[p.platform];
-            const ready = row?.status === "active";
+            const fromEnvironment =
+              connector[p.platform]?.source === "environment";
+            const ready =
+              row?.status === "active" ||
+              Boolean(connector[p.platform]?.configured);
             const editing = credentialForm?.platform === p.platform;
             return (
               <div key={p.platform} className="p-4">
@@ -259,11 +272,13 @@ export default function AdminSocialBrandCenter() {
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {ready
-                        ? `Secret ending ${row?.keyLast4 ?? "----"}${
-                            row?.updatedAt
-                              ? `, updated ${new Date(row.updatedAt).toLocaleDateString()}`
-                              : ""
-                          }`
+                        ? fromEnvironment
+                          ? "Keys are set as function secrets for this deployment"
+                          : `Secret ending ${row?.keyLast4 ?? "----"}${
+                              row?.updatedAt
+                                ? `, updated ${new Date(row.updatedAt).toLocaleDateString()}`
+                                : ""
+                            }`
                         : "No credentials saved"}
                     </div>
                   </div>

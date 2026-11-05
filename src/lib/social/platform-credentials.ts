@@ -126,3 +126,27 @@ export async function removePlatformCredentials(
   if (error) return { ok: false, error: error.message };
   return { ok: true };
 }
+
+/** Which platforms the connector can actually start an authorization for,
+ *  whether the keys came from function secrets or from this panel. */
+export async function connectorPlatformStatus(): Promise<
+  Record<string, { configured: boolean; source: string }>
+> {
+  const { data: session } = await supabase.auth.getSession();
+  const token = session?.session?.access_token ?? "";
+  if (!token) return {};
+  const base = import.meta.env.VITE_SUPABASE_URL;
+  if (!base) return {};
+  try {
+    const res = await fetch(`${base}/functions/v1/social-connect/status`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return {};
+    const body = (await res.json()) as {
+      platforms?: Record<string, { configured: boolean; source: string }>;
+    };
+    return body.platforms ?? {};
+  } catch {
+    return {};
+  }
+}

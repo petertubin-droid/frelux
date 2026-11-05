@@ -357,6 +357,24 @@ const handler = async (req: Request): Promise<Response> => {
   const user = userResult?.user;
   if (userError || !user) return json({ error: "Unauthorized" }, 401);
 
+  // ---- status ------------------------------------------------------
+  if (route === "status" && req.method === "GET") {
+    const resolved: Record<string, { configured: boolean; source: string }> =
+      {};
+    for (const platform of Object.keys(PLATFORMS)) {
+      const rowCreds = await resolveCredentials(platform);
+      const envId = Deno.env.get(`${platform.toUpperCase()}_CLIENT_ID`);
+      const envSecret = Deno.env.get(`${platform.toUpperCase()}_CLIENT_SECRET`);
+      resolved[platform] =
+        envId && envSecret
+          ? { configured: true, source: "environment" }
+          : rowCreds
+            ? { configured: true, source: "saved" }
+            : { configured: false, source: "none" };
+    }
+    return json({ platforms: resolved });
+  }
+
   // ---- authorize ---------------------------------------------------
   if (
     route === "authorize" &&
