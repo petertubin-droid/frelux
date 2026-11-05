@@ -4,7 +4,7 @@
 // Admin-session client for the Owner-only Social Intelligence
 // & Brand Center. Tokens NEVER pass through this file: they
 // live only in the server-side encrypted vault managed by the
-// archie-social-connect edge function. This client deals in
+// social-connect edge function. This client deals in
 // account METADATA and lifecycle actions only:
 //   CONNECT → VIEW PERMISSIONS → SYNC → DISCONNECT → REVOKE
 // =========================================================
@@ -54,7 +54,7 @@ async function authedFetch(
 ): Promise<{ ok: boolean; status: number; body: Record<string, unknown> }> {
   const { data: session } = await supabase.auth.getSession();
   const token = session?.session?.access_token ?? "";
-  const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/archie-social-connect/${path}`;
+  const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/social-connect/${path}`;
   const res = await fetch(url, {
     ...init,
     headers: {
@@ -78,7 +78,8 @@ export async function getSocialAuthorizeUrl(platform: string): Promise<{
     `authorize?platform=${encodeURIComponent(platform)}`,
     { method: "GET" },
   );
-  if (!res.ok) return { ok: false, error: String(res.body.error ?? `HTTP ${res.status}`) };
+  if (!res.ok)
+    return { ok: false, error: String(res.body.error ?? `HTTP ${res.status}`) };
   return { ok: true, authorize_url: String(res.body.authorize_url) };
 }
 
@@ -95,15 +96,18 @@ export async function completeSocialConnection(input: {
     method: "POST",
     body: JSON.stringify({
       ...input,
-      redirect_uri: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/archie-social-connect/callback`,
+      redirect_uri: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/social-connect/callback`,
     }),
   });
-  if (!res.ok) return { ok: false, error: String(res.body.error ?? `HTTP ${res.status}`) };
+  if (!res.ok)
+    return { ok: false, error: String(res.body.error ?? `HTTP ${res.status}`) };
   return { ok: true };
 }
 
 /** SYNC, refresh account status and last-sync timestamp. */
-export async function syncSocialAccount(id: string): Promise<{ ok: boolean; error?: string }> {
+export async function syncSocialAccount(
+  id: string,
+): Promise<{ ok: boolean; error?: string }> {
   const { error } = await supabase
     .from("frelux_social_accounts")
     .update({ status: "SYNCED", synced_at: new Date().toISOString() })
@@ -115,7 +119,9 @@ export async function syncSocialAccount(id: string): Promise<{ ok: boolean; erro
 /** DISCONNECT, connection is marked disconnected; the
  *  encrypted token stays vaulted until REVOKE ACCESS (or
  *  reconnection rotates it). */
-export async function disconnectSocialAccount(id: string): Promise<{ ok: boolean; error?: string }> {
+export async function disconnectSocialAccount(
+  id: string,
+): Promise<{ ok: boolean; error?: string }> {
   const { error } = await supabase
     .from("frelux_social_accounts")
     .update({ status: "DISCONNECTED" })
@@ -126,12 +132,15 @@ export async function disconnectSocialAccount(id: string): Promise<{ ok: boolean
 
 /** REVOKE ACCESS, destroys the server-side vault entry and
  *  disconnects the account. */
-export async function revokeSocialAccess(id: string): Promise<{ ok: boolean; error?: string }> {
+export async function revokeSocialAccess(
+  id: string,
+): Promise<{ ok: boolean; error?: string }> {
   const res = await authedFetch("revoke", {
     method: "POST",
     body: JSON.stringify({ account_id: id }),
   });
-  if (!res.ok) return { ok: false, error: String(res.body.error ?? `HTTP ${res.status}`) };
+  if (!res.ok)
+    return { ok: false, error: String(res.body.error ?? `HTTP ${res.status}`) };
   return { ok: true };
 }
 
@@ -154,15 +163,13 @@ export async function saveSocialAnalysis(input: {
   archie_recommendations: string[];
   archie_assumptions: string[];
 }): Promise<{ ok: boolean; error?: string }> {
-  const { error } = await supabase
-    .from("frelux_social_analyses")
-    .insert({
-      account_id: input.account_id,
-      platform: input.platform,
-      observed_platform_data: input.observed_platform_data,
-      archie_recommendations: input.archie_recommendations,
-      archie_assumptions: input.archie_assumptions,
-    });
+  const { error } = await supabase.from("frelux_social_analyses").insert({
+    account_id: input.account_id,
+    platform: input.platform,
+    observed_platform_data: input.observed_platform_data,
+    archie_recommendations: input.archie_recommendations,
+    archie_assumptions: input.archie_assumptions,
+  });
   if (error) return { ok: false, error: error.message };
   return { ok: true };
 }

@@ -69,3 +69,6 @@ verify_jwt = true
 
 [functions.product-updates-digest]
 verify_jwt = false
+
+[functions.social-connect]
+verify_jwt = true

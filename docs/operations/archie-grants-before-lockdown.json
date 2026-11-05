@@ -1,0 +1,501 @@
+{
+  "captured_at": "2026-11-05",
+  "project": "nfgaaohweygwydoelxnf",
+  "grants": [
+    {
+      "table_name": "archie_calculation_traces",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_calculation_traces",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_change_audit",
+      "grantee": "authenticated",
+      "privs": "INSERT,SELECT"
+    },
+    {
+      "table_name": "archie_change_requests",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_claim_evidence",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "archie_claim_relations",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "archie_claims",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "archie_code_findings",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_code_findings",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_constitution",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_constitution",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_engine_states",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "archie_evidence_conflicts",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "archie_evidence_records",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "archie_evolution_memory",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_evolution_settings",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_global_authorizations",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_global_authorizations",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_global_market_observations",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_global_market_observations",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_governance_rules",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "archie_inspection_reports",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_inspection_reports",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_installations",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_language_entries",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_language_evidence",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_language_profiles",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_legal_documents",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "archie_memory_rights_requests",
+      "grantee": "authenticated",
+      "privs": "INSERT,SELECT"
+    },
+    {
+      "table_name": "archie_migration_history",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_offensive_engagements",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_offensive_engagements",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_offensive_findings",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_offensive_findings",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_offensive_targets",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_offensive_targets",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_patch_proposals",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_patch_proposals",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_privacy_consents",
+      "grantee": "authenticated",
+      "privs": "INSERT,SELECT"
+    },
+    {
+      "table_name": "archie_scheduler_runs",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_scheduler_state",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_scheduler_tokens",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_subsystem_status",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_subsystem_status",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_subsystems",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "archie_subsystems",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_agent_events",
+      "grantee": "anon",
+      "privs": "INSERT,SELECT"
+    },
+    {
+      "table_name": "frelux_archie_agent_events",
+      "grantee": "authenticated",
+      "privs": "INSERT,SELECT"
+    },
+    {
+      "table_name": "frelux_archie_agent_reports",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "frelux_archie_audit_events",
+      "grantee": "authenticated",
+      "privs": "INSERT,SELECT"
+    },
+    {
+      "table_name": "frelux_archie_change_requests",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_connection_events",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_connections",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_contradictions",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_contributions",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_contributors",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_conversations",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_conversations",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_core_principles",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_crypto_analysis",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_crypto_analysis",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_crypto_assets",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_crypto_assets",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_crypto_observations",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_crypto_observations",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_crypto_portfolio",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_crypto_portfolio",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_device_accounts",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_device_data_consents",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_device_health",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_devices",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_domain_gaps",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_domains",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_execution_runs",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "frelux_archie_execution_targets",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_infrastructure_snapshots",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "frelux_archie_ingestions",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_internal_agents",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_internal_agents",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_invitations",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_knowledge_history",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "frelux_archie_knowledge_links",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_languages",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_market_observations",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_messages",
+      "grantee": "anon",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_messages",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_mobile_consents",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_mobile_learnings",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_paid_capabilities",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_people",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_recovery_events",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "frelux_archie_recovery_jobs",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "frelux_archie_shares",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_speaker_profile",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_terminology",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_trading_positions",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "frelux_archie_trading_state",
+      "grantee": "authenticated",
+      "privs": "SELECT"
+    },
+    {
+      "table_name": "frelux_archie_trusted_devices",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    },
+    {
+      "table_name": "frelux_archie_voice_samples",
+      "grantee": "authenticated",
+      "privs": "DELETE,INSERT,SELECT,UPDATE"
+    }
+  ]
+}

@@ -108,7 +108,7 @@ describe("OAuth connect flows: the owner authorizes on the platform itself", () 
       authorize_url: "https://platform.example/oauth",
     });
     const [url] = fetchMock.mock.calls[0];
-    expect(String(url)).toContain("archie-social-connect/authorize?platform=x");
+    expect(String(url)).toContain("social-connect/authorize?platform=x");
     const init = fetchMock.mock.calls[0][1];
     expect(init.headers.Authorization).toBe("Bearer tok");
   });
@@ -135,7 +135,7 @@ describe("OAuth connect flows: the owner authorizes on the platform itself", () 
     expect(r.ok).toBe(true);
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(body.redirect_uri).toContain(
-      "/functions/v1/archie-social-connect/callback",
+      "/functions/v1/social-connect/callback",
     );
   });
 });
@@ -167,7 +167,7 @@ describe("sync / disconnect / revoke", () => {
     const r = await revokeSocialAccess("a1");
     expect(r.ok).toBe(true);
     const [url] = fetchMock.mock.calls[0];
-    expect(String(url)).toContain("archie-social-connect/revoke");
+    expect(String(url)).toContain("social-connect/revoke");
   });
 });
 

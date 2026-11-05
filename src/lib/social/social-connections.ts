@@ -10,7 +10,7 @@
 //
 // FRELUX never stores platform passwords, only the OAuth
 // authorization tokens the platform issues, held server-side
-// in an encrypted token vault (see the archie-social-connect
+// in an encrypted token vault (see the social-connect
 // edge function and frelux_social_tokens, service-role
 // only, encrypted at rest, rotatable, revocable).
 //
@@ -51,7 +51,10 @@ const BASE_PLATFORMS: SocialPlatformDescriptor[] = [
     label: "Google (Sign-In)",
     auth_mechanism: "oauth2",
     oauth_authorize_url: "https://accounts.google.com/o/oauth2/v2/auth",
-    requires_owner_app_credentials: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"],
+    requires_owner_app_credentials: [
+      "GOOGLE_CLIENT_ID",
+      "GOOGLE_CLIENT_SECRET",
+    ],
     note: "Owner may authenticate through Google where Google Sign-In is supported.",
   },
   {
@@ -59,7 +62,10 @@ const BASE_PLATFORMS: SocialPlatformDescriptor[] = [
     label: "YouTube",
     auth_mechanism: "oauth2",
     oauth_authorize_url: "https://accounts.google.com/o/oauth2/v2/auth",
-    requires_owner_app_credentials: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"],
+    requires_owner_app_credentials: [
+      "GOOGLE_CLIENT_ID",
+      "GOOGLE_CLIENT_SECRET",
+    ],
     note: "YouTube Data API via Google OAuth.",
   },
   {
@@ -75,7 +81,10 @@ const BASE_PLATFORMS: SocialPlatformDescriptor[] = [
     label: "Instagram",
     auth_mechanism: "oauth2",
     oauth_authorize_url: "https://www.facebook.com/v19.0/dialog/oauth",
-    requires_owner_app_credentials: ["INSTAGRAM_APP_ID", "INSTAGRAM_APP_SECRET"],
+    requires_owner_app_credentials: [
+      "INSTAGRAM_APP_ID",
+      "INSTAGRAM_APP_SECRET",
+    ],
     note: "Instagram Graph API (Business/Creator accounts) via official OAuth.",
   },
   {
@@ -91,7 +100,10 @@ const BASE_PLATFORMS: SocialPlatformDescriptor[] = [
     label: "TikTok",
     auth_mechanism: "oauth2",
     oauth_authorize_url: "https://www.tiktok.com/v2/auth/authorize/",
-    requires_owner_app_credentials: ["TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET"],
+    requires_owner_app_credentials: [
+      "TIKTOK_CLIENT_KEY",
+      "TIKTOK_CLIENT_SECRET",
+    ],
     note: "Official TikTok Login Kit / Business API.",
   },
   {
@@ -107,7 +119,10 @@ const BASE_PLATFORMS: SocialPlatformDescriptor[] = [
     label: "LinkedIn",
     auth_mechanism: "oauth2",
     oauth_authorize_url: "https://www.linkedin.com/oauth/v2/authorization",
-    requires_owner_app_credentials: ["LINKEDIN_CLIENT_ID", "LINKEDIN_CLIENT_SECRET"],
+    requires_owner_app_credentials: [
+      "LINKEDIN_CLIENT_ID",
+      "LINKEDIN_CLIENT_SECRET",
+    ],
     note: "Official LinkedIn OAuth 2.0.",
   },
 ];
@@ -116,21 +131,33 @@ const BASE_PLATFORMS: SocialPlatformDescriptor[] = [
  *  platforms as FRELUX expands. */
 const registered: SocialPlatformDescriptor[] = [...BASE_PLATFORMS];
 
-export function registerSocialPlatform(
-  descriptor: SocialPlatformDescriptor,
-): { ok: boolean; error?: string } {
+export function registerSocialPlatform(descriptor: SocialPlatformDescriptor): {
+  ok: boolean;
+  error?: string;
+} {
   if (!descriptor.platform.toString().trim()) {
     return { ok: false, error: "A platform requires a name" };
   }
-  if (descriptor.auth_mechanism === "oauth2" && !descriptor.oauth_authorize_url.trim()) {
-    return { ok: false, error: "An OAuth platform requires its official authorize endpoint" };
+  if (
+    descriptor.auth_mechanism === "oauth2" &&
+    !descriptor.oauth_authorize_url.trim()
+  ) {
+    return {
+      ok: false,
+      error: "An OAuth platform requires its official authorize endpoint",
+    };
   }
   if (
     registered.some(
-      (p) => p.platform.toString().toLowerCase() === descriptor.platform.toString().toLowerCase(),
+      (p) =>
+        p.platform.toString().toLowerCase() ===
+        descriptor.platform.toString().toLowerCase(),
     )
   ) {
-    return { ok: false, error: `Platform "${descriptor.platform}" is already registered` };
+    return {
+      ok: false,
+      error: `Platform "${descriptor.platform}" is already registered`,
+    };
   }
   registered.push(descriptor);
   return { ok: true };
@@ -149,17 +176,10 @@ export function isPasswordConnectionAllowed(): false {
 // Connection lifecycle
 // ---------------------------------------------------------
 export type ConnectionStatus =
-  | "DISCONNECTED"
-  | "CONNECT_PENDING"
-  | "CONNECTED"
-  | "SYNCED";
+  "DISCONNECTED" | "CONNECT_PENDING" | "CONNECTED" | "SYNCED";
 
 export type ConnectionAction =
-  | "CONNECT"
-  | "VIEW PERMISSIONS"
-  | "SYNC"
-  | "DISCONNECT"
-  | "REVOKE ACCESS";
+  "CONNECT" | "VIEW PERMISSIONS" | "SYNC" | "DISCONNECT" | "REVOKE ACCESS";
 
 export const CONNECTION_ACTIONS: readonly ConnectionAction[] = [
   "CONNECT",
@@ -176,17 +196,27 @@ export function transitionConnection(
 ): { ok: boolean; error?: string; next?: ConnectionStatus } {
   switch (action) {
     case "CONNECT":
-      if (status === "DISCONNECTED") return { ok: true, next: "CONNECT_PENDING" };
+      if (status === "DISCONNECTED")
+        return { ok: true, next: "CONNECT_PENDING" };
       return { ok: false, error: "Already connected, disconnect first" };
     case "VIEW PERMISSIONS":
-      if (status === "CONNECTED" || status === "SYNCED") return { ok: true, next: status };
-      return { ok: false, error: "Connect the account before viewing permissions" };
+      if (status === "CONNECTED" || status === "SYNCED")
+        return { ok: true, next: status };
+      return {
+        ok: false,
+        error: "Connect the account before viewing permissions",
+      };
     case "SYNC":
-      if (status === "CONNECTED" || status === "SYNCED") return { ok: true, next: "SYNCED" };
+      if (status === "CONNECTED" || status === "SYNCED")
+        return { ok: true, next: "SYNCED" };
       return { ok: false, error: "Connect the account before syncing" };
     case "DISCONNECT":
     case "REVOKE ACCESS":
-      if (status === "CONNECTED" || status === "SYNCED" || status === "CONNECT_PENDING") {
+      if (
+        status === "CONNECTED" ||
+        status === "SYNCED" ||
+        status === "CONNECT_PENDING"
+      ) {
         // REVOKE ACCESS also destroys the server-side token vault entry.
         return { ok: true, next: "DISCONNECTED" };
       }
@@ -209,9 +239,10 @@ export interface ConnectedSocialAccount {
  *  Owner explicitly connected and authorized. Everything
  *  else, subscriber accounts, employee/private accounts,
  *  third-party accounts, unconnected accounts, is refused. */
-export function mayArchieAccessAccount(
-  account: ConnectedSocialAccount,
-): { ok: boolean; error?: string } {
+export function mayArchieAccessAccount(account: ConnectedSocialAccount): {
+  ok: boolean;
+  error?: string;
+} {
   if (account.connection_kind !== "OWNER_BRAND_ACCOUNT") {
     return {
       ok: false,
