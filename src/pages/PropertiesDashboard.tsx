@@ -13,6 +13,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import {
   listProperties,
   createProperty,
@@ -307,121 +309,123 @@ export default function PropertiesDashboard() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
-      {/* ---------- Header ---------- */}
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            FRELUX Intelligence
-          </p>
-          <h1 className="mt-1 font-heading text-2xl font-bold sm:text-3xl">
-            Property Portfolio
-          </h1>
-          <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Property profiles, risk flags and data confidence. Facts are never
-            mixed with estimates.
-          </p>
-        </div>
-        <Button onClick={openCreate} className="shadow-premium">
-          <Plus className="h-4 w-4" aria-hidden />
-          Add property
-        </Button>
-      </header>
-
-      {/* ---------- Stat row ---------- */}
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <StatTile
-          label="Properties"
-          value={state.properties.length.toLocaleString()}
-          hint="Saved profiles"
-          icon={Building2}
-        />
-        <StatTile
-          label="Critical flags"
-          value={totalCritical.toLocaleString()}
-          hint="Need your attention"
-          icon={AlertTriangle}
-          emphasize={totalCritical > 0}
-        />
-        <StatTile
-          label="Data sources"
-          value={new Set(
-            state.properties.flatMap((p) => [
-              p.provenance?.source ?? "User input",
-            ]),
-          ).size.toLocaleString()}
-          hint="Distinct provenance"
-          icon={ShieldCheck}
-        />
-      </div>
-
-      {actionError && (
-        <p
-          role="alert"
-          className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
-        >
-          {actionError}
-        </p>
-      )}
-
-      {/* ---------- List / empty ---------- */}
-      {state.properties.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-border/40 bg-card p-8 text-center shadow-premium sm:p-12">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
-            <Building2 className="h-6 w-6 text-muted-foreground" aria-hidden />
-          </div>
-          <h2 className="mt-5 font-heading text-lg font-semibold">
-            No properties yet
-          </h2>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-            Add a property to record its location, building information and
-            documents. FRELUX analyses what you provide and clearly marks
-            anything missing, nothing is assumed.
-          </p>
-          <Button className="mt-6" onClick={openCreate}>
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Property Portfolio" },
+        ]}
+        eyebrow="FRELUX Intelligence"
+        title="Property Portfolio"
+        subtitle="Property profiles, risk flags and data confidence. Facts are never mixed with estimates."
+        actions={
+          <Button onClick={openCreate}>
             <Plus className="h-4 w-4" aria-hidden />
-            Add your first property
+            Add property
           </Button>
-        </div>
-      ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {state.properties.map((p) => (
-            <PropertyCard
-              key={p.id}
-              profile={p}
-              active={selected?.id === p.id}
-              onSelect={() => setSelectedId(p.id)}
-            />
-          ))}
-        </div>
-      )}
+        }
+      />
 
-      {selected && (
-        <PropertyDetail
-          profile={selected}
-          onEdit={() => {
-            setEditing(selected);
-            setEditorOpen(true);
-          }}
-          onDelete={() => handleDelete(selected.id)}
-        />
-      )}
+      <Container className="max-w-6xl pb-12 pt-8">
+        {/* ---------- Stat row ---------- */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <StatTile
+            label="Properties"
+            value={state.properties.length.toLocaleString()}
+            hint="Saved profiles"
+            icon={Building2}
+          />
+          <StatTile
+            label="Critical flags"
+            value={totalCritical.toLocaleString()}
+            hint="Need your attention"
+            icon={AlertTriangle}
+            emphasize={totalCritical > 0}
+          />
+          <StatTile
+            label="Data sources"
+            value={new Set(
+              state.properties.flatMap((p) => [
+                p.provenance?.source ?? "User input",
+              ]),
+            ).size.toLocaleString()}
+            hint="Distinct provenance"
+            icon={ShieldCheck}
+          />
+        </div>
 
-      {editorOpen && (
-        <PropertyEditor
-          initial={editing}
-          onClose={() => setEditorOpen(false)}
-          onSave={async (input) => {
-            if (editing) {
-              return handleSaved(
-                await updateProperty(state.userId!, editing.id, input),
-              );
-            }
-            return handleSaved(await createProperty(state.userId!, input));
-          }}
-        />
-      )}
-    </div>
+        {actionError && (
+          <p
+            role="alert"
+            className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+          >
+            {actionError}
+          </p>
+        )}
+
+        {/* ---------- List / empty ---------- */}
+        {state.properties.length === 0 ? (
+          <div className="mt-6 rounded-2xl border border-border/40 bg-card p-8 text-center shadow-premium sm:p-12">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
+              <Building2
+                className="h-6 w-6 text-muted-foreground"
+                aria-hidden
+              />
+            </div>
+            <h2 className="mt-5 font-heading text-lg font-semibold">
+              No properties yet
+            </h2>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+              Add a property to record its location, building information and
+              documents. FRELUX analyses what you provide and clearly marks
+              anything missing, nothing is assumed.
+            </p>
+            <Button className="mt-6" onClick={openCreate}>
+              <Plus className="h-4 w-4" aria-hidden />
+              Add your first property
+            </Button>
+          </div>
+        ) : (
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {state.properties.map((p) => (
+              <PropertyCard
+                key={p.id}
+                profile={p}
+                active={selected?.id === p.id}
+                onSelect={() => setSelectedId(p.id)}
+              />
+            ))}
+          </div>
+        )}
+
+        {selected && (
+          <PropertyDetail
+            profile={selected}
+            onEdit={() => {
+              setEditing(selected);
+              setEditorOpen(true);
+            }}
+            onDelete={() => handleDelete(selected.id)}
+          />
+        )}
+
+        {editorOpen && (
+          <PropertyEditor
+            initial={editing}
+            onClose={() => setEditorOpen(false)}
+            onSave={async (input) => {
+              if (editing) {
+                return handleSaved(
+                  await updateProperty(state.userId!, editing.id, input),
+                );
+              }
+              return handleSaved(await createProperty(state.userId!, input));
+            }}
+          />
+        )}
+      </Container>
+    </>
   );
 }
 

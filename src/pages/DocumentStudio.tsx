@@ -24,7 +24,8 @@ import {
 import { fetchUserProjects } from "@/lib/queries";
 import type { DbUserProject } from "@/types/database";
 import { convertSavedProjectToDocument } from "@/lib/document-studio";
-import HeroTitle from "@/components/ui/HeroTitle";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/shadcn/button";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
@@ -475,864 +476,899 @@ export default function DocumentStudio() {
   };
 
   return (
-    <main className="container mx-auto max-w-7xl px-4 py-8">
-      <HeroTitle title={t("Document Studio")} />
-      <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-        <div>
-          PDF export uses the signed-in account's server-side monthly allowance.
-          Directly import line items and estimates from your saved project
-          records or calculator runs. No taxes, measurements, or market prices
-          are inferred.
-        </div>
-        {user && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleOpenProjectModal}
-            className="shrink-0 gap-2 border-primary/50 text-foreground hover:bg-primary/10"
-          >
-            <FolderOpen className="h-4 w-4 text-primary" />
-            {t("Import from Project")}
-          </Button>
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: t("Home"), path: "/" },
+          { label: t("Document Studio") },
+        ]}
+        eyebrow={t("Documents")}
+        title={t("Document Studio")}
+        subtitle={t(
+          "Build quotes, invoices and schedules from your saved projects and calculator runs, then export a branded PDF.",
         )}
-      </div>
-      <div className="grid gap-6 lg:grid-cols-[290px_minmax(0,1fr)]">
-        <aside className="space-y-4 rounded-xl border border-border bg-card p-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold">{t("My templates")}</h2>
-            <Button variant="outline" size="sm" onClick={reset}>
-              <FilePlus2 className="mr-2 h-4 w-4" />
-              {t("New")}
-            </Button>
+      />
+
+      <Container className="max-w-7xl pb-12 pt-8">
+        <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
+          <div>
+            PDF export uses the signed-in account's server-side monthly
+            allowance. Directly import line items and estimates from your saved
+            project records or calculator runs. No taxes, measurements, or
+            market prices are inferred.
           </div>
-          {!user && (
-            <p className="text-sm text-muted-foreground">
-              {t("Sign in to save and reuse templates.")}
-            </p>
+          {user && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleOpenProjectModal}
+              className="shrink-0 gap-2 border-primary/50 text-foreground hover:bg-primary/10"
+            >
+              <FolderOpen className="h-4 w-4 text-primary" />
+              {t("Import from Project")}
+            </Button>
           )}
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading templates…</p>
-          ) : templates.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {t("No saved templates yet.")}
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {templates.map((template) => (
-                <li
-                  key={template.id}
-                  className={`rounded-lg border p-3 ${active?.id === template.id ? "border-primary" : "border-border"}`}
-                >
-                  <button
-                    className="w-full text-left"
-                    onClick={() => loadTemplate(template)}
-                  >
-                    <span className="block font-medium">{template.name}</span>
-                    <span className="text-xs capitalize text-muted-foreground">
-                      {template.document_type.replace(/_/g, " ")} · v
-                      {template.version}
-                    </span>
-                  </button>
-                  <div className="mt-2 flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={`Duplicate ${template.name}`}
-                      onClick={() => duplicate(template)}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={`Archive ${template.name}`}
-                      onClick={() => archive(template)}
-                    >
-                      <Archive className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-          <div className="border-t pt-4">
-            <h3 className="mb-2 font-semibold">{t("My Documents")}</h3>
-            {documents.length === 0 ? (
+        </div>
+        <div className="grid gap-6 lg:grid-cols-[290px_minmax(0,1fr)]">
+          <aside className="space-y-4 rounded-xl border border-border bg-card p-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold">{t("My templates")}</h2>
+              <Button variant="outline" size="sm" onClick={reset}>
+                <FilePlus2 className="mr-2 h-4 w-4" />
+                {t("New")}
+              </Button>
+            </div>
+            {!user && (
               <p className="text-sm text-muted-foreground">
-                {t("No generated PDFs yet.")}
+                {t("Sign in to save and reuse templates.")}
+              </p>
+            )}
+            {loading ? (
+              <p className="text-sm text-muted-foreground">
+                Loading templates…
+              </p>
+            ) : templates.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                {t("No saved templates yet.")}
               </p>
             ) : (
               <ul className="space-y-2">
-                {documents.map((document) => (
+                {templates.map((template) => (
                   <li
-                    key={document.id}
-                    className="flex items-center justify-between gap-2 text-sm"
+                    key={template.id}
+                    className={`rounded-lg border p-3 ${active?.id === template.id ? "border-primary" : "border-border"}`}
                   >
-                    <span className="min-w-0 truncate">
-                      {document.file_name}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={`Download ${document.file_name}`}
-                      onClick={() =>
-                        downloadStudioDocument(document.id).catch(() =>
-                          toast.error("Could not download this document."),
-                        )
-                      }
+                    <button
+                      className="w-full text-left"
+                      onClick={() => loadTemplate(template)}
                     >
-                      <Download className="h-4 w-4" />
-                    </Button>
+                      <span className="block font-medium">{template.name}</span>
+                      <span className="text-xs capitalize text-muted-foreground">
+                        {template.document_type.replace(/_/g, " ")} · v
+                        {template.version}
+                      </span>
+                    </button>
+                    <div className="mt-2 flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={`Duplicate ${template.name}`}
+                        onClick={() => duplicate(template)}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={`Archive ${template.name}`}
+                        onClick={() => archive(template)}
+                      >
+                        <Archive className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </li>
                 ))}
               </ul>
             )}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {subscription.isActive ? `Plan: ${subscription.plan}` : "Free plan"}{" "}
-            · ask server for current usage when exporting.
-          </p>
-          <Link className="text-sm text-primary underline" to="/pricing">
-            {t("View plans and billing")}
-          </Link>
-        </aside>
-        <section className="space-y-6">
-          <div className="grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-2">
-            <label className="text-sm">
-              {t("Template name")}
-              <input
-                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
-                maxLength={80}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </label>
-            <label className="text-sm">
-              {t("Document type")}
-              <select
-                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
-                value={docType}
-                onChange={(e) =>
-                  setDocType(e.target.value as StudioTemplate["document_type"])
-                }
-              >
-                {types.map((type) => (
-                  <option key={type} value={type}>
-                    {type.replace(/_/g, " ")}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="text-sm">
-              {t("Page size")}
-              <select
-                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
-                value={config.pageSize}
-                onChange={(e) =>
-                  setConfig((c) => ({
-                    ...c,
-                    pageSize: e.target.value as StudioConfig["pageSize"],
-                  }))
-                }
-              >
-                <option value="a4">{t("A4")}</option>
-                <option value="a3">{t("A3")}</option>
-                <option value="letter">{t("US Letter")}</option>
-              </select>
-            </label>
-            <label className="text-sm">
-              {t("Orientation")}
-              <select
-                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
-                value={config.orientation}
-                onChange={(e) =>
-                  setConfig((c) => ({
-                    ...c,
-                    orientation: e.target.value as StudioConfig["orientation"],
-                  }))
-                }
-              >
-                <option value="portrait">{t("Portrait")}</option>
-                <option value="landscape">{t("Landscape")}</option>
-              </select>
-            </label>
-            <label className="text-sm">
-              {t("Currency (ISO 4217)")}
-              <input
-                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
-                maxLength={3}
-                value={config.currency}
-                onChange={(e) =>
-                  setConfig((c) => ({
-                    ...c,
-                    currency: e.target.value.toUpperCase(),
-                  }))
-                }
-              />
-            </label>
-            <label className="text-sm">
-              {t("Locale")}
-              <input
-                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
-                maxLength={20}
-                value={config.locale}
-                onChange={(e) =>
-                  setConfig((c) => ({ ...c, locale: e.target.value }))
-                }
-              />
-            </label>
-            <label className="text-sm">
-              {t("Accent color")}
-              <input
-                className="mt-1 h-10 w-full rounded-md border border-input bg-background px-2"
-                type="color"
-                value={config.accentColor}
-                onChange={(e) =>
-                  setConfig((c) => ({ ...c, accentColor: e.target.value }))
-                }
-              />
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={config.watermark}
-                onChange={(e) =>
-                  setConfig((c) => ({ ...c, watermark: e.target.checked }))
-                }
-              />{" "}
-              FRELUX watermark
-            </label>
-            <div className="sm:col-span-2 rounded border border-border p-3 text-sm">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">
-                  {t("Company Logo (Professional+)")}
-                </span>
-                {config.logoPath && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={removeLogo}
-                    className="h-7 text-xs text-destructive"
-                  >
-                    {t("Remove")}
-                  </Button>
-                )}
-              </div>
-              {config.logoUrl ? (
-                <div className="flex items-center gap-3">
-                  <img
-                    src={config.logoUrl}
-                    alt={t("Company logo preview")}
-                    className="h-10 w-auto max-w-32 object-contain rounded border border-border bg-white p-1"
-                  />
-                  <span className="text-xs text-muted-foreground truncate">
-                    {config.logoPath}
-                  </span>
-                </div>
-              ) : (
-                <input
-                  type="file"
-                  aria-label={t("Company logo upload")}
-                  accept="image/png,image/jpeg,image/webp"
-                  onChange={handleLogoUpload}
-                  disabled={uploadingLogo || !canSave}
-                  className="text-xs file:mr-2 file:rounded file:border-0 file:bg-primary file:px-2 file:py-1 file:text-xs file:font-semibold file:text-primary-foreground hover:file:bg-primary/90"
-                />
-              )}
-              {!canSave && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Upgrade to Professional to upload and display your custom
-                  company branding on exports.
+            <div className="border-t pt-4">
+              <h3 className="mb-2 font-semibold">{t("My Documents")}</h3>
+              {documents.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  {t("No generated PDFs yet.")}
                 </p>
+              ) : (
+                <ul className="space-y-2">
+                  {documents.map((document) => (
+                    <li
+                      key={document.id}
+                      className="flex items-center justify-between gap-2 text-sm"
+                    >
+                      <span className="min-w-0 truncate">
+                        {document.file_name}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={`Download ${document.file_name}`}
+                        onClick={() =>
+                          downloadStudioDocument(document.id).catch(() =>
+                            toast.error("Could not download this document."),
+                          )
+                        }
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {(
-              [
-                "heading",
-                "paragraph",
-                "materials",
-                "terms",
-                "signature",
-                "payment_schedule",
-              ] as const
-            ).map((type) => (
-              <Button
-                key={type}
-                variant="outline"
-                onClick={() => addBlock(type)}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add {type.replace("_", " ")}
-              </Button>
-            ))}
-          </div>
-          <div className="space-y-3">
-            {config.blocks.map((block, index) => (
-              <article
-                key={block.id}
-                className="rounded-xl border border-border bg-card p-4"
-              >
-                <div className="mb-3 flex items-center justify-between">
-                  <h3 className="font-medium capitalize">{block.type}</h3>
-                  <div className="flex">
+            <p className="text-xs text-muted-foreground">
+              {subscription.isActive
+                ? `Plan: ${subscription.plan}`
+                : "Free plan"}{" "}
+              · ask server for current usage when exporting.
+            </p>
+            <Link className="text-sm text-primary underline" to="/pricing">
+              {t("View plans and billing")}
+            </Link>
+          </aside>
+          <section className="space-y-6">
+            <div className="grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-2">
+              <label className="text-sm">
+                {t("Template name")}
+                <input
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
+                  maxLength={80}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </label>
+              <label className="text-sm">
+                {t("Document type")}
+                <select
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
+                  value={docType}
+                  onChange={(e) =>
+                    setDocType(
+                      e.target.value as StudioTemplate["document_type"],
+                    )
+                  }
+                >
+                  {types.map((type) => (
+                    <option key={type} value={type}>
+                      {type.replace(/_/g, " ")}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm">
+                {t("Page size")}
+                <select
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
+                  value={config.pageSize}
+                  onChange={(e) =>
+                    setConfig((c) => ({
+                      ...c,
+                      pageSize: e.target.value as StudioConfig["pageSize"],
+                    }))
+                  }
+                >
+                  <option value="a4">{t("A4")}</option>
+                  <option value="a3">{t("A3")}</option>
+                  <option value="letter">{t("US Letter")}</option>
+                </select>
+              </label>
+              <label className="text-sm">
+                {t("Orientation")}
+                <select
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
+                  value={config.orientation}
+                  onChange={(e) =>
+                    setConfig((c) => ({
+                      ...c,
+                      orientation: e.target
+                        .value as StudioConfig["orientation"],
+                    }))
+                  }
+                >
+                  <option value="portrait">{t("Portrait")}</option>
+                  <option value="landscape">{t("Landscape")}</option>
+                </select>
+              </label>
+              <label className="text-sm">
+                {t("Currency (ISO 4217)")}
+                <input
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
+                  maxLength={3}
+                  value={config.currency}
+                  onChange={(e) =>
+                    setConfig((c) => ({
+                      ...c,
+                      currency: e.target.value.toUpperCase(),
+                    }))
+                  }
+                />
+              </label>
+              <label className="text-sm">
+                {t("Locale")}
+                <input
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2"
+                  maxLength={20}
+                  value={config.locale}
+                  onChange={(e) =>
+                    setConfig((c) => ({ ...c, locale: e.target.value }))
+                  }
+                />
+              </label>
+              <label className="text-sm">
+                {t("Accent color")}
+                <input
+                  className="mt-1 h-10 w-full rounded-md border border-input bg-background px-2"
+                  type="color"
+                  value={config.accentColor}
+                  onChange={(e) =>
+                    setConfig((c) => ({ ...c, accentColor: e.target.value }))
+                  }
+                />
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={config.watermark}
+                  onChange={(e) =>
+                    setConfig((c) => ({ ...c, watermark: e.target.checked }))
+                  }
+                />{" "}
+                FRELUX watermark
+              </label>
+              <div className="sm:col-span-2 rounded border border-border p-3 text-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium">
+                    {t("Company Logo (Professional+)")}
+                  </span>
+                  {config.logoPath && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      aria-label={t("Move section up")}
-                      onClick={() => move(index, -1)}
+                      onClick={removeLogo}
+                      className="h-7 text-xs text-destructive"
                     >
-                      <ArrowUp className="h-4 w-4" />
+                      {t("Remove")}
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={t("Move section down")}
-                      onClick={() => move(index, 1)}
-                    >
-                      <ArrowDown className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={t("Remove section")}
-                      onClick={() =>
-                        setConfig((c) => ({
-                          ...c,
-                          blocks: c.blocks.filter((b) => b.id !== block.id),
-                        }))
-                      }
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  )}
                 </div>
-                {block.type === "materials" ? (
-                  <>
-                    <input
-                      aria-label={t("Materials section title")}
-                      className="mb-3 w-full rounded border border-input bg-background px-3 py-2"
-                      value={block.title}
-                      onChange={(e) =>
-                        updateBlock(block.id, { title: e.target.value })
-                      }
+                {config.logoUrl ? (
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={config.logoUrl}
+                      alt={t("Company logo preview")}
+                      className="h-10 w-auto max-w-32 object-contain rounded border border-border bg-white p-1"
                     />
-                    <div className="space-y-2">
-                      {block.rows.map((row, i) => (
-                        <div
-                          key={`${block.id}-${i}`}
-                          className="grid gap-2 sm:grid-cols-4"
-                        >
-                          <input
-                            aria-label={t("Material name")}
-                            className="rounded border border-input bg-background px-2 py-2"
-                            placeholder={t("Item")}
-                            value={row.label}
-                            onChange={(e) =>
-                              updateBlock(block.id, {
-                                rows: block.rows.map((r, j) =>
-                                  j === i ? { ...r, label: e.target.value } : r,
-                                ),
-                              })
-                            }
-                          />
-                          <input
-                            aria-label={t("Quantity")}
-                            className="rounded border border-input bg-background px-2 py-2"
-                            type="number"
-                            min="0"
-                            step="any"
-                            placeholder={t("Quantity")}
-                            value={row.quantity || ""}
-                            onChange={(e) =>
-                              updateBlock(block.id, {
-                                rows: block.rows.map((r, j) =>
-                                  j === i
-                                    ? { ...r, quantity: Number(e.target.value) }
-                                    : r,
-                                ),
-                              })
-                            }
-                          />
-                          <input
-                            aria-label={t("Unit")}
-                            className="rounded border border-input bg-background px-2 py-2"
-                            placeholder={t("Unit")}
-                            value={row.unit}
-                            onChange={(e) =>
-                              updateBlock(block.id, {
-                                rows: block.rows.map((r, j) =>
-                                  j === i ? { ...r, unit: e.target.value } : r,
-                                ),
-                              })
-                            }
-                          />
-                          <div className="flex gap-1">
+                    <span className="text-xs text-muted-foreground truncate">
+                      {config.logoPath}
+                    </span>
+                  </div>
+                ) : (
+                  <input
+                    type="file"
+                    aria-label={t("Company logo upload")}
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={handleLogoUpload}
+                    disabled={uploadingLogo || !canSave}
+                    className="text-xs file:mr-2 file:rounded file:border-0 file:bg-primary file:px-2 file:py-1 file:text-xs file:font-semibold file:text-primary-foreground hover:file:bg-primary/90"
+                  />
+                )}
+                {!canSave && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Upgrade to Professional to upload and display your custom
+                    company branding on exports.
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  "heading",
+                  "paragraph",
+                  "materials",
+                  "terms",
+                  "signature",
+                  "payment_schedule",
+                ] as const
+              ).map((type) => (
+                <Button
+                  key={type}
+                  variant="outline"
+                  onClick={() => addBlock(type)}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add {type.replace("_", " ")}
+                </Button>
+              ))}
+            </div>
+            <div className="space-y-3">
+              {config.blocks.map((block, index) => (
+                <article
+                  key={block.id}
+                  className="rounded-xl border border-border bg-card p-4"
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="font-medium capitalize">{block.type}</h3>
+                    <div className="flex">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={t("Move section up")}
+                        onClick={() => move(index, -1)}
+                      >
+                        <ArrowUp className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={t("Move section down")}
+                        onClick={() => move(index, 1)}
+                      >
+                        <ArrowDown className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={t("Remove section")}
+                        onClick={() =>
+                          setConfig((c) => ({
+                            ...c,
+                            blocks: c.blocks.filter((b) => b.id !== block.id),
+                          }))
+                        }
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  {block.type === "materials" ? (
+                    <>
+                      <input
+                        aria-label={t("Materials section title")}
+                        className="mb-3 w-full rounded border border-input bg-background px-3 py-2"
+                        value={block.title}
+                        onChange={(e) =>
+                          updateBlock(block.id, { title: e.target.value })
+                        }
+                      />
+                      <div className="space-y-2">
+                        {block.rows.map((row, i) => (
+                          <div
+                            key={`${block.id}-${i}`}
+                            className="grid gap-2 sm:grid-cols-4"
+                          >
                             <input
-                              aria-label={t("Unit price")}
-                              className="min-w-0 flex-1 rounded border border-input bg-background px-2 py-2"
+                              aria-label={t("Material name")}
+                              className="rounded border border-input bg-background px-2 py-2"
+                              placeholder={t("Item")}
+                              value={row.label}
+                              onChange={(e) =>
+                                updateBlock(block.id, {
+                                  rows: block.rows.map((r, j) =>
+                                    j === i
+                                      ? { ...r, label: e.target.value }
+                                      : r,
+                                  ),
+                                })
+                              }
+                            />
+                            <input
+                              aria-label={t("Quantity")}
+                              className="rounded border border-input bg-background px-2 py-2"
                               type="number"
                               min="0"
                               step="any"
-                              placeholder={t("Unit price")}
-                              value={row.unitPrice || ""}
+                              placeholder={t("Quantity")}
+                              value={row.quantity || ""}
                               onChange={(e) =>
                                 updateBlock(block.id, {
                                   rows: block.rows.map((r, j) =>
                                     j === i
                                       ? {
                                           ...r,
-                                          unitPrice: Number(e.target.value),
+                                          quantity: Number(e.target.value),
                                         }
                                       : r,
                                   ),
                                 })
                               }
                             />
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              aria-label={t("Remove material row")}
-                              onClick={() =>
+                            <input
+                              aria-label={t("Unit")}
+                              className="rounded border border-input bg-background px-2 py-2"
+                              placeholder={t("Unit")}
+                              value={row.unit}
+                              onChange={(e) =>
                                 updateBlock(block.id, {
-                                  rows: block.rows.filter((_, j) => j !== i),
+                                  rows: block.rows.map((r, j) =>
+                                    j === i
+                                      ? { ...r, unit: e.target.value }
+                                      : r,
+                                  ),
                                 })
                               }
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            />
+                            <div className="flex gap-1">
+                              <input
+                                aria-label={t("Unit price")}
+                                className="min-w-0 flex-1 rounded border border-input bg-background px-2 py-2"
+                                type="number"
+                                min="0"
+                                step="any"
+                                placeholder={t("Unit price")}
+                                value={row.unitPrice || ""}
+                                onChange={(e) =>
+                                  updateBlock(block.id, {
+                                    rows: block.rows.map((r, j) =>
+                                      j === i
+                                        ? {
+                                            ...r,
+                                            unitPrice: Number(e.target.value),
+                                          }
+                                        : r,
+                                    ),
+                                  })
+                                }
+                              />
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                aria-label={t("Remove material row")}
+                                onClick={() =>
+                                  updateBlock(block.id, {
+                                    rows: block.rows.filter((_, j) => j !== i),
+                                  })
+                                }
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
+                        ))}
+                      </div>
+                      <Button
+                        className="mt-3"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          updateBlock(block.id, {
+                            rows: [
+                              ...block.rows,
+                              {
+                                label: "",
+                                quantity: 0,
+                                unit: "",
+                                unitPrice: 0,
+                              },
+                            ],
+                          })
+                        }
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        {t("Add material")}
+                      </Button>
+                    </>
+                  ) : block.type === "signature" ? (
+                    <div className="space-y-3">
+                      <input
+                        aria-label={t("Signature section title")}
+                        className="w-full rounded border border-input bg-background px-3 py-2 text-sm font-medium"
+                        value={block.title}
+                        onChange={(e) =>
+                          updateBlock(block.id, { title: e.target.value })
+                        }
+                        placeholder={t("Signatures Title")}
+                      />
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-2 rounded border border-border p-3">
+                          <span className="text-xs font-semibold uppercase text-muted-foreground">
+                            {t("Client Representative")}
+                          </span>
+                          <input
+                            aria-label={t("Client name")}
+                            className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
+                            placeholder={t("Client Name")}
+                            value={block.clientName}
+                            onChange={(e) =>
+                              updateBlock(block.id, {
+                                clientName: e.target.value,
+                              })
+                            }
+                          />
+                          <input
+                            aria-label={t("Client role")}
+                            className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
+                            placeholder={t("Title/Role (e.g. Owner)")}
+                            value={block.clientRole}
+                            onChange={(e) =>
+                              updateBlock(block.id, {
+                                clientRole: e.target.value,
+                              })
+                            }
+                          />
                         </div>
-                      ))}
-                    </div>
-                    <Button
-                      className="mt-3"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        updateBlock(block.id, {
-                          rows: [
-                            ...block.rows,
-                            { label: "", quantity: 0, unit: "", unitPrice: 0 },
-                          ],
-                        })
-                      }
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      {t("Add material")}
-                    </Button>
-                  </>
-                ) : block.type === "signature" ? (
-                  <div className="space-y-3">
-                    <input
-                      aria-label={t("Signature section title")}
-                      className="w-full rounded border border-input bg-background px-3 py-2 text-sm font-medium"
-                      value={block.title}
-                      onChange={(e) =>
-                        updateBlock(block.id, { title: e.target.value })
-                      }
-                      placeholder={t("Signatures Title")}
-                    />
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="space-y-2 rounded border border-border p-3">
-                        <span className="text-xs font-semibold uppercase text-muted-foreground">
-                          {t("Client Representative")}
-                        </span>
-                        <input
-                          aria-label={t("Client name")}
-                          className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
-                          placeholder={t("Client Name")}
-                          value={block.clientName}
-                          onChange={(e) =>
-                            updateBlock(block.id, {
-                              clientName: e.target.value,
-                            })
-                          }
-                        />
-                        <input
-                          aria-label={t("Client role")}
-                          className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
-                          placeholder={t("Title/Role (e.g. Owner)")}
-                          value={block.clientRole}
-                          onChange={(e) =>
-                            updateBlock(block.id, {
-                              clientRole: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2 rounded border border-border p-3">
-                        <span className="text-xs font-semibold uppercase text-muted-foreground">
-                          {t("Contractor / Firm")}
-                        </span>
-                        <input
-                          aria-label={t("Contractor name")}
-                          className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
-                          placeholder={t("Contractor Name")}
-                          value={block.contractorName}
-                          onChange={(e) =>
-                            updateBlock(block.id, {
-                              contractorName: e.target.value,
-                            })
-                          }
-                        />
-                        <input
-                          aria-label={t("Contractor role")}
-                          className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
-                          placeholder={t("Title/Role (e.g. Lead Engineer)")}
-                          value={block.contractorRole}
-                          onChange={(e) =>
-                            updateBlock(block.id, {
-                              contractorRole: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-                    <input
-                      aria-label={t("Signature date")}
-                      className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
-                      type="date"
-                      value={block.date}
-                      onChange={(e) =>
-                        updateBlock(block.id, { date: e.target.value })
-                      }
-                    />
-                  </div>
-                ) : block.type === "payment_schedule" ? (
-                  <div className="space-y-3">
-                    <input
-                      aria-label={t("Payment schedule title")}
-                      className="w-full rounded border border-input bg-background px-3 py-2 text-sm font-medium"
-                      value={block.title}
-                      onChange={(e) =>
-                        updateBlock(block.id, { title: e.target.value })
-                      }
-                      placeholder={t("Payment Schedule Title")}
-                    />
-                    <div className="space-y-2">
-                      {block.milestones.map((m, i) => (
-                        <div key={i} className="grid gap-2 sm:grid-cols-3">
+                        <div className="space-y-2 rounded border border-border p-3">
+                          <span className="text-xs font-semibold uppercase text-muted-foreground">
+                            {t("Contractor / Firm")}
+                          </span>
                           <input
-                            aria-label={t("Milestone stage")}
-                            className="rounded border border-input bg-background px-2 py-1.5 text-sm"
-                            placeholder={t("Stage/Milestone")}
-                            value={m.stage}
+                            aria-label={t("Contractor name")}
+                            className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
+                            placeholder={t("Contractor Name")}
+                            value={block.contractorName}
                             onChange={(e) =>
                               updateBlock(block.id, {
-                                milestones: block.milestones.map((ms, j) =>
-                                  j === i
-                                    ? { ...ms, stage: e.target.value }
-                                    : ms,
-                                ),
+                                contractorName: e.target.value,
                               })
                             }
                           />
                           <input
-                            aria-label={t("Milestone percentage")}
-                            className="rounded border border-input bg-background px-2 py-1.5 text-sm"
-                            type="number"
-                            min="0"
-                            max="100"
-                            placeholder={t("Percentage (%)")}
-                            value={m.percentage || ""}
+                            aria-label={t("Contractor role")}
+                            className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
+                            placeholder={t("Title/Role (e.g. Lead Engineer)")}
+                            value={block.contractorRole}
                             onChange={(e) =>
                               updateBlock(block.id, {
-                                milestones: block.milestones.map((ms, j) =>
-                                  j === i
-                                    ? {
-                                        ...ms,
-                                        percentage: Number(e.target.value),
-                                      }
-                                    : ms,
-                                ),
+                                contractorRole: e.target.value,
                               })
                             }
                           />
-                          <div className="flex gap-1">
+                        </div>
+                      </div>
+                      <input
+                        aria-label={t("Signature date")}
+                        className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm"
+                        type="date"
+                        value={block.date}
+                        onChange={(e) =>
+                          updateBlock(block.id, { date: e.target.value })
+                        }
+                      />
+                    </div>
+                  ) : block.type === "payment_schedule" ? (
+                    <div className="space-y-3">
+                      <input
+                        aria-label={t("Payment schedule title")}
+                        className="w-full rounded border border-input bg-background px-3 py-2 text-sm font-medium"
+                        value={block.title}
+                        onChange={(e) =>
+                          updateBlock(block.id, { title: e.target.value })
+                        }
+                        placeholder={t("Payment Schedule Title")}
+                      />
+                      <div className="space-y-2">
+                        {block.milestones.map((m, i) => (
+                          <div key={i} className="grid gap-2 sm:grid-cols-3">
                             <input
-                              aria-label={t("Milestone amount")}
-                              className="min-w-0 flex-1 rounded border border-input bg-background px-2 py-1.5 text-sm"
+                              aria-label={t("Milestone stage")}
+                              className="rounded border border-input bg-background px-2 py-1.5 text-sm"
+                              placeholder={t("Stage/Milestone")}
+                              value={m.stage}
+                              onChange={(e) =>
+                                updateBlock(block.id, {
+                                  milestones: block.milestones.map((ms, j) =>
+                                    j === i
+                                      ? { ...ms, stage: e.target.value }
+                                      : ms,
+                                  ),
+                                })
+                              }
+                            />
+                            <input
+                              aria-label={t("Milestone percentage")}
+                              className="rounded border border-input bg-background px-2 py-1.5 text-sm"
                               type="number"
                               min="0"
-                              placeholder={t("Amount (optional)")}
-                              value={m.amount || ""}
+                              max="100"
+                              placeholder={t("Percentage (%)")}
+                              value={m.percentage || ""}
                               onChange={(e) =>
                                 updateBlock(block.id, {
                                   milestones: block.milestones.map((ms, j) =>
                                     j === i
                                       ? {
                                           ...ms,
-                                          amount: e.target.value
-                                            ? Number(e.target.value)
-                                            : undefined,
+                                          percentage: Number(e.target.value),
                                         }
                                       : ms,
                                   ),
                                 })
                               }
                             />
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              aria-label={t("Remove milestone")}
-                              onClick={() =>
-                                updateBlock(block.id, {
-                                  milestones: block.milestones.filter(
-                                    (_, j) => j !== i,
-                                  ),
-                                })
-                              }
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <div className="flex gap-1">
+                              <input
+                                aria-label={t("Milestone amount")}
+                                className="min-w-0 flex-1 rounded border border-input bg-background px-2 py-1.5 text-sm"
+                                type="number"
+                                min="0"
+                                placeholder={t("Amount (optional)")}
+                                value={m.amount || ""}
+                                onChange={(e) =>
+                                  updateBlock(block.id, {
+                                    milestones: block.milestones.map((ms, j) =>
+                                      j === i
+                                        ? {
+                                            ...ms,
+                                            amount: e.target.value
+                                              ? Number(e.target.value)
+                                              : undefined,
+                                          }
+                                        : ms,
+                                    ),
+                                  })
+                                }
+                              />
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                aria-label={t("Remove milestone")}
+                                onClick={() =>
+                                  updateBlock(block.id, {
+                                    milestones: block.milestones.filter(
+                                      (_, j) => j !== i,
+                                    ),
+                                  })
+                                }
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          updateBlock(block.id, {
+                            milestones: [
+                              ...block.milestones,
+                              { stage: "New milestone", percentage: 0 },
+                            ],
+                          })
+                        }
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        {t("Add milestone")}
+                      </Button>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        updateBlock(block.id, {
-                          milestones: [
-                            ...block.milestones,
-                            { stage: "New milestone", percentage: 0 },
-                          ],
-                        })
+                  ) : (
+                    <textarea
+                      className="min-h-24 w-full rounded border border-input bg-background px-3 py-2"
+                      maxLength={block.type === "heading" ? 160 : 3000}
+                      value={block.text}
+                      onChange={(e) =>
+                        updateBlock(block.id, { text: e.target.value })
                       }
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      {t("Add milestone")}
-                    </Button>
-                  </div>
+                    />
+                  )}
+                </article>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={save} disabled={busy || !user || !canSave}>
+                <Save className="mr-2 h-4 w-4" />
+                {busy ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <textarea
-                    className="min-h-24 w-full rounded border border-input bg-background px-3 py-2"
-                    maxLength={block.type === "heading" ? 160 : 3000}
-                    value={block.text}
-                    onChange={(e) =>
-                      updateBlock(block.id, { text: e.target.value })
-                    }
+                  "Save template"
+                )}
+              </Button>
+              <Button variant="outline" onClick={download} disabled={busy}>
+                <Download className="mr-2 h-4 w-4" />
+                {t("Export PDF")}
+              </Button>
+              <Button variant="ghost" onClick={reset}>
+                {t("Reset editor")}
+              </Button>
+            </div>
+            {!canSave && (
+              <p className="text-sm text-muted-foreground">
+                Saving templates is available on paid plans. Basic editing and
+                export usage are governed by your account's server-side
+                allowance.{" "}
+                <Link className="text-primary underline" to="/pricing">
+                  {t("Compare plans")}
+                </Link>
+                .
+              </p>
+            )}
+            <section
+              className="rounded-xl border border-border bg-white p-6 text-slate-900 shadow-sm"
+              aria-label={t("Document preview")}
+            >
+              <div
+                className="mb-4 h-1 rounded"
+                style={{ backgroundColor: config.accentColor }}
+              />
+              <div className="mb-3 flex items-center justify-between">
+                <div className="text-xs font-bold tracking-widest text-slate-500">
+                  FRELUX {config.watermark ? "· WATERMARKED" : ""}
+                </div>
+                {config.logoUrl && (
+                  <img
+                    src={config.logoUrl}
+                    alt={t("Company logo")}
+                    className="h-8 w-auto max-w-28 object-contain"
                   />
                 )}
-              </article>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={save} disabled={busy || !user || !canSave}>
-              <Save className="mr-2 h-4 w-4" />
-              {busy ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Save template"
-              )}
-            </Button>
-            <Button variant="outline" onClick={download} disabled={busy}>
-              <Download className="mr-2 h-4 w-4" />
-              {t("Export PDF")}
-            </Button>
-            <Button variant="ghost" onClick={reset}>
-              {t("Reset editor")}
-            </Button>
-          </div>
-          {!canSave && (
-            <p className="text-sm text-muted-foreground">
-              Saving templates is available on paid plans. Basic editing and
-              export usage are governed by your account's server-side allowance.{" "}
-              <Link className="text-primary underline" to="/pricing">
-                {t("Compare plans")}
-              </Link>
-              .
-            </p>
-          )}
-          <section
-            className="rounded-xl border border-border bg-white p-6 text-slate-900 shadow-sm"
-            aria-label={t("Document preview")}
-          >
-            <div
-              className="mb-4 h-1 rounded"
-              style={{ backgroundColor: config.accentColor }}
-            />
-            <div className="mb-3 flex items-center justify-between">
-              <div className="text-xs font-bold tracking-widest text-slate-500">
-                FRELUX {config.watermark ? "· WATERMARKED" : ""}
               </div>
-              {config.logoUrl && (
-                <img
-                  src={config.logoUrl}
-                  alt={t("Company logo")}
-                  className="h-8 w-auto max-w-28 object-contain"
-                />
-              )}
-            </div>
-            <h2 className="mb-5 text-2xl font-bold">
-              {name || "Untitled document"}
-            </h2>
-            {config.blocks.map((block) => {
-              if (block.type === "heading") {
-                return (
-                  <h3
-                    key={block.id}
-                    className="mb-2 mt-4 text-lg font-semibold"
-                    style={{ color: config.accentColor }}
-                  >
-                    {block.text}
-                  </h3>
-                );
-              }
-              if (block.type === "paragraph" || block.type === "terms") {
-                return (
-                  <p
-                    key={block.id}
-                    className="mb-3 whitespace-pre-wrap text-sm"
-                  >
-                    {block.text}
-                  </p>
-                );
-              }
-              if (block.type === "materials") {
-                return (
-                  <div key={block.id} className="mb-4">
-                    <h3 className="mb-2 font-semibold">{block.title}</h3>
-                    {block.rows.map((row, i) => (
-                      <div
-                        key={i}
-                        className="grid grid-cols-5 border-b py-1 text-xs"
-                      >
-                        <span>{row.label || "—"}</span>
-                        <span>{row.quantity}</span>
-                        <span>{row.unit}</span>
-                        <span>{money(row.unitPrice)}</span>
-                        <span>{money(row.quantity * row.unitPrice)}</span>
-                      </div>
-                    ))}
-                  </div>
-                );
-              }
-              if (block.type === "signature") {
-                return (
-                  <div
-                    key={block.id}
-                    className="my-6 rounded border border-slate-200 p-4"
-                  >
-                    <h4 className="mb-4 font-semibold text-slate-800">
-                      {block.title}
-                    </h4>
-                    <div className="grid grid-cols-2 gap-6 text-xs text-slate-700">
-                      <div>
-                        <div className="h-8 border-b border-dashed border-slate-300" />
-                        <p className="mt-1 font-medium">
-                          {block.clientName || "Client Name"}
-                        </p>
-                        <p className="text-slate-500">
-                          {block.clientRole || "Client Representative"}
-                        </p>
-                      </div>
-                      <div>
-                        <div className="h-8 border-b border-dashed border-slate-300" />
-                        <p className="mt-1 font-medium">
-                          {block.contractorName || "Contractor Name"}
-                        </p>
-                        <p className="text-slate-500">
-                          {block.contractorRole || "Contractor Representative"}
-                        </p>
-                      </div>
-                    </div>
-                    {block.date ? (
-                      <p className="mt-3 text-right text-xs text-slate-400">
-                        Date: {block.date}
-                      </p>
-                    ) : null}
-                  </div>
-                );
-              }
-              if (block.type === "payment_schedule") {
-                return (
-                  <div key={block.id} className="my-4">
-                    <h4 className="mb-2 font-semibold text-slate-800">
-                      {block.title}
-                    </h4>
-                    <div className="space-y-1 text-xs">
-                      {block.milestones.map((m, i) => (
+              <h2 className="mb-5 text-2xl font-bold">
+                {name || "Untitled document"}
+              </h2>
+              {config.blocks.map((block) => {
+                if (block.type === "heading") {
+                  return (
+                    <h3
+                      key={block.id}
+                      className="mb-2 mt-4 text-lg font-semibold"
+                      style={{ color: config.accentColor }}
+                    >
+                      {block.text}
+                    </h3>
+                  );
+                }
+                if (block.type === "paragraph" || block.type === "terms") {
+                  return (
+                    <p
+                      key={block.id}
+                      className="mb-3 whitespace-pre-wrap text-sm"
+                    >
+                      {block.text}
+                    </p>
+                  );
+                }
+                if (block.type === "materials") {
+                  return (
+                    <div key={block.id} className="mb-4">
+                      <h3 className="mb-2 font-semibold">{block.title}</h3>
+                      {block.rows.map((row, i) => (
                         <div
                           key={i}
-                          className="flex justify-between border-b py-1"
+                          className="grid grid-cols-5 border-b py-1 text-xs"
                         >
-                          <span>
-                            {m.stage} ({m.percentage}%)
-                          </span>
-                          <span>
-                            {m.amount !== undefined ? money(m.amount) : "—"}
-                          </span>
+                          <span>{row.label || "—"}</span>
+                          <span>{row.quantity}</span>
+                          <span>{row.unit}</span>
+                          <span>{money(row.unitPrice)}</span>
+                          <span>{money(row.quantity * row.unitPrice)}</span>
                         </div>
                       ))}
                     </div>
-                  </div>
-                );
-              }
-              return null;
-            })}
-            <div className="mt-4 border-t pt-3 text-right font-semibold">
-              Material subtotal: {money(total)}
-            </div>
-            <p className="mt-5 text-right text-xs text-slate-500">
-              Preview is illustrative; PDF export is generated by the same
-              structured content configuration.
-            </p>
-          </section>
-        </section>
-      </div>
-
-      <Dialog open={projectModalOpen} onOpenChange={setProjectModalOpen}>
-        <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <DialogTitle>{t("Import from Saved Project")}</DialogTitle>
-            <DialogDescription>
-              Select a project from your workspace to populate Document Studio
-              line items, materials, and notes.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="max-h-[60vh] overflow-y-auto space-y-3 py-2">
-            {loadingProjects ? (
-              <div className="flex items-center justify-center p-8 text-muted-foreground">
-                <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                {t("Loading your projects...")}
+                  );
+                }
+                if (block.type === "signature") {
+                  return (
+                    <div
+                      key={block.id}
+                      className="my-6 rounded border border-slate-200 p-4"
+                    >
+                      <h4 className="mb-4 font-semibold text-slate-800">
+                        {block.title}
+                      </h4>
+                      <div className="grid grid-cols-2 gap-6 text-xs text-slate-700">
+                        <div>
+                          <div className="h-8 border-b border-dashed border-slate-300" />
+                          <p className="mt-1 font-medium">
+                            {block.clientName || "Client Name"}
+                          </p>
+                          <p className="text-slate-500">
+                            {block.clientRole || "Client Representative"}
+                          </p>
+                        </div>
+                        <div>
+                          <div className="h-8 border-b border-dashed border-slate-300" />
+                          <p className="mt-1 font-medium">
+                            {block.contractorName || "Contractor Name"}
+                          </p>
+                          <p className="text-slate-500">
+                            {block.contractorRole ||
+                              "Contractor Representative"}
+                          </p>
+                        </div>
+                      </div>
+                      {block.date ? (
+                        <p className="mt-3 text-right text-xs text-slate-400">
+                          Date: {block.date}
+                        </p>
+                      ) : null}
+                    </div>
+                  );
+                }
+                if (block.type === "payment_schedule") {
+                  return (
+                    <div key={block.id} className="my-4">
+                      <h4 className="mb-2 font-semibold text-slate-800">
+                        {block.title}
+                      </h4>
+                      <div className="space-y-1 text-xs">
+                        {block.milestones.map((m, i) => (
+                          <div
+                            key={i}
+                            className="flex justify-between border-b py-1"
+                          >
+                            <span>
+                              {m.stage} ({m.percentage}%)
+                            </span>
+                            <span>
+                              {m.amount !== undefined ? money(m.amount) : "—"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })}
+              <div className="mt-4 border-t pt-3 text-right font-semibold">
+                Material subtotal: {money(total)}
               </div>
-            ) : userProjects.length === 0 ? (
-              <p className="p-6 text-center text-sm text-muted-foreground">
-                {t("No saved projects found in your workspace.")}
+              <p className="mt-5 text-right text-xs text-slate-500">
+                Preview is illustrative; PDF export is generated by the same
+                structured content configuration.
               </p>
-            ) : (
-              userProjects.map((proj) => (
-                <div
-                  key={proj.id}
-                  className="flex items-center justify-between rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="min-w-0 pr-3">
-                    <h4 className="font-medium text-foreground truncate">
-                      {proj.name}
-                    </h4>
-                    <p className="text-xs text-muted-foreground capitalize">
-                      {proj.project_type.replace(/_/g, " ")} •{" "}
-                      {new Date(proj.updated_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => handleSelectProjectToImport(proj)}
-                  >
-                    {t("Import")}
-                  </Button>
+            </section>
+          </section>
+        </div>
+
+        <Dialog open={projectModalOpen} onOpenChange={setProjectModalOpen}>
+          <DialogContent className="max-w-xl">
+            <DialogHeader>
+              <DialogTitle>{t("Import from Saved Project")}</DialogTitle>
+              <DialogDescription>
+                Select a project from your workspace to populate Document Studio
+                line items, materials, and notes.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="max-h-[60vh] overflow-y-auto space-y-3 py-2">
+              {loadingProjects ? (
+                <div className="flex items-center justify-center p-8 text-muted-foreground">
+                  <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                  {t("Loading your projects...")}
                 </div>
-              ))
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </main>
+              ) : userProjects.length === 0 ? (
+                <p className="p-6 text-center text-sm text-muted-foreground">
+                  {t("No saved projects found in your workspace.")}
+                </p>
+              ) : (
+                userProjects.map((proj) => (
+                  <div
+                    key={proj.id}
+                    className="flex items-center justify-between rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="min-w-0 pr-3">
+                      <h4 className="font-medium text-foreground truncate">
+                        {proj.name}
+                      </h4>
+                      <p className="text-xs text-muted-foreground capitalize">
+                        {proj.project_type.replace(/_/g, " ")} •{" "}
+                        {new Date(proj.updated_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => handleSelectProjectToImport(proj)}
+                    >
+                      {t("Import")}
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </Container>
+    </>
   );
 }

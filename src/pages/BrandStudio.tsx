@@ -11,7 +11,8 @@
  *
  * Access control: Premium (SubscriptionGate) or rewarded-ad unlock
  */
-import HeroTitle from "@/components/ui/HeroTitle";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { useAuth } from "@/lib/auth";
@@ -92,24 +93,19 @@ export default function BrandStudio() {
 
   return (
     <SubscriptionGate feature="brand_studio">
-      <div className="min-h-screen bg-muted/50 dark:bg-background">
-        <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
-          {/* Header */}
-          <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
-              <PremiumBadge size="md" />
-            </div>
-            <div>
-              <HeroTitle
-                className="text-2xl text-foreground dark:text-primary-foreground"
-                title={t("FRELUX Brand Studio")}
-              />
-              <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                {t("Brand your PDF exports with your own business identity.")}
-              </p>
-            </div>
-          </div>
+      <PageHeader
+        variant="tool"
+        breadcrumbs={[
+          { label: t("Home"), path: "/" },
+          { label: t("Brand Studio") },
+        ]}
+        eyebrow={t("PDF branding")}
+        title={t("FRELUX Brand Studio")}
+        subtitle={t("Brand your PDF exports with your own business identity.")}
+      />
 
+      <div className="min-h-screen bg-background">
+        <Container className="max-w-4xl pb-12 pt-8">
           {/* Section tabs */}
           <div className="mb-6 flex flex-wrap gap-2 border-b border-border dark:border-white/10 pb-2">
             {sections.map((s) => (
@@ -186,7 +182,7 @@ export default function BrandStudio() {
               )}
             </div>
           )}
-        </div>
+        </Container>
       </div>
     </SubscriptionGate>
   );
