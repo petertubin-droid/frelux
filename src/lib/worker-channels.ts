@@ -10,6 +10,7 @@ import type {
   DbWorkerChannelMessage,
   DbWorkerModerationConfig,
 } from "@/types/worker-channels";
+import type { IdentityDocumentType } from "@/lib/verification-policy";
 
 // =========================================================
 // Categories
@@ -602,6 +603,37 @@ export async function verifyMobileOTP(
   return {
     success: result?.success ?? false,
     message: result?.message ?? "Verification failed",
+  };
+}
+
+/**
+ * Submit a government-issued identity document (National ID/NIN,
+ * international passport, driver's licence or voter's card) for review.
+ *
+ * Writes a pending identity verification request through
+ * submit_identity_document. It never marks the account verified: the
+ * profile stays unverified until an administrator reviews the document.
+ */
+export async function submitIdentityDocument(
+  documentType: IdentityDocumentType,
+  documentNumber: string,
+  userId: string,
+): Promise<{ success: boolean; message: string }> {
+  const { data, error } = await supabase.rpc("submit_identity_document", {
+    p_document_type: documentType,
+    p_document_number: documentNumber,
+    p_user_id: userId,
+  });
+  if (error) {
+    if (import.meta.env.DEV)
+      console.error("[worker-channels] submitIdentityDocument:", error.message);
+    return { success: false, message: error.message };
+  }
+  const rows = data as { success: boolean; message: string }[] | null;
+  const result = rows?.[0] ?? null;
+  return {
+    success: result?.success ?? false,
+    message: result?.message ?? "Identity document submission failed",
   };
 }
 

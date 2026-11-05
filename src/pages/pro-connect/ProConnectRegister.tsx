@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Check, Phone, Shield, AlertCircle } from "lucide-react";
+import { ArrowLeft, Check, Mail, Shield, AlertCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import {
   fetchCategories,
@@ -17,11 +17,19 @@ import {
   upgradeToProWorker,
   getAccountType,
 } from "@/lib/pro-connect";
+import { submitIdentityDocument } from "@/lib/worker-channels";
 import {
-  sendMobileOTP,
-  verifyMobileOTP,
-  submitNIN,
-} from "@/lib/worker-channels";
+  resendSignupConfirmation,
+  isEmailConfirmed,
+} from "@/lib/email-verification";
+import {
+  IDENTITY_DOCUMENT_OPTIONS,
+  isValidIdentityDocumentNumber,
+  identityDocumentErrorMessage,
+  PHONE_VERIFICATION_UNAVAILABLE_MESSAGE,
+  UNVERIFIED_ACCOUNT_NOTICE,
+  type IdentityDocumentType,
+} from "@/lib/verification-policy";
 import type { AccountType } from "@/types/pro-connect";
 import type {
   DbProCategory,
@@ -68,23 +76,19 @@ export default function ProConnectRegister() {
   const [_accountType, _setAccountType] = useState<AccountType>("client");
   const [error, setError] = useState("");
 
-  // Phase 31: Mobile OTP verification state
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [otpCode, setOtpCode] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [otpSending, setOtpSending] = useState(false);
-  const [otpError, setOtpError] = useState("");
-  const [otpSuccess, setOtpSuccess] = useState("");
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const _cooldownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Email verification state (SMS verification is disabled: no gateway)
+  const [emailResending, setEmailResending] = useState(false);
+  const [emailMessage, setEmailMessage] = useState("");
+  const [emailError, setEmailError] = useState("");
 
-  // Phase 31: NIN KYC verification state
-  const [ninNumber, setNinNumber] = useState("");
-  const [ninSubmitting, setNinSubmitting] = useState(false);
-  const [ninError, setNinError] = useState("");
-  const [ninSuccess, setNinSuccess] = useState("");
-  const [ninSubmitted, setNinSubmitted] = useState(false);
+  // Government-issued ID state (required before pro worker elevation)
+  const [documentType, setDocumentType] =
+    useState<IdentityDocumentType>("national_id");
+  const [documentNumber, setDocumentNumber] = useState("");
+  const [identitySubmitting, setIdentitySubmitting] = useState(false);
+  const [identityError, setIdentityError] = useState("");
+  const [identitySuccess, setIdentitySuccess] = useState("");
+  const [identitySubmitted, setIdentitySubmitted] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -109,14 +113,13 @@ export default function ProConnectRegister() {
       setServices(svcs);
       setLocations(locs);
 
-      // Check account type and upgrade to pro_worker if needed
+      // Account type is read, never raised here. Elevation to pro_worker
+      // happens only after a government-issued ID is submitted (the RPC
+      // refuses it otherwise), and the profile stays unverified until an
+      // administrator approves the document.
       if (user) {
         const acct = await getAccountType(user.id);
         _setAccountType(acct);
-        if (acct === "client") {
-          await upgradeToProWorker();
-          _setAccountType("pro_worker");
-        }
       }
 
       // Check for existing profile
@@ -240,73 +243,51 @@ export default function ProConnectRegister() {
     setStep(4);
   }
 
-  // OTP handlers
-  async function handleSendOTP() {
-    if (!mobileNumber.trim()) {
-      setOtpError("Enter a mobile number");
+  // Email verification handler (replaces SMS OTP: no gateway configured)
+  async function handleResendEmail() {
+    if (!user?.email) {
+      setEmailError("No email address on this account.");
       return;
     }
-    setOtpSending(true);
-    setOtpError("");
-    setOtpSuccess("");
-    try {
-      const result = await sendMobileOTP(mobileNumber, user!.id);
-      if (!result.success) throw new Error(result.message);
-      setOtpSent(true);
-      setOtpSuccess("Verification code sent to " + mobileNumber);
-      setResendCooldown(30);
-      const interval = setInterval(() => {
-        setResendCooldown((prev) => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } catch (err: unknown) {
-      setOtpError(getSafeError(err, "Failed to send OTP"));
-    } finally {
-      setOtpSending(false);
-    }
+    setEmailResending(true);
+    setEmailError("");
+    setEmailMessage("");
+    const result = await resendSignupConfirmation(user.email);
+    if (result.success) setEmailMessage(result.message);
+    else setEmailError(result.message);
+    setEmailResending(false);
   }
 
-  async function handleVerifyOTP() {
-    if (otpCode.length !== 6) {
-      setOtpError("Enter the 6-digit code");
+  // Government-issued ID handler. Elevation to pro_worker only runs after
+  // the ID is accepted by the submit_identity_document RPC, and the
+  // profile stays unverified until an administrator approves it.
+  async function handleSubmitIdentity() {
+    const trimmed = documentNumber.trim();
+    if (!isValidIdentityDocumentNumber(documentType, trimmed)) {
+      setIdentityError(identityDocumentErrorMessage(documentType));
       return;
     }
-    setOtpSending(true);
-    setOtpError("");
+    if (!user) return;
+    setIdentitySubmitting(true);
+    setIdentityError("");
+    setIdentitySuccess("");
     try {
-      const result = await verifyMobileOTP(mobileNumber, otpCode, user!.id);
+      const result = await submitIdentityDocument(
+        documentType,
+        trimmed,
+        user.id,
+      );
       if (!result.success) throw new Error(result.message);
-      setOtpSuccess("Phone number verified successfully!");
-      setOtpVerified(true);
+      setIdentitySuccess(result.message);
+      setIdentitySubmitted(true);
+      const elevated = await upgradeToProWorker();
+      if (elevated) _setAccountType("pro_worker");
     } catch (err: unknown) {
-      setOtpError(getSafeError(err, "Invalid OTP"));
+      setIdentityError(
+        getSafeError(err, "Identity document submission failed"),
+      );
     } finally {
-      setOtpSending(false);
-    }
-  }
-
-  async function handleSubmitNIN() {
-    if (!/^\d{11}$/.test(ninNumber.trim())) {
-      setNinError("Enter your 11-digit NIN");
-      return;
-    }
-    setNinSubmitting(true);
-    setNinError("");
-    setNinSuccess("");
-    try {
-      const result = await submitNIN(ninNumber.trim(), user!.id);
-      if (!result.success) throw new Error(result.message);
-      setNinSuccess("NIN submitted for review. It is not verified yet.");
-      setNinSubmitted(true);
-    } catch (err: unknown) {
-      setNinError(getSafeError(err, "NIN verification failed"));
-    } finally {
-      setNinSubmitting(false);
+      setIdentitySubmitting(false);
     }
   }
 
@@ -651,142 +632,99 @@ export default function ProConnectRegister() {
         </div>
       )}
 
-      {/* Step 4: Mobile Number Verification */}
+      {/* Step 4: Email Verification (SMS verification is disabled) */}
       {step === 4 && (
         <div className="space-y-5">
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <Phone aria-hidden="true" className="h-8 w-8 text-brand-purple" />
+              <Mail aria-hidden="true" className="h-8 w-8 text-brand-purple" />
             </div>
             <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-              {t("Mobile Number Verification")}
+              {t("Email Verification")}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-              Verify your mobile number to unlock worker channels and increase
-              trust.
+              {t(
+                "Confirm the email address on your account. It is how FRELUX reaches you about your profile.",
+              )}
             </p>
           </div>
 
-          {otpVerified ? (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center dark:border-emerald-500/20 dark:bg-emerald-500/10">
-              <Check
-                aria-hidden="true"
-                className="mx-auto mb-2 h-8 w-8 text-emerald-500"
-              />
-              <p className="font-semibold text-emerald-600 dark:text-emerald-400">
-                {otpSuccess}
-              </p>
-            </div>
-          ) : (
-            <>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                  Mobile Number *
-                </label>
-                <input
-                  type="tel"
-                  value={mobileNumber}
-                  onChange={(e) => setMobileNumber(e.target.value)}
-                  placeholder="e.g. +234 801 234 5678 (any country)"
-                  className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
-                  disabled={otpSent}
-                />
-              </div>
-
-              {!otpSent ? (
-                <Button
-                  variant="default"
-                  onClick={handleSendOTP}
-                  disabled={otpSending || !mobileNumber.trim()}
-                  className="w-full rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
-                >
-                  {otpSending ? "Sending..." : "Send OTP Code"}
-                </Button>
+          <div className="rounded-lg border border-border p-4 dark:border-white/10">
+            <p className="text-xs font-medium text-muted-foreground">
+              {t("Account email")}
+            </p>
+            <p className="mt-1 break-all text-sm font-semibold text-foreground dark:text-primary-foreground">
+              {user?.email ?? t("No email on this account")}
+            </p>
+            <p className="mt-2 text-xs">
+              {isEmailConfirmed(user) ? (
+                <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                  <Check aria-hidden="true" className="h-4 w-4" />
+                  {t("Email confirmed")}
+                </span>
               ) : (
-                <>
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                      Enter OTP Code *
-                    </label>
-                    <input
-                      type="text"
-                      value={otpCode}
-                      onChange={(e) =>
-                        setOtpCode(
-                          e.target.value.replace(/\D/g, "").slice(0, 6),
-                        )
-                      }
-                      placeholder="6-digit code"
-                      maxLength={6}
-                      className="w-full rounded-lg border border-border px-4 py-2.5 text-center text-lg tracking-widest dark:border-white/10 dark:bg-background"
-                    />
-                  </div>
-                  {otpError && (
-                    <p className="flex items-center gap-1.5 text-sm text-red-500">
-                      <AlertCircle aria-hidden="true" className="h-4 w-4" />
-                      {otpError}
-                    </p>
-                  )}
-                  {otpSuccess && (
-                    <p className="text-sm text-emerald-500">{otpSuccess}</p>
-                  )}
-                  <div className="flex gap-3">
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        setOtpSent(false);
-                        setOtpCode("");
-                        setOtpError("");
-                      }}
-                      className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
-                    >
-                      {t("Change Number")}
-                    </Button>
-                    <Button
-                      variant="default"
-                      onClick={handleVerifyOTP}
-                      disabled={otpSending || otpCode.length !== 6}
-                      className="flex-1 rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
-                    >
-                      {otpSending ? "Verifying..." : "Verify OTP"}
-                    </Button>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    onClick={handleSendOTP}
-                    disabled={otpSending || resendCooldown > 0}
-                    className={`w-full text-center text-xs ${resendCooldown > 0 ? "text-muted-foreground" : "text-brand-purple hover:underline"}`}
-                  >
-                    {resendCooldown > 0
-                      ? `Resend OTP in ${resendCooldown}s`
-                      : otpSending
-                        ? "Sending..."
-                        : "Resend OTP"}
-                  </Button>
-                </>
-              )}
-              {otpError && !otpSent && (
-                <p className="flex items-center gap-1.5 text-sm text-red-500">
+                <span className="inline-flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
                   <AlertCircle aria-hidden="true" className="h-4 w-4" />
-                  {otpError}
-                </p>
+                  {t("Email not confirmed yet. Check your inbox for the link.")}
+                </span>
               )}
-            </>
+            </p>
+          </div>
+
+          {!isEmailConfirmed(user) && (
+            <Button
+              variant="outline"
+              onClick={handleResendEmail}
+              disabled={emailResending}
+              className="w-full rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
+            >
+              {emailResending
+                ? t("Sending...")
+                : t("Resend confirmation email")}
+            </Button>
           )}
 
-          <div className="border-t border-border pt-4 dark:border-white/10">
+          {emailMessage && (
+            <p className="text-sm text-emerald-600 dark:text-emerald-400">
+              {emailMessage}
+            </p>
+          )}
+          {emailError && (
+            <p className="flex items-center gap-1.5 text-sm text-red-500">
+              <AlertCircle aria-hidden="true" className="h-4 w-4" />
+              {emailError}
+            </p>
+          )}
+
+          <div className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-muted-foreground">
+            <AlertCircle
+              aria-hidden="true"
+              className="mt-0.5 h-4 w-4 shrink-0"
+            />
+            <p>{PHONE_VERIFICATION_UNAVAILABLE_MESSAGE}</p>
+          </div>
+
+          <div className="flex gap-3">
             <Button
-              variant="ghost"
-              onClick={() => setStep(5)}
-              className="text-sm text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
+              variant="outline"
+              onClick={() => setStep(3)}
+              className="flex-1 rounded-lg py-3 text-sm font-semibold"
             >
-              Skip for now →
+              <ArrowLeft aria-hidden="true" className="mr-2 h-4 w-4" />
+              {t("Back")}
+            </Button>
+            <Button
+              variant="default"
+              onClick={() => setStep(5)}
+              className="flex-1 rounded-lg py-3 text-sm font-semibold"
+            >
+              {t("Continue")}
             </Button>
           </div>
         </div>
       )}
 
-      {/* Step 5: NIN KYC Verification */}
+      {/* Step 5: Government-issued ID (required before pro worker elevation) */}
       {step === 5 && (
         <div className="space-y-5">
           <div className="text-center">
@@ -797,54 +735,90 @@ export default function ProConnectRegister() {
               />
             </div>
             <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-              {t("NIN Verification (KYC)")}
+              {t("Government ID Verification")}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-              Enter your National Identification Number (NIN) to verify your
-              identity. This is required to access Worker Channels.
+              {t(
+                "Submit a government-issued ID. Your account stays unverified until a FRELUX administrator reviews it.",
+              )}
             </p>
           </div>
 
-          {ninSubmitted ? (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center dark:border-emerald-500/20 dark:bg-emerald-500/10">
+          {identitySubmitted ? (
+            <div className="rounded-lg border border-amber-500/30 bg-amber-50 p-4 text-center dark:border-amber-500/20 dark:bg-amber-500/10">
               <Check
                 aria-hidden="true"
-                className="mx-auto mb-2 h-8 w-8 text-emerald-500"
+                className="mx-auto mb-2 h-8 w-8 text-amber-500"
               />
-              <p className="font-semibold text-emerald-600 dark:text-emerald-400">
-                {ninSuccess}
+              <p className="font-semibold text-amber-700 dark:text-amber-300">
+                {identitySuccess}
+              </p>
+              <p className="mt-1 text-xs text-amber-700/80 dark:text-amber-300/80">
+                {UNVERIFIED_ACCOUNT_NOTICE}
               </p>
             </div>
           ) : (
             <>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                  National Identification Number (NIN) *
+                <label
+                  htmlFor="identity-document-type"
+                  className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60"
+                >
+                  {t("Document type")} *
+                </label>
+                <select
+                  id="identity-document-type"
+                  value={documentType}
+                  onChange={(e) => {
+                    setDocumentType(e.target.value as IdentityDocumentType);
+                    setDocumentNumber("");
+                    setIdentityError("");
+                  }}
+                  className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
+                >
+                  {IDENTITY_DOCUMENT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {t(option.label)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="identity-document-number"
+                  className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60"
+                >
+                  {documentType === "national_id"
+                    ? t("National Identification Number (NIN)")
+                    : t("Document number")}{" "}
+                  *
                 </label>
                 <input
+                  id="identity-document-number"
                   type="text"
-                  value={ninNumber}
-                  onChange={(e) =>
-                    setNinNumber(e.target.value.replace(/\D/g, "").slice(0, 11))
+                  value={documentNumber}
+                  onChange={(e) => setDocumentNumber(e.target.value)}
+                  placeholder={
+                    documentType === "national_id"
+                      ? "11-digit NIN"
+                      : t("Document number")
                   }
-                  placeholder="11-digit NIN"
-                  maxLength={11}
-                  className="w-full rounded-lg border border-border px-4 py-2.5 text-center text-lg tracking-widest dark:border-white/10 dark:bg-background"
+                  maxLength={24}
+                  className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
                 />
                 <p className="mt-1.5 text-xs text-muted-foreground">
-                  Your NIN is stored securely and only visible to FRELUX
-                  administrators for verification.
+                  {t(
+                    "Stored securely and visible only to FRELUX administrators for verification.",
+                  )}
                 </p>
               </div>
 
-              {ninError && (
+              {identityError && (
                 <p className="flex items-center gap-1.5 text-sm text-red-500">
                   <AlertCircle aria-hidden="true" className="h-4 w-4" />
-                  {ninError}
+                  {identityError}
                 </p>
-              )}
-              {ninSuccess && (
-                <p className="text-sm text-emerald-500">{ninSuccess}</p>
               )}
 
               <div className="flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
@@ -852,22 +826,18 @@ export default function ProConnectRegister() {
                   aria-hidden="true"
                   className="mt-0.5 h-4 w-4 shrink-0"
                 />
-                <p>
-                  After submitting, FRELUX will verify your NIN. Once approved,
-                  you'll reach <strong>{t("Tier 2 (FRELUX Verified)")}</strong>{" "}
-                  and can join Worker Channels.
-                </p>
+                <p>{UNVERIFIED_ACCOUNT_NOTICE}</p>
               </div>
 
               <Button
                 variant="default"
-                onClick={handleSubmitNIN}
-                disabled={ninSubmitting || ninNumber.length !== 11}
+                onClick={handleSubmitIdentity}
+                disabled={identitySubmitting || !documentNumber.trim()}
                 className="w-full rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
               >
-                {ninSubmitting
-                  ? "Submitting..."
-                  : "Submit NIN for Verification"}
+                {identitySubmitting
+                  ? t("Submitting...")
+                  : t("Submit ID for verification")}
               </Button>
             </>
           )}
@@ -878,7 +848,7 @@ export default function ProConnectRegister() {
               onClick={() => setStep(6)}
               className="text-sm text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
             >
-              Skip for now →
+              {t("Skip for now")} →
             </Button>
           </div>
         </div>
@@ -900,24 +870,24 @@ export default function ProConnectRegister() {
             Your profile details have been saved. Identity checks remain pending
             until approved by FRELUX administrators.
           </p>
-          {(otpVerified || ninSubmitted) && (
-            <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-3 text-sm">
-              {otpVerified && (
-                <p className="text-emerald-500">✓ Mobile number verified</p>
-              )}
-              {ninSubmitted && (
-                <p className="text-amber-500">
-                  ⏳ NIN submitted, pending admin verification
-                </p>
-              )}
-              {!ninSubmitted && (
-                <p className="text-muted-foreground dark:text-muted-foreground">
-                  Complete NIN verification to unlock Worker Channels (Tier 2
-                  access).
-                </p>
-              )}
-            </div>
-          )}
+          <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-3 text-sm">
+            {isEmailConfirmed(user) ? (
+              <p className="text-emerald-500">{t("Email confirmed")}</p>
+            ) : (
+              <p className="text-amber-500">
+                {t("Confirm your email address to secure the account")}
+              </p>
+            )}
+            {identitySubmitted ? (
+              <p className="mt-1 text-amber-500">
+                {t("Government ID submitted, pending admin verification")}
+              </p>
+            ) : (
+              <p className="mt-1 text-muted-foreground dark:text-muted-foreground">
+                {UNVERIFIED_ACCOUNT_NOTICE}
+              </p>
+            )}
+          </div>
           <div className="mt-8 flex flex-col gap-3">
             <Link
               to={`/pro-connect/${slug}/`}
@@ -931,7 +901,7 @@ export default function ProConnectRegister() {
             >
               {t("Go to Dashboard")}
             </Link>
-            {ninSubmitted && (
+            {identitySubmitted && (
               <p className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
                 Worker Channels access becomes available after identity review
                 is approved.
