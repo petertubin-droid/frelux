@@ -51,11 +51,16 @@ export default function AdminSocialBrandCenter() {
   const [accounts, setAccounts] = useState<SocialAccountRow[]>([]);
   const [platforms, setPlatforms] = useState<SocialPlatformDescriptor[]>([]);
   const [analyses, setAnalyses] = useState<SocialAnalysisRow[]>([]);
-  const [permissionsFor, setPermissionsFor] = useState<SocialAccountRow | null>(null);
+  const [permissionsFor, setPermissionsFor] = useState<SocialAccountRow | null>(
+    null,
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [acc, an] = await Promise.all([listSocialAccounts(), listSocialAnalyses()]);
+    const [acc, an] = await Promise.all([
+      listSocialAccounts(),
+      listSocialAnalyses(),
+    ]);
     setAccounts(acc);
     setAnalyses(an);
     setPlatforms([...listSocialPlatforms()]);
@@ -79,11 +84,18 @@ export default function AdminSocialBrandCenter() {
         code,
         account_handle: `connected:${platform}`,
         scopes: [],
+        state: params.get("state") ?? undefined,
       });
       if (!res.ok) {
-        toast.error("Code exchange failed", res.error ?? "Re-authorize the account.");
+        toast.error(
+          "Code exchange failed",
+          res.error ?? "Re-authorize the account.",
+        );
       } else {
-        toast.success("Connected", `${platform} connected. Tokens are stored encrypted server-side.`);
+        toast.success(
+          "Connected",
+          `${platform} connected. Tokens are stored encrypted server-side.`,
+        );
         window.history.replaceState({}, "", "/admin/social-brand-center");
         await load();
       }
@@ -96,7 +108,10 @@ export default function AdminSocialBrandCenter() {
       const res = await getSocialAuthorizeUrl(platform);
       setBusy(null);
       if (!res.ok) {
-        toast.error("Connect failed", res.error ?? "Connection is unavailable for this platform.");
+        toast.error(
+          "Connect failed",
+          res.error ?? "Connection is unavailable for this platform.",
+        );
         return;
       }
       if (res.authorize_url) window.location.href = res.authorize_url;
@@ -105,7 +120,10 @@ export default function AdminSocialBrandCenter() {
   );
 
   const act = useCallback(
-    async (label: string, fn: () => Promise<{ ok: boolean; error?: string }>) => {
+    async (
+      label: string,
+      fn: () => Promise<{ ok: boolean; error?: string }>,
+    ) => {
       setBusy(label);
       const res = await fn();
       setBusy(null);
@@ -130,10 +148,11 @@ export default function AdminSocialBrandCenter() {
         <div className="mb-1 flex items-center gap-2 font-medium text-foreground">
           <ShieldCheck className="h-4 w-4" /> Token governance
         </div>
-        FRELUX never stores your platform passwords. Only OAuth tokens live in the
-        server-side encrypted vault ({TOKEN_GOVERNANCE.storage}). Rotation:
+        FRELUX never stores your platform passwords. Only OAuth tokens live in
+        the server-side encrypted vault ({TOKEN_GOVERNANCE.storage}). Rotation:
         {TOKEN_GOVERNANCE.rotation}. Revocation: {TOKEN_GOVERNANCE.revocation}.
-        ARCHIE may access only the accounts you explicitly connect and authorize here.
+        ARCHIE may access only the accounts you explicitly connect and authorize
+        here.
       </div>
 
       {loading ? (
@@ -144,14 +163,21 @@ export default function AdminSocialBrandCenter() {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {platforms.map((p) => {
             const account = accounts.find((a) => a.platform === p.platform);
-            const connected = account && (account.status === "CONNECTED" || account.status === "SYNCED");
+            const connected =
+              account &&
+              (account.status === "CONNECTED" || account.status === "SYNCED");
             return (
-              <div key={p.platform} className="rounded-lg border border-input bg-card p-4 space-y-3">
+              <div
+                key={p.platform}
+                className="rounded-lg border border-input bg-card p-4 space-y-3"
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <div className="font-medium text-foreground">{p.label}</div>
                     <div className="text-xs text-muted-foreground">
-                      {p.auth_mechanism === "oauth2" ? "Official OAuth" : "Official sign-in flow"}
+                      {p.auth_mechanism === "oauth2"
+                        ? "Official OAuth"
+                        : "Official sign-in flow"}
                     </div>
                   </div>
                   <span
@@ -167,8 +193,11 @@ export default function AdminSocialBrandCenter() {
                 <p className="text-xs text-muted-foreground">{p.note}</p>
                 {account && (
                   <p className="text-xs text-muted-foreground">
-                    {account.account_handle} · scopes: {account.scopes.join(", ") || "none"} ·
-                    synced {account.synced_at ? new Date(account.synced_at).toLocaleString() : "never"}
+                    {account.account_handle} · scopes:{" "}
+                    {account.scopes.join(", ") || "none"} · synced{" "}
+                    {account.synced_at
+                      ? new Date(account.synced_at).toLocaleString()
+                      : "never"}
                   </p>
                 )}
                 <div className="flex flex-wrap gap-2">
@@ -195,7 +224,11 @@ export default function AdminSocialBrandCenter() {
                         <Eye className="h-3.5 w-3.5" /> Permissions
                       </button>
                       <button
-                        onClick={() => void act(`sync:${account.id}`, () => syncSocialAccount(account.id))}
+                        onClick={() =>
+                          void act(`sync:${account.id}`, () =>
+                            syncSocialAccount(account.id),
+                          )
+                        }
                         disabled={busy === `sync:${account.id}`}
                         className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-sm disabled:opacity-60"
                       >
@@ -203,7 +236,9 @@ export default function AdminSocialBrandCenter() {
                       </button>
                       <button
                         onClick={() =>
-                          void act(`disc:${account.id}`, () => disconnectSocialAccount(account.id))
+                          void act(`disc:${account.id}`, () =>
+                            disconnectSocialAccount(account.id),
+                          )
                         }
                         disabled={busy === `disc:${account.id}`}
                         className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-sm disabled:opacity-60"
@@ -212,7 +247,9 @@ export default function AdminSocialBrandCenter() {
                       </button>
                       <button
                         onClick={() =>
-                          void act(`rev:${account.id}`, () => revokeSocialAccess(account.id))
+                          void act(`rev:${account.id}`, () =>
+                            revokeSocialAccess(account.id),
+                          )
                         }
                         disabled={busy === `rev:${account.id}`}
                         className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-sm text-destructive disabled:opacity-60"
@@ -232,7 +269,8 @@ export default function AdminSocialBrandCenter() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-lg border border-input bg-card p-5 space-y-3">
             <div className="font-medium text-foreground">
-              Permissions · {permissionsFor.platform} ({permissionsFor.account_handle})
+              Permissions · {permissionsFor.platform} (
+              {permissionsFor.account_handle})
             </div>
             <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
               {permissionsFor.scopes.length > 0 ? (
@@ -242,8 +280,8 @@ export default function AdminSocialBrandCenter() {
               )}
             </ul>
             <p className="text-xs text-muted-foreground">
-              ARCHIE can analyze only the information these permissions grant, within the
-              platform's terms and privacy requirements.
+              ARCHIE can analyze only the information these permissions grant,
+              within the platform's terms and privacy requirements.
             </p>
             <button
               onClick={() => setPermissionsFor(null)}
@@ -260,28 +298,43 @@ export default function AdminSocialBrandCenter() {
           <Info className="h-4 w-4" /> ARCHIE insight reports
         </div>
         <p className="text-xs text-muted-foreground">
-          Observed platform data, ARCHIE recommendations and ARCHIE assumptions are stored as
-          clearly distinct, labeled kinds and never merged. Private account information stays
-          isolated and never automatically becomes global FRELUX knowledge.
+          Observed platform data, ARCHIE recommendations and ARCHIE assumptions
+          are stored as clearly distinct, labeled kinds and never merged.
+          Private account information stays isolated and never automatically
+          becomes global FRELUX knowledge.
         </p>
         {analyses.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No insight reports yet. Reports appear after authorized accounts are synced and
-            analyzed.
+            No insight reports yet. Reports appear after authorized accounts are
+            synced and analyzed.
           </p>
         ) : (
           <div className="space-y-2">
             {analyses.map((a) => (
-              <div key={a.id} className="rounded-md border border-input p-3 text-xs space-y-1">
-                <div className="font-medium">{a.platform} · {new Date(a.created_date).toLocaleString()}</div>
+              <div
+                key={a.id}
+                className="rounded-md border border-input p-3 text-xs space-y-1"
+              >
+                <div className="font-medium">
+                  {a.platform} · {new Date(a.created_date).toLocaleString()}
+                </div>
                 {a.observed_platform_data.length > 0 && (
-                  <div><span className="font-medium">Observed:</span> {a.observed_platform_data.join(" · ")}</div>
+                  <div>
+                    <span className="font-medium">Observed:</span>{" "}
+                    {a.observed_platform_data.join(" · ")}
+                  </div>
                 )}
                 {a.archie_recommendations.length > 0 && (
-                  <div><span className="font-medium">Recommendations:</span> {a.archie_recommendations.join(" · ")}</div>
+                  <div>
+                    <span className="font-medium">Recommendations:</span>{" "}
+                    {a.archie_recommendations.join(" · ")}
+                  </div>
                 )}
                 {a.archie_assumptions.length > 0 && (
-                  <div><span className="font-medium">Assumptions:</span> {a.archie_assumptions.join(" · ")}</div>
+                  <div>
+                    <span className="font-medium">Assumptions:</span>{" "}
+                    {a.archie_assumptions.join(" · ")}
+                  </div>
                 )}
               </div>
             ))}

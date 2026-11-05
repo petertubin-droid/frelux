@@ -67,6 +67,14 @@ async function authedFetch(
   return { ok: res.ok, status: res.status, body };
 }
 
+/** Where the provider sends the owner back to. It has to be the page
+ *  that started the connect, and it has to be on the allowlist the
+ *  connector accepts. */
+function authorizedRedirectTarget(): string {
+  if (typeof window === "undefined") return "";
+  return `${window.location.origin}${window.location.pathname}`;
+}
+
 /** CONNECT, get the platform's official OAuth authorize URL.
  *  The Owner completes authorization on the platform itself. */
 export async function getSocialAuthorizeUrl(platform: string): Promise<{
@@ -75,7 +83,9 @@ export async function getSocialAuthorizeUrl(platform: string): Promise<{
   error?: string;
 }> {
   const res = await authedFetch(
-    `authorize?platform=${encodeURIComponent(platform)}`,
+    `authorize?platform=${encodeURIComponent(platform)}&redirect=${encodeURIComponent(
+      authorizedRedirectTarget(),
+    )}`,
     { method: "GET" },
   );
   if (!res.ok)
@@ -91,6 +101,8 @@ export async function completeSocialConnection(input: {
   account_handle: string;
   scopes: string[];
   code_verifier?: string;
+  /** Signed state returned by the provider; carries the PKCE verifier. */
+  state?: string;
 }): Promise<{ ok: boolean; error?: string }> {
   const res = await authedFetch("callback", {
     method: "POST",

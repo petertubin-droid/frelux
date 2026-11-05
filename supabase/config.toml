@@ -71,4 +71,6 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.social-connect]
-verify_jwt = true
+# auth is enforced inside the function: user token on authorize/revoke,
+# signed state on the provider redirect
+verify_jwt = false
