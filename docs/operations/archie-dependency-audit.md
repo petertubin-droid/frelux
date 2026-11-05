@@ -72,3 +72,28 @@ public anon key from the FRELUX domain.
 4. **Decide the tables separately.** Moving or dropping 107 tables, their
    triggers and the cross-project cron is its own migration with a backup and a
    rollback, not a cleanup done in passing.
+
+## What was done on 2026-11-05
+
+1. **Anonymous and authenticated privileges revoked** on all 107 ARCHIE tables
+   (20 were readable, all 107 writable with the public key). The exact grant set
+   before the change is in `archie-grants-before-lockdown.json` and can be
+   restored table by table if ARCHIE ever needs it back.
+2. **JWT verification enabled** on the eighteen `archie-*` endpoints, which were
+   all shipped with it off. Requests without a bearer token now stop at the
+   gateway.
+3. **`social-connect` deployed** and `social-client.ts` repointed to it, so no
+   FRELUX code calls an ARCHIE endpoint any more.
+
+Verified live: anonymous read of an ARCHIE table returns `42501 permission
+denied`, a call to an ARCHIE endpoint with no token returns 401, `social-connect`
+returns 401 without a user token, and ordinary FRELUX public reads such as
+`product_updates` still return 200.
+
+Not yet possible: a real connect round trip. `integration_secrets` holds no
+platform credentials and `SOCIAL_TOKEN_KEY` is unset, so `authorize` answers
+`platform_not_configured` and `callback` would answer
+`token_vault_not_configured`. Both are deliberate refusals, not stubs.
+
+Still open: the eighteen mirrors remain deployed but nothing calls them, and the
+107 tables remain in `public`. Deleting either is a separate, deliberate step.
