@@ -50,7 +50,76 @@ export const PLATFORM_ALLOWANCE = 0.1;
 /** Assumed allowable bearing when no soil test figure is supplied. */
 export const DEFAULT_SOIL_BEARING_KPA = 100;
 
-/** BS 5628 style limit: an unreinforced pier wants height under 12 times its thickness. */
+/**
+ * Presumed bearing values, after the BS 8004 table a foundation designer
+ * starts from. These are presumptions, not tests: they hold for a competent
+ * stratum at founding level, and they are labelled as such wherever they are
+ * used.
+ */
+export type SoilType =
+  | "rock"
+  | "dense_gravel"
+  | "sandy_gravel"
+  | "dense_sand"
+  | "medium_sand"
+  | "stiff_clay"
+  | "firm_clay"
+  | "soft_clay"
+  | "made_ground";
+
+export const SOIL_PRESUMPTIONS: {
+  id: SoilType;
+  label: string;
+  bearingKpa: number;
+}[] = [
+  { id: "rock", label: "Sound rock", bearingKpa: 600 },
+  { id: "dense_gravel", label: "Dense gravel", bearingKpa: 400 },
+  { id: "sandy_gravel", label: "Sandy gravel", bearingKpa: 300 },
+  { id: "dense_sand", label: "Dense sand", bearingKpa: 200 },
+  { id: "medium_sand", label: "Medium dense sand", bearingKpa: 150 },
+  { id: "stiff_clay", label: "Stiff clay", bearingKpa: 150 },
+  { id: "firm_clay", label: "Firm clay", bearingKpa: 100 },
+  { id: "soft_clay", label: "Soft clay or silt", bearingKpa: 50 },
+  { id: "made_ground", label: "Made ground or fill", bearingKpa: 50 },
+];
+
+/**
+ * Basic wind speeds by market, m/s, rounded from the national values a local
+ * engineer would use. Overridden by whatever the site figure is where one
+ * exists.
+ */
+export const MARKET_WIND_SPEEDS: Record<string, number> = {
+  NG: 30,
+  GH: 28,
+  KE: 24,
+  TZ: 24,
+  ZA: 28,
+  EG: 30,
+  AE: 32,
+  IN: 39,
+  GB: 24,
+  IE: 26,
+  CA: 30,
+  US: 45,
+  AU: 35,
+  BR: 30,
+};
+
+export function marketWindSpeedMs(market: string): number {
+  return MARKET_WIND_SPEEDS[market.toUpperCase()] ?? DEFAULT_WIND_SPEED_MS;
+}
+
+/**
+ * BS 5628-1 limits the slenderness ratio of an unreinforced masonry member,
+ * effective height over effective thickness, to 27.
+ */
+export const CODE_MAX_SLENDERNESS = 27;
+
+/**
+ * A tank pier is freestanding: nothing braces it at the top except the ring
+ * beam, so it is held to half the code limit in practice. Past this, brace the
+ * piers or pour columns.
+ */
 export const MAX_PIER_SLENDERNESS = 12;
 
 /** Allowable compressive stress in hollow blockwork in 1:4 mortar, N/mm². */
@@ -79,6 +148,8 @@ const BAR_KG_PER_M = { Y8: 0.395, Y12: 0.888, Y16: 1.579 } as const;
 
 export interface TankStandInput {
   market: string;
+  /** Market code, where it differs from the market key used for pricing. */
+  marketCode?: string;
   /** Storage tank capacity in litres. */
   capacityLitres: number;
   /** Height from ground to the underside of the platform, metres. */
@@ -90,6 +161,8 @@ export interface TankStandInput {
   legs?: number;
   soilBearingKpa?: number;
   soilBearingTested?: boolean;
+  /** Ground type, used for a presumed bearing value when no test figure is given. */
+  soilType?: SoilType;
   /** Basic wind speed for the site, m/s. */
   windSpeedMs?: number;
   unitSystem?: "metric" | "imperial";
@@ -258,15 +331,16 @@ export function calculateTankStand(input: TankStandInput): TankStandOutcome {
 
   const unit = MASONRY_UNITS[input.unitKey ?? "ng-block-9"];
   const tankMat: TankShellMaterial = input.tankMaterial ?? "polyethylene";
+  const soil = SOIL_PRESUMPTIONS.find((item) => item.id === input.soilType);
   const bearingKpa =
     input.soilBearingKpa && input.soilBearingKpa > 0
       ? input.soilBearingKpa
-      : DEFAULT_SOIL_BEARING_KPA;
+      : (soil?.bearingKpa ?? DEFAULT_SOIL_BEARING_KPA);
   const bearingTested = input.soilBearingTested === true;
   const windSpeed =
     input.windSpeedMs && input.windSpeedMs > 0
       ? input.windSpeedMs
-      : DEFAULT_WIND_SPEED_MS;
+      : marketWindSpeedMs(input.marketCode ?? input.market);
 
   // ── Tank shell ──────────────────────────────────────────────────────────
   const dims = tankDimensions(capacity);
@@ -509,16 +583,20 @@ export function calculateTankStand(input: TankStandInput): TankStandOutcome {
     status:
       structure !== "blockwork"
         ? "ok"
-        : slenderRatio <= MAX_PIER_SLENDERNESS
-          ? "ok"
-          : "warn",
+        : slenderRatio > CODE_MAX_SLENDERNESS
+          ? "fail"
+          : slenderRatio > MAX_PIER_SLENDERNESS
+            ? "warn"
+            : "ok",
     detail:
       structure !== "blockwork"
         ? "Braced steel and reinforced concrete legs are not subject to the masonry slenderness limit."
-        : `Stand height is ${slenderRatio.toFixed(1)} times the ${(pierThicknessM * 1000).toFixed(0)} mm pier thickness against a limit of ${MAX_PIER_SLENDERNESS}. ${
+        : `Stand height is ${slenderRatio.toFixed(1)} times the ${(pierThicknessM * 1000).toFixed(0)} mm pier thickness. BS 5628 allows ${CODE_MAX_SLENDERNESS}, but a freestanding pier is held to ${MAX_PIER_SLENDERNESS} here because only the ring beam restrains it. ${
             slenderRatio <= MAX_PIER_SLENDERNESS
-              ? "Within the limit for an unreinforced pier."
-              : "Brace the piers back to the building, tie them with a ring beam, or upgrade to reinforced concrete columns."
+              ? "Within both figures."
+              : slenderRatio <= CODE_MAX_SLENDERNESS
+                ? "Inside the code limit but past the freestanding figure. Brace the piers back to the building or pour columns."
+                : "Past the code limit for unreinforced masonry. Pour reinforced concrete columns."
           }`,
   });
 
@@ -534,7 +612,9 @@ export function calculateTankStand(input: TankStandInput): TankStandOutcome {
     detail: `A full tank puts ${padLoadKn.toFixed(1)} kN on each ${padSideM.toFixed(2)} m pad, which is ${appliedPressureKpa} kPa against ${bearingKpa} kPa allowable. ${
       bearingTested
         ? "The allowable figure came from a soil test."
-        : "The allowable figure is an assumption. Confirm it with a soil test before building."
+        : soil
+          ? `The figure is the presumed value for ${soil.label.toLowerCase()}, not a test. Confirm it at founding level before building.`
+          : "The allowable figure is an assumption. Confirm it with a soil test before building."
     }`,
   });
 
@@ -566,6 +646,15 @@ export function calculateTankStand(input: TankStandInput): TankStandOutcome {
         : `Each leg carries ${perLegKn.toFixed(1)} kN, which ${steel.legSection} covers. Bracing at ${steel.bracingBayM} m centres keeps the leg length in check.`,
     });
   }
+
+  const headAtTapM = actualHeightM + dims.heightM / 2;
+  const pressureBar = Number((headAtTapM * 0.0980665 * 0.9).toFixed(2)); // 10 percent pipe loss
+  checks.push({
+    id: "gravity-head",
+    label: "Gravity head at the tap",
+    status: pressureBar >= 0.5 ? "ok" : pressureBar >= 0.3 ? "warn" : "fail",
+    detail: `The tank outlet sits about ${headAtTapM.toFixed(1)} m above ground, which is roughly ${pressureBar} bar at a ground floor tap after a 10 percent pipe loss. Half a bar is the usual minimum for a shower or a hose; below that a booster set is the answer, not a taller stand.`,
+  });
 
   checks.push({
     id: "overturning",
@@ -752,6 +841,28 @@ export function calculateTankStand(input: TankStandInput): TankStandOutcome {
       unit: "m³ and kg mesh",
       notes: "The tank base must sit flat on this, not on blocks.",
     });
+  }
+
+  // Working at height: a stand above head height needs a way up and a rail,
+  // not a ladder borrowed from the site.
+  if (height >= 2.5) {
+    boq.push(
+      {
+        item: "Stand access ladder",
+        specification: `Galvanised steel ladder, caged over 3 m, ${actualHeightM} m to platform`,
+        quantity: Number(actualHeightM.toFixed(2)),
+        unit: "m",
+        notes:
+          "Fixed to one pier with stand off brackets so it clears the render.",
+      },
+      {
+        item: "Platform guard rail",
+        specification: `1.1 m high rail with mid rail and toe board, ${planWidth.toFixed(2)} m square`,
+        quantity: Number((4 * planWidth).toFixed(2)),
+        unit: "m",
+        notes: "Needed to inspect and clean the tank without a fall.",
+      },
+    );
   }
 
   return {

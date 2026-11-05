@@ -54,7 +54,8 @@ describe("BoreholeWaterSystemEstimator tank stand", () => {
 
   it("lets the builder set the market, the ground and the pier count", () => {
     renderPage();
-    expect(screen.getByLabelText("Soil bearing capacity")).toBeDefined();
+    expect(screen.getByLabelText("Ground type")).toBeDefined();
+    expect(screen.getByLabelText("Tested soil bearing capacity")).toBeDefined();
     expect(screen.getByLabelText("Stand market")).toBeDefined();
 
     const four = screen.getByRole("button", { name: "4" });

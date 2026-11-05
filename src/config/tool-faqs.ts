@@ -503,6 +503,37 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
   },
 ];
 
+const WATER_FAQ_GROUPS: ToolFaqGroup[] = [
+  {
+    slug: "borehole-water-system",
+    route: "/borehole-water-system-estimator",
+    name: "Borehole and Water System",
+    category: "services",
+    questions: [
+      {
+        q: "How is the overhead tank and its stand sized?",
+        a: "From the load the tank puts on the ground. A litre of water is a kilogram, so a 5,000 litre tank is five tonnes before the shell, ring beam, deck and piers are added. The tool divides that between piers, sizes a footing pad under each one against an allowable bearing figure, and puts a reinforced ring beam under the tank so it is supported all round.",
+      },
+      {
+        q: "Why does the stand need wind and footing checks?",
+        a: "Because a tank six metres in the air is a weight on the ground and a sail in the wind. The tool converts a basic wind speed into pressure, applies it to the tank and the stand, and compares the overturning moment with what the empty stand resists, expecting a factor of safety of 1.5. Separately it checks the pad pressure against the ground.",
+      },
+      {
+        q: "How deep should the submersible pump sit?",
+        a: "Below the pumping water level, not the static level. The tool estimates drawdown from safe yield and aquifer type, sets the pump about five metres under the result, and warns when the cased depth is too shallow, when submergence falls under two metres, or when the pump would sit at or below the top of the screen.",
+      },
+      {
+        q: "How much tank storage does a house need?",
+        a: "Enough for the peak and for an outage. The tool takes daily demand from occupants and consumption tier, scales the average hourly rate to the morning rush, measures that against the pump delivery, and adds a reserve of a day or more. The total is rounded to a tank that is actually sold.",
+      },
+      {
+        q: "What is left for a person to decide?",
+        a: "Anything that needs a site. Strata, specific capacity and water quality are modelled from your inputs, so a driller's log and a laboratory assay replace them. Structural quantities are checked against simple limits but still need an engineer to sign, and prices, tax and labour come from your own price book and the page does not price it.",
+      },
+    ],
+  },
+];
+
 /**
  * One catalogue: the original tool groups plus the wider engine family. Kept as
  * two declarations only because the second file would otherwise be unwieldy.
@@ -510,6 +541,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
 export const TOOL_FAQS: ToolFaqGroup[] = [
   ...BASE_TOOL_FAQS,
   ...ENGINE_FAQ_GROUPS,
+  ...WATER_FAQ_GROUPS,
 ];
 
 const BY_SLUG = new Map(TOOL_FAQS.map((g) => [g.slug, g]));

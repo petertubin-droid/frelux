@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  CODE_MAX_SLENDERNESS,
   DEFAULT_SOIL_BEARING_KPA,
+  marketWindSpeedMs,
   MAX_PIER_SLENDERNESS,
   STEEL_LEG_SECTIONS,
   calculateTankStand,
@@ -116,17 +118,95 @@ describe("tank stand engine", () => {
     ).toBe(true);
   });
 
-  it("warns when a stand is too slender for unreinforced piers", () => {
-    const tall = calculateTankStand({ ...base, standHeightM: 9 });
+  it("holds a freestanding pier to half the code slenderness limit", () => {
+    const tall = calculateTankStand({ ...base, standHeightM: 4 });
     expect(
       tall.result!.checks.find((c) => c.id === "slenderness")!.status,
     ).toBe("warn");
-    expect(9 / 0.225).toBeGreaterThan(MAX_PIER_SLENDERNESS);
+    expect(4 / 0.225).toBeGreaterThan(MAX_PIER_SLENDERNESS);
+    expect(4 / 0.225).toBeLessThan(CODE_MAX_SLENDERNESS);
+
+    const tooTall = calculateTankStand({ ...base, standHeightM: 9 });
+    expect(
+      tooTall.result!.checks.find((c) => c.id === "slenderness")!.status,
+    ).toBe("fail");
+    expect(9 / 0.225).toBeGreaterThan(CODE_MAX_SLENDERNESS);
 
     const low = calculateTankStand({ ...base, standHeightM: 2.4 });
     expect(low.result!.checks.find((c) => c.id === "slenderness")!.status).toBe(
       "ok",
     );
+  });
+
+  it("takes a presumed bearing value from the ground type", () => {
+    const sand = calculateTankStand({
+      ...base,
+      soilType: "dense_sand",
+    }).result!;
+    expect(sand.bearing.soilBearingKpa).toBe(200);
+    expect(sand.checks.find((c) => c.id === "bearing")!.detail).toMatch(
+      /dense sand/i,
+    );
+
+    const fill = calculateTankStand({
+      ...base,
+      soilType: "made_ground",
+    }).result!;
+    expect(fill.bearing.soilBearingKpa).toBe(50);
+    expect(fill.concrete!.padSideM).toBeGreaterThan(sand.concrete!.padSideM);
+
+    const tested = calculateTankStand({
+      ...base,
+      soilType: "soft_clay",
+      soilBearingKpa: 300,
+      soilBearingTested: true,
+    }).result!;
+    expect(tested.bearing.soilBearingKpa).toBe(300);
+  });
+
+  it("uses the wind speed of the market it is built in", () => {
+    expect(marketWindSpeedMs("NG")).toBe(30);
+    expect(marketWindSpeedMs("US")).toBeGreaterThan(marketWindSpeedMs("GB"));
+    expect(marketWindSpeedMs("us")).toBe(45);
+    expect(marketWindSpeedMs("ZZ")).toBe(30);
+
+    const lagos = calculateTankStand({ ...base, marketCode: "NG" }).result!;
+    const houston = calculateTankStand({ ...base, marketCode: "US" }).result!;
+    expect(houston.stability.windSpeedMs).toBeGreaterThan(
+      lagos.stability.windSpeedMs,
+    );
+    expect(houston.stability.overturningMomentKnm).toBeGreaterThan(
+      lagos.stability.overturningMomentKnm,
+    );
+  });
+
+  it("checks the gravity head the stand actually delivers", () => {
+    const low = calculateTankStand({ ...base, standHeightM: 2 }).result!;
+    expect(low.checks.find((c) => c.id === "gravity-head")!.status).not.toBe(
+      "ok",
+    );
+
+    const normal = calculateTankStand({ ...base, standHeightM: 6 }).result!;
+    const head = normal.checks.find((c) => c.id === "gravity-head")!;
+    expect(head.status).toBe("ok");
+    expect(head.detail).toMatch(/bar/);
+  });
+
+  it("quotes a way up to the tank and a rail to work behind", () => {
+    const { result } = calculateTankStand(base);
+    const ladder = result!.boq.find(
+      (line) => line.item === "Stand access ladder",
+    );
+    const rail = result!.boq.find(
+      (line) => line.item === "Platform guard rail",
+    );
+    expect(ladder!.quantity).toBeCloseTo(result!.standHeightM, 1);
+    expect(rail!.quantity).toBeCloseTo(4 * result!.platform.planWidthM, 1);
+
+    const kneeHigh = calculateTankStand({ ...base, standHeightM: 2 }).result!;
+    expect(
+      kneeHigh.boq.find((line) => line.item === "Stand access ladder"),
+    ).toBeUndefined();
   });
 
   it("checks the stand against wind with the tank empty", () => {

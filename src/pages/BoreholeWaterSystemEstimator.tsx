@@ -33,8 +33,10 @@ import {
 } from "@/lib/estimation/borehole-water-system-engine";
 import BoreholeWaterSystemAnimation from "@/components/tools/BoreholeWaterSystemAnimation";
 import {
+  SOIL_PRESUMPTIONS,
   calculateTankStand,
   tankStandBoqItems,
+  type SoilType,
   type StandStructure,
 } from "@/lib/estimation/tank-stand";
 import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
@@ -69,8 +71,9 @@ export default function BoreholeWaterSystemEstimator() {
   const [standStructure, setStandStructure] =
     useState<StandStructure>("blockwork");
   const [market, setMarket] = useState<string>("NG");
-  const [soilBearingKpa, setSoilBearingKpa] = useState<number>(100);
-  const [soilBearingTested, setSoilBearingTested] = useState<boolean>(false);
+  const [soilType, setSoilType] = useState<SoilType>("firm_clay");
+  // Blank until somebody has a test figure, which is what makes the flag honest.
+  const [testedBearingKpa, setTestedBearingKpa] = useState<string>("");
   const [standLegs, setStandLegs] = useState<number>(4);
 
   const inputs: BoreholeSystemInputs = useMemo(
@@ -136,13 +139,14 @@ export default function BoreholeWaterSystemEstimator() {
     () =>
       calculateTankStand({
         market,
+        marketCode: market,
         capacityLitres: result.storage.commercialTankSizeLiters,
         standHeightM: towerHeightM,
         structure: standStructure,
         legs: standLegs,
-        soilBearingKpa,
-        soilBearingTested,
-        windSpeedMs: market === "NG" ? 30 : 27,
+        soilType,
+        soilBearingKpa: testedBearingKpa ? Number(testedBearingKpa) : undefined,
+        soilBearingTested: Boolean(testedBearingKpa),
       }),
     [
       market,
@@ -150,8 +154,8 @@ export default function BoreholeWaterSystemEstimator() {
       towerHeightM,
       standStructure,
       standLegs,
-      soilBearingKpa,
-      soilBearingTested,
+      soilType,
+      testedBearingKpa,
     ],
   );
 
@@ -1037,35 +1041,40 @@ export default function BoreholeWaterSystemEstimator() {
                   </label>
                   <label className="space-y-1">
                     <span className="text-[10px] text-muted-foreground">
-                      Soil bearing
+                      Ground
                     </span>
                     <select
-                      aria-label="Soil bearing capacity"
-                      value={soilBearingKpa}
-                      onChange={(event) => {
-                        setSoilBearingKpa(Number(event.target.value));
-                        setSoilBearingTested(false);
-                      }}
+                      aria-label="Ground type"
+                      value={soilType}
+                      onChange={(event) =>
+                        setSoilType(event.target.value as SoilType)
+                      }
                       className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-xs"
                     >
-                      {[75, 100, 150, 200, 300].map((value) => (
-                        <option key={value} value={value}>
-                          {value} kPa
+                      {SOIL_PRESUMPTIONS.map((soil) => (
+                        <option key={soil.id} value={soil.id}>
+                          {soil.label}
                         </option>
                       ))}
                     </select>
                   </label>
-                  <label className="flex items-end gap-1.5 pb-1">
-                    <input
-                      type="checkbox"
-                      checked={soilBearingTested}
-                      onChange={(event) =>
-                        setSoilBearingTested(event.target.checked)
-                      }
-                    />
+                  <label className="space-y-1">
                     <span className="text-[10px] text-muted-foreground">
-                      From a soil test
+                      Test figure
                     </span>
+                    <input
+                      aria-label="Tested soil bearing capacity"
+                      type="number"
+                      min="20"
+                      max="1000"
+                      step="10"
+                      placeholder="kPa, if tested"
+                      value={testedBearingKpa}
+                      onChange={(event) =>
+                        setTestedBearingKpa(event.target.value)
+                      }
+                      className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-xs"
+                    />
                   </label>
                   <div className="space-y-1">
                     <span className="text-[10px] text-muted-foreground">

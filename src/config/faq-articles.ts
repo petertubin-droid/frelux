@@ -27,6 +27,30 @@ export interface FaqArticle {
 }
 
 export const FAQ_ARTICLES: Record<string, FaqArticle> = {
+  "borehole-water-system": {
+    summary:
+      "Sizes the well, the pump, the treatment train, the tank and the stand that carries it.",
+    description:
+      "A borehole is a chain of decisions that all have to agree: hole depth, drawdown under pumping, storage against the morning peak, treatment, and what holds the tank up. The tool works that chain on the numbers you enter and shows every step it took.",
+    functions: [
+      "Sizes casing, slotted screen, gravel pack and sanitary seal from the annular volume of the drilled hole.",
+      "Estimates drawdown, sets the pump below the pumping water level and works riser friction by Hazen Williams.",
+      "Turns head and flow into a motor rating, and warns when the duty needs more than the largest stocked size.",
+      "Sizes storage against the morning peak plus a reserve, then rounds to a tank that is sold.",
+      "Designs the stand under the tank: pads, ring beam, piers or columns, and a wind check with the tank empty.",
+    ],
+    advantages: [
+      "Pump, tank and stand are sized together, so a tank the pump cannot fill or a stand that cannot carry the tank is caught before pouring.",
+      "Assumptions are labelled: presumed bearing, modelled strata, a wind speed that is a market figure not a site study.",
+      "Quantities are separate from money, so the same estimate travels between markets.",
+    ],
+    limits: [
+      "Geology is modelled from depth and aquifer type, not logged from the hole.",
+      "Structural quantities are a bill, not a signed design; the ring beam, pads and columns still need an engineer.",
+      "Water quality is judged against standard limits from the figures you enter, not from a sample.",
+    ],
+  },
+
   "paint-calculator": {
     summary:
       "Turns room measurements into the paint a repaint actually consumes, coat by coat.",
