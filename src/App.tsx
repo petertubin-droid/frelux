@@ -142,6 +142,7 @@ const DocumentStudio = lazy(() => import("@/pages/DocumentStudio"));
 const BuildToRoofEstimator = lazy(() => import("@/pages/BuildToRoofEstimator"));
 const MathematicalPlanElevation = lazy(() => import("@/pages/MathematicalPlanElevation"));
 const TvConsoleCalculator = lazy(() => import("@/pages/TvConsoleCalculator"));
+const TallBuildingCalculator = lazy(() => import("@/pages/TallBuildingCalculator"));
 const ImageEstimator = lazy(() => import("@/pages/ImageEstimator"));
 const VisualFinishingEstimator = lazy(
   () => import("@/pages/VisualFinishingEstimator"),
@@ -1183,6 +1184,14 @@ export default function App() {
                           element={
                             <Suspense fallback={<PageLoader />}>
                               <TvConsoleCalculator />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/tall-building-structure"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <TallBuildingCalculator />
                             </Suspense>
                           }
                         />

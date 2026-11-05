@@ -14,6 +14,12 @@ describe("tool catalogue categories", () => {
     expect(interiors?.blurb.length).toBeGreaterThan(20);
   });
 
+  it("files the TV console calculator under Interior Decors", () => {
+    const consoleTool = CONSTRUCTION_TOOLS.find((t) => t.slug === "tv-console-calculator");
+    expect(consoleTool?.category).toBe("interiors");
+    expect(consoleTool?.to).toBe("/tv-console-calculator");
+  });
+
   it("files the window blind calculator under Interior Decors", () => {
     const blinds = CONSTRUCTION_TOOLS.find((t) => t.slug === "window-blinds");
     expect(blinds).toBeDefined();

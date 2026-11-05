@@ -1868,6 +1868,13 @@ const routes = [
     changefreq: "monthly",
   },
   {
+    path: "/tall-building-structure",
+    title: "Skyscraper Structure and Foundation Calculator | FRELUX",
+    description: "Screen a high rise: lateral system by height, ASCE 7-22 wind base shear and drift, seismic base shear, raft and pile foundation sizing, quantities and programme. Deterministic arithmetic, not a structural design.",
+    priority: "0.8",
+    changefreq: "monthly",
+  },
+  {
     path: "/mathematical-plan-elevation",
     title: "Mathematical Building Elevation Calculator | FRELUX",
     description: "Create an indicative building elevation and preliminary quantity schedule from dimensions you enter. Includes roof-pitch geometry; it does not interpret uploaded plans or verify structural design or code compliance.",

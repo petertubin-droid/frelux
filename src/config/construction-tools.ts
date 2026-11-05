@@ -110,7 +110,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     id: "interiors",
     label: "Interior Decors",
     blurb:
-      "Window treatments, blinds and the pieces that dress a finished room.",
+      "Interior decor, TV consoles, media units, window treatments and blinds.",
   },
   {
     id: "project",
@@ -219,6 +219,20 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Price roller, zebra, day and night, vertical, venetian, roman and wooden blinds from the measured opening, with the highest verified local rates, minimum charge per window and fitting.",
     navVisible: true,
+  },
+  {
+    slug: "tv-console-calculator",
+    title: "TV Console & Media Unit Calculator",
+    category: "interiors",
+    icon: Ruler,
+    does: "Explore ten TV-console concepts, adjust dimensions and estimate a panel-by-panel preliminary material takeoff.",
+    enters: "A concept, cabinet and panel dimensions, optional shelves, dividers, back and doors, sheet size, allowance, and a locally quoted sheet price.",
+    gets: "A transparent rectangular-panel schedule and area-based sheet lower-bound, not a cut-optimized list or safety design.",
+    to: "/tv-console-calculator",
+    benefit: "10 editable concepts · panel-by-panel schedule · Pro image parsing",
+    navVisible: true,
+    seoTitle: "TV Console Material Calculator: Panels, Sheets & Cost | FRELUX",
+    seoDescription: "Calculate TV console panel areas, optional cabinet parts, theoretical sheet lower-bound and an optional subtotal from your entered local sheet price.",
   },
   {
     slug: "paint",
@@ -500,20 +514,6 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
   },
 
   // ---------------------------------------------------------------- structure
-  {
-    slug: "tv-console-calculator",
-    title: "TV Console & Media Unit Calculator",
-    category: "interiors",
-    icon: Ruler,
-    does: "Explore ten TV-console concepts, adjust dimensions and estimate preliminary cabinet-board area.",
-    enters: "A concept or dimensions, shelf count, board size and optional user-entered local sheet price.",
-    gets: "A transparent theoretical board-area and sheet-count estimate; not a cut list or safety design.",
-    to: "/tv-console-calculator",
-    benefit: "10 editable concepts · optional Pro image parsing",
-    navVisible: true,
-    seoTitle: "TV Console & Media Unit Calculator | FRELUX",
-    seoDescription: "Choose from 10 TV-console concepts, adjust dimensions, and review a preliminary board-area estimate. AI image parsing is optional and Pro-gated.",
-  },
   {
     slug: "mathematical-plan-elevation",
     title: "Mathematical Plan Elevation",
