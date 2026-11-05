@@ -172,3 +172,55 @@ export function cementBagDescription(market: string): string {
 export function localMasonryUnits(market: string) {
   return masonryUnitsForMarket(market);
 }
+
+export interface SlabVocabulary {
+  /** What the ground slab is called in this market. */
+  title: string;
+  /** The compacted fill under the slab. */
+  fillWord: string;
+  /** The membrane under the slab. */
+  membraneWord: string;
+  /** The coarse aggregate in the concrete. */
+  aggregateWord: string;
+}
+
+/**
+ * The German floor is a Nigerian term. The same build up is a ground bearing
+ * slab with a MOT Type 1 sub base in the UK and a slab on grade in the US, so
+ * the calculator names its layers the way the reader's trade names them.
+ */
+export function slabVocabulary(
+  market: string | null | undefined,
+): SlabVocabulary {
+  switch ((market ?? "").toUpperCase()) {
+    case "NG":
+    case "GH":
+      return {
+        title: "German floor",
+        fillWord: "Hardcore (laterite or gravel)",
+        membraneWord: "Damp proof membrane (nylon)",
+        aggregateWord: "Granite",
+      };
+    case "UK":
+      return {
+        title: "Ground bearing slab",
+        fillWord: "Sub base (MOT Type 1)",
+        membraneWord: "Damp proof membrane (1200 gauge)",
+        aggregateWord: "Ballast",
+      };
+    case "US":
+      return {
+        title: "Slab on grade",
+        fillWord: "Compacted base course",
+        membraneWord: "Vapour barrier (6 mil)",
+        aggregateWord: "Crushed stone",
+      };
+    default:
+      return {
+        title: "Ground floor slab",
+        fillWord: "Compacted fill",
+        membraneWord: "Damp proof membrane",
+        aggregateWord: "Coarse aggregate",
+      };
+  }
+}

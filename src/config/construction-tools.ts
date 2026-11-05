@@ -163,6 +163,23 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
   },
   // ---------------------------------------------------------------- finishes
   {
+    slug: "german-floor",
+    title: "German Floor Calculator",
+    category: "structure",
+    icon: Layers,
+    does: "Work out the hardcore, blinding, membrane and slab concrete for a ground floor.",
+    enters:
+      "The floor size or plot, the hardcore depth, the slab thickness and the concrete mix.",
+    gets: "Bags of cement, sharp sand and granite in cubic metres and tipper trips, the hardcore and blinding volumes, and the membrane area.",
+    to: "/german-floor-calculator",
+    benefit: "Cement · Granite · Hardcore",
+    seoTitle:
+      "German Floor Calculator: Cement, Sand and Granite Quantities | FRELUX",
+    seoDescription:
+      "Calculate cement bags, sharp sand, granite, hardcore and membrane for a German floor or ground slab. Pick the plot, slab thickness and mix and see every quantity with its assumptions.",
+    navVisible: true,
+  },
+  {
     slug: "fence-block",
     title: "Fence Block Calculator",
     category: "structure",
