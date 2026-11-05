@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 vi.mock("@/components/tools/BoreholeWaterSystemAnimation", () => ({
   default: () => null,
 }));
+vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 
 import BoreholeWaterSystemEstimator from "@/pages/BoreholeWaterSystemEstimator";
 import { publishEntitlement, resetEntitlement } from "@/lib/entitlement-store";

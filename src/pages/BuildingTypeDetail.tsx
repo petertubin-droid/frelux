@@ -14,6 +14,7 @@ import {
   buildingTypeWallAreaM2,
   findBuildingTypeProgramme,
 } from "@/lib/measurement/building-type-catalogue";
+import AdSlot from "@/components/ui/AdSlot";
 
 const CALCULATORS = [
   { to: "/paint-calculator", label: "Paint" },
@@ -267,6 +268,7 @@ export default function BuildingTypeDetail() {
             All building types
           </Link>
         </nav>
+        <AdSlot slotKey="learn_category_mid" className="mt-8" />
       </div>
     </>
   );

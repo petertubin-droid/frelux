@@ -48,6 +48,7 @@ import {
   categoryLabel,
   type SupplierSearchResult,
 } from "@/lib/suppliers/types";
+import AdSlot from "@/components/ui/AdSlot";
 
 const MARKETS = COUNTRY_OPTIONS.flatMap((group) => group.countries).slice(
   0,
@@ -613,6 +614,7 @@ export default function SupplierDirectory() {
             }),
           }}
         />
+        <AdSlot slotKey="market_mid" className="mt-8" />
       </Container>
     </>
   );

@@ -33,6 +33,7 @@ import {
   type BlindOpening,
   type LengthUnit,
 } from "@/lib/estimation/window-blinds-engine";
+import AdSlot from "@/components/ui/AdSlot";
 
 const labelClass = "text-sm font-medium text-foreground";
 const fieldClass =
@@ -800,14 +801,11 @@ export default function WindowBlindsEstimator() {
           </div>
         </section>
 
+        <AdSlot slotKey="estimator_mid" className="mt-8" />
+
         <section aria-labelledby="blind-faq" className="mt-10 space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">
-            <h2
-              id="blind-faq"
-              className="text-lg font-semibold text-foreground"
-            >
-              Blind pricing questions
-            </h2>
+          <h2 id="blind-faq" className="text-lg font-semibold text-foreground">
+            Blind pricing questions
           </h2>
           {[
             {

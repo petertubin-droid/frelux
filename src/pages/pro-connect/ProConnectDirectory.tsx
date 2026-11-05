@@ -39,6 +39,7 @@ import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
+import AdSlot from "@/components/ui/AdSlot";
 
 export default function ProConnectDirectory() {
   const { t } = useLanguage();
@@ -615,6 +616,7 @@ export default function ProConnectDirectory() {
             )}
           </>
         )}
+        <AdSlot slotKey="market_mid" className="mt-8" />
       </Container>
     </>
   );

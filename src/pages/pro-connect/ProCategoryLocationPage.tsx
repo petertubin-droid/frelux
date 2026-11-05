@@ -16,6 +16,7 @@ import type {
 import LocationPicker from "@/components/ui/LocationPicker";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
+import AdSlot from "@/components/ui/AdSlot";
 
 // ============================================================
 // SEO Page: /pro/:categorySlug/:locationSlug
@@ -231,6 +232,7 @@ export default function ProCategoryLocationPage() {
             </div>
           </>
         )}
+        <AdSlot slotKey="market_mid" className="mt-8" />
       </div>
     </div>
   );

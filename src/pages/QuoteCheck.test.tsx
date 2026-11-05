@@ -60,6 +60,7 @@ vi.mock("@/lib/international/market-context", () => ({
     market: { countryName: "Nigeria", currencyCode: "NGN" },
   }),
 }));
+vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 
 describe("QuoteCheck page", () => {
   beforeEach(() => {

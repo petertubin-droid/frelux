@@ -47,6 +47,7 @@ import {
   type StandStructure,
 } from "@/lib/estimation/tank-stand";
 import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
+import AdSlot from "@/components/ui/AdSlot";
 
 export default function BoreholeWaterSystemEstimator() {
   // Input states
@@ -1567,6 +1568,8 @@ export default function BoreholeWaterSystemEstimator() {
             </Card>
           </div>
         </div>
+
+        <AdSlot slotKey="estimator_native" className="mt-6" />
 
         <div className="mt-6 space-y-4">
           <BoreholeProConnectCta market={market} />

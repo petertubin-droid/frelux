@@ -48,6 +48,7 @@ import {
   fetchIndexBenchmark,
   type IndexBenchmark,
 } from "@/lib/suppliers/index-bridge";
+import AdSlot from "@/components/ui/AdSlot";
 
 function ListingRow({
   listing,
@@ -537,6 +538,7 @@ export default function SupplierProfilePage() {
             }),
           }}
         />
+        <AdSlot slotKey="market_mid" className="mt-8" />
       </Container>
     </>
   );

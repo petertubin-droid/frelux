@@ -14,6 +14,7 @@ import {
   buildingTypeFloorAreaM2,
   type BuildingCategory,
 } from "@/lib/measurement/building-type-catalogue";
+import AdSlot from "@/components/ui/AdSlot";
 
 const CATEGORY_ORDER: BuildingCategory[] = [
   "residential",
@@ -197,6 +198,7 @@ export default function BuildingTypes() {
             ))}
           </div>
         </section>
+        <AdSlot slotKey="tools_mid" className="mt-8" />
       </div>
     </>
   );

@@ -39,6 +39,7 @@ import type { DbProCredentialPublic, DbProSettings } from "@/types/pro-connect";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
+import AdSlot from "@/components/ui/AdSlot";
 
 const availabilityConfig = {
   available: {
@@ -644,6 +645,7 @@ export default function ProConnectProfile() {
             }}
           />
         )}
+        <AdSlot slotKey="market_mid" className="mt-8" />
       </div>
     </>
   );

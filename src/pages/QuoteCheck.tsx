@@ -32,6 +32,7 @@ import {
   type QuoteLineInput,
   type QuoteReference,
 } from "@/lib/estimation/quote-check-engine";
+import AdSlot from "@/components/ui/AdSlot";
 
 interface QuoteRow {
   key: string;
@@ -450,6 +451,7 @@ export default function QuoteCheck() {
           />
         </aside>
       </div>
+      <AdSlot slotKey="tools_mid" className="mt-8" />
     </Container>
   );
 }
