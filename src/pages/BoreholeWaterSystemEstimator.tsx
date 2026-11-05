@@ -34,6 +34,7 @@ import {
 import BoreholeWaterSystemAnimation from "@/components/tools/BoreholeWaterSystemAnimation";
 import {
   calculateTankStand,
+  tankStandBoqItems,
   type StandStructure,
 } from "@/lib/estimation/tank-stand";
 import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
@@ -67,6 +68,10 @@ export default function BoreholeWaterSystemEstimator() {
   const [unitSystem, setUnitSystem] = useState<"metric" | "imperial">("metric");
   const [standStructure, setStandStructure] =
     useState<StandStructure>("blockwork");
+  const [market, setMarket] = useState<string>("NG");
+  const [soilBearingKpa, setSoilBearingKpa] = useState<number>(100);
+  const [soilBearingTested, setSoilBearingTested] = useState<boolean>(false);
+  const [standLegs, setStandLegs] = useState<number>(4);
 
   const inputs: BoreholeSystemInputs = useMemo(
     () => ({
@@ -83,6 +88,7 @@ export default function BoreholeWaterSystemEstimator() {
       consumptionTier: tier,
       reserveDays,
       powerSupply: power,
+      marketCode: market,
       unitSystem,
       waterQuality: {
         turbidityNtu: turbidity,
@@ -108,6 +114,7 @@ export default function BoreholeWaterSystemEstimator() {
       tier,
       reserveDays,
       power,
+      market,
       unitSystem,
       turbidity,
       iron,
@@ -128,12 +135,32 @@ export default function BoreholeWaterSystemEstimator() {
   const stand = useMemo(
     () =>
       calculateTankStand({
-        market: "NG",
+        market,
         capacityLitres: result.storage.commercialTankSizeLiters,
         standHeightM: towerHeightM,
         structure: standStructure,
+        legs: standLegs,
+        soilBearingKpa,
+        soilBearingTested,
+        windSpeedMs: market === "NG" ? 30 : 27,
       }),
-    [result.storage.commercialTankSizeLiters, towerHeightM, standStructure],
+    [
+      market,
+      result.storage.commercialTankSizeLiters,
+      towerHeightM,
+      standStructure,
+      standLegs,
+      soilBearingKpa,
+      soilBearingTested,
+    ],
+  );
+
+  const combinedBoq = useMemo(
+    () => [
+      ...result.billOfQuantities,
+      ...(stand.result ? tankStandBoqItems(stand.result) : []),
+    ],
+    [result.billOfQuantities, stand.result],
   );
 
   useSeo({
@@ -279,6 +306,13 @@ export default function BoreholeWaterSystemEstimator() {
         `Check: ${c.label}`,
         `${c.status.toUpperCase()} - ${c.detail}`,
       ]),
+      ...(stand.result?.boq ?? []).map((line) => [
+        `Stand: ${line.item}`,
+        line.specification,
+        String(line.quantity),
+        line.unit,
+        line.notes,
+      ]),
       ["", ""],
       ["--- RETICULATION & GRAVITY PRESSURE ---", ""],
       [
@@ -304,7 +338,7 @@ export default function BoreholeWaterSystemEstimator() {
       ["", ""],
       ["--- COMPLETE ITEMIZED BILL OF QUANTITIES ---", "", "", "", ""],
       ["Category", "Item", "Specification", "Quantity", "Unit", "Notes"],
-      ...result.billOfQuantities.map((item) => [
+      ...combinedBoq.map((item) => [
         item.category,
         item.item,
         item.specification,
@@ -983,6 +1017,80 @@ export default function BoreholeWaterSystemEstimator() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-xs sm:text-sm">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <label className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground">
+                      Market
+                    </span>
+                    <select
+                      aria-label="Stand market"
+                      value={market}
+                      onChange={(event) => setMarket(event.target.value)}
+                      className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-xs"
+                    >
+                      {["NG", "GH", "KE", "ZA", "GB", "US"].map((code) => (
+                        <option key={code} value={code}>
+                          {code}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground">
+                      Soil bearing
+                    </span>
+                    <select
+                      aria-label="Soil bearing capacity"
+                      value={soilBearingKpa}
+                      onChange={(event) => {
+                        setSoilBearingKpa(Number(event.target.value));
+                        setSoilBearingTested(false);
+                      }}
+                      className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-xs"
+                    >
+                      {[75, 100, 150, 200, 300].map((value) => (
+                        <option key={value} value={value}>
+                          {value} kPa
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="flex items-end gap-1.5 pb-1">
+                    <input
+                      type="checkbox"
+                      checked={soilBearingTested}
+                      onChange={(event) =>
+                        setSoilBearingTested(event.target.checked)
+                      }
+                    />
+                    <span className="text-[10px] text-muted-foreground">
+                      From a soil test
+                    </span>
+                  </label>
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground">
+                      Piers
+                    </span>
+                    <div className="flex gap-1">
+                      {[4, 6].map((count) => (
+                        <button
+                          key={count}
+                          type="button"
+                          aria-pressed={standLegs === count}
+                          onClick={() => setStandLegs(count)}
+                          className={
+                            standLegs === count
+                              ? "rounded-md border border-primary bg-primary/10 px-2 py-1 text-[10px] font-semibold"
+                              : "rounded-md border border-border px-2 py-1 text-[10px] text-muted-foreground hover:bg-muted"
+                          }
+                        >
+                          {count}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 {stand.result ? (
                   <>
                     <p className="text-muted-foreground leading-relaxed">
@@ -1102,6 +1210,47 @@ export default function BoreholeWaterSystemEstimator() {
                         </div>
                       </div>
                     ) : null}
+
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      <div className="rounded-lg border border-border p-2">
+                        <div className="text-[10px] text-muted-foreground">
+                          Tank shell
+                        </div>
+                        <div className="font-mono font-semibold">
+                          {stand.result.tank.diameterM} m across
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-border p-2">
+                        <div className="text-[10px] text-muted-foreground">
+                          Platform
+                        </div>
+                        <div className="font-mono font-semibold">
+                          {stand.result.platform.planWidthM} m square
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-border p-2">
+                        <div className="text-[10px] text-muted-foreground">
+                          Ring beam
+                        </div>
+                        <div className="font-mono font-semibold">
+                          {stand.result.platform.ringBeamConcreteM3} m³
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-border p-2">
+                        <div className="text-[10px] text-muted-foreground">
+                          Wind safety
+                        </div>
+                        <div
+                          className={
+                            stand.result.stability.factorOfSafety >= 1.5
+                              ? "font-mono font-semibold text-emerald-600 dark:text-emerald-400"
+                              : "font-mono font-semibold text-amber-600 dark:text-amber-400"
+                          }
+                        >
+                          {stand.result.stability.factorOfSafety} x
+                        </div>
+                      </div>
+                    </div>
 
                     <div className="space-y-1.5">
                       {stand.result.checks.map((check) => (
@@ -1298,7 +1447,7 @@ export default function BoreholeWaterSystemEstimator() {
                   Bill of Quantities (BOQ)
                 </CardTitle>
                 <Badge variant="outline" className="text-xs">
-                  {result.billOfQuantities.length} Line Items
+                  {combinedBoq.length} Line Items
                 </Badge>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -1313,7 +1462,7 @@ export default function BoreholeWaterSystemEstimator() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                      {result.billOfQuantities.map((item, idx) => (
+                      {combinedBoq.map((item, idx) => (
                         <tr
                           key={idx}
                           className="hover:bg-muted/20 transition-colors"

@@ -51,4 +51,31 @@ describe("BoreholeWaterSystemEstimator tank stand", () => {
       hasText("must be checked by a licensed engineer before it carries water"),
     ).toBe(true);
   });
+
+  it("lets the builder set the market, the ground and the pier count", () => {
+    renderPage();
+    expect(screen.getByLabelText("Soil bearing capacity")).toBeDefined();
+    expect(screen.getByLabelText("Stand market")).toBeDefined();
+
+    const four = screen.getByRole("button", { name: "4" });
+    expect(four.getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: "6" }));
+    expect(
+      screen.getByRole("button", { name: "6" }).getAttribute("aria-pressed"),
+    ).toBe("true");
+  });
+
+  it("merges the stand quantities into the bill of quantities", () => {
+    renderPage();
+    expect(hasText("Tank stand piers")).toBe(true);
+    expect(hasText("Pad footing concrete")).toBe(true);
+    expect(hasText("Platform ring beam concrete")).toBe(true);
+  });
+
+  it("shows the tank size it is standing on, and the wind safety factor", () => {
+    renderPage();
+    expect(hasText("Tank shell")).toBe(true);
+    expect(hasText("Platform")).toBe(true);
+    expect(hasText("Wind safety")).toBe(true);
+  });
 });
