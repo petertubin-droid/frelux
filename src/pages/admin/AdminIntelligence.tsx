@@ -15,6 +15,7 @@ import { useSeo } from "@/lib/seo";
 import { formatByCode } from "@/lib/international/currency-format";
 import { loadIntelligence } from "@/lib/intelligence/queries";
 import type { AdminAnalytics } from "@/lib/intelligence/types";
+import { AdminHeader } from "@/components/admin/AdminUi";
 
 function Card({
   label,
@@ -130,29 +131,22 @@ export default function AdminIntelligence() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:py-10">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-            Administration
-          </p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">
-            Platform analytics
-          </h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Aggregated counts across the marketplace, the price index and the
-            project systems. Private project and financial detail stays inside
-            each project.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => void load()}>
-            <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Refresh
-          </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/intelligence">My dashboard</Link>
-          </Button>
-        </div>
-      </header>
+      <AdminHeader
+        title="Platform analytics"
+        subtitle={
+          "Aggregated counts across the marketplace, the price index and the project systems. Private project and financial detail stays inside each project."
+        }
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => void load()}>
+              <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Refresh
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/intelligence">My dashboard</Link>
+            </Button>
+          </div>
+        }
+      />
 
       <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Card
