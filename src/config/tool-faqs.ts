@@ -39,6 +39,7 @@ export type FaqCategoryId =
   | "project"
   | "commercial"
   | "quotes"
+  | "interiors"
   | "platform";
 
 export const FAQ_CATEGORIES: { id: FaqCategoryId; label: string }[] = [
@@ -49,6 +50,7 @@ export const FAQ_CATEGORIES: { id: FaqCategoryId; label: string }[] = [
   { id: "project", label: "Programme, labour and cash flow" },
   { id: "commercial", label: "Costing and commercial control" },
   { id: "quotes", label: "Quotes and client estimates" },
+  { id: "interiors", label: "Interior decor and window treatments" },
   { id: "platform", label: "Using FRELUX" },
 ];
 
@@ -499,6 +501,18 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
         q: "Why does an estimate say tax is not determined?",
         a: "Because FRELUX will not apply a rate it cannot verify for your jurisdiction. Tax is reported as not determined and left for you or your accountant to apply at the correct rate.",
       },
+      {
+        q: "How long does identity verification take?",
+        a: "An administrator normally reviews a submitted identity document the same working day. If no administrator is available, the request is approved automatically fifteen minutes after submission, so verification never waits on someone being at a desk, and the account changes status without you resubmitting.",
+      },
+      {
+        q: "Why is my account still unverified after I uploaded my ID?",
+        a: "Because uploading a document does not grant pro status by itself. The document is held as a pending check while the account stays a client account and unverified, until an administrator approves it or the fifteen minute automatic approval runs and elevates the account.",
+      },
+      {
+        q: "Which document can I upload to become a pro?",
+        a: "One government identity document in your own name: a Nigerian NIN of eleven digits, an international passport, a drivers licence or a voters card. The number must be readable and must match the name on the account, and anything that does not match is sent back for review.",
+      },
     ],
   },
 ];
@@ -508,7 +522,7 @@ const BLINDS_FAQ_GROUPS: ToolFaqGroup[] = [
     slug: "window-blinds",
     route: "/window-blind-calculator",
     name: "Window Blinds",
-    category: "finishes",
+    category: "interiors",
     questions: [
       {
         q: "How is a window blind priced per window and per square metre?",

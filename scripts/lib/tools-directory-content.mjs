@@ -14,21 +14,23 @@ const escapeHtml = (value) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
-const CATEGORY_LABELS = {
+export const CATEGORY_LABELS = {
   finishes: "Materials & Finishes",
   structure: "Building Structure",
   services: "Building Services",
   components: "Building Components",
+  interiors: "Interior Decors",
   project: "Project & Cost",
   ai: "AI Assistants",
   pro: "Pro & Field",
 };
 
-const CATEGORY_PATHS = {
+export const CATEGORY_PATHS = {
   finishes: "/tools/finishes",
   structure: "/tools/structure",
   services: "/tools/services",
   components: "/tools/components",
+  interiors: "/tools/interiors",
   project: "/tools/project",
   ai: "/tools/ai",
   pro: "/tools/pro",
@@ -43,6 +45,8 @@ const CATEGORY_BLURBS = {
     "Electrical, plumbing, solar, backup power and indoor comfort, sized from load and run lengths rather than a rule of thumb.",
   components:
     "Doors and windows as configurable components, with the frame, leaf and finishing quantities that follow from each opening.",
+  interiors:
+    "Window treatments and the pieces that dress a finished room, priced from the measured opening with waste, panel joins, minimum charges and fitting kept separate.",
   project:
     "Budgets, bills of quantities, labour, timelines and long-term cost planning, tied to the same quantities the calculators produce.",
   ai: "Photo, chat and vision assistants that read a drawing, a plan or a site photo, then hand the extracted measurements to the deterministic engines.",
@@ -143,7 +147,9 @@ export function buildToolsDirectoryContent(registry) {
  * internal links to its guide, its siblings and the directory.
  */
 export function buildToolPageContent(registry, { faqSlugs = [] } = {}) {
-  const tools = (Array.isArray(registry) ? registry : []).filter((t) => t && t.path && t.title);
+  const tools = (Array.isArray(registry) ? registry : []).filter(
+    (t) => t && t.path && t.title,
+  );
   if (tools.length === 0) return {};
   const byCategory = new Map();
   for (const tool of tools) {
@@ -157,7 +163,9 @@ export function buildToolPageContent(registry, { faqSlugs = [] } = {}) {
   for (const tool of tools) {
     const label = CATEGORY_LABELS[tool.category] ?? tool.category ?? "Tool";
     const categoryPath = CATEGORY_PATHS[tool.category];
-    const siblings = (byCategory.get(tool.category) ?? []).filter((t) => t.path !== tool.path);
+    const siblings = (byCategory.get(tool.category) ?? []).filter(
+      (t) => t.path !== tool.path,
+    );
     const slug = tool.path.replace(/^\//, "");
     const hasGuide = faq.has(slug);
 
@@ -171,12 +179,19 @@ export function buildToolPageContent(registry, { faqSlugs = [] } = {}) {
           : escapeHtml(label)) +
         ` &rsaquo; ${escapeHtml(tool.title)}</nav>` +
         (tool.does ? `<p>${escapeHtml(tool.does)}</p>` : "") +
-        (tool.enters ? `<h2>What you enter</h2><p>${escapeHtml(tool.enters)}</p>` : "") +
-        (tool.gets ? `<h2>What you get</h2><p>${escapeHtml(tool.gets)}</p>` : "") +
+        (tool.enters
+          ? `<h2>What you enter</h2><p>${escapeHtml(tool.enters)}</p>`
+          : "") +
+        (tool.gets
+          ? `<h2>What you get</h2><p>${escapeHtml(tool.gets)}</p>`
+          : "") +
         (siblings.length
           ? `<h2>Other ${escapeHtml(label.toLowerCase())} tools</h2><ul>${siblings
               .slice(0, 6)
-              .map((s) => `<li><a href="${escapeHtml(s.path)}">${escapeHtml(s.title)}</a>${s.does ? `: ${escapeHtml(s.does)}` : ""}</li>`)
+              .map(
+                (s) =>
+                  `<li><a href="${escapeHtml(s.path)}">${escapeHtml(s.title)}</a>${s.does ? `: ${escapeHtml(s.does)}` : ""}</li>`,
+              )
               .join("")}</ul>`
           : "") +
         (hasGuide

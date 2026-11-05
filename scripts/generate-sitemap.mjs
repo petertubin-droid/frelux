@@ -61,6 +61,7 @@ const routes = [
   { path: "/tools/structure", priority: "0.8", changefreq: "monthly" },
   { path: "/tools/services", priority: "0.8", changefreq: "monthly" },
   { path: "/tools/components", priority: "0.7", changefreq: "monthly" },
+  { path: "/tools/interiors", priority: "0.8", changefreq: "monthly" },
   { path: "/tools/project", priority: "0.8", changefreq: "monthly" },
   { path: "/tools/ai", priority: "0.7", changefreq: "monthly" },
   { path: "/tools/pro", priority: "0.7", changefreq: "monthly" },

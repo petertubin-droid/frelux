@@ -34,6 +34,7 @@ import {
   type LengthUnit,
 } from "@/lib/estimation/window-blinds-engine";
 import AdSlot from "@/components/ui/AdSlot";
+import { getToolFaqGroup } from "@/config/tool-faqs";
 
 const labelClass = "text-sm font-medium text-foreground";
 const fieldClass =
@@ -264,11 +265,13 @@ export default function WindowBlindsEstimator() {
       <Container className="py-8 md:py-12">
         <PageHeader
           variant="tool"
-          eyebrow="Finishes"
+          eyebrow="Interior Decors"
           title="Window blind estimator"
           subtitle="List every opening, pick the type and grade, and see the price per window and for the whole job before a shop quotes you."
           breadcrumbs={[
+            { label: "Home", path: "/" },
             { label: "Calculators", path: "/calculators" },
+            { label: "Interior Decors", path: "/tools/interiors" },
             { label: "Window blinds" },
           ]}
         />
@@ -888,24 +891,7 @@ export default function WindowBlindsEstimator() {
           <h2 id="blind-faq" className="text-lg font-semibold text-foreground">
             Blind pricing questions
           </h2>
-          {[
-            {
-              q: "Why does the calculator charge more than the rate per square metre?",
-              a: "Because shops quote both. The per metre rate is the headline, then a minimum charge per window applies to small openings, and fabric is cut with a waste allowance. A 4 by 4 window quoted at 7,500 per metre still costs about 14,700 once those two rules land.",
-            },
-            {
-              q: "How much does premium grade add?",
-              a: "About forty percent on the rate. Nigerian premium print lists price a 3 by 4 day and night at 20,000 and a 6 by 4 at 38,000, which works out at 17,000 to 18,000 per square metre against 8,000 to 13,500 for standard stock.",
-            },
-            {
-              q: "Can I price a whole house at once?",
-              a: "Yes. Add each opening with its own name, type, size and count, and the schedule totals the job and shows a blended rate per square metre alongside the individual window prices.",
-            },
-            {
-              q: "Can I price blinds outside Nigeria?",
-              a: "Yes, the measurement and the arithmetic are the same everywhere. Enter the rate your local shop quoted and the calculator applies the same waste, minimum charge, extras and fitting rules.",
-            },
-          ].map((item) => (
+          {(getToolFaqGroup("window-blinds")?.questions ?? []).map((item) => (
             <details
               key={item.q}
               className="rounded-xl border border-border bg-card p-4 md:p-5"

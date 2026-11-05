@@ -41,6 +41,8 @@ import { loadToolRegistry } from "./lib/tool-registry.mjs";
 import {
   buildToolsDirectoryContent,
   buildToolPageContent,
+  CATEGORY_LABELS as DIRECTORY_CATEGORY_LABELS,
+  CATEGORY_PATHS as DIRECTORY_CATEGORY_PATHS,
 } from "./lib/tools-directory-content.mjs";
 import {
   buildToolContent,
@@ -48,6 +50,7 @@ import {
   toolSeoTitle,
 } from "./lib/tool-seo.mjs";
 import { faqPrerenderRoutes } from "./generated/faq-prerender.mjs";
+import { faqSchemaByPath } from "./generated/faq-schema.mjs";
 import { buildingTypeRoutes } from "./generated/building-types.mjs";
 import { SITE_URL } from "./lib/site-url.mjs";
 
@@ -2566,6 +2569,14 @@ const routes = [
     changefreq: "monthly",
   },
   {
+    path: "/tools/interiors",
+    title: "Interior Decor Tools and Calculators | FRELUX SMART CALC",
+    description:
+      "Price window blinds and interior finishing work from measured openings, with waste, panel joins, minimum charges and fitting shown separately.",
+    priority: "0.8",
+    changefreq: "monthly",
+  },
+  {
     path: "/tools/components",
     title: "Building Components Tools | FRELUX SMART CALC",
     description:
@@ -2678,7 +2689,8 @@ const routes = [
   },
   {
     path: "/borehole-water-system-estimator",
-    title: "Autonomous Borehole & Water Supply System Estimator | FRELUX SMART CALC",
+    title:
+      "Autonomous Borehole & Water Supply System Estimator | FRELUX SMART CALC",
     description:
       "Size and engineer your complete borehole water system: strata drilling, casing & sanitary seal, submersible pump hydraulics, multi-barrier water treatment, elevated tank peak buffering, and gravity piping.",
   },
@@ -3583,6 +3595,52 @@ for (const tool of toolRegistry) {
       tool,
       toolsByCategory.get(tool.category) ?? [],
     );
+  }
+  // Every tool page carries the same two blocks of structured data: the
+  // calculator as a free web application, and the breadcrumb that the static
+  // body already renders. Routes that were written by hand keep their own
+  // richer set rather than being overwritten here.
+  if (!route.structuredData) {
+    const categoryPath = DIRECTORY_CATEGORY_PATHS[tool.category];
+    const categoryLabel = DIRECTORY_CATEGORY_LABELS[tool.category];
+    const crumbs = [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Construction tools",
+        item: `${SITE_URL}/construction-tools`,
+      },
+    ];
+    if (categoryPath && categoryLabel) {
+      crumbs.push({
+        "@type": "ListItem",
+        position: 3,
+        name: categoryLabel,
+        item: `${SITE_URL}${categoryPath}`,
+      });
+    }
+    crumbs.push({
+      "@type": "ListItem",
+      position: crumbs.length + 1,
+      name: tool.title,
+      item: `${SITE_URL}${tool.path}`,
+    });
+    route.structuredData = [
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: `FRELUX ${tool.title}`,
+        applicationCategory: "CalculatorApplication",
+        operatingSystem: "Web",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: crumbs,
+      },
+    ];
   }
 }
 
@@ -4832,6 +4890,39 @@ for (const route of routes) {
       .join("\n");
     html = html.replace("</head>", `${altLinks}\n</head>`);
   }
+
+  // The template also carried a paint-calculator FAQPage, so all 1635 routes
+  // claimed to answer paint questions. Removed here; each route emits its own.
+  html = html.replace(
+    /\n?\s*<script type="application\/ld\+json" id="faq-structured-data">[\s\S]*?<\/script>/,
+    "",
+  );
+
+  const routeQuestions = faqSchemaByPath[route.path];
+  if (routeQuestions && routeQuestions.length) {
+    const faqSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: routeQuestions.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    };
+    html = html.replace(
+      "</head>",
+      `  <script type="application/ld+json" id="faq-structured-data">${normalizeSdUrls(JSON.stringify(faqSchema))}</script>\n</head>`,
+    );
+  }
+
+  // The build template carried a paint-calculator BreadcrumbList, so every
+  // prerendered page inherited a breadcrumb that pointed at another route.
+  // It is removed here unconditionally: a page keeps only breadcrumbs that
+  // describe that page, and a page with none is better than a false one.
+  html = html.replace(
+    /\n?\s*<script type="application\/ld\+json" id="breadcrumb-structured-data">[\s\S]*?<\/script>/,
+    "",
+  );
 
   // Structured data
   if (route.structuredData) {

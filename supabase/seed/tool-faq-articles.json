@@ -949,7 +949,7 @@
     "name": "Using FRELUX",
     "route": "/faq",
     "category": "platform",
-    "question_count": 5,
+    "question_count": 8,
     "questions": [
       {
         "q": "Are the FRELUX construction calculators free?",
@@ -970,6 +970,18 @@
       {
         "q": "Why does an estimate say tax is not determined?",
         "a": "Because applying a percentage that is not the rate for your jurisdiction would produce a confident wrong number, and a wrong number is worse than a stated gap. Where a tax rule is configured for your market, it appears as a line with its basis shown. Where none is configured, the estimate says tax is not determined. You can then add the rate that applies to you, and the total carries it as your figure rather than as the tool's assumption."
+      },
+      {
+        "q": "How long does identity verification take?",
+        "a": "An administrator normally reviews a submitted identity document the same working day. If no administrator is available, the request is approved automatically fifteen minutes after submission, so verification never waits on someone being at a desk, and the account changes status without you resubmitting."
+      },
+      {
+        "q": "Why is my account still unverified after I uploaded my ID?",
+        "a": "Because uploading a document does not grant pro status by itself. The document is held as a pending check while the account stays a client account and unverified, until an administrator approves it or the fifteen minute automatic approval runs and elevates the account."
+      },
+      {
+        "q": "Which document can I upload to become a pro?",
+        "a": "One government identity document in your own name: a Nigerian NIN of eleven digits, an international passport, a drivers licence or a voters card. The number must be readable and must match the name on the account, and anything that does not match is sent back for review."
       }
     ],
     "article": {
@@ -1004,7 +1016,7 @@
       "description": "FRELUX is a set of construction calculators that measure materials, a quote layer that turns those measurements into an offer, and a property intelligence",
       "keywords": "using frelux, using frelux, construction materials, construction calculator, quantity estimate, metric and imperial, Nigeria, Ghana, Kenya, South Africa, United Kingdom, United States"
     },
-    "word_count": 886,
+    "word_count": 1048,
     "source": "longform"
   },
   {
@@ -4089,7 +4101,7 @@
     "slug": "window-blinds",
     "name": "Window Blinds",
     "route": "/window-blind-calculator",
-    "category": "finishes",
+    "category": "interiors",
     "question_count": 5,
     "questions": [
       {
@@ -4140,7 +4152,7 @@
     "seo": {
       "title": "Window Blinds",
       "description": "A blind looks like a single purchase and behaves like four at once: fabric, hardware, fitting and the minimum charge that shops add to small openings.",
-      "keywords": "window blinds, window blinds, finishing materials, construction calculator, quantity estimate, metric and imperial, Nigeria, Ghana, Kenya, South Africa, United Kingdom, United States"
+      "keywords": "window blinds, window blinds, construction materials, construction calculator, quantity estimate, metric and imperial, Nigeria, Ghana, Kenya, South Africa, United Kingdom, United States"
     },
     "word_count": 1230,
     "source": "longform"

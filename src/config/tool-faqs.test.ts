@@ -91,16 +91,13 @@ describe("tool FAQ registry", () => {
     const finishes = toolFaqGroupsByCategory("finishes");
     expect(finishes.length).toBeGreaterThan(0);
     expect(finishes.every((g) => g.category === "finishes")).toBe(true);
-    expect(
-      toolFaqGroupsByCategory("finishes").length +
-        toolFaqGroupsByCategory("structure").length +
-        toolFaqGroupsByCategory("services").length +
-        toolFaqGroupsByCategory("sitework").length +
-        toolFaqGroupsByCategory("project").length +
-        toolFaqGroupsByCategory("commercial").length +
-        toolFaqGroupsByCategory("quotes").length +
-        toolFaqGroupsByCategory("platform").length,
-    ).toBe(TOOL_FAQS.length);
+    // Summed over the declared categories rather than a hand written list, so a
+    // new category cannot quietly drop its groups out of the index.
+    const indexed = catIds.reduce(
+      (total, id) => total + toolFaqGroupsByCategory(id).length,
+      0,
+    );
+    expect(indexed).toBe(TOOL_FAQS.length);
   });
 
   it("keeps the four specialty calculators answered", () => {

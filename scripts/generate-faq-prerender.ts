@@ -1,7 +1,7 @@
 /**
  * Emits the prerender payload for the FAQ hub and every FAQ article.
  *
- * The article pages are the site's answer surface: 62 pages, 310 questions, and
+ * The article pages are the site's answer surface: one page per FAQ group, each
  * a long form body under each one. Before this generator they were rendered by
  * React only, so a crawler that does not execute JavaScript saw an empty shell,
  * and a crawler that does not execute JavaScript is most of them. This writes
@@ -42,9 +42,14 @@ const trail = (path: string) =>
 
 const groups = TOOL_FAQS.filter((group) => ALL_FAQ_ARTICLES[group.slug]);
 
+/** Path -> that path's own questions, so a page never inherits another page's markup. */
+const questionsByPath: Record<string, { q: string; a: string }[]> = {};
+
 const routes: PrerenderRoute[] = groups.map((group) => {
   const article = mergedArticle(group.slug, ALL_FAQ_ARTICLES[group.slug]);
   const questions = mergedQuestions(group.slug, group.questions);
+  questionsByPath[`/faq/${group.slug}`] = questions;
+  questionsByPath[group.route] = questions;
   const seo = faqSeoFor(
     {
       slug: group.slug,
@@ -187,6 +192,14 @@ routes.push({
   ],
 });
 
+const schemaPath = join("scripts", "generated", "faq-schema.mjs");
+writeFileSync(
+  schemaPath,
+  `// GENERATED FILE - do not edit. Regenerate with: npm run faqs:prerender
+export const faqSchemaByPath = ${JSON.stringify(questionsByPath, null, 2)};
+`,
+);
+
 const outPath = join("scripts", "generated", "faq-prerender.mjs");
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(
@@ -197,4 +210,7 @@ export const faqPrerenderRoutes = ${JSON.stringify(routes, null, 2)};
 );
 console.log(
   `faq prerender: ${routes.length} routes, ${totalQuestions} questions -> ${outPath}`,
+);
+console.log(
+  `faq schema: ${Object.keys(questionsByPath).length} paths -> ${schemaPath}`,
 );

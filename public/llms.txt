@@ -22,11 +22,14 @@ Free to use: yes, no sign-up required for calculations.
 - https://freluxtools.com/faq/reinforcement/ - rebar length and weight
 - https://freluxtools.com/faq/blueprint-takeoff/ - quantities read from a plan
 - https://freluxtools.com/faq/boq-generator/ - bill of quantities from measured work
+- https://freluxtools.com/faq/window-blinds/ - how window blinds are priced per window and per square metre
 
 ## Core tools
 
 - https://freluxtools.com/calculators/ - the full tool list
 - https://freluxtools.com/construction-tools - construction calculators by discipline
+- https://freluxtools.com/window-blind-calculator - window blind cost per window and per job from measured openings, with waste, panel joins, minimum charge and fitting
+- https://freluxtools.com/tools/interiors - interior decor tools, including window blinds
 - https://freluxtools.com/material-prices - recorded material prices with dates and markets
 - https://freluxtools.com/prices - market price intelligence
 - https://freluxtools.com/unit-converter - metric and imperial conversion for site measurements
