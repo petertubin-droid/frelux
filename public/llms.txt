@@ -44,3 +44,4 @@ Free to use: yes, no sign-up required for calculations.
 
 - https://freluxtools.com/robots.txt - no crawl restrictions for search or AI crawlers
 - https://freluxtools.com/sitemap.xml - full URL inventory
+- https://freluxtools.com/ads.txt - authorized digital sellers inventory declaration (IAB Tech Lab standard)

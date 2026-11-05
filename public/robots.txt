@@ -4,6 +4,10 @@
 
 User-agent: *
 Allow: /
+Allow: /ads.txt
+Allow: /app-ads.txt
+Allow: /robots.txt
+Allow: /sitemap.xml
 
 # Pillar 1: Tools & Estimators
 Allow: /construction-tools
@@ -153,6 +157,26 @@ Disallow: /clients
 Disallow: /onboarding
 Disallow: /analytics
 
+# Google AdSense, AdMob, and Ads crawlers: explicitly permitted to crawl ads.txt and public pages
+User-agent: Google-adstxt
+Allow: /ads.txt
+Allow: /app-ads.txt
+
+User-agent: Mediapartners-Google
+Allow: /
+Allow: /ads.txt
+Allow: /app-ads.txt
+
+User-agent: AdsBot-Google
+Allow: /
+Allow: /ads.txt
+Allow: /app-ads.txt
+
+User-agent: AdsBot-Google-Mobile
+Allow: /
+Allow: /ads.txt
+Allow: /app-ads.txt
+
 # AI crawlers and answer engines: no restrictions, no crawl delay.
 # The FAQ hub and its 62 answer pages are prerendered static HTML with FAQPage
 # structured data, so they can be read without executing JavaScript.
@@ -199,8 +223,6 @@ Allow: /
 User-agent: MistralAI-User
 Allow: /
 User-agent: Grok
-Allow: /
-User-agent: *
 Allow: /
 
 # Sitemap

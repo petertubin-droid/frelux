@@ -27,6 +27,21 @@
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600
 
+# Ads.txt & App-ads.txt: accessible to all ad verification crawlers, no CORP block
+/ads.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600, must-revalidate
+  Access-Control-Allow-Origin: *
+  Cross-Origin-Resource-Policy: cross-origin
+  X-Robots-Tag: all
+
+/app-ads.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600, must-revalidate
+  Access-Control-Allow-Origin: *
+  Cross-Origin-Resource-Policy: cross-origin
+  X-Robots-Tag: all
+
 # SEO files: short cache with revalidation (crawlers need fresh data)
 /sitemap.xml
   Content-Type: application/xml; charset=utf-8

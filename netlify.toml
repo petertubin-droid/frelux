@@ -45,9 +45,22 @@
 # cross-host robots.txt redirect as a block, so the legacy site stops being
 # crawlable and Search Console's change-of-address check reports
 # "Couldn't fetch the page" and refuses to proceed.
+# robots.txt, ads.txt and app-ads.txt on the old host must be served, not redirected.
 [[redirects]]
   from = "https://freluxtools.netlify.app/robots.txt"
   to = "/legacy-robots.txt"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "https://freluxtools.netlify.app/ads.txt"
+  to = "/ads.txt"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "https://freluxtools.netlify.app/app-ads.txt"
+  to = "/app-ads.txt"
   status = 200
   force = true
 
@@ -465,6 +478,25 @@
   for = "/sw.js"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# Ads.txt & App-ads.txt — accessible to all ad tech crawlers and validators without CORS or CORP blocks
+[[headers]]
+  for = "/ads.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=3600, must-revalidate"
+    Access-Control-Allow-Origin = "*"
+    Cross-Origin-Resource-Policy = "cross-origin"
+    X-Robots-Tag = "all"
+
+[[headers]]
+  for = "/app-ads.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=3600, must-revalidate"
+    Access-Control-Allow-Origin = "*"
+    Cross-Origin-Resource-Policy = "cross-origin"
+    X-Robots-Tag = "all"
 
 
 # Fonts — long cache (immutable, content-hashed filenames)
@@ -2487,6 +2519,17 @@
 [[redirects]]
   from = "/workspace-settings/*"
   to = "/index.html"
+  status = 200
+
+# Explicit pass-through for ads.txt and app-ads.txt so they are never intercepted by SPA or 404 catch-alls
+[[redirects]]
+  from = "/ads.txt"
+  to = "/ads.txt"
+  status = 200
+
+[[redirects]]
+  from = "/app-ads.txt"
+  to = "/app-ads.txt"
   status = 200
 
 [[redirects]]
