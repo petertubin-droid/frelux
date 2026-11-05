@@ -86,6 +86,27 @@ describe("capability-registry", () => {
     }
   });
 
+  it("makes the requested 12 markets available as clearly unverified preliminary estimates", () => {
+    const requestedMarkets = ["US", "GB", "CN", "AU", "IN", "NG", "MX", "SA", "CA", "DE", "JP", "NL"];
+    for (const market of requestedMarkets) {
+      for (const engine of ENGINE_CAPABILITIES) {
+        const result = resolveCapability(engine.id, market, null);
+        expect(result?.state, `${engine.id}:${market} should be accessible`).toBe("enabled");
+        expect(result?.marketVerification).toBe("estimate_only");
+        expect(result?.reason).toMatch(/preliminary estimates only/i);
+        expect(result?.reason).toMatch(/may be unverified/i);
+      }
+    }
+  });
+
+  it("keeps administrator-disabled tools disabled in broadly available markets", () => {
+    const result = resolveCapability("painting", "US", {
+      calculator_type: "painting",
+      is_available: false,
+    });
+    expect(result?.state).toBe("disabled");
+  });
+
   it("every approved market is verified for every engine (owner-directed 2026-10-24)", () => {
     // Owner approval 2026-10-24: all 32 approved markets verified for
     // all 54 engines under the market-first + local-price-entry

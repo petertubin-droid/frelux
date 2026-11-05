@@ -38,11 +38,11 @@ describe("resolveOperationalState (Phase 0 operational state model)", () => {
     ).toBeNull();
   });
 
-  it("verified_operational on a verified pair resolves operational", () => {
+  it("verified_operational on a registry-verified pair resolves operational", () => {
     const r = resolveOperationalState(
       "painting",
-      "NG",
-      row("verified_operational"),
+      "ET",
+      row("verified_operational", { market_code: "ET" }),
     );
     expect(r?.state).toBe("verified_operational");
     expect(r?.operational).toBe(true);
@@ -73,7 +73,7 @@ describe("resolveOperationalState (Phase 0 operational state model)", () => {
 
   it("unavailable and suspended block operation even on verified pairs", () => {
     for (const state of ["unavailable", "suspended"] as const) {
-      const r = resolveOperationalState("painting", "NG", row(state));
+      const r = resolveOperationalState("painting", "ET", row(state, { market_code: "ET" }));
       expect(r?.state).toBe(state);
       expect(r?.operational).toBe(false);
     }
@@ -81,7 +81,7 @@ describe("resolveOperationalState (Phase 0 operational state model)", () => {
 
   it("partial and configured pairs still run market-first with disclosed depth", () => {
     for (const state of ["partial", "configured"] as const) {
-      const r = resolveOperationalState("painting", "NG", row(state));
+      const r = resolveOperationalState("painting", "ET", row(state, { market_code: "ET" }));
       expect(r?.state).toBe(state);
       expect(r?.operational).toBe(true);
       expect(r?.reason).toContain(

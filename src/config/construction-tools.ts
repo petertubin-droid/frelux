@@ -501,29 +501,29 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
 
   // ---------------------------------------------------------------- structure
   {
+    slug: "tv-console-calculator",
+    title: "TV Console & Media Unit Calculator",
+    category: "interiors",
+    icon: Ruler,
+    does: "Explore ten TV-console concepts, adjust dimensions and estimate preliminary cabinet-board area.",
+    enters: "A concept or dimensions, shelf count, board size and optional user-entered local sheet price.",
+    gets: "A transparent theoretical board-area and sheet-count estimate; not a cut list or safety design.",
+    to: "/tv-console-calculator",
+    benefit: "10 editable concepts · optional Pro image parsing",
+    navVisible: true,
+    seoTitle: "TV Console & Media Unit Calculator | FRELUX",
+    seoDescription: "Choose from 10 TV-console concepts, adjust dimensions, and review a preliminary board-area estimate. AI image parsing is optional and Pro-gated.",
+  },
+  {
     slug: "mathematical-plan-elevation",
     title: "Mathematical Plan Elevation",
     category: "structure",
     icon: Ruler,
     does: "Explore a building elevation from entered dimensions, roof geometry, and an illustrative quantity schedule.",
-    enters:
-      "Building dimensions, roof pitch, and optional assumed site inputs.",
+    enters: "Building dimensions, roof pitch, and optional assumed site inputs.",
     gets: "A parametric elevation, preliminary quantities, and costs only for supplier rates you enter.",
     to: "/mathematical-plan-elevation",
     benefit: "Manual dimensions, no AI drawing interpretation",
-    navVisible: true,
-  },
-  {
-    slug: "tall-building-structure",
-    title: "Skyscraper Structure & Foundation",
-    category: "structure",
-    icon: Ruler,
-    does: "Size the lateral system, raft or piled foundation, quantities and programme of a high rise from entered geometry.",
-    enters:
-      "Storeys, plan dimensions, storey heights, loading, wind speed, site seismicity, soil and pile data.",
-    gets: "System recommendation, wind and seismic base shear, drift and stability checks, foundation sizing, quantities and a build programme.",
-    to: "/tall-building-structure",
-    benefit: "Wind, seismic and foundation screening in one deterministic pass",
     navVisible: true,
   },
   {

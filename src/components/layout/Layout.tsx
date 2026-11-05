@@ -24,6 +24,7 @@ import type { Achievement } from "@/lib/achievements";
 import { getSupabase } from "@/lib/supabase-lazy";
 import { adDebug, instrumentScript } from "@/lib/ad-diagnostics";
 import { useAuth } from "@/lib/auth";
+import { useMarket } from "@/lib/international/market-context";
 import {
   adsAllowedForViewer,
   hideAdContainers,
@@ -60,6 +61,7 @@ const AchievementToast = lazy(() =>
 
 export default function Layout() {
   const { t } = useLanguage();
+  const { marketCode } = useMarket();
   const navigate = useNavigate();
   const { user, isPaid, loading: authLoading } = useAuth();
   const [maintenance, setMaintenance] = useState(false);
@@ -561,6 +563,18 @@ export default function Layout() {
         className="w-full flex-1 pt-16 pb-36 md:pb-0"
         role="main"
       >
+        {[
+          "US", "GB", "CN", "AU", "IN", "NG", "MX", "SA", "CA", "DE", "JP", "NL",
+        ].includes(marketCode) && (
+          <div
+            role="note"
+            aria-label="Market estimate notice"
+            className="mx-auto mt-2 w-[min(100%-2rem,80rem)] rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-xs text-amber-900 dark:text-amber-200"
+          >
+            <strong className="font-semibold">{marketCode} estimates are preliminary.</strong>{" "}
+            Local standards, methods, product sizes, and prices may be unverified. Confirm project-specific requirements and current supplier pricing locally; structural and safety-critical results require review by a licensed local professional.
+          </div>
+        )}
         <Outlet />
         <LocalePrompt />
       </main>

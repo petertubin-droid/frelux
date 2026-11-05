@@ -1861,20 +1861,11 @@ const routes = [
 
   // ── Construction calculators & estimators (missing from original) ──
   {
-    path: "/tall-building-structure",
-    title: "Skyscraper Structure and Foundation Calculator | FRELUX",
-    description: "Screen a high rise: lateral system by height, ASCE 7-22 wind base shear and drift, seismic base shear, raft and pile foundation sizing, quantities and programme. Deterministic arithmetic, not a structural design.",
-    priority: "0.8",
+    path: "/tv-console-calculator",
+    title: "TV Console & Media Unit Calculator | FRELUX",
+    description: "Choose from 10 TV-console concepts, adjust dimensions, and review a preliminary board-area estimate. AI image parsing is optional and Pro-gated.",
+    priority: "0.7",
     changefreq: "monthly",
-    structuredData: [{
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      name: "FRELUX Tall Building Structure and Foundation Calculator",
-      applicationCategory: "EngineeringApplication",
-      operatingSystem: "Web",
-      description: "Deterministic high rise screening for lateral systems, wind and seismic demand, drift, raft and pile foundations, quantities and programme.",
-      featureList: ["Lateral system selection by height", "ASCE 7-22 wind base shear and drift", "Seismic base shear", "Raft and piled raft sizing", "Structural quantities and programme"],
-    }],
   },
   {
     path: "/mathematical-plan-elevation",

@@ -47,6 +47,7 @@ export const PAID_FEATURES = [
   "pro_connect_messaging",
   "template_download",
   "brand_studio",
+  "tv_console_ai_design",
 ] as const;
 
 export type PaidFeature = (typeof PAID_FEATURES)[number];
@@ -66,6 +67,7 @@ export const FEATURE_LABELS: Record<PaidFeature, string> = {
   pro_connect_messaging: "Pro Connect Messaging",
   template_download: "Template Downloads",
   brand_studio: "FRELUX Brand Studio",
+  tv_console_ai_design: "AI TV Console Design Parsing",
 };
 
 // Plan hierarchy: higher index = more features
@@ -92,6 +94,7 @@ const FEATURE_MIN_PLAN: Record<PaidFeature, SubscriptionPlan> = {
   pro_connect_messaging: "premium",
   template_download: "premium",
   brand_studio: "pro",
+  tv_console_ai_design: "pro",
 };
 
 /**

@@ -837,6 +837,8 @@ export type AvailabilityState =
 
 export interface AvailabilityResolution {
   state: AvailabilityState;
+  /** Market-specific profiles and estimates are not independently certified. */
+  marketVerification: "verified" | "estimate_only";
   /** Human-readable reason, safe to show to end users. */
   reason: string;
   engine: EngineCapability;
@@ -863,12 +865,15 @@ export function resolveCapability(
   const engine = CAPABILITY_MAP.get(engineId);
   if (!engine) return null;
 
-  const verified = engine.verifiedMarkets.includes(marketCode);
+  const broadAvailabilityMarkets = new Set(["US", "GB", "CN", "AU", "IN", "NG", "MX", "SA", "CA", "DE", "JP", "NL"]);
+  const estimateOnlyMarket = broadAvailabilityMarkets.has(marketCode);
+  const verified = engine.verifiedMarkets.includes(marketCode) && !estimateOnlyMarket;
 
   // Admin explicitly disabled — always honoured, never overridden.
   if (configRow && !configRow.is_available) {
     return {
       state: "disabled",
+      marketVerification: estimateOnlyMarket ? "estimate_only" : "verified",
       reason: `${engine.name} has been disabled for ${marketCode} by FRELUX.`,
       engine,
     };
@@ -878,7 +883,19 @@ export function resolveCapability(
     // Admin explicitly enabled (or no row: verified default).
     return {
       state: "enabled",
+      marketVerification: "verified",
       reason: `${engine.name} is verified for ${marketCode}. ${engine.evidence}`,
+      engine,
+    };
+  }
+
+  // The requested broad-availability markets remain runnable, but this is
+  // deliberately not a claim of local code, pricing, or product verification.
+  if (estimateOnlyMarket) {
+    return {
+      state: "enabled",
+      marketVerification: "estimate_only",
+      reason: `${engine.name} is available in ${marketCode} for preliminary estimates only. Local standards, methods, product sizes, and prices may be unverified; confirm them locally before purchase or construction.`,
       engine,
     };
   }
@@ -887,6 +904,7 @@ export function resolveCapability(
   if (configRow?.is_available) {
     return {
       state: "requires_verification",
+      marketVerification: "estimate_only",
       reason:
         `${engine.name} is not yet verified for ${marketCode}, so an ` +
         `"available" configuration cannot take effect. ` +
@@ -899,6 +917,7 @@ export function resolveCapability(
   if (engine.portability === "market_method") {
     return {
       state: "not_implemented",
+      marketVerification: "estimate_only",
       reason:
         `${engine.name} is not implemented for ${marketCode} yet. ` +
         engine.unverifiedReason,
@@ -907,6 +926,7 @@ export function resolveCapability(
   }
   return {
     state: "requires_verification",
+    marketVerification: "estimate_only",
     reason:
       `${engine.name} is not configured for ${marketCode}. ` +
       engine.unverifiedReason,
@@ -1023,10 +1043,13 @@ export function resolveOperationalState(
   ) {
     if (!availability) return null;
     if (availability.state === "enabled") {
+      const estimateOnly = availability.marketVerification === "estimate_only";
       return {
         state: null,
         operational: true,
-        reason: `${engine.name} ` + STATE_USER_GUIDANCE.verified_operational,
+        reason: estimateOnly
+          ? availability.reason
+          : `${engine.name} ` + STATE_USER_GUIDANCE.verified_operational,
         engine,
         evidenceOwner: null,
         blockingGaps: [],
@@ -1071,8 +1094,10 @@ export function resolveOperationalState(
 
   const gaps = stateRow.blocking_gaps ?? [];
   const reason =
-    `${engine.name} ${STATE_USER_GUIDANCE[state]}` +
-    (gaps.length > 0 ? ` Open gaps: ${gaps.join("; ")}.` : "");
+    availability?.marketVerification === "estimate_only" && operational
+      ? availability.reason + (gaps.length > 0 ? ` Open gaps: ${gaps.join("; ")}.` : "")
+      : `${engine.name} ${STATE_USER_GUIDANCE[state]}` +
+        (gaps.length > 0 ? ` Open gaps: ${gaps.join("; ")}.` : "");
 
   return {
     state,
