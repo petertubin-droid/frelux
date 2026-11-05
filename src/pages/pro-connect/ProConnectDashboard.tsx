@@ -50,6 +50,8 @@ import { Button } from "@/components/ui/shadcn/button";
 import { ProCredentialManager } from "@/components/pro-connect/ProCredentialManager";
 import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
 
 export default function ProConnectDashboard() {
   const { t } = useLanguage();
@@ -175,886 +177,899 @@ export default function ProConnectDashboard() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      {/* Quick Links */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        <Link
-          to="/worker-channels/"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/20 bg-primary/5 px-3 py-1.5 text-sm font-medium text-brand-purple transition-colors hover:bg-primary/10"
-        >
-          <Hash className="h-4 w-4" />
-          {t("Worker Channels")}
-        </Link>
-        <Link
-          to="/messages/"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
-        >
-          <MessageSquare aria-hidden="true" className="h-4 w-4" />
-          {t("Messages")}
-        </Link>
-        <Link
-          to="/profile/"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
-        >
-          <Settings aria-hidden="true" className="h-4 w-4" />
-          {t("My Profile")}
-        </Link>
-      </div>
-
-      {/* Header */}
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-            {t("Professional Dashboard")}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-            {t("Manage your profile, portfolio, and conversations")}
-          </p>
-        </div>
-        <Link
-          to={`/pro-connect/${profile.slug}/`}
-          className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-card-foreground dark:border-white/10 dark:text-muted-foreground/60"
-        >
-          <Eye aria-hidden="true" className="h-4 w-4" />
-          {t("View public profile")}
-        </Link>
-      </div>
-
-      {/* Stats */}
-      <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
-          <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
-            <Award className="h-4 w-4" />
-            <span className="text-xs">{t("Rating")}</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
-            {profile.rating_avg.toFixed(1)}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {profile.rating_count} reviews
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
-          <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
-            <MessageSquare aria-hidden="true" className="h-4 w-4" />
-            <span className="text-xs">{t("Messages")}</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
-            {unreadCount > 0 ? unreadCount : conversations.length}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {unreadCount > 0 ? "unread" : "conversations"}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
-          <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
-            <Eye aria-hidden="true" className="h-4 w-4" />
-            <span className="text-xs">{t("Listed")}</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
-            {profile.is_listed ? "Yes" : "No"}
-          </p>
-          <p className="text-xs text-muted-foreground capitalize">
-            {profile.verification_status}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
-          <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
-            <Briefcase aria-hidden="true" className="h-4 w-4" />
-            <span className="text-xs">{t("Experience")}</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
-            {profile.years_experience || 0} yrs
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {portfolio.length} portfolio items
-          </p>
-        </div>
-      </div>
-
-      {/* Profile status */}
-      <div className="mb-8 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-foreground dark:text-primary-foreground">
-              {profile.display_name}
-            </h2>
-            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-              {profile.business_name || "No business name set"}
-            </p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              <span
-                className={classNames(
-                  "rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
-                  profile.availability === "available"
-                    ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                    : profile.availability === "busy"
-                      ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                      : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
-                )}
-              >
-                {profile.availability}
-              </span>
-              {profile.verification_status === "verified" && (
-                <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                  {t("Verified")}
-                </span>
-              )}
-            </div>
-          </div>
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: t("Pro Connect"), path: "/pro-connect" },
+          { label: t("Professional Dashboard") },
+        ]}
+        eyebrow={t("Pro Connect")}
+        title={t("Professional Dashboard")}
+        subtitle={t("Manage your profile, portfolio, and conversations")}
+        actions={
           <Link
-            to="/pro-connect/register/"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
+            to={`/pro-connect/${profile.slug}/`}
+            className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-card-foreground dark:border-white/10 dark:text-muted-foreground/60"
+          >
+            <Eye aria-hidden="true" className="h-4 w-4" />
+            {t("View public profile")}
+          </Link>
+        }
+      />
+
+      <Container className="max-w-4xl pb-12 pt-6">
+        {/* Quick Links */}
+        <div className="mb-6 flex flex-wrap gap-2">
+          <Link
+            to="/worker-channels/"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/20 bg-primary/5 px-3 py-1.5 text-sm font-medium text-brand-purple transition-colors hover:bg-primary/10"
+          >
+            <Hash className="h-4 w-4" />
+            {t("Worker Channels")}
+          </Link>
+          <Link
+            to="/messages/"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+          >
+            <MessageSquare aria-hidden="true" className="h-4 w-4" />
+            {t("Messages")}
+          </Link>
+          <Link
+            to="/profile/"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
           >
             <Settings aria-hidden="true" className="h-4 w-4" />
-            {t("Edit Profile")}
+            {t("My Profile")}
           </Link>
         </div>
 
-        {/* Services */}
-        {services.length > 0 && (
-          <div className="mt-4">
-            <p className="mb-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              {t("Services")}
+        {/* Stats */}
+        <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
+            <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
+              <Award className="h-4 w-4" />
+              <span className="text-xs">{t("Rating")}</span>
+            </div>
+            <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
+              {profile.rating_avg.toFixed(1)}
             </p>
-            <div className="flex flex-wrap gap-1.5">
-              {services.map((s) => (
-                <span
-                  key={s.id}
-                  className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground/80"
-                >
-                  {s.name}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Locations */}
-        {locations.length > 0 && (
-          <div className="mt-3">
-            <p className="mb-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-              {t("Service Areas")}
+            <p className="text-xs text-muted-foreground">
+              {profile.rating_count} reviews
             </p>
-            <div className="flex flex-wrap gap-1.5">
-              {locations.map((l, i) => (
-                <span
-                  key={i}
-                  className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground/80"
-                >
-                  <MapPin aria-hidden="true" className="mr-1 inline h-3 w-3" />
-                  {[l.area, l.city, l.state].filter(Boolean).join(", ")}
-                </span>
-              ))}
-            </div>
           </div>
-        )}
-      </div>
-
-      {/* Verification Status */}
-      <div className="mb-8 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
-        <h2 className="mb-4 text-base font-semibold text-foreground dark:text-primary-foreground">
-          {t("Verification Status")}
-        </h2>
-        <div className="flex flex-wrap items-start gap-4">
-          {/* Contact Verified */}
-          <div
-            className={classNames(
-              "flex items-center gap-2 rounded-lg px-3 py-2",
-              profile.contact_verified_at
-                ? "bg-emerald-50 dark:bg-emerald-500/10"
-                : "bg-muted/50 dark:bg-white/5",
-            )}
-          >
-            <div
-              className={classNames(
-                "flex h-8 w-8 items-center justify-center rounded-full",
-                profile.contact_verified_at
-                  ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400"
-                  : "bg-muted text-muted-foreground dark:bg-white/5",
-              )}
-            >
-              <span className="text-xs font-bold">
-                {profile.contact_verified_at ? "✓" : "1"}
-              </span>
+          <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
+            <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
+              <MessageSquare aria-hidden="true" className="h-4 w-4" />
+              <span className="text-xs">{t("Messages")}</span>
             </div>
+            <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
+              {unreadCount > 0 ? unreadCount : conversations.length}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {unreadCount > 0 ? "unread" : "conversations"}
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
+            <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
+              <Eye aria-hidden="true" className="h-4 w-4" />
+              <span className="text-xs">{t("Listed")}</span>
+            </div>
+            <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
+              {profile.is_listed ? "Yes" : "No"}
+            </p>
+            <p className="text-xs text-muted-foreground capitalize">
+              {profile.verification_status}
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
+            <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
+              <Briefcase aria-hidden="true" className="h-4 w-4" />
+              <span className="text-xs">{t("Experience")}</span>
+            </div>
+            <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
+              {profile.years_experience || 0} yrs
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {portfolio.length} portfolio items
+            </p>
+          </div>
+        </div>
+
+        {/* Profile status */}
+        <div className="mb-8 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+          <div className="flex items-start justify-between">
             <div>
-              <p
-                className={classNames(
-                  "text-sm font-medium",
-                  profile.contact_verified_at
-                    ? "text-emerald-700 dark:text-emerald-400"
-                    : "text-muted-foreground dark:text-muted-foreground",
-                )}
-              >
-                {t("Contact Verified")}
+              <h2 className="text-base font-semibold text-foreground dark:text-primary-foreground">
+                {profile.display_name}
+              </h2>
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+                {profile.business_name || "No business name set"}
               </p>
-              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                {profile.contact_verified_at
-                  ? "Verified " +
-                    new Date(profile.contact_verified_at).toLocaleDateString(
-                      "en-GB",
-                    )
-                  : "Email & phone confirmation"}
-              </p>
-            </div>
-          </div>
-
-          {/* FRELUX Verified */}
-          <div
-            className={classNames(
-              "flex items-center gap-2 rounded-lg px-3 py-2",
-              profile.identity_verified_at
-                ? "bg-blue-50 dark:bg-blue-500/10"
-                : "bg-muted/50 dark:bg-white/5",
-            )}
-          >
-            <div
-              className={classNames(
-                "flex h-8 w-8 items-center justify-center rounded-full",
-                profile.identity_verified_at
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
-                  : "bg-muted text-muted-foreground dark:bg-white/5",
-              )}
-            >
-              <span className="text-xs font-bold">
-                {profile.identity_verified_at ? "✓" : "2"}
-              </span>
-            </div>
-            <div>
-              <p
-                className={classNames(
-                  "text-sm font-medium",
-                  profile.identity_verified_at
-                    ? "text-blue-700 dark:text-blue-400"
-                    : "text-muted-foreground dark:text-muted-foreground",
-                )}
-              >
-                {t("FRELUX Verified")}
-              </p>
-              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                {profile.identity_verified_at
-                  ? "Identity verified"
-                  : "Identity & profile review"}
-              </p>
-            </div>
-          </div>
-
-          {/* FRELUX Pro */}
-          <div
-            className={classNames(
-              "flex items-center gap-2 rounded-lg px-3 py-2",
-              profile.pro_level
-                ? "bg-amber-50 dark:bg-amber-500/10"
-                : "bg-muted/50 dark:bg-white/5",
-            )}
-          >
-            <div
-              className={classNames(
-                "flex h-8 w-8 items-center justify-center rounded-full",
-                profile.pro_level
-                  ? "bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400"
-                  : "bg-muted text-muted-foreground dark:bg-white/5",
-              )}
-            >
-              <span className="text-xs font-bold">
-                {profile.pro_level ? "✓" : "3"}
-              </span>
-            </div>
-            <div>
-              <p
-                className={classNames(
-                  "text-sm font-medium",
-                  profile.pro_level
-                    ? "text-amber-700 dark:text-amber-400"
-                    : "text-muted-foreground dark:text-muted-foreground",
-                )}
-              >
-                {t("FRELUX Pro")}
-              </p>
-              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                {profile.pro_level
-                  ? "Top professional"
-                  : proLevelEligible
-                    ? "Eligible, contact support"
-                    : "Build your reputation"}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Verification status message */}
-        <div className="mt-4">
-          <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-            Status:{" "}
-            <span
-              className={classNames(
-                "font-medium capitalize",
-                profile.verification_status === "verified"
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : profile.verification_status === "pending"
-                    ? "text-amber-600 dark:text-amber-400"
-                    : profile.verification_status === "rejected"
-                      ? "text-red-600 dark:text-red-400"
-                      : profile.verification_status === "more_info"
-                        ? "text-blue-600 dark:text-blue-400"
-                        : profile.verification_status === "suspended"
-                          ? "text-red-600 dark:text-red-400"
-                          : "text-muted-foreground",
-              )}
-            >
-              {profile.verification_status.replace("_", " ")}
-            </span>
-          </p>
-          {profile.verification_status === "more_info" &&
-            verificationRequests[0]?.more_info_request && (
-              <div className="mt-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-500/10">
-                <p className="text-sm text-blue-700 dark:text-blue-400">
-                  <strong>Action needed:</strong>{" "}
-                  {verificationRequests[0].more_info_request}
-                </p>
-              </div>
-            )}
-          {profile.verification_status === "rejected" &&
-            verificationRequests[0]?.rejection_reason && (
-              <div className="mt-2 rounded-lg bg-red-50 p-3 dark:bg-red-500/10">
-                <p className="text-sm text-red-700 dark:text-red-400">
-                  <strong>Reason:</strong>{" "}
-                  {verificationRequests[0].rejection_reason}
-                </p>
-              </div>
-            )}
-        </div>
-
-        {/* Request verification button */}
-        {(profile.verification_status === "unverified" ||
-          profile.verification_status === "rejected" ||
-          profile.verification_status === "more_info") && (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setShowVerificationForm(!showVerificationForm);
-              setVerifSuccess(false);
-              setVerifError("");
-            }}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
-          >
-            {showVerificationForm ? "Cancel" : "Request Verification"}
-          </Button>
-        )}
-
-        {/* Verification submission form */}
-        {showVerificationForm && !verifSuccess && (
-          <div className="mt-4 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
-            <h3 className="mb-4 text-base font-semibold text-foreground dark:text-primary-foreground">
-              {t("Request Verification")}
-            </h3>
-
-            {/* Verification type selector */}
-            <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                {t("Verification Type")}
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  variant="ghost"
-                  onClick={() => setVerifType("contact")}
-                  className={classNames(
-                    "min-w-0 rounded-lg border p-3 text-left text-sm transition-colors",
-                    verifType === "contact"
-                      ? "border-brand-purple bg-primary/5 text-brand-purple"
-                      : "border-border text-muted-foreground hover:border-border dark:border-white/10 dark:text-muted-foreground",
-                  )}
-                >
-                  <span className="block whitespace-normal break-words font-semibold">
-                    Level 1: Contact
-                  </span>
-                  <span className="block whitespace-normal break-words text-xs">
-                    Verify your contact info &amp; profile
-                  </span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => setVerifType("identity")}
-                  className={classNames(
-                    "min-w-0 rounded-lg border p-3 text-left text-sm transition-colors",
-                    verifType === "identity"
-                      ? "border-brand-purple bg-primary/5 text-brand-purple"
-                      : "border-border text-muted-foreground hover:border-border dark:border-white/10 dark:text-muted-foreground",
-                  )}
-                >
-                  <span className="block whitespace-normal break-words font-semibold">
-                    Level 2: Identity
-                  </span>
-                  <span className="block whitespace-normal break-words text-xs">
-                    {t("Verify your identity (NIN/ID)")}
-                  </span>
-                </Button>
-              </div>
-            </div>
-
-            {/* Common fields */}
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
-                  Professional Name *
-                </label>
-                <input
-                  type="text"
-                  value={verifName}
-                  onChange={(e) => setVerifName(e.target.value)}
-                  placeholder={t("Your full name")}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
-                  {t("Business Name")}
-                </label>
-                <input
-                  type="text"
-                  value={verifBusiness}
-                  onChange={(e) => setVerifBusiness(e.target.value)}
-                  placeholder={t("Optional")}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
-                />
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
-                {t("Years of Experience")}
-              </label>
-              <input
-                type="number"
-                value={verifYears}
-                min="0"
-                max="50"
-                onChange={(e) => setVerifYears(e.target.value)}
-                placeholder="e.g. 5"
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
-              />
-            </div>
-
-            {/* Identity verification fields */}
-            {verifType === "identity" && (
-              <div className="mt-3 space-y-3 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
-                    ID Document Type *
-                  </label>
-                  <select
-                    value={verifIdType}
-                    onChange={(e) => setVerifIdType(e.target.value)}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
-                  >
-                    <option value="national_id">{t("National ID")}</option>
-                    <option value="drivers_license">
-                      {t("Driver's License")}
-                    </option>
-                    <option value="international_passport">
-                      {t("International Passport")}
-                    </option>
-                    <option value="voters_card">{t("Voter's Card")}</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
-                    ID Document Number *
-                  </label>
-                  <input
-                    type="text"
-                    value={verifIdNumber}
-                    onChange={(e) => setVerifIdNumber(e.target.value)}
-                    placeholder={t("Enter your ID number")}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Your ID number is stored securely and only visible to FRELUX
-                    administrators.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {verifError && (
-              <p className="mt-3 flex items-center gap-1.5 text-sm text-red-500">
-                {verifError}
-              </p>
-            )}
-
-            <Button
-              variant="ghost"
-              onClick={async () => {
-                if (!verifName.trim()) {
-                  setVerifError("Please enter your professional name.");
-                  return;
-                }
-                if (verifType === "identity" && !verifIdNumber.trim()) {
-                  setVerifError("Please enter your ID document number.");
-                  return;
-                }
-                setVerifSubmitting(true);
-                setVerifError("");
-                const req = await createVerificationRequest(profile.id, {
-                  request_type: verifType,
-                  professional_name: verifName,
-                  business_name: verifBusiness || undefined,
-                  years_experience: verifYears
-                    ? parseInt(verifYears)
-                    : undefined,
-                  identity_document_type:
-                    verifType === "identity" ? verifIdType : undefined,
-                  identity_document_number:
-                    verifType === "identity" ? verifIdNumber : undefined,
-                  category_id: profile.category_id || undefined,
-                });
-                setVerifSubmitting(false);
-                if (req) {
-                  setVerifSuccess(true);
-                  setShowVerificationForm(false);
-                  const verifReqs = await getMyVerificationRequests(profile.id);
-                  setVerificationRequests(verifReqs);
-                  const p = await getMyProProfile(user!.id);
-                  if (p) setProfile(p);
-                } else {
-                  setVerifError(
-                    "Failed to submit verification request. Please try again.",
-                  );
-                }
-              }}
-              disabled={verifSubmitting}
-              className="mt-4 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-            >
-              {verifSubmitting ? "Submitting…" : "Submit Verification Request"}
-            </Button>
-          </div>
-        )}
-
-        {/* Verification success message */}
-        {verifSuccess && (
-          <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/10">
-            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-              ✓ Verification request submitted! An admin will review your
-              request shortly.
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Professional credentials (Phase 2 auditable verification) */}
-      <ProCredentialManager profileId={profile.id} />
-
-      {/* Portfolio management */}
-      <div className="mb-8">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
-            {t("Portfolio")}
-          </h2>
-          <Button
-            variant="ghost"
-            onClick={() => setShowPortfolioForm(!showPortfolioForm)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
-          >
-            <Plus aria-hidden="true" className="h-4 w-4" />
-            {t("Add Item")}
-          </Button>
-        </div>
-
-        {showPortfolioForm && (
-          <PortfolioForm
-            profileId={profile.id}
-            onAdded={() => {
-              setShowPortfolioForm(false);
-              (async () => {
-                const port = await getProPortfolio(profile.id);
-                setPortfolio(port);
-              })();
-            }}
-          />
-        )}
-
-        {portfolio.length === 0 ? (
-          <p className="rounded-xl border border-border bg-card py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card dark:text-muted-foreground">
-            No portfolio items yet. Add your first project to showcase your
-            work.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {portfolio.map((item) => (
-              <div
-                key={item.id}
-                className="group relative overflow-hidden rounded-xl border border-border dark:border-white/5"
-              >
-                {item.image_urls[0] && (
-                  <img
-                    src={item.image_urls[0]}
-                    alt={item.title}
-                    className="aspect-square w-full object-cover"
-                  />
-                )}
-                <div className="p-3">
-                  <p className="truncate text-sm font-medium text-foreground dark:text-primary-foreground">
-                    {item.title}
-                  </p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {item.category}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  onClick={async () => {
-                    await deletePortfolioItem(item.id);
-                    const port = await getProPortfolio(profile.id);
-                    setPortfolio(port);
-                  }}
-                  className="absolute right-2 top-2 rounded-lg bg-white/80 p-1.5 text-red-500 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-background/80"
-                >
-                  <Trash2 aria-hidden="true" className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Recent conversations */}
-      <div className="mb-8">
-        <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
-          {t("Recent Conversations")}
-        </h2>
-        {conversations.length === 0 ? (
-          <p className="rounded-xl border border-border bg-card py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card dark:text-muted-foreground">
-            No conversations yet. When customers message you, they'll appear
-            here.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {conversations.slice(0, 5).map((convo) => (
-              <Link
-                key={convo.id}
-                to={`/messages/${convo.id}/`}
-                className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
-              >
-                <div>
-                  <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
-                    {convo.professional?.display_name || "Customer"}
-                  </p>
-                  <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                    {convo.last_message_at
-                      ? new Date(convo.last_message_at).toLocaleDateString(
-                          "en-GB",
-                          { day: "numeric", month: "short" },
-                        )
-                      : "No messages yet"}
-                  </p>
-                </div>
-                <MessageSquare
-                  aria-hidden="true"
-                  className="h-5 w-5 text-muted-foreground"
-                />
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Reviews */}
-      <div>
-        <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
-          {t("Reviews About You")}
-        </h2>
-        {reviews.length === 0 ? (
-          <p className="rounded-xl border border-border bg-card py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card dark:text-muted-foreground">
-            {t("No reviews yet. Reviews appear after customers work with you.")}
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {reviews.map((review) => (
-              <div
-                key={review.id}
-                className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
-              >
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3, 4, 5].map((s: number) => (
-                    <span
-                      key={s}
-                      className={
-                        s <= review.rating
-                          ? "text-amber-400"
-                          : "text-muted-foreground/60 dark:text-card-foreground"
-                      }
-                    >
-                      ●
-                    </span>
-                  ))}
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(review.created_at).toLocaleDateString("en-GB")}
-                  </span>
-                </div>
-                {review.review_text && (
-                  <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
-                    {review.review_text}
-                  </p>
-                )}
-                {!review.professional_response && (
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      const response = prompt("Type your response:");
-                      if (response) {
-                        (async () => {
-                          const { respondToReview } =
-                            await import("@/lib/pro-connect");
-                          await respondToReview(review.id, response);
-                          const rev = await getProReviews(profile.id);
-                          setReviews(rev);
-                        })();
-                      }
-                    }}
-                    className="mt-2 text-xs text-brand-purple dark:text-brand-purple-lighter"
-                  >
-                    {t("Respond to this review")}
-                  </Button>
-                )}
-                {review.professional_response && (
-                  <div className="mt-3 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
-                    <p className="text-xs text-muted-foreground">
-                      Your response:
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground/80">
-                      {review.professional_response}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Marketplace, My Bids */}
-      <div className="mb-8">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground dark:text-primary-foreground">
-            <ShoppingBag
-              aria-hidden="true"
-              className="h-5 w-5 text-brand-purple"
-            />
-            {t("Marketplace Bids")}
-          </h2>
-          <Link
-            to="/marketplace/"
-            className="inline-flex items-center gap-1 text-sm font-medium text-brand-purple hover:text-brand-purple-dark"
-          >
-            Browse Jobs{" "}
-            <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-        {myBids.length === 0 ? (
-          <div className="rounded-xl border border-border bg-card p-6 text-center dark:border-white/5 dark:bg-card">
-            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-              {t("You haven't placed any bids yet.")}
-            </p>
-            <Link
-              to="/marketplace/"
-              className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple hover:text-brand-purple-dark"
-            >
-              <ShoppingBag aria-hidden="true" className="h-4 w-4" /> Browse open
-              jobs
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {myBids.slice(0, 5).map((bid) => (
-              <Link
-                key={bid.id}
-                to={`/marketplace/${bid.listing_id}/`}
-                className="flex items-center justify-between rounded-lg border border-border bg-card p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
-                    {bid.listing?.title || "Untitled job"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Bid:{" "}
-                    {formatByCode(
-                      bid.proposed_price,
-                      bid.listing?.currency || "NGN",
-                    )}{" "}
-                    · {new Date(bid.created_at).toLocaleDateString()}
-                  </p>
-                </div>
+              <div className="mt-2 flex flex-wrap gap-2">
                 <span
                   className={classNames(
-                    "ml-2 shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold",
-                    bid.status === "accepted"
+                    "rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
+                    profile.availability === "available"
                       ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                      : bid.status === "rejected"
-                        ? "bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400"
+                      : profile.availability === "busy"
+                        ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
                         : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                   )}
                 >
-                  {bid.status}
+                  {profile.availability}
                 </span>
-              </Link>
-            ))}
+                {profile.verification_status === "verified" && (
+                  <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                    {t("Verified")}
+                  </span>
+                )}
+              </div>
+            </div>
+            <Link
+              to="/pro-connect/register/"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
+            >
+              <Settings aria-hidden="true" className="h-4 w-4" />
+              {t("Edit Profile")}
+            </Link>
           </div>
-        )}
-      </div>
 
-      {/* Marketplace, Active Orders */}
-      {myOrders.length > 0 && (
-        <div className="mb-8">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground dark:text-primary-foreground">
-            <Briefcase
-              aria-hidden="true"
-              className="h-5 w-5 text-brand-purple"
-            />
-            {t("Active Orders")}
+          {/* Services */}
+          {services.length > 0 && (
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                {t("Services")}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {services.map((s) => (
+                  <span
+                    key={s.id}
+                    className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground/80"
+                  >
+                    {s.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Locations */}
+          {locations.length > 0 && (
+            <div className="mt-3">
+              <p className="mb-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                {t("Service Areas")}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {locations.map((l, i) => (
+                  <span
+                    key={i}
+                    className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground/80"
+                  >
+                    <MapPin
+                      aria-hidden="true"
+                      className="mr-1 inline h-3 w-3"
+                    />
+                    {[l.area, l.city, l.state].filter(Boolean).join(", ")}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Verification Status */}
+        <div className="mb-8 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+          <h2 className="mb-4 text-base font-semibold text-foreground dark:text-primary-foreground">
+            {t("Verification Status")}
           </h2>
-          <div className="space-y-2">
-            {myOrders
-              .filter(
-                (o) => o.status !== "completed" && o.status !== "cancelled",
-              )
-              .slice(0, 5)
-              .map((order) => (
+          <div className="flex flex-wrap items-start gap-4">
+            {/* Contact Verified */}
+            <div
+              className={classNames(
+                "flex items-center gap-2 rounded-lg px-3 py-2",
+                profile.contact_verified_at
+                  ? "bg-emerald-50 dark:bg-emerald-500/10"
+                  : "bg-muted/50 dark:bg-white/5",
+              )}
+            >
+              <div
+                className={classNames(
+                  "flex h-8 w-8 items-center justify-center rounded-full",
+                  profile.contact_verified_at
+                    ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400"
+                    : "bg-muted text-muted-foreground dark:bg-white/5",
+                )}
+              >
+                <span className="text-xs font-bold">
+                  {profile.contact_verified_at ? "✓" : "1"}
+                </span>
+              </div>
+              <div>
+                <p
+                  className={classNames(
+                    "text-sm font-medium",
+                    profile.contact_verified_at
+                      ? "text-emerald-700 dark:text-emerald-400"
+                      : "text-muted-foreground dark:text-muted-foreground",
+                  )}
+                >
+                  {t("Contact Verified")}
+                </p>
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                  {profile.contact_verified_at
+                    ? "Verified " +
+                      new Date(profile.contact_verified_at).toLocaleDateString(
+                        "en-GB",
+                      )
+                    : "Email & phone confirmation"}
+                </p>
+              </div>
+            </div>
+
+            {/* FRELUX Verified */}
+            <div
+              className={classNames(
+                "flex items-center gap-2 rounded-lg px-3 py-2",
+                profile.identity_verified_at
+                  ? "bg-blue-50 dark:bg-blue-500/10"
+                  : "bg-muted/50 dark:bg-white/5",
+              )}
+            >
+              <div
+                className={classNames(
+                  "flex h-8 w-8 items-center justify-center rounded-full",
+                  profile.identity_verified_at
+                    ? "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
+                    : "bg-muted text-muted-foreground dark:bg-white/5",
+                )}
+              >
+                <span className="text-xs font-bold">
+                  {profile.identity_verified_at ? "✓" : "2"}
+                </span>
+              </div>
+              <div>
+                <p
+                  className={classNames(
+                    "text-sm font-medium",
+                    profile.identity_verified_at
+                      ? "text-blue-700 dark:text-blue-400"
+                      : "text-muted-foreground dark:text-muted-foreground",
+                  )}
+                >
+                  {t("FRELUX Verified")}
+                </p>
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                  {profile.identity_verified_at
+                    ? "Identity verified"
+                    : "Identity & profile review"}
+                </p>
+              </div>
+            </div>
+
+            {/* FRELUX Pro */}
+            <div
+              className={classNames(
+                "flex items-center gap-2 rounded-lg px-3 py-2",
+                profile.pro_level
+                  ? "bg-amber-50 dark:bg-amber-500/10"
+                  : "bg-muted/50 dark:bg-white/5",
+              )}
+            >
+              <div
+                className={classNames(
+                  "flex h-8 w-8 items-center justify-center rounded-full",
+                  profile.pro_level
+                    ? "bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400"
+                    : "bg-muted text-muted-foreground dark:bg-white/5",
+                )}
+              >
+                <span className="text-xs font-bold">
+                  {profile.pro_level ? "✓" : "3"}
+                </span>
+              </div>
+              <div>
+                <p
+                  className={classNames(
+                    "text-sm font-medium",
+                    profile.pro_level
+                      ? "text-amber-700 dark:text-amber-400"
+                      : "text-muted-foreground dark:text-muted-foreground",
+                  )}
+                >
+                  {t("FRELUX Pro")}
+                </p>
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                  {profile.pro_level
+                    ? "Top professional"
+                    : proLevelEligible
+                      ? "Eligible, contact support"
+                      : "Build your reputation"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Verification status message */}
+          <div className="mt-4">
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+              Status:{" "}
+              <span
+                className={classNames(
+                  "font-medium capitalize",
+                  profile.verification_status === "verified"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : profile.verification_status === "pending"
+                      ? "text-amber-600 dark:text-amber-400"
+                      : profile.verification_status === "rejected"
+                        ? "text-red-600 dark:text-red-400"
+                        : profile.verification_status === "more_info"
+                          ? "text-blue-600 dark:text-blue-400"
+                          : profile.verification_status === "suspended"
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-muted-foreground",
+                )}
+              >
+                {profile.verification_status.replace("_", " ")}
+              </span>
+            </p>
+            {profile.verification_status === "more_info" &&
+              verificationRequests[0]?.more_info_request && (
+                <div className="mt-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-500/10">
+                  <p className="text-sm text-blue-700 dark:text-blue-400">
+                    <strong>Action needed:</strong>{" "}
+                    {verificationRequests[0].more_info_request}
+                  </p>
+                </div>
+              )}
+            {profile.verification_status === "rejected" &&
+              verificationRequests[0]?.rejection_reason && (
+                <div className="mt-2 rounded-lg bg-red-50 p-3 dark:bg-red-500/10">
+                  <p className="text-sm text-red-700 dark:text-red-400">
+                    <strong>Reason:</strong>{" "}
+                    {verificationRequests[0].rejection_reason}
+                  </p>
+                </div>
+              )}
+          </div>
+
+          {/* Request verification button */}
+          {(profile.verification_status === "unverified" ||
+            profile.verification_status === "rejected" ||
+            profile.verification_status === "more_info") && (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setShowVerificationForm(!showVerificationForm);
+                setVerifSuccess(false);
+                setVerifError("");
+              }}
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
+            >
+              {showVerificationForm ? "Cancel" : "Request Verification"}
+            </Button>
+          )}
+
+          {/* Verification submission form */}
+          {showVerificationForm && !verifSuccess && (
+            <div className="mt-4 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+              <h3 className="mb-4 text-base font-semibold text-foreground dark:text-primary-foreground">
+                {t("Request Verification")}
+              </h3>
+
+              {/* Verification type selector */}
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+                  {t("Verification Type")}
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setVerifType("contact")}
+                    className={classNames(
+                      "min-w-0 rounded-lg border p-3 text-left text-sm transition-colors",
+                      verifType === "contact"
+                        ? "border-brand-purple bg-primary/5 text-brand-purple"
+                        : "border-border text-muted-foreground hover:border-border dark:border-white/10 dark:text-muted-foreground",
+                    )}
+                  >
+                    <span className="block whitespace-normal break-words font-semibold">
+                      Level 1: Contact
+                    </span>
+                    <span className="block whitespace-normal break-words text-xs">
+                      Verify your contact info &amp; profile
+                    </span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setVerifType("identity")}
+                    className={classNames(
+                      "min-w-0 rounded-lg border p-3 text-left text-sm transition-colors",
+                      verifType === "identity"
+                        ? "border-brand-purple bg-primary/5 text-brand-purple"
+                        : "border-border text-muted-foreground hover:border-border dark:border-white/10 dark:text-muted-foreground",
+                    )}
+                  >
+                    <span className="block whitespace-normal break-words font-semibold">
+                      Level 2: Identity
+                    </span>
+                    <span className="block whitespace-normal break-words text-xs">
+                      {t("Verify your identity (NIN/ID)")}
+                    </span>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Common fields */}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
+                    Professional Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={verifName}
+                    onChange={(e) => setVerifName(e.target.value)}
+                    placeholder={t("Your full name")}
+                    className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
+                    {t("Business Name")}
+                  </label>
+                  <input
+                    type="text"
+                    value={verifBusiness}
+                    onChange={(e) => setVerifBusiness(e.target.value)}
+                    placeholder={t("Optional")}
+                    className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-3">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
+                  {t("Years of Experience")}
+                </label>
+                <input
+                  type="number"
+                  value={verifYears}
+                  min="0"
+                  max="50"
+                  onChange={(e) => setVerifYears(e.target.value)}
+                  placeholder="e.g. 5"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                />
+              </div>
+
+              {/* Identity verification fields */}
+              {verifType === "identity" && (
+                <div className="mt-3 space-y-3 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
+                      ID Document Type *
+                    </label>
+                    <select
+                      value={verifIdType}
+                      onChange={(e) => setVerifIdType(e.target.value)}
+                      className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                    >
+                      <option value="national_id">{t("National ID")}</option>
+                      <option value="drivers_license">
+                        {t("Driver's License")}
+                      </option>
+                      <option value="international_passport">
+                        {t("International Passport")}
+                      </option>
+                      <option value="voters_card">{t("Voter's Card")}</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
+                      ID Document Number *
+                    </label>
+                    <input
+                      type="text"
+                      value={verifIdNumber}
+                      onChange={(e) => setVerifIdNumber(e.target.value)}
+                      placeholder={t("Enter your ID number")}
+                      className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                    />
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Your ID number is stored securely and only visible to
+                      FRELUX administrators.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {verifError && (
+                <p className="mt-3 flex items-center gap-1.5 text-sm text-red-500">
+                  {verifError}
+                </p>
+              )}
+
+              <Button
+                variant="ghost"
+                onClick={async () => {
+                  if (!verifName.trim()) {
+                    setVerifError("Please enter your professional name.");
+                    return;
+                  }
+                  if (verifType === "identity" && !verifIdNumber.trim()) {
+                    setVerifError("Please enter your ID document number.");
+                    return;
+                  }
+                  setVerifSubmitting(true);
+                  setVerifError("");
+                  const req = await createVerificationRequest(profile.id, {
+                    request_type: verifType,
+                    professional_name: verifName,
+                    business_name: verifBusiness || undefined,
+                    years_experience: verifYears
+                      ? parseInt(verifYears)
+                      : undefined,
+                    identity_document_type:
+                      verifType === "identity" ? verifIdType : undefined,
+                    identity_document_number:
+                      verifType === "identity" ? verifIdNumber : undefined,
+                    category_id: profile.category_id || undefined,
+                  });
+                  setVerifSubmitting(false);
+                  if (req) {
+                    setVerifSuccess(true);
+                    setShowVerificationForm(false);
+                    const verifReqs = await getMyVerificationRequests(
+                      profile.id,
+                    );
+                    setVerificationRequests(verifReqs);
+                    const p = await getMyProProfile(user!.id);
+                    if (p) setProfile(p);
+                  } else {
+                    setVerifError(
+                      "Failed to submit verification request. Please try again.",
+                    );
+                  }
+                }}
+                disabled={verifSubmitting}
+                className="mt-4 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                {verifSubmitting
+                  ? "Submitting…"
+                  : "Submit Verification Request"}
+              </Button>
+            </div>
+          )}
+
+          {/* Verification success message */}
+          {verifSuccess && (
+            <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/10">
+              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                ✓ Verification request submitted! An admin will review your
+                request shortly.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Professional credentials (Phase 2 auditable verification) */}
+        <ProCredentialManager profileId={profile.id} />
+
+        {/* Portfolio management */}
+        <div className="mb-8">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
+              {t("Portfolio")}
+            </h2>
+            <Button
+              variant="ghost"
+              onClick={() => setShowPortfolioForm(!showPortfolioForm)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+            >
+              <Plus aria-hidden="true" className="h-4 w-4" />
+              {t("Add Item")}
+            </Button>
+          </div>
+
+          {showPortfolioForm && (
+            <PortfolioForm
+              profileId={profile.id}
+              onAdded={() => {
+                setShowPortfolioForm(false);
+                (async () => {
+                  const port = await getProPortfolio(profile.id);
+                  setPortfolio(port);
+                })();
+              }}
+            />
+          )}
+
+          {portfolio.length === 0 ? (
+            <p className="rounded-xl border border-border bg-card py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card dark:text-muted-foreground">
+              No portfolio items yet. Add your first project to showcase your
+              work.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {portfolio.map((item) => (
+                <div
+                  key={item.id}
+                  className="group relative overflow-hidden rounded-xl border border-border dark:border-white/5"
+                >
+                  {item.image_urls[0] && (
+                    <img
+                      src={item.image_urls[0]}
+                      alt={item.title}
+                      className="aspect-square w-full object-cover"
+                    />
+                  )}
+                  <div className="p-3">
+                    <p className="truncate text-sm font-medium text-foreground dark:text-primary-foreground">
+                      {item.title}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {item.category}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    onClick={async () => {
+                      await deletePortfolioItem(item.id);
+                      const port = await getProPortfolio(profile.id);
+                      setPortfolio(port);
+                    }}
+                    className="absolute right-2 top-2 rounded-lg bg-white/80 p-1.5 text-red-500 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-background/80"
+                  >
+                    <Trash2 aria-hidden="true" className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Recent conversations */}
+        <div className="mb-8">
+          <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
+            {t("Recent Conversations")}
+          </h2>
+          {conversations.length === 0 ? (
+            <p className="rounded-xl border border-border bg-card py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card dark:text-muted-foreground">
+              No conversations yet. When customers message you, they'll appear
+              here.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {conversations.slice(0, 5).map((convo) => (
                 <Link
-                  key={order.id}
-                  to={`/marketplace/orders/${order.id}/`}
+                  key={convo.id}
+                  to={`/messages/${convo.id}/`}
+                  className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
+                      {convo.professional?.display_name || "Customer"}
+                    </p>
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                      {convo.last_message_at
+                        ? new Date(convo.last_message_at).toLocaleDateString(
+                            "en-GB",
+                            { day: "numeric", month: "short" },
+                          )
+                        : "No messages yet"}
+                    </p>
+                  </div>
+                  <MessageSquare
+                    aria-hidden="true"
+                    className="h-5 w-5 text-muted-foreground"
+                  />
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Reviews */}
+        <div>
+          <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
+            {t("Reviews About You")}
+          </h2>
+          {reviews.length === 0 ? (
+            <p className="rounded-xl border border-border bg-card py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card dark:text-muted-foreground">
+              {t(
+                "No reviews yet. Reviews appear after customers work with you.",
+              )}
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {reviews.map((review) => (
+                <div
+                  key={review.id}
+                  className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
+                >
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((s: number) => (
+                      <span
+                        key={s}
+                        className={
+                          s <= review.rating
+                            ? "text-amber-400"
+                            : "text-muted-foreground/60 dark:text-card-foreground"
+                        }
+                      >
+                        ●
+                      </span>
+                    ))}
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(review.created_at).toLocaleDateString("en-GB")}
+                    </span>
+                  </div>
+                  {review.review_text && (
+                    <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
+                      {review.review_text}
+                    </p>
+                  )}
+                  {!review.professional_response && (
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        const response = prompt("Type your response:");
+                        if (response) {
+                          (async () => {
+                            const { respondToReview } =
+                              await import("@/lib/pro-connect");
+                            await respondToReview(review.id, response);
+                            const rev = await getProReviews(profile.id);
+                            setReviews(rev);
+                          })();
+                        }
+                      }}
+                      className="mt-2 text-xs text-brand-purple dark:text-brand-purple-lighter"
+                    >
+                      {t("Respond to this review")}
+                    </Button>
+                  )}
+                  {review.professional_response && (
+                    <div className="mt-3 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
+                      <p className="text-xs text-muted-foreground">
+                        Your response:
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground/80">
+                        {review.professional_response}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Marketplace, My Bids */}
+        <div className="mb-8">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground dark:text-primary-foreground">
+              <ShoppingBag
+                aria-hidden="true"
+                className="h-5 w-5 text-brand-purple"
+              />
+              {t("Marketplace Bids")}
+            </h2>
+            <Link
+              to="/marketplace/"
+              className="inline-flex items-center gap-1 text-sm font-medium text-brand-purple hover:text-brand-purple-dark"
+            >
+              Browse Jobs{" "}
+              <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          {myBids.length === 0 ? (
+            <div className="rounded-xl border border-border bg-card p-6 text-center dark:border-white/5 dark:bg-card">
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+                {t("You haven't placed any bids yet.")}
+              </p>
+              <Link
+                to="/marketplace/"
+                className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple hover:text-brand-purple-dark"
+              >
+                <ShoppingBag aria-hidden="true" className="h-4 w-4" /> Browse
+                open jobs
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {myBids.slice(0, 5).map((bid) => (
+                <Link
+                  key={bid.id}
+                  to={`/marketplace/${bid.listing_id}/`}
                   className="flex items-center justify-between rounded-lg border border-border bg-card p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
-                      {order.listing?.title || "Untitled job"}
+                      {bid.listing?.title || "Untitled job"}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {order.order_number} ·{" "}
-                      {formatByCode(order.agreed_price, order.currency)}
+                      Bid:{" "}
+                      {formatByCode(
+                        bid.proposed_price,
+                        bid.listing?.currency || "NGN",
+                      )}{" "}
+                      · {new Date(bid.created_at).toLocaleDateString()}
                     </p>
                   </div>
                   <span
                     className={classNames(
-                      "ml-2 shrink-0 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold",
-                      order.status === "in_progress"
-                        ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                        : order.status === "pending_start"
-                          ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
+                      "ml-2 shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold",
+                      bid.status === "accepted"
+                        ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
+                        : bid.status === "rejected"
+                          ? "bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400"
                           : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                     )}
                   >
-                    {order.status === "in_progress" && (
-                      <Clock className="h-3 w-3" />
-                    )}
-                    {order.status.replace("_", " ")}
+                    {bid.status}
                   </span>
                 </Link>
               ))}
-          </div>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+
+        {/* Marketplace, Active Orders */}
+        {myOrders.length > 0 && (
+          <div className="mb-8">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground dark:text-primary-foreground">
+              <Briefcase
+                aria-hidden="true"
+                className="h-5 w-5 text-brand-purple"
+              />
+              {t("Active Orders")}
+            </h2>
+            <div className="space-y-2">
+              {myOrders
+                .filter(
+                  (o) => o.status !== "completed" && o.status !== "cancelled",
+                )
+                .slice(0, 5)
+                .map((order) => (
+                  <Link
+                    key={order.id}
+                    to={`/marketplace/orders/${order.id}/`}
+                    className="flex items-center justify-between rounded-lg border border-border bg-card p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
+                        {order.listing?.title || "Untitled job"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.order_number} ·{" "}
+                        {formatByCode(order.agreed_price, order.currency)}
+                      </p>
+                    </div>
+                    <span
+                      className={classNames(
+                        "ml-2 shrink-0 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold",
+                        order.status === "in_progress"
+                          ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                          : order.status === "pending_start"
+                            ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
+                            : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
+                      )}
+                    >
+                      {order.status === "in_progress" && (
+                        <Clock className="h-3 w-3" />
+                      )}
+                      {order.status.replace("_", " ")}
+                    </span>
+                  </Link>
+                ))}
+            </div>
+          </div>
+        )}
+      </Container>
+    </>
   );
 }
 

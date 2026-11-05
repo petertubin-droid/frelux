@@ -66,6 +66,8 @@ import {
   type SupplierProfile,
 } from "@/lib/suppliers/types";
 import { supabase } from "@/lib/supabase";
+import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
 
 type Tab = "verification" | "catalogue" | "delivery" | "requests" | "orders";
 
@@ -383,339 +385,357 @@ export default function SupplierWorkspace() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-            {supplier.company_name}
-          </h1>
-          <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-            <Badge
-              variant={
-                badge.tone === "positive"
-                  ? "default"
-                  : badge.tone === "info"
-                    ? "secondary"
-                    : "outline"
-              }
-            >
-              {badge.label}
-            </Badge>
-            <span>
-              {[supplier.neighbourhood, supplier.city]
-                .filter(Boolean)
-                .join(", ")}{" "}
-              · {supplier.market_code}
-            </span>
-            {supplier.public_slug ? (
-              <Link
-                to={`/suppliers/${supplier.public_slug}`}
-                className="inline-flex items-center gap-1 text-sky-700 hover:underline"
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Suppliers", path: "/suppliers" },
+          { label: supplier.company_name },
+        ]}
+        eyebrow="Supplier workspace"
+        title={supplier.company_name}
+        actions={
+          <Link to="/marketplace/supplier-portal">
+            <Button variant="outline" size="sm">
+              Bulk price editor
+            </Button>
+          </Link>
+        }
+      />
+
+      <Container className="max-w-6xl pb-12 pt-6">
+        <header className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+              <Badge
+                variant={
+                  badge.tone === "positive"
+                    ? "default"
+                    : badge.tone === "info"
+                      ? "secondary"
+                      : "outline"
+                }
               >
-                View public profile <ExternalLink className="h-3.5 w-3.5" />
-              </Link>
-            ) : null}
-          </p>
-        </div>
-        <Link to="/marketplace/supplier-portal">
-          <Button variant="outline" size="sm">
-            Bulk price editor
-          </Button>
-        </Link>
-      </header>
-
-      {notice ? (
-        <p className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
-          {notice}
-        </p>
-      ) : null}
-      {error ? (
-        <p className="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
-          {error}
-        </p>
-      ) : null}
-
-      <nav className="mt-5 flex flex-wrap gap-1 border-b border-slate-200">
-        {TABS.map((entry) => {
-          const Icon = entry.icon;
-          const active = tab === entry.key;
-          return (
-            <button
-              key={entry.key}
-              type="button"
-              onClick={() => setTab(entry.key)}
-              className={
-                active
-                  ? "inline-flex items-center gap-1.5 border-b-2 border-slate-900 px-3 py-2 text-sm font-medium text-slate-900"
-                  : "inline-flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 hover:text-slate-900"
-              }
-            >
-              <Icon className="h-4 w-4" /> {entry.label}
-              {entry.key === "requests" && pendingRequests.length > 0 ? (
-                <span className="rounded bg-sky-100 px-1.5 text-[11px] text-sky-800">
-                  {pendingRequests.length}
-                </span>
+                {badge.label}
+              </Badge>
+              <span>
+                {[supplier.neighbourhood, supplier.city]
+                  .filter(Boolean)
+                  .join(", ")}{" "}
+                · {supplier.market_code}
+              </span>
+              {supplier.public_slug ? (
+                <Link
+                  to={`/suppliers/${supplier.public_slug}`}
+                  className="inline-flex items-center gap-1 text-sky-700 hover:underline"
+                >
+                  View public profile <ExternalLink className="h-3.5 w-3.5" />
+                </Link>
               ) : null}
-            </button>
-          );
-        })}
-      </nav>
-
-      {tab === "verification" ? (
-        <section className="mt-5 grid gap-4 lg:grid-cols-2">
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <h2 className="text-sm font-semibold text-slate-900">
-              {definition.label}
-            </h2>
-            <p className="mt-1 text-sm text-slate-600">{definition.meaning}</p>
-            <p className="mt-2 text-xs text-slate-500">
-              {definition.doesNotMean}
             </p>
+          </div>
+        </header>
 
-            {nextLevel(supplier.verification_level) ? (
-              <div className="mt-4">
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Next level:{" "}
-                  {
-                    verificationDefinition(
-                      nextLevel(supplier.verification_level)!,
-                    ).label
-                  }
-                </h3>
-                <ul className="mt-2 space-y-1 text-xs">
-                  {requirements.map((requirement) => (
-                    <li
-                      key={requirement.requirement}
-                      className="flex items-center gap-1.5"
-                    >
-                      {requirement.met ? (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                      ) : (
-                        <span className="inline-block h-3.5 w-3.5 rounded-full border border-slate-300" />
-                      )}
-                      <span
-                        className={
-                          requirement.met ? "text-slate-600" : "text-slate-800"
-                        }
+        {notice ? (
+          <p className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+            {notice}
+          </p>
+        ) : null}
+        {error ? (
+          <p className="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+            {error}
+          </p>
+        ) : null}
+
+        <nav className="mt-5 flex flex-wrap gap-1 border-b border-slate-200">
+          {TABS.map((entry) => {
+            const Icon = entry.icon;
+            const active = tab === entry.key;
+            return (
+              <button
+                key={entry.key}
+                type="button"
+                onClick={() => setTab(entry.key)}
+                className={
+                  active
+                    ? "inline-flex items-center gap-1.5 border-b-2 border-slate-900 px-3 py-2 text-sm font-medium text-slate-900"
+                    : "inline-flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 hover:text-slate-900"
+                }
+              >
+                <Icon className="h-4 w-4" /> {entry.label}
+                {entry.key === "requests" && pendingRequests.length > 0 ? (
+                  <span className="rounded bg-sky-100 px-1.5 text-[11px] text-sky-800">
+                    {pendingRequests.length}
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </nav>
+
+        {tab === "verification" ? (
+          <section className="mt-5 grid gap-4 lg:grid-cols-2">
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <h2 className="text-sm font-semibold text-slate-900">
+                {definition.label}
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">
+                {definition.meaning}
+              </p>
+              <p className="mt-2 text-xs text-slate-500">
+                {definition.doesNotMean}
+              </p>
+
+              {nextLevel(supplier.verification_level) ? (
+                <div className="mt-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Next level:{" "}
+                    {
+                      verificationDefinition(
+                        nextLevel(supplier.verification_level)!,
+                      ).label
+                    }
+                  </h3>
+                  <ul className="mt-2 space-y-1 text-xs">
+                    {requirements.map((requirement) => (
+                      <li
+                        key={requirement.requirement}
+                        className="flex items-center gap-1.5"
                       >
-                        {requirement.requirement}
-                      </span>
+                        {requirement.met ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                        ) : (
+                          <span className="inline-block h-3.5 w-3.5 rounded-full border border-slate-300" />
+                        )}
+                        <span
+                          className={
+                            requirement.met
+                              ? "text-slate-600"
+                              : "text-slate-800"
+                          }
+                        >
+                          {requirement.requirement}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    size="sm"
+                    className="mt-3"
+                    disabled={busy === "verification"}
+                    onClick={() =>
+                      requestVerification(
+                        nextLevel(supplier.verification_level)!,
+                      )
+                    }
+                  >
+                    {busy === "verification" ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : null}
+                    Request{" "}
+                    {
+                      verificationDefinition(
+                        nextLevel(supplier.verification_level)!,
+                      ).shortLabel
+                    }
+                  </Button>
+                  <p className="mt-1 text-[11px] text-slate-500">
+                    FRELUX reviews the request, then approves or rejects it.
+                    Levels are granted one step at a time.
+                  </p>
+                </div>
+              ) : (
+                <p className="mt-3 rounded bg-emerald-50 px-2 py-1.5 text-xs text-emerald-800">
+                  This is the highest verification level. Keeping prices current
+                  is what keeps it meaningful.
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Verification history
+              </h2>
+              {events.length === 0 ? (
+                <p className="mt-1 text-xs text-slate-600">
+                  No verification requests yet.
+                </p>
+              ) : (
+                <ul className="mt-2 space-y-2 text-xs text-slate-600">
+                  {events.map((event) => (
+                    <li
+                      key={String(event.id)}
+                      className="border-b border-slate-100 pb-2 last:border-b-0"
+                    >
+                      <span className="font-medium text-slate-800">
+                        {String(event.action)}
+                      </span>{" "}
+                      · {String(event.requested_level).replace(/_/g, " ")} ·{" "}
+                      {new Date(String(event.created_at)).toLocaleDateString()}
+                      {event.note ? (
+                        <p className="mt-0.5 text-slate-500">
+                          {String(event.note)}
+                        </p>
+                      ) : null}
                     </li>
                   ))}
                 </ul>
-                <Button
-                  size="sm"
-                  className="mt-3"
-                  disabled={busy === "verification"}
-                  onClick={() =>
-                    requestVerification(nextLevel(supplier.verification_level)!)
-                  }
-                >
-                  {busy === "verification" ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : null}
-                  Request{" "}
-                  {
-                    verificationDefinition(
-                      nextLevel(supplier.verification_level)!,
-                    ).shortLabel
-                  }
-                </Button>
-                <p className="mt-1 text-[11px] text-slate-500">
-                  FRELUX reviews the request, then approves or rejects it.
-                  Levels are granted one step at a time.
-                </p>
-              </div>
-            ) : (
-              <p className="mt-3 rounded bg-emerald-50 px-2 py-1.5 text-xs text-emerald-800">
-                This is the highest verification level. Keeping prices current
-                is what keeps it meaningful.
+              )}
+              <p className="mt-3 text-[11px] text-slate-500">
+                Requestable now:{" "}
+                {requestableLevels(supplier.verification_level)
+                  .map((level) => verificationDefinition(level).shortLabel)
+                  .join(", ") || "none"}
               </p>
-            )}
-          </div>
+            </div>
+          </section>
+        ) : null}
 
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <h2 className="text-sm font-semibold text-slate-900">
-              Verification history
-            </h2>
-            {events.length === 0 ? (
-              <p className="mt-1 text-xs text-slate-600">
-                No verification requests yet.
-              </p>
-            ) : (
-              <ul className="mt-2 space-y-2 text-xs text-slate-600">
-                {events.map((event) => (
-                  <li
-                    key={String(event.id)}
-                    className="border-b border-slate-100 pb-2 last:border-b-0"
-                  >
-                    <span className="font-medium text-slate-800">
-                      {String(event.action)}
-                    </span>{" "}
-                    · {String(event.requested_level).replace(/_/g, " ")} ·{" "}
-                    {new Date(String(event.created_at)).toLocaleDateString()}
-                    {event.note ? (
-                      <p className="mt-0.5 text-slate-500">
-                        {String(event.note)}
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <p className="mt-3 text-[11px] text-slate-500">
-              Requestable now:{" "}
-              {requestableLevels(supplier.verification_level)
-                .map((level) => verificationDefinition(level).shortLabel)
-                .join(", ") || "none"}
-            </p>
-          </div>
-        </section>
-      ) : null}
-
-      {tab === "catalogue" ? (
-        <CatalogueTab
-          listings={listings}
-          busy={busy}
-          onSubmitIndex={submitIndexPrice}
-          onAdd={addListing}
-          currency={supplier.market_code === "NG" ? "NGN" : "USD"}
-        />
-      ) : null}
-
-      {tab === "delivery" ? (
-        <section className="mt-5 grid gap-4 lg:grid-cols-2">
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <h2 className="text-sm font-semibold text-slate-900">
-              Delivery zones
-            </h2>
-            {zones.length === 0 ? (
-              <p className="mt-1 text-xs text-slate-600">
-                No zones yet. Buyers filter by delivery coverage, so adding your
-                cities helps you appear.
-              </p>
-            ) : (
-              <ul className="mt-2 space-y-1.5 text-xs">
-                {zones.map((zone) => (
-                  <li
-                    key={zone.id}
-                    className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5"
-                  >
-                    <span>
-                      {[zone.neighbourhood, zone.city]
-                        .filter(Boolean)
-                        .join(", ")}{" "}
-                      ·{" "}
-                      {zone.delivery_fee === 0
-                        ? "free"
-                        : formatByCode(zone.delivery_fee, zone.currency)}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        await removeDeliveryZone(zone.id);
-                        if (user) load(user.id);
-                      }}
-                      className="text-red-600 hover:underline"
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <ZoneForm
-            onAdd={addZone}
-            busy={busy === "zone"}
-            defaultCity={supplier.city ?? ""}
+        {tab === "catalogue" ? (
+          <CatalogueTab
+            listings={listings}
+            busy={busy}
+            onSubmitIndex={submitIndexPrice}
+            onAdd={addListing}
+            currency={supplier.market_code === "NG" ? "NGN" : "USD"}
           />
-        </section>
-      ) : null}
+        ) : null}
 
-      {tab === "requests" ? (
-        <RequestsTab
-          requests={pendingRequests}
-          items={requestItems}
-          busy={busy}
-          onQuote={quote}
-          currency={requests[0]?.currency ?? "NGN"}
-        />
-      ) : null}
-
-      {tab === "orders" ? (
-        <section className="mt-5 space-y-3">
-          {orders.length === 0 ? (
-            <p className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600">
-              No orders yet. When a buyer awards your quotation it appears here
-              with the status and delivery record.
-            </p>
-          ) : (
-            orders.map((order) => (
-              <article
-                key={order.id}
-                className="rounded-lg border border-slate-200 bg-white p-4"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {order.reference}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {orderStatusLabel(order.status)} ·{" "}
-                      {formatByCode(order.total, order.currency)}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    {order.status === "placed" ? (
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          advanceOrderStatus(order.id, "confirmed").then(
-                            () => user && load(user.id),
-                          )
-                        }
-                      >
-                        Confirm order
-                      </Button>
-                    ) : null}
-                    {order.status === "confirmed" ? (
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          advanceOrderStatus(order.id, "dispatched").then(
-                            () => user && load(user.id),
-                          )
-                        }
-                      >
-                        Mark dispatched
-                      </Button>
-                    ) : null}
-                    {order.status === "dispatched" ? (
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          advanceOrderStatus(order.id, "delivered").then(
-                            () => user && load(user.id),
-                          )
-                        }
-                      >
-                        Mark delivered
-                      </Button>
-                    ) : null}
-                    {order.status === "delivered" ? (
-                      <span className="text-xs text-slate-500">
-                        Waiting for the buyer to confirm receipt.
+        {tab === "delivery" ? (
+          <section className="mt-5 grid gap-4 lg:grid-cols-2">
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Delivery zones
+              </h2>
+              {zones.length === 0 ? (
+                <p className="mt-1 text-xs text-slate-600">
+                  No zones yet. Buyers filter by delivery coverage, so adding
+                  your cities helps you appear.
+                </p>
+              ) : (
+                <ul className="mt-2 space-y-1.5 text-xs">
+                  {zones.map((zone) => (
+                    <li
+                      key={zone.id}
+                      className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5"
+                    >
+                      <span>
+                        {[zone.neighbourhood, zone.city]
+                          .filter(Boolean)
+                          .join(", ")}{" "}
+                        ·{" "}
+                        {zone.delivery_fee === 0
+                          ? "free"
+                          : formatByCode(zone.delivery_fee, zone.currency)}
                       </span>
-                    ) : null}
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await removeDeliveryZone(zone.id);
+                          if (user) load(user.id);
+                        }}
+                        className="text-red-600 hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <ZoneForm
+              onAdd={addZone}
+              busy={busy === "zone"}
+              defaultCity={supplier.city ?? ""}
+            />
+          </section>
+        ) : null}
+
+        {tab === "requests" ? (
+          <RequestsTab
+            requests={pendingRequests}
+            items={requestItems}
+            busy={busy}
+            onQuote={quote}
+            currency={requests[0]?.currency ?? "NGN"}
+          />
+        ) : null}
+
+        {tab === "orders" ? (
+          <section className="mt-5 space-y-3">
+            {orders.length === 0 ? (
+              <p className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600">
+                No orders yet. When a buyer awards your quotation it appears
+                here with the status and delivery record.
+              </p>
+            ) : (
+              orders.map((order) => (
+                <article
+                  key={order.id}
+                  className="rounded-lg border border-slate-200 bg-white p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {order.reference}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {orderStatusLabel(order.status)} ·{" "}
+                        {formatByCode(order.total, order.currency)}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      {order.status === "placed" ? (
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            advanceOrderStatus(order.id, "confirmed").then(
+                              () => user && load(user.id),
+                            )
+                          }
+                        >
+                          Confirm order
+                        </Button>
+                      ) : null}
+                      {order.status === "confirmed" ? (
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            advanceOrderStatus(order.id, "dispatched").then(
+                              () => user && load(user.id),
+                            )
+                          }
+                        >
+                          Mark dispatched
+                        </Button>
+                      ) : null}
+                      {order.status === "dispatched" ? (
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            advanceOrderStatus(order.id, "delivered").then(
+                              () => user && load(user.id),
+                            )
+                          }
+                        >
+                          Mark delivered
+                        </Button>
+                      ) : null}
+                      {order.status === "delivered" ? (
+                        <span className="text-xs text-slate-500">
+                          Waiting for the buyer to confirm receipt.
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))
-          )}
-        </section>
-      ) : null}
-    </div>
+                </article>
+              ))
+            )}
+          </section>
+        ) : null}
+      </Container>
+    </>
   );
 }
 

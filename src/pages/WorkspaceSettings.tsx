@@ -64,6 +64,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/shadcn/tabs";
+import Container from "@/components/ui/Container";
 
 export default function WorkspaceSettings() {
   const { t } = useLanguage();
@@ -290,33 +291,20 @@ export default function WorkspaceSettings() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
-      {/* Back button and page title */}
-      <div>
-        <Button
-          variant="ghost"
-          size="sm"
-          asChild
-          className="mb-4 inline-flex items-center gap-1.5 text-muted-foreground"
-        >
-          <Link to="/project-workspace">
-            <ArrowLeft className="h-4 w-4" /> {t("Back to Project Workspace")}
-          </Link>
-        </Button>
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Building2 className="h-6 w-6 text-primary" /> Workspace & Team
-              Settings
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Enterprise team collaboration, multi-role permissions, daily site
-              logs, and audit trail.
-            </p>
-          </div>
-
-          {/* Workspace Switcher */}
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Project workspace", path: "/project-workspace" },
+          { label: "Workspace and team settings" },
+        ]}
+        eyebrow="Workspace"
+        title="Workspace and team settings"
+        subtitle="Team collaboration, multi role permissions, daily site logs and the audit trail."
+        backTo="/project-workspace"
+        backLabel={t("Back to Project Workspace")}
+        actions={
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground font-medium">
               Active:
@@ -337,486 +325,496 @@ export default function WorkspaceSettings() {
               </SelectContent>
             </Select>
           </div>
-        </div>
-      </div>
+        }
+      />
 
-      {/* Tabs */}
-      <Tabs defaultValue="team" className="space-y-6">
-        <TabsList className="grid grid-cols-3 w-full sm:w-[480px]">
-          <TabsTrigger value="team" className="flex items-center gap-2">
-            <Users className="h-4 w-4" /> Team ({members.length})
-          </TabsTrigger>
-          <TabsTrigger value="invitations" className="flex items-center gap-2">
-            <Mail className="h-4 w-4" /> Invitations ({invitations.length})
-          </TabsTrigger>
-          <TabsTrigger value="audit" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" /> {t("Audit Trail")}
-          </TabsTrigger>
-        </TabsList>
+      <Container className="max-w-6xl space-y-8 pb-12 pt-6">
+        {/* Tabs */}
+        <Tabs defaultValue="team" className="space-y-6">
+          <TabsList className="grid grid-cols-3 w-full sm:w-[480px]">
+            <TabsTrigger value="team" className="flex items-center gap-2">
+              <Users className="h-4 w-4" /> Team ({members.length})
+            </TabsTrigger>
+            <TabsTrigger
+              value="invitations"
+              className="flex items-center gap-2"
+            >
+              <Mail className="h-4 w-4" /> Invitations ({invitations.length})
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="flex items-center gap-2">
+              <Activity className="h-4 w-4" /> {t("Audit Trail")}
+            </TabsTrigger>
+          </TabsList>
 
-        {/* TEAM MEMBERS TAB */}
-        <TabsContent value="team" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-bold">{t("Workspace Members")}</h3>
-              <p className="text-sm text-muted-foreground">
-                Collaborators with role-based access across estimates, site
-                logs, and drawings.
-              </p>
-            </div>
-            {isManager && (
-              <Button
-                onClick={() => setInviteOpen(true)}
-                className="flex items-center gap-2"
-              >
-                <UserPlus className="h-4 w-4" /> {t("Invite Member")}
-              </Button>
-            )}
-          </div>
-
-          <div className="rounded-xl border bg-card overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/40 text-left text-xs text-muted-foreground font-semibold">
-                    <th className="p-3">{t("Member")}</th>
-                    <th className="p-3">{t("Role")}</th>
-                    <th className="p-3">{t("Permissions")}</th>
-                    <th className="p-3">{t("Joined")}</th>
-                    {isManager && (
-                      <th className="p-3 text-right">{t("Actions")}</th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {members.map((m) => {
-                    const roleInfo = WORKSPACE_ROLES[m.role];
-                    const isSelf = m.user_id === user.id;
-                    const isOwner = m.role === "owner";
-
-                    return (
-                      <tr
-                        key={m.id}
-                        className="border-b last:border-0 hover:bg-muted/10"
-                      >
-                        <td className="p-3">
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0 uppercase">
-                              {(
-                                m.profile?.full_name ||
-                                m.profile?.email ||
-                                "U"
-                              ).charAt(0)}
-                            </div>
-                            <div>
-                              <p className="font-semibold text-sm leading-tight">
-                                {m.profile?.full_name || "Team Member"}
-                                {isSelf && (
-                                  <span className="ml-1 text-[10px] text-primary font-normal">
-                                    (You)
-                                  </span>
-                                )}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {m.profile?.email}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td className="p-3">
-                          {isManager && !isOwner && !isSelf ? (
-                            <Select
-                              value={m.role}
-                              onValueChange={(val: WorkspaceRole) =>
-                                handleRoleChange(m.id, val)
-                              }
-                            >
-                              <SelectTrigger className="w-[180px] h-8 text-xs">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.values(WORKSPACE_ROLES)
-                                  .filter((r) => r.key !== "owner")
-                                  .map((r) => (
-                                    <SelectItem
-                                      key={r.key}
-                                      value={r.key}
-                                      className="text-xs"
-                                    >
-                                      {r.label}
-                                    </SelectItem>
-                                  ))}
-                              </SelectContent>
-                            </Select>
-                          ) : (
-                            <span
-                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${roleInfo.badgeColor}`}
-                            >
-                              <ShieldCheck className="h-3 w-3" />
-                              {roleInfo.label}
-                            </span>
-                          )}
-                          {m.status && m.status !== "active" && (
-                            <span className="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide bg-destructive/10 text-destructive border border-destructive/30">
-                              {m.status}
-                            </span>
-                          )}
-                        </td>
-
-                        <td className="p-3 max-w-xs">
-                          <p className="text-xs text-muted-foreground line-clamp-1">
-                            {roleInfo.description}
-                          </p>
-                        </td>
-
-                        <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
-                          {new Date(m.joined_at).toLocaleDateString()}
-                        </td>
-
-                        {isManager && (
-                          <td className="p-3 text-right space-x-1">
-                            {!isOwner && !isSelf && (
-                              <>
-                                {m.status !== "active" && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                      handleSetStatus(m.id, "active")
-                                    }
-                                    title={t("Restore member access")}
-                                    className="h-8 px-2"
-                                  >
-                                    <RotateCcw className="h-4 w-4" />
-                                  </Button>
-                                )}
-                                {m.status === "active" && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                      handleSetStatus(m.id, "suspended")
-                                    }
-                                    title={t(
-                                      "Suspend member access (reversible)",
-                                    )}
-                                    className="h-8 px-2"
-                                  >
-                                    <Pause className="h-4 w-4" />
-                                  </Button>
-                                )}
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() =>
-                                    handleRemoveMember(m.id, m.profile?.email)
-                                  }
-                                  className="text-destructive hover:bg-destructive/10 h-8 px-2"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </>
-                            )}
-                          </td>
-                        )}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </TabsContent>
-
-        {/* INVITATIONS TAB */}
-        <TabsContent value="invitations" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-bold">{t("Pending Invitations")}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t("Sent invitations awaiting acceptance by recipients.")}
-              </p>
-            </div>
-            {isManager && (
-              <Button
-                onClick={() => setInviteOpen(true)}
-                className="flex items-center gap-2"
-              >
-                <UserPlus className="h-4 w-4" /> {t("Invite Member")}
-              </Button>
-            )}
-          </div>
-
-          <div className="rounded-xl border bg-card overflow-hidden">
-            {invitations.length === 0 ? (
-              <div className="p-8 text-center text-sm text-muted-foreground">
-                {t("No pending invitations for this workspace.")}
+          {/* TEAM MEMBERS TAB */}
+          <TabsContent value="team" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold">{t("Workspace Members")}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Collaborators with role-based access across estimates, site
+                  logs, and drawings.
+                </p>
               </div>
-            ) : (
+              {isManager && (
+                <Button
+                  onClick={() => setInviteOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <UserPlus className="h-4 w-4" /> {t("Invite Member")}
+                </Button>
+              )}
+            </div>
+
+            <div className="rounded-xl border bg-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b bg-muted/40 text-left text-xs text-muted-foreground font-semibold">
-                      <th className="p-3">{t("Invited Email")}</th>
+                      <th className="p-3">{t("Member")}</th>
                       <th className="p-3">{t("Role")}</th>
-                      <th className="p-3">{t("Status")}</th>
-                      <th className="p-3">{t("Expires")}</th>
-                      <th className="p-3 text-right">{t("Actions")}</th>
+                      <th className="p-3">{t("Permissions")}</th>
+                      <th className="p-3">{t("Joined")}</th>
+                      {isManager && (
+                        <th className="p-3 text-right">{t("Actions")}</th>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
-                    {invitations.map((inv) => {
-                      const roleConfig = WORKSPACE_ROLES[inv.role];
-                      const isExpired =
-                        new Date(inv.expires_at).getTime() < Date.now();
+                    {members.map((m) => {
+                      const roleInfo = WORKSPACE_ROLES[m.role];
+                      const isSelf = m.user_id === user.id;
+                      const isOwner = m.role === "owner";
 
                       return (
                         <tr
-                          key={inv.id}
+                          key={m.id}
                           className="border-b last:border-0 hover:bg-muted/10"
                         >
-                          <td className="p-3 font-medium flex items-center gap-2">
-                            <Mail className="h-4 w-4 text-muted-foreground" />
-                            {inv.email}
-                          </td>
                           <td className="p-3">
-                            <span
-                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${roleConfig.badgeColor}`}
-                            >
-                              {roleConfig.label}
-                            </span>
+                            <div className="flex items-center gap-3">
+                              <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0 uppercase">
+                                {(
+                                  m.profile?.full_name ||
+                                  m.profile?.email ||
+                                  "U"
+                                ).charAt(0)}
+                              </div>
+                              <div>
+                                <p className="font-semibold text-sm leading-tight">
+                                  {m.profile?.full_name || "Team Member"}
+                                  {isSelf && (
+                                    <span className="ml-1 text-[10px] text-primary font-normal">
+                                      (You)
+                                    </span>
+                                  )}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {m.profile?.email}
+                                </p>
+                              </div>
+                            </div>
                           </td>
+
                           <td className="p-3">
-                            {isExpired ? (
-                              <span className="text-xs text-destructive font-medium">
-                                {t("Expired")}
-                              </span>
+                            {isManager && !isOwner && !isSelf ? (
+                              <Select
+                                value={m.role}
+                                onValueChange={(val: WorkspaceRole) =>
+                                  handleRoleChange(m.id, val)
+                                }
+                              >
+                                <SelectTrigger className="w-[180px] h-8 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Object.values(WORKSPACE_ROLES)
+                                    .filter((r) => r.key !== "owner")
+                                    .map((r) => (
+                                      <SelectItem
+                                        key={r.key}
+                                        value={r.key}
+                                        className="text-xs"
+                                      >
+                                        {r.label}
+                                      </SelectItem>
+                                    ))}
+                                </SelectContent>
+                              </Select>
                             ) : (
-                              <span className="text-xs text-amber-600 font-medium">
-                                {t("Pending Acceptance")}
+                              <span
+                                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${roleInfo.badgeColor}`}
+                              >
+                                <ShieldCheck className="h-3 w-3" />
+                                {roleInfo.label}
+                              </span>
+                            )}
+                            {m.status && m.status !== "active" && (
+                              <span className="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide bg-destructive/10 text-destructive border border-destructive/30">
+                                {m.status}
                               </span>
                             )}
                           </td>
-                          <td className="p-3 text-xs text-muted-foreground">
-                            {new Date(inv.expires_at).toLocaleDateString()}
+
+                          <td className="p-3 max-w-xs">
+                            <p className="text-xs text-muted-foreground line-clamp-1">
+                              {roleInfo.description}
+                            </p>
                           </td>
-                          <td className="p-3 text-right space-x-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => copyInviteLink(inv.token)}
-                              className="h-7 text-xs inline-flex items-center gap-1"
-                            >
-                              {copiedToken === inv.token ? (
+
+                          <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
+                            {new Date(m.joined_at).toLocaleDateString()}
+                          </td>
+
+                          {isManager && (
+                            <td className="p-3 text-right space-x-1">
+                              {!isOwner && !isSelf && (
                                 <>
-                                  <Check className="h-3 w-3 text-emerald-500" />{" "}
-                                  Copied
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="h-3 w-3" /> {t("Copy Link")}
+                                  {m.status !== "active" && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() =>
+                                        handleSetStatus(m.id, "active")
+                                      }
+                                      title={t("Restore member access")}
+                                      className="h-8 px-2"
+                                    >
+                                      <RotateCcw className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                  {m.status === "active" && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() =>
+                                        handleSetStatus(m.id, "suspended")
+                                      }
+                                      title={t(
+                                        "Suspend member access (reversible)",
+                                      )}
+                                      className="h-8 px-2"
+                                    >
+                                      <Pause className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleRemoveMember(m.id, m.profile?.email)
+                                    }
+                                    className="text-destructive hover:bg-destructive/10 h-8 px-2"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
                                 </>
                               )}
-                            </Button>
-                            {isManager && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleRevokeInvite(inv.id)}
-                                className="h-7 text-xs text-destructive hover:bg-destructive/10"
-                              >
-                                {t("Revoke")}
-                              </Button>
-                            )}
-                          </td>
+                            </td>
+                          )}
                         </tr>
                       );
                     })}
                   </tbody>
                 </table>
               </div>
-            )}
-          </div>
-        </TabsContent>
+            </div>
+          </TabsContent>
 
-        {/* AUDIT TRAIL TAB */}
-        <TabsContent value="audit" className="space-y-6">
-          <div>
-            <h3 className="text-lg font-bold flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" /> Workspace Activity &
-              Audit Trail
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Immutable logging of team invitations, role changes, project
-              creations, and daily site logs.
-            </p>
-          </div>
-
-          <div className="rounded-xl border bg-card overflow-hidden">
-            {activities.length === 0 ? (
-              <div className="p-8 text-center text-sm text-muted-foreground">
-                {t("No recorded activity events yet.")}
+          {/* INVITATIONS TAB */}
+          <TabsContent value="invitations" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold">
+                  {t("Pending Invitations")}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {t("Sent invitations awaiting acceptance by recipients.")}
+                </p>
               </div>
-            ) : (
-              <div className="divide-y">
-                {activities.map((act) => (
-                  <div
-                    key={act.id}
-                    className="p-4 flex items-start justify-between gap-4"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                          {act.action.replace(/_/g, " ").toUpperCase()}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {act.entity_type}
-                        </span>
+              {isManager && (
+                <Button
+                  onClick={() => setInviteOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <UserPlus className="h-4 w-4" /> {t("Invite Member")}
+                </Button>
+              )}
+            </div>
+
+            <div className="rounded-xl border bg-card overflow-hidden">
+              {invitations.length === 0 ? (
+                <div className="p-8 text-center text-sm text-muted-foreground">
+                  {t("No pending invitations for this workspace.")}
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-muted/40 text-left text-xs text-muted-foreground font-semibold">
+                        <th className="p-3">{t("Invited Email")}</th>
+                        <th className="p-3">{t("Role")}</th>
+                        <th className="p-3">{t("Status")}</th>
+                        <th className="p-3">{t("Expires")}</th>
+                        <th className="p-3 text-right">{t("Actions")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invitations.map((inv) => {
+                        const roleConfig = WORKSPACE_ROLES[inv.role];
+                        const isExpired =
+                          new Date(inv.expires_at).getTime() < Date.now();
+
+                        return (
+                          <tr
+                            key={inv.id}
+                            className="border-b last:border-0 hover:bg-muted/10"
+                          >
+                            <td className="p-3 font-medium flex items-center gap-2">
+                              <Mail className="h-4 w-4 text-muted-foreground" />
+                              {inv.email}
+                            </td>
+                            <td className="p-3">
+                              <span
+                                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${roleConfig.badgeColor}`}
+                              >
+                                {roleConfig.label}
+                              </span>
+                            </td>
+                            <td className="p-3">
+                              {isExpired ? (
+                                <span className="text-xs text-destructive font-medium">
+                                  {t("Expired")}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-amber-600 font-medium">
+                                  {t("Pending Acceptance")}
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-3 text-xs text-muted-foreground">
+                              {new Date(inv.expires_at).toLocaleDateString()}
+                            </td>
+                            <td className="p-3 text-right space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => copyInviteLink(inv.token)}
+                                className="h-7 text-xs inline-flex items-center gap-1"
+                              >
+                                {copiedToken === inv.token ? (
+                                  <>
+                                    <Check className="h-3 w-3 text-emerald-500" />{" "}
+                                    Copied
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="h-3 w-3" />{" "}
+                                    {t("Copy Link")}
+                                  </>
+                                )}
+                              </Button>
+                              {isManager && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRevokeInvite(inv.id)}
+                                  className="h-7 text-xs text-destructive hover:bg-destructive/10"
+                                >
+                                  {t("Revoke")}
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* AUDIT TRAIL TAB */}
+          <TabsContent value="audit" className="space-y-6">
+            <div>
+              <h3 className="text-lg font-bold flex items-center gap-2">
+                <Activity className="h-5 w-5 text-primary" /> Workspace Activity
+                & Audit Trail
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Immutable logging of team invitations, role changes, project
+                creations, and daily site logs.
+              </p>
+            </div>
+
+            <div className="rounded-xl border bg-card overflow-hidden">
+              {activities.length === 0 ? (
+                <div className="p-8 text-center text-sm text-muted-foreground">
+                  {t("No recorded activity events yet.")}
+                </div>
+              ) : (
+                <div className="divide-y">
+                  {activities.map((act) => (
+                    <div
+                      key={act.id}
+                      className="p-4 flex items-start justify-between gap-4"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                            {act.action.replace(/_/g, " ").toUpperCase()}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {act.entity_type}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium">
+                          {act.metadata && Object.keys(act.metadata).length > 0
+                            ? JSON.stringify(act.metadata)
+                            : "Action executed"}
+                        </p>
                       </div>
-                      <p className="text-sm font-medium">
-                        {act.metadata && Object.keys(act.metadata).length > 0
-                          ? JSON.stringify(act.metadata)
-                          : "Action executed"}
-                      </p>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {new Date(act.created_at).toLocaleString()}
+                      </span>
                     </div>
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      {new Date(act.created_at).toLocaleString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
 
-      {/* ENGINE #12: SECURITY REVIEW STATUS — honest disclosure, never
+        {/* ENGINE #12: SECURITY REVIEW STATUS — honest disclosure, never
           self-certified; approved claims can only come from an
           admin-written review record. */}
-      <div className="mt-8 rounded-lg border bg-card p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <ShieldCheck className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold">
-            {t("Security review status")}
-          </h3>
+        <div className="mt-8 rounded-lg border bg-card p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold">
+              {t("Security review status")}
+            </h3>
+          </div>
+          {posture.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Security review information is unavailable right now; no review
+              status is claimed.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {posture.map((p) => (
+                <li key={p.surface} className="text-sm">
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide mr-2 border ${
+                      p.status === "approved"
+                        ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                        : p.status === "rejected"
+                          ? "bg-destructive/10 text-destructive border-destructive/30"
+                          : "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                    }`}
+                  >
+                    {p.status === "pending" ? "awaiting review" : p.status}
+                  </span>
+                  {p.disclosure}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        {posture.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Security review information is unavailable right now; no review
-            status is claimed.
-          </p>
-        ) : (
-          <ul className="space-y-2">
-            {posture.map((p) => (
-              <li key={p.surface} className="text-sm">
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide mr-2 border ${
-                    p.status === "approved"
-                      ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
-                      : p.status === "rejected"
-                        ? "bg-destructive/10 text-destructive border-destructive/30"
-                        : "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
-                  }`}
-                >
-                  {p.status === "pending" ? "awaiting review" : p.status}
-                </span>
-                {p.disclosure}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
 
-      {/* INVITE MEMBER MODAL */}
-      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <form onSubmit={handleSendInvite}>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5 text-primary" />{" "}
-                {t("Invite Team Member")}
-              </DialogTitle>
-            </DialogHeader>
+        {/* INVITE MEMBER MODAL */}
+        <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <form onSubmit={handleSendInvite}>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <UserPlus className="h-5 w-5 text-primary" />{" "}
+                  {t("Invite Team Member")}
+                </DialogTitle>
+              </DialogHeader>
 
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="invite-email">
-                  {t("Recipient Email Address")}
-                </Label>
-                <Input
-                  id="invite-email"
-                  type="email"
-                  placeholder="collaborator@company.com"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  required
-                />
-              </div>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="invite-email">
+                    {t("Recipient Email Address")}
+                  </Label>
+                  <Input
+                    id="invite-email"
+                    type="email"
+                    placeholder="collaborator@company.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    required
+                  />
+                </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="invite-role">
-                  {t("Assigned Enterprise Role")}
-                </Label>
-                <Select
-                  value={inviteRole}
-                  onValueChange={(val: WorkspaceRole) => setInviteRole(val)}
-                >
-                  <SelectTrigger id="invite-role">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(WORKSPACE_ROLES)
-                      .filter((r) => r.key !== "owner")
-                      .map((r) => (
-                        <SelectItem key={r.key} value={r.key}>
-                          {r.label}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <div className="grid gap-2">
+                  <Label htmlFor="invite-role">
+                    {t("Assigned Enterprise Role")}
+                  </Label>
+                  <Select
+                    value={inviteRole}
+                    onValueChange={(val: WorkspaceRole) => setInviteRole(val)}
+                  >
+                    <SelectTrigger id="invite-role">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(WORKSPACE_ROLES)
+                        .filter((r) => r.key !== "owner")
+                        .map((r) => (
+                          <SelectItem key={r.key} value={r.key}>
+                            {r.label}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
 
-                {/* Role Description Card */}
-                <div className="p-3 rounded-lg border bg-muted/40 text-xs space-y-1.5 mt-1">
-                  <p className="font-semibold text-foreground">
-                    {WORKSPACE_ROLES[inviteRole].label}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {WORKSPACE_ROLES[inviteRole].description}
-                  </p>
+                  {/* Role Description Card */}
+                  <div className="p-3 rounded-lg border bg-muted/40 text-xs space-y-1.5 mt-1">
+                    <p className="font-semibold text-foreground">
+                      {WORKSPACE_ROLES[inviteRole].label}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {WORKSPACE_ROLES[inviteRole].description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="invite-title">
+                    {t("Optional Job Title")}
+                  </Label>
+                  <Input
+                    id="invite-title"
+                    placeholder="e.g. Lead Structural Foreman"
+                    value={inviteTitle}
+                    onChange={(e) => setInviteTitle(e.target.value)}
+                  />
                 </div>
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="invite-title">{t("Optional Job Title")}</Label>
-                <Input
-                  id="invite-title"
-                  placeholder="e.g. Lead Structural Foreman"
-                  value={inviteTitle}
-                  onChange={(e) => setInviteTitle(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setInviteOpen(false)}
-                disabled={sendingInvite}
-              >
-                {t("Cancel")}
-              </Button>
-              <Button
-                type="submit"
-                disabled={sendingInvite || !inviteEmail.trim()}
-              >
-                {sendingInvite ? "Sending..." : "Create & Send Invitation"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setInviteOpen(false)}
+                  disabled={sendingInvite}
+                >
+                  {t("Cancel")}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={sendingInvite || !inviteEmail.trim()}
+                >
+                  {sendingInvite ? "Sending..." : "Create & Send Invitation"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </Container>
+    </>
   );
 }

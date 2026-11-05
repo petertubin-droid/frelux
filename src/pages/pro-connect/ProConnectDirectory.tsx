@@ -37,6 +37,8 @@ import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
 
 export default function ProConnectDirectory() {
   const { t } = useLanguage();
@@ -244,368 +246,376 @@ export default function ProConnectDirectory() {
     searchQuery;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-foreground dark:text-primary-foreground">
-          {t("Find Construction Professionals")}
-        </h1>
-        <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
-          {t("Find construction professionals by trade and location; availability varies by market")}
-        </p>
-      </div>
-
-      {/* Commercial readiness (moved from homepage; the pro
-          positioning pitch belongs on the pro directory) */}
-      <Suspense fallback={null}>
-        <CommercialReadiness />
-      </Suspense>
-
-      {/* Search bar */}
-      <div className="mb-6 flex gap-3">
-        <div className="relative flex-1">
-          <Search
-            aria-hidden="true"
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground"
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t("Search by name, business, or keyword...")}
-            className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
-          />
-        </div>
-        <Button
-          variant="ghost"
-          onClick={() => setShowFilters(!showFilters)}
-          className={classNames(
-            "flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors",
-            showFilters || hasActiveFilters
-              ? "border-brand-purple bg-primary text-primary-foreground"
-              : "border-border bg-card text-card-foreground dark:border-white/10 dark:bg-card dark:text-muted-foreground/60",
-          )}
-        >
-          <SlidersHorizontal className="h-4 w-4" />
-          <span className="hidden sm:inline">{t("Filters")}</span>
-          {hasActiveFilters && (
-            <span className="ml-1 rounded-full bg-white/20 px-1.5 text-xs">
-              {
-                [
-                  selectedCategory,
-                  selectedService,
-                  selectedState,
-                  selectedCity,
-                  verifiedOnly,
-                ].filter(Boolean).length
-              }
-            </span>
-          )}
-        </Button>
-      </div>
-
-      {/* Filters panel */}
-      {showFilters && (
-        <div className="mb-6 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
-          <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Category */}
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                {t("Category")}
-              </label>
-              <select
-                value={selectedCategory || ""}
-                onChange={(e) => setSelectedCategory(e.target.value || null)}
-                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
-              >
-                <option value="">{t("All categories")}</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Service */}
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                {t("Service")}
-              </label>
-              <select
-                value={selectedService || ""}
-                onChange={(e) => setSelectedService(e.target.value || null)}
-                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
-              >
-                <option value="">{t("All services")}</option>
-                {filteredServices.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* State */}
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                {t("State")}
-              </label>
-              <select
-                value={selectedCountry || ""}
-                onChange={(e) => {
-                  setSelectedCountry(e.target.value || null);
-                  setSelectedState(null);
-                  setSelectedCity(null);
-                }}
-                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
-              >
-                <option value="">{t("All countries")}</option>
-                {COUNTRY_OPTIONS.map((g) => (
-                  <optgroup key={g.group} label={g.group}>
-                    {g.countries.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-              <select
-                value={selectedState || ""}
-                onChange={(e) => {
-                  setSelectedState(e.target.value || null);
-                  setSelectedCity(null);
-                }}
-                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
-              >
-                <option value="">{t("All states")}</option>
-                {states.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* City */}
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                {t("City")}
-              </label>
-              <select
-                value={selectedCity || ""}
-                onChange={(e) => setSelectedCity(e.target.value || null)}
-                disabled={!selectedState}
-                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm disabled:opacity-50 dark:border-white/10 dark:bg-background"
-              >
-                <option value="">{t("All cities")}</option>
-                {cities.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Availability + Rating filters */}
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                {t("Availability")}
-              </label>
-              <select
-                value={availabilityFilter || ""}
-                onChange={(e) => setAvailabilityFilter(e.target.value || null)}
-                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
-              >
-                <option value="">{t("Any availability")}</option>
-                <option value="available">{t("Available now")}</option>
-                <option value="busy">{t("Currently busy")}</option>
-              </select>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                {t("Minimum Rating")}
-              </label>
-              <select
-                value={minRating?.toString() || ""}
-                onChange={(e) =>
-                  setMinRating(
-                    e.target.value ? parseFloat(e.target.value) : null,
-                  )
-                }
-                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
-              >
-                <option value="">{t("Any rating")}</option>
-                <option value="3">3.0+</option>
-                <option value="4">4.0+</option>
-                <option value="4.5">4.5+</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Verified toggle + Clear */}
-          <div className="mt-4 flex items-center justify-between">
-            <label className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
-              <input
-                type="checkbox"
-                checked={verifiedOnly}
-                onChange={(e) => setVerifiedOnly(e.target.checked)}
-                className="rounded border-border text-brand-purple focus:ring-brand-purple"
-              />
-              {t("Verified professionals only")}
-            </label>
-            {hasActiveFilters && (
-              <Button
-                variant="ghost"
-                onClick={clearFilters}
-                className="flex items-center gap-1 text-sm text-brand-purple dark:text-brand-purple-lighter"
-              >
-                <X aria-hidden="true" className="h-4 w-4" />
-                {t("Clear all filters")}
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Category quick filters */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        {categories.map((cat) => (
-          <Link
-            key={cat.id}
-            to={`/pro-connect/?category=${cat.slug}`}
-            onClick={() =>
-              setSelectedCategory(selectedCategory === cat.id ? null : cat.id)
-            }
-            className={classNames(
-              "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
-              selectedCategory === cat.id
-                ? "border-brand-purple bg-primary text-primary-foreground"
-                : "border-border bg-card text-muted-foreground hover:border-brand-purple/30 dark:border-white/10 dark:bg-card dark:text-muted-foreground/80",
-            )}
-          >
-            {cat.name}
-          </Link>
-        ))}
-      </div>
-
-      {/* Where the professionals actually are */}
-      <MapPanel
-        layers={["pros"]}
-        className="mb-6"
-        height={340}
-        title={t("Professionals on the map")}
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: t("Pro Connect"), path: "/pro-connect" },
+          { label: t("Professionals") },
+        ]}
+        eyebrow={t("Pro Connect")}
+        title={t("Find Construction Professionals")}
         subtitle={t(
-          "Every pin is a professional's own listed base, anywhere in the world. Select one to see who they are.",
+          "Find construction professionals by trade and location; availability varies by market",
         )}
-        nearestCount={4}
-        exploreHref="/map"
       />
 
-      {/* Results count */}
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-          {loading
-            ? "Searching..."
-            : `${total} professional${total !== 1 ? "s" : ""} found`}
-        </p>
-        {hasActiveFilters && (
+      <Container className="max-w-7xl pb-12 pt-6">
+        {/* Commercial readiness (moved from homepage; the pro
+          positioning pitch belongs on the pro directory) */}
+        <Suspense fallback={null}>
+          <CommercialReadiness />
+        </Suspense>
+
+        {/* Search bar */}
+        <div className="mb-6 flex gap-3">
+          <div className="relative flex-1">
+            <Search
+              aria-hidden="true"
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground"
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("Search by name, business, or keyword...")}
+              className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
+            />
+          </div>
           <Button
             variant="ghost"
-            onClick={clearFilters}
-            className="text-sm text-brand-purple dark:text-brand-purple-lighter"
+            onClick={() => setShowFilters(!showFilters)}
+            className={classNames(
+              "flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors",
+              showFilters || hasActiveFilters
+                ? "border-brand-purple bg-primary text-primary-foreground"
+                : "border-border bg-card text-card-foreground dark:border-white/10 dark:bg-card dark:text-muted-foreground/60",
+            )}
           >
-            {t("Clear filters")}
+            <SlidersHorizontal className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("Filters")}</span>
+            {hasActiveFilters && (
+              <span className="ml-1 rounded-full bg-white/20 px-1.5 text-xs">
+                {
+                  [
+                    selectedCategory,
+                    selectedService,
+                    selectedState,
+                    selectedCity,
+                    verifiedOnly,
+                  ].filter(Boolean).length
+                }
+              </span>
+            )}
           </Button>
-        )}
-      </div>
+        </div>
 
-      {/* Results grid */}
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="h-64 animate-pulse rounded-xl border border-border bg-muted/50 dark:border-white/5 dark:bg-card"
-            />
+        {/* Filters panel */}
+        {showFilters && (
+          <div className="mb-6 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+            <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Category */}
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                  {t("Category")}
+                </label>
+                <select
+                  value={selectedCategory || ""}
+                  onChange={(e) => setSelectedCategory(e.target.value || null)}
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                >
+                  <option value="">{t("All categories")}</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Service */}
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                  {t("Service")}
+                </label>
+                <select
+                  value={selectedService || ""}
+                  onChange={(e) => setSelectedService(e.target.value || null)}
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                >
+                  <option value="">{t("All services")}</option>
+                  {filteredServices.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* State */}
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                  {t("State")}
+                </label>
+                <select
+                  value={selectedCountry || ""}
+                  onChange={(e) => {
+                    setSelectedCountry(e.target.value || null);
+                    setSelectedState(null);
+                    setSelectedCity(null);
+                  }}
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                >
+                  <option value="">{t("All countries")}</option>
+                  {COUNTRY_OPTIONS.map((g) => (
+                    <optgroup key={g.group} label={g.group}>
+                      {g.countries.map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+                <select
+                  value={selectedState || ""}
+                  onChange={(e) => {
+                    setSelectedState(e.target.value || null);
+                    setSelectedCity(null);
+                  }}
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                >
+                  <option value="">{t("All states")}</option>
+                  {states.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* City */}
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                  {t("City")}
+                </label>
+                <select
+                  value={selectedCity || ""}
+                  onChange={(e) => setSelectedCity(e.target.value || null)}
+                  disabled={!selectedState}
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm disabled:opacity-50 dark:border-white/10 dark:bg-background"
+                >
+                  <option value="">{t("All cities")}</option>
+                  {cities.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Availability + Rating filters */}
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                  {t("Availability")}
+                </label>
+                <select
+                  value={availabilityFilter || ""}
+                  onChange={(e) =>
+                    setAvailabilityFilter(e.target.value || null)
+                  }
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                >
+                  <option value="">{t("Any availability")}</option>
+                  <option value="available">{t("Available now")}</option>
+                  <option value="busy">{t("Currently busy")}</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                  {t("Minimum Rating")}
+                </label>
+                <select
+                  value={minRating?.toString() || ""}
+                  onChange={(e) =>
+                    setMinRating(
+                      e.target.value ? parseFloat(e.target.value) : null,
+                    )
+                  }
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                >
+                  <option value="">{t("Any rating")}</option>
+                  <option value="3">3.0+</option>
+                  <option value="4">4.0+</option>
+                  <option value="4.5">4.5+</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Verified toggle + Clear */}
+            <div className="mt-4 flex items-center justify-between">
+              <label className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
+                <input
+                  type="checkbox"
+                  checked={verifiedOnly}
+                  onChange={(e) => setVerifiedOnly(e.target.checked)}
+                  className="rounded border-border text-brand-purple focus:ring-brand-purple"
+                />
+                {t("Verified professionals only")}
+              </label>
+              {hasActiveFilters && (
+                <Button
+                  variant="ghost"
+                  onClick={clearFilters}
+                  className="flex items-center gap-1 text-sm text-brand-purple dark:text-brand-purple-lighter"
+                >
+                  <X aria-hidden="true" className="h-4 w-4" />
+                  {t("Clear all filters")}
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Category quick filters */}
+        <div className="mb-6 flex flex-wrap gap-2">
+          {categories.map((cat) => (
+            <Link
+              key={cat.id}
+              to={`/pro-connect/?category=${cat.slug}`}
+              onClick={() =>
+                setSelectedCategory(selectedCategory === cat.id ? null : cat.id)
+              }
+              className={classNames(
+                "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+                selectedCategory === cat.id
+                  ? "border-brand-purple bg-primary text-primary-foreground"
+                  : "border-border bg-card text-muted-foreground hover:border-brand-purple/30 dark:border-white/10 dark:bg-card dark:text-muted-foreground/80",
+              )}
+            >
+              {cat.name}
+            </Link>
           ))}
         </div>
-      ) : profiles.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card p-8 sm:p-12 text-center dark:border-white/5 space-y-5">
-          <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-foreground">
-              {t("No Direct Profiles in This Territory Filter")}
-            </h3>
-            <p className="mt-1.5 text-sm text-muted-foreground max-w-lg mx-auto">
-              {t("Under our")}{" "}
-              <strong>{t("Marketplace Liquidity & Seeding Protocol")}</strong>,
-              we don't leave you stranded in emerging territories. Under our
-              strategic seeding protocol, you can request assisted artisan
-              matching via accredited regional trade associations or nominate
-              and onboard your trusted local contractor for verified escrow
-              milestones.
-            </p>
-          </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <Link to="/pro-connect/liquidity">
-              <Button size="sm" className="gap-2 text-xs font-semibold">
-                <Compass className="w-4 h-4" /> {t("View Seeding Options")}
-              </Button>
-            </Link>
-            <Link to="/pro-connect/liquidity">
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2 text-xs font-semibold"
-              >
-                {t("Nominate Contractor")}
-              </Button>
-            </Link>
-            {hasActiveFilters && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                {t("Clear all filters")}
-              </Button>
-            )}
-          </div>
+        {/* Where the professionals actually are */}
+        <MapPanel
+          layers={["pros"]}
+          className="mb-6"
+          height={340}
+          title={t("Professionals on the map")}
+          subtitle={t(
+            "Every pin is a professional's own listed base, anywhere in the world. Select one to see who they are.",
+          )}
+          nearestCount={4}
+          exploreHref="/map"
+        />
+
+        {/* Results count */}
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+            {loading
+              ? "Searching..."
+              : `${total} professional${total !== 1 ? "s" : ""} found`}
+          </p>
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              onClick={clearFilters}
+              className="text-sm text-brand-purple dark:text-brand-purple-lighter"
+            >
+              {t("Clear filters")}
+            </Button>
+          )}
         </div>
-      ) : (
-        <>
+
+        {/* Results grid */}
+        {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {profiles.map((p) => (
-              <ProfessionalCard
-                key={p.id}
-                profile={p}
-                category={profileCategories[p.id]}
-                services={profileServices[p.id] || []}
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="h-64 animate-pulse rounded-xl border border-border bg-muted/50 dark:border-white/5 dark:bg-card"
               />
             ))}
           </div>
-
-          {hasMore && (
-            <div className="mt-8 text-center">
-              <Button
-                variant="ghost"
-                onClick={() => setPage((p) => p + 1)}
-                className="rounded-lg border border-border px-6 py-3 text-sm font-medium text-card-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/60"
-              >
-                {t("Load more professionals")}
-              </Button>
+        ) : profiles.length === 0 ? (
+          <div className="rounded-2xl border border-border bg-card p-8 sm:p-12 text-center dark:border-white/5 space-y-5">
+            <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+              <ShieldCheck className="w-6 h-6" />
             </div>
-          )}
-        </>
-      )}
-    </div>
+            <div>
+              <h3 className="text-lg font-bold text-foreground">
+                {t("No Direct Profiles in This Territory Filter")}
+              </h3>
+              <p className="mt-1.5 text-sm text-muted-foreground max-w-lg mx-auto">
+                {t("Under our")}{" "}
+                <strong>{t("Marketplace Liquidity & Seeding Protocol")}</strong>
+                , we don't leave you stranded in emerging territories. Under our
+                strategic seeding protocol, you can request assisted artisan
+                matching via accredited regional trade associations or nominate
+                and onboard your trusted local contractor for verified escrow
+                milestones.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <Link to="/pro-connect/liquidity">
+                <Button size="sm" className="gap-2 text-xs font-semibold">
+                  <Compass className="w-4 h-4" /> {t("View Seeding Options")}
+                </Button>
+              </Link>
+              <Link to="/pro-connect/liquidity">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 text-xs font-semibold"
+                >
+                  {t("Nominate Contractor")}
+                </Button>
+              </Link>
+              {hasActiveFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  {t("Clear all filters")}
+                </Button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {profiles.map((p) => (
+                <ProfessionalCard
+                  key={p.id}
+                  profile={p}
+                  category={profileCategories[p.id]}
+                  services={profileServices[p.id] || []}
+                />
+              ))}
+            </div>
+
+            {hasMore && (
+              <div className="mt-8 text-center">
+                <Button
+                  variant="ghost"
+                  onClick={() => setPage((p) => p + 1)}
+                  className="rounded-lg border border-border px-6 py-3 text-sm font-medium text-card-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/60"
+                >
+                  {t("Load more professionals")}
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </Container>
+    </>
   );
 }
