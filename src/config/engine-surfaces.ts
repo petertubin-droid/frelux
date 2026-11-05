@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
+  Blinds,
   Building2,
   ClipboardCheck,
   Calculator,
@@ -60,6 +61,20 @@ export interface EngineSurface {
 }
 
 export const ENGINE_SURFACES: EngineSurface[] = [
+  {
+    engineId: "window_blinds",
+    status: "live",
+    route: "/window-blind-calculator",
+    label: "Window Blind Estimator",
+    icon: Blinds,
+    evidence: {
+      module: "src/lib/estimation/window-blinds-engine.ts",
+      fn: "calculateBlindProject",
+      page: "src/pages/WindowBlindsEstimator.tsx",
+      calledBy: "WindowBlindsEstimator",
+    },
+    note: "Per window and per job blind prices from measured openings, with the market minimum, waste and grade applied.",
+  },
   {
     engineId: "build_to_roof",
     status: "live",

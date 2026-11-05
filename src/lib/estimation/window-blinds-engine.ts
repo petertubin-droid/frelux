@@ -522,3 +522,34 @@ export function calculateBlindProject(
     },
   };
 }
+
+/**
+ * Quantities only, in the shape the BOQ and dispatch surfaces merge. Prices stay
+ * out of the BOQ here, exactly as the tank stand does, because a blind schedule
+ * and a priced quote are two different documents and mixing them hides which
+ * number came from where.
+ */
+export interface BlindBoqItem {
+  category: "Window Treatments";
+  item: string;
+  specification: string;
+  quantity: number;
+  unit: string;
+  notes: string;
+}
+
+export function blindsBoqItems(
+  result: Pick<BlindProjectResult, "rows"> & { gradeLabel?: string },
+): BlindBoqItem[] {
+  const grade = result.gradeLabel
+    ? `${result.gradeLabel} grade`
+    : "standard grade";
+  return result.rows.map((row) => ({
+    category: "Window Treatments",
+    item: `${row.typeLabel} blind`,
+    specification: `${row.widthM} x ${row.heightM} m, ${grade}${row.motorised ? ", motorised" : ""}`,
+    quantity: row.quantity,
+    unit: "no",
+    notes: `${row.chargeableAreaM2} m2 charged per window with waste`,
+  }));
+}

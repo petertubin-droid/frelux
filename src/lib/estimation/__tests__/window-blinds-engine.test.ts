@@ -219,3 +219,80 @@ describe("window blind project", () => {
     expect(result.totals.total).toBeNull();
   });
 });
+
+import { blindsBoqItems } from "../window-blinds-engine";
+import {
+  listEngines,
+  executeEngine,
+} from "@/lib/ai-foundation/engines-registry";
+
+describe("window blind engine integration", () => {
+  it("appears in the authoritative engine registry", () => {
+    expect(listEngines().some((engine) => engine.id === "window_blinds")).toBe(
+      true,
+    );
+  });
+
+  it("runs through executeEngine and returns quantities with costs", async () => {
+    const result = await executeEngine("window_blinds", {
+      market: "NG",
+      unit: "ft",
+      grade: "standard",
+      openings: [
+        {
+          id: "a",
+          label: "Living room",
+          typeKey: "day-night",
+          width: 4,
+          height: 4,
+          quantity: 3,
+        },
+      ],
+    });
+    expect(result.ok).toBe(true);
+    expect(result.quantities.length).toBeGreaterThan(1);
+    expect(result.costs?.currency).toBe("NGN");
+    expect(result.costs?.total).toBeGreaterThan(0);
+  });
+
+  it("returns no cost figure when the market has no book", async () => {
+    const result = await executeEngine("window_blinds", {
+      market: "US",
+      unit: "ft",
+      grade: "standard",
+      openings: [
+        {
+          id: "a",
+          label: "A",
+          typeKey: "roller",
+          width: 4,
+          height: 4,
+          quantity: 1,
+        },
+      ],
+    });
+    expect(result.costs).toBeNull();
+    expect(result.quantities.length).toBeGreaterThan(0);
+  });
+
+  it("emits BOQ quantities without prices", () => {
+    const project = calculateBlindProject({
+      market: "NG",
+      unit: "ft",
+      grade: "premium",
+      openings: [
+        opening({ quantity: 2 }),
+        opening({ id: "b", typeKey: "wooden", motorised: true }),
+      ],
+    });
+    const items = blindsBoqItems({
+      rows: project.rows,
+      gradeLabel: project.gradeLabel,
+    });
+    expect(items).toHaveLength(2);
+    expect(items[0].category).toBe("Window Treatments");
+    expect(items[0].specification).toContain("Premium grade");
+    expect(items[1].specification).toContain("motorised");
+    expect(Object.keys(items[0])).not.toContain("amount");
+  });
+});

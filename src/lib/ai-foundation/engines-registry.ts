@@ -290,6 +290,101 @@ registerEngine({
   },
 });
 
+// ── Window blinds: schedule priced from measured openings (existing engine) ──
+interface BlindProjectInputLike {
+  market: string;
+  unit: "m" | "ft";
+  grade: "standard" | "premium";
+  openings: Array<{
+    id: string;
+    label: string;
+    typeKey: string;
+    width: number;
+    height: number;
+    quantity: number;
+    motorised?: boolean;
+  }>;
+  install?: boolean;
+  extras?: Record<string, number>;
+  manualPerM2?: number;
+  manualMinimumPerWindow?: number;
+}
+
+registerEngine({
+  id: "window_blinds",
+  domain: "finishing",
+  title: "FRELUX Window Blind Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX window blind engine",
+  async run(rawInput) {
+    const { calculateBlindProject } =
+      await import("@/lib/estimation/window-blinds-engine");
+    const supplied = (rawInput ?? {}) as Partial<BlindProjectInputLike>;
+    const openings = supplied.openings?.length
+      ? supplied.openings
+      : [
+          {
+            id: "default",
+            label: "Window",
+            typeKey: "day-night",
+            width: 4,
+            height: 4,
+            quantity: 1,
+          },
+        ];
+    const input = {
+      market: supplied.market ?? "NG",
+      unit: supplied.unit ?? "ft",
+      grade: supplied.grade ?? "standard",
+      openings,
+      install: supplied.install,
+      extras: supplied.extras,
+      manualPerM2: supplied.manualPerM2,
+      manualMinimumPerWindow: supplied.manualMinimumPerWindow,
+    } as never;
+
+    const result = calculateBlindProject(input);
+    const quantities: EngineQuantityLine[] = result.rows.map((row) =>
+      normalizeQuantityLine({
+        label: `${row.typeLabel} blind, ${row.label}`,
+        quantity: row.quantity,
+        unit: "no",
+      }),
+    );
+    quantities.push(
+      normalizeQuantityLine({
+        label: "Charged blind area",
+        quantity: result.geometry.totalChargeableAreaM2,
+        unit: "m2",
+      }),
+    );
+
+    const priced = result.totals.total !== null;
+    const costs: EngineCostSummary | null = priced
+      ? normalizeCostSummary({
+          total: result.totals.total as number,
+          currency: result.currency ?? "NGN",
+          lines: [
+            { label: "Blinds", amount: result.totals.blinds ?? 0 },
+            { label: "Extras", amount: result.totals.extras ?? 0 },
+            { label: "Fitting", amount: result.totals.installation ?? 0 },
+          ],
+          regionalDataAvailable:
+            result.status === "priced" && result.currency !== null,
+        })
+      : null;
+
+    return {
+      ok: true,
+      engine: "window_blinds",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs,
+      raw: result,
+    };
+  },
+});
+
 // ── Roof geometry (existing engine function) ──
 registerEngine({
   id: "roof_geometry",

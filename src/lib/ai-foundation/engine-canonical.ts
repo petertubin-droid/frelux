@@ -45,9 +45,16 @@ export const UNRESOLVED_ENGINE_IDS = [
   "painting_wall_area",
   "timeline_estimator",
   "quote_check",
+  "window_blinds",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
+  {
+    aiEngineId: "window_blinds",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "Blind pricing is a window treatment, not part of the doors and windows opening schedule, so it has no canonical counterpart in the international inventory yet. Pricing rests on the Nigerian scan recorded in the engine.",
+  },
   // The seven ids both vocabularies already agree on.
   {
     aiEngineId: "build_to_roof",
