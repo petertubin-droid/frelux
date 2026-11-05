@@ -173,6 +173,7 @@ const STATIC_PATHS = [
   "/carbon-footprint/",
   "/brand-studio/",
   "/visual-finishing-estimator/",
+  "/mathematical-plan-elevation/",
   "/tools/visual-finishing-estimator/",
   "/window-blind-calculator/",
   "/credits/",

@@ -1861,6 +1861,22 @@ const routes = [
 
   // ── Construction calculators & estimators (missing from original) ──
   {
+    path: "/mathematical-plan-elevation",
+    title: "Mathematical Building Elevation Calculator | FRELUX",
+    description: "Create an indicative building elevation and preliminary quantity schedule from dimensions you enter. Includes roof-pitch geometry; it does not interpret uploaded plans or verify structural design or code compliance.",
+    priority: "0.7",
+    changefreq: "monthly",
+    structuredData: [{
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "FRELUX Mathematical Plan Elevation",
+      applicationCategory: "CalculatorApplication",
+      operatingSystem: "Web",
+      description: "Create an indicative elevation and quantity schedule from manually entered dimensions. No plan-image interpretation or code-compliance review.",
+      featureList: ["Dimension-based roof pitch geometry", "Animated elevation illustration", "Preliminary quantity schedule", "Optional user-entered supplier rates"],
+    }],
+  },
+  {
     path: "/build-to-roof-estimator",
     title:
       "Build-to-Roof Estimator: Full Construction Cost | FRELUX SMART CALC",

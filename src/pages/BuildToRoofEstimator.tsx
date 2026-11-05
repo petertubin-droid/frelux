@@ -5,7 +5,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { ConstructionExtractionPanel } from "@/components/estimation/ConstructionExtractionPanel";
 import React, { useState, useMemo, useCallback, useEffect, useId } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { getConstructionTypology } from "@/lib/estimation/construction-typologies";
 import { useWasteSettings } from "@/lib/waste/use-waste-settings";
@@ -378,6 +378,8 @@ export default function BuildToRoofEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { t } = useLanguage();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { market, marketCode } = useMarket();
   const typology = useMemo(
     () => getConstructionTypology(marketCode),
@@ -546,6 +548,15 @@ export default function BuildToRoofEstimator({
       roof: true,
     },
   });
+
+  // Apply only the explicit dimensions patch carried from the deterministic elevation tool.
+  useEffect(() => {
+    const state = location.state as { mathematicalElevationPatch?: Partial<BuildToRoofInput> } | null;
+    const patch = state?.mathematicalElevationPatch;
+    if (!patch) return;
+    setInput((prev) => ({ ...prev, ...patch }));
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   // Draft persistence and recovery hook
   const {
@@ -805,6 +816,13 @@ export default function BuildToRoofEstimator({
             </Link>
           }
         />
+        <div className="max-w-6xl mx-auto px-4 pt-3">
+          <Link to="/mathematical-plan-elevation" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:border-primary/40">
+            <Ruler aria-hidden="true" className="h-4 w-4 text-primary" />
+            Open manual-dimension elevation (no AI drawing analysis)
+            <ArrowRight aria-hidden="true" className="h-4 w-4" />
+          </Link>
+        </div>
 
         {/* Premium sticky 4-Phase progress bar with direct jump */}
         <div className="sticky top-16 z-30 border-b border-border bg-background/95 backdrop-blur-lg shadow-sm">

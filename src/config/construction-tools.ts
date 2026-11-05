@@ -501,6 +501,18 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
 
   // ---------------------------------------------------------------- structure
   {
+    slug: "mathematical-plan-elevation",
+    title: "Mathematical Plan Elevation",
+    category: "structure",
+    icon: Ruler,
+    does: "Explore a building elevation from entered dimensions, roof geometry, and an illustrative quantity schedule.",
+    enters: "Building dimensions, roof pitch, and optional assumed site inputs.",
+    gets: "A parametric elevation, preliminary quantities, and costs only for supplier rates you enter.",
+    to: "/mathematical-plan-elevation",
+    benefit: "Manual dimensions, no AI drawing interpretation",
+    navVisible: true,
+  },
+  {
     slug: "build-to-roof",
     title: "Build-to-Roof Estimator",
     category: "structure",

@@ -293,6 +293,7 @@ const routes = [
   },
   { path: "/about", priority: "0.5", changefreq: "monthly" },
   { path: "/contact", priority: "0.5", changefreq: "monthly" },
+  { path: "/mathematical-plan-elevation", priority: "0.7", changefreq: "monthly" },
   { path: "/build-to-roof-estimator", priority: "0.9", changefreq: "monthly" },
   { path: "/structural-calculator", priority: "0.8", changefreq: "monthly" },
   { path: "/masonry-calculator", priority: "0.8", changefreq: "monthly" },
