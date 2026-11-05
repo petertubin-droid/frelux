@@ -17,6 +17,7 @@ import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { fetchMySupplier, registerSupplier } from "@/lib/suppliers/queries";
 import { SUPPLIER_CATEGORIES } from "@/lib/suppliers/types";
 import { VERIFICATION_LEVELS } from "@/lib/suppliers/verification";
+import PageHeader from "@/components/ui/PageHeader";
 
 const COUNTRIES = COUNTRY_OPTIONS.flatMap((group) => group.countries);
 
@@ -154,17 +155,18 @@ export default function SupplierRegister() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:py-12">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-          {existingId ? "Your supplier profile" : "Register a supply business"}
-        </h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Buyers search these details, so keep the city, address and categories
-          accurate. Registration sets your level to{" "}
-          <span className="font-medium">unverified</span>: nothing has been
-          checked yet.
-        </p>
-      </header>
+      <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Suppliers", path: "/suppliers" },
+          { label: "Registration" },
+        ]}
+        eyebrow="Supplier registration"
+        title={
+          existingId ? "Your supplier profile" : "Register a supply business"
+        }
+        subtitle="Buyers search these details, so keep the city, address and categories accurate. Registration sets your level to unverified: nothing has been checked yet."
+      />
 
       {existingId ? (
         <div className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">

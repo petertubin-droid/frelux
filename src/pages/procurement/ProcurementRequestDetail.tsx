@@ -8,13 +8,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import {
-  Loader2,
-  ArrowLeft,
-  CheckCircle2,
-  AlertTriangle,
-  Truck,
-} from "lucide-react";
+import { Loader2, CheckCircle2, AlertTriangle, Truck } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { useAuth } from "@/lib/auth";
@@ -39,6 +33,7 @@ import type {
   MaterialRequestItem,
   MaterialRequestQuote,
 } from "@/lib/suppliers/types";
+import PageHeader from "@/components/ui/PageHeader";
 
 type QuoteRow = MaterialRequestQuote & {
   supplier_profiles: Record<string, unknown> | null;
@@ -176,33 +171,29 @@ export default function ProcurementRequestDetail() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:py-12">
-      <Link
-        to="/procurement"
-        className="inline-flex items-center gap-1 text-xs text-slate-500 hover:underline"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" /> Back to requests
-      </Link>
-
-      <header className="mt-2 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-            {request.title}
-          </h1>
-          <p className="mt-1 text-sm text-slate-600">
-            {request.reference} ·{" "}
-            {[request.neighbourhood, request.city].filter(Boolean).join(", ") ||
-              request.market_code}{" "}
-            ·{" "}
-            {request.needed_by
-              ? `needed by ${request.needed_by}`
-              : "date flexible"}
-          </p>
-          {request.notes ? (
-            <p className="mt-1 text-sm text-slate-600">{request.notes}</p>
-          ) : null}
-        </div>
-        <Badge variant="secondary">{requestStatusLabel(request.status)}</Badge>
-      </header>
+      <PageHeader
+        variant="data"
+        backTo="/procurement"
+        backLabel="Back to requests"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Procurement", path: "/procurement" },
+          { label: "Request" },
+        ]}
+        eyebrow="Material request"
+        title={request.title}
+        subtitle={`${request.reference} · ${
+          [request.neighbourhood, request.city].filter(Boolean).join(", ") ||
+          request.market_code
+        } · ${
+          request.needed_by ? `needed by ${request.needed_by}` : "date flexible"
+        }${request.notes ? ` · ${request.notes}` : ""}`}
+        actions={
+          <Badge variant="secondary">
+            {requestStatusLabel(request.status)}
+          </Badge>
+        }
+      />
 
       {notice ? (
         <p className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">

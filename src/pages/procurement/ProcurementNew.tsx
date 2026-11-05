@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2, Plus, Trash2, ArrowLeft } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import { useAuth } from "@/lib/auth";
@@ -21,6 +21,7 @@ import {
   SUPPLIER_CATEGORIES,
   categoryDefaultUnit,
 } from "@/lib/suppliers/types";
+import PageHeader from "@/components/ui/PageHeader";
 
 const COUNTRIES = COUNTRY_OPTIONS.flatMap((group) => group.countries);
 
@@ -124,193 +125,198 @@ export default function ProcurementNew() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:py-12">
-      <Link
-        to="/procurement"
-        className="inline-flex items-center gap-1 text-xs text-slate-500 hover:underline"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" /> Back to requests
-      </Link>
-      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
-        Post a material request
-      </h1>
-      <p className="mt-1 text-sm text-slate-600">
-        Suppliers in your market see the list and quote per line. Nothing is
-        ordered until you award a quotation.
-      </p>
-
-      <section className="mt-5 space-y-2 text-sm">
-        <Input
-          placeholder="What do you need? e.g. Blockwork materials for a duplex"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <div className="flex flex-wrap gap-2">
-          <select
-            value={marketCode}
-            onChange={(e) => setMarketCode(e.target.value)}
-            className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm"
-          >
-            {COUNTRIES.map((country) => (
-              <option key={country.code} value={country.code}>
-                {country.name}
-              </option>
-            ))}
-          </select>
+    <>
+      <PageHeader
+        variant="tool"
+        backTo="/procurement"
+        backLabel="Back to requests"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Procurement", path: "/procurement" },
+          { label: "New request" },
+        ]}
+        eyebrow="Procurement"
+        title="Post a material request"
+        subtitle="Suppliers in your market see the list and quote per line. Nothing is ordered until you award a quotation."
+      />
+      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:py-12">
+        <section className="mt-5 space-y-2 text-sm">
           <Input
-            className="w-40"
-            placeholder="City"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
+            placeholder="What do you need? e.g. Blockwork materials for a duplex"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
-          <Input
-            className="w-48"
-            placeholder="Neighbourhood / site area"
-            value={neighbourhood}
-            onChange={(e) => setNeighbourhood(e.target.value)}
-          />
-          <Input
-            className="w-40"
-            type="date"
-            value={neededBy}
-            onChange={(e) => setNeededBy(e.target.value)}
-            aria-label="Needed by"
-          />
-        </div>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={2}
-          placeholder="Access notes, delivery instructions, quality requirements"
-          className="w-full rounded-md border border-slate-200 p-3 text-sm"
-        />
-      </section>
-
-      <section className="mt-5">
-        <h2 className="text-sm font-semibold text-slate-900">Materials</h2>
-        <div className="mt-2 space-y-3">
-          {items.map((item, index) => (
-            <div
-              key={index}
-              className="rounded-lg border border-slate-200 bg-white p-3"
+          <div className="flex flex-wrap gap-2">
+            <select
+              value={marketCode}
+              onChange={(e) => setMarketCode(e.target.value)}
+              className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm"
             >
-              <div className="flex flex-wrap gap-2">
-                <select
-                  value={item.materialCategory}
-                  onChange={(e) =>
-                    updateItem(index, {
-                      materialCategory: e.target.value,
-                      unit: categoryDefaultUnit(e.target.value),
-                    })
-                  }
-                  className="h-9 rounded-md border border-slate-200 px-2 text-sm"
-                >
-                  {SUPPLIER_CATEGORIES.map((category) => (
-                    <option key={category.slug} value={category.slug}>
-                      {category.label}
-                    </option>
-                  ))}
-                </select>
-                <Input
-                  className="min-w-0 flex-1"
-                  placeholder="Product, e.g. Dangote 42.5R cement"
-                  value={item.productName}
-                  onChange={(e) =>
-                    updateItem(index, { productName: e.target.value })
-                  }
-                />
-                <Input
-                  className="w-32"
-                  placeholder="Specification"
-                  value={item.specification ?? ""}
-                  onChange={(e) =>
-                    updateItem(index, { specification: e.target.value || null })
-                  }
-                />
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <Input
-                  className="w-24"
-                  inputMode="decimal"
-                  value={item.quantity}
-                  onChange={(e) =>
-                    updateItem(index, { quantity: Number(e.target.value) })
-                  }
-                  aria-label="Quantity"
-                />
-                <Input
-                  className="w-24"
-                  placeholder="Unit"
-                  value={item.unit}
-                  onChange={(e) => updateItem(index, { unit: e.target.value })}
-                />
-                <Input
-                  className="w-32"
-                  placeholder="Target price (optional)"
-                  inputMode="decimal"
-                  value={item.targetPrice ?? ""}
-                  onChange={(e) =>
-                    updateItem(index, {
-                      targetPrice: e.target.value
-                        ? Number(e.target.value)
-                        : null,
-                    })
-                  }
-                />
-                {items.length > 1 ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setItems((prev) => prev.filter((_, i) => i !== index))
+              {COUNTRIES.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+            <Input
+              className="w-40"
+              placeholder="City"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+            />
+            <Input
+              className="w-48"
+              placeholder="Neighbourhood / site area"
+              value={neighbourhood}
+              onChange={(e) => setNeighbourhood(e.target.value)}
+            />
+            <Input
+              className="w-40"
+              type="date"
+              value={neededBy}
+              onChange={(e) => setNeededBy(e.target.value)}
+              aria-label="Needed by"
+            />
+          </div>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={2}
+            placeholder="Access notes, delivery instructions, quality requirements"
+            className="w-full rounded-md border border-slate-200 p-3 text-sm"
+          />
+        </section>
+
+        <section className="mt-5">
+          <h2 className="text-sm font-semibold text-slate-900">Materials</h2>
+          <div className="mt-2 space-y-3">
+            {items.map((item, index) => (
+              <div
+                key={index}
+                className="rounded-lg border border-slate-200 bg-white p-3"
+              >
+                <div className="flex flex-wrap gap-2">
+                  <select
+                    value={item.materialCategory}
+                    onChange={(e) =>
+                      updateItem(index, {
+                        materialCategory: e.target.value,
+                        unit: categoryDefaultUnit(e.target.value),
+                      })
                     }
-                    className="ml-auto inline-flex items-center gap-1 text-xs text-red-600 hover:underline"
+                    className="h-9 rounded-md border border-slate-200 px-2 text-sm"
                   >
-                    <Trash2 className="h-3.5 w-3.5" /> Remove
-                  </button>
-                ) : null}
+                    {SUPPLIER_CATEGORIES.map((category) => (
+                      <option key={category.slug} value={category.slug}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </select>
+                  <Input
+                    className="min-w-0 flex-1"
+                    placeholder="Product, e.g. Dangote 42.5R cement"
+                    value={item.productName}
+                    onChange={(e) =>
+                      updateItem(index, { productName: e.target.value })
+                    }
+                  />
+                  <Input
+                    className="w-32"
+                    placeholder="Specification"
+                    value={item.specification ?? ""}
+                    onChange={(e) =>
+                      updateItem(index, {
+                        specification: e.target.value || null,
+                      })
+                    }
+                  />
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <Input
+                    className="w-24"
+                    inputMode="decimal"
+                    value={item.quantity}
+                    onChange={(e) =>
+                      updateItem(index, { quantity: Number(e.target.value) })
+                    }
+                    aria-label="Quantity"
+                  />
+                  <Input
+                    className="w-24"
+                    placeholder="Unit"
+                    value={item.unit}
+                    onChange={(e) =>
+                      updateItem(index, { unit: e.target.value })
+                    }
+                  />
+                  <Input
+                    className="w-32"
+                    placeholder="Target price (optional)"
+                    inputMode="decimal"
+                    value={item.targetPrice ?? ""}
+                    onChange={(e) =>
+                      updateItem(index, {
+                        targetPrice: e.target.value
+                          ? Number(e.target.value)
+                          : null,
+                      })
+                    }
+                  />
+                  {items.length > 1 ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setItems((prev) => prev.filter((_, i) => i !== index))
+                      }
+                      className="ml-auto inline-flex items-center gap-1 text-xs text-red-600 hover:underline"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" /> Remove
+                    </button>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={() =>
+              setItems((prev) => [
+                ...prev,
+                {
+                  materialCategory: SUPPLIER_CATEGORIES[0].slug,
+                  materialSlug: null,
+                  productName: "",
+                  brand: null,
+                  specification: null,
+                  unit: categoryDefaultUnit(SUPPLIER_CATEGORIES[0].slug),
+                  quantity: 1,
+                  targetPrice: null,
+                },
+              ])
+            }
+          >
+            <Plus className="mr-2 h-4 w-4" /> Add material
+          </Button>
+        </section>
+
+        {error ? (
+          <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+            {error}
+          </p>
+        ) : null}
+
+        <div className="mt-5 flex items-center gap-3">
+          <Button onClick={submit} disabled={saving}>
+            {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Publish request
+          </Button>
+          <span className="text-xs text-slate-500">
+            Requests stay open for 14 days unless you close them.
+          </span>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-2"
-          onClick={() =>
-            setItems((prev) => [
-              ...prev,
-              {
-                materialCategory: SUPPLIER_CATEGORIES[0].slug,
-                materialSlug: null,
-                productName: "",
-                brand: null,
-                specification: null,
-                unit: categoryDefaultUnit(SUPPLIER_CATEGORIES[0].slug),
-                quantity: 1,
-                targetPrice: null,
-              },
-            ])
-          }
-        >
-          <Plus className="mr-2 h-4 w-4" /> Add material
-        </Button>
-      </section>
-
-      {error ? (
-        <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
-          {error}
-        </p>
-      ) : null}
-
-      <div className="mt-5 flex items-center gap-3">
-        <Button onClick={submit} disabled={saving}>
-          {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          Publish request
-        </Button>
-        <span className="text-xs text-slate-500">
-          Requests stay open for 14 days unless you close them.
-        </span>
       </div>
-    </div>
+    </>
   );
 }

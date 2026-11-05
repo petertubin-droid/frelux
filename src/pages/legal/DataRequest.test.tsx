@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, fireEvent, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 
 const insertChain = {
   insert: vi.fn((): Promise<{ error: unknown }> =>
@@ -18,7 +19,11 @@ beforeEach(() => {
 
 async function renderPage() {
   const Comp = (await import("@/pages/legal/DataRequest")).default;
-  return render(<Comp />);
+  return render(
+    <MemoryRouter>
+      <Comp />
+    </MemoryRouter>,
+  );
 }
 
 describe("Data subject request page", () => {

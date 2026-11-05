@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSeo } from "@/lib/seo";
 import { getSupabase } from "@/lib/supabase-lazy";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
 
 /**
  * GDPR/CCPA data subject request intake. Requests land in the
@@ -52,83 +53,93 @@ export default function DataRequest() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
-      <h1 className="text-3xl font-bold">{tr("Data subject request")}</h1>
-      <p className="mt-3 text-muted-foreground">
-        Under the GDPR (EU/EEA) and CCPA/CPRA (California), you can request
-        access to, deletion of, correction of, or a copy of your personal data,
-        and opt out of advertising sharing. We respond within 30 days.
-      </p>
-
-      {state === "done" ? (
-        <div className="mt-8 rounded-2xl border bg-card p-6" role="status">
-          <h2 className="text-lg font-semibold">{tr("Request received")}</h2>
-          <p className="mt-2 text-muted-foreground">
-            We&apos;ve logged your request and will verify your identity by
-            email before processing. You&apos;ll hear from us within 30 days.
-          </p>
-        </div>
-      ) : (
-        <form className="mt-8 space-y-4" onSubmit={submit}>
-          <div>
-            <label htmlFor="dsr-email" className="block text-sm font-medium">
-              {tr("Email")}
-            </label>
-            <input
-              id="dsr-email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2"
-              placeholder="you@example.com"
-            />
-          </div>
-          <div>
-            <label htmlFor="dsr-type" className="block text-sm font-medium">
-              {tr("Request type")}
-            </label>
-            <select
-              id="dsr-type"
-              value={type}
-              onChange={(e) => setType(e.target.value as typeof type)}
-              className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2"
-            >
-              {REQUEST_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="dsr-details" className="block text-sm font-medium">
-              {tr("Details (optional)")}
-            </label>
-            <textarea
-              id="dsr-details"
-              value={details}
-              onChange={(e) => setDetails(e.target.value)}
-              className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2"
-              rows={4}
-              placeholder="Anything that helps us locate your data (account email if different, approximate signup date...)"
-            />
-          </div>
-          {state === "error" && (
-            <p className="text-sm text-destructive" role="alert">
-              We couldn&apos;t log the request automatically. Please use the
-              contact page and we&apos;ll process it manually.
+    <>
+      <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Legal", path: "/legal" },
+          { label: "Data request" },
+        ]}
+        eyebrow="Privacy"
+        title={tr("Data subject request")}
+        subtitle={tr(
+          "Under the GDPR (EU/EEA) and CCPA/CPRA (California), you can request access to, deletion of, correction of, or a copy of your personal data, and opt out of advertising sharing. We respond within 30 days.",
+        )}
+      />
+      <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
+        {state === "done" ? (
+          <div className="mt-8 rounded-2xl border bg-card p-6" role="status">
+            <h2 className="text-lg font-semibold">{tr("Request received")}</h2>
+            <p className="mt-2 text-muted-foreground">
+              We&apos;ve logged your request and will verify your identity by
+              email before processing. You&apos;ll hear from us within 30 days.
             </p>
-          )}
-          <button
-            type="submit"
-            disabled={state === "sending"}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-          >
-            {state === "sending" ? "Sending..." : "Submit request"}
-          </button>
-        </form>
-      )}
-    </div>
+          </div>
+        ) : (
+          <form className="mt-8 space-y-4" onSubmit={submit}>
+            <div>
+              <label htmlFor="dsr-email" className="block text-sm font-medium">
+                {tr("Email")}
+              </label>
+              <input
+                id="dsr-email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div>
+              <label htmlFor="dsr-type" className="block text-sm font-medium">
+                {tr("Request type")}
+              </label>
+              <select
+                id="dsr-type"
+                value={type}
+                onChange={(e) => setType(e.target.value as typeof type)}
+                className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2"
+              >
+                {REQUEST_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="dsr-details"
+                className="block text-sm font-medium"
+              >
+                {tr("Details (optional)")}
+              </label>
+              <textarea
+                id="dsr-details"
+                value={details}
+                onChange={(e) => setDetails(e.target.value)}
+                className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2"
+                rows={4}
+                placeholder="Anything that helps us locate your data (account email if different, approximate signup date...)"
+              />
+            </div>
+            {state === "error" && (
+              <p className="text-sm text-destructive" role="alert">
+                We couldn&apos;t log the request automatically. Please use the
+                contact page and we&apos;ll process it manually.
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={state === "sending"}
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+            >
+              {state === "sending" ? "Sending..." : "Submit request"}
+            </button>
+          </form>
+        )}
+      </div>
+    </>
   );
 }
