@@ -40,6 +40,8 @@ import {
   formatByCode,
   getCurrencySymbol,
 } from "@/lib/international/currency-format";
+import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
 
 function formatBudget(
   min: number | null,
@@ -219,18 +221,21 @@ export default function ListingDetail() {
   if (!listing) return null;
 
   return (
-    <div className="min-h-screen bg-muted/50 dark:bg-background">
-      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* Back */}
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/marketplace")}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
-        >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to
-          Marketplace
-        </Button>
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: t("Marketplace"), path: "/marketplace" },
+          { label: listing.title },
+        ]}
+        eyebrow={PROJECT_TYPE_LABELS[listing.project_type]}
+        title={listing.title}
+        backTo="/marketplace"
+        backLabel={t("Marketplace")}
+      />
 
+      <Container className="max-w-4xl pb-12 pt-6">
         {/* Header card */}
         <div className="rounded-xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -256,9 +261,6 @@ export default function ListingDetail() {
                   </span>
                 )}
               </div>
-              <h1 className="mt-3 text-xl font-bold text-foreground dark:text-primary-foreground sm:text-2xl">
-                {listing.title}
-              </h1>
               {listing.description && (
                 <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                   {listing.description}
@@ -641,10 +643,10 @@ export default function ListingDetail() {
             </div>
           )}
         </div>
-      </div>
-      <AdSlot slotKey="marketplace_sidebar" className="mt-8" />
-      {/* Native banner slot, placement "marketplace_native" */}
-      <AdSlot slotKey="marketplace_native" className="mt-8" />
-    </div>
+        <AdSlot slotKey="marketplace_sidebar" className="mt-8" />
+        {/* Native banner slot, placement "marketplace_native" */}
+        <AdSlot slotKey="marketplace_native" className="mt-8" />
+      </Container>
+    </>
   );
 }
