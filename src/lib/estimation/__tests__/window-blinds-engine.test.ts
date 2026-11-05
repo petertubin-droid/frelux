@@ -105,3 +105,117 @@ describe("window blind engine", () => {
     }
   });
 });
+
+import {
+  calculateBlindProject,
+  type BlindOpening,
+} from "../window-blinds-engine";
+
+const opening = (over: Partial<BlindOpening> = {}): BlindOpening => ({
+  id: "a",
+  label: "Living room",
+  typeKey: "day-night",
+  width: 4,
+  height: 4,
+  quantity: 1,
+  ...over,
+});
+
+describe("window blind project", () => {
+  const base = {
+    market: "NG",
+    unit: "ft" as const,
+    grade: "standard" as const,
+  };
+
+  it("totals a mixed schedule", () => {
+    const result = calculateBlindProject({
+      ...base,
+      openings: [
+        opening({ id: "a", quantity: 3 }),
+        opening({ id: "b", typeKey: "wooden", width: 6 }),
+      ],
+    });
+    expect(result.rows).toHaveLength(2);
+    expect(result.geometry.windowCount).toBe(4);
+    expect(result.totals.blinds).toBeGreaterThan(
+      result.rows[0].blindsTotal as number,
+    );
+    expect(result.status).toBe("priced");
+  });
+
+  it("applies the grade multiplier to the rate, not the minimum", () => {
+    const standard = calculateBlindProject({
+      ...base,
+      openings: [opening({ width: 6 })],
+    });
+    const premium = calculateBlindProject({
+      ...base,
+      grade: "premium",
+      openings: [opening({ width: 6 })],
+    });
+    expect(premium.rows[0].ratePerM2).toBeCloseTo(
+      (standard.rows[0].ratePerM2 as number) * 1.4,
+      1,
+    );
+    expect(premium.rows[0].minimumPerWindow).toBe(
+      standard.rows[0].minimumPerWindow,
+    );
+    expect(premium.totals.total as number).toBeGreaterThan(
+      standard.totals.total as number,
+    );
+  });
+
+  it("holds the market minimum on every small window in the schedule", () => {
+    const result = calculateBlindProject({
+      ...base,
+      openings: [
+        opening({ width: 1, height: 1 }),
+        opening({ id: "b", typeKey: "venetian-50", width: 1, height: 1 }),
+      ],
+    });
+    expect(result.rows.every((r) => r.minimumApplied)).toBe(true);
+    expect(result.rows[0].perWindow).toBe(15500);
+  });
+
+  it("asks for the motor price instead of inventing one", () => {
+    const result = calculateBlindProject({
+      ...base,
+      openings: [opening({ motorised: true })],
+    });
+    expect(result.status).toBe("manual_price_required");
+    expect(result.missing).toContain("motorPerWindow");
+    expect(result.totals.extras).toBeNull();
+  });
+
+  it("adds extras once the motor price is supplied", () => {
+    const result = calculateBlindProject({
+      ...base,
+      openings: [opening({ motorised: true, quantity: 2 })],
+      extras: { motorPerWindow: 120000, removeOldPerWindow: 3000 },
+    });
+    expect(result.totals.extras).toBe(246000);
+    expect(result.status).toBe("priced");
+  });
+
+  it("reports a blended rate over the charged area", () => {
+    const result = calculateBlindProject({
+      ...base,
+      openings: [opening(), opening({ id: "b", typeKey: "roman" })],
+    });
+    expect(result.geometry.blendedRatePerM2).toBeGreaterThan(0);
+    expect(result.geometry.totalChargeableAreaM2).toBeGreaterThan(
+      result.geometry.totalAreaM2,
+    );
+  });
+
+  it("refuses a market with no book", () => {
+    const result = calculateBlindProject({
+      ...base,
+      market: "US",
+      openings: [opening()],
+    });
+    expect(result.status).toBe("manual_price_required");
+    expect(result.totals.total).toBeNull();
+  });
+});

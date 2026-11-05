@@ -356,3 +356,67 @@ export const BLIND_MARKETS: BlindMarketOption[] = [
     priced: false,
   },
 ];
+
+/**
+ * Grade. The scan found the same window priced threefold apart by grade alone:
+ * a 6 by 4 day and night quotes around 8,000 to 13,500 per m2 as standard, and
+ * the premium print lists run 20,000 for a 3 by 4 up to 38,000 for a 6 by 4,
+ * which is 17,000 to 18,000 per m2. Standard is the top of the ordinary band,
+ * as the owner asked. Premium is that same top multiplied by 1.4, because the
+ * premium lists work out at roughly that much above it.
+ */
+export type BlindGradeKey = "standard" | "premium";
+
+export interface BlindGradeDefinition {
+  key: BlindGradeKey;
+  label: string;
+  multiplier: number;
+  note: string;
+}
+
+export const BLIND_GRADES: BlindGradeDefinition[] = [
+  {
+    key: "standard",
+    label: "Standard",
+    multiplier: 1,
+    note: "Ordinary shop stock, priced at the top of the verified local band.",
+  },
+  {
+    key: "premium",
+    label: "Premium",
+    multiplier: 1.4,
+    note: "Premium prints and heavier fabric. Nigerian premium lists work out at about 17,000 to 18,000 per m2 against 8,000 to 13,500 standard.",
+  },
+];
+
+export const BLIND_GRADE_BY_KEY: Record<BlindGradeKey, BlindGradeDefinition> =
+  BLIND_GRADES.reduce(
+    (acc, grade) => ({ ...acc, [grade.key]: grade }),
+    {} as Record<BlindGradeKey, BlindGradeDefinition>,
+  );
+
+/**
+ * Extras are priced by whoever quotes them, never by this file. A motor, a
+ * cassette headrail and taking down old blinds vary too much by supplier to
+ * carry a made up figure, so the estimator takes the owner's number and does
+ * the arithmetic.
+ */
+export const BLIND_EXTRAS = [
+  {
+    key: "motorPerWindow",
+    label: "Motorised",
+    detail: "Per window, motor and remote",
+  },
+  {
+    key: "cassettePerWindow",
+    label: "Cassette headrail",
+    detail: "Per window, enclosed top box",
+  },
+  {
+    key: "removeOldPerWindow",
+    label: "Remove old blinds",
+    detail: "Per window, take down and dispose",
+  },
+] as const;
+
+export type BlindExtraKey = (typeof BLIND_EXTRAS)[number]["key"];
