@@ -1,7 +1,7 @@
 import AdSlot from "@/components/ui/AdSlot";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { stageStudioImport } from "@/lib/document-studio";
-import HeroTitle from "@/components/ui/HeroTitle";
+import PageHeader from "@/components/ui/PageHeader";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { ConstructionExtractionPanel } from "@/components/estimation/ConstructionExtractionPanel";
 import React, { useState, useMemo, useCallback, useEffect, useId } from "react";
@@ -361,51 +361,6 @@ function SectionCard({
 }
 
 // ── Main component ──
-
-// ── Premium rotating text slide component with smooth slide animation ──
-function RotatingText({
-  messages,
-  interval = 3800,
-}: {
-  messages: string[];
-  interval?: number;
-}) {
-  const [index, setIndex] = useState(0);
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % messages.length);
-    }, interval);
-    return () => clearInterval(timer);
-  }, [messages.length, interval]);
-
-  return (
-    <div className="relative h-7 overflow-hidden">
-      {messages.map((msg, i) => {
-        const isActive = i === index;
-        const isPrev = i === (index - 1 + messages.length) % messages.length;
-        return (
-          <div
-            key={i}
-            className="absolute inset-0 flex items-center gap-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
-            style={{
-              opacity: isActive ? 1 : 0,
-              transform: isActive
-                ? "translateY(0) translateX(0)"
-                : isPrev
-                  ? "translateY(-100%) translateX(-8px)"
-                  : "translateY(100%) translateX(8px)",
-            }}
-          >
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent-green shrink-0 animate-pulse" />
-            <span className="text-xs sm:text-sm font-medium text-primary-foreground/80 whitespace-nowrap">
-              {msg}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 /** Wastage fields that also exist in the shared allowance catalogue. */
 const WASTAGE_TO_MATERIAL: Partial<
@@ -822,98 +777,34 @@ export default function BuildToRoofEstimator({
     <SubscriptionGate feature="build_to_roof_estimator">
       <div className="min-h-screen bg-gradient-to-b from-muted/50 to-muted/50">
         <MarketScopeNotice />
-        {/* Premium Header with mesh gradient */}
-        <div className="relative overflow-hidden bg-brand-navy text-primary-foreground">
-          {/* Animated mesh background */}
-          <div
-            className="absolute inset-0 animate-mesh-float"
-            style={{
-              background: `radial-gradient(at 15% 20%, rgba(109, 40, 217, 0.28) 0px, transparent 50%), radial-gradient(at 85% 80%, rgba(34, 197, 94, 0.15) 0px, transparent 50%), radial-gradient(at 50% 50%, rgba(109, 40, 217, 0.1) 0px, transparent 50%)`,
-            }}
-          />
-          <div className="absolute inset-0 animate-premium-shimmer" />
-          {/* Grid overlay for premium texture */}
-          <div
-            className="absolute inset-0 opacity-[0.03]"
-            style={{
-              backgroundImage: `linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)`,
-              backgroundSize: "40px 40px",
-            }}
-          />
-
-          <div className="relative max-w-6xl mx-auto px-4 py-10 sm:py-14">
-            <div className="flex items-center gap-3 sm:gap-4 mb-2">
-              <div className="flex h-11 w-11 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
-                <Building2
-                  aria-hidden="true"
-                  className="w-6 h-6 sm:w-8 sm:h-8 text-accent-green"
-                />
-              </div>
-              <div className="min-w-0 flex-1">
-                <HeroTitle
-                  className="text-xl text-foreground dark:text-primary-foreground sm:text-3xl md:text-4xl"
-                  title={t("Build-to-Roof Estimator")}
-                />
-                <div className="mt-1.5">
-                  <RotatingText
-                    messages={[
-                      "Foundation → Block walls → Structural frame → Roof, all in one estimate",
-                      "verified prices for cement, blocks, sand, granite & more",
-                      "Engineer-ready material schedules with quantities and costs",
-                      "11 guided steps · Full transparency · No hidden assumptions",
-                    ]}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Feature badges row */}
-            <div className="mt-5 flex flex-wrap items-center gap-2 sm:gap-2.5">
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-primary-foreground/80 backdrop-blur-md animate-badge-pop-in"
-                style={{ animationDelay: "0.1s" }}
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-accent-green" />
-                <span className="hidden sm:inline">
-                  {t("Foundation to Roof")}
-                </span>
-                <span className="sm:hidden">F→R</span>
-              </span>
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-primary-foreground/80 backdrop-blur-md animate-badge-pop-in"
-                style={{ animationDelay: "0.2s" }}
-              >
-                <BadgeCheck className="w-3.5 h-3.5 text-accent-green" />
-                <span className="hidden sm:inline">
-                  {t("Transparent Pricing")}
-                </span>
-                <span className="sm:hidden">{t("Pricing")}</span>
-              </span>
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-primary-foreground/80 backdrop-blur-md animate-badge-pop-in"
-                style={{ animationDelay: "0.3s" }}
-              >
-                <Gem className="w-3.5 h-3.5 text-brand-purple-light" />
-                <span className="hidden sm:inline">
-                  11-Step Professional Flow
-                </span>
-                <span className="sm:hidden">11-Step</span>
-              </span>
-            </div>
-
+        {/* Shared page header. The marketing mesh, shimmer, grid overlay and
+            rotating tagline that used to live here were all decoration on a
+            working tool, and they fought the sticky phase bar directly below.
+            The photo backdrop comes from the shared header treatment, which
+            carries the same identity on every tool page. */}
+        <PageHeader
+          variant="tool"
+          breadcrumbs={[
+            { label: t("Home"), path: "/" },
+            { label: t("Construction Tools"), path: "/construction-tools" },
+            { label: t("Build-to-Roof Estimator") },
+          ]}
+          eyebrow={t("Foundation to roof")}
+          title={t("Build-to-Roof Estimator")}
+          subtitle={t(
+            "Foundation, block walls, structural frame and roof in one estimate, with engineer-ready material schedules and a verified price book behind every rate.",
+          )}
+          actions={
             <Link
               to="/image-estimator/"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-accent-green/30 bg-accent-green/10 px-3.5 sm:px-4 py-2.5 text-sm font-semibold text-accent-green backdrop-blur-md transition-all hover:bg-accent-green/20 hover:border-accent-green/40 hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 dark:border-white/10 dark:text-primary-foreground"
             >
-              <Camera className="w-4 h-4" />
-              <span className="hidden sm:inline">
-                {t("Estimate from a Photo, Try our AI Photo Estimator")}
-              </span>
-              <span className="sm:hidden">{t("Try AI Photo Estimator")}</span>
-              <ArrowRight className="w-4 h-4" />
+              <Camera aria-hidden="true" className="h-4 w-4" />
+              {t("Estimate from a photo")}
+              <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
-          </div>
-        </div>
+          }
+        />
 
         {/* Premium sticky 4-Phase progress bar with direct jump */}
         <div className="sticky top-16 z-30 border-b border-border bg-background/95 backdrop-blur-lg shadow-sm">

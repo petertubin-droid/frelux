@@ -3,6 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { Calculator, ChevronRight, Layers, Loader2 } from "lucide-react";
 import { useSeo, SITE_URL } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import { calculatorLabel, getPublicTemplates } from "@/lib/templates";
 import type { DbCalculatorTemplate } from "@/types/database";
 import { getSafeError } from "@/lib/safeError";
@@ -136,124 +138,114 @@ export default function MarketTemplates() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <Breadcrumbs
-        items={[
+    <>
+      <PageHeader
+        breadcrumbs={[
           { label: "Markets", path: "/global-markets" },
           { label: profile.country_name },
           { label: "Templates" },
         ]}
+        eyebrow={`${profile.country_name} · ${profile.currency_code}`}
+        title={`Construction estimate templates for ${profile.country_name}`}
+        subtitle={`Every FRELUX template opens the calculator pre-filled with the same physical project, shown in ${
+          profile.default_measurement_system === "imperial"
+            ? "feet and inches"
+            : "metres"
+        } and costed in ${profile.currency_code} using live ${profile.country_name} material prices.`}
       />
 
-      <header className="mt-6">
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
-          <Layers aria-hidden="true" className="h-3 w-3" />
-          {profile.country_name} · {profile.currency_code}
-        </span>
-        <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground dark:text-primary-foreground sm:text-3xl">
-          Construction estimate templates for {profile.country_name}
-        </h1>
-        <p className="mt-2 max-w-3xl text-sm text-muted-foreground dark:text-muted-foreground">
-          Every FRELUX template opens the calculator pre-filled with the same
-          physical project, shown in{" "}
-          {profile.default_measurement_system === "imperial"
-            ? "feet and inches"
-            : "metres"}{" "}
-          and costed in {profile.currency_code} using live{" "}
-          {profile.country_name} material prices.
-        </p>
-      </header>
+      <Container className="max-w-5xl pb-10 pt-8">
+        {loading && (
+          <div className="flex items-center justify-center py-16">
+            <Loader2
+              aria-hidden="true"
+              className="h-6 w-6 animate-spin text-brand-purple"
+            />
+          </div>
+        )}
 
-      {loading && (
-        <div className="flex items-center justify-center py-16">
-          <Loader2
-            aria-hidden="true"
-            className="h-6 w-6 animate-spin text-brand-purple"
-          />
-        </div>
-      )}
+        {!loading && error && (
+          <p className="mt-8 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+            {error}
+          </p>
+        )}
 
-      {!loading && error && (
-        <p className="mt-8 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-          {error}
-        </p>
-      )}
+        {!loading && !error && (
+          <div className="mt-8 space-y-10">
+            {[...grouped.entries()].map(([type, list]) => (
+              <section key={type} aria-labelledby={`group-${type}`}>
+                <h2
+                  id={`group-${type}`}
+                  className="flex items-center gap-2 font-display text-lg font-bold text-foreground dark:text-primary-foreground"
+                >
+                  <Calculator
+                    aria-hidden="true"
+                    className="h-4 w-4 text-brand-purple"
+                  />
+                  {calculatorLabel(
+                    type as DbCalculatorTemplate["calculator_type"],
+                  )}{" "}
+                  templates
+                </h2>
+                <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {list.map((t) => (
+                    <li key={t.id}>
+                      <Link
+                        to={marketTemplatePath(
+                          profile.country_code,
+                          t.slug as string,
+                        )}
+                        className="group flex h-full flex-col rounded-xl border border-border bg-card p-4 transition-colors hover:border-brand-purple/35 dark:border-white/10 dark:bg-card"
+                      >
+                        <span className="text-sm font-semibold text-foreground group-hover:text-brand-purple dark:text-primary-foreground dark:group-hover:text-brand-purple-lighter">
+                          {t.name}
+                        </span>
+                        <span className="mt-1 line-clamp-3 text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground/80">
+                          {marketContext
+                            ? describeTemplateForMarket(t, marketContext)
+                            : t.description}
+                        </span>
+                        <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
+                          {tr("Open template")}
+                          <ChevronRight
+                            aria-hidden="true"
+                            className="h-3.5 w-3.5"
+                          />
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        )}
 
-      {!loading && !error && (
-        <div className="mt-8 space-y-10">
-          {[...grouped.entries()].map(([type, list]) => (
-            <section key={type} aria-labelledby={`group-${type}`}>
-              <h2
-                id={`group-${type}`}
-                className="flex items-center gap-2 font-display text-lg font-bold text-foreground dark:text-primary-foreground"
-              >
-                <Calculator
-                  aria-hidden="true"
-                  className="h-4 w-4 text-brand-purple"
-                />
-                {calculatorLabel(
-                  type as DbCalculatorTemplate["calculator_type"],
-                )}{" "}
-                templates
-              </h2>
-              <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {list.map((t) => (
-                  <li key={t.id}>
-                    <Link
-                      to={marketTemplatePath(
-                        profile.country_code,
-                        t.slug as string,
-                      )}
-                      className="group flex h-full flex-col rounded-xl border border-border bg-card p-4 transition-colors hover:border-brand-purple/35 dark:border-white/10 dark:bg-card"
-                    >
-                      <span className="text-sm font-semibold text-foreground group-hover:text-brand-purple dark:text-primary-foreground dark:group-hover:text-brand-purple-lighter">
-                        {t.name}
-                      </span>
-                      <span className="mt-1 line-clamp-3 text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground/80">
-                        {marketContext
-                          ? describeTemplateForMarket(t, marketContext)
-                          : t.description}
-                      </span>
-                      <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
-                        {tr("Open template")}
-                        <ChevronRight
-                          aria-hidden="true"
-                          className="h-3.5 w-3.5"
-                        />
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
-      )}
-
-      <nav
-        aria-label={tr("Template hubs in other markets")}
-        className="mt-12 rounded-xl border border-border bg-card p-5 dark:border-white/10 dark:bg-card"
-      >
-        <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-          {tr("Templates in other markets")}
-        </h2>
-        <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
-          {listTemplateMarkets().map((p) => (
-            <li key={p.country_code}>
-              <Link
-                to={marketTemplatesPath(p.country_code)}
-                className={
-                  p.country_code === profile.country_code
-                    ? "text-xs font-semibold text-brand-purple dark:text-brand-purple-lighter"
-                    : "text-xs text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80"
-                }
-              >
-                {p.country_name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
+        <nav
+          aria-label={tr("Template hubs in other markets")}
+          className="mt-12 rounded-xl border border-border bg-card p-5 dark:border-white/10 dark:bg-card"
+        >
+          <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+            {tr("Templates in other markets")}
+          </h2>
+          <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
+            {listTemplateMarkets().map((p) => (
+              <li key={p.country_code}>
+                <Link
+                  to={marketTemplatesPath(p.country_code)}
+                  className={
+                    p.country_code === profile.country_code
+                      ? "text-xs font-semibold text-brand-purple dark:text-brand-purple-lighter"
+                      : "text-xs text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80"
+                  }
+                >
+                  {p.country_name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </Container>
+    </>
   );
 }

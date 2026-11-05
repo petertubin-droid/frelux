@@ -1,4 +1,5 @@
-import HeroTitle from "@/components/ui/HeroTitle";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import { SITE_URL } from "@/lib/site-config";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -220,278 +221,258 @@ export default function PaintColorDetail() {
   ];
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <Link
-        to="/colors/"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-brand-purple"
-      >
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> {t("All colors")}
-      </Link>
+    <>
+      <PageHeader
+        breadcrumbs={[
+          { label: t("Home"), path: "/" },
+          { label: t("Colours"), path: "/colors/" },
+          { label: color.name },
+        ]}
+        eyebrow={
+          [family?.name, category?.name].filter(Boolean).join(" · ") ||
+          undefined
+        }
+        title={color.name}
+        subtitle={
+          [
+            color.is_interior ? t("Interior") : null,
+            color.is_exterior ? t("Exterior") : null,
+            color.is_trending ? t("Trending") : null,
+          ]
+            .filter(Boolean)
+            .join(" · ") || undefined
+        }
+      />
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-2">
-        {/* Color preview */}
-        <div className="overflow-hidden rounded-2xl border border-border shadow-sm">
-          <div
-            className="flex aspect-square items-center justify-center"
-            style={{ background: color.hex_code }}
-          >
-            <span
-              className="text-3xl font-bold uppercase tracking-widest"
-              style={{ color: textColor }}
+      <Container className="max-w-5xl pb-12 pt-8">
+        <div className="grid gap-8 lg:grid-cols-2">
+          {/* Color preview */}
+          <div className="overflow-hidden rounded-2xl border border-border shadow-sm">
+            <div
+              className="flex aspect-square items-center justify-center"
+              style={{ background: color.hex_code }}
             >
-              {color.hex_code}
-            </span>
-          </div>
-          {user && (
-            <Button
-              variant="ghost"
-              type="button"
-              onClick={handleFav}
-              className={classNames(
-                "flex w-full items-center justify-center gap-2 py-3 text-sm font-semibold transition-colors",
-                isFav
-                  ? "bg-red-50 text-red-600"
-                  : "bg-card text-muted-foreground hover:bg-muted/50",
-              )}
-            >
-              <Bookmark
-                className={classNames("h-4 w-4", isFav && "fill-current")}
-              />{" "}
-              {isFav ? "Favorited" : "Add to favorites"}
-            </Button>
-          )}
-        </div>
-
-        {/* Color info */}
-        <div>
-          <div className="flex flex-wrap gap-2">
-            {family && (
-              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand-purple">
-                {family.name}
-              </span>
-            )}
-            {category && (
-              <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
-                {category.name}
-              </span>
-            )}
-            {color.is_interior && (
-              <span className="rounded-full bg-accent-green/10 px-2.5 py-0.5 text-[11px] font-semibold text-accent-green">
-                {t("Interior")}
-              </span>
-            )}
-            {color.is_exterior && (
-              <span className="rounded-full bg-accent-cyan/10 px-2.5 py-0.5 text-[11px] font-semibold text-accent-cyan">
-                {t("Exterior")}
-              </span>
-            )}
-            {color.is_trending && (
-              <span className="rounded-full bg-accent-orange/10 px-2.5 py-0.5 text-[11px] font-semibold text-accent-orange">
-                {t("Trending")}
-              </span>
-            )}
-            {color.is_featured && (
-              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand-purple">
-                {t("Featured")}
-              </span>
-            )}
-          </div>
-
-          <HeroTitle
-            className="mt-4 text-3xl text-foreground sm:text-4xl dark:text-primary-foreground"
-            title={color.name}
-          />
-
-          {/* Copyable color values */}
-          <div className="mt-6 space-y-3">
-            {copyFields.map((f) => (
-              <div
-                key={f.label}
-                className="flex items-center justify-between rounded-lg border border-border bg-card p-3 dark:border-white/5 dark:bg-card"
+              <span
+                className="text-3xl font-bold uppercase tracking-widest"
+                style={{ color: textColor }}
               >
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                    {f.label}
-                  </p>
-                  <p className="mt-0.5 text-sm font-semibold text-foreground dark:text-primary-foreground">
-                    {f.value}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={() => copy(f.value)}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:border-border hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"
-                >
-                  {copied === f.value ? (
-                    <Check
-                      aria-hidden="true"
-                      className="h-3.5 w-3.5 text-accent-green"
-                    />
-                  ) : (
-                    <Copy aria-hidden="true" className="h-3.5 w-3.5" />
-                  )}
-                  {copied === f.value ? "Copied" : "Copy"}
-                </Button>
-              </div>
-            ))}
+                {color.hex_code}
+              </span>
+            </div>
+            {user && (
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={handleFav}
+                className={classNames(
+                  "flex w-full items-center justify-center gap-2 py-3 text-sm font-semibold transition-colors",
+                  isFav
+                    ? "bg-red-50 text-red-600"
+                    : "bg-card text-muted-foreground hover:bg-muted/50",
+                )}
+              >
+                <Bookmark
+                  className={classNames("h-4 w-4", isFav && "fill-current")}
+                />{" "}
+                {isFav ? "Favorited" : "Add to favorites"}
+              </Button>
+            )}
           </div>
 
-          {/* Recommended usage */}
-          {color.recommended_usage.length > 0 && (
-            <div className="mt-6">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                {t("Recommended usage")}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {color.recommended_usage.map((u) => (
-                  <span
-                    key={u}
-                    className="rounded-lg bg-muted px-3 py-1.5 text-sm text-card-foreground"
+          {/* Color info */}
+          <div>
+            {/* Copyable color values */}
+            <div className="mt-6 space-y-3">
+              {copyFields.map((f) => (
+                <div
+                  key={f.label}
+                  className="flex items-center justify-between rounded-lg border border-border bg-card p-3 dark:border-white/5 dark:bg-card"
+                >
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                      {f.label}
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold text-foreground dark:text-primary-foreground">
+                      {f.value}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={() => copy(f.value)}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:border-border hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"
                   >
-                    {u}
-                  </span>
-                ))}
-              </div>
+                    {copied === f.value ? (
+                      <Check
+                        aria-hidden="true"
+                        className="h-3.5 w-3.5 text-accent-green"
+                      />
+                    ) : (
+                      <Copy aria-hidden="true" className="h-3.5 w-3.5" />
+                    )}
+                    {copied === f.value ? "Copied" : "Copy"}
+                  </Button>
+                </div>
+              ))}
             </div>
-          )}
 
-          {/* Finish compatibility */}
-          {color.finish_compatibility.length > 0 && (
-            <div className="mt-4">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                {t("Compatible finishes")}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {color.finish_compatibility.map((f) => (
-                  <span
-                    key={f}
-                    className="rounded-lg bg-muted px-3 py-1.5 text-sm text-card-foreground"
-                  >
-                    {f}
-                  </span>
-                ))}
+            {/* Recommended usage */}
+            {color.recommended_usage.length > 0 && (
+              <div className="mt-6">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  {t("Recommended usage")}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {color.recommended_usage.map((u) => (
+                    <span
+                      key={u}
+                      className="rounded-lg bg-muted px-3 py-1.5 text-sm text-card-foreground"
+                    >
+                      {u}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="mt-6 flex gap-3">
-            <Link
-              to="/colors/compare/"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95"
-            >
-              Compare colors{" "}
-              <ArrowRight aria-hidden="true" className="h-4 w-4" />
-            </Link>
+            {/* Finish compatibility */}
+            {color.finish_compatibility.length > 0 && (
+              <div className="mt-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  {t("Compatible finishes")}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {color.finish_compatibility.map((f) => (
+                    <span
+                      key={f}
+                      className="rounded-lg bg-muted px-3 py-1.5 text-sm text-card-foreground"
+                    >
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-6 flex gap-3">
+              <Link
+                to="/colors/compare/"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95"
+              >
+                Compare colors{" "}
+                <ArrowRight aria-hidden="true" className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Mix build: the tinters that reproduce the stored shade */}
-      {mix && (
-        <section className="mt-12" aria-labelledby="mix-heading">
-          <h2
-            id="mix-heading"
-            className="text-xl font-bold text-foreground dark:text-primary-foreground"
-          >
-            What to mix to get {color.name}
-          </h2>
-          <p className="mt-3 max-w-3xl text-sm text-muted-foreground">
-            {recipeSentence(color.name, mix)}{" "}
-            {colourDescription(color.name, color.hex_code)}
-          </p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            {mix.components.map(
-              (component: {
-                key: string;
-                name: string;
-                hex: string;
-                millilitresPerLitre: number;
-              }) => (
-                <div
-                  key={component.key}
-                  className="rounded-lg border border-border bg-card p-4"
+        {/* Mix build: the tinters that reproduce the stored shade */}
+        {mix && (
+          <section className="mt-12" aria-labelledby="mix-heading">
+            <h2
+              id="mix-heading"
+              className="text-xl font-bold text-foreground dark:text-primary-foreground"
+            >
+              What to mix to get {color.name}
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm text-muted-foreground">
+              {recipeSentence(color.name, mix)}{" "}
+              {colourDescription(color.name, color.hex_code)}
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {mix.components.map(
+                (component: {
+                  key: string;
+                  name: string;
+                  hex: string;
+                  millilitresPerLitre: number;
+                }) => (
+                  <div
+                    key={component.key}
+                    className="rounded-lg border border-border bg-card p-4"
+                  >
+                    <div
+                      className="h-10 w-full rounded-md border border-border"
+                      style={{ background: component.hex }}
+                      aria-hidden="true"
+                    />
+                    <p className="mt-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
+                      {component.name}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {component.millilitresPerLitre} ml per litre of mixed
+                      paint.
+                    </p>
+                  </div>
+                ),
+              )}
+            </div>
+            <p className="mt-4 max-w-3xl text-xs text-muted-foreground">
+              {recipeCaveat(mix)}
+            </p>
+          </section>
+        )}
+
+        {/* Questions the colour page answers from its own values */}
+        {faq.length > 0 && (
+          <section className="mt-12" aria-labelledby="faq-heading">
+            <h2
+              id="faq-heading"
+              className="text-xl font-bold text-foreground dark:text-primary-foreground"
+            >
+              Questions about {color.name}
+            </h2>
+            <dl className="mt-4 space-y-4">
+              {faq.map((entry: { question: string; answer: string }) => (
+                <div key={entry.question}>
+                  <dt className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+                    {entry.question}
+                  </dt>
+                  <dd className="mt-1 max-w-3xl text-sm text-muted-foreground">
+                    {entry.answer}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
+
+        {/* Related colors */}
+        {related.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
+              {t("Similar colors")}
+            </h2>
+            <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
+              {related.map((c) => (
+                <Link
+                  key={c.id}
+                  to={`/colors/paint/${c.slug}/`}
+                  className="group overflow-hidden rounded-lg border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-md"
                 >
                   <div
-                    className="h-10 w-full rounded-md border border-border"
-                    style={{ background: component.hex }}
-                    aria-hidden="true"
+                    className="aspect-square"
+                    style={{ background: c.hex_code }}
                   />
-                  <p className="mt-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
-                    {component.name}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {component.millilitresPerLitre} ml per litre of mixed paint.
-                  </p>
-                </div>
-              ),
-            )}
+                  <div className="p-2">
+                    <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground">
+                      {c.name}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-          <p className="mt-4 max-w-3xl text-xs text-muted-foreground">
-            {recipeCaveat(mix)}
-          </p>
-        </section>
-      )}
+        )}
 
-      {/* Questions the colour page answers from its own values */}
-      {faq.length > 0 && (
-        <section className="mt-12" aria-labelledby="faq-heading">
-          <h2
-            id="faq-heading"
-            className="text-xl font-bold text-foreground dark:text-primary-foreground"
-          >
-            Questions about {color.name}
-          </h2>
-          <dl className="mt-4 space-y-4">
-            {faq.map((entry: { question: string; answer: string }) => (
-              <div key={entry.question}>
-                <dt className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                  {entry.question}
-                </dt>
-                <dd className="mt-1 max-w-3xl text-sm text-muted-foreground">
-                  {entry.answer}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      )}
-
-      {/* Related colors */}
-      {related.length > 0 && (
-        <div className="mt-12">
-          <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-            {t("Similar colors")}
-          </h2>
-          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
-            {related.map((c) => (
-              <Link
-                key={c.id}
-                to={`/colors/paint/${c.slug}/`}
-                className="group overflow-hidden rounded-lg border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-md"
-              >
-                <div
-                  className="aspect-square"
-                  style={{ background: c.hex_code }}
-                />
-                <div className="p-2">
-                  <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground">
-                    {c.name}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Color Relationship Engine */}
-      <ColorRelationships
-        color={color}
-        allColors={allColors}
-        overrides={overrides}
-      />
-    </div>
+        {/* Color Relationship Engine */}
+        <ColorRelationships
+          color={color}
+          allColors={allColors}
+          overrides={overrides}
+        />
+      </Container>
+    </>
   );
 }
 

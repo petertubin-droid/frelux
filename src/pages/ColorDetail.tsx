@@ -1,4 +1,5 @@
-import HeroTitle from "@/components/ui/HeroTitle";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Copy, Check, AlertCircle, Loader2 } from "lucide-react";
@@ -27,9 +28,12 @@ export default function ColorDetail() {
   const [copied, setCopied] = useState<string | null>(null);
 
   useBreadcrumbJsonLd([
-      { name: "Color library", path: "/colors" },
-      { name: color?.title ?? "Color combination", path: `/colors/${slug ?? ""}` },
-    ]);
+    { name: "Color library", path: "/colors" },
+    {
+      name: color?.title ?? "Color combination",
+      path: `/colors/${slug ?? ""}`,
+    },
+  ]);
   useSeo({
     title: color ? `${color.title}: Color Combination` : "Color Combination",
     description:
@@ -128,143 +132,140 @@ export default function ColorDetail() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <Link
-        to="/colors/"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-brand-purple"
-      >
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-        {t("All color ideas")}
-      </Link>
+    <>
+      <PageHeader
+        breadcrumbs={[
+          { label: t("Home"), path: "/" },
+          { label: t("Colour ideas"), path: "/colors/" },
+          { label: color.title },
+        ]}
+        eyebrow={colorCats.map((c) => c.name).join(" · ") || undefined}
+        title={color.title}
+        subtitle={color.description ?? undefined}
+      />
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-xl border border-border">
-          <img
-            src={color.image_url}
-            alt={color.title}
-            className="h-full w-full object-cover"
-            loading="lazy"
-          />
-        </div>
-
-        <div>
-          <div className="flex flex-wrap gap-1.5">
-            {colorCats.map((cat) => (
-              <span
-                key={cat.id}
-                className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand-purple"
-              >
-                {cat.name}
-              </span>
-            ))}
-          </div>
-          <HeroTitle
-            className="mt-3 text-3xl text-foreground sm:text-4xl dark:text-primary-foreground"
-            title={color.title}
-          />
-          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-            {color.description}
-          </p>
-
-          <div className="mt-6 space-y-3">
-            {swatches.map((s) => (
-              <div
-                key={s.hex}
-                className="flex items-center gap-4 rounded-lg border border-border bg-card p-3 dark:border-white/5 dark:bg-card"
-              >
-                <div
-                  className="h-12 w-12 shrink-0 rounded-md ring-1 ring-black/10"
-                  style={{ background: s.hex }}
-                />
-                <div className="flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-                    {s.label}
-                  </p>
-                  <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                    {s.name}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={() => copy(s.hex)}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:border-border hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"
-                >
-                  {copied === s.hex ? (
-                    <Check
-                      aria-hidden="true"
-                      className="h-3.5 w-3.5 text-accent-green"
-                    />
-                  ) : (
-                    <Copy aria-hidden="true" className="h-3.5 w-3.5" />
-                  )}
-                  {copied === s.hex ? "Copied" : s.hex}
-                </Button>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <Info
-              label="Recommended rooms"
-              value={(color.recommended_rooms ?? []).join(", ") || "N/A"}
+      <Container className="max-w-6xl pb-12 pt-8">
+        <div className="grid gap-8 lg:grid-cols-2">
+          <div className="overflow-hidden rounded-xl border border-border">
+            <img
+              src={color.image_url}
+              alt={color.title}
+              className="h-full w-full object-cover"
+              loading="lazy"
             />
-            <Info label="Style" value={color.style} />
           </div>
-        </div>
-      </div>
 
-      <AdSlot slotKey="color_detail_mid" className="my-10" />
-      {/* Native banner slot, placement "color_detail_native" */}
-      <AdSlot slotKey="color_detail_native" className="my-10" />
-
-      {related.length > 0 && (
-        <div>
-          <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-            {t("Related combinations")}
-          </h2>
-          <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((c) => (
-              <Link
-                key={c.id}
-                to={`/colors/${c.slug}/`}
-                className="group overflow-hidden rounded-xl border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-lg"
-              >
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <img
-                    src={c.image_url}
-                    alt={c.title}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
+          <div>
+            <div className="flex flex-wrap gap-1.5">
+              {colorCats.map((cat) => (
+                <span
+                  key={cat.id}
+                  className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand-purple"
+                >
+                  {cat.name}
+                </span>
+              ))}
+            </div>
+            <div className="mt-6 space-y-3">
+              {swatches.map((s) => (
+                <div
+                  key={s.hex}
+                  className="flex items-center gap-4 rounded-lg border border-border bg-card p-3 dark:border-white/5 dark:bg-card"
+                >
+                  <div
+                    className="h-12 w-12 shrink-0 rounded-md ring-1 ring-black/10"
+                    style={{ background: s.hex }}
                   />
-                  <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-background/90 p-2 backdrop-blur">
-                    {[
-                      c.main_color_code,
-                      c.secondary_color_code,
-                      c.accent_color_code,
-                    ].map((hex) => (
-                      <div
-                        key={hex}
-                        className="h-5 flex-1 rounded ring-1 ring-black/5"
-                        style={{ background: hex }}
-                      />
-                    ))}
+                  <div className="flex-1">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+                      {s.label}
+                    </p>
+                    <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+                      {s.name}
+                    </p>
                   </div>
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={() => copy(s.hex)}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:border-border hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"
+                  >
+                    {copied === s.hex ? (
+                      <Check
+                        aria-hidden="true"
+                        className="h-3.5 w-3.5 text-accent-green"
+                      />
+                    ) : (
+                      <Copy aria-hidden="true" className="h-3.5 w-3.5" />
+                    )}
+                    {copied === s.hex ? "Copied" : s.hex}
+                  </Button>
                 </div>
-                <div className="p-4">
-                  <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
-                    {c.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                    {c.description}
-                  </p>
-                </div>
-              </Link>
-            ))}
+              ))}
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <Info
+                label="Recommended rooms"
+                value={(color.recommended_rooms ?? []).join(", ") || "N/A"}
+              />
+              <Info label="Style" value={color.style} />
+            </div>
           </div>
         </div>
-      )}
-    </div>
+
+        <AdSlot slotKey="color_detail_mid" className="my-10" />
+        {/* Native banner slot, placement "color_detail_native" */}
+        <AdSlot slotKey="color_detail_native" className="my-10" />
+
+        {related.length > 0 && (
+          <div>
+            <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
+              {t("Related combinations")}
+            </h2>
+            <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((c) => (
+                <Link
+                  key={c.id}
+                  to={`/colors/${c.slug}/`}
+                  className="group overflow-hidden rounded-xl border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-lg"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <img
+                      src={c.image_url}
+                      alt={c.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-background/90 p-2 backdrop-blur">
+                      {[
+                        c.main_color_code,
+                        c.secondary_color_code,
+                        c.accent_color_code,
+                      ].map((hex) => (
+                        <div
+                          key={hex}
+                          className="h-5 flex-1 rounded ring-1 ring-black/5"
+                          style={{ background: hex }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
+                      {c.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                      {c.description}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </Container>
+    </>
   );
 }
 

@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { useSeo } from "@/lib/seo";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import {
   getPublicTemplateBySlug,
   getRelatedPublicTemplates,
@@ -272,268 +274,284 @@ export default function TemplateDetail() {
   const calcLabel = calculatorLabel(template.calculator_type);
   const inputSummary = templateSummaryForMarket(template, displayMarket);
 
+  const headerCrumbs = routeMarketProfile
+    ? [
+        { label: "Markets", path: "/global-markets" },
+        {
+          label: routeMarketProfile.country_name,
+          path: marketTemplatesPath(routeMarketProfile.country_code),
+        },
+        {
+          label: "Templates",
+          path: marketTemplatesPath(routeMarketProfile.country_code),
+        },
+        { label: template.name },
+      ]
+    : [{ label: "Templates", path: "/templates" }, { label: template.name }];
+
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      {/* Breadcrumb */}
-      <Breadcrumbs
-        items={
-          routeMarketProfile
-            ? [
-                { label: "Markets", path: "/global-markets" },
-                {
-                  label: routeMarketProfile.country_name,
-                  path: marketTemplatesPath(routeMarketProfile.country_code),
-                },
-                {
-                  label: "Templates",
-                  path: marketTemplatesPath(routeMarketProfile.country_code),
-                },
-                { label: template.name },
-              ]
-            : [
-                { label: "Templates", path: "/templates" },
-                { label: template.name },
-              ]
-        }
+    <>
+      <PageHeader
+        variant="tool"
+        breadcrumbs={headerCrumbs.slice(0, -1)}
+        eyebrow={calcLabel}
+        title={template.name}
+        subtitle={describeTemplateForMarket(template, displayMarket)}
       />
 
-      {/* Header */}
-      <div className="mt-6">
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
-          <Calculator aria-hidden="true" className="h-3 w-3" />
-          {calcLabel}
-        </span>
-        <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground dark:text-primary-foreground sm:text-3xl">
-          {template.name}
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-          {describeTemplateForMarket(template, displayMarket)}
-        </p>
-      </div>
+      <Container className="max-w-3xl pb-10 pt-8">
+        {/* Breadcrumb */}
+        <Breadcrumbs
+          items={
+            routeMarketProfile
+              ? [
+                  { label: "Markets", path: "/global-markets" },
+                  {
+                    label: routeMarketProfile.country_name,
+                    path: marketTemplatesPath(routeMarketProfile.country_code),
+                  },
+                  {
+                    label: "Templates",
+                    path: marketTemplatesPath(routeMarketProfile.country_code),
+                  },
+                  { label: template.name },
+                ]
+              : [
+                  { label: "Templates", path: "/templates" },
+                  { label: template.name },
+                ]
+          }
+        />
 
-      {routeMarketProfile && (
-        <div className="mt-5 rounded-xl border border-brand-purple/25 bg-primary/5 p-4 dark:border-brand-purple/30 dark:bg-primary/10">
-          <p className="text-sm text-foreground dark:text-primary-foreground">
-            <span className="font-semibold">
-              {routeMarketProfile.country_name} configuration.
-            </span>{" "}
-            Dimensions are shown in{" "}
-            {routeMarketProfile.default_measurement_system === "imperial"
-              ? "feet and inches"
-              : "metres"}
-            , material costs in {routeMarketProfile.currency_code}, and
-            quantities follow {routeMarketProfile.country_name} purchase units
-            such as{" "}
-            {routeMarketProfile.local_terminology.cement_bag || "standard bags"}
-            .
+        {routeMarketProfile && (
+          <div className="mt-5 rounded-xl border border-brand-purple/25 bg-primary/5 p-4 dark:border-brand-purple/30 dark:bg-primary/10">
+            <p className="text-sm text-foreground dark:text-primary-foreground">
+              <span className="font-semibold">
+                {routeMarketProfile.country_name} configuration.
+              </span>{" "}
+              Dimensions are shown in{" "}
+              {routeMarketProfile.default_measurement_system === "imperial"
+                ? "feet and inches"
+                : "metres"}
+              , material costs in {routeMarketProfile.currency_code}, and
+              quantities follow {routeMarketProfile.country_name} purchase units
+              such as{" "}
+              {routeMarketProfile.local_terminology.cement_bag ||
+                "standard bags"}
+              .
+            </p>
+            <Link
+              to={marketTemplatesPath(routeMarketProfile.country_code)}
+              className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
+            >
+              All {routeMarketProfile.country_name} templates
+              <ChevronRight aria-hidden="true" className="h-4 w-4" />
+            </Link>
+          </div>
+        )}
+
+        {/* Explanatory content */}
+        <div className="prose prose-sm mt-6 max-w-none dark:prose-invert">
+          <p>
+            This template is pre-configured for the{" "}
+            {template.name.toLowerCase()} project. When you use this template,
+            the FRELUX {calcLabel} calculator will open with these inputs
+            pre-filled. The calculator then runs the current calculation engine
+            using today's material prices and coverage rules specific to real
+            construction practices.
           </p>
-          <Link
-            to={marketTemplatesPath(routeMarketProfile.country_code)}
-            className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
+        </div>
+
+        {/* Input summary */}
+        <div className="mt-6 rounded-xl border border-border bg-card p-5 dark:border-white/10 dark:bg-card">
+          <h2 className="flex items-center gap-1.5 text-sm font-semibold text-foreground dark:text-primary-foreground">
+            <Layers aria-hidden="true" className="h-4 w-4 text-brand-purple" />
+            {t("Template Configuration")}
+          </h2>
+          <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+            {inputSummary.map((item) => (
+              <div key={item.label} className="flex flex-col">
+                <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+                  {item.label}
+                </dt>
+                <dd className="text-sm text-foreground dark:text-primary-foreground">
+                  {item.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        {/* Stored unit prices for this market. The prerendered page carries the
+          same table, rendered at build time from the same tables. */}
+        {routeMarketProfile && (
+          <MarketPriceFacts
+            marketCode={routeMarketProfile.country_code}
+            templateType={template.calculator_type}
+            countryName={routeMarketProfile.country_name}
+          />
+        )}
+
+        {/* How it works explanation */}
+        <div className="prose prose-sm mt-6 max-w-none dark:prose-invert">
+          <h2>{t("How This Template Works")}</h2>
+          <p>
+            When you click "Use This Template," the {calcLabel} opens with the
+            configuration above already filled in. You can adjust any value to
+            match your actual room or surface dimensions. The calculator uses
+            coverage rates, product sizes, and material prices configured for
+            your market to compute material quantities and cost estimates. Every
+            formula, waste factor, and coverage rate is transparent and visible
+            in the results.
+          </p>
+        </div>
+
+        {/* CTA */}
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(`${calcPath}?template=${template.id}`)}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            All {routeMarketProfile.country_name} templates
-            <ChevronRight aria-hidden="true" className="h-4 w-4" />
+            {t("Use This Template")}
+            <ArrowRight aria-hidden="true" className="h-4 w-4" />
+          </Button>
+          <Link
+            to={calcPath}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-6 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
+          >
+            Open {calcLabel} Calculator
           </Link>
         </div>
-      )}
 
-      {/* Explanatory content */}
-      <div className="prose prose-sm mt-6 max-w-none dark:prose-invert">
-        <p>
-          This template is pre-configured for the {template.name.toLowerCase()}{" "}
-          project. When you use this template, the FRELUX {calcLabel} calculator
-          will open with these inputs pre-filled. The calculator then runs the
-          current calculation engine using today's material prices and coverage
-          rules specific to real construction practices.
-        </p>
-      </div>
-
-      {/* Input summary */}
-      <div className="mt-6 rounded-xl border border-border bg-card p-5 dark:border-white/10 dark:bg-card">
-        <h2 className="flex items-center gap-1.5 text-sm font-semibold text-foreground dark:text-primary-foreground">
-          <Layers aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-          {t("Template Configuration")}
-        </h2>
-        <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-          {inputSummary.map((item) => (
-            <div key={item.label} className="flex flex-col">
-              <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
-                {item.label}
-              </dt>
-              <dd className="text-sm text-foreground dark:text-primary-foreground">
-                {item.value}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-
-      {/* Stored unit prices for this market. The prerendered page carries the
-          same table, rendered at build time from the same tables. */}
-      {routeMarketProfile && (
-        <MarketPriceFacts
-          marketCode={routeMarketProfile.country_code}
-          templateType={template.calculator_type}
-          countryName={routeMarketProfile.country_name}
-        />
-      )}
-
-      {/* How it works explanation */}
-      <div className="prose prose-sm mt-6 max-w-none dark:prose-invert">
-        <h2>{t("How This Template Works")}</h2>
-        <p>
-          When you click "Use This Template," the {calcLabel} opens with the
-          configuration above already filled in. You can adjust any value to
-          match your actual room or surface dimensions. The calculator uses
-          coverage rates, product sizes, and material prices configured for your
-          market to compute material quantities and cost estimates. Every
-          formula, waste factor, and coverage rate is transparent and visible in
-          the results.
-        </p>
-      </div>
-
-      {/* CTA */}
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(`${calcPath}?template=${template.id}`)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          {t("Use This Template")}
-          <ArrowRight aria-hidden="true" className="h-4 w-4" />
-        </Button>
-        <Link
-          to={calcPath}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-6 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
-        >
-          Open {calcLabel} Calculator
-        </Link>
-      </div>
-
-      {/* Same template in other markets: crawlable internal links for the
+        {/* Same template in other markets: crawlable internal links for the
           hreflang family, so every market page is reachable without the sitemap. */}
-      <nav
-        aria-label={t("This template in other markets")}
-        className="mt-10 rounded-xl border border-border bg-card p-5 dark:border-white/10 dark:bg-card"
-      >
-        <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-          {t("This template in other markets")}
-        </h2>
-        <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
-          <li>
-            <Link
-              to={`/templates/${template.slug}`}
-              className={
-                !routeMarketProfile
-                  ? "text-xs font-semibold text-brand-purple dark:text-brand-purple-lighter"
-                  : "text-xs text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80"
-              }
-            >
-              {t("Global")}
-            </Link>
-          </li>
-          {listTemplateMarkets().map((p) => (
-            <li key={p.country_code}>
+        <nav
+          aria-label={t("This template in other markets")}
+          className="mt-10 rounded-xl border border-border bg-card p-5 dark:border-white/10 dark:bg-card"
+        >
+          <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+            {t("This template in other markets")}
+          </h2>
+          <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
+            <li>
               <Link
-                to={marketTemplatePath(p.country_code, template.slug as string)}
+                to={`/templates/${template.slug}`}
                 className={
-                  routeMarketProfile?.country_code === p.country_code
+                  !routeMarketProfile
                     ? "text-xs font-semibold text-brand-purple dark:text-brand-purple-lighter"
                     : "text-xs text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80"
                 }
               >
-                {p.country_name}
+                {t("Global")}
               </Link>
             </li>
-          ))}
-        </ul>
-      </nav>
-
-      {/* FAQ */}
-      <div className="mt-10">
-        <h2 className="mb-4 font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-          {t("Frequently Asked Questions")}
-        </h2>
-        <div className="space-y-4">
-          <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
-            <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-              What is the {template.name} template?
-            </h3>
-            <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
-              The {template.name} template is a pre-configured starting point
-              for the FRELUX {calcLabel} calculator. It comes with common
-              dimensions and settings pre-filled, which you can adjust to match
-              your actual measurements.
-            </p>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
-            <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-              How do I use this {calcLabel.toLowerCase()} template?
-            </h3>
-            <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
-              Click "Use This Template" to open the {calcLabel} with the
-              template's inputs pre-filled. Adjust the dimensions to match your
-              project, then run the calculation to get material quantities and
-              cost estimates.
-            </p>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
-            <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-              Are the prices in this template current?
-            </h3>
-            <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
-              Template dimensions and settings are pre-configured, but material
-              prices are always loaded from the current market database when you
-              run the calculator. This ensures your estimate reflects today's
-              prices.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Related templates */}
-      {related.length > 0 && (
-        <div className="mt-10">
-          <h2 className="mb-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
-            {t("Related Templates")}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
-            {related.map((t) => (
-              <Link
-                key={t.id}
-                to={`/templates/${t.slug}/`}
-                className="group flex items-center justify-between rounded-lg border border-border bg-card p-3 transition-colors hover:border-brand-purple/30 dark:border-white/10 dark:bg-card"
-              >
-                <div>
-                  <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
-                    {t.name}
-                  </p>
-                  {t.description && (
-                    <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground dark:text-muted-foreground">
-                      {t.description}
-                    </p>
+            {listTemplateMarkets().map((p) => (
+              <li key={p.country_code}>
+                <Link
+                  to={marketTemplatePath(
+                    p.country_code,
+                    template.slug as string,
                   )}
-                </div>
-                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-              </Link>
+                  className={
+                    routeMarketProfile?.country_code === p.country_code
+                      ? "text-xs font-semibold text-brand-purple dark:text-brand-purple-lighter"
+                      : "text-xs text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80"
+                  }
+                >
+                  {p.country_name}
+                </Link>
+              </li>
             ))}
+          </ul>
+        </nav>
+
+        {/* FAQ */}
+        <div className="mt-10">
+          <h2 className="mb-4 font-display text-lg font-bold text-foreground dark:text-primary-foreground">
+            {t("Frequently Asked Questions")}
+          </h2>
+          <div className="space-y-4">
+            <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+              <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+                What is the {template.name} template?
+              </h3>
+              <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
+                The {template.name} template is a pre-configured starting point
+                for the FRELUX {calcLabel} calculator. It comes with common
+                dimensions and settings pre-filled, which you can adjust to
+                match your actual measurements.
+              </p>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+              <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+                How do I use this {calcLabel.toLowerCase()} template?
+              </h3>
+              <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
+                Click "Use This Template" to open the {calcLabel} with the
+                template's inputs pre-filled. Adjust the dimensions to match
+                your project, then run the calculation to get material
+                quantities and cost estimates.
+              </p>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+              <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+                Are the prices in this template current?
+              </h3>
+              <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
+                Template dimensions and settings are pre-configured, but
+                material prices are always loaded from the current market
+                database when you run the calculator. This ensures your estimate
+                reflects today's prices.
+              </p>
+            </div>
           </div>
         </div>
-      )}
 
-      {/* Related calculator link */}
-      <div className="mt-10 border-t border-border/60 pt-6 dark:border-white/5">
-        <Link
-          to={calcPath}
-          className="group inline-flex items-center gap-2 text-sm font-semibold text-brand-purple dark:text-brand-purple-lighter"
-        >
-          Open the {calcLabel} directly
-          <ArrowRight
-            aria-hidden="true"
-            className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-          />
-        </Link>
-      </div>
-    </div>
+        {/* Related templates */}
+        {related.length > 0 && (
+          <div className="mt-10">
+            <h2 className="mb-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
+              {t("Related Templates")}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
+              {related.map((t) => (
+                <Link
+                  key={t.id}
+                  to={`/templates/${t.slug}/`}
+                  className="group flex items-center justify-between rounded-lg border border-border bg-card p-3 transition-colors hover:border-brand-purple/30 dark:border-white/10 dark:bg-card"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
+                      {t.name}
+                    </p>
+                    {t.description && (
+                      <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground dark:text-muted-foreground">
+                        {t.description}
+                      </p>
+                    )}
+                  </div>
+                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Related calculator link */}
+        <div className="mt-10 border-t border-border/60 pt-6 dark:border-white/5">
+          <Link
+            to={calcPath}
+            className="group inline-flex items-center gap-2 text-sm font-semibold text-brand-purple dark:text-brand-purple-lighter"
+          >
+            Open the {calcLabel} directly
+            <ArrowRight
+              aria-hidden="true"
+              className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+            />
+          </Link>
+        </div>
+      </Container>
+    </>
   );
 }

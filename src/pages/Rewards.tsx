@@ -1,4 +1,5 @@
-import HeroTitle from "@/components/ui/HeroTitle";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
@@ -434,477 +435,474 @@ export default function Rewards() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <Gem className="mx-auto h-12 w-12 text-brand-purple/40" />
-        <h1 className="mt-4 text-2xl font-bold text-foreground dark:text-primary-foreground">
-          {t("Sign in to earn FRELUX Credits")}
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Create a free FRELUX account or sign in to securely earn, save, and
-          use your FRELUX Credits.
-        </p>
-        <div className="mt-6 flex flex-col items-center gap-3">
-          <Link
-            to="/login/?redirect=/rewards"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            {t("Sign In")}
-          </Link>
-          <Link
-            to="/register/?redirect=/rewards"
-            className="inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 px-6 py-3 text-sm font-bold text-brand-purple transition-colors hover:bg-primary/5"
-          >
-            {t("Create Free Account")}
-          </Link>
-          <Link
-            to="/"
-            className="text-xs font-medium text-muted-foreground transition-colors hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/80"
-          >
-            {t("Continue browsing FRELUX")}
-          </Link>
-        </div>
-      </div>
+      <>
+        <PageHeader
+          backTo="/"
+          backLabel={t("Back to home")}
+          eyebrow={t("Rewards")}
+          title={t("Sign in to earn FRELUX Credits")}
+          subtitle={t(
+            "Create a free FRELUX account or sign in to securely earn, save, and use your FRELUX Credits.",
+          )}
+        />
+        <Container className="max-w-md pb-16 pt-10 text-center">
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <Link
+              to="/login/?redirect=/rewards"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              {t("Sign In")}
+            </Link>
+            <Link
+              to="/register/?redirect=/rewards"
+              className="inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 px-6 py-3 text-sm font-bold text-brand-purple transition-colors hover:bg-primary/5"
+            >
+              {t("Create Free Account")}
+            </Link>
+            <Link
+              to="/"
+              className="text-xs font-medium text-muted-foreground transition-colors hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/80"
+            >
+              {t("Continue browsing FRELUX")}
+            </Link>
+          </div>
+        </Container>
+      </>
     );
   }
 
   const balance = wallet?.balance ?? 0;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <Link
-        to="/"
-        className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
-      >
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> {t("Back to home")}
-      </Link>
+    <>
+      <PageHeader
+        backTo="/"
+        backLabel={t("Back to home")}
+        eyebrow={t("Rewards")}
+        title={t("FRELUX Rewards")}
+        subtitle={t(
+          "Earn credits, complete missions, and unlock premium features.",
+        )}
+      />
 
-      {/* Header */}
-      <div className="mb-8 text-center">
-        <HeroTitle
-          className="text-3xl text-foreground dark:text-primary-foreground"
-          title={t("FRELUX Rewards")}
-        />
-        <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-          {t("Earn credits, complete missions, and unlock premium features.")}
-        </p>
-      </div>
-
-      {/* Credit balance + streak overview */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {/* Credits */}
-        <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-card dark:from-primary/5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-              <Gem className="h-6 w-6 text-brand-purple" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                {t("FRELUX Credits")}
-              </p>
-              <p className="text-3xl font-bold text-foreground dark:text-primary-foreground">
-                {loading ? (
-                  <Loader2
-                    aria-hidden="true"
-                    className="h-6 w-6 animate-spin"
-                  />
-                ) : (
-                  balance
-                )}
-              </p>
-            </div>
-          </div>
-          <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
-            <span>Earned: {wallet?.total_earned ?? 0}</span>
-            <span>Spent: {wallet?.total_spent ?? 0}</span>
-          </div>
-        </div>
-
-        {/* Streak */}
-        <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-transparent p-6 dark:border-amber-500/20 dark:bg-card dark:from-amber-500/5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-500/10">
-              <Flame className="h-6 w-6 text-amber-500" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                {t("Activity Streak")}
-              </p>
-              <p className="text-3xl font-bold text-foreground dark:text-primary-foreground">
-                {loading ? (
-                  <Loader2
-                    aria-hidden="true"
-                    className="h-6 w-6 animate-spin"
-                  />
-                ) : (
-                  (streak?.current_streak ?? 0)
-                )}
-                <span className="ml-1 text-base font-normal text-muted-foreground">
-                  day{(streak?.current_streak ?? 0) === 1 ? "" : "s"}
-                </span>
-              </p>
-            </div>
-          </div>
-          <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
-            <span>Best: {streak?.longest_streak ?? 0} days</span>
-            <span>7-day streak → +50 credits</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Watch Ad to Earn Credits */}
-      {adConfig?.is_enabled &&
-        (() => {
-          const today = new Date().toISOString().split("T")[0];
-          const todayEarned = adHistory.filter(
-            (e) => e.created_at.startsWith(today) && e.status === "completed",
-          ).length;
-          const dailyLimit = adConfig?.daily_earn_limit ?? 10;
-          const creditsPerAd = adConfig?.credits_per_ad ?? 5;
-          const canEarn = todayEarned < dailyLimit && adProviderReady;
-
-          return (
-            <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-card dark:from-primary/5">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                    <Film className="h-6 w-6 text-brand-purple" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                      Watch Ad, Earn {creditsPerAd} Credits
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Today: {todayEarned} / {dailyLimit} ads watched
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={handleWatchAd}
-                  disabled={!canEarn || watchingAd}
-                  className={classNames(
-                    "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
-                    canEarn && !watchingAd
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "cursor-not-allowed bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
-                  )}
-                >
-                  {watchingAd ? (
-                    <>
-                      <Loader2
-                        aria-hidden="true"
-                        className="h-4 w-4 animate-spin"
-                      />
-                      {t("Verifying...")}
-                    </>
+      <Container className="max-w-4xl pb-12 pt-8">
+        {/* Credit balance + streak overview */}
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* Credits */}
+          <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-card dark:from-primary/5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                <Gem className="h-6 w-6 text-brand-purple" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">
+                  {t("FRELUX Credits")}
+                </p>
+                <p className="text-3xl font-bold text-foreground dark:text-primary-foreground">
+                  {loading ? (
+                    <Loader2
+                      aria-hidden="true"
+                      className="h-6 w-6 animate-spin"
+                    />
                   ) : (
-                    <>
-                      <PlayCircle className="h-4 w-4" />
-                      {canEarn
-                        ? `Watch Ad (+${creditsPerAd})`
-                        : adProviderReady
-                          ? "Daily limit reached"
-                          : "Coming soon"}
-                    </>
+                    balance
                   )}
-                </Button>
-              </div>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted dark:bg-white/5">
-                <div
-                  className="h-full rounded-full bg-primary transition-all duration-500"
-                  style={{
-                    width: `${Math.min((todayEarned / dailyLimit) * 100, 100)}%`,
-                  }}
-                />
+                </p>
               </div>
             </div>
-          );
-        })()}
+            <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
+              <span>Earned: {wallet?.total_earned ?? 0}</span>
+              <span>Spent: {wallet?.total_spent ?? 0}</span>
+            </div>
+          </div>
 
-      {/* Buy Tokens, direct purchase via Paystack (admin-configurable) */}
-      {tokenConfig?.is_enabled &&
-        (() => {
-          const charge = resolveTokenCharge(
-            tokenConfig.price_kobo,
-            displayCurrency,
-            tokenPrices,
-          );
-          const price = formatTokenPriceForDisplay(
-            tokenConfig.price_kobo,
-            charge,
-          );
-          const priceNote = tokenPriceDisclosure(
-            tokenConfig.price_kobo,
-            charge,
-          );
-          return (
-            <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-card dark:from-primary/5">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                    <Zap className="h-6 w-6 text-brand-purple" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                      Buy {tokenConfig.token_amount} Tokens, {price}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {t(
-                        "Instantly top up your balance. Secure card checkout.",
-                      )}
-                    </p>
-                    {priceNote && (
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {priceNote}
+          {/* Streak */}
+          <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-transparent p-6 dark:border-amber-500/20 dark:bg-card dark:from-amber-500/5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-500/10">
+                <Flame className="h-6 w-6 text-amber-500" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">
+                  {t("Activity Streak")}
+                </p>
+                <p className="text-3xl font-bold text-foreground dark:text-primary-foreground">
+                  {loading ? (
+                    <Loader2
+                      aria-hidden="true"
+                      className="h-6 w-6 animate-spin"
+                    />
+                  ) : (
+                    (streak?.current_streak ?? 0)
+                  )}
+                  <span className="ml-1 text-base font-normal text-muted-foreground">
+                    day{(streak?.current_streak ?? 0) === 1 ? "" : "s"}
+                  </span>
+                </p>
+              </div>
+            </div>
+            <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
+              <span>Best: {streak?.longest_streak ?? 0} days</span>
+              <span>7-day streak → +50 credits</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Watch Ad to Earn Credits */}
+        {adConfig?.is_enabled &&
+          (() => {
+            const today = new Date().toISOString().split("T")[0];
+            const todayEarned = adHistory.filter(
+              (e) => e.created_at.startsWith(today) && e.status === "completed",
+            ).length;
+            const dailyLimit = adConfig?.daily_earn_limit ?? 10;
+            const creditsPerAd = adConfig?.credits_per_ad ?? 5;
+            const canEarn = todayEarned < dailyLimit && adProviderReady;
+
+            return (
+              <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-card dark:from-primary/5">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                      <Film className="h-6 w-6 text-brand-purple" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                        Watch Ad, Earn {creditsPerAd} Credits
                       </p>
-                    )}
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={handleBuyTokens}
-                  disabled={purchasing}
-                  className={classNames(
-                    "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
-                    !purchasing
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "cursor-not-allowed bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
-                  )}
-                >
-                  {purchasing ? (
-                    <>
-                      <Loader2
-                        aria-hidden="true"
-                        className="h-4 w-4 animate-spin"
-                      />
-                      {t("Redirecting...")}
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="h-4 w-4" aria-hidden="true" />
-                      {t("Buy Tokens")}
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-          );
-        })()}
-
-      {/* Complete Offers, Offerwall.ad */}
-      <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-6 dark:border-emerald-500/20 dark:from-emerald-500/5">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-500/10">
-              <ExternalLink className="h-6 w-6 text-emerald-500" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                Complete Offers: Earn FRELUX Credits
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {t("Surveys, app installs, and other offers.")}
-              </p>
-            </div>
-          </div>
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={() => setActiveTab("offerwall")}
-            aria-label={t("Open the offerwall")}
-            className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
-          >
-            <Crown className="h-4 w-4" />
-            {t("Open Offerwall")}
-          </Button>
-        </div>
-      </div>
-
-      {/* Weekly Mission */}
-      {mission && (
-        <WeeklyMissionCard mission={mission} progress={missionProgress} />
-      )}
-
-      {/* Tabs */}
-      <div className="mb-6 flex gap-2 border-b border-border dark:border-white/5">
-        {(
-          [
-            { key: "rewards", label: "Rewards", icon: Gift },
-            { key: "achievements", label: "Achievements", icon: Trophy },
-            { key: "offerwall", label: "Offers", icon: ExternalLink },
-            { key: "history", label: "History", icon: Clock },
-          ] as const
-        ).map((tab) => (
-          <Button
-            variant="ghost"
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={classNames(
-              "flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition-colors",
-              activeTab === tab.key
-                ? "border-brand-purple text-brand-purple"
-                : "border-transparent text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
-            )}
-          >
-            <tab.icon className="h-4 w-4" />
-            {tab.label}
-          </Button>
-        ))}
-      </div>
-
-      {/* Tab content */}
-      {activeTab === "rewards" && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {unusedAiTokens > 0 && (
-            <div className="col-span-full flex items-start gap-2 rounded-xl border border-accent-green/30 bg-accent-green/10 px-4 py-3 text-sm text-card-foreground dark:text-muted-foreground/80">
-              <CheckCircle2
-                aria-hidden="true"
-                className="mt-0.5 h-4 w-4 shrink-0 text-accent-green"
-              />
-              <span>
-                {t("You have")} <strong>{unusedAiTokens}</strong> unused AI
-                Estimate Token{unusedAiTokens > 1 ? "s" : ""}, it&apos;ll be
-                used automatically next time you hit your daily AI limit.
-              </span>
-            </div>
-          )}
-          {rewardsLoading && (
-            <>
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="animate-pulse rounded-2xl border border-border bg-muted/50 p-5 dark:border-white/5 dark:bg-white/5"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <div className="h-4 w-32 rounded bg-muted dark:bg-white/10" />
-                      <div className="mt-2 h-3 w-48 rounded bg-muted dark:bg-white/5" />
-                    </div>
-                    <div className="h-8 w-14 rounded-lg bg-muted dark:bg-white/10" />
-                  </div>
-                  <div className="mt-4 h-10 rounded-xl bg-muted dark:bg-white/10" />
-                </div>
-              ))}
-            </>
-          )}
-          {!rewardsLoading && rewards.length === 0 && (
-            <p className="col-span-full text-center text-sm text-muted-foreground py-8">
-              {t("No rewards available.")}
-            </p>
-          )}
-          {!rewardsLoading &&
-            rewards.map((reward) => {
-              const canAfford = balance >= reward.credit_cost;
-              const isRedeeming = redeeming === reward.reward_key;
-              const Icon = rewardIcon[reward.reward_type] ?? Gift;
-              return (
-                <div
-                  key={reward.id}
-                  className={classNames(
-                    "rounded-2xl border p-5 transition-all",
-                    canAfford
-                      ? "border-brand-purple/20 bg-card dark:border-brand-purple/20 dark:bg-card"
-                      : "border-border bg-muted/50 opacity-70 dark:border-white/5 dark:bg-white/5",
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex flex-1 items-start gap-3">
-                      <div
-                        className={classNames(
-                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
-                          reward.reward_type === "ai_token"
-                            ? "bg-purple-50 text-purple-500 dark:bg-purple-500/10"
-                            : reward.reward_type === "pdf_export"
-                              ? "bg-blue-50 text-blue-500 dark:bg-blue-500/10"
-                              : reward.reward_type === "calc_unlock"
-                                ? "bg-amber-50 text-amber-500 dark:bg-amber-500/10"
-                                : "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10",
-                        )}
-                      >
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
-                          {reward.name}
-                        </h3>
-                        <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-                          {reward.description}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5">
-                      <Gem className="h-3.5 w-3.5 text-brand-purple" />
-                      <span className="text-sm font-bold text-brand-purple">
-                        {reward.credit_cost}
-                      </span>
+                      <p className="text-xs text-muted-foreground">
+                        Today: {todayEarned} / {dailyLimit} ads watched
+                      </p>
                     </div>
                   </div>
                   <Button
                     variant="ghost"
-                    onClick={() => handleRedeem(reward)}
-                    disabled={!canAfford || isRedeeming}
+                    type="button"
+                    onClick={handleWatchAd}
+                    disabled={!canEarn || watchingAd}
                     className={classNames(
-                      "mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
-                      canAfford && !isRedeeming
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90 press-scale"
-                        : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground cursor-not-allowed",
+                      "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
+                      canEarn && !watchingAd
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        : "cursor-not-allowed bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                     )}
                   >
-                    {isRedeeming ? (
+                    {watchingAd ? (
                       <>
                         <Loader2
                           aria-hidden="true"
                           className="h-4 w-4 animate-spin"
-                        />{" "}
-                        Processing...
-                      </>
-                    ) : canAfford ? (
-                      <>
-                        <Gift aria-hidden="true" className="h-4 w-4" />{" "}
-                        {t("Redeem")}
+                        />
+                        {t("Verifying...")}
                       </>
                     ) : (
                       <>
-                        <Lock aria-hidden="true" className="h-4 w-4" /> Need{" "}
-                        {reward.credit_cost - balance} more
+                        <PlayCircle className="h-4 w-4" />
+                        {canEarn
+                          ? `Watch Ad (+${creditsPerAd})`
+                          : adProviderReady
+                            ? "Daily limit reached"
+                            : "Coming soon"}
                       </>
                     )}
                   </Button>
                 </div>
-              );
-            })}
-        </div>
-      )}
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted dark:bg-white/5">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-500"
+                    style={{
+                      width: `${Math.min((todayEarned / dailyLimit) * 100, 100)}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })()}
 
-      {activeTab === "offerwall" &&
-        (user ? (
-          <OfferwallAd
-            userId={user.id}
-            onBack={() => setActiveTab("rewards")}
-          />
-        ) : (
-          <div className="flex min-h-[500px] flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-card p-8 text-center dark:border-white/10 dark:bg-card">
-            <ExternalLink className="h-10 w-10 text-muted-foreground" />
-            <div>
-              <p className="text-sm font-semibold text-card-foreground dark:text-primary-foreground">
-                {t("Sign in to complete offers")}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                The offerwall is personalized to your account, and your credits
-                are credited automatically once an offer is verified.
-              </p>
+        {/* Buy Tokens, direct purchase via Paystack (admin-configurable) */}
+        {tokenConfig?.is_enabled &&
+          (() => {
+            const charge = resolveTokenCharge(
+              tokenConfig.price_kobo,
+              displayCurrency,
+              tokenPrices,
+            );
+            const price = formatTokenPriceForDisplay(
+              tokenConfig.price_kobo,
+              charge,
+            );
+            const priceNote = tokenPriceDisclosure(
+              tokenConfig.price_kobo,
+              charge,
+            );
+            return (
+              <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-card dark:from-primary/5">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                      <Zap className="h-6 w-6 text-brand-purple" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                        Buy {tokenConfig.token_amount} Tokens, {price}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t(
+                          "Instantly top up your balance. Secure card checkout.",
+                        )}
+                      </p>
+                      {priceNote && (
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {priceNote}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={handleBuyTokens}
+                    disabled={purchasing}
+                    className={classNames(
+                      "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
+                      !purchasing
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        : "cursor-not-allowed bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
+                    )}
+                  >
+                    {purchasing ? (
+                      <>
+                        <Loader2
+                          aria-hidden="true"
+                          className="h-4 w-4 animate-spin"
+                        />
+                        {t("Redirecting...")}
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="h-4 w-4" aria-hidden="true" />
+                        {t("Buy Tokens")}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
+
+        {/* Complete Offers, Offerwall.ad */}
+        <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-6 dark:border-emerald-500/20 dark:from-emerald-500/5">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-500/10">
+                <ExternalLink className="h-6 w-6 text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                  Complete Offers: Earn FRELUX Credits
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t("Surveys, app installs, and other offers.")}
+                </p>
+              </div>
             </div>
+            <Button
+              variant="ghost"
+              type="button"
+              onClick={() => setActiveTab("offerwall")}
+              aria-label={t("Open the offerwall")}
+              className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+            >
+              <Crown className="h-4 w-4" />
+              {t("Open Offerwall")}
+            </Button>
           </div>
-        ))}
+        </div>
 
-      {activeTab === "achievements" && <AchievementBadges />}
+        {/* Weekly Mission */}
+        {mission && (
+          <WeeklyMissionCard mission={mission} progress={missionProgress} />
+        )}
 
-      {activeTab === "history" && (
-        <TransactionHistory transactions={transactions} />
-      )}
-    </div>
+        {/* Tabs */}
+        <div className="mb-6 flex gap-2 border-b border-border dark:border-white/5">
+          {(
+            [
+              { key: "rewards", label: "Rewards", icon: Gift },
+              { key: "achievements", label: "Achievements", icon: Trophy },
+              { key: "offerwall", label: "Offers", icon: ExternalLink },
+              { key: "history", label: "History", icon: Clock },
+            ] as const
+          ).map((tab) => (
+            <Button
+              variant="ghost"
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={classNames(
+                "flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition-colors",
+                activeTab === tab.key
+                  ? "border-brand-purple text-brand-purple"
+                  : "border-transparent text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
+              )}
+            >
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+            </Button>
+          ))}
+        </div>
+
+        {/* Tab content */}
+        {activeTab === "rewards" && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {unusedAiTokens > 0 && (
+              <div className="col-span-full flex items-start gap-2 rounded-xl border border-accent-green/30 bg-accent-green/10 px-4 py-3 text-sm text-card-foreground dark:text-muted-foreground/80">
+                <CheckCircle2
+                  aria-hidden="true"
+                  className="mt-0.5 h-4 w-4 shrink-0 text-accent-green"
+                />
+                <span>
+                  {t("You have")} <strong>{unusedAiTokens}</strong> unused AI
+                  Estimate Token{unusedAiTokens > 1 ? "s" : ""}, it&apos;ll be
+                  used automatically next time you hit your daily AI limit.
+                </span>
+              </div>
+            )}
+            {rewardsLoading && (
+              <>
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="animate-pulse rounded-2xl border border-border bg-muted/50 p-5 dark:border-white/5 dark:bg-white/5"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="h-4 w-32 rounded bg-muted dark:bg-white/10" />
+                        <div className="mt-2 h-3 w-48 rounded bg-muted dark:bg-white/5" />
+                      </div>
+                      <div className="h-8 w-14 rounded-lg bg-muted dark:bg-white/10" />
+                    </div>
+                    <div className="mt-4 h-10 rounded-xl bg-muted dark:bg-white/10" />
+                  </div>
+                ))}
+              </>
+            )}
+            {!rewardsLoading && rewards.length === 0 && (
+              <p className="col-span-full text-center text-sm text-muted-foreground py-8">
+                {t("No rewards available.")}
+              </p>
+            )}
+            {!rewardsLoading &&
+              rewards.map((reward) => {
+                const canAfford = balance >= reward.credit_cost;
+                const isRedeeming = redeeming === reward.reward_key;
+                const Icon = rewardIcon[reward.reward_type] ?? Gift;
+                return (
+                  <div
+                    key={reward.id}
+                    className={classNames(
+                      "rounded-2xl border p-5 transition-all",
+                      canAfford
+                        ? "border-brand-purple/20 bg-card dark:border-brand-purple/20 dark:bg-card"
+                        : "border-border bg-muted/50 opacity-70 dark:border-white/5 dark:bg-white/5",
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex flex-1 items-start gap-3">
+                        <div
+                          className={classNames(
+                            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+                            reward.reward_type === "ai_token"
+                              ? "bg-purple-50 text-purple-500 dark:bg-purple-500/10"
+                              : reward.reward_type === "pdf_export"
+                                ? "bg-blue-50 text-blue-500 dark:bg-blue-500/10"
+                                : reward.reward_type === "calc_unlock"
+                                  ? "bg-amber-50 text-amber-500 dark:bg-amber-500/10"
+                                  : "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10",
+                          )}
+                        >
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
+                            {reward.name}
+                          </h3>
+                          <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
+                            {reward.description}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5">
+                        <Gem className="h-3.5 w-3.5 text-brand-purple" />
+                        <span className="text-sm font-bold text-brand-purple">
+                          {reward.credit_cost}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleRedeem(reward)}
+                      disabled={!canAfford || isRedeeming}
+                      className={classNames(
+                        "mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
+                        canAfford && !isRedeeming
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90 press-scale"
+                          : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground cursor-not-allowed",
+                      )}
+                    >
+                      {isRedeeming ? (
+                        <>
+                          <Loader2
+                            aria-hidden="true"
+                            className="h-4 w-4 animate-spin"
+                          />{" "}
+                          Processing...
+                        </>
+                      ) : canAfford ? (
+                        <>
+                          <Gift aria-hidden="true" className="h-4 w-4" />{" "}
+                          {t("Redeem")}
+                        </>
+                      ) : (
+                        <>
+                          <Lock aria-hidden="true" className="h-4 w-4" /> Need{" "}
+                          {reward.credit_cost - balance} more
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                );
+              })}
+          </div>
+        )}
+
+        {activeTab === "offerwall" &&
+          (user ? (
+            <OfferwallAd
+              userId={user.id}
+              onBack={() => setActiveTab("rewards")}
+            />
+          ) : (
+            <div className="flex min-h-[500px] flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-card p-8 text-center dark:border-white/10 dark:bg-card">
+              <ExternalLink className="h-10 w-10 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-semibold text-card-foreground dark:text-primary-foreground">
+                  {t("Sign in to complete offers")}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  The offerwall is personalized to your account, and your
+                  credits are credited automatically once an offer is verified.
+                </p>
+              </div>
+            </div>
+          ))}
+
+        {activeTab === "achievements" && <AchievementBadges />}
+
+        {activeTab === "history" && (
+          <TransactionHistory transactions={transactions} />
+        )}
+      </Container>
+    </>
   );
 }
 

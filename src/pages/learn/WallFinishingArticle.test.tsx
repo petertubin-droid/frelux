@@ -135,15 +135,17 @@ import { supabase } from "@/lib/supabase";
 
 beforeEach(() => {
   vi.clearAllMocks();
-  (
-    supabase as unknown as { __tables: string[] }
-  ).__tables = [];
+  (supabase as unknown as { __tables: string[] }).__tables = [];
 });
 
 async function renderArticle() {
   const Comp = (await import("@/pages/learn/WallFinishingArticle")).default;
   return render(
-    <MemoryRouter initialEntries={["/learn/wall-finishing/US/us-timber-stud-drywall-installation"]}>
+    <MemoryRouter
+      initialEntries={[
+        "/learn/wall-finishing/US/us-timber-stud-drywall-installation",
+      ]}
+    >
       <ToastProvider>
         <Routes>
           <Route
@@ -159,8 +161,13 @@ async function renderArticle() {
 describe("WallFinishingArticle (premium market article page)", () => {
   it("renders the premium article layout: title, byline, TOC, prose", async () => {
     const { container } = await renderArticle();
+    // The shared page header reveals the title word by word, joining words
+    // with non-breaking spaces so a word never wraps awkwardly mid-phrase.
+    // Compare with those folded back to ordinary spaces.
+    const readTitle = () =>
+      (container.textContent ?? "").replace(/\u00A0/g, " ");
     await waitFor(() => {
-      expect(container.textContent).toContain(
+      expect(readTitle()).toContain(
         "Installing US Timber-Stud Drywall: Field Sequence",
       );
     });
@@ -174,9 +181,7 @@ describe("WallFinishingArticle (premium market article page)", () => {
     expect(container.textContent).toContain("Establish the approved assembly");
 
     // Headings render with slug ids for TOC navigation
-    const h2 = container.querySelector(
-      "h2#establish-the-approved-assembly",
-    );
+    const h2 = container.querySelector("h2#establish-the-approved-assembly");
     expect(h2).not.toBeNull();
 
     // Theme badge from the market edition
@@ -197,7 +202,9 @@ describe("WallFinishingArticle (premium market article page)", () => {
     expect(container.textContent).toContain(
       "Application and finishing standard",
     );
-    const sourceLink = container.querySelector('a[href="https://example.org/ga216"]');
+    const sourceLink = container.querySelector(
+      'a[href="https://example.org/ga216"]',
+    );
     expect(sourceLink).not.toBeNull();
     expect(sourceLink?.getAttribute("rel")).toContain("noopener");
   });
@@ -243,9 +250,7 @@ describe("WallFinishingArticle (premium market article page)", () => {
 
   it("shows the market missing state for an unpublished article", async () => {
     // Override the builder result for this test: no article found.
-    vi.mocked(supabase.from).mockImplementation(((
-      table: string,
-    ) => {
+    vi.mocked(supabase.from).mockImplementation(((table: string) => {
       const builder = makeBuilder(() => ({ data: null, error: null }));
       void table;
       return builder;

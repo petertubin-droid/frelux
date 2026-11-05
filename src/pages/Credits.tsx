@@ -4,6 +4,8 @@ import { useAuth } from "@/lib/auth";
 import { CreditsWallet } from "@/components/credits/CreditsWallet";
 import { Loader2 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function CreditsPage() {
   const { t } = useLanguage();
@@ -31,11 +33,21 @@ export default function CreditsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6">
-      <h1 className="mb-4 text-xl font-bold text-foreground dark:text-primary-foreground">
-        {t("FRELUX Credits")}
-      </h1>
-      <CreditsWallet userId={user.id} />
-    </div>
+    <>
+      <PageHeader
+        variant="tool"
+        breadcrumbs={[
+          { label: t("Home"), path: "/" },
+          { label: t("FRELUX Credits") },
+        ]}
+        title={t("FRELUX Credits")}
+        subtitle={t(
+          "Your balance, what each credit unlocks, and where your last credits went.",
+        )}
+      />
+      <Container className="max-w-2xl pb-12 pt-6">
+        <CreditsWallet userId={user.id} />
+      </Container>
+    </>
   );
 }

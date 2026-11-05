@@ -1,4 +1,5 @@
-import HeroTitle from "@/components/ui/HeroTitle";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Brain } from "lucide-react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
@@ -37,30 +38,18 @@ export default function SmartCalculator() {
   return (
     <>
       {seo}
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-        <Link
-          to="/"
-          className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
-        >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" />{" "}
-          {t("Back to home")}
-        </Link>
+      <PageHeader
+        variant="tool"
+        backTo="/"
+        backLabel={t("Back to home")}
+        eyebrow={t("Describe a project")}
+        title={t("Smart Calculator")}
+        subtitle={t(
+          "Say what you are building in plain words. The assistant reads the project and fills the calculators, and every quantity still comes from the deterministic engine.",
+        )}
+      />
 
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-brand-purple/20">
-            <Brain className="h-7 w-7 text-primary-foreground" />
-          </div>
-          <HeroTitle
-            className="text-3xl text-foreground dark:text-primary-foreground"
-            title={t("Smart Calculator")}
-          />
-          <p className="mt-2 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
-            <Brain className="h-4 w-4 text-brand-purple" aria-hidden="true" />
-            {t("Powered by AI, describe any project, get an instant estimate")}
-          </p>
-        </div>
-
+      <Container className="max-w-4xl pb-12 pt-8">
         {/* AI-powered badge banner */}
         <div className="mb-6 flex items-center gap-3 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
@@ -96,7 +85,7 @@ export default function SmartCalculator() {
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />
-      </div>
+      </Container>
     </>
   );
 }

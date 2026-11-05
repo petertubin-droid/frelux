@@ -1,9 +1,10 @@
-import HeroTitle from "@/components/ui/HeroTitle";
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 const TemplatesShowcase = lazy(
   () => import("@/components/home/TemplatesShowcase"),
 );
 import { Link } from "react-router-dom";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import {
   Search,
   Loader2,
@@ -94,161 +95,150 @@ export default function Templates() {
   );
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      {/* Breadcrumb */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-          <Link
-            to="/"
-            className="hover:text-brand-purple dark:hover:text-brand-purple-lighter"
-          >
-            {t("Home")}
-          </Link>
-          <ChevronRight className="h-3 w-3" />
-          <span>{t("Templates")}</span>
-        </div>
-        <HeroTitle
-          className="mt-3 text-2xl text-foreground dark:text-primary-foreground sm:text-3xl"
-          title={t("FRELUX Calculator Templates")}
-        />
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground dark:text-muted-foreground">
-          Professionally curated templates for common painting, tiling,
-          screeding, and POP ceiling projects. Each template uses the FRELUX
-          calculation engine with current prices and material rules.
-        </p>
-      </div>
+    <>
+      <PageHeader
+        breadcrumbs={[
+          { label: t("Home"), path: "/" },
+          { label: t("Templates") },
+        ]}
+        eyebrow={t("Templates")}
+        title={t("FRELUX Calculator Templates")}
+        subtitle="Professionally curated templates for common painting, tiling, screeding, and POP ceiling projects. Each template uses the FRELUX calculation engine with current prices and material rules."
+      />
 
-      {/* Featured templates showcase (moved from homepage, where it
+      <Container className="max-w-5xl pb-10 pt-8">
+        {/* Featured templates showcase (moved from homepage, where it
           lives better next to the full searchable catalog) */}
-      <Suspense fallback={null}>
-        <TemplatesShowcase />
-      </Suspense>
+        <Suspense fallback={null}>
+          <TemplatesShowcase />
+        </Suspense>
 
-      {/* Search + filters */}
-      <div className="mb-6 space-y-3">
-        <div className="relative">
-          <Search
-            aria-hidden="true"
-            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-          />
-          <input
-            aria-label={t("Search templates")}
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t("Search templates...")}
-            className="w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
-          />
-        </div>
+        {/* Search + filters */}
+        <div className="mb-6 space-y-3">
+          <div className="relative">
+            <Search
+              aria-hidden="true"
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <input
+              aria-label={t("Search templates")}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t("Search templates...")}
+              className="w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
+            />
+          </div>
 
-        <div className="flex flex-wrap gap-2">
-          {CATEGORY_TABS.map((tab) => (
-            <Button
-              variant="ghost"
-              key={tab.key}
-              onClick={() => setActiveCategory(tab.key)}
-              className={classNames(
-                "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-                activeCategory === tab.key
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted dark:bg-white/5 dark:text-muted-foreground/80 dark:hover:bg-white/10",
-              )}
-            >
-              {tab.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Content */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2
-            aria-hidden="true"
-            className="h-6 w-6 animate-spin text-brand-purple"
-          />
-        </div>
-      ) : error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-600 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
-          {error}
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-muted/50 p-12 text-center dark:border-white/10 dark:bg-white/5">
-          <BadgeCheck className="mx-auto h-8 w-8 text-muted-foreground/80 dark:text-muted-foreground" />
-          <p className="mt-3 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80">
-            {t("No templates found")}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-            {t("Try a different search or category filter.")}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-8">
-          {featured.length > 0 && (
-            <div>
-              <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
-                <BadgeCheck className="h-3.5 w-3.5 text-amber-500" />
-                {t("Featured Templates")}
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {featured.map((t) => (
-                  <PublicTemplateCard key={t.id} template={t} />
-                ))}
-              </div>
-            </div>
-          )}
-          {rest.length > 0 && (
-            <div>
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
-                {t("All Templates")}
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {rest.map((t) => (
-                  <PublicTemplateCard key={t.id} template={t} />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Calculator links */}
-      <div className="mt-10 rounded-xl border border-border bg-muted/50 p-6 dark:border-white/10 dark:bg-white/5">
-        <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-          {t("Browse Calculators")}
-        </h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {(["paint", "tile", "screeding", "pop"] as CalculatorType[]).map(
-            (type) => (
-              <Link
-                key={type}
-                to={
-                  type === "paint"
-                    ? "/paint-calculator"
-                    : type === "tile"
-                      ? "/tile-calculator"
-                      : type === "screeding"
-                        ? "/screeding-calculator"
-                        : "/pop-ceiling-calculator"
-                }
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground/80"
+          <div className="flex flex-wrap gap-2">
+            {CATEGORY_TABS.map((tab) => (
+              <Button
+                variant="ghost"
+                key={tab.key}
+                onClick={() => setActiveCategory(tab.key)}
+                className={classNames(
+                  "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+                  activeCategory === tab.key
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-muted dark:bg-white/5 dark:text-muted-foreground/80 dark:hover:bg-white/10",
+                )}
               >
-                <Calculator aria-hidden="true" className="h-3.5 w-3.5" />
-                {calculatorLabel(type)}
-              </Link>
-            ),
-          )}
+                {tab.label}
+              </Button>
+            ))}
+          </div>
         </div>
-        <RelatedTools
-          links={[
-            CALC_LINKS.paintCalculator,
-            CALC_LINKS.screedingCalc,
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.paintCalculator,
-          ]}
-        />
-      </div>
-    </div>
+
+        {/* Content */}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2
+              aria-hidden="true"
+              className="h-6 w-6 animate-spin text-brand-purple"
+            />
+          </div>
+        ) : error ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-600 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
+            {error}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border bg-muted/50 p-12 text-center dark:border-white/10 dark:bg-white/5">
+            <BadgeCheck className="mx-auto h-8 w-8 text-muted-foreground/80 dark:text-muted-foreground" />
+            <p className="mt-3 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80">
+              {t("No templates found")}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
+              {t("Try a different search or category filter.")}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {featured.length > 0 && (
+              <div>
+                <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+                  <BadgeCheck className="h-3.5 w-3.5 text-amber-500" />
+                  {t("Featured Templates")}
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {featured.map((t) => (
+                    <PublicTemplateCard key={t.id} template={t} />
+                  ))}
+                </div>
+              </div>
+            )}
+            {rest.length > 0 && (
+              <div>
+                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+                  {t("All Templates")}
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {rest.map((t) => (
+                    <PublicTemplateCard key={t.id} template={t} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Calculator links */}
+        <div className="mt-10 rounded-xl border border-border bg-muted/50 p-6 dark:border-white/10 dark:bg-white/5">
+          <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+            {t("Browse Calculators")}
+          </h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {(["paint", "tile", "screeding", "pop"] as CalculatorType[]).map(
+              (type) => (
+                <Link
+                  key={type}
+                  to={
+                    type === "paint"
+                      ? "/paint-calculator"
+                      : type === "tile"
+                        ? "/tile-calculator"
+                        : type === "screeding"
+                          ? "/screeding-calculator"
+                          : "/pop-ceiling-calculator"
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground/80"
+                >
+                  <Calculator aria-hidden="true" className="h-3.5 w-3.5" />
+                  {calculatorLabel(type)}
+                </Link>
+              ),
+            )}
+          </div>
+          <RelatedTools
+            links={[
+              CALC_LINKS.paintCalculator,
+              CALC_LINKS.screedingCalc,
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.paintCalculator,
+            ]}
+          />
+        </div>
+      </Container>
+    </>
   );
 }
 

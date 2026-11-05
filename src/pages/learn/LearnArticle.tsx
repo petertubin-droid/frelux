@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import AdSlot from "@/components/ui/AdSlot";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import { ArticleAdCallout } from "@/components/ads/CampaignSlot";
 import ArticleToolPromo from "@/components/articles/ArticleToolPromo";
 import ArticleQuickAnswers from "@/components/articles/ArticleQuickAnswers";
@@ -431,28 +433,24 @@ export default function LearnArticle() {
         />
       </div>
 
-      <article
-        ref={articleRef}
-        className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14"
-      >
-        {/* Breadcrumb */}
-        <nav className="mb-8 flex items-center gap-2 text-xs text-muted-foreground">
-          <Link
-            to="/learn/"
-            className="transition-colors hover:text-brand-purple"
-          >
-            Learn
-          </Link>
-          <span className="text-muted-foreground/80">/</span>
-          <Link
-            to={`/learn/category/${article.category_slug}/`}
-            className="capitalize transition-colors hover:text-brand-purple"
-          >
-            {article.category_slug.replace(/-/g, " ")}
-          </Link>
-        </nav>
+      <PageHeader
+        breadcrumbs={[
+          { label: "Learn", path: "/learn/" },
+          {
+            label: article.category_slug.replace(/-/g, " "),
+            path: `/learn/category/${article.category_slug}/`,
+          },
+        ]}
+        eyebrow={article.category_slug.replace(/-/g, " ")}
+        title={article.title}
+        subtitle={article.excerpt ?? undefined}
+      />
 
-        <div className="flex gap-8 lg:gap-12">
+      <Container className="pb-16 pt-8 lg:pt-10">
+        <article
+          ref={articleRef}
+          className="mx-auto flex max-w-6xl gap-8 lg:gap-12"
+        >
           {/* Table of contents sidebar (desktop) */}
           {tableOfContents.length > 0 && (
             <aside className="hidden w-56 shrink-0 lg:block">
@@ -489,24 +487,11 @@ export default function LearnArticle() {
 
           {/* Main article content */}
           <div className="min-w-0 flex-1">
-            {/* Category badge */}
-            <div className="mb-5">
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-brand-purple">
-                {article.category_slug.replace(/-/g, " ")}
-              </span>
-            </div>
-
-            {/* Header */}
-            <header className="mb-10">
-              <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground dark:text-primary-foreground sm:text-4xl lg:text-[2.75rem]">
-                {article.title}
-              </h1>
-              {article.excerpt && (
-                <p className="mt-5 text-lg leading-relaxed text-muted-foreground dark:text-foreground">
-                  {article.excerpt}
-                </p>
-              )}
-              <div className="mt-7 flex flex-wrap items-center gap-5 border-b border-border pb-7 dark:border-white/10">
+            {/* Byline. The title, standfirst and breadcrumb belong to the
+                shared page header above, so this only carries provenance:
+                who wrote it, how long it takes, when it was published. */}
+            <header className="mb-8">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-border pb-5 dark:border-white/10">
                 {article.author && (
                   <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                     <User aria-hidden="true" className="h-4 w-4" />{" "}
@@ -539,23 +524,19 @@ export default function LearnArticle() {
               </div>
             </header>
 
-            {/* Cover image */}
-            {article.cover_image_url ? (
-              <div className="mb-10 overflow-hidden rounded-2xl shadow-lg">
+            {/* Cover photo. When an article has none, nothing is reserved:
+                an empty dashed frame read as a broken page, and the shared
+                header above already carries the blended backdrop. */}
+            {article.cover_image_url && (
+              <figure className="mb-10 overflow-hidden rounded-xl border border-border/70 dark:border-white/10">
                 <img
                   src={article.cover_image_url}
                   alt={article.title}
                   className="w-full object-cover"
                   loading="lazy"
+                  decoding="async"
                 />
-              </div>
-            ) : (
-              <div className="mb-10 flex items-center justify-center rounded-2xl border border-dashed border-border bg-gradient-to-br from-muted/50 to-primary/5 py-20 dark:border-white/5 dark:from-card dark:to-background">
-                <ImageOff
-                  aria-hidden="true"
-                  className="h-10 w-10 text-muted-foreground/80"
-                />
-              </div>
+              </figure>
             )}
 
             {/* Top in-article inserts (Summary etc.) */}
@@ -942,8 +923,8 @@ export default function LearnArticle() {
                 the 5 slots allowed on an article page. */}
             <div className="mt-10"></div>
           </div>
-        </div>
-      </article>
+        </article>
+      </Container>
     </>
   );
 }

@@ -1,7 +1,8 @@
-import HeroTitle from "@/components/ui/HeroTitle";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { Gem } from "lucide-react";
 import {
   ACHIEVEMENTS,
   getAchievements,
@@ -46,122 +47,116 @@ export default function Achievements() {
   ];
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      {/* Back link */}
-      <Link
-        to="/"
-        className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
-      >
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> {t("Back to home")}
-      </Link>
+    <>
+      <PageHeader
+        backTo="/"
+        backLabel={t("Back to home")}
+        eyebrow={t("Milestones")}
+        title={t("Achievements")}
+        subtitle={t(
+          "Unlock badges as you use FRELUX. Track your progress and milestones.",
+        )}
+        actions={
+          <Link
+            to="/rewards/"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            <Gem aria-hidden="true" className="h-4 w-4" />
+            {t("View FRELUX Rewards")}
+          </Link>
+        }
+      />
 
-      {/* Header */}
-      <div className="mb-8 text-center">
-        <HeroTitle
-          className="text-3xl text-foreground dark:text-primary-foreground"
-          title={t("Achievements")}
-        />
-        <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-          {t(
-            "Unlock badges as you use FRELUX. Track your progress and milestones.",
-          )}
-        </p>
-        <Link
-          to="/rewards/"
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          💎 View FRELUX Rewards
-        </Link>
-      </div>
-
-      {/* Progress overview */}
-      <div className="mb-8 rounded-2xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-              {t("Total Progress")}
-            </p>
-            <p className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-              {totalUnlocked} / {totalAchievements} unlocked
-            </p>
-          </div>
-          <div className="text-3xl font-bold text-brand-purple dark:text-brand-purple-lighter">
-            {progress}%
-          </div>
-        </div>
-        <div className="h-3 overflow-hidden rounded-full bg-muted dark:bg-white/5">
-          <div
-            className="h-full w-full origin-left rounded-full bg-gradient-to-r from-primary to-primary-light transition-transform duration-500"
-            style={{ transform: `scaleX(${progress / 100})` }}
-          />
-        </div>
-      </div>
-
-      {/* Stats grid */}
-      {stats && (
-        <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard label="Calculations" value={stats.totalCalculations} />
-          <StatCard label="Colors Viewed" value={stats.colorsViewed} />
-          <StatCard label="Projects Saved" value={stats.projectsSaved} />
-          <StatCard label="Visit Streak" value={stats.visitStreak} />
-        </div>
-      )}
-
-      {/* Achievement badges by category */}
-      {categories.map((cat) => {
-        const catAchievements = ACHIEVEMENTS.filter(
-          (a) => a.category === cat.id,
-        );
-        if (catAchievements.length === 0) return null;
-        return (
-          <div key={cat.id} className="mb-8">
-            <h2 className={classNames("mb-4 text-lg font-bold", cat.color)}>
-              {cat.label}
-            </h2>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {catAchievements.map((ach) => {
-                const isUnlocked = unlockedIds.has(ach.id);
-                return (
-                  <div
-                    key={ach.id}
-                    className={classNames(
-                      "flex items-center gap-3 rounded-xl border p-4 transition-all",
-                      isUnlocked
-                        ? "border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10"
-                        : "border-border bg-muted/50 opacity-60 dark:border-white/5 dark:bg-background",
-                    )}
-                  >
-                    <span className="text-2xl">
-                      {isUnlocked ? ach.icon : "🔒"}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className={classNames(
-                          "text-sm font-bold",
-                          isUnlocked
-                            ? "text-foreground dark:text-primary-foreground"
-                            : "text-muted-foreground dark:text-muted-foreground",
-                        )}
-                      >
-                        {ach.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                        {ach.description}
-                      </p>
-                    </div>
-                    {isUnlocked && (
-                      <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
-                        {t("DONE")}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
+      <Container className="max-w-4xl pb-12 pt-8">
+        {/* Progress overview */}
+        <div className="mb-8 rounded-2xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+                {t("Total Progress")}
+              </p>
+              <p className="text-2xl font-bold text-foreground dark:text-primary-foreground">
+                {totalUnlocked} / {totalAchievements} unlocked
+              </p>
+            </div>
+            <div className="text-3xl font-bold text-brand-purple dark:text-brand-purple-lighter">
+              {progress}%
             </div>
           </div>
-        );
-      })}
-    </div>
+          <div className="h-3 overflow-hidden rounded-full bg-muted dark:bg-white/5">
+            <div
+              className="h-full w-full origin-left rounded-full bg-gradient-to-r from-primary to-primary-light transition-transform duration-500"
+              style={{ transform: `scaleX(${progress / 100})` }}
+            />
+          </div>
+        </div>
+
+        {/* Stats grid */}
+        {stats && (
+          <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatCard label="Calculations" value={stats.totalCalculations} />
+            <StatCard label="Colors Viewed" value={stats.colorsViewed} />
+            <StatCard label="Projects Saved" value={stats.projectsSaved} />
+            <StatCard label="Visit Streak" value={stats.visitStreak} />
+          </div>
+        )}
+
+        {/* Achievement badges by category */}
+        {categories.map((cat) => {
+          const catAchievements = ACHIEVEMENTS.filter(
+            (a) => a.category === cat.id,
+          );
+          if (catAchievements.length === 0) return null;
+          return (
+            <div key={cat.id} className="mb-8">
+              <h2 className={classNames("mb-4 text-lg font-bold", cat.color)}>
+                {cat.label}
+              </h2>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {catAchievements.map((ach) => {
+                  const isUnlocked = unlockedIds.has(ach.id);
+                  return (
+                    <div
+                      key={ach.id}
+                      className={classNames(
+                        "flex items-center gap-3 rounded-xl border p-4 transition-all",
+                        isUnlocked
+                          ? "border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10"
+                          : "border-border bg-muted/50 opacity-60 dark:border-white/5 dark:bg-background",
+                      )}
+                    >
+                      <span className="text-2xl">
+                        {isUnlocked ? ach.icon : "🔒"}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={classNames(
+                            "text-sm font-bold",
+                            isUnlocked
+                              ? "text-foreground dark:text-primary-foreground"
+                              : "text-muted-foreground dark:text-muted-foreground",
+                          )}
+                        >
+                          {ach.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                          {ach.description}
+                        </p>
+                      </div>
+                      {isUnlocked && (
+                        <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                          {t("DONE")}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </Container>
+    </>
   );
 }
 

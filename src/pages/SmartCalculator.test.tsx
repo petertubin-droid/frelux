@@ -84,7 +84,9 @@ describe("SmartCalculator page", () => {
       screen.getByRole("heading", { name: "Smart Calculator" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/describe any project, get an instant estimate/i),
+      screen.getByText(
+        /the assistant reads the project and fills the calculators/i,
+      ),
     ).toBeInTheDocument();
   });
 

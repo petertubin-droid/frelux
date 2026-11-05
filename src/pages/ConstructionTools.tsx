@@ -1,4 +1,3 @@
-import HeroTitle from "@/components/ui/HeroTitle";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Link,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 import AdSlot from "@/components/ui/AdSlot";
 import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import {
   getStoredUnitSystem,
@@ -253,103 +253,81 @@ export default function ConstructionTools() {
 
   return (
     <>
-      {/* Hero / search */}
-      <section className="relative overflow-hidden bg-background py-10">
-        {/* Blended photo band, same fade-to-surface treatment as PageHeader */}
-        <img
-          src="https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=1600"
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          decoding="async"
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25 dark:opacity-20"
-        />
-        <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/25 via-background/55 to-background"
-          aria-hidden="true"
-        />
-        <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background/50 via-transparent to-background/50"
-          aria-hidden="true"
-        />
-        <Container className="relative">
-          <div className="mx-auto max-w-2xl text-center">
-            <HeroTitle
-              className="text-3xl text-foreground dark:text-primary-foreground sm:text-4xl"
-              title={t("Construction Tools")}
-            />
-            <p className="mt-3 text-muted-foreground dark:text-muted-foreground">
-              {totalTools} tools that turn entered dimensions into exact
-              quantities and costs, priced from a local price book where one
-              exists and clearly labelled where it does not.
-            </p>
-            <div className="mt-4 inline-flex items-center gap-1 rounded-full border border-border bg-card p-1 text-xs dark:border-white/10">
-              <span className="pl-2 pr-1 text-muted-foreground">Units:</span>
-              <button
-                type="button"
-                onClick={() => switchUnitSystem("metric")}
-                className={`rounded-full px-3 py-1 font-medium transition-colors ${
-                  unitSystem === "metric"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                Metric (m²)
-              </button>
-              <button
-                type="button"
-                onClick={() => switchUnitSystem("imperial")}
-                className={`rounded-full px-3 py-1 font-medium transition-colors ${
-                  unitSystem === "imperial"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                Imperial (ft²)
-              </button>
-            </div>
-            <div className="relative mt-6">
-              <Search
-                className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
-                aria-hidden="true"
-              />
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  if (e.target.value.length >= 3) {
-                    track("construction_tools_searched", {
-                      query: e.target.value,
-                    });
-                  }
-                  const next = new URLSearchParams(searchParams);
-                  if (e.target.value) next.set("q", e.target.value);
-                  else next.delete("q");
-                  next.delete("page"); // a new search restarts at section 1
-                  setSearchParams(next, { replace: true });
-                }}
-                placeholder={t(
-                  "Search tools: paint, tiles, solar, BOQ, labour…",
-                )}
-                aria-label={t("Search construction tools")}
-                className="h-14 w-full rounded-2xl border border-border/60 bg-card pl-12 pr-12 text-base text-foreground shadow-premium-lg outline-none ring-brand-purple/40 transition-all placeholder:text-muted-foreground/70 focus:ring-2 dark:border-white/10 dark:bg-card dark:text-primary-foreground"
-              />
-              {query && (
-                <button
-                  onClick={() => setQuery("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                  aria-label={t("Clear search")}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+      {/* The tools directory opens on the site's shared page header so it
+          matches every tool page it links to; the search stays with it
+          because finding a tool is the first job on this page. */}
+      <PageHeader
+        eyebrow={t("Calculators")}
+        title={t("Construction Tools")}
+        subtitle={`${totalTools} tools that turn entered dimensions into exact quantities and costs, priced from a local price book where one exists and clearly labelled where it does not.`}
+        actions={
+          <div className="inline-flex items-center gap-1 rounded-full border border-border bg-card p-1 text-xs dark:border-white/10">
+            <span className="pl-2 pr-1 text-muted-foreground">Units:</span>
+            <button
+              type="button"
+              onClick={() => switchUnitSystem("metric")}
+              className={`rounded-full px-3 py-1 font-medium transition-colors ${
+                unitSystem === "metric"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              Metric (m²)
+            </button>
+            <button
+              type="button"
+              onClick={() => switchUnitSystem("imperial")}
+              className={`rounded-full px-3 py-1 font-medium transition-colors ${
+                unitSystem === "imperial"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              Imperial (ft²)
+            </button>
           </div>
-        </Container>
-      </section>
+        }
+      />
 
-      <Container className="py-8">
+      <Container className="-mt-2 pb-8">
+        <div className="relative mx-auto mt-2 max-w-2xl">
+          <Search
+            className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              if (e.target.value.length >= 3) {
+                track("construction_tools_searched", {
+                  query: e.target.value,
+                });
+              }
+              const next = new URLSearchParams(searchParams);
+              if (e.target.value) next.set("q", e.target.value);
+              else next.delete("q");
+              next.delete("page"); // a new search restarts at section 1
+              setSearchParams(next, { replace: true });
+            }}
+            placeholder={t("Search tools: paint, tiles, solar, BOQ, labour…")}
+            aria-label={t("Search construction tools")}
+            className="h-14 w-full rounded-xl border border-border/60 bg-card pl-12 pr-12 text-base text-foreground shadow-premium-sm outline-none ring-brand-purple/40 transition-all placeholder:text-muted-foreground/70 focus:ring-2 dark:border-white/10 dark:bg-card dark:text-primary-foreground"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              aria-label={t("Clear search")}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </Container>
+
+      <Container className="pb-10">
         {/* Category chips */}
         <div
           className="flex flex-wrap gap-2"
