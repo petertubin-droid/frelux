@@ -23,7 +23,7 @@ const renderPage = () =>
 describe("BoreholeWaterSystemEstimator tank stand", () => {
   it("shows the stand under the tank it sized", () => {
     renderPage();
-    expect(hasText("Tank Stand")).toBe(true);
+    expect(hasText("iron tank stand")).toBe(true);
     expect(hasText("Loaded mass")).toBe(true);
     expect(hasText("Footing pads")).toBe(true);
     expect(hasText("Bearing pressure")).toBe(true);
@@ -78,5 +78,22 @@ describe("BoreholeWaterSystemEstimator tank stand", () => {
     expect(hasText("Tank shell")).toBe(true);
     expect(hasText("Platform")).toBe(true);
     expect(hasText("Wind safety")).toBe(true);
+  });
+  it("answers the long tail questions on the page itself", () => {
+    renderPage();
+    expect(hasText("Borehole, pump and tank stand questions")).toBe(true);
+    expect(hasText("What pump horsepower (HP) do I need")).toBe(true);
+    expect(hasText("How many lengths of casing pipe")).toBe(true);
+  });
+
+  it("names the pump horsepower output in the hydraulic card", () => {
+    renderPage();
+    expect(hasText("Pump horsepower (HP)")).toBe(true);
+  });
+
+  it("offers the directory hand off without inventing professionals", async () => {
+    renderPage();
+    expect(hasText("Need a professional to drill or plumb this?")).toBe(true);
+    expect(await screen.findByText(/Nobody is listed in NG/i)).toBeTruthy();
   });
 });

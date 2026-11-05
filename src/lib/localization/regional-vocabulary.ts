@@ -224,3 +224,59 @@ export function slabVocabulary(
       };
   }
 }
+
+/**
+ * Market wording for the elevated tank and its support.
+ *
+ * Terminology only. Nothing here prices a tank or a stand, because the stand is
+ * sized by the structural engine and the tank is rounded to a sold capacity.
+ */
+export interface TankVocabulary {
+  /** What the trade calls the elevated support in this market. */
+  stand: string;
+  /** What the tank itself is called. */
+  tank: string;
+  /** Capacity unit shown next to the stored volume. */
+  capacityUnit: "litres" | "gallons";
+}
+
+export function tankVocabulary(market: string): TankVocabulary {
+  switch (market.toUpperCase()) {
+    case "NG":
+      return {
+        stand: "4-legged iron tank stand",
+        tank: "GeePee tank",
+        capacityUnit: "litres",
+      };
+    case "US":
+      return {
+        stand: "4-legged steel tank stand",
+        tank: "overhead storage tank",
+        capacityUnit: "gallons",
+      };
+    case "GB":
+      return {
+        stand: "galvanised steel tank stand",
+        tank: "cold water tank",
+        capacityUnit: "litres",
+      };
+    case "AU":
+      return {
+        stand: "steel tank stand",
+        tank: "rainwater tank",
+        capacityUnit: "litres",
+      };
+    case "KE":
+      return {
+        stand: "steel tank stand",
+        tank: "overhead tank",
+        capacityUnit: "litres",
+      };
+    default:
+      return {
+        stand: "elevated tank stand",
+        tank: "overhead storage tank",
+        capacityUnit: "litres",
+      };
+  }
+}

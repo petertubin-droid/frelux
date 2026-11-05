@@ -32,6 +32,11 @@ import {
   CasingMaterial,
 } from "@/lib/estimation/borehole-water-system-engine";
 import BoreholeWaterSystemAnimation from "@/components/tools/BoreholeWaterSystemAnimation";
+import BoreholeProConnectCta from "@/components/tools/BoreholeProConnectCta";
+import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
+import { getToolFaqGroup } from "@/config/tool-faqs";
+import { BOREHOLE_SEO_FAQS } from "@/config/borehole-seo-faqs";
+import { tankVocabulary } from "@/lib/localization/regional-vocabulary";
 import {
   SOIL_PRESUMPTIONS,
   calculateTankStand,
@@ -167,10 +172,21 @@ export default function BoreholeWaterSystemEstimator() {
     [result.billOfQuantities, stand.result],
   );
 
+  const tankTerms = tankVocabulary(market);
+  const proFaqs = [
+    ...(getToolFaqGroup("borehole-water-system")?.questions ?? []).map(
+      (item) => ({
+        question: item.q,
+        answer: item.a,
+      }),
+    ),
+    ...BOREHOLE_SEO_FAQS,
+  ];
+
   useSeo({
-    title: "Autonomous Borehole & Water Supply System Estimator | FRELUX",
+    title: "Borehole Cost Calculator: Pump HP, Casing & Tank Stand | FRELUX",
     description:
-      "Engineering calculation for residential and commercial borehole drilling, submersible pump sizing, check valves, multi-barrier water treatment, elevated tank morning rush buffering, and gravity hydrostatic pressure distribution.",
+      "Estimate a borehole end to end: drilling depth by soil type, casing pipe lengths, submersible pump horsepower (HP) for your well depth, overhead tank size and tank stand cost, filtration, and the gravity pressure left at your taps.",
     canonicalPath: "/borehole-water-system-estimator",
     structuredData: buildSequenceHowTo({
       name: "Construct an Autonomous Borehole & Water Supply System",
@@ -525,7 +541,7 @@ export default function BoreholeWaterSystemEstimator() {
                 {/* Aquifer Hydrogeology */}
                 <div className="space-y-1.5">
                   <label htmlFor="aquifer-type" className="font-medium">
-                    Target Aquifer Geology
+                    Soil Type / Location Terrain
                   </label>
                   <select
                     id="aquifer-type"
@@ -546,6 +562,13 @@ export default function BoreholeWaterSystemEstimator() {
                       Sedimentary Sandstone Aquifer
                     </option>
                   </select>
+                  <p className="text-[11px] leading-relaxed text-muted-foreground">
+                    Rocky basement complex ground (Abuja, Ibadan, Enugu) is
+                    drilled to fractured rock with a shallower cased section.
+                    Sedimentary ground with a high water table (Lagos Mainland,
+                    Lekki, Delta) needs casing over the full depth and typically
+                    reaches water sooner.
+                  </p>
                 </div>
 
                 {/* Casing Material */}
@@ -990,8 +1013,8 @@ export default function BoreholeWaterSystemEstimator() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center justify-between">
                   <span className="flex items-center gap-2">
-                    <Layers className="h-4 w-4 text-primary" /> Tank Stand &
-                    Footings
+                    <Layers className="h-4 w-4 text-primary" />{" "}
+                    {tankTerms.stand} &amp; footings
                   </span>
                   <div className="flex gap-1">
                     {(
@@ -1375,6 +1398,15 @@ export default function BoreholeWaterSystemEstimator() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-xs sm:text-sm">
+                <p className="rounded border border-border bg-muted/20 p-2 text-[11px] leading-relaxed text-muted-foreground">
+                  <strong className="text-foreground">
+                    Pump horsepower (HP):
+                  </strong>{" "}
+                  the size needed to push water from your well depth up to your
+                  overhead tank, not just to lift it. It is the total dynamic
+                  head (static lift, drawdown, pipe friction and tank fill
+                  height) turned into the next stocked submersible motor rating.
+                </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   <div className="rounded border border-border p-2 bg-muted/20">
                     <span className="text-[10px] text-muted-foreground">
@@ -1513,6 +1545,16 @@ export default function BoreholeWaterSystemEstimator() {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        <div className="mt-6 space-y-4">
+          <BoreholeProConnectCta market={market} />
+          {proFaqs.length > 0 && (
+            <FaqItemsWithSchema
+              faqs={proFaqs}
+              title="Borehole, pump and tank stand questions"
+            />
+          )}
         </div>
 
         {/* Engineering Standards & Governance Footnote */}

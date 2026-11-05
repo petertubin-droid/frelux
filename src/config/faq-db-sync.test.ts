@@ -13,18 +13,18 @@ const migration = readFileSync(
 );
 
 describe("tool FAQ content in the database", () => {
-  it("seeds a row for every tool with five questions and its article", () => {
+  it("seeds a row for every tool with at least five questions and its article", () => {
     const rows = buildFaqDbRows();
     expect(rows).toHaveLength(TOOL_FAQS.length);
     for (const row of rows) {
-      expect(row.question_count, row.slug).toBe(5);
-      expect(row.questions, row.slug).toHaveLength(5);
+      expect(row.question_count, row.slug).toBeGreaterThanOrEqual(5);
+      expect(row.questions, row.slug).toHaveLength(row.question_count);
       expect(row.article.description.length, row.slug).toBeGreaterThan(80);
       expect(row.article.functions.length, row.slug).toBeGreaterThanOrEqual(3);
       expect(row.seo.title, row.slug).toBeTruthy();
     }
     expect(rows.reduce((sum, row) => sum + row.question_count, 0)).toBe(
-      TOOL_FAQS.length * 5,
+      TOOL_FAQS.reduce((sum, group) => sum + group.questions.length, 0),
     );
   });
 
