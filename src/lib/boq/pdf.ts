@@ -43,6 +43,14 @@ export async function buildBoqPdf(
   const currency = standard.metadata.currency;
 
   const status = documentStatusLabel(studio);
+  const isSurvey = studio.mode === "market_survey";
+  const allItems = standard.sections.flatMap((section) =>
+    section.subSections.flatMap((sub) => sub.items),
+  );
+  const pricedLines = allItems.filter((item) => item.unitRate > 0).length;
+  /** A survey leaves an uncollected price blank rather than printing a zero. */
+  const rateText = (value: number) =>
+    isSurvey && !(value > 0) ? "TBC" : money(value, currency);
 
   let y = margin;
 
@@ -55,7 +63,11 @@ export async function buildBoqPdf(
     doc.text("FRELUX", margin, 11);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
-    doc.text("Bill of Quantities", margin + 26, 11);
+    doc.text(
+      isSurvey ? "Market survey schedule" : "Bill of Quantities",
+      margin + 26,
+      11,
+    );
     doc.text(
       `${studio.reference || "No reference"}  ·  R${studio.revision}`,
       pageWidth - margin,
@@ -98,7 +110,12 @@ export async function buildBoqPdf(
   // Project block
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.text(studio.title || "Untitled Bill of Quantities", margin, y);
+  doc.text(
+    studio.title ||
+      (isSurvey ? "Untitled market survey" : "Untitled Bill of Quantities"),
+    margin,
+    y,
+  );
   y += 6;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
@@ -117,6 +134,15 @@ export async function buildBoqPdf(
     ["Revision", `R${studio.revision}`],
     ["Prepared date", studio.prepared_date || "-"],
     ["Status", status],
+    ...(isSurvey
+      ? ([
+          ["Document type", "Market survey"],
+          ["Market", studio.survey?.market_city || "-"],
+          ["Rates captured", `${pricedLines}/${allItems.length} lines`],
+          ["Survey date", studio.survey?.survey_date || "-"],
+          ["Surveyed by", studio.survey?.surveyed_by || "-"],
+        ] as Array<[string, string]>)
+      : []),
   ];
   const colWidth = contentWidth / 4;
   metaRows.forEach(([label, value], idx) => {
@@ -214,36 +240,27 @@ export async function buildBoqPdf(
         x += columns[3].width;
         let ci = 4;
         if (showMaterial) {
-          doc.text(
-            money(item.materialRate, currency),
-            x + columns[ci].width - 2,
-            y,
-            { align: "right" },
-          );
+          doc.text(rateText(item.materialRate), x + columns[ci].width - 2, y, {
+            align: "right",
+          });
           x += columns[ci].width;
           ci += 1;
         }
         if (showLabour) {
-          doc.text(
-            money(item.laborRate, currency),
-            x + columns[ci].width - 2,
-            y,
-            { align: "right" },
-          );
+          doc.text(rateText(item.laborRate), x + columns[ci].width - 2, y, {
+            align: "right",
+          });
           x += columns[ci].width;
           ci += 1;
         }
-        doc.text(money(item.unitRate, currency), x + columns[ci].width - 2, y, {
+        doc.text(rateText(item.unitRate), x + columns[ci].width - 2, y, {
           align: "right",
         });
         x += columns[ci].width;
         doc.setFont("helvetica", "bold");
-        doc.text(
-          money(item.totalCost, currency),
-          x + columns[ci].width - 2,
-          y,
-          { align: "right" },
-        );
+        doc.text(rateText(item.totalCost), x + columns[ci].width - 2, y, {
+          align: "right",
+        });
         doc.setFont("helvetica", "normal");
         y += rowHeight;
       }
@@ -255,12 +272,9 @@ export async function buildBoqPdf(
     doc.text(`Section ${section.code} total`, margin + contentWidth - 40, y, {
       align: "right",
     });
-    doc.text(
-      money(section.sectionTotal, currency),
-      margin + contentWidth - 1,
-      y,
-      { align: "right" },
-    );
+    doc.text(rateText(section.sectionTotal), margin + contentWidth - 1, y, {
+      align: "right",
+    });
     doc.setFont("helvetica", "normal");
     y += 6;
   }
@@ -288,6 +302,27 @@ export async function buildBoqPdf(
       standard.summary.retentionAmount,
     ]);
     summaryRows.push(["Net payable", standard.summary.netPayableTotal, true]);
+  }
+
+  if (isSurvey) {
+    summaryRows.length = 0;
+    summaryRows.push([
+      "Market total, rates captured in market",
+      standard.summary.measuredWorksTotal,
+      true,
+    ]);
+    const outstanding = allItems.length - pricedLines;
+    const note =
+      outstanding === 0
+        ? "Every line carries a market rate. No preliminaries, overhead, contingency, retention or tax are applied to a market survey."
+        : `${outstanding} of ${allItems.length} lines are still to be priced in the market. The total shows only the rates entered so far, with no preliminaries, overhead, contingency, retention or tax.`;
+    const noteLines = doc.splitTextToSize(note, contentWidth) as string[];
+    ensure(noteLines.length * 4 + 4);
+    doc.setFontSize(8);
+    doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
+    doc.text(noteLines, margin, y);
+    doc.setTextColor(0, 0, 0);
+    y += noteLines.length * 3.6 + 4;
   }
 
   summaryRows.forEach(([label, value, strong]) => {

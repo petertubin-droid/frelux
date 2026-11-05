@@ -34,11 +34,31 @@ export interface BoqCompileWarnings {
   advisory: string[];
 }
 
+/**
+ * Pricing state of the document.
+ *
+ * In a market survey the measured quantities are the deliverable and the price
+ * layer is supplied later, in the market. The compiler therefore applies no
+ * commercial additions at all: no preliminaries, overhead, contingency,
+ * retention or tax. The market total is simply the sum of whatever rates have
+ * been captured so far, and it is zero until the first rate is entered.
+ */
+export interface BoqSurveyState {
+  is_survey: boolean;
+  lines: number;
+  priced_lines: number;
+  unpriced_lines: number;
+  priced_pct: number;
+  market_total: number;
+  complete: boolean;
+}
+
 export interface CompiledBoq {
   document: BoqStudioDocument;
   standard: StandardBoqDocument;
   warnings: BoqCompileWarnings;
   is_preliminary: boolean;
+  survey: BoqSurveyState;
 }
 
 const round2 = (v: number) => Math.round(v * 100) / 100;
@@ -137,6 +157,13 @@ export function taxLabelFor(marketCode: string): string {
 function normaliseDocument(doc: BoqStudioDocument): BoqStudioDocument {
   return {
     ...doc,
+    mode: doc.mode === "market_survey" ? "market_survey" : "priced",
+    survey: {
+      market_city: doc.survey?.market_city ?? "",
+      survey_date: doc.survey?.survey_date ?? "",
+      surveyed_by: doc.survey?.surveyed_by ?? "",
+      notes: doc.survey?.notes ?? "",
+    },
     sections: doc.sections.map((section, sIdx) => ({
       ...section,
       code: section.code?.trim() || String(sIdx + 1).padStart(2, "0"),
@@ -154,6 +181,7 @@ function normaliseDocument(doc: BoqStudioDocument): BoqStudioDocument {
 
 export function compileBoq(doc: BoqStudioDocument): CompiledBoq {
   const document = normaliseDocument(doc);
+  const isSurvey = document.mode === "market_survey";
   const blocking: string[] = [];
   const advisory: string[] = [];
 
@@ -165,14 +193,32 @@ export function compileBoq(doc: BoqStudioDocument): CompiledBoq {
     advisory.push("No BOQ reference set; exports will show a blank reference.");
 
   const unpriced = items.filter((i) => itemUnitRate(i) === 0);
-  if (unpriced.length > 0) {
+  if (unpriced.length > 0 && !isSurvey) {
     advisory.push(
       `${unpriced.length} item${unpriced.length === 1 ? " has" : "s have"} no rate yet and will count as zero. ` +
         `Add rates, or state the omission in the exclusions so the client is not misled.`,
     );
   }
+  if (unpriced.length > 0 && isSurvey) {
+    advisory.push(
+      `${unpriced.length} of ${items.length} line${items.length === 1 ? "" : "s"} carry no rate yet. That is expected for a market survey: the schedule goes out with the rate columns blank.`,
+    );
+  }
 
-  const waste = document.commercials.waste_allowance_pct || 0;
+  // A market survey never applies a commercial mark-up. Quantity is the
+  // deliverable; the price comes back from the market as a plain sum.
+  const commercials = isSurvey
+    ? {
+        preliminaries_pct: 0,
+        overhead_profit_pct: 0,
+        contingency_pct: 0,
+        retention_pct: 0,
+        waste_allowance_pct: 0,
+        tax_pct: null as number | null,
+      }
+    : document.commercials;
+
+  const waste = commercials.waste_allowance_pct || 0;
   const ratesCarryWaste = items.some((i) => i.rates_include_waste);
   if (waste > 0 && ratesCarryWaste) {
     blocking.push(
@@ -222,10 +268,10 @@ export function compileBoq(doc: BoqStudioDocument): CompiledBoq {
   };
 
   const baseCommercials: Omit<StandardCommercials, "taxResult"> = {
-    preliminariesPercent: document.commercials.preliminaries_pct || 0,
-    overheadProfitPercent: document.commercials.overhead_profit_pct || 0,
-    contingencyPercent: document.commercials.contingency_pct || 0,
-    retentionPercent: document.commercials.retention_pct || 0,
+    preliminariesPercent: commercials.preliminaries_pct || 0,
+    overheadProfitPercent: commercials.overhead_profit_pct || 0,
+    contingencyPercent: commercials.contingency_pct || 0,
+    retentionPercent: commercials.retention_pct || 0,
   };
 
   // Pass 1: measured works, so a waste allowance can be valued against it.
@@ -295,7 +341,7 @@ export function compileBoq(doc: BoqStudioDocument): CompiledBoq {
     })),
   });
 
-  const taxPct = document.commercials.tax_pct;
+  const taxPct = commercials.tax_pct;
   const taxResult = taxResultFor(
     taxPct,
     preTax.summary.subtotalBeforeTax,
@@ -335,11 +381,31 @@ export function compileBoq(doc: BoqStudioDocument): CompiledBoq {
     );
   }
 
+  const pricedLines = items.filter((i) => itemUnitRate(i) > 0).length;
+  const survey: BoqSurveyState = {
+    is_survey: isSurvey,
+    lines: items.length,
+    priced_lines: pricedLines,
+    unpriced_lines: items.length - pricedLines,
+    priced_pct:
+      items.length === 0 ? 0 : round2((pricedLines / items.length) * 100),
+    market_total: round2(standard.summary.measuredWorksTotal),
+    complete: items.length > 0 && pricedLines === items.length,
+  };
+
+  if (isSurvey && survey.complete) {
+    advisory.push(
+      `All ${survey.lines} lines carry market rates, giving a market total of ${formatMoney(survey.market_total, document.currency)}. ` +
+        "No preliminaries, overhead, contingency, retention or tax are applied in survey mode. Convert it to a priced quote when the collected rates should become the offer.",
+    );
+  }
+
   return {
     document,
     standard,
     warnings: { blocking, advisory },
     is_preliminary: document.review.status !== "reviewed",
+    survey,
   };
 }
 

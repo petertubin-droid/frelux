@@ -13,6 +13,28 @@ import type { BoqStandard } from "@/lib/finance/boq-standard";
 
 export type MeasurementSystem = "metric" | "imperial";
 
+/**
+ * What the document is for.
+ *
+ * - priced: rates are supplied by FRELUX and the document carries a price.
+ * - market_survey: the same measured quantities are issued with the rate columns
+ *   blank, so the client, quantity surveyor or buyer can take the schedule into
+ *   the market, collect prices and total them. No commercial mark-up is applied.
+ *
+ * Quantities are identical in both modes. Only the price layer differs.
+ */
+export type BoqQuoteMode = "priced" | "market_survey";
+
+export interface BoqSurveyDetails {
+  /** Market or city the rates are collected in. */
+  market_city: string;
+  /** Date of the price inquiry, ISO date (yyyy-mm-dd). */
+  survey_date: string;
+  /** Who collected the rates. */
+  surveyed_by: string;
+  notes: string;
+}
+
 export interface BoqParty {
   name: string;
   address?: string;
@@ -86,6 +108,9 @@ export interface BoqStudioDocument {
   market_code: string;
   currency: string;
   measurement_system: MeasurementSystem;
+  /** Priced quote or market survey. Quantities are the same either way. */
+  mode: BoqQuoteMode;
+  survey: BoqSurveyDetails;
   standard: BoqStandard;
   template_slug: string;
   client: BoqParty;
@@ -180,6 +205,7 @@ export function createEmptyDocument(input: {
   templateSlug: string;
   preparedBy?: string;
   reference?: string;
+  mode?: BoqQuoteMode;
 }): BoqStudioDocument {
   const today = new Date().toISOString();
   return {
@@ -190,6 +216,8 @@ export function createEmptyDocument(input: {
     market_code: input.marketCode,
     currency: input.currency,
     measurement_system: "metric",
+    mode: input.mode ?? "priced",
+    survey: { market_city: "", survey_date: "", surveyed_by: "", notes: "" },
     standard: input.standard,
     template_slug: input.templateSlug,
     client: { name: "" },

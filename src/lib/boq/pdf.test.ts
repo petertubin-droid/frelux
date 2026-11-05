@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { compileBoq } from "./compile";
 import { buildBoqPdf } from "./pdf";
+import { boqStudioPrintHtml } from "./print";
 import { createEmptyDocument, type BoqStudioDocument } from "./types";
 
 function doc(over: Partial<BoqStudioDocument> = {}): BoqStudioDocument {
@@ -86,5 +87,31 @@ describe("buildBoqPdf", () => {
       showLabourRate: false,
     });
     expect(pdf.getNumberOfPages()).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("market survey exports", () => {
+  it("prints a survey schedule with blank rate cells and no priced total", () => {
+    const survey = { ...doc(), mode: "market_survey" as const };
+    const html = boqStudioPrintHtml(compileBoq(survey).standard, survey);
+    expect(html).toContain("Market survey schedule");
+    expect(html).toContain("Market rate");
+    expect(html).toContain('class="num blank"');
+    expect(html).not.toContain("Net payable");
+    expect(html).not.toContain("Preliminaries");
+  });
+
+  it("builds a survey PDF with a market total instead of a priced summary", async () => {
+    const survey = { ...doc(), mode: "market_survey" as const };
+    const pdf = await buildBoqPdf(compileBoq(survey).standard, survey);
+    expect(pdf.getNumberOfPages()).toBeGreaterThan(0);
+    const text = pdf.output();
+    expect(String(text).length).toBeGreaterThan(1000);
+  });
+
+  it("keeps the priced bill unchanged", () => {
+    const priced = doc();
+    const html = boqStudioPrintHtml(compileBoq(priced).standard, priced);
+    expect(html).not.toContain("Market survey schedule");
   });
 });

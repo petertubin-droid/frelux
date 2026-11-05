@@ -62,6 +62,16 @@ export function buildBoqXlsx(
   options: BuildOptions = {},
 ): Uint8Array {
   const cur = standard.metadata.currency;
+  const isSurvey = studioDoc.mode === "market_survey";
+  const allItems = standard.sections.flatMap((section) =>
+    section.subSections.flatMap((sub) => sub.items),
+  );
+  const pricedLines = allItems.filter((item) => item.unitRate > 0).length;
+  /** Survey rows leave an uncollected price as an empty, fillable cell. */
+  const rateCell = (value: number): Cell =>
+    isSurvey && !(value > 0)
+      ? { v: "", t: "s" }
+      : { v: value, t: "n", style: 2 };
   const money = `"${cur} "#,##0.00`;
   const rows: string[] = [];
   let r = 0;
@@ -71,7 +81,18 @@ export function buildBoqXlsx(
     rows.push(rowXml(cells, r, height));
   };
 
-  push([{ v: "FRELUX BILL OF QUANTITIES", t: "s", style: 1 }], 22);
+  push(
+    [
+      {
+        v: isSurvey
+          ? "FRELUX MARKET SURVEY SCHEDULE"
+          : "FRELUX BILL OF QUANTITIES",
+        t: "s",
+        style: 1,
+      },
+    ],
+    22,
+  );
   push(
     [
       {
@@ -96,6 +117,15 @@ export function buildBoqXlsx(
     ["Status", options.statusLabel ?? documentStatusLabel(studioDoc)],
     ["Template", studioDoc.template_slug],
   ];
+  if (isSurvey) {
+    meta.push(
+      ["Document type", "Market survey"],
+      ["Market", studioDoc.survey?.market_city || "-"],
+      ["Survey date", studioDoc.survey?.survey_date || "-"],
+      ["Surveyed by", studioDoc.survey?.surveyed_by || "-"],
+      ["Rates captured", `${pricedLines}/${allItems.length} lines`],
+    );
+  }
   meta.forEach(([label, value]) => {
     push([
       { v: label, t: "s", style: 1 },
@@ -132,10 +162,10 @@ export function buildBoqXlsx(
           { v: item.specificationRef ?? "", t: "s" },
           { v: item.unit, t: "s" },
           { v: item.quantity, t: "n" },
-          { v: item.materialRate, t: "n", style: 2 },
-          { v: item.laborRate, t: "n", style: 2 },
-          { v: item.unitRate, t: "n", style: 2 },
-          { v: item.totalCost, t: "n", style: 2 },
+          rateCell(item.materialRate),
+          rateCell(item.laborRate),
+          rateCell(item.unitRate),
+          rateCell(item.totalCost),
         ]);
       }
     }
@@ -148,23 +178,48 @@ export function buildBoqXlsx(
       { v: "", t: "s" },
       { v: "", t: "s" },
       { v: "", t: "s" },
-      { v: section.sectionTotal, t: "n", style: 3 },
+      isSurvey && !(section.sectionTotal > 0)
+        ? { v: "", t: "s" }
+        : { v: section.sectionTotal, t: "n", style: 3 },
     ]);
   }
 
   push([]);
-  const summary: Array<[string, number]> = [
-    ["Measured works", standard.summary.measuredWorksTotal],
-    ["Preliminaries", standard.summary.preliminariesAmount],
-    ["Subtotal before overhead & profit", standard.summary.subtotalBeforeOhp],
-    ["Overhead & profit", standard.summary.overheadProfitAmount],
-    ["Contingency", standard.summary.contingencyAmount],
-    ["Subtotal before tax", standard.summary.subtotalBeforeTax],
-    [`${standard.summary.taxCategory}`, standard.summary.taxAmount],
-    ["Gross total", standard.summary.grossTotal],
-    ["Retention", standard.summary.retentionAmount],
-    ["Net payable", standard.summary.netPayableTotal],
-  ];
+  const summary: Array<[string, number]> = isSurvey
+    ? [
+        [
+          "Market total, rates captured in market",
+          standard.summary.measuredWorksTotal,
+        ],
+      ]
+    : [
+        ["Measured works", standard.summary.measuredWorksTotal],
+        ["Preliminaries", standard.summary.preliminariesAmount],
+        [
+          "Subtotal before overhead & profit",
+          standard.summary.subtotalBeforeOhp,
+        ],
+        ["Overhead & profit", standard.summary.overheadProfitAmount],
+        ["Contingency", standard.summary.contingencyAmount],
+        ["Subtotal before tax", standard.summary.subtotalBeforeTax],
+        [`${standard.summary.taxCategory}`, standard.summary.taxAmount],
+        ["Gross total", standard.summary.grossTotal],
+        ["Retention", standard.summary.retentionAmount],
+        ["Net payable", standard.summary.netPayableTotal],
+      ];
+  if (isSurvey) {
+    push([]);
+    push([
+      {
+        v:
+          allItems.length - pricedLines === 0
+            ? "Every line carries a market rate. No commercial mark-up is applied to a market survey."
+            : `${allItems.length - pricedLines} of ${allItems.length} lines are still to be priced in the market. Enter rates in the rate and amount columns, and the total updates on the next import.`,
+        t: "s",
+        style: 5,
+      },
+    ]);
+  }
   for (const [label, value] of summary) {
     push([
       { v: label, t: "s", style: 1 },

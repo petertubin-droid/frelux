@@ -7,6 +7,7 @@ import { useSeo } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { formatByCode } from "@/lib/international/currency-format";
 import type { BoqStandard } from "@/lib/finance/boq-standard";
+import { convertSurveyToPriced } from "@/lib/boq/survey";
 import {
   compileBoq,
   documentStatusLabel,
@@ -78,6 +79,16 @@ export default function BoqStudio() {
   >({});
 
   const compiled = useMemo(() => (doc ? compileBoq(doc) : null), [doc]);
+
+  /** A survey becomes an offer by keeping its captured rates and restoring the
+   *  commercial layer, so the quantities never have to be re-entered. */
+  const handleConvertToPriced = () => {
+    if (!doc) return;
+    setDoc(convertSurveyToPriced(doc));
+    toast.success(
+      "Converted to a priced quote. The captured market rates are kept as line rates.",
+    );
+  };
 
   const refreshLibrary = useCallback(async () => {
     const [t, d] = await Promise.all([
@@ -462,6 +473,53 @@ export default function BoqStudio() {
                 ))}
               </div>
             )}
+
+          <section className={CARD}>
+            <h2 className="mb-1 text-sm font-semibold text-slate-900">
+              Quote type
+            </h2>
+            <p className="mb-3 text-xs text-slate-500">
+              The quantities are identical in both types. Only the price layer
+              differs.
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => patch({ mode: "priced" })}
+                aria-pressed={doc.mode !== "market_survey"}
+                className={`rounded-lg border p-3 text-left transition ${
+                  doc.mode !== "market_survey"
+                    ? "border-blue-600 bg-blue-50"
+                    : "border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <span className="block text-sm font-semibold text-slate-900">
+                  Priced quote
+                </span>
+                <span className="mt-1 block text-xs text-slate-600">
+                  Rates and a contract total, with your commercial build-up.
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => patch({ mode: "market_survey" })}
+                aria-pressed={doc.mode === "market_survey"}
+                className={`rounded-lg border p-3 text-left transition ${
+                  doc.mode === "market_survey"
+                    ? "border-blue-600 bg-blue-50"
+                    : "border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <span className="block text-sm font-semibold text-slate-900">
+                  Market survey quote
+                </span>
+                <span className="mt-1 block text-xs text-slate-600">
+                  Exact quantities and units with no prices, ready to price in
+                  the market.
+                </span>
+              </button>
+            </div>
+          </section>
 
           <section className={CARD}>
             <h2 className="mb-4 text-sm font-semibold text-slate-900">
@@ -869,100 +927,217 @@ export default function BoqStudio() {
 
           <section className={CARD}>
             <h2 className="mb-4 text-sm font-semibold text-slate-900">
-              Cost build-up
+              {doc.mode === "market_survey"
+                ? "Market survey pricing"
+                : "Cost build-up"}
             </h2>
-            <div className="grid gap-3 md:grid-cols-4">
-              {(
-                [
-                  ["preliminaries_pct", "Preliminaries %"],
-                  ["overhead_profit_pct", "Overhead & profit %"],
-                  ["contingency_pct", "Contingency %"],
-                  ["retention_pct", "Retention %"],
-                  ["waste_allowance_pct", "Waste allowance %"],
-                ] as const
-              ).map(([key, label]) => (
-                <div key={key}>
-                  <label className={LABEL}>{label}</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    className={FIELD}
-                    value={doc.commercials[key]}
-                    onChange={(e) =>
-                      patch({
-                        commercials: {
-                          ...doc.commercials,
-                          [key]: Number(e.target.value) || 0,
-                        },
-                      })
-                    }
-                  />
+            {doc.mode === "market_survey" ? (
+              <>
+                <p className="text-sm text-slate-600">
+                  Collect a rate for each line in the market and enter it
+                  against the item. Preliminaries, overhead, contingency,
+                  retention and tax do not apply, so the total is the sum of the
+                  collected prices.
+                </p>
+                <div className="mt-3 grid gap-3 md:grid-cols-3">
+                  <div>
+                    <label className={LABEL}>Market or city</label>
+                    <input
+                      className={FIELD}
+                      value={doc.survey.market_city}
+                      onChange={(e) =>
+                        patch({
+                          survey: {
+                            ...doc.survey,
+                            market_city: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className={LABEL}>Survey date</label>
+                    <input
+                      type="date"
+                      className={FIELD}
+                      value={doc.survey.survey_date}
+                      onChange={(e) =>
+                        patch({
+                          survey: {
+                            ...doc.survey,
+                            survey_date: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className={LABEL}>Surveyed by</label>
+                    <input
+                      className={FIELD}
+                      value={doc.survey.surveyed_by}
+                      onChange={(e) =>
+                        patch({
+                          survey: {
+                            ...doc.survey,
+                            surveyed_by: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </div>
                 </div>
-              ))}
-              <div>
-                <label className={LABEL}>Tax % (blank = none)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  className={FIELD}
-                  value={doc.commercials.tax_pct ?? ""}
-                  onChange={(e) =>
-                    patch({
-                      commercials: {
-                        ...doc.commercials,
-                        tax_pct:
-                          e.target.value === "" ? null : Number(e.target.value),
-                      },
-                    })
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="mt-4 space-y-1 text-sm">
-              {compiled &&
-                (
-                  [
-                    [
-                      "Measured works",
-                      compiled.standard.summary.measuredWorksTotal,
-                    ],
-                    [
-                      "Preliminaries",
-                      compiled.standard.summary.preliminariesAmount,
-                    ],
-                    [
-                      "Overhead & profit",
-                      compiled.standard.summary.overheadProfitAmount,
-                    ],
-                    [
-                      "Contingency",
-                      compiled.standard.summary.contingencyAmount,
-                    ],
-                    [
-                      "Subtotal before tax",
-                      compiled.standard.summary.subtotalBeforeTax,
-                    ],
-                    [
-                      compiled.standard.summary.taxCategory,
-                      compiled.standard.summary.taxAmount,
-                    ],
-                    ["Gross total", compiled.standard.summary.grossTotal],
-                    ["Retention", compiled.standard.summary.retentionAmount],
-                    ["Net payable", compiled.standard.summary.netPayableTotal],
-                  ] as Array<[string, number]>
-                ).map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="flex justify-between border-b border-slate-50 py-1"
-                  >
-                    <span className="text-slate-600">{label}</span>
+                <div className="mt-4 space-y-1 text-sm">
+                  {compiled &&
+                    (
+                      [
+                        ["Measured lines", compiled.survey.lines],
+                        ["Lines priced", compiled.survey.priced_lines],
+                        [
+                          "Lines awaiting a market rate",
+                          compiled.survey.unpriced_lines,
+                        ],
+                      ] as Array<[string, number]>
+                    ).map(([label, value]) => (
+                      <div
+                        key={label}
+                        className="flex justify-between border-b border-slate-50 py-1"
+                      >
+                        <span className="text-slate-600">{label}</span>
+                        <span className="font-medium text-slate-900">
+                          {value}
+                        </span>
+                      </div>
+                    ))}
+                  <div className="flex justify-between border-b border-slate-100 py-1">
+                    <span className="text-slate-600">Rates captured</span>
                     <span className="font-medium text-slate-900">
-                      {money(value)}
+                      {compiled ? compiled.survey.priced_pct : 0}%
                     </span>
                   </div>
-                ))}
-            </div>
+                  <div className="flex justify-between py-1">
+                    <span className="font-semibold text-slate-900">
+                      Market total
+                    </span>
+                    <span className="font-semibold text-slate-900">
+                      {money(compiled ? compiled.survey.market_total : 0)}
+                    </span>
+                  </div>
+                </div>
+                {compiled && compiled.survey.priced_lines > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleConvertToPriced}
+                    className="mt-3 h-9 rounded-lg bg-slate-900 px-3 text-xs font-semibold text-white transition hover:bg-slate-800"
+                  >
+                    Convert to priced quote
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="grid gap-3 md:grid-cols-4">
+                  {(
+                    [
+                      ["preliminaries_pct", "Preliminaries %"],
+                      ["overhead_profit_pct", "Overhead & profit %"],
+                      ["contingency_pct", "Contingency %"],
+                      ["retention_pct", "Retention %"],
+                      ["waste_allowance_pct", "Waste allowance %"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <div key={key}>
+                      <label className={LABEL}>{label}</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className={FIELD}
+                        value={doc.commercials[key]}
+                        onChange={(e) =>
+                          patch({
+                            commercials: {
+                              ...doc.commercials,
+                              [key]: Number(e.target.value) || 0,
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                  ))}
+                  <div>
+                    <label className={LABEL}>Tax % (blank = none)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      className={FIELD}
+                      value={doc.commercials.tax_pct ?? ""}
+                      onChange={(e) =>
+                        patch({
+                          commercials: {
+                            ...doc.commercials,
+                            tax_pct:
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value),
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4 space-y-1 text-sm">
+                  {compiled &&
+                    (
+                      [
+                        [
+                          "Measured works",
+                          compiled.standard.summary.measuredWorksTotal,
+                        ],
+                        [
+                          "Preliminaries",
+                          compiled.standard.summary.preliminariesAmount,
+                        ],
+                        [
+                          "Overhead & profit",
+                          compiled.standard.summary.overheadProfitAmount,
+                        ],
+                        [
+                          "Contingency",
+                          compiled.standard.summary.contingencyAmount,
+                        ],
+                        [
+                          "Subtotal before tax",
+                          compiled.standard.summary.subtotalBeforeTax,
+                        ],
+                        [
+                          compiled.standard.summary.taxCategory,
+                          compiled.standard.summary.taxAmount,
+                        ],
+                        ["Gross total", compiled.standard.summary.grossTotal],
+                        [
+                          "Retention",
+                          compiled.standard.summary.retentionAmount,
+                        ],
+                        [
+                          "Net payable",
+                          compiled.standard.summary.netPayableTotal,
+                        ],
+                      ] as Array<[string, number]>
+                    ).map(([label, value]) => (
+                      <div
+                        key={label}
+                        className="flex justify-between border-b border-slate-50 py-1"
+                      >
+                        <span className="text-slate-600">{label}</span>
+                        <span className="font-medium text-slate-900">
+                          {money(value)}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </>
+            )}
           </section>
 
           <section className={CARD}>

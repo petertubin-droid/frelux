@@ -219,3 +219,89 @@ describe("currency and tax presentation", () => {
     expect(taxLabelFor("ZZ")).toBe("VAT");
   });
 });
+
+describe("compileBoq: market survey quote", () => {
+  const commercials = {
+    preliminaries_pct: 5,
+    overhead_profit_pct: 10,
+    contingency_pct: 5,
+    retention_pct: 5,
+    waste_allowance_pct: 0,
+    tax_pct: 7.5,
+  };
+  const surveyDoc = (over: Partial<BoqStudioDocument> = {}) =>
+    baseDoc({ mode: "market_survey", commercials, ...over });
+
+  it("applies no commercial additions in survey mode", () => {
+    const priced = compileBoq(baseDoc({ commercials }));
+    const survey = compileBoq(surveyDoc());
+    expect(survey.standard.summary.measuredWorksTotal).toBe(
+      priced.standard.summary.measuredWorksTotal,
+    );
+    expect(survey.standard.summary.preliminariesAmount).toBe(0);
+    expect(survey.standard.summary.overheadProfitAmount).toBe(0);
+    expect(survey.standard.summary.contingencyAmount).toBe(0);
+    expect(survey.standard.summary.retentionAmount).toBe(0);
+    expect(survey.standard.summary.taxAmount).toBe(0);
+    expect(survey.standard.summary.grossTotal).toBe(
+      survey.standard.summary.measuredWorksTotal,
+    );
+    // The priced document with the same rates does carry them.
+    expect(priced.standard.summary.grossTotal).toBeGreaterThan(
+      priced.standard.summary.measuredWorksTotal,
+    );
+  });
+
+  it("reports the survey pricing state", () => {
+    const survey = compileBoq(surveyDoc());
+    expect(survey.survey.is_survey).toBe(true);
+    expect(survey.survey.lines).toBe(2);
+    expect(survey.survey.priced_lines).toBe(2);
+    expect(survey.survey.unpriced_lines).toBe(0);
+    expect(survey.survey.market_total).toBe(
+      survey.standard.summary.measuredWorksTotal,
+    );
+    expect(survey.survey.complete).toBe(true);
+  });
+
+  it("treats unpriced lines as expected and stays exportable", () => {
+    const survey = compileBoq(
+      surveyDoc({
+        sections: [
+          {
+            id: "s1",
+            code: "05",
+            title: "Concrete Works",
+            notes: "",
+            items: [item({ material_rate: 0, labour_rate: 0, plant_rate: 0 })],
+          },
+        ],
+      }),
+    );
+    expect(survey.warnings.blocking).toHaveLength(0);
+    expect(survey.survey.unpriced_lines).toBe(1);
+    expect(survey.survey.complete).toBe(false);
+    expect(survey.standard.summary.grossTotal).toBe(0);
+    expect(
+      survey.warnings.advisory.some((w) => w.includes("market survey")),
+    ).toBe(true);
+  });
+
+  it("advises converting once every line carries a market rate", () => {
+    const survey = compileBoq(surveyDoc());
+    expect(
+      survey.warnings.advisory.some((w) =>
+        w.includes("Convert it to a priced quote"),
+      ),
+    ).toBe(true);
+  });
+
+  it("treats a stored document with no mode as a priced quote", () => {
+    const legacy = baseDoc({ commercials });
+    const withoutMode = { ...legacy } as Partial<BoqStudioDocument>;
+    delete withoutMode.mode;
+    const compiled = compileBoq(withoutMode as BoqStudioDocument);
+    expect(compiled.survey.is_survey).toBe(false);
+    expect(compiled.standard.summary.taxAmount).toBeGreaterThan(0);
+  });
+});
