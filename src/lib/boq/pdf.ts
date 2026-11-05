@@ -400,9 +400,14 @@ export async function downloadBoqPdf(
   const safe = (studio.reference || studio.title || "boq")
     .replace(/[^a-z0-9-_]+/gi, "-")
     .replace(/^-+|-+$/g, "");
-  await saveSealedPdf(doc, `${safe || "boq"}-R${studio.revision}.pdf`, {
-    title: `BOQ ${studio.reference || studio.title}`,
-    subject: `Revision ${studio.revision}`,
-    reference: studio.reference,
-  });
+  const modeSuffix = studio.mode === "market_survey" ? "-market-survey" : "";
+  await saveSealedPdf(
+    doc,
+    `${safe || "boq"}-R${studio.revision}${modeSuffix}.pdf`,
+    {
+      title: `BOQ ${studio.reference || studio.title}`,
+      subject: `Revision ${studio.revision}`,
+      reference: studio.reference,
+    },
+  );
 }

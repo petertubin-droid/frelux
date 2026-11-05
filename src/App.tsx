@@ -132,6 +132,7 @@ const PaintColorDetail = lazy(() => import("@/pages/PaintColorDetail"));
 const CompareColors = lazy(() => import("@/pages/CompareColors"));
 const MyProjects = lazy(() => import("@/pages/MyProjects"));
 const SharedProject = lazy(() => import("@/pages/SharedProject"));
+const QuoteShare = lazy(() => import("@/pages/QuoteShare"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const Pricing = lazy(() => import("@/pages/Pricing"));
@@ -140,9 +141,13 @@ const DataRequest = lazy(() => import("@/pages/legal/DataRequest"));
 const BrandStudio = lazy(() => import("@/pages/BrandStudio"));
 const DocumentStudio = lazy(() => import("@/pages/DocumentStudio"));
 const BuildToRoofEstimator = lazy(() => import("@/pages/BuildToRoofEstimator"));
-const MathematicalPlanElevation = lazy(() => import("@/pages/MathematicalPlanElevation"));
+const MathematicalPlanElevation = lazy(
+  () => import("@/pages/MathematicalPlanElevation"),
+);
 const TvConsoleCalculator = lazy(() => import("@/pages/TvConsoleCalculator"));
-const TallBuildingCalculator = lazy(() => import("@/pages/TallBuildingCalculator"));
+const TallBuildingCalculator = lazy(
+  () => import("@/pages/TallBuildingCalculator"),
+);
 const ImageEstimator = lazy(() => import("@/pages/ImageEstimator"));
 const VisualFinishingEstimator = lazy(
   () => import("@/pages/VisualFinishingEstimator"),
@@ -1301,6 +1306,15 @@ export default function App() {
                           element={
                             <Suspense fallback={<PageLoader />}>
                               <SharedProject />
+                            </Suspense>
+                          }
+                        />
+
+                        <Route
+                          path="/quote/:token"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <QuoteShare />
                             </Suspense>
                           }
                         />

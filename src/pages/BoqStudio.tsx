@@ -9,6 +9,14 @@ import { formatByCode } from "@/lib/international/currency-format";
 import type { BoqStandard } from "@/lib/finance/boq-standard";
 import { convertSurveyToPriced } from "@/lib/boq/survey";
 import {
+  buildQuoteShareMessage,
+  buildQuoteShareSnapshot,
+  quoteShareHeading,
+  quoteShareUrl,
+  type QuoteShareSnapshot,
+} from "@/lib/boq/share";
+import { createQuoteShare, revokeQuoteShare } from "@/lib/boq/share-queries";
+import {
   compileBoq,
   documentStatusLabel,
   itemAmount,
@@ -73,6 +81,11 @@ export default function BoqStudio() {
   const [documentId, setDocumentId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [shareBusy, setShareBusy] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
+  const [shareSnapshot, setShareSnapshot] = useState<QuoteShareSnapshot | null>(
+    null,
+  );
   const [importPreviews, setImportPreviews] = useState<ImportPreview[]>([]);
   const [selectedImports, setSelectedImports] = useState<
     Record<string, boolean>
@@ -347,6 +360,55 @@ export default function BoqStudio() {
   const exportPrint = () => {
     if (!compiled || !guardExport()) return;
     openBoqPrint(compiled.standard, compiled.document);
+  };
+
+  const shareQuotation = async () => {
+    if (!doc || !compiled || !guardExport()) return;
+    if (!documentId) {
+      toast.error(
+        "Save the document first, so the link points at a stored quotation.",
+      );
+      return;
+    }
+    setShareBusy(true);
+    try {
+      const snapshot = buildQuoteShareSnapshot(compiled);
+      const { token, error } = await createQuoteShare({
+        documentId,
+        snapshot,
+      });
+      if (error || !token) {
+        throw new Error(error ?? "Could not create the share link.");
+      }
+      setShareToken(token);
+      setShareSnapshot(snapshot);
+      toast.success("Share link created.");
+    } catch (error) {
+      toast.error(getSafeError(error));
+    } finally {
+      setShareBusy(false);
+    }
+  };
+
+  const copyShareLink = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied.");
+    } catch {
+      toast.error("Copy failed. Select the link and copy it manually.");
+    }
+  };
+
+  const revokeShareLink = async () => {
+    if (!shareToken) return;
+    const { error } = await revokeQuoteShare(shareToken);
+    if (error) {
+      toast.error(getSafeError(error));
+      return;
+    }
+    setShareToken(null);
+    setShareSnapshot(null);
+    toast.success("Share link revoked. The link no longer opens.");
   };
 
   const money = (value: number) =>
@@ -1253,6 +1315,92 @@ export default function BoqStudio() {
               reference, prepared date, currency, measurement units,
               assumptions, exclusions, revision and page numbers.
             </p>
+          </section>
+
+          <section className={CARD}>
+            <h2 className="mb-2 text-sm font-semibold text-slate-900">
+              Share as quotation
+            </h2>
+            <p className="text-xs text-slate-600">
+              {doc.mode === "market_survey"
+                ? "Sends the measured quantities with the rate columns blank, so the recipient can price them in the market and total them."
+                : "Sends the priced quotation with its totals, sealed as a snapshot that later edits cannot change."}{" "}
+              The link can be revoked at any time.
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => void shareQuotation()}
+                disabled={shareBusy || !documentId}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+              >
+                {shareBusy
+                  ? "Creating link…"
+                  : shareToken
+                    ? "Create another link"
+                    : "Create share link"}
+              </button>
+              {!documentId && (
+                <span className="text-xs text-amber-700">
+                  Save the document to enable sharing.
+                </span>
+              )}
+            </div>
+            {shareToken && shareSnapshot && (
+              <div className="mt-3 space-y-2">
+                <input
+                  readOnly
+                  value={quoteShareUrl(shareToken)}
+                  onFocus={(event) => event.currentTarget.select()}
+                  className={FIELD}
+                  aria-label="Share link"
+                />
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void copyShareLink(quoteShareUrl(shareToken))
+                    }
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50"
+                  >
+                    Copy link
+                  </button>
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      buildQuoteShareMessage(
+                        shareSnapshot,
+                        quoteShareUrl(shareToken),
+                      ),
+                    )}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50"
+                  >
+                    WhatsApp
+                  </a>
+                  <a
+                    href={`mailto:?subject=${encodeURIComponent(
+                      `${quoteShareHeading(doc.mode)} ${doc.reference || doc.title}`,
+                    )}&body=${encodeURIComponent(
+                      buildQuoteShareMessage(
+                        shareSnapshot,
+                        quoteShareUrl(shareToken),
+                      ),
+                    )}`}
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50"
+                  >
+                    Email
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => void revokeShareLink()}
+                    className="rounded-lg border border-rose-300 px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                  >
+                    Revoke link
+                  </button>
+                </div>
+              </div>
+            )}
           </section>
 
           <section className={CARD}>
