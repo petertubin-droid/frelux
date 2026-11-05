@@ -101,6 +101,19 @@ afterAll(() => {
 const has = (suffix: string) => urls.some((u) => u.endsWith(suffix));
 
 describe("sitemap coverage", () => {
+  it("lists every tool category the catalogue declares", async () => {
+    const { TOOL_CATEGORIES } = await import("@/config/construction-tools");
+    const missing = TOOL_CATEGORIES.map((c) => `/tools/${c.id}/`).filter(
+      (path) => !has(path),
+    );
+    expect(missing).toEqual([]);
+  });
+
+  it("lists the window blind calculator inside its category", () => {
+    expect(has("/window-blind-calculator/")).toBe(true);
+    expect(has("/tools/interiors/")).toBe(true);
+  });
+
   it("lists the global markets index", () => {
     expect(has("/global-markets/")).toBe(true);
   });
