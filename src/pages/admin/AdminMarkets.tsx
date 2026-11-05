@@ -48,6 +48,7 @@ import {
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type Tab = "profiles" | "rules" | "calculators" | "typologies";
 
@@ -58,12 +59,10 @@ export default function AdminMarkets() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center gap-3">
-        <Globe aria-hidden="true" className="h-6 w-6 text-brand-purple" />
-        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          {t("International Markets")}
-        </h1>
-      </div>
+      <AdminPageHeader
+        eyebrow={t("Markets")}
+        title={t("International Markets")}
+      />
 
       {/* Market selector */}
       <div className="mb-6">

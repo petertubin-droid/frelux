@@ -25,8 +25,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
 import { getSafeError } from "@/lib/safeError";
-import { Globe2, RefreshCw, PlayCircle, Plus } from "lucide-react";
+import { RefreshCw, PlayCircle, Plus } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 interface ScanRun {
   id: string;
@@ -266,14 +267,10 @@ export default function AdminPricePipeline() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold">
-            <Globe2 className="h-6 w-6" /> {t("Price Pipeline")}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Recurring price-intelligence runs, sourced market rankings, and scan
-            failures. Scans only file candidates for review — prices never
-            change without an explicit admin approval.
-          </p>
+          <AdminPageHeader
+            title={t("Price Pipeline")}
+            description="Recurring price intelligence runs, sourced market rankings, and scan failures. Scans only file candidates for review. Prices never change without an explicit admin approval."
+          />
         </div>
         <button
           onClick={load}

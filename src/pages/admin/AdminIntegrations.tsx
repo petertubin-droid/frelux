@@ -24,6 +24,7 @@ import { AdminButton, StatusBadge } from "@/components/admin/AdminUi";
 import { SITE_URL } from "@/lib/seo";
 import { ProviderKeyCards } from "@/components/admin/ProviderKeyCards";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 const SUPABASE_FUNCTIONS_URL = import.meta.env.VITE_SUPABASE_URL
   ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
@@ -328,14 +329,16 @@ export default function AdminIntegrations() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">
-          {t("Integration Center")}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Configure and manage third-party integrations. Toggle each integration
-          on, enter your credentials, and save. Changes take effect on the next
-          page load.
-        </p>
+        <AdminPageHeader
+          title={t("Integration Center")}
+          description={
+            <>
+              Configure and manage third-party integrations. Toggle each
+              integration on, enter your credentials, and save. Changes take
+              effect on the next page load.
+            </>
+          }
+        />
       </div>
 
       {/* External provider API key slots (Resend, OpenWeather, FX) */}

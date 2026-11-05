@@ -1,6 +1,7 @@
 import { Edit } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 const CONDITIONS = [
   {
@@ -41,11 +42,15 @@ export default function AdminSurfaceConditions() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{t("Surface Conditions")}</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage configurable surface condition options and their preparation
-          recommendations.
-        </p>
+        <AdminPageHeader
+          title={t("Surface Conditions")}
+          description={
+            <>
+              Manage configurable surface condition options and their
+              preparation recommendations.
+            </>
+          }
+        />
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {CONDITIONS.map((c) => (

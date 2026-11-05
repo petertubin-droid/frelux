@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/shadcn/button";
 import tracker from "@/config/seo-tracker.json";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 /**
  * Search performance and listing-change tracker.
@@ -16,14 +17,25 @@ import tracker from "@/config/seo-tracker.json";
  *    instead of drawing an empty chart.
  */
 
-type GscRow = { key: string; clicks: number; impressions: number; ctr: number; position: number };
+type GscRow = {
+  key: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+};
 type GscResponse = {
   connected: boolean;
   property?: string;
   reason?: string;
   setup?: string;
   rows?: GscRow[];
-  totals?: { clicks: number; impressions: number; ctr: number; position: number };
+  totals?: {
+    clicks: number;
+    impressions: number;
+    ctr: number;
+    position: number;
+  };
   startDate?: string;
   endDate?: string;
 };
@@ -50,26 +62,33 @@ const pct = (v: number) => `${(v * 100).toFixed(2)}%`;
 export default function SeoPerformance() {
   const { user, isAdmin, loading } = useAuth();
   const [state, setState] = useState<State>({ kind: "idle" });
-  const [filter, setFilter] = useState<"all" | "tool" | "market-template" | "colour" | "article">("all");
+  const [filter, setFilter] = useState<
+    "all" | "tool" | "market-template" | "colour" | "article"
+  >("all");
 
   useSeo({
     title: "SEO Performance | FRELUX",
-    description: "Search Console performance and the listing-change tracker for freluxtools.com.",
+    description:
+      "Search Console performance and the listing-change tracker for freluxtools.com.",
     canonicalPath: "/admin/seo-performance",
     noIndex: true,
   });
 
   const entries = tracker.entries as TrackerEntry[];
   const filtered = useMemo(
-    () => (filter === "all" ? entries : entries.filter((e) => e.pageType === filter)),
+    () =>
+      filter === "all" ? entries : entries.filter((e) => e.pageType === filter),
     [entries, filter],
   );
 
   async function load() {
     setState({ kind: "loading" });
-    const { data, error } = await supabase.functions.invoke("seo-search-console", {
-      body: { action: "query", dimensions: ["query"], rowLimit: 50 },
-    });
+    const { data, error } = await supabase.functions.invoke(
+      "seo-search-console",
+      {
+        body: { action: "query", dimensions: ["query"], rowLimit: 50 },
+      },
+    );
     if (error) {
       setState({ kind: "ready", gsc: null, failure: error.message });
       return;
@@ -77,12 +96,23 @@ export default function SeoPerformance() {
     setState({ kind: "ready", gsc: data as GscResponse, failure: null });
   }
 
-  if (loading) return <div className="mx-auto max-w-6xl px-4 py-16 text-sm text-muted-foreground">Checking access…</div>;
+  if (loading)
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-16 text-sm text-muted-foreground">
+        Checking access…
+      </div>
+    );
   if (!user || !isAdmin) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16">
-        <h1 className="text-xl font-semibold text-foreground">Administrators only</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Sign in with an administrator account to view search performance.</p>
+        <AdminPageHeader
+          title={"Administrators only"}
+          description={
+            <>
+              Sign in with an administrator account to view search performance.
+            </>
+          }
+        />
       </div>
     );
   }
@@ -91,40 +121,60 @@ export default function SeoPerformance() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-foreground">SEO performance</h1>
-      <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-        Live Search Console data for <span className="font-medium text-foreground">freluxtools.com</span>, plus a
-        record of every search listing that changed and when. Nothing on this page is estimated.
-      </p>
+      <AdminPageHeader
+        eyebrow="Administration"
+        title="SEO performance"
+        description={
+          <>
+            Live Search Console data for{" "}
+            <span className="font-medium text-foreground">freluxtools.com</span>
+            , plus a record of every search listing that changed and when.
+            Nothing on this page is estimated.
+          </>
+        }
+      />
 
       <section className="mt-8 rounded-lg border border-border p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-medium text-foreground">Search Console (last 28 days)</h2>
+          <h2 className="text-lg font-medium text-foreground">
+            Search Console (last 28 days)
+          </h2>
           <Button size="sm" onClick={load} disabled={state.kind === "loading"}>
-            {state.kind === "loading" ? "Reading Google…" : gsc?.connected ? "Refresh" : "Connect and read"}
+            {state.kind === "loading"
+              ? "Reading Google…"
+              : gsc?.connected
+                ? "Refresh"
+                : "Connect and read"}
           </Button>
         </div>
 
         {state.kind === "idle" && (
           <p className="mt-3 text-sm text-muted-foreground">
-            Not read yet. This calls Google directly; nothing is cached or filled in.
+            Not read yet. This calls Google directly; nothing is cached or
+            filled in.
           </p>
         )}
 
         {state.kind === "ready" && (state.failure || !gsc?.connected) && (
           <div className="mt-3 rounded-md border border-amber-500/40 bg-amber-500/5 p-4 text-sm">
-            <p className="font-medium text-foreground">Search Console is not returning data</p>
+            <p className="font-medium text-foreground">
+              Search Console is not returning data
+            </p>
             <p className="mt-1 text-muted-foreground">
-              {(gsc?.reason ?? state.failure ?? "unknown") === "property_not_in_account"
+              {(gsc?.reason ?? state.failure ?? "unknown") ===
+              "property_not_in_account"
                 ? "The connected Google account cannot see this property. Add that account as a user on the property, or connect the account that owns it."
                 : gsc?.reason === "no_credential"
                   ? "The edge function has no Search Console credential configured."
                   : `Google rejected the request (${gsc?.reason ?? state.failure}).`}
             </p>
-            {gsc?.setup && <p className="mt-2 text-xs text-muted-foreground">{gsc.setup}</p>}
+            {gsc?.setup && (
+              <p className="mt-2 text-xs text-muted-foreground">{gsc.setup}</p>
+            )}
             <p className="mt-3 text-xs text-muted-foreground">
-              Baseline supplied by the owner for the previous 28 days: 3,930 impressions, 16 clicks, 0.40% CTR,
-              average position 26.2. Those figures are historical and are not live data.
+              Baseline supplied by the owner for the previous 28 days: 3,930
+              impressions, 16 clicks, 0.40% CTR, average position 26.2. Those
+              figures are historical and are not live data.
             </p>
           </div>
         )}
@@ -141,9 +191,16 @@ export default function SeoPerformance() {
                 ["CTR", pct(gsc.totals.ctr)],
                 ["Avg position", gsc.totals.position.toFixed(1)],
               ].map(([label, value]) => (
-                <div key={label} className="rounded-md border border-border p-3">
-                  <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
-                  <dd className="mt-1 text-xl font-semibold text-foreground">{value}</dd>
+                <div
+                  key={label}
+                  className="rounded-md border border-border p-3"
+                >
+                  <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {label}
+                  </dt>
+                  <dd className="mt-1 text-xl font-semibold text-foreground">
+                    {value}
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -162,16 +219,26 @@ export default function SeoPerformance() {
                   {(gsc.rows ?? []).map((r) => (
                     <tr key={r.key} className="border-t border-border">
                       <td className="py-2 pr-4 text-foreground">{r.key}</td>
-                      <td className="py-2 pr-4 text-muted-foreground">{r.impressions.toLocaleString()}</td>
-                      <td className="py-2 pr-4 text-muted-foreground">{r.clicks.toLocaleString()}</td>
-                      <td className="py-2 pr-4 text-muted-foreground">{pct(r.ctr)}</td>
-                      <td className="py-2 text-muted-foreground">{r.position.toFixed(1)}</td>
+                      <td className="py-2 pr-4 text-muted-foreground">
+                        {r.impressions.toLocaleString()}
+                      </td>
+                      <td className="py-2 pr-4 text-muted-foreground">
+                        {r.clicks.toLocaleString()}
+                      </td>
+                      <td className="py-2 pr-4 text-muted-foreground">
+                        {pct(r.ctr)}
+                      </td>
+                      <td className="py-2 text-muted-foreground">
+                        {r.position.toFixed(1)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               {!gsc.rows?.length && (
-                <p className="py-4 text-sm text-muted-foreground">Google returned no rows for this range.</p>
+                <p className="py-4 text-sm text-muted-foreground">
+                  Google returned no rows for this range.
+                </p>
               )}
             </div>
           </>
@@ -184,7 +251,9 @@ export default function SeoPerformance() {
             Listing changes ({entries.length} pages)
           </h2>
           <div className="flex flex-wrap gap-2">
-            {(["all", "tool", "market-template", "colour", "article"] as const).map((key) => (
+            {(
+              ["all", "tool", "market-template", "colour", "article"] as const
+            ).map((key) => (
               <Button
                 key={key}
                 size="sm"
@@ -212,28 +281,47 @@ export default function SeoPerformance() {
               {filtered.map((e) => (
                 <tr key={e.path} className="border-t border-border align-top">
                   <td className="py-3 pr-4">
-                    <a href={e.path} className="font-medium text-foreground underline-offset-2 hover:underline">
+                    <a
+                      href={e.path}
+                      className="font-medium text-foreground underline-offset-2 hover:underline"
+                    >
                       {e.path}
                     </a>
-                    <div className="text-xs text-muted-foreground">{e.pageType}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {e.pageType}
+                    </div>
                   </td>
                   <td className="max-w-xs py-3 pr-4 text-xs text-muted-foreground">
-                    <div className="font-medium text-foreground">{e.oldTitle || "(no title)"}</div>
-                    <div className="mt-1">{e.oldDescription || "(no description)"}</div>
+                    <div className="font-medium text-foreground">
+                      {e.oldTitle || "(no title)"}
+                    </div>
+                    <div className="mt-1">
+                      {e.oldDescription || "(no description)"}
+                    </div>
                   </td>
                   <td className="max-w-xs py-3 pr-4 text-xs">
-                    <div className="font-medium text-foreground">{e.newTitle}</div>
-                    <div className="mt-1 text-muted-foreground">{e.newDescription}</div>
+                    <div className="font-medium text-foreground">
+                      {e.newTitle}
+                    </div>
+                    <div className="mt-1 text-muted-foreground">
+                      {e.newDescription}
+                    </div>
                   </td>
                   <td className="py-3 text-xs">
                     <div className="text-foreground">{e.status}</div>
-                    <div className="text-muted-foreground">{e.implementedAt}</div>
+                    <div className="text-muted-foreground">
+                      {e.implementedAt}
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {!filtered.length && <p className="py-6 text-sm text-muted-foreground">No changes recorded for this filter.</p>}
+          {!filtered.length && (
+            <p className="py-6 text-sm text-muted-foreground">
+              No changes recorded for this filter.
+            </p>
+          )}
         </div>
       </section>
     </div>

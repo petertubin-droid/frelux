@@ -11,6 +11,7 @@ import type { DbCaseStudy } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { CATEGORY_LABELS } from "@/lib/case-study-labels";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 // Admin: curate before/after case studies from approved gallery
 // entries (workspace item 9). One case study per gallery entry;
@@ -95,13 +96,15 @@ export default function AdminCaseStudies() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground">
-        {t("Case Studies")}
-      </h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Build editorial before/after case studies on top of approved gallery
-        entries. Publishing requires the entry to stay approved and public.
-      </p>
+      <AdminPageHeader
+        title={t("Case Studies")}
+        description={
+          <>
+            Build editorial before/after case studies on top of approved gallery
+            entries. Publishing requires the entry to stay approved and public.
+          </>
+        }
+      />
 
       {error && (
         <div className="mt-4 rounded-lg bg-destructive/10 p-4">

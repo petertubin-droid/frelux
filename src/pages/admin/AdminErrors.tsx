@@ -5,6 +5,7 @@ import { formatNumber } from "@/lib/utils";
 import { AdminButton, AdminTabButton } from "@/components/admin/AdminUi";
 import AdminPagination from "@/components/admin/AdminPagination";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 interface ErrorLog {
   id: string;
@@ -139,23 +140,21 @@ export default function AdminErrors() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-            {t("Error Monitor")}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-            {t("Runtime errors and exceptions logged from the frontend")}
-          </p>
-        </div>
-        <AdminButton
-          variant="secondary"
-          onClick={resolveAll}
-          disabled={stats.unresolved === 0}
-        >
-          Resolve all ({stats.unresolved})
-        </AdminButton>
-      </div>
+      <AdminPageHeader
+        title={t("Error Monitor")}
+        description={t(
+          "Runtime errors and exceptions logged from the frontend",
+        )}
+        actions={
+          <AdminButton
+            variant="secondary"
+            onClick={resolveAll}
+            disabled={stats.unresolved === 0}
+          >
+            Resolve all ({stats.unresolved})
+          </AdminButton>
+        }
+      />
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

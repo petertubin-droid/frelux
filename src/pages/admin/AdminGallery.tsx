@@ -12,6 +12,7 @@ import type { DbGalleryEntry } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import AdminPagination from "@/components/admin/AdminPagination";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 const STATUS_BADGE: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-600 border-amber-500/20",
@@ -91,14 +92,12 @@ export default function AdminGallery() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{t("Gallery Moderation")}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("Review, approve, and feature community project submissions.")}
-          </p>
-        </div>
-      </div>
+      <AdminPageHeader
+        title={t("Gallery Moderation")}
+        description={t(
+          "Review, approve, and feature community project submissions.",
+        )}
+      />
       {/* Filter */}
       <div className="flex gap-2">
         {["pending", "approved", "rejected", "featured", "all"].map((s) => (

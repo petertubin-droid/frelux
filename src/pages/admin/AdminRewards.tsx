@@ -29,6 +29,7 @@ import {
 } from "@/lib/credits";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 export default function AdminRewards() {
   const { t: tr } = useLanguage();
@@ -214,9 +215,7 @@ export default function AdminRewards() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-foreground dark:text-primary-foreground">
-        {tr("FRELUX Credits & Rewards")}
-      </h1>
+      <AdminPageHeader title={tr("FRELUX Credits & Rewards")} />
 
       {/* Tabs */}
       <div className="mb-6 flex gap-2 border-b border-border dark:border-white/5">

@@ -8,6 +8,7 @@ import {
 import type { DbPaintComparison } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 export default function AdminPaintComparison() {
   const { t } = useLanguage();
@@ -81,26 +82,23 @@ export default function AdminPaintComparison() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{t("Paint Comparison")}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("Manage paint comparison data shown on the comparison page.")}
-          </p>
-        </div>
-        <Button
-          variant="ghost"
-          onClick={() => {
-            setForm(empty);
-            setEditing(null);
-            setShowForm(true);
-          }}
-          className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all"
-        >
-          <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform" />{" "}
-          Add Paint Type
-        </Button>
-      </div>
+      <AdminPageHeader
+        title={t("Paint Comparison")}
+        description={t(
+          "Manage paint comparison data shown on the comparison page.",
+        )}
+        actions={
+          <Button
+            onClick={() => {
+              setForm(empty);
+              setEditing(null);
+              setShowForm(true);
+            }}
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" /> Add Paint Type
+          </Button>
+        }
+      />
 
       {showForm && (
         <div

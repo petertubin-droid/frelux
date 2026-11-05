@@ -35,6 +35,7 @@ import {
   AdminTextarea,
   AdminTabButton,
 } from "@/components/admin/AdminUi";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 // ============================================================
 // Admin SEO & Location Management
@@ -49,9 +50,7 @@ export default function AdminSeoLocation() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-foreground dark:text-primary-foreground">
-        {t("SEO & Location Management")}
-      </h1>
+      <AdminPageHeader title={t("SEO & Location Management")} />
 
       <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">
         {(

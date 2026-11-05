@@ -81,6 +81,7 @@ import {
 } from "@/lib/engine-integration";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type Tab =
   | "materials"
@@ -113,15 +114,15 @@ export default function AdminEngineConfig() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center gap-3">
-        <Cpu className="h-6 w-6 text-brand-purple" />
-        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          {t("Engine Configuration")}
-        </h1>
-        <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">
-          {t("CONTROL LAYER")}
-        </span>
-      </div>
+      <AdminPageHeader
+        eyebrow={t("Construction engines")}
+        title={t("Engine Configuration")}
+        actions={
+          <span className="rounded-md border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("CONTROL LAYER")}
+          </span>
+        }
+      />
 
       <div className="mb-4 rounded-md bg-amber-50 px-4 py-2 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
         ⚠️ Nigeria (NG) is the only active market. Ghana (GH) and Kenya (KE)

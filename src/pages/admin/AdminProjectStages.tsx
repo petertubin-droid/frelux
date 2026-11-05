@@ -13,6 +13,7 @@ import { fetchStageTemplates } from "@/lib/project-intelligence";
 import type { DbProjectStageTemplate } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 export default function AdminProjectStages() {
   const { t } = useLanguage();
@@ -70,32 +71,27 @@ export default function AdminProjectStages() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{t("Project Stages")}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("Manage configurable project progress stage templates.")}
-          </p>
-        </div>
-        <Button
-          variant="ghost"
-          onClick={() => {
-            setForm({
-              stage_key: "",
-              stage_name: "",
-              description: "",
-              sort_order: stages.length + 1,
-              is_active: true,
-            });
-            setEditing(null);
-            setShowForm(true);
-          }}
-          className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all"
-        >
-          <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform" />{" "}
-          Add Stage
-        </Button>
-      </div>
+      <AdminPageHeader
+        title={t("Project Stages")}
+        description={t("Manage configurable project progress stage templates.")}
+        actions={
+          <Button
+            onClick={() => {
+              setForm({
+                stage_key: "",
+                stage_name: "",
+                description: "",
+                sort_order: stages.length + 1,
+                is_active: true,
+              });
+              setEditing(null);
+              setShowForm(true);
+            }}
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" /> Add Stage
+          </Button>
+        }
+      />
 
       {showForm && (
         <div

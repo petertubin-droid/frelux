@@ -21,7 +21,6 @@ import {
   Check,
   Ban,
   Server,
-  TrendingUp,
   Zap,
   Eye,
   Clock,
@@ -65,6 +64,7 @@ import { classNames } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type Tab =
   "providers" | "sources" | "observations" | "approved" | "anomalies" | "logs";
@@ -75,15 +75,15 @@ export default function AdminMarketIntelligence() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center gap-3">
-        <TrendingUp aria-hidden="true" className="h-6 w-6 text-brand-purple" />
-        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          {t("Market Intelligence")}
-        </h1>
-        <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">
-          {t("PRICE ENGINE")}
-        </span>
-      </div>
+      <AdminPageHeader
+        eyebrow={t("Price engine")}
+        title={t("Market Intelligence")}
+        actions={
+          <span className="rounded-md border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("PRICE ENGINE")}
+          </span>
+        }
+      />
 
       {/* Tabs */}
       <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">

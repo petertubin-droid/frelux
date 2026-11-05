@@ -39,6 +39,7 @@ import type {
   MacroElasticityRule,
   CommodityCategory,
 } from "@/types/hybrid-pricing";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 const SUPPORTED_MARKETS = [
   { code: "KE", name: "Kenya", currency: "KES", flag: "🇰🇪" },
@@ -133,19 +134,12 @@ export default function AdminMacroTracker() {
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Badge className="bg-indigo-600 text-white hover:bg-indigo-700">
-              {t("System A")}
-            </Badge>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-              {t("The Fluctuation Filter (Macro Tracker)")}
-            </h1>
-          </div>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Rule-based inflation & commodity filter protecting platform
-            estimation realness across 20+ countries.
-          </p>
+        <div className="min-w-0">
+          <AdminPageHeader
+            eyebrow={t("System A")}
+            title={t("The Fluctuation Filter (Macro Tracker)")}
+            description="Rule based inflation and commodity filter protecting platform estimation realness across 20+ countries."
+          />
         </div>
 
         {/* Market Selector Chips */}

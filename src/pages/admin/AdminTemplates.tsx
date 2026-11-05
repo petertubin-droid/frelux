@@ -30,6 +30,7 @@ import {
   AdminTextarea,
 } from "@/components/admin/AdminUi";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 const CALC_TYPES: CalculatorType[] = ["paint", "tile", "pop", "screeding"];
 
@@ -132,19 +133,17 @@ export default function AdminTemplates() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground dark:text-primary-foreground">
-            {tr("Calculator Templates")}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-            {tr("Manage public FRELUX templates and user-submitted templates.")}
-          </p>
-        </div>
-        <AdminButton onClick={() => setCreating(true)}>
-          <Plus aria-hidden="true" className="h-4 w-4" /> {tr("New Template")}
-        </AdminButton>
-      </div>
+      <AdminPageHeader
+        title={tr("Calculator Templates")}
+        description={tr(
+          "Manage public FRELUX templates and user-submitted templates.",
+        )}
+        actions={
+          <AdminButton onClick={() => setCreating(true)}>
+            <Plus aria-hidden="true" className="h-4 w-4" /> {tr("New Template")}
+          </AdminButton>
+        }
+      />
 
       {/* Search */}
       <div className="relative max-w-md">

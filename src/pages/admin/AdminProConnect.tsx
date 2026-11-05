@@ -67,6 +67,7 @@ import type {
 import { Button } from "@/components/ui/shadcn/button";
 import { CredentialReviewConsole } from "@/components/pro-connect/CredentialReviewConsole";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type Tab =
   | "professionals"
@@ -84,9 +85,7 @@ export default function AdminProConnect() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-foreground dark:text-primary-foreground">
-        {t("Pro Connect Management")}
-      </h1>
+      <AdminPageHeader title={t("Pro Connect Management")} />
 
       {/* Tabs */}
       <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">

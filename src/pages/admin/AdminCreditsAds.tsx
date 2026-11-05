@@ -45,6 +45,7 @@ import {
 import { Button } from "@/components/ui/shadcn/button";
 import { StatusBadge } from "@/components/admin/AdminUi";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type Tab =
   | "overview"
@@ -298,14 +299,16 @@ export default function AdminCreditsAds() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-foreground dark:text-primary-foreground">
-          {t("Credits & Rewarded Ads")}
-        </h1>
-        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-          {t(
-            "FRELUX Credits wallet, AI feature costs, and rewarded ad management.",
-          )}
-        </p>
+        <AdminPageHeader
+          title={t("Credits & Rewarded Ads")}
+          description={
+            <>
+              {t(
+                "FRELUX Credits wallet, AI feature costs, and rewarded ad management.",
+              )}
+            </>
+          }
+        />
       </div>
 
       {/* Stats */}

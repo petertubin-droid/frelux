@@ -9,6 +9,7 @@ import type { MaterialWithPrice } from "@/lib/project-intelligence";
 import type { DbMaterialPriceHistory } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 export default function AdminMaterialPrices() {
   const { t } = useLanguage();
@@ -57,23 +58,19 @@ export default function AdminMaterialPrices() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{t("Material Price Tracker")}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Manage current material prices. Price history is preserved
-            automatically.
-          </p>
-        </div>
-        <Button
-          variant="ghost"
-          onClick={loadHistory}
-          className="group inline-flex items-center gap-2 rounded-xl bg-muted px-4 py-2.5 text-sm font-medium hover:bg-muted/80 transition-all hover:scale-105"
-        >
-          <History className="h-4 w-4 group-hover:rotate-12 transition-transform" />{" "}
-          Price History
-        </Button>
-      </div>
+      <AdminPageHeader
+        title={t("Material Price Tracker")}
+        description="Manage current material prices. Price history is preserved automatically."
+        actions={
+          <Button
+            variant="ghost"
+            onClick={loadHistory}
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
+          >
+            <History className="h-4 w-4" aria-hidden="true" /> Price History
+          </Button>
+        }
+      />
 
       {loading && (
         <div className="flex justify-center py-12">

@@ -23,6 +23,7 @@ import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 // =========================================================
 // Types
@@ -274,26 +275,21 @@ export default function AdminAIAssistant() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
-            <Crown className="h-7 w-7 text-brand-purple" />
-            {t("AI Assistant")}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-            Powered by the Solas Superagent (Base44). Describe any issue and get
-            it fixed without leaving your admin.
-          </p>
-        </div>
-        <a
-          href={AGENT_CHAT_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          <ExternalLink className="h-4 w-4" /> {t("Open Solas Chat")}
-        </a>
-      </div>
+      <AdminPageHeader
+        title={t("AI Assistant")}
+        description="Powered by the Solas Superagent (Base44). Describe any issue and get it fixed without leaving your admin."
+        actions={
+          <a
+            href={AGENT_CHAT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <ExternalLink className="h-4 w-4" aria-hidden="true" />{" "}
+            {t("Open Solas Chat")}
+          </a>
+        }
+      />
 
       {/* Tab Navigation */}
       <div className="flex gap-1 border-b border-border dark:border-white/10">

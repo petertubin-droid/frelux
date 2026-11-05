@@ -34,6 +34,7 @@ import type {
   SupplierPlan,
   SupplierProfile,
 } from "@/lib/suppliers/types";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type VerificationEvent = {
   id: string;
@@ -175,13 +176,15 @@ export default function AdminSuppliers() {
     <div className="mx-auto w-full max-w-6xl p-4 sm:p-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">
-            Supplier network
-          </h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Verification decisions, moderation and complaints. Every action is
-            written to the supplier audit log.
-          </p>
+          <AdminPageHeader
+            title={"Supplier network"}
+            description={
+              <>
+                Verification decisions, moderation and complaints. Every action
+                is written to the supplier audit log.
+              </>
+            }
+          />
         </div>
         <Link to="/suppliers" className="text-sm text-sky-700 hover:underline">
           View public directory
