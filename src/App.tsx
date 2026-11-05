@@ -147,6 +147,9 @@ const VisualFinishingEstimator = lazy(
 const StructuralCalculator = lazy(() => import("@/pages/StructuralCalculator"));
 const ConcreteTakeoffPage = lazy(() => import("@/pages/ConcreteTakeoffPage"));
 const FenceBlockCalculator = lazy(() => import("@/pages/FenceBlockCalculator"));
+const WindowBlindsEstimator = lazy(
+  () => import("@/pages/WindowBlindsEstimator"),
+);
 const GermanFloorCalculator = lazy(
   () => import("@/pages/GermanFloorCalculator"),
 );
@@ -1098,6 +1101,14 @@ export default function App() {
                           element={
                             <Suspense fallback={<PageLoader />}>
                               <FenceBlockCalculator />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/window-blind-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <WindowBlindsEstimator />
                             </Suspense>
                           }
                         />

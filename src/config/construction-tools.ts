@@ -10,6 +10,7 @@ import {
   Droplets,
   Landmark,
   BrickWall,
+  Blinds,
   Cable,
   Zap,
   ShowerHead,
@@ -194,6 +195,22 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
       "Fence Block Calculator: Coaches, Blocks, Cement and Sand | FRELUX",
     seoDescription:
       "Calculate blocks, cement bags and trips of sharp sand for a perimeter fence. Enter the plot size, the coaches high and the block size for a Nigeria aware quantity take off.",
+    navVisible: true,
+  },
+  {
+    slug: "window-blinds",
+    title: "Window blind cost calculator",
+    category: "structure",
+    icon: Blinds,
+    does: "Price window blinds from the measured opening, with waste, the minimum charge per window and fitting.",
+    enters:
+      "The measured width and drop of the opening, the blind type, and how many windows are the same size.",
+    gets: "The price per window and the total before tax, with the waste allowance, minimum charge and fitting shown separately.",
+    to: "/window-blind-calculator",
+    benefit: "Per window · Per m2 · Before tax",
+    seoTitle: "Window Blind Cost Calculator: Per Window and Per m2 | FRELUX",
+    seoDescription:
+      "Price roller, zebra, day and night, vertical, venetian, roman and wooden blinds from the measured opening, with the highest verified local rates, minimum charge per window and fitting.",
     navVisible: true,
   },
   {
