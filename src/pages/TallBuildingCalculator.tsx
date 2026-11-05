@@ -45,6 +45,7 @@ import {
   type TallSoilKey,
   type TallStructuralSystemKey,
 } from "@/lib/engineering/tall-building-engine";
+import type { TallOccupancy } from "@/lib/engineering/architectural-planning";
 
 const metresToFeet = (value: number) => value * 3.28084;
 
@@ -112,6 +113,7 @@ export default function TallBuildingCalculator() {
     schedule,
     checks,
     system,
+    architecture,
   } = result;
 
   const setNumber =
@@ -185,6 +187,22 @@ export default function TallBuildingCalculator() {
       ["Total concrete (m3)", String(quantities.total_concrete_m3)],
       ["Reinforcement (t)", String(quantities.total_rebar_tonnes)],
       ["Formwork (m2)", String(quantities.formwork_m2)],
+      [],
+      ["Architectural planning", ""],
+      ["Occupancy", params.occupancy],
+      ["Lettable efficiency (%)", String(architecture.efficiencyPct)],
+      ["Net lettable area (m2)", String(architecture.netLettableAreaM2)],
+      ["Facade to floor ratio", String(architecture.facadeToFloorRatio)],
+      ["Daylit area (%)", String(architecture.daylitPct)],
+      ["Clear height (m)", String(architecture.clearHeightM)],
+      ["Occupants", String(architecture.totalOccupants)],
+      ["Lift cars required", String(architecture.lifts.carsRequired)],
+      ["Lift interval (s)", String(architecture.lifts.intervalS)],
+      ["Lift round trip (s)", String(architecture.lifts.roundTripTimeS)],
+      [
+        "Egress width required (mm)",
+        String(architecture.egressWidthRequiredMm),
+      ],
       [],
       ["Programme", ""],
       ["Substructure (days)", String(schedule.substructure_days)],
@@ -615,6 +633,28 @@ export default function TallBuildingCalculator() {
               />
             </div>
             <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Occupancy</Label>
+              <Select
+                value={params.occupancy}
+                onValueChange={(value) =>
+                  setParams((prev) => ({
+                    ...prev,
+                    occupancy: value as TallOccupancy,
+                  }))
+                }
+              >
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="office">Office</SelectItem>
+                  <SelectItem value="residential">Residential</SelectItem>
+                  <SelectItem value="hotel">Hotel</SelectItem>
+                  <SelectItem value="education">Education</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">
                 Cycle per floor (days)
               </Label>
@@ -923,6 +963,79 @@ export default function TallBuildingCalculator() {
 
       <AdSlot slotKey="calculator_native" className="my-6" />
 
+      <section
+        className="space-y-3 rounded-2xl border border-border bg-card p-5"
+        aria-label="Architectural planning"
+      >
+        <div className="flex items-center gap-2">
+          <Layers className="h-4 w-4 text-brand-purple" />
+          <h2 className="text-sm font-semibold text-foreground">
+            Architectural mathematics
+          </h2>
+          <Badge variant="outline" className="text-[10px]">
+            {params.occupancy}
+          </Badge>
+        </div>
+        <dl className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+          {[
+            ["Lettable efficiency", `${architecture.efficiencyPct}%`],
+            [
+              "Net lettable area",
+              `${formatNumber(architecture.netLettableAreaM2)} m²`,
+            ],
+            ["Core to plate", `${architecture.coreToPlateRatioPct}%`],
+            [
+              "Facade to floor",
+              formatNumber(architecture.facadeToFloorRatio, 3),
+            ],
+            ["Daylit area", `${architecture.daylitPct}% of plate`],
+            ["Clear height", `${architecture.clearHeightM} m`],
+            [
+              "Occupants per floor",
+              formatNumber(architecture.occupantsPerFloor, 1),
+            ],
+            [
+              "Occupants in building",
+              formatNumber(architecture.totalOccupants),
+            ],
+            ["Lift cars required", String(architecture.lifts.carsRequired)],
+            ["Lift interval", `${architecture.lifts.intervalS} s`],
+            ["Handling capacity", `${architecture.lifts.handlingCapacityPct}%`],
+            [
+              "Lift core needed",
+              `${formatNumber(architecture.lifts.coreAreaNeededM2)} m²`,
+            ],
+            [
+              "Egress width required",
+              `${architecture.egressWidthRequiredMm} mm`,
+            ],
+            [
+              "Egress width provided",
+              `${architecture.egressWidthProvidedMm} mm`,
+            ],
+            ["Exits required", String(architecture.exitsRequired)],
+            ["Round trip time", `${architecture.lifts.roundTripTimeS} s`],
+          ].map(([label, value]) => (
+            <div key={label}>
+              <dt className="text-muted-foreground">{label}</dt>
+              <dd className="font-mono text-foreground">{value}</dd>
+            </div>
+          ))}
+        </dl>
+        <ul className="space-y-1 border-t border-border pt-3 text-[11px] text-muted-foreground">
+          {architecture.proof.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+        <p className="text-[11px] text-muted-foreground">
+          Lift traffic uses the round trip form with probable stops S = N (1 -
+          (1 - 1/N)^P), a seven second stop and 1.2 seconds per passenger.
+          Egress width follows IBC 1005.3.2 at 5 mm per occupant with a 1,120 mm
+          minimum. Both are planning figures, not a traffic study or a fire
+          engineered analysis.
+        </p>
+      </section>
+
       <section className="space-y-3 rounded-2xl border border-border bg-card p-6">
         <h2 className="text-lg font-bold text-foreground">
           How the numbers are produced
@@ -941,29 +1054,42 @@ export default function TallBuildingCalculator() {
             <p className="font-semibold text-foreground">Wind</p>
             <p>
               Kz uses the ASCE 7-22 26.11 power law, checked against the
-              published 10 m values of 0.70, 0.98 and 1.20. Velocity pressure is
-              integrated storey by storey in both plan directions, so base shear
-              and overturning come from the actual height profile rather than a
-              single top pressure.
+              published 10 m values of 0.70, 0.98 and 1.20. The gust effect
+              factor follows 26.11.5, with a background term from the turbulence
+              intensity and the size of the building, and a resonant term from
+              the first frequency, the damping and the mode shape integrals.
+              Velocity pressure is integrated storey by storey in both plan
+              directions, so base shear and overturning come from the actual
+              height profile rather than a single top pressure.
             </p>
           </div>
           <div className="space-y-2">
             <p className="font-semibold text-foreground">Drift and stability</p>
             <p>
-              Top drift comes from virtual work on the core section, with Ec =
-              4700 sqrt(fck) MPa and the ACI 318-19 cracked stiffness of 0.70,
-              multiplied by a system share for frame, outrigger or tube action.
-              The stability coefficient follows the ASCE 7-22 12.8.7 form. Both
-              are single cantilever approximations.
+              Lateral stiffness is built from the plan rather than assumed: the
+              core section, plus the perimeter column axial stiffness, sum of
+              area times distance squared, engaged by a stated fraction for the
+              system, or the perimeter tube treated as a thin wall. That gives
+              the first frequency, and the same stiffness produces the drift by
+              virtual work with the flexural and shear terms separated, so the
+              period and the deflection cannot disagree. Ec is 4700 sqrt(fck)
+              MPa with the ACI 318-19 cracked factor of 0.70. The stability
+              coefficient follows the ASCE 7-22 12.8.7 form at the storey where
+              it peaks, and a plus or minus 50 percent stiffness band is
+              reported with the drift.
             </p>
             <p className="font-semibold text-foreground">Foundation</p>
             <p>
               The raft is checked as a rigid plate for axial load plus the
               governing overturning moment. Piles use the alpha method in clay
               and the beta method in sand for shaft friction, with Meyerhof SPT
-              end bearing qp = 40 N (L/D) capped at 400 N. The count is set so
-              the maximum pile load, including the moment couple, fits the
-              allowable capacity at a factor of safety of 2.5.
+              end bearing qp = 40 N (L/D) capped at 400 N. The count is solved
+              with the Converse-Labarre group efficiency, so the peak pile load,
+              the far face uplift and the group capacity stay consistent.
+              Settlement comes from the equivalent raft at two thirds of the
+              pile length, reported with a band and as angular distortion, and
+              the core is checked for punching shear on the raft to EN 1992-1-1
+              6.4.4.
             </p>
           </div>
         </div>

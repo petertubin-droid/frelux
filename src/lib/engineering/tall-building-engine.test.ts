@@ -78,10 +78,11 @@ describe("tall building engine: wind", () => {
   it("follows the square law on wind speed", () => {
     const base = calculateTallBuilding({ basic_wind_speed_ms: 20 });
     const doubled = calculateTallBuilding({ basic_wind_speed_ms: 40 });
-    expect(doubled.wind.base_shear_mn / base.wind.base_shear_mn).toBeCloseTo(
-      4,
-      1,
-    );
+    // The gust factor shifts slightly between the two speeds, so the ratio sits
+    // near four rather than exactly on it.
+    const ratio = doubled.wind.base_shear_mn / base.wind.base_shear_mn;
+    expect(ratio).toBeGreaterThan(3.8);
+    expect(ratio).toBeLessThan(4.6);
   });
 
   it("accumulates shear and moment up the height", () => {
@@ -252,6 +253,204 @@ describe("tall building engine: quantities and programme", () => {
     expect(Number.isFinite(result.geometry.total_height_m)).toBe(true);
     expect(result.geometry.total_height_m).toBeGreaterThan(0);
     expect(Number.isFinite(result.foundation.pile_capacity_allowable_kn)).toBe(
+      true,
+    );
+  });
+});
+
+describe("tall building engine: wind hardening", () => {
+  it("computes a gust factor inside the ASCE band and clamps the flexible minimum", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    expect(result.wind.gust_factor).toBeGreaterThanOrEqual(0.8);
+    expect(result.wind.gust_factor).toBeLessThanOrEqual(1.6);
+    // A soft tower uses the flexible branch, which may not fall below 0.85.
+    expect(result.wind.rigid_building).toBe(false);
+    expect(result.wind.gust_factor).toBeGreaterThanOrEqual(0.85);
+  });
+
+  it("uses a rigid gust factor for a short stiff building", () => {
+    const stiff = calculateTallBuilding({
+      floors: 6,
+      plan_length: 40,
+      plan_width: 34,
+    });
+    expect(stiff.wind.rigid_building).toBe(true);
+    expect(stiff.wind.gust_factor).toBeCloseTo(0.85, 1);
+  });
+
+  it("lowers the natural frequency as the building gets taller", () => {
+    const low = calculateTallBuilding({ floors: 20 });
+    const high = calculateTallBuilding({ floors: 70 });
+    expect(high.wind.natural_frequency_hz).toBeLessThan(
+      low.wind.natural_frequency_hz,
+    );
+    expect(high.wind.natural_period_s).toBeGreaterThan(
+      low.wind.natural_period_s,
+    );
+  });
+
+  it("reports a drift band around the central estimate", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    expect(result.wind.drift_band_mm[0]).toBeLessThan(result.wind.drift_top_mm);
+    expect(result.wind.drift_band_mm[1]).toBeGreaterThan(
+      result.wind.drift_top_mm,
+    );
+  });
+
+  it("separates flexural and shear drift and keeps the storey drift below the top drift", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    expect(result.wind.flexural_drift_mm).toBeGreaterThan(0);
+    expect(result.wind.shear_drift_mm).toBeGreaterThan(0);
+    expect(
+      result.wind.flexural_drift_mm + result.wind.shear_drift_mm,
+    ).toBeCloseTo(result.wind.drift_top_mm, 0);
+    expect(result.wind.storey_drift_max_mm).toBeLessThanOrEqual(
+      result.wind.drift_top_mm,
+    );
+  });
+
+  it("locates the peak stability coefficient at a storey, not at the base", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    expect(result.wind.theta_level).toBeGreaterThan(1);
+    expect(result.wind.theta_level).toBeLessThanOrEqual(
+      DEFAULT_TALL_INPUT.floors,
+    );
+  });
+
+  it("stiffens the building when the plan grows", () => {
+    const small = calculateTallBuilding({ plan_length: 30, plan_width: 24 });
+    const large = calculateTallBuilding({ plan_length: 60, plan_width: 48 });
+    expect(large.wind.drift_top_mm).toBeLessThan(small.wind.drift_top_mm);
+  });
+});
+
+describe("tall building engine: seismic hardening", () => {
+  it("uses k = 1 for a short period and k = 2 for a long one", () => {
+    const low = calculateTallBuilding({
+      floors: 6,
+      plan_length: 30,
+      plan_width: 24,
+    });
+    const high = calculateTallBuilding({
+      floors: 120,
+      plan_length: 60,
+      plan_width: 50,
+      system: "mega_frame",
+    });
+    expect(low.seismic.k_exponent).toBeCloseTo(1, 2);
+    // Above 2.5 s the exponent reaches 2; between 0.5 and 2.5 s it varies.
+    expect(high.seismic.k_exponent).toBeGreaterThan(1);
+    expect(high.seismic.k_exponent).toBeLessThanOrEqual(2);
+    const formula = 1 + (high.seismic.approximate_period_s - 0.5) / 2;
+    expect(high.seismic.k_exponent).toBeCloseTo(
+      Math.min(2, Math.max(1, formula)),
+      2,
+    );
+  });
+
+  it("places the seismic resultant between half and seven tenths of the height", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    expect(result.seismic.resultant_height_m).toBeGreaterThan(
+      result.geometry.total_height_m * 0.5,
+    );
+    expect(result.seismic.resultant_height_m).toBeLessThan(
+      result.geometry.total_height_m * 0.75,
+    );
+  });
+
+  it("applies the long period floor only when S1 reaches 0.6", () => {
+    const withoutS1 = calculateTallBuilding({ seismic_s1: 0 });
+    const withS1 = calculateTallBuilding({ seismic_s1: 0.9 });
+    expect(withoutS1.seismic.cs_floor).toBeCloseTo(
+      0.044 * withoutS1.input.seismic_sds,
+      3,
+    );
+    expect(withS1.seismic.cs_floor).toBeGreaterThan(withoutS1.seismic.cs_floor);
+  });
+});
+
+describe("tall building engine: foundation hardening", () => {
+  it("applies a group efficiency below one and uses it in the pile check", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    expect(result.foundation.group_efficiency).toBeLessThanOrEqual(1);
+    expect(result.foundation.group_efficiency).toBeGreaterThanOrEqual(0.7);
+    expect(result.foundation.group_allowable_kn).toBeLessThan(
+      result.foundation.pile_capacity_allowable_kn,
+    );
+  });
+
+  it("reports tension on the far face when the resultant leaves the kern", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    expect(result.foundation.eccentricity_m).toBeGreaterThan(0);
+    if (result.foundation.eccentricity_m > Math.min(42, 32) / 6) {
+      expect(result.foundation.pile_tension_kn).toBeGreaterThan(0);
+      expect(result.foundation.piles_in_tension).toBeGreaterThan(0);
+    }
+  });
+
+  it("reports settlement with a band and an angular distortion", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    expect(result.foundation.settlement_band_mm[0]).toBeLessThan(
+      result.foundation.estimated_settlement_mm,
+    );
+    expect(result.foundation.settlement_band_mm[1]).toBeGreaterThan(
+      result.foundation.estimated_settlement_mm,
+    );
+    expect(result.foundation.angular_distortion).toBeGreaterThan(0);
+  });
+
+  it("checks core punching shear against the concrete resistance", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    expect(result.foundation.punching_stress_mpa).toBeGreaterThan(0);
+    expect(result.foundation.punching_resistance_mpa).toBeGreaterThan(0);
+    expect(result.foundation.punching_ratio).toBeCloseTo(
+      result.foundation.punching_stress_mpa /
+        result.foundation.punching_resistance_mpa,
+      1,
+    );
+  });
+});
+
+describe("tall building engine: architectural coupling", () => {
+  it("runs the architectural module on the same geometry as the structure", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    expect(result.architecture.grossFloorAreaM2).toBeCloseTo(
+      result.geometry.gross_floor_area_m2,
+      0,
+    );
+    expect(result.architecture.facadeAreaM2).toBeCloseTo(
+      result.geometry.facade_area_m2,
+      -2,
+    );
+  });
+
+  it("raises the lift count when the population rises", () => {
+    const office = calculateTallBuilding({ occupancy: "office" });
+    const school = calculateTallBuilding({ occupancy: "education" });
+    expect(school.architecture.lifts.carsRequired).toBeGreaterThan(
+      office.architecture.lifts.carsRequired,
+    );
+  });
+
+  it("flags a core that cannot hold the lifts the population needs", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    if (
+      result.architecture.lifts.coreAreaNeededM2 >
+      result.geometry.core_plan_area_m2
+    ) {
+      expect(result.checks.some((check) => check.id === "lift-core")).toBe(
+        true,
+      );
+    }
+  });
+
+  it("flags a clear height below the occupancy minimum", () => {
+    const tight = calculateTallBuilding({
+      floor_height: 2.6,
+      occupancy: "office",
+    });
+    expect(tight.architecture.clearHeightOk).toBe(false);
+    expect(tight.checks.some((check) => check.id === "clear-height")).toBe(
       true,
     );
   });
