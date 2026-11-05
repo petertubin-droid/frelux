@@ -174,6 +174,7 @@ const STATIC_PATHS = [
   "/brand-studio/",
   "/visual-finishing-estimator/",
   "/mathematical-plan-elevation/",
+  "/tall-building-structure/",
   "/tools/visual-finishing-estimator/",
   "/window-blind-calculator/",
   "/credits/",

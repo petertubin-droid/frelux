@@ -338,6 +338,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://freluxtools.com/faq/mathematical-plan-elevation/</loc>
+    <lastmod>2026-11-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://freluxtools.com/faq/measurement-converter/</loc>
     <lastmod>2026-11-05</lastmod>
     <changefreq>monthly</changefreq>
@@ -453,6 +459,12 @@
   </url>
   <url>
     <loc>https://freluxtools.com/faq/structural-calculator/</loc>
+    <lastmod>2026-11-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/faq/tall-building-structure/</loc>
     <lastmod>2026-11-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -870,6 +882,12 @@
     <lastmod>2026-11-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tall-building-structure/</loc>
+    <lastmod>2026-11-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.com/build-to-roof-estimator/</loc>

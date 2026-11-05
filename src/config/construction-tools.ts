@@ -506,10 +506,24 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     category: "structure",
     icon: Ruler,
     does: "Explore a building elevation from entered dimensions, roof geometry, and an illustrative quantity schedule.",
-    enters: "Building dimensions, roof pitch, and optional assumed site inputs.",
+    enters:
+      "Building dimensions, roof pitch, and optional assumed site inputs.",
     gets: "A parametric elevation, preliminary quantities, and costs only for supplier rates you enter.",
     to: "/mathematical-plan-elevation",
     benefit: "Manual dimensions, no AI drawing interpretation",
+    navVisible: true,
+  },
+  {
+    slug: "tall-building-structure",
+    title: "Skyscraper Structure & Foundation",
+    category: "structure",
+    icon: Ruler,
+    does: "Size the lateral system, raft or piled foundation, quantities and programme of a high rise from entered geometry.",
+    enters:
+      "Storeys, plan dimensions, storey heights, loading, wind speed, site seismicity, soil and pile data.",
+    gets: "System recommendation, wind and seismic base shear, drift and stability checks, foundation sizing, quantities and a build programme.",
+    to: "/tall-building-structure",
+    benefit: "Wind, seismic and foundation screening in one deterministic pass",
     navVisible: true,
   },
   {
