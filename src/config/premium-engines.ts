@@ -137,6 +137,17 @@ export const PREMIUM_ENGINES: PremiumEngine[] = [
       "Printing the schedule",
     ],
   },
+  {
+    route: "/borehole-water-system-estimator",
+    name: "Borehole and water system sizing",
+    tier: "heavy",
+    previewLines: 2,
+    unlocks: [
+      "The full itemised bill of quantities for the borehole, pump, treatment and tower",
+      "The complete tank stand takeoff, footing pads and reinforcement",
+      "Exporting the takeoff to CSV for a quote",
+    ],
+  },
 ];
 
 const BY_ROUTE = new Map(PREMIUM_ENGINES.map((e) => [e.route, e]));
@@ -149,3 +160,15 @@ export function premiumEngineFor(route: string): PremiumEngine | null {
 export function isPremiumEngineRoute(route: string): boolean {
   return premiumEngineFor(route) !== null;
 }
+
+/**
+ * What a visitor keeps without paying, on every calculator including the gated
+ * ones. Copy lives here so the wall, the pricing page and the tool pages cannot
+ * drift apart on what is free.
+ */
+export const FREE_FEATURES: string[] = [
+  "Every input, with live validation and metric or imperial units",
+  "A preview of each result, enough to check the engine against your own figures",
+  "The calculation steps, assumptions and standards behind every stage",
+  "The reference guides, price verification notes and FAQs",
+];

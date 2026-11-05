@@ -9,7 +9,7 @@
 
 import { Link } from "react-router-dom";
 import { Lock, ArrowRight } from "lucide-react";
-import type { PremiumEngine } from "@/config/premium-engines";
+import { FREE_FEATURES, type PremiumEngine } from "@/config/premium-engines";
 
 interface Props {
   engine: PremiumEngine;
@@ -45,6 +45,24 @@ export function EnginePreviewLock({ engine, hiddenLines }: Props) {
               </li>
             ))}
           </ul>
+          <div className="mt-4 rounded-lg border border-border bg-background/60 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              What stays free
+            </p>
+            <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+              {FREE_FEATURES.map((item) => (
+                <li key={item} className="flex gap-2">
+                  <span
+                    aria-hidden="true"
+                    className="text-emerald-600 dark:text-emerald-400"
+                  >
+                    {"\u2713"}
+                  </span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
           <Link
             to="/pricing"
             className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"

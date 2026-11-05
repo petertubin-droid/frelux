@@ -2,6 +2,7 @@ import { readFileSync } from "fs";
 import { describe, expect, it } from "vitest";
 import { engineAccessFor } from "@/lib/premium-engine-access";
 import {
+  FREE_FEATURES,
   PREMIUM_ENGINES,
   isPremiumEngineRoute,
   premiumEngineFor,
@@ -114,6 +115,30 @@ describe("registry matches the app", () => {
     ];
     for (const file of wired) {
       expect(readFileSync(file, "utf8"), file).toContain("useEngineAccess");
+    }
+  });
+
+  it("never lists the same route twice", () => {
+    const routes = PREMIUM_ENGINES.map((e) => e.route);
+    expect(new Set(routes).size).toBe(routes.length);
+  });
+
+  it("gates the borehole system with a two line preview", () => {
+    const access = engineAccessFor("/borehole-water-system-estimator", free);
+    expect(access.limited).toBe(true);
+    expect(access.visibleLines).toBe(2);
+    expect(access.canExport).toBe(false);
+    expect(access.hiddenLines(9)).toBe(7);
+    expect(
+      engineAccessFor("/borehole-water-system-estimator", { isPaid: true })
+        .limited,
+    ).toBe(false);
+  });
+
+  it("states what stays free, in enough detail to mean something", () => {
+    expect(FREE_FEATURES.length).toBeGreaterThanOrEqual(3);
+    for (const item of FREE_FEATURES) {
+      expect(item.length, item).toBeGreaterThan(20);
     }
   });
 });

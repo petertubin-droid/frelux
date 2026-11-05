@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
@@ -7,10 +7,11 @@ vi.mock("@/components/tools/BoreholeWaterSystemAnimation", () => ({
 }));
 
 import BoreholeWaterSystemEstimator from "@/pages/BoreholeWaterSystemEstimator";
+import { publishEntitlement, resetEntitlement } from "@/lib/entitlement-store";
 
 const norm = (value?: string | null) => (value ?? "").replace(/\u00a0/g, " ");
 const hasText = (needle: string) =>
-  screen.getAllByText((_, node) => norm(node?.textContent).includes(needle))
+  screen.queryAllByText((_, node) => norm(node?.textContent).includes(needle))
     .length > 0;
 
 const renderPage = () =>
@@ -95,5 +96,32 @@ describe("BoreholeWaterSystemEstimator tank stand", () => {
     renderPage();
     expect(hasText("Need a professional to drill or plumb this?")).toBe(true);
     expect(await screen.findByText(/Nobody is listed in NG/i)).toBeTruthy();
+  });
+});
+
+describe("BoreholeWaterSystemEstimator subscription gate", () => {
+  afterEach(() => {
+    resetEntitlement();
+  });
+
+  it("cuts the takeoff and the CSV export for a free visitor", () => {
+    publishEntitlement({ isPaid: false, isAdmin: false });
+    renderPage();
+    expect(hasText("more lines on a plan")).toBe(true);
+    const csv = screen.getByRole("button", {
+      name: /Download Full Engineering Takeoff CSV/i,
+    }) as HTMLButtonElement;
+    expect(csv.disabled).toBe(true);
+    expect(hasText("CSV export is part of a plan")).toBe(true);
+  });
+
+  it("shows the whole takeoff and the export to a paying visitor", () => {
+    publishEntitlement({ isPaid: true, isAdmin: false });
+    renderPage();
+    expect(hasText("more lines on a plan")).toBe(false);
+    const csv = screen.getByRole("button", {
+      name: /Download Full Engineering Takeoff CSV/i,
+    }) as HTMLButtonElement;
+    expect(csv.disabled).toBe(false);
   });
 });

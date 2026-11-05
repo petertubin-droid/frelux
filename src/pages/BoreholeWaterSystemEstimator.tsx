@@ -37,6 +37,8 @@ import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { getToolFaqGroup } from "@/config/tool-faqs";
 import { BOREHOLE_SEO_FAQS } from "@/config/borehole-seo-faqs";
 import { tankVocabulary } from "@/lib/localization/regional-vocabulary";
+import { useEngineAccess } from "@/lib/use-engine-access";
+import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import {
   SOIL_PRESUMPTIONS,
   calculateTankStand,
@@ -172,6 +174,10 @@ export default function BoreholeWaterSystemEstimator() {
     [result.billOfQuantities, stand.result],
   );
 
+  const engineAccess = useEngineAccess("/borehole-water-system-estimator");
+  const visibleBoq = engineAccess.limited
+    ? combinedBoq.slice(0, engineAccess.visibleLines)
+    : combinedBoq;
   const tankTerms = tankVocabulary(market);
   const proFaqs = [
     ...(getToolFaqGroup("borehole-water-system")?.questions ?? []).map(
@@ -455,6 +461,7 @@ export default function BoreholeWaterSystemEstimator() {
               variant="outline"
               size="sm"
               onClick={exportCsv}
+              disabled={!engineAccess.canExport}
               className="gap-1.5 text-xs"
             >
               <Download className="h-3.5 w-3.5 text-primary" />
@@ -1503,7 +1510,7 @@ export default function BoreholeWaterSystemEstimator() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                      {combinedBoq.map((item, idx) => (
+                      {visibleBoq.map((item, idx) => (
                         <tr
                           key={idx}
                           className="hover:bg-muted/20 transition-colors"
@@ -1531,16 +1538,30 @@ export default function BoreholeWaterSystemEstimator() {
                   </table>
                 </div>
 
-                <div className="flex justify-end">
+                {engineAccess.limited && engineAccess.engine && (
+                  <EnginePreviewLock
+                    engine={engineAccess.engine}
+                    hiddenLines={engineAccess.hiddenLines(combinedBoq.length)}
+                  />
+                )}
+
+                <div className="flex flex-col items-end gap-1">
                   <Button
                     variant="default"
                     size="sm"
                     onClick={exportCsv}
+                    disabled={!engineAccess.canExport}
                     className="gap-1.5 text-xs"
                   >
                     <Download className="h-3.5 w-3.5" /> Download Full
                     Engineering Takeoff CSV
                   </Button>
+                  {!engineAccess.canExport && (
+                    <span className="text-[11px] text-muted-foreground">
+                      CSV export is part of a plan. The on screen takeoff above
+                      stays readable.
+                    </span>
+                  )}
                 </div>
               </CardContent>
             </Card>
