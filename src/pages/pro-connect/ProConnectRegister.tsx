@@ -23,6 +23,15 @@ import {
   isEmailConfirmed,
 } from "@/lib/email-verification";
 import {
+  EMPTY_IDENTITY_VERIFICATION,
+  IDENTITY_AUTO_VERIFY_NOTICE,
+  IDENTITY_AUTO_VERIFY_MINUTES,
+  fetchMyIdentityVerification,
+  identityReviewLabel,
+  isIdentityVerified,
+  type MyIdentityVerification,
+} from "@/lib/identity-verification";
+import {
   IDENTITY_DOCUMENT_OPTIONS,
   isValidIdentityDocumentNumber,
   identityDocumentErrorMessage,
@@ -89,6 +98,9 @@ export default function ProConnectRegister() {
   const [identityError, setIdentityError] = useState("");
   const [identitySuccess, setIdentitySuccess] = useState("");
   const [identitySubmitted, setIdentitySubmitted] = useState(false);
+  const [identityStatus, setIdentityStatus] = useState<MyIdentityVerification>(
+    EMPTY_IDENTITY_VERIFICATION,
+  );
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -280,6 +292,16 @@ export default function ProConnectRegister() {
       if (!result.success) throw new Error(result.message);
       setIdentitySuccess(result.message);
       setIdentitySubmitted(true);
+      setIdentityStatus({
+        status: "pending",
+        documentType,
+        submittedAt: new Date().toISOString(),
+        autoVerified: false,
+        verifiedAt: null,
+        autoVerifyAt: new Date(
+          Date.now() + IDENTITY_AUTO_VERIFY_MINUTES * 60_000,
+        ).toISOString(),
+      });
       const elevated = await upgradeToProWorker();
       if (elevated) _setAccountType("pro_worker");
     } catch (err: unknown) {
@@ -290,6 +312,43 @@ export default function ProConnectRegister() {
       setIdentitySubmitting(false);
     }
   }
+
+  // Read the stored identity state for returning professionals.
+  useEffect(() => {
+    if (!user) return;
+    let alive = true;
+    fetchMyIdentityVerification()
+      .then((status) => {
+        if (!alive) return;
+        if (status.status !== "none") setIdentityStatus(status);
+        if (status.status === "pending" || status.status === "approved") {
+          setIdentitySubmitted(true);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [user]);
+
+  // While an ID is under review, poll until it is decided. The automatic
+  // fallback resolves within IDENTITY_AUTO_VERIFY_MINUTES, so this stops on
+  // its own and never turns into an unbounded timer.
+  useEffect(() => {
+    if (!user) return;
+    if (!identitySubmitted) return;
+    if (identityStatus.status !== "pending") return;
+    let alive = true;
+    const timer = setInterval(async () => {
+      const status = await fetchMyIdentityVerification().catch(() => null);
+      if (!alive || !status) return;
+      if (status.status !== "none") setIdentityStatus(status);
+    }, 60_000);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+  }, [user, identitySubmitted, identityStatus.status]);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
@@ -745,18 +804,42 @@ export default function ProConnectRegister() {
           </div>
 
           {identitySubmitted ? (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-50 p-4 text-center dark:border-amber-500/20 dark:bg-amber-500/10">
-              <Check
-                aria-hidden="true"
-                className="mx-auto mb-2 h-8 w-8 text-amber-500"
-              />
-              <p className="font-semibold text-amber-700 dark:text-amber-300">
-                {identitySuccess}
-              </p>
-              <p className="mt-1 text-xs text-amber-700/80 dark:text-amber-300/80">
-                {UNVERIFIED_ACCOUNT_NOTICE}
-              </p>
-            </div>
+            isIdentityVerified(identityStatus) ? (
+              <div
+                data-testid="identity-verified-panel"
+                className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center dark:border-emerald-500/20 dark:bg-emerald-500/10"
+              >
+                <Check
+                  aria-hidden="true"
+                  className="mx-auto mb-2 h-8 w-8 text-emerald-500"
+                />
+                <p className="font-semibold text-emerald-700 dark:text-emerald-300">
+                  {t("Identity verified")}
+                </p>
+                <p className="mt-1 text-xs text-emerald-700/80 dark:text-emerald-300/80">
+                  {identityReviewLabel(identityStatus)}
+                </p>
+              </div>
+            ) : (
+              <div
+                data-testid="identity-pending-panel"
+                className="rounded-lg border border-amber-500/30 bg-amber-50 p-4 text-center dark:border-amber-500/20 dark:bg-amber-500/10"
+              >
+                <Check
+                  aria-hidden="true"
+                  className="mx-auto mb-2 h-8 w-8 text-amber-500"
+                />
+                <p className="font-semibold text-amber-700 dark:text-amber-300">
+                  {identitySuccess}
+                </p>
+                <p className="mt-1 text-xs text-amber-700/80 dark:text-amber-300/80">
+                  {identityReviewLabel(identityStatus)}
+                </p>
+                <p className="mt-2 text-xs text-amber-700/80 dark:text-amber-300/80">
+                  {IDENTITY_AUTO_VERIFY_NOTICE}
+                </p>
+              </div>
+            )
           ) : (
             <>
               <div>
@@ -826,7 +909,10 @@ export default function ProConnectRegister() {
                   aria-hidden="true"
                   className="mt-0.5 h-4 w-4 shrink-0"
                 />
-                <p>{UNVERIFIED_ACCOUNT_NOTICE}</p>
+                <div>
+                  <p>{UNVERIFIED_ACCOUNT_NOTICE}</p>
+                  <p className="mt-1">{IDENTITY_AUTO_VERIFY_NOTICE}</p>
+                </div>
               </div>
 
               <Button

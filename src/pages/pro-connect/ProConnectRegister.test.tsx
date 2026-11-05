@@ -72,6 +72,35 @@ vi.mock("@/lib/email-verification", () => ({
   isEmailConfirmed: vi.fn(() => true),
 }));
 
+type IdentityStatusMock = {
+  status: "none" | "pending" | "approved" | "rejected" | "more_info";
+  documentType: string | null;
+  submittedAt: string | null;
+  autoVerified: boolean;
+  verifiedAt: string | null;
+  autoVerifyAt: string | null;
+};
+
+const fetchMyIdentityVerification = vi.fn(
+  async (): Promise<IdentityStatusMock> => ({
+    status: "none",
+    documentType: null,
+    submittedAt: null,
+    autoVerified: false,
+    verifiedAt: null,
+    autoVerifyAt: null,
+  }),
+);
+
+vi.mock("@/lib/identity-verification", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/lib/identity-verification")>();
+  return {
+    ...actual,
+    fetchMyIdentityVerification: () => fetchMyIdentityVerification(),
+  };
+});
+
 vi.mock("@/lib/i18n", () => ({
   useLanguage: () => ({ t: (key: string) => key, language: "en" }),
 }));
@@ -88,6 +117,14 @@ beforeEach(() => {
     message: "Identity document submitted. It stays pending review.",
   });
   upgradeToProWorker.mockResolvedValue(true);
+  fetchMyIdentityVerification.mockResolvedValue({
+    status: "none",
+    documentType: null,
+    submittedAt: null,
+    autoVerified: false,
+    verifiedAt: null,
+    autoVerifyAt: null,
+  });
 });
 
 async function renderPage() {
@@ -167,6 +204,42 @@ describe("ProConnectRegister verification flow", () => {
     expect(
       await screen.findByText(/pending review|pending admin|submitted/i),
     ).toBeTruthy();
+  });
+
+  it("tells the professional the ID is verified automatically after the review window", async () => {
+    await advanceToEmailStep();
+    fireEvent.click(await screen.findByRole("button", { name: /^Continue$/ }));
+
+    expect(await screen.findByText(/verified automatically/i)).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText(/National Identification Number/i), {
+      target: { value: "12345678901" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: /Submit ID for verification/i }),
+    );
+
+    const pending = await screen.findByTestId("identity-pending-panel");
+    expect(pending.textContent).toMatch(/automatic verification in about 15/i);
+    expect(pending.textContent).toMatch(/automatically verified/i);
+    expect(screen.queryByTestId("identity-verified-panel")).toBeNull();
+  });
+
+  it("shows the verified state when the automatic review has completed", async () => {
+    fetchMyIdentityVerification.mockResolvedValue({
+      status: "approved",
+      documentType: "national_id",
+      submittedAt: "2026-11-05T18:00:00Z",
+      autoVerified: true,
+      verifiedAt: "2026-11-05T18:16:00Z",
+      autoVerifyAt: null,
+    });
+    await advanceToEmailStep();
+    fireEvent.click(await screen.findByRole("button", { name: /^Continue$/ }));
+
+    const verified = await screen.findByTestId("identity-verified-panel");
+    expect(verified.textContent).toMatch(/Identity verified/i);
+    expect(verified.textContent).toMatch(/verified automatically/i);
   });
 
   it("rejects an invalid document number locally without calling the RPC", async () => {

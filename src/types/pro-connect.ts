@@ -246,6 +246,9 @@ export interface DbProVerificationRequest {
   admin_notes: string | null;
   rejection_reason: string | null;
   more_info_request: string | null;
+  /** True when the identity request was approved by the automatic fallback. */
+  auto_verified?: boolean;
+  auto_verified_at?: string | null;
   submitted_at: string;
   created_at: string;
   updated_at: string;

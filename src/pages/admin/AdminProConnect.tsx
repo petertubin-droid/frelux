@@ -498,6 +498,15 @@ function LegacyVerificationRequests() {
                       >
                         {req.status.replace("_", " ")}
                       </span>
+                      {req.auto_verified && (
+                        <span
+                          data-testid="auto-verified-badge"
+                          title="Approved by the automatic review fallback because no administrator reviewed it in time"
+                          className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-white/10 dark:text-slate-300"
+                        >
+                          auto-verified
+                        </span>
+                      )}
                     </div>
                     {profile && (
                       <p className="mt-2 text-sm font-medium text-foreground dark:text-primary-foreground">
