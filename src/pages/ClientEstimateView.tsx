@@ -10,6 +10,8 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { useSeo } from "@/lib/seo";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import {
   fetchClientEstimateByToken,
   approveClientEstimate,
@@ -144,27 +146,30 @@ export default function ClientEstimateView() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
-        {/* Header */}
+      <PageHeader
+        variant="tool"
+        eyebrow={t("Secure estimate")}
+        title={estimate.title}
+        subtitle={estimate.estimate_number}
+        actions={
+          <div
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium ${statusConf.color} bg-current/10`}
+          >
+            <statusConf.icon className="h-4 w-4" /> {statusConf.label}
+          </div>
+        }
+      />
+
+      <Container className="max-w-3xl pb-12 pt-8">
+        {/* The proposal facts stay in a card under the header so the
+            client can read what they were sent without the header
+            competing with the line items for attention. */}
         <div className="mb-8 rounded-2xl border bg-card p-6 shadow-sm">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Shield className="h-4 w-4 text-primary" />
-                <span className="text-xs font-medium text-muted-foreground">
-                  {t("Secure Estimate")}
-                </span>
-              </div>
-              <h1 className="text-2xl font-bold">{estimate.title}</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {estimate.estimate_number}
-              </p>
-            </div>
-            <div
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium ${statusConf.color} bg-current/10`}
-            >
-              <statusConf.icon className="h-4 w-4" /> {statusConf.label}
-            </div>
+          <div className="flex items-center gap-2 mb-3">
+            <Shield className="h-4 w-4 text-primary" />
+            <span className="text-xs font-medium text-muted-foreground">
+              {t("Shared by your contractor through FRELUX")}
+            </span>
           </div>
 
           {estimate.description && (
@@ -388,7 +393,7 @@ export default function ClientEstimateView() {
             </p>
           </div>
         )}
-      </div>
+      </Container>
     </div>
   );
 }

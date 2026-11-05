@@ -26,6 +26,8 @@ import { PackageCheck } from "lucide-react";
 import { Calendar, Users } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { useSeo } from "@/lib/seo";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import { supabase } from "@/lib/supabase";
 import {
   ShoppingItemWithActual,
@@ -259,45 +261,45 @@ export default function ProjectDetail() {
     );
   if (!project) return null;
 
+  const projectMeta = [
+    project.project_type.replace("_", " "),
+    project.client_address ?? undefined,
+    `Created ${new Date(project.created_at).toLocaleDateString()}`,
+  ].filter((part): part is string => Boolean(part));
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b bg-card/50 backdrop-blur-sm sticky top-16 z-10">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <Link
-            to="/project-workspace/"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors py-3 group"
-          >
-            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />{" "}
-            Back to Workspace
-          </Link>
-          <div className="flex items-center justify-between py-3">
-            <div>
-              <h1 className="text-2xl font-bold">{project.name}</h1>
-              <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mt-1">
-                <span className="capitalize">
-                  {project.project_type.replace("_", " ")}
-                </span>
-                {project.client_address && (
-                  <span>• {project.client_address}</span>
-                )}
-                <span>
-                  • Created {new Date(project.created_at).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground">
-                  {t("Project Value")}
-                </p>
-                <p className="font-bold text-lg">
-                  {fmt(project.total_project_cost)}
-                </p>
-              </div>
-            </div>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: t("Project Workspace"), path: "/project-workspace/" },
+          { label: project.name },
+        ]}
+        eyebrow={projectMeta[0]}
+        title={project.name}
+        subtitle={projectMeta.slice(1).join(" · ")}
+        actions={
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">
+              {t("Project Value")}
+            </p>
+            <p className="text-lg font-bold">
+              {fmt(project.total_project_cost)}
+            </p>
           </div>
-          {/* Tabs */}
-          <div className="flex gap-1 overflow-x-auto pb-px">
+        }
+      />
+
+      {/* Tab strip stays pinned under the site header so switching tabs
+          never costs a scroll back to the top. */}
+      <div className="sticky top-16 z-10 border-b border-border/80 bg-card/95 backdrop-blur-sm dark:border-white/5">
+        <Container className="max-w-7xl">
+          <div
+            role="tablist"
+            aria-label={t("Project sections")}
+            className="flex gap-1 overflow-x-auto"
+          >
             {TABS.map((t) => (
               <Button
                 variant="ghost"
@@ -313,10 +315,10 @@ export default function ProjectDetail() {
               </Button>
             ))}
           </div>
-        </div>
+        </Container>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <Container className="max-w-7xl py-8">
         {/* Overview tab */}
         {tab === "overview" && (
           <div className="space-y-6">
@@ -1358,7 +1360,7 @@ export default function ProjectDetail() {
           <ProjectSiteLogsTab project={project} />
         )}
         {tab === "team" && project && <ProjectTeamTab project={project} />}
-      </div>
+      </Container>
     </div>
   );
 }

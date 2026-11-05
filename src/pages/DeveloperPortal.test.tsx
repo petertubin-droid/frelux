@@ -125,7 +125,13 @@ beforeEach(() => {
 describe("DeveloperPortal (public docs)", () => {
   it("documents the official endpoints and the error catalog", () => {
     renderPortal();
-    expect(screen.getByText("FRELUX AI API")).toBeInTheDocument();
+    // The title now renders through the shared page header, which reveals it
+    // word by word, so assert on the heading's normalised text instead of a
+    // single text node.
+    const heading = screen.getByRole("heading", { level: 1 });
+    expect(heading.textContent?.replace(/\s+/g, " ").trim()).toBe(
+      "FRELUX AI API",
+    );
     expect(screen.getByText(/\/v1\/calculators\/:engine/i)).toBeInTheDocument();
     expect(screen.getAllByText(/validation_failed/).length).toBeGreaterThan(0);
     expect(screen.getByText(/revoked_api_key/)).toBeInTheDocument();

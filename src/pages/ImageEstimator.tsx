@@ -1,4 +1,5 @@
-import HeroTitle from "@/components/ui/HeroTitle";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { useState, useCallback, useRef, useEffect, useId } from "react";
 import { useSeo } from "@/lib/seo";
@@ -282,9 +283,7 @@ export default function ImageEstimator() {
             "The AI service is not configured yet. Please check back later.",
           );
         } else if (code === "AI_DISABLED") {
-          setError(
-            "Image estimation is currently disabled by FRELUX.",
-          );
+          setError("Image estimation is currently disabled by FRELUX.");
         } else {
           setError(data.error);
         }
@@ -380,34 +379,20 @@ export default function ImageEstimator() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/50">
-      {/* Premium Header */}
-      <div className="relative overflow-hidden bg-brand-navy text-primary-foreground">
-        <div
-          className="absolute inset-0 animate-mesh-float"
-          style={{
-            background: `radial-gradient(at 15% 20%, rgba(109, 40, 217, 0.25) 0px, transparent 50%), radial-gradient(at 85% 80%, rgba(34, 197, 94, 0.12) 0px, transparent 50%)`,
-          }}
-        />
-        <div className="relative max-w-5xl mx-auto px-4 py-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
-              <Camera
-                aria-hidden="true"
-                className="w-7 h-7 text-accent-green"
-              />
-              <Zap className="w-4 h-4 text-yellow-300 absolute -top-1 -right-1" />
-            </div>
-            <div>
-              <HeroTitle
-                className="text-2xl text-foreground dark:text-primary-foreground md:text-3xl"
-                title="AI Building Photo Estimator"
-              />
-              <AiFeatureSlide />
-            </div>
-          </div>
-          {config && config.enabled && accessDecision?.allowed && (
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-accent-green/20 px-3 py-1 text-xs text-accent-green">
+    <div className="min-h-screen bg-background">
+      <PageHeader
+        variant="tool"
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Tools", path: "/construction-tools/" },
+          { label: "Photo Estimator" },
+        ]}
+        eyebrow="Photo takeoff"
+        title="Building Photo Estimator"
+        subtitle="Upload site photos, extract the measurements, then let the deterministic engine price the work."
+        actions={
+          config && config.enabled && accessDecision?.allowed ? (
+            <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground">
               <PremiumBadge size="xs" />
               {accessDecision.reason === "admin_override"
                 ? "Restricted access"
@@ -415,10 +400,11 @@ export default function ImageEstimator() {
                   ? `${usage?.remaining ?? 0} free uses remaining today`
                   : "Active"}
             </div>
-          )}
-        </div>
-      </div>
-      <div className="max-w-5xl mx-auto px-4 py-8">
+          ) : undefined
+        }
+      />
+
+      <Container className="max-w-5xl pb-12 pt-8">
         {error && (
           <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
             <AlertCircle
@@ -428,7 +414,6 @@ export default function ImageEstimator() {
             <p className="text-sm text-amber-800">{error}</p>
           </div>
         )}
-
         {/* Phase: Upload */}
         {phase === "upload" && (
           <div className="space-y-6">
@@ -551,7 +536,6 @@ export default function ImageEstimator() {
             )}
           </div>
         )}
-
         {/* Phase: Analyzing */}
         {phase === "analyzing" && (
           <div className="flex flex-col items-center justify-center py-20">
@@ -576,7 +560,6 @@ export default function ImageEstimator() {
             </div>
           </div>
         )}
-
         {/* Phase: Review AI analysis */}
         {phase === "review" && analysis && estimateInput && (
           <div className="space-y-6">
@@ -851,7 +834,6 @@ export default function ImageEstimator() {
             </div>
           </div>
         )}
-
         {/* Phase: Result */}
         {phase === "result" && estimate && (
           <EstimateResultView
@@ -866,7 +848,6 @@ export default function ImageEstimator() {
             setPdfUnlocked={setPdfUnlocked}
           />
         )}
-
         {/* Phase: Error */}
         {phase === "error" && (
           <div className="flex flex-col items-center justify-center py-20">
@@ -892,19 +873,19 @@ export default function ImageEstimator() {
             </Button>
           </div>
         )}
-      </div>
-      <RelatedTools
-        links={[
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.paintCalculator,
-          CALC_LINKS.structuralCalc,
-          CALC_LINKS.foundationCalc,
-        ]}
-      />{" "}
-      <AdSlot slotKey="ai_feature" className="mt-8" />
-      {/* Native banner slot, placement "image_estimator_native" */}
-      <AdSlot slotKey="image_estimator_native" className="mt-8" />
+        <RelatedTools
+          links={[
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.paintCalculator,
+            CALC_LINKS.structuralCalc,
+            CALC_LINKS.foundationCalc,
+          ]}
+        />{" "}
+        <AdSlot slotKey="ai_feature" className="mt-8" />
+        {/* Native banner slot, placement "image_estimator_native" */}
+        <AdSlot slotKey="image_estimator_native" className="mt-8" />
+      </Container>
     </div>
   );
 }
